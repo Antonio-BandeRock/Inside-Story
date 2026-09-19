@@ -30,6 +30,7 @@ import { useInfoAlert } from '../components/InfoAlert';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import { getFlaggedItemsByDateRange, type DayFlags, type FlaggedSubCriterion } from '../lib/db';
 import { getTrackedConditionsWithNames, type TrackedConditionRef } from '../lib/foodPersonalization';
 import { getSubCriterionSources, getTierDefinition, tierSeverity } from '../lib/sixDimensionsReference';
@@ -216,24 +217,20 @@ export default function WeekFlagsScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, gap: 10 },
+  content: { gap: HOME_BAND_GAP },
   summaryCard: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
+    ...homeBandStyle,
     borderColor: colors.tabTrends,
-    backgroundColor: colors.surface,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 6,
   },
   summaryNumber: { ...typography.sectionTitle, color: colors.tabTrends, fontWeight: '400', ...textShadow },
   summaryCaption: { ...typography.caption, color: colors.textSecondary, lineHeight: 17, ...textShadow },
   summaryOther: { ...typography.caption, color: colors.textMuted, lineHeight: 17, marginTop: 4, ...textShadow },
   card: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabTrends,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,
   },
   dayHeading: { ...typography.bodyEmphasis, color: colors.textPrimary, fontWeight: '400', ...textShadow },
@@ -261,6 +258,7 @@ const styles = StyleSheet.create({
   badgeTextRed: { color: colors.danger },
   badgeTextYellow: { color: colors.statusYellowStandalone },
   trendLink: {
+    marginHorizontal: HOME_BAND_CONTENT_PADDING,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

@@ -29,6 +29,7 @@ import { QrCode } from '../components/QrCode';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import {
   buildConnectionInvite,
   buildInviteLink,
@@ -287,12 +288,12 @@ ${link}`;
         </View>
       ) : null}
 
-      <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={startScanning}>
+      <TouchableOpacity style={[styles.inset, styles.primaryButton]} activeOpacity={0.85} onPress={startScanning}>
         <Ionicons name="qr-code-outline" size={18} color={colors.textOnButton} />
         <Text style={styles.primaryButtonText}>Scan Their Code</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.secondaryButton, !code ? styles.buttonDisabled : null]}
+        style={[styles.inset, styles.secondaryButton, !code ? styles.buttonDisabled : null]}
         activeOpacity={0.85}
         disabled={!code}
         onPress={sendLink}
@@ -313,15 +314,13 @@ ${link}`;
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, gap: 14 },
+  content: { gap: HOME_BAND_GAP },
   centerBody: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
   centerIcon: { alignSelf: 'center' },
   card: {
-    backgroundColor: colors.surface,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: 16,
+    ...homeBandStyle,
+    borderColor: colors.tabProfile,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 10,
   },
   title: { ...typography.sectionTitle, color: colors.textPrimary, textAlign: 'center', ...textShadow },
@@ -364,7 +363,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   pendingText: { ...typography.caption, color: colors.textSecondary, ...textShadow },
-  noteBox: { backgroundColor: colors.surface, borderRadius: 12, padding: 14 },
+  noteBox: { ...homeBandStyle, borderColor: colors.tabProfile, padding: HOME_BAND_CONTENT_PADDING },
   noteText: { ...typography.caption, color: colors.textMuted, textAlign: 'center', ...textShadow },
   primaryButton: {
     flexDirection: 'row',
@@ -392,6 +391,8 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: { ...typography.body, color: colors.textPrimary, ...textShadow },
   buttonDisabled: { opacity: 0.5 },
+  // A button standing between bands keeps the bands' content inset.
+  inset: { marginHorizontal: HOME_BAND_CONTENT_PADDING },
   camera: { flex: 1 },
   scanOverlay: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
   scanFrame: {

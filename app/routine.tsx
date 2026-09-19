@@ -33,6 +33,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import {
   formatMarkClock,
   routineOccasionLabel,
@@ -327,24 +328,19 @@ export default function RoutineWalkScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, gap: 12 },
+  content: { gap: HOME_BAND_GAP },
   card: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabLife,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,
   },
   cardTitle: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   bodyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
   progressCard: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabLife,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,
   },
   progressText: { ...typography.caption, color: colors.textMuted, ...textShadow },
@@ -356,11 +352,9 @@ const styles = StyleSheet.create({
   // The one card the screen exists for. Deliberately taller and quieter than
   // everything around it: nothing else on screen competes for the eye.
   stepCard: {
-    padding: 20,
-    borderRadius: 14,
-    borderWidth: 2,
+    ...homeBandStyle,
     borderColor: colors.primary,
-    backgroundColor: colors.surface,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 10,
     minHeight: 150,
     justifyContent: 'center',
@@ -387,6 +381,7 @@ const styles = StyleSheet.create({
   tickTextOn: { color: colors.accent },
   tickHint: { ...typography.caption, color: colors.textMuted, ...textShadow },
   primaryButton: {
+    marginHorizontal: HOME_BAND_CONTENT_PADDING,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -396,7 +391,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   primaryButtonText: { ...typography.bodyEmphasis, color: colors.background },
-  minorRow: { flexDirection: 'row', gap: 10 },
+  minorRow: { marginHorizontal: HOME_BAND_CONTENT_PADDING, flexDirection: 'row', gap: 10 },
   minorButton: {
     flex: 1,
     flexDirection: 'row',
@@ -412,6 +407,7 @@ const styles = StyleSheet.create({
   minorButtonOff: { opacity: 0.4 },
   minorButtonText: { ...typography.body, color: colors.textSecondary },
   stopButton: {
+    marginHorizontal: HOME_BAND_CONTENT_PADDING,
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 12,
@@ -420,19 +416,15 @@ const styles = StyleSheet.create({
   },
   stopButtonText: { ...typography.caption, color: colors.textMuted },
   footCard: {
-    padding: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabLife,
+    padding: HOME_BAND_CONTENT_PADDING,
   },
   footText: { ...typography.caption, color: colors.textMuted, ...textShadow },
   doneCard: {
-    padding: 18,
-    borderRadius: 14,
-    borderWidth: 2,
+    ...homeBandStyle,
     borderColor: colors.accent,
-    backgroundColor: colors.surface,
+    padding: HOME_BAND_CONTENT_PADDING,
     alignItems: 'center',
     gap: 10,
   },

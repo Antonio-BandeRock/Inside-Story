@@ -3,6 +3,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import {
   AssessmentDomain,
   AssessmentItem,
@@ -142,13 +143,15 @@ export default function AssessmentScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
-      <Text style={styles.intro}>
-        Answer as many as feel relevant; you don&apos;t have to finish every question for this to be useful. Retake
-        this any time; that&apos;s what turns today&apos;s snapshot into a trend.
-      </Text>
-      <Text style={styles.progressText}>
-        {answeredCount} of {items.length} answered
-      </Text>
+      <View style={styles.introBox}>
+        <Text style={styles.intro}>
+          Answer as many as feel relevant; you don&apos;t have to finish every question for this to be useful. Retake
+          this any time; that&apos;s what turns today&apos;s snapshot into a trend.
+        </Text>
+        <Text style={styles.progressText}>
+          {answeredCount} of {items.length} answered
+        </Text>
+      </View>
 
       {domains.map((domain) => (
         <View key={domain.code} style={styles.domainCard}>
@@ -229,12 +232,16 @@ function AssessmentResults({
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
-      <Text style={styles.resultsTitle}>Your check-in</Text>
+      <View style={styles.headingBand}>
+        <Text style={styles.resultsTitle}>Your check-in</Text>
+      </View>
       {!comparison ? (
-        <Text style={styles.intro}>
-          This is your first check-in, so there&apos;s nothing to compare yet. But now you have a baseline.
-          The value here isn&apos;t today&apos;s number, it&apos;s what today&apos;s number looks like next to your next one.
-        </Text>
+        <View style={styles.introBox}>
+          <Text style={styles.intro}>
+            This is your first check-in, so there&apos;s nothing to compare yet. But now you have a baseline.
+            The value here isn&apos;t today&apos;s number, it&apos;s what today&apos;s number looks like next to your next one.
+          </Text>
+        </View>
       ) : null}
 
       {/* 2026-08-29: only report on the domains this person was actually
@@ -356,32 +363,39 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.background,
   },
-  container: {
-    padding: 20,
-    paddingBottom: 40,
+  container: { gap: HOME_BAND_GAP },
+  // The intro sits on a band of its own, with the answered count under it,
+  // since nothing sits on the screen without a surface.
+  introBox: {
+    ...homeBandStyle,
+    borderColor: colors.tabProfile,
+    padding: HOME_BAND_CONTENT_PADDING,
+    gap: 8,
   },
   intro: {
     ...typography.body,
     color: colors.textSecondary,
-    marginBottom: 8,
     lineHeight: 20,
     ...textShadow,
   },
   progressText: {
     ...typography.captionEmphasis,
     color: colors.primary,
-    marginBottom: 16,
     ...textShadow,
   },
+  // A full-width heading band on the muted surface, the same shape
+  // makeTabBandStyles gives every tab's lens headings.
+  headingBand: {
+    ...homeBandStyle,
+    borderColor: colors.tabProfile,
+    backgroundColor: colors.surfaceMuted,
+    paddingVertical: 10,
+    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
+  },
   domainCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
+    ...homeBandStyle,
+    borderColor: colors.tabProfile,
+    padding: HOME_BAND_CONTENT_PADDING,
   },
   domainTitle: {
     ...typography.sectionTitle,
@@ -437,11 +451,11 @@ const styles = StyleSheet.create({
 
   },
   submitButton: {
+    marginHorizontal: HOME_BAND_CONTENT_PADDING,
     backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
-    marginTop: 8,
   },
   submitButtonDisabled: {
     backgroundColor: colors.primaryMuted,
@@ -462,7 +476,6 @@ const styles = StyleSheet.create({
   resultsTitle: {
     fontSize: 24,
     fontWeight: '400',
-    marginBottom: 10,
     ...textShadow,
   },
   resultPrimary: {

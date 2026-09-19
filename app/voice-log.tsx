@@ -40,6 +40,7 @@ import { useInfoAlert } from '../components/InfoAlert';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import {
   createMeal,
   createMealFromComponents,
@@ -500,7 +501,7 @@ export default function VoiceLogScreen() {
           someone: &quot;two eggs and a slice of toast&quot;, or the name of a meal you have logged before.
         </Text>
         {transcript ? <Text style={styles.liveTranscript}>{transcript}</Text> : null}
-        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => router.back()}>
+        <TouchableOpacity style={[styles.inset, styles.secondaryButton]} activeOpacity={0.85} onPress={() => router.back()}>
           <Text style={styles.secondaryButtonText}>Cancel</Text>
         </TouchableOpacity>
       </View>
@@ -632,9 +633,11 @@ export default function VoiceLogScreen() {
 
         {items.length > 0 ? (
           <>
-            <Text style={styles.sectionLabel}>
-              {mealProposal ? 'Or log it as separate foods' : 'What the app worked out'}
-            </Text>
+            <View style={styles.headingBand}>
+              <Text style={styles.sectionLabel}>
+                {mealProposal ? 'Or log it as separate foods' : 'What the app worked out'}
+              </Text>
+            </View>
             {items.map(renderItemRow)}
           </>
         ) : (
@@ -672,43 +675,48 @@ export default function VoiceLogScreen() {
           </View>
         ) : null}
 
-        <TouchableOpacity style={styles.ateOutRow} activeOpacity={0.7} onPress={() => setAteOut((current) => !current)}>
-          <Ionicons name={ateOut ? 'checkbox' : 'square-outline'} size={20} color={colors.accent} />
-          <Text style={styles.ateOutText}>I ate this out, not at home</Text>
-        </TouchableOpacity>
+        {/* One band for everything that describes the meal being logged:
+            where it was eaten, which meal it was, and anything standing in
+            the way of logging it. */}
+        <View style={styles.card}>
+          <TouchableOpacity style={styles.ateOutRow} activeOpacity={0.7} onPress={() => setAteOut((current) => !current)}>
+            <Ionicons name={ateOut ? 'checkbox' : 'square-outline'} size={20} color={colors.accent} />
+            <Text style={styles.ateOutText}>I ate this out, not at home</Text>
+          </TouchableOpacity>
 
-        <Text style={styles.sectionLabel}>Which meal?</Text>
-        <View style={styles.mealTypeRow}>
-          {QUICK_LOG_MEAL_TYPES.map((candidate) => {
-            const active = mealType === candidate;
-            return (
-              <TouchableOpacity
-                key={candidate}
-                style={[styles.mealTypePill, active ? styles.mealTypePillActive : null]}
-                activeOpacity={0.8}
-                onPress={() => setMealType(candidate)}
-              >
-                <Text style={[styles.mealTypePillText, active ? styles.mealTypePillTextActive : null]}>
-                  {quickLogMealTypeLabel(candidate)}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
+          <Text style={styles.sectionLabel}>Which meal?</Text>
+          <View style={styles.mealTypeRow}>
+            {QUICK_LOG_MEAL_TYPES.map((candidate) => {
+              const active = mealType === candidate;
+              return (
+                <TouchableOpacity
+                  key={candidate}
+                  style={[styles.mealTypePill, active ? styles.mealTypePillActive : null]}
+                  activeOpacity={0.8}
+                  onPress={() => setMealType(candidate)}
+                >
+                  <Text style={[styles.mealTypePillText, active ? styles.mealTypePillTextActive : null]}>
+                    {quickLogMealTypeLabel(candidate)}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {items.length > 0 && usableItems.length === 0 ? (
+            <Text style={styles.itemProblem}>
+              Nothing here has an amount the app can work with yet, so there is nothing to log.
+            </Text>
+          ) : null}
+
+          {replacedMeal ? (
+            <Text style={styles.privacyNote}>
+              {`Logging this also marks "${replacedMeal.title}" as covered, so it stops waiting on your schedule.`}
+            </Text>
+          ) : null}
         </View>
-
-        {items.length > 0 && usableItems.length === 0 ? (
-          <Text style={styles.itemProblem}>
-            Nothing here has an amount the app can work with yet, so there is nothing to log.
-          </Text>
-        ) : null}
-
-        {replacedMeal ? (
-          <Text style={styles.privacyNote}>
-            {`Logging this also marks "${replacedMeal.title}" as covered, so it stops waiting on your schedule.`}
-          </Text>
-        ) : null}
         <TouchableOpacity
-          style={[styles.primaryButton, usableItems.length === 0 ? styles.disabled : null]}
+          style={[styles.inset, styles.primaryButton, usableItems.length === 0 ? styles.disabled : null]}
           activeOpacity={0.85}
           onPress={handleLogItems}
           disabled={usableItems.length === 0 || phase === 'saving'}
@@ -720,7 +728,7 @@ export default function VoiceLogScreen() {
               : `Log ${usableItems.length} ${usableItems.length === 1 ? 'item' : 'items'}`}
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={restartListening}>
+        <TouchableOpacity style={[styles.inset, styles.secondaryButton]} activeOpacity={0.85} onPress={restartListening}>
           <Ionicons name="mic-outline" size={18} color={colors.textSecondary} />
           <Text style={styles.secondaryButtonText}>Say It Again</Text>
         </TouchableOpacity>
@@ -742,7 +750,7 @@ export default function VoiceLogScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, gap: 12 },
+  content: { gap: HOME_BAND_GAP },
   centerBody: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 12 },
   title: { ...typography.sectionTitle, color: colors.textPrimary, textAlign: 'center', ...textShadow },
   text: { ...typography.body, color: colors.textSecondary, ...textShadow },
@@ -750,19 +758,15 @@ const styles = StyleSheet.create({
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
   privacyNote: { ...typography.caption, color: colors.textMuted, ...textShadow },
   card: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabBioCompass,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 6,
   },
   itemCard: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabBioCompass,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,
   },
   itemHeaderRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
@@ -816,6 +820,17 @@ const styles = StyleSheet.create({
   // inherit. See constants/typography.ts.
   mealTypePillTextActive: { color: colors.background, textShadowColor: 'transparent', textShadowRadius: 0 },
   disabled: { opacity: 0.6 },
+  // A button standing between bands keeps the bands' content inset.
+  inset: { marginHorizontal: HOME_BAND_CONTENT_PADDING },
+  // A full-width heading band on the muted surface, the same shape
+  // makeTabBandStyles gives every tab's lens headings.
+  headingBand: {
+    ...homeBandStyle,
+    borderColor: colors.tabBioCompass,
+    backgroundColor: colors.surfaceMuted,
+    paddingVertical: 10,
+    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
+  },
   primaryButton: {
     flexDirection: 'row',
     alignItems: 'center',

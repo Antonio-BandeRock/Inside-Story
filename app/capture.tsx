@@ -36,6 +36,7 @@ import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { TAB_ROUTES } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import {
   CAPTURE_DESTINATIONS,
   captureDestination,
@@ -272,9 +273,11 @@ export default function CaptureScreen() {
       <Stack.Screen options={{ title: 'Capture' }} />
       {infoAlertElement}
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
-        <Text style={styles.lead}>
-          Get it out of your head first. What it turns out to be can wait until you have a minute.
-        </Text>
+        <View style={styles.leadBox}>
+          <Text style={styles.lead}>
+            Get it out of your head first. What it turns out to be can wait until you have a minute.
+          </Text>
+        </View>
 
         <View style={styles.captureCard}>
           <View style={styles.captureRow}>
@@ -385,9 +388,11 @@ export default function CaptureScreen() {
         {showDone ? done.map((note) => renderNoteRow(note)) : null}
 
         {done.length > 0 && showDone ? (
-          <Text style={styles.footnote}>
-            Notes you have finished with stay here for two months, so you can see what keeps coming back.
-          </Text>
+          <View style={styles.leadBox}>
+            <Text style={styles.footnote}>
+              Notes you have finished with stay here for two months, so you can see what keeps coming back.
+            </Text>
+          </View>
         ) : null}
       </ScrollView>
     </View>
@@ -396,14 +401,15 @@ export default function CaptureScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, gap: 12 },
+  content: { gap: HOME_BAND_GAP },
+  // The lead and the footnote each sit on a band of their own, since nothing
+  // sits on the screen without a surface.
+  leadBox: { ...homeBandStyle, borderColor: colors.tabLife, padding: HOME_BAND_CONTENT_PADDING },
   lead: { ...typography.body, color: colors.textSecondary, ...textShadow },
   captureCard: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabLife,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 10,
   },
   captureRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
@@ -432,35 +438,29 @@ const styles = StyleSheet.create({
   saveButtonText: { ...typography.bodyEmphasis, color: colors.background },
   privacyNote: { ...typography.caption, color: colors.textMuted, ...textShadow },
   emptyCard: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabLife,
+    padding: HOME_BAND_CONTENT_PADDING,
   },
   emptyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
   sectionHeadingCard: {
+    ...homeBandStyle,
+    borderColor: colors.tabLife,
+    backgroundColor: colors.surfaceMuted,
+    paddingVertical: 10,
+    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    marginTop: 6,
   },
   sectionHeading: { ...typography.bodyEmphasis, color: colors.textPrimary, flex: 1, ...textShadow },
-  groupBlock: { gap: 12 },
+  groupBlock: { gap: HOME_BAND_GAP },
   groupOpen: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   groupOpenText: { ...typography.caption, ...textShadow },
   noteCard: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabLife,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,
   },
   noteText: { ...typography.body, color: colors.textPrimary, ...textShadow },

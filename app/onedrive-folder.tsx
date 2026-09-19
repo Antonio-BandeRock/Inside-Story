@@ -32,6 +32,7 @@ import { AppTextInput } from '../components/AppTextInput';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import { getOneDriveFolder, setMailboxFolderName, setOneDriveFolder } from '../lib/db';
 import { isOneDriveConfigured, isSignedIn, signIn, signOut } from '../lib/oneDriveAuth';
 import {
@@ -374,7 +375,7 @@ export default function OneDriveFolderScreen() {
         </View>
       ) : null}
 
-      <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
+      <TouchableOpacity style={styles.card} onPress={() => router.back()} hitSlop={8}>
         <Text style={styles.action}>Go Back</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -383,13 +384,11 @@ export default function OneDriveFolderScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, gap: 16 },
+  content: { gap: HOME_BAND_GAP },
   card: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabProfile,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,
   },
   label: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },

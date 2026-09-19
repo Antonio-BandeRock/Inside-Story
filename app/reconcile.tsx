@@ -42,6 +42,7 @@ import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { TAB_ROUTES } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import {
   CAPTURE_DESTINATIONS,
   captureDestination,
@@ -404,10 +405,12 @@ export default function ReconcileScreen() {
       <Stack.Screen options={{ title: 'Reconcile' }} />
       {infoAlertElement}
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
-        <Text style={styles.lead}>
-          Everything waiting on a second of your attention, in one place. A week back, no further: anything older stays
-          as it is rather than turning into a wall of questions nobody can answer.
-        </Text>
+        <View style={styles.leadBox}>
+          <Text style={styles.lead}>
+            Everything waiting on a second of your attention, in one place. A week back, no further: anything older stays
+            as it is rather than turning into a wall of questions nobody can answer.
+          </Text>
+        </View>
 
         {loading ? (
           <View style={styles.emptyCard}>
@@ -452,10 +455,12 @@ export default function ReconcileScreen() {
             {/* The honest version of a default that has been in the app since
                 2026-08-14. Somebody reading Trends deserves to know which
                 numbers came from them and which came from the plan. */}
-            <Text style={styles.footnote}>
-              The app recorded these as done because their time passed and nothing said otherwise. Say so if one of them
-              did not happen, and it comes back out of your totals.
-            </Text>
+            <View style={styles.leadBox}>
+              <Text style={styles.footnote}>
+                The app recorded these as done because their time passed and nothing said otherwise. Say so if one of them
+                did not happen, and it comes back out of your totals.
+              </Text>
+            </View>
             {assumedItems.map((item) => renderScheduleRow(item, 'assumed'))}
           </>
         ) : null}
@@ -472,10 +477,12 @@ export default function ReconcileScreen() {
         ))}
 
         {!loading && openItems.length > 0 ? (
-          <Text style={styles.footnote}>
-            Moving something changes when it is due and nothing else. It stays planned, so it will show up and remind
-            you at the new time like anything else still ahead.
-          </Text>
+          <View style={styles.leadBox}>
+            <Text style={styles.footnote}>
+              Moving something changes when it is due and nothing else. It stays planned, so it will show up and remind
+              you at the new time like anything else still ahead.
+            </Text>
+          </View>
         ) : null}
       </ScrollView>
     </View>
@@ -484,39 +491,36 @@ export default function ReconcileScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, gap: 12 },
+  content: { gap: HOME_BAND_GAP },
+  // The lead and each footnote sit on a band of their own, since nothing
+  // sits on the screen without a surface.
+  leadBox: { ...homeBandStyle, borderColor: colors.tabLife, padding: HOME_BAND_CONTENT_PADDING },
   lead: { ...typography.body, color: colors.textSecondary, ...textShadow },
   emptyCard: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabLife,
+    padding: HOME_BAND_CONTENT_PADDING,
   },
   emptyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
   sectionHeadingCard: {
+    ...homeBandStyle,
+    borderColor: colors.tabLife,
+    backgroundColor: colors.surfaceMuted,
+    paddingVertical: 10,
+    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    marginTop: 6,
   },
   sectionHeading: { ...typography.bodyEmphasis, color: colors.textPrimary, flex: 1, ...textShadow },
   sectionCount: { ...typography.caption, color: colors.textMuted, ...textShadow },
   headingLink: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   headingLinkText: { ...typography.caption, color: colors.accent, ...textShadow },
-  groupBlock: { gap: 12 },
+  groupBlock: { gap: HOME_BAND_GAP },
   itemCard: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabLife,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,
   },
   itemHeadRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },

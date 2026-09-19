@@ -24,6 +24,7 @@ import { VoiceInputButton } from '../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import { getStoredMeasurementSystem } from '../lib/db';
 import { detectMeasurementSystemFromLocale } from '../lib/measurement';
 import { updateGroceryItemPurchase } from '../lib/groceryDb';
@@ -273,16 +274,14 @@ export default function PriceCompareScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, gap: 12 },
+  content: { gap: HOME_BAND_GAP },
   card: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabLife,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,
   },
-  cardBest: { borderColor: colors.statusGood, borderWidth: 2 },
+  cardBest: { borderColor: colors.statusGood },
   rowHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   title: { ...typography.sectionTitle, color: colors.textPrimary, ...textShadow },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
@@ -325,6 +324,7 @@ const styles = StyleSheet.create({
   iconButton: { paddingHorizontal: 6, paddingVertical: 4 },
   disabled: { opacity: 0.6 },
   primaryButton: {
+    marginHorizontal: HOME_BAND_CONTENT_PADDING,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -341,6 +341,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 0,
   },
   secondaryButton: {
+    marginHorizontal: HOME_BAND_CONTENT_PADDING,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

@@ -17,6 +17,7 @@ import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { TherapySessionsSection } from '../../components/TherapySessionsSection';
 import { textShadow, typography } from '../../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../../components/HomeSectionBand';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { getCheckinTagsByCategory, type CheckinTagDefinition } from '../../lib/checkinTags';
 import { appendDictatedText, parseVoiceCommands } from '../../lib/voiceCommandParsing';
@@ -630,9 +631,13 @@ function FlaresLens() {
       )}
 
       {loading ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
+        <View style={styles.panelStandalone}>
+          <Text style={styles.emptyText}>Loading…</Text>
+        </View>
       ) : entries.length === 0 ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>No flares logged yet.</Text>
+        <View style={styles.panelStandalone}>
+          <Text style={styles.emptyText}>No flares logged yet.</Text>
+        </View>
       ) : (
         <View style={styles.table}>
           {entries.map((entry) => (
@@ -744,9 +749,13 @@ function FoodReactionsLens() {
       )}
 
       {loading ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
+        <View style={styles.panelStandalone}>
+          <Text style={styles.emptyText}>Loading…</Text>
+        </View>
       ) : entries.length === 0 ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>No food reactions logged yet.</Text>
+        <View style={styles.panelStandalone}>
+          <Text style={styles.emptyText}>No food reactions logged yet.</Text>
+        </View>
       ) : (
         <View style={styles.table}>
           {entries.map((entry) => (
@@ -1058,7 +1067,9 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
         // own focus effect (see lib/pendingFoodTrialReturn.ts), lands
         // right back on the exact builder, mid-build, not just the tab.
         <TouchableOpacity onPress={() => router.navigate('/food')}>
-          <Text style={[styles.backLink, styles.groupHeadingChip]}>‹ Back to what you were building</Text>
+          <View style={styles.groupHeadingChip}>
+            <Text style={styles.backLink}>‹ Back to what you were building</Text>
+          </View>
         </TouchableOpacity>
       ) : null}
       {!formOpen ? (
@@ -1159,9 +1170,13 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
       )}
 
       {loading ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>Loading…</Text>
+        <View style={styles.panelStandalone}>
+          <Text style={styles.emptyText}>Loading…</Text>
+        </View>
       ) : trials.length === 0 ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>No food trials yet.</Text>
+        <View style={styles.panelStandalone}>
+          <Text style={styles.emptyText}>No food trials yet.</Text>
+        </View>
       ) : (
         <View style={styles.table}>
           {trials.map((trial) => {
@@ -1326,7 +1341,7 @@ function ExerciseSection() {
   }
 
   return (
-    <View>
+    <View style={styles.sectionColumn}>
       {infoAlertElement}
       {!formOpen ? (
         <TouchableOpacity style={styles.addButton} onPress={() => setFormOpen(true)}>
@@ -1374,7 +1389,9 @@ function ExerciseSection() {
       )}
 
       {logs.length === 0 ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>No exercise logged yet.</Text>
+        <View style={styles.panelStandalone}>
+          <Text style={styles.emptyText}>No exercise logged yet.</Text>
+        </View>
       ) : (
         <View style={styles.table}>
           {logs.map((log) => (
@@ -1500,7 +1517,7 @@ function BloodPressureSection() {
   }
 
   return (
-    <View>
+    <View style={styles.sectionColumn}>
       {infoAlertElement}
       {!formOpen ? (
         <TouchableOpacity style={styles.addButton} onPress={() => setFormOpen(true)}>
@@ -1555,7 +1572,9 @@ function BloodPressureSection() {
       )}
 
       {readings.length === 0 ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>No blood pressure readings yet.</Text>
+        <View style={styles.panelStandalone}>
+          <Text style={styles.emptyText}>No blood pressure readings yet.</Text>
+        </View>
       ) : (
         <View style={styles.table}>
           {readings.map((reading) => (
@@ -1621,7 +1640,7 @@ function GeneralNoteSection() {
   }
 
   return (
-    <View>
+    <View style={styles.sectionColumn}>
       {infoAlertElement}
       {!formOpen ? (
         <TouchableOpacity style={styles.addButton} onPress={() => setFormOpen(true)}>
@@ -1665,7 +1684,9 @@ function GeneralNoteSection() {
       )}
 
       {notesList.length === 0 ? (
-        <Text style={[styles.emptyText, styles.panelStandalone]}>No notes yet.</Text>
+        <View style={styles.panelStandalone}>
+          <Text style={styles.emptyText}>No notes yet.</Text>
+        </View>
       ) : (
         <View style={styles.table}>
           {notesList.map((entry) => (
@@ -1725,9 +1746,11 @@ function GeneralNoteLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
-      <Text style={[styles.helperText, styles.panelStandalone]}>
-        For anything else worth remembering: a prescription change, how a supplement felt, a drink you had.
-      </Text>
+      <View style={styles.panelStandalone}>
+        <Text style={styles.helperText}>
+          For anything else worth remembering: a prescription change, how a supplement felt, a drink you had.
+        </Text>
+      </View>
       <GeneralNoteSection />
     </ScrollView>
   );
@@ -1742,10 +1765,12 @@ function NocturiaLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
-      <Text style={[styles.emptyText, styles.panelStandalone]}>
-        Not built yet. Waking at night to urinate is a trackable symptom worth logging; this will get full
-        logging (how many times, what time) built out.
-      </Text>
+      <View style={styles.panelStandalone}>
+        <Text style={styles.emptyText}>
+          Not built yet. Waking at night to urinate is a trackable symptom worth logging; this will get full
+          logging (how many times, what time) built out.
+        </Text>
+      </View>
     </ScrollView>
   );
 }
@@ -1862,13 +1887,18 @@ export default function LogScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   body: { flex: 1 },
-  bodyContent: { padding: 16, paddingBottom: 32 },
+  // Edge to edge, 2026-09-19: no side inset, one HOME_BAND_GAP between
+  // stacked surfaces, and the bottom padding set inline from
+  // useFloatingButtonScrollPadding, a full window of run-out. The section
+  // components that render inside a lens stack their bands the same way.
+  bodyContent: { gap: HOME_BAND_GAP },
+  sectionColumn: { gap: HOME_BAND_GAP },
   // Deliberately NOT a ScrollView -- see NewFoodsLens' own render-time
   // comment for why FoodLookup can never sit inside one, the same
   // established fix already applied in Garden's own harvest/planting
   // pickers.
   pickerScreen: { flex: 1, paddingHorizontal: 16, paddingTop: 5 },
-  emptyText: { ...typography.body, color: colors.textSecondary, marginBottom: 16,
+  emptyText: { ...typography.body, color: colors.textSecondary,
 
     ...textShadow,
 
@@ -1880,26 +1910,22 @@ const styles = StyleSheet.create({
   // cards. A heading that labels ONE card should move inside that
   // card instead of using either.
   panelStandalone: {
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
+    ...homeBandStyle,
+    borderColor: TAB_COLOR,
+    padding: HOME_BAND_CONTENT_PADDING,
   },
   groupHeadingChip: {
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    ...homeBandStyle,
+    borderColor: TAB_COLOR,
+    backgroundColor: colors.surfaceMuted,
+    paddingVertical: 10,
+    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
   },
   addButton: {
-    borderWidth: 1,
-    borderColor: colors.primary,
-    borderRadius: 10,
-    paddingVertical: 12,
+    ...homeBandStyle,
+    borderColor: TAB_COLOR,
+    padding: HOME_BAND_CONTENT_PADDING,
     alignItems: 'center',
-    marginBottom: 16,
-    // Filled so its label is not sitting on the photo background.
-    backgroundColor: colors.surface,
   },
   addButtonText: { ...typography.bodyEmphasis, color: colors.primary,
 
@@ -1909,12 +1935,9 @@ const styles = StyleSheet.create({
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
   // 2026-07-27.
   formCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 2,
+    ...homeBandStyle,
     borderColor: TAB_COLOR,
+    padding: HOME_BAND_CONTENT_PADDING,
   },
   // Colors below are TAB_COLOR, not the plain neutrals they used to be --
   // 2026-07-27, "every font inside a box should match that box's own
@@ -1935,7 +1958,7 @@ const styles = StyleSheet.create({
   // The "‹ Back to what you were building" link, 2026-08-14 -- same real
   // treatment as Digest's own already-established "‹ Back to
   // Digest" link (backToHomeText), not a new visual language.
-  backLink: { ...typography.body, color: TAB_COLOR, fontWeight: '400', marginBottom: 12,
+  backLink: { ...typography.body, color: TAB_COLOR, fontWeight: '400',
 
     ...textShadow,
 
@@ -2004,8 +2027,9 @@ const styles = StyleSheet.create({
 
   },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule, 2026-07-27.
-  table: { borderWidth: 2, borderColor: TAB_COLOR, borderRadius: 10, overflow: 'hidden', backgroundColor: colors.surface },
-  row: { borderTopWidth: 1, borderTopColor: colors.border, padding: 12 },
+  // The table is a band whose rows carry the content inset themselves.
+  table: { ...homeBandStyle, borderColor: TAB_COLOR, overflow: 'hidden' },
+  row: { borderTopWidth: 1, borderTopColor: colors.border, paddingVertical: 12, paddingHorizontal: HOME_BAND_CONTENT_PADDING },
   rowTextCol: { flex: 1 },
   rowTitle: { ...typography.label, color: TAB_COLOR,
 

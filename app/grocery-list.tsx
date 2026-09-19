@@ -28,6 +28,7 @@ import { VoiceInputButton } from '../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import { recognizeTextFromImage } from '../lib/ocr';
 import { detectMeasurementSystemFromLocale } from '../lib/measurement';
 import { getStoredMeasurementSystem, getUpcomingShoppingList, type ShoppingListSection } from '../lib/db';
@@ -738,7 +739,7 @@ export default function GroceryListScreen() {
             <Text style={styles.muted}>Saved with the list, so prices can later be compared between stores.</Text>
           </View>
 
-          <TouchableOpacity style={[styles.primaryButton, busy && styles.disabled]} activeOpacity={0.85} onPress={handleBuild} disabled={busy}>
+          <TouchableOpacity style={[styles.inset, styles.primaryButton, busy && styles.disabled]} activeOpacity={0.85} onPress={handleBuild} disabled={busy}>
             <Ionicons name="cart-outline" size={18} color={colors.textOnButton} />
             <Text style={styles.primaryButtonText}>{busy ? 'Building…' : 'Build My Grocery List'}</Text>
           </TouchableOpacity>
@@ -1112,7 +1113,7 @@ export default function GroceryListScreen() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => { setList(null); setItems([]); setMode('setup'); }}>
+        <TouchableOpacity style={[styles.inset, styles.secondaryButton]} activeOpacity={0.85} onPress={() => { setList(null); setItems([]); setMode('setup'); }}>
           <Ionicons name="document-text-outline" size={18} color={colors.textSecondary} />
           <Text style={styles.secondaryButtonText}>Start a New List</Text>
         </TouchableOpacity>
@@ -1135,13 +1136,11 @@ export default function GroceryListScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   centerBody: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { padding: 20, gap: 12 },
+  content: { gap: HOME_BAND_GAP },
   card: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabLife,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,
   },
   title: { ...typography.sectionTitle, color: colors.textPrimary, ...textShadow },
@@ -1273,8 +1272,10 @@ const styles = StyleSheet.create({
   // Wraps rather than squeezing: three labelled buttons do not fit across a
   // phone, and a button whose text is cut in half is worse than one on its own
   // second line.
-  buttonRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  buttonRow: { marginHorizontal: HOME_BAND_CONTENT_PADDING, flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   disabled: { opacity: 0.6 },
+  // A button standing between bands keeps the bands' content inset.
+  inset: { marginHorizontal: HOME_BAND_CONTENT_PADDING },
   primaryButton: {
     flexDirection: 'row',
     alignItems: 'center',

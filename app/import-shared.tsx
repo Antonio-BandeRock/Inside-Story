@@ -51,6 +51,7 @@ import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import { getConnectionByPublicKey } from '../lib/connections';
 import { decodeShareEnvelope, stageSharedItem, type ShareEnvelope } from '../lib/sharing';
 
@@ -149,36 +150,47 @@ export default function ImportSharedScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
-      <Text style={styles.fromLine}>Shared with you by {envelope.fromName}</Text>
-      <Text style={styles.title}>{previewName(envelope)}</Text>
+      {/* Who sent it, what it is, and whether the sender checks out, on one
+          band; the ingredients on the next. Every surface reaches both edges
+          of the screen, the same as the bands on every tab. */}
+      <View style={styles.card}>
+        <Text style={styles.fromLine}>Shared with you by {envelope.fromName}</Text>
+        <Text style={styles.title}>{previewName(envelope)}</Text>
 
-      {verifiedConnectionName ? (
-        <View style={styles.verifiedRow}>
-          <Ionicons name="shield-checkmark-outline" size={16} color={colors.accent} />
-          <Text style={styles.verifiedText}>
-            Verified: this really is your connection {verifiedConnectionName}
-            {verifiedConnectionName !== envelope.fromName ? ` (shown here as "${envelope.fromName}")` : ''}
+        {verifiedConnectionName ? (
+          <View style={styles.verifiedRow}>
+            <Ionicons name="shield-checkmark-outline" size={16} color={colors.accent} />
+            <Text style={styles.verifiedText}>
+              Verified: this really is your connection {verifiedConnectionName}
+              {verifiedConnectionName !== envelope.fromName ? ` (shown here as "${envelope.fromName}")` : ''}
+            </Text>
+          </View>
+        ) : (
+          <Text style={styles.unverifiedText}>
+            {envelope.fromName} isn&apos;t one of your connections yet, so this can&apos;t be verified as really coming from
+            them. It is still safe to review, since the link itself checked out fine.
           </Text>
+        )}
+
+        {photoBase64 ? (
+          <Image source={{ uri: `data:image/jpeg;base64,${photoBase64}` }} style={styles.photo} resizeMode="cover" />
+        ) : null}
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.sectionLabel}>Ingredients</Text>
+        {ingredientLines.map((line, index) => (
+          <Text key={index} style={styles.ingredientLine}>
+            {'•'} {line}
+          </Text>
+        ))}
+      </View>
+
+      {status === 'error' && errorMessage ? (
+        <View style={styles.card}>
+          <Text style={styles.errorText}>{errorMessage}</Text>
         </View>
-      ) : (
-        <Text style={styles.unverifiedText}>
-          {envelope.fromName} isn&apos;t one of your connections yet, so this can&apos;t be verified as really coming from
-          them -- it&apos;s still safe to review, since the link itself checked out fine.
-        </Text>
-      )}
-
-      {photoBase64 ? (
-        <Image source={{ uri: `data:image/jpeg;base64,${photoBase64}` }} style={styles.photo} resizeMode="cover" />
       ) : null}
-
-      <Text style={styles.sectionLabel}>Ingredients</Text>
-      {ingredientLines.map((line, index) => (
-        <Text key={index} style={styles.ingredientLine}>
-          {'•'} {line}
-        </Text>
-      ))}
-
-      {status === 'error' && errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
 
       <View style={styles.actionRow}>
         <TouchableOpacity
@@ -203,7 +215,12 @@ export default function ImportSharedScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20 },
+  content: { gap: HOME_BAND_GAP },
+  card: {
+    ...homeBandStyle,
+    borderColor: colors.tabProfile,
+    padding: HOME_BAND_CONTENT_PADDING,
+  },
   body: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 12 },
   fromLine: { ...typography.caption, color: colors.textMuted, marginBottom: 4,
 
@@ -231,8 +248,8 @@ const styles = StyleSheet.create({
     ...textShadow,
 
   },
-  photo: { width: '100%', height: 200, borderRadius: 12, marginTop: 16, backgroundColor: colors.surface },
-  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 20, marginBottom: 6,
+  photo: { width: '100%', height: 200, borderRadius: 12, marginTop: 16, backgroundColor: colors.surfaceMuted },
+  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginBottom: 6,
 
     ...textShadow,
 
@@ -242,12 +259,12 @@ const styles = StyleSheet.create({
     ...textShadow,
 
   },
-  errorText: { ...typography.caption, color: colors.danger, marginTop: 16,
+  errorText: { ...typography.caption, color: colors.danger,
 
     ...textShadow,
 
   },
-  actionRow: { flexDirection: 'row', gap: 12, marginTop: 24 },
+  actionRow: { flexDirection: 'row', gap: 12, marginHorizontal: HOME_BAND_CONTENT_PADDING, marginTop: 14 },
   actionButton: { flex: 1 },
   primaryButton: {
     backgroundColor: colors.buttonColor,

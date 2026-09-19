@@ -9,6 +9,7 @@ import { PopoverSelect } from '../components/PopoverSelect';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import {
   advanceFermentationBatch,
   deleteFermentationBatch,
@@ -290,9 +291,13 @@ export default function FermentationTrackerScreen() {
         {/* Active Batches -- every real jar currently in progress, across
             every saved fermentation recipe, most recently started first
             (see listFermentationBatches' own ORDER BY). */}
-        <Text style={styles.sectionHeading}>Active Batches</Text>
+        <View style={styles.headingBand}>
+          <Text style={styles.sectionHeading}>Active Batches</Text>
+        </View>
         {batches.length === 0 ? (
-          <Text style={styles.emptyText}>Nothing being tracked right now.</Text>
+          <View style={styles.card}>
+            <Text style={styles.emptyText}>Nothing being tracked right now.</Text>
+          </View>
         ) : (
           batches.map((batch) => (
             <View key={batch.id} style={styles.card}>
@@ -366,9 +371,13 @@ export default function FermentationTrackerScreen() {
             (see garden.tsx's own comment): the full history, most
             recently ready first, an available one gets Log a Glass/Mark
             Gone, an already-empty one just shows as done. */}
-        <Text style={styles.sectionHeading}>My Fermented Drinks</Text>
+        <View style={styles.headingBand}>
+          <Text style={styles.sectionHeading}>My Fermented Drinks</Text>
+        </View>
         {harvests.length === 0 ? (
-          <Text style={styles.emptyText}>Nothing harvested yet. Record a harvest from a refrigerated batch above once it&apos;s ready.</Text>
+          <View style={styles.card}>
+            <Text style={styles.emptyText}>Nothing harvested yet. Record a harvest from a refrigerated batch above once it&apos;s ready.</Text>
+          </View>
         ) : (
           harvests.map((harvest) => {
             const isAvailable = harvest.quantityRemaining > 0;
@@ -414,7 +423,7 @@ export default function FermentationTrackerScreen() {
           })
         )}
 
-        <TouchableOpacity style={styles.secondaryButton} onPress={() => router.back()}>
+        <TouchableOpacity style={[styles.inset, styles.secondaryButton]} onPress={() => router.back()}>
           <Text style={styles.secondaryButtonText}>Close</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -424,22 +433,31 @@ export default function FermentationTrackerScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, paddingBottom: 48, gap: 12 },
-  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginTop: 12, ...textShadow },
+  content: { gap: HOME_BAND_GAP },
+  // A full-width heading band on the muted surface, the same shape
+  // makeTabBandStyles gives every tab's lens headings.
+  headingBand: {
+    ...homeBandStyle,
+    borderColor: colors.tabFood,
+    backgroundColor: colors.surfaceMuted,
+    paddingVertical: 10,
+    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
+  },
+  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, ...textShadow },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   emptyText: { ...typography.body, color: colors.textMuted, ...textShadow },
   caption: { ...typography.caption, color: colors.textMuted, ...textShadow },
   itemTitle: { ...typography.bodyEmphasis, color: colors.textPrimary, flex: 1, marginRight: 8, ...textShadow },
   rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   card: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabFood,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 6,
   },
   disabled: { opacity: 0.6 },
+  // A button standing between bands keeps the bands' content inset.
+  inset: { marginHorizontal: HOME_BAND_CONTENT_PADDING },
   primaryButton: {
     flexDirection: 'row',
     alignItems: 'center',

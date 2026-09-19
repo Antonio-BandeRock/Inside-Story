@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.12',
+    date: '2026-09-19',
+    changes: [
+      'Log and the standalone screens (capture, reconcile, routines, grocery list, price compare, voice log, fermentation tracker, assessment, connections, pairing, OneDrive folder, shared import, week flags) now lay out on edge-to-edge bands like the rest of the app, with one band gap between surfaces and a full window of run-out at the bottom so a background photo shows through.',
+    ],
+  },
+  {
     version: '1.0.41.11',
     date: '2026-09-19',
     changes: [

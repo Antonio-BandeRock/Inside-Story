@@ -17,6 +17,7 @@ import { useConfirmSheet } from '../components/ConfirmSheet';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import {
   listConnections,
   removeConnection,
@@ -577,36 +578,45 @@ export default function ConnectionsScreen() {
           typed, which proves nothing: the app cannot see the folder, cannot
           confirm it exists and cannot confirm it was shared. A lock that verifies
           nothing is theatre. */}
-      <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={() => openPairing('partner')}>
-        <Ionicons name="people-outline" size={18} color={colors.textOnButton} />
-        <Text style={styles.primaryButtonText}>Pair With a Partner</Text>
-      </TouchableOpacity>
-      <Text style={styles.partnerHint}>
-        Sets up the link between two phones and records what each of you allows the other to see. You can change it, or undo it, here at any time.
-      </Text>
+      {/* The three ways to pair, with what each one does, on one band. */}
+      <View style={styles.fingerprintCard}>
+        <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={() => openPairing('partner')}>
+          <Ionicons name="people-outline" size={18} color={colors.textOnButton} />
+          <Text style={styles.primaryButtonText}>Pair With a Partner</Text>
+        </TouchableOpacity>
+        <Text style={styles.partnerHint}>
+          Sets up the link between two phones and records what each of you allows the other to see. You can change it, or undo it, here at any time.
+        </Text>
 
-      <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => openPairing('recipe')}>
-        <Ionicons name="person-add-outline" size={18} color={colors.textPrimary} />
-        <Text style={styles.secondaryButtonText}>Pair for Sharing Recipes</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => openPairing('recipe')}>
+          <Ionicons name="person-add-outline" size={18} color={colors.textPrimary} />
+          <Text style={styles.secondaryButtonText}>Pair for Sharing Recipes</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={openScanner}>
-        <Ionicons name="qr-code-outline" size={18} color={colors.textPrimary} />
-        <Text style={styles.secondaryButtonText}>Scan Their Code</Text>
-      </TouchableOpacity>
-      <Text style={styles.partnerHint}>
-        Pairing happens face to face: one phone shows a code and the other reads it with the camera. Nothing is sent
-        over the internet, and nothing has to be typed or pasted.
-      </Text>
+        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={openScanner}>
+          <Ionicons name="qr-code-outline" size={18} color={colors.textPrimary} />
+          <Text style={styles.secondaryButtonText}>Scan Their Code</Text>
+        </TouchableOpacity>
+        <Text style={styles.partnerHint}>
+          Pairing happens face to face: one phone shows a code and the other reads it with the camera. Nothing is sent
+          over the internet, and nothing has to be typed or pasted.
+        </Text>
+      </View>
 
-      <Text style={styles.sectionLabel}>Your connections</Text>
+      <View style={styles.headingBand}>
+        <Text style={styles.sectionLabel}>Your connections</Text>
+      </View>
 
       {loading ? (
-        <Text style={styles.emptyText}>Loading…</Text>
+        <View style={styles.fingerprintCard}>
+          <Text style={styles.emptyText}>Loading…</Text>
+        </View>
       ) : connections.length === 0 ? (
-        <Text style={styles.emptyText}>
-          No connections yet. Pair with someone above, in person, and they will appear here.
-        </Text>
+        <View style={styles.fingerprintCard}>
+          <Text style={styles.emptyText}>
+            No connections yet. Pair with someone above, in person, and they will appear here.
+          </Text>
+        </View>
       ) : (
         connections.map((connection) => (
           <View key={connection.id} style={styles.row}>
@@ -838,13 +848,11 @@ export default function ConnectionsScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { padding: 20, gap: 16 },
+  content: { gap: HOME_BAND_GAP },
   fingerprintCard: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabProfile,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 6,
   },
   fingerprintLabel: { ...typography.caption, color: colors.textMuted, ...textShadow },
@@ -875,7 +883,16 @@ const styles = StyleSheet.create({
     textShadowRadius: 0,
 
   },
-  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
+  // A full-width heading band on the muted surface, the same shape
+  // makeTabBandStyles gives every tab's lens headings.
+  headingBand: {
+    ...homeBandStyle,
+    borderColor: colors.tabProfile,
+    backgroundColor: colors.surfaceMuted,
+    paddingVertical: 10,
+    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
+  },
+  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   folderActions: { flexDirection: 'row', gap: 18, flexWrap: 'wrap', marginTop: 6 },
   primaryButtonDisabled: { opacity: 0.45 },
   // Its own style rather than editInput: that one is a flex row child inside a
@@ -914,11 +931,9 @@ const styles = StyleSheet.create({
   // A partner row carries six lines, so that squeezed the text into a narrow
   // strip beside three links.
   row: {
-    padding: 14,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
+    ...homeBandStyle,
+    borderColor: colors.tabProfile,
+    padding: HOME_BAND_CONTENT_PADDING,
     gap: 10,
   },
   rowInfo: { gap: 2 },
