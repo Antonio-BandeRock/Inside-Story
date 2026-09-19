@@ -505,6 +505,9 @@ export default function FoodScreen() {
     // Schedule a Meal lens here (2026-09-13, it used to be its own Stack
     // screen). The draft fields ride along the same way they used to.
     openFoodLens,
+    // With openFoodLens 'systemRecipes', the recipe to arrive open: a Home
+    // flip card's Read More or a Related chip on another tab. 2026-09-19.
+    openEntryId,
     findMealDraftId,
     findMealPhotoUri,
     findMealCapturedAt,
@@ -554,6 +557,7 @@ export default function FoodScreen() {
     templateMealId?: string;
     buildMealFrom?: string;
     openFoodLens?: string;
+    openEntryId?: string;
     findMealDraftId?: string;
     findMealPhotoUri?: string;
     findMealCapturedAt?: string;
@@ -1381,6 +1385,7 @@ export default function FoodScreen() {
             <SystemRecipesView
               onOpenBuilder={(params) => router.push({ pathname: '/food', params })}
               onClose={() => setRevealed(false)}
+              initialEntryId={openEntryId}
             />
           ) : lens === 'myFoodsDetail' && detailParams ? (
             <FoodItemDetailView {...detailParams} onClose={() => setLens(listLens)} />

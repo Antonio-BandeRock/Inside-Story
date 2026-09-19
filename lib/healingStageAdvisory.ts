@@ -127,7 +127,7 @@ export function getHealingStageAdvisory(
   }
 
   if (findTier(scores, 'Additives') === 'High Risk') {
-    reasons.push("Carries a flagged additive. See the Food Additives research in Digest for the specific concern.");
+    reasons.push("Carries a flagged additive. See the Food Additives research in Health Literacy, on the Life tab, for the specific concern.");
   }
 
   if (findTier(scores, 'Processing') === 'High Risk') {
@@ -140,6 +140,6 @@ export function getHealingStageAdvisory(
     title: `Healing Stage: ${stageLabel}`,
     message:
       reasons.join('\n\n') +
-      "\n\nThis is advisory only. Nothing in Inside Story hides or blocks a food based on your stage. See the Healing Stages category in Digest for the full, cited guide.",
+      "\n\nThis is advisory only. Nothing in Inside Story hides or blocks a food based on your stage. See Hashimoto's Healing Stages in Life > Conditions for the full, cited guide.",
   };
 }

@@ -159,9 +159,13 @@ check('low stimulation sits in the profile group', groupHomeSectionsForDisplay([
 
 // Home has a group again, 1.0.39.10, direct correction: "You removed the
 // Home group from the Home screen. It should remain at the top in order of
-// occurance in the TabHub menu." It holds the one card that is not a window
-// into another tab: the greeting, the date and the sky.
-check('the home group holds the today card', Object.keys(HOME_SECTION_TAB_PATH).filter((k) => HOME_SECTION_TAB_PATH[k] === '/'), ['today']);
+// occurance in the TabHub menu." It held the one card that is not a window
+// into another tab: the greeting, the date and the sky. Since 2026-09-19 it
+// also holds the Something to Read cards, which were the Digest's until
+// that tab was taken apart: "they should become part of the Home area on
+// the Home screen and the cards should each be the color of the tab they
+// come from."
+check('the home group holds the today card and the reading cards', Object.keys(HOME_SECTION_TAB_PATH).filter((k) => HOME_SECTION_TAB_PATH[k] === '/'), ['today', 'digestCards']);
 
 // And it leads, because Home leads TabHub’s own grid.
 check('the home group comes first', groupHomeSectionsForDisplay(['today', 'logAgain'])[0], { kind: 'tab', path: '/', keys: ['today'] });

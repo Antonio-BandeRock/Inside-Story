@@ -22,22 +22,23 @@ import {
   TYING_TOGETHER_GROUP_KEY,
 } from '../lib/digest/categoryGrouping';
 
-// One Digest category (Basic Health, Earth Matters or Home Gardening) on
-// fold bands, 2026-09-19, the shape Conditions took on the Life tab the
-// same day and the one asked for here by name: one band per topic, its
-// subgroups as inset folds inside, each entry a row that opens in place,
-// and the search box over the page replacing the bands with one ranked
-// list. The horizontal shelves, the topic menu and the drill-down
+// One reading category (Health Literacy, Earth Matters or Horticulture)
+// on fold bands, 2026-09-19, the shape Conditions took on the Life tab
+// the same day and the one asked for here by name: one band per topic,
+// its subgroups as inset folds inside, each entry a row that opens in
+// place, and the search box over the page replacing the bands with one
+// ranked list. The horizontal shelves, the topic menu and the drill-down
 // breadcrumbs this replaced are gone; a topic's description, which used
-// to head a drilled-in page, is the first thing inside its band.
+// to head a drilled-in page, is the first thing inside its band. Later
+// the same day the Digest tab itself went, and this renders inside
+// DigestCategoryLens on whichever tab the category moved to.
 //
 // Grouping is unchanged and lives in lib/digest/categoryGrouping.ts:
-// Basic Health's prefix tree gives the band order and the subtopic folds,
-// and Earth Matters and Home Gardening come through groupEntriesForLens,
-// whose '::'-joined labels fold up into topic, then subgroup. Their
-// "Putting It Together" synthesis entry is the last band.
+// Health Literacy's prefix tree gives the band order and the subtopic
+// folds, and Earth Matters and Horticulture come through
+// groupEntriesForLens, whose '::'-joined labels fold up into topic, then
+// subgroup. Their "Putting It Together" synthesis entry is the last band.
 
-const GLOSSARY_TOPIC_LABEL = 'Glossary';
 const SEARCH_RESULT_LIMIT = 200;
 
 type Subgroup = { label: string | null; entries: AnyDigestEntry[] };
@@ -47,16 +48,15 @@ type Topic = { label: string; description?: string; subgroups: Subgroup[]; count
 function topicsForCategory(categoryKey: DigestCategoryKey, entries: AnyDigestEntry[]): Topic[] {
   if (categoryKey === 'basicHealth') {
     // basicHealthAllGroups gives every leaf group at once; fold them back
-    // up under their topic so each topic is one band. The Glossary is
-    // left out here because the header's Glossary button opens it as a
-    // flat list, where an alphabetical run of definitions reads better
-    // than a band would.
+    // up under their topic so each topic is one band. The Glossary is one
+    // of them, an alphabetical run of definitions in a band of its own,
+    // since the Digest header's Glossary button that used to open it as a
+    // separate flat list went with the Digest tab.
     const leaves = basicHealthAllGroups(entries);
     const byTopic = new Map<string, Subgroup[]>();
     const order: string[] = [];
     for (const leaf of leaves) {
       const [topic, ...rest] = leaf.label.split('::');
-      if (topic === GLOSSARY_TOPIC_LABEL) continue;
       if (!byTopic.has(topic)) {
         byTopic.set(topic, []);
         order.push(topic);
@@ -208,8 +208,8 @@ export function DigestCategorySection({
   }, [openEntryId, topics, openInPlace]);
 
   // The scoped search: every entry in this category, ranked, with the
-  // matched-term dots under each row. Basic Health's Glossary is in the
-  // pool, since a definition is often what a search is after.
+  // matched-term dots under each row. Health Literacy's Glossary is in
+  // the pool, since a definition is often what a search is after.
   const searchResults = useMemo(() => {
     const trimmed = query.trim();
     if (trimmed.length === 0) return null;
@@ -243,7 +243,7 @@ export function DigestCategorySection({
       {searchActive ? null : (
         <View style={styles.headerBox}>
           <View style={styles.headerRow}>
-            <Ionicons name="ribbon" size={22} color={tabColor} style={textShadow} />
+            <Ionicons name={meta?.icon ?? 'reader-outline'} size={22} color={tabColor} style={textShadow} />
             <Text style={styles.headerText}>{label}</Text>
           </View>
           {meta?.description ? <Text style={styles.headerDescription}>{meta.description}</Text> : null}

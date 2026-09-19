@@ -2934,7 +2934,7 @@ export default function ProfileScreen() {
               Learn about a condition without adding it to what this app tracks and helps with for you personally,
               whether you are wondering about yourself or someone else. Anything selected here gets a separate
               Other Conditions list in Life &gt; Conditions, apart from yours, shows up among the Home tab&apos;s
-              Digest flip cards, and a recipe carrying a note about it lists that note separately from the ones
+              Something to Read cards, and a recipe carrying a note about it lists that note separately from the ones
               about you. Nothing selected here ever changes your food scores, meal plans, advisories or safe
               foods.
             </Text>
@@ -3111,7 +3111,7 @@ export default function ProfileScreen() {
                     <Text style={styles.helpText}>
                       {model.frameworkName}. {model.frameworkNote} Purely advisory: your food builders will start
                       surfacing a tappable note on foods worth a second look for your current stage;
-                      nothing is ever hidden or blocked based on this. See the matching category in Digest
+                      nothing is ever hidden or blocked based on this. See the matching condition in Life &gt; Conditions
                       for the full, cited detail.
                     </Text>
                     <View style={styles.pillRow}>

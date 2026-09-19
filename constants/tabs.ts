@@ -26,21 +26,28 @@ export type TabRoute = {
 // each for the sound reason that appending changes no existing tab's swipe
 // adjacency. Ten tabs later that had produced a sequence nobody chose.
 //
-// It now reads in three groups of three, after Home:
+// It reads in three groups, after Home:
 //
 //   Food, Schedules, Signals     what you do daily
 //   Insights, Trends, Reports    what it tells you
-//   Garden, Digest, Life         the wider world
+//   Garden, Life                 the wider world
 //
-// Garden sits ahead of Digest inside that last group for a colour reason
-// rather than a meaning one: Garden's emerald and Life's mint were the closest
-// pair left in the grid at 0.134, and they were side by side. Putting Digest's
-// purple between them roughly doubles the separation, to 0.270 and 0.302, and
-// "the wider world" reads the same in either order.
+// The last group was Garden, Digest, Life until 2026-09-19, when the Digest
+// tab was taken apart by direct instruction ("This will in essence remove
+// the need for the Digest completely. Let's remove Digest as a tab after
+// everything is moved."): its conditions, Basic Health (renamed Health
+// Literacy) and Earth Matters became lenses on Life, Home Gardening became
+// the Horticulture lens on Garden, and its recipes had already moved to
+// Food on 2026-09-18. The Digest's purple used to sit between Garden's
+// emerald and Life's mint to keep the two closest colours in the grid
+// apart (0.134 side by side); with the tab gone they are neighbours again,
+// which is the price of a menu with one fewer tile. colors.tabPurpleDigest
+// stays defined for the pieces that still draw it (PurpleRibbonIcon).
 //
-// One correctness fix falls out of it: Signals is where symptoms and flares
-// are logged and Trends is the patterns drawn FROM them, so having Trends
-// ahead of Signals put an output before its own input.
+// One correctness fix fell out of the 2026-09-05 order: Signals is where
+// symptoms and flares are logged and Trends is the patterns drawn FROM
+// them, so having Trends ahead of Signals put an output before its own
+// input.
 //
 // This list drives three things at once, so changing it moves all three
 // together and that is the point: TabHub's grid, SwipeableTabScreen's own
@@ -55,25 +62,16 @@ export const TAB_ROUTES: TabRoute[] = [
   { path: '/insights', title: 'Insights', icon: 'medical', color: colors.tabInsights },
   { path: '/trends', title: 'Trends', icon: 'trending-up', color: colors.tabTrends },
   { path: '/reports', title: 'Reports', icon: 'document-text', color: colors.tabReports },
-  // Promoted from a Stack-push-only screen (like Profile) to a real swipeable
-  // tab, 2026-08-05 -- explicitly requested so it has "a real location for
-  // the aggregator to exist full time" rather than being reached only via a
-  // shortcut. Originally appended last so no other tab's swipe adjacency changed;
-  // placed by meaning since 2026-09-05, see the block comment above.
-  // `icon: 'ribbon'` is what the Digest actually draws now, everywhere,
-  // as of 1.0.39.12; the traced SVG ribbon that used to override it here
-  // is gone. See components/TabRouteIcon.tsx's own comment for why.
+  // Added 2026-08-13 for home-gardening tracking (a real Growing Zone
+  // lookup, plots/plantings/harvests, and harvest-as-ingredient sourcing
+  // into the Food builders), and since 2026-09-19 the Horticulture reading
+  // as well. Placed by meaning since 2026-09-05, see the block comment
+  // above.
   { path: '/garden', title: 'Garden', icon: 'leaf', color: colors.tabGarden },
-  // The 9th real tab, added 2026-08-13 for home-gardening tracking (a real
-  // Growing Zone lookup, plots/plantings/harvests, and harvest-as-ingredient
-  // sourcing into the Food builders) -- placed by meaning since 2026-09-05,
-  // see the block comment above.
-  { path: '/purple-digest', title: 'Digest', icon: 'ribbon', color: colors.tabPurpleDigest },
-  // The 10th real tab, added 2026-09-04. Direct request: "A new tab needs
-  // to be added and available through TabHub menu. The name of the new tab
-  // is Life... This will deal with the user's life, all aspects." Same
-  // "append last" precedent Digest and Garden both set above, so no
-  // earlier tab's own swipe-adjacency changes.
+  // Added 2026-09-04. Direct request: "A new tab needs to be added and
+  // available through TabHub menu. The name of the new tab is Life... This
+  // will deal with the user's life, all aspects." Appended last, the same
+  // precedent Garden set, so no earlier tab's own swipe-adjacency changed.
   //
   // `infinite` was chosen deliberately over a concrete object. Seven of the
   // nine tabs above are things (a house, a plate, a stethoscope, a
@@ -84,11 +82,14 @@ export const TAB_ROUTES: TabRoute[] = [
   // butterfly (already a selectable TabHub BUTTON icon, see
   // constants/tabHubIcons.ts, so it would appear twice on one screen),
   // `diamond` (reads as "premium" in an app with a real paid-tier model),
-  // `person` (that is Profile), `planet`/`earth` (that is the Digest's own
-  // Earth Matters), and the solid twin of any outline a lens already uses.
+  // `person` (that is Profile), `planet`/`earth` (that is Earth Matters,
+  // a lens on this very tab since 2026-09-19), and the solid twin of any
+  // outline a lens already uses.
   //
-  // Adding this also makes TabHub's own grid come out even: it was at 11
-  // items (9 tabs, Profile, Info) in a 3-column grid, an awkward 3/3/3/2.
-  // Twelve is four full rows.
+  // Adding this also made TabHub's own grid come out even at the time: it
+  // was at 11 items (9 tabs, Profile, Info) in a 3-column grid, 3/3/3/2,
+  // and twelve was four full rows. Removing the Digest on 2026-09-19 put
+  // it back to eleven; TabHub lays its rows out from the count, so nothing
+  // there had to change.
   { path: '/life', title: 'Life', icon: 'infinite', color: colors.tabLife },
 ];

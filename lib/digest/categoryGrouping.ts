@@ -152,7 +152,7 @@ export const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   {
     label: 'How Your Body Works: Organs & Systems',
     description:
-      "How your organs and body systems work, and how food and nutrient levels affect each one, independent of any specific condition. The foundation every condition-specific finding in this Digest builds on.",
+      "How your organs and body systems work, and how food and nutrient levels affect each one, independent of any specific condition. The foundation every condition-specific finding in this app builds on.",
     subtopics: [
       { label: 'Overview & Big Picture', prefixes: ['body-systems-overview', 'body-tying-together'] },
       { label: 'Endocrine System', prefixes: ['body-adrenal-glands-structure-function', 'body-endocrine-crosstalk'] },
@@ -184,7 +184,7 @@ export const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   },
   {
     label: 'Glossary',
-    description: 'Plain definitions for medical, nutrition, and lab terminology used throughout this Digest.',
+    description: 'Plain definitions for medical, nutrition, and lab terminology used throughout this app.',
     prefixes: ['glossary-'],
   },
   // 2026-08-09, direct request: "information about portions, and
@@ -504,7 +504,7 @@ export const BASIC_HEALTH_MORE_TOPIC_LABEL = 'More';
 // stored on a BasicHealthTopic entry, since 'More' never has one, but
 // needed by the same drilled-in header every real topic's own description
 // feeds.
-export const BASIC_HEALTH_MORE_TOPIC_DESCRIPTION = "Entries that cover general health topics without fitting neatly into one of Basic Health's other groups.";
+export const BASIC_HEALTH_MORE_TOPIC_DESCRIPTION = "Entries that cover general health topics without fitting neatly into one of Health Literacy's other groups.";
 
 export function basicHealthTopicPathForEntryId(id: string): string[] {
   for (const topic of BASIC_HEALTH_TOPICS) {

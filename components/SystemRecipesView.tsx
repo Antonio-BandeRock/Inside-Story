@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Fragment, useCallback, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -305,6 +305,7 @@ const RECIPE_DIET_FILTER_OPTIONS: string[] = ['All Diets', ...RECIPE_DIET_TAGS];
 export function SystemRecipesView({
   onOpenBuilder,
   onClose,
+  initialEntryId,
 }: {
   // A builder, pre-loaded with the curated recipe to start from: the same
   // openSideRecipeId/openSaladRecipeId/... params the Digest's own "Build
@@ -312,10 +313,21 @@ export function SystemRecipesView({
   // system recipe and change it" work.
   onOpenBuilder: (params: Record<string, string>) => void;
   onClose: () => void;
+  // A recipe to arrive open, with its group unfolded: a Home flip card's
+  // Read More or a Related chip on another tab (lib/digestNavigation.ts
+  // sends a recipe entry here). 2026-09-19.
+  initialEntryId?: string;
 }) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [openEntryId, setOpenEntryId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!initialEntryId) return;
+    const group = systemRecipeGroups().find((candidate) => candidate.entries.some((entry) => entry.id === initialEntryId));
+    if (!group) return;
+    setOpenGroup(group.key);
+    setOpenEntryId(initialEntryId);
+  }, [initialEntryId]);
   const [query, setQuery] = useState('');
   const [dietFilter, setDietFilter] = useState<RecipeDietTag | null>(null);
 

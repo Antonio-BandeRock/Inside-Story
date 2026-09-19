@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.13',
+    date: '2026-09-19',
+    changes: [
+      'The Digest tab is gone and nothing it held was lost. Conditions, Health Literacy (formerly Basic Health), Earth Matters and Search Reading are lenses on Life; Horticulture (formerly Gardening) is a lens on Garden; the Home flip cards continue as Something to Read, each in the colour of the tab its entry lives on.',
+    ],
+  },
+  {
     version: '1.0.41.12',
     date: '2026-09-19',
     changes: [

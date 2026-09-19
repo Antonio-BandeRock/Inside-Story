@@ -136,15 +136,20 @@ export function ConditionsSection({
   tabColor,
   openEntryId,
   scrollToY,
+  onJumpElsewhere,
 }: {
   tabColor: string;
   // An entry to open on arrival: a Home flip card's Read More, a Related
-  // chip tapped elsewhere, a Search All hit. See lib/digestNavigation.ts.
+  // chip tapped elsewhere, a Search Reading hit. See lib/digestNavigation.ts.
   openEntryId?: string;
   // Life's ScrollView, so a jump can bring the opened condition into view.
   // Positions are measured from this section's top; the host adds its own
   // offset.
   scrollToY?: (y: number) => void;
+  // Where an entry that is not a condition's opens. Life can switch to its
+  // Health Literacy or Earth Matters lens in place; the default pushes the
+  // route the entry lives at.
+  onJumpElsewhere?: (id: string) => void;
 }) {
   const router = useRouter();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -275,7 +280,8 @@ export function ConditionsSection({
       if (!target) return;
       const key = target.category as DigestCategoryKey;
       if (!DIGEST_KEY_TO_CONDITION_CODE[key]) {
-        router.push(routeForDigestEntry(id));
+        if (onJumpElsewhere) onJumpElsewhere(id);
+        else router.push(routeForDigestEntry(id));
         return;
       }
       const where = locateEntry(key, id, declaredStages, dietPreferences);
@@ -291,7 +297,7 @@ export function ConditionsSection({
         pendingScroll.current = null;
       }
     },
-    [router, declaredStages, dietPreferences, visibleKeys, scrollToY],
+    [router, declaredStages, dietPreferences, visibleKeys, scrollToY, onJumpElsewhere],
   );
 
   // A deep link opens its entry once per id, after the lists have loaded

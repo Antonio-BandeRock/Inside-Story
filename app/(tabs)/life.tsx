@@ -5,6 +5,12 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
 import { AppTextInput } from '../../components/AppTextInput';
 import { ConditionsSection } from '../../components/ConditionsSection';
+import {
+  DIGEST_READING_HELP,
+  DIGEST_SEARCH_HELP,
+  DigestCategoryLens,
+  DigestSearchLens,
+} from '../../components/DigestCategoryLens';
 import { EmergencySection } from '../../components/EmergencySection';
 import { FinanceHealthSection } from '../../components/FinanceHealthSection';
 import { FinanceGoalsSection } from '../../components/FinanceGoalsSection';
@@ -31,6 +37,8 @@ import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
+import { findDigestEntryById } from '../../lib/digest';
+import { isConditionCategory, routeForDigestEntry } from '../../lib/digestNavigation';
 import { useBandFolds } from '../../hooks/useBandFolds';
 import {
   expenseCategoriesByGroup,
@@ -142,6 +150,9 @@ const band = makeTabBandStyles(TAB_COLOR);
 // a view inside this tab, so `lens` never actually holds it.
 type LifeLens =
   | 'conditions'
+  | 'healthLiteracy'
+  | 'earthMatters'
+  | 'searchReading'
   | 'finances'
   | 'kitchen'
   | 'work'
@@ -394,8 +405,28 @@ const CONDITIONS_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Search',
-    body: 'The search box looks through every condition on this page at once. A result names which condition it came from, and opens in place.',
+    body: 'The search box looks through every condition on this page at once. A result names which condition it came from, and opens in place. Search Reading, on this same menu, looks through everything the app has to read, conditions included.',
   },
+];
+
+// 2026-09-19: Basic Health became this lens, renamed Health Literacy, when
+// the Digest tab was taken apart and each of its categories went to the tab
+// it belongs on. The reading help is shared with Earth Matters here and
+// Horticulture on Garden.
+const HEALTH_LITERACY_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'Health Literacy',
+    body: 'General-population health knowledge that matters whatever conditions you track: the essential nutrients, how the gut and the immune system work, what food additives and processing do, how the food industry came to be the way it is, complementary therapies, and a glossary of the terms the rest of this app uses. Each subject is one band. Open it to see its entries, and open an entry to read it in place. This is what the Free tier shows in full.',
+  },
+  DIGEST_READING_HELP,
+];
+
+const EARTH_MATTERS_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'Earth Matters',
+    body: 'Everything in this app about the planet the food system runs on: soil and the soil microbiome, pollinators, water, pesticides and their residues, the climate the crops grow in, and what regenerative farming has and has not shown. Each subject is one band. Open it to see its entries, and open an entry to read it in place. Where a finding touches your garden, Horticulture on the Garden tab carries the growing side of it.',
+  },
+  DIGEST_READING_HELP,
 ];
 
 const LIFE_LENSES: LensOption<LifeLens>[] = [
@@ -412,6 +443,15 @@ const LIFE_LENSES: LensOption<LifeLens>[] = [
   // curious about, each list kept apart, laid out the way System Recipes
   // is. See components/ConditionsSection.tsx.
   { key: 'conditions', label: 'Conditions', icon: 'pulse-outline', help: CONDITIONS_HELP_SECTIONS },
+  // 2026-09-19, the rest of the Digest by direct instruction: "Earth
+  // Matters and Basic Health both should become a lens each in the Life
+  // tab, but rename Basic Health to Health Literacy." Search Reading is the
+  // Digest's Search All, kept because it is the one place that looks
+  // through every entry at once, whichever tab the entry now lives on. See
+  // components/DigestCategoryLens.tsx.
+  { key: 'healthLiteracy', label: 'Health Literacy', icon: 'reader-outline', help: HEALTH_LITERACY_HELP_SECTIONS },
+  { key: 'earthMatters', label: 'Earth Matters', icon: 'earth-outline', help: EARTH_MATTERS_HELP_SECTIONS },
+  { key: 'searchReading', label: 'Search Reading', icon: 'search-outline', help: DIGEST_SEARCH_HELP },
   { key: 'finances', label: 'Finances', icon: 'wallet-outline', help: LIFE_HELP_SECTIONS },
   { key: 'work', label: 'Work', icon: 'briefcase-outline', help: WORK_HELP_SECTIONS },
   { key: 'upkeep', label: 'Upkeep', icon: 'construct-outline', help: UPKEEP_HELP_SECTIONS },
@@ -651,6 +691,12 @@ export default function LifeScreen() {
   const scrollConditionsTo = useCallback((y: number) => {
     scrollRef.current?.scrollTo({ y: conditionsTop.current + y, animated: true });
   }, []);
+  // The same for the two reading lenses, which record the wrapper's place
+  // through their own ref so a lens swap never leaves a stale offset.
+  const readingTop = useRef(0);
+  const scrollReadingTo = useCallback((y: number) => {
+    scrollRef.current?.scrollTo({ y: readingTop.current + y, animated: true });
+  }, []);
   const [lens, setLens] = useState<LifeLens>('finances');
   const [revealed, setRevealed] = useState(false);
   const [myLifeOpen, setMyLifeOpen] = useState(false);
@@ -677,6 +723,28 @@ export default function LifeScreen() {
   const [budgetForm, setBudgetForm] = useState<{ category: string; limit: string } | null>(null);
   const autoOpenLensHub = useAutoOpenLensHubSignal();
   const router = useRouter();
+  // An entry a Related chip or a Search Reading hit asked for on a lens of
+  // this tab other than the one showing. It switches the lens and opens the
+  // entry in place, with no route push, and clears when the menu picks
+  // something else. An entry that lives on another tab is pushed there.
+  const [jumpEntryId, setJumpEntryId] = useState<string | undefined>(undefined);
+  const jumpElsewhere = useCallback((id: string) => {
+    const entry = findDigestEntryById(id);
+    if (!entry) return;
+    if (isConditionCategory(entry.category)) {
+      setLens('conditions');
+    } else if (entry.category === 'basicHealth') {
+      setLens('healthLiteracy');
+    } else if (entry.category === 'earthMatters') {
+      setLens('earthMatters');
+    } else {
+      router.push(routeForDigestEntry(id));
+      return;
+    }
+    setJumpEntryId(id);
+    setRevealed(true);
+  }, [router]);
+  const effectiveEntryId = jumpEntryId ?? openEntryId;
 
   const month = currentMonth();
 
@@ -1809,9 +1877,27 @@ export default function LifeScreen() {
 
             {lens === 'conditions' ? (
               <View onLayout={(event) => { conditionsTop.current = event.nativeEvent.layout.y; }}>
-                <ConditionsSection tabColor={TAB_COLOR} openEntryId={openEntryId} scrollToY={scrollConditionsTo} />
+                <ConditionsSection
+                  tabColor={TAB_COLOR}
+                  openEntryId={effectiveEntryId}
+                  scrollToY={scrollConditionsTo}
+                  onJumpElsewhere={jumpElsewhere}
+                />
               </View>
             ) : null}
+            {lens === 'healthLiteracy' || lens === 'earthMatters' ? (
+              <View onLayout={(event) => { readingTop.current = event.nativeEvent.layout.y; }}>
+                <DigestCategoryLens
+                  key={lens}
+                  categoryKey={lens === 'healthLiteracy' ? 'basicHealth' : 'earthMatters'}
+                  tabColor={TAB_COLOR}
+                  openEntryId={effectiveEntryId}
+                  scrollToY={scrollReadingTo}
+                  onJumpElsewhere={jumpElsewhere}
+                />
+              </View>
+            ) : null}
+            {lens === 'searchReading' ? <DigestSearchLens tabColor={TAB_COLOR} onJumpElsewhere={jumpElsewhere} /> : null}
 
             {lens === 'kitchen' ? <KitchenSection tabColor={TAB_COLOR} /> : null}
 
@@ -1877,6 +1963,7 @@ export default function LifeScreen() {
             router.push('/grocery-list');
             return;
           }
+          setJumpEntryId(undefined);
           setLens(key);
           setRevealed(true);
         }}

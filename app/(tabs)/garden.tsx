@@ -1,9 +1,10 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
+import { DIGEST_READING_HELP, DigestCategoryLens } from '../../components/DigestCategoryLens';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { HOME_BAND_GAP, HomeSectionBand } from '../../components/HomeSectionBand';
 import { makeTabBandStyles, TabBand } from '../../components/TabBand';
@@ -73,13 +74,14 @@ const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 // this component's own memo() contract.
 const COUNTRY_OPTIONS = COUNTRIES.map((country) => ({ label: country.name, value: country.code }));
 
-type GardenLens = 'myZone' | 'plotsAndPlantings' | 'harvestLog' | 'upcomingTasks';
+type GardenLens = 'myZone' | 'plotsAndPlantings' | 'harvestLog' | 'upcomingTasks' | 'horticulture';
 
 const GARDEN_LENS_FULL_NAMES: Record<GardenLens, string> = {
   myZone: 'My Zone',
   plotsAndPlantings: 'Plots &\nPlantings',
   harvestLog: 'Harvest\nLog',
   upcomingTasks: 'Upcoming\nTasks',
+  horticulture: 'Horticulture',
 };
 
 const GARDEN_LENSES: LensOption<GardenLens>[] = [
@@ -90,7 +92,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'My Zone',
-        body: 'Look up your USDA Plant Hardiness Zone by country + ZIP/postal code. It works anywhere on Earth, not just the US: a US ZIP gets the official USDA zone directly, everywhere else gets an estimate from that location’s historical temperature data. Or set it directly if you already know it, here or in Profile; both write to the same one saved value. Once set, this shows cited crop guidance for your climate band from Digest’s Home Gardening research, and points you at the fuller entry to read there.',
+        body: 'Look up your USDA Plant Hardiness Zone by country + ZIP/postal code. It works anywhere on Earth, not just the US: a US ZIP gets the official USDA zone directly, everywhere else gets an estimate from that location’s historical temperature data. Or set it directly if you already know it, here or in Profile; both write to the same one saved value. Once set, this shows cited crop guidance for your climate band from the Horticulture lens on this tab, and points you at the fuller entry to read there.',
       },
     ],
   },
@@ -125,6 +127,23 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
         heading: 'Upcoming Garden Tasks',
         body: 'Garden chores (watering, feeding, checking on something) scheduled for a specific date, created here and stored the same way any other Schedule item is. A dedicated lens for these inside the Schedules tab itself isn’t built yet, so this is the place to see and add them for now.',
       },
+    ],
+  },
+  // 2026-09-19, the Digest's Home Gardening category by direct instruction:
+  // "Gardening needs to be moved from Digest to Garden, but I think it
+  // needs to be renamed to something else that relates to learning about
+  // gardening, like Horticulture." The reading, as against the tracking
+  // the other four lenses do. See components/DigestCategoryLens.tsx.
+  {
+    key: 'horticulture',
+    label: 'Horticulture',
+    icon: 'leaf-outline',
+    help: [
+      {
+        heading: 'Horticulture',
+        body: 'Cited guidance on growing fresh food at home: the USDA Plant Hardiness Zone Map and what it does and does not tell you, crop guidance for each of four climate bands from cold and short-season through tropical, what a container can and cannot grow, and how a home garden fits with the pollinator and soil research in Earth Matters on the Life tab. Each subject is one band. Open it to see its entries, and open an entry to read it in place. My Zone, on this same menu, points at the band that matches your zone.',
+      },
+      DIGEST_READING_HELP,
     ],
   },
 ];
@@ -208,9 +227,10 @@ export default function GardenScreen() {
   const openLensHub = useAutoOpenLensHubSignal();
   // 2026-08-17: the deep-link param every tab takes, so food.tsx's "My
   // Whole Foods" tile lands on Harvest Log rather than on this tab's
-  // resting picker. purple-digest.tsx's openDigestLens was the first of
-  // them; food.tsx's openFoodLens is the one still to read.
-  const { openGardenLens } = useLocalSearchParams<{ openGardenLens?: string }>();
+  // resting picker. openEntryId came with Horticulture on 2026-09-19: a
+  // Home flip card's Read More or a Related chip on another tab names
+  // the entry to open, see lib/digestNavigation.ts.
+  const { openGardenLens, openEntryId } = useLocalSearchParams<{ openGardenLens?: string; openEntryId?: string }>();
   const [lens, setLens] = useState<GardenLens>('myZone');
   const activeLensLabel = GARDEN_LENS_FULL_NAMES[lens];
   const [revealed, setRevealed] = useState(false);
@@ -231,7 +251,8 @@ export default function GardenScreen() {
         openGardenLens === 'myZone' ||
         openGardenLens === 'plotsAndPlantings' ||
         openGardenLens === 'harvestLog' ||
-        openGardenLens === 'upcomingTasks'
+        openGardenLens === 'upcomingTasks' ||
+        openGardenLens === 'horticulture'
       ) {
         setLens(openGardenLens);
         setRevealed(true);
@@ -288,6 +309,8 @@ export default function GardenScreen() {
             <HarvestLogLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'upcomingTasks' ? (
             <UpcomingTasksLens scrollBottomPadding={scrollBottomPadding} />
+          ) : lens === 'horticulture' ? (
+            <HorticultureLens scrollBottomPadding={scrollBottomPadding} openEntryId={openEntryId} />
           ) : null}
         </GatedTabContent>
       </SwipeableTabScreen>
@@ -452,13 +475,12 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
           <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Zone {zone}: {bandInfo.bandLabel}</Text>
           {bandInfo.belowCoverage ? (
             <Text style={styles.captionText}>
-              This app&apos;s own crop-band research currently starts at zone 3, so the cold/short-season guidance below is
+              This app&apos;s crop-band research currently starts at zone 3, so the cold/short-season guidance below is
               the closest match, not a perfect one for your specific zone.
             </Text>
           ) : null}
           <Text style={styles.cardBody}>
-            Cited guidance for your climate band lives in Digest&apos;s own Home Gardening research. Open the Garden
-            topic there and look for:
+            Cited guidance for your climate band is in Horticulture, on this tab&apos;s menu. Look there for:
           </Text>
           {bandInfo.digestTopics.map((topic) => (
             <Text key={topic} style={styles.bulletText}>
@@ -467,6 +489,26 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
           ))}
         </View>
       ) : null}
+    </ScrollView>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Horticulture
+// ---------------------------------------------------------------------------
+
+// The Digest's Home Gardening reading, on this tab since 2026-09-19. The
+// lens keeps its own ScrollView like the four tracking lenses, and hands
+// the reading component the scroll so an entry opened from a link is
+// brought into view.
+function HorticultureLens({ scrollBottomPadding, openEntryId }: { scrollBottomPadding: number; openEntryId?: string }) {
+  const scrollRef = useRef<ScrollView>(null);
+  const scrollTo = useCallback((y: number) => {
+    scrollRef.current?.scrollTo({ y, animated: true });
+  }, []);
+  return (
+    <ScrollView ref={scrollRef} contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
+      <DigestCategoryLens categoryKey="homeGardening" tabColor={TAB_COLOR} openEntryId={openEntryId} scrollToY={scrollTo} />
     </ScrollView>
   );
 }

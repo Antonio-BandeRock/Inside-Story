@@ -99,11 +99,9 @@ export default function TabLayout() {
             <Tabs.Screen name="trends" options={{ title: 'Trends' }} />
             <Tabs.Screen name="log" options={{ title: 'Signals' }} />
             <Tabs.Screen name="reports" options={{ title: 'Reports' }} />
-            {/* Promoted from a Stack push (app/purple-digest.tsx, outside this
-                group entirely) to a real tab, 2026-08-05 -- see
-                constants/tabs.ts's own TAB_ROUTES entry for the full
-                reasoning. */}
-            <Tabs.Screen name="purple-digest" options={{ title: 'Digest' }} />
+            {/* The Digest tab (purple-digest, 2026-08-05 to 2026-09-19) is
+                gone: its categories are lenses on Life, Garden and Food
+                now, see constants/tabs.ts's block comment. */}
             {/* The 9th real tab, added 2026-08-13 -- see
                 constants/tabs.ts's own TAB_ROUTES entry for the full
                 reasoning. */}

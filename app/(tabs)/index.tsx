@@ -51,7 +51,7 @@ import { getMoonPhase, getUpcomingSeasonalMarker } from '../../lib/celestialEven
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
 import { isTestDataPresent } from '../../lib/testData';
 import { ALL_DIGEST_ENTRIES, DIGEST_CATEGORY_META, isProblemFoodEntry, type DigestCategoryKey } from '../../lib/digest';
-import { routeForDigestEntry } from '../../lib/digestNavigation';
+import { routeForDigestEntry, tabPathForDigestCategory } from '../../lib/digestNavigation';
 import { markHomeDataReady } from '../../lib/homeReadySignal';
 import { deleteMealPhotoFile, pickAndSaveMealPhoto } from '../../lib/mealPhotos';
 import {
@@ -746,13 +746,16 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.primary,
     href: '/capture' as Href,
   },
-  // The Ionicons "ribbon" glyph, which is what the Digest draws everywhere as
-  // of 1.0.39.12 (see components/TabRouteIcon.tsx). No renderIcon override:
-  // it is a font glyph like every other entry in this menu, at the same size.
+  // 2026-09-19: the Digest tab is gone, its categories spread over Life,
+  // Garden and Food, and by direct instruction the cards "should become
+  // part of the Home area on the Home screen and the cards should each be
+  // the color of the tab they come from." So this section is Home's now
+  // (see lib/homeSections.ts), in Home's colour, and each card below wears
+  // the colour and icon of the tab its entry lives on.
   digestCards: {
-    label: 'The Digest',
-    icon: 'ribbon',
-    color: colors.tabPurpleDigest,
+    label: 'Something to Read',
+    icon: 'book-outline',
+    color: colors.tabHome,
     scrollTo: true,
   },
 };
@@ -2412,6 +2415,13 @@ export default function HomeScreen() {
   // colour that morning the lighter title beside it read as a mismatch, and
   // the instruction was to match them: "match the Home band title and card
   // headers too."
+  //
+  // 2026-09-19: the Digest tab is gone and the cards sit in the Home group.
+  // Each card's colour and icon now come from the tab its entry lives on
+  // (Life for a condition, Health Literacy or Earth Matters; Garden for
+  // Horticulture; Food for a recipe), looked up through TAB_ROUTES so they
+  // can never drift from what TabHub draws: "the cards should each be the
+  // color of the tab they come from."
   function renderDigestCards() {
     if (!isHomeSectionVisible(visualPrefs, 'digestCards')) return null;
     return (
@@ -2421,18 +2431,23 @@ export default function HomeScreen() {
       // to the screen edge. The row adds a right inset so the last card is
       // not jammed against it.
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.flipRow}>
-        {visibleFlipCards.map((card) => (
-          <FlipCard
-            key={card.groupKey}
-            icon={<Ionicons name="ribbon" size={18} color={colors.tabPurpleDigest} style={textShadow} />}
-            header={DIGEST_CATEGORY_LABEL_BY_KEY[card.groupKey] ?? 'The Digest'}
-            hook={card.hook}
-            backTitle={card.backTitle}
-            backBody={card.backBody}
-            onReadMore={() => router.push(routeForDigestEntry(card.id))}
-            borderColor={colors.tabPurpleDigest}
-          />
-        ))}
+        {visibleFlipCards.map((card) => {
+          const tabPath = tabPathForDigestCategory(card.groupKey);
+          const tab = TAB_ROUTES.find((route) => route.path === tabPath);
+          const cardColor = tab?.color ?? colors.tabHome;
+          return (
+            <FlipCard
+              key={card.groupKey}
+              icon={<Ionicons name={tab?.icon ?? 'book-outline'} size={18} color={cardColor} style={textShadow} />}
+              header={DIGEST_CATEGORY_LABEL_BY_KEY[card.groupKey] ?? 'Something to Read'}
+              hook={card.hook}
+              backTitle={card.backTitle}
+              backBody={card.backBody}
+              onReadMore={() => router.push(routeForDigestEntry(card.id))}
+              borderColor={cardColor}
+            />
+          );
+        })}
       </ScrollView>
     );
   }

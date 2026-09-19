@@ -113,6 +113,6 @@ export function getGoutStageAdvisory(scores: FoodScore[], stage: GoutStage | nul
     title: `Gout Stage: ${stage === 'acute_flare' ? 'Acute Flare' : 'Intercritical (Between Flares)'}`,
     message:
       message +
-      "\n\nThis app can't flag purine-heavy meat/seafood or beer directly at the individual-food level (no reference source measures purine content). See the Gout category in Digest for that full, cited detail. This is advisory only. Nothing in Inside Story hides or blocks a food based on your stage.",
+      "\n\nThis app can't flag purine-heavy meat/seafood or beer directly at the individual-food level (no reference source measures purine content). See Gout in Life > Conditions for that full, cited detail. This is advisory only. Nothing in Inside Story hides or blocks a food based on your stage.",
   };
 }

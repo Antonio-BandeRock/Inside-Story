@@ -134,7 +134,7 @@ export const CONDITION_PROTEIN_OVERRIDES: ConditionProteinOverride[] = [
     conditionCode: 'chronic_kidney_disease',
     stageCode: 'on_dialysis',
     gramsPerKg: 1.2,
-    note: 'Using 1.2 g/kg. Dialysis itself removes protein that needs replacing, so the pre-dialysis ceiling above no longer applies once dialysis starts. See the Chronic Kidney Disease category in Digest for the full reversal.',
+    note: 'Using 1.2 g/kg. Dialysis itself removes protein that needs replacing, so the pre-dialysis ceiling above no longer applies once dialysis starts. See Chronic Kidney Disease in Life > Conditions for the full reversal.',
   },
 ];
 

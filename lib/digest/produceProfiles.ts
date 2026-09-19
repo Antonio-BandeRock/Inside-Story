@@ -386,7 +386,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     id: 'produce-closing',
     category: 'basicHealth',
     title: 'How to Actually Use This Topic: One Profile, Then Its Cross-Links',
-    teaser: 'Every caution named across this topic points back to a fuller, already-built entry elsewhere in this Digest, this topic is meant as the entry point, not the whole story.',
+    teaser: 'Every caution named across this topic points back to a fuller, already-built entry elsewhere in this app, this topic is meant as the entry point, not the whole story.',
     summary: 'Nearly every specific caution named across this topic (goitrogens, FODMAPs, oxalates, vitamin K and blood thinners, tree nut allergy, grapefruit\'s drug interaction) already has its fuller, independently cited entry elsewhere, deliberately cross-linked from the relevant profile rather than repeated in full here. The intended use of this topic is as a fast starting point: someone wondering "what\'s the deal with spinach" or "is walnut actually different from other nuts" gets a first answer here, with a direct path to the deeper research behind whichever specific caution or benefit actually applies to them. As with every other growing series, this is a first batch, not a claim of covering every fruit, vegetable, nut, and seed in the 22,000-food reference database, more profiles are a standing next step.',
     citations: [
       {

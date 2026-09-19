@@ -75,7 +75,10 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   worthALook: '/insights',
   fuelGauges: '/insights',
   weekTrend: '/trends',
-  digestCards: '/purple-digest',
+  // 2026-09-19: the Digest tab is gone, so the reading cards are Home's
+  // and sit in its group at the top; each card wears the colour of the
+  // tab its entry now lives on (see renderDigestCards in app/(tabs)/index.tsx).
+  digestCards: '/',
   // Life's, 2026-09-17, alongside the Grocery List for the same reason:
   // these are the things a day is actually run on, and Life is where both
   // are built.

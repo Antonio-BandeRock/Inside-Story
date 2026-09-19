@@ -416,7 +416,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   makeReport: 'Make a Report',
   gardenTasks: 'Garden Tasks',
   logHarvest: 'Log a Harvest',
-  digestCards: 'Digest Cards',
+  digestCards: 'Something to Read',
   routines: 'Routines',
   doneChecks: 'Did I Do It',
 };

@@ -180,7 +180,11 @@ export const DIGEST_CATEGORY_META: {
 }[] = [
   {
     key: 'basicHealth',
-    label: 'Basic Health',
+    // Renamed from "Basic Health" to "Health Literacy", 2026-09-19, when
+    // the category became a lens on Life. The key stays 'basicHealth'
+    // throughout, the same "internal identifiers stay stable, only the
+    // shown name changes" precedent Gardening set on 2026-08-13.
+    label: 'Health Literacy',
     icon: 'reader-outline',
     description: 'Food, vitamins, minerals, and interactions everyone should understand about their body, independent of any specific condition, what the Free tier shows in full.',
   },
@@ -191,7 +195,7 @@ export const DIGEST_CATEGORY_META: {
     // Disease."
     label: "Hashimoto's Thyroiditis",
     icon: 'medkit-outline',
-    description: "Every Hashimoto's-specific finding in this Digest, in one place: nutrients, labs and medication timing, healing stages, organ systems, history, pregnancy, corroborating cross-disease evidence, and Hashimoto's self-advocacy guidance.",
+    description: "Every Hashimoto's-specific finding in this app, in one place: nutrients, labs and medication timing, healing stages, organ systems, history, pregnancy, corroborating cross-disease evidence, and Hashimoto's self-advocacy guidance.",
   },
   // 2026-08-08, eleventh addition (unchanged from its own original build),
   // and the first genuinely new condition this app has ever built out:
@@ -384,13 +388,15 @@ export const DIGEST_CATEGORY_META: {
   // header comment.
   {
     key: 'homeGardening',
-    // Renamed from "Home Gardening" to "Gardening", 2026-08-13, direct
-    // request -- key stays 'homeGardening' unchanged throughout (every
-    // entry in lib/digest/homeGardening.ts, DIGEST_CATEGORY_KEYS, and
-    // every classifier/help lookup keyed on it), the same "internal
-    // identifiers stay stable, only the shown name changes" precedent
-    // this whole build has already used for several builders.
-    label: 'Gardening',
+    // Renamed from "Home Gardening" to "Gardening", 2026-08-13, and to
+    // "Horticulture" on 2026-09-19 when it became a lens on the Garden
+    // tab, where a lens called Gardening would have named the whole tab.
+    // The key stays 'homeGardening' unchanged throughout (every entry in
+    // lib/digest/homeGardening.ts, DIGEST_CATEGORY_KEYS, and every
+    // classifier/help lookup keyed on it), the same "internal identifiers
+    // stay stable, only the shown name changes" precedent this whole
+    // build has already used for several builders.
+    label: 'Horticulture',
     icon: 'leaf-outline',
     description: "Growing even a modest amount of food yourself is a documented way to cut a grocery bill and eat fresher produce, what to grow, organized by climate zone so you can find guidance for where you actually live, plus container growing, beginner crops, and season extension.",
   },

@@ -403,7 +403,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Where the numbers come from',
-        body: 'Your maintenance calories come from the Mifflin-St Jeor equation (weight, height, age, sex) times an activity-level multiplier, the same method most clinical dietetics practice uses. Protein scales with your body weight and activity level (or a condition-specific override, e.g. CKD); the remaining calories split between fat and carbohydrate using the midpoint of NASEM\'s Acceptable Macronutrient Distribution Range. See the Portions & Recommended Amounts topic in Digest for the full method and citations.',
+        body: 'Your maintenance calories come from the Mifflin-St Jeor equation (weight, height, age, sex) times an activity-level multiplier, the same method most clinical dietetics practice uses. Protein scales with your body weight and activity level (or a condition-specific override, e.g. CKD); the remaining calories split between fat and carbohydrate using the midpoint of NASEM\'s Acceptable Macronutrient Distribution Range. See the Portions & Recommended Amounts topic in Health Literacy, on the Life tab, for the full method and citations.',
       },
       {
         heading: 'What this is not',
@@ -1759,7 +1759,7 @@ function buildPersonalDriRow(nutrientCode: string, displayName: string, amount: 
     upperLimitType: null,
     sourceAgency: 'Personalized estimate (Mifflin-St Jeor equation + your activity level), not an official DRI',
     citation: null,
-    notes: 'Computed from your weight, height, age, and activity level in Profile. See Digest\'s Portions & Recommended Amounts topic for the full method.',
+    notes: 'Computed from your weight, height, age, and activity level in Profile. See the Portions & Recommended Amounts topic in Health Literacy, on the Life tab, for the full method.',
   };
 }
 
@@ -1839,7 +1839,7 @@ function PortionsView({
       <View style={styles.noticeCard}>
         <Text style={styles.noticeText}>
           Estimated from your weight, height, age, and activity level, a maintenance estimate, not a
-          prescribed target or a diagnosis. See Digest&apos;s Portions & Recommended Amounts topic for the
+          prescribed target or a diagnosis. See the Portions &amp; Recommended Amounts topic in Health Literacy, on the Life tab, for the
           full method and citations.
         </Text>
       </View>
