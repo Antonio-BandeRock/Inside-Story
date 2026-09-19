@@ -1,0 +1,392 @@
+import { Ionicons } from '@expo/vector-icons';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { DigestEntryRow, makeDigestRowStyles } from './DigestEntryRow';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { colors } from '../constants/colors';
+import { menuLabelShadow, textShadow, typography } from '../constants/typography';
+import {
+  DIGEST_CATEGORY_META,
+  searchEntriesScored,
+  type AnyDigestEntry,
+  type DigestCategoryKey,
+  type SearchMatchInfo,
+} from '../lib/digest';
+import {
+  BASIC_HEALTH_MORE_TOPIC_DESCRIPTION,
+  BASIC_HEALTH_MORE_TOPIC_LABEL,
+  BASIC_HEALTH_TOPICS,
+  basicHealthAllGroups,
+  basicHealthTopicPathForEntryId,
+  groupEntriesForLens,
+  TYING_TOGETHER_GROUP_KEY,
+} from '../lib/digest/categoryGrouping';
+
+// One Digest category (Basic Health, Earth Matters or Home Gardening) on
+// fold bands, 2026-09-19, the shape Conditions took on the Life tab the
+// same day and the one asked for here by name: one band per topic, its
+// subgroups as inset folds inside, each entry a row that opens in place,
+// and the search box over the page replacing the bands with one ranked
+// list. The horizontal shelves, the topic menu and the drill-down
+// breadcrumbs this replaced are gone; a topic's description, which used
+// to head a drilled-in page, is the first thing inside its band.
+//
+// Grouping is unchanged and lives in lib/digest/categoryGrouping.ts:
+// Basic Health's prefix tree gives the band order and the subtopic folds,
+// and Earth Matters and Home Gardening come through groupEntriesForLens,
+// whose '::'-joined labels fold up into topic, then subgroup. Their
+// "Putting It Together" synthesis entry is the last band.
+
+const GLOSSARY_TOPIC_LABEL = 'Glossary';
+const SEARCH_RESULT_LIMIT = 200;
+
+type Subgroup = { label: string | null; entries: AnyDigestEntry[] };
+type Topic = { label: string; description?: string; subgroups: Subgroup[]; count: number };
+
+// Every band on the page, in order, with its rows already sorted.
+function topicsForCategory(categoryKey: DigestCategoryKey, entries: AnyDigestEntry[]): Topic[] {
+  if (categoryKey === 'basicHealth') {
+    // basicHealthAllGroups gives every leaf group at once; fold them back
+    // up under their topic so each topic is one band. The Glossary is
+    // left out here because the header's Glossary button opens it as a
+    // flat list, where an alphabetical run of definitions reads better
+    // than a band would.
+    const leaves = basicHealthAllGroups(entries);
+    const byTopic = new Map<string, Subgroup[]>();
+    const order: string[] = [];
+    for (const leaf of leaves) {
+      const [topic, ...rest] = leaf.label.split('::');
+      if (topic === GLOSSARY_TOPIC_LABEL) continue;
+      if (!byTopic.has(topic)) {
+        byTopic.set(topic, []);
+        order.push(topic);
+      }
+      byTopic.get(topic)!.push({ label: rest.length ? rest.join(' › ') : null, entries: leaf.entries });
+    }
+    return order
+      .map((label) => {
+        const subgroups = byTopic.get(label)!.filter((subgroup) => subgroup.entries.length > 0);
+        const description =
+          label === BASIC_HEALTH_MORE_TOPIC_LABEL
+            ? BASIC_HEALTH_MORE_TOPIC_DESCRIPTION
+            : BASIC_HEALTH_TOPICS.find((topic) => topic.label === label)?.description;
+        return { label, description, subgroups, count: subgroups.reduce((total, subgroup) => total + subgroup.entries.length, 0) };
+      })
+      .filter((topic) => topic.count > 0);
+  }
+  const grouped = groupEntriesForLens(categoryKey, entries);
+  const byTopic = new Map<string, Subgroup[]>();
+  const order: string[] = [];
+  for (const group of grouped.topics) {
+    const [topic, ...rest] = group.label.split('::');
+    if (!byTopic.has(topic)) {
+      byTopic.set(topic, []);
+      order.push(topic);
+    }
+    byTopic.get(topic)!.push({ label: rest.length ? rest.join(' › ') : null, entries: group.entries });
+  }
+  const topics: Topic[] = order.map((label) => {
+    const subgroups = byTopic.get(label)!;
+    return { label, subgroups, count: subgroups.reduce((total, subgroup) => total + subgroup.entries.length, 0) };
+  });
+  if (grouped.tyingTogether) {
+    topics.push({
+      label: TYING_TOGETHER_GROUP_KEY,
+      subgroups: [{ label: null, entries: [grouped.tyingTogether] }],
+      count: 1,
+    });
+  }
+  return topics;
+}
+
+function topicDisplayLabel(label: string): string {
+  return label === TYING_TOGETHER_GROUP_KEY ? 'Putting It Together' : label;
+}
+
+// Where an entry sits: which band, and which fold inside it.
+function locateEntry(topics: Topic[], id: string): { topic: string; subgroup: string | null } | null {
+  for (const topic of topics) {
+    for (const subgroup of topic.subgroups) {
+      if (subgroup.entries.some((entry) => entry.id === id)) return { topic: topic.label, subgroup: subgroup.label };
+    }
+  }
+  return null;
+}
+
+// The band a search hit would sit under, since the results list has no
+// band saying so.
+function groupLabelFor(categoryKey: DigestCategoryKey, id: string, topics: Topic[]): string | undefined {
+  if (categoryKey === 'basicHealth') {
+    const path = basicHealthTopicPathForEntryId(id);
+    return path.length > 0 ? path.join(' › ') : BASIC_HEALTH_MORE_TOPIC_LABEL;
+  }
+  const where = locateEntry(topics, id);
+  if (!where) return undefined;
+  const topic = topicDisplayLabel(where.topic);
+  return where.subgroup ? `${topic} › ${where.subgroup}` : topic;
+}
+
+export function DigestCategorySection({
+  categoryKey,
+  entries,
+  query,
+  searchActive,
+  tabColor,
+  tabTextColor,
+  openEntryId,
+  scrollToY,
+  onJumpToRelated,
+}: {
+  categoryKey: DigestCategoryKey;
+  // The category's entries, already trimmed of anything tagged with a
+  // hidden food; the screen owns that filter.
+  entries: AnyDigestEntry[];
+  // The debounced text in the search box over the page. Non-empty replaces
+  // the bands with one ranked list.
+  query: string;
+  // True while the search box has focus or text, when the header box
+  // stands down so the results start at the top.
+  searchActive: boolean;
+  tabColor: string;
+  tabTextColor: string;
+  // An entry to open on arrival: a Related chip tapped elsewhere, a Search
+  // All hit, a Home flip card's Read More. Opened once per id.
+  openEntryId?: string | null;
+  // The screen's ScrollView, so a jump can bring the opened band into
+  // view. Positions are measured from this section's top.
+  scrollToY?: (y: number) => void;
+  onJumpToRelated: (id: string) => void;
+}) {
+  const styles = useMemo(() => makeStyles(tabColor, tabTextColor), [tabColor, tabTextColor]);
+  const meta = DIGEST_CATEGORY_META.find((candidate) => candidate.key === categoryKey);
+  const topics = useMemo(() => topicsForCategory(categoryKey, entries), [categoryKey, entries]);
+
+  const [openTopic, setOpenTopic] = useState<string | null>(null);
+  const [openSubgroup, setOpenSubgroup] = useState<string | null>(null);
+  const [openEntry, setOpenEntry] = useState<string | null>(null);
+
+  // Switching category closes everything; the old category's labels mean
+  // nothing in the new one.
+  useEffect(() => {
+    setOpenTopic(null);
+    setOpenSubgroup(null);
+    setOpenEntry(null);
+  }, [categoryKey]);
+
+  // Each band's top, measured from this section's top.
+  const bandTops = useRef<Record<string, number>>({});
+  const pendingScroll = useRef<string | null>(null);
+
+  const openInPlace = useCallback(
+    (id: string) => {
+      const where = locateEntry(topics, id);
+      if (!where) return;
+      setOpenTopic(where.topic);
+      setOpenSubgroup(where.subgroup);
+      setOpenEntry(id);
+      pendingScroll.current = where.topic;
+      const top = bandTops.current[where.topic];
+      if (top !== undefined && scrollToY) {
+        scrollToY(top);
+        pendingScroll.current = null;
+      }
+    },
+    [topics, scrollToY],
+  );
+
+  const consumedOpenId = useRef<string | null>(null);
+  useEffect(() => {
+    // A cleared id lets the same entry be asked for again later.
+    if (!openEntryId) {
+      consumedOpenId.current = null;
+      return;
+    }
+    if (consumedOpenId.current === openEntryId) return;
+    if (topics.length === 0) return;
+    consumedOpenId.current = openEntryId;
+    openInPlace(openEntryId);
+  }, [openEntryId, topics, openInPlace]);
+
+  // The scoped search: every entry in this category, ranked, with the
+  // matched-term dots under each row. Basic Health's Glossary is in the
+  // pool, since a definition is often what a search is after.
+  const searchResults = useMemo(() => {
+    const trimmed = query.trim();
+    if (trimmed.length === 0) return null;
+    return searchEntriesScored(entries, trimmed, SEARCH_RESULT_LIMIT);
+  }, [query, entries]);
+
+  const label = meta?.label ?? '';
+
+  const toggleSubgroup = (key: string, open: boolean) => {
+    setOpenSubgroup(open ? null : key);
+    setOpenEntry(null);
+  };
+
+  const renderRows = (rows: AnyDigestEntry[]) =>
+    rows.map((entry, index) => (
+      <Fragment key={entry.id}>
+        {index > 0 ? <View style={styles.rowDivider} /> : null}
+        <DigestEntryRow
+          entry={entry}
+          expanded={openEntry === entry.id}
+          onToggle={() => setOpenEntry(openEntry === entry.id ? null : entry.id)}
+          onJumpToRelated={onJumpToRelated}
+          tabColor={tabColor}
+          styles={styles}
+        />
+      </Fragment>
+    ));
+
+  return (
+    <View style={styles.wrapper}>
+      {searchActive ? null : (
+        <View style={styles.headerBox}>
+          <View style={styles.headerRow}>
+            <Ionicons name="ribbon" size={22} color={tabColor} style={textShadow} />
+            <Text style={styles.headerText}>{label}</Text>
+          </View>
+          {meta?.description ? <Text style={styles.headerDescription}>{meta.description}</Text> : null}
+        </View>
+      )}
+
+      {searchResults ? (
+        <>
+          <View style={styles.countBox}>
+            <Text style={styles.countText}>
+              {searchResults.length === 0
+                ? `No matches for “${query.trim()}” in ${label}.`
+                : `${searchResults.length} match${searchResults.length === 1 ? '' : 'es'} in ${label}`}
+            </Text>
+          </View>
+          {searchResults.length > 0 ? (
+            <View style={styles.resultList}>
+              {searchResults.map((result, index) => (
+                <Fragment key={result.entry.id}>
+                  {index > 0 ? <View style={styles.rowDivider} /> : null}
+                  <DigestEntryRow
+                    entry={result.entry}
+                    groupLabel={groupLabelFor(categoryKey, result.entry.id, topics)}
+                    expanded={openEntry === result.entry.id}
+                    onToggle={() => setOpenEntry(openEntry === result.entry.id ? null : result.entry.id)}
+                    onJumpToRelated={onJumpToRelated}
+                    tabColor={tabColor}
+                    styles={styles}
+                    below={<MatchDotRow match={result.match} tabColor={tabColor} />}
+                  />
+                </Fragment>
+              ))}
+            </View>
+          ) : null}
+        </>
+      ) : (
+        topics.map((topic) => {
+          const expanded = openTopic === topic.label;
+          const single = topic.subgroups.length === 1 && topic.subgroups[0].label === null;
+          return (
+            <View
+              key={topic.label}
+              onLayout={(event) => {
+                bandTops.current[topic.label] = event.nativeEvent.layout.y;
+                if (pendingScroll.current === topic.label && scrollToY) {
+                  scrollToY(event.nativeEvent.layout.y);
+                  pendingScroll.current = null;
+                }
+              }}
+            >
+              <HomeSectionBand
+                kind="fold"
+                title={`${topicDisplayLabel(topic.label)} (${topic.count})`}
+                icon={meta?.icon ?? 'reader-outline'}
+                color={tabColor}
+                expanded={expanded}
+                onToggle={() => {
+                  setOpenTopic(expanded ? null : topic.label);
+                  setOpenSubgroup(null);
+                  setOpenEntry(null);
+                }}
+                contentStyle={styles.bandBody}
+              >
+                {topic.description ? <Text style={styles.topicDescription}>{topic.description}</Text> : null}
+                {single
+                  ? renderRows(topic.subgroups[0].entries)
+                  : topic.subgroups.map((subgroup) => {
+                      const key = subgroup.label ?? '';
+                      const open = openSubgroup === key;
+                      return (
+                        <View key={key} style={styles.topicFold}>
+                          <TouchableOpacity style={styles.topicTapArea} onPress={() => toggleSubgroup(key, open)} activeOpacity={0.85}>
+                            <Text style={styles.topicTitle}>
+                              {subgroup.label ?? 'Entries'} ({subgroup.entries.length})
+                            </Text>
+                            <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textSecondary} />
+                          </TouchableOpacity>
+                          {open ? <View style={styles.topicBody}>{renderRows(subgroup.entries)}</View> : null}
+                        </View>
+                      );
+                    })}
+              </HomeSectionBand>
+            </View>
+          );
+        })
+      )}
+    </View>
+  );
+}
+
+// The compact version of the search-term legend: one dot per term, filled
+// for a title match, outlined for a body or citation match, grey for a
+// miss. The Search Matching help sheet explains the three.
+export function MatchDotRow({ match, tabColor }: { match: SearchMatchInfo; tabColor: string }) {
+  return (
+    <View style={dotStyles.row}>
+      {match.terms.map((termMatch) => (
+        <View
+          key={termMatch.term}
+          style={[
+            dotStyles.dot,
+            termMatch.matchedInTitle
+              ? { backgroundColor: tabColor }
+              : termMatch.matchedAnywhere
+                ? { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: tabColor }
+                : dotStyles.miss,
+          ]}
+        />
+      ))}
+    </View>
+  );
+}
+
+const dotStyles = StyleSheet.create({
+  row: { flexDirection: 'row', gap: 5, marginTop: 6 },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  miss: { backgroundColor: colors.border },
+});
+
+function makeStyles(tabColor: string, tabTextColor: string) {
+  return StyleSheet.create({
+    ...makeDigestRowStyles(tabColor),
+    wrapper: { gap: HOME_BAND_GAP },
+    bandBody: { gap: HOME_BAND_GAP },
+    // The category's name and description, the box the page starts with.
+    // Edge to edge like the bands below it, with the band's content inset
+    // so its text lines up with theirs.
+    headerBox: {
+      backgroundColor: colors.surface,
+      paddingVertical: 14,
+      paddingHorizontal: HOME_BAND_CONTENT_PADDING,
+      gap: 8,
+    },
+    headerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    headerText: { ...typography.screenTitle, ...menuLabelShadow, fontWeight: '400', color: tabTextColor, flex: 1 },
+    headerDescription: { ...typography.body, color: colors.textSecondary, ...textShadow },
+    topicDescription: { ...typography.caption, color: colors.textSecondary, ...textShadow },
+    countBox: {
+      backgroundColor: colors.surfaceMuted,
+      paddingVertical: 10,
+      paddingHorizontal: HOME_BAND_CONTENT_PADDING,
+    },
+    countText: { ...typography.caption, color: colors.textSecondary, ...textShadow },
+    resultList: {},
+  });
+}

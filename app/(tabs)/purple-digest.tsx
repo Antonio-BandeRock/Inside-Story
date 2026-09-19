@@ -1,31 +1,27 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { FlatList, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Animated, { LinearTransition } from 'react-native-reanimated';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
-import { DigestEntryBody, categoryLabelForEntry, entryHeaderDotColor, tierColor } from '../../components/DigestEntryDetail';
+import { DigestCategorySection, MatchDotRow } from '../../components/DigestCategorySection';
+import { categoryLabelForEntry } from '../../components/DigestEntryDetail';
+import { DigestEntryRow, makeDigestRowStyles } from '../../components/DigestEntryRow';
 import { EdgeShadow } from '../../components/EdgeShadow';
 import { EntrySearchInput } from '../../components/EntrySearchInput';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { HelpSheet, type HelpSection } from '../../components/HelpButton';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP } from '../../components/HomeSectionBand';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
-import { PopoverSelect } from '../../components/PopoverSelect';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { TAB_REVEAL_DURATION_MS } from '../../constants/tabReveal';
 import { menuLabelShadow, textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
-import { DIGEST_KEY_TO_CONDITION_CODE } from '../../lib/conditionCodeMap';
+import { getVisibleFoodBaseNames } from '../../lib/db';
 import { isConditionCategory, routeForDigestEntry } from '../../lib/digestNavigation';
-import {
-  getConditionStages,
-  getDietPreferences,
-  getVisibleFoodBaseNames,
-} from '../../lib/db';
 import {
   ALL_DIGEST_ENTRIES,
   DIGEST_CATEGORY_META,
@@ -36,20 +32,30 @@ import {
   searchEntriesScored,
   type AnyDigestEntry,
   type DigestCategoryKey,
-  type RecipeDietTag,
   type SearchMatchInfo,
 } from '../../lib/digest';
-import {
-  applyConditionTopicSubgroups,
-  classifyConditionTopic,
-  classifyRecipesTopic,
-  groupConditionEntries,
-  isTyingTogetherEntry,
-  RECIPE_DIET_FILTER_OPTIONS,
-  RECIPES_TOPIC_ORDER,
-  sortDigestEntriesLogically,
-  type RecipeTopic,
-} from '../../lib/digest/conditionGrouping';
+import { BASIC_HEALTH_TOPICS } from '../../lib/digest/categoryGrouping';
+import { sortDigestEntriesLogically } from '../../lib/digest/conditionGrouping';
+
+// The Digest on fold bands, 2026-09-19. Direct request, the same day
+// Conditions moved to Life and took this shape there: "the full screen
+// width and new formatting for everything is needed wherever it isn't
+// already in place," with the choice for this tab made by name, "Fold
+// bands like Conditions." Each of Basic Health, Earth Matters and Home
+// Gardening is one band per topic, its subgroups as inset folds, each
+// entry a row that opens in place (components/DigestCategorySection.tsx);
+// Search All and the Glossary are one ranked or alphabetical list of the
+// same rows. The horizontal shelves, the topic menus, the drill-down
+// breadcrumbs, the measure-and-scroll machinery and the shelf
+// virtualisation this file carried from 2026-08-08 to 2026-09-19 are gone
+// with them; the grouping they drew on is unchanged and lives in
+// lib/digest/categoryGrouping.ts.
+//
+// What stayed: the resting LensHub picker and its reveal, the fixed
+// header (the back link, the Glossary button, the search box and the
+// EdgeShadow under it), the Search Matching help sheet with its worked
+// example, and every help text.
+
 
 // A synthetic lens key, alongside every real category -- 2026-08-08,
 // explicitly requested: "a way to search for things the person wants to
@@ -64,17 +70,6 @@ import {
 // have to account for.
 type PurpleDigestLens = DigestCategoryKey | 'search';
 
-// The minimal shape scrollEntryIntoView actually needs from a card ref or
-// the ScrollView ref -- both `Animated.View` (via Reanimated's own ref
-// forwarding) and `ScrollView` expose a real `.measure()` imperative
-// method (the same primitive React Native itself is built on for "where is
-// this view really, right now" queries), so a narrow structural type here
-// avoids needing an exact, brittle component type for either.
-type Measurable = {
-  measure: (
-    callback: (x: number, y: number, width: number, height: number, pageX: number, pageY: number) => void,
-  ) => void;
-};
 
 // Promoted 2026-08-05 from a Stack-push placeholder (formerly
 // app/purple-digest.tsx, now deleted -- see that file's own former header
@@ -112,27 +107,6 @@ const TAB_TEXT_COLOR = colors.tabPurpleDigestText;
 // second, separately-typed "16" that could drift out of sync with it.
 const FIXED_HEADER_HORIZONTAL_PADDING = 16;
 
-// 2026-08-23, direct report: "why does it take so long for Basic Health to
-// display?" The real cause -- confirmed by actually reading the render
-// path, not re-guessed -- was never the grouping computation (already
-// fixed once, correctly, but for a different problem: repeated
-// recomputation on re-render, not this). BasicHealthShelves rendered
-// every entry in every group eagerly, all at once, with no virtualization
-// at all; Basic Health alone has 479 real entries (confirmed by count),
-// far more than any single condition's own handful of groups, so it was
-// the one place mounting hundreds of real ShelfTabCard view hierarchies
-// synchronously ever became visible as a real, multi-second stall. Fixed
-// by converting each shelf row from a plain ScrollView + .map() to a real
-// FlatList, so only the cards actually near the visible window ever
-// mount. SHELF_CARD_WIDTH/GAP exist so the FlatList's own getItemLayout
-// (below, in BasicHealthShelves) can compute every card's exact scroll
-// position up front without waiting for it to render first -- the same
-// two numbers styles.shelfCard/shelfRow use themselves, one real source,
-// not two that could quietly drift apart.
-const SHELF_CARD_WIDTH = 200;
-const SHELF_CARD_GAP = 10;
-const SHELF_CARD_STRIDE = SHELF_CARD_WIDTH + SHELF_CARD_GAP;
-
 const DIGEST_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this tab is for',
@@ -166,7 +140,7 @@ const DIGEST_HELP_SECTIONS: HelpSection[] = [
 // screen" explanation inside all 13 lenses' own bespoke text.
 const DIGEST_READING_HELP: HelpSection = {
   heading: 'Reading an entry',
-  body: 'Tap any card in this category to expand it to its full write-up and citations. Tap it again, or tap a different card, to collapse it and jump to the new one. The colored dot on each card is its evidence tier, same discipline as the rest of this app. Where a finding connects to another entry, a Related chip jumps straight there.',
+  body: 'Each topic in this category is a band that folds open to its entries, with the larger topics grouped inside. Tap an entry to open its full write-up and citations in place, and tap it again to close it. The colored dot beside each title is its evidence tier, same discipline as the rest of this app. Where a finding connects to another entry, a Related chip jumps straight there.',
 };
 
 // The 'search' lens's own dedicated Info-sheet content -- restored
@@ -179,7 +153,7 @@ const DIGEST_READING_HELP: HelpSection = {
 const DIGEST_SEARCH_HELP: HelpSection[] = [
   {
     heading: 'Search All',
-    body: 'Type a word or phrase to search every entry at once, across every category and every condition, regardless of which one you searched last. Tap any result to jump straight to it, already expanded, in its category. A condition entry opens in Life > Conditions.',
+    body: 'Type a word or phrase to search every entry at once, across every category and every condition, regardless of which one you searched last. Tap a result to open it in place. A condition entry opens in Life > Conditions instead, where the conditions live.',
   },
   {
     heading: 'A different way to look, not the only way',
@@ -432,2765 +406,8 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
 // still need it.
 const DIGEST_GRID_LABEL_BREAKS: Partial<Record<DigestCategoryKey, string>> = {};
 
-// Basic Health's own real, 2-level TREE, 2026-08-08 -- replacing the
-// earlier flat, 31-group, all-shown-at-once shelf list (a real, direct
-// correction after that flat list itself grew too large to be genuinely
-// scannable): "a combination of tree style and categorized topic cards in
-// related groups... moving strictly from broad categories down to highly
-// specific, bite-sized pieces of information... all of the deep dive into
-// macro, micro, acid, and hormone related nutrients should be one of the
-// topics to dive into." That's exactly this structure: a real, named
-// "Essential Nutrients" parent topic, containing every one of the 22
-// individual nutrient shelves the old flat list used to show side by side
-// as its own real, drill-down-able subtopics, alongside 9 other real
-// topics that don't have a natural further subdivision and stay one level
-// deep. Still built from each entry's own id prefix (the same real,
-// already-established convention the old flat list already used) -- not a
-// new field added to every entry, the same reasoning that design choice
-// already carried.
-type BasicHealthSubtopic = { label: string; prefixes: string[] };
-// 2026-08-23: `description` added, direct report that drilling into a
-// subgroup (Essential Nutrients named directly) left its own header with
-// nothing explaining what that subgroup actually covers or how it fits
-// into Basic Health as a whole, once the generic "Food, vitamins,
-// minerals..." Basic Health description stopped showing there. One short,
-// specific line per topic, not a repeat of that shared blurb.
-type BasicHealthTopic = { label: string; description: string; prefixes?: string[]; subtopics?: BasicHealthSubtopic[] };
 
-const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
-  {
-    label: 'Essential Nutrients',
-    description:
-      'The vitamins, minerals, macronutrients, and hormones your body needs to function, from magnesium and vitamin D to protein and dietary fat. Each entry below covers what it does, how much you need, and what happens when you get too little or too much, the foundation any deeper look at basic health starts from.',
-    subtopics: [
-      { label: 'Magnesium', prefixes: ['magnesium-'] },
-      { label: 'Vitamin D', prefixes: ['vitamind-'] },
-      { label: 'Iron', prefixes: ['iron-'] },
-      { label: 'Zinc', prefixes: ['zinc-'] },
-      { label: 'Vitamin B12', prefixes: ['b12-'] },
-      { label: 'Folate', prefixes: ['folate-'] },
-      { label: 'Calcium', prefixes: ['calcium-'] },
-      { label: 'Potassium', prefixes: ['potassium-'] },
-      { label: 'Iodine (Deep-Dive)', prefixes: ['iodine-'] },
-      { label: 'Vitamin C', prefixes: ['vitaminc-'] },
-      { label: 'Vitamin A', prefixes: ['vitamina-'] },
-      { label: 'Vitamin E', prefixes: ['vitamine-'] },
-      { label: 'Vitamin K', prefixes: ['vitamink-'] },
-      { label: 'Omega-3 & Omega-6', prefixes: ['omega'] },
-      { label: 'Protein & Amino Acids', prefixes: ['protein-'] },
-      {
-        label: 'B-Vitamins (B1, B2, B3, B5, B6, B7)',
-        prefixes: ['thiamine-', 'riboflavin-', 'niacin-', 'biotin-', 'pantothenate-', 'b6-'],
-      },
-      { label: 'Chromium, Manganese & Copper', prefixes: ['chromium-', 'manganese-', 'copper-'] },
-      { label: 'Choline', prefixes: ['choline-'] },
-      { label: 'Carbohydrates & Fiber', prefixes: ['carbfiber-'] },
-      { label: 'Water & Hydration', prefixes: ['water-'] },
-      { label: 'Dietary Fat', prefixes: ['dietfat-'] },
-      // A real, corrected prefix list -- 2026-08-08, caught by validating
-      // this whole tree against every real Basic Health entry id before
-      // shipping (the same throwaway-script discipline already established
-      // for the pillar classifier above): the old flat list's own single
-      // `'hormone'` prefix never actually matched any of this topic's real
-      // entries, since `lib/digest/hormones.ts` names most of its own ids
-      // after the specific hormone itself (`insulin-`, `cortisol-`,
-      // `estrogen-`, etc.), not a shared "hormone-" prefix -- a real,
-      // pre-existing gap this validation pass surfaced and fixed, not
-      // something this restructure introduced.
-      // 2026-08-23: 'adiponectin-' and 'lipodystrophy-' added -- these two
-      // entries (lib/digest/hormones.ts) were part of the same 2026-08-21
-      // fat-hormone research batch as every 'leptin-' entry already listed
-      // here, but never got their own prefix, so they fell through to the
-      // dynamic "More" catch-all. Found via a direct audit request: "In
-      // Basic Health there are 8 entries in the More section... how about
-      // now?"
-      {
-        label: 'Hormones',
-        prefixes: [
-          'hormone-',
-          'hormones-',
-          'insulin-',
-          'cortisol-',
-          'thyroid-hormones-',
-          'leptin-',
-          'estrogen-',
-          'testosterone-',
-          'adiponectin-',
-          'lipodystrophy-',
-        ],
-      },
-      // 2026-08-23, same audit: lib/digest/bodyFatBiology.ts's own 4
-      // entries (body-weight heritability, constrained total energy
-      // expenditure, the Hadza population studies, visceral-vs-subcutaneous
-      // fat distribution) are the other half of that same research batch,
-      // broader body-fat population biology rather than one specific
-      // hormone, so they get their own subtopic alongside Hormones instead
-      // of being folded into it.
-      { label: 'Body Fat Biology', prefixes: ['bodyfat-'] },
-    ],
-  },
-  // 2026-08-13, direct request: "I don't see much about each individual
-  // organ, how they work together and interact with each other, and how
-  // being deficient or toxic with any specific macronutrient,
-  // micronutrient, or amino acids, or hormone, how does your diet relate
-  // to your bones and teeth, and lymphatic system, eyes, brain, your skin,
-  // your hair, and everything else about a person." The missing
-  // organ/system-centered layer, deliberately placed right after Essential
-  // Nutrients above (which already carries deep, nutrient-centered
-  // deficiency/toxicity coverage this new topic cross-links to rather than
-  // repeats). See lib/digest/bodySystems.ts's own header comment.
-  // 2026-08-25, direct report: "There should be groups of information that
-  // is specific to one diet or eating style or another, rather than one
-  // continuous scrolling left to right list of them. This needs to be
-  // followed throughout the digest." This topic's own 20 entries (every
-  // organ/system at once, no further division) were exactly that same
-  // problem in miniature -- given real subtopics here, one per organ or
-  // body system, the same way Essential Nutrients already subdivides by
-  // nutrient. body-systems-overview and body-tying-together don't belong
-  // to any one organ, so they get their own small "Overview & Big Picture"
-  // subtopic rather than being force-fit into one, or silently falling
-  // through to Basic Health's "More" catch-all (a topic with real
-  // subtopics has no undifferentiated top-level bucket of its own -- see
-  // basicHealthTopicPathForEntryId above).
-  {
-    label: 'How Your Body Works: Organs & Systems',
-    description:
-      "How your organs and body systems work, and how food and nutrient levels affect each one, independent of any specific condition. The foundation every condition-specific finding in this Digest builds on.",
-    subtopics: [
-      { label: 'Overview & Big Picture', prefixes: ['body-systems-overview', 'body-tying-together'] },
-      { label: 'Endocrine System', prefixes: ['body-adrenal-glands-structure-function', 'body-endocrine-crosstalk'] },
-      { label: 'Bones, Teeth & Skeleton', prefixes: ['body-bones-teeth-skeleton'] },
-      { label: 'Brain & Nervous System', prefixes: ['body-brain-nervous-system', 'body-brain-processed-meat-dementia-uk-biobank'] },
-      { label: 'Cardiovascular System', prefixes: ['body-cardiovascular-electrolytes'] },
-      { label: 'Digestive System', prefixes: ['body-digestive-organs'] },
-      { label: 'Skin & Hair', prefixes: ['body-skin-integumentary', 'body-hair-growth-cycle'] },
-      { label: 'Eyes & Vision', prefixes: ['body-eyes-vision'] },
-      { label: 'Immune System', prefixes: ['body-immune-system-nutrition'] },
-      { label: 'Kidneys & Liver', prefixes: ['body-kidneys-liver-filtration', 'body-kidney-stones-'] },
-      { label: 'Lymphatic System', prefixes: ['body-lymphatic-system'] },
-      { label: 'Muscular System', prefixes: ['body-muscular-system'] },
-      { label: 'Reproductive System', prefixes: ['body-reproductive-egg-supply-vs-sperm-production', 'body-reproductive-zinc-fertility'] },
-      { label: 'Respiratory System', prefixes: ['body-respiratory-gas-exchange', 'body-respiratory-magnesium-asthma'] },
-    ],
-  },
-  // 2026-08-13, direct request: "Neurogenesis needs to be represented in
-  // the Basic Health section." A real, general, condition-agnostic
-  // topic -- see lib/digest/neurogenesis.ts's own header comment. Where
-  // a real, specific condition-level connection exists instead, it lives
-  // as its own entry in that condition's own file (Hashimoto's, Type 2
-  // Diabetes, Cardiovascular Disease, Multiple Sclerosis, IBD), per the
-  // same request's own direct follow-up.
-  {
-    label: 'Neurogenesis',
-    description: 'How your brain grows new neurons throughout life, and which diet, exercise, and lifestyle factors support or suppress that process.',
-    prefixes: ['neurogenesis-'],
-  },
-  {
-    label: 'Glossary',
-    description: 'Plain definitions for medical, nutrition, and lab terminology used throughout this Digest.',
-    prefixes: ['glossary-'],
-  },
-  // 2026-08-09, direct request: "information about portions, and
-  // recommended daily allowances and minimum amounts of anything." See
-  // lib/digest/portionsAndRDAs.ts's own header comment -- every number
-  // reused directly from this app's own bundled DRI reference table.
-  {
-    label: 'Portions & Recommended Amounts',
-    description: "How much of each nutrient you need, and what a serving size actually looks like, drawn from this app's bundled dietary reference intake data.",
-    prefixes: ['portion-'],
-  },
-  // 2026-08-09, direct request: "how to choose the right kinds of
-  // products... so they aren't fooled and purchase the wrong things." See
-  // lib/digest/choosingQualityProducts.ts's own header comment.
-  {
-    label: 'Is It What It Claims to Be?',
-    description: "How to tell whether a product actually is what it claims to be, so a misleading label doesn't fool you into buying the wrong thing.",
-    prefixes: ['quality-'],
-  },
-  // 2026-08-09, same day, direct continuation of the same request: a real,
-  // deliberate companion to "Choosing the Real Thing" -- that one covers
-  // whether a product IS what it claims; this covers how to actually read
-  // the label once you're holding a genuine one. See
-  // lib/digest/readingLabels.ts's own header comment.
-  {
-    label: 'Reading Labels & Ingredient Lists',
-    description: 'How to read a nutrition label and ingredient list once you actually have a product in hand, from serving sizes to less familiar names hiding a familiar ingredient.',
-    prefixes: ['label-'],
-  },
-  // 2026-08-09, same day: a real, systematized companion to this app's own
-  // per-condition medication research -- which common medication CLASSES
-  // measurably lower which nutrients over sustained use, regardless of
-  // condition. See lib/digest/medicationDepletion.ts's own header comment.
-  {
-    label: 'Medications & Nutrient Depletion',
-    description: "Which common medication classes lower which nutrients over sustained use, regardless of the condition they're prescribed for.",
-    prefixes: ['depletion-'],
-  },
-  // 2026-08-09, same day, continuing directly off the same "what's missing"
-  // conversation, in the same order named there: pediatric nutrition, a
-  // real gap confirmed directly against the bundled reference database's
-  // own dietary_reference_intakes table (zero rows under age 19). See
-  // lib/digest/pediatricNutrition.ts's own header comment.
-  {
-    label: 'Pediatric Nutrition',
-    description: 'How nutrient needs differ for children, since most recommended-intake data is built around adults.',
-    prefixes: ['pediatric-'],
-  },
-  // A real, general Sleep deep-dive -- this Digest only ever touched sleep
-  // incidentally before (lifestyle-sleep-circadian, lifestyle-sleep-apnea,
-  // and several condition-specific entries). See
-  // lib/digest/sleepHealth.ts's own header comment.
-  {
-    label: 'Sleep & Health',
-    description: 'How sleep affects your metabolism, hormones, and long-term health, and how diet affects your sleep in turn.',
-    prefixes: ['sleep-'],
-  },
-  // 2026-08-24, phase 3 of a larger request: "research the chrononutrition
-  // way of eating and provide as many entries as possible in Basic
-  // Health, and for each of the conditions as can be found." See
-  // lib/digest/chrononutrition.ts's own header comment. Condition-specific
-  // applications live in each of the 19 conditions' own files, cross-linked
-  // back here rather than duplicated.
-  {
-    label: 'Chrononutrition & Meal Timing',
-    description: 'The science of aligning when you eat with your circadian biology, and what the evidence does and does not support.',
-    prefixes: ['chrono-'],
-  },
-  // A real, general Mental Health deep-dive, the same "scattered across
-  // conditions, never its own topic" gap as Sleep above. See
-  // lib/digest/mentalHealth.ts's own header comment.
-  // 2026-08-25: real subtopics, part of the same-day sweep named at "How
-  // Your Body Works: Organs & Systems," above.
-  {
-    label: 'Mental Health & Food',
-    description: 'How diet and specific nutrients affect mood, cognition, and mental health.',
-    subtopics: [
-      { label: 'Overview & Framing', prefixes: ['mentalhealth-overview', 'mentalhealth-adhd-ocd-diet-does-not-cause', 'mentalhealth-tying-together'] },
-      { label: 'ADHD & OCD', prefixes: ['mentalhealth-adhd-dietary-triggers', 'mentalhealth-adhd-micronutrients-glycemic', 'mentalhealth-ocd-gut-brain-inflammation', 'mentalhealth-ocd-ketogenic-diet'] },
-      { label: 'Gut-Brain Mechanisms', prefixes: ['mentalhealth-gut-scfa-mood-mechanism', 'mentalhealth-inflammation-link', 'mentalhealth-glycemic-instability-mood'] },
-      { label: 'Nutrients & Mood', prefixes: ['mentalhealth-b12-folate-mood', 'mentalhealth-magnesium-zinc-mood', 'mentalhealth-omega3-epa-dha', 'mentalhealth-vitamin-d-mixed-evidence'] },
-      { label: 'Diet Pattern & Lifestyle Evidence', prefixes: ['mentalhealth-smiles-trial', 'mentalhealth-ultraprocessed-food-risk', 'mentalhealth-exercise-honest-evidence'] },
-      { label: 'When to Seek Help', prefixes: ['mentalhealth-when-to-seek-help'] },
-    ],
-  },
-  // 2026-09-17, direct instruction: "I want as much as possible to be
-  // provided about this in Basic Health." Autism, ADHD and dyslexia are
-  // listed in Profile the way food allergies are, never tracked as
-  // conditions, so everything written about them lives here where anybody
-  // can read it without declaring anything. See
-  // lib/digest/neurodivergence.ts for the writing and for the line it
-  // holds: nutrition supports a person, it does not treat these three.
-  // Subtopics from the start rather than one 24-wide shelf, per the
-  // standing rule. Every id is listed out rather than matched on a
-  // 'neuro-autism-' style prefix, because the autism entries split across
-  // two different subtopics (eating, and what tends to come with it) and a
-  // prefix cannot tell them apart. The crossover entries themselves are
-  // NOT here: each one lives inside the condition it is about
-  // (lib/digest/neurodivergenceCrossover.ts), and
-  // neuro-crossover-with-tracked-conditions is the index into them.
-  {
-    label: 'Autism, ADHD & Dyslexia',
-    description: 'What the research shows about eating, nutrient shortfalls and reading, what it does not show, and where these cross into the conditions this app tracks. Listed in your Profile, never scored as a condition.',
-    subtopics: [
-      { label: 'Overview & Framing', prefixes: ['neuro-overview', 'neuro-not-a-tracked-condition', 'neuro-diet-does-not-treat', 'neuro-autism-adhd-overlap', 'neuro-crossover-with-tracked-conditions'] },
-      { label: 'Autism & Eating', prefixes: ['neuro-autism-feeding-differences', 'neuro-autism-arfid-overlap', 'neuro-autism-nutrient-shortfalls', 'neuro-autism-gi-symptoms', 'neuro-autism-texture-and-narrow-eating'] },
-      { label: 'ADHD & Eating', prefixes: ['neuro-adhd-restriction-diets', 'neuro-adhd-food-colours', 'neuro-adhd-omega3', 'neuro-adhd-iron-ferritin'] },
-      { label: 'Dyslexia & Reading', prefixes: ['neuro-dyslexia-letter-spacing', 'neuro-dyslexia-fonts', 'neuro-dyslexia-what-this-app-changes'] },
-      { label: 'What Tends to Come With Them', prefixes: ['neuro-autism-epilepsy', 'neuro-autism-anxiety-depression', 'neuro-autism-sleep', 'neuro-allergy-asthma-eczema', 'neuro-maternal-autoimmune-and-neurodevelopment', 'neuro-familial-autoimmune-adhd'] },
-      { label: 'Words Used Here', prefixes: ['neuro-words-used-here'] },
-    ],
-  },
-  // 2026-08-25: this topic's own description already said "organized by
-  // condition," but nothing actually enforced that -- all 38 entries
-  // (prevention- and apphelps-, one pair per tracked condition) rendered
-  // as one flat 38-wide shelf. Real subtopics now match what the
-  // description always claimed, one per condition, each holding that
-  // condition's own prevention- and apphelps- pair. See the same-day
-  // report at "How Your Body Works: Organs & Systems," above, for the
-  // standing rule this applies throughout the Digest, not just here.
-  {
-    label: 'Prevention & Lifestyle by Condition',
-    description: 'What to eat and which lifestyle habits help prevent or manage each of the 19 conditions this app tracks, organized by condition.',
-    subtopics: [
-      { label: "Hashimoto's Thyroiditis", prefixes: ['prevention-hashimotos', 'apphelps-hashimotos'] },
-      { label: "Graves' Disease", prefixes: ['prevention-graves', 'apphelps-graves'] },
-      { label: 'Rheumatoid Arthritis', prefixes: ['prevention-ra', 'apphelps-ra'] },
-      { label: 'Psoriasis', prefixes: ['prevention-psoriasis', 'apphelps-psoriasis'] },
-      { label: 'Celiac Disease', prefixes: ['prevention-celiac', 'apphelps-celiac'] },
-      { label: 'Inflammatory Bowel Disease', prefixes: ['prevention-ibd', 'apphelps-ibd'] },
-      { label: 'Multiple Sclerosis', prefixes: ['prevention-ms', 'apphelps-ms'] },
-      { label: 'Lupus (SLE)', prefixes: ['prevention-lupus', 'apphelps-lupus'] },
-      { label: "Sjögren's Syndrome", prefixes: ['prevention-sjogrens', 'apphelps-sjogrens'] },
-      { label: 'Type 1 Diabetes', prefixes: ['prevention-type1', 'apphelps-type1'] },
-      { label: 'Type 2 Diabetes', prefixes: ['prevention-type2', 'apphelps-type2'] },
-      { label: 'PCOS', prefixes: ['prevention-pcos', 'apphelps-pcos'] },
-      { label: 'Chronic Kidney Disease', prefixes: ['prevention-ckd', 'apphelps-ckd'] },
-      { label: 'Fatty Liver Disease', prefixes: ['prevention-masld', 'apphelps-masld'] },
-      { label: 'Irritable Bowel Syndrome', prefixes: ['prevention-ibs', 'apphelps-ibs'] },
-      { label: 'Migraine', prefixes: ['prevention-migraine', 'apphelps-migraine'] },
-      { label: 'Cardiovascular Disease', prefixes: ['prevention-cvd', 'apphelps-cvd'] },
-      { label: 'Gout', prefixes: ['prevention-gout', 'apphelps-gout'] },
-      { label: 'Prostate Health', prefixes: ['prevention-prostate', 'apphelps-prostate'] },
-    ],
-  },
-  // 2026-08-09, direct request: "an honest medical science evidence based
-  // perspective on the popular types of diets out there." A real, distinct
-  // topic from "Prevention & Lifestyle by Condition" above -- that one is
-  // scoped per-CONDITION (what to eat if you have Hashimoto's, RA, etc.);
-  // this one is scoped per-DIET-PHILOSOPHY, condition-agnostic, and closes
-  // with a real, honest entry on how this app helps track any of them.
-  // See lib/digest/popularDiets.ts's own header comment.
-  // 2026-08-23: 'pbn-' added -- lib/digest/plantBasedNutrition.ts's own 2
-  // entries (the Ornish Lifestyle Heart Trial, Esselstyn's long-term
-  // cohort) are trial evidence for one specific dietary philosophy, the
-  // same shape every other entry in this topic already covers, but never
-  // got a prefix of their own and fell through to the dynamic "More"
-  // catch-all. Found via a direct audit request: "In Basic Health there
-  // are 8 entries in the More section... how about now?"
-  // 2026-08-25, direct report after asking where diets are compared: "please
-  // separate them into their own sections... groups of information that is
-  // specific to one diet or eating style or another, rather than one
-  // continuous scrolling left to right list of them." All 19 entries here
-  // (17 diet- plus 2 pbn-, the Ornish/Esselstyn plant-based heart-disease
-  // trials) used to render as one flat shelf. Grouped by what actually
-  // distinguishes them nutritionally, not alphabetically: how much animal
-  // food is included, a traditional whole-food pattern, what's eliminated,
-  // when you eat rather than what, a specific macronutrient ratio, food
-  // quality independent of macros, and this app's own tracking philosophy.
-  // The two pbn- trial entries join the animal-food-spectrum group, since
-  // both are evidence specifically for the plant-based end of it.
-  {
-    label: 'Popular Diets & Eating Styles',
-    description: 'An evidence-based look at popular diets, keto, paleo, intermittent fasting, and more, organized by philosophy rather than by condition.',
-    subtopics: [
-      // 2026-08-25, direct follow-up after asking where diets are compared
-      // nutritionally: "build the side by side comparison of the
-      // different eating styles based on evidence and without assumptions
-      // being made." Its own subgroup, alphabetizing to lead the menu
-      // (subtopic order is sorted by display label at render time, not
-      // declared array order, see basicHealthMenuGroups' own comment).
-      { label: 'Comparing Them Side by Side', prefixes: ['diet-headtohead-network-metaanalysis', 'diet-sidebyside-comparison'] },
-      {
-        label: 'How Much Animal Food: Vegan to Carnivore',
-        prefixes: ['diet-vegan', 'diet-vegetarian', 'diet-plant-based-flexitarian', 'diet-omnivore', 'diet-carnivore', 'pbn-'],
-      },
-      { label: 'Traditional & Whole-Food Patterns', prefixes: ['diet-mediterranean', 'diet-paleo', 'diet-aip'] },
-      { label: 'Free-From & Elimination Diets', prefixes: ['diet-gluten-free', 'diet-dairy-free'] },
-      { label: 'Timing, Not Composition', prefixes: ['diet-intermittent-fasting'] },
-      { label: 'Macronutrient-Ratio Focused', prefixes: ['diet-keto', 'diet-high-protein', 'diet-fibermaxxing'] },
-      { label: 'Food Quality, Not Macros', prefixes: ['diet-anti-processed', 'diet-gut-friendly'] },
-      { label: 'How This App Tracks Any of Them', prefixes: ['diet-app-agnostic-tracking'] },
-    ],
-  },
-  {
-    label: 'Problem Foods & Swaps',
-    description: 'Foods worth watching for common problems, and practical swaps for each one.',
-    prefixes: ['problem-'],
-  },
-  // 2026-08-25: real subtopics, part of the same-day sweep named at "How
-  // Your Body Works: Organs & Systems," above.
-  {
-    label: 'Food Additives',
-    description: 'What common food additives and preservatives actually do, and what the evidence says about their effects.',
-    subtopics: [
-      { label: 'Sweeteners', prefixes: ['additive-aspartame', 'additive-sucralose', 'additive-hfcs', 'additive-sugar-umbrella-review-45-outcomes'] },
-      { label: 'Preservatives', prefixes: ['additive-bha-bht', 'additive-nitrates-nitrites', 'additive-potassium-bromate', 'additive-sulfites', 'additive-phosphates'] },
-      { label: 'Emulsifiers, Gums & Texture', prefixes: ['additive-carrageenan', 'additive-emulsifiers-cmc-polysorbate80', 'additive-xanthan-guar-gum'] },
-      { label: 'Flavor, Color & Dough Agents', prefixes: ['additive-msg', 'additive-synthetic-dyes', 'additive-azodicarbonamide'] },
-      { label: 'Ultra-Processing as a Whole', prefixes: ['additive-upf-convincing-evidence-class-i', 'additive-processed-meat-colorectal-cancer-uk-biobank', 'additive-trans-fats', 'additive-tying-together'] },
-    ],
-  },
-  {
-    label: 'Nutrient Interactions',
-    description: "Which nutrients help or block each other's absorption, and how to time meals and supplements to work with your body instead of against it.",
-    prefixes: ['interaction-'],
-  },
-  // 2026-08-25: real subtopics, matching this topic's own description
-  // ("organized by the specific bacterial strains and cultures") for real
-  // rather than only in name -- part of the same-day sweep named at "How
-  // Your Body Works: Organs & Systems," above.
-  {
-    label: 'Fermented Foods',
-    description: 'The health benefits of fermented foods, organized by the specific bacterial strains and cultures behind them.',
-    subtopics: [
-      { label: 'Lactobacillus Species', prefixes: ['fermented-lactobacillus-acidophilus', 'fermented-lactobacillus-plantarum'] },
-      { label: 'Bifidobacterium & Streptococcus', prefixes: ['fermented-bifidobacterium', 'fermented-streptococcus-thermophilus'] },
-      { label: 'Yeasts & Wild Cultures', prefixes: ['fermented-saccharomyces-boulardii', 'fermented-leuconostoc-mesenteroides', 'fermented-sauerkraut-succession'] },
-      { label: 'Kefir & Kombucha', prefixes: ['fermented-milk-kefir', 'fermented-water-kefir', 'fermented-kombucha'] },
-      { label: 'Other Ferments', prefixes: ['fermented-beet-kvass', 'fermented-fruit-brine'] },
-      { label: 'Practical Basics', prefixes: ['fermented-cfu-dosing', 'fermented-sourcing-starters', 'fermented-tying-together'] },
-    ],
-  },
-  // 2026-08-09, direct request: "talk about the different ways of making
-  // fermentations for drinks and foods... how they are generally made and
-  // where to look for more information." A real, deliberate companion to
-  // "Fermented Foods" above, not a merge into it -- see
-  // lib/digest/fermentationMethods.ts's own header comment for why the two
-  // stay separate (organized by strain vs. organized by method).
-  {
-    label: 'Fermentation Methods',
-    description: 'How different fermentation methods work, and where to learn more about making your own.',
-    prefixes: ['fermentmethod-'],
-  },
-  // 2026-08-09, direct request: "a group that has information about every
-  // fruit and vegetable and their health benefits and types of problems...
-  // This should also include nuts and seeds." See
-  // lib/digest/produceProfiles.ts's own header comment, including the real,
-  // new hide-sync mechanism this topic's own entries use (see
-  // basicHealthEntriesForPrefixes below for where that filter is applied).
-  // 2026-08-25: real subtopics, part of the same-day sweep named at "How
-  // Your Body Works: Organs & Systems," above. produce-chickpeas (a legume,
-  // not a fruit, vegetable, nut, or seed on its own) joins the vegetables
-  // group rather than getting a one-entry subtopic of its own, matching how
-  // this topic's own everyday grocery-aisle framing already treats legumes.
-  {
-    label: 'Fruits, Vegetables, Nuts & Seeds',
-    description: 'The health benefits, and things worth knowing, about specific fruits, vegetables, nuts, and seeds.',
-    subtopics: [
-      { label: 'Overview', prefixes: ['produce-overview', 'produce-closing'] },
-      { label: 'Fruits', prefixes: ['produce-apple', 'produce-avocado', 'produce-blueberry', 'produce-citrus', 'produce-tomato'] },
-      {
-        label: 'Vegetables & Legumes',
-        prefixes: [
-          'produce-cruciferous',
-          'produce-broccoli-sprouts-sulforaphane',
-          'produce-garlic-onion',
-          'produce-leafy-greens',
-          'produce-sweet-potato',
-          'produce-mustard-powder-myrosinase-restoration',
-          'produce-chickpeas',
-        ],
-      },
-      { label: 'Nuts & Seeds', prefixes: ['produce-almonds', 'produce-chia-seeds', 'produce-flaxseed', 'produce-walnut'] },
-    ],
-  },
-  {
-    label: 'Lifestyle & Environment',
-    description: 'How everyday lifestyle and environmental factors, beyond diet alone, affect your health.',
-    prefixes: ['lifestyle-'],
-  },
-  {
-    // 2026-09-04: chiropractic care, acupuncture, and deep tissue massage
-    // covered on their own terms, separate from lib/digest/
-    // complementaryTherapies.ts, which asks the different question of
-    // whether they help Hashimoto's specifically. Nine entries, so one
-    // flat shelf is still the right shape here; if this grows past
-    // roughly a dozen it needs subtopics, per the standing rule.
-    label: 'Hands-On & Complementary Therapies',
-    description:
-      'What the research actually shows for chiropractic care, acupuncture, and deep tissue massage, including where it shows nothing at all. Also what can go wrong, what to tell a practitioner before a session, and how to work out whether any of it is helping you specifically rather than helping people on average.',
-    prefixes: ['handson-'],
-  },
-  {
-    label: 'Mitochondria & Metabolism',
-    description: 'How your cells produce energy, and how diet and lifestyle affect that process.',
-    prefixes: ['mito-'],
-  },
-  {
-    label: 'Self Advocacy',
-    description: 'How to advocate for yourself with doctors and the healthcare system, and get the care and answers you need.',
-    prefixes: ['advocacy-'],
-  },
-  {
-    label: 'Food Industry & History',
-    description: "How the food industry and food history shape what's on your plate today.",
-    prefixes: ['foodhistory-'],
-  },
-];
-
-// A real, dynamic safety net, not a hardcoded 32nd topic -- only ever
-// appears if a real Basic Health entry's own id doesn't match any prefix
-// above, the same "unmatched catch-all, not an expected real bucket" role
-// the old flat list's own 'More' bucket already played.
-const BASIC_HEALTH_MORE_TOPIC_LABEL = 'More';
-// A short description for the same dynamic catch-all, 2026-08-23 -- not
-// stored on a BasicHealthTopic entry, since 'More' never has one, but
-// needed by the same drilled-in header every real topic's own description
-// feeds.
-const BASIC_HEALTH_MORE_TOPIC_DESCRIPTION = "Entries that cover general health topics without fitting neatly into one of Basic Health's other groups.";
-
-function basicHealthTopicPathForEntryId(id: string): string[] {
-  for (const topic of BASIC_HEALTH_TOPICS) {
-    if (topic.subtopics) {
-      const sub = topic.subtopics.find((s) => s.prefixes.some((p) => id.startsWith(p)));
-      if (sub) return [topic.label, sub.label];
-    } else if (topic.prefixes?.some((p) => id.startsWith(p))) {
-      return [topic.label];
-    }
-  }
-  return [];
-}
-
-function basicHealthEntriesForPrefixes(entries: AnyDigestEntry[], prefixes: string[]): AnyDigestEntry[] {
-  return sortDigestEntriesLogically(entries.filter((entry) => prefixes.some((p) => entry.id.startsWith(p))));
-}
-
-// basicHealthEntriesForPath (resolving one node of a drill-down path at a
-// time) used to live here, for the tree-based BasicHealthTree component --
-// removed 2026-08-14 alongside that whole component, once Basic Health's
-// ordinary browsing view was unified with the same all-shelves-shown-at-
-// once pattern every condition, Earth Matters, and Home Gardening already
-// use. See basicHealthAllGroups below, and its own header comment.
-
-// Every real Basic Health leaf group at once (every standalone topic, and
-// every Essential Nutrients subtopic individually), flattened into the
-// same {label, entries} shape BasicHealthShelves already renders --
-// 2026-08-08, originally built for a sticky-search filtered view: "all
-// things below in the knowledgebase hierarchical set of the area are
-// displayed below and filtered." Rather than drilling through a tree one
-// level at a time, a search shows every real leaf topic at once, filtered
-// down to just the ones with a match.
-//
-// 2026-08-14, direct report: "I like the way that the conditions'
-// information is setup for how someone uses the information. The Basic
-// Health section doesn't follow the same pattern... It seems that area
-// somehow didn't follow the same flow as the other areas." Correct --
-// every real condition, plus Earth Matters and Home Gardening, already
-// browse as one continuous vertical scroll of tap-to-expand shelf rows,
-// with no drilling in or backing out required at all; Basic Health alone
-// still forced a real, separate drill-down-then-back navigation (see the
-// removed BasicHealthTree, below the render dispatch that used to call
-// it). This same function -- already proven correct here for the search
-// view -- is now ALSO the real, ordinary (non-search) Basic Health
-// browsing view, closing that gap: every one of Basic Health's own 21 real
-// topics (Essential Nutrients' own 21 nutrient/hormone subtopics flattened
-// into their own real shelf rows, right where "Essential Nutrients" itself
-// used to sit as one single container) renders as its own shelf, exactly
-// like every other category.
-//
-// `label` is deliberately the same '::'-joined path string
-// shelfGroupKeyForEntry already computes for a Basic Health entry (not a
-// prettier "Topic › Subtopic" string) -- see BasicHealthShelves' own
-// comment for why the ref/scroll-key and the display text have to stay the
-// same underlying value.
-//
-// 2026-08-23: this function's own output is unchanged, still every leaf
-// group at once -- Basic Health's own scoped search (categorySearchGroups)
-// still renders all of it through BasicHealthShelves exactly as described
-// above. Plain, non-search browsing no longer does: 479 entries across ~21
-// shelves mounting at once turned out to be a direct cause of a
-// multi-second display delay, so that ONE call site (see
-// selectedTopicGroup, in the main component) now shows a topic menu
-// first and renders only the picked group's own shelf through this same
-// data. No other category's own browsing view changed.
-function basicHealthAllGroups(entries: AnyDigestEntry[]): { label: string; entries: AnyDigestEntry[] }[] {
-  const groups: { label: string; entries: AnyDigestEntry[] }[] = [];
-  for (const topic of BASIC_HEALTH_TOPICS) {
-    if (topic.subtopics) {
-      for (const sub of topic.subtopics) {
-        groups.push({
-          label: [topic.label, sub.label].join('::'),
-          entries: basicHealthEntriesForPrefixes(entries, sub.prefixes),
-        });
-      }
-    } else {
-      groups.push({ label: topic.label, entries: basicHealthEntriesForPrefixes(entries, topic.prefixes ?? []) });
-    }
-  }
-  const unmatched = sortDigestEntriesLogically(entries.filter((entry) => basicHealthTopicPathForEntryId(entry.id).length === 0));
-  if (unmatched.length > 0) {
-    groups.push({ label: BASIC_HEALTH_MORE_TOPIC_LABEL, entries: unmatched });
-  }
-  return groups;
-}
-
-// True only for a top-level Basic Health topic that actually has its own
-// real subtopics (Essential Nutrients, as of this writing, the only one) --
-// see selectedBasicHealthSubgroup's own comment for why this drives a real,
-// second menu step rather than showing every one of that topic's own
-// subtopic shelves together. A no-op false for BASIC_HEALTH_MORE_TOPIC_LABEL
-// (the dynamic "More" catch-all isn't a real BASIC_HEALTH_TOPICS entry) and
-// for every other category entirely, since only Basic Health topics are
-// ever looked up here.
-function basicHealthTopicHasSubtopics(label: string): boolean {
-  const topic = BASIC_HEALTH_TOPICS.find((t) => t.label === label);
-  return !!topic?.subtopics && topic.subtopics.length > 0;
-}
-
-// CONDITION_CODE_TO_DIGEST_KEY used to be defined locally here -- moved
-// into its own shared lib/conditionCodeMap.ts, 2026-08-09, once Profile's
-// own new TabHub-icon picker needed the identical snake_case-to-camelCase
-// lookup (see that file's own header comment for the full reasoning) --
-// one real source now, imported below, not two independently-maintained
-// copies. Still used the same way here: figuring out which lens tiles
-// correspond to conditions the person has actually told the app they have
-// (via Profile's own condition picker, `user_conditions`) -- see
-// pinnedDigestKeys below.
-
-// Earth Matters and Home Gardening each need their own real, dedicated
-// classifier -- 2026-08-13, a real, direct bug report: "There are only two
-// categories listed in Earth Matters... they don't all belong in History
-// and Milestones and Putting it Together." Root cause, confirmed by
-// reading classifyConditionTopic directly rather than guessed: its own
-// early, broad `id.includes('history')` check (written for a real
-// condition's own "-history-milestones" id convention) also matches every
-// single Earth Matters entry, since every one of them lives in
-// foodIndustryHistory.ts and carries the literal substring "history" in
-// its own id prefix (foodhistory-... or foodhistory-regen-...) -- an
-// unrelated file-naming coincidence, not a real topical match. That one
-// check alone silently swallowed the entire category before any later,
-// more specific branch (Diet & Food, etc.) ever got a chance to run, which
-// is why only "History & Milestones" (everything) plus the always-separate
-// "Putting It Together" closing card ever showed up. Home Gardening never
-// hit that same specific trap (its own `garden-` ids don't contain
-// "history"), but it was still routed through the identical
-// disease-oriented classifier, whose keyword nets (Medications & Treatment,
-// Self-Advocacy & Testing, Whole-Body Effects, etc.) mean nothing for
-// composting or seed-starting -- Basic Health was checked too and is
-// genuinely fine, since it already has its own separate, dedicated,
-// prefix-based tree (BASIC_HEALTH_TOPICS below), never routed through
-// classifyConditionTopic at all.
-//
-// Both classifiers below are built as an explicit, verified id-substring
-// lookup, not a fresh attempt at a broad keyword net -- every one of the
-// real ids in both files was extracted and run through this exact logic
-// via a throwaway script before this shipped (the same "verify against
-// real data first" discipline this whole Digest has used throughout),
-// confirming 100% real coverage with zero entries falling through
-// unmatched and zero double-matches, rather than trusting that the
-// substrings chosen don't collide the way "history" once silently did.
-type EarthMattersTopic =
-  | 'Soil Science & Why It Matters'
-  | 'Climate Science & the Weather Machine'
-  | 'The Gut Connection'
-  | 'Pollinators'
-  | 'Pesticides & Chemical Inputs'
-  | 'Case Studies From Around the World'
-  | 'History & Origins of the Movement'
-  | 'Water, Seeds & Resources'
-  | 'Industry, Greenwashing & Honest Limits'
-  | 'Policy, Economics & Power'
-  | 'How You Can Take Action';
-
-// Real reading order: the grounding soil-science read leads, then the
-// single most directly app-relevant entry (the soil-to-gut-microbiome
-// connection) gets its own real, visible spot rather than being buried,
-// then the large, vivid pollinator sub-cluster, then the more
-// context-setting material (chemical inputs, real-world case studies, the
-// movement's own history, resources), then the honest-limits/critique
-// material, then policy, with "How You Can Take Action" last of all --
-// the natural "what do I do with this" capstone position right before the
-// category's own closing "Putting It Together" card. 2026-08-23: "Climate
-// Science & the Weather Machine" added right after the soil-science lead,
-// the other planetary-systems foundation this category covers, before the
-// zoom into more specific topics -- see lib/digest/climateScience.ts's own
-// header comment for what this new topic covers and why.
-const EARTH_MATTERS_TOPIC_ORDER: EarthMattersTopic[] = [
-  'Soil Science & Why It Matters',
-  'Climate Science & the Weather Machine',
-  'The Gut Connection',
-  'Pollinators',
-  'Pesticides & Chemical Inputs',
-  'Case Studies From Around the World',
-  'History & Origins of the Movement',
-  'Water, Seeds & Resources',
-  'Industry, Greenwashing & Honest Limits',
-  'Policy, Economics & Power',
-  'How You Can Take Action',
-];
-
-function classifyEarthMattersTopic(entry: AnyDigestEntry): EarthMattersTopic {
-  const id = entry.id.toLowerCase();
-
-  if (id.startsWith('climate-')) return 'Climate Science & the Weather Machine';
-  if (
-    id.includes('pollinator') ||
-    id.includes('bee') ||
-    id.includes('bat-pollinators') ||
-    id.includes('phenological-mismatch') ||
-    id.includes('insect-apocalypse') ||
-    id.includes('robotic-drone-pollination') ||
-    id.includes('almond-pollination')
-  ) {
-    return 'Pollinators';
-  }
-  if (
-    id.includes('soil-gut-microbiome') ||
-    id.includes('old-friends-hypothesis') ||
-    id.includes('karelia-biodiversity') ||
-    id.includes('microbiome-symbiosis')
-  ) {
-    return 'The Gut Connection';
-  }
-  if (
-    id.includes('boycott') ||
-    id.includes('bcorp') ||
-    id.includes('divestment') ||
-    id.includes('shareholder-activism') ||
-    id.includes('institutional-purchasing') ||
-    id.includes('direct-investment') ||
-    id.includes('how-to-get-involved') ||
-    id.includes('buycott')
-  ) {
-    return 'How You Can Take Action';
-  }
-  if (
-    id.includes('brazil-case-study') ||
-    id.includes('niger-fmnr') ||
-    id.includes('china-loess-plateau') ||
-    id.includes('rodale-farming-systems-trial') ||
-    id.includes('netherlands-nitrogen-conflict') ||
-    id.includes('individual-farm-case-study')
-  ) {
-    return 'Case Studies From Around the World';
-  }
-  if (id.includes('timeline-origins') || id.includes('timeline-certification-era') || id.includes('green-revolution')) {
-    return 'History & Origins of the Movement';
-  }
-  if (id.includes('pesticides-') || id.includes('neonicotinoid')) return 'Pesticides & Chemical Inputs';
-  if (
-    id.includes('why-not-mandated') ||
-    id.includes('lobbying-imbalance') ||
-    id.includes('pesticide-liability-shields') ||
-    id.includes('reform-coalition-orgs') ||
-    id.includes('carbon-credit-integrity') ||
-    id.includes('eu-cap-structural') ||
-    id.includes('seed-industry-consolidation') ||
-    id.includes('seed-patent-litigation') ||
-    id.includes('right-to-repair') ||
-    id.includes('farmer-mental-health-debt') ||
-    id.includes('tribal-co-stewardship')
-  ) {
-    return 'Policy, Economics & Power';
-  }
-  if (
-    id.includes('ogallala-water') ||
-    id.includes('antibiotic-resistance-livestock') ||
-    id.includes('seed-diversity-loss') ||
-    id.includes('svalbard-seed-vault') ||
-    id.includes('food-waste-scale') ||
-    id.includes('food-desert-access')
-  ) {
-    return 'Water, Seeds & Resources';
-  }
-  if (
-    id.includes('whole-foods-organic-industry') ||
-    id.includes('regen-environmental-impact') ||
-    id.includes('no-till-greenwashing') ||
-    id.includes('cover-crop-reality-check')
-  ) {
-    return 'Industry, Greenwashing & Honest Limits';
-  }
-  // Everything else remaining (verified via the throwaway script above to
-  // be exactly the real soil-science/mechanism/urgency entries) falls here.
-  return 'Soil Science & Why It Matters';
-}
-
-function groupEarthMattersEntries(entries: AnyDigestEntry[]): {
-  topics: { label: string; entries: AnyDigestEntry[] }[];
-  tyingTogether: AnyDigestEntry | null;
-} {
-  const tyingTogether = entries.find(isTyingTogetherEntry) ?? null;
-  const rest = entries.filter((entry) => !isTyingTogetherEntry(entry));
-  const buckets = new Map<EarthMattersTopic, AnyDigestEntry[]>();
-  for (const entry of rest) {
-    const topic = classifyEarthMattersTopic(entry);
-    if (!buckets.has(topic)) buckets.set(topic, []);
-    buckets.get(topic)!.push(entry);
-  }
-  const topics = EARTH_MATTERS_TOPIC_ORDER.flatMap((topic) =>
-    applyConditionTopicSubgroups('earthMatters', topic, buckets.get(topic) ?? []),
-  ).filter((group) => group.entries.length > 0);
-  return { topics, tyingTogether };
-}
-
-type HomeGardeningTopic =
-  | 'Getting Started: Zones, Climate & Site'
-  | 'What to Grow First'
-  | 'Building Real Soil'
-  | 'Your Garden & Your Microbiome'
-  | 'Growing Techniques'
-  | 'After the Harvest'
-  | 'The Case for a Home Garden';
-
-// Real reading order: the natural first step (finding your zone, picking a
-// site) leads, then what to actually plant, then the two real ongoing-care
-// clusters (soil, technique), then what happens once something's grown,
-// with the motivational/why-bother material last, the same "capstone
-// right before the closing card" position Earth Matters' own "How You Can
-// Take Action" uses. "Your Garden & Your Microbiome" was added 2026-08-13,
-// direct request to build a real section on how the app's own features
-// connect to the microbiome/microbial-network research, deliberately
-// placed right after "Building Real Soil" -- soil is literally what the
-// entries here are about, so learning to build it and then learning what
-// direct contact with it does to a person's own immune system is a real,
-// natural read order, ahead of the more mechanical growing-technique
-// content.
-const HOME_GARDENING_TOPIC_ORDER: HomeGardeningTopic[] = [
-  'Getting Started: Zones, Climate & Site',
-  'What to Grow First',
-  'Building Real Soil',
-  'Your Garden & Your Microbiome',
-  'Growing Techniques',
-  'After the Harvest',
-  'The Case for a Home Garden',
-];
-
-function classifyHomeGardeningTopic(entry: AnyDigestEntry): HomeGardeningTopic {
-  const id = entry.id.toLowerCase();
-
-  if (
-    id.includes('understanding-your-zone') ||
-    id.includes('cold-short-season-crops') ||
-    id.includes('moderate-climate-crops') ||
-    id.includes('warm-climate-crops') ||
-    id.includes('tropical-subtropical-crops') ||
-    id.includes('container-small-space') ||
-    id.includes('soil-safety-lead')
-  ) {
-    return 'Getting Started: Zones, Climate & Site';
-  }
-  if (
-    id.includes('highest-value-crops') ||
-    id.includes('easiest-beginner-crops') ||
-    id.includes('herbs-indoor-windowsill') ||
-    id.includes('microgreens-sprouts') ||
-    id.includes('growing-fruit-perennials')
-  ) {
-    return 'What to Grow First';
-  }
-  if (
-    id.includes('composting-at-home') ||
-    id.includes('no-dig-raised-beds') ||
-    id.includes('mulching') ||
-    id.includes('crop-rotation') ||
-    id.includes('cover-crops-home')
-  ) {
-    return 'Building Real Soil';
-  }
-  if (
-    id.includes('hands-in-soil-immune-training') ||
-    id.includes('mycobacterium-vaccae') ||
-    id.includes('garden-symbiosis-mission')
-  ) {
-    return 'Your Garden & Your Microbiome';
-  }
-  if (
-    id.includes('seed-starting-vs-transplants') ||
-    id.includes('watering-efficiency') ||
-    id.includes('natural-pest-management') ||
-    id.includes('vertical-trellising') ||
-    id.includes('extending-the-season')
-  ) {
-    return 'Growing Techniques';
-  }
-  if (id.includes('preserving-the-harvest') || id.includes('seed-saving') || id.includes('freshness-nutrient-retention')) {
-    return 'After the Harvest';
-  }
-  // Everything else remaining (verified via the throwaway script above to
-  // be exactly the real economics/mental-health/community/pollinator-link
-  // entries) falls here.
-  return 'The Case for a Home Garden';
-}
-
-function groupHomeGardeningEntries(entries: AnyDigestEntry[]): {
-  topics: { label: string; entries: AnyDigestEntry[] }[];
-  tyingTogether: AnyDigestEntry | null;
-} {
-  const tyingTogether = entries.find(isTyingTogetherEntry) ?? null;
-  const rest = entries.filter((entry) => !isTyingTogetherEntry(entry));
-  const buckets = new Map<HomeGardeningTopic, AnyDigestEntry[]>();
-  for (const entry of rest) {
-    const topic = classifyHomeGardeningTopic(entry);
-    if (!buckets.has(topic)) buckets.set(topic, []);
-    buckets.get(topic)!.push(entry);
-  }
-  const topics = HOME_GARDENING_TOPIC_ORDER.flatMap((topic) =>
-    applyConditionTopicSubgroups('homeGardening', topic, buckets.get(topic) ?? []),
-  ).filter((group) => group.entries.length > 0);
-  return { topics, tyingTogether };
-}
-
-// Deliberately no "tying together" pull here -- RECIPES_ENTRIES has no such
-// closing synthesis entry (44 individual recipes, nothing to summarize
-// across), but the function still returns the same real
-// {topics, tyingTogether} shape every other category's own grouping
-// function does, with tyingTogether always null, so groupEntriesForLens
-// below can dispatch to it without a special case.
-function groupRecipesEntries(entries: AnyDigestEntry[]): {
-  topics: { label: string; entries: AnyDigestEntry[] }[];
-  tyingTogether: AnyDigestEntry | null;
-} {
-  const buckets = new Map<RecipeTopic, AnyDigestEntry[]>();
-  for (const entry of entries) {
-    const topic = classifyRecipesTopic(entry);
-    if (!buckets.has(topic)) buckets.set(topic, []);
-    buckets.get(topic)!.push(entry);
-  }
-  const topics = RECIPES_TOPIC_ORDER.map((topic) => ({
-    label: topic as string,
-    entries: sortDigestEntriesLogically(buckets.get(topic) ?? []),
-  })).filter((group) => group.entries.length > 0);
-  return { topics, tyingTogether: null };
-}
-
-// A single, shared dispatcher used everywhere a lens' own entries need
-// grouping into real topic shelves -- Earth Matters, Home Gardening,
-// Recipes, and My Kitchen/My Favorites each route to their own dedicated
-// classifier above; every real disease condition still routes to
-// classifyConditionTopic/groupConditionEntries, unchanged. Basic Health is
-// deliberately NOT handled here -- not because
-// it renders differently anymore (2026-08-14: it uses the same real
-// BasicHealthShelves component as everything else), but because its own
-// real shape is genuinely different from what this dispatcher's return
-// type assumes: `groupEntriesForLens` below also pulls a category-wide
-// "tying together" entry out into its own standalone card, and Basic
-// Health has no such single, category-wide entry -- only real, per-topic
-// tying-together entries that already sort correctly to the end of their
-// own shelf via sortDigestEntriesLogically. Basic Health calls
-// basicHealthAllGroups directly instead, a flat {label, entries}[] with no
-// separate tyingTogether field to extract.
-function classifyTopicForCategory(entry: AnyDigestEntry, category: DigestCategoryKey): string {
-  if (category === 'earthMatters') return classifyEarthMattersTopic(entry);
-  if (category === 'homeGardening') return classifyHomeGardeningTopic(entry);
-  if (category === 'recipes') return classifyRecipesTopic(entry);
-  return classifyConditionTopic(entry);
-}
-
-function groupEntriesForLens(
-  category: DigestCategoryKey,
-  entries: AnyDigestEntry[],
-  // 2026-08-24, direct follow-up: "Now factor in their declared healing
-  // stage too." A plain conditionCode -> stageCode map (getConditionStages'
-  // own real shape), read once by the caller and passed straight through --
-  // only groupConditionEntries below has any use for it.
-  declaredStages?: Record<string, string>,
-  // 2026-08-25, direct follow-up: "Meals You Can Eat should only show
-  // recipes that comply with both [the declared diet] and [the
-  // condition]." Same pass-through shape as declaredStages -- only
-  // groupConditionEntries's own "Meals You Can Eat" sub-shelf has any use
-  // for it.
-  dietPreferences?: RecipeDietTag[],
-): {
-  topics: { label: string; entries: AnyDigestEntry[] }[];
-  tyingTogether: AnyDigestEntry | null;
-} {
-  if (category === 'earthMatters') return groupEarthMattersEntries(entries);
-  if (category === 'homeGardening') return groupHomeGardeningEntries(entries);
-  if (category === 'recipes') return groupRecipesEntries(entries);
-  const conditionCode = DIGEST_KEY_TO_CONDITION_CODE[category];
-  return groupConditionEntries(entries, conditionCode, conditionCode ? declaredStages?.[conditionCode] : undefined, dietPreferences);
-}
-
-// A fixed, internal-only ref key for a condition's own standalone "tying
-// together" card, shared across every condition -- safe despite being the
-// same literal string everywhere, since groupRefs itself is reset to `{}`
-// on every lens switch (see the LensHub onSelect/jumpToRelated below), so a
-// previous condition's own stale ref under this same key can never survive
-// long enough to be scrolled to by mistake.
-const TYING_TOGETHER_GROUP_KEY = '__tying-together__';
-
-// How far above a scrolled-to card's own top edge to stop -- 2026-08-07,
-// set to the exact figure given directly: "The header of the one I
-// tapped should be at the top of the screen under the app's own header
-// section by about 10 pixels." Hoisted to module scope 2026-08-08 so
-// BasicHealthShelves' own detail panel (a separate, module-level
-// component) can reference it too, not just PurpleDigestScreen itself.
-const ENTRY_SCROLL_TOP_MARGIN = 10;
-
-// How long the card list's own LinearTransition (on each card's own
-// Animated.View) takes to finish sliding every card into its real, final
-// position after an expand/collapse -- pinned to an explicit number here
-// (LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)) rather than left
-// at Reanimated's own implicit default, specifically so scrollEntryIntoView
-// has a real, known number to wait out instead of guessing at one.
-const CARD_LAYOUT_TRANSITION_MS = 300;
-// A little slack on top of the animation's own real duration -- covers
-// ordinary JS-thread/bridge scheduling delay, not because the animation
-// itself is expected to run long.
-const CARD_LAYOUT_SETTLE_BUFFER_MS = 60;
-
-// Extra ScrollView bottom padding added ONLY while a card is expanded, so a
-// group near the real end of a category's content can still scroll all the
-// way up under the fixed header without the native scrollTo call clamping
-// short -- see PurpleDigestScreen's own scrollNodeIntoView comment for the
-// full reasoning. Deliberately a fixed, generous constant rather than a
-// live useWindowDimensions() read: this value only has to be "clearly more
-// than any real screen could ever need," never pixel-precise, so there's no
-// reason to pay for a dimension-change subscription (and the resulting
-// unstable style-object identity on every render) to get it. Hoisted to
-// module scope for the same reason as the constants above -- a stable
-// value, not something that needs recomputing per render.
-const EXPANDED_EXTRA_SCROLL_PADDING = 1200;
-
-export default function PurpleDigestScreen() {
-  useRegisterScreenHelp('Digest', DIGEST_HELP_SECTIONS, '/purple-digest');
-  const scrollBottomPadding = useFloatingButtonScrollPadding();
-  // 2026-08-09, real, direct report, reproduced with exact steps: "scroll
-  // farther down below the one I had opened and open another a few down
-  // below it, it scrolls way up the screen and then back down again with
-  // the newly opened item just off the screen below the app footer."
-  // scrollBottomPadding above is deliberately small -- sized only to clear
-  // the floating TabHub/LensHub button (see its own comment), not to let
-  // an arbitrary group scroll all the way up to sit just below the fixed
-  // header. For a group sitting anywhere within roughly one screen height
-  // of the real end of a category's content (exactly what "scroll farther
-  // down, then tap something further down" reaches), scrollNodeIntoView's
-  // own computed target legitimately exceeds the ScrollView's own real
-  // maximum scroll extent -- the native scrollTo call simply clamps to
-  // that real maximum, landing well short of the intended 10px-below-
-  // header position, with the newly-expanded detail panel (which just
-  // added real height right at the tail end of the content) ending up
-  // partly or fully below the visible screen with no further room to
-  // scroll it into view. A real, structural cause, not a timing race --
-  // this is why the two earlier timing-focused fixes made no visible
-  // difference. Fixed by adding real, extra bottom padding, but ONLY while
-  // an entry is actually expanded -- applying it unconditionally would
-  // leave a large, empty, confusing gap at the bottom of ordinary scrolling
-  // with nothing open, which is a real, different problem this fix doesn't
-  // need to introduce to solve the one that was actually reported.
-  //
-  // 2026-08-09, real, direct follow-up report, same day, right after
-  // confirming the scroll fix itself worked: "the keyboard is slow to
-  // react again... you have fixed this before." The first version of this
-  // fix reached for useWindowDimensions() to size the extra padding against
-  // the real, live device height -- reasonable-sounding, but it subscribes
-  // this whole large screen to every dimension-change event RN fires, and
-  // (worse) the resulting value was used to build a brand-new
-  // contentContainerStyle array/object on every single render, forcing a
-  // full Yoga layout recompute of a now much taller ScrollView on every one
-  // of those renders. Neither risk is worth taking for a value that never
-  // needed device precision in the first place -- this only has to be
-  // "clearly more than any real screen could ever need," not exact, so a
-  // fixed, generous constant does the identical job with none of the
-  // subscription/re-render risk (see EXPANDED_EXTRA_SCROLL_PADDING, hoisted
-  // to module scope above alongside the other layout-timing constants).
-  // Also memoized below (see scrollContentContainerStyle) so the style
-  // object itself only gets a new identity when expandedId's own
-  // open/closed state actually changes, not on every unrelated render --
-  // the second, independent half of the same real fix.
-  const autoOpenLensHub = useAutoOpenLensHubSignal();
-  // The real value actually handed to LensHub's own autoOpenSignal prop --
-  // 2026-08-08, widened from just autoOpenLensHub (a TabHub-navigation-only
-  // signal, see useAutoOpenLensHubSignal's own comment) to also react to a
-  // real, deliberate in-screen tap: "when I hit back to digest breadcrumb
-  // from any section, it should close the current section and display the
-  // Digest LensHub menu." Unlike the two earlier, reverted "always
-  // auto-open on arrival" attempts LensHub.tsx's own history already
-  // documents, this isn't gated on arriving at the screen at all -- it only
-  // fires from an explicit tap on the "‹ Back to Digest" link itself, so a
-  // horizontal swipe between tabs (which never touches this state) still
-  // can't trigger it, the same real distinction that made autoOpenLensHub
-  // itself safe to reintroduce. Kept as its own state (not just passing
-  // autoOpenLensHub straight through) so either source -- a real TabHub
-  // navigation, or this screen's own back-link tap -- can independently
-  // bump it to a fresh value at its own time, with LensHub's own
-  // already-existing "is this genuinely a NEW value" dedup below deciding
-  // whether to actually open.
-  const [openTrigger, setOpenTrigger] = useState<string | undefined>(undefined);
-  useEffect(() => {
-    if (autoOpenLensHub) setOpenTrigger(autoOpenLensHub);
-  }, [autoOpenLensHub]);
-
-  // A deep link straight to one specific entry's card, 2026-08-23,
-  // built for Home's Digest flip cards: Read More has to land on the
-  // exact entry it teased, not just that entry's lens. Handled in the
-  // useFocusEffect below via the same jumpToRelated the Related-entry
-  // chips already use, rather than a second navigation mechanism.
-  //
-  // It is safe to leave unconsumed: SwipeableTabScreen's swipe-driven
-  // navigation carries no params at all, so a later swipe away and back
-  // lands on a bare route.
-  //
-  // openDigestLens, its companion since 2026-08-16, is gone as of
-  // 2026-09-18. It carried the Food builders' Find a Recipe links into
-  // My Kitchen, Recipes and My Favorites; those links point at Food now,
-  // because that is where the recipes themselves live.
-  const router = useRouter();
-  const { openEntryId } = useLocalSearchParams<{ openEntryId?: string }>();
-  const [lens, setLens] = useState<PurpleDigestLens>('basicHealth');
-  // Hide-sync for any Digest entry tagged with `relatedFoodNames` (currently
-  // just the Fruits, Vegetables, Nuts & Seeds profile guide -- see
-  // lib/db.ts's own getVisibleFoodBaseNames comment) -- "if any of them get
-  // hidden in the database... then their information should also
-  // disappear." One bulk query on mount for every real food name any entry
-  // in this whole Digest is tagged with, not one query per entry. `null`
-  // means "still loading" -- entries.useMemo below deliberately treats that
-  // as "show everything" rather than hiding food-tagged entries for the
-  // brief window before this resolves, so a real slow load never reads as
-  // content disappearing.
-  const [visibleFoodNames, setVisibleFoodNames] = useState<Set<string> | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    const allRelatedFoodNames = Array.from(
-      new Set(
-        ALL_DIGEST_ENTRIES.flatMap((entry) =>
-          !isProblemFoodEntry(entry) && entry.relatedFoodNames ? entry.relatedFoodNames : [],
-        ),
-      ),
-    );
-    getVisibleFoodBaseNames(allRelatedFoodNames).then((names) => {
-      if (!cancelled) setVisibleFoodNames(names);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-  // The person's own selected conditions (Profile's own picker,
-  // 2026-08-24, direct request: "the type of diet a person is trying to
-  // follow or is interested in trying should be in the Profile." Same
-  // refetch-on-focus pattern as userConditionCodes just above, so a change
-  // made on Profile is reflected here without an app restart. Used only to
-  // seed the "Filter by diet" default below (the LensHub onSelect handler,
-  // where a fresh arrival on Recipes reads this synchronously) -- never
-  // gates anything, the picker itself is still always freely changeable.
-  const [dietPreferences, setDietPreferences] = useState<RecipeDietTag[]>([]);
-  useFocusEffect(
-    useCallback(() => {
-      let cancelled = false;
-      getDietPreferences()
-        .then((tags) => {
-          if (!cancelled) setDietPreferences(tags as RecipeDietTag[]);
-        })
-        .catch(() => {
-          // Best-effort only -- a failure here just means the filter falls
-          // back to its own original "All Diets" default, never a broken
-          // screen.
-        });
-      return () => {
-        cancelled = true;
-      };
-    }, []),
-  );
-  // 2026-08-24, direct follow-up to "Meals You Can Eat": "Now factor in
-  // their declared healing stage too." Same refetch-on-focus pattern as
-  // userConditionCodes/dietPreferences just above, so a stage change made
-  // on Profile shows up here without an app restart. A plain conditionCode
-  // -> stageCode map (getConditionStages' own real shape); passed straight
-  // through to groupEntriesForLens, which only reads the one key relevant
-  // to whichever condition's own page is currently open.
-  const [declaredStages, setDeclaredStages] = useState<Record<string, string>>({});
-  useFocusEffect(
-    useCallback(() => {
-      let cancelled = false;
-      getConditionStages()
-        .then((stages) => {
-          if (!cancelled) setDeclaredStages(stages);
-        })
-        .catch(() => {
-          // Best-effort only -- a failure here just means "Meals You Can
-          // Eat" falls back to its own original, stage-agnostic sort,
-          // never a broken screen.
-        });
-      return () => {
-        cancelled = true;
-      };
-    }, []),
-  );
-  // The Search All lens's own COMMITTED query text -- 2026-08-08, no longer
-  // written to on every keystroke (see EntrySearchInput's own comment
-  // below for the real, reported keyboard-lag reason why). This is now the
-  // already-debounced value, updated only once per real pause in typing.
-  // Still reset whenever the tab loses/regains focus below, same as
-  // `revealed`, so returning to Digest never resumes a stale search.
-  const [searchQuery, setSearchQuery] = useState('');
-  // Same reset-on-focus-change pattern as Insights/Schedule/Food -- arriving
-  // or re-arriving at this tab always shows the resting "pick a category"
-  // prompt first, never an instant resume of whatever was last open.
-  const [revealed, setRevealed] = useState(false);
-  // A real, category-scoped search -- 2026-08-08, originally built for
-  // Basic Health alone ("build a search utility for the Basic Health
-  // category"), now generalized to every real category: "Basic Health
-  // needs its own search utility, just as all of the other areas of the
-  // Digest do." Deliberately a separate query string from Search All's own
-  // `searchQuery` above (not the same state reused) -- the two searches
-  // have genuinely different scope (this app's whole Digest vs. just
-  // whichever one category is currently open) and can't share a single
-  // "what's the user typing" value without one clobbering the other on a
-  // lens switch. Reset alongside everything else on a fresh tab visit and
-  // a fresh lens selection, same as searchQuery. Whichever category is
-  // active reads this same state -- there's only ever one real "local
-  // search" box on screen at a time, so one shared string is safe. Also the
-  // already-debounced COMMITTED value now, same as searchQuery above.
-  const [categorySearchQuery, setCategorySearchQuery] = useState('');
-  // Whether a real search is actively narrowing what's on screen right
-  // now -- 2026-08-08, real parent state now (used to be derived every
-  // render from the raw query text) so EntrySearchInput's own instant
-  // onActiveChange callback can flip it the moment typing starts or the box
-  // empties, without this screen needing to re-render on every keystroke in
-  // between just to keep re-deriving the same boolean. Drives headerCard's
-  // own visibility and the empty/results branching below -- see
-  // EntrySearchInput's own comment for the fuller reasoning.
-  const [isSearchActive, setIsSearchActive] = useState(false);
-  // 2026-08-23: Basic Health's own plain-browsing landing view, direct
-  // request after the FlatList virtualization fix still left a delay
-  // -- rendering all ~21 groups' own shelves at once (479 entries total)
-  // is itself the cost, not just how each shelf renders internally. Null
-  // shows a topic menu (DigestTopicMenu, below) instead of every shelf at
-  // once. For Basic Health, this holds a TOP-LEVEL topic label
-  // (basicHealthMenuGroups' own key, the part of a leaf group's
-  // '::'-joined label before the first '::', e.g. "Essential Nutrients",
-  // not "Essential Nutrients::Magnesium") rather than one single leaf
-  // group -- direct follow-up request: Essential Nutrients' own 22
-  // individual nutrient/hormone subtopics fold back under their one shared
-  // parent row in the menu, rather than each showing as its own separate
-  // row, and picking that one row shows every one of them together, the
-  // same multi-shelf continuous view every condition category already
-  // uses. Every other (subtopic-free) top-level topic still resolves to
-  // exactly one leaf group, same as before.
-  //
-  // Direct follow-up, same day: "do the same for the other sections of the
-  // Digest." Every non-Basic-Health category's own topics are already flat,
-  // single-level labels (no '::' nesting, no Essential-Nutrients-style
-  // clustering needed), so this same state directly holds that category's
-  // own picked topic label with no splitting required -- see the generic
-  // (non-basicHealth) render branch, below, and jumpToRelated's own
-  // generalized drill-in logic.
-  //
-  // Search bypasses this entirely at every level (categorySearchGroups'
-  // own branch, above, already narrows what's shown once a topic is
-  // picked, so an extra menu step would be redundant).
-  const [selectedTopicGroup, setSelectedTopicGroup] = useState<string | null>(null);
-  // 2026-08-24, direct request: recipes "grouped so they can be
-  // identified" by real diet compatibility, not just badged individually.
-  // Only meaningful on the Recipes lens (see the entries useMemo below,
-  // where this actually narrows what's shown) -- left set on other
-  // lenses is harmless since nothing else reads it, but it's still reset
-  // alongside selectedTopicGroup at every "fresh arrival" site so
-  // returning to Recipes later never silently carries over a stale
-  // filter from a much earlier visit.
-  const [recipeDietFilter, setRecipeDietFilter] = useState<RecipeDietTag | null>(null);
-  // 2026-08-24, direct report: "when I go into Essential Nutrients, I
-  // should only see the subsections of that section... not yet specific
-  // stories... until I select one of the subsection header links." Basic
-  // Health's own Essential Nutrients topic was the one real spot left where
-  // picking a top-level topic still landed on every one of its own 22
-  // subtopic shelves at once (Magnesium, Vitamin D, Iron, and so on) rather
-  // than a further menu of just their names -- every other topic in every
-  // category (including Basic Health's own subtopic-free ones) already had
-  // exactly one menu step before content, since only Essential Nutrients
-  // has a real second level (BasicHealthTopic.subtopics) at all. Holds the
-  // picked SUBTOPIC's own short label (e.g. "Magnesium"), not a '::'-joined
-  // path -- combined with selectedTopicGroup (the top-level part) wherever
-  // the exact leaf group needs resolving. Null means "still choosing," the
-  // same convention selectedTopicGroup itself already uses one level up.
-  // Built generically (basicHealthTopicHasSubtopics, below) rather than
-  // hardcoded to Essential Nutrients by name, so any future Basic Health
-  // topic that grows real subtopics gets this same two-step menu for free.
-  // Irrelevant outside Basic Health -- every other category's own topics
-  // are already flat, single-level labels with nothing further to drill
-  // into, matching groupEntriesForLens' own comment on that same point.
-  const [selectedBasicHealthSubgroup, setSelectedBasicHealthSubgroup] = useState<string | null>(null);
-  // The new fixed-header Glossary shortcut, 2026-08-23 -- see
-  // basicHealthMenuGroups' own comment for why Glossary no longer shows as
-  // a normal Basic Health menu row. A real, separate boolean rather than
-  // routing through lens/selectedTopicGroup: glossary- prefixed entries
-  // are individually categorized across 14 different real categories (only
-  // 55 of 100 are 'basicHealth', the rest scattered under Hashimoto's and
-  // every other condition, whichever one each term's own deeper content
-  // actually ties to), so "the Glossary" a person expects from this button
-  // has to pull every one of them at once regardless of category, not just
-  // the Basic-Health-categorized fraction Basic Health's own topic system
-  // alone could ever show. Deliberately doesn't touch lens/selectedTopicGroup
-  // at all when opening -- whatever category/topic was showing underneath
-  // stays exactly as it was, ready to resume the instant Glossary closes.
-  const [glossaryOpen, setGlossaryOpen] = useState(false);
-  // Every glossary- prefixed entry across every real category, flattened
-  // into the one flat list Glossary's own view needs -- ALL_DIGEST_ENTRIES
-  // is static app content, never changes at runtime, so this only ever
-  // computes once.
-  const allGlossaryEntries = useMemo(
-    () => sortDigestEntriesLogically(ALL_DIGEST_ENTRIES.filter((entry) => entry.id.startsWith('glossary-'))),
-    [],
-  );
-  // A real, deliberate remount trigger for EntrySearchInput (used as its
-  // own `key` in the JSX below) -- 2026-08-08. Since that component now
-  // owns its own local, per-keystroke text state (the whole point of this
-  // fix), this screen can no longer just call a setter to clear the box the
-  // way it used to; bumping this forces React to tear down and remount a
-  // fresh instance, which resets that local state to its own default ('')
-  // for free, no extra reset-effect logic needed inside the child at all.
-  // Bumped everywhere this screen already resets searchQuery/
-  // categorySearchQuery directly (focus change, jumpToRelated, a fresh
-  // LensHub selection) -- see each of those for why.
-  const [searchResetKey, setSearchResetKey] = useState(0);
-  // basicHealthTopicPath (tracking a real drill-down position in Basic
-  // Health's own tree) removed 2026-08-14 alongside BasicHealthTree itself
-  // -- Basic Health now renders every one of its own topics as a shelf all
-  // at once, the same as every other category, with no "current position"
-  // left to track.
-  useFocusEffect(
-    useCallback(() => {
-      // openEntryId takes precedence over the normal "always land on the
-      // resting picker" reset below: jumpToRelated already does
-      // everything a fresh arrival needs (right category, right topic,
-      // the entry expanded, scrolled into view), it just also needs
-      // revealed set true first, since jumpToRelated assumes the screen
-      // is already showing a category rather than the resting LensHub
-      // picker a brand-new navigation always starts on.
-      if (openEntryId) {
-        setRevealed(true);
-        jumpToRelated(openEntryId);
-        return;
-      }
-      setRevealed(false);
-      setSearchQuery('');
-      setCategorySearchQuery('');
-      setIsSearchActive(false);
-      setSearchResetKey((key) => key + 1);
-      return () => {
-        setRevealed(false);
-        setSearchQuery('');
-        setCategorySearchQuery('');
-        setIsSearchActive(false);
-        setSearchResetKey((key) => key + 1);
-      };
-      // jumpToRelated deliberately left out of this dependency array --
-      // it's a plain function, not a useCallback, so it's a genuinely new
-      // reference every render, and this effect only needs to re-run when
-      // openEntryId itself changes, not on every unrelated render of this
-      // whole screen. Everything jumpToRelated reads is either a setState
-      // setter (stable by React's own guarantee) or groupRefs.current (a
-      // ref, always the current object regardless of which render's
-      // closure captured it), so there's no real stale-closure risk here.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [openEntryId]),
-  );
-
-  // Which single entry (by id) is currently expanded to its full detail,
-  // within whichever category is showing -- at most one open at a time,
-  // same "tap again to collapse" accordion shape as Insights' own SixDsView.
-  const [expandedId, setExpandedId] = useState<string | null>(null);
-  // The small "how does search matching work" sheet, opened via the (i)
-  // icon next to the breadcrumb -- see SEARCH_MATCH_HELP_SECTIONS' own
-  // comment for why this is a local HelpSheet rather than folded into the
-  // screen's usual useRegisterScreenHelp registration.
-  const [searchMatchHelpVisible, setSearchMatchHelpVisible] = useState(false);
-  const scrollRef = useRef<ScrollView>(null);
-  // A real ref to each rendered shelf GROUP's own outer container (keyed by
-  // group label -- Basic Health's own by-topic label, or a condition's own
-  // pillar label / TYING_TOGETHER_GROUP_KEY) -- 2026-08-08, replacing an
-  // earlier per-CARD ref approach entirely, once every real category
-  // (conditions included, not just Basic Health) moved to the same
-  // shelf-row-plus-detail-panel shape. Scrolling targets the whole group
-  // section, not the individual tapped card, so the group's own heading and
-  // its full tab strip land together near the top of the screen when a row
-  // is opened, per direct correction: "The entire row that is being looked
-  // at should have each of their headers at the top of the row... so I
-  // don't get lost." A plain RN View already exposes the same real
-  // .measure() a card ref did, so this reuses the identical scroll
-  // mechanism below, just keyed differently -- see scrollGroupIntoView.
-  const groupRefs = useRef<Record<string, Measurable | null>>({});
-  // The ScrollView's own current, live scroll position -- kept live via
-  // onScroll, needed for two real reasons: converting the viewport-
-  // relative measurement below into an absolute scroll target, and
-  // stopping any in-flight scroll momentum before issuing a new
-  // programmatic scroll (see scrollGroupIntoView's own comment). Plain
-  // ref, not state, so onScroll firing repeatedly during a manual drag
-  // doesn't itself force a re-render.
-  const currentScrollY = useRef(0);
-  // The real fix for the scroll-clamping bug described above
-  // EXPANDED_EXTRA_SCROLL_PADDING -- extra bottom padding, but ONLY while a
-  // card is actually expanded (expandedId !== null). Scrolling with nothing
-  // open never needs this (there's no tall detail panel that could ever
-  // need to reach the top of the screen), so the padding stays at its
-  // normal, small, floating-button-clearing size the rest of the time --
-  // no new empty-space-at-the-bottom complaint traded in for the fix.
-  // Memoized (both the number and the style array below) rather than a
-  // plain per-render expression, precisely because an unmemoized version of
-  // this was the real cause of the 2026-08-09 keyboard-lag regression --
-  // see EXPANDED_EXTRA_SCROLL_PADDING's own comment for the full story.
-  const scrollExtraBottomPadding = useMemo(
-    () => (expandedId !== null ? scrollBottomPadding + EXPANDED_EXTRA_SCROLL_PADDING : scrollBottomPadding),
-    [expandedId, scrollBottomPadding],
-  );
-  const scrollContentContainerStyle = useMemo(
-    () => [styles.bodyContent, { paddingBottom: scrollExtraBottomPadding }],
-    [scrollExtraBottomPadding],
-  );
-
-  // 2026-09-19, direct instruction: "we are moving the conditions all to
-  // Life." The 19 condition tiles, the pinned-above-the-line ordering by
-  // the person's Profile selections and the divider under them all left
-  // this picker together; Life > Conditions (components/ConditionsSection.tsx)
-  // holds every one of those entries now, in its own three lists. What is
-  // left here is the general reading: Basic Health, Earth Matters and
-  // Home Gardening, in the order settled on 2026-08-13. A condition entry
-  // reached from here (a Related chip, a Search All hit) opens in Life;
-  // see jumpToRelated.
-  const basicHealthMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'basicHealth')!;
-  const earthMattersMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'earthMatters')!;
-  const gardeningMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'homeGardening')!;
-  // Recipes, My Kitchen and My Favorites had tiles here from 2026-08-14
-  // and 2026-08-15. All three left on 2026-09-18, by direct instruction:
-  // "I also think that all recipes should live in Food rather than having
-  // the system meals exist in the Digest. My Kitchen in Digest is already
-  // bascially what is available in Food as Saved & Favorites." Food now
-  // carries System Recipes and My Recipes, each grouped by the builder
-  // that makes the thing.
-  //
-  // Recipes content itself stays in this file: every condition still
-  // shelves its own "Meals You Can Eat" from it (classifyConditionTopic),
-  // and a Search All hit or a Related chip still opens the recipes lens.
-  // It simply has no tile of its own in the picker any more.
-  const orderedCategoryMetas = [basicHealthMeta, earthMattersMeta, gardeningMeta];
-
-  // 'search' IS one of these tiles, leading the list -- 2026-08-08, a real
-  // correction of an in-between attempt this same day. The first pass had
-  // Search All as a co-equal grid tile right alongside Basic Health and
-  // every condition; a direct correction ("Search the whole digest should
-  // be on the outside of Basic Health, not inside of it") was read, at the
-  // time, as needing that structural sibling-ness removed entirely, so
-  // Search became a persistent bar pinned above the whole screen instead.
-  // The real, actual ask turned out narrower and different: "move the
-  // 'Search the whole digest' search utility out of the Basic Health area
-  // and into the Digest LensHub menu as a selection" -- a real, tappable
-  // choice from the same menu every other lens already lives in, not a
-  // second, parallel input mechanism outside that menu altogether. Since
-  // LensHub's own grid already renders Basic Health and every condition as
-  // plain, equal siblings, giving Search its own tile in that same list
-  // already satisfies "outside of Basic Health" on its own -- it's a
-  // sibling selection, not a child of Basic Health's own tree. The
-  // persistent bar is gone; typing now only happens inside the 'search'
-  // lens's own content, the same as any other lens.
-  const LENSES: LensOption<PurpleDigestLens>[] = [
-    {
-      key: 'search',
-      label: 'Search All',
-      icon: 'search-outline',
-      help: DIGEST_SEARCH_HELP,
-    },
-    ...orderedCategoryMetas.map((meta) => ({
-      key: meta.key,
-      label: meta.label,
-      gridLabel: DIGEST_GRID_LABEL_BREAKS[meta.key],
-      icon: meta.icon,
-      help: [DIGEST_LENS_HELP[meta.key], DIGEST_READING_HELP],
-    })),
-  ];
-
-  const activeLensLabel =
-    lens === 'search' ? 'Search All' : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.label;
-  // 2026-08-23, direct report: drilling into a Basic Health subgroup (say
-  // Essential Nutrients) still showed the generic "Basic Health" title and
-  // its own "Food, vitamins, minerals..." description above the shelves,
-  // reading as if you were still on the topic-wide overview rather than
-  // looking at one specific subgroup. That description belongs only on the
-  // top-level menu, where every one of Basic Health's own groups is
-  // actually listed -- once a subgroup is picked, the header card below
-  // switches to that subgroup's own name instead.
-  //
-  // Direct follow-up, same day: generalized to every other category once
-  // the menu-first browsing pattern itself was extended to all of them
-  // (see selectedTopicGroup's own comment) -- drilling into any topic, in
-  // any lens, shows that topic's own name here instead of the category's
-  // own name, not just Basic Health's.
-  // 2026-08-24, direct follow-up: a drilled-in Basic Health subgroup with
-  // its own real subtopics (Essential Nutrients) now has a THIRD real
-  // depth -- top-level menu, subtopic menu, then one subtopic's own shelf
-  // -- so this label shows whichever of those is currently deepest: the
-  // picked subtopic's own short name once one is picked, otherwise the
-  // top-level topic's name, same as before. shelfGroupDisplayLabel is a
-  // harmless no-op on a plain subtopic label (it only ever transforms a
-  // real '::'-joined path).
-  const drilldownTopicLabel =
-    lens !== 'search' && selectedTopicGroup !== null
-      ? shelfGroupDisplayLabel(selectedBasicHealthSubgroup ?? selectedTopicGroup)
-      : null;
-  // 2026-08-23, direct follow-up: an empty header once drilled in still
-  // left nothing explaining what the subgroup actually covers or how it
-  // connects to basic health generally -- each BASIC_HEALTH_TOPICS entry's
-  // own `description` (BASIC_HEALTH_MORE_TOPIC_DESCRIPTION for the dynamic
-  // 'More' catch-all, which isn't a real BASIC_HEALTH_TOPICS entry) fills
-  // that in, specific to the picked subgroup rather than a repeat of Basic
-  // Health's own shared blurb. Only Basic Health's own topics carry an
-  // authored description at all -- no condition, Earth Matters, or Home
-  // Gardening topic has one yet, so this stays null for every other
-  // category's own drilled-in view (just the topic name above, no
-  // paragraph under it), an honest gap rather than an invented blurb.
-  // 2026-08-24: also null once a real SUBTOPIC is picked (Essential
-  // Nutrients' own individual nutrients carry no authored description of
-  // their own, only the parent topic does) -- the topic-level description
-  // now shows only on that topic's own subtopic-menu screen, one level
-  // shallower than where a single leaf's own shelf renders.
-  const drilldownTopicDescription =
-    lens === 'basicHealth' && selectedTopicGroup !== null && selectedBasicHealthSubgroup === null
-      ? (BASIC_HEALTH_TOPICS.find((topic) => topic.label === selectedTopicGroup)?.description ??
-        BASIC_HEALTH_MORE_TOPIC_DESCRIPTION)
-      : null;
-  // 2026-08-23, direct follow-up: "Search within Basic Health" stayed
-  // showing at every drilled-in level too, direct report that it should
-  // instead search "the area where they are, filtered." Whatever the
-  // search box's placeholder and empty-state text call the current scope
-  // -- the drilled-in subgroup's own name once inside one, the ordinary
-  // lens name otherwise. categorySearchGroups (below) does the matching
-  // scoping on the actual results.
-  const searchScopeLabel = drilldownTopicLabel ?? activeLensLabel;
-  // Plain, original category order -- no reordering. See cardOffsets' own
-  // comment above for why (a real correction of an earlier "move the
-  // expanded card to the front of the list" approach). A real useMemo, not
-  // a plain expression -- getEntriesForCategory returns a freshly-built
-  // array every call, so leaving this unmemoized would hand
-  // categorySearchGroups below a new array identity on every render
-  // regardless of whether `lens` actually changed, defeating that memo's
-  // own point of skipping recomputation on unrelated re-renders (e.g. a
-  // feedback tap, an unrelated state change elsewhere on screen).
-  const entries = useMemo(() => {
-    if (lens === 'search') return [];
-    const raw = getEntriesForCategory(lens);
-    // See visibleFoodNames' own comment above -- still loading (null) means
-    // show everything; once resolved, drop any relatedFoodNames-tagged
-    // entry whose every real food name has since been hidden.
-    const foodVisible =
-      visibleFoodNames === null
-        ? raw
-        : raw.filter((entry) => {
-            if (isProblemFoodEntry(entry) || !entry.relatedFoodNames || entry.relatedFoodNames.length === 0) return true;
-            return entry.relatedFoodNames.some((name) => visibleFoodNames.has(name));
-          });
-    // 2026-08-24, direct request: recipes "grouped so they can be
-    // identified" by real diet compatibility -- picking a diet from the
-    // filter below narrows Recipes down to just the entries that real,
-    // computed dietTags say fit it, reusing every downstream mechanism
-    // (search, topic menu, shelves) unchanged since they all just consume
-    // this same `entries` value.
-    if (lens !== 'recipes' || !recipeDietFilter) return foodVisible;
-    return foodVisible.filter((entry) => {
-      if (isProblemFoodEntry(entry)) return false;
-      return entry.recipeCard?.dietTags?.includes(recipeDietFilter) ?? false;
-    });
-  }, [lens, visibleFoodNames, recipeDietFilter]);
-  // searchQuery/categorySearchQuery are already the debounced, COMMITTED
-  // values by construction now (see EntrySearchInput below) -- a real,
-  // second attempt at the reported keyboard-lag fix, 2026-08-08. The first
-  // attempt (debouncing a value derived FROM this screen's own raw,
-  // per-keystroke state) didn't actually work: this screen still re-
-  // rendered its entire tree on every single character, since the raw text
-  // itself lived here -- the debounce only skipped recomputing the
-  // EXPENSIVE data, not the (much more expensive) React reconciliation of
-  // however many real card/shelf components that data feeds, which still
-  // happened in full on every keystroke regardless. The real fix moves the
-  // raw, per-keystroke text into its own small, isolated child component
-  // instead -- this screen (and everything below) now only re-renders once
-  // per real pause in typing, not once per character, because it's simply
-  // never told about a keystroke until the debounce inside that child
-  // component has already settled.
-  // 2026-08-09, real per-term match info added -- direct request: "the
-  // search results should tell me if one or the other or both items
-  // appeared in the result and how much weight this entry has." Scored
-  // now, not just a plain ranked list -- each result carries its own real
-  // SearchMatchInfo (which of the typed terms actually matched, and
-  // whether each hit the title or only the body), rendered directly on
-  // SearchResultCard below rather than left as an invisible internal
-  // ranking number the way this screen's own sort order already was.
-  const searchResults = useMemo(() => searchDigestEntriesScored(searchQuery), [searchQuery]);
-  // The same filtered, grouped hierarchical view built for category search
-  // (see the JSX below) -- pulled into its own real useMemo here, alongside
-  // searchResults above, rather than left as an inline IIFE recomputed on
-  // every render regardless of whether the query (or the category itself)
-  // actually changed.
-  // 2026-08-23, direct report: "why does it take so long for Basic Health
-  // to display after selecting it from the Digest menu?" Root cause:
-  // basicHealthAllGroups(entries) was called directly inline in this
-  // screen's own JSX (below, at the real BasicHealthShelves render), not
-  // memoized -- it walks all ~21 real Basic Health topics (Essential
-  // Nutrients' own subtopics flattened among them) and filters the full
-  // entries list once per topic, real, non-trivial work that was re-running
-  // on every render of this whole screen while Basic Health was open, not
-  // just once when it was first selected. categorySearchGroups just above
-  // already gets this right (a real useMemo); this is the same fix applied
-  // to the plain, non-search browsing path. Moved above
-  // categorySearchScopeEntries (below), which now reads it too, so it's
-  // declared before its own first use.
-  const basicHealthGroups = useMemo(() => basicHealthAllGroups(entries), [entries]);
-  // 2026-08-23, direct report: search stayed scoped to the whole Basic
-  // Health category at every drilled-in level too ("search within Basic
-  // Health should only be on the Basic Health page... the search on top
-  // should change to search the area where they are, filtered") -- once a
-  // subgroup is picked, both the scoring pool below and categorySearchGroups'
-  // own base groups (below) narrow to just that subgroup's own entries, the
-  // same real efficiency win the earlier virtualization fix made for
-  // ordinary browsing.
-  //
-  // Direct follow-up, same day: generalized to every other category once
-  // the menu-first browsing pattern itself was extended to all of them.
-  // Basic Health alone needs the '::'-prefix clustering (Essential
-  // Nutrients' own 22 subtopics); every other category's own topics are
-  // already flat, single-level labels, so an exact match against
-  // groupEntriesForLens' own topics is enough. lens === 'search' (the
-  // whole-Digest search lens) never reaches the second branch in practice
-  // -- selectedTopicGroup has no meaning there and stays null -- but the
-  // null check above short-circuits before the type-narrowing cast below
-  // would matter either way.
-  const categorySearchScopeEntries = useMemo(() => {
-    if (selectedTopicGroup === null) return entries;
-    if (lens === 'basicHealth') {
-      const scoped: AnyDigestEntry[] = [];
-      for (const group of basicHealthGroups) {
-        // 2026-08-24: once a real subtopic is picked too (Essential
-        // Nutrients' own Magnesium, say), search narrows one level further,
-        // matching only that one leaf group rather than every subtopic
-        // under the same top-level topic -- the same "search the area
-        // where you are" rule this scoping already followed one level up,
-        // now honored at the new second depth too.
-        const matches =
-          selectedBasicHealthSubgroup !== null
-            ? group.label === `${selectedTopicGroup}::${selectedBasicHealthSubgroup}`
-            : group.label.split('::')[0] === selectedTopicGroup;
-        if (matches) scoped.push(...group.entries);
-      }
-      return scoped;
-    }
-    const { topics } = groupEntriesForLens(lens as DigestCategoryKey, entries, undefined, dietPreferences);
-    // 2026-08-25: split(::)[0] rather than an exact match, matching
-    // BasicHealthShelves' own drill-in filter -- "Meals You Can Eat" now
-    // resolves to several '::'-joined sub-topics of its own (see
-    // groupConditionEntries), so an exact match here would silently find
-    // nothing and fall all the way back to searching the WHOLE category
-    // instead of just this one topic. Combines every matching sub-topic's
-    // own entries, since search should cover all of Meals You Can Eat's
-    // own sub-shelves at once here, the same "search the area where you
-    // are" scope every other topic already gets.
-    const matching = topics.filter((topic) => topic.label.split('::')[0] === selectedTopicGroup);
-    return matching.length > 0 ? matching.flatMap((topic) => topic.entries) : entries;
-  }, [entries, lens, selectedTopicGroup, selectedBasicHealthSubgroup, basicHealthGroups, dietPreferences]);
-  // 2026-08-09, keyed by id to a real SearchMatchInfo now, not just a plain
-  // Set -- the same "which terms actually matched, title or just body"
-  // detail Search All's own results already carry, threaded through to
-  // ShelfTabCard below so a category's own scoped search shows the same
-  // real relevance signal, not just a filtered list with no visible reason
-  // why each card is there.
-  const categorySearchMatchInfo = useMemo(() => {
-    const map = new Map<string, SearchMatchInfo>();
-    for (const result of searchEntriesScored(categorySearchScopeEntries, categorySearchQuery)) map.set(result.entry.id, result.match);
-    return map;
-  }, [categorySearchScopeEntries, categorySearchQuery]);
-  const categorySearchGroups = useMemo(() => {
-    const baseGroups =
-      lens === 'basicHealth'
-        ? selectedTopicGroup === null
-          ? basicHealthGroups
-          : basicHealthGroups.filter((group) =>
-              // 2026-08-24: same one-level-deeper narrowing as
-              // categorySearchScopeEntries above, once a real subtopic is
-              // picked too.
-              selectedBasicHealthSubgroup !== null
-                ? group.label === `${selectedTopicGroup}::${selectedBasicHealthSubgroup}`
-                : group.label.split('::')[0] === selectedTopicGroup,
-            )
-        : (() => {
-            const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries, undefined, dietPreferences);
-            const allTopics = tyingTogether ? [...topics, { label: TYING_TOGETHER_GROUP_KEY, entries: [tyingTogether] }] : topics;
-            // 2026-08-25: split(::)[0] rather than an exact match, same
-            // reasoning as categorySearchScopeEntries above -- keeps every
-            // one of "Meals You Can Eat"'s own sub-shelves in the scoped
-            // search results instead of matching none of them.
-            return selectedTopicGroup === null
-              ? allTopics
-              : allTopics.filter((topic) => topic.label.split('::')[0] === selectedTopicGroup);
-          })();
-    return baseGroups
-      .map((group) => ({
-        label: group.label,
-        entries: group.entries.filter((entry) => categorySearchMatchInfo.has(entry.id)),
-      }))
-      .filter((group) => group.entries.length > 0);
-  }, [entries, categorySearchMatchInfo, lens, basicHealthGroups, selectedTopicGroup, selectedBasicHealthSubgroup, dietPreferences]);
-  const categorySearchTotalMatches = categorySearchGroups.reduce((sum, group) => sum + group.entries.length, 0);
-  // 2026-08-25, direct bug report: a recipe found via category-scoped search
-  // (searching "salmon" from inside Hashimoto's, say) rendered through the
-  // BasicHealthShelves call below the search branch, which never computed or
-  // passed activeConditionCode/activeStageCode at all -- only the separate,
-  // non-search topic-drilldown branch further down did (see its own local
-  // const of the same name). conditionNoteAppliesTo defaults to "show
-  // everything" when activeConditionCode is undefined, exactly reproducing
-  // the cross-condition note leak this same screen was already fixed for
-  // once, just reachable through a second, un-fixed path. Hoisted here so
-  // both real BasicHealthShelves call sites (search results, and the
-  // ordinary drilled-in topic view) share one source of truth instead of
-  // one of them silently having none.
-  const activeConditionCode = DIGEST_KEY_TO_CONDITION_CODE[lens as DigestCategoryKey];
-  const activeStageCode = activeConditionCode ? declaredStages[activeConditionCode] : undefined;
-  // Basic Health's own topic MENU rows, 2026-08-23, direct follow-up
-  // request: folds every leaf group in basicHealthGroups back under its own
-  // top-level topic (the part of a '::'-joined label before the first
-  // '::') -- Essential Nutrients' own 22 individual nutrient/hormone leaf
-  // groups collapse into one "Essential Nutrients" row here, summed to one
-  // combined entry count, rather than showing as 22 separate rows. Every
-  // other top-level topic (no subtopics of its own) still resolves to
-  // exactly one row, same count as its own single leaf group. Sorted
-  // alphabetically by display label (direct request), not
-  // basicHealthGroups' own BASIC_HEALTH_TOPICS declared order -- "More",
-  // the catch-all bucket, sorts in place with everything else rather than
-  // being pinned last.
-  // 2026-08-23, direct instruction: "The Glossary isn't a topic though
-  // that should be listed in alphabetical order within the list of all
-  // of the topics. It should have it's own button." Glossary stays a
-  // real BASIC_HEALTH_TOPICS entry (basicHealthGroups/basicHealthAllGroups
-  // still need it there to group glossary- entries correctly, the same
-  // as any other topic), it's only excluded from this MENU list -- the
-  // new fixed-header Glossary button (see openGlossary below) reaches the
-  // exact same drilled-in view directly, bypassing this menu entirely.
-  const basicHealthMenuGroups = useMemo(() => {
-    const menu: { label: string; entryCount: number }[] = [];
-    for (const group of basicHealthGroups) {
-      const topLabel = group.label.split('::')[0];
-      if (topLabel === 'Glossary') continue;
-      const existing = menu.find((row) => row.label === topLabel);
-      if (existing) existing.entryCount += group.entries.length;
-      else menu.push({ label: topLabel, entryCount: group.entries.length });
-    }
-    return menu.sort((a, b) => shelfGroupDisplayLabel(a.label).localeCompare(shelfGroupDisplayLabel(b.label)));
-  }, [basicHealthGroups]);
-
-  // Scrolls the ScrollView so the named card's own top edge lands exactly
-  // ENTRY_SCROLL_TOP_MARGIN below the top of the visible screen -- on
-  // EVERY tap, unconditionally, regardless of where the card already sits.
-  //
-  // 2026-08-07, rebuilt around real, live measurement rather than a cached
-  // offset, per explicit correction: "You seem to be trying to judge their
-  // approximate location and approximate destination at the time instead
-  // of just assigning something to be the mechanism for each box... place
-  // the header of this box 10 pixels from the bottom of the header of the
-  // app." `.measure()` (a real, standard React Native primitive, available
-  // on both the target card's own ref and the ScrollView's own ref)
-  // reports each one's own real, current on-screen (`pageY`) position,
-  // queried fresh at the exact instant this function runs. The math:
-  // `pageY - scrollPageY` is how far below the ScrollView's own visible
-  // top edge the card currently sits; adding that to the ScrollView's own
-  // current absolute scroll position gives the real absolute target.
-  //
-  // 2026-08-07, a real, later report: "some of the time" the box still
-  // doesn't land under the header -- found by actually reasoning through
-  // what "some of the time" implied, not by guessing again. Live
-  // measurement was already correct in principle, but this function only
-  // waited one real animation frame (~16ms) before measuring -- nowhere
-  // near enough time for the LinearTransition animation collapsing
-  // whatever card was previously open to actually finish (its own real,
-  // now-explicit duration is CARD_LAYOUT_TRANSITION_MS above). Measuring
-  // that early caught the target card still mid-slide, not yet at its real
-  // final position -- exactly a "some of the time" bug, since it only ever
-  // showed up when a DIFFERENT card had to collapse first (tapping the
-  // very first card of a session, with nothing else open to collapse, has
-  // nothing to wait for and was never actually broken). Fixed by waiting
-  // the animation's own known duration (plus a small buffer) before
-  // measuring at all, every time -- not a guess at "probably long enough,"
-  // the literal real number the same LinearTransition call below is
-  // configured to actually take. The one remaining frame of deferral below
-  // is unrelated: it's still needed first, just to confirm the target
-  // card's own ref exists at all yet (jumpToRelated can switch to a
-  // category whose cards haven't mounted for the first time), retried a
-  // few more frames if not -- once it exists, the real animation-settle
-  // wait begins.
-  //
-  // The momentum-halt step (an immediate, unanimated scroll to the current
-  // position before the real animated scroll) is kept from the previous
-  // fix for the same reason as before: Android can otherwise blend a new
-  // programmatic scroll with any still-running fling from a recent manual
-  // drag, producing an inconsistent final position even when the target
-  // itself was computed correctly.
-  // The shared real mechanism both scrollEntryIntoView and
-  // scrollGroupIntoView below now call -- 2026-08-08, extracted so the new
-  // Basic Health group-level scroll target (a group's own outer container,
-  // not any one card inside it) can reuse the exact same real, already-
-  // hard-won .measure()-based logic rather than a second, parallel copy of
-  // it. `getNode` is a real, live lookup (not a value captured once), the
-  // same "always ask for the current position, never trust anything cached
-  // earlier" discipline this whole mechanism has been rebuilt around
-  // before.
-  //
-  // 2026-08-09, a real, direct, confirmed regression report (checked
-  // against a genuinely fresh Metro reload first, per this app's own
-  // standing discipline -- this wasn't staleness): "if I tap a topic... it
-  // scrolls way up and then all the way down" or "just opens and doesn't
-  // scroll up at all... This is exactly the problem you fixed before...
-  // then we did structural changes to how the Digest area works, and ever
-  // since it has been this way." The real, structural change that matches:
-  // every condition's own entries used to sit in one flat list; the
-  // pillar-shelf restructure (and, more recently, two much larger new
-  // categories -- Earth Matters at 68 entries, Home Gardening -- built on
-  // the exact same mechanism) means a normal tap can now need to run TWO
-  // real, simultaneous LinearTransition animations at once, not one: the
-  // PREVIOUSLY-open entry's own panel collapsing in one pillar, and the
-  // newly-tapped entry's own panel expanding in a DIFFERENT one. The single
-  // fixed wait below was tuned and proven against the simpler, one-
-  // animation case (this file's own 2026-08-07 history); nothing
-  // guarantees two independent, real UI-thread animations both finish
-  // inside that exact same fixed window every time, especially with more
-  // real content on screen for the JS/UI thread to lay out than existed
-  // when that number was first tuned -- a genuine, real explanation for
-  // "sometimes it's fine, sometimes it overshoots, sometimes it doesn't
-  // move at all," not a guess made blind. Two real, low-risk changes,
-  // rather than a bigger fixed-number guess that just moves where the same
-  // class of timing bug can still happen:
-  // 1. attemptsLeft raised from 5 to 15 (roughly 240ms of real retries at
-  //    one frame apart, up from roughly 80ms) -- more room for a group's
-  //    own ref to actually finish registering under real load before this
-  //    gives up and silently does nothing at all.
-  // 2. A real, second corrective pass, scheduled the same real wait length
-  //    again AFTER the first one already fired. It re-asks for the node
-  //    (getNode(), not a value captured once) and re-measures fresh --
-  //    live, current numbers, the same discipline as the first pass, never
-  //    anything cached. If the first pass already landed correctly, this
-  //    second pass's own freshly-measured target is nearly identical to
-  //    where the screen already sits, so the visible correction is
-  //    negligible; if either of the two real animations was still
-  //    genuinely settling when the first pass fired, this catches and
-  //    fixes the resulting wrong position instead of leaving it wrong.
-  function measureAndScrollTo(targetNode: Measurable, scrollNode: Measurable, haltMomentumFirst: boolean) {
-    targetNode.measure((_cx, _cy, _cw, _ch, _cardPageX, cardPageY) => {
-      scrollNode.measure((_sx, _sy, _sw, _sh, _scrollPageX, scrollPageY) => {
-        const target = Math.max(currentScrollY.current + (cardPageY - scrollPageY) - ENTRY_SCROLL_TOP_MARGIN, 0);
-        if (haltMomentumFirst) {
-          (scrollNode as unknown as { scrollTo: (opts: { y: number; animated: boolean }) => void }).scrollTo({
-            y: currentScrollY.current,
-            animated: false,
-          });
-        }
-        (scrollNode as unknown as { scrollTo: (opts: { y: number; animated: boolean }) => void }).scrollTo({
-          y: target,
-          animated: true,
-        });
-      });
-    });
-  }
-
-  function scrollNodeIntoView(getNode: () => Measurable | null | undefined, attemptsLeft = 15) {
-    requestAnimationFrame(() => {
-      const targetNode = getNode();
-      const scrollNode = scrollRef.current;
-      if (!targetNode || !scrollNode) {
-        if (attemptsLeft > 0) scrollNodeIntoView(getNode, attemptsLeft - 1);
-        return;
-      }
-      setTimeout(() => {
-        measureAndScrollTo(targetNode, scrollNode as unknown as Measurable, true);
-        setTimeout(() => {
-          const stillTargetNode = getNode();
-          const stillScrollNode = scrollRef.current;
-          if (stillTargetNode && stillScrollNode) {
-            measureAndScrollTo(stillTargetNode, stillScrollNode as unknown as Measurable, false);
-          }
-        }, CARD_LAYOUT_TRANSITION_MS + CARD_LAYOUT_SETTLE_BUFFER_MS);
-      }, CARD_LAYOUT_TRANSITION_MS + CARD_LAYOUT_SETTLE_BUFFER_MS);
-    });
-  }
-
-  // Scrolls so a whole shelf group's own container (heading + its full
-  // horizontal tab strip) lands near the top of the screen, rather than
-  // just one card inside it -- see groupRefs' own comment above for why.
-  function scrollGroupIntoView(label: string) {
-    scrollNodeIntoView(() => groupRefs.current[label]);
-  }
-
-  // Resolves which shelf group a given entry's own card should scroll to --
-  // Basic Health resolves the entry's own real topic path (joined into one
-  // string, matching the exact group.label basicHealthAllGroups already
-  // computes for it, which BasicHealthShelves registers a real ref under
-  // for every shelf, all at once); every real condition uses the topic
-  // grouping above, with its own "tying together" entry (if it has one)
-  // routed to the fixed key that card renders under instead. 'search'
-  // never reaches this (a search-result tap always resolves to a real
-  // underlying category via jumpToRelated before this is called).
-  function shelfGroupKeyForEntry(id: string, category: DigestCategoryKey): string {
-    if (category === 'basicHealth') return basicHealthTopicPathForEntryId(id).join('::');
-    const entry = findDigestEntryById(id);
-    if (entry && isTyingTogetherEntry(entry)) return TYING_TOGETHER_GROUP_KEY;
-    if (entry) return classifyTopicForCategory(entry, category);
-    return TYING_TOGETHER_GROUP_KEY;
-  }
-
-  // Expanding/collapsing a single entry, wherever it's shown -- a
-  // condition's own topic shelf, or one of Basic Health's own shelves,
-  // rendered by the same real BasicHealthShelves component either way --
-  // scrolls to that entry's own group section, not the individual card.
-  function toggleEntry(id: string, category: DigestCategoryKey) {
-    const wasExpanded = expandedId === id;
-    setExpandedId(wasExpanded ? null : id);
-    if (wasExpanded) return;
-    scrollGroupIntoView(shelfGroupKeyForEntry(id, category));
-  }
-
-  // Jumping to a related entry: switch category (if it's a different one),
-  // expand that entry, and collapse whatever was open before -- a related
-  // chip always lands you looking at exactly that entry, wherever it
-  // actually sits. The same function a shelf card's own tap, a
-  // Related chip, and a search result (Search All or any category's own
-  // scoped search) all use.
-  //
-  // 2026-08-23: no category's own plain-browsing view keeps every shelf
-  // mounted at once anymore (see selectedTopicGroup's own comment) -- when
-  // the target lives in a topic that isn't currently mounted, this now
-  // also drills straight into it before scrolling, otherwise
-  // scrollGroupIntoView would be reaching for a ref that was never mounted
-  // (the topic menu would still be showing instead). Basic Health drills
-  // into the TOP-LEVEL part (before the first '::'); every other
-  // category's own topics are already flat, so the key itself is the
-  // target. A tying-together entry is the one real exception -- it only
-  // ever renders on that category's own top-level menu (see the main
-  // render branch, below), so jumping to one resets to the menu (null)
-  // instead of trying to drill into a topic it was deliberately pulled
-  // out of.
-  //
-  // 2026-08-24, direct follow-up: Basic Health's own Essential Nutrients
-  // topic now has a real second menu step (selectedBasicHealthSubgroup)
-  // between its top-level row and any one nutrient's own shelf -- a
-  // Magnesium-related jump has to set BOTH the top-level part ("Essential
-  // Nutrients") and the subtopic part ("Magnesium") now, not just the
-  // top-level one, or the specific shelf scrollGroupIntoView is about to
-  // scroll to would never actually mount (the subtopic menu would still be
-  // showing in its place instead).
-  function jumpToRelated(id: string) {
-    const target = findDigestEntryById(id);
-    if (!target) return;
-    // 2026-09-19: the conditions live in Life now, so a Related chip or a
-    // Search All hit that points at one leaves this tab for that one.
-    if (isConditionCategory(target.category as DigestCategoryKey)) {
-      router.push(routeForDigestEntry(id));
-      return;
-    }
-    // 2026-08-23: a Related chip tapped from inside the Glossary view
-    // (glossaryOpen) needs to actually land on the target's own real
-    // category/topic, not stay stuck showing Glossary's own unrelated
-    // flat list underneath an already-changed lens.
-    setGlossaryOpen(false);
-    const category = target.category as DigestCategoryKey;
-    setLens(category);
-    if (category === 'basicHealth') {
-      const [topLevel, ...rest] = shelfGroupKeyForEntry(id, category).split('::');
-      setSelectedTopicGroup(topLevel);
-      setSelectedBasicHealthSubgroup(rest.length > 0 ? rest.join('::') : null);
-    } else {
-      setSelectedTopicGroup(isTyingTogetherEntry(target) ? null : shelfGroupKeyForEntry(id, category));
-      setSelectedBasicHealthSubgroup(null);
-    }
-    // A previous category's own shelf refs (Basic Health topic paths, or a
-    // condition's own topic labels -- both real, plain strings that can
-    // legitimately repeat across different categories, e.g. every
-    // condition has its own "Core Science" shelf) are cleared here rather
-    // than left to go stale -- otherwise a leftover ref from whichever
-    // category was open before could transiently point scrollGroupIntoView
-    // at the WRONG category's own already-unmounted section for the one
-    // frame before the new category's real shelf finishes mounting and
-    // overwrites it.
-    groupRefs.current = {};
-    // Jumping always lands on the grouped view -- there's no separate
-    // "list mode" to switch into anymore -- and a search-in-progress
-    // (either Search All or any category's own scoped search) is cleared,
-    // since the person just told us exactly what they wanted by tapping a
-    // real result. searchResetKey also bumps, 2026-08-08, so
-    // EntrySearchInput's own local, per-keystroke text actually clears too
-    // -- these two setters alone no longer reach it now that it lives in
-    // its own isolated child component (see that component's own comment).
-    setSearchQuery('');
-    setCategorySearchQuery('');
-    setIsSearchActive(false);
-    setSearchResetKey((key) => key + 1);
-    setExpandedId(id);
-    scrollGroupIntoView(shelfGroupKeyForEntry(id, category));
-  }
-
-  // Opens the fixed-header Glossary shortcut's own view -- see
-  // glossaryOpen's own comment above for why this is a separate boolean
-  // rather than routing through lens/selectedTopicGroup. Clears a stale
-  // search the same way jumpToRelated does (a lingering search shouldn't
-  // survive the jump), but deliberately leaves lens/selectedTopicGroup
-  // completely untouched -- there's nothing to drill into here, and
-  // whatever was showing underneath needs to still be there, unchanged,
-  // the instant Glossary closes again.
-  function openGlossary() {
-    setGlossaryOpen(true);
-    setSearchQuery('');
-    setCategorySearchQuery('');
-    setIsSearchActive(false);
-    setSearchResetKey((key) => key + 1);
-    setExpandedId(null);
-  }
-
-  // Glossary's own single flat shelf has no per-topic groups to resolve a
-  // real scroll target from the way toggleEntry's shared version needs
-  // (shelfGroupKeyForEntry expects a real DigestCategoryKey, and glossary
-  // entries span 14 different ones) -- there's only ever the one group,
-  // so this scrolls to its own fixed label directly instead.
-  function toggleGlossaryEntry(id: string) {
-    const wasExpanded = expandedId === id;
-    setExpandedId(wasExpanded ? null : id);
-    if (!wasExpanded) scrollGroupIntoView('Glossary');
-  }
-
-  // Commits EntrySearchInput's own debounced text up to this screen's
-  // real, "everything downstream reads this" state -- Search All's own
-  // whole-Digest searchQuery, or every other lens's shared, category-scoped
-  // categorySearchQuery. Only fires ~200ms after a real pause in typing
-  // (the debounce lives inside EntrySearchInput itself now), so this
-  // screen only re-renders that rarely while someone's actively typing, not
-  // once per character.
-  const handleDebouncedSearchChange = useCallback(
-    (text: string) => {
-      if (lens === 'search') setSearchQuery(text);
-      else setCategorySearchQuery(text);
-    },
-    [lens],
-  );
-  // Fires the INSTANT EntrySearchInput's own local text crosses the empty/
-  // non-empty boundary -- not once per character either, only on that one
-  // real transition -- so headerCard can hide/show and the empty-vs-results
-  // branching below can react immediately, well before the debounced text
-  // above ever catches up. Two real fixes bundled into one callback, both
-  // 2026-08-08, direct request: "when I start to search in any section...
-  // the search results should automatically be displayed right below the
-  // subheader... either moving the section specific starting box up out of
-  // the way or some other method that displays the search results without
-  // having to scroll to find them." headerCard (below) hides outright the
-  // instant isSearchActive turns true, so results become the very first
-  // thing in the ScrollView rather than sitting below it -- and snapping
-  // the scroll position back to the top right here guards against a stale
-  // position from before searching started (already scrolled deep into a
-  // shelf or the tree when typing begins), so results land right under the
-  // fixed subheader with nothing to scroll past either way.
-  const handleSearchActiveChange = useCallback((active: boolean) => {
-    setIsSearchActive(active);
-    if (active) {
-      scrollRef.current?.scrollTo({ y: 0, animated: true });
-    }
-  }, []);
-
-  // Clears whichever search is currently active (Search All's own
-  // searchQuery, or a category's own categorySearchQuery) and returns to
-  // that same lens's own resting main page -- 2026-08-08, the real
-  // companion to the breadcrumb's own new conditional behavior below.
-  // Direct correction: "The Back to the digest breadcrumb should only be
-  // available at the top of each of the initial lens opening areas...
-  // If they are in one of the sections of the Digest already and they
-  // search that section, [backing out] should take them back to the main
-  // page for that section, not the digest lenshub menu." Deliberately does
-  // NOT touch `lens`, `revealed`, or `openTrigger` -- unlike the "‹ Back to
-  // Digest" link (which exits to the LensHub picker), this stays on the
-  // exact same lens and just drops the search, the same real distinction
-  // driving which of the two links renders in the fixedHeader below.
-  function clearSearch() {
-    setSearchQuery('');
-    setCategorySearchQuery('');
-    setIsSearchActive(false);
-    setSearchResetKey((key) => key + 1);
-  }
-
-  return (
-    <View style={styles.screen}>
-      <SwipeableTabScreen enabled={!revealed}>
-        <GatedTabContent pageTitle="Digest" variant="field" revealed={revealed}>
-          <View style={styles.screenColumn}>
-            {/* A real, fixed (non-scrolling) header strip -- 2026-08-08,
-                direct request: "move the internal search utility to the
-                top and make it the subheader that stays at the top under
-                the app header," the same treatment already given to the
-                whole-Digest search bar earlier the same day before that
-                bar itself moved back into the LensHub picker. Only the
-                back link and the search box stay fixed here -- a real,
-                direct follow-up correction the same day: "the search
-                utility is supposed to be above the generic about this
-                section box and that box should scroll under it just as
-                the rest would. Only the search utility and the breadcrumb
-                navigation remain in the subheader." headerCard (the
-                icon/title/description block) moved below, now the first
-                real item inside the ScrollView -- it scrolls away with
-                everything else, same as every other piece of content. */}
-            <View style={styles.fixedHeader}>
-              {/* A real, always-available way back to the resting "nothing
-                  picked yet" screen -- 2026-08-08, direct correction: "there
-                  is no way to back out of an area to go back to the level
-                  before, all the way to the Digest home screen with the
-                  LensHub menu showing so the user can choose another lens if
-                  they want to." Basic Health's own tree used to have a
-                  separate, one-level-at-a-time "back" link of its own
-                  (BasicHealthTree's own onBack, removed 2026-08-14 along
-                  with the rest of the tree) -- this link always did, and
-                  still does, something different: a real escape hatch back
-                  to the LensHub picker itself, in one tap, from any lens, at
-                  any depth of scroll.
-                  2026-08-08, same day, real follow-up: "when I hit back to
-                  digest breadcrumb from any section, it should close the
-                  current section and display the Digest LensHub menu for
-                  the user to select another topic." Bumps openTrigger (see
-                  its own comment above) after a real, deliberate delay --
-                  NOT the same tap that resets `revealed`, a real fix for a
-                  real, reported regression: bumping both in the exact same
-                  instant reintroduced the app's own known "popup visibly
-                  drops in from above" glitch (see LensHub.tsx's own history
-                  comment on that bug), since this screen's own large
-                  ScrollView content was still mid-unmount from `revealed`
-                  flipping false at the exact same moment the popup's own
-                  opening animation began -- the same class of "two heavy
-                  visual transitions landing on the same instant" problem
-                  LensHub's own choose() already exists to avoid the other
-                  direction (closing this popup before revealing new
-                  content). TAB_REVEAL_DURATION_MS is that same shared
-                  timing constant, reused here rather than a second,
-                  separately-tuned number -- by the time it elapses, the
-                  content this tap just hid has already finished
-                  unmounting, so the popup opens against a settled screen. */}
-              {/* 2026-08-08, direct correction: this link should only ever
-                  open the LensHub picker (the "initial lens opening area"
-                  for the tab as a whole) while sitting on a category's own
-                  resting main page -- once a search (Search All's own, or
-                  any category's own scoped search) is active, this becomes
-                  a "‹ Clear search" link instead, which drops the search and
-                  returns to that SAME lens's own main page rather than
-                  exiting to the picker. Tapping an actual search result
-                  already lands you on the right category's own main page too
-                  (see jumpToRelated) -- this is the equivalent for backing
-                  out without picking a result. */}
-              {/* 2026-08-09, direct request: a small (i) icon "above the
-                  search bar to the right of the breadcrumb" explaining the
-                  multi-word search scoring and what the little match dots'
-                  three colors mean. The breadcrumb link itself used to BE
-                  this whole row (a single TouchableOpacity); now it's the
-                  left side of a real row, with this icon as its own,
-                  separate tap target on the right -- SEARCH_MATCH_HELP_
-                  SECTIONS/searchMatchHelpVisible above own the actual
-                  content and open state. */}
-              <View style={styles.breadcrumbRow}>
-                {glossaryOpen ? (
-                  // 2026-08-23: closing Glossary just flips this one
-                  // boolean back off -- lens/selectedTopicGroup were never
-                  // touched opening it (see openGlossary's own comment),
-                  // so whatever was showing underneath is still exactly
-                  // there, unchanged.
-                  <TouchableOpacity
-                    onPress={() => setGlossaryOpen(false)}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Back to ${activeLensLabel}`}
-                  >
-                    <Text style={styles.backToHomeText}>‹ Back to {activeLensLabel}</Text>
-                  </TouchableOpacity>
-                ) : isSearchActive ? (
-                  <TouchableOpacity
-                    onPress={clearSearch}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Clear search, back to ${searchScopeLabel}`}
-                  >
-                    <Text style={styles.backToHomeText}>‹ Clear search</Text>
-                  </TouchableOpacity>
-                ) : drilldownTopicLabel ? (
-                  // 2026-08-23, direct correction: drilled into a Basic
-                  // Health subgroup, this link used to still say "‹ Back to
-                  // Digest" and exit straight out to the LensHub picker,
-                  // skipping right past the Basic Health menu itself. One
-                  // step back at a time now, the same breadcrumb depth every
-                  // other back link in this app respects -- this steps back
-                  // to the current category's own menu; from there, the
-                  // branch below steps back out to Digest, same as it
-                  // always has.
-                  //
-                  // Direct follow-up, same day: generalized from "‹ Back to
-                  // Basic Health" specifically to "‹ Back to {activeLensLabel}"
-                  // once every category (not just Basic Health) gained the
-                  // same menu-first drill-down, so a Hashimoto's topic reads
-                  // "‹ Back to Hashimoto's Thyroiditis," a Recipes topic reads
-                  // "‹ Back to Recipes," and so on.
-                  //
-                  // 2026-08-24, direct follow-up: a real third depth exists
-                  // now wherever a Basic Health topic has its own subtopics
-                  // (Essential Nutrients). Viewing one subtopic's own shelf
-                  // (selectedBasicHealthSubgroup set) steps back to that
-                  // topic's own subtopic menu first, one level at a time,
-                  // the exact same "never skip a depth" discipline this link
-                  // already established for every other category -- only
-                  // once the subtopic menu itself is showing does this link
-                  // step all the way back out to {activeLensLabel}.
-                  <TouchableOpacity
-                    onPress={() => {
-                      if (selectedBasicHealthSubgroup !== null) {
-                        setSelectedBasicHealthSubgroup(null);
-                      } else {
-                        setSelectedTopicGroup(null);
-                      }
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Back to ${selectedBasicHealthSubgroup !== null ? shelfGroupDisplayLabel(selectedTopicGroup ?? '') : activeLensLabel}, choose another topic`}
-                  >
-                    <Text style={styles.backToHomeText}>
-                      ‹ Back to {selectedBasicHealthSubgroup !== null ? shelfGroupDisplayLabel(selectedTopicGroup ?? '') : activeLensLabel}
-                    </Text>
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    onPress={() => {
-                      setRevealed(false);
-                      setTimeout(() => setOpenTrigger(`back-${Date.now()}`), TAB_REVEAL_DURATION_MS);
-                    }}
-                    accessibilityRole="button"
-                    accessibilityLabel="Back to Digest home, choose another topic"
-                  >
-                    <Text style={styles.backToHomeText}>‹ Back to Digest</Text>
-                  </TouchableOpacity>
-                )}
-
-                {/* 2026-08-23, direct instruction: Glossary gets its own
-                    button "above the search bar to the right of the Back
-                    to (place) button," in the exact slot the match-help
-                    (i) icon used to sit -- that icon moved into the
-                    search field itself instead (see EntrySearchInput's
-                    own onPressInfo below). Same solid-fill pill treatment
-                    backToHomeText already established on the left side of
-                    this same row, not a separate style invented for one
-                    more button. */}
-                <TouchableOpacity
-                  onPress={openGlossary}
-                  accessibilityRole="button"
-                  accessibilityLabel="Open the Glossary"
-                >
-                  <Text style={styles.backToHomeText}>Glossary</Text>
-                </TouchableOpacity>
-              </View>
-
-              <EntrySearchInput
-                key={searchResetKey}
-                style={styles.searchInput}
-                tabColor={TAB_COLOR}
-                placeholder={lens === 'search' ? 'Search the whole Digest...' : `Search within ${searchScopeLabel}...`}
-                onDebouncedChange={handleDebouncedSearchChange}
-                onActiveChange={handleSearchActiveChange}
-                onPressInfo={() => setSearchMatchHelpVisible(true)}
-              />
-              <EdgeShadow direction="down" style={styles.edgeShadowFullWidth} />
-            </View>
-
-            <HelpSheet
-              visible={searchMatchHelpVisible}
-              onClose={() => setSearchMatchHelpVisible(false)}
-              pageTitle="Search Matching"
-              sections={SEARCH_MATCH_HELP_SECTIONS}
-              extra={<SearchMatchDemo />}
-            />
-
-            <ScrollView
-              ref={scrollRef}
-              style={styles.body}
-              contentContainerStyle={scrollContentContainerStyle}
-              onScroll={(event) => {
-                currentScrollY.current = event.nativeEvent.contentOffset.y;
-              }}
-              // Two real, additional update points alongside onScroll itself
-              // -- onScroll is throttled (scrollEventThrottle={16} below),
-              // so a manual scroll/fling that lands right as this screen's
-              // own scrollGroupIntoView needs a fresh currentScrollY value
-              // could read a value that's a frame or two stale. Both of
-              // these fire once, unthrottled, exactly when a real scroll
-              // gesture genuinely finishes -- the same real pattern
-              // LensHub.tsx already uses for its own scroll-hint tracking.
-              onMomentumScrollEnd={(event) => {
-                currentScrollY.current = event.nativeEvent.contentOffset.y;
-              }}
-              onScrollEndDrag={(event) => {
-                currentScrollY.current = event.nativeEvent.contentOffset.y;
-              }}
-              scrollEventThrottle={16}
-            >
-              {/* Wrapped in an opaque card, not sitting bare on the shared
-                  flower background -- reported as unreadable that way. Every
-                  other tab's own top-of-content text either already sits on a
-                  card (Insights/Schedule) or opts into textShadow when it
-                  truly has to render straight over the photo (Home's
-                  greeting) -- a card is the better fit here, since this
-                  header block is real page-identity content, not a one-line
-                  caption over open sky. The first real thing inside this
-                  ScrollView, per the correction above -- it scrolls under the
-                  fixed search box exactly like the rest of this category's
-                  own content does.
-                  Hidden outright the instant a real search is active (see
-                  isSearchActive's own comment) -- "moving the section
-                  specific starting box up out of the way," the option this
-                  request named first, rather than leaving it sitting above
-                  the results as something to scroll past. */}
-              {isSearchActive ? null : (
-                <View style={styles.headerCard}>
-                  <View style={styles.categoryHeaderRow}>
-                    {/* The per-condition icon that sat here from 2026-08-09
-                        went to Life with the conditions on 2026-09-19; every
-                        lens left in this tab gets the ribbon. */}
-                    <Ionicons name="ribbon" size={22} color={TAB_COLOR} style={textShadow} />
-                    <Text style={styles.categoryHeaderText}>{glossaryOpen ? 'Glossary' : (drilldownTopicLabel ?? activeLensLabel)}</Text>
-                  </View>
-                  {/* 2026-08-23: the generic category-wide blurb ("Food,
-                      vitamins, minerals..." for Basic Health, or any other
-                      category's own DIGEST_CATEGORY_META description)
-                      belongs to that category as a whole, not to whichever
-                      one topic is currently drilled into -- shown only on
-                      the top-level menu (drilldownTopicLabel === null).
-                      Once a topic is picked, drilldownTopicDescription
-                      (Basic Health topics only, see that variable's own
-                      comment) takes its place if one exists; every other
-                      category's own drilled-in topic renders no
-                      description at all rather than incorrectly falling
-                      back to the whole category's own blurb, the same real
-                      bug this fixed for Basic Health originally, now
-                      avoided everywhere else too. Glossary reuses its own
-                      already-written BASIC_HEALTH_TOPICS description
-                      directly (single source), not a second copy of the
-                      same sentence. */}
-                  {(() => {
-                    const description = glossaryOpen
-                      ? BASIC_HEALTH_TOPICS.find((topic) => topic.label === 'Glossary')?.description
-                      : drilldownTopicLabel
-                        ? drilldownTopicDescription
-                        : lens === 'search'
-                          ? `Search across all ${ALL_DIGEST_ENTRIES.length} entries at once, the conditions in Life included.`
-                          : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description;
-                    return description ? <Text style={styles.categoryDescription}>{description}</Text> : null;
-                  })()}
-                </View>
-              )}
-
-              {/* 2026-08-24, direct request: "recipes need to be grouped
-                  so they can be identified" by real diet compatibility --
-                  the actual filter control, deliberately kept visible
-                  through search too (unlike headerCard above) since
-                  narrowing which recipes are even in play is exactly as
-                  useful while searching within Recipes as while browsing.
-                  Filters `entries` itself (see that useMemo), so every
-                  downstream view -- the topic menu, a drilled-in shelf,
-                  category-scoped search results -- all narrow together
-                  with no separate wiring needed in any of them. */}
-              {/* 2026-08-24, direct report: this stayed visible even when
-                  Glossary was open on top of the Recipes lens -- Glossary
-                  is its own flat, cross-category shelf, not a real recipe
-                  view, so a diet filter has no meaning there. */}
-              {lens === 'recipes' && !glossaryOpen ? (
-                <View style={styles.recipeDietFilterRow}>
-                  <Text style={styles.detailLabel}>Filter by diet</Text>
-                  <PopoverSelect
-                    options={RECIPE_DIET_FILTER_OPTIONS}
-                    selected={recipeDietFilter ?? 'All Diets'}
-                    onSelect={(value) => setRecipeDietFilter(value === 'All Diets' ? null : (value as RecipeDietTag))}
-                    tabColor={TAB_COLOR}
-                  />
-                </View>
-              ) : null}
-
-              {glossaryOpen ? (
-                // The one flat shelf every glossary- prefixed entry lives
-                // in, regardless of which of the 14 real categories each
-                // one is individually assigned to -- see glossaryOpen's own
-                // comment above. Same BasicHealthShelves component (and
-                // its own real tap-to-expand/scroll-into-view behavior)
-                // every other category's own topic shelves already use,
-                // just handed exactly one group instead of several.
-                <BasicHealthShelves
-                  groups={[{ label: 'Glossary', entries: allGlossaryEntries }]}
-                  expandedId={expandedId}
-                  groupRefs={groupRefs}
-                  onToggleEntry={toggleGlossaryEntry}
-                  onJumpToRelated={jumpToRelated}
-                  // 2026-08-24, direct report: the same duplicate-header
-                  // bug as "Sides" -- the fixed header above already shows
-                  // "Glossary" as the page title, so this shelf's own
-                  // heading (an exact match against the same label) needs
-                  // hiding too, same fix as every other exact-match case.
-                  hideTopLevelLabel="Glossary"
-                  currentHeaderTitle={drilldownTopicLabel ?? undefined}
-                />
-              ) : lens === 'search' ? (
-                !isSearchActive ? (
-                  <Text style={styles.emptyText}>
-                    Type a word or phrase to search every category at once, a mechanism, a food, an
-                    author&apos;s name, anything this Digest actually says somewhere.
-                  </Text>
-                ) : searchQuery.trim().length === 0 ? (
-                  // isSearchActive already flipped true (EntrySearchInput's
-                  // own instant signal), but the debounced searchQuery
-                  // hasn't caught up yet -- render nothing for this brief
-                  // window rather than a misleading "no matches" message.
-                  null
-                ) : searchResults.length === 0 ? (
-                  <Text style={styles.emptyText}>No matches for &ldquo;{searchQuery.trim()}&rdquo;.</Text>
-                ) : (
-                  <>
-                    <Text style={styles.searchResultCount}>
-                      {searchResults.length} match{searchResults.length === 1 ? '' : 'es'}
-                    </Text>
-                    {searchResults.map(({ entry, match }) => (
-                      <SearchResultCard key={entry.id} entry={entry} match={match} onPress={() => jumpToRelated(entry.id)} />
-                    ))}
-                  </>
-                )
-              ) : isSearchActive ? (
-                // Every real category -- Basic Health included -- filters
-                // its OWN real hierarchical structure now, rather than
-                // swapping to a flat, undifferentiated results list --
-                // 2026-08-08, direct request: "all things below in the
-                // knowledgebase hierarchical set of the area are displayed
-                // below and filtered to display the specific topics of
-                // interest that are related to what they searched for."
-                // Basic Health's own real topic/subtopic groups (every leaf
-                // at once, not drilled into one at a time -- see
-                // basicHealthAllGroups' own comment) or a condition's own
-                // real topic groups (plus its closing synthesis entry, if
-                // it has one) are each filtered down to just the entries
-                // that actually match, with any group that ends up empty
-                // dropped entirely -- reusing BasicHealthShelves' own
-                // shelf-row-plus-detail-panel rendering unchanged, the same
-                // real component every category already uses to show its
-                // groups when NOT searching. categorySearchGroups is a real
-                // useMemo above. Gated on isSearchActive (not
-                // categorySearchQuery directly) so this branch is reached
-                // the instant typing starts, never falling through to the
-                // tree/shelf view below for the brief window before the
-                // debounced categorySearchQuery itself catches up.
-                categorySearchQuery.trim().length === 0 ? null : categorySearchTotalMatches === 0 ? (
-                  <Text style={styles.emptyText}>
-                    No matches for &ldquo;{categorySearchQuery.trim()}&rdquo; in {searchScopeLabel}.
-                  </Text>
-                ) : (
-                  <>
-                    <Text style={styles.searchResultCount}>
-                      {categorySearchTotalMatches} match{categorySearchTotalMatches === 1 ? '' : 'es'}
-                    </Text>
-                    <BasicHealthShelves
-                      groups={categorySearchGroups}
-                      expandedId={expandedId}
-                      groupRefs={groupRefs}
-                      onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
-                      onJumpToRelated={jumpToRelated}
-                      matchInfoById={categorySearchMatchInfo}
-                      // 2026-08-23: was basicHealth-only; simplified once the
-                      // menu-first pattern generalized to every category --
-                      // harmless for the rest of them anyway, since none of
-                      // their own topic labels contain '::' for this to
-                      // match against.
-                      hideTopLevelLabel={selectedTopicGroup ?? undefined}
-                      currentHeaderTitle={drilldownTopicLabel ?? undefined}
-                      // 2026-08-25: this call site never passed these before,
-                      // the real gap behind the "CKD note shows on a
-                      // Hashimoto's search result" bug report -- see the
-                      // hoisted activeConditionCode/activeStageCode comment
-                      // above for the full explanation.
-                      activeConditionCode={activeConditionCode}
-                      activeStageCode={activeStageCode}
-                    />
-                  </>
-                )
-              ) : lens === 'basicHealth' ? (
-                // 2026-08-14, direct report: Basic Health used to be the
-                // one real outlier still using a separate drill-down-then-
-                // back tree (BasicHealthTree, removed) while every
-                // condition, plus Earth Matters and Home Gardening, already
-                // browsed as one continuous scroll of tap-to-expand shelves.
-                // Same real component, same real interaction, as everywhere
-                // else now -- basicHealthAllGroups is the exact function
-                // Basic Health's own scoped search already proved this
-                // shape works for, reused directly rather than a second,
-                // parallel grouping mechanism.
-                //
-                // 2026-08-23, direct correction: showing all ~21 shelves
-                // (479 entries) at once was itself the slowness, not
-                // fixed by virtualizing each shelf alone. Basic Health's
-                // plain-browsing view is now menu-first (DigestTopicMenu,
-                // below) -- only the picked TOP-LEVEL topic's own shelf(es)
-                // mount at a time, via the exact same BasicHealthShelves
-                // component and interaction as before, unchanged. Same-day
-                // follow-up: Essential Nutrients' own 22 individual leaf
-                // groups are picked as ONE combined menu row
-                // (basicHealthMenuGroups, above).
-                //
-                // 2026-08-24, superseding the "rendered together" behavior
-                // this comment block used to describe: direct report that
-                // picking Essential Nutrients from the menu still landed on
-                // every one of its own 22 shelves at once, "not yet specific
-                // stories... until I select one of the subsection header
-                // links." A real third branch below (basicHealthTopicHasSubtopics)
-                // now shows a further DigestTopicMenu of just those 22
-                // subtopics' own names first; only picking one of THOSE
-                // (selectedBasicHealthSubgroup) mounts its actual shelf. No
-                // other category's own browsing view is touched by this --
-                // every other one is still exactly one topic to one shelf,
-                // unchanged.
-                //
-                // Direct follow-up: alphabetized (basicHealthMenuGroups'
-                // own sort, and this drill-in view's own sort below, both by
-                // shelfGroupDisplayLabel rather than BASIC_HEALTH_TOPICS'
-                // declared order).
-                //
-                // 2026-08-23, direct correction: the back link that used to
-                // sit here, in the scrolling body, is gone -- the fixed
-                // breadcrumb row above (drilldownTopicLabel's own
-                // branch) already reads "‹ Back to Basic Health" whenever a
-                // subgroup is picked, and having a second back-to-the-same-
-                // place link in the body duplicated it for no reason.
-                //
-                // 2026-08-24, direct report: "when I go into Essential
-                // Nutrients, I should only see the subsections of that
-                // section... not yet specific stories... until I select one
-                // of the subsection header links." Essential Nutrients' own
-                // 22 leaf groups used to render TOGETHER the instant its one
-                // combined menu row was picked, the one real spot left where
-                // a topic's own content showed before a further choice was
-                // made. A real third branch now: a top-level topic WITH its
-                // own subtopics (basicHealthTopicHasSubtopics) shows a
-                // further DigestTopicMenu of just those subtopics' own names
-                // first; only picking one of THOSE (selectedBasicHealthSubgroup)
-                // shows its actual shelf. A subtopic-free topic still
-                // resolves straight to its one shelf, same as before, one
-                // real menu step either way before any story is visible.
-                selectedTopicGroup === null ? (
-                  <DigestTopicMenu
-                    groups={basicHealthMenuGroups}
-                    onSelectGroup={(label) => {
-                      setSelectedTopicGroup(label);
-                      setSelectedBasicHealthSubgroup(null);
-                    }}
-                  />
-                ) : basicHealthTopicHasSubtopics(selectedTopicGroup) && selectedBasicHealthSubgroup === null ? (
-                  <DigestTopicMenu
-                    groups={basicHealthGroups
-                      .filter((group) => group.label.split('::')[0] === selectedTopicGroup)
-                      .sort((a, b) => shelfGroupDisplayLabel(a.label).localeCompare(shelfGroupDisplayLabel(b.label)))
-                      .map((group) => ({
-                        label: group.label.slice(selectedTopicGroup.length + 2),
-                        entryCount: group.entries.length,
-                      }))}
-                    onSelectGroup={setSelectedBasicHealthSubgroup}
-                  />
-                ) : (
-                  <BasicHealthShelves
-                    groups={basicHealthGroups
-                      .filter((group) =>
-                        selectedBasicHealthSubgroup !== null
-                          ? group.label === `${selectedTopicGroup}::${selectedBasicHealthSubgroup}`
-                          : group.label.split('::')[0] === selectedTopicGroup,
-                      )
-                      .sort((a, b) => shelfGroupDisplayLabel(a.label).localeCompare(shelfGroupDisplayLabel(b.label)))}
-                    expandedId={expandedId}
-                    groupRefs={groupRefs}
-                    onToggleEntry={(id) => toggleEntry(id, 'basicHealth')}
-                    onJumpToRelated={jumpToRelated}
-                    hideTopLevelLabel={selectedTopicGroup}
-                    currentHeaderTitle={drilldownTopicLabel ?? undefined}
-                  />
-                )
-              ) : entries.length === 0 ? (
-                <Text style={styles.emptyText}>Nothing here yet.</Text>
-              ) : (
-                // Every real condition category, plus Earth Matters, Home
-                // Gardening, Recipes, and My Kitchen/My Favorites -- 2026-08-08,
-                // the same shelf-row-plus-detail-panel shape Basic Health's
-                // own leaf level uses, grouped into many real topics (see
-                // groupConditionEntries' own comment above, its 2026-08-12
-                // rebuild from a fixed 4-pillar version, and
-                // groupEntriesForLens' own comment for why Earth Matters/
-                // Home Gardening each need their own dedicated classifier
-                // rather than sharing this one, 2026-08-13).
-                //
-                // 2026-08-23, direct request: "do the same for the other
-                // sections of the Digest," extending Basic Health's own
-                // menu-first browsing pattern here too, rather than every
-                // one of a category's own topic shelves mounting at once.
-                // Reuses selectedTopicGroup and DigestTopicMenu directly --
-                // no clustering step is needed the way Basic Health's own
-                // Essential Nutrients required, since every one of these
-                // categories' own topics is already a single flat level, no
-                // '::'-nested subtopics. Topic ORDER is left exactly as each
-                // category's own dedicated classifier already curates it
-                // (CONDITION_TOPIC_ORDER, EARTH_MATTERS_TOPIC_ORDER, etc.) --
-                // asked directly, the call was to keep that reasoned
-                // narrative sequencing, not alphabetize it the way Basic
-                // Health's own topic-free menu was.
-                //
-                // The category's own closing "tying together" synthesis, if
-                // it has one, now shows on the top-level menu screen only,
-                // alongside the topic list -- it's a whole-category
-                // synthesis, not content belonging to any one topic, so it
-                // doesn't make sense nested inside a single drilled-in
-                // topic's own shelf. jumpToRelated resets back to the menu
-                // (selectedTopicGroup null) before scrolling to it if
-                // something was drilled in when a Related chip pointed here.
-                (() => {
-                  const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries, declaredStages, dietPreferences);
-                  if (selectedTopicGroup !== null) {
-                    // activeConditionCode/activeStageCode are the hoisted
-                    // consts above (search results share the same two).
-                    return (
-                      <BasicHealthShelves
-                        // 2026-08-25: split(::)[0] rather than an exact
-                        // match, so "Meals You Can Eat" -- the one topic in
-                        // this generic path with real sub-groups of its own
-                        // (Sides, Salads & Bowls, and so on, see
-                        // groupConditionEntries' own comment) -- resolves to
-                        // every one of its own sub-shelves shown together,
-                        // not just a single exact-label match. A no-op for
-                        // every other topic here, none of which ever carry a
-                        // '::' in their own label.
-                        groups={topics.filter((topic) => topic.label.split('::')[0] === selectedTopicGroup)}
-                        expandedId={expandedId}
-                        groupRefs={groupRefs}
-                        onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
-                        onJumpToRelated={jumpToRelated}
-                        hideTopLevelLabel={selectedTopicGroup}
-                        currentHeaderTitle={drilldownTopicLabel ?? undefined}
-                        activeConditionCode={activeConditionCode}
-                        activeStageCode={activeStageCode}
-                      />
-                    );
-                  }
-                  return (
-                    <>
-                      <DigestTopicMenu
-                        groups={collapseTopicsForMenu(topics)}
-                        onSelectGroup={setSelectedTopicGroup}
-                      />
-                      {tyingTogether ? (
-                        <View
-                          style={styles.tyingTogetherAfterMenu}
-                          ref={(r) => {
-                            groupRefs.current[TYING_TOGETHER_GROUP_KEY] = r as unknown as Measurable | null;
-                          }}
-                        >
-                          {/* 2026-08-24, direct report: this section only ever
-                              holds the one closing synthesis card, and that
-                              card's own title already says what it is ("...,
-                              Pulled Together," "Putting It Together: ..."),
-                              so a standalone "Putting It Together" heading
-                              above it just repeated the card's own point with
-                              nothing else in the section to justify a label
-                              at all. Removed outright rather than reworded. */}
-                          {/* 2026-08-25, direct report: removing that heading
-                              also removed the only thing providing visual
-                              separation from DigestTopicMenu above -- plain
-                              styles.shelfSection only ever carried a
-                              marginBottom (the gap BasicHealthShelves' own
-                              multiple shelves rely on to space themselves from
-                              EACH OTHER), never a marginTop, so this card
-                              ended up sitting flush against the topic menu's
-                              own last row instead of the same distance every
-                              other section keeps from its neighbor. A new,
-                              scoped tyingTogetherAfterMenu style (below) adds
-                              that missing top gap without touching
-                              shelfSection itself, which would have doubled up
-                              the (already-correct) space between two ordinary
-                              shelves inside BasicHealthShelves. */}
-                          <Animated.View layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}>
-                            <DigestCard
-                              entry={tyingTogether}
-                              expanded={expandedId === tyingTogether.id}
-                              onToggle={() => toggleEntry(tyingTogether.id, lens as DigestCategoryKey)}
-                              onJumpToRelated={jumpToRelated}
-                            />
-                          </Animated.View>
-                        </View>
-                      ) : null}
-                    </>
-                  );
-                })()
-              )}
-            </ScrollView>
-          </View>
-        </GatedTabContent>
-      </SwipeableTabScreen>
-
-      <PageIdentityLabel title="Digest" activeLensLabel={revealed ? activeLensLabel : undefined} />
-      <LensHub
-        pageTitle="Digest"
-        // Corner trigger button reads just "Digest", 2026-08-07, explicitly
-        // requested -- same buttonLabel-vs-pageTitle split Food's own corner
-        // button already uses (that one says "Food" while its popup header
-        // stays "Nutrition Builders"). pageTitle itself is untouched: it
-        // still has to match TAB_ROUTES' own title exactly (constants/
-        // tabs.ts) for the TAB_ROUTES lookup above (icon/color resolution)
-        // to keep working, and it still drives the popup's own header text.
-        buttonLabel="Digest"
-        options={LENSES}
-        selected={revealed ? lens : undefined}
-        columns={3}
-        // Back to 3 columns, 2026-08-21, direct request. Was dropped to 2
-        // on 2026-08-07 (see git history) because the category set at the
-        // time still had the old "Mitochondria & Metabolism"/"Other
-        // Autoimmune Diseases" style names, which genuinely didn't fit 2
-        // lines at 3 columns' ~95px width. The 2026-08-08 restructure to
-        // real per-condition names (Rheumatoid Arthritis, Celiac Disease,
-        // Chronic Kidney Disease, etc.) changed that: every current label
-        // is 1-3 short words that RN's own greedy word-wrap already breaks
-        // cleanly across 2 lines within ~95px (checked word-by-word against
-        // the live DIGEST_CATEGORY_META list), so DIGEST_GRID_LABEL_BREAKS
-        // stays empty rather than needing forced breaks reintroduced.
-        itemLabelLines={2}
-        // Still explicit `true` -- unrelated to the column count. Info
-        // needs to stay a real grid tile (not the floating bottom-right
-        // corner) any time this grid scrolls, which Digest's real
-        // category count already does regardless of 2 vs. 3 columns. See
-        // infoInGrid's own comment in LensHub.tsx for why the floating
-        // corner assumes a non-scrolling grid.
-        infoInGrid={true}
-        // 2026-08-09, direct request: "The iridescnt circle that is
-        // supposed to go around the tapped icon in Digest isn't big
-        // enough on any of them, and... they appear to be smaller than
-        // the ones used in the other LensHub menus." Every real condition
-        // PNG (see components/DigestConditionIcons.tsx) has its own real,
-        // non-square aspect ratio, so `contain`-fitting it inside the
-        // ordinary shared 30px ceiling left its shorter edge visibly
-        // smaller than the ring around it. Scoped to this one page (no
-        // other LensHub caller passes these) -- ~29% bigger pill/ring,
-        // with the custom-icon and Ionicons ceilings scaled by the same
-        // factor so the grid's own 4 non-condition Ionicons tiles (Search,
-        // Basic Health, Earth Matters, Home Gardening) stay visually
-        // consistent with the 19 condition tiles rather than looking
-        // small by comparison. 40 is gridPillSize's own real technical
-        // ceiling for gridCustomIconSize (44 - 2*ringWidth, the same
-        // "inner circle" math LensHub's own default 30 already follows).
-        gridPillSize={44}
-        gridCustomIconSize={40}
-        gridIconSize={26}
-        // No renderIcon override: LensHub falls back to TAB_ROUTES' own
-        // Ionicons "ribbon" glyph, which is the mark this tab draws
-        // everywhere as of 1.0.39.12.
-        autoOpenSignal={openTrigger}
-        onSelect={(key) => {
-          // Same reasoning as jumpToRelated's own reset -- a fresh lens
-          // means a fresh set of shelf groups, and a previous category's
-          // own stale refs (real, plain labels like "Core Science" that
-          // legitimately repeat across every condition) should never
-          // linger long enough to be scrolled to by mistake.
-          groupRefs.current = {};
-          setLens(key);
-          // 2026-08-23: same "fresh arrival" reasoning as the reset just
-          // above -- picking a category from this picker always lands on
-          // its own top-level menu, never mid-drilled into whatever topic
-          // a previous visit happened to leave selected.
-          setSelectedTopicGroup(null);
-          setSelectedBasicHealthSubgroup(null);
-          // 2026-08-24, direct request: a fresh arrival on Recipes defaults
-          // this filter to the person's own single stated diet preference
-          // (Profile's own new "Diet Preferences" card), still freely
-          // changeable right here. Left at "All Diets" (null) when nothing
-          // is set, or when more than one diet is selected on Profile --
-          // picking one of several to lead with would be an arbitrary
-          // guess, so the person's own tap decides instead.
-          setRecipeDietFilter(key === 'recipes' && dietPreferences.length === 1 ? dietPreferences[0] : null);
-          setExpandedId(null);
-          // 2026-08-12, direct report: picking a different lens from this
-          // popup left the ScrollView sitting at whatever offset the
-          // PREVIOUS lens had been scrolled to -- every other reset here
-          // (groupRefs, expandedId, search state) already treats a lens
-          // switch as a fresh arrival, but the
-          // ScrollView's own native scroll offset is a real property of the
-          // component instance that swapping its children does NOT reset on
-          // its own. An unanimated jump (not scrollGroupIntoView's own
-          // animated, measure-based scroll -- there's no target entry to
-          // scroll to here, just "start at the top of the new page") plus a
-          // matching reset of the same currentScrollY ref
-          // measureAndScrollTo/onScroll rely on elsewhere, so nothing reads
-          // a stale offset in the brief window before a real onScroll event
-          // would otherwise correct it.
-          scrollRef.current?.scrollTo({ y: 0, animated: false });
-          currentScrollY.current = 0;
-          setSearchQuery('');
-          setCategorySearchQuery('');
-          setIsSearchActive(false);
-          // Forces EntrySearchInput to remount with fresh, empty local
-          // text -- 2026-08-08, see its own comment for why the two plain
-          // setters above alone no longer reach it.
-          setSearchResetKey((key2) => key2 + 1);
-          setRevealed(true);
-        }}
-      />
-    </View>
-  );
-}
-
-// A compact, unexpandable result row for the Search All lens -- tapping it
-// reuses jumpToRelated (the same mechanism a Related chip already uses),
-// so it lands you at the real card, in its real category, expanded and
-// scrolled into view, rather than trying to render the full entry a second
-// time inside the search results themselves.
+// The per-term match display under every Search All result row.
 // 2026-08-09, real per-term match display added directly to this card --
 // direct request: "if I search for Sleep and Inflammation, or in reverse
 // order, the search results should tell me if one or the other or both
@@ -3242,15 +459,13 @@ function MatchSummaryRow({ match }: { match: SearchMatchInfo }) {
   );
 }
 
-// The demo-only, LABELED version of the same real dot row ShelfTabCard
-// renders (see that component's own comment on `match`) -- the real,
-// on-screen dots never carry a label, since a person already knows the
-// order they typed their own words in; a worked example genuinely needs
-// one so it's obvious which dot belongs to which word without that
-// context. Reuses the exact real matchDot/matchDotTitle/matchDotBody/
-// matchDotMiss styles for the dot itself, so this demo is honestly
-// identical in color to what the real UI shows, not just a close
-// approximation of it.
+// The demo-only, LABELED version of the dot row MatchDotRow
+// (components/DigestCategorySection.tsx) renders under a scoped search
+// result. The on-screen dots never carry a label, since a person already
+// knows the order they typed their words in; a worked example needs one
+// so it is obvious which dot belongs to which word without that context.
+// The matchDot styles below are the same sizes and colors MatchDotRow
+// uses, so the demo matches what the category search shows.
 function DemoDotRow({ match }: { match: SearchMatchInfo }) {
   return (
     <View style={styles.demoDotRow}>
@@ -3278,11 +493,9 @@ function DemoDotRow({ match }: { match: SearchMatchInfo }) {
 // the dots... and then show how the dots would be if they were searched
 // for from the digest search all utility, and explain the variations of
 // the dots in the return search then compared to the section specific
-// search[.]" Reuses MatchSummaryRow (the exact real component Search
-// All's own result cards already render) directly for the pill half,
-// rather than a second, separately-styled mockup that could quietly drift
-// out of sync with the real thing -- this demo is pixel-identical to what
-// the app actually shows, not an approximation of it.
+// search[.]" Reuses MatchSummaryRow (the component Search All's result
+// rows render) directly for the pill half, rather than a second,
+// separately-styled mockup that could drift out of sync with it.
 function SearchMatchDemo() {
   return (
     <View style={styles.demoBlock}>
@@ -3301,7 +514,7 @@ function SearchMatchDemo() {
 
       <Text style={styles.demoSubheading}>The same three examples in Search All</Text>
       <Text style={styles.demoIntro}>
-        Search All shows the identical information as labeled pills instead of plain dots, since its result cards
+        Search All shows the identical information as labeled pills instead of plain dots, since its result rows
         have more room to spell out the actual word:
       </Text>
       {DEMO_EXAMPLES.map((example) => (
@@ -3321,520 +534,410 @@ function SearchMatchDemo() {
   );
 }
 
-function SearchResultCard({
-  entry,
-  match,
-  onPress,
-}: {
-  entry: AnyDigestEntry;
-  match: SearchMatchInfo;
-  onPress: () => void;
-}) {
-  const title = isProblemFoodEntry(entry) ? entry.foodName : entry.title;
-  return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
-      <View style={styles.cardHeaderRow}>
-        {!isProblemFoodEntry(entry) ? (
-          <View style={[styles.tierDot, { backgroundColor: tierColor(entry.overallTier) }]} />
-        ) : null}
-        <Text style={styles.cardTitle}>{title}</Text>
-      </View>
-      <Text style={styles.searchResultCategory}>{categoryLabelForEntry(entry)}</Text>
-      <Text style={styles.cardTeaser}>{entry.teaser}</Text>
-      <MatchSummaryRow match={match} />
+// The Basic Health topic the Glossary button opens: its entries as one
+// alphabetical list under its own description.
+const GLOSSARY_TOPIC = BASIC_HEALTH_TOPICS.find((topic) => topic.label === 'Glossary');
+
+// The lens the screen lands on once revealed. A jump to a category with
+// no picker tile (a recipe reached from a Related chip, say) still works,
+// since DigestCategorySection groups any non-condition category.
+const DEFAULT_LENS: PurpleDigestLens = 'basicHealth';
+
+export default function PurpleDigestScreen() {
+  useRegisterScreenHelp('Digest', DIGEST_HELP_SECTIONS, '/purple-digest');
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const rowStyles = useMemo(() => makeDigestRowStyles(TAB_COLOR), []);
+  const autoOpenLensHub = useAutoOpenLensHubSignal();
+  // Either a TabHub arrival or the "‹ Back to Digest" link can ask the
+  // LensHub to open itself; both feed the one signal LensHub watches.
+  const [openTrigger, setOpenTrigger] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    if (autoOpenLensHub) setOpenTrigger(autoOpenLensHub);
+  }, [autoOpenLensHub]);
+  const router = useRouter();
+  const { openEntryId } = useLocalSearchParams<{ openEntryId?: string }>();
+
+  const [lens, setLens] = useState<PurpleDigestLens>(DEFAULT_LENS);
+  const [revealed, setRevealed] = useState(false);
+  const [glossaryOpen, setGlossaryOpen] = useState(false);
+  // Search All's query, and the scoped query for whichever category is
+  // showing, kept apart so switching between them never carries text over.
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categorySearchQuery, setCategorySearchQuery] = useState('');
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  // Remounts EntrySearchInput with empty text; it owns its own local value.
+  const [searchResetKey, setSearchResetKey] = useState(0);
+  // The entry opened in Search All or the Glossary. A category's own open
+  // entry is DigestCategorySection's to track.
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  // The entry a category should open on arrival, handed down once.
+  const [sectionOpenId, setSectionOpenId] = useState<string | null>(null);
+  const [searchMatchHelpVisible, setSearchMatchHelpVisible] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
+
+  // Entries tagged with foods that have since been hidden go with them.
+  // One bulk lookup for every related food name in the Digest, so a
+  // category switch never waits on the database.
+  const [visibleFoodNames, setVisibleFoodNames] = useState<Set<string> | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const names = new Set<string>();
+    for (const entry of ALL_DIGEST_ENTRIES) {
+      if (!isProblemFoodEntry(entry) && entry.relatedFoodNames) for (const name of entry.relatedFoodNames) names.add(name);
+    }
+    getVisibleFoodBaseNames(Array.from(names))
+      .then((visible) => {
+        if (!cancelled) setVisibleFoodNames(visible);
+      })
+      .catch(() => {
+        if (!cancelled) setVisibleFoodNames(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  const isEntryVisible = useCallback(
+    (entry: AnyDigestEntry) => {
+      if (!visibleFoodNames) return true;
+      if (isProblemFoodEntry(entry) || !entry.relatedFoodNames || entry.relatedFoodNames.length === 0) return true;
+      return entry.relatedFoodNames.some((name) => visibleFoodNames.has(name));
+    },
+    [visibleFoodNames],
+  );
+
+  const resetSearch = useCallback(() => {
+    setSearchQuery('');
+    setCategorySearchQuery('');
+    setIsSearchActive(false);
+    setSearchResetKey((key) => key + 1);
+  }, []);
+
+  // Open an entry wherever it lives: a condition entry goes to Life, and
+  // anything else switches this screen to its category and hands the id
+  // down for the section to open and scroll to.
+  const jumpToRelated = useCallback(
+    (id: string) => {
+      const target = findDigestEntryById(id);
+      if (!target) return;
+      const category = target.category as DigestCategoryKey;
+      if (isConditionCategory(category)) {
+        router.push(routeForDigestEntry(id));
+        return;
+      }
+      if (category === 'basicHealth' && id.startsWith('glossary-')) {
+        setGlossaryOpen(true);
+        setLens('basicHealth');
+        resetSearch();
+        setExpandedId(id);
+        scrollRef.current?.scrollTo({ y: 0, animated: false });
+        return;
+      }
+      setGlossaryOpen(false);
+      setLens(category);
+      resetSearch();
+      setExpandedId(null);
+      setSectionOpenId(id);
+    },
+    [router, resetSearch],
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      // A link in takes precedence over the resting picker a fresh arrival
+      // starts on: reveal, then open the entry.
+      if (openEntryId) {
+        setRevealed(true);
+        jumpToRelated(openEntryId);
+        return;
+      }
+      setRevealed(false);
+      resetSearch();
+      return () => {
+        setRevealed(false);
+        resetSearch();
+      };
+    }, [openEntryId, jumpToRelated, resetSearch]),
+  );
+
+  const orderedCategoryMetas = useMemo(() => {
+    const basicHealthMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'basicHealth');
+    const earthMattersMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'earthMatters');
+    const gardeningMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'homeGardening');
+    return [basicHealthMeta, earthMattersMeta, gardeningMeta].filter((meta): meta is (typeof DIGEST_CATEGORY_META)[number] => Boolean(meta));
+  }, []);
+
+  // Search All first, then the three categories. The conditions are in
+  // Life since 2026-09-19 and have no tile here.
+  const LENSES = useMemo<LensOption<PurpleDigestLens>[]>(
+    () => [
+      { key: 'search', label: 'Search All', icon: 'search-outline', help: DIGEST_SEARCH_HELP },
+      ...orderedCategoryMetas.map((meta) => ({
+        key: meta.key,
+        label: meta.label,
+        gridLabel: DIGEST_GRID_LABEL_BREAKS[meta.key],
+        icon: meta.icon,
+        help: [DIGEST_LENS_HELP[meta.key], DIGEST_READING_HELP],
+      })),
+    ],
+    [orderedCategoryMetas],
+  );
+
+  const activeLensLabel = useMemo(() => {
+    if (lens === 'search') return 'Search All';
+    return DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.label ?? 'Digest';
+  }, [lens]);
+  const searchScopeLabel = glossaryOpen ? 'Glossary' : activeLensLabel;
+
+  const entries = useMemo(() => {
+    if (lens === 'search') return [];
+    return getEntriesForCategory(lens).filter(isEntryVisible);
+  }, [lens, isEntryVisible]);
+
+  const glossaryEntries = useMemo(
+    () => sortDigestEntriesLogically(ALL_DIGEST_ENTRIES.filter((entry) => entry.id.startsWith('glossary-'))),
+    [],
+  );
+  const glossaryShown = useMemo(() => {
+    const trimmed = categorySearchQuery.trim();
+    if (trimmed.length === 0) return glossaryEntries.map((entry) => ({ entry, match: null as SearchMatchInfo | null }));
+    return searchEntriesScored(glossaryEntries, trimmed, glossaryEntries.length).map((result) => ({ entry: result.entry, match: result.match }));
+  }, [categorySearchQuery, glossaryEntries]);
+
+  const searchResults = useMemo(() => searchDigestEntriesScored(searchQuery), [searchQuery]);
+
+  const openGlossary = useCallback(() => {
+    setGlossaryOpen(true);
+    resetSearch();
+    setExpandedId(null);
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, [resetSearch]);
+
+  const handleDebouncedSearchChange = useCallback(
+    (text: string) => {
+      if (lens === 'search') setSearchQuery(text);
+      else setCategorySearchQuery(text);
+    },
+    [lens],
+  );
+  const handleSearchActiveChange = useCallback((active: boolean) => {
+    setIsSearchActive(active);
+    if (active) scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, []);
+  const clearSearch = useCallback(() => {
+    resetSearch();
+    setExpandedId(null);
+  }, [resetSearch]);
+
+  const scrollToY = useCallback((y: number) => {
+    scrollRef.current?.scrollTo({ y, animated: true });
+  }, []);
+
+  // A Search All hit opens in place unless it belongs to a condition, in
+  // which case it opens in Life, where the conditions live.
+  const toggleSearchResult = useCallback(
+    (entry: AnyDigestEntry) => {
+      if (isConditionCategory(entry.category as DigestCategoryKey)) {
+        router.push(routeForDigestEntry(entry.id));
+        return;
+      }
+      setExpandedId((current) => (current === entry.id ? null : entry.id));
+    },
+    [router],
+  );
+
+  const breadcrumb = glossaryOpen ? (
+    <TouchableOpacity onPress={() => setGlossaryOpen(false)} accessibilityRole="button" accessibilityLabel={`Back to ${activeLensLabel}`}>
+      <Text style={styles.backToHomeText}>‹ Back to {activeLensLabel}</Text>
+    </TouchableOpacity>
+  ) : isSearchActive ? (
+    <TouchableOpacity onPress={clearSearch} accessibilityRole="button" accessibilityLabel={`Clear search, back to ${searchScopeLabel}`}>
+      <Text style={styles.backToHomeText}>‹ Clear search</Text>
+    </TouchableOpacity>
+  ) : (
+    <TouchableOpacity
+      onPress={() => {
+        setRevealed(false);
+        setTimeout(() => setOpenTrigger(`back-${Date.now()}`), TAB_REVEAL_DURATION_MS);
+      }}
+      accessibilityRole="button"
+      accessibilityLabel="Back to Digest home, choose another topic"
+    >
+      <Text style={styles.backToHomeText}>‹ Back to Digest</Text>
     </TouchableOpacity>
   );
-}
-
-// Basic Health's own real, 2-level drill-down tree (BasicHealthTree,
-// TopicCard) lived here from 2026-08-08 -- "a combination of tree style
-// and categorized topic cards in related groups... moving strictly from
-// broad categories down to highly specific, bite-sized pieces of
-// information" -- through 2026-08-14, when it was removed. Direct report
-// that day: "I like the way that the conditions' information is setup for
-// how someone uses the information. The Basic Health section doesn't
-// follow the same pattern... It seems that area somehow didn't follow the
-// same flow as the other areas." Correct -- by then every condition, plus
-// Earth Matters and Home Gardening, had already been unified into one
-// continuous scroll of tap-to-expand shelf rows with no drilling in or
-// backing out required at all (see groupConditionEntries' own comment
-// below); Basic Health alone still made someone tap into a topic card,
-// then a subtopic card for Essential Nutrients specifically, then tap
-// "back" to see anything else. Basic Health now uses the exact same
-// BasicHealthShelves component below, fed by basicHealthAllGroups (see
-// that function's own comment) -- the same real grouping already proven
-// correct here for Basic Health's own scoped search, reused for ordinary
-// browsing too, rather than a second, parallel mechanism kept alongside it.
-
-// Every real CONDITION's own grouped browsing view -- 2026-08-08, and, as
-// of 2026-08-14, Basic Health's own real browsing view too (see the note
-// above). Also used for a condition's own real topic grouping (see
-// groupConditionEntries' own comment; rebuilt 2026-08-12 from a fixed
-// 4-pillar version into many more, more specific real topics) and for
-// every category's own scoped search results. The per-row interaction
-// itself was
-// rebuilt 2026-08-08, direct correction after an even earlier version (tapping a
-// card jumped clean out of the shelf view into a
-// completely different, much longer flat list) read as genuinely
-// disorienting: "I kind of got lost looking at a few of the magnesium
-// cards because it jumped around." The real fix, per direct, exact
-// instruction: "The entire row that is being looked at should have each
-// of their headers at the top of the row and as I scroll left or right, if
-// I tap on one of them the whole row drops down for the one selected
-// allowing me to scroll left or right to look at other info that is about
-// that topic (Magnesium) so I don't get lost."
-//
-// So each group is now a self-contained mini-experience, not a launchpad
-// into somewhere else: a heading, a horizontal strip of compact "tab"
-// cards (their own real header + tier dot + short teaser, always visible,
-// always scrollable, staying put regardless of what's expanded), and,
-// directly below that same strip, a real detail panel -- the exact same
-// DigestCard component every other category already uses, in its own
-// expanded state -- that appears the instant one of the row's own tabs is
-// tapped. Tapping a DIFFERENT tab in the same strip swaps which entry's
-// detail shows below, without the tab strip itself moving or the person
-// ever leaving this group's own section. `expandedId` is the same single,
-// screen-wide "which one entry is open" state every other category's own
-// flat list already uses (see toggleEntry) -- only one group's own panel
-// can be genuinely open at once, matching the single-open-accordion
-// convention this whole screen already follows everywhere else.
-// Converts a group's real ref/scroll key (see BasicHealthShelves' own
-// comment above) into what a person should actually see as the group's
-// heading -- 2026-08-08, split out once a second special key
-// (TYING_TOGETHER_GROUP_KEY) needed the same "real key, different display
-// text" treatment the '::'-joined Basic Health path already had. A no-op
-// for a plain condition topic label (Core Science, etc.), which is
-// neither of these two special shapes.
-function shelfGroupDisplayLabel(label: string): string {
-  if (label === TYING_TOGETHER_GROUP_KEY) return 'Putting It Together';
-  return label.split('::').join(' › ');
-}
-
-// A category's own top-level topic menu needs exactly one row per real
-// topic, never one per sub-shelf -- 2026-08-25, the same real "fold
-// leaf groups back under one shared row" collapsing already built for
-// Basic Health's own Essential Nutrients (basicHealthMenuGroups), now
-// needed generically here too once "Meals You Can Eat" (see
-// groupConditionEntries' own comment) started producing several
-// '::'-joined sub-topics of its own instead of one flat group. A no-op
-// for every other topic passed through this screen, none of which ever
-// carry a '::' in their own label -- order is preserved as given (the
-// position its first sub-topic occupies in topics), not alphabetized,
-// matching this generic path's own standing "keep each category's
-// curated narrative order" rule (unlike Basic Health's own menu, which
-// is alphabetized by direct, separate request).
-function collapseTopicsForMenu(topics: { label: string; entries: AnyDigestEntry[] }[]): { label: string; entryCount: number }[] {
-  const menu: { label: string; entryCount: number }[] = [];
-  for (const topic of topics) {
-    const topLabel = topic.label.split('::')[0];
-    const existing = menu.find((row) => row.label === topLabel);
-    if (existing) existing.entryCount += topic.entries.length;
-    else menu.push({ label: topLabel, entryCount: topic.entries.length });
-  }
-  return menu;
-}
-
-// A shelf's own heading, with its leading top-level segment dropped when
-// already viewing that exact top-level topic (BasicHealthShelves' own
-// hideTopLevelLabel prop, see that prop's own comment) -- "Essential
-// Nutrients › Magnesium" becomes plain "Magnesium" once the page itself
-// already says Essential Nutrients. Falls back to the ordinary full label
-// whenever hideTopLevelLabel isn't set or doesn't match this group.
-//
-// 2026-08-24, direct report: opening Recipes' own "Sides" topic showed
-// "Sides" a second time, directly under the page's own big header, which
-// already says "Sides." Every category outside Basic Health resolves one
-// topic to exactly one shelf, so that shelf's own label is never a
-// "Topic::Subtopic" path at all, it's just the topic name again, and the
-// startsWith check above never matched a label with no "::" in it. An
-// empty string here means "this heading is fully redundant, don't show
-// it at all" -- the render site below skips the <Text> entirely rather
-// than leave a blank line.
-function shelfHeadingLabel(
-  label: string,
-  hideTopLevelLabel?: string,
-  currentHeaderTitle?: string,
-): string {
-  // A closing synthesis section always holds exactly one card, whose own
-  // title already says what it is -- a "Putting It Together" label above
-  // it (the search-results path can reach this same group through the
-  // ordinary groups prop, not just the dedicated section below) is always
-  // redundant, not just when hideTopLevelLabel happens to match.
-  if (label === TYING_TOGETHER_GROUP_KEY) return '';
-
-  const displayed = !hideTopLevelLabel
-    ? shelfGroupDisplayLabel(label)
-    : label === hideTopLevelLabel
-      ? ''
-      : label.startsWith(`${hideTopLevelLabel}::`)
-        ? shelfGroupDisplayLabel(label.slice(hideTopLevelLabel.length + 2))
-        : shelfGroupDisplayLabel(label);
-
-  // 2026-08-29, direct report: drilling into Basic Health > Essential
-  // Nutrients > Body Fat Biology showed "Body Fat Biology" as the header
-  // AND again as a shelf heading directly under it. "It already has the
-  // header in the bigger box at the top, and therefor it doesn't need a
-  // second smaller header above the actual data below."
-  //
-  // Earlier passes fixed this one call site at a time (Essential
-  // Nutrients' subtopics, then Glossary) by matching against whichever
-  // label happened to be hidden, which could never catch the case where a
-  // deeper drill-down makes the header show a SUBGROUP name while
-  // hideTopLevelLabel is still only the parent topic. This check is the
-  // general rule instead: whatever heading would render, if it says the
-  // same thing as the header already on screen, it is redundant and does
-  // not render. That holds at every depth, in every category, including
-  // ones added later.
-  if (currentHeaderTitle && displayed === currentHeaderTitle) return '';
-  return displayed;
-}
-
-// Every category's own plain-browsing landing view, 2026-08-23, direct
-// request, first built for Basic Health: rendering all of a category's own
-// groups' shelves at once (479 entries for Basic Health alone) was itself
-// the delay, not fixed by virtualizing each shelf alone. A plain, tappable
-// list of top-level topic names instead -- picking one drills into that
-// topic's own group(s) through the unchanged BasicHealthShelves component
-// below, same shelf-row-plus-detail-panel interaction as always.
-//
-// Direct follow-up, same day: "do the same for the other sections of the
-// Digest" -- this component itself needed no change to extend beyond Basic
-// Health, it was already generic (`{label, entryCount}[]` in, a label back
-// out); only the CALLER differs per category. Basic Health's own caller
-// passes basicHealthMenuGroups (already folded to one row per top-level
-// topic, Essential Nutrients' own 22 subtopics summed into one row and one
-// combined count, sorted alphabetically); every other category's own
-// caller passes its topics straight from groupEntriesForLens, in that
-// category's own deliberately curated order, left alone rather than
-// alphabetized (a direct, separate decision -- see the main render
-// branch's own comment).
-function DigestTopicMenu({
-  groups,
-  onSelectGroup,
-}: {
-  groups: { label: string; entryCount: number }[];
-  onSelectGroup: (label: string) => void;
-}) {
-  return (
-    <View style={styles.digestTopicMenuList}>
-      {groups.map((group) => (
-        <TouchableOpacity
-          key={group.label}
-          style={styles.digestTopicMenuItem}
-          onPress={() => onSelectGroup(group.label)}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.digestTopicMenuItemLabel}>{shelfGroupDisplayLabel(group.label)}</Text>
-          <Text style={styles.digestTopicMenuItemCount}>
-            {group.entryCount} {group.entryCount === 1 ? 'entry' : 'entries'}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-}
-
-function BasicHealthShelves({
-  groups,
-  expandedId,
-  groupRefs,
-  onToggleEntry,
-  onJumpToRelated,
-  matchInfoById,
-  hideTopLevelLabel,
-  currentHeaderTitle,
-  activeConditionCode,
-  activeStageCode,
-}: {
-  groups: { label: string; entries: AnyDigestEntry[] }[];
-  expandedId: string | null;
-  groupRefs: MutableRefObject<Record<string, Measurable | null>>;
-  onToggleEntry: (id: string) => void;
-  onJumpToRelated: (id: string) => void;
-  // 2026-08-09, real per-term match detail for a category's own scoped
-  // search -- undefined for every ordinary (non-search) call site, which
-  // is exactly what ShelfTabCard needs to know not to render a match
-  // indicator at all outside of search.
-  matchInfoById?: Map<string, SearchMatchInfo>;
-  // 2026-08-23, direct report: drilled into Essential Nutrients, every one
-  // of its own 22 shelves still read "Essential Nutrients › Magnesium,"
-  // "Essential Nutrients › Vitamin D," and so on -- redundant once the
-  // header above (drilldownTopicLabel) and the back link already say
-  // exactly which subgroup this is. Set to the current selectedTopicGroup
-  // by every drilled-in topic view (Basic Health's own subtopic case, and,
-  // 2026-08-24, the shared single-shelf case every other category uses
-  // too) -- a group whose own label starts with `${hideTopLevelLabel}::`
-  // shows just its remainder ("Magnesium") instead of the full path, and a
-  // group whose label is an exact match (a flat topic like "Sides," which
-  // only ever contains one shelf named exactly the same as the topic
-  // itself) hides its own heading entirely rather than repeating the page
-  // header word for word.
-  hideTopLevelLabel?: string;
-  // The title already showing in the header card above these shelves. Any
-  // shelf heading that would just repeat it is suppressed -- see
-  // shelfHeadingLabel for the full reasoning.
-  currentHeaderTitle?: string;
-  // 2026-08-24, direct correction: "Meals You Can Eat" now shows every
-  // recipe for a condition, not just the genuinely clean ones, so a
-  // flagged recipe needs to show ITS OWN caution for THIS specific
-  // condition once opened here -- undefined on every call site except
-  // a condition's own page (see DIGEST_KEY_TO_CONDITION_CODE at the
-  // caller), harmless everywhere else since RecipeCardDetail only reads
-  // a caution when both this and the card's own conditionCautions agree.
-  activeConditionCode?: string;
-  // 2026-08-24, direct follow-up: "Now factor in their declared healing
-  // stage too." The person's own Profile-declared stage code for
-  // activeConditionCode, when that condition has a real staging model and
-  // they've actually declared one -- undefined otherwise, in which case
-  // DigestCard falls back to the plain, stage-agnostic caution exactly as
-  // before. See stageNoteKeyFor's own comment for how this resolves to an
-  // actual note.
-  activeStageCode?: string;
-}) {
-  // 2026-08-21, a real, repeatedly-reported bug: "the title box was
-  // scrolled way to the right of the data card that is supposed to be
-  // associated with it... I see this all the time happening." The row's
-  // own horizontal ScrollView below had no ref and no scroll-into-view
-  // logic at all -- tapping a tab correctly swapped which entry's detail
-  // shows in the panel underneath, but nothing ever moved the row itself,
-  // so however it happened to be scrolled (from earlier browsing, or a
-  // fresh render after a search/category change) stayed exactly where it
-  // was, however far the newly-selected tab's own gold-bordered highlight
-  // now sat from view. The row deliberately not auto-following selection
-  // was the original 2026-08-08 design (its own comment above: "so
-  // scrolling left/right through the row never loses track of which one
-  // is actually open," relying on the `selected` highlight alone) -- real
-  // usage shows that's not enough on its own. This keeps that original
-  // freedom to scroll left/right and browse once a tab's open (nothing
-  // here fights an in-progress manual scroll), it only adds the one thing
-  // that was missing: the instant a DIFFERENT tab actually gets selected,
-  // the row scrolls to bring that tab back near view, the same "selecting
-  // something scrolls it into view" behavior a tab strip anywhere else
-  // would already have. rowScrollRefs is keyed by group.label, the same
-  // real per-group key groupRefs above already uses, so each group's own
-  // row scrolls independently of every other group's. (2026-08-23: the
-  // mechanism below changed from ScrollView+onLayout/measure to FlatList+
-  // getItemLayout, see that change's own comment further down -- the
-  // problem this paragraph describes, and the fix, are unchanged.)
-  // 2026-08-23: rebuilt around FlatList's own getItemLayout instead of the
-  // old ScrollView + onLayout/measure approach (see git history for the
-  // full prior version) -- that approach needed two real rounds of bug
-  // fixing to get right (2026-08-21's own comment, preserved in git
-  // history, covered both), and both problems were symptoms of the same
-  // root issue: not knowing a card's real x position until it had already
-  // rendered. getItemLayout sidesteps that entirely -- every card's exact
-  // position is a known formula (SHELF_CARD_STRIDE * index) computed up
-  // front, so FlatList can scroll to any entry reliably whether or not
-  // it's ever been on screen yet, no race condition possible. This also
-  // happens to be the actual fix for "why does it take so long for Basic
-  // Health to display" -- FlatList only mounts the cards actually near the
-  // visible window, where the old ScrollView + .map() mounted every single
-  // one of a group's entries immediately, and Basic Health's own 479 real
-  // entries made that the one place it became a real, multi-second stall.
-  const rowScrollRefs = useRef<Record<string, FlatList<AnyDigestEntry> | null>>({});
-
-  function tryScrollSelectedIntoView(groupLabel: string, entryId: string, entries: AnyDigestEntry[]) {
-    const list = rowScrollRefs.current[groupLabel];
-    const index = entries.findIndex((entry) => entry.id === entryId);
-    if (list && index !== -1) list.scrollToIndex({ index, animated: true, viewPosition: 0 });
-  }
-
-  useEffect(() => {
-    if (!expandedId) return;
-    const group = groups.find((g) => g.entries.some((entry) => entry.id === expandedId));
-    if (!group) return;
-    tryScrollSelectedIntoView(group.label, expandedId, group.entries);
-    // groups.length as a stand-in for "did the actual set of groups
-    // change" -- the group objects themselves are rebuilt every render
-    // (groupConditionEntries/BasicHealthTopicLeafView both return fresh
-    // arrays), so depending on `groups` directly would refire this every
-    // single render, including ones with no real selection change at all.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expandedId, groups.length]);
 
   return (
-    <>
-      {groups.map((group) => {
-        const expandedEntry = group.entries.find((entry) => entry.id === expandedId);
-        return (
-          <View
-            key={group.label}
-            style={styles.shelfSection}
-            // A plain RN View already exposes the same real .measure()
-            // scrollGroupIntoView needs -- no Animated.View wrapper
-            // required here the way the flat list's own per-card refs
-            // need one, since this container's own height changing
-            // (the detail panel appearing/disappearing below) doesn't
-            // need its own layout-transition animation the way a card
-            // growing in place did in the old design.
-            ref={(r) => {
-              groupRefs.current[group.label] = r as unknown as Measurable | null;
-            }}
-          >
-            {/* group.label doubles as the real ref/scroll-target key
-                (shelfGroupKeyForEntry computes the exact same value for a
-                given entry -- a Basic Health entry's own '::'-joined tree
-                path, or TYING_TOGETHER_GROUP_KEY for a closing synthesis
-                entry -- so tapping a shelf tab scrolls correctly whether
-                this group came from the plain topic/tree view or the new
-                filtered-search view below), so it's converted to a plain,
-                readable display string only here, at render time. See
-                shelfGroupDisplayLabel's own comment. */}
-            {shelfHeadingLabel(group.label, hideTopLevelLabel, currentHeaderTitle) ? (
-              <Text style={styles.shelfHeading}>{shelfHeadingLabel(group.label, hideTopLevelLabel, currentHeaderTitle)}</Text>
-            ) : null}
-            <FlatList
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.shelfRow}
-              data={group.entries}
-              keyExtractor={(entry) => entry.id}
-              getItemLayout={(_, index) => ({ length: SHELF_CARD_STRIDE, offset: SHELF_CARD_STRIDE * index, index })}
-              ref={(node) => {
-                rowScrollRefs.current[group.label] = node;
-              }}
-              renderItem={({ item: entry }) => (
-                <ShelfTabCard
-                  entry={entry}
-                  selected={expandedId === entry.id}
-                  onPress={() => onToggleEntry(entry.id)}
-                  match={matchInfoById?.get(entry.id)}
-                  activeConditionCode={activeConditionCode}
+    <View style={styles.screen}>
+      <SwipeableTabScreen enabled={!revealed}>
+        <GatedTabContent pageTitle="Digest" variant="field" revealed={revealed}>
+          <View style={styles.screenColumn}>
+            <View style={styles.fixedHeader}>
+              <View style={styles.breadcrumbRow}>
+                {breadcrumb}
+                {glossaryOpen ? null : (
+                  <TouchableOpacity onPress={openGlossary} accessibilityRole="button" accessibilityLabel="Open the Glossary">
+                    <Text style={styles.backToHomeText}>Glossary</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              <EntrySearchInput
+                key={searchResetKey}
+                style={styles.searchInput}
+                tabColor={TAB_COLOR}
+                placeholder={lens === 'search' ? 'Search the whole Digest...' : `Search within ${searchScopeLabel}...`}
+                onDebouncedChange={handleDebouncedSearchChange}
+                onActiveChange={handleSearchActiveChange}
+                onPressInfo={() => setSearchMatchHelpVisible(true)}
+              />
+              <EdgeShadow direction="down" style={styles.edgeShadowFullWidth} />
+            </View>
+
+            <HelpSheet
+              visible={searchMatchHelpVisible}
+              onClose={() => setSearchMatchHelpVisible(false)}
+              pageTitle="Search Matching"
+              sections={SEARCH_MATCH_HELP_SECTIONS}
+              extra={<SearchMatchDemo />}
+            />
+
+            <ScrollView
+              ref={scrollRef}
+              style={styles.body}
+              contentContainerStyle={{ paddingBottom: scrollBottomPadding, gap: HOME_BAND_GAP }}
+              keyboardShouldPersistTaps="handled"
+            >
+              {glossaryOpen ? (
+                <>
+                  {isSearchActive ? null : (
+                    <View style={styles.headerBox}>
+                      <View style={styles.headerRow}>
+                        <Ionicons name="ribbon" size={22} color={TAB_COLOR} style={textShadow} />
+                        <Text style={styles.headerText}>Glossary</Text>
+                      </View>
+                      {GLOSSARY_TOPIC?.description ? <Text style={styles.headerDescription}>{GLOSSARY_TOPIC.description}</Text> : null}
+                    </View>
+                  )}
+                  <View style={styles.countBox}>
+                    <Text style={styles.countText}>
+                      {categorySearchQuery.trim().length === 0
+                        ? `${glossaryShown.length} term${glossaryShown.length === 1 ? '' : 's'}, A to Z`
+                        : glossaryShown.length === 0
+                          ? `No matches for “${categorySearchQuery.trim()}” in the Glossary.`
+                          : `${glossaryShown.length} match${glossaryShown.length === 1 ? '' : 'es'} in the Glossary`}
+                    </Text>
+                  </View>
+                  {glossaryShown.length > 0 ? (
+                    <View style={styles.resultList}>
+                      {glossaryShown.map((item, index) => (
+                        <Fragment key={item.entry.id}>
+                          {index > 0 ? <View style={rowStyles.rowDivider} /> : null}
+                          <DigestEntryRow
+                            entry={item.entry}
+                            expanded={expandedId === item.entry.id}
+                            onToggle={() => setExpandedId(expandedId === item.entry.id ? null : item.entry.id)}
+                            onJumpToRelated={jumpToRelated}
+                            tabColor={TAB_COLOR}
+                            styles={rowStyles}
+                            below={item.match ? <MatchDotRow match={item.match} tabColor={TAB_COLOR} /> : undefined}
+                          />
+                        </Fragment>
+                      ))}
+                    </View>
+                  ) : null}
+                </>
+              ) : lens === 'search' ? (
+                <>
+                  {isSearchActive ? null : (
+                    <View style={styles.headerBox}>
+                      <View style={styles.headerRow}>
+                        <Ionicons name="ribbon" size={22} color={TAB_COLOR} style={textShadow} />
+                        <Text style={styles.headerText}>Search All</Text>
+                      </View>
+                      <Text style={styles.headerDescription}>
+                        Search across all {ALL_DIGEST_ENTRIES.length} entries at once, the conditions in Life included.
+                      </Text>
+                    </View>
+                  )}
+                  {!isSearchActive ? (
+                    <View style={styles.countBox}>
+                      <Text style={styles.countText}>
+                        Type a word or phrase to search every category at once, a mechanism, a food, an author&apos;s name,
+                        anything this Digest actually says somewhere.
+                      </Text>
+                    </View>
+                  ) : searchQuery.trim().length === 0 ? null : (
+                    <View style={styles.countBox}>
+                      <Text style={styles.countText}>
+                        {searchResults.length === 0
+                          ? `No matches for “${searchQuery.trim()}”.`
+                          : `${searchResults.length} match${searchResults.length === 1 ? '' : 'es'}`}
+                      </Text>
+                    </View>
+                  )}
+                  {searchResults.length > 0 && searchQuery.trim().length > 0 ? (
+                    <View style={styles.resultList}>
+                      {searchResults.map((result, index) => (
+                        <Fragment key={result.entry.id}>
+                          {index > 0 ? <View style={rowStyles.rowDivider} /> : null}
+                          <DigestEntryRow
+                            entry={result.entry}
+                            groupLabel={categoryLabelForEntry(result.entry)}
+                            expanded={expandedId === result.entry.id}
+                            onToggle={() => toggleSearchResult(result.entry)}
+                            onJumpToRelated={jumpToRelated}
+                            tabColor={TAB_COLOR}
+                            styles={rowStyles}
+                            below={<MatchSummaryRow match={result.match} />}
+                          />
+                        </Fragment>
+                      ))}
+                    </View>
+                  ) : null}
+                </>
+              ) : (
+                <DigestCategorySection
+                  categoryKey={lens}
+                  entries={entries}
+                  query={categorySearchQuery}
+                  searchActive={isSearchActive}
+                  tabColor={TAB_COLOR}
+                  tabTextColor={TAB_TEXT_COLOR}
+                  openEntryId={sectionOpenId}
+                  scrollToY={scrollToY}
+                  onJumpToRelated={jumpToRelated}
                 />
               )}
-            />
-            {expandedEntry ? (
-              <Animated.View layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)} style={styles.shelfDetailPanel}>
-                <DigestCard
-                  entry={expandedEntry}
-                  expanded
-                  onToggle={() => onToggleEntry(expandedEntry.id)}
-                  onJumpToRelated={onJumpToRelated}
-                  activeConditionCode={activeConditionCode}
-                  activeStageCode={activeStageCode}
-                />
-              </Animated.View>
-            ) : null}
+            </ScrollView>
           </View>
-        );
-      })}
-    </>
-  );
-}
-
-// The row's own compact, always-visible "tab" -- title, tier dot, and a
-// short teaser, never itself expandable (the real detail lives in the
-// shared panel below the row instead, see BasicHealthShelves above).
-// `selected` highlights whichever tab's own entry the panel below
-// currently belongs to, so scrolling left/right through the row never
-// loses track of which one is actually open.
-//
-// 2026-08-09, an optional `match` added -- present only when this card is
-// being shown as part of a category's own scoped search (see
-// BasicHealthShelves' own matchInfoById), undefined the rest of the time.
-// Rendered as a compact row of small dots rather than SearchResultCard's
-// own full text pills -- this card is already tight on space (title, tier
-// dot, and teaser all in a fixed-width tab), so one small, filled/outline/
-// dim dot per real search term gives the same "one, the other, or both,
-// and how strongly" signal without needing room for the term text itself.
-function ShelfTabCard({
-  entry,
-  selected,
-  onPress,
-  match,
-  activeConditionCode,
-}: {
-  entry: AnyDigestEntry;
-  selected: boolean;
-  onPress: () => void;
-  match?: SearchMatchInfo;
-  // 2026-08-25, direct correction: "All of the conditions list all 300
-  // meals saying they can eat all of them. That cannot be." When set
-  // (a condition's own "Meals You Can Eat" browsing, see
-  // BasicHealthShelves' own comment on the identical prop), this card's
-  // own dot switches from the generic evidence-tier color every other
-  // context still shows to a real green/yellow/red safety-severity color
-  // for THIS specific condition -- visible on the shelf itself, before a
-  // person even taps a card open, not just inside the detail view.
-  activeConditionCode?: string;
-}) {
-  const title = isProblemFoodEntry(entry) ? entry.foodName : entry.title;
-  const dotColor = entryHeaderDotColor(entry, activeConditionCode) ?? undefined;
-  return (
-    <TouchableOpacity
-      style={[styles.shelfCard, selected ? styles.shelfCardSelected : null]}
-      onPress={onPress}
-      activeOpacity={0.85}
-    >
-      <View style={styles.cardHeaderRow}>
-        {!isProblemFoodEntry(entry) ? <View style={[styles.tierDot, { backgroundColor: dotColor }]} /> : null}
-        <Text style={styles.shelfCardTitle} numberOfLines={3}>
-          {title}
-        </Text>
-      </View>
-      <Text style={styles.shelfCardTeaser} numberOfLines={4}>
-        {entry.teaser}
-      </Text>
-      {match ? (
-        <View style={styles.matchDotRow}>
-          {match.terms.map((termMatch) => (
-            <View
-              key={termMatch.term}
-              style={[
-                styles.matchDot,
-                termMatch.matchedInTitle
-                  ? styles.matchDotTitle
-                  : termMatch.matchedAnywhere
-                    ? styles.matchDotBody
-                    : styles.matchDotMiss,
-              ]}
-            />
-          ))}
-        </View>
-      ) : null}
-    </TouchableOpacity>
-  );
-}
-
-// The Digest's bordered card around one entry. The card shell (border,
-// title row, teaser) is this screen's; the expanded body is
-// DigestEntryBody in components/DigestEntryDetail.tsx, shared with Life's
-// Conditions lens since 2026-09-19 so both show an entry identically.
-function DigestCard({
-  entry,
-  expanded,
-  onToggle,
-  onJumpToRelated,
-  activeConditionCode,
-  activeStageCode,
-}: {
-  entry: AnyDigestEntry;
-  expanded: boolean;
-  onToggle: () => void;
-  onJumpToRelated: (id: string) => void;
-  activeConditionCode?: string;
-  activeStageCode?: string;
-}) {
-  const headerDotColor = entryHeaderDotColor(entry, activeConditionCode);
-  return (
-    <TouchableOpacity style={styles.card} onPress={onToggle} activeOpacity={0.85}>
-      <View style={styles.cardHeaderRow}>
-        {headerDotColor ? <View style={[styles.tierDot, { backgroundColor: headerDotColor }]} /> : null}
-        <Text style={styles.cardTitle}>{isProblemFoodEntry(entry) ? entry.foodName : entry.title}</Text>
-      </View>
-      <Text style={styles.cardTeaser}>{entry.teaser}</Text>
-      {expanded ? (
-        <DigestEntryBody
-          entry={entry}
-          onJumpToRelated={onJumpToRelated}
-          activeConditionCode={activeConditionCode}
-          activeStageCode={activeStageCode}
-          tabColor={TAB_COLOR}
-          tabTextColor={TAB_TEXT_COLOR}
-          style={styles.cardDetail}
-        />
-      ) : null}
-    </TouchableOpacity>
+        </GatedTabContent>
+      </SwipeableTabScreen>
+      <PageIdentityLabel title="Digest" activeLensLabel={revealed ? activeLensLabel : undefined} />
+      <LensHub
+        pageTitle="Digest"
+        buttonLabel="Digest"
+        options={LENSES}
+        selected={revealed ? lens : undefined}
+        columns={3}
+        itemLabelLines={2}
+        infoInGrid={true}
+        gridPillSize={44}
+        gridCustomIconSize={40}
+        gridIconSize={26}
+        autoOpenSignal={openTrigger}
+        onSelect={(key) => {
+          setLens(key);
+          setGlossaryOpen(false);
+          setExpandedId(null);
+          setSectionOpenId(null);
+          // A lens switch is a fresh arrival: the ScrollView's offset is a
+          // property of the instance that swapping its children does not
+          // reset on its own.
+          scrollRef.current?.scrollTo({ y: 0, animated: false });
+          resetSearch();
+          setRevealed(true);
+        }}
+      />
+    </View>
   );
 }
 
@@ -3936,67 +1039,18 @@ const styles = StyleSheet.create({
 
   },
   body: { flex: 1 },
-  bodyContent: { padding: 16, paddingBottom: 32 },
-  // An opaque card, same surface every DigestCard below already sits on --
-  // fixes this header text being unreadable directly over the shared
-  // flower background (see the JSX's own comment above this style's use).
-  headerCard: {
-    backgroundColor: colors.surface,
-    // 2026-08-24: was 1, the standing rule for any card whose border
-    // carries a tab-identity color (see index.tsx's own TAB_BORDER_WIDTH
-    // comment) is 2, and this card had never been brought in line with it.
-    borderWidth: 2,
-    borderColor: TAB_COLOR,
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 16,
-  },
-  categoryHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
-  // 2026-08-23: reconsidered, not actually safe just for sitting inside
-  // headerCard -- that card's own backgroundColor is colors.surface, the
-  // same 85%-opaque value cardTitle's own comment explains, not a fully
-  // solid fill. Same menuLabelShadow fix applied here for real, not just
-  // assumed-safe, protection.
-  //
-  // 2026-08-27, direct report on the search-result pills specifically,
-  // widened into a full sweep: "make sure that there is not any font
-  // anywhere that is both bold and drop shadowed... remove the bold so
-  // there is ONLY drop shadowed font." A prior pass (2026-08-23) already
-  // established this rule for PILL text specifically (matchTermPillText,
-  // crossConditionPillText, both correctly caption-weight with a shadow
-  // and no bold); this pass applies the same rule to every other
-  // menuLabelShadow use in this file, not just pills -- 12 styles
-  // (categoryHeaderText here, plus digestTopicMenuItemLabel, shelfHeading,
-  // shelfCardTitle, cardTitle, demoHeading, demoSubheading, detailLabel,
-  // citationsLabel, relatedLabel) were spreading a bold typography preset (label/
-  // bodyEmphasis/eyebrow/screenTitle) together with menuLabelShadow, each
-  // now carries an explicit `fontWeight: '400'` override after the
-  // spread so the preset's own fontSize/letterSpacing survive but its
-  // weight doesn't -- the shadow alone is what's left to carry
-  // legibility against the photo background, matching what was asked.
-  categoryHeaderText: { ...typography.screenTitle, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR },
-  categoryDescription: { ...typography.body, color: colors.textSecondary, lineHeight: 19, ...textShadow },
-  // The Recipes lens's own real diet-filter control -- see its JSX
-  // comment above. 2026-08-24, direct report: sitting bare on the
-  // scrolling body (straight over the shared photo background, unlike
-  // headerCard right above it) left both the "Filter by diet" label and
-  // PopoverSelect's own translucent field (inputBackground is only 35%
-  // opaque by design, meant to sit on top of an already-opaque card, not
-  // directly on a busy photo) blending into whatever was behind them.
-  // Same fix as headerCard's own -- an opaque colors.surface card with a
-  // TAB_COLOR border -- rather than a one-off transparency tweak.
-  recipeDietFilterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: colors.surface,
-    borderWidth: 2,
-    borderColor: TAB_COLOR,
-    borderRadius: 12,
-    padding: 10,
-    marginBottom: 16,
-  },
-  emptyText: { ...typography.body, color: colors.textSecondary, ...textShadow, backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 12 },
+  // The surfaces this screen draws itself, beside the shared row styles:
+  // the box naming a lens or the Glossary at the top of its list, the chip
+  // stating a count or an empty result, and the surface a list of rows
+  // sits on. Every one reaches both edges of the screen, the same as the
+  // bands in DigestCategorySection and the Conditions page in Life.
+  headerBox: { backgroundColor: colors.surface, paddingHorizontal: HOME_BAND_CONTENT_PADDING, paddingVertical: 14, gap: 6 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  headerText: { ...typography.screenTitle, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, flex: 1 },
+  headerDescription: { ...typography.body, color: colors.textSecondary, lineHeight: 20, ...textShadow },
+  countBox: { backgroundColor: colors.surface, paddingHorizontal: HOME_BAND_CONTENT_PADDING, paddingVertical: 10 },
+  countText: { ...typography.body, color: colors.textSecondary, lineHeight: 20, ...textShadow },
+  resultList: { backgroundColor: colors.surface, paddingHorizontal: HOME_BAND_CONTENT_PADDING, paddingVertical: 4 },
   searchInput: {
     ...typography.body,
     borderWidth: 1,
@@ -4014,136 +1068,11 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     ...textShadow,
   },
-  searchResultCount: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 8, ...textShadow, backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12 },
-  searchResultCategory: { ...typography.caption, ...textShadow, color: TAB_TEXT_COLOR, marginBottom: 4 },
-  // topicGrid/topicCard/topicCardTitle/topicCardCount/treeBackLink/
-  // treeHeading (Basic Health's own real tree navigation) removed
-  // 2026-08-14 alongside BasicHealthTree/TopicCard -- see that removal's
-  // own comment, above this file's grouping functions.
-  shelfSection: { marginBottom: 18 },
-  // 2026-08-25, direct report: the closing "tying together" card, shown
-  // directly under a category's own top-level DigestTopicMenu, needs the
-  // same 18px this screen already uses everywhere else to separate one
-  // section from its neighbor -- shelfSection itself only ever carries
-  // marginBottom (correct for BasicHealthShelves' own multiple shelves,
-  // which only ever need space AFTER each other, never before the first
-  // one), so reusing it here left this card flush against the menu above
-  // once the standalone "Putting It Together" heading that used to sit
-  // between them was removed. A separate style rather than adding
-  // marginTop to shelfSection itself, which would have doubled the gap
-  // between two ordinary shelves elsewhere.
-  tyingTogetherAfterMenu: { marginTop: 18, marginBottom: 18 },
-  // 2026-08-23, every category's own topic menu (DigestTopicMenu, above),
-  // first built for Basic Health, then extended to every other category
-  // the same day -- the same card look (colors.surface fill, TAB_COLOR
-  // border) every other card on this screen already uses, not a new
-  // treatment invented just for this.
-  digestTopicMenuList: { gap: 10 },
-  digestTopicMenuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.surface,
-    borderWidth: 2,
-    borderColor: TAB_COLOR,
-    borderRadius: 12,
-    padding: 14,
-  },
-  digestTopicMenuItemLabel: { ...typography.label, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, flex: 1, marginRight: 8 },
-  digestTopicMenuItemCount: { ...typography.caption, color: colors.textSecondary, ...textShadow },
-  // 2026-08-23, direct report: this text floats directly over the real
-  // photo background now that GatedTabContent actually reveals one, with
-  // nothing behind it at all. A shadow-only first attempt, then a plain
-  // dark chip, both missed what was actually asked for: the same
-  // colors.surface fill and TAB_COLOR border every card in this screen
-  // already uses (see `card`/`shelfCard`, above/below), not a one-off
-  // black overlay. alignSelf: 'flex-start' so it hugs the heading text
-  // rather than stretching edge to edge.
-  shelfHeading: {
-    ...typography.label,
-    ...menuLabelShadow,
-    fontWeight: '400',
-    color: TAB_TEXT_COLOR,
-    marginBottom: 8,
-    alignSelf: 'flex-start',
-    backgroundColor: colors.surface,
-    borderWidth: 2,
-    borderColor: TAB_COLOR,
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-  },
-  // Horizontal ScrollView's own contentContainerStyle -- a plain row with a
-  // gap between cards and a little trailing padding so the last card in a
-  // row doesn't sit flush against the screen edge once scrolled all the
-  // way over.
-  shelfRow: { flexDirection: 'row', gap: SHELF_CARD_GAP, paddingRight: 16 },
-  shelfCard: {
-    width: SHELF_CARD_WIDTH,
-    minHeight: 128,
-    borderWidth: 2,
-    borderColor: TAB_COLOR,
-    borderRadius: 12,
-    backgroundColor: colors.surface,
-    padding: 12,
-  },
-  // The one tab in a row whose own entry the detail panel below is
-  // currently showing -- a visibly thicker, filled highlight so scrolling
-  // left/right through the row never loses track of which one is open.
-  // 2026-08-23: this used to override shelfCard's own colors.surface
-  // (85% opaque) with `${TAB_COLOR}22`, roughly 13% opaque -- the real
-  // reason "Essential Nutrients: Magnesium" (a shelf card's own title,
-  // read while that card sits selected/open, the normal way anyone reads
-  // one) stayed unreadable against the photo background even after the
-  // menuLabelShadow fix below: a shadow has nothing solid to sit against
-  // once its own card is nearly see-through. Border alone (thicker,
-  // accent-colored) already marks the selected card; backgroundColor now
-  // stays whatever shelfCard's own base style set, same as every
-  // unselected sibling.
-  shelfCardSelected: {
-    borderColor: colors.accent,
-    borderWidth: 3,
-  },
-  // 2026-08-23, direct correction: a solid background chip was added here
-  // too, but that was never asked for -- shelfCardSelected's own near-
-  // transparent fill (above) was the actual bug on this specific card, now
-  // fixed at its own source. This card's title stays as it was, the shadow
-  // alone, same as any entry title inside an already-opaque card.
-  shelfCardTitle: { ...typography.label, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, flex: 1, fontSize: 14 },
-  shelfCardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 16, marginTop: 4, ...textShadow },
-  // 2026-08-09, ShelfTabCard's own compact per-term match indicator, shown
-  // only while this card is part of a category's own scoped search
-  // results -- see ShelfTabCard's own comment for why this is a row of
-  // small dots rather than SearchResultCard's own full text pills.
   matchDotRow: { flexDirection: 'row', gap: 5, marginTop: 6 },
   matchDot: { width: 8, height: 8, borderRadius: 4 },
   matchDotTitle: { backgroundColor: TAB_COLOR },
   matchDotBody: { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: TAB_COLOR },
   matchDotMiss: { backgroundColor: colors.border },
-  // The real detail panel appearing directly below a row's own tab strip
-  // once one of its tabs is tapped -- "the whole row drops down for the
-  // one selected," per direct request. A small top margin separates it
-  // from the tab strip above; DigestCard itself already supplies its own
-  // card border/background, so no extra chrome is added here.
-  shelfDetailPanel: { marginTop: 10 },
-  card: {
-    borderWidth: 2,
-    borderColor: TAB_COLOR,
-    borderRadius: 12,
-    backgroundColor: colors.surface,
-    padding: 14,
-    marginBottom: 12,
-  },
-  cardHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
-  tierDot: { width: 10, height: 10, borderRadius: 5 },
-  // 2026-08-23: a background chip was briefly added here too, direct
-  // correction that it wasn't asked for and shouldn't apply inside an
-  // already-opaque card. The actual culprit for "Essential Nutrients:
-  // Magnesium" staying unreadable was shelfCardSelected's own near-
-  // transparent fill (see that style's own 2026-08-23 comment), fixed at
-  // its own source. This title stays as it was, the shadow alone.
-  cardTitle: { ...typography.label, ...menuLabelShadow, fontWeight: '400', color: TAB_TEXT_COLOR, flex: 1 },
-  cardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 17, ...textShadow },
   // 2026-08-09, SearchResultCard's own real per-term match display -- see
   // MatchSummaryRow's own comment for the full reasoning. matchBlock sits
   // directly under the teaser, matchSummaryText states the plain "X of Y
@@ -4214,6 +1143,4 @@ const styles = StyleSheet.create({
   demoDotColumn: { alignItems: 'center', gap: 3 },
   demoDotLabel: { ...typography.caption, color: colors.textMuted, fontSize: 10, ...textShadow },
   demoClosing: { ...typography.body, color: colors.textSecondary, lineHeight: 19, marginTop: 4, ...textShadow },
-  cardDetail: { marginTop: 10, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 },
-  detailLabel: { ...typography.eyebrow, ...textShadow, fontWeight: '400', color: TAB_TEXT_COLOR, marginTop: 8, marginBottom: 2 },
 });

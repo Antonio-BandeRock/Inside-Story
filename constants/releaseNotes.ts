@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.10',
+    date: '2026-09-19',
+    changes: [
+      'The Digest now reads the way Conditions does in Life. Basic Health, Earth Matters and Home Gardening are each a stack of bands, one per topic, that fold open to their entries, with the larger topics grouped inside. An entry opens in place, the search box searches the category you are in, and Search All and the Glossary list the same rows. Everything reaches both edges of the screen, and every list scrolls a full screen past its end so your background shows.',
+    ],
+  },
+  {
     version: '1.0.41.9',
     date: '2026-09-19',
     changes: [

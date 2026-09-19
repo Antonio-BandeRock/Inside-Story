@@ -6,7 +6,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { DIGEST_CONDITION_ICONS } from './DigestConditionIcons';
-import { DigestEntryBody, entryHeaderDotColor } from './DigestEntryDetail';
+import { DigestEntryRow, makeDigestRowStyles } from './DigestEntryRow';
 import { EntrySearchInput, searchFieldStyle } from './EntrySearchInput';
 import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
 import { useInfoAlert } from './InfoAlert';
@@ -517,7 +517,7 @@ export function ConditionsSection({
           {searchResults.map((result, index) => (
             <Fragment key={result.entry.id}>
               {index > 0 ? <View style={styles.rowDivider} /> : null}
-              <ConditionEntryRow
+              <DigestEntryRow
                 entry={result.entry}
                 groupLabel={result.groupLabel}
                 activeConditionCode={DIGEST_KEY_TO_CONDITION_CODE[result.entry.category as DigestCategoryKey]}
@@ -805,7 +805,7 @@ function ConditionBandBody({
                     {section.entries.map((entry, index) => (
                       <Fragment key={entry.id}>
                         {index > 0 ? <View style={styles.rowDivider} /> : null}
-                        <ConditionEntryRow
+                        <DigestEntryRow
                           entry={entry}
                           activeConditionCode={conditionCode}
                           activeStageCode={stageCode}
@@ -827,7 +827,7 @@ function ConditionBandBody({
       {grouped.tyingTogether ? (
         <View style={styles.topicFold}>
           <Text style={[styles.subgroupHeading, styles.tyingTogetherHeading]}>Putting It Together</Text>
-          <ConditionEntryRow
+          <DigestEntryRow
             entry={grouped.tyingTogether}
             activeConditionCode={conditionCode}
             activeStageCode={stageCode}
@@ -840,60 +840,6 @@ function ConditionBandBody({
         </View>
       ) : null}
     </>
-  );
-}
-
-// One entry, closed to its title and teaser, open to everything the
-// Digest card showed.
-function ConditionEntryRow({
-  entry,
-  groupLabel,
-  activeConditionCode,
-  activeStageCode,
-  expanded,
-  onToggle,
-  onJumpToRelated,
-  tabColor,
-  styles,
-}: {
-  entry: AnyDigestEntry;
-  // Which condition it belongs to, shown only in search results, where
-  // the rows no longer sit under a band that says so.
-  groupLabel?: string;
-  activeConditionCode?: string;
-  activeStageCode?: string;
-  expanded: boolean;
-  onToggle: () => void;
-  onJumpToRelated: (id: string) => void;
-  tabColor: string;
-  styles: Styles;
-}) {
-  const dotColor = entryHeaderDotColor(entry, activeConditionCode);
-  return (
-    <View style={styles.itemRow}>
-      <TouchableOpacity style={styles.itemTapArea} onPress={onToggle} activeOpacity={0.85}>
-        <View style={styles.itemTextWrap}>
-          {groupLabel ? <Text style={styles.itemGroupLabel}>{groupLabel}</Text> : null}
-          <View style={styles.itemTitleRow}>
-            {dotColor ? <View style={[styles.tierDot, { backgroundColor: dotColor }]} /> : null}
-            <Text style={styles.itemTitle}>{isProblemFoodEntry(entry) ? entry.foodName : entry.title}</Text>
-          </View>
-          <Text style={styles.itemSubtitle}>{entry.teaser}</Text>
-        </View>
-        <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textSecondary} />
-      </TouchableOpacity>
-      {expanded ? (
-        <DigestEntryBody
-          entry={entry}
-          onJumpToRelated={onJumpToRelated}
-          activeConditionCode={activeConditionCode}
-          activeStageCode={activeStageCode}
-          tabColor={tabColor}
-          tabTextColor={tabColor}
-          style={styles.itemDetail}
-        />
-      ) : null}
-    </View>
   );
 }
 
@@ -1025,50 +971,6 @@ function makeStyles(tabColor: string) {
     conditionIntro: { gap: 6 },
     conditionIntroText: { ...typography.caption, color: colors.textSecondary, ...textShadow },
     conditionCaption: { ...typography.caption, color: colors.textPrimary, ...textShadow },
-    // One topic, the level between the condition band and its rows: an
-    // inset box, the same shape as a row, holding the rows once open.
-    topicFold: {
-      borderRadius: 10,
-      backgroundColor: colors.surfaceMuted,
-      paddingHorizontal: 12,
-    },
-    topicTapArea: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingVertical: 12,
-    },
-    topicTitle: { ...typography.bodyEmphasis, color: tabColor, ...textShadow, flex: 1, marginRight: 12 },
-    topicBody: {
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderTopColor: colors.border,
-      paddingTop: HOME_BAND_GAP,
-      paddingBottom: 12,
-    },
-    subgroupHeading: { ...typography.eyebrow, color: tabColor, ...textShadow, marginBottom: HOME_BAND_GAP },
-    subgroupHeadingLater: { marginTop: HOME_BAND_GAP },
-    tyingTogetherHeading: { marginTop: 12 },
-    rowDivider: { height: 1, backgroundColor: colors.border, marginVertical: (HOME_BAND_GAP - 1) / 2 },
-    // A row sits inside the topic's muted box, so it takes the plain
-    // surface to read as one step further in.
-    itemRow: { borderRadius: 10, backgroundColor: colors.surface, paddingHorizontal: 12 },
-    itemTapArea: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingVertical: 12,
-    },
-    itemTextWrap: { flex: 1, marginRight: 12 },
-    itemGroupLabel: { ...typography.eyebrow, color: tabColor, ...textShadow, marginBottom: 2 },
-    itemTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-    tierDot: { width: 10, height: 10, borderRadius: 5 },
-    itemTitle: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow, flex: 1 },
-    itemSubtitle: { ...typography.caption, color: colors.textSecondary, marginTop: 2, ...textShadow },
-    itemDetail: {
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderTopColor: colors.border,
-      paddingTop: 10,
-      paddingBottom: 12,
-    },
+    ...makeDigestRowStyles(tabColor),
   });
 }
