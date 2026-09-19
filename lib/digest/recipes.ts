@@ -82,6 +82,23 @@
 // a dedicated future investigation.
 import type { DigestEntry } from './types';
 
+// The banners below mark AUTHORING BATCHES, in the order the batches were
+// written, and they are not builder buckets. Read a batch banner as "this
+// is where these recipes came from", never as "everything here is filed
+// under one builder".
+//
+// 1.0.40.10, 2026-09-18: 167 entries changed linkedBuilderType and stayed
+// exactly where they sit in this file. All 167 had been filed under 'snack',
+// which had become the generic bucket every breakfast batch landed in, and
+// only 4 of them were snacks. Each one moved to the builder that would
+// actually assemble it: 111 to salad (yogurt and tofu bowls, fruit bowls,
+// overnight oats, porridges, savory grain bowls), 34 to side (the scrambles,
+// skillets, hashes and one curry), 15 to dessert (chia, rice and tapioca
+// puddings), 2 to smoothie, 1 to bakedGoods. curated_recipes.builder_type in
+// assets/data/foods_reference.db moved in the same pass and is checked
+// against this file id by id. The meal planner keeps those 163 out of its
+// lunch and dinner pools by name now; see BREAKFAST_DISH_RECIPE_IDS in
+// lib/dailyMealPlan.ts for why that rule had to be written down.
 export const RECIPES_ENTRIES: DigestEntry[] = [
   // -------------------------------------------------------------------
   // Baked Goods: all 4 are batch/pantry-style recipes (bread,
@@ -4377,7 +4394,11 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
   // already follows. builder_type follows this app's 11 direct-
   // ingredient builders (see scripts/add_meal_plan_recipes.py's header
   // comment for why a full protein dinner main uses 'side', the closest
-  // fit among what actually exists, not a new "entree" type).
+  // fit among what actually exists, not a new "entree" type). The
+  // breakfasts in this batch were written as 'snack' for the same reason
+  // and that turned out to be the wrong closest fit: a yogurt bowl is
+  // assembled in Salads & Bowls and a scramble is cooked in Sides. They
+  // were moved in 1.0.40.10; see the note at the top of this file.
   // -------------------------------------------------------------------
   {
     id: 'recipe-mealplan-veggie-cheddar-scramble-potatoes',
@@ -4388,7 +4409,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_veggie_cheddar_scramble_potatoes',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -4447,7 +4468,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_overnight_oats_chia_berries',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -4499,7 +4520,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_soft_boiled_eggs_avocado_tomato',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -4551,7 +4572,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_savory_quinoa_bowl_fried_egg',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -4607,7 +4628,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_cottage_cheese_pineapple_walnuts',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -5553,7 +5574,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_kiwi_pistachio_yogurt_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -5711,7 +5732,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_peach_almond_overnight_oats',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -5869,7 +5890,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_papaya_cottage_cheese_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -6025,7 +6046,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_buckwheat_porridge_blueberries_walnuts',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -6191,7 +6212,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_millet_porridge_apricots',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -6346,7 +6367,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_grapefruit_yogurt_honey',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -6498,7 +6519,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_fig_walnut_yogurt_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -6654,7 +6675,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_date_cashew_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -6818,7 +6839,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_nectarine_chia_pudding_cashews',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'dessert',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -6983,7 +7004,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_clementine_almond_yogurt_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -7141,7 +7162,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_plum_walnut_overnight_oats',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -7291,7 +7312,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_watermelon_feta_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -7455,7 +7476,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_cantaloupe_cottage_cheese_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -7599,7 +7620,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_pear_walnut_yogurt_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -7759,7 +7780,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_fig_pistachio_overnight_oats',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -7914,7 +7935,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_apricot_cashew_yogurt_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -8073,7 +8094,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_date_walnut_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -8234,7 +8255,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mango_coconut_chia_pudding',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'dessert',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -8390,7 +8411,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_cottage_cheese_fig_honey',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -8533,7 +8554,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_pear_almond_yogurt_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -8686,7 +8707,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_kiwi_coconut_chia_pudding',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'dessert',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -8847,7 +8868,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_papaya_lime_yogurt_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -8991,7 +9012,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_blackberry_almond_yogurt_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -9141,7 +9162,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_clementine_pistachio_yogurt_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -9305,7 +9326,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_apricot_coconut_overnight_oats',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -9453,7 +9474,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_fig_cashew_overnight_oats',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -9614,7 +9635,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mango_pistachio_chia_pudding',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'dessert',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -9775,7 +9796,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_grapefruit_pistachio_yogurt_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -10273,7 +10294,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_berries_silken_tofu_cream',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'fatty_liver_disease', 'gout', 'graves', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -10320,7 +10341,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_tofu_scramble_potatoes',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'type_1_diabetes', 'type_2_diabetes'],
@@ -10379,7 +10400,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_overnight_oats_chia_berries',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -10430,7 +10451,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_tofu_avocado_tomato',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -10482,7 +10503,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_quinoa_bowl_tofu_scramble',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -10538,7 +10559,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_cashew_cream_pineapple_walnuts',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -10694,7 +10715,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_kiwi_almond_tofu_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -10742,7 +10763,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_peach_almond_overnight_oats',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -10792,7 +10813,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_papaya_cashew_tofu_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -10840,7 +10861,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_buckwheat_porridge_blueberries_walnuts',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -10891,7 +10912,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_millet_porridge_apricots',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -10941,7 +10962,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_grapefruit_tofu_maple',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -10982,7 +11003,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_fig_walnut_tofu_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11027,7 +11048,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_date_cashew_tofu_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11074,7 +11095,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_nectarine_chia_pudding_cashews',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'dessert',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11123,7 +11144,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_clementine_almond_tofu_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11165,7 +11186,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_plum_walnut_overnight_oats',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11211,7 +11232,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_watermelon_tofu_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11259,7 +11280,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_cantaloupe_tofu_maple',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11297,7 +11318,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_pear_walnut_tofu_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11341,7 +11362,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_fig_pistachio_overnight_oats',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11390,7 +11411,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_apricot_cashew_tofu_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11437,7 +11458,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_date_walnut_tofu_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11481,7 +11502,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_mango_coconut_chia_pudding',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'dessert',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11527,7 +11548,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_cashew_ricotta_fig_maple',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11567,7 +11588,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_pear_almond_tofu_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11609,7 +11630,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_kiwi_coconut_chia_pudding',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'dessert',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11655,7 +11676,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_papaya_lime_tofu_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11693,7 +11714,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_blackberry_almond_tofu_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11735,7 +11756,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_clementine_pistachio_tofu_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11782,7 +11803,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_apricot_coconut_overnight_oats',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11823,7 +11844,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_fig_cashew_overnight_oats',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11872,7 +11893,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_mango_pistachio_chia_pudding',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'dessert',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -11922,7 +11943,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_grapefruit_pistachio_tofu_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -15248,7 +15269,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_amaranth_porridge_garlic_avocado',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -15306,7 +15327,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_oat_porridge_mushroom_spinach',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -15358,7 +15379,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_chickpea_flour_vegetable_scramble',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'type_1_diabetes', 'type_2_diabetes'],
@@ -15418,7 +15439,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_millet_bowl_roasted_vegetables_tahini',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -15473,7 +15494,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_black_bean_sweet_potato_breakfast_hash',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -15530,7 +15551,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_lentil_spinach_bowl_lemon_tahini',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -15580,7 +15601,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_buckwheat_porridge_mushroom_herbs',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -15631,7 +15652,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_quinoa_bowl_roasted_vegetables_hemp_seeds',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -15685,7 +15706,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_white_bean_kale_breakfast_hash',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -15737,7 +15758,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_chickpea_spinach_breakfast_curry',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -15789,7 +15810,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_polenta_bowl_mushroom_greens',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -15839,7 +15860,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_black_bean_breakfast_bowl_avocado',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -15881,7 +15902,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_roasted_vegetable_white_bean_bowl_garlic_herb_oil',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -15936,7 +15957,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_coconut_milk_overnight_oats_blueberry_flax',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -15979,7 +16000,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_coconut_milk_chia_pudding_almond_butter_berries',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'dessert',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16028,7 +16049,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_buckwheat_porridge_coconut_milk_walnut_pear',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16095,7 +16116,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_blueberry_cinnamon_oatmeal',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16133,7 +16154,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_strawberry_banana_oatmeal',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16171,7 +16192,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_baked_apple_cinnamon_oatmeal_cup',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'bakedGoods',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16208,7 +16229,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_date_cinnamon_overnight_oats',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16244,7 +16265,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_orange_cranberry_rice_pudding',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'dessert',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16281,7 +16302,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_ginger_pear_rice_pudding',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'dessert',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16318,7 +16339,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_peach_sorghum_porridge',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16354,7 +16375,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_raspberry_lime_sorghum_porridge',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16390,7 +16411,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_sweet_polenta_apricot_compote',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16427,7 +16448,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_banana_polenta_porridge',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16464,7 +16485,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_pineapple_coconut_tapioca_pudding',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'dessert',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16500,7 +16521,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_mixed_berry_coconut_tapioca_pudding',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'dessert',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16537,7 +16558,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_tropical_fruit_bowl_coconut',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16572,7 +16593,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_citrus_avocado_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16607,7 +16628,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_berry_banana_coconut_smoothie',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'smoothie',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16643,7 +16664,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_rice_bowl_zucchini_pepper_tomato',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16687,7 +16708,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_polenta_leeks_tomato',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16731,7 +16752,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_zucchini_fennel_hash_avocado',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16773,7 +16794,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_cranberry_orange_oatmeal',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16810,7 +16831,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_papaya_lime_smoothie_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'smoothie',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16845,7 +16866,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_cantaloupe_grapefruit_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16878,7 +16899,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_apple_rice_pudding_cinnamon',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'dessert',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16914,7 +16935,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_date_sorghum_porridge',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16949,7 +16970,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_savory_fennel_tomato_rice_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -16992,7 +17013,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_pear_ginger_overnight_oats',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -17027,7 +17048,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_vegan_blackberry_lime_rice_pudding',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'dessert',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -17697,7 +17718,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_beef_kale_breakfast_hash',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -17734,7 +17755,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_pork_cabbage_breakfast_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -17769,7 +17790,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_salmon_broccoli_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -17807,7 +17828,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_halibut_fennel_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -17845,7 +17866,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_cod_cabbage_breakfast_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -17880,7 +17901,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_shrimp_zucchini_breakfast_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -17917,7 +17938,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_beef_broccoli_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -17954,7 +17975,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_pork_kale_breakfast_hash',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -17991,7 +18012,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_salmon_fennel_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18026,7 +18047,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_halibut_cabbage_breakfast_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18063,7 +18084,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_cod_broccoli_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18099,7 +18120,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_shrimp_cabbage_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18136,7 +18157,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_citrus_avocado_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18171,7 +18192,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_tropical_breakfast_fruit_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18203,7 +18224,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_berry_melon_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18254,7 +18275,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_greek_yogurt_olive_oil_pistachio_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18304,7 +18325,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mediterranean_egg_tomato_zucchini_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18352,7 +18373,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mediterranean_feta_tomato_egg_scramble',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18400,7 +18421,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_greek_yogurt_berry_olive_oil_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18448,7 +18469,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mediterranean_tomato_pepper_egg_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18497,7 +18518,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_greek_yogurt_citrus_pistachio_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18549,7 +18570,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mediterranean_zucchini_feta_egg_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18597,7 +18618,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_greek_yogurt_banana_pistachio_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18648,7 +18669,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mediterranean_fennel_tomato_egg_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18695,7 +18716,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_greek_yogurt_apple_cinnamon_olive_oil_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18743,7 +18764,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mediterranean_leek_tomato_egg_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18790,7 +18811,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_greek_yogurt_cantaloupe_pistachio_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18840,7 +18861,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mediterranean_pepper_feta_egg_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18889,7 +18910,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_greek_yogurt_tropical_olive_oil_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -18937,7 +18958,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mediterranean_carrot_zucchini_egg_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19000,7 +19021,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_chicken_broccoli_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19038,7 +19059,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_chicken_cabbage_breakfast_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19073,7 +19094,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_chicken_kale_breakfast_hash',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19110,7 +19131,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_chicken_zucchini_breakfast_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19146,7 +19167,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_turkey_broccoli_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19192,7 +19213,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_turkey_cabbage_breakfast_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19235,7 +19256,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_turkey_kale_breakfast_hash',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19280,7 +19301,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_turkey_fennel_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19323,7 +19344,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_beef_fennel_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19359,7 +19380,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_pork_broccoli_breakfast_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19395,7 +19416,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_salmon_kale_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19432,7 +19453,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_halibut_broccoli_breakfast_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19467,7 +19488,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_cod_kale_breakfast_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       safeForConditions: ['cardiovascular_disease', 'celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'hashimotos', 'ibd', 'ibs', 'lupus', 'migraine', 'multiple_sclerosis', 'pcos', 'prostate_health', 'psoriasis', 'rheumatoid_arthritis', 'sjogrens', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19514,7 +19535,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mediterranean_fennel_feta_egg_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19562,7 +19583,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mediterranean_leek_feta_egg_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19611,7 +19632,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mediterranean_carrot_tomato_egg_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19658,7 +19679,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mediterranean_zucchini_tomato_feta_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19708,7 +19729,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mediterranean_pepper_zucchini_egg_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19755,7 +19776,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_mediterranean_fennel_zucchini_egg_skillet',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'side',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19798,7 +19819,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_greek_yogurt_strawberry_pistachio_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19849,7 +19870,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_greek_yogurt_blueberry_olive_oil_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19896,7 +19917,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_greek_yogurt_grapefruit_olive_oil_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19943,7 +19964,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_greek_yogurt_apple_pistachio_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'fatty_liver_disease', 'gout', 'graves', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],
@@ -19994,7 +20015,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_snack_greek_yogurt_cantaloupe_olive_oil_bowl',
-    linkedBuilderType: 'snack',
+    linkedBuilderType: 'salad',
     recipeCard: {
       dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       safeForConditions: ['celiac', 'chronic_kidney_disease', 'fatty_liver_disease', 'gout', 'graves', 'ibd', 'ibs', 'migraine', 'pcos', 'prostate_health', 'type_1_diabetes', 'type_2_diabetes'],

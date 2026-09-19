@@ -1,14 +1,22 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { Fragment, useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { EntryPhotoSection } from './EntryPhotoSection';
+import { EntrySearchInput, searchFieldStyle } from './EntrySearchInput';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { PopoverSelect } from './PopoverSelect';
 import { CuratedRecipeShareButton, RECIPE_BUILDER_PARAM, RecipeBuildRow, RecipeDetailCard } from './RecipeDetailCard';
-import { getEntriesForCategory } from '../lib/digest';
-import { isProblemFoodEntry, type DigestEntry } from '../lib/digest/types';
+import { getEntriesForCategory, searchEntriesScored } from '../lib/digest';
+import {
+  RECIPE_DIET_TAGS,
+  isProblemFoodEntry,
+  recipeMatchesAllDietPreferences,
+  type DigestEntry,
+  type RecipeDietTag,
+} from '../lib/digest/types';
 import type { BuilderFavoriteItemType } from '../lib/db';
 
 // The curated recipes, on the Food tab, grouped under the builder that
@@ -28,6 +36,16 @@ import type { BuilderFavoriteItemType } from '../lib/db';
 // place rather than navigating anywhere. What opens is the same
 // RecipeDetailCard the Digest renders, painted in Food's green rather
 // than the Digest's purple, so the two can never drift apart.
+//
+// 1.0.40.10, direct instruction: "make sure to provide the filter for diet
+// type that was available in Digest, as well as a search utility just as it
+// was in Digest too. Put a one pixel separation line mid way between
+// recipes in each category. Also, I think maybe the Sides should be
+// separated by sub groups based on the type of side it is." All four are
+// below. The search box is the same component the Digest uses, moved out to
+// components/EntrySearchInput.tsx rather than copied, and a search shows a
+// flat ranked result list the way the Digest's does instead of asking
+// somebody to open eleven folds looking for the hit.
 //
 // No data plumbing of its own: every curated recipe already carries its
 // full recipeCard, its linkedBuilderType and its linkedCuratedRecipeId in
@@ -60,7 +78,114 @@ const RECIPE_GROUPS: { type: BuilderFavoriteItemType; label: string; icon: keyof
   { type: 'dessert', label: 'Desserts', icon: 'ice-cream-outline' },
 ];
 
+// Subgroups inside a band, for every builder holding more than about a
+// dozen recipes. The standing rule from the Digest applies here for the
+// same reason it applies there: a shelf covering more than one subject
+// stops being browsable once it runs long, and Sides at 131 covers seven
+// different things at once.
+//
+// Read as ordered rules against the recipe's own title, first match wins,
+// with a terminal catch-all so nothing can fall through. Each rule may
+// carry an `unless` guard, which is what keeps King Oyster "Scallops" out
+// of Fish & Seafood and the fruit breakfast bowls out of the savory ones.
+//
+// The split was designed from the actual 411 titles rather than guessed,
+// and every id was checked to land in exactly one named subgroup with no
+// bucket left empty. The five builders not listed here (beverage, sauce,
+// snack, bakedGoods) are all under ten recipes and read fine as one list.
+type SubgroupRule = { label: string; match: RegExp; unless?: RegExp };
+
+const SEAFOOD = /salmon|cod\b|halibut|trout|shrimp|scallop|sole\b|sardine|tuna|mackerel|crab|mussel|tilapia|snapper|anchov/;
+// King Oyster mushroom stands in for scallops in two vegan dishes, and the
+// title says so, which is the one place the seafood words lie.
+const NOT_SEAFOOD = /king oyster|mushroom/;
+
+const RECIPE_SUBGROUPS: Partial<Record<BuilderFavoriteItemType, SubgroupRule[]>> = {
+  side: [
+    { label: 'Breakfast Skillets & Hashes', match: /breakfast|scramble|mediterranean.*egg/ },
+    { label: 'Fish & Seafood', match: SEAFOOD, unless: NOT_SEAFOOD },
+    { label: 'Poultry', match: /chicken|turkey|duck\b/ },
+    { label: 'Beef, Pork & Lamb', match: /beef|pork|lamb|bison|steak/ },
+    { label: 'Beans, Lentils & Chickpeas', match: /bean|lentil|chickpea|edamame|hummus/ },
+    { label: 'Tofu, Tempeh & Seitan', match: /tofu|tempeh|seitan/ },
+    { label: 'Vegetable & Grain Sides', match: /.*/ },
+  ],
+  salad: [
+    { label: 'Overnight Oats', match: /overnight oats/ },
+    { label: 'Warm Porridge & Oatmeal', match: /oats|oatmeal|porridge|polenta|congee|grits/ },
+    { label: 'Yogurt Bowls', match: /yogurt|kefir/ },
+    { label: 'Tofu & Cottage Cheese Bowls', match: /silken|tofu bowl|tofu cream|tofu ricotta|cottage cheese/ },
+    // A savory breakfast bowl and a fruit one are both titled "Breakfast
+    // Bowl", so the fruit words are what tells them apart.
+    { label: 'Savory Breakfast Bowls', match: /breakfast bowl|breakfast quinoa/, unless: /berry|melon|citrus|date and|tropical|cantaloupe|grapefruit/ },
+    { label: 'Fruit Bowls', match: /breakfast bowl|fruit bowl/ },
+    { label: 'Fish & Seafood Salads', match: SEAFOOD, unless: NOT_SEAFOOD },
+    { label: 'Grain & Bean Bowls', match: /quinoa|rice|millet|farro|barley|buckwheat|amaranth|sorghum|teff|bulgur|couscous|spelt|grain|bean|lentil|chickpea|edamame/ },
+    { label: 'Green & Vegetable Salads', match: /.*/ },
+  ],
+  fermentation: [
+    { label: 'Yogurt & Kefir', match: /yogurt|kefir|\blassi\b|ayran|tarag|fermented milk/ },
+    { label: 'Kombucha & Fermented Teas', match: /kombucha|jun tea|pu-erh|fermented tea/ },
+    { label: 'Wild-Fermented Tonics', match: /wild-fermented|tonic|cheong|shrub|switchel/ },
+    { label: 'Sodas, Kvass & Beers', match: /soda|kvass|beer|\bale\b|tepache/ },
+    { label: 'Grain & Starch Ferments', match: /amazake|boza|chicha|makgeolli|pozol|rejuvelac|sake|rice wine|sobia/ },
+    { label: 'Vegetable & Wild Ferments', match: /.*/ },
+  ],
+  soup: [
+    { label: 'Bean & Lentil Soups', match: /bean|lentil|chili/ },
+    { label: 'Fish & Seafood Soups', match: /salmon|crab|mussel|chowder|shrimp|cod\b/ },
+    { label: 'Vegetable Soups & Broths', match: /.*/ },
+  ],
+  dessert: [
+    { label: 'Chia Puddings', match: /chia/ },
+    { label: 'Warm Puddings & Baked Fruit', match: /.*/ },
+  ],
+  handheld: [
+    { label: 'Lettuce & Collard Wraps', match: /lettuce wrap|collard/ },
+    { label: 'Wraps, Burritos & Tacos', match: /wrap|burrito|taco/ },
+    { label: 'Sandwiches', match: /.*/ },
+  ],
+  smoothie: [
+    { label: 'Vegan Protein Smoothies', match: /vegan/ },
+    { label: 'Protein Smoothies', match: /protein/ },
+    { label: 'Fruit Smoothies & Bowls', match: /.*/ },
+  ],
+};
+
 type RecipeGroup = { type: BuilderFavoriteItemType; label: string; icon: keyof typeof Ionicons.glyphMap; entries: DigestEntry[] };
+type RecipeSection = { label: string | null; entries: DigestEntry[] };
+
+// Below this, a band reads fine as one list and a heading per two recipes
+// would be noise. Matters most once a diet filter has cut a band down.
+const SUBGROUP_MIN = 12;
+
+// Splits one band's recipes into its named subgroups, keeping the table's
+// own order and dropping a subgroup nothing landed in. A builder with no
+// table, or one filtered down to a handful, comes back as a single
+// unlabeled section.
+function sectionsFor(type: BuilderFavoriteItemType, entries: DigestEntry[]): RecipeSection[] {
+  const rules = RECIPE_SUBGROUPS[type];
+  if (!rules || entries.length <= SUBGROUP_MIN) return [{ label: null, entries }];
+  const buckets = new Map<string, DigestEntry[]>();
+  for (const entry of entries) {
+    const title = entry.title.toLowerCase();
+    const rule = rules.find((candidate) => candidate.match.test(title) && !(candidate.unless && candidate.unless.test(title)));
+    // The last rule matches everything, so `rule` is always found. The
+    // fallback keeps a future table edit from silently losing a recipe.
+    const key = rule ? rule.label : 'Other';
+    const bucket = buckets.get(key);
+    if (bucket) bucket.push(entry);
+    else buckets.set(key, [entry]);
+  }
+  const ordered: RecipeSection[] = [];
+  for (const rule of rules) {
+    const bucket = buckets.get(rule.label);
+    if (bucket && bucket.length > 0) ordered.push({ label: rule.label, entries: bucket });
+  }
+  const other = buckets.get('Other');
+  if (other && other.length > 0) ordered.push({ label: 'Other', entries: other });
+  return ordered;
+}
 
 // Worked out once for the life of the app, since the corpus is bundled and
 // cannot change while it is running. Food's own tile reads the count from
@@ -97,6 +222,10 @@ export function countSystemRecipes(): number {
   return systemRecipeGroups().reduce((total, group) => total + group.entries.length, 0);
 }
 
+// The same option list the Digest's Recipes lens carries, off the one
+// ordered RECIPE_DIET_TAGS rather than a second hand-typed list.
+const RECIPE_DIET_FILTER_OPTIONS: string[] = ['All Diets', ...RECIPE_DIET_TAGS];
+
 export function SystemRecipesView({
   onOpenBuilder,
   onClose,
@@ -111,8 +240,48 @@ export function SystemRecipesView({
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [openEntryId, setOpenEntryId] = useState<string | null>(null);
+  const [query, setQuery] = useState('');
+  const [dietFilter, setDietFilter] = useState<RecipeDietTag | null>(null);
 
   const groups = systemRecipeGroups();
+
+  // Stable across keystrokes, which is the whole point of the debounce
+  // inside EntrySearchInput: an unstable callback would undo it.
+  const handleDebouncedChange = useCallback((text: string) => setQuery(text), []);
+
+  // The diet filter alone leaves the bands standing, just shorter.
+  const filteredGroups = useMemo(() => {
+    if (!dietFilter) return groups;
+    return groups
+      .map((group) => ({ ...group, entries: group.entries.filter((entry) => recipeMatchesAllDietPreferences(entry, [dietFilter])) }))
+      .filter((group) => group.entries.length > 0);
+  }, [groups, dietFilter]);
+
+  // A search replaces the bands with one ranked list, the way the Digest's
+  // own search does, so a hit three folds down is visible without opening
+  // anything. The diet filter still applies, since the two questions ("what
+  // can I eat" and "where is that recipe") are asked together as often as
+  // not.
+  const searchResults = useMemo(() => {
+    const trimmed = query.trim();
+    if (trimmed.length === 0) return null;
+    const pool: DigestEntry[] = [];
+    const labelFor = new Map<string, string>();
+    for (const group of filteredGroups) {
+      for (const entry of group.entries) {
+        pool.push(entry);
+        labelFor.set(entry.id, group.label);
+      }
+    }
+    // The default limit of 60 would quietly cut a broad search short, so
+    // the whole pool is the limit here.
+    return searchEntriesScored(pool, trimmed, pool.length || 1).map((result) => ({
+      entry: result.entry as DigestEntry,
+      groupLabel: labelFor.get(result.entry.id) ?? '',
+    }));
+  }, [filteredGroups, query]);
+
+  const filteredTotal = filteredGroups.reduce((total, group) => total + group.entries.length, 0);
 
   return (
     <View style={styles.wrapper}>
@@ -127,28 +296,87 @@ export function SystemRecipesView({
             with it, so you can change it into your own.
           </Text>
         </View>
-        {groups.map((group) => (
-          <HomeSectionBand
-            key={group.type}
-            kind="fold"
-            title={`${group.label} (${group.entries.length})`}
-            icon={group.icon}
-            color={TAB_COLOR}
-            expanded={openGroup === group.type}
-            onToggle={() => setOpenGroup(openGroup === group.type ? null : group.type)}
-            contentStyle={styles.bandBody}
-          >
-            {group.entries.map((entry) => (
-              <SystemRecipeRow
-                key={entry.id}
-                entry={entry}
-                expanded={openEntryId === entry.id}
-                onToggle={() => setOpenEntryId(openEntryId === entry.id ? null : entry.id)}
-                onOpenBuilder={onOpenBuilder}
-              />
+        <View style={styles.controlsBox}>
+          <EntrySearchInput
+            placeholder="Search the recipes..."
+            style={styles.searchField}
+            tabColor={TAB_COLOR}
+            onDebouncedChange={handleDebouncedChange}
+          />
+          <View style={styles.filterRow}>
+            <Text style={styles.filterLabel}>Filter by diet</Text>
+            <PopoverSelect
+              options={RECIPE_DIET_FILTER_OPTIONS}
+              selected={dietFilter ?? 'All Diets'}
+              onSelect={(value) => setDietFilter(value === 'All Diets' ? null : (value as RecipeDietTag))}
+              tabColor={TAB_COLOR}
+            />
+          </View>
+          {dietFilter || searchResults ? (
+            <Text style={styles.resultCount}>
+              {searchResults
+                ? `${searchResults.length} ${searchResults.length === 1 ? 'recipe' : 'recipes'} found`
+                : `${filteredTotal} ${filteredTotal === 1 ? 'recipe' : 'recipes'} for ${dietFilter}`}
+            </Text>
+          ) : null}
+        </View>
+        {searchResults ? (
+          <View style={styles.resultList}>
+            {searchResults.length === 0 ? (
+              <Text style={styles.emptyText}>Nothing matched that search. Try a single ingredient or a dish name.</Text>
+            ) : null}
+            {searchResults.map((result, index) => (
+              <Fragment key={result.entry.id}>
+                {index > 0 ? <View style={styles.rowDivider} /> : null}
+                <SystemRecipeRow
+                  entry={result.entry}
+                  groupLabel={result.groupLabel}
+                  expanded={openEntryId === result.entry.id}
+                  onToggle={() => setOpenEntryId(openEntryId === result.entry.id ? null : result.entry.id)}
+                  onOpenBuilder={onOpenBuilder}
+                />
+              </Fragment>
             ))}
-          </HomeSectionBand>
-        ))}
+          </View>
+        ) : (
+          filteredGroups.map((group) => (
+            <HomeSectionBand
+              key={group.type}
+              kind="fold"
+              title={`${group.label} (${group.entries.length})`}
+              icon={group.icon}
+              color={TAB_COLOR}
+              expanded={openGroup === group.type}
+              onToggle={() => setOpenGroup(openGroup === group.type ? null : group.type)}
+              contentStyle={styles.bandBody}
+            >
+              {sectionsFor(group.type, group.entries).map((section, sectionIndex) => (
+                <Fragment key={section.label ?? 'all'}>
+                  {section.label ? (
+                    <Text style={[styles.subgroupHeading, sectionIndex > 0 ? styles.subgroupHeadingLater : null]}>
+                      {section.label} ({section.entries.length})
+                    </Text>
+                  ) : null}
+                  {section.entries.map((entry, index) => (
+                    <Fragment key={entry.id}>
+                      {/* The one pixel line sits exactly midway: the gap
+                          above and below it add back to HOME_BAND_GAP, so
+                          the rows keep the spacing every other stacked
+                          thing in the app uses. */}
+                      {index > 0 ? <View style={styles.rowDivider} /> : null}
+                      <SystemRecipeRow
+                        entry={entry}
+                        expanded={openEntryId === entry.id}
+                        onToggle={() => setOpenEntryId(openEntryId === entry.id ? null : entry.id)}
+                        onOpenBuilder={onOpenBuilder}
+                      />
+                    </Fragment>
+                  ))}
+                </Fragment>
+              ))}
+            </HomeSectionBand>
+          ))
+        )}
       </ScrollView>
     </View>
   );
@@ -157,11 +385,15 @@ export function SystemRecipesView({
 // One recipe, closed to its title and teaser, open to the whole thing.
 function SystemRecipeRow({
   entry,
+  groupLabel,
   expanded,
   onToggle,
   onOpenBuilder,
 }: {
   entry: DigestEntry;
+  // Which builder makes it, shown only in search results, where the rows
+  // no longer sit under a band that says so.
+  groupLabel?: string;
   expanded: boolean;
   onToggle: () => void;
   onOpenBuilder: (params: Record<string, string>) => void;
@@ -170,6 +402,7 @@ function SystemRecipeRow({
     <View style={styles.itemRow}>
       <TouchableOpacity style={styles.itemTapArea} onPress={onToggle} activeOpacity={0.85}>
         <View style={styles.itemTextWrap}>
+          {groupLabel ? <Text style={styles.itemGroupLabel}>{groupLabel}</Text> : null}
           <Text style={styles.itemTitle}>{entry.title}</Text>
           <Text style={styles.itemSubtitle}>{entry.teaser}</Text>
         </View>
@@ -222,7 +455,10 @@ const styles = StyleSheet.create({
     textShadowColor: 'transparent',
     textShadowRadius: 0,
   },
-  bandBody: { gap: HOME_BAND_GAP },
+  // gap: 0 on purpose. The rows space themselves through the divider
+  // below, which carries the whole HOME_BAND_GAP with the line in its
+  // middle, and a gap here would add to it.
+  bandBody: { gap: 0 },
   introBox: {
     marginHorizontal: HOME_BAND_CONTENT_PADDING,
     borderRadius: 10,
@@ -233,6 +469,52 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textSecondary,
     ...textShadow,
+  },
+  // The search box and the diet picker share one surface rather than
+  // sitting on the Food photo with nothing behind them.
+  controlsBox: {
+    marginHorizontal: HOME_BAND_CONTENT_PADDING,
+    borderRadius: 10,
+    backgroundColor: colors.surfaceMuted,
+    padding: 12,
+    gap: 8,
+  },
+  searchField: {
+    ...typography.body,
+    ...searchFieldStyle,
+    borderColor: TAB_COLOR,
+    ...textShadow,
+  },
+  filterRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  filterLabel: { ...typography.caption, color: colors.textSecondary, ...textShadow },
+  resultCount: { ...typography.caption, color: colors.textSecondary, ...textShadow },
+  // Search results stand in for the bands, so they take the bands' own
+  // horizontal inset to line up with everything above them.
+  resultList: { marginHorizontal: HOME_BAND_CONTENT_PADDING },
+  emptyText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    ...textShadow,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 10,
+    padding: 12,
+  },
+  // A named subgroup inside a band. Sits on the band's own surface, so it
+  // needs no fill of its own.
+  subgroupHeading: {
+    ...typography.eyebrow,
+    color: TAB_COLOR,
+    ...textShadow,
+    marginBottom: HOME_BAND_GAP,
+  },
+  subgroupHeadingLater: { marginTop: HOME_BAND_GAP },
+  // One pixel, with the rest of HOME_BAND_GAP split evenly above and
+  // below it, so the line lands halfway between two recipes and the
+  // distance between them is unchanged.
+  rowDivider: {
+    height: 1,
+    backgroundColor: colors.border,
+    marginVertical: (HOME_BAND_GAP - 1) / 2,
   },
   // An inset box inside the band rather than a second band, the same shape
   // My Recipes' own rows take.
@@ -248,6 +530,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   itemTextWrap: { flex: 1, marginRight: 12 },
+  itemGroupLabel: {
+    ...typography.eyebrow,
+    color: TAB_COLOR,
+    ...textShadow,
+    marginBottom: 2,
+  },
   itemTitle: {
     ...typography.bodyEmphasis,
     color: colors.textPrimary,

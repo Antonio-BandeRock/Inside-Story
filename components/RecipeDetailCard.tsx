@@ -20,6 +20,7 @@ import { useMemo, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useInfoAlert } from './InfoAlert';
+import { useConditionScope } from '../hooks/useConditionScope';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { getCuratedRecipe, getUserProfile, type BuilderFavoriteItemType } from '../lib/db';
@@ -82,19 +83,64 @@ const CONDITION_NOTE_KEYWORDS: Record<string, string> = {
   prostate_health: 'Prostate',
 };
 
+// Which of the 19 tracked conditions a conditionNotes entry names, if any.
+// A note naming none of them ("Pregnancy," "Anyone taking levothyroxine,"
+// "Any autoimmune condition") is a general caution rather than a warning
+// about somebody else's condition, which is why an empty result reads as
+// "show this to everyone" everywhere below.
+function conditionsNamedIn(noteConditionText: string): string[] {
+  return Object.entries(CONDITION_NOTE_KEYWORDS)
+    .filter(([, keyword]) => noteConditionText.includes(keyword))
+    .map(([code]) => code);
+}
+
 // Whether one conditionNotes entry belongs on the active condition's
-// page. No active condition (plain recipe browsing, which is every
-// recipe opened from Food) shows everything. Once scoped: a note that
-// names none of the 19 tracked conditions ("Pregnancy," "Anyone taking
-// levothyroxine," "Any autoimmune condition") is a general caution
-// rather than a warning about some other condition, so it still shows
-// everywhere. Only a note that does name specific conditions gets
-// scoped to those.
+// page. No active condition shows everything, which is what the list form
+// below exists to replace for ordinary recipe browsing.
 export function conditionNoteAppliesTo(noteConditionText: string, activeConditionCode?: string): boolean {
   if (!activeConditionCode) return true;
-  const mentioned = Object.entries(CONDITION_NOTE_KEYWORDS).filter(([, keyword]) => noteConditionText.includes(keyword));
-  if (mentioned.length === 0) return true;
-  return mentioned.some(([code]) => code === activeConditionCode);
+  const named = conditionsNamedIn(noteConditionText);
+  if (named.length === 0) return true;
+  return named.includes(activeConditionCode);
+}
+
+// The same question asked of a whole profile rather than one condition's
+// page, which is what a recipe opened from Food, My Recipes or the Digest's
+// Recipes lens needs.
+//
+// Direct instruction, 1.0.40.10: "The Worth Knowing if you have part of each
+// recipe should be related only to their selected conditions, and not just
+// any condition as it appears to be currently. If they have selected to be
+// interested in any other conditions, that should also be identified in case
+// they are keeping a watchful eye for someone else, but those interests are
+// never used with their own Inside Story."
+//
+// So three outcomes per note, and the split is the whole point:
+//   mine    a general caution, or one naming a condition they have
+//   watched one naming only a condition they ticked as curious about, shown
+//           under a heading that says it is not about them
+//   dropped one naming neither, which was being shown to everybody before
+//           this and is how somebody with Gout ended up reading about
+//           Multiple Sclerosis in a recipe they were about to cook
+//
+// The two lists never merge. Everything the app computes about a person
+// reads the own list; the watched list only ever decides what gets shown,
+// labelled as somebody else's. See hooks/useConditionScope.ts.
+export type ScopedConditionNotes<T> = { mine: T[]; watched: T[] };
+
+export function scopeConditionNotes<T extends { condition: string }>(
+  notes: T[],
+  ownConditionCodes: string[],
+  curiousConditionCodes: string[],
+): ScopedConditionNotes<T> {
+  const mine: T[] = [];
+  const watched: T[] = [];
+  for (const note of notes) {
+    const named = conditionsNamedIn(note.condition);
+    if (named.length === 0 || named.some((code) => ownConditionCodes.includes(code))) mine.push(note);
+    else if (named.some((code) => curiousConditionCodes.includes(code))) watched.push(note);
+  }
+  return { mine, watched };
 }
 
 // The Digest entry each diet tag explains, so every one of the 10
@@ -189,7 +235,18 @@ export function RecipeDetailCard({
     showInfoAlert(entry.title, parts.join('\n\n'));
   }
 
-  const scopedNotes = card.conditionNotes.filter((note) => conditionNoteAppliesTo(note.condition, activeConditionCode));
+  // On a condition page the page itself is the scope, and that behaviour is
+  // unchanged. Everywhere else the profile is the scope, and until the
+  // profile has been read there is nothing honest to scope by, so the
+  // unscoped list stands rather than flashing and then shrinking.
+  const conditionScope = useConditionScope();
+  const profileScoped = !activeConditionCode && conditionScope.ready;
+  const scopedNotes = profileScoped
+    ? scopeConditionNotes(card.conditionNotes, conditionScope.own, conditionScope.curious)
+    : {
+        mine: card.conditionNotes.filter((note) => conditionNoteAppliesTo(note.condition, activeConditionCode)),
+        watched: [],
+      };
 
   return (
     <View>
@@ -235,12 +292,28 @@ export function RecipeDetailCard({
         ))}
       </View>
 
-      {scopedNotes.length > 0 ? (
+      {scopedNotes.mine.length > 0 ? (
         <View style={styles.recipeConditionBox}>
           <Text style={styles.recipeConditionLabel}>Worth knowing if you have...</Text>
-          {scopedNotes.map((note, index) => (
+          {scopedNotes.mine.map((note, index) => (
             <View key={index} style={index > 0 ? styles.recipeConditionItemSpaced : undefined}>
               <Text style={styles.recipeConditionCondition}>{note.condition}</Text>
+              <Text style={styles.recipeNutritionText}>{note.note}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+
+      {/* Deliberately its own box, under its own heading, in the muted
+          surface rather than the accent one. Somebody cooking for another
+          person needs to see this; nobody should mistake it for a caution
+          about themselves, and the heading says whose it is. */}
+      {scopedNotes.watched.length > 0 ? (
+        <View style={styles.recipeWatchedBox}>
+          <Text style={styles.recipeWatchedLabel}>Worth knowing for the conditions you are curious about</Text>
+          {scopedNotes.watched.map((note, index) => (
+            <View key={index} style={index > 0 ? styles.recipeConditionItemSpaced : undefined}>
+              <Text style={styles.recipeWatchedCondition}>{note.condition}</Text>
               <Text style={styles.recipeNutritionText}>{note.note}</Text>
             </View>
           ))}
@@ -461,6 +534,17 @@ function makeRecipeStyles(tabColor: string, tabTextColor: string) {
     recipeConditionLabel: { ...typography.eyebrow, color: colors.accent, marginBottom: 4, ...textShadow },
     recipeConditionCondition: { ...typography.bodyEmphasis, color: colors.accent, marginTop: 4, ...textShadow },
     recipeConditionItemSpaced: { marginTop: 6 },
+    // The watching box: the same shape as the box above it in a quieter
+    // palette, because it is information rather than a caution for the
+    // person reading it.
+    recipeWatchedBox: {
+      backgroundColor: colors.surfaceMuted,
+      borderRadius: 10,
+      padding: 10,
+      marginTop: 10,
+    },
+    recipeWatchedLabel: { ...typography.eyebrow, color: colors.textSecondary, marginBottom: 4, ...textShadow },
+    recipeWatchedCondition: { ...typography.bodyEmphasis, color: colors.textSecondary, marginTop: 4, ...textShadow },
     // A serious flag has to read as different from a mild highlight.
     // Reuses the statusYellow/statusRedBg palette DimensionFlags
     // established for the same yellow/red severity concept: a muted,

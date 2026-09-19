@@ -92,24 +92,24 @@ function isEligibleRecipeEntry(entry: AnyDigestEntry): entry is EligibleRecipeEn
 
 // ---------------------------------------------------------------------
 // Breakfast eligibility -- a real content judgment, not a nutrient
-// computation, so it's a verified, named list rather than a live
-// heuristic. Builder type alone is NOT a reliable signal here (confirmed
-// directly: the 300-recipe corpus's own real breakfast dishes, yogurt
-// bowls, overnight oats, chia pudding, warm porridge, egg/tofu scrambles,
-// breakfast burritos, overwhelmingly sit under the 'snack' builder type,
-// this app's own generic single-serving builder, not a dedicated
-// breakfast type -- a plain builder-type filter would have missed nearly
-// all of them). Found via a direct SQL keyword search against every
+// computation, so it is a verified, named list rather than a live
+// heuristic. Builder type alone is not a signal here, and never was: a
+// builder is the tool that assembles a dish, not the meal it is eaten
+// at. A yogurt bowl and a chicken salad are both built in Salads &
+// Bowls; only one of them is breakfast. (Until 1.0.40.10 every dish in
+// this list sat under the generic 'snack' builder, which made the two
+// look like the same question. They were not.) Found via a direct SQL
+// keyword search against every
 // curated recipe's own real name (egg, oat, yogurt, porridge, scramble,
 // chia pudding, breakfast, and so on, checked for word-boundary false
 // positives like "eggplant"), then individually reviewed by title before
 // being written here -- all 48 confirmed to exist as a real
 // linkedCuratedRecipeId in lib/digest/recipes.ts before shipping.
-// Deliberately excludes the one chia-pudding recipe classified under the
-// 'dessert' builder type (curated_dessert_mixed_berry_chia_pudding) --
-// the only chia pudding of its kind not also tagged as a snack/breakfast
-// item, treated as a real, deliberate "this one is a dessert" signal
-// rather than folded in with the rest.
+// Deliberately excludes curated_dessert_mixed_berry_chia_pudding, which
+// was authored as a dessert rather than as a breakfast, and is left as
+// one. The other puddings moved to the Dessert Builder in 1.0.40.10
+// because that is the tool that chills and sets them; the ones that are
+// breakfast are named in this list, which is what decides it.
 export const BREAKFAST_ELIGIBLE_RECIPE_IDS = new Set<string>([
   'curated_baked_oatmeal_cup_banana_cinnamon',
   'curated_vegan_baked_oatmeal_cup_banana_cinnamon',
@@ -290,6 +290,198 @@ export const BREAKFAST_ELIGIBLE_RECIPE_IDS = new Set<string>([
   'curated_snack_greek_yogurt_grapefruit_olive_oil_bowl',
   'curated_snack_greek_yogurt_apple_pistachio_bowl',
   'curated_snack_greek_yogurt_cantaloupe_olive_oil_bowl',
+]);
+
+// ---------------------------------------------------------------------
+// A breakfast dish is not a lunch or dinner main, and until 1.0.40.10
+// nothing in this file said so. All 163 of these sat under the generic
+// 'snack' builder, and 'snack' appears in neither lunchMainTypes nor
+// dinnerMainTypes below, so they were kept out of the main pools by
+// accident rather than on purpose. Reclassifying them to the builder
+// that actually assembles each one (a yogurt bowl is built in Salads &
+// Bowls, an egg skillet in Sides, a chia pudding in Desserts) would have
+// put overnight oats into the dinner rotation. So the rule that used to
+// fall out of a misfiled builder type is written down here instead.
+//
+// Every id below is one of the 167 that moved. The four that stayed under
+// 'snack' (roasted chickpeas, trail mix, apple slices with almond butter,
+// berries with yogurt) are genuinely snacks and are not listed, because
+// 'snack' is still in neither main pool.
+//
+// This set says only "not a lunch or dinner main". What IS breakfast is
+// decided by BREAKFAST_ELIGIBLE_RECIPE_IDS above, which is a separate,
+// narrower judgment and is not derived from this one.
+export const BREAKFAST_DISH_RECIPE_IDS = new Set<string>([
+  // Moved to the Salads & Bowls Builder: yogurt and tofu bowls, fruit
+  // bowls, overnight oats, porridges and savory grain bowls. (111)
+  'curated_snack_apricot_cashew_yogurt_bowl',
+  'curated_snack_apricot_coconut_overnight_oats',
+  'curated_snack_beef_broccoli_breakfast_bowl',
+  'curated_snack_beef_fennel_breakfast_bowl',
+  'curated_snack_berry_melon_breakfast_bowl',
+  'curated_snack_blackberry_almond_yogurt_bowl',
+  'curated_snack_buckwheat_porridge_blueberries_walnuts',
+  'curated_snack_cantaloupe_cottage_cheese_bowl',
+  'curated_snack_chicken_broccoli_breakfast_bowl',
+  'curated_snack_citrus_avocado_breakfast_bowl',
+  'curated_snack_clementine_almond_yogurt_bowl',
+  'curated_snack_clementine_pistachio_yogurt_bowl',
+  'curated_snack_cod_broccoli_breakfast_bowl',
+  'curated_snack_cottage_cheese_fig_honey',
+  'curated_snack_cottage_cheese_pineapple_walnuts',
+  'curated_snack_date_cashew_breakfast_bowl',
+  'curated_snack_date_walnut_breakfast_bowl',
+  'curated_snack_fig_cashew_overnight_oats',
+  'curated_snack_fig_pistachio_overnight_oats',
+  'curated_snack_fig_walnut_yogurt_bowl',
+  'curated_snack_grapefruit_pistachio_yogurt_bowl',
+  'curated_snack_grapefruit_yogurt_honey',
+  'curated_snack_greek_yogurt_apple_cinnamon_olive_oil_bowl',
+  'curated_snack_greek_yogurt_apple_pistachio_bowl',
+  'curated_snack_greek_yogurt_banana_pistachio_bowl',
+  'curated_snack_greek_yogurt_berry_olive_oil_bowl',
+  'curated_snack_greek_yogurt_blueberry_olive_oil_bowl',
+  'curated_snack_greek_yogurt_cantaloupe_olive_oil_bowl',
+  'curated_snack_greek_yogurt_cantaloupe_pistachio_bowl',
+  'curated_snack_greek_yogurt_citrus_pistachio_bowl',
+  'curated_snack_greek_yogurt_grapefruit_olive_oil_bowl',
+  'curated_snack_greek_yogurt_olive_oil_pistachio_bowl',
+  'curated_snack_greek_yogurt_strawberry_pistachio_bowl',
+  'curated_snack_greek_yogurt_tropical_olive_oil_bowl',
+  'curated_snack_halibut_broccoli_breakfast_bowl',
+  'curated_snack_halibut_fennel_breakfast_bowl',
+  'curated_snack_kiwi_pistachio_yogurt_bowl',
+  'curated_snack_millet_porridge_apricots',
+  'curated_snack_overnight_oats_chia_berries',
+  'curated_snack_papaya_cottage_cheese_bowl',
+  'curated_snack_papaya_lime_yogurt_bowl',
+  'curated_snack_peach_almond_overnight_oats',
+  'curated_snack_pear_almond_yogurt_bowl',
+  'curated_snack_pear_walnut_yogurt_bowl',
+  'curated_snack_plum_walnut_overnight_oats',
+  'curated_snack_salmon_broccoli_breakfast_bowl',
+  'curated_snack_salmon_fennel_breakfast_bowl',
+  'curated_snack_salmon_kale_breakfast_bowl',
+  'curated_snack_savory_quinoa_bowl_fried_egg',
+  'curated_snack_shrimp_cabbage_breakfast_bowl',
+  'curated_snack_soft_boiled_eggs_avocado_tomato',
+  'curated_snack_tropical_breakfast_fruit_bowl',
+  'curated_snack_turkey_broccoli_breakfast_bowl',
+  'curated_snack_turkey_fennel_breakfast_bowl',
+  'curated_snack_watermelon_feta_bowl',
+  'curated_vegan_apricot_cashew_tofu_bowl',
+  'curated_vegan_apricot_coconut_overnight_oats',
+  'curated_vegan_banana_polenta_porridge',
+  'curated_vegan_berries_silken_tofu_cream',
+  'curated_vegan_black_bean_breakfast_bowl_avocado',
+  'curated_vegan_blackberry_almond_tofu_bowl',
+  'curated_vegan_blueberry_cinnamon_oatmeal',
+  'curated_vegan_buckwheat_porridge_blueberries_walnuts',
+  'curated_vegan_buckwheat_porridge_coconut_milk_walnut_pear',
+  'curated_vegan_cantaloupe_grapefruit_breakfast_bowl',
+  'curated_vegan_cantaloupe_tofu_maple',
+  'curated_vegan_cashew_cream_pineapple_walnuts',
+  'curated_vegan_cashew_ricotta_fig_maple',
+  'curated_vegan_citrus_avocado_breakfast_bowl',
+  'curated_vegan_clementine_almond_tofu_bowl',
+  'curated_vegan_clementine_pistachio_tofu_bowl',
+  'curated_vegan_coconut_milk_overnight_oats_blueberry_flax',
+  'curated_vegan_cranberry_orange_oatmeal',
+  'curated_vegan_date_cashew_tofu_bowl',
+  'curated_vegan_date_cinnamon_overnight_oats',
+  'curated_vegan_date_sorghum_porridge',
+  'curated_vegan_date_walnut_tofu_bowl',
+  'curated_vegan_fig_cashew_overnight_oats',
+  'curated_vegan_fig_pistachio_overnight_oats',
+  'curated_vegan_fig_walnut_tofu_bowl',
+  'curated_vegan_grapefruit_pistachio_tofu_bowl',
+  'curated_vegan_grapefruit_tofu_maple',
+  'curated_vegan_kiwi_almond_tofu_bowl',
+  'curated_vegan_lentil_spinach_bowl_lemon_tahini',
+  'curated_vegan_millet_porridge_apricots',
+  'curated_vegan_overnight_oats_chia_berries',
+  'curated_vegan_papaya_cashew_tofu_bowl',
+  'curated_vegan_papaya_lime_tofu_bowl',
+  'curated_vegan_peach_almond_overnight_oats',
+  'curated_vegan_peach_sorghum_porridge',
+  'curated_vegan_pear_almond_tofu_bowl',
+  'curated_vegan_pear_ginger_overnight_oats',
+  'curated_vegan_pear_walnut_tofu_bowl',
+  'curated_vegan_plum_walnut_overnight_oats',
+  'curated_vegan_quinoa_bowl_roasted_vegetables_hemp_seeds',
+  'curated_vegan_raspberry_lime_sorghum_porridge',
+  'curated_vegan_roasted_vegetable_white_bean_bowl_garlic_herb_oil',
+  'curated_vegan_savory_amaranth_porridge_garlic_avocado',
+  'curated_vegan_savory_buckwheat_porridge_mushroom_herbs',
+  'curated_vegan_savory_fennel_tomato_rice_bowl',
+  'curated_vegan_savory_millet_bowl_roasted_vegetables_tahini',
+  'curated_vegan_savory_oat_porridge_mushroom_spinach',
+  'curated_vegan_savory_polenta_bowl_mushroom_greens',
+  'curated_vegan_savory_polenta_leeks_tomato',
+  'curated_vegan_savory_quinoa_bowl_tofu_scramble',
+  'curated_vegan_savory_rice_bowl_zucchini_pepper_tomato',
+  'curated_vegan_strawberry_banana_oatmeal',
+  'curated_vegan_sweet_polenta_apricot_compote',
+  'curated_vegan_tofu_avocado_tomato',
+  'curated_vegan_tropical_fruit_bowl_coconut',
+  'curated_vegan_watermelon_tofu_bowl',
+  // Moved to the Side Builder: everything cooked in a pan, the scrambles,
+  // skillets, hashes and one curry. (34)
+  'curated_snack_beef_kale_breakfast_hash',
+  'curated_snack_chicken_cabbage_breakfast_skillet',
+  'curated_snack_chicken_kale_breakfast_hash',
+  'curated_snack_chicken_zucchini_breakfast_skillet',
+  'curated_snack_cod_cabbage_breakfast_skillet',
+  'curated_snack_cod_kale_breakfast_skillet',
+  'curated_snack_halibut_cabbage_breakfast_skillet',
+  'curated_snack_mediterranean_carrot_tomato_egg_skillet',
+  'curated_snack_mediterranean_carrot_zucchini_egg_skillet',
+  'curated_snack_mediterranean_egg_tomato_zucchini_skillet',
+  'curated_snack_mediterranean_fennel_feta_egg_skillet',
+  'curated_snack_mediterranean_fennel_tomato_egg_skillet',
+  'curated_snack_mediterranean_fennel_zucchini_egg_skillet',
+  'curated_snack_mediterranean_feta_tomato_egg_scramble',
+  'curated_snack_mediterranean_leek_feta_egg_skillet',
+  'curated_snack_mediterranean_leek_tomato_egg_skillet',
+  'curated_snack_mediterranean_pepper_feta_egg_skillet',
+  'curated_snack_mediterranean_pepper_zucchini_egg_skillet',
+  'curated_snack_mediterranean_tomato_pepper_egg_skillet',
+  'curated_snack_mediterranean_zucchini_feta_egg_skillet',
+  'curated_snack_mediterranean_zucchini_tomato_feta_skillet',
+  'curated_snack_pork_broccoli_breakfast_skillet',
+  'curated_snack_pork_cabbage_breakfast_skillet',
+  'curated_snack_pork_kale_breakfast_hash',
+  'curated_snack_shrimp_zucchini_breakfast_skillet',
+  'curated_snack_turkey_cabbage_breakfast_skillet',
+  'curated_snack_turkey_kale_breakfast_hash',
+  'curated_snack_veggie_cheddar_scramble_potatoes',
+  'curated_vegan_black_bean_sweet_potato_breakfast_hash',
+  'curated_vegan_chickpea_flour_vegetable_scramble',
+  'curated_vegan_chickpea_spinach_breakfast_curry',
+  'curated_vegan_tofu_scramble_potatoes',
+  'curated_vegan_white_bean_kale_breakfast_hash',
+  'curated_vegan_zucchini_fennel_hash_avocado',
+  // Moved to the Dessert Builder: the chia, rice and tapioca puddings. (15)
+  'curated_snack_kiwi_coconut_chia_pudding',
+  'curated_snack_mango_coconut_chia_pudding',
+  'curated_snack_mango_pistachio_chia_pudding',
+  'curated_snack_nectarine_chia_pudding_cashews',
+  'curated_vegan_apple_rice_pudding_cinnamon',
+  'curated_vegan_blackberry_lime_rice_pudding',
+  'curated_vegan_coconut_milk_chia_pudding_almond_butter_berries',
+  'curated_vegan_ginger_pear_rice_pudding',
+  'curated_vegan_kiwi_coconut_chia_pudding',
+  'curated_vegan_mango_coconut_chia_pudding',
+  'curated_vegan_mango_pistachio_chia_pudding',
+  'curated_vegan_mixed_berry_coconut_tapioca_pudding',
+  'curated_vegan_nectarine_chia_pudding_cashews',
+  'curated_vegan_orange_cranberry_rice_pudding',
+  'curated_vegan_pineapple_coconut_tapioca_pudding',
+  // Moved to the Smoothie Builder. (2)
+  'curated_vegan_berry_banana_coconut_smoothie',
+  'curated_vegan_papaya_lime_smoothie_bowl',
+  // Moved to the Baked Goods Builder. (1)
+  'curated_vegan_baked_apple_cinnamon_oatmeal_cup',
 ]);
 
 // ---------------------------------------------------------------------
@@ -1148,10 +1340,15 @@ async function buildCandidatePools(conditionCodes: string[], dietPreferences: Re
   const breakfastPoolEntries = pool.filter((entry) => BREAKFAST_ELIGIBLE_RECIPE_IDS.has(entry.linkedCuratedRecipeId));
   const lunchMainTypes = new Set(['side', 'salad', 'soup', 'handheld', 'smoothie']);
   const dinnerMainTypes = new Set(['side', 'salad', 'soup', 'handheld']);
-  const lunchMainPoolEntries = pool.filter((entry) => lunchMainTypes.has(entry.linkedBuilderType));
-  const dinnerMainPoolEntries = pool.filter((entry) => dinnerMainTypes.has(entry.linkedBuilderType));
-  const sidePoolEntries = pool.filter((entry) => entry.linkedBuilderType === 'side');
-  const saladPoolEntries = pool.filter((entry) => entry.linkedBuilderType === 'salad');
+  // The builder says what tool makes a dish, not what meal it belongs to,
+  // so a breakfast dish has to be named out of the midday and evening
+  // pools rather than filtered out by type. See BREAKFAST_DISH_RECIPE_IDS.
+  const isBreakfastDish = (entry: EligibleRecipeEntry) => BREAKFAST_DISH_RECIPE_IDS.has(entry.linkedCuratedRecipeId);
+  const mainCandidates = pool.filter((entry) => !isBreakfastDish(entry));
+  const lunchMainPoolEntries = mainCandidates.filter((entry) => lunchMainTypes.has(entry.linkedBuilderType));
+  const dinnerMainPoolEntries = mainCandidates.filter((entry) => dinnerMainTypes.has(entry.linkedBuilderType));
+  const sidePoolEntries = mainCandidates.filter((entry) => entry.linkedBuilderType === 'side');
+  const saladPoolEntries = mainCandidates.filter((entry) => entry.linkedBuilderType === 'salad');
   const beveragePoolEntries = pool.filter((entry) => entry.linkedBuilderType === 'beverage');
 
   // 2026-08-26 perf fix -- a recipe can legitimately belong to more than

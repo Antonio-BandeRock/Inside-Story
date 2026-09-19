@@ -41,6 +41,18 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.40.10',
+    date: '2026-09-18',
+    changes: [
+      '167 recipes were filed under Snacks that are not snacks. Snacks had quietly become the bucket every breakfast dish landed in, so yogurt bowls, overnight oats, porridges, scrambles, hashes and puddings were all sitting there. Each one has moved to the tool that actually makes it, so a yogurt bowl is now under Salads & Bowls, a scramble under Sides, and a chia pudding under Desserts. The meal planner still keeps every one of those breakfast dishes out of your lunches and dinners.',
+      'System Recipes has the search box and the diet filter the Digest had. Type anything and it searches every recipe at once, showing each hit with the tool that makes it, so you no longer have to guess which group to open. Pick a diet and every group shortens to what fits it, with the counts updated.',
+      'The long groups are split into named shelves now. Sides breaks into breakfast skillets and hashes, fish and seafood, poultry, beef and pork and lamb, beans and lentils, tofu and tempeh, and vegetable and grain sides. Salads & Bowls, Fermentation, Soups, Handhelds, Smoothies and Desserts all split the same way, each shelf showing how many it holds.',
+      'A one pixel line now sits halfway between recipes in every group, so a long list reads as separate recipes rather than one block of text.',
+      'Worth knowing if you have... now shows only the conditions you track. Before this, every recipe listed its cautions for all 19 conditions, so somebody tracking Gout was reading about Multiple Sclerosis in a dish they were about to cook. General cautions that are not about a specific condition still show for everyone.',
+      'Any condition you marked Curious about in your Profile gets a separate box underneath, so if you are keeping an eye on something for somebody else you still see it, clearly marked as not about you. Nothing marked Curious about ever changes your food scores, meal plans, advisories or safe foods.',
+    ],
+  },
+  {
     version: '1.0.40.9',
     date: '2026-09-18',
     changes: [

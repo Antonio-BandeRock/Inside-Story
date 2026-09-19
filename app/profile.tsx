@@ -2924,8 +2924,10 @@ export default function ProfileScreen() {
             <Text style={styles.subLabelDivided}>Curious about other conditions</Text>
             <Text style={styles.helpText}>
               Learn about a condition without adding it to what this app tracks and helps with for you personally,
-              whether you are wondering about yourself or someone else. Anything selected here can also show up
-              among the Home tab&apos;s own Digest flip cards.
+              whether you are wondering about yourself or someone else. Anything selected here shows up among the
+              Home tab&apos;s own Digest flip cards, and a recipe carrying a note about it lists that note
+              separately from the ones about you. Nothing selected here ever changes your food scores, meal
+              plans, advisories or safe foods.
             </Text>
             <View style={styles.conditionGrid}>
               {allConditions

@@ -2,14 +2,14 @@ import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObjec
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { FlatList, Linking, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
+import { FlatList, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
-import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DigestBarChart } from '../../components/DigestChart';
 import { DIGEST_CONDITION_ICONS } from '../../components/DigestConditionIcons';
 import { EdgeShadow } from '../../components/EdgeShadow';
 import { EntryPhotoSection } from '../../components/EntryPhotoSection';
+import { EntrySearchInput } from '../../components/EntrySearchInput';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { HelpSheet, type HelpSection } from '../../components/HelpButton';
 import { LensHub, type LensOption } from '../../components/LensHub';
@@ -17,13 +17,11 @@ import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { CuratedRecipeShareButton, RECIPE_BUILDER_PARAM, RecipeBuildRow, RecipeDetailCard } from '../../components/RecipeDetailCard';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
-import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
-import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
+import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { TAB_REVEAL_DURATION_MS } from '../../constants/tabReveal';
 import { menuLabelShadow, textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
-import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { CONDITION_CODE_TO_DIGEST_KEY, DIGEST_KEY_TO_CONDITION_CODE } from '../../lib/conditionCodeMap';
 import { CONDITION_STAGING_MODELS } from '../../lib/conditionStages';
 import {
@@ -2741,7 +2739,7 @@ export default function PurpleDigestScreen() {
     }, []),
   );
   // The Search All lens's own COMMITTED query text -- 2026-08-08, no longer
-  // written to on every keystroke (see DigestSearchInput's own comment
+  // written to on every keystroke (see EntrySearchInput's own comment
   // below for the real, reported keyboard-lag reason why). This is now the
   // already-debounced value, updated only once per real pause in typing.
   // Still reset whenever the tab loses/regains focus below, same as
@@ -2768,12 +2766,12 @@ export default function PurpleDigestScreen() {
   const [categorySearchQuery, setCategorySearchQuery] = useState('');
   // Whether a real search is actively narrowing what's on screen right
   // now -- 2026-08-08, real parent state now (used to be derived every
-  // render from the raw query text) so DigestSearchInput's own instant
+  // render from the raw query text) so EntrySearchInput's own instant
   // onActiveChange callback can flip it the moment typing starts or the box
   // empties, without this screen needing to re-render on every keystroke in
   // between just to keep re-deriving the same boolean. Drives headerCard's
   // own visibility and the empty/results branching below -- see
-  // DigestSearchInput's own comment for the fuller reasoning.
+  // EntrySearchInput's own comment for the fuller reasoning.
   const [isSearchActive, setIsSearchActive] = useState(false);
   // 2026-08-23: Basic Health's own plain-browsing landing view, direct
   // request after the FlatList virtualization fix still left a delay
@@ -2856,7 +2854,7 @@ export default function PurpleDigestScreen() {
     () => sortDigestEntriesLogically(ALL_DIGEST_ENTRIES.filter((entry) => entry.id.startsWith('glossary-'))),
     [],
   );
-  // A real, deliberate remount trigger for DigestSearchInput (used as its
+  // A real, deliberate remount trigger for EntrySearchInput (used as its
   // own `key` in the JSX below) -- 2026-08-08. Since that component now
   // owns its own local, per-keystroke text state (the whole point of this
   // fix), this screen can no longer just call a setter to clear the box the
@@ -3201,7 +3199,7 @@ export default function PurpleDigestScreen() {
     });
   }, [lens, visibleFoodNames, recipeDietFilter]);
   // searchQuery/categorySearchQuery are already the debounced, COMMITTED
-  // values by construction now (see DigestSearchInput below) -- a real,
+  // values by construction now (see EntrySearchInput below) -- a real,
   // second attempt at the reported keyboard-lag fix, 2026-08-08. The first
   // attempt (debouncing a value derived FROM this screen's own raw,
   // per-keystroke state) didn't actually work: this screen still re-
@@ -3613,7 +3611,7 @@ export default function PurpleDigestScreen() {
     // (either Search All or any category's own scoped search) is cleared,
     // since the person just told us exactly what they wanted by tapping a
     // real result. searchResetKey also bumps, 2026-08-08, so
-    // DigestSearchInput's own local, per-keystroke text actually clears too
+    // EntrySearchInput's own local, per-keystroke text actually clears too
     // -- these two setters alone no longer reach it now that it lives in
     // its own isolated child component (see that component's own comment).
     setSearchQuery('');
@@ -3652,11 +3650,11 @@ export default function PurpleDigestScreen() {
     if (!wasExpanded) scrollGroupIntoView('Glossary');
   }
 
-  // Commits DigestSearchInput's own debounced text up to this screen's
+  // Commits EntrySearchInput's own debounced text up to this screen's
   // real, "everything downstream reads this" state -- Search All's own
   // whole-Digest searchQuery, or every other lens's shared, category-scoped
   // categorySearchQuery. Only fires ~200ms after a real pause in typing
-  // (the debounce lives inside DigestSearchInput itself now), so this
+  // (the debounce lives inside EntrySearchInput itself now), so this
   // screen only re-renders that rarely while someone's actively typing, not
   // once per character.
   const handleDebouncedSearchChange = useCallback(
@@ -3666,7 +3664,7 @@ export default function PurpleDigestScreen() {
     },
     [lens],
   );
-  // Fires the INSTANT DigestSearchInput's own local text crosses the empty/
+  // Fires the INSTANT EntrySearchInput's own local text crosses the empty/
   // non-empty boundary -- not once per character either, only on that one
   // real transition -- so headerCard can hide/show and the empty-vs-results
   // branching below can react immediately, well before the debounced text
@@ -3864,7 +3862,7 @@ export default function PurpleDigestScreen() {
                     button "above the search bar to the right of the Back
                     to (place) button," in the exact slot the match-help
                     (i) icon used to sit -- that icon moved into the
-                    search field itself instead (see DigestSearchInput's
+                    search field itself instead (see EntrySearchInput's
                     own onPressInfo below). Same solid-fill pill treatment
                     backToHomeText already established on the left side of
                     this same row, not a separate style invented for one
@@ -3878,9 +3876,10 @@ export default function PurpleDigestScreen() {
                 </TouchableOpacity>
               </View>
 
-              <DigestSearchInput
+              <EntrySearchInput
                 key={searchResetKey}
                 style={styles.searchInput}
+                tabColor={TAB_COLOR}
                 placeholder={lens === 'search' ? 'Search the whole Digest...' : `Search within ${searchScopeLabel}...`}
                 onDebouncedChange={handleDebouncedSearchChange}
                 onActiveChange={handleSearchActiveChange}
@@ -4038,7 +4037,7 @@ export default function PurpleDigestScreen() {
                     author&apos;s name, anything this Digest actually says somewhere.
                   </Text>
                 ) : searchQuery.trim().length === 0 ? (
-                  // isSearchActive already flipped true (DigestSearchInput's
+                  // isSearchActive already flipped true (EntrySearchInput's
                   // own instant signal), but the debounced searchQuery
                   // hasn't caught up yet -- render nothing for this brief
                   // window rather than a misleading "no matches" message.
@@ -4426,7 +4425,7 @@ export default function PurpleDigestScreen() {
           setSearchQuery('');
           setCategorySearchQuery('');
           setIsSearchActive(false);
-          // Forces DigestSearchInput to remount with fresh, empty local
+          // Forces EntrySearchInput to remount with fresh, empty local
           // text -- 2026-08-08, see its own comment for why the two plain
           // setters above alone no longer reach it.
           setSearchResetKey((key2) => key2 + 1);
@@ -4473,137 +4472,6 @@ function crossConditionCategories(entry: AnyDigestEntry): { id: string; label: s
     results.push({ id: relatedId, label });
   }
   return results;
-}
-
-// The fixed subheader's own search box -- 2026-08-08, a real second attempt
-// at a reported keyboard-lag fix, this time the actual root cause: this
-// component owns its own local, per-keystroke text (a cheap, tiny re-render
-// on every character, this component only), and only reports up to
-// PurpleDigestScreen via onDebouncedChange once ~200ms has passed with no
-// further typing. The earlier attempt debounced a value DERIVED from that
-// screen's own raw state instead of moving the raw state itself out of that
-// screen -- meaning the screen (and its entire large content tree below)
-// still re-rendered on every single keystroke regardless, since its own
-// state was what changed; only the EXPENSIVE recomputation was skipped, not
-// the (much more expensive) React reconciliation of however many real
-// shelf/card components read that data. Isolating the raw keystroke here
-// means PurpleDigestScreen is never even told a keystroke happened until
-// the debounce below has already settled -- it only re-renders once per
-// real pause in typing, the same real fix already proven for a very
-// similar problem elsewhere in this app (AppTextInput.tsx's own history,
-// which fixed a different specific mechanism but the same underlying
-// "heavy owning screen blocking the next keypress" symptom).
-//
-// onActiveChange is a SEPARATE, non-debounced signal -- fires the instant
-// this box's own text crosses the empty/non-empty boundary, not on every
-// character, so the parent can hide headerCard and snap the scroll position
-// immediately without needing to know about every keystroke to do it.
-//
-// Deliberately has no reset-on-prop-change logic of its own -- the caller
-// remounts this component outright (via a changing `key`) whenever the box
-// should clear, which resets `localValue` to its own default for free. See
-// PurpleDigestScreen's own searchResetKey for where that's driven from.
-function DigestSearchInput({
-  placeholder,
-  style,
-  onDebouncedChange,
-  onActiveChange,
-  onPressInfo,
-}: {
-  placeholder: string;
-  style: TextStyle;
-  onDebouncedChange: (text: string) => void;
-  onActiveChange: (active: boolean) => void;
-  // 2026-08-23, direct request: the match-help (i) icon moved from its
-  // own separate spot above the field (breadcrumbRow) to sitting inside
-  // the field itself, on the right. Owned by the caller (opens a real
-  // HelpSheet there), this component only renders the tap target.
-  onPressInfo: () => void;
-}) {
-  const [localValue, setLocalValue] = useState('');
-  const wasActive = useRef(false);
-
-  // Wrapped in useCallback -- real, not just tidiness. AppTextInput's own
-  // registration effect (see that file's own history comment) re-fires
-  // AppKeyboard's own registration whenever onChangeText's identity
-  // changes, not just when this component's own state does -- a plain,
-  // unmemoized function here would get a brand new identity every time
-  // this component re-renders (i.e. every keystroke), silently
-  // reintroducing the exact per-keystroke AppKeyboard re-render cascade
-  // this whole fix exists to avoid, just one layer further down than
-  // before. onActiveChange is already stable from the parent (its own
-  // useCallback), so this stays stable across every keystroke too.
-  const handleChangeText = useCallback(
-    (text: string) => {
-      setLocalValue(text);
-      const active = text.trim().length > 0;
-      if (active !== wasActive.current) {
-        wasActive.current = active;
-        onActiveChange(active);
-      }
-    },
-    [onActiveChange],
-  );
-
-  const debouncedValue = useDebouncedValue(localValue, 200);
-  useEffect(() => {
-    onDebouncedChange(debouncedValue);
-    // onDebouncedChange is expected to be stable-ish (PurpleDigestScreen's
-    // own useCallback), and even if it weren't, re-committing the same
-    // already-current text is harmless -- this effect's real trigger is
-    // debouncedValue changing, not onDebouncedChange's own identity.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedValue]);
-
-  // 2026-08-19, direct request: the mic moved from a separate button beside
-  // the field to actually sitting inside it, on whichever side
-  // NAVIGATION_HAND currently favors -- the same shared flag
-  // constants/floatingButton.ts already established for "which side are the
-  // buttons on" (see that file's own comment), read here rather than a
-  // second, Digest-only notion of handedness. An interactive control this
-  // gets tapped/held while dictating belongs on the hand's own side, the
-  // same reasoning the floating hubs already cluster that way; when a real
-  // handedness setting eventually exists, NAVIGATION_HAND flipping to
-  // 'right' moves this too, with no change needed here.
-  const micOnLeft = NAVIGATION_HAND === 'left';
-
-  return (
-    <View style={styles.searchInputWrap}>
-      {/* 2026-08-23: both sides now always need clearance, not just
-          whichever one the mic happens to be on -- the match-help (i)
-          icon (below) is deliberately pinned to the right regardless of
-          NAVIGATION_HAND (a plain informational tap target, not something
-          that needs to track hand preference the way the mic does), so as
-          long as the mic sits on the left (true today), text needs room
-          on both sides at once. If NAVIGATION_HAND ever really becomes
-          'right', the mic would land on the same side as this icon --
-          a real gap to revisit then, not solved preemptively for a
-          setting that doesn't exist yet (see that flag's own comment). */}
-      <AppTextInput style={[style, styles.searchInputPadBoth]} placeholder={placeholder} value={localValue} onChangeText={handleChangeText} />
-      {/* Every result (partial included) replaces the query live, the
-          same real "search as you speak" feel a phone's own voice
-          search already has -- reuses handleChangeText directly, so a
-          spoken result goes through the exact same debounce/
-          active-change pipeline a typed one does, never a second,
-          competing state path. */}
-      <VoiceInputButton
-        onResult={(transcript) => handleChangeText(transcript)}
-        style={[styles.searchInputMicButton, micOnLeft ? styles.searchInputMicButtonLeft : styles.searchInputMicButtonRight]}
-      />
-      {/* 2026-08-23, direct request: "move the Information icon into the
-          right hand side of the search field itself." Fixed right,
-          unconditionally -- see this component's own header comment. */}
-      <Pressable
-        onPress={onPressInfo}
-        hitSlop={10}
-        style={styles.searchInputInfoButton}
-        accessibilityRole="button"
-        accessibilityLabel="How search matching and the match dots work"
-      >
-        <Ionicons name="information-circle-outline" size={20} color={TAB_COLOR} />
-      </Pressable>
-    </View>
-  );
 }
 
 // A compact, unexpandable result row for the Search All lens -- tapping it
@@ -5692,37 +5560,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   emptyText: { ...typography.body, color: colors.textSecondary, ...textShadow, backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 12, paddingHorizontal: 12 },
-  // 2026-08-16 -- wraps the search AppTextInput with a real mic button
-  // (VoiceInputButton), added inside DigestSearchInput itself rather than
-  // at either of this screen's own two call sites, since that component
-  // deliberately owns its whole search-input experience as one
-  // self-contained unit (see its own header comment).
-  // 2026-08-19: the mic moved from sitting beside the field to actually
-  // inside it -- this wrap only needs `position: relative` now so the
-  // mic button (searchInputMicButton below) can anchor to it; the field
-  // itself is the wrap's only normal-flow child, so it already fills the
-  // full width with no separate flex style needed.
-  searchInputWrap: { position: 'relative' },
-  // Leaves room for both the mic icon (left, today) and the match-help
-  // (i) icon (right, always -- see DigestSearchInput's own comment) so
-  // typed text never runs under either one. Used to be a conditional
-  // single-side pad, back when the mic was the only icon actually living
-  // inside the field; now both sides always need clearance.
-  searchInputPadBoth: { paddingLeft: 40, paddingRight: 40 },
-  // top/bottom rather than a plain vertical-center-of-wrap -- searchInput's
-  // own marginBottom (4, see below) is trailing space AFTER the field's
-  // visible box, not part of it; centering across the wrap's full height
-  // (field + that trailing gap) would sit the icon a few px too high.
-  // `bottom: 4` excludes exactly that gap, so this centers against the
-  // field's own visible box instead.
-  searchInputMicButton: { position: 'absolute', top: 0, bottom: 4, justifyContent: 'center' },
-  searchInputMicButtonLeft: { left: 6 },
-  searchInputMicButtonRight: { right: 6 },
-  // 2026-08-23: same vertical centering as the mic button above, fixed to
-  // the right regardless of NAVIGATION_HAND (see DigestSearchInput's own
-  // comment on why this one icon doesn't track hand preference the mic
-  // does).
-  searchInputInfoButton: { position: 'absolute', top: 0, bottom: 4, right: 6, justifyContent: 'center' },
   searchInput: {
     ...typography.body,
     borderWidth: 1,
@@ -5734,7 +5571,7 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     // 2026-08-23, direct report: the EdgeShadow bar directly below this
     // field (see the JSX, `<EdgeShadow direction="down" />` right after
-    // DigestSearchInput) sat too far below it -- moved 10px closer by
+    // EntrySearchInput) sat too far below it -- moved 10px closer by
     // shrinking this gap alone, same as fixedHeader's own paddingBottom
     // below getting the matching other half of the same report.
     marginBottom: 4,

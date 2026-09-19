@@ -138,4 +138,18 @@
 // not just theoretically available. Back to "20260827080000" -- the same
 // real value batch3 originally set, restoring the genuine version bump
 // this catalog's own real content has always needed, not a new number.
-export const REFERENCE_DB_VERSION = "20260901180000";
+// BUMPED 2026-09-18 (1.0.40.10). curated_recipes.builder_type changed on
+// 167 rows: everything filed under 'snack' that is not a snack moved to
+// the builder that actually assembles it. The column drives three things
+// a phone reads directly, so a stale copy would show the old grouping:
+// each builder's Pick a Premade Recipe menu (listCuratedRecipes), the
+// Meal Builder Add From picker (listCuratedRecipeComponentOptions), and
+// scheduling a curated recipe (getCuratedRecipeBuilderType).
+// sort_order was renumbered densely per builder in the same pass, since
+// the old values overlapped across builders and repeated within them.
+//
+// The cost is the one this file has recorded twice before: a bump makes
+// every phone re-import the whole ~130MB bundled database on next launch,
+// which is slow over Metro and has stalled at 95% before. Run it over USB
+// with scripts/start-with-qr.js's adb-reverse step if it hangs.
+export const REFERENCE_DB_VERSION = "20260918210000";
