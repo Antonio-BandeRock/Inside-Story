@@ -41,6 +41,17 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.4',
+    date: '2026-09-19',
+    changes: [
+      'The conditions moved from the Digest to Life. Life > Conditions holds every one of the 19, with all of the same reading each had in the Digest, laid out the way System Recipes is: one band per condition, its topics inside, and each entry opening in place. A search box at the top looks through every condition on the page.',
+      'Only the conditions you chose in Profile are listed under My Conditions. Anything you marked as curious about sits in a separate Other Conditions list further down, never mixed in with yours, and you can add or drop one from there.',
+      'A Family list sits between the two. Add a family member with their relationship and their conditions, and each of their conditions gets a band on this page. Switch on Plan meals around their conditions and the Meal Plan builds its days around them as well as you, and says so at the top of the plan.',
+      'Every condition icon is now full color everywhere, rather than faded until selected.',
+      'The Digest menu is Search All, Basic Health, Earth Matters and Home Gardening. Search All still finds every condition entry; tapping one opens it in Life. A Read More on a Home flip card and a Related chip do the same.',
+    ],
+  },
+  {
     version: '1.0.41.3',
     date: '2026-09-19',
     changes: [

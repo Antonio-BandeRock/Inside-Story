@@ -5883,6 +5883,36 @@ async function runDatabaseInitialization() {
         selected_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- 2026-09-19, direct request when Conditions moved from the Digest to
+      -- Life: "the user will need to have an area to see those family
+      -- members' conditions, and those family member conditions will also
+      -- need to tie into the meals for the family, and not just for the
+      -- user or the user and their partner." A family member here is a
+      -- local roster entry, entered by the person on this phone: a name, a
+      -- relationship, and which conditions they have. Nothing about them
+      -- requires the family member to have the app, and nothing here is a
+      -- partner link (lib/connections.ts), which is a paired device with
+      -- its own key. include_in_meal_plan is on by default; switching it
+      -- off keeps a member on the roster without planning meals around
+      -- them. Same rule as curious_about_conditions above in the other
+      -- direction: a family member's conditions reach the meal plan
+      -- (lib/partnerPlanning.ts) and the Conditions reading list, and
+      -- never the person's own scoring, advisories or healing stages.
+      CREATE TABLE IF NOT EXISTS family_members (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        relationship TEXT NOT NULL DEFAULT '',
+        include_in_meal_plan INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS family_member_conditions (
+        member_id TEXT NOT NULL,
+        condition_code TEXT NOT NULL,
+        selected_at TEXT NOT NULL DEFAULT (datetime('now')),
+        PRIMARY KEY (member_id, condition_code)
+      );
+
       -- 2026-08-24, direct request: "the type of diet a person is trying
       -- to follow or is interested in trying should be in the Profile."
       -- One row per diet a person is following or curious about; diet_tag
@@ -17160,6 +17190,90 @@ export async function setCuriousAboutConditionSelected(code: string, selected: b
   } else {
     await db.runAsync('DELETE FROM curious_about_conditions WHERE condition_code = ?', code);
   }
+}
+
+// The family roster -- see family_members' schema comment above. One
+// read returns every member with their conditions attached, since every
+// screen that wants one wants the other.
+export type FamilyMember = {
+  id: string;
+  name: string;
+  relationship: string;
+  includeInMealPlan: boolean;
+  conditionCodes: string[];
+  createdAt: string;
+};
+
+export async function getFamilyMembers(): Promise<FamilyMember[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{
+    id: string;
+    name: string;
+    relationship: string;
+    include_in_meal_plan: number;
+    created_at: string;
+  }>('SELECT id, name, relationship, include_in_meal_plan, created_at FROM family_members ORDER BY created_at, name');
+  const conditionRows = await db.getAllAsync<{ member_id: string; condition_code: string }>(
+    'SELECT member_id, condition_code FROM family_member_conditions ORDER BY selected_at',
+  );
+  const byMember = new Map<string, string[]>();
+  for (const row of conditionRows) {
+    if (!byMember.has(row.member_id)) byMember.set(row.member_id, []);
+    byMember.get(row.member_id)!.push(row.condition_code);
+  }
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    relationship: row.relationship,
+    includeInMealPlan: row.include_in_meal_plan === 1,
+    conditionCodes: byMember.get(row.id) ?? [],
+    createdAt: row.created_at,
+  }));
+}
+
+export async function addFamilyMember(input: {
+  name: string;
+  relationship: string;
+  conditionCodes: string[];
+  includeInMealPlan?: boolean;
+}): Promise<string> {
+  const db = await getDatabase();
+  const id = `family_${Date.now()}`;
+  await db.runAsync(
+    'INSERT INTO family_members (id, name, relationship, include_in_meal_plan) VALUES (?, ?, ?, ?)',
+    id,
+    input.name.trim(),
+    input.relationship.trim(),
+    input.includeInMealPlan === false ? 0 : 1,
+  );
+  for (const code of new Set(input.conditionCodes)) {
+    await db.runAsync('INSERT OR IGNORE INTO family_member_conditions (member_id, condition_code) VALUES (?, ?)', id, code);
+  }
+  return id;
+}
+
+export async function updateFamilyMember(
+  id: string,
+  input: { name: string; relationship: string; conditionCodes: string[]; includeInMealPlan: boolean },
+): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(
+    'UPDATE family_members SET name = ?, relationship = ?, include_in_meal_plan = ? WHERE id = ?',
+    input.name.trim(),
+    input.relationship.trim(),
+    input.includeInMealPlan ? 1 : 0,
+    id,
+  );
+  await db.runAsync('DELETE FROM family_member_conditions WHERE member_id = ?', id);
+  for (const code of new Set(input.conditionCodes)) {
+    await db.runAsync('INSERT OR IGNORE INTO family_member_conditions (member_id, condition_code) VALUES (?, ?)', id, code);
+  }
+}
+
+export async function deleteFamilyMember(id: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM family_member_conditions WHERE member_id = ?', id);
+  await db.runAsync('DELETE FROM family_members WHERE id = ?', id);
 }
 
 // The person's own real diet preferences -- see diet_preferences' own

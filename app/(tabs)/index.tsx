@@ -51,6 +51,7 @@ import { getMoonPhase, getUpcomingSeasonalMarker } from '../../lib/celestialEven
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
 import { isTestDataPresent } from '../../lib/testData';
 import { ALL_DIGEST_ENTRIES, DIGEST_CATEGORY_META, isProblemFoodEntry, type DigestCategoryKey } from '../../lib/digest';
+import { routeForDigestEntry } from '../../lib/digestNavigation';
 import { markHomeDataReady } from '../../lib/homeReadySignal';
 import { deleteMealPhotoFile, pickAndSaveMealPhoto } from '../../lib/mealPhotos';
 import {
@@ -2428,7 +2429,7 @@ export default function HomeScreen() {
             hook={card.hook}
             backTitle={card.backTitle}
             backBody={card.backBody}
-            onReadMore={() => router.push({ pathname: '/purple-digest', params: { openEntryId: card.id } })}
+            onReadMore={() => router.push(routeForDigestEntry(card.id))}
             borderColor={colors.tabPurpleDigest}
           />
         ))}

@@ -1023,9 +1023,7 @@ export function LensHub<T extends string>({
                         ) : (
                           <View style={[styles.itemIconPillPlain, { width: gridPillSize, height: gridPillSize }]}>
                             {option.renderIcon ? (
-                              <View style={styles.conditionIconInactive}>
-                                {option.renderIcon(gridCustomIconSize, option.iconColor ?? tabColor)}
-                              </View>
+                              option.renderIcon(gridCustomIconSize, option.iconColor ?? tabColor)
                             ) : (
                               <Ionicons name={option.icon} size={gridIconSize} color={option.iconColor ?? tabColor} style={textShadow} />
                             )}
@@ -1383,18 +1381,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // 2026-08-09, explicitly requested: unselected condition icons (Purple
-  // Digest's own real per-condition artwork, the option.renderIcon path --
-  // no other page sets this prop, so this can't affect any Ionicons glyph
-  // used elsewhere) sit at 65% transparent until selected, at which point
-  // the active branch below renders them at the ordinary, unwrapped full
-  // opacity. Deliberately scoped to just the renderIcon wrapper rather than
-  // added to itemIconPillPlain itself, which every other page's own
-  // inactive Ionicons icons also use at full opacity/color by design (see
-  // this file's own 2026-07-26 comment on that).
-  conditionIconInactive: {
-    opacity: 0.35,
-  },
+  // A renderIcon option used to sit at 35% opacity until selected
+  // (2026-08-09, for the Digest's per-condition artwork). Gone 2026-09-19
+  // by direct instruction, "all condition icons be changed to full color":
+  // a custom icon now renders exactly as an Ionicons glyph does, at full
+  // color whether or not it is the active lens.
   // textAlign: 'center', 2026-08-07 -- alignItems: 'center' on `item`
   // (above) only ever centered the label's own text BLOCK as a whole
   // within its column; once a label wraps to more than one line (see

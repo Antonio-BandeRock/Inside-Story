@@ -28,6 +28,7 @@ import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreference
 import { useReminderPreferences } from '../hooks/useReminderPreferences';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
+import { routeForDigestEntry } from '../lib/digestNavigation';
 import { CONDITION_STAGING_MODELS } from '../lib/conditionStages';
 import { decryptBackupPayload, isEncryptedBackupWire } from '../lib/backupEncryption';
 import {
@@ -2924,10 +2925,11 @@ export default function ProfileScreen() {
             <Text style={styles.subLabelDivided}>Curious about other conditions</Text>
             <Text style={styles.helpText}>
               Learn about a condition without adding it to what this app tracks and helps with for you personally,
-              whether you are wondering about yourself or someone else. Anything selected here shows up among the
-              Home tab&apos;s own Digest flip cards, and a recipe carrying a note about it lists that note
-              separately from the ones about you. Nothing selected here ever changes your food scores, meal
-              plans, advisories or safe foods.
+              whether you are wondering about yourself or someone else. Anything selected here gets a separate
+              Other Conditions list in Life &gt; Conditions, apart from yours, shows up among the Home tab&apos;s
+              Digest flip cards, and a recipe carrying a note about it lists that note separately from the ones
+              about you. Nothing selected here ever changes your food scores, meal plans, advisories or safe
+              foods.
             </Text>
             <View style={styles.conditionGrid}>
               {allConditions
@@ -3050,9 +3052,7 @@ export default function ProfileScreen() {
             <Text style={styles.helpText}>{NEURO_PROFILE_STAYS_HERE}</Text>
             <TouchableOpacity
               style={styles.checkinButton}
-              onPress={() =>
-                router.push({ pathname: '/purple-digest', params: { openEntryId: 'neuro-overview' } })
-              }
+              onPress={() => router.push(routeForDigestEntry('neuro-overview'))}
             >
               <Text style={styles.checkinButtonText}>Read what the research says</Text>
             </TouchableOpacity>

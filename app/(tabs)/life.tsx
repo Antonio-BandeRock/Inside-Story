@@ -1,9 +1,10 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
 import { AppTextInput } from '../../components/AppTextInput';
+import { ConditionsSection } from '../../components/ConditionsSection';
 import { EmergencySection } from '../../components/EmergencySection';
 import { FinanceHealthSection } from '../../components/FinanceHealthSection';
 import { FinanceGoalsSection } from '../../components/FinanceGoalsSection';
@@ -137,6 +138,7 @@ const TAB_COLOR = colors.tabLife;
 // list screen (the same one Home's own Grocery List row opens) rather than
 // a view inside this tab, so `lens` never actually holds it.
 type LifeLens =
+  | 'conditions'
   | 'finances'
   | 'kitchen'
   | 'work'
@@ -370,6 +372,29 @@ const GROCERY_LIST_HELP_SECTIONS: HelpSection[] = [
   },
 ];
 
+const CONDITIONS_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'What this is',
+    body: 'Every condition this app tracks, with all of its research, the foods to watch, the nutrients that matter and the reading that ties it together. Each condition is one band. Open it to see its topics, open a topic to see its entries, and open an entry to read it in place.',
+  },
+  {
+    heading: 'Three lists, kept apart',
+    body: 'My Conditions holds what you chose in Profile. Family holds the conditions of the people you have added here. Other Conditions holds anything you are curious about. The lists never mix, so what applies to you is never sitting beside what does not.',
+  },
+  {
+    heading: 'Family and meals',
+    body: 'A family member added here can have their conditions planned around. When that switch is on, the Meal Plan on Schedules builds its days around their conditions as well as yours, and says so on the plan. Turn it off and they stay on this page without changing the plan.',
+  },
+  {
+    heading: 'Curious does not mean tracked',
+    body: 'A condition on the Other Conditions list is here to read. It never changes a food score, a meal plan, an advisory, an interaction rule or a healing stage. Only a condition chosen in Profile does that.',
+  },
+  {
+    heading: 'Search',
+    body: 'The search box looks through every condition on this page at once. A result names which condition it came from, and opens in place.',
+  },
+];
+
 const LIFE_LENSES: LensOption<LifeLens>[] = [
   // 2026-09-12, direct request: "create a Grocery List with the shopping
   // cart icon in the Life tab LensHub menu. Have it be the first icon after
@@ -379,6 +404,11 @@ const LIFE_LENSES: LensOption<LifeLens>[] = [
   // to Life the same day (see lib/homeSections.ts), and this is the door
   // into it from the tab it now belongs to.
   { key: 'groceryList', label: 'Grocery List', icon: 'cart-outline', help: GROCERY_LIST_HELP_SECTIONS },
+  // 2026-09-19, moved from the Digest by direct instruction: "we are moving
+  // the conditions all to Life." Yours, your family's and the ones you are
+  // curious about, each list kept apart, laid out the way System Recipes
+  // is. See components/ConditionsSection.tsx.
+  { key: 'conditions', label: 'Conditions', icon: 'pulse-outline', help: CONDITIONS_HELP_SECTIONS },
   { key: 'finances', label: 'Finances', icon: 'wallet-outline', help: LIFE_HELP_SECTIONS },
   { key: 'work', label: 'Work', icon: 'briefcase-outline', help: WORK_HELP_SECTIONS },
   { key: 'upkeep', label: 'Upkeep', icon: 'construct-outline', help: UPKEEP_HELP_SECTIONS },
@@ -605,7 +635,15 @@ function blankEntryForm(): EntryForm {
 export default function LifeScreen() {
   useRegisterScreenHelp('Life', LIFE_HELP_SECTIONS, '/life');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
-  const { openLifeLens, focusTreatmentId } = useLocalSearchParams<{ openLifeLens?: string; focusTreatmentId?: string }>();
+  const { openLifeLens, focusTreatmentId, openEntryId } = useLocalSearchParams<{ openLifeLens?: string; focusTreatmentId?: string; openEntryId?: string }>();
+  // Conditions asks to scroll to a band it just opened from a link; its y
+  // is relative to its own wrapper, so the wrapper's place in this scroll
+  // is added on the way through.
+  const scrollRef = useRef<ScrollView>(null);
+  const conditionsTop = useRef(0);
+  const scrollConditionsTo = useCallback((y: number) => {
+    scrollRef.current?.scrollTo({ y: conditionsTop.current + y, animated: true });
+  }, []);
   const [lens, setLens] = useState<LifeLens>('finances');
   const [revealed, setRevealed] = useState(false);
   const [myLifeOpen, setMyLifeOpen] = useState(false);
@@ -1762,7 +1800,7 @@ export default function LifeScreen() {
     <View style={styles.screen}>
       <SwipeableTabScreen enabled={!revealed}>
         <GatedTabContent pageTitle="Life" variant="field" revealed={revealed}>
-          <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
+          <ScrollView ref={scrollRef} style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
             {infoAlertElement}
             <AppActionSheet
               visible={confirm !== null}
@@ -1771,6 +1809,14 @@ export default function LifeScreen() {
               message={confirm?.message}
               actions={confirm?.actions ?? []}
             />
+
+            {lens === 'conditions' ? (
+              // Pulled back out to the screen edge so its bands run edge to
+              // edge, the way Home's and System Recipes' do.
+              <View style={styles.edgeToEdge} onLayout={(event) => { conditionsTop.current = event.nativeEvent.layout.y; }}>
+                <ConditionsSection tabColor={TAB_COLOR} openEntryId={openEntryId} scrollToY={scrollConditionsTo} />
+              </View>
+            ) : null}
 
             {lens === 'kitchen' ? <KitchenSection tabColor={TAB_COLOR} /> : null}
 
@@ -1865,6 +1911,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   scroll: { flex: 1 },
   content: { paddingHorizontal: 20, paddingBottom: 32 },
+  edgeToEdge: { marginHorizontal: -20 },
 
   // Every standalone line of text gets a surface, per the standing
   // no-text-on-the-tab-background rule.

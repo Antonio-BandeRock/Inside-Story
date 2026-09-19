@@ -77,7 +77,7 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
     // stage-specific advisory note.
     conditionLabel: "Hashimoto's Thyroiditis",
     frameworkName: 'The Healing/Regression Stages (Dr. Izabella Wentz)',
-    frameworkNote: 'A named practitioner framework, not mainstream endocrinology consensus. See the Healing Stages category in Digest for the full, cited guide.',
+    frameworkNote: "A named practitioner framework, not mainstream endocrinology consensus. See the Healing Stages topic under Hashimoto's in Life > Conditions for the full, cited guide.",
     stages: HEALING_STAGES.map((code) => ({
       code,
       label: HEALING_STAGE_INFO[code].label,
@@ -89,7 +89,7 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
     conditionCode: 'ibs',
     conditionLabel: 'Irritable Bowel Syndrome',
     frameworkName: 'The Low-FODMAP Elimination / Reintroduction / Personalization Protocol',
-    frameworkNote: 'A standard clinical protocol (Halmos & Gibson 2019, PMID 30945376), not specific to this app. See the IBS category in Digest for the full, cited evidence.',
+    frameworkNote: 'A standard clinical protocol (Halmos & Gibson 2019, PMID 30945376), not specific to this app. See IBS in Life > Conditions for the full, cited evidence.',
     stages: IBS_PHASES.map((code) => ({
       code,
       label: IBS_PHASE_INFO[code].label,
@@ -101,7 +101,7 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
     conditionCode: 'celiac',
     conditionLabel: 'Celiac Disease',
     frameworkName: "The Age-Dependent Villi-Healing Timeline",
-    frameworkNote: 'A cited healing window, not the diagnostic Marsh biopsy scale. See the Celiac Disease category in Digest for the full evidence, including why healing can take up to 2 years.',
+    frameworkNote: 'A cited healing window, not the diagnostic Marsh biopsy scale. See Celiac Disease in Life > Conditions for the full evidence, including why healing can take up to 2 years.',
     stages: CELIAC_STAGES.map((code) => ({
       code,
       label: CELIAC_STAGE_INFO[code].label,
@@ -113,7 +113,7 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
     conditionCode: 'ibd',
     conditionLabel: 'Inflammatory Bowel Disease',
     frameworkName: 'The Clinical Flare / Remission Distinction',
-    frameworkNote: 'A standard clinical distinction, not the diagnostic Montreal classification, which is static. See the Inflammatory Bowel Disease category in Digest for the full evidence.',
+    frameworkNote: 'A standard clinical distinction, not the diagnostic Montreal classification, which is static. See Inflammatory Bowel Disease in Life > Conditions for the full evidence.',
     stages: IBD_STAGES.map((code) => ({
       code,
       label: IBD_STAGE_INFO[code].label,
@@ -131,7 +131,7 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
     conditionCode: 'chronic_kidney_disease',
     conditionLabel: 'Chronic Kidney Disease',
     frameworkName: 'The Pre-Dialysis / On-Dialysis Dietary Reversal',
-    frameworkNote: 'A cited clinical reversal, not the diagnostic KDIGO G/A staging grid, which is static. See the Chronic Kidney Disease category in Digest for the full evidence.',
+    frameworkNote: 'A cited clinical reversal, not the diagnostic KDIGO G/A staging grid, which is static. See Chronic Kidney Disease in Life > Conditions for the full evidence.',
     stages: CKD_STAGES.map((code) => ({
       code,
       label: CKD_STAGE_INFO[code].label,
@@ -143,7 +143,7 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
     conditionCode: 'gout',
     conditionLabel: 'Gout',
     frameworkName: "Gout's Four-Stage Natural History",
-    frameworkNote: 'A well-characterized clinical progression (StatPearls). See the Gout category in Digest for the full, cited evidence.',
+    frameworkNote: 'A well-characterized clinical progression (StatPearls). See Gout in Life > Conditions for the full, cited evidence.',
     stages: GOUT_STAGES.map((code) => ({
       code,
       label: GOUT_STAGE_INFO[code].label,

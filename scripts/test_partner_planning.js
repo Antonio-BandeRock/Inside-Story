@@ -36,6 +36,9 @@ const REAL_PACKAGES = new Set(['tweetnacl']);
 // storage behind it has its own coverage in test_partners.js.
 let fakePartner = null;
 let fakeOthers = 0;
+// 2026-09-19: the family roster (lib/family.ts) is the second substitution,
+// for the same reason. Empty unless a check sets it.
+let fakeFamily = [];
 
 function throwingStub(what) {
   return new Proxy(
@@ -70,6 +73,9 @@ function loadModule(name, cache = new Map()) {
     // The one substitution: a controllable partner instead of a database.
     if (target === 'connections') {
       return { getMealPlanningPartner: async () => ({ partner: fakePartner, others: fakeOthers }) };
+    }
+    if (target === 'family') {
+      return { getMealPlanningFamily: async () => fakeFamily };
     }
     if (target === 'db') return throwingStub('lib/db.ts');
     return loadModule(target, cache);
@@ -251,6 +257,42 @@ async function scopeFor(p, others = 0) {
     checkFalse('nothing mentions labs', /\blab\b|lab result/i.test(all));
     checkFalse('nothing mentions a healing stage', /healing stage/i.test(all));
     checkFalse('nothing mentions weight or medications', /\bweight\b|medication/i.test(all));
+  }
+
+  // --- 8. Family, 2026-09-19 ------------------------------------------------
+  // "those family member conditions will also need to tie into the meals for
+  // the family, and not just for the user or the user and their partner."
+  {
+    fakeFamily = [
+      { name: 'Sam', conditionCodes: ['type_2_diabetes'] },
+      { name: 'Maya', conditionCodes: ['celiac', 'migraine'] },
+    ];
+    const alone = await scopeFor(null);
+    check('with no partner, family conditions join mine', alone.conditionCodes, ['celiac', 'hashimotos', 'migraine', 'type_2_diabetes']);
+    check('the family is on the scope', alone.family.map((m) => m.name), ['Sam', 'Maya']);
+    check(
+      'and the sentence names them and counts what they added',
+      describePlanningScope(alone),
+      'Planned around your conditions. Also planned around Sam and Maya, adding 3 conditions from your family.',
+    );
+    const both = await scopeFor(partner());
+    check('with a partner, family conditions join the merged list', both.conditionCodes, ['celiac', 'hashimotos', 'migraine', 'rheumatoid_arthritis', 'type_2_diabetes']);
+    checkTrue('and the partner half is unchanged', both.coversBoth);
+    checkTrue('the sentence still leads with the partner', describePlanningScope(both).startsWith('Planned around both of you, across 3 conditions between you.'));
+    checkTrue('and ends with the family', describePlanningScope(both).endsWith('Also planned around Sam and Maya, adding 3 conditions from your family.'));
+    const notShared = await scopeFor(partner({ grants: { meals: true, shopping: true, conditions: false } }));
+    check('a partner refusal does not drop the family', notShared.conditionCodes, ['celiac', 'hashimotos', 'migraine', 'type_2_diabetes']);
+    const widened = shouldRegenerateForScope({ planWasBuiltFor: ['celiac', 'hashimotos'], scope: alone });
+    checkTrue('a plan built before the family was added is regenerated', widened.regenerate);
+    checkTrue('and the reason names the family', /family/.test(widened.why));
+    const same = shouldRegenerateForScope({ planWasBuiltFor: ['celiac', 'hashimotos', 'migraine', 'type_2_diabetes'], scope: alone });
+    checkFalse('a plan already built for everyone is left alone', same.regenerate);
+    fakeFamily = [{ name: 'Sam', conditionCodes: [] }];
+    const none = await scopeFor(null);
+    check('a member with no conditions adds nothing', none.conditionCodes, ['celiac', 'hashimotos']);
+    check('and is still named', describePlanningScope(none), 'Planned around your conditions. Also planned around Sam, who tracks no conditions.');
+    fakeFamily = [];
+    check('no family, no family sentence', describePlanningScope(await scopeFor(null)), 'Planned around your conditions.');
   }
 
   if (failures) {
