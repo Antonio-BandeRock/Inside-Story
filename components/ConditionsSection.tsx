@@ -8,7 +8,7 @@ import { AppTextInput } from './AppTextInput';
 import { DIGEST_CONDITION_ICONS } from './DigestConditionIcons';
 import { DigestEntryBody, entryHeaderDotColor } from './DigestEntryDetail';
 import { EntrySearchInput, searchFieldStyle } from './EntrySearchInput';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -900,43 +900,44 @@ function ConditionEntryRow({
 function makeStyles(tabColor: string) {
   return StyleSheet.create({
     // The bands run edge to edge, as Home's do; the host takes the
-    // ScrollView's side gutter back for this section.
+    // ScrollView's side gutter back for this section. Direct instruction,
+    // 2026-09-19: "have everything be screen width," so the boxes between
+    // the bands (intro, search, group headings, the family form, the
+    // search results) run edge to edge too, square-cornered like the
+    // bands, with the band's content inset so their text lines up with
+    // the text inside a band.
     wrapper: { gap: HOME_BAND_GAP },
     bandBody: { gap: HOME_BAND_GAP },
     introBox: {
-      marginHorizontal: HOME_BAND_CONTENT_PADDING,
-      borderRadius: 10,
       backgroundColor: colors.surfaceMuted,
-      padding: 12,
+      paddingVertical: 12,
+      paddingHorizontal: HOME_BAND_CONTENT_PADDING,
     },
     introText: { ...typography.caption, color: colors.textSecondary, ...textShadow },
     controlsBox: {
-      marginHorizontal: HOME_BAND_CONTENT_PADDING,
-      borderRadius: 10,
       backgroundColor: colors.surfaceMuted,
-      padding: 12,
+      paddingVertical: 12,
+      paddingHorizontal: HOME_BAND_CONTENT_PADDING,
       gap: 8,
     },
     searchField: { ...typography.body, ...searchFieldStyle, borderColor: tabColor, ...textShadow },
     resultCount: { ...typography.caption, color: colors.textSecondary, ...textShadow },
-    resultList: { marginHorizontal: HOME_BAND_CONTENT_PADDING },
+    resultList: {},
     emptyText: {
       ...typography.body,
       color: colors.textSecondary,
       ...textShadow,
       backgroundColor: colors.surfaceMuted,
-      borderRadius: 10,
-      padding: 12,
+      paddingVertical: 12,
+      paddingHorizontal: HOME_BAND_CONTENT_PADDING,
     },
     // A heading introducing a group of bands, so it carries a surface of
     // its own rather than sitting on the Life photograph.
     groupHeadingChip: {
-      marginHorizontal: HOME_BAND_CONTENT_PADDING,
       backgroundColor: colors.surfaceMuted,
-      borderRadius: 10,
       paddingVertical: 10,
-      paddingHorizontal: 12,
-      borderLeftWidth: 3,
+      paddingHorizontal: HOME_BAND_CONTENT_PADDING,
+      borderLeftWidth: HOME_BAND_ACCENT_WIDTH,
       borderLeftColor: tabColor,
       gap: 6,
     },
@@ -963,10 +964,9 @@ function makeStyles(tabColor: string) {
     memberActions: { gap: 6, alignItems: 'flex-end' },
 
     formCard: {
-      marginHorizontal: HOME_BAND_CONTENT_PADDING,
       backgroundColor: colors.surface,
-      borderRadius: 16,
-      padding: 16,
+      paddingVertical: 16,
+      paddingHorizontal: HOME_BAND_CONTENT_PADDING,
       borderWidth: 2,
       borderColor: tabColor,
     },

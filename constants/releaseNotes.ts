@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.5',
+    date: '2026-09-19',
+    changes: [
+      'Life > Conditions runs the full width of the screen: the introduction, the search box, the My Conditions, Family and Other Conditions headings and the family form now reach edge to edge, the same as the condition bands.',
+      'The page always scrolls past its last band, so nothing ends up parked behind the menu button or the corner box.',
+    ],
+  },
+  {
     version: '1.0.41.4',
     date: '2026-09-19',
     changes: [
