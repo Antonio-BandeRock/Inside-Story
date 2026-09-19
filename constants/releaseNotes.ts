@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.9',
+    date: '2026-09-19',
+    changes: [
+      'Garden now uses the same edge-to-edge bands as Life, Schedules, Trends and Reports across all four of its lenses. Each garden area is a band that folds open to its plantings, Recent Harvests folds and remembers how you left it, and the zone, harvest and task cards reach both edges of the screen.',
+    ],
+  },
+  {
     version: '1.0.41.8',
     date: '2026-09-19',
     changes: [

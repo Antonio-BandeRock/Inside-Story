@@ -5,6 +5,9 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
+import { HOME_BAND_GAP, HomeSectionBand } from '../../components/HomeSectionBand';
+import { makeTabBandStyles, TabBand } from '../../components/TabBand';
+import { useBandFolds } from '../../hooks/useBandFolds';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub, type MyItemsCategory } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
@@ -46,6 +49,7 @@ import {
 // This page's own identity color -- see constants/colors.ts's own comment
 // on tabGarden for how it was chosen.
 const TAB_COLOR = colors.tabGarden;
+const band = makeTabBandStyles(TAB_COLOR);
 
 // A real, deliberately soft fill for every "primary action" button and the
 // active-toggle pill in this file, 2026-08-13, direct report: "make the
@@ -371,7 +375,7 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
 
   return (
     <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
-      <View style={[styles.card, { borderColor: TAB_COLOR }]}>
+      <View style={[band.box, styles.card]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Find My Zone</Text>
         <Text style={styles.cardBody}>
           Enter your country and ZIP or postal code. This works anywhere on Earth, not just the US: a US ZIP gets the
@@ -420,7 +424,7 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
         ) : null}
       </View>
 
-      <View style={[styles.card, { borderColor: TAB_COLOR }]}>
+      <View style={[band.box, styles.card]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Your Growing Zone</Text>
         <Text style={styles.cardBody}>
           A USDA Plant Hardiness Zone: based on your area&apos;s average annual minimum winter temperature, the standard
@@ -444,7 +448,7 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
       </View>
 
       {zone && bandInfo ? (
-        <View style={[styles.card, { borderColor: TAB_COLOR }]}>
+        <View style={[band.box, styles.card]}>
           <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Zone {zone}: {bandInfo.bandLabel}</Text>
           {bandInfo.belowCoverage ? (
             <Text style={styles.captionText}>
@@ -642,107 +646,105 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
   return (
     <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
       {plots.length === 0 ? (
-        <Text style={styles.emptyText}>No garden areas yet. Add one below to start tracking what you&apos;re growing.</Text>
+        <View style={band.boxMuted}>
+          <Text style={styles.emptyText}>No garden areas yet. Add one below to start tracking what you&apos;re growing.</Text>
+        </View>
       ) : (
         plots.map((plot) => {
           const expanded = expandedPlotId === plot.id;
           const plantings = plantingsByPlot[plot.id] ?? [];
           return (
-            <View key={plot.id} style={[styles.card, { borderColor: TAB_COLOR }]}>
-              <TouchableOpacity
-                style={styles.cardHeaderRow}
-                onPress={() => {
-                  const next = expanded ? null : plot.id;
-                  setExpandedPlotId(next);
-                  if (next) loadPlantingsFor(plot.id);
-                }}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>{plot.name}</Text>
-                  <Text style={styles.captionText}>
-                    {plot.locationType === 'greenhouse' ? 'Greenhouse' : plot.locationType === 'indoor' ? 'Indoor' : 'Outdoor'}
-                    {plot.spaceType
-                      ? ` · ${SPACE_TYPE_LABELS[plot.spaceType]}`
-                      : plot.growingMedium
-                        ? ` · ${plot.growingMedium}`
-                        : ''}
-                    {plot.sunlightExposure
-                      ? ` · ${SUNLIGHT_LABELS[plot.sunlightExposure]}`
-                      : plot.lightSource
-                        ? ` · ${plot.lightSource}`
-                        : ''}
-                    {plot.length && plot.width ? ` · ${plot.length}×${plot.width} ${plot.sizeUnit ?? ''}` : ''}
-                    {plot.zone ? ` · Zone ${plot.zone}` : ''}
-                  </Text>
-                </View>
-                <Text style={{ color: TAB_COLOR }}>{expanded ? '▲' : '▼'}</Text>
-              </TouchableOpacity>
-
-              {expanded ? (
-                <View style={styles.expandedSection}>
-                  {plantings.length === 0 ? (
-                    <Text style={styles.captionText}>Nothing logged as planted here yet.</Text>
-                  ) : (
-                    plantings.map((planting) => (
-                      <View key={planting.id} style={styles.plantingRow}>
-                        <Text style={styles.bodyText}>
-                          {planting.foodName}
-                          {planting.varietyNote ? ` (${planting.varietyNote})` : ''}: {planting.status}
-                        </Text>
-                        <TouchableOpacity onPress={() => handleRemovePlanting(plot.id, planting.id)}>
-                          <Text style={[styles.linkText, { color: colors.danger }]}>Remove</Text>
-                        </TouchableOpacity>
-                      </View>
-                    ))
-                  )}
-
-                  {/* The raw food-search step (addingPlantingToPlot === plot.id
-                      && !pendingFood) is deliberately not handled here at all
-                      -- the lens' own top-level early return above already
-                      swaps the WHOLE screen to a real picker view the moment
-                      that state is reached, so this branch is only ever
-                      reached once a food has actually been picked. */}
-                  {addingPlantingToPlot === plot.id && pendingFood ? (
-                    <View style={styles.pendingCard}>
-                      <Text style={styles.bodyText}>Planting: {pendingFoodName || pendingFood.baseName}</Text>
-                      <View style={styles.actionRow}>
-                        <TouchableOpacity
-                          style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
-                          onPress={() => handleAddPlanting(plot.id)}
-                        >
-                          <Text style={styles.primaryButtonText}>Save Planting</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => { setPendingFood(null); setPendingFoodName(''); }}>
-                          <Text style={styles.linkText}>Cancel</Text>
-                        </TouchableOpacity>
-                      </View>
+            <HomeSectionBand
+              key={plot.id}
+              kind="fold"
+              title={plot.name}
+              icon="leaf-outline"
+              color={TAB_COLOR}
+              expanded={expanded}
+              onToggle={() => {
+                const next = expanded ? null : plot.id;
+                setExpandedPlotId(next);
+                if (next) loadPlantingsFor(plot.id);
+              }}
+            >
+              <View style={styles.expandedSection}>
+                <Text style={styles.captionText}>
+                  {plot.locationType === 'greenhouse' ? 'Greenhouse' : plot.locationType === 'indoor' ? 'Indoor' : 'Outdoor'}
+                  {plot.spaceType
+                    ? ` · ${SPACE_TYPE_LABELS[plot.spaceType]}`
+                    : plot.growingMedium
+                      ? ` · ${plot.growingMedium}`
+                      : ''}
+                  {plot.sunlightExposure
+                    ? ` · ${SUNLIGHT_LABELS[plot.sunlightExposure]}`
+                    : plot.lightSource
+                      ? ` · ${plot.lightSource}`
+                      : ''}
+                  {plot.length && plot.width ? ` · ${plot.length}×${plot.width} ${plot.sizeUnit ?? ''}` : ''}
+                  {plot.zone ? ` · Zone ${plot.zone}` : ''}
+                </Text>
+                {plantings.length === 0 ? (
+                  <Text style={styles.captionText}>Nothing logged as planted here yet.</Text>
+                ) : (
+                  plantings.map((planting) => (
+                    <View key={planting.id} style={styles.plantingRow}>
+                      <Text style={styles.bodyText}>
+                        {planting.foodName}
+                        {planting.varietyNote ? ` (${planting.varietyNote})` : ''}: {planting.status}
+                      </Text>
+                      <TouchableOpacity onPress={() => handleRemovePlanting(plot.id, planting.id)}>
+                        <Text style={[styles.linkText, { color: colors.danger }]}>Remove</Text>
+                      </TouchableOpacity>
                     </View>
-                  ) : (
-                    <TouchableOpacity
-                      style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
-                      onPress={() => setAddingPlantingToPlot(plot.id)}
-                    >
-                      <Text style={styles.primaryButtonText}>+ Add a Planting</Text>
-                    </TouchableOpacity>
-                  )}
+                  ))
+                )}
 
-                  <View style={styles.actionRow}>
-                    <TouchableOpacity onPress={() => handleArchivePlot(plot.id)}>
-                      <Text style={styles.linkText}>Archive Area</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDeletePlot(plot.id)}>
-                      <Text style={[styles.linkText, { color: colors.danger }]}>Delete Area</Text>
-                    </TouchableOpacity>
+                {/* The raw food-search step (addingPlantingToPlot === plot.id
+                    && !pendingFood) is deliberately not handled here at all
+                    -- the lens' own top-level early return above already
+                    swaps the WHOLE screen to a real picker view the moment
+                    that state is reached, so this branch is only ever
+                    reached once a food has actually been picked. */}
+                {addingPlantingToPlot === plot.id && pendingFood ? (
+                  <View style={styles.pendingCard}>
+                    <Text style={styles.bodyText}>Planting: {pendingFoodName || pendingFood.baseName}</Text>
+                    <View style={styles.actionRow}>
+                      <TouchableOpacity
+                        style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
+                        onPress={() => handleAddPlanting(plot.id)}
+                      >
+                        <Text style={styles.primaryButtonText}>Save Planting</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => { setPendingFood(null); setPendingFoodName(''); }}>
+                        <Text style={styles.linkText}>Cancel</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
+                ) : (
+                  <TouchableOpacity
+                    style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
+                    onPress={() => setAddingPlantingToPlot(plot.id)}
+                  >
+                    <Text style={styles.primaryButtonText}>+ Add a Planting</Text>
+                  </TouchableOpacity>
+                )}
+
+                <View style={styles.actionRow}>
+                  <TouchableOpacity onPress={() => handleArchivePlot(plot.id)}>
+                    <Text style={styles.linkText}>Archive Area</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleDeletePlot(plot.id)}>
+                    <Text style={[styles.linkText, { color: colors.danger }]}>Delete Area</Text>
+                  </TouchableOpacity>
                 </View>
-              ) : null}
-            </View>
+              </View>
+            </HomeSectionBand>
           );
         })
       )}
 
       {showAddPlot ? (
-        <View style={[styles.card, { borderColor: TAB_COLOR }]}>
+        <View style={[band.box, styles.card]}>
           <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>New Garden Area</Text>
           {/* 2026-08-16 -- a real mic button beside the one field here
               with no floating label of its own (this card's title already
@@ -919,12 +921,14 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
           </View>
         </View>
       ) : (
-        <TouchableOpacity
-          style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
-          onPress={handleShowAddPlot}
-        >
-          <Text style={styles.primaryButtonText}>+ Add a Garden Area</Text>
-        </TouchableOpacity>
+        <View style={band.inset}>
+          <TouchableOpacity
+            style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
+            onPress={handleShowAddPlot}
+          >
+            <Text style={styles.primaryButtonText}>+ Add a Garden Area</Text>
+          </TouchableOpacity>
+        </View>
       )}
     </ScrollView>
   );
@@ -935,6 +939,7 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
 // ---------------------------------------------------------------------------
 
 function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
+  const folds = useBandFolds();
   const [harvests, setHarvests] = useState<GardenHarvest[]>([]);
   const [plantings, setPlantings] = useState<GardenPlanting[]>([]);
   const [plotNameById, setPlotNameById] = useState<Record<string, string>>({});
@@ -999,7 +1004,7 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
 
   return (
     <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
-      <View style={[styles.card, { borderColor: TAB_COLOR }]}>
+      <View style={[band.box, styles.card]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Log a Harvest</Text>
         {selectedPlanting ? (
           <>
@@ -1059,27 +1064,28 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
         )}
       </View>
 
-      <View style={[styles.card, { borderColor: TAB_COLOR }]}>
-        <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Recent Harvests</Text>
-        {harvests.length === 0 ? (
-          <Text style={styles.captionText}>Nothing logged yet.</Text>
-        ) : (
-          harvests.map((harvest) => (
-            <View key={harvest.id} style={styles.plantingRow}>
-              <Text style={styles.bodyText}>
-                {harvest.foodName}: {harvest.quantityRemaining} of {harvest.quantity} {harvest.unit} left
-              </Text>
-              <TouchableOpacity onPress={() => handleDelete(harvest.id)}>
-                <Text style={[styles.linkText, { color: colors.danger }]}>Delete</Text>
-              </TouchableOpacity>
-            </View>
-          ))
-        )}
-        <Text style={styles.captionText}>
-          Anything still showing a remaining amount here is selectable as &quot;From Your Harvest&quot; the next time you add an
-          ingredient in any Food builder.
-        </Text>
-      </View>
+      <TabBand folds={folds} color={TAB_COLOR} id="garden:harvests:recent" title="Recent Harvests" icon="basket-outline" count={harvests.length}>
+        <View style={styles.card}>
+          {harvests.length === 0 ? (
+            <Text style={styles.captionText}>Nothing logged yet.</Text>
+          ) : (
+            harvests.map((harvest) => (
+              <View key={harvest.id} style={styles.plantingRow}>
+                <Text style={styles.bodyText}>
+                  {harvest.foodName}: {harvest.quantityRemaining} of {harvest.quantity} {harvest.unit} left
+                </Text>
+                <TouchableOpacity onPress={() => handleDelete(harvest.id)}>
+                  <Text style={[styles.linkText, { color: colors.danger }]}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            ))
+          )}
+          <Text style={styles.captionText}>
+            Anything still showing a remaining amount here is selectable as &quot;From Your Harvest&quot; the next time you add an
+            ingredient in any Food builder.
+          </Text>
+        </View>
+      </TabBand>
     </ScrollView>
   );
 }
@@ -1118,7 +1124,7 @@ function UpcomingTasksLens({ scrollBottomPadding }: { scrollBottomPadding: numbe
 
   return (
     <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
-      <View style={[styles.card, { borderColor: TAB_COLOR }]}>
+      <View style={[band.box, styles.card]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Upcoming Garden Tasks</Text>
         {upcomingTasks.length === 0 ? (
           <Text style={styles.captionText}>Nothing scheduled.</Text>
@@ -1152,7 +1158,9 @@ function UpcomingTasksLens({ scrollBottomPadding }: { scrollBottomPadding: numbe
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  body: { padding: 16, gap: 12 },
+  // No side inset, 2026-09-19: every top-level element is a band that
+  // reaches both edges, and a lone button takes band.inset instead.
+  body: { paddingBottom: 32, gap: HOME_BAND_GAP },
   // A plain, non-scrolling container for a lens' own "actively picking a
   // food" state -- see PlotsAndPlantingsLens's own addingPlantingToPlot
   // comment for why this can never be inside a ScrollView (Harvest Log no
@@ -1162,14 +1170,8 @@ const styles = StyleSheet.create({
   // get the real available
   // height to work with, matching SideBuilder.tsx's own pickerScreen.
   pickerScreen: { flex: 1, padding: 16, gap: 8 },
-  card: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 14,
-    gap: 8,
-  },
-  cardHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  // The surface is band.box now (2026-09-19); this keeps a card's inner spacing.
+  card: { gap: 8 },
   cardTitle: { ...typography.sectionTitle,
 
     ...textShadow,
@@ -1204,24 +1206,16 @@ const styles = StyleSheet.create({
   // own emptyText): the brighter textSecondary color plus a real drop
   // shadow, not just a color swap alone.
   // 2026-08-29, standing rule: no text sits directly on a tab's
-  // photographic background. panelStandalone is for text with no card
-  // to join (an empty state, an error or loading line);
-  // groupHeadingChip is for a heading introducing a GROUP of separate
-  // cards. A heading that labels ONE card should move inside that
-  // card instead of using either.
-  panelStandalone: {
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-  },
+  // photographic background. Since 2026-09-19 the empty state sits in
+  // band.boxMuted; groupHeadingChip remains for the Cancel link above
+  // the food picker, which is not a scrolling band column.
   groupHeadingChip: {
     backgroundColor: colors.surface,
     borderRadius: 10,
     paddingVertical: 8,
     paddingHorizontal: 12,
   },
-  emptyText: { ...typography.body, ...textShadow, color: colors.textSecondary, textAlign: 'center', marginTop: 24 , backgroundColor: colors.surface },
+  emptyText: { ...typography.body, ...textShadow, color: colors.textSecondary, textAlign: 'center' },
   fieldRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   fieldLabel: { ...typography.label, color: colors.textPrimary,
 
