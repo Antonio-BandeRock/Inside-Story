@@ -18,6 +18,7 @@ import {
   type RecipeDietTag,
 } from '../lib/digest/types';
 import type { BuilderFavoriteItemType } from '../lib/db';
+import { isSideDish } from '../lib/recipeDishRole';
 
 // The curated recipes, on the Food tab, grouped under the builder that
 // makes them. Direct instruction, 2026-09-18: "I would like the System
@@ -54,8 +55,18 @@ import type { BuilderFavoriteItemType } from '../lib/db';
 
 const TAB_COLOR = colors.tabFood;
 
-// Every builder that can hold a recipe, in the order Food's lens list puts
-// them, with the shelf label and the icon each builder already uses.
+// The bands, in the order Food's lens list puts the builders, with the
+// icon each builder already uses.
+//
+// Ten of the eleven bands are one builder each. The Side Builder is the
+// exception and splits in two, because it is this app's generic
+// single-dish tool: a roasted salmon fillet and a bowl of sauteed spinach
+// were both authored through it, so grouping purely by builder put 126
+// dishes that ARE the meal under a heading that says they sit beside one.
+// Direct instruction, 1.0.41.1: "Move the 91 mains out of Sides into their
+// own group." Which of the two a recipe belongs to is decided by
+// lib/recipeDishRole.ts, and Build This Recipe still opens the Side
+// Builder from either band, since that is the tool that edits them both.
 //
 // There is no Meals group, and it is not an omission: a curated recipe's
 // linkedBuilderType is a BuilderFavoriteItemType (lib/db.ts), which has no
@@ -64,19 +75,30 @@ const TAB_COLOR = colors.tabFood;
 // cannot exist in the corpus today, and adding one would mean widening
 // that type first, then authoring meals as combinations of the components
 // below. Raised with the owner 2026-09-18.
-const RECIPE_GROUPS: { type: BuilderFavoriteItemType; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
-  { type: 'side', label: 'Sides', icon: 'fast-food-outline' },
-  { type: 'salad', label: 'Salads & Bowls', icon: 'leaf-outline' },
-  { type: 'smoothie', label: 'Smoothies', icon: 'wine-outline' },
-  { type: 'fermentation', label: 'Fermentation', icon: 'flask-outline' },
-  { type: 'beverage', label: 'Beverages', icon: 'cafe-outline' },
-  { type: 'snack', label: 'Snacks', icon: 'nutrition-outline' },
-  { type: 'bakedGoods', label: 'Baked Goods', icon: 'pizza-outline' },
-  { type: 'soup', label: 'Soups', icon: 'flame-outline' },
-  { type: 'sauce', label: 'Sauces', icon: 'water-outline' },
-  { type: 'handheld', label: 'Handhelds', icon: 'layers-outline' },
-  { type: 'dessert', label: 'Desserts', icon: 'ice-cream-outline' },
+type RecipeGroupKey = BuilderFavoriteItemType | 'main';
+
+const RECIPE_GROUPS: { key: RecipeGroupKey; label: string; icon: keyof typeof Ionicons.glyphMap }[] = [
+  { key: 'main', label: 'Mains', icon: 'restaurant-outline' },
+  { key: 'side', label: 'Sides', icon: 'fast-food-outline' },
+  { key: 'salad', label: 'Salads & Bowls', icon: 'leaf-outline' },
+  { key: 'smoothie', label: 'Smoothies', icon: 'wine-outline' },
+  { key: 'fermentation', label: 'Fermentation', icon: 'flask-outline' },
+  { key: 'beverage', label: 'Beverages', icon: 'cafe-outline' },
+  { key: 'snack', label: 'Snacks', icon: 'nutrition-outline' },
+  { key: 'bakedGoods', label: 'Baked Goods', icon: 'pizza-outline' },
+  { key: 'soup', label: 'Soups', icon: 'flame-outline' },
+  { key: 'sauce', label: 'Sauces', icon: 'water-outline' },
+  { key: 'handheld', label: 'Handhelds', icon: 'layers-outline' },
+  { key: 'dessert', label: 'Desserts', icon: 'ice-cream-outline' },
 ];
+
+// Which band a recipe belongs in. Its builder, except that the Side
+// Builder feeds two.
+function groupKeyFor(entry: DigestEntry): RecipeGroupKey | null {
+  if (!entry.linkedBuilderType) return null;
+  if (entry.linkedBuilderType === 'side' && !isSideDish(entry.linkedCuratedRecipeId)) return 'main';
+  return entry.linkedBuilderType;
+}
 
 // Subgroups inside a band, for every builder holding more than about a
 // dozen recipes. The standing rule from the Digest applies here for the
@@ -91,8 +113,9 @@ const RECIPE_GROUPS: { type: BuilderFavoriteItemType; label: string; icon: keyof
 //
 // The split was designed from the actual 411 titles rather than guessed,
 // and every id was checked to land in exactly one named subgroup with no
-// bucket left empty. The five builders not listed here (beverage, sauce,
-// snack, bakedGoods) are all under ten recipes and read fine as one list.
+// bucket left empty. The bands not listed here are all under a dozen
+// recipes and read fine as one list, Sides among them now that it holds
+// only the five dishes that are sides.
 type SubgroupRule = { label: string; match: RegExp; unless?: RegExp };
 
 const SEAFOOD = /salmon|cod\b|halibut|trout|shrimp|scallop|sole\b|sardine|tuna|mackerel|crab|mussel|tilapia|snapper|anchov/;
@@ -100,15 +123,19 @@ const SEAFOOD = /salmon|cod\b|halibut|trout|shrimp|scallop|sole\b|sardine|tuna|m
 // title says so, which is the one place the seafood words lie.
 const NOT_SEAFOOD = /king oyster|mushroom/;
 
-const RECIPE_SUBGROUPS: Partial<Record<BuilderFavoriteItemType, SubgroupRule[]>> = {
-  side: [
-    { label: 'Breakfast Skillets & Hashes', match: /breakfast|scramble|mediterranean.*egg/ },
+const RECIPE_SUBGROUPS: Partial<Record<RecipeGroupKey, SubgroupRule[]>> = {
+  main: [
+    // A breakfast skillet is still the meal, so it is a main and sits at
+    // the top of its own shelf. One of the 34 ("Mediterranean Zucchini,
+    // Tomato & Feta Skillet") never says egg in its title, which is why
+    // the Mediterranean guard takes skillet as well.
+    { label: 'Breakfast Skillets & Hashes', match: /breakfast|scramble|mediterranean.*(egg|skillet)/ },
     { label: 'Fish & Seafood', match: SEAFOOD, unless: NOT_SEAFOOD },
     { label: 'Poultry', match: /chicken|turkey|duck\b/ },
     { label: 'Beef, Pork & Lamb', match: /beef|pork|lamb|bison|steak/ },
     { label: 'Beans, Lentils & Chickpeas', match: /bean|lentil|chickpea|edamame|hummus/ },
     { label: 'Tofu, Tempeh & Seitan', match: /tofu|tempeh|seitan/ },
-    { label: 'Vegetable & Grain Sides', match: /.*/ },
+    { label: 'Grain & Vegetable Mains', match: /.*/ },
   ],
   salad: [
     { label: 'Overnight Oats', match: /overnight oats/ },
@@ -152,7 +179,7 @@ const RECIPE_SUBGROUPS: Partial<Record<BuilderFavoriteItemType, SubgroupRule[]>>
   ],
 };
 
-type RecipeGroup = { type: BuilderFavoriteItemType; label: string; icon: keyof typeof Ionicons.glyphMap; entries: DigestEntry[] };
+type RecipeGroup = { key: RecipeGroupKey; label: string; icon: keyof typeof Ionicons.glyphMap; entries: DigestEntry[] };
 type RecipeSection = { label: string | null; entries: DigestEntry[] };
 
 // Below this, a band reads fine as one list and a heading per two recipes
@@ -163,8 +190,8 @@ const SUBGROUP_MIN = 12;
 // own order and dropping a subgroup nothing landed in. A builder with no
 // table, or one filtered down to a handful, comes back as a single
 // unlabeled section.
-function sectionsFor(type: BuilderFavoriteItemType, entries: DigestEntry[]): RecipeSection[] {
-  const rules = RECIPE_SUBGROUPS[type];
+function sectionsFor(key: RecipeGroupKey, entries: DigestEntry[]): RecipeSection[] {
+  const rules = RECIPE_SUBGROUPS[key];
   if (!rules || entries.length <= SUBGROUP_MIN) return [{ label: null, entries }];
   const buckets = new Map<string, DigestEntry[]>();
   for (const entry of entries) {
@@ -201,17 +228,18 @@ function systemRecipeGroups(): RecipeGroup[] {
   const entries = getEntriesForCategory('recipes').filter(
     (entry): entry is DigestEntry => !isProblemFoodEntry(entry),
   );
-  const byType = new Map<string, DigestEntry[]>();
+  const byKey = new Map<string, DigestEntry[]>();
   for (const entry of entries) {
-    if (!entry.linkedBuilderType) continue;
-    const bucket = byType.get(entry.linkedBuilderType);
+    const key = groupKeyFor(entry);
+    if (!key) continue;
+    const bucket = byKey.get(key);
     if (bucket) bucket.push(entry);
-    else byType.set(entry.linkedBuilderType, [entry]);
+    else byKey.set(key, [entry]);
   }
-  for (const bucket of byType.values()) {
+  for (const bucket of byKey.values()) {
     bucket.sort((a, b) => a.title.localeCompare(b.title));
   }
-  cachedGroups = RECIPE_GROUPS.map((group) => ({ ...group, entries: byType.get(group.type) ?? [] })).filter(
+  cachedGroups = RECIPE_GROUPS.map((group) => ({ ...group, entries: byKey.get(group.key) ?? [] })).filter(
     (group) => group.entries.length > 0,
   );
   return cachedGroups;
@@ -291,7 +319,7 @@ export function SystemRecipesView({
         </TouchableOpacity>
         <View style={styles.introBox}>
           <Text style={styles.introText}>
-            Every recipe that comes with the app, under the tool that makes it. Tap one to read it: what it makes,
+            Every recipe that comes with the app, grouped by what the dish is. Tap one to read it: what it makes,
             what goes in it, how to cook it, and what it gives you. Build This Recipe opens that tool already loaded
             with it, so you can change it into your own.
           </Text>
@@ -341,16 +369,16 @@ export function SystemRecipesView({
         ) : (
           filteredGroups.map((group) => (
             <HomeSectionBand
-              key={group.type}
+              key={group.key}
               kind="fold"
               title={`${group.label} (${group.entries.length})`}
               icon={group.icon}
               color={TAB_COLOR}
-              expanded={openGroup === group.type}
-              onToggle={() => setOpenGroup(openGroup === group.type ? null : group.type)}
+              expanded={openGroup === group.key}
+              onToggle={() => setOpenGroup(openGroup === group.key ? null : group.key)}
               contentStyle={styles.bandBody}
             >
-              {sectionsFor(group.type, group.entries).map((section, sectionIndex) => (
+              {sectionsFor(group.key, group.entries).map((section, sectionIndex) => (
                 <Fragment key={section.label ?? 'all'}>
                   {section.label ? (
                     <Text style={[styles.subgroupHeading, sectionIndex > 0 ? styles.subgroupHeadingLater : null]}>

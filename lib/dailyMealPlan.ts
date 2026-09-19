@@ -73,6 +73,7 @@ import {
   type DigestEntry,
   type RecipeDietTag,
 } from './digest';
+import { SIDE_DISH_RECIPE_IDS } from './recipeDishRole';
 
 // A recipe entry that's actually usable by this generator: not a
 // ProblemFoodEntry, carries a real RecipeCard, and has both real fields
@@ -1347,7 +1348,14 @@ async function buildCandidatePools(conditionCodes: string[], dietPreferences: Re
   const mainCandidates = pool.filter((entry) => !isBreakfastDish(entry));
   const lunchMainPoolEntries = mainCandidates.filter((entry) => lunchMainTypes.has(entry.linkedBuilderType));
   const dinnerMainPoolEntries = mainCandidates.filter((entry) => dinnerMainTypes.has(entry.linkedBuilderType));
-  const sidePoolEntries = mainCandidates.filter((entry) => entry.linkedBuilderType === 'side');
+  // A side pairing has to be an actual side dish, which is a narrower
+  // thing than a side-builder recipe: the Side Builder is this app's
+  // generic single-dish tool, so 126 of the 131 recipes it holds are the
+  // meal rather than something beside one. Filtering on the builder here
+  // let a baked salmon fillet be served as the side next to a beef main.
+  // SIDE_DISH_RECIPE_IDS names the five, and none of them is a breakfast
+  // dish, so this reads from pool rather than mainCandidates.
+  const sidePoolEntries = pool.filter((entry) => SIDE_DISH_RECIPE_IDS.has(entry.linkedCuratedRecipeId));
   const saladPoolEntries = mainCandidates.filter((entry) => entry.linkedBuilderType === 'salad');
   const beveragePoolEntries = pool.filter((entry) => entry.linkedBuilderType === 'beverage');
 
@@ -1653,13 +1661,16 @@ async function generateOneDay(
   }
 
   // Lunch/dinner: a main, plus a side when the main alone reads light,
-  // then a real chance at a salad and/or a beverage -- combining across
-  // builders, 2026-08-26, direct request -- staying under whatever carb
+  // then a chance at a salad and/or a beverage (combining across
+  // builders, 2026-08-26, direct request), staying under whatever carb
   // budget remains for the day. Rotation and FREQUENCY_RULES both apply
-  // to the main pick only -- sides/salads/beverages in this corpus are
-  // overwhelmingly vegetable- or fruit-based, not realistic fish/red-meat
-  // candidates, and still get real day-to-day rotation of their own via
-  // the same pickCandidate call.
+  // to the main pick only. The five side dishes and the beverages are
+  // vegetable- or fruit-based, so red-meat and fish frequency limits
+  // have nothing to bite on there, and all three pools still get
+  // day-to-day rotation of their own through the same pickCandidate
+  // call. Salads are the loose end: a salad carrying salmon or steak
+  // can still arrive alongside a main of the same protein, which
+  // frequency rules would catch if they ran over the whole plate.
   async function pickMealWithOptionalSide(mainCandidates: LoadedCandidate[], excludeId: string | undefined, applyFrequency: boolean): Promise<DailyMealPlanPick[]> {
     mealTotals = {};
     const remainingBudget = carbCeiling === null ? null : Math.max(0, carbCeiling - totalCarbGrams);

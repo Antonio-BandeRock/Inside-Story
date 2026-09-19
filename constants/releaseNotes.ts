@@ -41,6 +41,14 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.1',
+    date: '2026-09-19',
+    changes: [
+      'Mains is a separate group in System Recipes now. Sides had 131 recipes in it and only five of them were side dishes: baked salmon, chicken thighs, pork tenderloin, tofu stir-fries and breakfast hashes were all filed under a heading that says they sit beside a meal. Those 126 have moved to Mains, split into breakfast skillets and hashes, fish and seafood, poultry, beef and pork and lamb, beans and lentils and chickpeas, tofu and tempeh and seitan, and grain and vegetable mains. Sides now holds the five dishes that are sides. Build This Recipe still opens the Side Builder from either group, because that is the tool that edits them.',
+      'Your generated meal plan pairs a light main with an actual side dish now. It was picking the side out of that same mislabeled group, so a plate could come back as baked salmon with a side of baked cod, or a beef main with a salmon fillet beside it. It now pairs only from those five side dishes, and when none of them fits your conditions and diet the meal simply comes without a side, the way it already did.',
+    ],
+  },
+  {
     version: '1.0.40.10',
     date: '2026-09-18',
     changes: [
