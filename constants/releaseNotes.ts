@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.18',
+    date: '2026-09-19',
+    changes: [
+      'Health Literacy: every title states its finding, the glossary grouped by kind, hormones and B vitamins on shelves that read in order, curator notes out of the entries, eight entries cited, and links that pointed into Hashimoto\'s now open the general entry.',
+    ],
+  },
+  {
     version: '1.0.41.17',
     date: '2026-09-19',
     changes: [

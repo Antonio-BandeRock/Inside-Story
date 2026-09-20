@@ -139,12 +139,12 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
       'additive-sugar-umbrella-review-45-outcomes',
       'additive-hfcs',
       'masld-hfcs-fructose',
-      'problem-sugar-sweetened-beverages',
-      'mito-visceral-fat-treg-depletion',
-      'mito-visceral-fat-endotoxin-barrier',
+      
+      'bodyfat-visceral-vs-subcutaneous',
+      
       'glossary-visceral-fat',
-      'lifestyle-il6-deiodinase',
-      'mito-tying-together',
+      'glossary-deiodinase',
+      
     ],
   },
   {
@@ -237,7 +237,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['mito-exercise-cortisol', 'masld-exercise-independent-weight-loss'],
+    relatedIds: ['cortisol-overview-hpa-axis', 'masld-exercise-independent-weight-loss'],
   },
   {
     id: 'mito-exercise-cortisol',
@@ -260,12 +260,12 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
     title: 'Exercise Independently Triggers Autophagy Too',
     teaser: "A positive closing note: exercise, not just fasting, activates the same cellular repair process, with none of fasting's tradeoff.",
     summary:
-      "After fasting's tension (a powerful autophagy trigger with a thyroid-hormone cost) and exercise's cortisol caveat, this category could easily end on a note of \"everything has a downside.\" One finding pushes back against that. Exercise itself, independent of fasting, triggers autophagy and mitophagy, the mitochondria-specific version of the same cellular cleanup process, in skeletal muscle through the PGC-1α pathway. A positive mechanism that doesn't carry fasting's T3-suppression tradeoff, making moderate, consistent, low-intensity exercise a dual-benefit intervention across both the autophagy and the cortisol/inflammation mechanisms this category covers.",
+      "After fasting's tension (a powerful autophagy trigger with a thyroid-hormone cost) and exercise's cortisol caveat, the metabolism entries could easily end on a note of \"everything has a downside.\" One finding pushes back against that. Exercise itself, independent of fasting, triggers autophagy and mitophagy, the mitochondria-specific version of the same cellular cleanup process, in skeletal muscle through the PGC-1α pathway. A positive mechanism that doesn't carry fasting's T3-suppression tradeoff, making moderate, consistent, low-intensity exercise a dual-benefit intervention across both the autophagy and the cortisol/inflammation mechanisms above.",
     citations: [
       { source: 'Role of PGC-1α during acute exercise-induced autophagy and mitophagy in skeletal muscle', url: 'https://pubmed.ncbi.nlm.nih.gov/25673772/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['mito-fasting-autophagy-tension'],
+    relatedIds: ['chrono-autophagy-mixed-evidence'],
   },
   {
     id: 'mito-tying-together',

@@ -416,7 +416,7 @@ const CONDITIONS_HELP_SECTIONS: HelpSection[] = [
 const HEALTH_LITERACY_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'Health Literacy',
-    body: 'General-population health knowledge that matters whatever conditions you track: the essential nutrients, how the gut and the immune system work, what food additives and processing do, how the food industry came to be the way it is, complementary therapies, and a glossary of the terms the rest of this app uses. Each subject is one band. Open it to see its entries, and open an entry to read it in place. This is what the Free tier shows in full.',
+    body: 'General-population health knowledge that matters whatever conditions you track: the essential nutrients, how the body and its hormones work, what food additives and processing do, how the food industry came to be the way it is, hands-on therapies, sleep, mental health, and a glossary of the terms the rest of this app uses. Each subject is one band. Open it to see its entries, and open an entry to read it in place. This is what the Free tier shows in full.',
   },
   DIGEST_READING_HELP,
 ];

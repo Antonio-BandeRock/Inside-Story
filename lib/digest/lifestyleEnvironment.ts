@@ -72,7 +72,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     title: 'At a Population Level, the Alcohol Amount That Minimizes Harm Is Zero',
     teaser: 'The largest global alcohol-burden study ever done found risk rising with every additional drink for nearly every outcome measured, including all cancers, outweighing alcohol\'s small protective effect on heart disease.',
     summary:
-      "The Global Burden of Disease Study's 2018 alcohol analysis remains the largest and most cited study of its kind: 694 studies to estimate how common drinking actually is, and 592 studies covering 28 million people to measure its health effects, across 195 countries from 1990 to 2016. Its stated conclusion is blunt: the level of alcohol consumption that minimized harm across every health outcome measured was zero standard drinks per week (95% uncertainty interval 0.0 to 0.8). In 2016 alone, 2.8 million deaths worldwide (95% UI 2.4 to 3.3 million) were attributed to alcohol use, accounting for 2.2% of age-standardized female deaths and 6.8% of age-standardized male deaths. Among people aged 15 to 49, alcohol use was the single leading risk factor for death and disability worldwide that year, ahead of every other cause the study measured. The mechanism behind the \"zero\" conclusion is worth understanding on its own, not just the headline number: for nearly every outcome studied, including all cancers, relative risk rose steadily with each additional drink, with no threshold below which risk stopped climbing. Ischaemic heart disease was the one confirmed exception, showing a small protective effect around 0.8 to 0.9 drinks a day, but that modest cardiac benefit was outweighed once summed against the rising cancer and other risks across the population as a whole, which is exactly how a study can find a small individual benefit for one disease and still land on zero as the aggregate answer.",
+      "The Global Burden of Disease Study's 2018 alcohol analysis remains the largest and most cited study of its kind: 694 studies to estimate how common drinking is, and 592 studies covering 28 million people to measure its health effects, across 195 countries from 1990 to 2016. Its stated conclusion is blunt: the level of alcohol consumption that minimized harm across every health outcome measured was zero standard drinks per week (95% uncertainty interval 0.0 to 0.8). In 2016 alone, 2.8 million deaths worldwide (95% UI 2.4 to 3.3 million) were attributed to alcohol use, accounting for 2.2% of age-standardized female deaths and 6.8% of age-standardized male deaths. Among people aged 15 to 49, alcohol use was the single leading risk factor for death and disability worldwide that year, ahead of every other cause the study measured. The mechanism behind the \"zero\" conclusion is worth understanding on its own, not just the headline number: for nearly every outcome studied, including all cancers, relative risk rose steadily with each additional drink, with no threshold below which risk stopped climbing. Ischaemic heart disease was the one confirmed exception, showing a small protective effect around 0.8 to 0.9 drinks a day, but that modest cardiac benefit was outweighed once summed against the rising cancer and other risks across the population as a whole, which is exactly how a study can find a small individual benefit for one disease and still land on zero as the aggregate answer.",
     citations: [
       {
         source: 'Griswold MG, et al. 2018 (GBD 2016 Alcohol Collaborators), The Lancet: Alcohol use and burden for 195 countries and territories, 1990-2016',
@@ -80,12 +80,12 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['lifestyle-alcohol-advisory', 'lifestyle-alcohol-liver-metabolism', 'masld-metald-alcohol-threshold'],
+    relatedIds: [ 'lifestyle-alcohol-liver-metabolism', 'masld-metald-alcohol-threshold'],
   },
   {
     id: 'lifestyle-coffee-milk-antioxidants',
     category: 'basicHealth',
-    title: "Coffee + Milk: A Mixed Finding, Not the One-Sided Claim It's Often Presented As",
+    title: 'Coffee With Milk Is a Mixed Finding',
     teaser: 'The "milk cuts coffee\'s antioxidants by 50%" claim didn\'t hold up under a closer look.',
     summary:
       'A specific claim circulates confidently enough in health content that it rarely gets questioned: adding milk to coffee cuts its antioxidant benefit roughly in half. Checked directly, it doesn\'t hold up as stated. Some studies show roughly 28-40% less free chlorogenic acid because it binds to milk casein, but other studies show the resulting protein-polyphenol complex measuring higher antioxidant activity than the free compound alone. Presented as an open, two-sided question rather than the one-sided claim it\'s usually stated as. An example of a popular health claim not surviving a direct check.',
@@ -97,7 +97,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   {
     id: 'lifestyle-coffee-filtered-cholesterol',
     category: 'basicHealth',
-    title: 'Filtered vs. Unfiltered Coffee & Cholesterol: A Well-Established Difference Most People Never Think to Ask About',
+    title: 'Unfiltered Coffee Raises Cholesterol and Filtered Coffee Does Not',
     teaser: 'Two cups of coffee, same beans, wildly different cholesterol effect, depending entirely on how it was brewed.',
     summary:
       "Most coffee-and-health conversations treat \"coffee\" as one undifferentiated thing. The brewing method itself turns out to make a measurable difference nobody usually asks about. Unfiltered coffee (French press, Turkish, boiled or Scandinavian-style) retains cafestol and kahweol, two diterpene compounds that a consistent body of evidence, including AHA-cited trials, links to raised LDL cholesterol. Paper filters trap nearly all of both compounds, meaning drip and pour-over coffee are essentially free of this specific effect. A concrete, checkable brewing-method difference rather than a vague \"coffee is fine in moderation\" answer. The same beans, the same cup size, a different cholesterol outcome depending purely on the filter.",
@@ -109,7 +109,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   {
     id: 'lifestyle-coffee-arabica-robusta',
     category: 'basicHealth',
-    title: 'Arabica vs. Robusta: A Caffeine Difference',
+    title: 'Arabica and Robusta Beans Differ in Caffeine Content, Not Roast Level',
     teaser: 'Two coffee species with a different caffeine content, confirmed, not folklore, and not about roast level at all.',
     summary:
       "Roast level gets blamed for caffeine differences between cups more often than the actual driver ever does. Robusta beans contain roughly double the caffeine of Arabica beans, a consistent food-science finding rather than a roast-level myth, relevant for anyone tracking caffeine intake specifically (see Labs & Medication Timing for the levothyroxine-spacing reason that matters). Bean species, not roast darkness, is the bigger driver of a given cup's caffeine content, a different variable than the one most people assume is responsible.",
@@ -121,7 +121,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   {
     id: 'lifestyle-juice-advisory',
     category: 'basicHealth',
-    title: 'Straight Fruit Juice: A Carefully-Qualified Set of Concerns',
+    title: 'Straight Fruit Juice Carries a Carefully Qualified Set of Concerns',
     teaser: 'Population-level risk is supported by the data. The "guaranteed acute blood sugar spike" version of this claim is not.',
     summary:
       "Fruit juice occupies an odd space in nutrition advice, treated as healthy by some, as concentrated sugar by others. The research supports pieces of both views, in a more specific way than either side usually states. Three large prospective cohorts found daily juice intake tracks with up to 21% higher type 2 diabetes risk while whole fruit tracks with lower risk, but a 2025 randomized crossover trial in adults with type 2 diabetes found no difference in glucose/insulin response between orange juice and whole orange pieces at matched sugar content eaten with a meal, meaning portion size (juice makes it easier to drink more sugar at once) is likely the more consistent driver than a fundamentally different absorption curve every time. A separate, physiological chain: a glucose crash after a spike triggers cortisol, and cortisol suppresses the enzymes that activate thyroid hormone, a mechanism with specific relevance covered in more depth elsewhere in this app, though it hasn't been directly tested as one continuous chain starting from juice specifically. A carefully-qualified concern rather than a guaranteed acute effect every time a glass of juice is poured.",
@@ -133,7 +133,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['problem-sugar-sweetened-beverages'],
+    relatedIds: ['additive-hfcs', 'additive-sugar-umbrella-review-45-outcomes'],
   },
   {
     id: 'lifestyle-edc-bpa-phthalates',
@@ -149,9 +149,9 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   {
     id: 'lifestyle-edc-personal-care',
     category: 'basicHealth',
-    title: 'A Practical EDC Exposure Path: Personal Care Products',
+    title: 'Personal Care Products Are a Practical Endocrine-Disruptor Exposure Path',
     teaser: "Endocrine disruptors aren't only a food question. Daily lotion and fragrance are an everyday exposure route too.",
-    summary: "Every entry so far about endocrine disruptors has been about what's eaten. There's a second, completely separate route into the body that has nothing to do with food at all. Parabens and certain fragrance compounds in lotion, shampoo, and cosmetics are absorbed through skin and have their documented endocrine-disrupting properties, a separate exposure pathway from the food-focused EDC concern above. Reading ingredient lists and choosing fragrance-free or paraben-free options where practical is a low-effort reduction step, included here specifically because the mission is food-focused, and it's worth naming directly that food isn't the only lever.",
+    summary: "Every entry so far about endocrine disruptors has been about what's eaten. There's a second, completely separate route into the body that has nothing to do with food at all. Parabens and certain fragrance compounds in lotion, shampoo, and cosmetics are absorbed through skin and have documented endocrine-disrupting properties, a separate exposure pathway from the food-focused EDC concern above. Reading ingredient lists and choosing fragrance-free or paraben-free options where practical is a low-effort reduction step, and food isn't the only lever.",
     citations: [
       {
         source: 'Reducing Phthalate, Paraben, and Phenol Exposure from Personal Care Products in Adolescent Girls: the HERMOSA Intervention Study',
@@ -297,7 +297,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     title: 'Antibiotic Use & Long-Term Microbiome Disruption',
     teaser: 'A single course can measurably shift gut microbiota composition for months, sometimes longer than most people would expect.',
     summary:
-      "A single course of antibiotics feels like a short-term interruption. The research on how long the gut actually takes to recover says otherwise, at least sometimes. A course of antibiotics reliably reduces gut microbial diversity, including documented declines in Bifidobacterium species specifically, covered under Fermented Foods, and while much of that diversity typically recovers within weeks to months, some studies find certain species never fully return to their pre-antibiotic baseline. Relevant context for anyone rebuilding gut diversity after a recent antibiotic course, not a reason to avoid antibiotics when they're needed. Knowing the recovery timeline just makes the rebuilding effort make more sense.",
+      "A single course of antibiotics feels like a short-term interruption. The research on how long the gut takes to recover says otherwise, at least sometimes. A course of antibiotics reliably reduces gut microbial diversity, including documented declines in Bifidobacterium species specifically, covered under Fermented Foods, and while much of that diversity typically recovers within weeks to months, some studies find certain species never fully return to their pre-antibiotic baseline. Relevant context for anyone rebuilding gut diversity after a recent antibiotic course, not a reason to avoid antibiotics when they're needed. Knowing the recovery timeline just makes the rebuilding effort make more sense.",
     citations: [
       { source: 'Incomplete recovery and individualized responses of the human distal gut microbiota to repeated antibiotic perturbation', url: 'https://pubmed.ncbi.nlm.nih.gov/20847294/' },
     ],
@@ -308,14 +308,14 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     id: 'lifestyle-plastic-food-storage',
     category: 'basicHealth',
     title: 'Heating Food in Plastic',
-    teaser: 'A specific, everyday habit that measurably increases the exact exposure named earlier in this category.',
+    teaser: 'A specific, everyday habit that measurably increases the exact exposure named in the BPA and phthalate entry.',
     summary:
-      "The BPA and phthalate concerns named earlier in this category aren't just about which container a food happens to sit in. How that container gets used matters just as much. Microwaving food in plastic containers, or storing hot food in plastic immediately after cooking, measurably increases leaching of BPA and phthalates compared to the same container at room temperature, a specific, checkable behavior rather than a vague \"plastic is bad\" gesture. Glass or ceramic containers for reheating, and letting food cool before transferring it to plastic for storage, are both concrete, low-cost changes. A practical fix for a specific exposure, not a call to eliminate plastic containers entirely.",
+      "The BPA and phthalate concerns aren't just about which container a food happens to sit in. How that container gets used matters just as much. Microwaving food in plastic containers, or storing hot food in plastic immediately after cooking, measurably increases leaching of BPA and phthalates compared to the same container at room temperature, a specific, checkable behavior rather than a vague \"plastic is bad\" gesture. Glass or ceramic containers for reheating, and letting food cool before transferring it to plastic for storage, are both concrete, low-cost changes. A practical fix for a specific exposure, not a call to eliminate plastic containers entirely.",
     citations: [
       { source: 'Analysis of Phthalate Migration to Food Simulants in Plastic Containers during Microwave Operations', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3924457/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['lifestyle-edc-bpa-phthalates'],
+    relatedIds: ['glossary-edc', 'lifestyle-edc-personal-care'],
   },
   {
     id: 'lifestyle-sedentary-behavior',
@@ -368,7 +368,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   {
     id: 'lifestyle-alcohol-liver-metabolism',
     category: 'basicHealth',
-    title: 'What Alcohol Actually Does to Fat Burning and Blood Sugar',
+    title: 'What Alcohol Does to Fat Burning and Blood Sugar',
     teaser:
       'Two controlled human studies measured it directly: a couple of drinks cuts fat burning by 73% and blocks nearly half of the body\'s glucose-making for hours afterward.',
     summary: "Alcohol doesn't sit in a queue behind other nutrients waiting its turn. The liver treats it as an emergency. Ethanol is broken down by alcohol dehydrogenase into acetaldehyde, a toxic intermediate, then quickly converted by aldehyde dehydrogenase into acetate. Most of that acetate (77% in one direct measurement) floods straight into the bloodstream rather than staying in the liver, and that flood is what does the damage to fat and sugar metabolism elsewhere in the body. A controlled study giving healthy men just 24 grams of alcohol (roughly two standard drinks) found adipose tissue's release of fat into the blood dropped 53%, and whole-body fat burning dropped 73%, both measured directly with isotope tracers. The mechanism is acetate itself: circulating acetate levels rose 2.5-fold after drinking, and acetate directly suppresses lipolysis, the process of breaking stored fat back down into usable fuel. A separate study measuring blood-sugar production found the same pattern on the glucose side: 48 grams of alcohol cut gluconeogenesis, the liver's process of building new glucose from scratch, by 45% compared to a placebo, measured over the five hours after drinking. The mechanism there is different but related: alcohol metabolism floods liver cells with NADH, and that shift starves the gluconeogenesis pathway of what it needs to run. Put together, this is the reason alcohol on an empty stomach carries a hypoglycemia risk, and why alcohol calories don't behave like food calories once they're in the body. The alcohol calculator (available in the Beverage, Fermentation, Soup, and Sauces builders) estimates the energy content of a specific pour; this is the biology behind why that energy gets processed so differently once it's swallowed.",
@@ -393,7 +393,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
       ],
       sourceNote: 'Siler et al. 1999, American Journal of Clinical Nutrition',
     },
-    relatedIds: ['lifestyle-alcohol-advisory', 'masld-metald-alcohol-threshold', 'lifestyle-alcohol-gbd-no-safe-level'],
+    relatedIds: [ 'masld-metald-alcohol-threshold', 'lifestyle-alcohol-gbd-no-safe-level'],
   },
   {
     id: 'lifestyle-tying-together',

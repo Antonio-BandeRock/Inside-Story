@@ -604,6 +604,10 @@ export type ProblemFoodEntry = {
   // since `category` can no longer serve as the discriminant.
   category: DigestEntryCategory;
   foodName: string;
+  // 2026-09-19: the same honest evidence tier every DigestEntry carries.
+  // A problem-food entry makes a claim about a food like any other entry,
+  // and until this field existed the lens showed it with no tier at all.
+  overallTier: EvidenceTier;
   // The one-line reason this food shows up here at all.
   teaser: string;
   // What the real problem is, in plain terms -- not assumed universal (see

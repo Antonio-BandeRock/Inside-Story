@@ -182,15 +182,15 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       { source: 'Bisphenols and Thyroid Hormone (Endocrinology and Metabolism, 2019)', url: 'https://pubmed.ncbi.nlm.nih.gov/31884733/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['lifestyle-edc-bpa-phthalates', 'lifestyle-plastic-food-storage'],
+    relatedIds: ['glossary-edc', 'lifestyle-edc-personal-care', 'lifestyle-plastic-food-storage'],
   },
   {
     id: 'glossary-cfu',
     category: 'basicHealth',
     title: 'CFU (Colony-Forming Units)',
-    teaser: 'The number on a probiotic label, and what it does and doesn\'t actually tell you.',
+    teaser: 'The number on a probiotic label, and what it does and doesn\'t tell you.',
     summary:
-      'CFU measures how many live organisms were present in a probiotic product at the time it was manufactured, not how many actually survive stomach acid or reach the gut. Most clinical trials showing benefit used doses in the 1-10 billion CFU range for one specific, named strain, not the 50-100+ billion CFU "mega-blends" often marketed as automatically superior. See Fermented Foods for the full dosing picture.',
+      'CFU measures how many live organisms were present in a probiotic product at the time it was manufactured, not how many survive stomach acid or reach the gut. Most clinical trials showing benefit used doses in the 1-10 billion CFU range for one specific, named strain, not the 50-100+ billion CFU "mega-blends" often marketed as automatically superior. See Fermented Foods for the full dosing picture.',
     citations: [
       {
         source: 'Strain-Specificity and Disease-Specificity of Probiotic Efficacy: A Systematic Review and Meta-Analysis',
@@ -215,12 +215,12 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Cortisol',
     teaser: 'The body\'s primary stress hormone, and a direct, repeated route to lower active thyroid hormone.',
-    summary: 'A hormone released by the adrenal glands during stress, regulated by the HPA axis. Cortisol is documented to directly suppress the deiodinase enzymes that convert inactive T4 into active T3, favoring inactive reverse T3 instead. This is the single most recurring mechanism this app keeps finding underneath seemingly unrelated topics: alcohol, sugar-sweetened drinks, sleep disruption, and high-intensity exercise, all covered under Lifestyle & Environment.',
+    summary: 'A hormone released by the adrenal glands during stress, regulated by the HPA axis. Cortisol is documented to directly suppress the deiodinase enzymes that convert inactive T4 into active T3, favoring inactive reverse T3 instead. The same mechanism turns up under seemingly unrelated topics: alcohol, sugar-sweetened drinks, sleep disruption, and high-intensity exercise, all covered under Lifestyle & Environment.',
     citations: [
       { source: 'Stephens & Wand 2012, Alcohol Research: Current Reviews: stress and the HPA axis (NIAAA)', url: 'https://pubmed.ncbi.nlm.nih.gov/23584113/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['lifestyle-chronic-stress-hpa', 'lifestyle-tying-together'],
+    relatedIds: ['cortisol-chronic-dysregulation-autoimmunity', 'glossary-hpa-axis', ],
   },
   {
     id: 'glossary-crp',
@@ -267,7 +267,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-deiodinase',
     category: 'basicHealth',
     title: 'Deiodinase (D1, D2, D3)',
-    teaser: 'The family of enzymes that actually converts thyroid hormone into its active form, mostly outside the thyroid gland itself.',
+    teaser: 'The family of enzymes that converts thyroid hormone into its active form, mostly outside the thyroid gland itself.',
     summary:
       "Three enzymes, type 1, 2, and 3 deiodinase, that convert T4 into active T3 (D1 and D2) or break T3 down (D3). Roughly 80% of the body's active T3 is made this way, outside the thyroid gland itself, with the liver's D1 the single largest contributor, meaning organs like the liver are doing much of the work usually credited to the thyroid alone. Inflammation (via cortisol or IL-6, both covered elsewhere in this glossary) can suppress D1/D2 and activate D3 at the same time, a double hit to active thyroid hormone.",
     citations: [
@@ -277,7 +277,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['organ-liver-t4t3-conversion', 'lifestyle-il6-deiodinase'],
+    relatedIds: ['thyroid-hormones-overview', 'body-kidneys-liver-filtration', ],
   },
   {
     id: 'glossary-dri-family',
@@ -305,7 +305,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'EGFR (Estimated Glomerular Filtration Rate)',
     teaser: 'The standard measure of how well the kidneys are filtering, and the number a person\'s kidney health gets tracked by.',
     summary:
-      'A standard blood-test-derived estimate of how much blood the kidneys are filtering per minute, the most common way kidney function gets checked, whether as part of a routine physical or to monitor a specific concern. A staged framework (G1 through G5) exists specifically to track this number over time, since kidney function loss is usually gradual and symptom-free in its early stages. See this app\'s dedicated Chronic Kidney Disease research for the full staging system and what actually protects it.',
+      'A standard blood-test-derived estimate of how much blood the kidneys are filtering per minute, the most common way kidney function gets checked, whether as part of a routine physical or to monitor a specific concern. A staged framework (G1 through G5) exists specifically to track this number over time, since kidney function loss is usually gradual and symptom-free in its early stages. See this app\'s dedicated Chronic Kidney Disease research for the full staging system and what protects it.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['ckd-overview'],
@@ -321,7 +321,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       { source: 'Bisphenols and Thyroid Hormone (Endocrinology and Metabolism, 2019)', url: 'https://pubmed.ncbi.nlm.nih.gov/31884733/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['lifestyle-edc-bpa-phthalates'],
+    relatedIds: ['glossary-bpa-phthalates', 'lifestyle-edc-personal-care'],
   },
   {
     id: 'glossary-euthyroid-hypothyroid',
@@ -358,7 +358,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['problem-garlic-onion', 'healing-stage1-avoid', 'ibs-overview', 'ibs-low-fodmap-diet'],
+    relatedIds: ['problem-garlic-onion',  'ibs-overview', 'ibs-low-fodmap-diet'],
   },
   {
     id: 'glossary-gliadin',
@@ -387,7 +387,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['problem-raw-cruciferous', 'history-1924-iodized-salt'],
+    relatedIds: ['produce-cruciferous', 'history-1924-iodized-salt'],
   },
   {
     id: 'glossary-graves-disease',
@@ -413,7 +413,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       { source: 'Stephens & Wand 2012, Alcohol Research: Current Reviews: stress and the HPA axis (NIAAA)', url: 'https://pubmed.ncbi.nlm.nih.gov/23584113/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['lifestyle-chronic-stress-hpa'],
+    relatedIds: ['cortisol-chronic-dysregulation-autoimmunity'],
   },
   {
     id: 'glossary-healing-stages',
@@ -456,7 +456,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       { source: 'Biomarkers for assessment of intestinal permeability in clinical practice (Scandinavian Journal of Gastroenterology, 2021)', url: 'https://pubmed.ncbi.nlm.nih.gov/34009040/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['gut-leaky-gut-contested', 'gut-tying-together'],
+    relatedIds: ['gut-leaky-gut-contested', 'glossary-tight-junction'],
   },
   {
     id: 'glossary-levothyroxine',
@@ -490,7 +490,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary: 'The collective community of bacteria, yeast, and other microorganisms living in and on the human body, most densely in the gut. Diversity within this community, not any single "best" species, is what the Gut & Microbiome and Fermented Foods research keeps identifying as the actual target worth working toward through food.',
     citations: [],
     overallTier: 'strong',
-    relatedIds: ['gut-tying-together', 'fermented-tying-together'],
+    relatedIds: [ 'fermented-tying-together'],
   },
   {
     id: 'glossary-mitochondria',
@@ -500,7 +500,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary: "Tiny structures inside nearly every cell responsible for producing the cell's usable energy, foundational cell biology relevant to how the whole body runs, from muscle to brain to organ function. Mitochondrial health shows up as a recurring thread across several of the condition-specific findings, worth a look at the specific mechanism wherever it's documented as a factor.",
     citations: [],
     overallTier: 'strong',
-    relatedIds: ['glossary-mots-c'],
+    relatedIds: ['glossary-atp'],
   },
   {
     id: 'glossary-molecular-mimicry',
@@ -585,10 +585,10 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Probiotic & Prebiotic',
     teaser: 'Two different things that often get confused: live organisms versus the food that feeds them.',
-    summary: 'A probiotic is a live microorganism (a specific bacterial or yeast strain) that provides a benefit when consumed. A prebiotic is a food component, mainly fiber, that feeds the microbes already living in the gut, rather than adding new ones directly. The research treats "which specific strain" and "how much fiber is actually reaching the gut" as two separate, both-important questions, not one interchangeable idea. See Fermented Foods and Gut & Microbiome.',
+    summary: 'A probiotic is a live microorganism (a specific bacterial or yeast strain) that provides a benefit when consumed. A prebiotic is a food component, mainly fiber, that feeds the microbes already living in the gut, rather than adding new ones directly. The research treats "which specific strain" and "how much fiber is reaching the gut" as two separate questions. See Fermented Foods and Gut & Microbiome.',
     citations: [],
     overallTier: 'moderate',
-    relatedIds: ['gut-strain-specific-mechanisms', 'gut-scfa-treg'],
+    relatedIds: ['fermented-tying-together', 'glossary-scfa', 'glossary-treg', 'mentalhealth-gut-scfa-mood-mechanism'],
   },
   {
     id: 'glossary-rct',
@@ -611,7 +611,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       { source: 'Boelen, Wiersinga & Fliers 2008, Thyroid: fasting-induced changes in the hypothalamus-pituitary-thyroid axis', url: 'https://pubmed.ncbi.nlm.nih.gov/18225975/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['mito-fasting-autophagy-tension'],
+    relatedIds: ['chrono-autophagy-mixed-evidence'],
   },
   {
     id: 'glossary-ros',
@@ -634,15 +634,15 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       { source: 'Smith et al. 2013, Science: SCFAs regulate colonic Treg cell homeostasis', url: 'https://pubmed.ncbi.nlm.nih.gov/23828891/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['gut-scfa-treg', 'gut-tying-together'],
+    relatedIds: ['glossary-treg', 'mentalhealth-gut-scfa-mood-mechanism', ],
   },
   {
     id: 'glossary-t3',
     category: 'basicHealth',
     title: 'T3 (Triiodothyronine)',
-    teaser: 'The active form of thyroid hormone, the one that actually does the work inside the body\'s own cells.',
+    teaser: 'The active form of thyroid hormone, the one that does the work inside the body\'s cells.',
     summary:
-      'The biologically active thyroid hormone, the one thyroid receptors throughout the body actually respond to. Only about 20% of circulating T3 comes directly from the thyroid gland itself; the remaining ~80% is converted from T4 elsewhere in the body, mainly by the liver\'s deiodinase enzymes. See Organs & Body Systems for the full picture of how much of "thyroid function" actually happens outside the thyroid.',
+      'The biologically active thyroid hormone, the one thyroid receptors throughout the body respond to. Only about 20% of circulating T3 comes directly from the thyroid gland itself; the remaining ~80% is converted from T4 elsewhere in the body, mainly by the liver\'s deiodinase enzymes. See Organs & Body Systems for the full picture of how much of "thyroid function" happens outside the thyroid.',
     citations: [
       {
         source: 'Role of hepatic deiodinases in thyroid hormone homeostasis and liver metabolism, inflammation, and fibrosis (European Thyroid Journal)',
@@ -650,7 +650,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['organ-liver-t4t3-conversion', 'glossary-deiodinase'],
+    relatedIds: ['thyroid-hormones-overview', 'glossary-deiodinase'],
   },
   {
     id: 'glossary-t4',
@@ -658,7 +658,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'T4 (Thyroxine)',
     teaser: 'The hormone the thyroid gland itself mainly produces, mostly a precursor, not the final active form.',
     summary:
-      'The primary hormone the thyroid gland itself produces and releases, in anyone with a functioning thyroid. T4 is mostly a precursor. It has to be converted into T3, the active form, by deiodinase enzymes elsewhere in the body (mainly the liver) before it can do most of its work, everyday endocrine physiology behind how the body actually uses thyroid hormone.',
+      'The primary hormone the thyroid gland itself produces and releases, in anyone with a functioning thyroid. T4 is mostly a precursor. It has to be converted into T3, the active form, by deiodinase enzymes elsewhere in the body (mainly the liver) before it can do most of its work, everyday endocrine physiology behind how the body uses thyroid hormone.',
     citations: [
       {
         source: 'Role of hepatic deiodinases in thyroid hormone homeostasis and liver metabolism, inflammation, and fibrosis (European Thyroid Journal)',
@@ -666,7 +666,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['organ-liver-t4t3-conversion', 'glossary-levothyroxine'],
+    relatedIds: ['glossary-deiodinase', 'thyroid-hormones-overview', 'glossary-levothyroxine'],
   },
   {
     id: 'glossary-tg-antitg',
@@ -708,7 +708,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       { source: 'Zhang et al. 2015, Scientific Reports: tight junction CLDN2 gene is a direct target of the vitamin D receptor', url: 'https://pubmed.ncbi.nlm.nih.gov/26212084/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['gut-vitamin-d-cldn2', 'gut-strain-specific-mechanisms'],
+    relatedIds: ['vitamind-overview', 'fermented-tying-together'],
   },
   {
     id: 'glossary-tpo',
@@ -756,7 +756,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Visceral Fat',
     teaser: 'Fat stored deep around the internal organs, active tissue rather than passive storage.',
     summary:
-      'Fat stored deep in the abdomen, around the internal organs (distinct from fat stored just under the skin), active, hormone-producing tissue, not passive padding. Research finds it does complicated things: it drives metabolic risk in excess, but a 2024 reappraisal suggests some of that same fat\'s inflammation may actually be defending against a leaky gut, rather than simply causing harm on its own. A recurring, specific factor across several of this app\'s condition-specific findings.',
+      'Fat stored deep in the abdomen, around the internal organs (distinct from fat stored just under the skin), active, hormone-producing tissue, not passive padding. Research finds it does complicated things: it drives metabolic risk in excess, but a 2024 reappraisal suggests some of that same fat\'s inflammation may be defending against a leaky gut, rather than simply causing harm on its own. A recurring, specific factor across several of this app\'s condition-specific findings.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['mito-sugar-visceral-fat-cytokine-chain'],
@@ -781,7 +781,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-zonulin',
     category: 'basicHealth',
     title: 'Zonulin',
-    teaser: 'The named protein responsible for how "leaky" the gut lining actually is, discovered by the same researcher who coined the term.',
+    teaser: 'The named protein responsible for how "leaky" the gut lining is, discovered by the same researcher who coined the term.',
     summary: 'A specific protein that regulates how tightly the junctions between gut lining cells stay sealed, in anyone\'s gut. Gliadin (from gluten) triggers its release; once released, it reversibly opens those junctions, a measurable and reversible effect, not a permanent one. This is the physical mechanism behind "leaky gut", general gut-barrier physiology whatever the reason someone\'s reading about it.',
     citations: [
       { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
@@ -846,12 +846,12 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-atp',
     category: 'basicHealth',
     title: 'ATP (Adenosine Triphosphate)',
-    teaser: 'The molecule every cell actually spends as usable energy, made mostly inside mitochondria.',
+    teaser: 'The molecule every cell spends as usable energy, made mostly inside mitochondria.',
     summary:
       'ATP is the molecule cells use as their direct, spendable form of energy for essentially everything they do, muscle contraction, nerve signaling, building new proteins, and more. Mitochondria, the cell\'s energy-producing structures, generate the large majority of the body\'s ATP by converting food and oxygen into it, which is why mitochondrial health and ATP production are treated as the same underlying story throughout this app\'s Mitochondria & Metabolism research.',
     citations: [],
     overallTier: 'strong',
-    relatedIds: ['mito-mots-c'],
+    relatedIds: ['glossary-mitochondria'],
   },
   {
     id: 'glossary-bdnf',
@@ -1287,7 +1287,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   // as the original 43-term batch: every candidate here confirmed by
   // actual usage across the Digest content base first (not guessed
   // generically), cross-linked via relatedIds to the entry where each
-  // term actually does its work. 14 terms, still not exhaustive, the same "ongoing,
+  // term does its work. 14 terms, still not exhaustive, the same "ongoing,
   // multi-session" shape this whole Digest's own depth work already
   // follows everywhere else. Appended rather than hand-spliced into
   // alphabetical position, same reasoning as the original batch: display

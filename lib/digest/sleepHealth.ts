@@ -18,7 +18,7 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Sleep Is an Active Biological Process, Not Just the Absence of Being Awake',
     teaser: 'The body does distinct, measurable work during sleep, building bone and repairing tissue in one phase, consolidating memory and regulating emotion in another.',
-    summary: 'Sleep is not a passive shutdown, it\'s a structured, cyclical process with distinct stages, each doing different, measurable work. This topic covers the actual mechanics behind why sleep matters as directly as any nutrient already tracked: the architecture of a night\'s sleep, the documented cost of chronic sleep restriction on immune function specifically, the tiered evidence connecting short sleep to autoimmune disease risk, and the evidence-backed options (both behavioral and supplemental) for improving it. The existing research already touches sleep\'s role in specific conditions (Hashimoto\'s cortisol pathway, MASLD and Type 2 Diabetes\'s sleep apnea links, migraine\'s bidirectional relationship, PCOS), this topic is the general physiology underneath all of those, in one place.',
+    summary: 'Sleep is a structured, cyclical process rather than a passive shutdown, one with distinct stages, each doing different, measurable work. These entries cover the mechanics behind why sleep matters as directly as any nutrient tracked: the architecture of a night\'s sleep, the documented cost of chronic sleep restriction on immune function specifically, the tiered evidence connecting short sleep to autoimmune disease risk, and the evidence-backed options (both behavioral and supplemental) for improving it. The condition research touches sleep\'s role in specific conditions (Hashimoto\'s cortisol pathway, MASLD and Type 2 Diabetes\'s sleep apnea links, migraine\'s bidirectional relationship, PCOS); these entries are the general physiology underneath all of those, in one place.',
     citations: [
       {
         source: 'American Academy of Sleep Medicine, sleep stage classification standards',
@@ -26,7 +26,7 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['sleep-tying-together', 'lifestyle-sleep-circadian'],
+    relatedIds: ['sleep-tying-together', 'sleep-circadian-rhythm-basics'],
   },
   {
     id: 'sleep-architecture',
@@ -82,7 +82,7 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['sleep-overview', 'sleep-glymphatic-system', 'lifestyle-sleep-circadian', 'sleep-regularity-consistency', 'chrono-circadian-clock-biology'],
+    relatedIds: ['sleep-overview', 'sleep-glymphatic-system',  'sleep-regularity-consistency', 'chrono-circadian-clock-biology'],
   },
   {
     id: 'sleep-immune-vaccine-response',
@@ -90,7 +90,7 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
     title: 'Repeated Studies Find Short Sleep Directly Weakens the Body\'s Vaccine Response',
     teaser: 'Adults sleeping under 7 hours a night showed measurably lower antibody levels after vaccination in multiple independent studies, a direct, testable immune-function cost, not a vague wellness claim.',
     summary:
-      'Controlled research consistently finds a direct, measurable link between sleep duration and how well the immune system actually responds to a challenge. A study of adults given the hepatitis B vaccine series found sleep duration, efficiency, and quality, measured in each person\'s natural environment, directly predicted the size of their antibody response. Separate research on influenza vaccination found young adults who slept short specifically on the two nights before vaccination showed measurably lower antibody levels at both 1 and 4 months afterward, a testable, dose-relevant finding, not a general association. Broader research finds healthy adults sleeping under 7 hours a night showed an increased likelihood of developing symptomatic illness after a direct viral exposure, compared to those sleeping longer. This is direct evidence that sleep is doing immune-system work, not just making a person feel more rested.',
+      'Controlled research consistently finds a direct, measurable link between sleep duration and how well the immune system responds to a challenge. A study of adults given the hepatitis B vaccine series found sleep duration, efficiency, and quality, measured in each person\'s natural environment, directly predicted the size of their antibody response. Separate research on influenza vaccination found young adults who slept short specifically on the two nights before vaccination showed measurably lower antibody levels at both 1 and 4 months afterward, a testable, dose-relevant finding, not a general association. Broader research finds healthy adults sleeping under 7 hours a night showed an increased likelihood of developing symptomatic illness after a direct viral exposure, compared to those sleeping longer. This is direct evidence that sleep is doing immune-system work, not just making a person feel more rested.',
     citations: [
       {
         source: 'Prather & Cohen, Sleep, "Sleep and Antibody Response to Hepatitis B Vaccination," PMID 22851802',
@@ -114,7 +114,7 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['sleep-immune-vaccine-response', 'lifestyle-chronic-stress-hpa', 'sleep-inflammation-cytokine-mechanism'],
+    relatedIds: ['sleep-immune-vaccine-response', 'cortisol-chronic-dysregulation-autoimmunity', 'glossary-hpa-axis', 'sleep-inflammation-cytokine-mechanism'],
   },
   {
     id: 'sleep-inflammation-cytokine-mechanism',
@@ -129,7 +129,7 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['sleep-autoimmune-risk', 'sleep-autoimmune-disease-real-data', 'lifestyle-il6-deiodinase'],
+    relatedIds: ['sleep-autoimmune-risk', 'sleep-autoimmune-disease-real-data', 'glossary-deiodinase'],
   },
   {
     id: 'sleep-autoimmune-disease-real-data',
@@ -169,7 +169,7 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
   {
     id: 'sleep-melatonin-real-dosing',
     category: 'basicHealth',
-    title: 'A Counterintuitive Melatonin Finding: Less Is More',
+    title: 'Less Melatonin Works Better Than More',
     teaser: 'A dose-response meta-analysis found melatonin\'s sleep benefit peaks around 4 milligrams a day, and higher doses (5 to 10mg) don\'t work better, they just raise next-day grogginess risk.',
     summary:
       'Controlled research on melatonin dosing finds a counterintuitive pattern most over-the-counter product labeling doesn\'t reflect: low doses, in the 0.5 to 3 milligram range, measurably reduce how long it takes to fall asleep without raising blood melatonin above its normal nighttime physiological range, meaning a very small dose is already doing effective work, not an insufficient starting point to build up from. A dose-response meta-analysis of randomized controlled trials found melatonin\'s benefit on sleep-onset time and total sleep time gradually increases with dose, but peaks around 4 milligrams a day, higher doses (5 to 10 milligrams, common in many commercial products) are not more effective for most adults and carry an increased risk of next-day grogginess. A separate finding: lower doses maintained their effect over longer use without developing tolerance, while higher dosing showed benefit in the first few weeks that measurably diminished by 12 weeks, a practical reason "more must work better" doesn\'t hold up for this specific supplement.',
@@ -187,7 +187,7 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'A Consistent Sleep Schedule Predicts Longevity Better Than Total Sleep Time Does',
     teaser: 'A study of over 60,000 people found the most sleep-regular group had a 20 to 48% lower risk of dying over the following years than the least regular group, a bigger effect than sleep duration on its own.',
-    summary: 'Most sleep advice focuses on one number: how many hours a night. A large 2024 study suggests that number may not even be the most important one. Researchers followed over 60,000 adults in the UK Biobank, using wrist-worn devices to objectively track more than 10 million hours of sleep data, and scored each person on a Sleep Regularity Index, a measured score for how consistent someone\'s daily sleep timing actually was, not just how long they slept. Over roughly 6 years of follow-up, people in the most sleep-regular group had a substantial 20 to 48% lower risk of dying from any cause than people in the least regular group, along with a 16 to 39% lower cancer-mortality risk and a 22 to 57% lower cardiometabolic-mortality risk. When the researchers directly compared regularity against duration in the same statistical model, sleep regularity remained the stronger, more consistent predictor. This does not mean sleep duration stops mattering. It means going to bed and waking up at roughly the same time every day, weekends included, is doing independent, protective work on its own, work a person can still lose even while getting a technically adequate number of hours, if the timing keeps shifting around. Treating a consistent sleep schedule as something to protect deliberately, the same way a fixed appointment gets protected on a calendar, is an evidence-backed habit, not just a tidy metaphor. The body\'s master clock (see the circadian rhythm research) resets itself daily against external cues, and an irregular sleep schedule is one of the most direct ways to keep sending it a conflicting signal.',
+    summary: 'Most sleep advice focuses on one number: how many hours a night. A large 2024 study suggests that number may not even be the most important one. Researchers followed over 60,000 adults in the UK Biobank, using wrist-worn devices to objectively track more than 10 million hours of sleep data, and scored each person on a Sleep Regularity Index, a measured score for how consistent someone\'s daily sleep timing was, not just how long they slept. Over roughly 6 years of follow-up, people in the most sleep-regular group had a substantial 20 to 48% lower risk of dying from any cause than people in the least regular group, along with a 16 to 39% lower cancer-mortality risk and a 22 to 57% lower cardiometabolic-mortality risk. When the researchers directly compared regularity against duration in the same statistical model, sleep regularity remained the stronger, more consistent predictor. This does not mean sleep duration stops mattering. It means going to bed and waking up at roughly the same time every day, weekends included, is doing independent, protective work on its own, work a person can still lose even while getting a technically adequate number of hours, if the timing keeps shifting around. Treating a consistent sleep schedule as something to protect deliberately, the same way a fixed appointment gets protected on a calendar, is an evidence-backed habit. The body\'s master clock (see the circadian rhythm research) resets itself daily against external cues, and an irregular sleep schedule is one of the most direct ways to keep sending it a conflicting signal.',
     citations: [
       {
         source: 'Windred et al., "Sleep Regularity Is a Stronger Predictor of Mortality Risk Than Sleep Duration: A Prospective Cohort Study," Sleep, 2024, PMID 37738616',
@@ -200,9 +200,9 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
   {
     id: 'sleep-tying-together',
     category: 'basicHealth',
-    title: 'Sleep Connects to Nearly Every Mechanism Already tracked',
+    title: 'Sleep Connects to Nearly Every Mechanism the App Tracks',
     teaser: 'The same cortisol/HPA-axis pathway, the same inflammation markers, the same insulin-resistance mechanism, sleep keeps showing up underneath topics that look unrelated to it on the surface.',
-    summary: 'Across the already-existing research, sleep keeps resurfacing as an underlying factor in topics that don\'t obviously mention it: the same cortisol/HPA-axis pathway already named across alcohol, high-intensity exercise, and chronic stress runs directly through sleep too; migraine and insomnia show a documented bidirectional relationship; sleep apnea shows direct links to both MASLD and Type 2 Diabetes\'s glycemic control; and PCOS carries its elevated sleep-disruption burden. This topic is meant as the general physiology underneath all of those condition-specific findings, useful to revisit whenever one of those condition-specific entries mentions sleep in passing.',
+    summary: 'Across the research, sleep keeps resurfacing as an underlying factor in topics that don\'t obviously mention it: the same cortisol/HPA-axis pathway named across alcohol, high-intensity exercise, and chronic stress runs directly through sleep too; migraine and insomnia show a documented bidirectional relationship; sleep apnea shows direct links to both MASLD and Type 2 Diabetes\'s glycemic control; and PCOS carries an elevated sleep-disruption burden. These entries are the general physiology underneath all of those condition-specific findings.',
     citations: [
       {
         source: 'American Academy of Sleep Medicine, sleep stage classification standards',
@@ -210,6 +210,6 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['sleep-overview', 'sleep-glymphatic-system', 'sleep-circadian-rhythm-basics', 'sleep-regularity-consistency', 'lifestyle-sleep-circadian', 'lifestyle-chronic-stress-hpa', 'migraine-sleep-bidirectional', 'masld-sleep-apnea-bidirectional', 'type2-sleep-apnea-glycemic-control', 'pcos-sleep-mental-health-real-data', 'sleep-inflammation-cytokine-mechanism', 'sleep-autoimmune-disease-real-data'],
+    relatedIds: ['sleep-overview', 'sleep-glymphatic-system', 'sleep-circadian-rhythm-basics', 'sleep-regularity-consistency',  'cortisol-chronic-dysregulation-autoimmunity', 'glossary-hpa-axis', 'migraine-sleep-bidirectional', 'masld-sleep-apnea-bidirectional', 'type2-sleep-apnea-glycemic-control', 'pcos-sleep-mental-health-real-data', 'sleep-inflammation-cytokine-mechanism', 'sleep-autoimmune-disease-real-data'],
   },
 ];

@@ -25,7 +25,7 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'A Hormone Is a Chemical Messenger the Body Makes and Reads Itself',
     teaser: "A nutrient is something eaten. A hormone is something the body itself makes and uses as a signal, and food changes how well that signaling works.",
-    summary: "A hormone is a chemical messenger, produced by a gland or tissue, released into the bloodstream, and read by receptors on distant target cells, coordinating everything from blood-sugar regulation to the menstrual cycle to the body's stress response. This is a different kind of thing from a nutrient: a nutrient is raw material the body takes in from outside; a hormone is a signal the body manufactures and sends internally. The reason this category belongs alongside the Essential Nutrients series: food and lifestyle don't just supply the raw materials hormones are built from (cholesterol for steroid hormones, tyrosine and iodine for thyroid hormone, amino acids for insulin itself), they also directly influence how much of a given hormone gets made, how sensitive the body's own tissues are to it, and how quickly it gets cleared, mechanistic connections covered one hormone at a time in the entries below.",
+    summary: "A hormone is a chemical messenger, produced by a gland or tissue, released into the bloodstream, and read by receptors on distant target cells, coordinating everything from blood-sugar regulation to the menstrual cycle to the body's stress response. This is a different kind of thing from a nutrient: a nutrient is raw material the body takes in from outside; a hormone is a signal the body manufactures and sends internally. Food and lifestyle don't just supply the raw materials hormones are built from (cholesterol for steroid hormones, tyrosine and iodine for thyroid hormone, amino acids for insulin itself), they also directly influence how much of a given hormone gets made, how sensitive the body's tissues are to it, and how quickly it gets cleared, mechanistic connections covered one hormone at a time in the entries below.",
     citations: [
       { source: 'Physiology, Endocrine Hormones, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK538498/' },
     ],
@@ -45,7 +45,7 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
   {
     id: 'insulin-resistance-real-cluster',
     category: 'basicHealth',
-    title: 'Insulin Resistance Is the Single Most-Repeated Mechanism in The Entire Non-Autoimmune Condition Coverage',
+    title: 'Insulin Resistance Is the Mechanism That Repeats Most Across the Non-Autoimmune Conditions',
     teaser: 'Four separately-built conditions all trace back to the same broken signaling step, one mechanism, not four coincidences.',
     summary:
       "Insulin resistance, where target cells stop responding normally to insulin's signal, forcing the pancreas to produce more just to keep glucose in a normal range, is a recurring thread across completely unrelated conditions. Type 2 Diabetes's dedicated research already names it directly as the shared root connecting T2D, PCOS, MASLD, and Chronic Kidney Disease. PCOS's quantified data (42.6% vs. 17.1% insulin-resistance prevalence) makes it that condition's central mechanism too. MASLD's pathway (fat backing up in the liver specifically because insulin resistance disrupts normal fat metabolism) is the identical underlying disruption. This isn't four separate coincidental findings; it's one shared broken signaling pathway showing up in four different organ systems depending on where the body's compensating mechanisms give out first.",
@@ -65,7 +65,7 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
       { source: 'HPA Axis: The Stress Response System, Cleveland Clinic', url: 'https://my.clevelandclinic.org/health/body/hypothalamic-pituitary-adrenal-hpa-axis' },
     ],
     overallTier: 'strong',
-    relatedIds: ['lifestyle-chronic-stress-hpa', 'advocacy-cortisol-testing'],
+    relatedIds: ['cortisol-chronic-dysregulation-autoimmunity', 'glossary-hpa-axis', 'advocacy-cortisol-testing'],
   },
   {
     id: 'cortisol-chronic-dysregulation-autoimmunity',
@@ -77,24 +77,24 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
       { source: 'Chronic Stress and Autoimmunity: The Role of HPA Axis and Cortisol Dysregulation', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12563903/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['cortisol-overview-hpa-axis', 'lifestyle-chronic-stress-hpa'],
+    relatedIds: ['cortisol-overview-hpa-axis', 'glossary-hpa-axis'],
   },
   {
     id: 'thyroid-hormones-overview',
     category: 'basicHealth',
-    title: 'Thyroid Hormones (T3, T4, TSH): A Compact Overview, Since The Depth Lives Elsewhere',
-    teaser: "The single most extensively researched hormone system by far, Hashimoto's and Graves' between them cover this topic in dedicated depth.",
-    summary: "T4 (thyroxine) is the thyroid gland's primary output, a mostly-inactive precursor hormone that gets converted into T3 (triiodothyronine), the biologically active form actually used by cells throughout the body, largely outside the thyroid gland itself, in the liver, muscle, and other tissue. TSH (thyroid-stimulating hormone), released by the pituitary, is the feedback signal that tells the thyroid how much T4 to make, rising when thyroid hormone runs low and falling when it runs high, the same basic feedback-loop shape cortisol's HPA axis follows above. The depth on this specific hormone system already exists in substantial detail across its Hashimoto's and Graves' categories (TPO/TSI antibodies, the T4-to-T3 conversion pathway, levothyroxine timing, iodine's two-edged role) rather than repeated here, this entry exists mainly so \"Hormones\" as a category has a place for the single most-covered hormone system in this whole app, pointing directly to where its actual depth lives.",
+    title: 'Thyroid Hormones T3, T4 and TSH, in Brief',
+    teaser: "Hashimoto's and Graves' between them cover thyroid hormones in depth. This is the short version.",
+    summary: "T4 (thyroxine) is the thyroid gland's primary output, a mostly-inactive precursor hormone that gets converted into T3 (triiodothyronine), the biologically active form used by cells throughout the body, largely outside the thyroid gland itself, in the liver, muscle, and other tissue. TSH (thyroid-stimulating hormone), released by the pituitary, is the feedback signal that tells the thyroid how much T4 to make, rising when thyroid hormone runs low and falling when it runs high, the same basic feedback-loop shape cortisol's HPA axis follows above. The depth on this hormone system is in the Hashimoto's and Graves' categories (TPO/TSI antibodies, the T4-to-T3 conversion pathway, levothyroxine timing, iodine's two-edged role); this entry is the short version.",
     citations: [
       { source: "Graves' Disease, National Institute of Diabetes and Digestive and Kidney Diseases (NIDDK)", url: 'https://www.niddk.nih.gov/health-information/endocrine-diseases/graves-disease' },
     ],
     overallTier: 'strong',
-    relatedIds: ['glossary-tsh', 'glossary-t4', 'gut-vitamin-d-cldn2', 'cortisol-chronic-dysregulation-autoimmunity'],
+    relatedIds: ['glossary-tsh', 'glossary-t4', 'glossary-tight-junction', 'cortisol-chronic-dysregulation-autoimmunity'],
   },
   {
     id: 'leptin-ghrelin-overview',
     category: 'basicHealth',
-    title: 'Leptin & Ghrelin: Two Opposing Hormones That Tell the Brain Whether to Eat',
+    title: 'Leptin and Ghrelin Are Two Opposing Hormones That Tell the Brain Whether to Eat',
     teaser: 'One says "stop," the other says "start", both are measurable, and both get disrupted in a specific, counterintuitive way in obesity.',
     summary:
       "Leptin, produced by fat tissue itself, and ghrelin, produced mainly by the stomach, work as an opposing pair regulating appetite and long-term energy balance. Leptin is the \"stop eating, energy stores are adequate\" signal, acting on the hypothalamus to suppress appetite; ghrelin is the \"start eating\" signal, rising before meals and falling after. Together they're a physiological feedback system meant to keep body weight relatively stable over time, not just a single meal's worth of hunger.",
@@ -106,15 +106,15 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
   {
     id: 'leptin-resistance-obesity-paradox',
     category: 'basicHealth',
-    title: 'A Counterintuitive Finding: Obesity Involves Too MUCH Leptin, Not Too Little',
+    title: 'Obesity Involves Too Much Leptin, Not Too Little',
     teaser: 'If leptin is the "stop eating" signal, more of it should mean less hunger. In obesity, the opposite happens, the signal stops being heard at all.',
     summary:
-      "This is a counterintuitive, well-documented finding: in obesity, circulating leptin levels are actually elevated, not deficient, while ghrelin, the \"start eating\" hormone, runs lower than expected. The problem isn't a leptin shortage; it's leptin resistance, the body's own cells becoming desensitized to a hormone that's chronically present at high levels, through several proposed mechanisms including impaired leptin transport across the blood-brain barrier and receptor desensitization from constant exposure, a similar pattern to how insulin resistance develops from chronically elevated insulin. The practical consequence: leptin resistance produces reduced satiety and drives further weight gain, a self-reinforcing cycle that a simple \"eat less\" framing misses entirely, since the body's internal fullness signal has effectively stopped registering correctly.",
+      "This is a counterintuitive, well-documented finding: in obesity, circulating leptin levels are elevated, not deficient, while ghrelin, the \"start eating\" hormone, runs lower than expected. The problem isn't a leptin shortage; it's leptin resistance, the body's own cells becoming desensitized to a hormone that's chronically present at high levels, through several proposed mechanisms including impaired leptin transport across the blood-brain barrier and receptor desensitization from constant exposure, a similar pattern to how insulin resistance develops from chronically elevated insulin. The practical consequence: leptin resistance produces reduced satiety and drives further weight gain, a self-reinforcing cycle that a simple \"eat less\" framing misses entirely, since the body's internal fullness signal has effectively stopped registering correctly.",
     citations: [
       { source: 'Leptin and Obesity: Role and Clinical Implication', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8167040/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['leptin-ghrelin-overview', 'mito-visceral-fat-treg-depletion'],
+    relatedIds: ['leptin-ghrelin-overview', 'glossary-visceral-fat', 'bodyfat-visceral-vs-subcutaneous'],
   },
   // 2026-08-21, five entries added after fact-checking NOVA's "The Truth
   // About Fat" (2020) documentary against the peer-reviewed literature
@@ -134,7 +134,7 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Leptin Was Found by Studying Mice That Never Felt Full',
     teaser: 'A strain of mice discovered in 1950, three times the normal weight with an insatiable appetite, led to the 1994 discovery that fat itself sends a hormone signal to the brain.',
-    summary: "A strain of mice with a spontaneous mutation, first identified at the Jackson Laboratory in 1950, grew to roughly three times normal body weight and never stopped eating. It took until 1994 for Jeffrey Friedman's lab at Rockefeller University to identify the actual gene behind it, cloning the mouse \"obese\" (ob) gene and its human counterpart. The gene's product, a hormone made by fat tissue itself and named leptin, is the signal that tells the hypothalamus how much stored energy the body already has. This is the finding the documentary's framing rests on: fat isn't passive storage tissue, it's an organ that actively produces hormones and communicates with the brain, on par with any gland in the body.",
+    summary: "A strain of mice with a spontaneous mutation, first identified at the Jackson Laboratory in 1950, grew to roughly three times normal body weight and never stopped eating. It took until 1994 for Jeffrey Friedman's lab at Rockefeller University to identify the actual gene behind it, cloning the mouse \"obese\" (ob) gene and its human counterpart. The gene's product, a hormone made by fat tissue itself and named leptin, is the signal that tells the hypothalamus how much stored energy the body already has. This is the finding NOVA's The Truth About Fat (PBS, 2020) rests on: fat is an organ that actively produces hormones and communicates with the brain, on par with any gland in the body.",
     citations: [
       { source: 'Zhang Y et al. 1994, Nature: Positional cloning of the mouse obese gene and its human homologue', url: 'https://pubmed.ncbi.nlm.nih.gov/7984236/' },
       { source: 'Kershaw EE, Flier JS. 2004, J Clin Endocrinol Metab: Adipose tissue as an endocrine organ', url: 'https://pubmed.ncbi.nlm.nih.gov/15181022/' },
@@ -172,7 +172,7 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: "Adiponectin Falls as Body Fat Rises, the Opposite of Leptin",
     teaser: "Unlike leptin, adiponectin levels go down as body fat goes up, and higher levels are consistently linked to better insulin sensitivity and less inflammation.",
-    summary: "Adiponectin is another hormone made by fat tissue, but it behaves in the opposite direction from leptin: rather than rising with body fat, adiponectin levels tend to fall as fat mass, especially visceral fat, increases. Higher adiponectin is consistently associated with better insulin sensitivity, lower inflammation, and a protective effect on blood vessels, through receptors (AdipoR1 and AdipoR2) that activate an energy-sensing enzyme (AMPK) in muscle and liver tissue. Regular exercise is independently documented to raise adiponectin levels. This is the hormone behind the documentary's sumo-wrestler segment: active wrestlers, despite very high total body fat, were reported to carry higher adiponectin than their size alone would predict, illustrating why fat amount and fat function aren't the same measurement, though that specific sumo comparison traces to the documentary and secondary science journalism rather than a dedicated peer-reviewed study, kept distinct here from the well-established general adiponectin science above.",
+    summary: "Adiponectin is another hormone made by fat tissue, but it behaves in the opposite direction from leptin: adiponectin levels tend to fall as fat mass, especially visceral fat, increases. Higher adiponectin is consistently associated with better insulin sensitivity, lower inflammation, and a protective effect on blood vessels, through receptors (AdipoR1 and AdipoR2) that activate an energy-sensing enzyme (AMPK) in muscle and liver tissue. Regular exercise is independently documented to raise adiponectin levels. This is the hormone behind the sumo-wrestler segment of NOVA's The Truth About Fat (PBS, 2020): active wrestlers, despite very high total body fat, were reported to carry higher adiponectin than their size alone would predict, illustrating why fat amount and fat function aren't the same measurement, though that specific sumo comparison traces to that documentary and secondary science journalism rather than a dedicated peer-reviewed study, so it stands apart from the well-established general adiponectin science above.",
     citations: [
       { source: 'Kadowaki T, Yamauchi T. 2005, Endocrine Reviews: Adiponectin and Adiponectin Receptors', url: 'https://pubmed.ncbi.nlm.nih.gov/15897298/' },
     ],
@@ -189,26 +189,26 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
       { source: 'Abella V et al. 2017, Nature Reviews Rheumatology: Leptin in the interplay of inflammation, metabolism and immune system disorders', url: 'https://pubmed.ncbi.nlm.nih.gov/28053336/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['mito-visceral-fat-treg-depletion', 'mito-visceral-fat-treg-reinfusion', 'leptin-resistance-obesity-paradox'],
+    relatedIds: ['glossary-visceral-fat', 'bodyfat-visceral-vs-subcutaneous', 'glossary-treg', 'leptin-resistance-obesity-paradox'],
   },
   {
     id: 'estrogen-progesterone-cycle',
     category: 'basicHealth',
-    title: 'Estrogen & Progesterone: A Sequential Partnership Across the Menstrual Cycle',
+    title: 'Estrogen and Progesterone Take Turns Across the Menstrual Cycle',
     teaser: "Estrogen leads the first half of the cycle, progesterone the second, a predictable handoff that perimenopause, covered next, eventually disrupts.",
     summary: "Estrogen and progesterone work in a sequential partnership across a normal menstrual cycle, not simultaneously at constant levels. Estrogen dominates the first half (the follicular phase), rising to trigger ovulation; progesterone then takes over in the second half (the luteal phase), produced by the corpus luteum after ovulation, thickening the uterine lining to support a potential pregnancy and helping regulate mood and body temperature along the way. Beyond reproduction, estrogen shapes bone health, cardiovascular function, and, as the gut-microbiome research separately documents, gut-barrier integrity through the CLDN2 tight-junction gene, a different, independently-discovered mechanism from its reproductive role.",
     citations: [
       { source: 'Steroid Hormone Secretion Over the Course of the Perimenopause: Findings From the Swiss Perimenopause Study', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8712488/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['gut-vitamin-d-cldn2'],
+    relatedIds: ['glossary-tight-junction'],
   },
   {
     id: 'estrogen-progesterone-perimenopause',
     category: 'basicHealth',
-    title: 'Perimenopause: A Multi-Year Shift Toward Estrogen Dominance, Not a Simple Decline of Both Hormones Together',
+    title: 'Perimenopause Is a Multi-Year Shift Toward Estrogen Dominance, Not a Simple Decline of Both Hormones',
     teaser: 'Progesterone drops first and further, a specific imbalance, not just "hormones going down," and it can last 6-10 years before menopause itself.',
-    summary: "Perimenopause is a multi-year transition (commonly 6-10 years) that begins with subtle changes in cycle length and ends 12 months after the final menstrual period. The specific hormonal shift isn't simply \"both hormones declining together\": more eggs get recruited and stimulated per cycle during this transition, producing higher-than-normal estrogen levels alongside lower-than-normal progesterone, since more cycles become anovulatory (no egg released) or have a shortened luteal phase, meaning less progesterone gets made at all. This shifted estrogen-to-progesterone balance is the documented driver behind many perimenopausal symptoms (hot flashes, sleep disruption, mood changes), not simply low hormones across the board. The Self Advocacy research covers the counterintuitive finding that a full hormone panel usually isn't what actually confirms perimenopause is happening, symptom pattern and menstrual-cycle change are the more reliable signal, covered in depth there rather than repeated here.",
+    summary: "Perimenopause is a multi-year transition (commonly 6-10 years) that begins with subtle changes in cycle length and ends 12 months after the final menstrual period. The hormonal shift: more eggs get recruited and stimulated per cycle during this transition, producing higher-than-normal estrogen levels alongside lower-than-normal progesterone, since more cycles become anovulatory (no egg released) or have a shortened luteal phase, meaning less progesterone gets made at all. This shifted estrogen-to-progesterone balance is the documented driver behind many perimenopausal symptoms (hot flashes, sleep disruption, mood changes). The Self Advocacy research covers the counterintuitive finding that a full hormone panel usually isn't what confirms perimenopause is happening, symptom pattern and menstrual-cycle change are the more reliable signal.",
     citations: [
       { source: 'Steroid Hormone Secretion Over the Course of the Perimenopause: Findings From the Swiss Perimenopause Study', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8712488/' },
     ],
@@ -218,7 +218,7 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
   {
     id: 'testosterone-overview-function',
     category: 'basicHealth',
-    title: 'Testosterone: Roles Well Beyond Reproduction, in Metabolism, Mood, and Cardiovascular Health',
+    title: 'Testosterone\'s Roles Reach Well Beyond Reproduction Into Metabolism, Mood and Heart Health',
     teaser: 'Not just a reproductive hormone, research links it directly to metabolic, psychological, and cardiovascular function too.',
     summary:
       "Testosterone, produced primarily in the testes (and in smaller amounts by the ovaries and adrenal glands), is central to sperm production, sexual desire, and secondary sexual characteristics (muscle mass, bone density, body hair), but its reach extends well past reproduction: it contributes significantly to metabolic regulation, psychological well-being, and cardiovascular function too, a broader role than its popular reputation as purely a reproductive hormone suggests.",
@@ -246,7 +246,7 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Hormones, Pulled Together',
     teaser: 'One shared mechanism (insulin resistance) explains four different conditions. One shared pathway (cortisol/HPA-axis) explains four different everyday habits. Hormones are where the separate research threads keep converging.',
-    summary: "This category's throughline isn't any single hormone, it's how often totally different topics turn out to run through the exact same hormonal mechanism once traced back far enough. Insulin resistance is the shared root independently found underneath Type 2 Diabetes, PCOS, MASLD, and Chronic Kidney Disease. Cortisol and the HPA axis is the shared pathway underneath alcohol, sleep disruption, high-intensity exercise, and glucose crashes, each covered as its separate topic in the Lifestyle & Environment research, but all converging here. Leptin resistance mirrors insulin resistance's own \"too much of the signal, not too little\" shape almost exactly. And two hormone systems, thyroid hormones and testosterone, connect directly to the two most extensively built condition categories, Hashimoto's/Graves' and Prostate Health respectively, evidence the separate research threads keep arriving at the same small set of underlying biological mechanisms from different directions.",
+    summary: "The throughline across these hormones is how often totally different topics turn out to run through the exact same hormonal mechanism once traced back far enough. Insulin resistance is the shared root independently found underneath Type 2 Diabetes, PCOS, MASLD, and Chronic Kidney Disease. Cortisol and the HPA axis is the shared pathway underneath alcohol, sleep disruption, high-intensity exercise, and glucose crashes, each covered as a separate topic in the Lifestyle & Environment research, but all converging here. Leptin resistance mirrors insulin resistance's \"too much of the signal, not too little\" shape almost exactly. And two hormone systems, thyroid hormones and testosterone, connect directly to the two most extensively built condition categories, Hashimoto's/Graves' and Prostate Health respectively.",
     citations: [
       { source: 'Physiology, Endocrine Hormones, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK538498/' },
     ],

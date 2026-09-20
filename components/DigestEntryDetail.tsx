@@ -325,6 +325,9 @@ export function DigestEntryBody({
   if (isProblemFoodEntry(entry)) {
     return (
       <View style={style}>
+        <Text style={[styles.tierLabelText, { color: tierColor(entry.overallTier) }]}>
+          {tierLabel(entry.overallTier)}
+        </Text>
         <EntryMetaRow entry={entry} tabColor={tabColor} tabTextColor={tabTextColor} />
         <Text style={labelStyle}>The problem</Text>
         <Text style={styles.detailText}>{renderRichText(entry.problem, emphasis)}</Text>
@@ -387,9 +390,10 @@ export function DigestEntryBody({
 
 // The dot beside an entry's title: the recipe's safety for the condition
 // being read when there is one, the evidence tier otherwise. Shared so the
-// Digest card and the Life row agree.
+// Digest card and the Life row agree. A problem food carries a tier since
+// 2026-09-19 and gets the same dot as any other entry.
 export function entryHeaderDotColor(entry: AnyDigestEntry, activeConditionCode?: string): string | null {
-  if (isProblemFoodEntry(entry)) return null;
+  if (isProblemFoodEntry(entry)) return tierColor(entry.overallTier);
   const activeSeverity = resolveActiveConditionSeverity(entry, activeConditionCode);
   return activeSeverity ? severityDotColor(activeSeverity) : tierColor(entry.overallTier);
 }

@@ -48,8 +48,9 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-garlic-onion',
     category: 'basicHealth',
+    overallTier: 'moderate',
     foodName: 'Garlic & Onion',
-    teaser: 'The single most common "why does this always upset me" pair, and it has nothing to do with allergy.',
+    teaser: 'A very common "why does this always upset me" pair, and it has nothing to do with allergy.',
     problem:
       "Garlic and onion are both loaded with fructans, a type of carbohydrate a lot of people digest poorly: bloating, gas, cramping, whether or not they've ever been formally diagnosed with IBS.",
     mechanism:
@@ -70,6 +71,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-gluten-grains',
     category: 'hashimotos',
+    overallTier: 'moderate',
     foodName: 'Gluten-Containing Grains',
     teaser: "The single most-cited elimination in Hashimoto's food advice, and the link to autoimmunity behind it runs through a specific gut-lining mechanism, not just tradition.",
     problem:
@@ -90,6 +92,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-conventional-dairy',
     category: 'basicHealth',
+    overallTier: 'moderate',
     foodName: 'Conventional Dairy',
     teaser: "Not every dairy reaction is lactose intolerance, and the fix isn't always \"just avoid dairy.\"",
     problem:
@@ -99,7 +102,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     swaps: [
       'Lactase-treated ("lactose-free") milk, and hard aged cheeses: naturally very low in lactose to begin with.',
       "A long-fermented homemade yogurt. A long culture time eats up most of the milk's lactose, which is often enough to make a well-fermented batch sit fine even for someone lactose-sensitive.",
-      "An elimination-and-reintroduction, not indefinite avoidance. It's the only way to find out which mechanism (if either) is actually behind a given reaction.",
+      "An elimination-and-reintroduction, not indefinite avoidance. It's the only way to find out which mechanism (if either) is behind a given reaction.",
     ],
     citations: [
       {
@@ -111,6 +114,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-raw-cruciferous',
     category: 'hashimotos',
+    overallTier: 'weak',
     foodName: 'Raw Cruciferous Vegetables',
     teaser: "The most misunderstood item on any Hashimoto's \"avoid list.\" The fix is cooking, not avoiding.",
     problem:
@@ -132,6 +136,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-nightshades',
     category: 'hashimotos',
+    overallTier: 'weak',
     foodName: 'Nightshades',
     teaser: 'The most contested item on this whole list, and the answer really is "test it yourself."',
     problem:
@@ -152,6 +157,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-high-histamine',
     category: 'hashimotos',
+    overallTier: 'weak',
     foodName: 'High-Histamine Foods (aged cheese, cured meat, most ferments, leftovers)',
     teaser: "A tension with the fermented-food research.",
     problem:
@@ -174,6 +180,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-sugar-sweetened-beverages',
     category: 'hashimotos',
+    overallTier: 'moderate',
     foodName: 'Sugar-Sweetened Beverages',
     teaser: 'Not "sugar" broadly. The problem is drinking it, not eating it.',
     problem:
@@ -195,6 +202,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-soy',
     category: 'hashimotos',
+    overallTier: 'moderate',
     foodName: 'Soy (Conditional, Not Universal)',
     teaser: 'The risk lands on a specific subgroup, not on everyone who eats tofu.',
     problem:
@@ -216,15 +224,16 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-refined-vegetable-oils',
     category: 'basicHealth',
+    overallTier: 'weak',
     foodName: 'Refined Vegetable & Seed Oils (esp. Fried Foods)',
     teaser: 'The issue is a balance problem, not that any one oil is "toxic."',
     problem:
       "Common refined oils (soybean, corn, cottonseed, conventional sunflower) run heavy on omega-6 fat relative to omega-3, and the modern diet's overall ratio has drifted from something like an even 1:1 in the past to often 15:1 or higher today, which tracks with a more inflammatory baseline. Deep frying adds a second problem on top: oxidized compounds form at high heat.",
     mechanism:
-      "Omega-6 fats are the raw material for pro-inflammatory signaling molecules, while omega-3s build the anti-inflammatory ones, and it's the ratio between the two, not omega-6 on its own, that the research actually tracks.",
+      "Omega-6 fats are the raw material for pro-inflammatory signaling molecules, while omega-3s build the anti-inflammatory ones, and it's the ratio between the two, not omega-6 on its own, that the research tracks.",
     swaps: [
       'Extra virgin olive oil or avocado oil for most everyday cooking, both much lower in omega-6 relative to their healthy fat content.',
-      'Fatty fish (salmon, sardines, mackerel) a few times a week to actually raise omega-3 intake, not just cut omega-6.',
+      'Fatty fish (salmon, sardines, mackerel) a few times a week to raise omega-3 intake, not just cut omega-6.',
       "Baking, roasting, or air-frying instead of deep frying when what you're really after is the crispy texture.",
     ],
     citations: [
@@ -238,11 +247,12 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-commercial-premade',
     category: 'basicHealth',
+    overallTier: 'strong',
     foodName: 'Commercial / Pre-Made Products',
     teaser: "The design philosophy, said out loud: build it yourself when you can.",
     problem:
-      "Branded, boxed, and other pre-made products tend to stack several of this list's other concerns into one item at once: refined oils, added sugar, synthetic dyes, emulsifiers, sodium, and the exact recipe and ratios aren't something you control, or always even see on the label.",
-    mechanism: "It isn't any single mechanism. It's cumulative, less-visible exposure to several of this list's other entries stacked together at once. A large 2024 umbrella review pooling nearly 10 million people found ultra-processed food consistently tied to 32 different adverse health outcomes, exactly why the ten Food-tab builders exist to assemble meals from individually-chosen ingredients instead of reaching for a pre-made stand-in.",
+      "Branded, boxed, and other pre-made products tend to stack several concerns into one item at once: refined oils, added sugar, synthetic dyes, emulsifiers, sodium, and the exact recipe and ratios aren't something you control, or always even see on the label.",
+    mechanism: "It's cumulative, less-visible exposure to several of the problems above stacked together at once. A large 2024 umbrella review pooling nearly 10 million people found ultra-processed food consistently tied to 32 different adverse health outcomes, exactly why the twelve Food-tab builders exist to assemble meals from individually-chosen ingredients instead of reaching for a pre-made stand-in.",
     swaps: [
       "Build the equivalent yourself with this app's Food-tab builders. Sides, Sauces, Soups, and Handhelds cover most of the ground a box mix or frozen meal usually fills.",
       'When a commercial product really is the only practical option, reading the full ingredient list (not just the front label) at least makes the tradeoff visible instead of hidden.',
@@ -258,10 +268,11 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-conventional-high-pesticide-produce',
     category: 'basicHealth',
+    overallTier: 'weak',
     foodName: 'Conventional Produce, High-Residue Items Specifically',
     teaser: 'The checkable version of "wash your produce." Not every fruit or vegetable carries the same exposure.',
     problem:
-      'Pesticide residue on conventionally grown produce varies a lot by crop. Some items, strawberries, spinach, kale, reliably test with detectable residue on nearly every sample in annual testing, while others, avocado, sweet corn, pineapple, reliably test clean, mostly thanks to a thick skin the edible part never actually touches.',
+      'Pesticide residue on conventionally grown produce varies a lot by crop. Some items, strawberries, spinach, kale, reliably test with detectable residue on nearly every sample in annual testing, while others, avocado, sweet corn, pineapple, reliably test clean, mostly thanks to a thick skin the edible part never touches.',
     mechanism: "Several commonly used pesticides are documented endocrine disruptors in animal and cell studies, which connects this directly to the Lifestyle & Environment research on environmental endocrine disruptors, not a separate topic on its own.",
     swaps: [
       'Buy organic selectively, for the highest-residue, thin-skinned items, not as a blanket rule for everything.',
@@ -275,6 +286,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-coffee-timing',
     category: 'hashimotos',
+    overallTier: 'moderate',
     foodName: 'Coffee Taken Too Close to Levothyroxine',
     teaser: "The single most useful, most fixable food-medication timing tip on the list.",
     problem:
@@ -307,6 +319,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-excess-iodine-kelp',
     category: 'hashimotos',
+    overallTier: 'moderate',
     foodName: 'Kelp, Dulse & Iodine-Heavy Sea Vegetables',
     teaser: '"More iodine is always better for your thyroid" is exactly backwards for a lot of people with Hashimoto\'s.',
     problem:
@@ -332,6 +345,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-charred-grilled-meat',
     category: 'basicHealth',
+    overallTier: 'moderate',
     foodName: 'Charred, Grilled & Deep-Fried Meat',
     teaser: "It's how hot and how dry the meat got cooked.",
     problem:
@@ -353,10 +367,11 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-raw-undercooked-meat-eggs',
     category: 'basicHealth',
+    overallTier: 'strong',
     foodName: 'Raw or Undercooked Meat, Poultry, Fish & Eggs',
     teaser: 'A rare steak or sushi-grade fish can be a safe choice. Raw ground meat, undercooked poultry, and raw eggs are a different, well-documented risk.',
     problem:
-      "CDC estimates roughly 48 million people in the US get sick from a foodborne illness every year, about 128,000 are hospitalized, and 3,000 die. Raw or undercooked meat, poultry, fish, and eggs are the foods most consistently linked to it. This isn't a reason to avoid every rare steak or piece of sushi, both can be safe when handled correctly, it's a reason to know which specific choices actually carry the risk and which don't.",
+      "CDC estimates roughly 48 million people in the US get sick from a foodborne illness every year, about 128,000 are hospitalized, and 3,000 die. Raw or undercooked meat, poultry, fish, and eggs are the foods most consistently linked to it. This isn't a reason to avoid every rare steak or piece of sushi, both can be safe when handled correctly, it's a reason to know which specific choices carry the risk and which don't.",
     mechanism:
       'Four named pathogens do most of the damage: Salmonella (a leading overall cause, especially tied to poultry and eggs), Campylobacter (tied to undercooked poultry), E. coli, and Listeria (fewer cases overall, but disproportionately severe, especially for pregnant people, older adults, and anyone with a weakened immune system, including several conditions this app tracks that involve biologics, methotrexate, or other immunosuppressive treatment). Ground meat carries a higher risk than a whole cut of the same animal: grinding mixes any surface bacteria throughout the whole batch, so a rare burger can carry bacteria all the way through in a way a rare steak, where bacteria mostly sit on the surface a hot pan already sears, does not. Raw fish has its separate safety standard: the FDA requires fish served raw to first be frozen (-4°F for 7 days, or -31°F until solid then held at -31°F for 15 hours) to kill parasites like Anisakis. "Sushi-grade" is not an official grading term, it is shorthand for fish that has gone through this process.',
     swaps: [
@@ -364,7 +379,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
       'Whole cuts (steaks, chops, roasts) of beef, pork, lamb, or veal: 145°F is the official safe minimum, lower than ground meat needs.',
       'All poultry (chicken, turkey): 165°F, checked at the innermost part of the thigh and wing and the thickest part of the breast.',
       'Egg dishes (casseroles, egg mixtures): 160°F, or simply cook until both the white and yolk are fully firm.',
-      'Raw fish at home specifically: use fish that has actually been through the FDA freezing process above, not just any fresh fillet from a regular counter.',
+      'Raw fish at home specifically: use fish that has been through the FDA freezing process above, not just any fresh fillet from a regular counter.',
     ],
     citations: [
       { source: 'Facts About Food Poisoning, CDC', url: 'https://www.cdc.gov/food-safety/data-research/facts-stats/index.html' },
@@ -377,6 +392,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-gluten-free-without-celiac',
     category: 'hashimotos',
+    overallTier: 'moderate',
     foodName: 'Going Gluten-Free Without Celiac Disease, a Mixed Answer',
     teaser: "Probably the single most common Hashimoto's diet question, with an answer more surprising and less settled than most advice admits.",
     problem:
@@ -398,18 +414,26 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-tying-together',
     category: 'basicHealth',
-    foodName: 'Tying It All Together: The Patterns Across This Whole List',
-    teaser: 'Fourteen very different foods, four repeating mechanisms underneath most of them.',
+    overallTier: 'moderate',
+    foodName: 'Seven Foods, Four Reasons They Cause Trouble',
+    teaser: 'Seven different foods on this shelf, and most of the trouble comes down to four repeating reasons.',
     problem:
-      "Taken food by food, this list can look like fourteen unrelated warnings. Taken as a whole, most of them trace back to just a handful of repeating mechanisms: a fermentable carbohydrate the gut can't break down (garlic, onion, sugar-sweetened drinks), a gut-permeability trigger (gluten), a heat-reversible enzyme effect (raw crucifers), a histamine-clearance bottleneck (aged, cured, and most fermented foods), and the same cortisol/HPA-axis pathway this research keeps returning to (sugar-sweetened drinks, and see Lifestyle & Environment).",
-    mechanism: "None of this is separate, unrelated biology. It's a small number of gut and hormone mechanisms the keeps coming back to, just triggered by different foods each time.",
+      "Taken food by food, this shelf can look like seven unrelated warnings. Taken as a whole, most of them trace back to four repeating reasons: a carbohydrate the small intestine cannot break down, so the colon ferments it instead (the fructans in garlic and onion, the lactose in dairy); a fat problem, either an omega-6 to omega-3 balance that has drifted a long way from where it used to be (refined oils) or compounds formed by high, dry heat (charred and deep-fried meat); exposure that adds up without being chosen, because a label does not show it (pre-made products, pesticide residue); and, for raw or undercooked meat, poultry and eggs, plain pathogens.",
+    mechanism: "A small number of gut, fat and safety mechanisms come up again and again, triggered by a different food each time. The conditions on Life carry a further set of problem foods that run through a specific thyroid or autoimmune mechanism, and those sit with the condition they belong to.",
     swaps: [
-      'Test one food at a time, not the whole list at once. Most of these are conditional (soy, nightshades, dairy), not universal.',
-      'Cooking, timing, and freshness resolve more of this list than outright avoidance does. Only gluten, and for a specific subgroup soy, really call for a longer elimination.',
+      'Test one food at a time rather than the whole shelf at once. The dairy entry is the clearest case: two different mechanisms, and cutting dairy for one does not fix the other.',
+      'Cooking, timing, and freshness resolve more of this shelf than outright avoidance does: the cooking method decides how much AGE a cut of meat carries, and a thick skin decides whether residue reaches the part you eat.',
       "This app's Healing Stages guide sequences exactly this kind of reintroduction: lowest-risk first, one variable at a time.",
     ],
     citations: [
-      { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
+      {
+        source: 'Monash University FODMAP research group: fructan content in garlic, onion & other high-FODMAP foods',
+        url: 'https://www.monashfodmap.com/about-fodmap-and-ibs/high-and-low-fodmap-foods/',
+      },
+      {
+        source: 'Lane et al. 2024, BMJ: ultra-processed food exposure and adverse health outcomes, umbrella review',
+        url: 'https://doi.org/10.1136/bmj-2023-077310',
+      },
     ],
   },
 ];

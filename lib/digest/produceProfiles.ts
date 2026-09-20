@@ -38,7 +38,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'A Profile Per Food, Not One Universal "Eat More Produce" Rule',
     teaser: 'The same fruit or vegetable that helps one person can be a specific concern for another, these profiles name both sides.',
-    summary: 'Most general nutrition advice treats "eat more fruits and vegetables" as a single, universal instruction. It is well-supported advice on average, but it flattens an important truth this whole topic is built around: several of the most commonly recommended foods carry a specific caution for a specific group of people, high-oxalate leafy greens and kidney stone risk, high-vitamin-K leafy greens and blood-thinning medication, raw cruciferous vegetables and thyroid function, high-FODMAP produce and IBS, tree nut allergy. None of these cautions are a reason to avoid these foods broadly, they\'re a reason to know whether a specific one applies to a specific person, the same distinction the condition-specific research already makes everywhere else. Every entry below stays in sync with what\'s actually still browsable in the food reference database, if a food is hidden there, its profile disappears here too, rather than describing something no longer selectable.',
+    summary: 'Most general nutrition advice treats "eat more fruits and vegetables" as a single, universal instruction. It is well-supported advice on average, but it hides a pattern: several of the most commonly recommended foods carry a specific caution for a specific group of people, high-oxalate leafy greens and kidney stone risk, high-vitamin-K leafy greens and blood-thinning medication, raw cruciferous vegetables and thyroid function, high-FODMAP produce and IBS, tree nut allergy. None of these cautions are a reason to avoid these foods broadly. They\'re a reason to know whether a specific one applies to a specific person. Every entry below stays in sync with what\'s browsable in the food reference database: if a food is hidden there, its profile disappears here too.',
     citations: [
       {
         source: 'NASEM Dietary Reference Intakes, general fruit/vegetable intake guidance',
@@ -51,7 +51,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
   {
     id: 'produce-apple',
     category: 'basicHealth',
-    title: 'Apple: A Fiber-and-Polyphenol Package, Mostly Sitting in the Peel',
+    title: 'An Apple\'s Fiber and Polyphenols Sit Mostly in the Peel',
     teaser: 'Most of an apple\'s fiber and polyphenol content concentrates in the skin, peeling it away removes a meaningful share of what makes it worth eating whole.',
     summary:
       'An apple carries a mix of soluble fiber (pectin, the same substance that thickens jam) and insoluble fiber, alongside a meaningful concentration of polyphenols, most heavily in and just under the skin, peeling an apple removes a share of both the fiber and the antioxidant content, not just texture. Pectin specifically has documented cholesterol-lowering and blood-sugar-moderating effects, part of why a whole apple digests and affects blood sugar differently than apple juice, which strips out essentially all of the fiber. The worth-knowing caution: apple seeds contain a small amount of amygdalin, a compound that releases cyanide when broken down, but the amount in a normal handful of accidentally swallowed seeds is far below a dangerous dose for an adult, a hazard requires deliberately chewing and consuming a large quantity of crushed seeds, not the occasional swallowed seed from eating an apple normally.',
@@ -67,7 +67,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
   {
     id: 'produce-blueberry',
     category: 'basicHealth',
-    title: 'Blueberry: One of the Most Concentrated Sources of Anthocyanin Antioxidants in a Common Food',
+    title: 'Blueberries Are One of the Most Concentrated Anthocyanin Sources in a Common Food',
     teaser: 'Blueberries owe both their color and much of their research interest to anthocyanins, a specific class of polyphenol with anti-inflammatory and cognitive-aging research behind it.',
     summary:
       'Blueberries\' deep color comes from anthocyanins, a well-studied class of flavonoid antioxidant, and blueberries carry them at a meaningfully higher concentration than most other common fruits. Human trials have found regular blueberry intake associated with modest, measurable improvements in blood pressure and markers of oxidative stress, and a separate body of research links anthocyanin-rich diets to slower age-related cognitive decline, though the cognitive research is still developing and shouldn\'t be read as a proven prevention strategy on its own. There is no significant, common caution specific to blueberries themselves for most people, the worth-knowing distinction is between wild (lowbush) and cultivated (highbush) blueberries, since wild blueberries run meaningfully smaller and, per gram, carry a higher anthocyanin concentration than the larger cultivated variety most commonly sold fresh.',
@@ -83,10 +83,10 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
   {
     id: 'produce-citrus',
     category: 'basicHealth',
-    title: 'Oranges and Other Citrus: A Well-Established Vitamin C Source, With One Different Family Member',
+    title: 'Oranges and Other Citrus Are a Well-Established Vitamin C Source, With One Different Family Member',
     teaser: 'Plain oranges have no meaningful drug-interaction concern, but grapefruit, a botanical cousin, does, and the two are worth telling apart.',
     summary:
-      'A single orange reliably supplies a large share of an adult\'s daily vitamin C need, alongside fiber, folate, and potassium content, and citrus fruits broadly are a well-established, uncontroversial source of all three. The one important distinction within the citrus family: grapefruit (and, to a lesser extent, Seville/sour oranges and pomelo) contains compounds (furanocoumarins) that measurably block an enzyme in the gut wall responsible for breaking down several common medications, enough that it changes how much of a drug actually reaches the bloodstream, a documented interaction with certain statins, calcium channel blockers, and immunosuppressants, among others. Plain sweet oranges, tangerines, and mandarins do not carry this same interaction in any clinically meaningful way, the caution is specific to grapefruit and its closer relatives, not citrus as a whole family, so not every citrus fruit needs the same caution.',
+      'A single orange reliably supplies a large share of an adult\'s daily vitamin C need, alongside fiber, folate, and potassium content, and citrus fruits broadly are a well-established, uncontroversial source of all three. The one important distinction within the citrus family: grapefruit (and, to a lesser extent, Seville/sour oranges and pomelo) contains compounds (furanocoumarins) that measurably block an enzyme in the gut wall responsible for breaking down several common medications, enough that it changes how much of a drug reaches the bloodstream, a documented interaction with certain statins, calcium channel blockers, and immunosuppressants, among others. Plain sweet oranges, tangerines, and mandarins do not carry this same interaction in any clinically meaningful way, the caution is specific to grapefruit and its closer relatives, not citrus as a whole family, so not every citrus fruit needs the same caution.',
     citations: [
       {
         source: 'NIH Office of Dietary Supplements, vitamin C fact sheet',
@@ -100,7 +100,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
   {
     id: 'produce-avocado',
     category: 'basicHealth',
-    title: 'Avocado: A Monounsaturated-Fat Outlier Among Fruits, With a FODMAP Caveat at Larger Servings',
+    title: 'Avocado Is a Monounsaturated-Fat Outlier Among Fruits, With a FODMAP Caveat at Larger Servings',
     teaser: 'Avocado is botanically a fruit but nutritionally an outlier, carrying a fat profile closer to olive oil than to any other common fruit, and a serving-size-dependent FODMAP concern.',
     summary: 'Unlike almost every other fruit, avocado\'s calories come predominantly from fat, mostly the same monounsaturated oleic acid that makes olive oil a well-supported part of Mediterranean-pattern eating, alongside potassium and fiber content. The caution isn\'t a toxicity concern, it\'s a dose-dependent FODMAP issue: avocado contains sorbitol, a sugar alcohol that a meaningful share of people, especially those with IBS, absorb poorly in larger amounts, producing gas, bloating, or cramping specifically past a certain serving size rather than at any amount. Monash University\'s low-FODMAP research (the same body of research the IBS category already draws on) classifies avocado as low-FODMAP at a modest serving and high-FODMAP at a larger one, making it an example of a food where "how much" changes the answer to "is this a problem," not just "is this food a problem" in the abstract.',
     citations: [
@@ -116,7 +116,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
   {
     id: 'produce-leafy-greens',
     category: 'basicHealth',
-    title: 'Spinach and Kale: Nutrient Powerhouses, With Two Different Cautions That Apply to Different Groups of People',
+    title: 'Spinach and Kale Are Nutrient Powerhouses With Two Cautions That Apply to Two Different Groups',
     teaser: 'The same leafy greens carry an oxalate concern for people prone to kidney stones and a vitamin K concern for people on warfarin, two entirely different, unrelated reasons to be more careful, not one.',
     summary:
       'Spinach and kale both carry dense concentrations of vitamin K, vitamin A, folate, and iron relative to their calorie content, part of why they show up so often in general nutrition advice. Two specific, unrelated cautions apply to different groups, not everyone: spinach in particular carries an unusually high oxalate content (research finds it accounts for a large share of typical dietary oxalate intake, with well under a cup providing as much oxalate as many cups of a lower-oxalate green like kale or bok choy), a documented consideration for people prone to calcium oxalate kidney stones specifically, not a general population concern. Separately, both greens\' high vitamin K content matters directly for anyone on warfarin or a similar vitamin K antagonist blood thinner, since vitamin K works through the same clotting pathway that medication is designed to slow, the standard clinical guidance isn\'t to avoid these greens, but to keep vitamin K intake consistent day to day, so the medication\'s dosing (already calibrated against a person\'s typical diet) doesn\'t get thrown off by a sudden, large change either direction.',
@@ -133,7 +133,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
   {
     id: 'produce-cruciferous',
     category: 'basicHealth',
-    title: 'Broccoli and Cabbage: Cancer-Prevention Research, and a Thyroid Caveat',
+    title: 'Broccoli and Cabbage Carry Cancer-Prevention Research and a Thyroid Caveat',
     teaser: 'Cruciferous vegetables carry well-studied compounds linked to cancer-prevention research, and, specifically raw and in large amounts, a goitrogenic effect.',
     summary: 'Broccoli, cabbage, and their cruciferous relatives contain glucosinolates, compounds that break down into sulforaphane and related substances with repeatedly documented anti-cancer research behind them, including the already-cited prostate-health research on sulforaphane specifically. The same glucosinolate family is also the well-established source of these vegetables\' goitrogenic effect (interfering with the thyroid\'s iodine uptake), a caution covered in depth under Problem Foods & Swaps, the practical, already-established real-world answer is that cooking substantially reduces the goitrogenic compounds while largely preserving the cancer-prevention-relevant ones, making raw, large-quantity consumption the actual scenario worth being deliberate about, not cruciferous vegetables broadly.',
     citations: [
@@ -144,7 +144,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedFoodNames: ['Broccoli', 'Cabbage'],
-    relatedIds: ['problem-raw-cruciferous', 'produce-broccoli-sprouts-sulforaphane', 'cvd-legumes-cruciferous-sex-specific-young-adults', 'produce-mustard-powder-myrosinase-restoration'],
+    relatedIds: ['glossary-goitrogen-goiter', 'produce-broccoli-sprouts-sulforaphane', 'cvd-legumes-cruciferous-sex-specific-young-adults', 'produce-mustard-powder-myrosinase-restoration'],
   },
   {
     // 2026-08-19, direct request to cover sulforaphane and broccoli
@@ -160,8 +160,8 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     // already used elsewhere in this Digest's build.
     id: 'produce-broccoli-sprouts-sulforaphane',
     category: 'basicHealth',
-    title: 'Broccoli Sprouts: Why a Small Amount Goes So Far',
-    teaser: "A landmark 1997 Johns Hopkins study found three-day-old broccoli sprouts pack ten to one hundred times more of sulforaphane's precursor than mature broccoli ever does, and later work from the same lab traced what that compound actually does once it's in the body.",
+    title: 'A Small Amount of Broccoli Sprouts Goes a Long Way',
+    teaser: "A landmark 1997 Johns Hopkins study found three-day-old broccoli sprouts pack ten to one hundred times more of sulforaphane's precursor than mature broccoli ever does, and later work from the same lab traced what that compound does once it's in the body.",
     summary:
       "Sulforaphane isn't sitting in broccoli waiting to be eaten. The plant stores a stable precursor, glucoraphanin, and only converts it into sulforaphane once the tissue is damaged (chewed, cut, or crushed) and a paired enzyme called myrosinase gets the chance to react with it. A landmark 1997 study from the Brassica Chemoprotection Laboratory at Johns Hopkins University School of Medicine, led by Jed Fahey, Yuesheng Zhang, and Paul Talalay, found that three-day-old broccoli and cauliflower sprouts contain ten to one hundred times more glucoraphanin per gram than the corresponding mature plants. The same study fed extracts of those young sprouts to rats exposed to a chemical carcinogen and found a measurable reduction in the incidence, number, and speed of tumor development, tied directly to the same compound. The mechanism behind that protection has since been mapped in detail: sulforaphane binds a protein called Keap1, freeing a second protein, Nrf2, to move into the cell's nucleus and switch on a set of genes for Phase 2 detoxification enzymes, the same enzyme family this app's Problem Foods research already names as the target of cooking's goitrogen-reducing effect. Those enzymes speed up how the body clears damaging molecules and reactive oxygen before they can do harm, the mechanism behind sulforaphane's cancer-prevention research. A 2015 clinical trial from the same Johns Hopkins group tested sulforaphane directly in forty-five moderate asthma patients over two weeks, showing how that mechanism plays out in the body: sixty percent of participants showed a measurable twenty-one percent improvement in a lung-function response to a bronchial trigger, but the response wasn't universal. Twenty percent showed no change, and another twenty percent got worse, a documented reminder that a working biological mechanism doesn't always translate into the same benefit for everyone.",
     citations: [
@@ -176,7 +176,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedFoodNames: ['Broccoli Sprouts (Raw)', 'Broccoli'],
-    relatedIds: ['produce-cruciferous', 'prostate-cruciferous-sulforaphane', 'problem-raw-cruciferous', 'produce-mustard-powder-myrosinase-restoration'],
+    relatedIds: ['produce-cruciferous', 'prostate-cruciferous-sulforaphane',  'produce-mustard-powder-myrosinase-restoration'],
   },
   {
     // 2026-08-19, direct question: is adding mustard powder back to boiled
@@ -190,11 +190,11 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     // identical specific figures before trusting them. The Fahey 2015 PLOS
     // ONE bioavailability paper cited alongside it was fetched directly and
     // confirmed a different specific claim (a real ~37%/3.4% raw-vs-cooked
-    // figure) had never actually been confirmed and was left out.
+    // figure) had never been confirmed and was left out.
     id: 'produce-mustard-powder-myrosinase-restoration',
     category: 'basicHealth',
     title: 'Mustard Powder Sprinkled on Cooked Broccoli Restores Most of What Boiling Took Away',
-    teaser: "Cooking deactivates the enzyme cruciferous vegetables need to unlock their sulforaphane. A small, controlled human trial found sprinkling powdered mustard seed onto already-cooked broccoli restored most of that lost activity, more than quadrupling how much sulforaphane the body actually absorbed.",
+    teaser: "Cooking deactivates the enzyme cruciferous vegetables need to unlock their sulforaphane. A small, controlled human trial found sprinkling powdered mustard seed onto already-cooked broccoli restored most of that lost activity, more than quadrupling how much sulforaphane the body absorbed.",
     summary:
       "The Problem Foods research covers why cooking cruciferous vegetables cuts their goitrogenic effect: heat deactivates myrosinase, the enzyme that unlocks glucosinolates once a plant's tissue is damaged. The same deactivation cuts both ways, not just a benefit, since myrosinase is also what converts glucoraphanin into sulforaphane, the compound behind most of broccoli's cancer-prevention research. A randomized crossover trial run at the University of Reading tested a direct fix: twelve healthy adults ate 200 grams of cooked broccoli either alone or with 1 gram of powdered brown mustard seed sprinkled on afterward. Mean urinary sulforaphane metabolite excretion was 9.8 ± 5.1 μmol per gram of creatinine with cooked broccoli alone, and 44.7 ± 33.9 μmol per gram of creatinine with the added mustard powder, over four times greater. Mustard seed is itself a rich, unheated source of active myrosinase, and sprinkling it onto food that's already been cooked (rather than mixing it in before boiling, which would just deactivate the added enzyme too) lets it do the same job the vegetable's enzyme would have done raw. Gut bacteria can perform a similar conversion on their own even with no myrosinase added at all, but nowhere near as efficiently: a separate study from the same Johns Hopkins lab behind the original broccoli-sprout discovery found sulforaphane bioavailability from glucoraphanin ran around 10% without active myrosinase present, compared with roughly 35 to 40% when active myrosinase was there to do the conversion directly, a range consistent with what the mustard trial itself found. Jed Fahey, the same researcher behind that Johns Hopkins work, has separately described daikon radish as another myrosinase source worth adding this same way, and one with an advantage of its own: daikon lacks the enzymes broccoli itself carries that can redirect the reaction toward less useful nitrile byproducts instead of sulforaphane. That daikon-specific claim comes from Fahey's stated professional practice, not a separate controlled trial the way the mustard-and-broccoli finding is, worth keeping in mind as a difference in how solidly each is established.",
     citations: [
@@ -209,13 +209,13 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     relatedFoodNames: ['Broccoli', 'Spices, mustard seed, ground'],
-    relatedIds: ['produce-broccoli-sprouts-sulforaphane', 'produce-cruciferous', 'problem-raw-cruciferous'],
+    relatedIds: ['produce-broccoli-sprouts-sulforaphane', 'produce-cruciferous', ],
   },
   {
     id: 'produce-garlic-onion',
     category: 'basicHealth',
-    title: 'Garlic and Onion: Cardiovascular Research and the FODMAP Caution',
-    teaser: 'Both carry documented compounds with cardiovascular research behind them, and both are covered here as the leading FODMAP example.',
+    title: 'Garlic and Onion Carry Cardiovascular Research and the FODMAP Caution',
+    teaser: 'Both carry documented compounds with cardiovascular research behind them, and both are the leading FODMAP example.',
     summary: 'Garlic\'s allicin (formed only once a clove is crushed or chopped, not present in an intact clove) and onion\'s organosulfur and quercetin content both carry research linking regular intake to modest improvements in blood pressure and lipid markers. The caution here isn\'t new, garlic and onion are already the leading, most detailed example of a high-FODMAP food (see Problem Foods & Swaps), specifically due to their fructan content, a common trigger for IBS-type symptoms independent of any allergy. This profile exists mainly to connect that already-established caution back to the specific positive research these two foods also carry, so the FODMAP concern doesn\'t read as the whole story.',
     citations: [
       {
@@ -230,9 +230,9 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
   {
     id: 'produce-tomato',
     category: 'basicHealth',
-    title: 'Tomato: A Lycopene Source (More So Cooked Than Raw) and the Named Nightshade',
+    title: 'Tomato Supplies Lycopene, More So Cooked Than Raw, and Is the Named Nightshade',
     teaser: 'Cooking a tomato increases how much of its lycopene the body can absorb, and tomato is the specific, most commonly eaten nightshade the nightshade research is about.',
-    summary: 'Tomatoes carry well-documented lycopene content, and unlike most produce, cooking actually increases lycopene\'s bioavailability rather than degrading it, heat breaks down the plant cell walls holding lycopene and improves how much the body can actually absorb, part of why research on lycopene\'s cardiovascular and prostate-health associations often specifically studies cooked or processed tomato products (sauce, paste) rather than raw tomato alone. Tomato is also the single most commonly eaten member of the nightshade family, the specific food the Problem Foods research names directly when discussing nightshades\' contested, unresolved evidence (anti-inflammatory compounds exist alongside patient-reported worsening in some people, with no randomized trial settling it either way), read directly rather than assuming either a blanket caution or a blanket clearance applies.',
+    summary: 'Tomatoes carry well-documented lycopene content, and unlike most produce, cooking increases lycopene\'s bioavailability: heat breaks down the plant cell walls holding lycopene and improves how much the body can absorb, part of why research on lycopene\'s cardiovascular and prostate-health associations often specifically studies cooked or processed tomato products (sauce, paste) rather than raw tomato alone. Tomato is also the single most commonly eaten member of the nightshade family, the specific food the Problem Foods research names directly when discussing nightshades\' contested, unresolved evidence (anti-inflammatory compounds exist alongside patient-reported worsening in some people, with no randomized trial settling it either way).',
     citations: [
       {
         source: 'Story et al. 2010, Annual Review of Food Science and Technology: "An Update on the Health Effects of Tomato Lycopene"',
@@ -246,7 +246,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
   {
     id: 'produce-sweet-potato',
     category: 'basicHealth',
-    title: 'Sweet Potato: A Substantial Vitamin A Source, and a Different Food From White Potato Despite the Name',
+    title: 'Sweet Potato Is a Substantial Vitamin A Source and a Different Food From White Potato Despite the Name',
     teaser: 'Sweet potato is botanically unrelated to white/nightshade potatoes, and a single serving can supply well over a full day\'s vitamin A on its own.',
     summary:
       'A sweet potato\'s orange color signals substantial beta-carotene content, which the body converts into vitamin A, a single medium baked sweet potato can supply well over 100 percent of a day\'s vitamin A need from provitamin-A carotenoids alone, a food-based source that (unlike preformed retinol from animal foods or supplements) doesn\'t carry the same toxicity risk at high intake, since the body regulates its conversion rate. The worth-knowing distinction: despite the shared name, sweet potato belongs to the morning glory family (Convolvulaceae), unrelated to the nightshade family (Solanaceae) that white/regular potatoes belong to, someone specifically avoiding nightshades for a personal reason doesn\'t need to extend that same caution to sweet potato, since it isn\'t botanically related at all.',
@@ -277,7 +277,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     title: 'Chickpea Resistant Starch Reaches the Colon Intact and Ferments Into Butyrate',
     teaser: "The same undigested starch that can cause gas early on is what gut bacteria ferment into butyrate, the short-chain fatty acid research finds does the most for the gut lining and for calming inflammation.",
     summary:
-      "Chickpeas carry a meaningful amount of resistant starch, the fraction of a food's starch that resists breakdown in the small intestine and reaches the colon largely intact. That's the practical reason chickpeas can cause noticeable gas: the same starch a typical meal would otherwise digest and absorb higher up in the gut instead becomes food for the trillions of bacteria living in the colon. What those bacteria do with it is the point. Fermenting resistant starch is one of the most reliable ways to produce short-chain fatty acids, and butyrate specifically stands out among them, the primary fuel source for the cells lining the colon, and, per a recent narrative review, the most potent of the three main short-chain fatty acids at inhibiting an enzyme (HDAC) tied to calming inflammatory gene activity, directly building on the Treg-induction mechanism this app's Gut & Microbiome research covers. How chickpeas are prepared changes how much resistant starch actually reaches the colon: a controlled trial in 12 healthy adults found cooking chickpea pasta and then cooling it for 24 hours before reheating roughly doubled its resistant starch content, from 1.83 to 3.65 grams per 100 grams, and produced a measurably lower blood sugar response than eating it freshly cooked. A separate randomized trial in 12 healthy adults giving 200 grams of canned chickpeas a day for three weeks found it increased the abundance of Faecalibacterium prausnitzii, a specific, efficient, well-studied butyrate-producing gut bacterium, while reducing a group of putrefactive and pathogenic bacteria at the same time. And the gas itself does tend to ease. Research on a different, well-studied fiber found symptoms peaked in the first few weeks of a higher intake and returned to baseline by the end of a six-week trial, with the degree of that adaptation tied to a person's starting gut bacteria, the same general pattern behind the common advice to increase fiber intake gradually rather than all at once.",
+      "Chickpeas carry a meaningful amount of resistant starch, the fraction of a food's starch that resists breakdown in the small intestine and reaches the colon largely intact. That's the practical reason chickpeas can cause noticeable gas: the same starch a typical meal would otherwise digest and absorb higher up in the gut instead becomes food for the trillions of bacteria living in the colon. What those bacteria do with it is the point. Fermenting resistant starch is one of the most reliable ways to produce short-chain fatty acids, and butyrate specifically stands out among them, the primary fuel source for the cells lining the colon, and, per a recent narrative review, the most potent of the three main short-chain fatty acids at inhibiting an enzyme (HDAC) tied to calming inflammatory gene activity, directly building on the Treg-induction mechanism this app's Gut & Microbiome research covers. How chickpeas are prepared changes how much resistant starch reaches the colon: a controlled trial in 12 healthy adults found cooking chickpea pasta and then cooling it for 24 hours before reheating roughly doubled its resistant starch content, from 1.83 to 3.65 grams per 100 grams, and produced a measurably lower blood sugar response than eating it freshly cooked. A separate randomized trial in 12 healthy adults giving 200 grams of canned chickpeas a day for three weeks found it increased the abundance of Faecalibacterium prausnitzii, a specific, efficient, well-studied butyrate-producing gut bacterium, while reducing a group of putrefactive and pathogenic bacteria at the same time. And the gas itself does tend to ease. Research on a different, well-studied fiber found symptoms peaked in the first few weeks of a higher intake and returned to baseline by the end of a six-week trial, with the degree of that adaptation tied to a person's starting gut bacteria, the same general pattern behind the common advice to increase fiber intake gradually rather than all at once.",
     citations: [
       {
         source: 'Bojarczuk A, Kęszycka P, Marszałek K, Gajewska D. 2024, Metabolites: cooking and cooling chickpea pasta, resistant starch content, and glycemic response in healthy adults',
@@ -298,15 +298,15 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedFoodNames: ['Chickpeas (garbanzo beans, bengal gram)'],
-    relatedIds: ['gut-scfa-treg', 'carbfiber-intake-gap', 'cvd-legumes-cruciferous-sex-specific-young-adults'],
+    relatedIds: ['glossary-scfa', 'glossary-treg', 'mentalhealth-gut-scfa-mood-mechanism', 'carbfiber-intake-gap', 'cvd-legumes-cruciferous-sex-specific-young-adults'],
   },
   {
     id: 'produce-almonds',
     category: 'basicHealth',
-    title: 'Almonds: A Concentrated Vitamin E and Healthy-Fat Source, and a Tree Nut Allergen',
+    title: 'Almonds Concentrate Vitamin E and Healthy Fat, and Are a Tree Nut Allergen',
     teaser: 'Almonds carry a high vitamin E concentration for a whole food, alongside monounsaturated fat, and are one of the eight foods responsible for the large majority of food allergies.',
     summary:
-      'Almonds are one of the richest common whole-food sources of vitamin E, a fat-soluble antioxidant, alongside monounsaturated fat, fiber, and magnesium content, research consistently links regular tree nut intake, almonds included, to modest improvements in cardiovascular risk markers. The one important caution: almonds are a tree nut, and tree nuts collectively are among the small number of foods responsible for the substantial majority of serious food allergic reactions, a different and more severe kind of concern than any of this topic\'s other cautions (which are mostly dose- or condition-dependent sensitivities, not immune-system allergic reactions). Someone with a known or suspected tree nut allergy should treat this as a separate category of risk from everything else in this topic, not a milder version of the same kind of caution.',
+      'Almonds are one of the richest common whole-food sources of vitamin E, a fat-soluble antioxidant, alongside monounsaturated fat, fiber, and magnesium content, research consistently links regular tree nut intake, almonds included, to modest improvements in cardiovascular risk markers. The one important caution: almonds are a tree nut, and tree nuts collectively are among the small number of foods responsible for the substantial majority of serious food allergic reactions, a different and more severe kind of concern than the other produce cautions (which are mostly dose- or condition-dependent sensitivities, not immune-system allergic reactions). Someone with a known or suspected tree nut allergy should treat this as a separate category of risk from every other produce caution, not a milder version of the same kind of caution.',
     citations: [
       {
         source: 'NIH Office of Dietary Supplements, vitamin E fact sheet',
@@ -322,7 +322,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     title: 'Walnuts Carry More ALA Omega-3 Than Almost Any Other Common Nut',
     teaser: 'Walnuts carry a higher ALA omega-3 content than almost any other common nut, a distinct nutritional profile from the rest of the tree-nut family.',
     summary:
-      'Most tree nuts carry their fat content mostly as monounsaturated fat, similar to almonds or avocado. Walnuts are an exception: they carry a meaningfully higher share of alpha-linolenic acid (ALA), the plant-based omega-3 fatty acid, than nearly any other common nut, part of why walnuts specifically (not tree nuts broadly) show up so often in cardiovascular research on plant-based omega-3 intake. The same tree nut allergy caution named for almonds applies here too, walnuts are one of the same small group of foods responsible for the substantial majority of serious food allergic reactions, a separate risk category from this topic\'s other, dose-dependent cautions.',
+      'Most tree nuts carry their fat content mostly as monounsaturated fat, similar to almonds or avocado. Walnuts are an exception: they carry a meaningfully higher share of alpha-linolenic acid (ALA), the plant-based omega-3 fatty acid, than nearly any other common nut, part of why walnuts specifically (not tree nuts broadly) show up so often in cardiovascular research on plant-based omega-3 intake. The same tree nut allergy caution named for almonds applies here too, walnuts are one of the same small group of foods responsible for the substantial majority of serious food allergic reactions, a separate risk category from the other, dose-dependent produce cautions.',
     citations: [
       {
         source: 'NIH Office of Dietary Supplements, omega-3 fatty acids fact sheet',
@@ -346,7 +346,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     title: "Chia Seeds Are a Choking Hazard Eaten Dry, and Whole Seeds Absorb Less Than Ground",
     teaser: "Chia's soluble fiber expands dramatically in liquid, a documented choking hazard when eaten dry, and the same tough outer coat behind that hazard also means whole seeds don't raise blood omega-3 levels the way ground seeds do.",
     summary:
-      "Chia seeds carry meaningful fiber (mostly soluble), plant-based ALA omega-3, and calcium content for their size, and their soluble fiber has a distinctive property: it absorbs many times its weight in liquid, forming a gel, which is both the mechanism behind the popular chia pudding texture and a documented safety consideration. Swallowing dry chia seeds followed immediately by liquid, or swallowing them without adequately chewing or pre-soaking, has documented case reports of the seeds expanding in the esophagus and causing a choking or blockage hazard, the practical, well-established fix is simply soaking chia seeds in liquid for at least several minutes before eating them, which is already how they're used in the Smoothie Builder and similar recipes, not a reason to avoid them. Whether whole or ground makes an absorption difference has an actual controlled answer: a randomized trial in 62 postmenopausal women gave whole chia, milled (ground) chia, or a placebo seed, 25 grams a day for 10 weeks, and found milled chia significantly raised plasma ALA and EPA, the two omega-3 compounds chia actually delivers, while the whole-chia group showed no significant change from placebo. A separate, smaller trial giving 25 grams a day of milled chia specifically found plasma ALA climbing 138% above baseline and EPA 30% above baseline within seven weeks, a concrete, quantified sense of how much a milled dose can actually move blood omega-3 levels. Chia's outer seed coat appears to be the limiting factor: swallowed intact, much of what's packed inside a chia seed likely never gets broken down enough for the body to absorb it, the same reasoning already established for flaxseed. Soaking a whole chia seed until it forms its gel coat softens it, but a blender or spice grinder is the more reliable way to actually access its omega-3 content, not just its fiber.",
+      "Chia seeds carry meaningful fiber (mostly soluble), plant-based ALA omega-3, and calcium content for their size, and their soluble fiber has a distinctive property: it absorbs many times its weight in liquid, forming a gel, which is both the mechanism behind the popular chia pudding texture and a documented safety consideration. Swallowing dry chia seeds followed immediately by liquid, or swallowing them without adequately chewing or pre-soaking, has documented case reports of the seeds expanding in the esophagus and causing a choking or blockage hazard, the practical, well-established fix is simply soaking chia seeds in liquid for at least several minutes before eating them, which is already how they're used in the Smoothie Builder and similar recipes, not a reason to avoid them. Whether whole or ground makes an absorption difference has an actual controlled answer: a randomized trial in 62 postmenopausal women gave whole chia, milled (ground) chia, or a placebo seed, 25 grams a day for 10 weeks, and found milled chia significantly raised plasma ALA and EPA, the two omega-3 compounds chia delivers, while the whole-chia group showed no significant change from placebo. A separate, smaller trial giving 25 grams a day of milled chia specifically found plasma ALA climbing 138% above baseline and EPA 30% above baseline within seven weeks, a concrete, quantified sense of how much a milled dose can move blood omega-3 levels. Chia's outer seed coat appears to be the limiting factor: swallowed intact, much of what's packed inside a chia seed likely never gets broken down enough for the body to absorb it, the same reasoning already established for flaxseed. Soaking a whole chia seed until it forms its gel coat softens it, but a blender or spice grinder is the more reliable way to access its omega-3 content, not just its fiber.",
     citations: [
       {
         source: 'Bulman et al. 2016, Case Reports in Emergency Medicine: esophageal obstruction from dry chia seed ingestion',
@@ -368,10 +368,10 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
   {
     id: 'produce-flaxseed',
     category: 'basicHealth',
-    title: 'Flaxseed: Lignan and Omega-3 Content, and Ground Rather Than Whole Is What Actually Makes It Usable',
-    teaser: 'Whole flaxseed largely passes through the body undigested, grinding it is what actually unlocks its fiber and omega-3 content, not a matter of preference.',
+    title: 'Flaxseed Supplies Lignans and Omega-3, and Only Ground Flaxseed Gives Them Up',
+    teaser: 'Whole flaxseed largely passes through the body undigested; grinding it is what unlocks its fiber and omega-3 content.',
     summary:
-      'Flaxseed carries substantial ALA omega-3 content and the highest lignan concentration of any common food (lignans are a plant-based phytoestrogen with research behind their potential role in hormone-sensitive conditions), but whole flaxseed\'s hard outer seed coat means most of it passes through the digestive tract largely intact, unabsorbed, ground flaxseed (or flaxseed meal) is necessary to actually access its nutrient content, not simply a texture preference. The worth-knowing caution: flaxseed naturally contains a low level of cyanogenic glycosides, compounds that can release a small amount of hydrogen cyanide when broken down, but safety-agency assessment found the amount released at normal consumption levels (up to roughly 30 grams of ground flaxseed in a sitting) poses no meaningful risk to adolescents or adults, and heating flaxseed (baking, cooking) further reduces it, a quantified, reassuring answer rather than a reason for concern at ordinary culinary amounts.',
+      'Flaxseed carries substantial ALA omega-3 content and the highest lignan concentration of any common food (lignans are a plant-based phytoestrogen with research behind their potential role in hormone-sensitive conditions), but whole flaxseed\'s hard outer seed coat means most of it passes through the digestive tract largely intact, unabsorbed, ground flaxseed (or flaxseed meal) is necessary to access its nutrient content, not simply a texture preference. The worth-knowing caution: flaxseed naturally contains a low level of cyanogenic glycosides, compounds that can release a small amount of hydrogen cyanide when broken down, but safety-agency assessment found the amount released at normal consumption levels (up to roughly 30 grams of ground flaxseed in a sitting) poses no meaningful risk to adolescents or adults, and heating flaxseed (baking, cooking) further reduces it, a quantified, reassuring answer rather than a reason for concern at ordinary culinary amounts.',
     citations: [
       {
         source: 'Austrian Agency for Health and Food Safety (AGES), cyanogenic glycosides in flaxseed safety assessment',
@@ -385,9 +385,9 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
   {
     id: 'produce-closing',
     category: 'basicHealth',
-    title: 'How to Actually Use This Topic: One Profile, Then Its Cross-Links',
-    teaser: 'Every caution named across this topic points back to a fuller, already-built entry elsewhere in this app, this topic is meant as the entry point, not the whole story.',
-    summary: 'Nearly every specific caution named across this topic (goitrogens, FODMAPs, oxalates, vitamin K and blood thinners, tree nut allergy, grapefruit\'s drug interaction) already has its fuller, independently cited entry elsewhere, deliberately cross-linked from the relevant profile rather than repeated in full here. The intended use of this topic is as a fast starting point: someone wondering "what\'s the deal with spinach" or "is walnut actually different from other nuts" gets a first answer here, with a direct path to the deeper research behind whichever specific caution or benefit actually applies to them. As with every other growing series, this is a first batch, not a claim of covering every fruit, vegetable, nut, and seed in the 22,000-food reference database, more profiles are a standing next step.',
+    title: 'Each Produce Profile Points to a Fuller Entry',
+    teaser: 'Every caution named across these profiles points to a fuller entry elsewhere on Life or Food.',
+    summary: 'Nearly every specific caution named across these profiles (goitrogens, FODMAPs, oxalates, vitamin K and blood thinners, tree nut allergy, grapefruit\'s drug interaction) has a fuller, independently cited entry elsewhere, cross-linked from the relevant profile. The intended use of these profiles is as a fast starting point: someone wondering "what\'s the deal with spinach" or "is walnut actually different from other nuts" gets a first answer here, with a direct path to the deeper research behind whichever specific caution or benefit applies to them. This is a first batch; more profiles are a standing next step.',
     citations: [
       {
         source: 'NASEM Dietary Reference Intakes, general fruit/vegetable intake guidance',

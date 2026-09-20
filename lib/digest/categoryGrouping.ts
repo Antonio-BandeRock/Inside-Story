@@ -85,10 +85,11 @@ export const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
       { label: 'Vitamin K', prefixes: ['vitamink-'] },
       { label: 'Omega-3 & Omega-6', prefixes: ['omega'] },
       { label: 'Protein & Amino Acids', prefixes: ['protein-'] },
-      {
-        label: 'B-Vitamins (B1, B2, B3, B5, B6, B7)',
-        prefixes: ['thiamine-', 'riboflavin-', 'niacin-', 'biotin-', 'pantothenate-', 'b6-'],
-      },
+      // 2026-09-19: one 17-wide B-vitamin shelf, alphabetical by title so
+      // the six vitamins interleaved, became two shelves in vitamin order,
+      // each read in sequence through DIGEST_READING_ORDER.
+      { label: 'B1, B2 & B3 (Thiamine, Riboflavin, Niacin)', prefixes: ['thiamine-', 'riboflavin-', 'niacin-'] },
+      { label: 'B5, B6 & B7 (Pantothenate, B6, Biotin)', prefixes: ['pantothenate-', 'b6-', 'biotin-'] },
       { label: 'Chromium, Manganese & Copper', prefixes: ['chromium-', 'manganese-', 'copper-'] },
       { label: 'Choline', prefixes: ['choline-'] },
       { label: 'Carbohydrates & Fiber', prefixes: ['carbfiber-'] },
@@ -111,21 +112,16 @@ export const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
       // dynamic "More" catch-all. Found via a direct audit request: "In
       // Basic Health there are 8 entries in the More section... how about
       // now?"
+      // 2026-09-19: the one 18-wide Hormones shelf became three, by what
+      // the hormone does. "What a hormone is" opens the first and the
+      // closing entry ends it; each shelf reads in sequence through
+      // DIGEST_READING_ORDER.
       {
-        label: 'Hormones',
-        prefixes: [
-          'hormone-',
-          'hormones-',
-          'insulin-',
-          'cortisol-',
-          'thyroid-hormones-',
-          'leptin-',
-          'estrogen-',
-          'testosterone-',
-          'adiponectin-',
-          'lipodystrophy-',
-        ],
+        label: 'Insulin, Cortisol & Thyroid',
+        prefixes: ['hormone-', 'hormones-', 'insulin-', 'cortisol-', 'thyroid-hormones-'],
       },
+      { label: 'Appetite & Body Fat Hormones', prefixes: ['leptin-', 'adiponectin-', 'lipodystrophy-'] },
+      { label: 'Sex Hormones', prefixes: ['estrogen-', 'testosterone-'] },
       // 2026-08-23, same audit: lib/digest/bodyFatBiology.ts's own 4
       // entries (body-weight heritability, constrained total energy
       // expenditure, the Hadza population studies, visceral-vs-subcutaneous
@@ -160,24 +156,19 @@ export const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   // subtopics has no undifferentiated top-level bucket of its own -- see
   // basicHealthTopicPathForEntryId above).
   {
-    label: 'How Your Body Works: Organs & Systems',
+    label: 'How Your Body Works',
     description:
       "How your organs and body systems work, and how food and nutrient levels affect each one, independent of any specific condition. The foundation every condition-specific finding in this app builds on.",
+    // 2026-09-19: fourteen subtopics for 22 entries, seven of them holding
+    // one entry, became six shelves of related systems. The two entries
+    // about the body as a whole open and close the topic.
     subtopics: [
-      { label: 'Overview & Big Picture', prefixes: ['body-systems-overview', 'body-tying-together'] },
-      { label: 'Endocrine System', prefixes: ['body-adrenal-glands-structure-function', 'body-endocrine-crosstalk'] },
-      { label: 'Bones, Teeth & Skeleton', prefixes: ['body-bones-teeth-skeleton'] },
-      { label: 'Brain & Nervous System', prefixes: ['body-brain-nervous-system', 'body-brain-processed-meat-dementia-uk-biobank'] },
-      { label: 'Cardiovascular System', prefixes: ['body-cardiovascular-electrolytes'] },
-      { label: 'Digestive System', prefixes: ['body-digestive-organs'] },
-      { label: 'Skin & Hair', prefixes: ['body-skin-integumentary', 'body-hair-growth-cycle'] },
-      { label: 'Eyes & Vision', prefixes: ['body-eyes-vision'] },
-      { label: 'Immune System', prefixes: ['body-immune-system-nutrition'] },
-      { label: 'Kidneys & Liver', prefixes: ['body-kidneys-liver-filtration', 'body-kidney-stones-'] },
-      { label: 'Lymphatic System', prefixes: ['body-lymphatic-system'] },
-      { label: 'Muscular System', prefixes: ['body-muscular-system'] },
-      { label: 'Reproductive System', prefixes: ['body-reproductive-egg-supply-vs-sperm-production', 'body-reproductive-zinc-fertility'] },
-      { label: 'Respiratory System', prefixes: ['body-respiratory-gas-exchange', 'body-respiratory-magnesium-asthma'] },
+      { label: 'The Whole Body at Once', prefixes: ['body-systems-overview', 'body-tying-together'] },
+      { label: 'Brain, Nerves & Eyes', prefixes: ['body-brain-', 'body-eyes-'] },
+      { label: 'Bones, Muscles, Skin & Hair', prefixes: ['body-bones-', 'body-muscular-', 'body-skin-', 'body-hair-'] },
+      { label: 'Heart, Lungs & Lymph', prefixes: ['body-cardiovascular-', 'body-respiratory-', 'body-lymphatic-'] },
+      { label: 'Digestion, Kidneys & Liver', prefixes: ['body-digestive-', 'body-kidney'] },
+      { label: 'Hormones, Immunity & Reproduction', prefixes: ['body-endocrine-', 'body-adrenal-', 'body-immune-', 'body-reproductive-'] },
     ],
   },
   // 2026-08-13, direct request: "Neurogenesis needs to be represented in
@@ -192,10 +183,53 @@ export const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
     description: 'How your brain grows new neurons throughout life, and which diet, exercise, and lifestyle factors support or suppress that process.',
     prefixes: ['neurogenesis-'],
   },
+  // 2026-09-19: 69 definitions in one alphabetical shelf became eleven
+  // shelves by kind. Every id is listed in full with the exact-match
+  // marker (see idMatchesPrefix below), because glossary ids carry no
+  // kind in their name and 'glossary-gi' is a prefix of 'glossary-gliadin'.
   {
     label: 'Glossary',
     description: 'Plain definitions for medical, nutrition, and lab terminology used throughout this app.',
-    prefixes: ['glossary-'],
+    subtopics: [
+      {
+        label: 'Thyroid',
+        prefixes: ['glossary-tsh$', 'glossary-t4$', 'glossary-t3$', 'glossary-reverse-t3$', 'glossary-deiodinase$', 'glossary-nis$', 'glossary-goitrogen-goiter$', 'glossary-trab-tsi$'],
+      },
+      {
+        label: 'Stress, Blood Sugar & Endocrine Disruptors',
+        prefixes: ['glossary-cortisol$', 'glossary-hpa-axis$', 'glossary-insulin-resistance$', 'glossary-homa-ir$', 'glossary-cgm$', 'glossary-edc$', 'glossary-bpa-phthalates$', 'glossary-ddt$'],
+      },
+      {
+        label: 'Metabolism & Energy',
+        prefixes: ['glossary-mitochondria$', 'glossary-atp$', 'glossary-ros$', 'glossary-mtor$', 'glossary-igf1$', 'glossary-visceral-fat$', 'glossary-pnpla3$', 'glossary-hif-vegf$'],
+      },
+      {
+        label: 'Immune System',
+        prefixes: ['glossary-antibody-antigen$', 'glossary-cytokine$', 'glossary-treg$', 'glossary-hla$', 'glossary-ebv$', 'glossary-jc-virus$'],
+      },
+      {
+        label: 'Gut Barrier & Digestion',
+        prefixes: ['glossary-gi$', 'glossary-leaky-gut$', 'glossary-tight-junction$', 'glossary-zonulin$', 'glossary-gliadin$', 'glossary-fodmap$', 'glossary-dao-histamine$', 'glossary-4r-protocol$'],
+      },
+      {
+        label: 'Microbiome & Ferments',
+        prefixes: ['glossary-microbiome$', 'glossary-dysbiosis$', 'glossary-probiotic-prebiotic$', 'glossary-scfa$', 'glossary-cfu$', 'glossary-scoby$', 'glossary-fmt$'],
+      },
+      {
+        label: 'Lab Tests & Imaging',
+        prefixes: ['glossary-cbc$', 'glossary-cmp$', 'glossary-crp$', 'glossary-egfr$', 'glossary-das28-cdai$', 'glossary-mri-ct$'],
+      },
+      {
+        label: 'Reading Research',
+        prefixes: ['glossary-evidence-tiers$', 'glossary-rct$', 'glossary-cohort-case-control$', 'glossary-meta-analysis$', 'glossary-confidence-interval$', 'glossary-pmid$'],
+      },
+      {
+        label: 'Diets & Nutrients',
+        prefixes: ['glossary-dri-family$', 'glossary-dash-diet$', 'glossary-nova-classification$', 'glossary-omega3-types$', 'glossary-vitamin-k2-mk$'],
+      },
+      { label: 'Brain & Sleep', prefixes: ['glossary-bdnf$', 'glossary-rem-sleep$', 'glossary-cbt$'] },
+      { label: 'Medicines & Devices', prefixes: ['glossary-ace-arb$', 'glossary-nsaid$', 'glossary-cpap$', 'glossary-car-t$'] },
+    ],
   },
   // 2026-08-09, direct request: "information about portions, and
   // recommended daily allowances and minimum amounts of anything." See
@@ -442,10 +476,20 @@ export const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
     description: 'How to advocate for yourself with doctors and the healthcare system, and get the care and answers you need.',
     prefixes: ['advocacy-'],
   },
+  // 2026-09-19: 14 entries in one alphabetical shelf became four, in
+  // the order the story runs: what changed, what got blamed, what raises
+  // cholesterol, then the one entry that is an opinion and says so. The
+  // rest of the 'foodhistory-' ids are Earth Matters entries and never
+  // reach this topic.
   {
     label: 'Food Industry & History',
     description: "How the food industry and food history shape what's on your plate today.",
-    prefixes: ['foodhistory-'],
+    subtopics: [
+      { label: 'How the Food Supply Changed', prefixes: ['foodhistory-timeline-', 'foodhistory-mechanism-disappearing-microbiota'] },
+      { label: 'Foods That Took the Blame', prefixes: ['foodhistory-scapegoat-', 'foodhistory-eggs-nutrient-density'] },
+      { label: 'Cholesterol & Fat', prefixes: ['foodhistory-cholesterol-', 'foodhistory-apob-', 'foodhistory-butter-'] },
+      { label: 'One Reading of It All', prefixes: ['foodhistory-opinion-synthesis'] },
+    ],
   },
   // 2026-09-17, direct instruction: "I want as much as possible to be
   // provided about this in Basic Health." Autism, ADHD and dyslexia are
@@ -571,12 +615,19 @@ export const BASIC_HEALTH_CONDITION_SPECIFIC_HEADING = {
     'Everything above is general health, for anybody. These two groups are the exception: one is about the conditions this app tracks, one about autism, ADHD and dyslexia. The full reading for a condition you track is under Conditions.',
 };
 
+// A prefix ending in '$' matches one id exactly, so a shelf can list whole
+// ids where one id is the start of another ('glossary-gi' and
+// 'glossary-gliadin'). Everything else matches by startsWith, as before.
+function idMatchesPrefix(id: string, prefix: string): boolean {
+  return prefix.endsWith('$') ? id === prefix.slice(0, -1) : id.startsWith(prefix);
+}
+
 export function basicHealthTopicPathForEntryId(id: string): string[] {
   for (const topic of BASIC_HEALTH_TOPICS) {
     if (topic.subtopics) {
-      const sub = topic.subtopics.find((s) => s.prefixes.some((p) => id.startsWith(p)));
+      const sub = topic.subtopics.find((s) => s.prefixes.some((p) => idMatchesPrefix(id, p)));
       if (sub) return [topic.label, sub.label];
-    } else if (topic.prefixes?.some((p) => id.startsWith(p))) {
+    } else if (topic.prefixes?.some((p) => idMatchesPrefix(id, p))) {
       return [topic.label];
     }
   }
@@ -584,7 +635,7 @@ export function basicHealthTopicPathForEntryId(id: string): string[] {
 }
 
 export function basicHealthEntriesForPrefixes(entries: AnyDigestEntry[], prefixes: string[]): AnyDigestEntry[] {
-  return sortDigestEntriesLogically(entries.filter((entry) => prefixes.some((p) => entry.id.startsWith(p))));
+  return sortDigestEntriesLogically(entries.filter((entry) => prefixes.some((p) => idMatchesPrefix(entry.id, p))));
 }
 
 // basicHealthEntriesForPath (resolving one node of a drill-down path at a

@@ -59,7 +59,7 @@ function topicsForCategory(categoryKey: DigestCategoryKey, entries: AnyDigestEnt
   if (categoryKey === 'basicHealth') {
     // basicHealthAllGroups gives every leaf group at once; fold them back
     // up under their topic so each topic is one band. The Glossary is one
-    // of them, an alphabetical run of definitions in a band of its own,
+    // of them, its definitions grouped by kind in a band of its own,
     // since the Digest header's Glossary button that used to open it as a
     // separate flat list went with the Digest tab.
     const leaves = basicHealthAllGroups(entries);

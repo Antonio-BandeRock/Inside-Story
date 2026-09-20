@@ -54,13 +54,13 @@ export const HANDS_ON_THERAPIES_ENTRIES: DigestEntry[] = [
       'handson-chiropractic-back-pain-evidence',
       'handson-acupuncture-chronic-pain',
       'handson-deep-tissue-massage-evidence',
-      'complementary-tying-together',
+      'handson-tracking-whether-it-works',
     ],
   },
   {
     id: 'handson-chiropractic-back-pain-evidence',
     category: 'basicHealth',
-    title: 'Spinal Manipulation and Back Pain: About As Good As the Alternatives',
+    title: 'Spinal Manipulation Works About As Well As the Alternatives for Back Pain',
     teaser:
       'The largest analysis of chiropractic care for chronic low back pain found it works about as well as the treatments clinical guidelines already recommend.',
     summary:
@@ -73,7 +73,7 @@ export const HANDS_ON_THERAPIES_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['handson-chiropractic-organ-claims', 'handson-safety-and-what-to-ask', 'complementary-chiropractic'],
+    relatedIds: ['handson-chiropractic-organ-claims', 'handson-safety-and-what-to-ask', ],
   },
   {
     id: 'handson-chiropractic-organ-claims',
@@ -83,11 +83,14 @@ export const HANDS_ON_THERAPIES_ENTRIES: DigestEntry[] = [
       'The nerves that leave the spine really do run to the bladder, the gut, and everywhere else. That anatomy alone does not show that adjusting the spine changes what those organs do.',
     summary:
       'A claim that comes up often around chiropractic care runs roughly like this: the nerves controlling an organ pass through a particular part of the spine, tension or misalignment there compresses those nerves, and an adjustment relieves the pressure so the organ works normally again. The anatomy in that chain is correct and taught in every medical school. Nerves leaving the sacrum control the bladder and the pelvic floor. Nerves leaving the mid and lower thoracic spine reach the gut. Medicine takes those pathways seriously enough to target them directly: sacral neuromodulation, an implanted device that stimulates the third sacral nerve root, is an established treatment for overactive bladder and for urinary retention that has not responded to other care. The anatomy does not establish the middle of the chain. Searches of the peer-reviewed literature for trials testing spinal manipulation against a measured organ outcome come back close to empty. There is no clinical trial evidence connecting manipulation to thyroid or autoimmune disease, and none testing it against the urinary symptoms of an enlarged prostate. That is different from having been tested and found not to work. It means the question has not been answered, and a plausible pathway is not an answer. Someone who feels a change after an adjustment is reporting something that happened to them, and that is information. Turning it into a general mechanism needs a study that does not exist yet.',
-    citations: [],
+    citations: [
+      { source: 'Côté P, Hartvigsen J, Axén I, et al. 2021, Chiropractic & Manual Therapies 29:8: "The global summit on the efficacy and effectiveness of spinal manipulative therapy for the prevention and treatment of non-musculoskeletal disorders: a systematic review of the literature"', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7890602/' },
+      { source: 'Sacral Neuromodulation: Device Improvement and Current Applications in Urology (review)', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10972000/' },
+    ],
     overallTier: 'weak',
     relatedIds: [
       'handson-chiropractic-back-pain-evidence',
-      'complementary-chiropractic',
+      
       'complementary-prostate-sacral-nerves-bladder',
       'complementary-prostate-chiropractic-luts',
       'complementary-cvd-blood-pressure-replication',
@@ -96,11 +99,11 @@ export const HANDS_ON_THERAPIES_ENTRIES: DigestEntry[] = [
   {
     id: 'handson-acupuncture-chronic-pain',
     category: 'basicHealth',
-    title: 'Acupuncture and Chronic Pain: A Small Effect That Survives a Sham Comparison',
+    title: 'Acupuncture Has a Small Effect on Chronic Pain That Survives a Sham Comparison',
     teaser:
       'Pooling the underlying patient data from dozens of randomized trials found an effect on chronic pain that persists over time and is not explained by placebo alone.',
     summary:
-      'Acupuncture has been tested more rigorously than either of the other two therapies in this topic, and the strongest evidence comes from the Acupuncture Trialists\' Collaboration. Rather than pooling published summary results, which is what most meta-analyses do, this group obtained the individual patient records from randomized trials and reanalyzed them together, which allows the analysis to check things the original papers never reported. Their 2018 update, covering chronic musculoskeletal pain, headache, and osteoarthritis, concluded that acupuncture has a clinically relevant effect on chronic pain, that the effect persists over time rather than fading immediately, and that it cannot be explained only by placebo effects. Two qualifications belong alongside that. The effect is small. And the comparison that matters most, true acupuncture against sham needling, produces a narrower gap than the comparison against no acupuncture at all, which means a meaningful part of what people experience comes from the encounter, the attention, and the expectation rather than from needle placement. A treatment that reliably reduces pain is doing something useful regardless of how much of it runs through mechanisms nobody has fully mapped. It does mean that claims resting on precise point selection are on weaker ground than claims about acupuncture in general.',
+      'Acupuncture has been tested more rigorously than either of the other two therapies, and the strongest evidence comes from the Acupuncture Trialists\' Collaboration. Rather than pooling published summary results, which is what most meta-analyses do, this group obtained the individual patient records from randomized trials and reanalyzed them together, which allows the analysis to check things the original papers never reported. Their 2018 update, covering chronic musculoskeletal pain, headache, and osteoarthritis, concluded that acupuncture has a clinically relevant effect on chronic pain, that the effect persists over time rather than fading immediately, and that it cannot be explained only by placebo effects. Two qualifications belong alongside that. The effect is small. And the comparison that matters most, true acupuncture against sham needling, produces a narrower gap than the comparison against no acupuncture at all, which means a meaningful part of what people experience comes from the encounter, the attention, and the expectation rather than from needle placement. A treatment that reliably reduces pain is doing something useful regardless of how much of it runs through mechanisms nobody has fully mapped. It does mean that claims resting on precise point selection are on weaker ground than claims about acupuncture in general.',
     citations: [
       {
         source:
@@ -112,7 +115,7 @@ export const HANDS_ON_THERAPIES_ENTRIES: DigestEntry[] = [
     relatedIds: [
       'handson-acupuncture-where-it-does-nothing',
       'handson-safety-and-what-to-ask',
-      'complementary-acupuncture',
+      
     ],
   },
   {
@@ -122,7 +125,7 @@ export const HANDS_ON_THERAPIES_ENTRIES: DigestEntry[] = [
     teaser:
       'A Cochrane review found no important benefit over sham for irritable bowel syndrome. A separate one found a small benefit for migraine. Both results are useful.',
     summary:
-      'A therapy that works for some things and not others is more believable than one said to work for everything, so the places acupuncture has been tested and found wanting belong in this topic alongside the places it has done well. For irritable bowel syndrome, a Cochrane review found moderate certainty evidence of no important benefit over sham acupuncture, for symptom severity or for quality of life. Not one of the trials comparing acupuncture against sham found acupuncture better, and pooling them did not change that. The same review noted a pattern that explains a lot of the enthusiasm: in trials comparing acupuncture against antispasmodic drugs rather than against sham, patients reported greater benefit from acupuncture, which points toward preference and expectation rather than toward a specific effect on the gut. Migraine prevention landed differently. A Cochrane review of acupuncture for preventing episodic migraine found headache frequency at least halved in 50% of people receiving acupuncture against 41% receiving sham, a difference that is statistically significant and small, with roughly eleven people needing treatment for one additional person to benefit. Moderate quality evidence, and a fair description of it is "somewhat better than sham, and comparable to the drugs used for the same purpose."',
+      'A therapy that works for some things and not others is more believable than one said to work for everything, so the places acupuncture has been tested and found wanting belong alongside the places it has done well. For irritable bowel syndrome, a Cochrane review found moderate certainty evidence of no important benefit over sham acupuncture, for symptom severity or for quality of life. Not one of the trials comparing acupuncture against sham found acupuncture better, and pooling them did not change that. The same review noted a pattern that explains a lot of the enthusiasm: in trials comparing acupuncture against antispasmodic drugs rather than against sham, patients reported greater benefit from acupuncture, which points toward preference and expectation rather than toward a specific effect on the gut. Migraine prevention landed differently. A Cochrane review of acupuncture for preventing episodic migraine found headache frequency at least halved in 50% of people receiving acupuncture against 41% receiving sham, a difference that is statistically significant and small, with roughly eleven people needing treatment for one additional person to benefit. Moderate quality evidence, and a fair description of it is "somewhat better than sham, and comparable to the drugs used for the same purpose."',
     citations: [
       {
         source:
@@ -148,11 +151,11 @@ export const HANDS_ON_THERAPIES_ENTRIES: DigestEntry[] = [
   {
     id: 'handson-deep-tissue-massage-evidence',
     category: 'basicHealth',
-    title: 'Deep Tissue Massage: A Thinner Evidence Base Than Its Popularity Suggests',
+    title: 'Deep Tissue Massage Has a Thinner Evidence Base Than Its Popularity Suggests',
     teaser:
       'The main obstacle to knowing whether deep tissue massage works is that studies do not define it the same way, so their results cannot be pooled.',
     summary:
-      'Deep tissue massage means sustained firm pressure into the deeper muscle and connective tissue layers, as opposed to the lighter flowing strokes of a Swedish or relaxation massage. That is a description of technique rather than a protocol, and it is the central problem with the research. Trials of massage differ in pressure, duration, number of sessions, which tissue is targeted, and what the therapist was trained in, which leaves reviewers unable to combine results the way they can for a drug given at a fixed dose. Massage therapy in general has low to moderate quality evidence supporting it for pain and function in conditions such as arthritis. For deep tissue work specifically, one useful trial gave 59 people with chronic low back pain ten daily thirty-minute deep tissue massage sessions over two weeks, with one group also taking a non-steroidal anti-inflammatory drug. Both groups improved on pain and disability scores, and adding the drug did not improve on massage alone. Notice what that design can and cannot show. It is evidence that the drug added nothing on top of the massage. It is not evidence that the massage beat doing nothing, because there was no group that received neither. Reporting it as proof that deep tissue massage works for back pain would be overstating what was actually tested.',
+      'Deep tissue massage means sustained firm pressure into the deeper muscle and connective tissue layers, as opposed to the lighter flowing strokes of a Swedish or relaxation massage. That is a description of technique rather than a protocol, and it is the central problem with the research. Trials of massage differ in pressure, duration, number of sessions, which tissue is targeted, and what the therapist was trained in, which leaves reviewers unable to combine results the way they can for a drug given at a fixed dose. Massage therapy in general has low to moderate quality evidence supporting it for pain and function in conditions such as arthritis. For deep tissue work specifically, one useful trial gave 59 people with chronic low back pain ten daily thirty-minute deep tissue massage sessions over two weeks, with one group also taking a non-steroidal anti-inflammatory drug. Both groups improved on pain and disability scores, and adding the drug did not improve on massage alone. Notice what that design can and cannot show. It is evidence that the drug added nothing on top of the massage. It is not evidence that the massage beat doing nothing, because there was no group that received neither. Reporting it as proof that deep tissue massage works for back pain would be overstating what was tested.',
     citations: [
       {
         source:
@@ -168,7 +171,7 @@ export const HANDS_ON_THERAPIES_ENTRIES: DigestEntry[] = [
     relatedIds: [
       'handson-targeted-versus-general-massage',
       'handson-safety-and-what-to-ask',
-      'complementary-massage-cortisol',
+      
     ],
   },
   {
@@ -227,8 +230,10 @@ export const HANDS_ON_THERAPIES_ENTRIES: DigestEntry[] = [
     teaser:
       'Published averages cannot tell you whether a therapy helps you. Dates and check-ins can, and the app does the arithmetic.',
     summary:
-      'Every finding in this topic is an average across a group of people, and averages hide the fact that some of those people improved a great deal and others not at all. Which of those you are is a separate question, and it is answerable. The obstacle is memory. Nobody standing in a practitioner\'s office three weeks later can accurately recall how the fourth day after the last session compared to an ordinary Tuesday, and the natural tendency is to remember the sessions that were followed by a good week. What defeats that is writing things down at the time. Log each session under Schedules, then Hands-On Therapies, with its date. Keep doing ordinary check-ins on the Signals tab whether the day is good or bad, because a record made only on bad days makes every therapy look effective. Trends, then Therapy Response, then compares your check-ins in the days after each session against your check-ins on days away from any session, and reports how many days the difference held. It refuses to report anything until there are at least three sessions and enough check-ins on both sides to compare, and it never claims a session caused anything. It gives you your numbers, which is the only version of this question that can be answered about you rather than about a study population.',
-    citations: [],
+      'Every finding about these therapies is an average across a group of people, and averages hide the fact that some of those people improved a great deal and others not at all. Which of those you are is a separate question, and it is answerable. The obstacle is memory. Nobody standing in a practitioner\'s office three weeks later can accurately recall how the fourth day after the last session compared to an ordinary Tuesday, and the natural tendency is to remember the sessions that were followed by a good week. What defeats that is writing things down at the time. Log each session under Schedules, then Hands-On Therapies, with its date. Keep doing ordinary check-ins on the Signals tab whether the day is good or bad, because a record made only on bad days makes every therapy look effective. Trends, then Therapy Response, then compares your check-ins in the days after each session against your check-ins on days away from any session, and reports how many days the difference held. It refuses to report anything until there are at least three sessions and enough check-ins on both sides to compare, and it never claims a session caused anything. It gives you your numbers, which is the only version of this question that can be answered about you rather than about a study population.',
+    citations: [
+      { source: 'Lillie EO, Patay B, Diamant J, et al. 2011, Personalized Medicine 8(2):161-173: "The n-of-1 clinical trial: the ultimate strategy for individualizing medicine?"', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3118090/' },
+    ],
     overallTier: 'weak',
     relatedIds: [
       'handson-three-therapies-compared',

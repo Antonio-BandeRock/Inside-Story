@@ -81,7 +81,186 @@ const DIGEST_READING_ORDER: string[][] = [
   ],
   // Horticulture, Your Garden & Your Microbiome: the trial, the mechanism, the synthesis.
   ['garden-hands-in-soil-immune-training', 'garden-mycobacterium-vaccae-soil-microbes-mood', 'garden-symbiosis-mission'],
+  // Health Literacy, B1, B2 & B3: one vitamin at a time, in order.
+  [
+    'thiamine-overview',
+    'thiamine-deficiency-beriberi-wernicke',
+    'thiamine-tying-together',
+    'riboflavin-overview',
+    'riboflavin-migraine-prevention',
+    'riboflavin-tying-together',
+    'niacin-overview',
+    'niacin-deficiency-pellagra',
+    'niacin-toxicity-flushing-liver',
+    'niacin-tying-together',
+  ],
+  // Health Literacy, B5, B6 & B7: the same.
+  ['pantothenate-overview-and-rarity', 'b6-overview', 'b6-toxicity-neuropathy', 'b6-tying-together', 'biotin-overview', 'biotin-deficiency-avidin-mechanism', 'biotin-tying-together'],
+  // Health Literacy, Chromium, Manganese & Copper: the same.
+  [
+    'chromium-overview-essentiality-debate',
+    'chromium-insulin-sensitivity-honest',
+    'chromium-tying-together',
+    'manganese-overview',
+    'manganese-toxicity-manganism',
+    'manganese-tying-together',
+    'copper-overview',
+    'copper-deficiency-anemia-neutropenia',
+    'copper-tying-together',
+  ],
+  // Health Literacy, Insulin, Cortisol & Thyroid: what a hormone is, then one hormone at a time, then the closing entry.
+  [
+    'hormone-what-is-a-hormone',
+    'insulin-overview-mechanism',
+    'insulin-resistance-real-cluster',
+    'cortisol-overview-hpa-axis',
+    'cortisol-chronic-dysregulation-autoimmunity',
+    'thyroid-hormones-overview',
+    'hormones-tying-together',
+  ],
+  // Health Literacy, Appetite & Body Fat Hormones: the discovery, what leptin does, what goes wrong, then the rest.
+  [
+    'leptin-discovery-ob-mice',
+    'leptin-ghrelin-overview',
+    'leptin-resistance-obesity-paradox',
+    'leptin-reproductive-axis',
+    'leptin-autoimmune-inflammation',
+    'adiponectin-overview',
+    'lipodystrophy-fat-necessity',
+  ],
+  // Health Literacy, Sex Hormones: the cycle before its ending; testosterone's job before its decline.
+  ['estrogen-progesterone-cycle', 'estrogen-progesterone-perimenopause', 'testosterone-overview-function', 'testosterone-age-decline-real-data'],
+  // Health Literacy, How Your Body Works: within each shelf, the system before the finding about it.
+  ['body-brain-nervous-system', 'body-brain-processed-meat-dementia-uk-biobank', 'body-eyes-vision'],
+  ['body-bones-teeth-skeleton', 'body-muscular-system', 'body-skin-integumentary', 'body-hair-growth-cycle'],
+  ['body-cardiovascular-electrolytes', 'body-respiratory-gas-exchange', 'body-respiratory-magnesium-asthma', 'body-lymphatic-system'],
+  ['body-digestive-organs', 'body-kidneys-liver-filtration', 'body-kidney-stones-real-causes', 'body-kidney-stones-cooking-reduces-oxalate'],
+  [
+    'body-endocrine-crosstalk',
+    'body-adrenal-glands-structure-function',
+    'body-immune-system-nutrition',
+    'body-reproductive-egg-supply-vs-sperm-production',
+    'body-reproductive-zinc-fertility',
+  ],
+  // Health Literacy, Neurogenesis: the discovery, the dispute, then what moves it.
+  [
+    'neurogenesis-discovery-fundamentals',
+    'neurogenesis-2018-controversy',
+    'neurogenesis-bdnf-exercise',
+    'neurogenesis-sleep',
+    'neurogenesis-stress-cortisol-diet',
+    'neurogenesis-depression-antidepressants',
+  ],
+  // Health Literacy, Chrononutrition: the clock first, then the rhythms it runs, then eating against it.
+  [
+    'chrono-circadian-clock-biology',
+    'chrono-cortisol-awakening-response',
+    'chrono-insulin-sensitivity-diurnal-rhythm',
+    'chrono-gut-microbiome-diurnal-rhythm',
+    'chrono-early-time-restricted-eating',
+    'chrono-time-restricted-eating-nuance',
+    'chrono-late-eating-cardiovascular-risk',
+    'chrono-shift-work-metabolic-cardiovascular-risk',
+    'chrono-autophagy-mixed-evidence',
+  ],
+  // Health Literacy, Sleep: what sleep is, its clock and its cycles, then what it does for the body.
+  [
+    'sleep-overview',
+    'sleep-circadian-rhythm-basics',
+    'sleep-architecture',
+    'sleep-regularity-consistency',
+    'sleep-glymphatic-system',
+    'sleep-immune-vaccine-response',
+    'sleep-inflammation-cytokine-mechanism',
+    'sleep-autoimmune-risk',
+    'sleep-autoimmune-disease-real-data',
+    'sleep-cbti-first-line',
+    'sleep-melatonin-real-dosing',
+  ],
+  // Health Literacy, Food Industry & History: chronological on the timeline shelf, the four cases before the pattern on the blame shelf.
+  ['foodhistory-timeline-baseline-milling', 'foodhistory-timeline-chemical-convenience', 'foodhistory-timeline-glyphosate-hfcs', 'foodhistory-mechanism-disappearing-microbiota'],
+  ['foodhistory-scapegoat-salt', 'foodhistory-scapegoat-margarine', 'foodhistory-scapegoat-sugar', 'foodhistory-scapegoat-eggs', 'foodhistory-eggs-nutrient-density', 'foodhistory-scapegoat-pattern'],
+  ['foodhistory-cholesterol-real-drivers', 'foodhistory-apob-particle-count', 'foodhistory-butter-short-chain-fat'],
+  // Health Literacy, Self Advocacy: why, then how, then the tests one at a time, then the caution.
+  [
+    'advocacy-why-it-matters',
+    'advocacy-how-to-ask',
+    'advocacy-cbc',
+    'advocacy-hscrp',
+    'advocacy-fasting-insulin',
+    'advocacy-magnesium',
+    'advocacy-zinc-copper',
+    'advocacy-sex-hormones-menopause',
+    'advocacy-prescribing-cascade',
+  ],
+  // Health Literacy, Hands-On & Complementary Therapies: the three compared, each in turn, then how to tell for yourself.
+  [
+    'handson-three-therapies-compared',
+    'handson-chiropractic-back-pain-evidence',
+    'handson-chiropractic-organ-claims',
+    'handson-acupuncture-chronic-pain',
+    'handson-acupuncture-where-it-does-nothing',
+    'handson-deep-tissue-massage-evidence',
+    'handson-targeted-versus-general-massage',
+    'handson-safety-and-what-to-ask',
+    'handson-tracking-whether-it-works',
+  ],
+  // Health Literacy, Portions: the three ideas, the reference numbers, then each nutrient's number, then what the app does with it.
+  [
+    'portion-overview',
+    'portion-rda-ai-ul-explained',
+    'portion-minimums-vs-optimal',
+    'portion-calorie-needs-tdee',
+    'portion-personalized-macro-targets',
+    'portion-protein-real-need',
+    'portion-fiber-real-need',
+    'portion-sodium-ceiling',
+    'portion-larger-portions-larger-intake',
+    'portion-app-tracks-real-amounts',
+  ],
+  // Health Literacy, Fermentation Methods: the six methods, then where to go next.
+  [
+    'fermentmethod-overview',
+    'fermentmethod-lacto-fermented-vegetables',
+    'fermentmethod-sourdough',
+    'fermentmethod-milk-kefir-and-yogurt',
+    'fermentmethod-water-kefir',
+    'fermentmethod-kombucha',
+    'fermentmethod-wild-tonics',
+    'fermentmethod-dairy-free-gluten-free-survey',
+    'fermentmethod-reputable-sources',
+  ],
+  // Health Literacy, Mitochondria & Metabolism: the chain, then the two exercise findings.
+  ['mito-sugar-visceral-fat-cytokine-chain', 'mito-exercise-autophagy-pgc1a', 'mito-exercise-intensity-inflammation'],
 ];
+
+// Health Literacy's nutrient shelves follow one arc: what the nutrient is,
+// how the body takes it in, who runs short and what that looks like, where
+// to get it, what to take if food is not enough, when too much becomes a
+// problem, and what it interacts with. Ids on those shelves are named for
+// the stage they cover, so the stage is read from the id. Anything the
+// arc does not name keeps its alphabetical place after the named stages,
+// and the closing entry stays last. Applied only inside Health Literacy,
+// so no condition page changes. 'prevention-' before 'apphelps-' is the
+// same idea on the Prevention shelves: what to do before what the app
+// does about it.
+const BASIC_HEALTH_STAGES: [RegExp, number][] = [
+  [/(^|-)overview(-|$)|-what-is-a-|discovery-fundamentals$|^prevention-/, 0],
+  [/absorption/, 1],
+  [/deficiency-prevalence/, 2],
+  [/deficiency/, 3],
+  [/food-sources/, 4],
+  [/supplement-forms|d2-vs-d3/, 5],
+  [/toxicity/, 6],
+  [/interaction|synergies-antagonists|drug-/, 7],
+  [/^apphelps-/, 9],
+];
+const UNNAMED_STAGE = 8;
+function basicHealthStage(entry: AnyDigestEntry): number {
+  if (entry.category !== 'basicHealth') return UNNAMED_STAGE;
+  const hit = BASIC_HEALTH_STAGES.find(([re]) => re.test(entry.id));
+  return hit ? hit[1] : UNNAMED_STAGE;
+}
 const READING_RANK = new Map<string, number>();
 for (const list of DIGEST_READING_ORDER) {
   list.forEach((id, index) => READING_RANK.set(id, index));
@@ -90,19 +269,27 @@ for (const list of DIGEST_READING_ORDER) {
 export function sortDigestEntriesLogically(entries: AnyDigestEntry[]): AnyDigestEntry[] {
   const titleOf = (entry: AnyDigestEntry) => (isProblemFoodEntry(entry) ? entry.foodName : entry.title);
   return [...entries].sort((a, b) => {
+    // Two entries on the same listed shelf sort by their listed positions
+    // before anything else, so a shelf holding several vitamins in turn
+    // keeps each vitamin's overview and closing entry with that vitamin
+    // instead of pulling every overview to the front and every closing
+    // entry to the back.
+    const aRank = READING_RANK.get(a.id);
+    const bRank = READING_RANK.get(b.id);
+    if (aRank !== undefined && bRank !== undefined) return aRank - bRank;
     const aOverview = a.id.endsWith('overview');
     const bOverview = b.id.endsWith('overview');
     if (aOverview !== bOverview) return aOverview ? -1 : 1;
     const aTying = isTyingTogetherEntry(a);
     const bTying = isTyingTogetherEntry(b);
     if (aTying !== bTying) return aTying ? 1 : -1;
-    const aRank = READING_RANK.get(a.id);
-    const bRank = READING_RANK.get(b.id);
     if (aRank !== undefined || bRank !== undefined) {
       if (aRank === undefined) return 1;
       if (bRank === undefined) return -1;
       return aRank - bRank;
     }
+    const stage = basicHealthStage(a) - basicHealthStage(b);
+    if (stage !== 0) return stage;
     return titleOf(a).localeCompare(titleOf(b));
   });
 }
