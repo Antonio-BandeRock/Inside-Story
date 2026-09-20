@@ -7,6 +7,7 @@ import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { DIGEST_CONDITION_ICONS } from './DigestConditionIcons';
 import { DigestEntryRow, makeDigestRowStyles } from './DigestEntryRow';
+import { EntryScrollAnchor, type EntryScrollTarget } from './EntryScrollAnchor';
 import { EntrySearchInput, searchFieldStyle } from './EntrySearchInput';
 import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
 import { useInfoAlert } from './InfoAlert';
@@ -142,9 +143,9 @@ export function ConditionsSection({
   // An entry to open on arrival: a Home flip card's Read More, a Related
   // chip tapped elsewhere, a Search Reading hit. See lib/digestNavigation.ts.
   openEntryId?: string;
-  // Life's ScrollView, so a jump can bring the opened condition into view.
-  // Positions are measured from this section's top; the host adds its own
-  // offset.
+  // Life's ScrollView, so a jump can bring the opened entry to the top of
+  // the screen. Positions are measured from this section's top; the host
+  // adds its own offset.
   scrollToY?: (y: number) => void;
   // Where an entry that is not a condition's opens. Life can switch to its
   // Health Literacy or Earth Matters lens in place; the default pushes the
@@ -270,9 +271,15 @@ export function ConditionsSection({
     [ownMetas, familyMetas, otherMetas],
   );
 
-  // Each condition band's top, measured from this section's top.
-  const bandTops = useRef<Partial<Record<DigestCategoryKey, number>>>({});
-  const pendingScroll = useRef<DigestCategoryKey | null>(null);
+  // The row an open-in-place is waiting to bring to the top of the
+  // screen. It measures itself against this section's root once it has
+  // laid out (see EntryScrollAnchor).
+  const sectionRef = useRef<View>(null);
+  const pendingEntry = useRef<string | null>(null);
+  const scrollTarget = useMemo<EntryScrollTarget | undefined>(
+    () => (scrollToY ? { pending: pendingEntry, relativeTo: sectionRef, onMeasured: scrollToY } : undefined),
+    [scrollToY],
+  );
 
   const openInPlace = useCallback(
     (id: string) => {
@@ -290,14 +297,9 @@ export function ConditionsSection({
       setOpenCondition(key);
       setOpenTopic(where?.topic ?? null);
       setOpenEntry(id);
-      pendingScroll.current = key;
-      const top = bandTops.current[key];
-      if (top !== undefined && scrollToY) {
-        scrollToY(top);
-        pendingScroll.current = null;
-      }
+      pendingEntry.current = id;
     },
-    [router, declaredStages, dietPreferences, visibleKeys, scrollToY, onJumpElsewhere],
+    [router, declaredStages, dietPreferences, visibleKeys, onJumpElsewhere],
   );
 
   // A deep link opens its entry once per id, after the lists have loaded
@@ -431,16 +433,7 @@ export function ConditionsSection({
     const Icon = DIGEST_CONDITION_ICONS[key];
     const entries = entriesFor(key);
     return (
-      <View
-        key={key}
-        onLayout={(event) => {
-          bandTops.current[key] = event.nativeEvent.layout.y;
-          if (pendingScroll.current === key && scrollToY) {
-            scrollToY(event.nativeEvent.layout.y);
-            pendingScroll.current = null;
-          }
-        }}
-      >
+      <View key={key}>
         <HomeSectionBand
           kind="fold"
           title={`${meta.label} (${entries.length})`}
@@ -473,6 +466,7 @@ export function ConditionsSection({
             openEntry={openEntry}
             onToggleEntry={(id) => setOpenEntry(openEntry === id ? null : id)}
             onJumpToRelated={openInPlace}
+            scrollTarget={scrollTarget}
             tabColor={tabColor}
             styles={styles}
           />
@@ -482,7 +476,7 @@ export function ConditionsSection({
   }
 
   return (
-    <View style={styles.wrapper}>
+    <View ref={sectionRef} style={styles.wrapper}>
       {infoAlertElement}
       <AppActionSheet
         visible={confirm !== null}
@@ -523,21 +517,23 @@ export function ConditionsSection({
           {searchResults.map((result, index) => (
             <Fragment key={result.entry.id}>
               {index > 0 ? <View style={styles.rowDivider} /> : null}
-              <DigestEntryRow
-                entry={result.entry}
-                groupLabel={result.groupLabel}
-                activeConditionCode={DIGEST_KEY_TO_CONDITION_CODE[result.entry.category as DigestCategoryKey]}
-                activeStageCode={
-                  DIGEST_KEY_TO_CONDITION_CODE[result.entry.category as DigestCategoryKey]
-                    ? declaredStages[DIGEST_KEY_TO_CONDITION_CODE[result.entry.category as DigestCategoryKey]!]
-                    : undefined
-                }
-                expanded={openEntry === result.entry.id}
-                onToggle={() => setOpenEntry(openEntry === result.entry.id ? null : result.entry.id)}
-                onJumpToRelated={openInPlace}
-                tabColor={tabColor}
-                styles={styles}
-              />
+              <EntryScrollAnchor id={result.entry.id} target={scrollTarget}>
+                <DigestEntryRow
+                  entry={result.entry}
+                  groupLabel={result.groupLabel}
+                  activeConditionCode={DIGEST_KEY_TO_CONDITION_CODE[result.entry.category as DigestCategoryKey]}
+                  activeStageCode={
+                    DIGEST_KEY_TO_CONDITION_CODE[result.entry.category as DigestCategoryKey]
+                      ? declaredStages[DIGEST_KEY_TO_CONDITION_CODE[result.entry.category as DigestCategoryKey]!]
+                      : undefined
+                  }
+                  expanded={openEntry === result.entry.id}
+                  onToggle={() => setOpenEntry(openEntry === result.entry.id ? null : result.entry.id)}
+                  onJumpToRelated={openInPlace}
+                  tabColor={tabColor}
+                  styles={styles}
+                />
+              </EntryScrollAnchor>
             </Fragment>
           ))}
         </View>
@@ -736,6 +732,7 @@ function ConditionBandBody({
   openEntry,
   onToggleEntry,
   onJumpToRelated,
+  scrollTarget,
   tabColor,
   styles,
 }: {
@@ -750,6 +747,7 @@ function ConditionBandBody({
   openEntry: string | null;
   onToggleEntry: (id: string) => void;
   onJumpToRelated: (id: string) => void;
+  scrollTarget?: EntryScrollTarget;
   tabColor: string;
   styles: Styles;
 }) {
@@ -811,16 +809,18 @@ function ConditionBandBody({
                     {section.entries.map((entry, index) => (
                       <Fragment key={entry.id}>
                         {index > 0 ? <View style={styles.rowDivider} /> : null}
-                        <DigestEntryRow
-                          entry={entry}
-                          activeConditionCode={conditionCode}
-                          activeStageCode={stageCode}
-                          expanded={openEntry === entry.id}
-                          onToggle={() => onToggleEntry(entry.id)}
-                          onJumpToRelated={onJumpToRelated}
-                          tabColor={tabColor}
-                          styles={styles}
-                        />
+                        <EntryScrollAnchor id={entry.id} target={scrollTarget}>
+                          <DigestEntryRow
+                            entry={entry}
+                            activeConditionCode={conditionCode}
+                            activeStageCode={stageCode}
+                            expanded={openEntry === entry.id}
+                            onToggle={() => onToggleEntry(entry.id)}
+                            onJumpToRelated={onJumpToRelated}
+                            tabColor={tabColor}
+                            styles={styles}
+                          />
+                        </EntryScrollAnchor>
                       </Fragment>
                     ))}
                   </Fragment>
@@ -833,16 +833,18 @@ function ConditionBandBody({
       {grouped.tyingTogether ? (
         <View style={styles.topicFold}>
           <Text style={[styles.subgroupHeading, styles.tyingTogetherHeading]}>Putting It Together</Text>
-          <DigestEntryRow
-            entry={grouped.tyingTogether}
-            activeConditionCode={conditionCode}
-            activeStageCode={stageCode}
-            expanded={openEntry === grouped.tyingTogether.id}
-            onToggle={() => onToggleEntry(grouped.tyingTogether!.id)}
-            onJumpToRelated={onJumpToRelated}
-            tabColor={tabColor}
-            styles={styles}
-          />
+          <EntryScrollAnchor id={grouped.tyingTogether.id} target={scrollTarget}>
+            <DigestEntryRow
+              entry={grouped.tyingTogether}
+              activeConditionCode={conditionCode}
+              activeStageCode={stageCode}
+              expanded={openEntry === grouped.tyingTogether.id}
+              onToggle={() => onToggleEntry(grouped.tyingTogether!.id)}
+              onJumpToRelated={onJumpToRelated}
+              tabColor={tabColor}
+              styles={styles}
+            />
+          </EntryScrollAnchor>
         </View>
       ) : null}
     </>

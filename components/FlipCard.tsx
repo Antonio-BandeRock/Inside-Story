@@ -167,9 +167,18 @@ export function FlipCard({
             always visible regardless of scroll position, the actual fix
             for "give enough to catch their interest, and end with a way
             to read more." */}
+        {/* A pill rather than a bare line of text, 2026-09-19: "The Read More
+            link needs to be a pill. The font only makes it a bit difficult
+            to tap on accurately." It borrows the card's colour for its
+            outline and its words, so it still reads as that card's. */}
         {onReadMore ? (
-          <TouchableOpacity onPress={onReadMore} hitSlop={8} style={styles.readMoreRow}>
-            <Text style={styles.readMoreText}>Read more →</Text>
+          <TouchableOpacity
+            onPress={onReadMore}
+            hitSlop={8}
+            accessibilityRole="button"
+            style={[styles.readMorePill, { borderColor }]}
+          >
+            <Text style={[styles.readMoreText, { color: borderColor }]}>Read more →</Text>
           </TouchableOpacity>
         ) : null}
         <TouchableOpacity onPress={toggle} hitSlop={8} accessibilityRole="button" accessibilityLabel="Flip back">
@@ -228,8 +237,16 @@ const styles = StyleSheet.create({
   backTitle: { ...typography.bodyEmphasis, ...textShadow, color: colors.primary, textAlign: 'left', fontWeight: '400', lineHeight: 19 },
   backDivider: { height: 1, backgroundColor: colors.primaryMuted, opacity: 0.4, marginTop: 6, marginBottom: 8 },
   backBody: { ...typography.body, ...textShadow, color: colors.textPrimary, textAlign: 'left', lineHeight: 21 },
-  readMoreRow: { alignSelf: 'flex-start', marginTop: 8 },
-  readMoreText: { ...typography.bodyEmphasis, ...textShadow, color: colors.primary, fontWeight: '400' },
+  readMorePill: {
+    alignSelf: 'flex-start',
+    marginTop: 8,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  readMoreText: { ...typography.bodyEmphasis, ...textShadow, fontWeight: '400' },
   backHint: {
     ...typography.caption,
     ...textShadow,

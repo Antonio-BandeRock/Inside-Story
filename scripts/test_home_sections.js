@@ -195,7 +195,9 @@ check('make a report is reports own group', groupHomeSectionsForDisplay(['weekTr
 //
 // One group is not in the menu at all: the Digest, since 2026-09-19. The
 // tab went, the flip cards kept a group of their own by direct correction,
-// and it stays where the tab stood, between Garden and Life.
+// and the same day's instruction put that group last: "Move Digest to the
+// bottom, under Life for how it would be presented the first time someone
+// opens the app."
 const tabsSource = fs.readFileSync(path.join(__dirname, '..', 'constants/tabs.ts'), 'utf8');
 const tabPaths = [...tabsSource.matchAll(/\{ path: '([^']+)'/g)].map((m) => m[1]);
 const orderMatch = prefsSource.match(/export const ALL_HOME_SECTION_KEYS: HomeSectionKey\[\] = \[([\s\S]*?)\n\];/);
@@ -209,9 +211,8 @@ const defaultOrder = orderMatch[1]
 const defaultGroupPaths = groupHomeSectionsForDisplay(defaultOrder)
   .filter((g) => g.kind === 'tab')
   .map((g) => g.path);
-const menuOrderWithDigest = [tabPaths[0], '/profile', ...tabPaths.slice(1)];
-menuOrderWithDigest.splice(menuOrderWithDigest.indexOf('/life'), 0, '/digest');
-check('default order runs in TabHub menu order, the Digest where its tab stood', defaultGroupPaths, menuOrderWithDigest);
+const menuOrderWithDigest = [tabPaths[0], '/profile', ...tabPaths.slice(1), '/digest'];
+check('default order runs in TabHub menu order, the Digest last', defaultGroupPaths, menuOrderWithDigest);
 
 // Every declared section is in the default order, and nothing is in it
 // twice: a key added to the union but left out of the list would land at

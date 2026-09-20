@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { DigestEntryRow, makeDigestRowStyles } from './DigestEntryRow';
+import { EntryScrollAnchor, type EntryScrollTarget } from './EntryScrollAnchor';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
 import { colors } from '../constants/colors';
 import { menuLabelShadow, textShadow, typography } from '../constants/typography';
@@ -152,8 +153,8 @@ export function DigestCategorySection({
   // An entry to open on arrival: a Related chip tapped elsewhere, a Search
   // All hit, a Home flip card's Read More. Opened once per id.
   openEntryId?: string | null;
-  // The screen's ScrollView, so a jump can bring the opened band into
-  // view. Positions are measured from this section's top.
+  // The screen's ScrollView, so a jump can bring the opened entry to the
+  // top of the screen. Positions are measured from this section's top.
   scrollToY?: (y: number) => void;
   onJumpToRelated: (id: string) => void;
 }) {
@@ -173,9 +174,16 @@ export function DigestCategorySection({
     setOpenEntry(null);
   }, [categoryKey]);
 
-  // Each band's top, measured from this section's top.
-  const bandTops = useRef<Record<string, number>>({});
-  const pendingScroll = useRef<string | null>(null);
+  // The row an open-in-place is waiting to bring to the top of the
+  // screen. It measures itself against this section's root once it has
+  // laid out (see EntryScrollAnchor), and the host adds the section's
+  // offset through scrollToY.
+  const sectionRef = useRef<View>(null);
+  const pendingEntry = useRef<string | null>(null);
+  const scrollTarget = useMemo<EntryScrollTarget | undefined>(
+    () => (scrollToY ? { pending: pendingEntry, relativeTo: sectionRef, onMeasured: scrollToY } : undefined),
+    [scrollToY],
+  );
 
   const openInPlace = useCallback(
     (id: string) => {
@@ -184,14 +192,9 @@ export function DigestCategorySection({
       setOpenTopic(where.topic);
       setOpenSubgroup(where.subgroup);
       setOpenEntry(id);
-      pendingScroll.current = where.topic;
-      const top = bandTops.current[where.topic];
-      if (top !== undefined && scrollToY) {
-        scrollToY(top);
-        pendingScroll.current = null;
-      }
+      pendingEntry.current = id;
     },
-    [topics, scrollToY],
+    [topics],
   );
 
   const consumedOpenId = useRef<string | null>(null);
@@ -227,19 +230,21 @@ export function DigestCategorySection({
     rows.map((entry, index) => (
       <Fragment key={entry.id}>
         {index > 0 ? <View style={styles.rowDivider} /> : null}
-        <DigestEntryRow
-          entry={entry}
-          expanded={openEntry === entry.id}
-          onToggle={() => setOpenEntry(openEntry === entry.id ? null : entry.id)}
-          onJumpToRelated={onJumpToRelated}
-          tabColor={tabColor}
-          styles={styles}
-        />
+        <EntryScrollAnchor id={entry.id} target={scrollTarget}>
+          <DigestEntryRow
+            entry={entry}
+            expanded={openEntry === entry.id}
+            onToggle={() => setOpenEntry(openEntry === entry.id ? null : entry.id)}
+            onJumpToRelated={onJumpToRelated}
+            tabColor={tabColor}
+            styles={styles}
+          />
+        </EntryScrollAnchor>
       </Fragment>
     ));
 
   return (
-    <View style={styles.wrapper}>
+    <View ref={sectionRef} style={styles.wrapper}>
       {searchActive ? null : (
         <View style={styles.headerBox}>
           <View style={styles.headerRow}>
@@ -284,16 +289,7 @@ export function DigestCategorySection({
           const expanded = openTopic === topic.label;
           const single = topic.subgroups.length === 1 && topic.subgroups[0].label === null;
           return (
-            <View
-              key={topic.label}
-              onLayout={(event) => {
-                bandTops.current[topic.label] = event.nativeEvent.layout.y;
-                if (pendingScroll.current === topic.label && scrollToY) {
-                  scrollToY(event.nativeEvent.layout.y);
-                  pendingScroll.current = null;
-                }
-              }}
-            >
+            <View key={topic.label}>
               <HomeSectionBand
                 kind="fold"
                 title={`${topicDisplayLabel(topic.label)} (${topic.count})`}

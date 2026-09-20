@@ -363,15 +363,18 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   // Garden.
   'gardenTasks',
   'logHarvest',
-  // The Digest, then Life. 2026-09-16, direct instruction: "Put them
-  // into the order they exist in the TabHub menu." That retires the one
-  // deliberate exception this list used to carry, which ran Life ahead of
-  // The Digest so the flip cards stayed last. The menu order wins, and
-  // anyone who wants the old arrangement still has Profile > Home Screen.
-  'digestCards',
+  // Life.
   'groceryList',
   'routines',
   'doneChecks',
+  // The Digest, last. 2026-09-16 put the groups "into the order they exist
+  // in the TabHub menu", which ran the Digest ahead of Life while it was a
+  // tab. The tab went on 2026-09-19 and the cards kept a group of their
+  // own on Home, and the same day's instruction put that group at the
+  // bottom: "Move Digest to the bottom, under Life for how it would be
+  // presented the first time someone opens the app." Anyone who wants it
+  // elsewhere still has Profile > Home Screen.
+  'digestCards',
 ];
 
 // Everything on Home that can be moved. 2026-08-23 carved the greeting

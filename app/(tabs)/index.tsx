@@ -402,20 +402,6 @@ function mulberry32(seed: number): () => number {
   };
 }
 
-// Fisher-Yates using the seeded generator above -- deterministic for a given
-// seed, which is the whole point: the flip-card shelf is seeded once per app
-// open, so its order is random each time the app starts and then stable while
-// it is open, rather than reshuffling under someone on every re-render.
-function seededShuffleIndices(length: number, seed: number): number[] {
-  const random = mulberry32(seed);
-  const indices = Array.from({ length }, (_, index) => index);
-  for (let i = indices.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [indices[i], indices[j]] = [indices[j], indices[i]];
-  }
-  return indices;
-}
-
 // A real, cited-elsewhere-in-this-app subset of nutrients most directly
 // tied to thyroid hormone production/conversion (iodine, selenium, zinc,
 // iron, copper) and to bone health (vitamin D, calcium, magnesium) --
@@ -784,10 +770,10 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'makeReport',
   'gardenTasks',
   'logHarvest',
-  'digestCards',
   'groceryList',
   'routines',
   'doneChecks',
+  'digestCards',
 ];
 
 // The Digest's own corner shortcut, 2026-07-27 -- explicitly
@@ -1051,10 +1037,12 @@ export default function HomeScreen() {
   // own group. Plain state rather than a timestamp so the shuffle below depends
   // on one changing number and nothing else.
   const [flipCardRotation, setFlipCardRotation] = useState(0);
-  // Fixed once per mount, which is once per app open, so the shelf order is
-  // random each time the app opens but stable while it is open. Regenerating it
-  // on every render would reshuffle the shelf under someone mid-read.
-  const [flipCardShelfSeed] = useState(() => Math.floor(Math.random() * 0xffffffff));
+  // Fixed once per mount, which is once per app open, so each card's entry
+  // is a different one each time the app opens but stable while it is open.
+  // Regenerating it on every render would change the cards under someone
+  // mid-read. Until 2026-09-19 this also shuffled the order of the cards
+  // themselves; they run alphabetically now (see visibleFlipCards).
+  const [flipCardSeed] = useState(() => Math.floor(Math.random() * 0xffffffff));
   // The real scope of Home's own Digest flip cards, 2026-08-23 direct
   // request -- see digestFlipCardPool's own comment below for how these
   // two lists actually get used. Both start empty (matching "nothing
@@ -1709,24 +1697,33 @@ export default function HomeScreen() {
 
   // One card per group, each holding a random entry from its own group.
   //
-  // Both kinds of randomness are seeded rather than Math.random() at render
-  // time, for the same reason the daily shuffle this replaced was: an unseeded
-  // pick would land on a different entry on every single re-render, so a card
-  // would change under someone the moment anything else on Home updated. The
-  // shelf order is seeded per app open, and each card's entry is seeded by its
-  // own group plus the rotation counter, so a card only moves when 15 minutes
+  // The cards run alphabetically by their category's name, left to right,
+  // 2026-09-19: "Have the cards in Digest be in alphabetical order, left to
+  // right. It actually is also grouping them by the tab they represent that
+  // way, too." (Every condition, Earth Matters and Health Literacy live on
+  // Life, Horticulture on Garden, Recipes on Food, and the alphabet happens
+  // to keep each tab's cards together.) The shelf used to be shuffled once
+  // per app open, so where a card sat changed every time.
+  //
+  // The entry each card shows is still random, and seeded rather than
+  // Math.random() at render time, for the same reason the daily shuffle
+  // this replaced was: an unseeded pick would land on a different entry on
+  // every single re-render, so a card would change under someone the moment
+  // anything else on Home updated. Each card's entry is seeded by its own
+  // group plus the rotation counter, so a card only moves when 15 minutes
   // have genuinely passed.
   const visibleFlipCards = useMemo(() => {
-    const shelfOrder = seededShuffleIndices(flipCardGroups.length, flipCardShelfSeed);
-    return shelfOrder.map((groupIndex) => {
-      const group = flipCardGroups[groupIndex];
-      const random = mulberry32(flipCardShelfSeed + flipCardRotation * 7919 + groupIndex * 104729);
+    const ordered = flipCardGroups
+      .map((group, groupIndex) => ({ group, groupIndex, label: DIGEST_CATEGORY_LABEL_BY_KEY[group.category] ?? '' }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+    return ordered.map(({ group, groupIndex }) => {
+      const random = mulberry32(flipCardSeed + flipCardRotation * 7919 + groupIndex * 104729);
       const entry = group.entries[Math.floor(random() * group.entries.length)];
       // Keyed by group as well as entry: two groups could in principle surface
       // the same entry id, and a duplicate React key would drop a card.
       return { ...entry, groupKey: group.category };
     });
-  }, [flipCardGroups, flipCardShelfSeed, flipCardRotation]);
+  }, [flipCardGroups, flipCardSeed, flipCardRotation]);
 
   // Moon phase + the next equinox/solstice countdown: pure, synchronous,
   // offline math (lib/celestialEvents.ts) -- always available, computed

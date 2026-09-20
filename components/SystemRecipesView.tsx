@@ -1,10 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { EntryPhotoSection } from './EntryPhotoSection';
+import { EntryScrollAnchor, type EntryScrollTarget } from './EntryScrollAnchor';
 import { EntrySearchInput, searchFieldStyle } from './EntrySearchInput';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
@@ -313,20 +314,35 @@ export function SystemRecipesView({
   // system recipe and change it" work.
   onOpenBuilder: (params: Record<string, string>) => void;
   onClose: () => void;
-  // A recipe to arrive open, with its group unfolded: a Home flip card's
-  // Read More or a Related chip on another tab (lib/digestNavigation.ts
-  // sends a recipe entry here). 2026-09-19.
+  // A recipe to arrive open, with its group unfolded and the row brought
+  // to the top of the screen: a Home flip card's Read More or a Related
+  // chip on another tab (lib/digestNavigation.ts sends a recipe entry
+  // here). 2026-09-19.
   initialEntryId?: string;
 }) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [openEntryId, setOpenEntryId] = useState<string | null>(null);
+  // The row measures itself against the scroll content (see
+  // EntryScrollAnchor), so the position it reports is the scroll offset.
+  const scrollRef = useRef<ScrollView>(null);
+  const contentRef = useRef<View>(null);
+  const pendingEntry = useRef<string | null>(null);
+  const scrollTarget = useMemo<EntryScrollTarget>(
+    () => ({
+      pending: pendingEntry,
+      relativeTo: contentRef,
+      onMeasured: (y) => scrollRef.current?.scrollTo({ y, animated: true }),
+    }),
+    [],
+  );
   useEffect(() => {
     if (!initialEntryId) return;
     const group = systemRecipeGroups().find((candidate) => candidate.entries.some((entry) => entry.id === initialEntryId));
     if (!group) return;
     setOpenGroup(group.key);
     setOpenEntryId(initialEntryId);
+    pendingEntry.current = initialEntryId;
   }, [initialEntryId]);
   const [query, setQuery] = useState('');
   const [dietFilter, setDietFilter] = useState<RecipeDietTag | null>(null);
@@ -373,98 +389,104 @@ export function SystemRecipesView({
 
   return (
     <View style={styles.wrapper}>
-      <ScrollView contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
-        <TouchableOpacity onPress={onClose} activeOpacity={0.7}>
-          <Text style={styles.backLink}>‹ Back</Text>
-        </TouchableOpacity>
-        <View style={styles.introBox}>
-          <Text style={styles.introText}>
-            Every recipe that comes with the app, grouped by what the dish is. Tap one to read it: what it makes,
-            what goes in it, how to cook it, and what it gives you. Build This Recipe opens that tool already loaded
-            with it, so you can change it into your own.
-          </Text>
-        </View>
-        <View style={styles.controlsBox}>
-          <EntrySearchInput
-            placeholder="Search the recipes..."
-            style={styles.searchField}
-            tabColor={TAB_COLOR}
-            onDebouncedChange={handleDebouncedChange}
-          />
-          <View style={styles.filterRow}>
-            <Text style={styles.filterLabel}>Filter by diet</Text>
-            <PopoverSelect
-              options={RECIPE_DIET_FILTER_OPTIONS}
-              selected={dietFilter ?? 'All Diets'}
-              onSelect={(value) => setDietFilter(value === 'All Diets' ? null : (value as RecipeDietTag))}
-              tabColor={TAB_COLOR}
-            />
-          </View>
-          {dietFilter || searchResults ? (
-            <Text style={styles.resultCount}>
-              {searchResults
-                ? `${searchResults.length} ${searchResults.length === 1 ? 'recipe' : 'recipes'} found`
-                : `${filteredTotal} ${filteredTotal === 1 ? 'recipe' : 'recipes'} for ${dietFilter}`}
+      <ScrollView ref={scrollRef} contentContainerStyle={{ paddingBottom: scrollBottomPadding }}>
+        <View ref={contentRef} style={styles.container}>
+          <TouchableOpacity onPress={onClose} activeOpacity={0.7}>
+            <Text style={styles.backLink}>‹ Back</Text>
+          </TouchableOpacity>
+          <View style={styles.introBox}>
+            <Text style={styles.introText}>
+              Every recipe that comes with the app, grouped by what the dish is. Tap one to read it: what it makes,
+              what goes in it, how to cook it, and what it gives you. Build This Recipe opens that tool already loaded
+              with it, so you can change it into your own.
             </Text>
-          ) : null}
-        </View>
-        {searchResults ? (
-          <View style={styles.resultList}>
-            {searchResults.length === 0 ? (
-              <Text style={styles.emptyText}>Nothing matched that search. Try a single ingredient or a dish name.</Text>
-            ) : null}
-            {searchResults.map((result, index) => (
-              <Fragment key={result.entry.id}>
-                {index > 0 ? <View style={styles.rowDivider} /> : null}
-                <SystemRecipeRow
-                  entry={result.entry}
-                  groupLabel={result.groupLabel}
-                  expanded={openEntryId === result.entry.id}
-                  onToggle={() => setOpenEntryId(openEntryId === result.entry.id ? null : result.entry.id)}
-                  onOpenBuilder={onOpenBuilder}
-                />
-              </Fragment>
-            ))}
           </View>
-        ) : (
-          filteredGroups.map((group) => (
-            <HomeSectionBand
-              key={group.key}
-              kind="fold"
-              title={`${group.label} (${group.entries.length})`}
-              icon={group.icon}
-              color={TAB_COLOR}
-              expanded={openGroup === group.key}
-              onToggle={() => setOpenGroup(openGroup === group.key ? null : group.key)}
-              contentStyle={styles.bandBody}
-            >
-              {sectionsFor(group.key, group.entries).map((section, sectionIndex) => (
-                <Fragment key={section.label ?? 'all'}>
-                  {section.label ? (
-                    <Text style={[styles.subgroupHeading, sectionIndex > 0 ? styles.subgroupHeadingLater : null]}>
-                      {section.label} ({section.entries.length})
-                    </Text>
-                  ) : null}
-                  {section.entries.map((entry, index) => (
-                    <Fragment key={entry.id}>
-                      {/* The one pixel line sits exactly midway: the gap
-                          above and below it add back to HOME_BAND_GAP, so
-                          the rows keep the spacing every other stacked
-                          thing in the app uses. */}
-                      {index > 0 ? <View style={styles.rowDivider} /> : null}
-                      <SystemRecipeRow
-                        entry={entry}
-                        expanded={openEntryId === entry.id}
-                        onToggle={() => setOpenEntryId(openEntryId === entry.id ? null : entry.id)}
-                        onOpenBuilder={onOpenBuilder}
-                      />
-                    </Fragment>
-                  ))}
+          <View style={styles.controlsBox}>
+            <EntrySearchInput
+              placeholder="Search the recipes..."
+              style={styles.searchField}
+              tabColor={TAB_COLOR}
+              onDebouncedChange={handleDebouncedChange}
+            />
+            <View style={styles.filterRow}>
+              <Text style={styles.filterLabel}>Filter by diet</Text>
+              <PopoverSelect
+                options={RECIPE_DIET_FILTER_OPTIONS}
+                selected={dietFilter ?? 'All Diets'}
+                onSelect={(value) => setDietFilter(value === 'All Diets' ? null : (value as RecipeDietTag))}
+                tabColor={TAB_COLOR}
+              />
+            </View>
+            {dietFilter || searchResults ? (
+              <Text style={styles.resultCount}>
+                {searchResults
+                  ? `${searchResults.length} ${searchResults.length === 1 ? 'recipe' : 'recipes'} found`
+                  : `${filteredTotal} ${filteredTotal === 1 ? 'recipe' : 'recipes'} for ${dietFilter}`}
+              </Text>
+            ) : null}
+          </View>
+          {searchResults ? (
+            <View style={styles.resultList}>
+              {searchResults.length === 0 ? (
+                <Text style={styles.emptyText}>Nothing matched that search. Try a single ingredient or a dish name.</Text>
+              ) : null}
+              {searchResults.map((result, index) => (
+                <Fragment key={result.entry.id}>
+                  {index > 0 ? <View style={styles.rowDivider} /> : null}
+                  <EntryScrollAnchor id={result.entry.id} target={scrollTarget}>
+                    <SystemRecipeRow
+                      entry={result.entry}
+                      groupLabel={result.groupLabel}
+                      expanded={openEntryId === result.entry.id}
+                      onToggle={() => setOpenEntryId(openEntryId === result.entry.id ? null : result.entry.id)}
+                      onOpenBuilder={onOpenBuilder}
+                    />
+                  </EntryScrollAnchor>
                 </Fragment>
               ))}
-            </HomeSectionBand>
-          ))
-        )}
+            </View>
+          ) : (
+            filteredGroups.map((group) => (
+              <HomeSectionBand
+                key={group.key}
+                kind="fold"
+                title={`${group.label} (${group.entries.length})`}
+                icon={group.icon}
+                color={TAB_COLOR}
+                expanded={openGroup === group.key}
+                onToggle={() => setOpenGroup(openGroup === group.key ? null : group.key)}
+                contentStyle={styles.bandBody}
+              >
+                {sectionsFor(group.key, group.entries).map((section, sectionIndex) => (
+                  <Fragment key={section.label ?? 'all'}>
+                    {section.label ? (
+                      <Text style={[styles.subgroupHeading, sectionIndex > 0 ? styles.subgroupHeadingLater : null]}>
+                        {section.label} ({section.entries.length})
+                      </Text>
+                    ) : null}
+                    {section.entries.map((entry, index) => (
+                      <Fragment key={entry.id}>
+                        {/* The one pixel line sits exactly midway: the gap
+                            above and below it add back to HOME_BAND_GAP, so
+                            the rows keep the spacing every other stacked
+                            thing in the app uses. */}
+                        {index > 0 ? <View style={styles.rowDivider} /> : null}
+                        <EntryScrollAnchor id={entry.id} target={scrollTarget}>
+                          <SystemRecipeRow
+                            entry={entry}
+                            expanded={openEntryId === entry.id}
+                            onToggle={() => setOpenEntryId(openEntryId === entry.id ? null : entry.id)}
+                            onOpenBuilder={onOpenBuilder}
+                          />
+                        </EntryScrollAnchor>
+                      </Fragment>
+                    ))}
+                  </Fragment>
+                ))}
+              </HomeSectionBand>
+            ))
+          )}
+        </View>
       </ScrollView>
     </View>
   );

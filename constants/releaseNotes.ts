@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.15',
+    date: '2026-09-19',
+    changes: [
+      'The Digest cards on Home run alphabetically and the group sits last, under Life. Read More is a pill. Opening an entry from a card, a Related chip or a Search Reading hit now brings that entry to the top of the screen on Life, Garden and Food.',
+    ],
+  },
+  {
     version: '1.0.41.14',
     date: '2026-09-19',
     changes: [
