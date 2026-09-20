@@ -4,7 +4,7 @@ import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { setGardenHarvestOnHand, type GardenHarvest } from '../lib/db';
-import { describeGardenNet, RECEIVED_SHARE_UNITS } from '../lib/gardenMoney';
+import { describeGardenNet, describeNetShort, RECEIVED_SHARE_UNITS } from '../lib/gardenMoney';
 import {
   deleteReceivedShare,
   loadGardenMoneyPicture,
@@ -350,6 +350,12 @@ export function MyWholeFoodsView({ onClose, onChanged }: { onClose: () => void; 
                 Spent on growing: {formatTradeMoney(picture.summary.growingCosts)}, recorded under Growing Costs on the Garden tab
                 or as Garden &amp; growing supplies in your budget.
               </Text>
+              {picture.areas.length > 0 ? (
+                <Text style={styles.rowMeta}>
+                  By area: {picture.areas.map((area) => `${area.name} ${describeNetShort(area.summary)}`).join('; ')}
+                  {picture.unassigned ? `; not tied to one area ${describeNetShort(picture.unassigned.summary)}` : ''}.
+                </Text>
+              ) : null}
               {renderValuedLines(picture.harvestValuation, 'harvest')}
               {renderValuedLines(picture.shareValuation, 'gift')}
               {picture.harvestValuation.valued.length === 0 && picture.shareValuation.valued.length === 0 ? (

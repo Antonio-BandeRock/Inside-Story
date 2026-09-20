@@ -5,7 +5,16 @@ import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { listGardenPlots, type GardenPlot } from '../lib/db';
-import { describeGardenNet, GROWING_COST_KINDS, growingCostKindLabel, type GrowingCostKind } from '../lib/gardenMoney';
+import {
+  describeAreaSetting,
+  describeGardenNet,
+  describeNetShort,
+  GROWING_COST_KINDS,
+  growingCostKindLabel,
+  UNASSIGNED_AREA_NAME,
+  type GardenAreaMoney,
+  type GrowingCostKind,
+} from '../lib/gardenMoney';
 import {
   deleteGrowingCost,
   listGrowingCosts,
@@ -33,6 +42,15 @@ import { makeTabBandStyles, TabBand } from './TabBand';
 // what kept harvests and produce given to you would have cost at recorded
 // prices, less everything spent on growing. See lib/gardenMoney.ts for the
 // three rules that figure follows.
+//
+// PER AREA, later the same day: "Growing costs should be separated somehow,
+// because the user might be growing something one way and other things
+// another way, and they may want to track costs for one grow while not on
+// another grow, or it may be a difference between indoors and outdoors
+// where indoors uses a LED grow light." A cost is tied to a garden area
+// when it is entered, each area gets a separate figure under By Area, the
+// areas roll up as indoors, greenhouse and outdoors on the top card, and
+// the list of costs is grouped by area.
 
 const TAB_COLOR = colors.tabGarden;
 const band = makeTabBandStyles(TAB_COLOR);
@@ -80,9 +98,23 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
   }, [description, kind, amount, date]);
 
   const plotOptions = useMemo(
-    () => [{ label: 'The whole garden', value: NO_PLOT }, ...plots.map((plot) => ({ label: plot.name, value: plot.id }))],
+    () => [{ label: UNASSIGNED_AREA_NAME, value: NO_PLOT }, ...plots.map((plot) => ({ label: plot.name, value: plot.id }))],
     [plots],
   );
+
+  // The cost list, grouped the way By Area is: each area in the order the
+  // areas were made, then everything tied to none of them.
+  const costGroups = useMemo(() => {
+    const groups: { key: string; title: string; costs: GrowingCostRecord[] }[] = [];
+    for (const plot of plots) {
+      const own = costs.filter((cost) => cost.plotId === plot.id);
+      if (own.length > 0) groups.push({ key: plot.id, title: plot.name, costs: own });
+    }
+    const knownPlotIds = new Set(plots.map((plot) => plot.id));
+    const untied = costs.filter((cost) => !cost.plotId || !knownPlotIds.has(cost.plotId));
+    if (untied.length > 0) groups.push({ key: NO_PLOT, title: UNASSIGNED_AREA_NAME, costs: untied });
+    return groups;
+  }, [costs, plots]);
 
   const kindHelp = kind ? GROWING_COST_KINDS.find((entry) => entry.code === kind)?.help ?? null : null;
 
@@ -126,6 +158,16 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
   }
 
   const summary = picture?.summary ?? null;
+  const areaRows: GardenAreaMoney[] = picture ? [...picture.areas, ...(picture.unassigned ? [picture.unassigned] : [])] : [];
+  const byLocation = picture?.byLocation ?? [];
+
+  function describeAreaCounts(area: GardenAreaMoney): string {
+    const parts: string[] = [];
+    if (area.costCount > 0) parts.push(area.costCount === 1 ? '1 cost' : `${area.costCount} costs`);
+    if (area.harvestCount > 0) parts.push(area.harvestCount === 1 ? '1 harvest kept' : `${area.harvestCount} harvests kept`);
+    if (area.giftCount > 0) parts.push(area.giftCount === 1 ? '1 gift' : `${area.giftCount} gifts`);
+    return parts.join(', ');
+  }
 
   return (
     <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
@@ -140,14 +182,58 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
               {'\n'}Spent on growing: {formatTradeMoney(summary.growingCosts)}, everything in the Garden &amp; growing supplies
               category of your budget.
             </Text>
+            {byLocation.length > 1 ? (
+              <View style={styles.rollup}>
+                <Text style={styles.fieldLabel}>By where it grows</Text>
+                {byLocation.map((location) => (
+                  <Text key={location.locationType} style={styles.bodyText}>
+                    {location.label}
+                    {location.areaCount === 1 ? '' : ` (${location.areaCount} areas)`}: {describeNetShort(location.summary)}
+                  </Text>
+                ))}
+              </View>
+            ) : null}
             <Text style={styles.captionText}>
-              The comparison is for the whole garden, never one crop: a bag of fertilizer feeds the whole bed, and charging
-              it to the tomatoes would be a made-up split. Compost from your kitchen scraps costs nothing and is never
-              entered here.
+              Each area stands on its own, so a grow tent under an LED light and the beds outside each get a separate
+              figure under By Area. The comparison is per area, never per crop: a bag of fertilizer feeds the whole
+              bed, and charging it to the tomatoes would be a made-up split. Compost from your kitchen scraps costs
+              nothing and is never entered here.
             </Text>
           </>
         ) : null}
       </View>
+
+      <TabBand folds={folds} color={TAB_COLOR} id="garden:costs:areas" title="By Area" icon="grid-outline" count={areaRows.length}>
+        <View style={styles.card}>
+          {areaRows.length === 0 ? (
+            <Text style={styles.captionText}>
+              Tie a cost to an area when you add it, and that area gets a separate figure here, set against the
+              harvests kept from it. An area you are not tracking costs for shows what it gave back and says no costs
+              were recorded, so one grow can be tracked while another is not.
+            </Text>
+          ) : (
+            areaRows.map((area) => {
+              const setting = describeAreaSetting(area);
+              const counts = describeAreaCounts(area);
+              return (
+                <View key={area.areaId ?? NO_PLOT} style={styles.areaRow}>
+                  <Text style={styles.bodyText}>
+                    {area.name}
+                    {setting ? ` · ${setting}` : ''}
+                  </Text>
+                  <Text style={styles.moneyTotal}>{describeNetShort(area.summary)}</Text>
+                  <Text style={styles.captionText}>
+                    {counts}
+                    {area.summary.unpricedCount > 0
+                      ? `. ${area.summary.unpricedCount === 1 ? 'One' : area.summary.unpricedCount} ${area.summary.unpricedCount === 1 ? 'is' : 'are'} counted without a recorded price.`
+                      : ''}
+                  </Text>
+                </View>
+              );
+            })
+          )}
+        </View>
+      </TabBand>
 
       <View style={[band.box, styles.card]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Record Money Spent on Growing</Text>
@@ -194,12 +280,15 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
                 <Text style={styles.linkText}>Today</Text>
               </TouchableOpacity>
             </View>
-            {plots.length > 0 ? (
-              <View style={styles.fieldRow}>
-                <Text style={styles.fieldLabel}>For</Text>
-                <PopoverSelect options={plotOptions} selected={plotId} onSelect={setPlotId} tabColor={TAB_COLOR} width={220} />
-              </View>
-            ) : null}
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>Area</Text>
+              <PopoverSelect options={plotOptions} selected={plotId} onSelect={setPlotId} tabColor={TAB_COLOR} width={220} />
+            </View>
+            <Text style={styles.captionText}>
+              {plots.length > 0
+                ? 'A cost tied to an area is set against the harvests kept from that area, so an indoor grow and the beds outside each get a separate figure.'
+                : 'Add an area under Plots & Plantings to keep one grow\'s costs apart from another.'}
+            </Text>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
             <View style={styles.actionRow}>
               <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSave}>
@@ -231,23 +320,27 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
           {costs.length === 0 ? (
             <Text style={styles.captionText}>Nothing recorded yet.</Text>
           ) : (
-            costs.map((cost) => (
-              <View key={cost.id} style={styles.row}>
-                <View style={styles.rowText}>
-                  <Text style={styles.bodyText}>
-                    {formatTradeMoney(cost.amount)}
-                    {cost.description ? `, ${cost.description}` : ''}
-                  </Text>
-                  <Text style={styles.captionText}>
-                    {cost.occurredOn}
-                    {cost.kind ? ` · ${growingCostKindLabel(cost.kind)}` : ' · Entered in Finances'}
-                    {cost.plotName ? ` · ${cost.plotName}` : ''}
-                    {cost.compostPileName ? ` · ${cost.compostPileName}` : ''}
-                  </Text>
-                </View>
-                <TouchableOpacity onPress={() => handleDelete(cost.id)}>
-                  <Text style={[styles.linkText, { color: colors.danger }]}>Delete</Text>
-                </TouchableOpacity>
+            costGroups.map((group) => (
+              <View key={group.key} style={styles.costGroup}>
+                <Text style={styles.fieldLabel}>{group.title}</Text>
+                {group.costs.map((cost) => (
+                  <View key={cost.id} style={styles.row}>
+                    <View style={styles.rowText}>
+                      <Text style={styles.bodyText}>
+                        {formatTradeMoney(cost.amount)}
+                        {cost.description ? `, ${cost.description}` : ''}
+                      </Text>
+                      <Text style={styles.captionText}>
+                        {cost.occurredOn}
+                        {cost.kind ? ` · ${growingCostKindLabel(cost.kind)}` : ' · Entered in Finances'}
+                        {cost.compostPileName ? ` · ${cost.compostPileName}` : ''}
+                      </Text>
+                    </View>
+                    <TouchableOpacity onPress={() => handleDelete(cost.id)}>
+                      <Text style={[styles.linkText, { color: colors.danger }]}>Delete</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
               </View>
             ))
           )}
@@ -280,6 +373,9 @@ const styles = StyleSheet.create({
   shortInput: { width: 110 },
   dateInput: { width: 140 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  rollup: { gap: 2, marginTop: 4 },
+  areaRow: { gap: 2, paddingVertical: 4 },
+  costGroup: { gap: 6, marginTop: 4 },
   rowText: { flex: 1, gap: 2 },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: 4 },
   primaryButton: { borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, alignItems: 'center', ...BUTTON_SHADOW },

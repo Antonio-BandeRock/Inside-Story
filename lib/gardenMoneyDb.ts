@@ -18,11 +18,19 @@
 // kitchen, for the same reason deleteDisposition does not: the food is
 // still on the shelf.
 
-import { getDatabase, listHarvestsKeptOnHand, type GardenHarvest } from './db';
+import { getDatabase, listGardenPlots, listHarvestsKeptOnHand, type GardenHarvest } from './db';
 import { createEntry, deleteEntry } from './financeDb';
 import { addKitchenItem } from './kitchenDb';
-import { isGrowingCostKind, summarizeGardenMoney, type GardenMoneySummary, type GrowingCostKind } from './gardenMoney';
-import { harvestUnitForPricing, valueReceivedGoods, type ValuationResult } from './harvestTrade';
+import {
+  groupGardenMoneyByArea,
+  isGrowingCostKind,
+  summarizeGardenMoney,
+  type GardenAreaMoney,
+  type GardenLocationMoney,
+  type GardenMoneySummary,
+  type GrowingCostKind,
+} from './gardenMoney';
+import { harvestUnitForPricing, valueReceivedGoods, type RecordedPrice, type ValuationResult } from './harvestTrade';
 import { getLastPaidPrices } from './harvestTradeDb';
 
 export const GARDEN_COST_CATEGORY = 'garden_supplies';
@@ -235,7 +243,45 @@ export type GardenMoneyPicture = {
   harvestValuation: ValuationResult;
   shares: ReceivedShareRecord[];
   shareValuation: ValuationResult;
+  /** One figure per growing area that has a cost or a harvest, so a grow
+   *  tent under an LED light and the beds out back each stand alone.
+   *  Added 2026-09-20; see PER AREA in lib/gardenMoney.ts. */
+  areas: GardenAreaMoney[];
+  /** Costs tied to no area, plus produce given to you. Null when empty. */
+  unassigned: GardenAreaMoney | null;
+  /** Areas rolled up as indoors, greenhouse and outdoors. */
+  byLocation: GardenLocationMoney[];
 };
+
+/** What one item would have cost at a recorded price, or null when it has
+ *  none. Runs the same valuation as the totals, one item at a time, so the
+ *  per-area figures follow exactly the rule the whole-garden figure does. */
+function amountAtRecordedPrice(
+  item: { foodName: string; quantity: number; unit: string },
+  lastPaid: Record<string, RecordedPrice | undefined>,
+): number | null {
+  const result = valueReceivedGoods([item], lastPaid);
+  return result.valued.length === 1 ? result.valued[0].amount : null;
+}
+
+/** A harvest's area: its plot, or the plot of the planting it came from. */
+async function resolveHarvestPlotIds(harvests: GardenHarvest[]): Promise<Map<string, string | null>> {
+  const db = await getDatabase();
+  const resolved = new Map<string, string | null>();
+  const plantingIds = Array.from(new Set(harvests.filter((h) => !h.plotId && h.plantingId).map((h) => h.plantingId as string)));
+  const plantingPlot = new Map<string, string>();
+  if (plantingIds.length > 0) {
+    const rows = await db.getAllAsync<{ id: string; plotId: string }>(
+      `SELECT id, plot_id AS plotId FROM garden_plantings WHERE id IN (${plantingIds.map(() => '?').join(', ')})`,
+      ...plantingIds,
+    );
+    for (const row of rows) plantingPlot.set(row.id, row.plotId);
+  }
+  for (const harvest of harvests) {
+    resolved.set(harvest.id, harvest.plotId ?? (harvest.plantingId ? plantingPlot.get(harvest.plantingId) ?? null : null));
+  }
+  return resolved;
+}
 
 /**
  * Everything the net figure is made of, read once so My Whole Foods on Food
@@ -244,12 +290,15 @@ export type GardenMoneyPicture = {
  * money was not spent on the day it arrived.
  */
 export async function loadGardenMoneyPicture(): Promise<GardenMoneyPicture> {
-  const [harvests, shares, lastPaid, growingCosts] = await Promise.all([
+  const [harvests, shares, lastPaid, growingCosts, plots, costRows] = await Promise.all([
     listHarvestsKeptOnHand(),
     listReceivedShares(),
     getLastPaidPrices(),
     getGrowingCostTotal(),
+    listGardenPlots(),
+    listGrowingCosts(5000),
   ]);
+  const harvestPlot = await resolveHarvestPlotIds(harvests);
   const harvestValuation = valueReceivedGoods(
     harvests.map((harvest) => ({ foodName: harvest.foodName, quantity: harvest.quantity, unit: harvestUnitForPricing(harvest.unit) })),
     lastPaid,
@@ -264,5 +313,31 @@ export async function loadGardenMoneyPicture(): Promise<GardenMoneyPicture> {
     growingCosts,
     unpricedCount: harvestValuation.unvalued.length + shareValuation.unvalued.length,
   });
-  return { summary, harvests, harvestValuation, shares, shareValuation };
+  const grouped = groupGardenMoneyByArea({
+    areas: plots.map((plot) => ({ id: plot.id, name: plot.name, locationType: plot.locationType, lightSource: plot.lightSource })),
+    harvests: harvests.map((harvest) => ({
+      plotId: harvestPlot.get(harvest.id) ?? null,
+      amount: amountAtRecordedPrice(
+        { foodName: harvest.foodName, quantity: harvest.quantity, unit: harvestUnitForPricing(harvest.unit) },
+        lastPaid,
+      ),
+    })),
+    gifts: shares.map((share) => ({
+      amount: amountAtRecordedPrice(
+        { foodName: share.foodName, quantity: share.quantity, unit: harvestUnitForPricing(share.unit) },
+        lastPaid,
+      ),
+    })),
+    costs: costRows.map((cost) => ({ plotId: cost.plotId, amount: cost.amount })),
+  });
+  return {
+    summary,
+    harvests,
+    harvestValuation,
+    shares,
+    shareValuation,
+    areas: grouped.areas,
+    unassigned: grouped.unassigned,
+    byLocation: grouped.byLocation,
+  };
 }

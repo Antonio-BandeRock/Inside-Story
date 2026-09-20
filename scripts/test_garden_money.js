@@ -14,6 +14,12 @@
 //     a difference, and no field called income exists.
 //  4. Every growing-cost kind has a label, and an unknown kind falls back
 //     rather than throwing.
+//  5. Per area (2026-09-20, same day): a cost tied to an area is set
+//     against that area's harvests only; an area with harvests and no
+//     costs says no costs were recorded rather than reading as free;
+//     untied costs and gifts sit in their own bucket; an area with nothing
+//     on either side is left out; areas roll up by location type; a cost
+//     tied to an area that no longer exists falls into the untied bucket.
 //
 // Run with: node scripts/test_garden_money.js
 // Exits non-zero on any failure.
@@ -39,7 +45,10 @@ function loadModule(relPath, deps = {}) {
 
 const H = loadModule('lib/harvestTrade.ts');
 const G = loadModule('lib/gardenMoney.ts', { './harvestTrade': H });
-const { GROWING_COST_KINDS, growingCostKindLabel, isGrowingCostKind, summarizeGardenMoney, describeGardenNet, RECEIVED_SHARE_UNITS } = G;
+const {
+  GROWING_COST_KINDS, growingCostKindLabel, isGrowingCostKind, summarizeGardenMoney, describeGardenNet, RECEIVED_SHARE_UNITS,
+  groupGardenMoneyByArea, describeNetShort, describeAreaSetting, UNASSIGNED_AREA_NAME,
+} = G;
 
 let failures = 0;
 let checks = 0;
@@ -97,6 +106,59 @@ check('unknown kind falls back', growingCostKindLabel('mystery'), 'Something els
 check('isGrowingCostKind', [isGrowingCostKind('water'), isGrowingCostKind('nope')], [true, false]);
 checkTrue('fertilizer help says kitchen compost is free', GROWING_COST_KINDS.find((entry) => entry.code === 'fertilizer_nutrients').help.includes('costs nothing'));
 check('gift units include the two informal ones', RECEIVED_SHARE_UNITS.includes('bunch') && RECEIVED_SHARE_UNITS.includes('bag'), true);
+
+// --- 5. Per area ------------------------------------------------------------
+
+const areas = [
+  { id: 'tent', name: 'Grow tent', locationType: 'indoor', lightSource: 'LED grow light' },
+  { id: 'beds', name: 'Back beds', locationType: 'outdoor', lightSource: null },
+  { id: 'shelf', name: 'Window shelf', locationType: 'indoor', lightSource: null },
+  { id: 'idle', name: 'Idle bed', locationType: 'outdoor', lightSource: null },
+];
+const grouped = groupGardenMoneyByArea({
+  areas,
+  harvests: [
+    { plotId: 'tent', amount: 30 },
+    { plotId: 'tent', amount: null },
+    { plotId: 'beds', amount: 45 },
+    { plotId: 'shelf', amount: 5 },
+    { plotId: 'gone', amount: 8 },
+    { plotId: null, amount: 2 },
+  ],
+  gifts: [{ amount: 12 }, { amount: null }],
+  costs: [
+    { plotId: 'tent', amount: 50 },
+    { plotId: 'tent', amount: 10 },
+    { plotId: null, amount: 4 },
+    { plotId: 'gone', amount: 1 },
+  ],
+});
+check('areas with activity only, in area order', grouped.areas.map((a) => a.areaId), ['tent', 'beds', 'shelf']);
+const tent = grouped.areas[0];
+check('tent costs are set against tent harvests only', [tent.summary.harvestsAvoided, tent.summary.growingCosts, tent.summary.net], [30, 60, -30]);
+check('tent counts', [tent.costCount, tent.harvestCount, tent.giftCount, tent.summary.unpricedCount], [2, 2, 0, 1]);
+const beds = grouped.areas[1];
+check('beds have harvests and no costs', [beds.summary.harvestsAvoided, beds.summary.growingCosts, beds.summary.net], [45, 0, 45]);
+check('beds say no costs recorded rather than reading as free', describeNetShort(beds.summary), '$45.00 given back, no costs recorded');
+check('untied bucket holds gifts, untied and orphaned items', [grouped.unassigned.name, grouped.unassigned.costCount, grouped.unassigned.harvestCount, grouped.unassigned.giftCount], [UNASSIGNED_AREA_NAME, 2, 2, 2]);
+check('untied bucket arithmetic', [grouped.unassigned.summary.harvestsAvoided, grouped.unassigned.summary.receivedAvoided, grouped.unassigned.summary.growingCosts, grouped.unassigned.summary.unpricedCount], [10, 12, 5, 1]);
+check('gifts never land in an area', grouped.areas.every((a) => a.giftCount === 0 && a.summary.receivedAvoided === 0), true);
+check('by location: indoors then outdoors', grouped.byLocation.map((l) => [l.locationType, l.areaCount]), [['indoor', 2], ['outdoor', 1]]);
+check('indoors rollup sums both indoor areas', [grouped.byLocation[0].summary.harvestsAvoided, grouped.byLocation[0].summary.growingCosts, grouped.byLocation[0].summary.unpricedCount], [35, 60, 1]);
+check('rollup leaves untied out', grouped.byLocation[1].summary.growingCosts, 0);
+const sumOfParts = grouped.areas.reduce((n, a) => n + a.summary.net, 0) + grouped.unassigned.summary.net;
+near('parts add up to the whole', sumOfParts, summarizeGardenMoney({ harvestsAvoided: 90, receivedAvoided: 12, growingCosts: 65, unpricedCount: 0 }).net);
+
+const empty = groupGardenMoneyByArea({ areas, harvests: [], gifts: [], costs: [] });
+check('nothing recorded: no rows, no bucket, no rollup', [empty.areas.length, empty.unassigned, empty.byLocation.length], [0, null, 0]);
+
+check('short net: ahead', describeNetShort(summarizeGardenMoney({ harvestsAvoided: 20, receivedAvoided: 0, growingCosts: 5, unpricedCount: 0 })), '$15.00 ahead');
+check('short net: behind', describeNetShort(summarizeGardenMoney({ harvestsAvoided: 2, receivedAvoided: 0, growingCosts: 5, unpricedCount: 0 })), '$3.00 behind');
+check('short net: nothing', describeNetShort(summarizeGardenMoney({ harvestsAvoided: 0, receivedAvoided: 0, growingCosts: 0, unpricedCount: 0 })), 'nothing priced yet');
+check('short net: matched', describeNetShort(summarizeGardenMoney({ harvestsAvoided: 5, receivedAvoided: 0, growingCosts: 5, unpricedCount: 0 })), 'costs matched by what was given back');
+check('area setting with light', describeAreaSetting(areas[0]), 'Indoors, LED grow light');
+check('area setting without light', describeAreaSetting(areas[1]), 'Outdoors');
+check('untied bucket has no setting', describeAreaSetting({ locationType: null, lightSource: null }), '');
 
 console.log(`${checks} checks, ${failures} failures`);
 process.exit(failures === 0 ? 0 : 1);

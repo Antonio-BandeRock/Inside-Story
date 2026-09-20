@@ -24,13 +24,31 @@
 //      is counted and named, never priced, and the net figure says so.
 //   2. What was not spent is never income. It is compared with what was
 //      spent, and that is as far as it goes.
-//   3. The netting is garden-wide, never per crop. A bag of fertilizer feeds
-//      the whole bed; charging it to the tomatoes would be an invented
-//      split, so a cost's plot link is a note and not an allocation.
+//   3. The netting is per growing area, never per crop. A bag of fertilizer
+//      feeds the whole bed; charging it to the tomatoes would be an invented
+//      split. A cost tied to an area counts against that area's harvests,
+//      and one tied to nothing counts against the garden as a whole.
 //
 // Kitchen scraps, raked leaves and grass clippings are what make the compost
 // side free, which is exactly the instruction's point: only what was BOUGHT
 // is a cost, and a compost pile fed from the kitchen carries none.
+//
+// PER AREA, 2026-09-20, same day, direct instruction: "Growing costs should
+// be separated somehow, because the user might be growing something one way
+// and other things another way, and they may want to track costs for one
+// grow while not on another grow, or it may be a difference between indoors
+// and outdoors where indoors uses a LED grow light."
+//
+// The unit of separation is the garden area (garden_plots), because that is
+// the thing that already knows whether it is indoors, outdoors or under
+// glass and what its light source is, and because a harvest already says
+// which area it came from. A grow tent under an LED light is an indoor
+// area; the beds out back are an outdoor one. A cost tied to an area is
+// set against that area's kept harvests, so each grow gets its own figure,
+// and an area with harvests but no costs recorded says so rather than
+// reading as free. Costs tied to no area, and produce given to you, sit in
+// a bucket of their own. On top of that, areas roll up by location type,
+// which is the indoors-against-outdoors comparison the instruction names.
 
 import { formatTradeMoney } from './harvestTrade';
 
@@ -124,6 +142,174 @@ export function describeGardenNet(summary: GardenMoneySummary): string {
     line += ` ${summary.unpricedCount === 1 ? 'One harvest or gift' : `${summary.unpricedCount} harvests and gifts`} had no recorded price and ${summary.unpricedCount === 1 ? 'is' : 'are'} counted without one, so the garden gave back more than this shows.`;
   }
   return line;
+}
+
+/** Short form of the net for a row or a rollup line: "$12.40 ahead",
+ *  "$5.00 behind", "$30.00 given back, no costs recorded". */
+export function describeNetShort(summary: GardenMoneySummary): string {
+  const gaveBack = summary.harvestsAvoided + summary.receivedAvoided;
+  if (summary.growingCosts === 0 && gaveBack === 0) return 'nothing priced yet';
+  if (summary.growingCosts === 0) return `${formatTradeMoney(gaveBack)} given back, no costs recorded`;
+  if (summary.net > 0) return `${formatTradeMoney(summary.net)} ahead`;
+  if (summary.net < 0) return `${formatTradeMoney(Math.abs(summary.net))} behind`;
+  return 'costs matched by what was given back';
+}
+
+export type GardenAreaLocation = 'outdoor' | 'indoor' | 'greenhouse';
+
+export const GARDEN_AREA_LOCATION_LABELS: Record<GardenAreaLocation, string> = {
+  outdoor: 'Outdoors',
+  indoor: 'Indoors',
+  greenhouse: 'Greenhouse',
+};
+
+export type GardenAreaMoney = {
+  /** Null for the bucket of costs tied to no area and produce given to you. */
+  areaId: string | null;
+  name: string;
+  locationType: GardenAreaLocation | null;
+  lightSource: string | null;
+  summary: GardenMoneySummary;
+  costCount: number;
+  harvestCount: number;
+  giftCount: number;
+};
+
+export type GardenLocationMoney = {
+  locationType: GardenAreaLocation;
+  label: string;
+  areaCount: number;
+  summary: GardenMoneySummary;
+};
+
+export const UNASSIGNED_AREA_NAME = 'Not tied to one area';
+
+/**
+ * The same arithmetic as summarizeGardenMoney, done once per growing area.
+ *
+ * An item's amount is what it would have cost at a recorded price, or null
+ * when it had no recorded price, in which case it is counted and not
+ * priced. Areas with nothing recorded on either side are left out, so a
+ * bed that was never costed and never harvested does not show as a row of
+ * zeros. The unassigned bucket appears only when something is in it.
+ */
+export function groupGardenMoneyByArea(input: {
+  areas: { id: string; name: string; locationType: GardenAreaLocation; lightSource: string | null }[];
+  harvests: { plotId: string | null; amount: number | null }[];
+  gifts: { amount: number | null }[];
+  costs: { plotId: string | null; amount: number }[];
+}): { areas: GardenAreaMoney[]; unassigned: GardenAreaMoney | null; byLocation: GardenLocationMoney[] } {
+  type Bucket = {
+    harvestsAvoided: number;
+    receivedAvoided: number;
+    growingCosts: number;
+    unpriced: number;
+    costCount: number;
+    harvestCount: number;
+    giftCount: number;
+  };
+  const emptyBucket = (): Bucket => ({
+    harvestsAvoided: 0,
+    receivedAvoided: 0,
+    growingCosts: 0,
+    unpriced: 0,
+    costCount: 0,
+    harvestCount: 0,
+    giftCount: 0,
+  });
+  const buckets = new Map<string | null, Bucket>();
+  const known = new Set(input.areas.map((area) => area.id));
+  const bucketFor = (plotId: string | null): Bucket => {
+    // A cost or harvest tied to an area that no longer exists is not lost;
+    // it falls into the unassigned bucket with everything else untied.
+    const key = plotId && known.has(plotId) ? plotId : null;
+    let bucket = buckets.get(key);
+    if (!bucket) {
+      bucket = emptyBucket();
+      buckets.set(key, bucket);
+    }
+    return bucket;
+  };
+  for (const harvest of input.harvests) {
+    const bucket = bucketFor(harvest.plotId);
+    bucket.harvestCount += 1;
+    if (harvest.amount === null) bucket.unpriced += 1;
+    else bucket.harvestsAvoided += Math.max(0, harvest.amount);
+  }
+  for (const gift of input.gifts) {
+    const bucket = bucketFor(null);
+    bucket.giftCount += 1;
+    if (gift.amount === null) bucket.unpriced += 1;
+    else bucket.receivedAvoided += Math.max(0, gift.amount);
+  }
+  for (const cost of input.costs) {
+    const bucket = bucketFor(cost.plotId);
+    bucket.costCount += 1;
+    bucket.growingCosts += Math.max(0, cost.amount);
+  }
+  const toMoney = (bucket: Bucket) =>
+    summarizeGardenMoney({
+      harvestsAvoided: bucket.harvestsAvoided,
+      receivedAvoided: bucket.receivedAvoided,
+      growingCosts: bucket.growingCosts,
+      unpricedCount: bucket.unpriced,
+    });
+
+  const areas: GardenAreaMoney[] = [];
+  const byLocationBuckets = new Map<GardenAreaLocation, { areaCount: number; bucket: Bucket }>();
+  for (const area of input.areas) {
+    const bucket = buckets.get(area.id);
+    if (!bucket) continue;
+    areas.push({
+      areaId: area.id,
+      name: area.name,
+      locationType: area.locationType,
+      lightSource: area.lightSource,
+      summary: toMoney(bucket),
+      costCount: bucket.costCount,
+      harvestCount: bucket.harvestCount,
+      giftCount: 0,
+    });
+    const rollup = byLocationBuckets.get(area.locationType) ?? { areaCount: 0, bucket: emptyBucket() };
+    rollup.areaCount += 1;
+    rollup.bucket.harvestsAvoided += bucket.harvestsAvoided;
+    rollup.bucket.growingCosts += bucket.growingCosts;
+    rollup.bucket.unpriced += bucket.unpriced;
+    byLocationBuckets.set(area.locationType, rollup);
+  }
+  const untied = buckets.get(null);
+  const unassigned: GardenAreaMoney | null = untied
+    ? {
+        areaId: null,
+        name: UNASSIGNED_AREA_NAME,
+        locationType: null,
+        lightSource: null,
+        summary: toMoney(untied),
+        costCount: untied.costCount,
+        harvestCount: untied.harvestCount,
+        giftCount: untied.giftCount,
+      }
+    : null;
+  const order: GardenAreaLocation[] = ['indoor', 'greenhouse', 'outdoor'];
+  const byLocation: GardenLocationMoney[] = order
+    .filter((locationType) => byLocationBuckets.has(locationType))
+    .map((locationType) => {
+      const rollup = byLocationBuckets.get(locationType)!;
+      return {
+        locationType,
+        label: GARDEN_AREA_LOCATION_LABELS[locationType],
+        areaCount: rollup.areaCount,
+        summary: toMoney(rollup.bucket),
+      };
+    });
+  return { areas, unassigned, byLocation };
+}
+
+/** "Indoors, LED grow light" or "Outdoors". */
+export function describeAreaSetting(area: { locationType: GardenAreaLocation | null; lightSource: string | null }): string {
+  if (!area.locationType) return '';
+  const label = GARDEN_AREA_LOCATION_LABELS[area.locationType];
+  return area.lightSource?.trim() ? `${label}, ${area.lightSource.trim()}` : label;
 }
 
 /** Units a gift of produce can arrive in. The Harvest Log's five, plus the

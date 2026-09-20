@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.3',
+    date: '2026-09-20',
+    changes: [
+      'Growing Costs keeps each growing area apart. A cost is tied to an area when you add it, By Area gives every area a separate figure set against the harvests kept from it, the top card rolls areas up as indoors, greenhouse and outdoors, and the cost list is grouped by area. An area you are not tracking costs for shows what it gave back and says no costs were recorded. My Whole Foods\' Money Not Spent lists the same per-area figures.',
+    ],
+  },
+  {
     version: '1.0.42.2',
     date: '2026-09-20',
     changes: [

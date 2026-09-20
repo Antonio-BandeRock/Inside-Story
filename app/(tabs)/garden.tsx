@@ -164,7 +164,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Growing Costs',
-        body: 'Money spent to grow food: seeds and starts, soil and amendments, fertilizer and nutrients, bought compost materials, water, tools, pest control, containers. Each is a Garden & growing supplies entry in your budget on Life > Finances, so nothing is counted twice. The top card sets everything spent against what the garden has given back at prices you have recorded paying, both your kept harvests and produce given to you, for the whole garden and never one crop. Compost from your kitchen scraps costs nothing and is not entered.',
+        body: 'Money spent to grow food: seeds and starts, soil and amendments, fertilizer and nutrients, bought compost materials, water, tools, pest control, containers. Each is a Garden & growing supplies entry in your budget on Life > Finances, so nothing is counted twice. Tie a cost to a garden area when you add it, and By Area sets the costs of that area against the harvests kept from it, so an indoor grow under an LED light and the beds outside each get a separate figure, and one grow can be tracked while another is not. The top card is the whole garden, with areas rolled up as indoors, greenhouse and outdoors. Costs are set against an area, never one crop. Compost from your kitchen scraps costs nothing and is not entered.',
       },
     ],
   },
