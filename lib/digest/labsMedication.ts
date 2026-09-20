@@ -205,7 +205,7 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['problem-coffee-timing', 'problem-soy', 'magnesium-levothyroxine-timing'],
+    relatedIds: ['problem-coffee-timing', 'problem-soy', 'labs-magnesium-levothyroxine-timing'],
   },
   {
     id: 'labs-age-adjusted-tsh-target-older-adults',

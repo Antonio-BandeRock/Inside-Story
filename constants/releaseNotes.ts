@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.16',
+    date: '2026-09-19',
+    changes: [
+      'Health Literacy is general reading first and condition reading last: Prevention & Lifestyle by Condition and Autism, ADHD & Dyslexia sit at the end under an About One Condition heading, the ADHD entries from Mental Health & Food joined that topic, and two magnesium-and-levothyroxine entries moved to Hashimoto\'s.',
+    ],
+  },
+  {
     version: '1.0.41.15',
     date: '2026-09-19',
     changes: [

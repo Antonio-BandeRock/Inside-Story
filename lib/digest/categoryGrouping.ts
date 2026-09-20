@@ -52,7 +52,17 @@ export type BasicHealthSubtopic = { label: string; prefixes: string[] };
 // into Basic Health as a whole, once the generic "Food, vitamins,
 // minerals..." Basic Health description stopped showing there. One short,
 // specific line per topic, not a repeat of that shared blurb.
-export type BasicHealthTopic = { label: string; description: string; prefixes?: string[]; subtopics?: BasicHealthSubtopic[] };
+export type BasicHealthTopic = {
+  label: string;
+  description: string;
+  prefixes?: string[];
+  subtopics?: BasicHealthSubtopic[];
+  // True for the two topics whose entries are each about one named
+  // condition, or about autism, ADHD or dyslexia. They sit last, under
+  // one heading of their own (BASIC_HEALTH_CONDITION_SPECIFIC_HEADING),
+  // so the general run of Health Literacy is not mixed with them.
+  conditionSpecific?: true;
+};
 
 export const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   {
@@ -262,72 +272,16 @@ export const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
     label: 'Mental Health & Food',
     description: 'How diet and specific nutrients affect mood, cognition, and mental health.',
     subtopics: [
-      { label: 'Overview & Framing', prefixes: ['mentalhealth-overview', 'mentalhealth-adhd-ocd-diet-does-not-cause', 'mentalhealth-tying-together'] },
-      { label: 'ADHD & OCD', prefixes: ['mentalhealth-adhd-dietary-triggers', 'mentalhealth-adhd-micronutrients-glycemic', 'mentalhealth-ocd-gut-brain-inflammation', 'mentalhealth-ocd-ketogenic-diet'] },
+      { label: 'Overview & Framing', prefixes: ['mentalhealth-overview', 'mentalhealth-tying-together'] },
+      // The ADHD entries that used to share this fold with OCD moved to
+      // "Autism, ADHD & Dyslexia" on 2026-09-19, so everything written
+      // about ADHD is in one place. OCD stays: it is a mental health
+      // condition, not one of the three listed in Profile.
+      { label: 'OCD', prefixes: ['mentalhealth-ocd-gut-brain-inflammation', 'mentalhealth-ocd-ketogenic-diet'] },
       { label: 'Gut-Brain Mechanisms', prefixes: ['mentalhealth-gut-scfa-mood-mechanism', 'mentalhealth-inflammation-link', 'mentalhealth-glycemic-instability-mood'] },
       { label: 'Nutrients & Mood', prefixes: ['mentalhealth-b12-folate-mood', 'mentalhealth-magnesium-zinc-mood', 'mentalhealth-omega3-epa-dha', 'mentalhealth-vitamin-d-mixed-evidence'] },
       { label: 'Diet Pattern & Lifestyle Evidence', prefixes: ['mentalhealth-smiles-trial', 'mentalhealth-ultraprocessed-food-risk', 'mentalhealth-exercise-honest-evidence'] },
       { label: 'When to Seek Help', prefixes: ['mentalhealth-when-to-seek-help'] },
-    ],
-  },
-  // 2026-09-17, direct instruction: "I want as much as possible to be
-  // provided about this in Basic Health." Autism, ADHD and dyslexia are
-  // listed in Profile the way food allergies are, never tracked as
-  // conditions, so everything written about them lives here where anybody
-  // can read it without declaring anything. See
-  // lib/digest/neurodivergence.ts for the writing and for the line it
-  // holds: nutrition supports a person, it does not treat these three.
-  // Subtopics from the start rather than one 24-wide shelf, per the
-  // standing rule. Every id is listed out rather than matched on a
-  // 'neuro-autism-' style prefix, because the autism entries split across
-  // two different subtopics (eating, and what tends to come with it) and a
-  // prefix cannot tell them apart. The crossover entries themselves are
-  // NOT here: each one lives inside the condition it is about
-  // (lib/digest/neurodivergenceCrossover.ts), and
-  // neuro-crossover-with-tracked-conditions is the index into them.
-  {
-    label: 'Autism, ADHD & Dyslexia',
-    description: 'What the research shows about eating, nutrient shortfalls and reading, what it does not show, and where these cross into the conditions this app tracks. Listed in your Profile, never scored as a condition.',
-    subtopics: [
-      { label: 'Overview & Framing', prefixes: ['neuro-overview', 'neuro-not-a-tracked-condition', 'neuro-diet-does-not-treat', 'neuro-autism-adhd-overlap', 'neuro-crossover-with-tracked-conditions'] },
-      { label: 'Autism & Eating', prefixes: ['neuro-autism-feeding-differences', 'neuro-autism-arfid-overlap', 'neuro-autism-nutrient-shortfalls', 'neuro-autism-gi-symptoms', 'neuro-autism-texture-and-narrow-eating'] },
-      { label: 'ADHD & Eating', prefixes: ['neuro-adhd-restriction-diets', 'neuro-adhd-food-colours', 'neuro-adhd-omega3', 'neuro-adhd-iron-ferritin'] },
-      { label: 'Dyslexia & Reading', prefixes: ['neuro-dyslexia-letter-spacing', 'neuro-dyslexia-fonts', 'neuro-dyslexia-what-this-app-changes'] },
-      { label: 'What Tends to Come With Them', prefixes: ['neuro-autism-epilepsy', 'neuro-autism-anxiety-depression', 'neuro-autism-sleep', 'neuro-allergy-asthma-eczema', 'neuro-maternal-autoimmune-and-neurodevelopment', 'neuro-familial-autoimmune-adhd'] },
-      { label: 'Words Used Here', prefixes: ['neuro-words-used-here'] },
-    ],
-  },
-  // 2026-08-25: this topic's own description already said "organized by
-  // condition," but nothing actually enforced that -- all 38 entries
-  // (prevention- and apphelps-, one pair per tracked condition) rendered
-  // as one flat 38-wide shelf. Real subtopics now match what the
-  // description always claimed, one per condition, each holding that
-  // condition's own prevention- and apphelps- pair. See the same-day
-  // report at "How Your Body Works: Organs & Systems," above, for the
-  // standing rule this applies throughout the Digest, not just here.
-  {
-    label: 'Prevention & Lifestyle by Condition',
-    description: 'What to eat and which lifestyle habits help prevent or manage each of the 19 conditions this app tracks, organized by condition.',
-    subtopics: [
-      { label: "Hashimoto's Thyroiditis", prefixes: ['prevention-hashimotos', 'apphelps-hashimotos'] },
-      { label: "Graves' Disease", prefixes: ['prevention-graves', 'apphelps-graves'] },
-      { label: 'Rheumatoid Arthritis', prefixes: ['prevention-ra', 'apphelps-ra'] },
-      { label: 'Psoriasis', prefixes: ['prevention-psoriasis', 'apphelps-psoriasis'] },
-      { label: 'Celiac Disease', prefixes: ['prevention-celiac', 'apphelps-celiac'] },
-      { label: 'Inflammatory Bowel Disease', prefixes: ['prevention-ibd', 'apphelps-ibd'] },
-      { label: 'Multiple Sclerosis', prefixes: ['prevention-ms', 'apphelps-ms'] },
-      { label: 'Lupus (SLE)', prefixes: ['prevention-lupus', 'apphelps-lupus'] },
-      { label: "Sjögren's Syndrome", prefixes: ['prevention-sjogrens', 'apphelps-sjogrens'] },
-      { label: 'Type 1 Diabetes', prefixes: ['prevention-type1', 'apphelps-type1'] },
-      { label: 'Type 2 Diabetes', prefixes: ['prevention-type2', 'apphelps-type2'] },
-      { label: 'PCOS', prefixes: ['prevention-pcos', 'apphelps-pcos'] },
-      { label: 'Chronic Kidney Disease', prefixes: ['prevention-ckd', 'apphelps-ckd'] },
-      { label: 'Fatty Liver Disease', prefixes: ['prevention-masld', 'apphelps-masld'] },
-      { label: 'Irritable Bowel Syndrome', prefixes: ['prevention-ibs', 'apphelps-ibs'] },
-      { label: 'Migraine', prefixes: ['prevention-migraine', 'apphelps-migraine'] },
-      { label: 'Cardiovascular Disease', prefixes: ['prevention-cvd', 'apphelps-cvd'] },
-      { label: 'Gout', prefixes: ['prevention-gout', 'apphelps-gout'] },
-      { label: 'Prostate Health', prefixes: ['prevention-prostate', 'apphelps-prostate'] },
     ],
   },
   // 2026-08-09, direct request: "an honest medical science evidence based
@@ -415,7 +369,7 @@ export const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
       { label: 'Yeasts & Wild Cultures', prefixes: ['fermented-saccharomyces-boulardii', 'fermented-leuconostoc-mesenteroides', 'fermented-sauerkraut-succession'] },
       { label: 'Kefir & Kombucha', prefixes: ['fermented-milk-kefir', 'fermented-water-kefir', 'fermented-kombucha'] },
       { label: 'Other Ferments', prefixes: ['fermented-beet-kvass', 'fermented-fruit-brine'] },
-      { label: 'Practical Basics', prefixes: ['fermented-cfu-dosing', 'fermented-sourcing-starters', 'fermented-tying-together'] },
+      { label: 'Practical Basics', prefixes: ['fermented-cfu-dosing', 'fermented-sourcing-starters', 'fermented-filtered-water', 'fermented-tying-together'] },
     ],
   },
   // 2026-08-09, direct request: "talk about the different ways of making
@@ -493,6 +447,104 @@ export const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
     description: "How the food industry and food history shape what's on your plate today.",
     prefixes: ['foodhistory-'],
   },
+  // 2026-09-17, direct instruction: "I want as much as possible to be
+  // provided about this in Basic Health." Autism, ADHD and dyslexia are
+  // listed in Profile the way food allergies are, never tracked as
+  // conditions, so everything written about them lives here where anybody
+  // can read it without declaring anything. See
+  // lib/digest/neurodivergence.ts for the writing and for the line it
+  // holds: nutrition supports a person, it does not treat these three.
+  // 2026-09-19: the three ADHD entries from "Mental Health & Food" joined
+  // this topic, so everything about ADHD is read in one place, and the
+  // topic moved to the end of Health Literacy beside "Prevention &
+  // Lifestyle by Condition" under a heading of its own: "Health Literacy
+  // is supposed to be about general, basic health that everyone should
+  // know... The Health Literacy area shouldn't be a dump for these
+  // specific Conditions." Kept here rather than moved, by the same
+  // instruction, because these three have no Conditions page and the
+  // Free tier reads Health Literacy.
+  // Subtopics from the start rather than one 24-wide shelf, per the
+  // standing rule. Every id is listed out rather than matched on a
+  // 'neuro-autism-' style prefix, because the autism entries split across
+  // two different subtopics (eating, and what tends to come with it) and a
+  // prefix cannot tell them apart. The crossover entries themselves are
+  // NOT here: each one lives inside the condition it is about
+  // (lib/digest/neurodivergenceCrossover.ts), and
+  // neuro-crossover-with-tracked-conditions is the index into them.
+  {
+    label: 'Autism, ADHD & Dyslexia',
+    conditionSpecific: true,
+    description: 'What the research shows about eating, nutrient shortfalls and reading, what it does not show, and where these cross into the conditions this app tracks. Listed in your Profile, never scored as a condition.',
+    subtopics: [
+      {
+        label: 'Overview & Framing',
+        prefixes: [
+          'neuro-overview',
+          'neuro-not-a-tracked-condition',
+          'neuro-diet-does-not-treat',
+          'mentalhealth-adhd-ocd-diet-does-not-cause',
+          'neuro-autism-adhd-overlap',
+          'neuro-crossover-with-tracked-conditions',
+        ],
+      },
+      { label: 'Autism & Eating', prefixes: ['neuro-autism-feeding-differences', 'neuro-autism-arfid-overlap', 'neuro-autism-nutrient-shortfalls', 'neuro-autism-gi-symptoms', 'neuro-autism-texture-and-narrow-eating'] },
+      {
+        label: 'ADHD & Eating',
+        prefixes: [
+          'neuro-adhd-restriction-diets',
+          'mentalhealth-adhd-dietary-triggers',
+          'neuro-adhd-food-colours',
+          'neuro-adhd-omega3',
+          'mentalhealth-adhd-micronutrients-glycemic',
+          'neuro-adhd-iron-ferritin',
+        ],
+      },
+      { label: 'Dyslexia & Reading', prefixes: ['neuro-dyslexia-letter-spacing', 'neuro-dyslexia-fonts', 'neuro-dyslexia-what-this-app-changes'] },
+      { label: 'What Tends to Come With Them', prefixes: ['neuro-autism-epilepsy', 'neuro-autism-anxiety-depression', 'neuro-autism-sleep', 'neuro-allergy-asthma-eczema', 'neuro-maternal-autoimmune-and-neurodevelopment', 'neuro-familial-autoimmune-adhd'] },
+      { label: 'Words Used Here', prefixes: ['neuro-words-used-here'] },
+    ],
+  },
+  // 2026-08-25: this topic's own description already said "organized by
+  // condition," but nothing actually enforced that -- all 38 entries
+  // (prevention- and apphelps-, one pair per tracked condition) rendered
+  // as one flat 38-wide shelf. Real subtopics now match what the
+  // description always claimed, one per condition, each holding that
+  // condition's own prevention- and apphelps- pair. See the same-day
+  // report at "How Your Body Works: Organs & Systems," above, for the
+  // standing rule this applies throughout the Digest, not just here.
+  // 2026-09-19: last in Health Literacy, beside "Autism, ADHD & Dyslexia"
+  // under the condition-specific heading. It stays in Health Literacy by
+  // direct instruction, "Prevention should stay in Health Literacy for
+  // the free tier, but should be specifically grouped together", since
+  // the Free tier reads nothing else and the apphelps- entries are how
+  // the app says what it does for each condition.
+  {
+    label: 'Prevention & Lifestyle by Condition',
+    conditionSpecific: true,
+    description: 'What to eat and which lifestyle habits help prevent or manage each of the 19 conditions this app tracks, organized by condition.',
+    subtopics: [
+      { label: "Hashimoto's Thyroiditis", prefixes: ['prevention-hashimotos', 'apphelps-hashimotos'] },
+      { label: "Graves' Disease", prefixes: ['prevention-graves', 'apphelps-graves'] },
+      { label: 'Rheumatoid Arthritis', prefixes: ['prevention-ra', 'apphelps-ra'] },
+      { label: 'Psoriasis', prefixes: ['prevention-psoriasis', 'apphelps-psoriasis'] },
+      { label: 'Celiac Disease', prefixes: ['prevention-celiac', 'apphelps-celiac'] },
+      { label: 'Inflammatory Bowel Disease', prefixes: ['prevention-ibd', 'apphelps-ibd'] },
+      { label: 'Multiple Sclerosis', prefixes: ['prevention-ms', 'apphelps-ms'] },
+      { label: 'Lupus (SLE)', prefixes: ['prevention-lupus', 'apphelps-lupus'] },
+      { label: "Sjögren's Syndrome", prefixes: ['prevention-sjogrens', 'apphelps-sjogrens'] },
+      { label: 'Type 1 Diabetes', prefixes: ['prevention-type1', 'apphelps-type1'] },
+      { label: 'Type 2 Diabetes', prefixes: ['prevention-type2', 'apphelps-type2'] },
+      { label: 'PCOS', prefixes: ['prevention-pcos', 'apphelps-pcos'] },
+      { label: 'Chronic Kidney Disease', prefixes: ['prevention-ckd', 'apphelps-ckd'] },
+      { label: 'Fatty Liver Disease', prefixes: ['prevention-masld', 'apphelps-masld'] },
+      { label: 'Irritable Bowel Syndrome', prefixes: ['prevention-ibs', 'apphelps-ibs'] },
+      { label: 'Migraine', prefixes: ['prevention-migraine', 'apphelps-migraine'] },
+      { label: 'Cardiovascular Disease', prefixes: ['prevention-cvd', 'apphelps-cvd'] },
+      { label: 'Gout', prefixes: ['prevention-gout', 'apphelps-gout'] },
+      { label: 'Prostate Health', prefixes: ['prevention-prostate', 'apphelps-prostate'] },
+    ],
+  },
+
 ];
 
 // A real, dynamic safety net, not a hardcoded 32nd topic -- only ever
@@ -505,6 +557,19 @@ export const BASIC_HEALTH_MORE_TOPIC_LABEL = 'More';
 // needed by the same drilled-in header every real topic's own description
 // feeds.
 export const BASIC_HEALTH_MORE_TOPIC_DESCRIPTION = "Entries that cover general health topics without fitting neatly into one of Health Literacy's other groups.";
+
+// The heading over the two conditionSpecific topics, which come last.
+// 2026-09-19: "Health Literacy is supposed to be about general, basic
+// health that everyone should know. I notice there are quite a few topics
+// that are specifically related to the Conditions... The Health Literacy
+// area shouldn't be a dump for these specific Conditions." Both topics
+// stay here by the same instruction, grouped and labelled rather than
+// mixed into the general run.
+export const BASIC_HEALTH_CONDITION_SPECIFIC_HEADING = {
+  title: 'About One Condition',
+  description:
+    'Everything above is general health, for anybody. These two groups are the exception: one is about the conditions this app tracks, one about autism, ADHD and dyslexia. The full reading for a condition you track is under Conditions.',
+};
 
 export function basicHealthTopicPathForEntryId(id: string): string[] {
   for (const topic of BASIC_HEALTH_TOPICS) {

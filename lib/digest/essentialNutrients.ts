@@ -160,8 +160,14 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
     relatedIds: ['interaction-magnesium-b6', 'interaction-vitamind-k2-magnesium', 'interaction-phytates-minerals', 'calcium-deficiency-hypocalcemia'],
   },
   {
-    id: 'magnesium-levothyroxine-timing',
-    category: 'basicHealth',
+    // Moved from Health Literacy to Hashimoto's on 2026-09-19 ("Move
+    // those in number 3 that should be"): a levothyroxine absorption
+    // trial is about the person taking levothyroxine. The labs- prefix
+    // files it under Self-Advocacy & Testing beside the other absorption
+    // interferers; it stays in this file with the rest of the magnesium
+    // writing.
+    id: 'labs-magnesium-levothyroxine-timing',
+    category: 'hashimotos',
     title: "A Brand-New Finding: Magnesium Measurably Reduces Levothyroxine Absorption Too",
     teaser: "Calcium and iron have been known levothyroxine-absorption interferers for years. A trial finally tested magnesium directly for the first time in late 2025.",
     summary:
@@ -228,17 +234,19 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
   },
   {
-    id: 'magnesium-thyroid-connection',
-    category: 'basicHealth',
+    // Moved to Hashimoto's the same day as the entry above and for the
+    // same reason; the nutrient- prefix files it under Diet & Food.
+    id: 'nutrient-magnesium-thyroid-connection',
+    category: 'hashimotos',
     title: "A Modest Thyroid Connection",
     teaser: "A 2024 review lists magnesium among the nutrients that influence thyroid hormone regulation. Older research found the relationship runs the other way too.",
-    summary: "A current (2024) review of nutrition's role in thyroid function lists magnesium among the micronutrients (alongside iodine, selenium, iron, zinc, copper, vitamin A, and vitamin B12) that influence thyroid hormone synthesis and regulation, though the specific mechanism for magnesium itself isn't yet as well mapped as it is for iodine or selenium. Separately, older research (mostly animal-model studies from the 1970s-80s) found the relationship runs the other direction too: thyroid hormone status itself measurably affects how the kidneys handle magnesium, with hypothyroid subjects showing altered magnesium reabsorption and excretion patterns compared to normal thyroid function. Both directions are cited, but more preliminary than magnesium's better-established roles in blood pressure and glucose metabolism covered directly elsewhere in this category, and the brand-new levothyroxine-absorption finding (see this category's dedicated entry) remains the single most directly actionable, best-evidenced magnesium-thyroid connection currently available.",
+    summary: "A current (2024) review of nutrition's role in thyroid function lists magnesium among the micronutrients (alongside iodine, selenium, iron, zinc, copper, vitamin A, and vitamin B12) that influence thyroid hormone synthesis and regulation, though the specific mechanism for magnesium itself isn't yet as well mapped as it is for iodine or selenium. Separately, older research (mostly animal-model studies from the 1970s-80s) found the relationship runs the other direction too: thyroid hormone status itself measurably affects how the kidneys handle magnesium, with hypothyroid subjects showing altered magnesium reabsorption and excretion patterns compared to normal thyroid function. Both directions are cited, but more preliminary than magnesium's better-established roles in blood pressure and glucose metabolism, covered under Magnesium in Health Literacy, and the brand-new levothyroxine-absorption finding (under Self-Advocacy & Testing here) remains the single most directly actionable, best-evidenced magnesium-thyroid connection currently available.",
     citations: [
       { source: 'The Role of Nutrition on Thyroid Function, Nutrients, PMID 39125376', url: 'https://pubmed.ncbi.nlm.nih.gov/39125376/' },
       { source: 'Dolev E et al.: Alterations in Magnesium and Zinc Metabolism in Thyroid Disease, PMID 3336286', url: 'https://pubmed.ncbi.nlm.nih.gov/3336286/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['magnesium-levothyroxine-timing'],
+    relatedIds: ['labs-magnesium-levothyroxine-timing'],
   },
   {
     id: 'magnesium-food-sources-real-data',
@@ -274,7 +282,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: "Magnesium, StatPearls, National Library of Medicine", url: 'https://www.ncbi.nlm.nih.gov/books/NBK519036/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['magnesium-deficiency-symptoms-staged', 'magnesium-supplement-forms-compared', 'magnesium-levothyroxine-timing', 'magnesium-muscle-cramps-honest-correction', 'advocacy-magnesium', 'migraine-magnesium-riboflavin-coq10', 'type1-magnesium-glycemic-control', 'body-cardiovascular-electrolytes', 'body-muscular-system'],
+    relatedIds: ['magnesium-deficiency-symptoms-staged', 'magnesium-supplement-forms-compared', 'labs-magnesium-levothyroxine-timing', 'nutrient-magnesium-thyroid-connection', 'magnesium-muscle-cramps-honest-correction', 'advocacy-magnesium', 'migraine-magnesium-riboflavin-coq10', 'type1-magnesium-glycemic-control', 'body-cardiovascular-electrolytes', 'body-muscular-system'],
   },
 
   // --- Vitamin D, added 2026-08-08, same day, direct follow-up: "go ahead

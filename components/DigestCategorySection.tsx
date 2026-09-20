@@ -3,7 +3,7 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { DigestEntryRow, makeDigestRowStyles } from './DigestEntryRow';
 import { EntryScrollAnchor, type EntryScrollTarget } from './EntryScrollAnchor';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
 import { colors } from '../constants/colors';
 import { menuLabelShadow, textShadow, typography } from '../constants/typography';
 import {
@@ -14,6 +14,7 @@ import {
   type SearchMatchInfo,
 } from '../lib/digest';
 import {
+  BASIC_HEALTH_CONDITION_SPECIFIC_HEADING,
   BASIC_HEALTH_MORE_TOPIC_DESCRIPTION,
   BASIC_HEALTH_MORE_TOPIC_LABEL,
   BASIC_HEALTH_TOPICS,
@@ -43,7 +44,15 @@ import {
 const SEARCH_RESULT_LIMIT = 200;
 
 type Subgroup = { label: string | null; entries: AnyDigestEntry[] };
-type Topic = { label: string; description?: string; subgroups: Subgroup[]; count: number };
+type Topic = {
+  label: string;
+  description?: string;
+  subgroups: Subgroup[];
+  count: number;
+  // Health Literacy only: the band is one of the two about a condition,
+  // which sit last under a heading of their own.
+  conditionSpecific?: boolean;
+};
 
 // Every band on the page, in order, with its rows already sorted.
 function topicsForCategory(categoryKey: DigestCategoryKey, entries: AnyDigestEntry[]): Topic[] {
@@ -67,11 +76,15 @@ function topicsForCategory(categoryKey: DigestCategoryKey, entries: AnyDigestEnt
     return order
       .map((label) => {
         const subgroups = byTopic.get(label)!.filter((subgroup) => subgroup.entries.length > 0);
-        const description =
-          label === BASIC_HEALTH_MORE_TOPIC_LABEL
-            ? BASIC_HEALTH_MORE_TOPIC_DESCRIPTION
-            : BASIC_HEALTH_TOPICS.find((topic) => topic.label === label)?.description;
-        return { label, description, subgroups, count: subgroups.reduce((total, subgroup) => total + subgroup.entries.length, 0) };
+        const defined = BASIC_HEALTH_TOPICS.find((topic) => topic.label === label);
+        const description = label === BASIC_HEALTH_MORE_TOPIC_LABEL ? BASIC_HEALTH_MORE_TOPIC_DESCRIPTION : defined?.description;
+        return {
+          label,
+          description,
+          subgroups,
+          count: subgroups.reduce((total, subgroup) => total + subgroup.entries.length, 0),
+          conditionSpecific: defined?.conditionSpecific === true,
+        };
       })
       .filter((topic) => topic.count > 0);
   }
@@ -285,11 +298,21 @@ export function DigestCategorySection({
           ) : null}
         </>
       ) : (
-        topics.map((topic) => {
+        topics.map((topic, index) => {
           const expanded = openTopic === topic.label;
           const single = topic.subgroups.length === 1 && topic.subgroups[0].label === null;
+          // The heading over the condition-specific bands, once, before
+          // the first of them. They are last in the list, so everything
+          // above the heading is the general run.
+          const headsConditionSpecific = topic.conditionSpecific === true && !(topics[index - 1]?.conditionSpecific === true);
           return (
-            <View key={topic.label}>
+            <Fragment key={topic.label}>
+              {headsConditionSpecific ? (
+                <View style={styles.groupHeadingChip}>
+                  <Text style={styles.groupHeadingText}>{BASIC_HEALTH_CONDITION_SPECIFIC_HEADING.title}</Text>
+                  <Text style={styles.groupHeadingMeta}>{BASIC_HEALTH_CONDITION_SPECIFIC_HEADING.description}</Text>
+                </View>
+              ) : null}
               <HomeSectionBand
                 kind="fold"
                 title={`${topicDisplayLabel(topic.label)} (${topic.count})`}
@@ -322,7 +345,7 @@ export function DigestCategorySection({
                       );
                     })}
               </HomeSectionBand>
-            </View>
+            </Fragment>
           );
         })
       )}
@@ -384,5 +407,18 @@ function makeStyles(tabColor: string, tabTextColor: string) {
     },
     countText: { ...typography.caption, color: colors.textSecondary, ...textShadow },
     resultList: {},
+    // A heading introducing a group of bands, the same chip Conditions
+    // uses for My Conditions, Family and Other Conditions, so it carries
+    // a surface of its own rather than sitting on the photograph.
+    groupHeadingChip: {
+      backgroundColor: colors.surfaceMuted,
+      paddingVertical: 10,
+      paddingHorizontal: HOME_BAND_CONTENT_PADDING,
+      borderLeftWidth: HOME_BAND_ACCENT_WIDTH,
+      borderLeftColor: tabColor,
+      gap: 6,
+    },
+    groupHeadingText: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
+    groupHeadingMeta: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   });
 }

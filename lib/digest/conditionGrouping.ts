@@ -463,6 +463,7 @@ export const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partia
           'nutrient-nigella-sativa',
           'nutrient-ashwagandha',
           'nutrient-iodine-supplement-caution',
+          'nutrient-magnesium-thyroid-connection',
           'interaction-selenium-iodine',
           'glossary-d1-d6',
         ],
@@ -491,6 +492,7 @@ export const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partia
         ids: [
           'labs-biotin-interference',
           'labs-calcium-iron-absorption',
+          'labs-magnesium-levothyroxine-timing',
           'labs-grapefruit-juice',
           'labs-tsh-diurnal-timing',
           'labs-bedtime-dosing',
