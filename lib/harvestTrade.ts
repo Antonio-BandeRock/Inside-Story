@@ -153,13 +153,29 @@ function normalizeUnit(unit: string): string {
   return unit.trim().toLowerCase().replace(/s$/, '');
 }
 
+// "$0.50 each" rather than "$0.50 a each": a per-item price has no unit
+// word after the article. Everything else reads "a kg", "a lb".
+export function perUnit(unit: string): string {
+  const normalized = normalizeUnit(unit);
+  return normalized === 'each' ? 'each' : `a ${normalized}`;
+}
+
+// A harvest is measured in the Harvest Log's units (g, kg, oz, lb, count)
+// and a grocery price in the list's (each, lb, kg, ...). Only "count" and
+// "each" name the same thing under two words, so that is the one mapping
+// made; the rest match by name or not at all, which keeps the refusal to
+// convert between units intact.
+export function harvestUnitForPricing(unit: string): string {
+  return unit === 'count' ? 'each' : unit;
+}
+
 export function describeValuation(result: ValuationResult): string | null {
   if (result.valued.length === 0 && result.unvalued.length === 0) return null;
   const parts: string[] = [];
 
   if (result.valued.length > 0) {
     const items = result.valued
-      .map((entry) => `${formatQuantity(entry.quantity, entry.unit)} of ${entry.foodName} at the ${formatTradeMoney(entry.pricePaid)} a ${normalizeUnit(entry.unit)} you paid on ${entry.pricedOn}`)
+      .map((entry) => `${formatQuantity(entry.quantity, entry.unit)} of ${entry.foodName} at the ${formatTradeMoney(entry.pricePaid)} ${perUnit(entry.unit)} you paid on ${entry.pricedOn}`)
       .join(', ');
     parts.push(
       `About ${formatTradeMoney(result.avoidedCost)} you did not have to spend: ${items}. That is money you kept, not money you earned, so it stays out of your income.`,

@@ -29,6 +29,7 @@ import { FoodItemDetailView } from '../../components/FoodItemDetailView';
 import { FoodItemsView, type FoodItemsListParams } from '../../components/FoodItemsView';
 import { countSystemRecipes, SystemRecipesView } from '../../components/SystemRecipesView';
 import { MySafeFoodsView } from '../../components/MySafeFoodsView';
+import { MyWholeFoodsView } from '../../components/MyWholeFoodsView';
 import { FoodProductDetailView } from '../../components/FoodProductDetailView';
 import { ScanProductView } from '../../components/ScanProductView';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
@@ -43,6 +44,7 @@ import {
   listFermentations,
   listHandhelds,
   listMySafeFoods,
+  listAvailableHarvests,
   listSalads,
   listSauces,
   listScannedProducts,
@@ -98,6 +100,12 @@ type FoodLens =
   // the My Foods menu and the Desktop, next to My Food Products, the same
   // way every other list on that menu is.
   | 'mySafeFoods'
+  // What the person has on hand from their own garden, 2026-09-20. The
+  // tile pushed into Garden > Harvest Log until then; direct instruction:
+  // "it should not go to Garden > Harvest Log. If nothing has been
+  // harvested, this list should just be empty." See
+  // components/MyWholeFoodsView.tsx.
+  | 'myWholeFoods'
   // Everything built in one of the builders below, saved or favorited,
   // in one place grouped by the builder that made it, 2026-09-18. It
   // took over from the "Saved & Favorites" submenu, which was a menu of
@@ -154,6 +162,8 @@ const FOOD_LENS_COPY: Record<FoodLens, string> = {
   myFoodProduct: 'One scanned product: its label, nutrients per 100g, and every price you have logged for it.',
   mySafeFoods:
     'The foods you say are safe for you, the ones you have not worked out yet, and the ones you say are not. Three marks on every row: plus for safe, a question mark for undecided, a minus for not for you. Search a food, browse a whole category at a time, or work through whatever is in your schedule. Each row says what a food trial found and what this app makes of the food for the conditions you track. What you mark comes ahead of what the app works out, so Safe Foods in Insights and your generated meal plan both follow it.',
+  myWholeFoods:
+    'What you have on hand from your garden. Anything you harvest and enter in the Harvest Log on the Garden tab shows up here, is offered first under From Your Harvest in every Food tool, and is drawn down as you cook with it. Money Not Spent adds up what those harvests would have cost at prices you have recorded paying, and counts the rest without pricing them.',
   myRecipes:
     'Everything you have built in one of the Food tools and saved, and everything you have marked a favorite, grouped by the tool that made it. Open one to see its ingredients, nutrients and condition scores, or to build on it again.',
   systemRecipes:
@@ -213,6 +223,7 @@ const FOOD_LENS_FULL_NAMES: Record<FoodLens, string> = {
   myFoodsDetail: 'Saved Item',
   myFoodProduct: 'Food Product',
   mySafeFoods: 'My Safe\nFoods',
+  myWholeFoods: 'My Whole\nFoods',
   myRecipes: 'My\nRecipes',
   systemRecipes: 'System\nRecipes',
   findMeal: 'Log or\nSchedule a Meal',
@@ -1026,10 +1037,15 @@ export default function FoodScreen() {
   // same way as every other tile above, off the list itself rather than a
   // COUNT query, since a person holds tens of these rather than thousands.
   const [mySafeFoodCount, setMySafeFoodCount] = useState(0);
+  // Harvests still on hand and kept as food, which is the number that means
+  // something on the My Whole Foods tile: a harvest that is used up, or that
+  // the person said not to keep, is not food to cook with.
+  const [wholeFoodCount, setWholeFoodCount] = useState(0);
   async function loadMyFoodsCounts() {
     const [
       scannedProducts,
       mySafeFoods,
+      wholeFoods,
       sides,
       sideFavorites,
       salads,
@@ -1056,6 +1072,7 @@ export default function FoodScreen() {
     ] = await Promise.all([
       listScannedProducts(),
       listMySafeFoods(),
+      listAvailableHarvests(),
       listSides(),
       listFavorites(50, 'side'),
       listSalads(),
@@ -1082,6 +1099,7 @@ export default function FoodScreen() {
     ]);
     setScannedProductCount(scannedProducts.length);
     setMySafeFoodCount(mySafeFoods.length);
+    setWholeFoodCount(wholeFoods.length);
     setSideCount(sides.length);
     setSideFavoriteCount(sideFavorites.length);
     setSaladCount(salads.length);
@@ -1205,20 +1223,21 @@ export default function FoodScreen() {
       },
     },
     {
-      // "My Whole Foods" -- real home-grown harvests, tracked on the Garden
-      // tab (see lib/db.ts's own garden_harvests table). Deep-links straight
-      // into Garden's own Harvest Log lens via openGardenLens, the same real
-      // "land on the actual content, not this tab's own resting picker"
-      // pattern already established by openDigestLens on purple-digest.tsx.
-      // No count here -- a real query would need pulling in Garden's own
-      // listGardenHarvests just for this one tile, and unlike a saved
-      // side/salad/etc. a harvest's own real "worth showing" number (an
-      // unused amount still on hand) isn't just its row count -- left as a
-      // real, honest, deferred follow-up rather than a misleading count.
+      // "My Whole Foods": home-grown harvests, entered on the Garden tab
+      // (lib/db.ts, garden_harvests) and kept here as food. A lens of this
+      // tab since 2026-09-20; it deep-linked into Garden > Harvest Log
+      // before that, which put the list where harvests are entered rather
+      // than where they are eaten. The count is harvests still on hand and
+      // kept, from listAvailableHarvests, the same list every builder's
+      // From Your Harvest picker reads.
       id: 'whole-foods',
       label: 'My Whole Foods',
       icon: 'leaf-outline',
-      onPress: () => router.push({ pathname: '/garden', params: { openGardenLens: 'harvestLog' } }),
+      count: wholeFoodCount,
+      onPress: () => {
+        setLens('myWholeFoods');
+        setRevealed(true);
+      },
     },
     {
       // "System Recipes" -- the recipes the app ships with, not anything
@@ -1399,6 +1418,8 @@ export default function FoodScreen() {
               // focus, so the list says when it changed.
               onChanged={loadMyFoodsCounts}
             />
+          ) : lens === 'myWholeFoods' ? (
+            <MyWholeFoodsView onClose={() => setRevealed(false)} onChanged={loadMyFoodsCounts} />
           ) : lens === 'mealBuilder' ? (
             // MealBuilder owns its own layout entirely, same reasoning as
             // every other builder below -- but never sits behind a

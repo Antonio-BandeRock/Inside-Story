@@ -6880,6 +6880,14 @@ async function runDatabaseInitialization() {
         quantity_remaining REAL NOT NULL,
         notes TEXT,
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        -- 2026-09-20: whether this harvest is kept as one of the person's
+        -- on-hand, home-grown whole foods (My Whole Foods on the Food tab),
+        -- which is what the Harvest Log asks the moment a harvest is saved.
+        -- 1 unless they said no: a harvest they gave away or sold whole is
+        -- still logged, still counts as grown, and never shows up as food to
+        -- cook with. listAvailableHarvests requires it, so the "From Your
+        -- Harvest" picker and the kitchen inventory follow the answer.
+        on_hand INTEGER NOT NULL DEFAULT 1,
         FOREIGN KEY (planting_id) REFERENCES garden_plantings(id) ON DELETE SET NULL,
         FOREIGN KEY (plot_id) REFERENCES garden_plots(id) ON DELETE SET NULL
       );
@@ -7359,6 +7367,15 @@ async function runDatabaseInitialization() {
           await db.execAsync(`ALTER TABLE connections ADD COLUMN ${column} INTEGER NOT NULL DEFAULT 0;`);
         }
       }
+    }
+
+    // garden_harvests.on_hand, 2026-09-20. INTEGER, so outside the TEXT loop
+    // for the same "1" versus 1 reason as the blocks above. Every harvest a
+    // phone already holds was logged to be eaten, so the default of 1 is the
+    // right answer for all of them.
+    const harvestColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(garden_harvests)');
+    if (harvestColumns.length > 0 && !harvestColumns.some((column) => column.name === 'on_hand')) {
+      await db.execAsync('ALTER TABLE garden_harvests ADD COLUMN on_hand INTEGER NOT NULL DEFAULT 1;');
     }
 
     // role is TEXT and is added by the loop above, which cannot carry a NOT
@@ -20951,11 +20968,15 @@ export type GardenHarvest = {
   quantityRemaining: number;
   notes: string | null;
   createdAt: string;
+  // 1 when kept as an on-hand home-grown food, 0 when the person said not
+  // this one. Read with Number(onHand) === 1 like every other INTEGER flag.
+  onHand: number;
 };
 
 const GARDEN_HARVEST_COLUMNS = `
   id, planting_id AS plantingId, plot_id AS plotId, food_id AS foodId, source, food_name AS foodName,
-  harvested_at AS harvestedAt, quantity, unit, quantity_remaining AS quantityRemaining, notes, created_at AS createdAt
+  harvested_at AS harvestedAt, quantity, unit, quantity_remaining AS quantityRemaining, notes, created_at AS createdAt,
+  on_hand AS onHand
 `;
 
 // quantity_remaining always starts equal to quantity -- see the real,
@@ -21009,12 +21030,33 @@ export async function listGardenHarvests(limit = 50): Promise<GardenHarvest[]> {
 // unused inventory (quantity_remaining > 0), most recently harvested first.
 // Deliberately no limit -- a person's own real harvest shelf is never going
 // to be large enough to need pagination the way the 26,749-food reference
-// database does.
+// database does. Since 2026-09-20 this is also the list My Whole Foods on
+// the Food tab shows, so it honours on_hand: a harvest the person said not
+// to keep is not food to cook with, whatever its remaining amount says.
 export async function listAvailableHarvests(): Promise<GardenHarvest[]> {
   const db = await getDatabase();
   return db.getAllAsync<GardenHarvest>(
-    `SELECT ${GARDEN_HARVEST_COLUMNS} FROM garden_harvests WHERE quantity_remaining > 0 ORDER BY harvested_at DESC`,
+    `SELECT ${GARDEN_HARVEST_COLUMNS} FROM garden_harvests WHERE quantity_remaining > 0 AND on_hand = 1 ORDER BY harvested_at DESC`,
   );
+}
+
+// Every harvest kept as food, used up or not, oldest first. What My Whole
+// Foods' money-not-spent band adds up: the saving happened when the food
+// was picked instead of bought, so a harvest that has since been eaten
+// still counts. Only the person's answer at logging time takes one out.
+export async function listHarvestsKeptOnHand(): Promise<GardenHarvest[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<GardenHarvest>(
+    `SELECT ${GARDEN_HARVEST_COLUMNS} FROM garden_harvests WHERE on_hand = 1 ORDER BY harvested_at ASC`,
+  );
+}
+
+// The answer to the Harvest Log's question ("add this harvest to your
+// on-hand home-grown foods?"), and the way to change it later from either
+// side: the Harvest Log row or the My Whole Foods row.
+export async function setGardenHarvestOnHand(id: string, onHand: boolean): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('UPDATE garden_harvests SET on_hand = ? WHERE id = ?', onHand ? 1 : 0, id);
 }
 
 // Draws down a harvest's own remaining inventory by amountUsed (in the

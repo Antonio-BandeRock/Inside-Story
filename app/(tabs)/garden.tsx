@@ -21,6 +21,8 @@ import { COUNTRIES } from '../../constants/countries';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { typography, textShadow } from '../../constants/typography';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
+import { formatQuantity, formatTradeMoney, harvestUnitForPricing, perUnit, valueReceivedGoods } from '../../lib/harvestTrade';
+import { getLastPaidPrices } from '../../lib/harvestTradeDb';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { USDA_ZONES, zoneBandInfo } from '../../lib/gardenZones';
 import { lookupGrowingZone, type GrowingZoneLookupResult } from '../../lib/gardenZoneLookup';
@@ -37,6 +39,7 @@ import {
   listGardenPlots,
   listUpcomingGardenTasks,
   recordGardenHarvest,
+  setGardenHarvestOnHand,
   scheduleGardenTask,
   setUserProfile,
   type GardenHarvest,
@@ -225,9 +228,11 @@ export default function GardenScreen() {
   useRegisterScreenHelp('Garden', GARDEN_HELP_SECTIONS, '/garden');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const openLensHub = useAutoOpenLensHubSignal();
-  // 2026-08-17: the deep-link param every tab takes, so food.tsx's "My
-  // Whole Foods" tile lands on Harvest Log rather than on this tab's
-  // resting picker. openEntryId came with Horticulture on 2026-09-19: a
+  // 2026-08-17: the deep-link param every tab takes, so a Home card or a
+  // capture note lands on the lens it names rather than on this tab's
+  // resting picker. (Food's My Whole Foods tile used it too until
+  // 2026-09-20, when that became a lens of Food's own.) openEntryId came
+  // with Horticulture on 2026-09-19: a
   // Home flip card's Read More or a Related chip on another tab names
   // the entry to open, see lib/digestNavigation.ts.
   const { openGardenLens, openEntryId } = useLocalSearchParams<{ openGardenLens?: string; openEntryId?: string }>();
@@ -999,6 +1004,16 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
   const [pickingPlanting, setPickingPlanting] = useState(false);
   const [quantity, setQuantity] = useState<string | null>(null);
   const [unit, setUnit] = useState<string | null>('count');
+  // The harvest just saved, held while the card asks whether to keep it as
+  // one of the person's on-hand home-grown foods. 2026-09-20, direct
+  // instruction: "When a harvest is logged, this is the time when the app
+  // should ask if this harvest should be added to their on hand, home grown
+  // whole foods." It is saved on hand already (garden_harvests.on_hand
+  // defaults to 1), so walking away is a yes; only a tap on No changes it.
+  // avoided is the one sentence of money this app will say about a
+  // harvest: what it would have cost at a price the person has recorded
+  // paying for that food in the same unit, and nothing when there is none.
+  const [justSaved, setJustSaved] = useState<{ id: string; foodName: string; quantity: number; unit: string; avoided: string | null } | null>(null);
 
   const load = useCallback(async () => {
     const [harvestRows, plantingRows, plotRows] = await Promise.all([
@@ -1023,19 +1038,46 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
 
   async function handleRecordHarvest() {
     if (!selectedPlanting || !quantity || !unit) return;
-    await recordGardenHarvest({
+    const amount = Number(quantity);
+    const id = await recordGardenHarvest({
       plantingId: selectedPlanting.id,
       plotId: selectedPlanting.plotId,
       foodId: selectedPlanting.foodId,
       source: selectedPlanting.source,
       foodName: selectedPlanting.foodName,
       harvestedAt: todayDateString(),
-      quantity: Number(quantity),
+      quantity: amount,
       unit,
+    });
+    const valuation = valueReceivedGoods(
+      [{ foodName: selectedPlanting.foodName, quantity: amount, unit: harvestUnitForPricing(unit) }],
+      await getLastPaidPrices(),
+    );
+    const valued = valuation.valued[0];
+    setJustSaved({
+      id,
+      foodName: selectedPlanting.foodName,
+      quantity: amount,
+      unit,
+      avoided: valued
+        ? `That is about ${formatTradeMoney(valued.amount)} you did not have to spend, at the ${formatTradeMoney(valued.pricePaid)} ${perUnit(valued.unit)} you paid on ${valued.pricedOn}.`
+        : null,
     });
     setSelectedPlanting(null);
     setQuantity(null);
     setUnit('count');
+    await load();
+  }
+
+  async function answerOnHand(keep: boolean) {
+    if (!justSaved) return;
+    if (!keep) await setGardenHarvestOnHand(justSaved.id, false);
+    setJustSaved(null);
+    await load();
+  }
+
+  async function handleOnHandChange(id: string, onHand: boolean) {
+    await setGardenHarvestOnHand(id, onHand);
     await load();
   }
 
@@ -1048,7 +1090,30 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
     <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
       <View style={[band.box, styles.card]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Log a Harvest</Text>
-        {selectedPlanting ? (
+        {justSaved ? (
+          <>
+            <Text style={styles.bodyText}>
+              Saved: {formatQuantity(justSaved.quantity, justSaved.unit)} of {justSaved.foodName}.
+            </Text>
+            <Text style={styles.bodyText}>Add this harvest to My Whole Foods, your on-hand home-grown foods?</Text>
+            <Text style={styles.captionText}>
+              Kept on hand, it shows up under My Whole Foods on the Food tab, is offered first when you add an
+              ingredient in any Food tool, and is drawn from as you cook with it.
+              {justSaved.avoided ? ` ${justSaved.avoided}` : ''}
+            </Text>
+            <View style={styles.actionRow}>
+              <TouchableOpacity
+                style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
+                onPress={() => answerOnHand(true)}
+              >
+                <Text style={styles.primaryButtonText}>Yes, Keep It On Hand</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => answerOnHand(false)}>
+                <Text style={styles.linkText}>Not This One</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : selectedPlanting ? (
           <>
             <Text style={styles.bodyText}>
               {selectedPlanting.foodName}
@@ -1112,19 +1177,30 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
             <Text style={styles.captionText}>Nothing logged yet.</Text>
           ) : (
             harvests.map((harvest) => (
-              <View key={harvest.id} style={styles.plantingRow}>
-                <Text style={styles.bodyText}>
-                  {harvest.foodName}: {harvest.quantityRemaining} of {harvest.quantity} {harvest.unit} left
-                </Text>
-                <TouchableOpacity onPress={() => handleDelete(harvest.id)}>
-                  <Text style={[styles.linkText, { color: colors.danger }]}>Delete</Text>
-                </TouchableOpacity>
+              <View key={harvest.id} style={styles.harvestRow}>
+                <View style={styles.harvestRowText}>
+                  <Text style={styles.bodyText}>
+                    {harvest.foodName}: {formatQuantity(harvest.quantityRemaining, harvest.unit)} of{' '}
+                    {formatQuantity(harvest.quantity, harvest.unit)} left
+                  </Text>
+                  {Number(harvest.onHand) === 1 ? null : (
+                    <Text style={styles.captionText}>Not kept on hand, so it is not offered as food to cook with.</Text>
+                  )}
+                </View>
+                <View style={styles.harvestRowActions}>
+                  <TouchableOpacity onPress={() => handleOnHandChange(harvest.id, Number(harvest.onHand) !== 1)}>
+                    <Text style={styles.linkText}>{Number(harvest.onHand) === 1 ? 'Not on hand' : 'Keep on hand'}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleDelete(harvest.id)}>
+                    <Text style={[styles.linkText, { color: colors.danger }]}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ))
           )}
           <Text style={styles.captionText}>
-            Anything still showing a remaining amount here is selectable as &quot;From Your Harvest&quot; the next time you add an
-            ingredient in any Food builder.
+            Anything kept on hand with an amount left is listed under My Whole Foods on the Food tab, and is selectable as
+            &quot;From Your Harvest&quot; the next time you add an ingredient in any Food tool.
           </Text>
         </View>
       </TabBand>
@@ -1295,6 +1371,11 @@ const styles = StyleSheet.create({
   },
   expandedSection: { gap: 8, marginTop: 4 },
   plantingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  // A harvest row carries two links (on hand, delete) and sometimes a
+  // second line, so its text and its actions each get a column.
+  harvestRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  harvestRowText: { flex: 1, gap: 2 },
+  harvestRowActions: { alignItems: 'flex-end', gap: 4 },
   // A tappable row for picking a planting to log a harvest from -- a real,
   // small list (a season's worth of plantings, never anywhere near the
   // scale of the whole food reference database), so it renders as a plain

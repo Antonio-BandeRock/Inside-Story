@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.1',
+    date: '2026-09-20',
+    changes: [
+      'My Whole Foods is a list on the Food tab of what you have on hand from your garden, with what those harvests would have cost at prices you have recorded paying. Logging a harvest asks whether to keep it on hand as one of your home-grown whole foods.',
+    ],
+  },
+  {
     version: '1.0.41.18',
     date: '2026-09-19',
     changes: [
