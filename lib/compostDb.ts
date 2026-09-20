@@ -9,6 +9,12 @@
 // the entry id on the event, so the Growing Costs lens and the compost
 // record agree about the same bale of straw. Kitchen scraps carry no cost
 // and no entry.
+//
+// 2026-09-20, "Put compost pile costs under an area or group too": a pile
+// feeds one area or one whole cost group (compost_piles.plot_id or
+// cost_group_id). The cost row itself stays tied to the pile alone;
+// lib/gardenMoneyDb.ts listGrowingCosts reads the pile's area or group onto
+// it, so changing what a pile feeds moves everything it ever cost.
 
 import { getDatabase } from './db';
 import {
@@ -49,19 +55,36 @@ export async function createCompostPile(input: {
   startedOn: string;
   location?: string;
   notes?: string;
+  plotId?: string | null;
+  costGroupId?: string | null;
 }): Promise<string> {
   const db = await getDatabase();
   const id = `compost_${Date.now()}`;
   await db.runAsync(
-    `INSERT INTO compost_piles (id, name, kind, started_on, location, status, notes) VALUES (?, ?, ?, ?, ?, 'active', ?)`,
+    `INSERT INTO compost_piles (id, name, kind, started_on, location, status, notes, plot_id, cost_group_id)
+     VALUES (?, ?, ?, ?, ?, 'active', ?, ?, ?)`,
     id,
     input.name.trim(),
     input.kind,
     input.startedOn,
     input.location?.trim() || null,
     input.notes?.trim() || null,
+    input.costGroupId ? null : input.plotId ?? null,
+    input.costGroupId ?? null,
   );
   return id;
+}
+
+/** Sets what the pile feeds: one area, one whole group, or neither. Its
+ *  bought materials count there from the next read of Growing Costs. */
+export async function setCompostPileFeeds(id: string, feeds: { plotId: string | null; costGroupId: string | null }): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(
+    'UPDATE compost_piles SET plot_id = ?, cost_group_id = ? WHERE id = ?',
+    feeds.costGroupId ? null : feeds.plotId,
+    feeds.costGroupId ?? null,
+    id,
+  );
 }
 
 export async function setCompostPileStatus(id: string, status: CompostPileStatus): Promise<void> {
@@ -87,9 +110,12 @@ export async function listCompostPiles(): Promise<CompostPile[]> {
     location: string | null;
     status: string;
     notes: string | null;
+    plotId: string | null;
+    costGroupId: string | null;
   }>(
     `
-      SELECT id, name, kind, started_on AS startedOn, location, status, notes
+      SELECT id, name, kind, started_on AS startedOn, location, status, notes,
+             plot_id AS plotId, cost_group_id AS costGroupId
       FROM compost_piles
       ORDER BY CASE status WHEN 'active' THEN 0 WHEN 'curing' THEN 1 ELSE 2 END, started_on DESC
     `,

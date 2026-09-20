@@ -286,7 +286,8 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
               Each area stands on its own, so a grow tent under an LED light and the beds outside each get a separate
               figure under By Area, and areas combined under Cost Groups stand together as one. The comparison is per
               area, never per crop: a bag of fertilizer feeds the whole bed, and charging it to the tomatoes would be a
-              made-up split. Compost from your kitchen scraps costs nothing and is never entered here.
+              made-up split. A material bought for a compost pile counts under the area or group the pile feeds, set
+              on Compost. Compost from your kitchen scraps costs nothing and is never entered here.
             </Text>
           </>
         ) : null}

@@ -41,10 +41,14 @@ export type GrowingCostRecord = {
   amount: number;
   description: string;
   kind: GrowingCostKind | null;
+  /** For a material bought for a compost pile, this is the area the pile
+   *  feeds (compost_piles.plot_id), read at query time, since the cost row
+   *  itself is tied to the pile alone. */
   plotId: string | null;
   plotName: string | null;
   /** Set when the cost was tied to a cost group as a whole rather than to
-   *  one of its areas. */
+   *  one of its areas, or when it was bought for a pile that feeds a whole
+   *  group. */
   costGroupId: string | null;
   costGroupName: string | null;
   compostPileId: string | null;
@@ -138,12 +142,14 @@ export async function saveGardenCostGroup(input: { id?: string; name: string; me
   return id;
 }
 
-/** Ungroups the areas and unties the costs; deletes nothing else. */
+/** Ungroups the areas, unties the costs and the compost piles feeding the
+ *  group; deletes nothing else. */
 export async function deleteGardenCostGroup(id: string): Promise<void> {
   const db = await getDatabase();
   const now = new Date().toISOString();
   await db.runAsync('UPDATE garden_plots SET cost_group_id = NULL, updated_at = ? WHERE cost_group_id = ?', now, id);
   await db.runAsync('UPDATE garden_cost_details SET cost_group_id = NULL WHERE cost_group_id = ?', id);
+  await db.runAsync('UPDATE compost_piles SET cost_group_id = NULL WHERE cost_group_id = ?', id);
   await db.runAsync('DELETE FROM garden_cost_groups WHERE id = ?', id);
 }
 
@@ -169,17 +175,25 @@ export async function listGrowingCosts(limit = 200): Promise<GrowingCostRecord[]
     costGroupName: string | null;
     compostPileId: string | null;
     compostPileName: string | null;
+    pilePlotId: string | null;
+    pilePlotName: string | null;
+    pileGroupId: string | null;
+    pileGroupName: string | null;
   }>(
     `
       SELECT e.id AS id, e.occurred_on AS occurredOn, e.amount AS amount, e.description AS description,
              d.kind AS kind, d.plot_id AS plotId, p.name AS plotName,
              d.cost_group_id AS costGroupId, g.name AS costGroupName,
-             d.compost_pile_id AS compostPileId, c.name AS compostPileName
+             d.compost_pile_id AS compostPileId, c.name AS compostPileName,
+             c.plot_id AS pilePlotId, pp.name AS pilePlotName,
+             c.cost_group_id AS pileGroupId, pg.name AS pileGroupName
       FROM finance_entries e
       LEFT JOIN garden_cost_details d ON d.finance_entry_id = e.id
       LEFT JOIN garden_plots p ON p.id = d.plot_id
       LEFT JOIN garden_cost_groups g ON g.id = d.cost_group_id
       LEFT JOIN compost_piles c ON c.id = d.compost_pile_id
+      LEFT JOIN garden_plots pp ON pp.id = c.plot_id
+      LEFT JOIN garden_cost_groups pg ON pg.id = c.cost_group_id
       WHERE e.category = ? AND e.direction = 'expense'
       ORDER BY e.occurred_on DESC, e.created_at DESC
       LIMIT ?
@@ -187,19 +201,27 @@ export async function listGrowingCosts(limit = 200): Promise<GrowingCostRecord[]
     GARDEN_COST_CATEGORY,
     limit,
   );
-  return rows.map((row) => ({
-    id: row.id,
-    occurredOn: row.occurredOn,
-    amount: row.amount,
-    description: row.description ?? '',
-    kind: row.kind && isGrowingCostKind(row.kind) ? row.kind : null,
-    plotId: row.plotId,
-    plotName: row.plotName,
-    costGroupId: row.costGroupId,
-    costGroupName: row.costGroupName,
-    compostPileId: row.compostPileId,
-    compostPileName: row.compostPileName,
-  }));
+  return rows.map((row) => {
+    // A cost with no area or group of its own takes the pile's, when it was
+    // bought for a pile. A pile feeding a whole group counts as the group,
+    // never also as one of the group's areas.
+    const viaPile = !row.plotId && !row.costGroupId && Boolean(row.compostPileId);
+    const groupId = row.costGroupId ?? (viaPile ? row.pileGroupId : null);
+    const plotId = row.plotId ?? (viaPile && !groupId ? row.pilePlotId : null);
+    return {
+      id: row.id,
+      occurredOn: row.occurredOn,
+      amount: row.amount,
+      description: row.description ?? '',
+      kind: row.kind && isGrowingCostKind(row.kind) ? row.kind : null,
+      plotId,
+      plotName: plotId ? (row.plotName ?? row.pilePlotName) : null,
+      costGroupId: groupId,
+      costGroupName: groupId ? (row.costGroupName ?? row.pileGroupName) : null,
+      compostPileId: row.compostPileId,
+      compostPileName: row.compostPileName,
+    };
+  });
 }
 
 /** All time. The netting is against everything the garden has given back,

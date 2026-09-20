@@ -148,7 +148,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Compost',
-        body: 'One band per pile, bin, tumbler, worm bin or trench. Record what goes in and whether it was green or brown, when it was turned and watered, a temperature reading, a squeeze test for moisture, and when finished compost comes out or goes onto a plot. The pile reads back what it needs from what you recorded: a greens-to-browns lean, a dry or wet last check, too long since a turn, whether it reached the heat that kills weed seeds. Kitchen scraps cost nothing; a bought material takes a cost and becomes a growing cost. "Remind me to turn it" puts a task under Upcoming Tasks.',
+        body: 'One band per pile, bin, tumbler, worm bin or trench. Record what goes in and whether it was green or brown, when it was turned and watered, a temperature reading, a squeeze test for moisture, and when finished compost comes out or goes onto a plot. The pile reads back what it needs from what you recorded: a greens-to-browns lean, a dry or wet last check, too long since a turn, whether it reached the heat that kills weed seeds. Kitchen scraps cost nothing; a bought material takes a cost and becomes a growing cost, counted under the area or whole group the pile feeds, which you set when you start it and can change on its band. "Remind me to turn it" puts a task under Upcoming Tasks.',
       },
     ],
   },
@@ -164,7 +164,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Growing Costs',
-        body: 'Money spent to grow food: seeds and starts, soil and amendments, fertilizer and nutrients, bought compost materials, water, tools, pest control, containers. Each is a Garden & growing supplies entry in your budget on Life > Finances, so nothing is counted twice. Tie a cost to a garden area when you add it, and By Area sets the costs of that area against the harvests kept from it, so an indoor grow under an LED light and the beds outside each get a separate figure, and one grow can be tracked while another is not. The top card is the whole garden, with areas rolled up as indoors, greenhouse and outdoors. Areas grown the same way can be combined under Cost Groups, and the group then stands as one figure in place of its areas; a cost can be tied to the whole group when it fed every area in it. Costs are set against an area, never one crop. Compost from your kitchen scraps costs nothing and is not entered.',
+        body: 'Money spent to grow food: seeds and starts, soil and amendments, fertilizer and nutrients, bought compost materials, water, tools, pest control, containers. Each is a Garden & growing supplies entry in your budget on Life > Finances, so nothing is counted twice. Tie a cost to a garden area when you add it, and By Area sets the costs of that area against the harvests kept from it, so an indoor grow under an LED light and the beds outside each get a separate figure, and one grow can be tracked while another is not. The top card is the whole garden, with areas rolled up as indoors, greenhouse and outdoors. Areas grown the same way can be combined under Cost Groups, and the group then stands as one figure in place of its areas; a cost can be tied to the whole group when it fed every area in it. What was bought for a compost pile counts under the area or group the pile feeds. Costs are set against an area, never one crop. Compost from your kitchen scraps costs nothing and is not entered.',
       },
     ],
   },

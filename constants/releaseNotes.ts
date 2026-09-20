@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.5',
+    date: '2026-09-20',
+    changes: [
+      'A compost pile now feeds an area or a whole cost group. Pick it under Feeds when you start a pile on Compost, or change it on the pile\'s band, and anything bought for the pile counts under that area or group in Growing Costs, under By Area and in the cost list, instead of sitting with the untied costs. Moving a pile moves everything it ever cost; deleting a cost group leaves its piles unfed rather than deleting anything.',
+    ],
+  },
+  {
     version: '1.0.42.4',
     date: '2026-09-20',
     changes: [

@@ -89,6 +89,11 @@ export type CompostPile = {
   location: string | null;
   status: CompostPileStatus;
   notes: string | null;
+  /** The one area, or the one whole cost group, the pile feeds. Anything
+   *  bought for the pile counts there in Growing Costs. Both null when the
+   *  pile feeds nothing in particular yet. */
+  plotId: string | null;
+  costGroupId: string | null;
 };
 
 export type CompostEvent = {

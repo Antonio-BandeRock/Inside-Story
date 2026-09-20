@@ -6973,6 +6973,14 @@ async function runDatabaseInitialization() {
         -- finish, finished when it has been used up or emptied.
         status TEXT NOT NULL DEFAULT 'active',
         notes TEXT,
+        -- What the pile feeds, 2026-09-20: "Put compost pile costs under an
+        -- area or group too." One area (plot_id) or one whole cost group
+        -- (cost_group_id), or neither. A material bought for the pile is
+        -- recorded against the pile alone; Growing Costs reads it under the
+        -- pile's area or group at the time it is read, so moving a pile
+        -- moves everything it ever cost.
+        plot_id TEXT,
+        cost_group_id TEXT,
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
@@ -7928,6 +7936,15 @@ async function runDatabaseInitialization() {
     const gardenCostColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(garden_cost_details)');
     if (gardenCostColumns.length > 0 && !gardenCostColumns.some((existing) => existing.name === 'cost_group_id')) {
       await db.execAsync('ALTER TABLE garden_cost_details ADD COLUMN cost_group_id TEXT;');
+    }
+    // A compost pile feeds an area or a whole group, 2026-09-20.
+    const compostPileColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(compost_piles)');
+    if (compostPileColumns.length > 0) {
+      for (const column of ['plot_id', 'cost_group_id']) {
+        if (!compostPileColumns.some((existing) => existing.name === column)) {
+          await db.execAsync(`ALTER TABLE compost_piles ADD COLUMN ${column} TEXT;`);
+        }
+      }
     }
 
     const exerciseLogColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(exercise_logs)');

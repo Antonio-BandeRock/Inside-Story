@@ -30,9 +30,11 @@ import {
   deleteCompostPile,
   listCompostEvents,
   listCompostPiles,
+  setCompostPileFeeds,
   setCompostPileStatus,
 } from '../lib/compostDb';
 import { listGardenPlots, scheduleGardenTask, type GardenPlot } from '../lib/db';
+import { listGardenCostGroups, type GardenCostGroup } from '../lib/gardenMoneyDb';
 import { AppTextInput } from './AppTextInput';
 import { HOME_BAND_GAP } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
@@ -51,6 +53,11 @@ import { makeTabBandStyles, TabBand } from './TabBand';
 // in the budget through lib/compostDb.ts; kitchen scraps take none. "Remind
 // me to turn it" schedules a garden task the same way Upcoming Tasks does.
 // The reading on composting is on Horticulture, one tap away.
+//
+// 2026-09-20, "Put compost pile costs under an area or group too": a pile
+// has a Feeds setting, one area or one whole cost group, set when it is
+// started and changeable on its band. Growing Costs counts anything bought
+// for the pile under that area or group (lib/gardenMoneyDb.ts).
 
 const TAB_COLOR = colors.tabGarden;
 const band = makeTabBandStyles(TAB_COLOR);
@@ -72,6 +79,30 @@ const TEMP_UNIT_OPTIONS = [
 ];
 const TURN_INTERVAL_OPTIONS = COMPOST_TURN_INTERVALS.map((days) => ({ label: `${days} days`, value: String(days) }));
 const NO_PLOT = '__none__';
+const GROUP_PREFIX = 'group:';
+
+/** What a pile can feed: nothing in particular, one whole group, or one
+ *  area. A group's value carries GROUP_PREFIX so one picker holds both. */
+function feedsOptions(plots: GardenPlot[], groups: GardenCostGroup[]): { label: string; value: string }[] {
+  return [
+    { label: 'No area in particular', value: NO_PLOT },
+    ...groups.map((group) => ({ label: `${group.name} (whole group)`, value: `${GROUP_PREFIX}${group.id}` })),
+    ...plots.map((plot) => ({ label: plot.name, value: plot.id })),
+  ];
+}
+function feedsValue(pile: { plotId: string | null; costGroupId: string | null }): string {
+  if (pile.costGroupId) return `${GROUP_PREFIX}${pile.costGroupId}`;
+  return pile.plotId ?? NO_PLOT;
+}
+function feedsFromValue(value: string): { plotId: string | null; costGroupId: string | null } {
+  if (value.startsWith(GROUP_PREFIX)) return { plotId: null, costGroupId: value.slice(GROUP_PREFIX.length) };
+  return { plotId: value === NO_PLOT ? null : value, costGroupId: null };
+}
+function feedsName(pile: { plotId: string | null; costGroupId: string | null }, plots: GardenPlot[], groups: GardenCostGroup[]): string | null {
+  if (pile.costGroupId) return groups.find((group) => group.id === pile.costGroupId)?.name ?? null;
+  if (pile.plotId) return plots.find((plot) => plot.id === pile.plotId)?.name ?? null;
+  return null;
+}
 
 const ACTIONS: { kind: CompostEventKind; label: string }[] = [
   { kind: 'added', label: 'Add Material' },
@@ -107,20 +138,29 @@ export function CompostLens({
   const [piles, setPiles] = useState<CompostPile[]>([]);
   const [events, setEvents] = useState<CompostEvent[]>([]);
   const [plots, setPlots] = useState<GardenPlot[]>([]);
+  const [groups, setGroups] = useState<GardenCostGroup[]>([]);
   const [starting, setStarting] = useState(false);
   const [newName, setNewName] = useState('');
   const [newKind, setNewKind] = useState<CompostPileKind>('pile');
   const [newLocation, setNewLocation] = useState('');
+  const [newFeeds, setNewFeeds] = useState<string>(NO_PLOT);
   const [newStartedOn, setNewStartedOn] = useState(todayDateString());
   const [startError, setStartError] = useState<string | null>(null);
   const today = todayDateString();
 
   const load = useCallback(async () => {
-    const [pileRows, eventRows, plotRows] = await Promise.all([listCompostPiles(), listCompostEvents(), listGardenPlots()]);
+    const [pileRows, eventRows, plotRows, groupRows] = await Promise.all([
+      listCompostPiles(),
+      listCompostEvents(),
+      listGardenPlots(),
+      listGardenCostGroups(),
+    ]);
     setPiles(pileRows);
     setEvents(eventRows);
     setPlots(plotRows);
+    setGroups(groupRows);
   }, []);
+  const newFeedsOptions = useMemo(() => feedsOptions(plots, groups), [plots, groups]);
 
   useFocusEffect(
     useCallback(() => {
@@ -137,10 +177,11 @@ export function CompostLens({
       setStartError('The date needs to be YYYY-MM-DD.');
       return;
     }
-    await createCompostPile({ name: newName, kind: newKind, startedOn: newStartedOn, location: newLocation });
+    await createCompostPile({ name: newName, kind: newKind, startedOn: newStartedOn, location: newLocation, ...feedsFromValue(newFeeds) });
     setNewName('');
     setNewKind('pile');
     setNewLocation('');
+    setNewFeeds(NO_PLOT);
     setNewStartedOn(todayDateString());
     setStartError(null);
     setStarting(false);
@@ -166,6 +207,17 @@ export function CompostLens({
             </View>
             <Text style={styles.fieldLabel}>Where</Text>
             <AppTextInput style={styles.textInput} value={newLocation} onChangeText={setNewLocation} placeholder="Behind the shed" />
+            {newFeedsOptions.length > 1 ? (
+              <>
+                <View style={styles.fieldRow}>
+                  <Text style={styles.fieldLabel}>Feeds</Text>
+                  <PopoverSelect options={newFeedsOptions} selected={newFeeds} onSelect={setNewFeeds} tabColor={TAB_COLOR} width={220} />
+                </View>
+                <Text style={styles.captionText}>
+                  Anything bought for the pile counts under this area or group in Growing Costs. You can change it later.
+                </Text>
+              </>
+            ) : null}
             <View style={styles.fieldRow}>
               <Text style={styles.fieldLabel}>Started</Text>
               <AppTextInput style={[styles.textInput, styles.dateInput]} value={newStartedOn} onChangeText={setNewStartedOn} placeholder="YYYY-MM-DD" />
@@ -213,6 +265,7 @@ export function CompostLens({
             pile={pile}
             events={events.filter((event) => event.pileId === pile.id)}
             plots={plots}
+            groups={groups}
             today={today}
             folds={folds}
             onChanged={load}
@@ -228,6 +281,7 @@ function PileBand({
   pile,
   events,
   plots,
+  groups,
   today,
   folds,
   onChanged,
@@ -236,6 +290,7 @@ function PileBand({
   pile: CompostPile;
   events: CompostEvent[];
   plots: GardenPlot[];
+  groups: GardenCostGroup[];
   today: string;
   folds: ReturnType<typeof useBandFolds>;
   onChanged: () => Promise<void>;
@@ -276,6 +331,8 @@ function PileBand({
     () => [{ label: 'Not a tracked plot', value: NO_PLOT }, ...plots.map((plot) => ({ label: plot.name, value: plot.id }))],
     [plots],
   );
+  const pileFeedsOptions = useMemo(() => feedsOptions(plots, groups), [plots, groups]);
+  const pileFeedsName = feedsName(pile, plots, groups);
 
   function reset() {
     setAction(null);
@@ -356,6 +413,11 @@ function PileBand({
     await onChanged();
   }
 
+  async function handleFeeds(value: string) {
+    await setCompostPileFeeds(pile.id, feedsFromValue(value));
+    await onChanged();
+  }
+
   async function handleDeletePile() {
     await deleteCompostPile(pile.id);
     await onChanged();
@@ -382,6 +444,7 @@ function PileBand({
         <Text style={styles.captionText}>
           {pileKindLabel(pile.kind)}
           {pile.location ? `, ${pile.location}` : ''} · started {pile.startedOn}, {summary.daysSinceStarted} days ago · {statusLabel}
+          {pileFeedsName ? ` · feeds ${pileFeedsName}` : ''}
         </Text>
 
         <View style={styles.statusCard}>
@@ -582,6 +645,17 @@ function PileBand({
             <Text style={styles.linkText}>Read more</Text>
           </TouchableOpacity>
         </View>
+        {pileFeedsOptions.length > 1 ? (
+          <View style={styles.fieldRow}>
+            <Text style={styles.fieldLabel}>Feeds</Text>
+            <PopoverSelect options={pileFeedsOptions} selected={feedsValue(pile)} onSelect={handleFeeds} tabColor={TAB_COLOR} width={220} />
+          </View>
+        ) : null}
+        <Text style={styles.captionText}>
+          {pileFeedsOptions.length > 1
+            ? 'What was bought for this pile counts under the area or group it feeds in Growing Costs; with none picked it sits with the untied costs.'
+            : 'Add an area under Plots & Plantings and the pile can feed it, so what was bought for the pile counts there in Growing Costs.'}
+        </Text>
 
         {events.length > 0 ? (
           <View style={styles.eventList}>
