@@ -776,20 +776,35 @@ export function classifyEarthMattersTopic(entry: AnyDigestEntry): EarthMattersTo
   ) {
     return 'How You Can Take Action';
   }
+  // 2026-09-19: seven case studies added after this classifier was written
+  // (India twice, Kenya, Colombia, Sikkim, the elephant-dung trial, Korean
+  // Natural Farming) had fallen through to the Soil Science bucket, where
+  // a subgroup named "Case Studies Around the World" sat one screen away
+  // from this topic. They live here now, split by region in
+  // CONDITION_TOPIC_SUBGROUPS.
   if (
     id.includes('brazil-case-study') ||
     id.includes('niger-fmnr') ||
     id.includes('china-loess-plateau') ||
     id.includes('rodale-farming-systems-trial') ||
     id.includes('netherlands-nitrogen-conflict') ||
-    id.includes('individual-farm-case-study')
+    id.includes('individual-farm-case-study') ||
+    id.includes('india-water-harvesting') ||
+    id.includes('india-zbnf') ||
+    id.includes('kenya-rangeland') ||
+    id.includes('colombia-shade-coffee') ||
+    id.includes('sikkim-organic-state') ||
+    id.includes('elephant-dung-fertilizer') ||
+    id.includes('korean-natural-farming')
   ) {
     return 'Case Studies From Around the World';
   }
   if (id.includes('timeline-origins') || id.includes('timeline-certification-era') || id.includes('green-revolution')) {
     return 'History & Origins of the Movement';
   }
-  if (id.includes('pesticides-') || id.includes('neonicotinoid')) return 'Pesticides & Chemical Inputs';
+  if (id.includes('pesticides-') || id.includes('neonicotinoid') || id.includes('regen-environmental-impact')) {
+    return 'Pesticides & Chemical Inputs';
+  }
   if (
     id.includes('why-not-mandated') ||
     id.includes('lobbying-imbalance') ||
@@ -801,7 +816,10 @@ export function classifyEarthMattersTopic(entry: AnyDigestEntry): EarthMattersTo
     id.includes('seed-patent-litigation') ||
     id.includes('right-to-repair') ||
     id.includes('farmer-mental-health-debt') ||
-    id.includes('tribal-co-stewardship')
+    id.includes('tribal-co-stewardship') ||
+    id.includes('usda-organic-certification') ||
+    id.includes('farmland-ownership-concentration') ||
+    id.includes('4-per-1000-initiative')
   ) {
     return 'Policy, Economics & Power';
   }
@@ -817,7 +835,6 @@ export function classifyEarthMattersTopic(entry: AnyDigestEntry): EarthMattersTo
   }
   if (
     id.includes('whole-foods-organic-industry') ||
-    id.includes('regen-environmental-impact') ||
     id.includes('no-till-greenwashing') ||
     id.includes('cover-crop-reality-check')
   ) {
@@ -852,6 +869,7 @@ export type HomeGardeningTopic =
   | 'Building Real Soil'
   | 'Your Garden & Your Microbiome'
   | 'Growing Techniques'
+  | 'Growing Indoors'
   | 'After the Harvest'
   | 'The Case for a Home Garden';
 
@@ -874,6 +892,10 @@ export const HOME_GARDENING_TOPIC_ORDER: HomeGardeningTopic[] = [
   'Building Real Soil',
   'Your Garden & Your Microbiome',
   'Growing Techniques',
+  // 2026-09-19: hydroponics, grow lights and water filtration were a
+  // subgroup inside the closing "why bother" bucket, which is not where
+  // anyone would look for them.
+  'Growing Indoors',
   'After the Harvest',
   'The Case for a Home Garden',
 ];
@@ -906,7 +928,10 @@ export function classifyHomeGardeningTopic(entry: AnyDigestEntry): HomeGardening
     id.includes('no-dig-raised-beds') ||
     id.includes('mulching') ||
     id.includes('crop-rotation') ||
-    id.includes('cover-crops-home')
+    id.includes('cover-crops-home') ||
+    id.includes('hot-composting') ||
+    id.includes('organic-fertility-amendments') ||
+    id.includes('carbon-in-the-ground')
   ) {
     return 'Building Real Soil';
   }
@@ -922,16 +947,26 @@ export function classifyHomeGardeningTopic(entry: AnyDigestEntry): HomeGardening
     id.includes('watering-efficiency') ||
     id.includes('natural-pest-management') ||
     id.includes('vertical-trellising') ||
-    id.includes('extending-the-season')
+    id.includes('extending-the-season') ||
+    id.includes('organic-approved-pesticides') ||
+    id.includes('three-sisters-companion-planting')
   ) {
     return 'Growing Techniques';
+  }
+  if (
+    id.includes('indoor-growing-methods-overview') ||
+    id.includes('led-grow-lights') ||
+    id.includes('water-quality-filtration')
+  ) {
+    return 'Growing Indoors';
   }
   if (id.includes('preserving-the-harvest') || id.includes('seed-saving') || id.includes('freshness-nutrient-retention')) {
     return 'After the Harvest';
   }
-  // Everything else remaining (verified via the throwaway script above to
-  // be exactly the real economics/mental-health/community/pollinator-link
-  // entries) falls here.
+  // Everything else remaining (economics, mental health, community
+  // gardens, grow-what-you-can, the pollinator link) falls here. Five
+  // entries as of 2026-09-19; a new entry that is not one of those needs
+  // its own line above, or it lands in the closing bucket by default.
   return 'The Case for a Home Garden';
 }
 

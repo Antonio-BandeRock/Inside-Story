@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.41.17',
+    date: '2026-09-19',
+    changes: [
+      'Earth Matters and Horticulture: every title states its finding, case studies together by region, policy split four ways, a Growing Indoors topic, zones in order, shelves that tell a story read in sequence, citations on the two closing soil-and-microbiome entries.',
+    ],
+  },
+  {
     version: '1.0.41.16',
     date: '2026-09-19',
     changes: [

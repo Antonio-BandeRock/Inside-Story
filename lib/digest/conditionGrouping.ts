@@ -46,6 +46,47 @@ import {
 // 60+ separate groups (18 conditions x up to 4 pillars, plus every Basic
 // Health topic/subtopic) this would otherwise mean reviewing one at a
 // time.
+// 2026-09-19: alphabetical order is wrong for the few shelves that tell a
+// story in sequence. Earth Matters' history shelf was showing the 2017
+// certification era before the 1972 origins before the Green Revolution
+// that both respond to; "Do boycotts work?" came after the entry that
+// answers "buycotts are too"; the Horticulture zone entries ran tropical,
+// cold, moderate, warm. Each list below is one shelf's reading order. An
+// id in a list sorts by its position, ahead of anything unlisted on the
+// same shelf; everything unlisted keeps the alphabetical fallback, so a
+// condition page (none of whose ids appear here) is unchanged.
+const DIGEST_READING_ORDER: string[][] = [
+  // Earth Matters, Soil Science: the two studies, the critique, the answer.
+  ['foodhistory-soil-landmark-studies', 'foodhistory-soil-dilution-vs-depletion', 'foodhistory-soil-real-depletion'],
+  // Earth Matters, The Gut Connection: mechanism, why it matters, the population evidence, the synthesis.
+  [
+    'foodhistory-regen-soil-gut-microbiome-axis',
+    'foodhistory-regen-old-friends-hypothesis',
+    'foodhistory-regen-karelia-biodiversity-study',
+    'foodhistory-regen-microbiome-symbiosis-mission',
+  ],
+  // Earth Matters, History & Origins: chronological.
+  ['foodhistory-regen-green-revolution-consequences', 'foodhistory-regen-timeline-origins', 'foodhistory-regen-timeline-certification-era'],
+  // Earth Matters, How You Can Take Action: the question before the follow-up.
+  ['foodhistory-regen-boycott-effectiveness-evidence', 'foodhistory-regen-buycott-versus-boycott'],
+  // Horticulture, Getting Started: find the zone, then cold to hot, then no yard, then the caution.
+  [
+    'garden-understanding-your-zone',
+    'garden-cold-short-season-crops',
+    'garden-moderate-climate-crops',
+    'garden-warm-climate-crops',
+    'garden-tropical-subtropical-crops',
+    'garden-container-small-space',
+    'garden-soil-safety-lead',
+  ],
+  // Horticulture, Your Garden & Your Microbiome: the trial, the mechanism, the synthesis.
+  ['garden-hands-in-soil-immune-training', 'garden-mycobacterium-vaccae-soil-microbes-mood', 'garden-symbiosis-mission'],
+];
+const READING_RANK = new Map<string, number>();
+for (const list of DIGEST_READING_ORDER) {
+  list.forEach((id, index) => READING_RANK.set(id, index));
+}
+
 export function sortDigestEntriesLogically(entries: AnyDigestEntry[]): AnyDigestEntry[] {
   const titleOf = (entry: AnyDigestEntry) => (isProblemFoodEntry(entry) ? entry.foodName : entry.title);
   return [...entries].sort((a, b) => {
@@ -55,6 +96,13 @@ export function sortDigestEntriesLogically(entries: AnyDigestEntry[]): AnyDigest
     const aTying = isTyingTogetherEntry(a);
     const bTying = isTyingTogetherEntry(b);
     if (aTying !== bTying) return aTying ? 1 : -1;
+    const aRank = READING_RANK.get(a.id);
+    const bRank = READING_RANK.get(b.id);
+    if (aRank !== undefined || bRank !== undefined) {
+      if (aRank === undefined) return 1;
+      if (bRank === undefined) return -1;
+      return aRank - bRank;
+    }
     return titleOf(a).localeCompare(titleOf(b));
   });
 }
@@ -347,9 +395,24 @@ export const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partia
     'Soil Science & Why It Matters': [
       { label: 'Is Soil Depletion Actually Happening?', ids: ['foodhistory-soil-landmark-studies', 'foodhistory-soil-dilution-vs-depletion', 'foodhistory-soil-real-depletion', 'foodhistory-regen-nutrient-density-honest-evidence', 'foodhistory-regen-co2-nutrient-decline', 'foodhistory-regen-fao-baseline-stakes'] },
       { label: 'How Soil Fertility Actually Works', ids: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-mycorrhizal-networks', 'foodhistory-regen-liquid-carbon-pathway', 'foodhistory-regen-soil-food-web-mineralization', 'foodhistory-regen-rhizobia-nitrogen-fixation', 'foodhistory-regen-darwin-earthworms-vermicompost', 'foodhistory-regen-terra-preta-ancient-biochar', 'foodhistory-regen-engineered-nitrogen-fixing-microbes'] },
-      { label: 'Practices, Measured', ids: ['foodhistory-regen-agroforestry-quantified', 'foodhistory-regen-water-infiltration-quantified', 'foodhistory-regen-nrcs-soil-health-demonstrations', 'foodhistory-regen-uc-davis-century-experiment', 'foodhistory-regen-holistic-grazing-disputed', 'foodhistory-regen-organic-yield-gap-meta-analysis', 'foodhistory-regen-yield-gap-context-dependent', 'foodhistory-regen-korean-natural-farming-jadam', 'foodhistory-regen-biodynamic-farming-correction'] },
-      { label: 'Case Studies Around the World', ids: ['foodhistory-regen-india-water-harvesting-case-study', 'foodhistory-regen-kenya-rangeland-enclosures', 'foodhistory-regen-colombia-shade-coffee-birds', 'foodhistory-regen-india-zbnf-case-study', 'foodhistory-regen-sikkim-organic-state', 'foodhistory-regen-elephant-dung-fertilizer'] },
-      { label: 'Standards, Policy & Who Owns the Land', ids: ['foodhistory-regen-usda-organic-certification', 'foodhistory-regen-farmland-ownership-concentration', 'foodhistory-regen-4-per-1000-initiative'] },
+      { label: 'Practices, Measured', ids: ['foodhistory-regen-agroforestry-quantified', 'foodhistory-regen-water-infiltration-quantified', 'foodhistory-regen-nrcs-soil-health-demonstrations', 'foodhistory-regen-uc-davis-century-experiment', 'foodhistory-regen-holistic-grazing-disputed', 'foodhistory-regen-organic-yield-gap-meta-analysis', 'foodhistory-regen-yield-gap-context-dependent', 'foodhistory-regen-biodynamic-farming-correction'] },
+    ],
+    // 2026-09-19: thirteen case studies, split by region. Korean Natural
+    // Farming and the six added after the classifier was written moved
+    // here from a same-named subgroup inside Soil Science.
+    'Case Studies From Around the World': [
+      { label: 'The Americas', ids: ['foodhistory-regen-individual-farm-case-study', 'foodhistory-regen-rodale-farming-systems-trial', 'foodhistory-regen-brazil-case-study', 'foodhistory-regen-colombia-shade-coffee-birds'] },
+      { label: 'Africa', ids: ['foodhistory-regen-niger-fmnr-case-study', 'foodhistory-regen-kenya-rangeland-enclosures', 'foodhistory-regen-elephant-dung-fertilizer'] },
+      { label: 'Asia', ids: ['foodhistory-regen-china-loess-plateau', 'foodhistory-regen-india-water-harvesting-case-study', 'foodhistory-regen-india-zbnf-case-study', 'foodhistory-regen-sikkim-organic-state', 'foodhistory-regen-korean-natural-farming-jadam'] },
+      { label: 'Europe', ids: ['foodhistory-regen-netherlands-nitrogen-conflict'] },
+    ],
+    // 2026-09-19: fourteen policy entries once the three standards and
+    // land-ownership entries moved here from Soil Science.
+    'Policy, Economics & Power': [
+      { label: 'Why Regeneration Is Not Mandated', ids: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-lobbying-imbalance', 'foodhistory-regen-pesticide-liability-shields', 'foodhistory-regen-eu-cap-structural-disincentive'] },
+      { label: 'Standards, Certification & Carbon Programs', ids: ['foodhistory-regen-usda-organic-certification', 'foodhistory-regen-4-per-1000-initiative', 'foodhistory-regen-carbon-credit-integrity-problems'] },
+      { label: 'Who Owns the Seeds, the Land & the Machines', ids: ['foodhistory-regen-seed-industry-consolidation', 'foodhistory-regen-seed-patent-litigation', 'foodhistory-regen-right-to-repair-farm-equipment', 'foodhistory-regen-farmland-ownership-concentration', 'foodhistory-regen-tribal-co-stewardship-policy'] },
+      { label: 'The Human Cost & Who Is Pushing Back', ids: ['foodhistory-regen-farmer-mental-health-debt-crisis', 'foodhistory-regen-reform-coalition-orgs'] },
     ],
     Pollinators: [
       { label: 'The Scale of the Decline', ids: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-insect-apocalypse-hallmann', 'foodhistory-regen-honeybee-genetic-bottleneck', 'foodhistory-regen-bat-pollinators-white-nose'] },
@@ -358,13 +421,10 @@ export const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partia
       { label: 'What Is Being Done About It', ids: ['foodhistory-regen-robotic-drone-pollination', 'foodhistory-regen-pollinator-habitat-regenerative-link'] },
     ],
   },
-  homeGardening: {
-    'The Case for a Home Garden': [
-      { label: 'Why Grow Your Own At All', ids: ['garden-economics-subsidizing-food', 'garden-mental-health-benefits', 'garden-community-gardens', 'garden-grow-what-you-can-however-small', 'garden-carbon-in-the-ground', 'garden-pollinator-friendly-earth-matters-link'] },
-      { label: 'Growing Indoors', ids: ['garden-indoor-growing-methods-overview', 'garden-led-grow-lights-photoperiod', 'garden-water-quality-filtration'] },
-      { label: 'Fertility, Compost & Pests', ids: ['garden-organic-fertility-amendments', 'garden-organic-approved-pesticides', 'garden-hot-composting', 'garden-three-sisters-companion-planting'] },
-    ],
-  },
+  // homeGardening has no subgroups since 2026-09-19: its indoor, soil and
+  // technique entries moved to topics of their own in
+  // classifyHomeGardeningTopic, and no Horticulture topic holds more than
+  // eight entries.
   lupus: {
     'Core Science': [
       { label: 'Terms & Definitions', ids: ['glossary-aps-antiphospholipid', 'glossary-sledai'] },

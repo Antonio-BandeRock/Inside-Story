@@ -144,7 +144,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-cold-short-season-crops',
     category: 'homeGardening',
-    title: 'Zones 3 Through 5: Growing Inside a Short Window',
+    title: 'Zones 3 Through 5 Still Bring in a Harvest by Leaning on Frost-Tolerant, Fast-Maturing Crops',
     teaser: 'A cold-climate garden still produces a harvest by leaning on crops that tolerate frost and mature fast, not the same lineup a warmer garden would choose.',
     summary:
       "Zones 3 through 5 cover much of the northern US and typically see around 145 frost-free days in a place like Minnesota, meaning the entire growing season has to be planned around that window rather than around the calendar year. University of Minnesota Extension splits the strategy into two groups. Cool-season crops go in as soon as soil temperature reaches 40 to 50 degrees Fahrenheit, typically late April to early May: peas, spinach, lettuce, radishes, carrots, beets, kale, Swiss chard, onions from sets or transplants, and potatoes all tolerate cold soil and light frost. Warm-season crops (tomatoes, peppers, eggplant, summer squash, basil) wait until after the last spring frost, usually mid-to-late May in this zone band, since a hard frost at 28 degrees or colder kills most of them outright. Kale is a useful example of the range within cool-season crops: it takes about as long to mature as bush snap beans, but keeps growing in cool weather and can survive down to roughly 20 degrees Fahrenheit, well past what most other vegetables tolerate. The Midwestern Regional Climate Center maintains an interactive map of average first and last freeze dates by location, the single most useful planning number for anyone gardening in this zone band specifically.",
@@ -184,7 +184,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-warm-climate-crops',
     category: 'homeGardening',
-    title: 'Zones 9 and 10: An Inverted Growing Calendar',
+    title: 'Zones 8 Through 10 Run an Inverted Calendar, With Winter as the Peak Vegetable Season',
     teaser: 'In much of Florida and the Gulf South, winter is the peak vegetable season, and summer is often too hot for tomatoes to set fruit at all.',
     summary:
       "Warm zones flip the calendar most gardening advice assumes. University of Florida IFAS Extension's Florida Vegetable Gardening Guide states that most vegetables cannot set fruit once temperatures consistently exceed 92 degrees Fahrenheit, which makes much of a Florida summer largely unsuitable for warm-season fruiting crops like tomatoes and peppers, even though those same crops thrive there the rest of the year. The dry season, roughly November through April, is described directly as when Florida gardens actually shine, the opposite of the spring-to-fall pattern that governs a cooler zone. UF/IFAS publishes three distinct regional planting windows, North, Central, and South Florida, since a single statewide calendar would be wrong for large parts of the state; the Central Florida (Zone 9b) window can generally be shifted four to six weeks earlier for Zone 10 and four to six weeks later for Zone 8. The practical takeaway for anyone in a warm zone: treat late fall through early spring as the primary growing season, and check a regional planting calendar rather than assuming a spring-planting rule written for a colder climate applies.",
@@ -200,7 +200,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-tropical-subtropical-crops',
     category: 'homeGardening',
-    title: 'Zones 10 Through 13: True Year-Round, With Different Rules',
+    title: 'Zones 11 Through 13 Grow Food Every Month, With Cool-Season Crops Timed to the Coolest Stretch',
     teaser: 'A frost-free climate can grow food every month of the year, but the crop list looks different from a temperate garden, not just a warmer version of the same one.',
     summary:
       "In a tropical or subtropical climate, frost essentially never occurs, so gardening is a year-round activity rather than a seasonal one, per University of Hawaii Cooperative Extension guidance. That doesn't mean every crop grows every month, though. Heat-loving crops like eggplant, okra, and peppers thrive during the hottest stretch of the year, while cooler-weather crops like lettuce, broccoli, and carrots need to be timed to the coolest months even in a climate that never truly freezes, since constant heat and humidity cause many temperate crops to bolt or fail regardless of frost. Root and starch crops well suited to tropical soil and heat, sweet potato, taro, and cassava, along with heat-tolerant legumes like yard-long beans, fill a role in a tropical garden that a temperate-zone crop list doesn't usually cover at all. This is a different crop planning problem from a simple warmer version of a temperate garden: the constraint shifts from surviving winter cold to timing each crop to whichever part of the year actually suits it, which can mean month-by-month rotation even without a single frost anywhere in the calendar.",
@@ -306,7 +306,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-soil-safety-lead',
     category: 'homeGardening',
-    title: 'A Responsible Caution Before Planting Directly in Urban Soil',
+    title: 'Urban Soil Near Old Paint, Busy Roads, or Former Industry Can Carry Lead, and a Cheap Test Comes Before Planting',
     teaser: 'Soil near an older painted structure, a busy road, or a former industrial site can carry elevated lead, and it\'s worth a cheap test before planting food directly in the ground there.',
     summary:
       "University of Maryland Extension's guidance on lead in garden soils gives specific thresholds, useful before planting a food garden in an urban or older-property setting. Natural background lead levels typically run under 50 parts per million. Between 50 and 400 ppm, all vegetables are considered safe to grow. Between 401 and 1,000 ppm, only fruiting crops, tomatoes, peppers, cucumbers, squash, and corn, are recommended, since they accumulate far less lead in their edible parts than leafy greens or root vegetables (carrots in particular readily take up lead and store it in the part that gets eaten). Above 1,000 ppm, the safer approach is a raised bed with at least eight inches of clean topsoil and compost placed on top of the contaminated ground rather than planting directly into it, and above 5,000 ppm, soil removal is recommended outright. A cheap soil test through a local extension office is the first step before planting a food garden anywhere the soil history is unknown, especially near an older home (lead paint), a busy roadway (historical leaded-gasoline residue), or a former industrial site. Practical mitigation that helps at moderate contamination levels: keeping soil pH in the 6.0 to 7.0 range, ensuring at least a third of the top eight inches of soil is organic matter by volume, applying mulch to reduce dust and soil contact, and washing all produce and peeling root crops before eating.",
@@ -414,7 +414,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-growing-fruit-perennials',
     category: 'homeGardening',
-    title: 'Perennial Fruit: A Longer Planning Horizon Than Vegetables',
+    title: 'An Apple Tree Takes 4 to 5 Years to Bear and a Raspberry Cane Two, So Perennial Fruit Needs a Longer Plan Than Vegetables',
     teaser: 'A newly planted apple tree typically takes 4 to 5 years to bear fruit; a raspberry cane can produce a harvest in its second year.',
     summary:
       "Perennial fruit is a different planning problem from the annual vegetables covered elsewhere in this category, since the payoff arrives on a multi-year timeline rather than within a single season. Iowa State University Extension gives specific figures: apple trees typically begin bearing fruit 4 to 5 years after planting, sour or tart cherries and plums in 3 to 5 years, and pears in 4 to 6 years, with trees grown on dwarf or semi-dwarf rootstock coming into bearing sooner than a standard-size tree of the same variety. Berries reach a first harvest much faster: raspberry canes typically bear fruit in their second year (some fall-bearing varieties even in their first), and strawberries planted in fall can produce a first harvest the following spring. Blueberries sit in between and carry a distinctive requirement most vegetable gardeners never think about: Clemson Cooperative Extension states blueberries need acidic soil, with a pH above 6.0 ruling out a planting site entirely, and a bush typically produces only about half a pound of fruit in its third year, reaching 1 to 2 pounds by the fourth. Once established, both fruit trees and blueberry bushes are a long-term investment: a dwarf fruit tree can bear for 15 to 20 years, and a well-sited blueberry bush for 25 years or more.",
@@ -464,7 +464,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-vertical-trellising',
     category: 'homeGardening',
-    title: 'Growing Up Instead of Out',
+    title: 'Growing Beans, Cucumbers, and Peas Up a Trellis Raises Yield per Square Foot Over Letting Them Sprawl',
     teaser: 'Pole beans, cucumbers, and peas naturally climb, and growing them vertically on a simple trellis increases yield per square foot over letting the same crop sprawl on the ground.',
     summary:
       "University of Wisconsin Extension states directly that trellising, staking, and caging vine-type vegetables increases yield and income per square foot of growing space, a practical answer for anyone working with a small garden rather than an open field. Crops that grow well on a support: pole beans and peas (both natural climbers), tomatoes, cucumbers, and smaller squash and melon varieties, all of which can be trained up simple wooden stakes, twine, garden netting, or a cattle-panel trellis rather than left to sprawl across the ground. Beyond the space savings, vertical growing improves air movement through a plant's stems and leaves, which reduces disease pressure compared to the same crop grown flat on damp soil, and makes fruit like cucumbers, which can hide under dense foliage when grown on the ground, much easier to actually find and harvest. Most vining crops grow strong enough to support their fruit once trained upward, though larger melons sometimes benefit from a mesh sling for extra support as they get heavy. This pairs directly with the container and small-space guidance: a trellised crop in a large container can produce meaningful yield in a footprint too small for the same crop grown sprawling.",
@@ -496,7 +496,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-microgreens-sprouts',
     category: 'homeGardening',
-    title: 'Microgreens and Sprouts: Food in Days, Not Months',
+    title: 'Microgreens and Sprouts Deliver Food in Days, With More Vitamin C, Carotenoids, and Vitamin K Than the Mature Leaves',
     teaser: 'A 2012 USDA-funded study found microgreens carry higher concentrations of vitamin C, carotenoids, and vitamin K than the same plant\'s mature leaves.',
     summary:
       "Microgreens and sprouts are the fastest, smallest-footprint food this whole category covers, both grow from seed indoors in days, not weeks, with no yard, container garden, or outdoor space required at all. The two are different, not two names for the same thing: sprouts are grown in water and eaten whole, root and all, typically ready in 3 to 7 days, while microgreens grow in a growing medium under light and are harvested at the stem once true leaves appear, typically 7 to 14 days after sowing. That distinction matters nutritionally, not just practically: a USDA-funded 2012 study published in the Journal of Agricultural and Food Chemistry directly measured 25 commercially available microgreens and found higher nutrient concentrations than the same plant's mature leaves as recorded in the USDA National Nutrient Database, with specific standouts by nutrient: red cabbage microgreens for vitamin C, cilantro for carotenoids, garnet amaranth for vitamin K, and green daikon radish for vitamin E. Fast, easy options for a first attempt include radish, broccoli, mustard, arugula, and beet-green microgreens, most ready within 7 to 14 days. One safety caution belongs alongside the enthusiasm: raw sprouts specifically carry an elevated foodborne-illness risk, since the warm, humid conditions needed to sprout a seed are the same conditions bacteria need to multiply, and a single surviving bacterium in a batch of seed, per the FDA, can be enough to contaminate the whole crop. A 2011 outbreak traced to contaminated fenugreek sprouts sickened 3,785 people and killed 45 across Europe, a documented reason to treat raw sprouts, unlike microgreens grown in soil or a medium, with caution.",
@@ -598,7 +598,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-pollinator-friendly-earth-matters-link',
     category: 'homeGardening',
-    title: 'A Direct Answer to The Pollinator Research',
+    title: 'A Home Garden Is One of the Few Levers a Person Controls Over the Pollinator Decline Earth Matters Documents',
     teaser: 'A home garden is one of the few levers an individual actually controls over the pollinator crisis the Earth Matters research documents.',
     summary: "The Earth Matters research documents a current pollinator crisis and a dependence of much of the food supply on animal pollination. A home garden is one of the few places an individual actually has direct control over that picture, rather than depending on policy or industry practice to change. Colorado State University Extension's guidance on pollinators in vegetable and herb gardens states plainly that adding pollinator-friendly flowering plants to a vegetable garden measurably increases both pollinator visits and the actual yield of bee-pollinated crops like squash, cucumbers, and berries. Practical steps with documented effect: planting a mix of native and cultivated flowering plants that bloom in succession from spring through fall (echinacea, rudbeckia, monarda, and butterfly-friendly species are commonly recommended alongside vegetables), avoiding pesticide use in the home garden entirely, and leaving some bare, undisturbed ground, since most native bee species nest in the ground rather than in hives and lose that nesting habitat under continuous mulch or turf. None of this requires abandoning a vegetable garden's layout; interplanting flowering species directly among vegetable beds is the recommended approach, not a separate flower bed elsewhere in the yard.",
     citations: [
@@ -618,7 +618,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-carbon-in-the-ground',
     category: 'homeGardening',
-    title: 'Put Carbon Back Into the Ground',
+    title: 'Compost Plus Cover Crops Raised Soil Carbon 12.6% Over a 19-Year UC Davis Trial, and a Home Garden Can Do the Same',
     teaser: 'A 19-year UC Davis field trial found compost plus cover crops raised soil carbon 12.6% over the study period, a home-scale version of the same practice Earth Matters covers at national scale.',
     summary: "Growing food at home is also a direct way to put carbon back into soil rather than releasing it, the same soil-carbon story this app's Earth Matters research already documents at farm and national scale, just at the scale of a single yard or a few containers. A 19-year field trial at UC Davis's Russell Ranch Sustainable Agriculture Facility, published in Global Change Biology, compared three management approaches by sampling soil roughly 6 feet deep, not just the surface. Conventional management neither gained nor lost much carbon. Cover crops alone actually lost carbon on net once deeper soil layers were counted, even though the top foot looked like a gain, an important finding, since most home-garden advice about cover crops only ever discusses the surface. The one approach that worked: organic management combining compost application with cover crops, which raised soil carbon 12.6% over the study period, about 0.7% a year, comfortably ahead of the international '4 per 1000' initiative's 0.4%-a-year target covered in Earth Matters. The practical takeaway for a home gardener: compost and cover crops together, not either alone, is what the best available long-term evidence actually supports for building stored soil carbon rather than just healthier-looking topsoil. This app's composting and no-dig entries (below) are the practical how-to for doing exactly this at home.",
     citations: [
@@ -673,7 +673,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-led-grow-lights-photoperiod',
     category: 'homeGardening',
-    title: 'LED Grow Lights: Intensity, Spectrum, and Day-Length Guidance',
+    title: 'Under LED Grow Lights, 700 μmol/m²/s Grew the Most Tomato Leaf and Mass, and 300 Was the Most Efficient per Unit of Light',
     teaser: 'A controlled tomato study found 700 μmol/m²/s produced the most leaf area and dry mass of three tested intensities, but the lowest intensity tested, 300, was actually the most efficient per unit of light energy used.',
     summary: "Growing indoors without natural sunlight means the grow light itself is standing in for the sun, and three separate variables all matter: intensity, spectrum, and day length (photoperiod). Intensity is measured as PPFD (photosynthetic photon flux density, in micromol per square meter per second), young seedlings generally do well around 100-300 μmol/m²/s, established vegetative growth benefits from roughly 400-600, and fruiting/flowering stages typically want more, 700-900. A controlled study on dwarf tomato tested exactly three intensities at the vegetative stage (300, 500, and 700 μmol/m²/s) and found a tradeoff, not a simple \"more is better\" result: leaf area and total dry mass both kept climbing at the highest intensity tested (700), but radiation-use efficiency, how much growth came out per unit of light energy actually used, was highest at the lowest intensity tested (300), meaning the extra growth from more light came at a proportionally higher electricity cost. Spectrum (the actual mix of light colors) matters too: blue-heavy light is generally associated with more compact, leafy vegetative growth, while red-heavy light is associated with triggering flowering and fruiting. Day length is the third lever, vegetable seedlings and leafy greens generally do well under an extended 16-18 hour light period during vegetative growth, while many fruiting plants (tomatoes and peppers among them) benefit from a period closer to a natural 12-14 hour cycle once they're flowering and setting fruit, since an unnaturally long day length can delay or reduce flowering in some species. There's a practical takeaway underneath all three variables: a home grower balancing electricity cost against growth speed has an evidence-backed reason to run a lower, more efficient intensity for everyday vegetative growth and reserve a higher one for the specific stage (fruiting/flowering) where the research shows it actually pays off.",
     citations: [
@@ -724,7 +724,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['gut-scfa-treg', 'foodhistory-regen-old-friends-hypothesis', 'foodhistory-regen-karelia-biodiversity-study', 'garden-symbiosis-mission'],
+    relatedIds: ['glossary-treg', 'foodhistory-regen-old-friends-hypothesis', 'foodhistory-regen-karelia-biodiversity-study', 'garden-symbiosis-mission'],
   },
   {
     id: 'garden-mycobacterium-vaccae-soil-microbes-mood',
@@ -749,14 +749,27 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
     teaser: "Every finding in this shelf, and in Earth Matters' Gut Connection research, points the same direction: a person's body and the natural world it grew out of were never really two separate systems.",
     summary:
       "The point of this entry is what gardening does to the person doing it. The 28-day daycare trial above shows a measured immune shift from contact with a more biodiverse environment. The Old Friends hypothesis explains why that contact matters: specific environmental organisms are a needed input for how the immune system's regulatory circuits finish developing, not an incidental exposure to be avoided. And the Mycobacterium vaccae research, caveated as animal-only, points at a specific mechanism for why physical contact with soil itself, not just eating what grows in it, may matter on its own. None of this is really about gardening being a nice hobby. It's a direct, personal, repeatable way to restore a biological relationship modern life has made unusually easy to lose entirely, hands in soil, growing biodiverse food, rather than encountering nature only through a screen or a sealed package. Deliberately cultivating live microbial diversity, whether in soil outside or in a jar of ferment on a counter, is a practical way to work with the same biology this research keeps describing, not around it. The teaching point worth carrying past any one fact here: humans are not separate from the natural systems they evolved inside of, and a body that stays in ongoing contact with a healthy, biodiverse natural world, through the soil it gardens in and the food that soil produces, is doing something measurably different from a body that doesn't. Treating the land well and treating your gut and immune system well were never two different projects.",
-    citations: [],
+    citations: [
+      {
+        source: 'Roslund MI, et al. 2020, Science Advances: "Biodiversity intervention enhances immune regulation and health-associated commensal microbiota among daycare children"',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7556828/',
+      },
+      {
+        source: "Rook GA, Lowry CA, Raison CL 2013, Evolution, Medicine, and Public Health: \"Microbial 'Old Friends', immunoregulation and stress resilience\"",
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4183960/',
+      },
+      {
+        source: 'Lowry CA, et al. 2007, Neuroscience: "Identification of an immune-responsive mesolimbocortical serotonergic system: Potential role in regulation of emotional behavior"',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC1868963/',
+      },
+    ],
     overallTier: 'moderate',
     relatedIds: [
       'garden-hands-in-soil-immune-training',
       'garden-mycobacterium-vaccae-soil-microbes-mood',
       'foodhistory-regen-microbiome-symbiosis-mission',
       'foodhistory-regen-old-friends-hypothesis',
-      'gut-scfa-treg',
+      'glossary-treg',
     ],
   },
   // Added 2026-08-24, fact-checking a shared Google AI Mode conversation on
@@ -839,7 +852,7 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-tying-together',
     category: 'homeGardening',
-    title: 'Putting It Together: A Practical First Garden',
+    title: 'A Practical First Garden, Pulled Together',
     teaser: 'The whole case for a first garden fits in one sentence: pick crops that actually suit the climate and the available space, and the savings, freshness, and pollinator benefits follow on their own.',
     summary: "Every entry in this category points toward the same practical sequence. Start with a growing zone and its actual frost dates, not a generic planting calendar written for a different climate. Choose crops that suit that zone, cool-hardy greens and root vegetables in a short-season climate, a full spring-and-summer rotation in a moderate one, a winter-centered calendar in a warm one, and month-by-month timing rather than a single planting season in a true tropical climate. If there's no yard, containers on a balcony or patio can still produce a harvest, especially of herbs, leafy greens, and compact tomato varieties, and a simple trellis stretches that same footprint further for anything that naturally climbs. No outdoor light at all isn't a full stop either, a soil-based container under a LED grow light, run at a sensible intensity and day length for the actual growth stage, is a viable indoor option, with hydroponics and aeroponics available as higher-yield (if less forgiving) next steps once the basics are comfortable. Favor crops that return the most grocery value for the space, herbs and repeat-harvest greens especially, and lean on the small handful of easy, forgiving crops (radishes, lettuce, bush beans, zucchini) for a first attempt rather than something more demanding, saving seed instead of buying it fresh each year once a favorite variety is found. A cheap soil test is worth doing before planting directly into ground with an unknown history, especially in an older or urban setting, and a no-dig bed built from compost and cardboard sidesteps the question of what's underneath entirely, the same compost-plus-cover-crop combination a rigorous 19-year field trial found builds stored soil carbon, not just healthier-looking topsoil. Watering efficiently (filtered water matters far more for a hydroponic setup than an ordinary soil garden) and managing pests through companion planting rather than a spray bottle both save money and protect the same pollinators the rest of this category depends on, and preserving a surplus through canning or freezing stretches a harvest well past the growing season itself. None of this requires expensive equipment or prior experience, and the payoff extends past the grocery savings covered first in this category: fresher food with measurably more of its nutrients intact, carbon put back into the ground, and, when even a few flowering plants are worked in alongside the vegetables, an individual-level answer to the pollinator crisis the Earth Matters research documents at a much larger scale. Even zero yard or balcony space isn't a full stop: a windowsill herb collection, a tray of microgreens, or a community garden plot each still produce measurable food, and a randomized trial found the last of those changes what people actually eat, not just what they intend to. None of this has to be large to matter, by 1944, more than 20 million small, ordinary American home gardens together supplied 42% of the country's entire vegetable supply. And underneath all of the practical steps above sits a deeper point: a 28-day trial found direct contact with a more biodiverse growing environment measurably shifts a person's immune regulation, the same biology covered for gut bacteria and fermented food reached through a completely different, external route, growing food is never just about the harvest.",
     citations: [],
