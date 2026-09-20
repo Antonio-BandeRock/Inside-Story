@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { useBandFolds } from '../hooks/useBandFolds';
-import { listGardenPlots, type GardenPlot } from '../lib/db';
+import { createGardenPlot, listGardenPlots, type GardenPlot, type GardenSpaceType } from '../lib/db';
 import {
   describeAreaSetting,
   describeGardenNet,
@@ -63,6 +63,15 @@ import { makeTabBandStyles, TabBand } from './TabBand';
 // in place of its areas, the Area picker offers the group as a whole for
 // a cost that fed every area in it, and the cost list shows the group's
 // costs together. See COST GROUPS in lib/gardenMoney.ts for the netting.
+//
+// AN AREA FROM INSIDE THE COST FORM, 2026-09-20: "If they are adding a
+// cost for gardening and get to the question about what area and they
+// haven't created an area, they should be given the ability to create an
+// area, and then be brought back to the costing." The Area row carries an
+// Add an area link that opens a short form in place (name, where it grows,
+// what kind of space); saving it writes the same garden_plots row Plots &
+// Plantings does, picks the new area for the cost, and leaves every other
+// cost field as it was. Size, sunlight and zone stay on Plots & Plantings.
 
 const TAB_COLOR = colors.tabGarden;
 const band = makeTabBandStyles(TAB_COLOR);
@@ -71,6 +80,26 @@ const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 const KIND_OPTIONS = GROWING_COST_KINDS.map((kind) => ({ label: kind.label, value: kind.code }));
 const NO_PLOT = '__none__';
 const GROUP_PREFIX = 'group:';
+const NO_SPACE = '__none__';
+
+type AreaLocationType = 'outdoor' | 'indoor' | 'greenhouse';
+const LOCATION_OPTIONS: { label: string; value: AreaLocationType }[] = [
+  { label: 'Outdoor', value: 'outdoor' },
+  { label: 'Indoor', value: 'indoor' },
+  { label: 'Greenhouse', value: 'greenhouse' },
+];
+// The same space types Plots & Plantings offers, behind a picker here so
+// the short form stays short.
+const SPACE_OPTIONS: { label: string; value: string }[] = [
+  { label: 'Not said yet', value: NO_SPACE },
+  { label: 'In-Ground Plot', value: 'in_ground' },
+  { label: 'Raised Bed', value: 'raised_bed' },
+  { label: 'Containers & Pots', value: 'containers' },
+  { label: 'Hydroponic', value: 'hydroponic' },
+  { label: 'Tent', value: 'tent' },
+  { label: 'LED Lights', value: 'led_lights' },
+  { label: 'Temperature & Humidity Control', value: 'temp_humidity_control' },
+];
 
 function todayDateString(): string {
   return new Date().toISOString().slice(0, 10);
@@ -98,6 +127,11 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
   const [date, setDate] = useState(todayDateString());
   const [plotId, setPlotId] = useState<string>(NO_PLOT);
   const [error, setError] = useState<string | null>(null);
+  const [addingArea, setAddingArea] = useState(false);
+  const [areaName, setAreaName] = useState('');
+  const [areaLocation, setAreaLocation] = useState<AreaLocationType>('outdoor');
+  const [areaSpace, setAreaSpace] = useState<string>(NO_SPACE);
+  const [areaError, setAreaError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [costRows, money, plotRows, groupRows] = await Promise.all([
@@ -208,6 +242,31 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
   async function handleDelete(id: string) {
     await deleteGrowingCost(id);
     await load();
+  }
+
+  function startArea() {
+    setAreaName('');
+    setAreaLocation('outdoor');
+    setAreaSpace(NO_SPACE);
+    setAreaError(null);
+    setAddingArea(true);
+  }
+
+  // Saves the area, picks it for the cost being entered and closes the
+  // short form; the cost's other fields are not touched.
+  async function handleSaveArea() {
+    if (!areaName.trim()) {
+      setAreaError('Give the area a name.');
+      return;
+    }
+    const id = await createGardenPlot({
+      name: areaName,
+      locationType: areaLocation,
+      spaceType: areaSpace === NO_SPACE ? null : (areaSpace as GardenSpaceType),
+    });
+    setPlots(await listGardenPlots());
+    setPlotId(id);
+    setAddingArea(false);
   }
 
   function startGroup(group: GardenCostGroup | null) {
@@ -375,13 +434,49 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
             </View>
             <View style={styles.fieldRow}>
               <Text style={styles.fieldLabel}>Area</Text>
-              <PopoverSelect options={plotOptions} selected={plotId} onSelect={setPlotId} tabColor={TAB_COLOR} width={220} />
+              {plots.length > 0 ? (
+                <PopoverSelect options={plotOptions} selected={plotId} onSelect={setPlotId} tabColor={TAB_COLOR} width={220} />
+              ) : (
+                <Text style={styles.bodyText}>No areas yet</Text>
+              )}
+              {addingArea ? null : (
+                <TouchableOpacity onPress={startArea}>
+                  <Text style={styles.linkText}>Add an area</Text>
+                </TouchableOpacity>
+              )}
             </View>
-            <Text style={styles.captionText}>
-              {plots.length > 0
-                ? 'A cost tied to an area is set against the harvests kept from that area, so an indoor grow and the beds outside each get a separate figure. Pick a whole group for a cost that fed every area in it.'
-                : 'Add an area under Plots & Plantings to keep one grow\'s costs apart from another.'}
-            </Text>
+            {addingArea ? (
+              <View style={styles.nestedForm}>
+                <Text style={styles.fieldLabel}>New area</Text>
+                <AppTextInput style={styles.textInput} value={areaName} onChangeText={setAreaName} placeholder="Backyard raised bed" />
+                <View style={styles.fieldRow}>
+                  <Text style={styles.fieldLabel}>Where</Text>
+                  <PopoverSelect options={LOCATION_OPTIONS} selected={areaLocation} onSelect={(value) => setAreaLocation(value as AreaLocationType)} tabColor={TAB_COLOR} />
+                </View>
+                <View style={styles.fieldRow}>
+                  <Text style={styles.fieldLabel}>Space</Text>
+                  <PopoverSelect options={SPACE_OPTIONS} selected={areaSpace} onSelect={setAreaSpace} tabColor={TAB_COLOR} width={220} />
+                </View>
+                <Text style={styles.captionText}>
+                  Saving picks this area for the cost you are entering. Size, sunlight and zone can be filled in under Plots &amp; Plantings whenever you like.
+                </Text>
+                {areaError ? <Text style={styles.errorText}>{areaError}</Text> : null}
+                <View style={styles.actionRow}>
+                  <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSaveArea}>
+                    <Text style={styles.primaryButtonText}>Save Area</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setAddingArea(false)}>
+                    <Text style={styles.linkText}>Back to the cost</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : (
+              <Text style={styles.captionText}>
+                {plots.length > 0
+                  ? 'A cost tied to an area is set against the harvests kept from that area, so an indoor grow and the beds outside each get a separate figure. Pick a whole group for a cost that fed every area in it.'
+                  : 'Add an area here to keep one grow\'s costs apart from another; the cost you are entering waits for you.'}
+              </Text>
+            )}
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
             <View style={styles.actionRow}>
               <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSave}>
@@ -547,6 +642,7 @@ const styles = StyleSheet.create({
   checkRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 2 },
   checkLabel: { ...typography.body, color: colors.textPrimary, ...textShadow, flex: 1 },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: 4 },
+  nestedForm: { gap: 8, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: TAB_COLOR, marginVertical: 4 },
   primaryButton: { borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, alignItems: 'center', ...BUTTON_SHADOW },
   primaryButtonText: {
     color: colors.textOnButton,

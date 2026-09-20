@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.6',
+    date: '2026-09-20',
+    changes: [
+      'Adding a growing cost no longer stops at the Area question when there is no area yet. An Add an area link on the cost form opens a short form in place (name, where it grows, what kind of space). Saving it creates the area exactly as Plots & Plantings would, picks it for the cost you were entering, and puts you back on the cost with everything you had typed still there. Size, sunlight and zone can be filled in under Plots & Plantings later.',
+    ],
+  },
+  {
     version: '1.0.42.5',
     date: '2026-09-20',
     changes: [
