@@ -6927,9 +6927,25 @@ async function runDatabaseInitialization() {
       -- anything here having to notice. An orphan annotation is harmless
       -- and never listed.
       --
-      -- The netting is always garden-wide. A bag of fertilizer feeds the
-      -- whole bed, so charging it to one crop would be an invented split,
-      -- and the plot link is a note rather than an allocation.
+      -- The netting is per growing area, never per crop. A bag of fertilizer
+      -- feeds the whole bed, so charging it to one crop would be an invented
+      -- split; plot_id ties the cost to an area and its harvests.
+      --
+      -- Cost groups, 2026-09-20: "Allow the growing areas to also be
+      -- combined if necessary as one cost group." A group is a named set of
+      -- areas (garden_plots.cost_group_id, one group per area at most)
+      -- whose costs and harvests net together as one figure. A cost can be
+      -- tied to the group as a whole (cost_group_id here, added by
+      -- migration below), for a bag of fertilizer that fed every bed in it.
+      -- Deleting a group ungroups its areas and unties its costs; nothing
+      -- is deleted with it.
+      CREATE TABLE IF NOT EXISTS garden_cost_groups (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       CREATE TABLE IF NOT EXISTS garden_cost_details (
         finance_entry_id TEXT PRIMARY KEY,
         -- See GROWING_COST_KINDS in lib/gardenMoney.ts.
@@ -7903,6 +7919,15 @@ async function runDatabaseInitialization() {
       if (!gardenPlotColumns.some((existing) => existing.name === column)) {
         await db.execAsync(`ALTER TABLE garden_plots ADD COLUMN ${column} REAL;`);
       }
+    }
+    // Cost groups, 2026-09-20: an area may belong to one group, and a cost
+    // may be tied to a group rather than one area. See garden_cost_groups.
+    if (!gardenPlotColumns.some((existing) => existing.name === 'cost_group_id')) {
+      await db.execAsync('ALTER TABLE garden_plots ADD COLUMN cost_group_id TEXT;');
+    }
+    const gardenCostColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(garden_cost_details)');
+    if (gardenCostColumns.length > 0 && !gardenCostColumns.some((existing) => existing.name === 'cost_group_id')) {
+      await db.execAsync('ALTER TABLE garden_cost_details ADD COLUMN cost_group_id TEXT;');
     }
 
     const exerciseLogColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(exercise_logs)');
@@ -20805,6 +20830,9 @@ export type GardenPlot = {
   lightSource: string | null;
   sizeDescription: string | null;
   notes: string | null;
+  /** The cost group this area is combined into, if any. Managed from
+   *  Garden > Growing Costs; see garden_cost_groups. */
+  costGroupId: string | null;
   archivedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -20814,7 +20842,7 @@ const GARDEN_PLOT_COLUMNS = `
   id, name, location_type AS locationType, space_type AS spaceType, sunlight_exposure AS sunlightExposure,
   length, width, size_unit AS sizeUnit, zone, zone_country AS zoneCountry, zone_postal_code AS zonePostalCode,
   growing_medium AS growingMedium, light_source AS lightSource, size_description AS sizeDescription, notes,
-  archived_at AS archivedAt, created_at AS createdAt, updated_at AS updatedAt
+  cost_group_id AS costGroupId, archived_at AS archivedAt, created_at AS createdAt, updated_at AS updatedAt
 `;
 
 export async function createGardenPlot(input: {

@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.4',
+    date: '2026-09-20',
+    changes: [
+      'Growing Costs can combine areas into a cost group. Under Cost Groups, name a group and tick the areas in it; the group then stands as one figure under By Area in place of its areas, netting their costs and harvests together, and the Area picker offers the whole group for a cost that fed every area in it. An area belongs to one group at most, so nothing is counted twice, and deleting a group keeps its areas and costs. Indoors, greenhouse and outdoors still roll up per area.',
+    ],
+  },
+  {
     version: '1.0.42.3',
     date: '2026-09-20',
     changes: [

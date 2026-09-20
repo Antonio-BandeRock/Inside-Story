@@ -1,3 +1,4 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -16,10 +17,14 @@ import {
   type GrowingCostKind,
 } from '../lib/gardenMoney';
 import {
+  deleteGardenCostGroup,
   deleteGrowingCost,
+  listGardenCostGroups,
   listGrowingCosts,
   loadGardenMoneyPicture,
   recordGrowingCost,
+  saveGardenCostGroup,
+  type GardenCostGroup,
   type GardenMoneyPicture,
   type GrowingCostRecord,
 } from '../lib/gardenMoneyDb';
@@ -51,6 +56,13 @@ import { makeTabBandStyles, TabBand } from './TabBand';
 // when it is entered, each area gets a separate figure under By Area, the
 // areas roll up as indoors, greenhouse and outdoors on the top card, and
 // the list of costs is grouped by area.
+//
+// COST GROUPS, later still: "Allow the growing areas to also be combined
+// if necessary as one cost group." The Cost Groups band names a group and
+// ticks the areas in it; the group then stands as one row under By Area
+// in place of its areas, the Area picker offers the group as a whole for
+// a cost that fed every area in it, and the cost list shows the group's
+// costs together. See COST GROUPS in lib/gardenMoney.ts for the netting.
 
 const TAB_COLOR = colors.tabGarden;
 const band = makeTabBandStyles(TAB_COLOR);
@@ -58,6 +70,7 @@ const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 
 const KIND_OPTIONS = GROWING_COST_KINDS.map((kind) => ({ label: kind.label, value: kind.code }));
 const NO_PLOT = '__none__';
+const GROUP_PREFIX = 'group:';
 
 function todayDateString(): string {
   return new Date().toISOString().slice(0, 10);
@@ -72,7 +85,13 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
   const [costs, setCosts] = useState<GrowingCostRecord[]>([]);
   const [picture, setPicture] = useState<GardenMoneyPicture | null>(null);
   const [plots, setPlots] = useState<GardenPlot[]>([]);
+  const [groups, setGroups] = useState<GardenCostGroup[]>([]);
   const [adding, setAdding] = useState(false);
+  const [groupEditing, setGroupEditing] = useState(false);
+  const [groupId, setGroupId] = useState<string | null>(null);
+  const [groupName, setGroupName] = useState('');
+  const [groupMemberIds, setGroupMemberIds] = useState<string[]>([]);
+  const [groupError, setGroupError] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [kind, setKind] = useState<GrowingCostKind | null>(null);
   const [amount, setAmount] = useState('');
@@ -81,10 +100,16 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const [costRows, money, plotRows] = await Promise.all([listGrowingCosts(), loadGardenMoneyPicture(), listGardenPlots()]);
+    const [costRows, money, plotRows, groupRows] = await Promise.all([
+      listGrowingCosts(),
+      loadGardenMoneyPicture(),
+      listGardenPlots(),
+      listGardenCostGroups(),
+    ]);
     setCosts(costRows);
     setPicture(money);
     setPlots(plotRows);
+    setGroups(groupRows);
   }, []);
 
   useFocusEffect(
@@ -97,24 +122,50 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
     setError(null);
   }, [description, kind, amount, date]);
 
+  const groupNameOf = useMemo(() => {
+    const names = new Map<string, string>();
+    for (const group of groups) for (const memberId of group.memberIds) names.set(memberId, group.name);
+    return names;
+  }, [groups]);
+
+  // The picker offers each group as a whole, for a cost that fed every
+  // area in it, and then every area, saying which group an area is in.
   const plotOptions = useMemo(
-    () => [{ label: UNASSIGNED_AREA_NAME, value: NO_PLOT }, ...plots.map((plot) => ({ label: plot.name, value: plot.id }))],
-    [plots],
+    () => [
+      { label: UNASSIGNED_AREA_NAME, value: NO_PLOT },
+      ...groups.map((group) => ({ label: `${group.name} (whole group)`, value: `${GROUP_PREFIX}${group.id}` })),
+      ...plots.map((plot) => {
+        const inGroup = groupNameOf.get(plot.id);
+        return { label: inGroup ? `${plot.name}, in ${inGroup}` : plot.name, value: plot.id };
+      }),
+    ],
+    [groups, plots, groupNameOf],
   );
 
-  // The cost list, grouped the way By Area is: each area in the order the
-  // areas were made, then everything tied to none of them.
+  // The cost list, grouped the way By Area is: each cost group with the
+  // costs of its areas and the costs tied to the group as a whole, then
+  // each area outside any group, then everything tied to none of them.
   const costGroups = useMemo(() => {
-    const groups: { key: string; title: string; costs: GrowingCostRecord[] }[] = [];
+    const listed: { key: string; title: string; costs: GrowingCostRecord[] }[] = [];
+    const knownGroupIds = new Set(groups.map((group) => group.id));
+    for (const group of groups) {
+      const own = costs.filter(
+        (cost) => cost.costGroupId === group.id || (cost.plotId !== null && group.memberIds.includes(cost.plotId)),
+      );
+      if (own.length > 0) listed.push({ key: `${GROUP_PREFIX}${group.id}`, title: group.name, costs: own });
+    }
     for (const plot of plots) {
-      const own = costs.filter((cost) => cost.plotId === plot.id);
-      if (own.length > 0) groups.push({ key: plot.id, title: plot.name, costs: own });
+      if (groupNameOf.has(plot.id)) continue;
+      const own = costs.filter((cost) => cost.plotId === plot.id && !(cost.costGroupId && knownGroupIds.has(cost.costGroupId)));
+      if (own.length > 0) listed.push({ key: plot.id, title: plot.name, costs: own });
     }
     const knownPlotIds = new Set(plots.map((plot) => plot.id));
-    const untied = costs.filter((cost) => !cost.plotId || !knownPlotIds.has(cost.plotId));
-    if (untied.length > 0) groups.push({ key: NO_PLOT, title: UNASSIGNED_AREA_NAME, costs: untied });
-    return groups;
-  }, [costs, plots]);
+    const untied = costs.filter(
+      (cost) => !(cost.costGroupId && knownGroupIds.has(cost.costGroupId)) && (!cost.plotId || !knownPlotIds.has(cost.plotId)),
+    );
+    if (untied.length > 0) listed.push({ key: NO_PLOT, title: UNASSIGNED_AREA_NAME, costs: untied });
+    return listed;
+  }, [costs, plots, groups, groupNameOf]);
 
   const kindHelp = kind ? GROWING_COST_KINDS.find((entry) => entry.code === kind)?.help ?? null : null;
 
@@ -136,12 +187,14 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
       setError('The date needs to be YYYY-MM-DD.');
       return;
     }
+    const forGroup = plotId.startsWith(GROUP_PREFIX);
     await recordGrowingCost({
       occurredOn: date,
       amount: Math.round(value * 100) / 100,
       description: description.trim(),
       kind,
-      plotId: plotId === NO_PLOT ? null : plotId,
+      plotId: plotId === NO_PLOT || forGroup ? null : plotId,
+      costGroupId: forGroup ? plotId.slice(GROUP_PREFIX.length) : null,
     });
     setDescription('');
     setKind(null);
@@ -154,6 +207,42 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
 
   async function handleDelete(id: string) {
     await deleteGrowingCost(id);
+    await load();
+  }
+
+  function startGroup(group: GardenCostGroup | null) {
+    setGroupId(group?.id ?? null);
+    setGroupName(group?.name ?? '');
+    setGroupMemberIds(group?.memberIds ?? []);
+    setGroupError(null);
+    setGroupEditing(true);
+  }
+
+  function toggleGroupMember(id: string) {
+    setGroupError(null);
+    setGroupMemberIds((current) => (current.includes(id) ? current.filter((member) => member !== id) : [...current, id]));
+  }
+
+  async function handleSaveGroup() {
+    if (!groupName.trim()) {
+      setGroupError('Give the group a name.');
+      return;
+    }
+    if (groupMemberIds.length < 2) {
+      setGroupError('Tick at least two areas to combine.');
+      return;
+    }
+    await saveGardenCostGroup({ id: groupId ?? undefined, name: groupName, memberIds: groupMemberIds });
+    setGroupEditing(false);
+    setGroupId(null);
+    setGroupName('');
+    setGroupMemberIds([]);
+    await load();
+  }
+
+  async function handleDeleteGroup(id: string) {
+    await deleteGardenCostGroup(id);
+    if (groupId === id) setGroupEditing(false);
     await load();
   }
 
@@ -195,9 +284,9 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
             ) : null}
             <Text style={styles.captionText}>
               Each area stands on its own, so a grow tent under an LED light and the beds outside each get a separate
-              figure under By Area. The comparison is per area, never per crop: a bag of fertilizer feeds the whole
-              bed, and charging it to the tomatoes would be a made-up split. Compost from your kitchen scraps costs
-              nothing and is never entered here.
+              figure under By Area, and areas combined under Cost Groups stand together as one. The comparison is per
+              area, never per crop: a bag of fertilizer feeds the whole bed, and charging it to the tomatoes would be a
+              made-up split. Compost from your kitchen scraps costs nothing and is never entered here.
             </Text>
           </>
         ) : null}
@@ -216,11 +305,14 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
               const setting = describeAreaSetting(area);
               const counts = describeAreaCounts(area);
               return (
-                <View key={area.areaId ?? NO_PLOT} style={styles.areaRow}>
+                <View key={area.groupId ? `${GROUP_PREFIX}${area.groupId}` : area.areaId ?? NO_PLOT} style={styles.areaRow}>
                   <Text style={styles.bodyText}>
                     {area.name}
                     {setting ? ` · ${setting}` : ''}
                   </Text>
+                  {area.members.length > 0 ? (
+                    <Text style={styles.captionText}>Combined: {area.members.join(', ')}</Text>
+                  ) : null}
                   <Text style={styles.moneyTotal}>{describeNetShort(area.summary)}</Text>
                   <Text style={styles.captionText}>
                     {counts}
@@ -286,7 +378,7 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
             </View>
             <Text style={styles.captionText}>
               {plots.length > 0
-                ? 'A cost tied to an area is set against the harvests kept from that area, so an indoor grow and the beds outside each get a separate figure.'
+                ? 'A cost tied to an area is set against the harvests kept from that area, so an indoor grow and the beds outside each get a separate figure. Pick a whole group for a cost that fed every area in it.'
                 : 'Add an area under Plots & Plantings to keep one grow\'s costs apart from another.'}
             </Text>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -315,6 +407,79 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
         )}
       </View>
 
+      <TabBand folds={folds} color={TAB_COLOR} id="garden:costs:groups" title="Cost Groups" icon="albums-outline" count={groups.length}>
+        <View style={styles.card}>
+          <Text style={styles.captionText}>
+            Combine areas that are grown the same way, or that you want to see as one, and the group stands as one
+            figure under By Area. An area belongs to one group at most, so nothing is counted twice. Deleting a group
+            keeps its areas and its costs.
+          </Text>
+          {groups.map((group) => (
+            <View key={group.id} style={styles.row}>
+              <View style={styles.rowText}>
+                <Text style={styles.bodyText}>{group.name}</Text>
+                <Text style={styles.captionText}>
+                  {group.memberNames.length > 0 ? group.memberNames.join(', ') : 'No areas in it yet'}
+                </Text>
+              </View>
+              <TouchableOpacity onPress={() => startGroup(group)}>
+                <Text style={styles.linkText}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleDeleteGroup(group.id)}>
+                <Text style={[styles.linkText, { color: colors.danger }]}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+          {groupEditing ? (
+            <>
+              <Text style={styles.fieldLabel}>Group name</Text>
+              <AppTextInput
+                style={styles.textInput}
+                value={groupName}
+                onChangeText={(value) => {
+                  setGroupName(value);
+                  setGroupError(null);
+                }}
+                placeholder="The back beds, Everything under lights"
+              />
+              <Text style={styles.fieldLabel}>Areas in it</Text>
+              {plots.map((plot) => {
+                const ticked = groupMemberIds.includes(plot.id);
+                const elsewhere = groupNameOf.get(plot.id);
+                const movesFrom = elsewhere && (groupId === null || groups.find((g) => g.id === groupId)?.name !== elsewhere);
+                return (
+                  <TouchableOpacity key={plot.id} style={styles.checkRow} onPress={() => toggleGroupMember(plot.id)}>
+                    <Ionicons name={ticked ? 'checkbox' : 'square-outline'} size={20} color={ticked ? TAB_COLOR : colors.textSecondary} />
+                    <Text style={styles.checkLabel}>
+                      {plot.name} · {describeAreaSetting(plot)}
+                      {movesFrom ? ` (now in ${elsewhere}; ticking it moves it here)` : ''}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+              {groupError ? <Text style={styles.errorText}>{groupError}</Text> : null}
+              <View style={styles.actionRow}>
+                <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSaveGroup}>
+                  <Text style={styles.primaryButtonText}>Save Group</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setGroupEditing(false)}>
+                  <Text style={styles.linkText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          ) : plots.length < 2 ? (
+            <Text style={styles.captionText}>Add at least two areas under Plots &amp; Plantings before combining them.</Text>
+          ) : (
+            <TouchableOpacity
+              style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
+              onPress={() => startGroup(null)}
+            >
+              <Text style={styles.primaryButtonText}>+ Combine Areas</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </TabBand>
+
       <TabBand folds={folds} color={TAB_COLOR} id="garden:costs:list" title="Growing Costs" icon="wallet-outline" count={costs.length}>
         <View style={styles.card}>
           {costs.length === 0 ? (
@@ -333,6 +498,7 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
                       <Text style={styles.captionText}>
                         {cost.occurredOn}
                         {cost.kind ? ` · ${growingCostKindLabel(cost.kind)}` : ' · Entered in Finances'}
+                        {cost.costGroupName ? ' · Whole group' : cost.plotName && group.key.startsWith(GROUP_PREFIX) ? ` · ${cost.plotName}` : ''}
                         {cost.compostPileName ? ` · ${cost.compostPileName}` : ''}
                       </Text>
                     </View>
@@ -377,6 +543,8 @@ const styles = StyleSheet.create({
   areaRow: { gap: 2, paddingVertical: 4 },
   costGroup: { gap: 6, marginTop: 4 },
   rowText: { flex: 1, gap: 2 },
+  checkRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 2 },
+  checkLabel: { ...typography.body, color: colors.textPrimary, ...textShadow, flex: 1 },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: 4 },
   primaryButton: { borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, alignItems: 'center', ...BUTTON_SHADOW },
   primaryButtonText: {

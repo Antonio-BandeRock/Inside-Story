@@ -43,6 +43,10 @@ export type GrowingCostRecord = {
   kind: GrowingCostKind | null;
   plotId: string | null;
   plotName: string | null;
+  /** Set when the cost was tied to a cost group as a whole rather than to
+   *  one of its areas. */
+  costGroupId: string | null;
+  costGroupName: string | null;
   compostPileId: string | null;
   compostPileName: string | null;
 };
@@ -53,6 +57,7 @@ export async function recordGrowingCost(input: {
   description: string;
   kind: GrowingCostKind;
   plotId?: string | null;
+  costGroupId?: string | null;
   compostPileId?: string | null;
   notes?: string;
 }): Promise<string> {
@@ -67,15 +72,79 @@ export async function recordGrowingCost(input: {
   });
   await db.runAsync(
     `
-      INSERT OR REPLACE INTO garden_cost_details (finance_entry_id, kind, plot_id, compost_pile_id)
-      VALUES (?, ?, ?, ?)
+      INSERT OR REPLACE INTO garden_cost_details (finance_entry_id, kind, plot_id, cost_group_id, compost_pile_id)
+      VALUES (?, ?, ?, ?, ?)
     `,
     id,
     input.kind,
     input.plotId ?? null,
+    input.costGroupId ?? null,
     input.compostPileId ?? null,
   );
   return id;
+}
+
+// Cost groups, 2026-09-20: "Allow the growing areas to also be combined if
+// necessary as one cost group." The group is a name plus the areas in it
+// (garden_plots.cost_group_id). See garden_cost_groups in lib/db.ts.
+
+export type GardenCostGroup = {
+  id: string;
+  name: string;
+  /** The areas combined into this group, in area order. */
+  memberIds: string[];
+  memberNames: string[];
+};
+
+export async function listGardenCostGroups(): Promise<GardenCostGroup[]> {
+  const db = await getDatabase();
+  const groups = await db.getAllAsync<{ id: string; name: string }>(
+    'SELECT id, name FROM garden_cost_groups ORDER BY created_at ASC, name ASC',
+  );
+  if (groups.length === 0) return [];
+  const members = await db.getAllAsync<{ id: string; name: string; costGroupId: string }>(
+    `SELECT id, name, cost_group_id AS costGroupId FROM garden_plots
+     WHERE cost_group_id IS NOT NULL AND archived_at IS NULL
+     ORDER BY created_at ASC`,
+  );
+  return groups.map((group) => {
+    const own = members.filter((member) => member.costGroupId === group.id);
+    return { id: group.id, name: group.name, memberIds: own.map((m) => m.id), memberNames: own.map((m) => m.name) };
+  });
+}
+
+/** Moving an area into this group takes it out of any other, since an area
+ *  belongs to one group at most; that is what keeps a cost from counting
+ *  twice. Areas left out of memberIds are taken out of the group. */
+export async function saveGardenCostGroup(input: { id?: string; name: string; memberIds: string[] }): Promise<string> {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  const id = input.id ?? `gcg_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+  if (input.id) {
+    await db.runAsync('UPDATE garden_cost_groups SET name = ?, updated_at = ? WHERE id = ?', input.name.trim(), now, id);
+  } else {
+    await db.runAsync(
+      'INSERT INTO garden_cost_groups (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)',
+      id,
+      input.name.trim(),
+      now,
+      now,
+    );
+  }
+  await db.runAsync('UPDATE garden_plots SET cost_group_id = NULL, updated_at = ? WHERE cost_group_id = ?', now, id);
+  for (const memberId of input.memberIds) {
+    await db.runAsync('UPDATE garden_plots SET cost_group_id = ?, updated_at = ? WHERE id = ?', id, now, memberId);
+  }
+  return id;
+}
+
+/** Ungroups the areas and unties the costs; deletes nothing else. */
+export async function deleteGardenCostGroup(id: string): Promise<void> {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  await db.runAsync('UPDATE garden_plots SET cost_group_id = NULL, updated_at = ? WHERE cost_group_id = ?', now, id);
+  await db.runAsync('UPDATE garden_cost_details SET cost_group_id = NULL WHERE cost_group_id = ?', id);
+  await db.runAsync('DELETE FROM garden_cost_groups WHERE id = ?', id);
 }
 
 export async function deleteGrowingCost(financeEntryId: string): Promise<void> {
@@ -96,16 +165,20 @@ export async function listGrowingCosts(limit = 200): Promise<GrowingCostRecord[]
     kind: string | null;
     plotId: string | null;
     plotName: string | null;
+    costGroupId: string | null;
+    costGroupName: string | null;
     compostPileId: string | null;
     compostPileName: string | null;
   }>(
     `
       SELECT e.id AS id, e.occurred_on AS occurredOn, e.amount AS amount, e.description AS description,
              d.kind AS kind, d.plot_id AS plotId, p.name AS plotName,
+             d.cost_group_id AS costGroupId, g.name AS costGroupName,
              d.compost_pile_id AS compostPileId, c.name AS compostPileName
       FROM finance_entries e
       LEFT JOIN garden_cost_details d ON d.finance_entry_id = e.id
       LEFT JOIN garden_plots p ON p.id = d.plot_id
+      LEFT JOIN garden_cost_groups g ON g.id = d.cost_group_id
       LEFT JOIN compost_piles c ON c.id = d.compost_pile_id
       WHERE e.category = ? AND e.direction = 'expense'
       ORDER BY e.occurred_on DESC, e.created_at DESC
@@ -122,6 +195,8 @@ export async function listGrowingCosts(limit = 200): Promise<GrowingCostRecord[]
     kind: row.kind && isGrowingCostKind(row.kind) ? row.kind : null,
     plotId: row.plotId,
     plotName: row.plotName,
+    costGroupId: row.costGroupId,
+    costGroupName: row.costGroupName,
     compostPileId: row.compostPileId,
     compostPileName: row.compostPileName,
   }));
@@ -290,13 +365,14 @@ async function resolveHarvestPlotIds(harvests: GardenHarvest[]): Promise<Map<str
  * money was not spent on the day it arrived.
  */
 export async function loadGardenMoneyPicture(): Promise<GardenMoneyPicture> {
-  const [harvests, shares, lastPaid, growingCosts, plots, costRows] = await Promise.all([
+  const [harvests, shares, lastPaid, growingCosts, plots, costRows, groups] = await Promise.all([
     listHarvestsKeptOnHand(),
     listReceivedShares(),
     getLastPaidPrices(),
     getGrowingCostTotal(),
     listGardenPlots(),
     listGrowingCosts(5000),
+    listGardenCostGroups(),
   ]);
   const harvestPlot = await resolveHarvestPlotIds(harvests);
   const harvestValuation = valueReceivedGoods(
@@ -328,7 +404,8 @@ export async function loadGardenMoneyPicture(): Promise<GardenMoneyPicture> {
         lastPaid,
       ),
     })),
-    costs: costRows.map((cost) => ({ plotId: cost.plotId, amount: cost.amount })),
+    groups: groups.map((group) => ({ id: group.id, name: group.name, memberIds: group.memberIds })),
+    costs: costRows.map((cost) => ({ plotId: cost.plotId, groupId: cost.costGroupId, amount: cost.amount })),
   });
   return {
     summary,

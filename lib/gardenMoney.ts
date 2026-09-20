@@ -49,6 +49,16 @@
 // reading as free. Costs tied to no area, and produce given to you, sit in
 // a bucket of their own. On top of that, areas roll up by location type,
 // which is the indoors-against-outdoors comparison the instruction names.
+//
+// COST GROUPS, 2026-09-20, later the same day: "Allow the growing areas to
+// also be combined if necessary as one cost group." A group is a named set
+// of areas that net together as one figure: the costs tied to any of its
+// areas, the costs tied to the group as a whole, and the harvests kept from
+// any of its areas. An area belongs to one group at most, so nothing is
+// counted twice. A group takes the place of its areas under By Area, and
+// the indoors-against-outdoors rollup still counts each area where it is;
+// a cost tied to a group whose areas are all in one place rolls up there,
+// and one tied to a group spread across places is shown on its own line.
 
 import { formatTradeMoney } from './harvestTrade';
 
@@ -164,10 +174,18 @@ export const GARDEN_AREA_LOCATION_LABELS: Record<GardenAreaLocation, string> = {
 };
 
 export type GardenAreaMoney = {
-  /** Null for the bucket of costs tied to no area and produce given to you. */
+  /** Null for the bucket of costs tied to no area and produce given to you,
+   *  and for a cost group, which carries groupId instead. */
   areaId: string | null;
+  /** Set on a row that stands for a cost group of combined areas. */
+  groupId: string | null;
+  /** The names of the areas combined into this group, in area order. */
+  members: string[];
   name: string;
+  /** For a group: the one place all its areas share, or null when spread. */
   locationType: GardenAreaLocation | null;
+  /** For a group: every place its areas are, distinct, indoors first. */
+  locations: GardenAreaLocation[];
   lightSource: string | null;
   summary: GardenMoneySummary;
   costCount: number;
@@ -176,13 +194,18 @@ export type GardenAreaMoney = {
 };
 
 export type GardenLocationMoney = {
-  locationType: GardenAreaLocation;
+  /** 'mixed' holds costs tied to a group whose areas are in more than one
+   *  place, which cannot honestly be put under any one of them. */
+  locationType: GardenAreaLocation | 'mixed';
   label: string;
   areaCount: number;
   summary: GardenMoneySummary;
 };
 
 export const UNASSIGNED_AREA_NAME = 'Not tied to one area';
+export const MIXED_LOCATION_LABEL = 'Groups spread across places';
+
+export type GardenCostGroupInput = { id: string; name: string; memberIds: string[] };
 
 /**
  * The same arithmetic as summarizeGardenMoney, done once per growing area.
@@ -195,9 +218,12 @@ export const UNASSIGNED_AREA_NAME = 'Not tied to one area';
  */
 export function groupGardenMoneyByArea(input: {
   areas: { id: string; name: string; locationType: GardenAreaLocation; lightSource: string | null }[];
+  /** Cost groups of combined areas. An area named by more than one group
+   *  goes with the first; an id that is not a known area is ignored. */
+  groups?: GardenCostGroupInput[];
   harvests: { plotId: string | null; amount: number | null }[];
   gifts: { amount: number | null }[];
-  costs: { plotId: string | null; amount: number }[];
+  costs: { plotId: string | null; groupId?: string | null; amount: number }[];
 }): { areas: GardenAreaMoney[]; unassigned: GardenAreaMoney | null; byLocation: GardenLocationMoney[] } {
   type Bucket = {
     harvestsAvoided: number;
@@ -230,6 +256,28 @@ export function groupGardenMoneyByArea(input: {
     }
     return bucket;
   };
+  // Groups: which areas each combines, and a bucket for costs tied to the
+  // group as a whole rather than to one of its areas.
+  const groupOf = new Map<string, string>();
+  const groupMembers = new Map<string, string[]>();
+  for (const group of input.groups ?? []) {
+    const members: string[] = [];
+    for (const memberId of group.memberIds) {
+      if (!known.has(memberId) || groupOf.has(memberId)) continue;
+      groupOf.set(memberId, group.id);
+      members.push(memberId);
+    }
+    groupMembers.set(group.id, members);
+  }
+  const groupBuckets = new Map<string, Bucket>();
+  const groupBucketFor = (groupId: string): Bucket => {
+    let bucket = groupBuckets.get(groupId);
+    if (!bucket) {
+      bucket = emptyBucket();
+      groupBuckets.set(groupId, bucket);
+    }
+    return bucket;
+  };
   for (const harvest of input.harvests) {
     const bucket = bucketFor(harvest.plotId);
     bucket.harvestCount += 1;
@@ -243,10 +291,21 @@ export function groupGardenMoneyByArea(input: {
     else bucket.receivedAvoided += Math.max(0, gift.amount);
   }
   for (const cost of input.costs) {
-    const bucket = bucketFor(cost.plotId);
+    // A cost tied to a group that no longer exists is untied, like one tied
+    // to an area that no longer exists.
+    const bucket = cost.groupId && groupMembers.has(cost.groupId) ? groupBucketFor(cost.groupId) : bucketFor(cost.plotId);
     bucket.costCount += 1;
     bucket.growingCosts += Math.max(0, cost.amount);
   }
+  const addInto = (into: Bucket, from: Bucket) => {
+    into.harvestsAvoided += from.harvestsAvoided;
+    into.receivedAvoided += from.receivedAvoided;
+    into.growingCosts += from.growingCosts;
+    into.unpriced += from.unpriced;
+    into.costCount += from.costCount;
+    into.harvestCount += from.harvestCount;
+    into.giftCount += from.giftCount;
+  };
   const toMoney = (bucket: Bucket) =>
     summarizeGardenMoney({
       harvestsAvoided: bucket.harvestsAvoided,
@@ -256,33 +315,77 @@ export function groupGardenMoneyByArea(input: {
     });
 
   const areas: GardenAreaMoney[] = [];
-  const byLocationBuckets = new Map<GardenAreaLocation, { areaCount: number; bucket: Bucket }>();
+  const byLocationBuckets = new Map<GardenAreaLocation | 'mixed', { areaCount: number; bucket: Bucket }>();
+  const rollupInto = (locationType: GardenAreaLocation | 'mixed', bucket: Bucket, countArea: boolean) => {
+    const rollup = byLocationBuckets.get(locationType) ?? { areaCount: 0, bucket: emptyBucket() };
+    if (countArea) rollup.areaCount += 1;
+    rollup.bucket.harvestsAvoided += bucket.harvestsAvoided;
+    rollup.bucket.growingCosts += bucket.growingCosts;
+    rollup.bucket.unpriced += bucket.unpriced;
+    byLocationBuckets.set(locationType, rollup);
+  };
+  const order: GardenAreaLocation[] = ['indoor', 'greenhouse', 'outdoor'];
+  // Each area still rolls up where it is, grouped or not, so the
+  // indoors-against-outdoors comparison is unchanged by grouping.
   for (const area of input.areas) {
     const bucket = buckets.get(area.id);
-    if (!bucket) continue;
+    if (bucket) rollupInto(area.locationType, bucket, true);
+  }
+  // A group takes the place of its areas: one row, everything combined.
+  for (const group of input.groups ?? []) {
+    const memberIds = groupMembers.get(group.id) ?? [];
+    const memberAreas = input.areas.filter((area) => memberIds.includes(area.id));
+    const combined = emptyBucket();
+    for (const area of memberAreas) {
+      const bucket = buckets.get(area.id);
+      if (bucket) addInto(combined, bucket);
+    }
+    const direct = groupBuckets.get(group.id);
+    if (direct) addInto(combined, direct);
+    const anything = combined.costCount > 0 || combined.harvestCount > 0;
+    const locations = order.filter((locationType) => memberAreas.some((area) => area.locationType === locationType));
+    if (direct) rollupInto(locations.length === 1 ? locations[0] : 'mixed', direct, false);
+    if (!anything) continue;
+    areas.push({
+      areaId: null,
+      groupId: group.id,
+      members: memberAreas.map((area) => area.name),
+      name: group.name,
+      locationType: locations.length === 1 ? locations[0] : null,
+      locations,
+      lightSource: null,
+      summary: toMoney(combined),
+      costCount: combined.costCount,
+      harvestCount: combined.harvestCount,
+      giftCount: 0,
+    });
+  }
+  for (const area of input.areas) {
+    const bucket = buckets.get(area.id);
+    if (!bucket || groupOf.has(area.id)) continue;
     areas.push({
       areaId: area.id,
+      groupId: null,
+      members: [],
       name: area.name,
       locationType: area.locationType,
+      locations: [area.locationType],
       lightSource: area.lightSource,
       summary: toMoney(bucket),
       costCount: bucket.costCount,
       harvestCount: bucket.harvestCount,
       giftCount: 0,
     });
-    const rollup = byLocationBuckets.get(area.locationType) ?? { areaCount: 0, bucket: emptyBucket() };
-    rollup.areaCount += 1;
-    rollup.bucket.harvestsAvoided += bucket.harvestsAvoided;
-    rollup.bucket.growingCosts += bucket.growingCosts;
-    rollup.bucket.unpriced += bucket.unpriced;
-    byLocationBuckets.set(area.locationType, rollup);
   }
   const untied = buckets.get(null);
   const unassigned: GardenAreaMoney | null = untied
     ? {
         areaId: null,
+        groupId: null,
+        members: [],
         name: UNASSIGNED_AREA_NAME,
         locationType: null,
+        locations: [],
         lightSource: null,
         summary: toMoney(untied),
         costCount: untied.costCount,
@@ -290,14 +393,14 @@ export function groupGardenMoneyByArea(input: {
         giftCount: untied.giftCount,
       }
     : null;
-  const order: GardenAreaLocation[] = ['indoor', 'greenhouse', 'outdoor'];
-  const byLocation: GardenLocationMoney[] = order
+  const rollupOrder: (GardenAreaLocation | 'mixed')[] = [...order, 'mixed'];
+  const byLocation: GardenLocationMoney[] = rollupOrder
     .filter((locationType) => byLocationBuckets.has(locationType))
     .map((locationType) => {
       const rollup = byLocationBuckets.get(locationType)!;
       return {
         locationType,
-        label: GARDEN_AREA_LOCATION_LABELS[locationType],
+        label: locationType === 'mixed' ? MIXED_LOCATION_LABEL : GARDEN_AREA_LOCATION_LABELS[locationType],
         areaCount: rollup.areaCount,
         summary: toMoney(rollup.bucket),
       };
@@ -305,9 +408,22 @@ export function groupGardenMoneyByArea(input: {
   return { areas, unassigned, byLocation };
 }
 
-/** "Indoors, LED grow light" or "Outdoors". */
-export function describeAreaSetting(area: { locationType: GardenAreaLocation | null; lightSource: string | null }): string {
-  if (!area.locationType) return '';
+/** "Indoors, LED grow light" or "Outdoors"; for a group spread across
+ *  places, "Indoors and outdoors". */
+export function describeAreaSetting(area: {
+  locationType: GardenAreaLocation | null;
+  locations?: GardenAreaLocation[];
+  lightSource: string | null;
+}): string {
+  if (!area.locationType) {
+    const spread = area.locations ?? [];
+    if (spread.length < 2) return '';
+    const labels = spread.map((locationType, index) => {
+      const label = GARDEN_AREA_LOCATION_LABELS[locationType];
+      return index === 0 ? label : label.toLowerCase();
+    });
+    return `${labels.slice(0, -1).join(', ')} and ${labels[labels.length - 1]}`;
+  }
   const label = GARDEN_AREA_LOCATION_LABELS[area.locationType];
   return area.lightSource?.trim() ? `${label}, ${area.lightSource.trim()}` : label;
 }

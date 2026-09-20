@@ -20,6 +20,14 @@
 //     untied costs and gifts sit in their own bucket; an area with nothing
 //     on either side is left out; areas roll up by location type; a cost
 //     tied to an area that no longer exists falls into the untied bucket.
+//  6. Cost groups (2026-09-20, later): areas combined into a group stand as
+//     one row in place of their own rows, netting their costs, the costs
+//     tied to the group as a whole, and their harvests together; an area
+//     is in one group at most; each area still rolls up where it is; a
+//     cost tied to a group in one place rolls up there and one tied to a
+//     group spread across places goes on a line of its own; deleting a
+//     group (passing none) leaves everything where it was; a cost tied to
+//     a group that no longer exists is untied.
 //
 // Run with: node scripts/test_garden_money.js
 // Exits non-zero on any failure.
@@ -159,6 +167,59 @@ check('short net: matched', describeNetShort(summarizeGardenMoney({ harvestsAvoi
 check('area setting with light', describeAreaSetting(areas[0]), 'Indoors, LED grow light');
 check('area setting without light', describeAreaSetting(areas[1]), 'Outdoors');
 check('untied bucket has no setting', describeAreaSetting({ locationType: null, lightSource: null }), '');
+
+// 6. Cost groups.
+const fixture = {
+  areas,
+  harvests: [
+    { plotId: 'tent', amount: 30 },
+    { plotId: 'shelf', amount: 5 },
+    { plotId: 'beds', amount: 45 },
+    { plotId: 'idle', amount: null },
+  ],
+  gifts: [{ amount: 12 }],
+  costs: [
+    { plotId: 'tent', amount: 50 },
+    { plotId: 'shelf', groupId: null, amount: 10 },
+    { plotId: null, groupId: 'lights', amount: 20 },
+    { plotId: null, groupId: 'gone-group', amount: 3 },
+    { plotId: null, amount: 4 },
+  ],
+};
+const withGroup = groupGardenMoneyByArea({
+  ...fixture,
+  groups: [{ id: 'lights', name: 'Under lights', memberIds: ['tent', 'shelf', 'not-an-area'] }],
+});
+check('group row stands in place of its areas, then ungrouped areas', withGroup.areas.map((a) => a.groupId ?? a.areaId), ['lights', 'beds', 'idle']);
+const lights = withGroup.areas[0];
+check('group nets member costs, whole-group costs and member harvests', [lights.summary.harvestsAvoided, lights.summary.growingCosts, lights.summary.net], [35, 80, -45]);
+check('group counts', [lights.costCount, lights.harvestCount, lights.members], [3, 2, ['Grow tent', 'Window shelf']]);
+check('group in one place carries that place', [lights.locationType, lights.locations], ['indoor', ['indoor']]);
+check('group setting', describeAreaSetting(lights), 'Indoors');
+check('each area still rolls up where it is, whole-group cost with them', withGroup.byLocation.map((l) => [l.locationType, l.areaCount, l.summary.growingCosts]), [['indoor', 2, 80], ['outdoor', 2, 0]]);
+check('a cost tied to a vanished group is untied', [withGroup.unassigned.costCount, withGroup.unassigned.summary.growingCosts], [2, 7]);
+const groupedParts = withGroup.areas.reduce((n, a) => n + a.summary.net, 0) + withGroup.unassigned.summary.net;
+near('grouped parts still add up to the whole', groupedParts, summarizeGardenMoney({ harvestsAvoided: 80, receivedAvoided: 12, growingCosts: 87, unpricedCount: 0 }).net);
+
+const spread = groupGardenMoneyByArea({
+  ...fixture,
+  costs: [...fixture.costs, { plotId: null, groupId: 'both', amount: 6 }],
+  groups: [
+    { id: 'both', name: 'Tomatoes everywhere', memberIds: ['beds', 'tent'] },
+    { id: 'lights', name: 'Under lights', memberIds: ['tent', 'shelf'] },
+  ],
+});
+check('an area is in one group at most: the first that names it', spread.areas.map((a) => [a.groupId ?? a.areaId, a.members]), [['both', ['Grow tent', 'Back beds']], ['lights', ['Window shelf']], ['idle', []]]);
+check('a group spread across places has no one place', [spread.areas[0].locationType, spread.areas[0].locations], [null, ['indoor', 'outdoor']]);
+check('spread group setting', describeAreaSetting(spread.areas[0]), 'Indoors and outdoors');
+check('three places joined', describeAreaSetting({ locationType: null, locations: ['indoor', 'greenhouse', 'outdoor'], lightSource: null }), 'Indoors, greenhouse and outdoors');
+check('whole-group cost of a spread group goes on its own line', spread.byLocation.map((l) => [l.locationType, l.summary.growingCosts]), [['indoor', 80], ['outdoor', 0], ['mixed', 6]]);
+const spreadParts = spread.areas.reduce((n, a) => n + a.summary.net, 0) + spread.unassigned.summary.net;
+near('spread parts add up to the whole', spreadParts, summarizeGardenMoney({ harvestsAvoided: 80, receivedAvoided: 12, growingCosts: 93, unpricedCount: 0 }).net);
+
+const ungrouped = groupGardenMoneyByArea(fixture);
+check('no groups: every area on its own, whole-group costs untied', [ungrouped.areas.map((a) => a.areaId), ungrouped.unassigned.summary.growingCosts], [['tent', 'beds', 'shelf', 'idle'], 27]);
+check('an area row carries no members', ungrouped.areas.every((a) => a.groupId === null && a.members.length === 0), true);
 
 console.log(`${checks} checks, ${failures} failures`);
 process.exit(failures === 0 ? 0 : 1);
