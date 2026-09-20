@@ -38,7 +38,11 @@ import {
 // for it. Its own source rather than 'manual', because how a jar of honey got
 // here is worth knowing and because nothing was bought, so it never belongs in
 // a spending figure.
-export type KitchenItemSource = 'manual' | 'purchase' | 'garden' | 'fermentation' | 'trade';
+// 'gift' since 2026-09-20: produce someone else grew and gave to this
+// person (lib/gardenMoneyDb.ts recordReceivedShare). Nothing was spent on
+// it and nothing left this garden for it, which is what sets it apart from
+// both 'purchase' and 'trade'.
+export type KitchenItemSource = 'manual' | 'purchase' | 'garden' | 'fermentation' | 'trade' | 'gift';
 
 // Two inventories, not one list with a filter on it. See kitchen_items' own
 // column comment in lib/db.ts for why they are kept apart.
@@ -102,7 +106,8 @@ export async function listKitchenInventory(kind: KitchenItemKind = 'food'): Prom
       ...row,
       // Anything unrecognised still falls back to 'manual', but a real
       // stored source is kept rather than flattened.
-      source: row.source === 'purchase' ? 'purchase' : row.source === 'trade' ? 'trade' : 'manual',
+      source:
+        row.source === 'purchase' ? 'purchase' : row.source === 'trade' ? 'trade' : row.source === 'gift' ? 'gift' : 'manual',
       kind: row.kind === 'non_food' ? 'non_food' : 'food',
       note: row.note,
     });

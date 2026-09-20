@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.2',
+    date: '2026-09-20',
+    changes: [
+      'Garden gained two lenses. Growing Costs records money spent to grow food (seeds, soil, fertilizer, water, tools) as Garden and growing supplies entries in your budget and sets the total against what the garden has given back at prices you have recorded paying. Compost tracks each pile: what went in and whether it was green or brown, when it was turned and watered, temperature and moisture checks, finished compost taken out or put on a plot, and a reminder to turn it; a bought material becomes a growing cost, kitchen scraps cost nothing. My Whole Foods on Food gained From Other Gardens for produce somebody gave you, which lands in your kitchen as given to you and counts as money not spent, and its Money Not Spent figure is now net of growing costs.',
+    ],
+  },
+  {
     version: '1.0.42.1',
     date: '2026-09-20',
     changes: [

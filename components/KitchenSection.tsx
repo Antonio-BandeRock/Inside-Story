@@ -78,6 +78,9 @@ const SOURCE_LABEL: Record<KitchenInventoryItem['source'], string> = {
   // 2026-09-05. Traded for, rather than bought: surplus harvest swapped for
   // something else. Worth saying, because nothing was spent on it.
   trade: 'Traded for',
+  // 2026-09-20. Someone else grew it and handed it over. Recorded under My
+  // Whole Foods on Food, where the giver's name lives.
+  gift: 'Given to you',
 };
 
 export function KitchenSection({ tabColor }: { tabColor: string }) {
@@ -457,7 +460,7 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
                       >
                         <Text style={styles.secondaryButtonText}>All Gone</Text>
                       </TouchableOpacity>
-                      {item.source === 'manual' || item.source === 'purchase' ? (
+                      {item.source === 'manual' || item.source === 'purchase' || item.source === 'gift' ? (
                         <TouchableOpacity
                           style={styles.secondaryButton}
                           activeOpacity={0.85}

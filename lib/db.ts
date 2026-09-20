@@ -6908,6 +6908,121 @@ async function runDatabaseInitialization() {
         FOREIGN KEY (planting_id) REFERENCES garden_plantings(id) ON DELETE SET NULL
       );
 
+      -- --- Growing costs, compost, and produce given to you (2026-09-20) --
+      --
+      -- Direct instruction: "The Garden harvest should also take into
+      -- account all money spent to grow the food. This should include
+      -- nutrients purchased to feed the garden if natural growing
+      -- techniques aren't used that are free to them, such as compost from
+      -- kitchen scraps."
+      --
+      -- Money spent on the garden is NOT its own ledger. It is a
+      -- finance_entries row in the 'garden_supplies' category, which
+      -- Finances already had, so the budget sees it and nobody enters a
+      -- bag of fertilizer twice. This table is the garden's annotation on
+      -- that row: what kind of input it was, and which plot or compost
+      -- pile it went to when the person said. Totals are read from
+      -- finance_entries, never from here, so a cost recorded straight into
+      -- Finances counts too and a row deleted there stops counting without
+      -- anything here having to notice. An orphan annotation is harmless
+      -- and never listed.
+      --
+      -- The netting is always garden-wide. A bag of fertilizer feeds the
+      -- whole bed, so charging it to one crop would be an invented split,
+      -- and the plot link is a note rather than an allocation.
+      CREATE TABLE IF NOT EXISTS garden_cost_details (
+        finance_entry_id TEXT PRIMARY KEY,
+        -- See GROWING_COST_KINDS in lib/gardenMoney.ts.
+        kind TEXT NOT NULL,
+        plot_id TEXT,
+        compost_pile_id TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (finance_entry_id) REFERENCES finance_entries(id) ON DELETE CASCADE,
+        FOREIGN KEY (plot_id) REFERENCES garden_plots(id) ON DELETE SET NULL
+      );
+
+      -- Compost, asked for as a lens: "tracks the materials added to the
+      -- compost, when it was turned, watered, and everything else about
+      -- making good compost." One row per pile, bin or tumbler; the record
+      -- of what happened to it is compost_events. See lib/compost.ts for
+      -- the vocabulary and for the summary a pile is read through.
+      CREATE TABLE IF NOT EXISTS compost_piles (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        -- pile, bin, tumbler, worm_bin or trench.
+        kind TEXT NOT NULL DEFAULT 'pile',
+        started_on TEXT NOT NULL,
+        location TEXT,
+        -- active while material is going in, curing once it is left to
+        -- finish, finished when it has been used up or emptied.
+        status TEXT NOT NULL DEFAULT 'active',
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      -- Everything that happens to a pile, dated. kind is one of: added
+      -- (a material went in, with its class as green or brown), turned,
+      -- watered, temperature (a reading), moisture (a hand check),
+      -- harvested (finished compost taken out), applied (finished compost
+      -- put on a plot), note. Columns not used by a kind stay null; a
+      -- turning has no material and a temperature reading has no amount.
+      -- finance_entry_id is set when an added material was BOUGHT (a bale
+      -- of straw, a bag of manure), which makes it a growing cost like any
+      -- other; kitchen scraps and raked leaves cost nothing and carry
+      -- nothing here, which is the whole point of the instruction's
+      -- "natural growing techniques that are free to them."
+      CREATE TABLE IF NOT EXISTS compost_events (
+        id TEXT PRIMARY KEY,
+        pile_id TEXT NOT NULL,
+        occurred_on TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        material TEXT,
+        -- green, brown or other. Null for anything but an addition.
+        material_class TEXT,
+        amount REAL,
+        unit TEXT NOT NULL DEFAULT '',
+        temperature REAL,
+        -- c or f, with the reading.
+        temperature_unit TEXT,
+        -- dry, damp or wet, from a squeeze test.
+        moisture TEXT,
+        plot_id TEXT,
+        finance_entry_id TEXT,
+        note TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (pile_id) REFERENCES compost_piles(id) ON DELETE CASCADE,
+        FOREIGN KEY (plot_id) REFERENCES garden_plots(id) ON DELETE SET NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_compost_events_pile ON compost_events(pile_id, occurred_on);
+
+      -- Produce someone else grew and gave to this person, 2026-09-20,
+      -- from "do we track when someone else gives the user a share from
+      -- their garden harvest?" The answer was no: harvest_dispositions
+      -- only records what LEAVES this garden, and a trade's incoming side
+      -- is tied to what went out. A plain gift has nothing going out, so
+      -- it gets its own record. The food itself lands in the kitchen as a
+      -- kitchen_items row with source 'gift', which is what the Food tools
+      -- and the kitchen inventory read; this row is who gave it and when,
+      -- and it is what My Whole Foods lists under From Other Gardens. It
+      -- is valued the way a harvest is (lib/harvestTrade.ts): only at a
+      -- price this person has recorded paying for that food, and never as
+      -- income.
+      CREATE TABLE IF NOT EXISTS harvest_shares_received (
+        id TEXT PRIMARY KEY,
+        received_on TEXT NOT NULL,
+        -- Free text, for the same reason harvest_dispositions.with_whom is.
+        from_whom TEXT,
+        food_name TEXT NOT NULL,
+        quantity REAL NOT NULL,
+        unit TEXT NOT NULL DEFAULT '',
+        category TEXT NOT NULL DEFAULT '',
+        food_id TEXT,
+        kitchen_item_id TEXT,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_harvest_shares_received_date ON harvest_shares_received(received_on);
+
       -- The same real, basic Scheduler tie-in as garden_task_links above,
       -- 2026-08-14, for the structured food-testing feature's own daily
       -- during-a-trial check-in reminders (see scheduleFoodTrialCheckins

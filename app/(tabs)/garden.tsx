@@ -13,6 +13,8 @@ import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub, type MyItemsCategory } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
+import { CompostLens } from '../../components/CompostLens';
+import { GrowingCostsLens } from '../../components/GrowingCostsLens';
 import { AppTextInput } from '../../components/AppTextInput';
 import { FoodLookup, type ResolvedFoodSelection } from '../../components/FoodLookup';
 import { PopoverSelect } from '../../components/PopoverSelect';
@@ -23,6 +25,8 @@ import { typography, textShadow } from '../../constants/typography';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { formatQuantity, formatTradeMoney, harvestUnitForPricing, perUnit, valueReceivedGoods } from '../../lib/harvestTrade';
 import { getLastPaidPrices } from '../../lib/harvestTradeDb';
+import { listCompostPiles } from '../../lib/compostDb';
+import { listGrowingCosts } from '../../lib/gardenMoneyDb';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { USDA_ZONES, zoneBandInfo } from '../../lib/gardenZones';
 import { lookupGrowingZone, type GrowingZoneLookupResult } from '../../lib/gardenZoneLookup';
@@ -77,13 +81,15 @@ const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 // this component's own memo() contract.
 const COUNTRY_OPTIONS = COUNTRIES.map((country) => ({ label: country.name, value: country.code }));
 
-type GardenLens = 'myZone' | 'plotsAndPlantings' | 'harvestLog' | 'upcomingTasks' | 'horticulture';
+type GardenLens = 'myZone' | 'plotsAndPlantings' | 'harvestLog' | 'upcomingTasks' | 'compost' | 'growingCosts' | 'horticulture';
 
 const GARDEN_LENS_FULL_NAMES: Record<GardenLens, string> = {
   myZone: 'My Zone',
   plotsAndPlantings: 'Plots &\nPlantings',
   harvestLog: 'Harvest\nLog',
   upcomingTasks: 'Upcoming\nTasks',
+  compost: 'Compost',
+  growingCosts: 'Growing\nCosts',
   horticulture: 'Horticulture',
 };
 
@@ -132,6 +138,36 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
       },
     ],
   },
+  // 2026-09-20, direct instruction: "Garden should have Compost available
+  // as a lens that tracks the materials added to the compost, when it was
+  // turned, watered, and everything else about making good compost."
+  {
+    key: 'compost',
+    label: 'Compost',
+    icon: 'layers-outline',
+    help: [
+      {
+        heading: 'Compost',
+        body: 'One band per pile, bin, tumbler, worm bin or trench. Record what goes in and whether it was green or brown, when it was turned and watered, a temperature reading, a squeeze test for moisture, and when finished compost comes out or goes onto a plot. The pile reads back what it needs from what you recorded: a greens-to-browns lean, a dry or wet last check, too long since a turn, whether it reached the heat that kills weed seeds. Kitchen scraps cost nothing; a bought material takes a cost and becomes a growing cost. "Remind me to turn it" puts a task under Upcoming Tasks.',
+      },
+    ],
+  },
+  // 2026-09-20, direct instruction: "The Garden harvest should also take
+  // into account all money spent to grow the food. This should include
+  // nutrients purchased to feed the garden if natural growing techniques
+  // aren't used that are free to them, such as compost from kitchen
+  // scraps."
+  {
+    key: 'growingCosts',
+    label: 'Growing Costs',
+    icon: 'wallet-outline',
+    help: [
+      {
+        heading: 'Growing Costs',
+        body: 'Money spent to grow food: seeds and starts, soil and amendments, fertilizer and nutrients, bought compost materials, water, tools, pest control, containers. Each is a Garden & growing supplies entry in your budget on Life > Finances, so nothing is counted twice. The top card sets everything spent against what the garden has given back at prices you have recorded paying, both your kept harvests and produce given to you, for the whole garden and never one crop. Compost from your kitchen scraps costs nothing and is not entered.',
+      },
+    ],
+  },
   // 2026-09-19, the Digest's Home Gardening category by direct instruction:
   // "Gardening needs to be moved from Digest to Garden, but I think it
   // needs to be renamed to something else that relates to learning about
@@ -158,7 +194,7 @@ const GARDEN_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'What it tracks',
-    body: "Your USDA Plant Hardiness Zone (found automatically from a country + ZIP/postal code, anywhere on Earth, or set directly if you already know it), garden areas and what's planted in them, a harvest log, and upcoming garden tasks. A basic Scheduler tie-in exists too (a garden task creates a schedule_items row; a dedicated lens for it inside the Schedules tab itself isn't built yet).",
+    body: "Your USDA Plant Hardiness Zone (found automatically from a country + ZIP/postal code, anywhere on Earth, or set directly if you already know it), garden areas and what's planted in them, a harvest log, compost piles and everything done to them, money spent on growing set against what the garden gives back, and upcoming garden tasks. A basic Scheduler tie-in exists too (a garden task creates a schedule_items row; a dedicated lens for it inside the Schedules tab itself isn't built yet).",
   },
 ];
 
@@ -237,6 +273,8 @@ export default function GardenScreen() {
   // the entry to open, see lib/digestNavigation.ts.
   const { openGardenLens, openEntryId } = useLocalSearchParams<{ openGardenLens?: string; openEntryId?: string }>();
   const [lens, setLens] = useState<GardenLens>('myZone');
+  // An entry the Compost lens asked to read on Horticulture, 2026-09-20.
+  const [readEntryId, setReadEntryId] = useState<string | undefined>(undefined);
   const activeLensLabel = GARDEN_LENS_FULL_NAMES[lens];
   const [revealed, setRevealed] = useState(false);
   // Lifted out of MyItemsHub itself, 2026-08-16 -- same reasoning as Food's
@@ -257,6 +295,8 @@ export default function GardenScreen() {
         openGardenLens === 'plotsAndPlantings' ||
         openGardenLens === 'harvestLog' ||
         openGardenLens === 'upcomingTasks' ||
+        openGardenLens === 'compost' ||
+        openGardenLens === 'growingCosts' ||
         openGardenLens === 'horticulture'
       ) {
         setLens(openGardenLens);
@@ -272,18 +312,24 @@ export default function GardenScreen() {
   const [plantingCount, setPlantingCount] = useState<number | undefined>(undefined);
   const [harvestCount, setHarvestCount] = useState<number | undefined>(undefined);
   const [taskCount, setTaskCount] = useState<number | undefined>(undefined);
+  const [pileCount, setPileCount] = useState<number | undefined>(undefined);
+  const [costCount, setCostCount] = useState<number | undefined>(undefined);
 
   const loadMyGardenCounts = useCallback(async () => {
-    const [plots, plantings, harvests, tasks] = await Promise.all([
+    const [plots, plantings, harvests, tasks, piles, costs] = await Promise.all([
       listGardenPlots(),
       listGardenPlantings(),
       listGardenHarvests(500),
       listUpcomingGardenTasks(500),
+      listCompostPiles(),
+      listGrowingCosts(500),
     ]);
     setPlotCount(plots.length);
     setPlantingCount(plantings.length);
     setHarvestCount(harvests.length);
     setTaskCount(tasks.length);
+    setPileCount(piles.length);
+    setCostCount(costs.length);
   }, []);
 
   const myGardenCategories: MyItemsCategory[] = [
@@ -296,6 +342,8 @@ export default function GardenScreen() {
     },
     { id: 'harvests', label: 'Harvests', count: harvestCount, onPress: () => { setLens('harvestLog'); setRevealed(true); } },
     { id: 'tasks', label: 'Upcoming Tasks', count: taskCount, onPress: () => { setLens('upcomingTasks'); setRevealed(true); } },
+    { id: 'compost', label: 'Compost Piles', count: pileCount, onPress: () => { setLens('compost'); setRevealed(true); } },
+    { id: 'costs', label: 'Growing Costs', count: costCount, onPress: () => { setLens('growingCosts'); setRevealed(true); } },
   ];
 
   return (
@@ -314,8 +362,18 @@ export default function GardenScreen() {
             <HarvestLogLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'upcomingTasks' ? (
             <UpcomingTasksLens scrollBottomPadding={scrollBottomPadding} />
+          ) : lens === 'compost' ? (
+            <CompostLens
+              scrollBottomPadding={scrollBottomPadding}
+              onReadAboutComposting={(entryId) => {
+                setReadEntryId(entryId);
+                setLens('horticulture');
+              }}
+            />
+          ) : lens === 'growingCosts' ? (
+            <GrowingCostsLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'horticulture' ? (
-            <HorticultureLens scrollBottomPadding={scrollBottomPadding} openEntryId={openEntryId} />
+            <HorticultureLens scrollBottomPadding={scrollBottomPadding} openEntryId={openEntryId ?? readEntryId} />
           ) : null}
         </GatedTabContent>
       </SwipeableTabScreen>
