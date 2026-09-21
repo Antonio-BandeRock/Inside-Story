@@ -29,6 +29,7 @@ import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
+import { announcePhoneOnly } from '../lib/desktop/phoneOnly';
 import { recognizeTextFromImage } from '../lib/ocr';
 import { detectMeasurementSystemFromLocale } from '../lib/measurement';
 import { getStoredMeasurementSystem, getUpcomingShoppingList, type ShoppingListSection } from '../lib/db';
@@ -362,6 +363,7 @@ export default function GroceryListScreen() {
   // photographed at arm's length is not something to trust silently, and
   // this app already treats an OCR price that way everywhere else.
   async function handleScanPrice() {
+    if (announcePhoneOnly(showInfoAlert, 'readPrice')) return;
     setReadingPrice(true);
     try {
       const permission = await ImagePicker.requestCameraPermissionsAsync();

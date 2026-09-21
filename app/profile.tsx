@@ -29,6 +29,7 @@ import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreference
 import { useReminderPreferences } from '../hooks/useReminderPreferences';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { useDesktopTextSize } from '../hooks/useDesktopTextSize';
+import { announcePhoneOnly } from '../lib/desktop/phoneOnly';
 import { DESKTOP_TEXT_SIZE_LABELS, desktopTextSizeForLabel, desktopTextSizeLabel } from '../lib/desktop/zoom';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
 import { routeForDigestEntry } from '../lib/digestNavigation';
@@ -1755,6 +1756,7 @@ export default function ProfileScreen() {
   // pick/validate/save pipeline (lib/customBackgroundImage.ts).
   async function handlePickCustomBackground(scopeKey: string, isShared: boolean) {
     if (pickingImageForScope) return; // one picker in flight at a time
+    if (announcePhoneOnly(showBackupAlert, 'photo')) return;
     setPickingImageForScope(scopeKey);
     try {
       const previousUri = visualPrefs.customBackgroundImages[scopeKey];

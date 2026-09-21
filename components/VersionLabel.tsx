@@ -3,6 +3,7 @@ import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET } from '../constants/floatingButton';
 import { textShadow } from '../constants/typography';
 import { APP_VERSION } from '../constants/version';
+import { usePinnedZoomScale } from '../hooks/useDesktopTextSize';
 import { usePageIdentityBoxSpan } from './PageIdentityLabel';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -34,7 +35,15 @@ const GAP_BELOW_BUTTON = 4;
 //
 // 14 rather than pinnedLineHeight(9) = 12: this was tuned on-device and the
 // two extra pixels are where it sits, not how tall the text is.
+//
+// On the desktop build the font size, this line height and the two gaps are
+// multiplied by usePinnedZoomScale, the standard zoom over the current one,
+// so the label keeps its size on the glass and its place under the box when
+// the text size changes (2026-09-21, "Pin the corner box against the
+// text-size zoom too"; the box it hangs under is pinned the same way). 1 on
+// a phone.
 const LABEL_LINE_HEIGHT = 14;
+const LABEL_FONT_SIZE = 9;
 // How far below the button row's own bottom edge the label sits. Was 10 when
 // first tuned on-device, moved up by 5 on 2026-08-30 by direct request.
 const DROP_BELOW_BUTTON = 5;
@@ -42,10 +51,16 @@ const DROP_BELOW_BUTTON = 5;
 export function VersionLabel() {
   const insets = useSafeAreaInsets();
   const { left, right } = usePageIdentityBoxSpan();
-  const bottom = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET - GAP_BELOW_BUTTON - LABEL_LINE_HEIGHT - DROP_BELOW_BUTTON;
+  const scale = usePinnedZoomScale();
+  const lineHeight = LABEL_LINE_HEIGHT * scale;
+  const bottom = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET - (GAP_BELOW_BUTTON + LABEL_LINE_HEIGHT + DROP_BELOW_BUTTON) * scale;
 
   return (
-    <Text style={[styles.text, { bottom, left, right }]} pointerEvents="none" allowFontScaling={false}>
+    <Text
+      style={[styles.text, { bottom, left, right, fontSize: LABEL_FONT_SIZE * scale, lineHeight }]}
+      pointerEvents="none"
+      allowFontScaling={false}
+    >
       v{APP_VERSION}
     </Text>
   );
@@ -61,7 +76,7 @@ const styles = StyleSheet.create({
   text: {
     position: 'absolute',
     textAlign: 'center',
-    fontSize: 9,
+    fontSize: LABEL_FONT_SIZE,
     lineHeight: LABEL_LINE_HEIGHT,
     color: colors.textMuted,
     opacity: 0.75,

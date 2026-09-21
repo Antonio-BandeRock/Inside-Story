@@ -32,6 +32,7 @@ import { MySafeFoodsView } from '../../components/MySafeFoodsView';
 import { MyWholeFoodsView } from '../../components/MyWholeFoodsView';
 import { FoodProductDetailView } from '../../components/FoodProductDetailView';
 import { ScanProductView } from '../../components/ScanProductView';
+import { PhoneOnlyNotice } from '../../components/PhoneOnlyNotice';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { HOME_BAND_GAP } from '../../components/HomeSectionBand';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
@@ -53,6 +54,7 @@ import {
   listSnacks,
   listSoups,
 } from '../../lib/db';
+import { isDesktopApp } from '../../lib/desktop/bridge';
 import { parseBuildMealHandoff } from '../../lib/mealBuilderHandoff';
 import { consumePendingFoodTrialReturn } from '../../lib/pendingFoodTrialReturn';
 
@@ -1303,6 +1305,19 @@ export default function FoodScreen() {
     </ScrollView>
   );
 
+  // Done with the scanner means back to where it was opened from: the grocery
+  // list when one sent us here, Home when Home did, this tab's own resting
+  // screen otherwise.
+  function leaveScanProduct() {
+    if (groceryListId) {
+      returnToGroceryList(groceryListId);
+    } else if (openFoodLens === 'scanProduct') {
+      router.navigate('/');
+    } else {
+      setRevealed(false);
+    }
+  }
+
   return (
     <View style={styles.screen}>
       {/* enabled={!revealed} -- 2026-07-28, explicitly requested: with a
@@ -1339,22 +1354,16 @@ export default function FoodScreen() {
                 }
               }}
             />
+          ) : lens === 'scanProduct' && isDesktopApp() ? (
+            // The computer has no camera the app can use, so the lens says
+            // so (lib/desktop/phoneOnly.ts) rather than asking for camera
+            // access that never comes.
+            <PhoneOnlyNotice feature="scanProduct" color={TAB_COLOR} action={{ label: 'Back', onPress: leaveScanProduct }} />
           ) : lens === 'scanProduct' ? (
             <ScanProductView
               groceryListId={groceryListId}
               groceryItemId={groceryItemId}
-              // Done means back to where this was opened from: the grocery
-              // list when one sent us here, Home when Home did, this tab's
-              // own resting screen otherwise.
-              onDone={() => {
-                if (groceryListId) {
-                  returnToGroceryList(groceryListId);
-                } else if (openFoodLens === 'scanProduct') {
-                  router.navigate('/');
-                } else {
-                  setRevealed(false);
-                }
-              }}
+              onDone={leaveScanProduct}
               onReturnToGroceryList={returnToGroceryList}
             />
           ) : lens === 'myFoodsList' && listParams ? (

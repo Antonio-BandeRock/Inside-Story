@@ -21,6 +21,7 @@ import { useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, type StyleProp, type ViewStyle } from 'react-native';
 import { colors } from '../constants/colors';
 import { useVoiceDictation, type VoiceDictationErrorKind } from '../hooks/useVoiceDictation';
+import { announcePhoneOnly } from '../lib/desktop/phoneOnly';
 import { useInfoAlert } from './InfoAlert';
 
 export type VoiceInputButtonProps = {
@@ -79,17 +80,26 @@ export function VoiceInputButton({
 
   const listening = status === 'listening';
 
+  // The computer has no speech recognizer the app can use (see
+  // lib/desktop/phoneOnly.ts), so on the desktop build a tap says so and
+  // names the phone, rather than reporting that speech recognition is not
+  // available "right now", which reads as a fault that might clear.
+  function startOrAnnounce() {
+    if (announcePhoneOnly(showInfoAlert, 'voice')) return;
+    start();
+  }
+
   // Fires exactly once, on mount -- see autoStart's own comment above for
   // why a fresh mount is exactly the right (and only) moment for this.
   useEffect(() => {
-    if (autoStart) start();
+    if (autoStart) startOrAnnounce();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <>
       <TouchableOpacity
-        onPress={listening ? stop : start}
+        onPress={listening ? stop : startOrAnnounce}
         style={[styles.button, listening ? styles.buttonListening : null, style]}
         hitSlop={10}
         accessibilityRole="button"

@@ -39,6 +39,7 @@ import {
   mixHex,
 } from '../../constants/colors';
 import { getSharedFolder } from '../../lib/oneDriveFolders';
+import { announcePhoneOnly } from '../../lib/desktop/phoneOnly';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import {
   formatReleaseNotesMessage,
@@ -2529,7 +2530,10 @@ export default function HomeScreen() {
         <TouchableOpacity
           style={[styles.logAgainSpeakButton, { borderColor: foodColor }, capturingPhoto ? styles.logAgainTileDisabled : null]}
           activeOpacity={0.8}
-          onPress={() => setPhotoSourceSheetOpen(true)}
+          onPress={() => {
+            if (announcePhoneOnly(showInfoAlert, 'photo')) return;
+            setPhotoSourceSheetOpen(true);
+          }}
           disabled={capturingPhoto}
         >
           <Ionicons name="camera-outline" size={18} color={foodColor} style={textShadow} />

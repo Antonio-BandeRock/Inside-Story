@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.23',
+    date: '2026-09-21',
+    changes: [
+      'On a computer the corner box that says where you are, and the version number under it, keep their size at every text size. The computer also says when something needs the phone: scanning a product, reading a price off a label, taking or choosing a photo, speaking to the app, Health Connect, Sync over Wi-Fi and reading a pairing code each show a notice naming the phone as where it works.',
+    ],
+  },
+  {
     version: '1.0.42.22',
     date: '2026-09-21',
     changes: [

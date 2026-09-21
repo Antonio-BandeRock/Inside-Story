@@ -25,6 +25,7 @@ import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'ex
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { PhoneOnlyNotice } from '../components/PhoneOnlyNotice';
 import { QrCode } from '../components/QrCode';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -43,6 +44,7 @@ import {
   defaultGrantsForRole,
   type ShareGrants,
 } from '../lib/partners';
+import { isDesktopApp } from '../lib/desktop/bridge';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
 
 // Big enough that each module lands on several physical pixels at any normal
@@ -156,6 +158,23 @@ ${link}`;
   }
 
   if (mode === 'scan') {
+    // The computer has no camera the app can use, so it cannot read the
+    // other person's code; showing this device's code and the link still
+    // work here (lib/desktop/phoneOnly.ts).
+    if (isDesktopApp()) {
+      return (
+        <View style={styles.screen}>
+          <View style={styles.content}>
+            <PhoneOnlyNotice
+              feature="scanPairingCode"
+              color={colors.tabProfile}
+              action={{ label: 'Show My Code Instead', onPress: () => setMode('show') }}
+            />
+          </View>
+        </View>
+      );
+    }
+
     if (!permission) {
       return (
         <View style={styles.screen}>

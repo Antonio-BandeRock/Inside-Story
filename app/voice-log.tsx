@@ -37,6 +37,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
 import { useInfoAlert } from '../components/InfoAlert';
+import { PhoneOnlyNotice } from '../components/PhoneOnlyNotice';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
@@ -72,6 +73,7 @@ import {
   type QuickLogMealType,
 } from '../lib/quickLog';
 import { useVoiceDictation, type VoiceRecognitionMode } from '../hooks/useVoiceDictation';
+import { isDesktopApp } from '../lib/desktop/bridge';
 
 // meals.eaten_at's own stored format: 'YYYY-MM-DDTHH:mm', local time. See
 // listMealsForDate in lib/db.ts for why a UTC toISOString() would break every
@@ -297,7 +299,11 @@ export default function VoiceLogScreen() {
   // was already the deliberate choice to use voice; making someone tap a
   // second time here is the wasted tap VoiceInputButton's own autoStart was
   // added to remove.
+  //
+  // On the desktop build there is nothing to listen with, so this screen
+  // does not start and shows the phone-only band instead (below).
   useEffect(() => {
+    if (isDesktopApp()) return undefined;
     void start();
     return () => stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -736,6 +742,17 @@ export default function VoiceLogScreen() {
           <Text style={styles.secondaryButtonText}>Cancel</Text>
         </TouchableOpacity>
       </ScrollView>
+    );
+  }
+
+  if (isDesktopApp()) {
+    return (
+      <View style={styles.screen}>
+        <Stack.Screen options={{ title: 'Say What You Ate' }} />
+        <View style={styles.content}>
+          <PhoneOnlyNotice feature="voice" color={colors.tabBioCompass} action={{ label: 'Back', onPress: () => router.back() }} />
+        </View>
+      </View>
     );
   }
 

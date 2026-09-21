@@ -160,6 +160,15 @@ check('and the rest as percentages', zoomTs.desktopTextSizeLabel(1.5), '150%');
 check('every label maps back to its step', zoomTs.DESKTOP_TEXT_SIZE_LABELS.map(zoomTs.desktopTextSizeForLabel), [...zoomTs.DESKTOP_TEXT_SIZE_STEPS]);
 check('an unknown label maps to nothing', zoomTs.desktopTextSizeForLabel('huge'), null);
 
+// The pinned scale, 2026-09-21: the standard zoom over the current one, so a
+// box drawn at 78 * scale dp is the same pixels at every text size.
+check('the standard zoom pins at 1', zoomTs.pinnedZoomScale(zoomTs.DESKTOP_TEXT_SIZE_DEFAULT), 1);
+check('200% pins at 1.25 / 2', zoomTs.pinnedZoomScale(2), 1.25 / 2);
+check('100% pins at 1.25', zoomTs.pinnedZoomScale(1), 1.25);
+check('78 dp is 97.5 px at every step', zoomTs.DESKTOP_TEXT_SIZE_STEPS.map((step) => Math.round(78 * zoomTs.pinnedZoomScale(step) * step * 100) / 100), zoomTs.DESKTOP_TEXT_SIZE_STEPS.map(() => 97.5));
+check('no reading yet pins at 1', zoomTs.pinnedZoomScale(null), 1);
+check('and so does nonsense', [zoomTs.pinnedZoomScale(0), zoomTs.pinnedZoomScale(-1), zoomTs.pinnedZoomScale(NaN)], [1, 1, 1]);
+
 if (failures > 0) {
   console.error(`${failures} of ${checks} checks failed`);
   process.exit(1);

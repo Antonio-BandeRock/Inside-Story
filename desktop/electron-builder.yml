@@ -9,7 +9,7 @@ directories:
 # which is not semver, so package.json carries the first three and the whole
 # thing goes here: Windows shows it as the file version, and the installer
 # file is named by it.
-buildVersion: 1.0.42.22
+buildVersion: 1.0.42.23
 artifactName: ${productName} Setup ${buildVersion}.${ext}
 files:
   - main.js

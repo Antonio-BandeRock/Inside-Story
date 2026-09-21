@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useInfoAlert } from './InfoAlert';
+import { PhoneOnlyNotice } from './PhoneOnlyNotice';
 import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -35,6 +36,7 @@ import {
   type HealthAvailability,
   type HealthSignal,
 } from '../lib/healthConnect';
+import { isDesktopApp } from '../lib/desktop/bridge';
 import { EXERCISE_TYPE_NAMES, syncHealthConnect } from '../lib/healthSync';
 import { detectMeasurementSystemFromLocale, kgToLb } from '../lib/measurement';
 
@@ -344,6 +346,18 @@ export function MovementSection({ tabColor }: Props) {
 
   const connected = availability === 'available' && syncState.enabled && access.readable.size > 0;
   const readableCount = access.readable.size;
+
+  // The computer has no Health Connect to read from, so on the desktop
+  // build the lens says so (lib/desktop/phoneOnly.ts) instead of the
+  // "this phone cannot share health data" line, which would be about the
+  // wrong device. What the phone has already synced is not held here yet.
+  if (isDesktopApp()) {
+    return (
+      <View style={band.column}>
+        <PhoneOnlyNotice feature="healthConnect" color={tabColor} />
+      </View>
+    );
+  }
 
   return (
     <View style={band.column}>

@@ -197,6 +197,15 @@ export function gridColumnsFor(input: GridColumnsInput): number {
 // Windows." So there it keeps the width it has at the starting window width
 // and stays against the right margin; a window narrower than that gives it
 // the phone's span, so it never reaches into the artwork.
+//
+// The desktop's text size is page zoom, which scales every dp on screen, so
+// the box grew and shrank with it. Direct request, 2026-09-21: "Pin the corner
+// box against the text-size zoom too." So `scale` is the standard zoom over
+// the current one (pinnedZoomScale in lib/desktop/zoom.ts, 1 on a phone), and
+// the width the box keeps is its starting width at that scale: the same number
+// of pixels on the glass whatever the zoom. The margin and the clearance from
+// the artwork are not scaled, since the artwork and the rest of the layout do
+// zoom, and the box has to stay clear of them.
 export type PageIdentityBoxSpanInput = {
   /** useWindowDimensions().width, in dp. */
   windowWidth: number;
@@ -206,14 +215,17 @@ export type PageIdentityBoxSpanInput = {
   margin: number;
   /** True on the desktop build (isDesktopApp). */
   desktop: boolean;
+  /** The standard zoom over the current one on desktop; 1 (or omitted) on a phone. */
+  scale?: number;
 };
 
 export function pageIdentityBoxSpan(input: PageIdentityBoxSpanInput): { left: number; right: number } {
   const { windowWidth, clearOfButton, margin, desktop } = input;
+  const scale = input.scale != null && Number.isFinite(input.scale) && input.scale > 0 ? input.scale : 1;
   const phoneLeft = windowWidth / 2 + clearOfButton;
   if (!desktop || !Number.isFinite(windowWidth) || windowWidth <= 0) return { left: phoneLeft, right: margin };
   const startWidth = DESKTOP_START_WINDOW_WIDTH_DP - margin - (DESKTOP_START_WINDOW_WIDTH_DP / 2 + clearOfButton);
-  const width = Math.min(startWidth, windowWidth - margin - phoneLeft);
+  const width = Math.min(startWidth * scale, windowWidth - margin - phoneLeft);
   return { left: windowWidth - margin - width, right: margin };
 }
 

@@ -57,6 +57,8 @@ import {
   receiveViaRelay,
   sendViaRelay,
 } from '../lib/relayMailbox';
+import { isDesktopApp } from '../lib/desktop/bridge';
+import { phoneOnlyNotice } from '../lib/desktop/phoneOnly';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
 import {
   isLanSyncAvailable,
@@ -517,6 +519,12 @@ export default function ConnectionsScreen() {
                 ))
               : null}
             {lanSync.error ? <Text style={styles.folderMismatch}>{lanSync.error}</Text> : null}
+          </View>
+        ) : isDesktopApp() ? (
+          // The computer cannot join it, and says so rather than leaving the
+          // block out as if the feature did not exist (lib/desktop/phoneOnly.ts).
+          <View style={styles.lanSyncBlock}>
+            <Text style={styles.fingerprintHint}>{phoneOnlyNotice('wifiSync').message}</Text>
           </View>
         ) : null}
 

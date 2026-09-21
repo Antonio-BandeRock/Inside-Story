@@ -35,6 +35,7 @@ import {
   unitPriceLabelFor,
   type PurchaseForm,
 } from '../lib/groceryList';
+import { announcePhoneOnly } from '../lib/desktop/phoneOnly';
 import { recognizeTextFromImage } from '../lib/ocr';
 
 type Entry = { label: string; priceText: string; sizeText: string };
@@ -103,6 +104,7 @@ export default function PriceCompareScreen() {
   }, []);
 
   async function handleScanPrice(index: number) {
+    if (announcePhoneOnly(showInfoAlert, 'readPrice')) return;
     setReadingIndex(index);
     try {
       const permission = await ImagePicker.requestCameraPermissionsAsync();

@@ -22,6 +22,7 @@ import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import type { DigestEntry } from '../lib/digest/types';
 import { useInfoAlert } from './InfoAlert';
+import { announcePhoneOnly } from '../lib/desktop/phoneOnly';
 import { getPhotoForTarget, pickAndSaveMealPhoto, setPhotoForTarget, type PhotoTarget } from '../lib/mealPhotos';
 
 export function resolvePhotoTarget(entry: DigestEntry): PhotoTarget | null {
@@ -122,6 +123,7 @@ export function EntryPhotoSection({ entry, tabColor }: { entry: DigestEntry; tab
   }
 
   function openPicker() {
+    if (announcePhoneOnly(showInfoAlert, 'photo')) return;
     setSheetVisible(true);
   }
 
