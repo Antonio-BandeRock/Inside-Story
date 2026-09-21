@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.22',
+    date: '2026-09-21',
+    changes: [
+      'The TabHub menu is centered on its button and runs the full width of a phone (the starting window width on a computer), two rows with six tabs on top and five below. The lens menus take the same width, show three rows at a time with more columns when there is room, and scroll for the rest. On a computer the corner box that says where you are keeps its starting size however wide the window is dragged.',
+    ],
+  },
+  {
     version: '1.0.42.21',
     date: '2026-09-21',
     changes: [

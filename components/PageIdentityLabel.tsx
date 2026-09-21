@@ -11,6 +11,8 @@ import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
 import { pinnedLineHeight, textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
+import { isDesktopApp } from '../lib/desktop/bridge';
+import { pageIdentityBoxSpan } from '../lib/menuFit';
 
 import { TabRouteIcon } from './TabRouteIcon';
 
@@ -80,20 +82,29 @@ import { TabRouteIcon } from './TabRouteIcon';
 // both sides) sits centered on windowWidth/2, regardless of NAVIGATION_HAND --
 // only which SIDE the hub buttons cluster on (and which side this box mirrors
 // to) depends on that.
+//
+// On the desktop build the box keeps the width it has at the window's starting
+// width and stays against the margin, rather than stretching across however
+// wide the window is dragged. Direct request, 2026-09-21: "The You Are Here
+// box in the bottom right corner of the footer should not be allowed to grow
+// beyond the initial size it is given on install on Windows." The arithmetic
+// is pageIdentityBoxSpan in lib/menuFit.ts, so scripts/test_menuFit.js covers
+// it; a phone's span is unchanged.
 export function usePageIdentityBoxSpan(): { left: number; right: number } {
   const { width: windowWidth } = useWindowDimensions();
   const { tabHubIcon } = useVisualPreferences();
   const { width: buttonIconWidth, bottomOverhang } = getTabHubIconRenderSize(tabHubIcon);
   const buttonIconOverhangY = Math.max(0, Math.ceil(bottomOverhang));
   const verticalBuffer = FLOATING_BUTTON_BOTTOM_OFFSET - buttonIconOverhangY;
-  const buttonCenterX = windowWidth / 2;
 
-  return NAVIGATION_HAND === 'left'
-    ? { left: buttonCenterX + buttonIconWidth / 2 + verticalBuffer, right: SECONDARY_HUB_CARD_LEFT_MARGIN }
-    : {
-        left: SECONDARY_HUB_CARD_LEFT_MARGIN,
-        right: windowWidth - (buttonCenterX - buttonIconWidth / 2 - verticalBuffer),
-      };
+  const span = pageIdentityBoxSpan({
+    windowWidth,
+    clearOfButton: buttonIconWidth / 2 + verticalBuffer,
+    margin: SECONDARY_HUB_CARD_LEFT_MARGIN,
+    desktop: isDesktopApp(),
+  });
+  // The mirror image for the other hand: the near and far edges swap sides.
+  return NAVIGATION_HAND === 'left' ? span : { left: span.right, right: span.left };
 }
 
 // 2026-09-18, direct: "The lower right corner box that tells you where you

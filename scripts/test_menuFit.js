@@ -29,7 +29,18 @@ function load(relPath) {
   return module.exports;
 }
 
-const { MENU_CARD_MIN_HEIGHT, MENU_CARD_TOP_GAP, cornerHubLeft, fitMenuCard, menuCardRoom, secondaryHubCardLeft } = load('lib/menuFit.ts');
+const {
+  DESKTOP_START_WINDOW_WIDTH_DP,
+  MENU_CARD_MIN_HEIGHT,
+  MENU_CARD_TOP_GAP,
+  cornerHubLeft,
+  fitMenuCard,
+  gridColumnsFor,
+  hubMenuCardSpan,
+  menuCardRoom,
+  pageIdentityBoxSpan,
+  secondaryHubCardLeft,
+} = load('lib/menuFit.ts');
 
 let checks = 0;
 let failures = 0;
@@ -160,6 +171,45 @@ check('desktop keeps the card inside a narrow window', secondaryHubCardLeft({ wi
 check('desktop clamps the card to the right edge', secondaryHubCardLeft({ windowWidth: 400, cardWidth: 300, buttonLeft: 126, leftMargin: 16, nearTabHub: true }), 100);
 check('and never past the left edge', secondaryHubCardLeft({ windowWidth: 250, cardWidth: 300, buttonLeft: 0, leftMargin: 16, nearTabHub: true }), 0);
 check('an unmeasured window falls back to the margin', secondaryHubCardLeft({ windowWidth: 0, cardWidth: 300, buttonLeft: 0, leftMargin: 16, nearTabHub: true }), 16);
+
+// Where a hub menu card (TabHub's, LensHub's) goes and how wide it is.
+// Direct request, 2026-09-21: "centered on the tabhub button and use the full
+// width of the mobile screen, and the starting width only of the windows
+// screen."
+check('a phone gets the whole window', hubMenuCardSpan({ windowWidth: 411, desktop: false }), { left: 0, width: 411 });
+check('a tablet gets the whole window too', hubMenuCardSpan({ windowWidth: 1024, desktop: false }), { left: 0, width: 1024 });
+check('desktop at the starting width gets the whole window', hubMenuCardSpan({ windowWidth: 480, desktop: true }), { left: 0, width: 480 });
+check('desktop dragged wider keeps the starting width, centered', hubMenuCardSpan({ windowWidth: 1400, desktop: true }), { left: 460, width: 480 });
+check('so the card is centered on TabHub', 460 + 480 / 2, 1400 / 2);
+check('desktop dragged narrower gets the whole window', hubMenuCardSpan({ windowWidth: 320, desktop: true }), { left: 0, width: 320 });
+check('an unmeasured window takes the starting width at the edge', hubMenuCardSpan({ windowWidth: 0, desktop: true }), { left: 0, width: DESKTOP_START_WINDOW_WIDTH_DP });
+check('the starting width is the desktop window at its standard zoom', DESKTOP_START_WINDOW_WIDTH_DP, 600 / 1.25);
+
+// How many columns a lens grid gets: the page's own count, or more when the
+// card is wide enough at the column width the longest labels fit in.
+const COLUMN = (300 - 16) / 3;
+check('the old 300 dp card gives the page its three columns', gridColumnsFor({ innerWidth: 300 - 16, columnWidth: COLUMN, minColumns: 3 }), 3);
+check('a 411 dp phone gets four', gridColumnsFor({ innerWidth: 411 - 16, columnWidth: COLUMN, minColumns: 3 }), 4);
+check('a 360 dp phone keeps three', gridColumnsFor({ innerWidth: 360 - 16, columnWidth: COLUMN, minColumns: 3 }), 3);
+check('the desktop starting width gets four', gridColumnsFor({ innerWidth: 480 - 16, columnWidth: COLUMN, minColumns: 3 }), 4);
+check('a narrow window never drops below the page count', gridColumnsFor({ innerWidth: 200, columnWidth: COLUMN, minColumns: 3 }), 3);
+check('a tablet gets many', gridColumnsFor({ innerWidth: 1024 - 16, columnWidth: COLUMN, minColumns: 3 }), 10);
+check('an unmeasured card gives the page count', gridColumnsFor({ innerWidth: 0, columnWidth: COLUMN, minColumns: 2 }), 2);
+
+// The corner box that says where you are: a phone's span runs from clear of
+// the TabHub artwork to the margin; desktop keeps its starting width against
+// the margin. Direct request, 2026-09-21: "should not be allowed to grow
+// beyond the initial size it is given on install on Windows."
+const BOX = { clearOfButton: 30 + 14, margin: 16 };
+check('a phone spans from the artwork to the margin', pageIdentityBoxSpan({ ...BOX, windowWidth: 411, desktop: false }), { left: 411 / 2 + 44, right: 16 });
+check('a wide phone stretches with it', pageIdentityBoxSpan({ ...BOX, windowWidth: 1024, desktop: false }), { left: 1024 / 2 + 44, right: 16 });
+const startBox = pageIdentityBoxSpan({ ...BOX, windowWidth: 480, desktop: true });
+check('desktop at the starting width matches the phone span', startBox, { left: 480 / 2 + 44, right: 16 });
+const wideBox = pageIdentityBoxSpan({ ...BOX, windowWidth: 1400, desktop: true });
+check('desktop dragged wider keeps that width', 1400 - wideBox.right - wideBox.left, 480 - startBox.right - startBox.left);
+check('and stays against the margin', wideBox.right, 16);
+const narrowBox = pageIdentityBoxSpan({ ...BOX, windowWidth: 400, desktop: true });
+check('desktop dragged narrower gives the phone span, clear of the artwork', narrowBox, { left: 400 / 2 + 44, right: 16 });
 
 if (failures > 0) {
   console.error(`\n${failures} of ${checks} checks failed`);

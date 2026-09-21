@@ -5,9 +5,11 @@
 //    replaces the earlier one, the earlier one's remover then does nothing,
 //    the stand-ins a menu renders are everyone but itself, and iOS waits for
 //    onDismiss where every other platform opens at once.
-// 2. menuCardLeft in lib/menuFit.ts: TabHub's card stays at the phone's left
-//    margin on a phone and is centered on the window on the desktop build,
-//    following the live width and never going negative.
+// 2. DESKTOP_START_WINDOW_WIDTH_DP in lib/menuFit.ts, the width the hub menus
+//    keep on the desktop build, is the window's starting width in
+//    desktop/main.js at the standard zoom in desktop/zoom.js, so neither can
+//    drift from it unnoticed (the span arithmetic itself is covered by
+//    scripts/test_menuFit.js).
 // 3. lib/desktop/zoom.ts and desktop/zoom.js hold the same text size steps
 //    and the same standard, and both land an off-list value on the nearest
 //    step, so Profile's picker and the View menu always describe the same
@@ -50,7 +52,7 @@ function loadDesktopZoom() {
 }
 
 const hub = load('lib/hubHandoff.ts');
-const { menuCardLeft } = load('lib/menuFit.ts');
+const { DESKTOP_START_WINDOW_WIDTH_DP } = load('lib/menuFit.ts');
 const zoomTs = load('lib/desktop/zoom.ts');
 const zoomJs = loadDesktopZoom();
 
@@ -124,17 +126,14 @@ check('Android opens at once', hub.handoffTiming('android'), 'immediate');
 check('the desktop build (web) opens at once', hub.handoffTiming('web'), 'immediate');
 
 // ---------------------------------------------------------------------------
-// Where TabHub's card goes.
+// The width the hub menus keep on the desktop build.
 // ---------------------------------------------------------------------------
 
-const CARD = { cardWidth: 216, leftMargin: 16 };
-check('a phone keeps the left margin', menuCardLeft({ ...CARD, windowWidth: 411, centered: false }), 16);
-check('whatever its width', menuCardLeft({ ...CARD, windowWidth: 1200, centered: false }), 16);
-check('the desktop build centers the card on the window', menuCardLeft({ ...CARD, windowWidth: 480, centered: true }), 132);
-check('and follows a resize', menuCardLeft({ ...CARD, windowWidth: 1000, centered: true }), 392);
-check('a card centered on the window sits over the centered button', (1000 / 2) - (216 / 2), 392);
-check('a window narrower than the card starts it at 0', menuCardLeft({ ...CARD, windowWidth: 200, centered: true }), 0);
-check('a width that has not arrived yet falls back to the margin', menuCardLeft({ ...CARD, windowWidth: 0, centered: true }), 16);
+const mainJs = fs.readFileSync(path.join(__dirname, '..', 'desktop', 'main.js'), 'utf8');
+const defaultWidthMatch = mainJs.match(/^const DEFAULT_WIDTH = (\d+);/m);
+check('desktop/main.js states the starting window width', defaultWidthMatch != null, true);
+const desktopStartWidthPx = defaultWidthMatch ? Number(defaultWidthMatch[1]) : NaN;
+check('the hub menus keep that width at the standard zoom', DESKTOP_START_WINDOW_WIDTH_DP, desktopStartWidthPx / zoomJs.DEFAULT_ZOOM);
 
 // ---------------------------------------------------------------------------
 // The text size steps, in both halves.

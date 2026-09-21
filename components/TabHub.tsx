@@ -16,7 +16,13 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, lighten, MENU_LABEL_LIGHTEN_FRACTION } from '../constants/colors';
-import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useMenuCardBottom, useMenuCardFit } from '../constants/floatingButton';
+import {
+  FLOATING_BUTTON_BOTTOM_OFFSET,
+  FLOATING_BUTTON_SIZE,
+  useHubMenuCardSpan,
+  useMenuCardBottom,
+  useMenuCardFit,
+} from '../constants/floatingButton';
 import { getTabHubIconRenderSize, TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES, type TabRoute } from '../constants/tabs';
 import {
@@ -28,8 +34,6 @@ import {
   typography,
 } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
-import { isDesktopApp } from '../lib/desktop/bridge';
-import { menuCardLeft } from '../lib/menuFit';
 import { modalAnimationType, type TabHubIconChoice } from '../lib/visualPreferences';
 import { useCurrentPageHelp } from './CurrentPageHelp';
 import { DessertBuilderIcon } from './FoodBuilderIcons';
@@ -158,12 +162,16 @@ function TabHubCardRing({ children }: { children: ReactNode }) {
   return <View style={[styles.cardRing, { borderColor: accentColor }]}>{children}</View>;
 }
 
-// 3 columns -- room for up to 9 icons across 3 rows before a 4th row would
-// be needed. Sized just wide enough for a 3-column grid of small icons,
-// not a percentage of screen width, so columns stay tight together
-// instead of spreading out on a wider phone.
-const CARD_WIDTH = 216;
-const CARD_LEFT_MARGIN = 16;
+// The card's width and left edge are not constants any more. Until 1.0.42.22
+// this was a 216 dp box, sized just wide enough for a 3-column grid of small
+// icons and anchored at the phone's left margin for the thumb. Direct
+// request, 2026-09-21: "the tabhub menu should be centered on the tabhub
+// button and use the full width of the mobile screen, and the starting width
+// only of the windows screen. It should be two rows tall with 6 of the Tab
+// Icons on the top row, and 5 on the bottom." So the card takes the whole
+// window on a phone and the width the desktop window opened at, centered,
+// on a computer (useHubMenuCardSpan, over hubMenuCardSpan in
+// lib/menuFit.ts), and the grid is six columns by two rows.
 
 
 // 2026-07-28: `card` below used to have no fixed height at all -- it sized
@@ -214,21 +222,20 @@ function cardRowHeight(fontScale: number): number {
 // Real nav items rendered before Info: every TAB_ROUTES entry, plus Profile
 // (which isn't itself one of TAB_ROUTES -- see its own comment below -- but
 // renders in the same grid slot sequence right after them).
-const CARD_GRID_COLUMNS = 3;
+//
+// Six columns since 1.0.42.22 (see the card width comment above): with nine
+// tabs, Profile and Info that is eleven items, six on the top row and five on
+// the bottom, which is the layout asked for. Info renders immediately after
+// Profile, no blank spacers, so it takes the slot to Profile's right (that
+// placement was asked for on 2026-08-13, when the grid was three columns and
+// Profile started the bottom row). Computed from the real item count rather
+// than hardcoded, so the row count follows if TAB_ROUTES' own length ever
+// changes.
+const CARD_GRID_COLUMNS = 6;
 const ITEMS_BEFORE_INFO = TAB_ROUTES.length + 1;
-// Info renders immediately after Profile, no blank spacers -- 2026-08-13,
-// direct request: "Move the Info icon up one row so it is in the middle
-// spot, just to the right of the Profile icon." With 9 real tabs, Profile
-// (item index 9, 0-indexed) lands at column 0 of its own row (9 % 3 = 0),
-// so the very next item -- Info, with nothing padded in between -- falls
-// naturally into column 1, the middle slot of that same row, immediately
-// to Profile's right. Computed from the real item count rather than
-// hardcoded, so this keeps landing correctly if TAB_ROUTES' own length
-// ever changes to something else where Profile isn't at column 0 -- in
-// that case Info simply continues on directly from wherever Profile fell,
-// same as any other real grid item, rather than always forcing a shared
-// row.
 const CARD_ROW_COUNT = Math.ceil((ITEMS_BEFORE_INFO + 1) / CARD_GRID_COLUMNS);
+// Each item is one column of the card, whatever the card's live width.
+const CARD_ITEM_WIDTH_PERCENT = 100 / CARD_GRID_COLUMNS;
 const CARD_PADDING_TOP = 4; // matches `card`'s own paddingTop below
 // 2026-09-05, reported directly: the bottom row sits closer to the card's edge
 // than the top row does, and should match it. It was not a padding bug so much
@@ -245,11 +252,12 @@ function cardHeightFor(fontScale: number): number {
 }
 
 // The single floating "hub" button that replaced the old 7-icon bottom tab
-// bar -- stays bottom-center. The picker it opens is deliberately NOT
-// centered under it, though -- it's anchored to the left edge instead, so
-// the whole group of icons sits inside a left thumb's natural sweep for
-// one-handed use. Swiping (see SwipeableTabScreen) remains the fast path
-// between adjacent tabs; this is the fast path to anywhere else.
+// bar -- stays bottom-center. The picker it opens was anchored to the left
+// edge from 2026-07-22 to 1.0.42.22, so the whole group of icons sat inside a
+// left thumb's natural sweep; it is centered on the button and the full width
+// of the screen now (see the card width comment above), two rows of six.
+// Swiping (see SwipeableTabScreen) remains the fast path between adjacent
+// tabs; this is the fast path to anywhere else.
 export function TabHub() {
   const [open, setOpen] = useState(false);
   // A tenth attempt at the "card drops in from above" bug, 2026-08-01 --
@@ -437,15 +445,10 @@ export function TabHub() {
   const onboarding = useTabHubOnboarding();
 
   const buttonBottom = insets.bottom + BOTTOM_OFFSET;
-  const { width: windowWidth } = useWindowDimensions();
-  // Left-anchored on a phone, centered on the window (so on the button) on
-  // the desktop build: see menuCardLeft in lib/menuFit.ts.
-  const cardLeft = menuCardLeft({
-    windowWidth,
-    cardWidth: CARD_WIDTH,
-    leftMargin: CARD_LEFT_MARGIN,
-    centered: isDesktopApp(),
-  });
+  // The whole window on a phone, the starting window width centered on the
+  // window (so on this button) on the desktop build: see hubMenuCardSpan in
+  // lib/menuFit.ts.
+  const { left: cardLeft, width: cardWidth } = useHubMenuCardSpan();
   // Independent of buttonBottom -- the button itself stays anchored inside
   // the footer band; only the popup card floats clear above it (see
   // useMenuCardBottom's own comment in constants/floatingButton.ts).
@@ -455,7 +458,7 @@ export function TabHub() {
   // with the phone's own font-size setting, which can change under a running
   // app. The card is bottom-anchored, so the extra height goes upward into
   // empty screen rather than down through the nav bar.
-  const { fontScale } = useWindowDimensions();
+  const { width: windowWidth, fontScale } = useWindowDimensions();
 
   // Everything a tap on the button does, in one place, because a tap on
   // this button's stand-in inside another hub's open menu has to do the
@@ -784,7 +787,7 @@ export function TabHub() {
           <View
             style={[
               styles.cardShadowWrap,
-              { bottom: cardBottom, left: cardLeft, width: CARD_WIDTH },
+              { bottom: cardBottom, left: cardLeft, width: cardWidth },
               // Invisible (not just unmounted -- see cardReady's own
               // comment above) until Android confirms its Dialog window
               // is genuinely up, so nothing ever paints during whatever
@@ -968,11 +971,10 @@ const styles = StyleSheet.create({
     borderWidth: CARD_RING_WIDTH,
     overflow: 'hidden',
   },
-  // A compact card anchored to the left edge -- same small icon/label
-  // sizing as before, wrapped into a tight 3-column grid with minimal
-  // padding so the whole group of icons sits close together. Replaces its
-  // old flat borderWidth/borderColor -- cardRing above is what now reads
-  // as this card's edge.
+  // The same small icon/label sizing the compact left-edge card had, in a
+  // six-column grid across the whole window since 1.0.42.22 (see the card
+  // width comment above). Replaces its old flat borderWidth/borderColor --
+  // cardRing above is what now reads as this card's edge.
   // The card splits in two as of 2026-09-18: this frame holds the surface, the
   // rounded corners and the fixed height, and `card` below is the grid that
   // scrolls inside it.
@@ -1002,7 +1004,7 @@ const styles = StyleSheet.create({
     paddingBottom: CARD_PADDING_BOTTOM,
     paddingHorizontal: 2,
   },
-  item: { width: '33.33%', alignItems: 'center', gap: 1, paddingVertical: 4 },
+  item: { width: `${CARD_ITEM_WIDTH_PERCENT}%`, alignItems: 'center', gap: 1, paddingVertical: 4 },
   // The inactive/plain state -- same footprint as ActiveRingCircle's
   // own `size` (ICON_PILL_SIZE), just centering a bare icon with no circle
   // or ring, so every item in the grid lines up at the same height either

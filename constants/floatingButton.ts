@@ -2,7 +2,14 @@ import { useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { isDesktopApp } from '@/lib/desktop/bridge';
-import { cornerHubLeft, fitMenuCard, secondaryHubCardLeft, type MenuCardFit } from '@/lib/menuFit';
+import {
+  cornerHubLeft,
+  fitMenuCard,
+  hubMenuCardSpan,
+  secondaryHubCardLeft,
+  type HubMenuCardSpan,
+  type MenuCardFit,
+} from '@/lib/menuFit';
 
 // Shared sizing/position for the app's bottom-center floating buttons --
 // TabHub's own button and HelpSheet's close button both anchor to the
@@ -175,11 +182,22 @@ export function useBottomLeftHubPosition(): { bottom: number; left: number } {
   return { bottom, left };
 }
 
-// Where a secondary hub's popup card sets its `left`: the shared margin on a
-// phone, and over the corner hub button on desktop, where that button is
-// nowhere near the margin (see secondaryHubCardLeft in lib/menuFit.ts). Every
-// card that used to type SECONDARY_HUB_CARD_LEFT_MARGIN reads this instead,
-// passing its own width so it can never open past the right edge.
+// Where a hub menu card (TabHub's, LensHub's) sets its `left` and `width`:
+// the whole window on a phone, the starting window width centered on the
+// window on desktop (see hubMenuCardSpan in lib/menuFit.ts). Live, so a
+// resize on the computer and a rotation or split screen on a phone follow.
+export function useHubMenuCardSpan(): HubMenuCardSpan {
+  const { width: windowWidth } = useWindowDimensions();
+  return hubMenuCardSpan({ windowWidth, desktop: isDesktopApp() });
+}
+
+// Where a secondary hub's popup card (My Items, Insights' drill down) sets
+// its `left`: the shared margin on a phone, and over the corner hub button on
+// desktop, where that button is nowhere near the margin (see
+// secondaryHubCardLeft in lib/menuFit.ts). Every card that used to type
+// SECONDARY_HUB_CARD_LEFT_MARGIN reads this instead, passing its own width so
+// it can never open past the right edge. LensHub's card read this too until
+// 1.0.42.22, when it took the hub menu span above.
 export function useSecondaryHubCardLeft(cardWidth: number): number {
   const { width: windowWidth } = useWindowDimensions();
   const { left: buttonLeft } = useBottomLeftHubPosition();

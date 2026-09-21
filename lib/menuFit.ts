@@ -121,30 +121,100 @@ export function fitMenuCard(input: MenuCardFitInput): MenuCardFit {
   return { height: Math.max(room, floor), scrolls: true, room };
 }
 
-// Where a menu card's left edge goes.
+// Where a hub menu card (TabHub's tab picker, LensHub's lens picker) goes,
+// and how wide it is.
 //
-// On a phone every card is anchored to the left margin, for the thumb (see
-// TabHub's component comment). On the desktop build the window is whatever
-// width the person drags it to, and TabHub's card, pinned to that margin,
-// drifted away from its button, which is centered. Reported 2026-09-21: "On
-// the computer we aren't needing to keep anything left or right oriented, so
-// it should just pop up in the middle directly above the TabHub icon." So
-// there the card is centered on the window, from the live width, and follows
-// a resize. Never negative: a window narrower than the card starts it at 0.
-export type MenuCardLeftInput = {
+// Direct request, 2026-09-21: "On both mobile and windows, I think the tabhub
+// menu should be centered on the tabhub button and use the full width of the
+// mobile screen, and the starting width only of the windows screen ... I
+// think the same should apply for the LensHub menus." Before this TabHub's
+// card was a 216 dp box at the phone's left margin (for the thumb, see
+// TabHub's component comment) and centered on the window on desktop, and
+// LensHub's was a 300 dp box over the corner button.
+//
+// A phone gets the whole window, edge to edge, the way every band in the app
+// already runs. The desktop window is whatever width the person drags it to,
+// so there the card is the width the window opened at on first run and is
+// centered on the window, which is where TabHub's button is; a window
+// narrower than that (it can be dragged down to 400 px) gets the whole
+// window, the same as a phone.
+//
+// Electron opens the window at desktop/main.js's DEFAULT_WIDTH, 600 screen
+// pixels, and desktop/zoom.js draws the page at 125%, so the app sees 480 dp
+// (useWindowDimensions reports CSS pixels there). That 480 is the one number
+// here that is a copy of two elsewhere; scripts/test_hub_handoff.js reads
+// both of the originals and fails if the product drifts. Deliberately a fixed
+// dp figure rather than the live zoom: a larger text size makes everything on
+// the page larger, this card with it, which is what a text size setting means.
+export const DESKTOP_START_WINDOW_WIDTH_DP = 480;
+
+export type HubMenuCardSpan = { left: number; width: number };
+
+export type HubMenuCardSpanInput = {
   /** useWindowDimensions().width, in dp. */
   windowWidth: number;
-  cardWidth: number;
-  /** The phone's left anchor. */
-  leftMargin: number;
   /** True on the desktop build (isDesktopApp). */
-  centered: boolean;
+  desktop: boolean;
 };
 
-export function menuCardLeft(input: MenuCardLeftInput): number {
-  const { windowWidth, cardWidth, leftMargin, centered } = input;
-  if (!centered || !Number.isFinite(windowWidth) || windowWidth <= 0) return leftMargin;
-  return Math.max(0, Math.round(windowWidth / 2 - cardWidth / 2));
+export function hubMenuCardSpan(input: HubMenuCardSpanInput): HubMenuCardSpan {
+  const { windowWidth, desktop } = input;
+  // A width that has not arrived yet: the starting width, at the left edge,
+  // and the next render corrects it.
+  if (!Number.isFinite(windowWidth) || windowWidth <= 0) return { left: 0, width: DESKTOP_START_WINDOW_WIDTH_DP };
+  if (!desktop) return { left: 0, width: windowWidth };
+  const width = Math.min(windowWidth, DESKTOP_START_WINDOW_WIDTH_DP);
+  return { left: Math.round((windowWidth - width) / 2), width };
+}
+
+// How many columns a lens grid gets in a card of that width. The page's own
+// column count is the floor; a card wide enough for more gets more, at the
+// column width the longest lens labels were tuned to fit ("Fermentation
+// Builder", one line at 12 px), so a full-width card shows more of a long
+// list per screen instead of spreading the same three columns out.
+export type GridColumnsInput = {
+  /** The card's inner width, in dp: its width less its horizontal padding. */
+  innerWidth: number;
+  /** The narrowest a column may be, in dp. */
+  columnWidth: number;
+  /** The page's own column count, kept as the minimum. */
+  minColumns: number;
+};
+
+export function gridColumnsFor(input: GridColumnsInput): number {
+  const { innerWidth, columnWidth, minColumns } = input;
+  if (!Number.isFinite(innerWidth) || innerWidth <= 0 || columnWidth <= 0) return minColumns;
+  return Math.max(minColumns, Math.floor(innerWidth / columnWidth));
+}
+
+// The horizontal span of the corner box that says where you are
+// (components/PageIdentityLabel.tsx). On a phone it runs from just clear of
+// the TabHub artwork to the standard edge margin, so its width is whatever
+// the screen leaves between the two. On the desktop build the window is any
+// width and that box stretched with it. Direct request, 2026-09-21: "The You
+// Are Here box in the bottom right corner of the footer should not be
+// allowed to grow beyond the initial size it is given on install on
+// Windows." So there it keeps the width it has at the starting window width
+// and stays against the right margin; a window narrower than that gives it
+// the phone's span, so it never reaches into the artwork.
+export type PageIdentityBoxSpanInput = {
+  /** useWindowDimensions().width, in dp. */
+  windowWidth: number;
+  /** Where the box may start: past the TabHub artwork and its buffer, measured from the button's center. */
+  clearOfButton: number;
+  /** The standard edge margin, the box's far side. */
+  margin: number;
+  /** True on the desktop build (isDesktopApp). */
+  desktop: boolean;
+};
+
+export function pageIdentityBoxSpan(input: PageIdentityBoxSpanInput): { left: number; right: number } {
+  const { windowWidth, clearOfButton, margin, desktop } = input;
+  const phoneLeft = windowWidth / 2 + clearOfButton;
+  if (!desktop || !Number.isFinite(windowWidth) || windowWidth <= 0) return { left: phoneLeft, right: margin };
+  const startWidth = DESKTOP_START_WINDOW_WIDTH_DP - margin - (DESKTOP_START_WINDOW_WIDTH_DP / 2 + clearOfButton);
+  const width = Math.min(startWidth, windowWidth - margin - phoneLeft);
+  return { left: windowWidth - margin - width, right: margin };
 }
 
 // Where the corner hub (LensHub, and anything stacked on it) sits, and where

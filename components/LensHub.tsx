@@ -16,12 +16,13 @@ import { colors, lighten, MENU_LABEL_LIGHTEN_FRACTION } from '../constants/color
 import {
   FLOATING_BUTTON_SIZE,
   useBottomLeftHubPosition,
+  useHubMenuCardSpan,
   useMenuCardBottom,
   useMenuCardFit,
-  useSecondaryHubCardLeft,
 } from '../constants/floatingButton';
 import { TAB_ROUTES } from '../constants/tabs';
 import { TAB_REVEAL_DURATION_MS } from '../constants/tabReveal';
+import { gridColumnsFor } from '../lib/menuFit';
 import {
   MENU_MAX_FONT_SCALE,
   menuLabelShadow,
@@ -109,15 +110,20 @@ export type LensOption<T extends string> = {
   dividerBefore?: boolean;
 };
 
-// 2026-07-26: widened from 260 -- that size was tuned against Insights/
-// Schedule/Signals's own longest labels ("Cooking & Prep",
-// "Prescriptions", "Food Reactions"), but Food's own seven builder names
-// run longer still ("Fermentation Builder", "Beverage Builder", "Smoothie
-// Builder"), and were getting cut off at that width. One shared constant
-// already means every page's card is the same size by construction -- the
-// fix is sizing that one constant to fit the app's longest real case
-// (Food's) instead of a shorter one, so every page benefits, not just Food.
-const CARD_WIDTH = 300;
+// The card was a fixed 300 dp wide until 1.0.42.22 (widened from 260 on
+// 2026-07-26 so Food's builder names, "Fermentation Builder", "Beverage
+// Builder", "Smoothie Builder", fit one line in three columns). Direct
+// request, 2026-09-21: the TabHub menu takes the full width of a phone and
+// the starting width of the desktop window, centered on the TabHub button,
+// and "the same should apply for the LensHub menus, except they should be 3
+// rows high, and they should still be scrollable." So the card's left and
+// width come live from useHubMenuCardSpan (hubMenuCardSpan in
+// lib/menuFit.ts), and what survives of the 300 is the column width it was
+// tuned to: a page's own column count is the floor, and a card wide enough
+// for more columns at this width gets them (gridColumnsFor), so a full-width
+// card shows more of a long list per screen rather than spreading the same
+// three columns out.
+const GRID_MIN_COLUMN_WIDTH = (300 - 8 * 2) / 3;
 
 // This popup's own cap on the phone's font-size setting was a 1.3 defined
 // here, with a second hand-typed copy of it in components/MyItemsHub.tsx and
@@ -242,15 +248,15 @@ function cardHeaderHeight(fontScale: number): number {
   return menuLineBudget(CARD_HEADER_FONT_SIZE, fontScale) + CARD_HEADER_MARGIN_BOTTOM + CARD_HEADER_SLACK;
 }
 const CARD_PADDING_VERTICAL = 8 * 2; // card's own paddingVertical, top + bottom
-// Food's own grid switched to 3 columns, 2026-07-27, explicitly requested
-// (see `columns`/`infoInGrid` below) -- 9 builders across 3 columns is
-// exactly 3 full rows, plus a 4th row for Info (see infoInGrid's own
-// comment for why Info moves into the grid, not the floating corner,
-// whenever a page passes `columns`). 4 total, actually *fewer* than the
-// 5 rows this was set to briefly under the old 2-column layout. Every
-// page's card grows or shrinks with this constant, not just Food's -- see
-// CARD_HEIGHT's own comment for why that's one shared value.
-const FOOD_ROW_COUNT = 4;
+// How many rows of the grid show at once. Three since 1.0.42.22, by the
+// direct request quoted at GRID_MIN_COLUMN_WIDTH above ("they should be 3
+// rows high, and they should still be scrollable"); it was four from
+// 2026-07-27, when Food's grid went to 3 columns and its 9 builders plus
+// Info filled exactly four rows. Every page's card is this many rows tall
+// whatever its own count, see CARD_HEIGHT's own comment for why that's one
+// shared value, and a page with more rows scrolls inside it (the
+// unconditional ScrollView below).
+const VISIBLE_ROW_COUNT = 3;
 // The further `+ 5`, 2026-07-26: even accounting for the taller pill rows
 // above, Food's own card was reported as still too short for its content
 // -- explicitly requested a flat 5px added on top, applied to every page's
@@ -266,8 +272,8 @@ const FOOD_ROW_COUNT = 4;
 // below), which needs no extra height at all -- explained next.
 //
 // Since CARD_HEIGHT is one fixed size shared by every page (built from
-// Food's own worst case, FOOD_ROW_COUNT -- still the tallest of any page's
-// grid even after moving to 3 columns; Schedule's own 6 options in 2
+// VISIBLE_ROW_COUNT, once Food's own worst case -- still the tallest of any
+// page's grid even after moving to 3 columns; Schedule's own 6 options in 2
 // columns is the next tallest, at 3 rows), every other 2-column page has
 // genuine blank vertical space below its own (shorter) grid, inside this
 // same fixed box -- that's where their own Info tile floats (see
@@ -276,32 +282,30 @@ const FOOD_ROW_COUNT = 4;
 // longer relies on this at all -- see infoInGrid's own comment for why its
 // own Info sits inside the grid instead, on its own dedicated 4th row.
 function cardHeightFor(fontScale: number): number {
-  return cardHeaderHeight(fontScale) + FOOD_ROW_COUNT * gridRowHeight(fontScale) + CARD_PADDING_VERTICAL + 5;
+  return cardHeaderHeight(fontScale) + VISIBLE_ROW_COUNT * gridRowHeight(fontScale) + CARD_PADDING_VERTICAL + 5;
 }
 
 // card's own paddingHorizontal (left/right, matching CARD_PADDING_VERTICAL's
 // naming above, which only covers top+bottom) -- needed below to work out
 // exactly where the grid's own right-column icons sit, in absolute terms.
 const CARD_PADDING_HORIZONTAL = 8;
-// Each grid item is 50% of the card's own inner content width (see the
-// `item` style below) -- the right column's own icons sit centered within
-// the second of those two halves.
-const GRID_COLUMN_WIDTH = (CARD_WIDTH - CARD_PADDING_HORIZONTAL * 2) / 2;
 // Explicitly requested, 2026-07-27: the Info tile (see infoCorner below)
 // needs to line up, center to center, with the grid's own right-column
 // icons above it -- it was just pinned to the card's raw right edge before,
 // which put its own icon noticeably further right than the real column of
 // icons it sits underneath. Right-column icon center, measured as a
-// distance in from the card's own right edge: skip the left column
-// entirely, land in the middle of the right one.
-const RIGHT_COLUMN_ICON_CENTER_FROM_RIGHT = CARD_WIDTH - CARD_PADDING_HORIZONTAL - GRID_COLUMN_WIDTH * 1.5;
-// infoCorner has no explicit width, so it sizes to its own widest child --
-// the icon pill (GRID_ITEM_PILL_SIZE), wider than the short "Info" label
-// beneath it -- meaning its own icon's center sits exactly half a pill
+// distance in from the card's own right edge: the padding, then half a
+// column. infoCorner has no explicit width, so it sizes to its own widest
+// child -- the icon pill (GRID_ITEM_PILL_SIZE), wider than the short "Info"
+// label beneath it -- meaning its own icon's center sits exactly half a pill
 // width in from wherever `right` is set. Back that out so the icon itself,
 // not the tile's outer edge, is what actually lines up with the column
-// above.
-const INFO_CORNER_RIGHT = RIGHT_COLUMN_ICON_CENTER_FROM_RIGHT - GRID_ITEM_PILL_SIZE / 2;
+// above. A function of the live card width and column count since
+// 1.0.42.22, when both stopped being constants.
+function infoCornerRight(cardWidth: number, columns: number): number {
+  const columnWidth = (cardWidth - CARD_PADDING_HORIZONTAL * 2) / columns;
+  return CARD_PADDING_HORIZONTAL + columnWidth / 2 - GRID_ITEM_PILL_SIZE / 2;
+}
 
 // The same floating-hub pattern as TabHub (components/TabHub.tsx), one
 // level down: instead of picking which app tab to go to, this picks which
@@ -467,7 +471,7 @@ export function LensHub<T extends string>({
   infoInGrid?: boolean;
   // How many lines an option's own label can wrap to before truncating,
   // default 1 (every existing page's labels were already tuned to fit one
-  // line at CARD_WIDTH's 2-column default). 2026-08-07: added for Purple
+  // line at the card's old 300 dp 2-column default). 2026-08-07: added for Purple
   // Digest specifically, whose real category names ("Mitochondria &
   // Metabolism", "Other Autoimmune Diseases") run meaningfully longer than
   // any other page's own lens labels and were reading as truncated,
@@ -630,9 +634,18 @@ export function LensHub<T extends string>({
   }, [autoOpenSignal]);
   const insets = useSafeAreaInsets();
   const { bottom: buttonBottom, left: buttonLeft } = useBottomLeftHubPosition();
-  // The phone's left margin, or over the button on desktop: see
-  // useSecondaryHubCardLeft in constants/floatingButton.ts.
-  const cardLeft = useSecondaryHubCardLeft(CARD_WIDTH);
+  // The whole window on a phone, the starting window width centered on the
+  // window (so on TabHub's button) on desktop: see hubMenuCardSpan in
+  // lib/menuFit.ts. Until 1.0.42.22 this card was 300 dp wide over the
+  // corner button.
+  const { left: cardLeft, width: cardWidth } = useHubMenuCardSpan();
+  // The page's own column count, or more when the card is wide enough: see
+  // GRID_MIN_COLUMN_WIDTH above.
+  const gridColumns = gridColumnsFor({
+    innerWidth: cardWidth - CARD_PADDING_HORIZONTAL * 2,
+    columnWidth: GRID_MIN_COLUMN_WIDTH,
+    minColumns: columns,
+  });
   // Falls back to the brand teal/list icon only if a page ever passes a
   // pageTitle with no TAB_ROUTES match AND no explicit icon/color override
   // -- shouldn't happen for a real tab, but cheaper than a crash if a
@@ -699,7 +712,7 @@ export function LensHub<T extends string>({
     cardHeaderHeight(fontScale) + 2 * gridRowHeight(fontScale) + CARD_PADDING_VERTICAL,
   );
 
-  const itemWidthPercent = 100 / columns;
+  const itemWidthPercent = 100 / gridColumns;
   // Info moves off the floating corner and into the grid's own flow
   // whenever a page asks for it (see infoInGrid's own comment above for
   // the default and the 2026-08-07 reasoning) -- the corner trick assumes
@@ -719,8 +732,8 @@ export function LensHub<T extends string>({
   // count it the same as any other real tile or it'd land one cell off
   // from where it visually should.
   const effectiveItemCount = options.length + (extraTile ? 1 : 0);
-  const itemsInPartialRow = effectiveItemCount % columns;
-  const rowPadding = itemsInPartialRow === 0 ? 0 : columns - itemsInPartialRow;
+  const itemsInPartialRow = effectiveItemCount % gridColumns;
+  const rowPadding = itemsInPartialRow === 0 ? 0 : gridColumns - itemsInPartialRow;
   // Real group headers (below) force a fresh row at every group boundary,
   // 2026-08-18 -- which means the trailing row's own real item count no
   // longer matches effectiveItemCount % columns the way this centering
@@ -736,7 +749,7 @@ export function LensHub<T extends string>({
   // the same way -- otherwise Digest's own divider line would silently
   // throw off where Info lands.
   const hasGroups = options.some((option) => option.group !== undefined || option.dividerBefore);
-  const blanksBeforeInfo = hasGroups ? 0 : columns % 2 === 0 ? 0 : rowPadding + Math.floor(columns / 2);
+  const blanksBeforeInfo = hasGroups ? 0 : gridColumns % 2 === 0 ? 0 : rowPadding + Math.floor(gridColumns / 2);
 
   // Everything a tap on the corner button does, in one place, because a tap
   // on this button's stand-in inside another hub's open menu has to do the
@@ -866,7 +879,7 @@ export function LensHub<T extends string>({
               {
                 bottom: cardBottom,
                 left: cardLeft,
-                width: CARD_WIDTH,
+                width: cardWidth,
                 height: cardFit.height,
                 borderColor: tabColor,
               },
@@ -1166,7 +1179,7 @@ export function LensHub<T extends string>({
                 closed just above. */}
             {showInfoInGrid ? null : (
               <TouchableOpacity
-                style={styles.infoCorner}
+                style={[styles.infoCorner, { right: infoCornerRight(cardWidth, gridColumns) }]}
                 onPress={() => setHelpVisible(true)}
                 activeOpacity={0.7}
                 disabled={!selectedOption?.help}
@@ -1393,16 +1406,18 @@ const styles = StyleSheet.create({
   // 2 columns -- wide enough that even this app's longest lens labels
   // ("Cooking & Prep", "Prescriptions", "Food Reactions") sit on one line.
   // width: '50%' here is only ever a fallback -- every real usage overrides
-  // it inline with itemWidthPercent (100 / columns), so the grid's own
-  // column count can vary per page (see the `columns` prop's own comment).
+  // it inline with itemWidthPercent (100 / gridColumns), so the grid's own
+  // column count can vary per page and with the card's width (see the
+  // `columns` prop's own comment and GRID_MIN_COLUMN_WIDTH).
   item: { width: '50%', alignItems: 'center', gap: 2, paddingVertical: 6 },
   // Pinned to the card's own bottom-right corner, outside the wrapping
   // `grid` above's normal flow -- see CARD_HEIGHT's own comment for why
   // this spot is guaranteed blank on every page. `right` is INFO_CORNER_
   // RIGHT (see its own comment above), not a flat padding match, so the
   // icon itself lines up center-to-center with the grid's right-column
-  // icons above it, not just flush with the card's own edge inset.
-  infoCorner: { position: 'absolute', right: INFO_CORNER_RIGHT, bottom: 8, alignItems: 'center', gap: 2 },
+  // icons above it, not just flush with the card's own edge inset. `right`
+  // is set inline per render, from the live card width.
+  infoCorner: { position: 'absolute', bottom: 8, alignItems: 'center', gap: 2 },
   // The inactive/plain state -- same footprint as ActiveRingCircle's
   // own `size` (GRID_ITEM_PILL_SIZE), just centering a bare icon with no
   // circle or ring, so every item in the grid lines up at the same height
