@@ -714,7 +714,7 @@ const HOME_LENS_DESTINATIONS: Partial<
     label: 'Days Until',
     icon: 'hourglass',
     color: colors.tabGarden,
-    href: { pathname: '/garden', params: { openGardenLens: 'plotsAndPlantings' } } as Href,
+    href: { pathname: '/garden', params: { openGardenLens: 'daysUntil' } } as Href,
   },
   logHarvest: {
     label: 'Log a Harvest',
@@ -2951,8 +2951,8 @@ export default function HomeScreen() {
   // Days Until, 2026-09-21: the counters running under the garden's areas,
   // soonest first, the ones past their day ahead of those. The figure is
   // the same one the area shows (countdownFigure), so Home and the lens
-  // never disagree. A row opens Plots & Plantings, where a counter is
-  // marked done.
+  // never disagree. A row opens the Days Until lens on Garden, where every
+  // counter is and one is marked done or started.
   function renderDaysUntil() {
     if (!isHomeSectionVisible(visualPrefs, 'daysUntil')) return null;
     const today = todayDateString();
@@ -2962,7 +2962,7 @@ export default function HomeScreen() {
       'Days Until',
       <View style={styles.bandBody}>
         {counters.length === 0 ? (
-          <Text style={styles.bandCaption}>No counters running. Start one under an area in Plots &amp; Plantings: days to germination, to transplanting, to the first harvest.</Text>
+          <Text style={styles.bandCaption}>No counters running. Start one on Garden &gt; Days Until: days to germination, to transplanting, to the first harvest.</Text>
         ) : (
           counters.map((counter) => (
             <TouchableOpacity
@@ -2970,7 +2970,7 @@ export default function HomeScreen() {
               style={styles.reminderRow}
               activeOpacity={0.8}
               onPress={() =>
-                router.push({ pathname: '/garden', params: { openGardenLens: 'plotsAndPlantings' } })
+                router.push({ pathname: '/garden', params: { openGardenLens: 'daysUntil' } })
               }
             >
               <Text style={styles.reminderTime} numberOfLines={1}>

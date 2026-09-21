@@ -48,7 +48,7 @@ import type { DatedReminderKind } from './reminderSchedule';
 
 /** Where a tapped reminder lands. All three live in Life, under a lens that
  *  already takes a deep link (openLifeLens, app/(tabs)/life.tsx). */
-export type DatedReminderLens = 'finances' | 'upkeep' | 'work' | 'plotsAndPlantings';
+export type DatedReminderLens = 'finances' | 'upkeep' | 'work' | 'daysUntil';
 /** A countdown lands on Garden when tapped; the other three on Life. */
 export type DatedReminderTab = 'life' | 'garden';
 
@@ -165,7 +165,7 @@ export async function listDatedReminderSources(today: string): Promise<DatedRemi
       detail: countdown.plantingName ? `${countdown.plotName}, ${countdown.plantingName}` : countdown.plotName,
       dueOn: countdownDueDate(countdown),
       tab: 'garden',
-      lens: 'plotsAndPlantings',
+      lens: 'daysUntil',
     });
   }
 

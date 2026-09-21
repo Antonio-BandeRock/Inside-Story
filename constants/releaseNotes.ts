@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.14',
+    date: '2026-09-20',
+    changes: [
+      'Garden has a Days Until lens on its hub: every counter in the garden in one place, soonest first, each naming its area and planting, and a new one started there by picking its area. The My Garden chip, the Home Days Until card and a tapped counter reminder all open it. The same counters still sit under each area on Plots & Plantings.',
+    ],
+  },
+  {
     version: '1.0.42.13',
     date: '2026-09-20',
     changes: [

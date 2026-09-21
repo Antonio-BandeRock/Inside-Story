@@ -151,7 +151,10 @@ const NUDGEABLE_TIMED_KINDS: ReminderKind[] = ['dose', 'meal', 'hydration', 'gar
 
 type ScheduleLens = 'meds' | 'appointments' | 'todaysMeals' | 'hydration';
 type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine';
-type GardenReminderLens = 'upcomingTasks' | 'plotsAndPlantings';
+// 'plotsAndPlantings' is what a 1.0.42.13 payload says for a counter; it
+// opens the Days Until lens too, which has held every counter since
+// 1.0.42.14.
+type GardenReminderLens = 'upcomingTasks' | 'plotsAndPlantings' | 'daysUntil';
 
 type ReminderPayload = {
   kind: ReminderKind;
@@ -730,10 +733,12 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
     return { pathname: '/routine', params: { id: data.scheduleItemId } };
   }
   // A garden task lands on Upcoming Tasks and a Days Until counter on the
-  // area it sits under. An older payload that says garden and nothing
-  // about a lens is from before counters, so it can only be a task.
+  // Days Until lens, where every counter is. An older payload that says
+  // garden and nothing about a lens is from before counters, so it can
+  // only be a task.
   if (data?.tab === 'garden') {
-    return { pathname: '/garden', params: { openGardenLens: data.lens === 'plotsAndPlantings' ? 'plotsAndPlantings' : 'upcomingTasks' } };
+    const toCounters = data.lens === 'daysUntil' || data.lens === 'plotsAndPlantings';
+    return { pathname: '/garden', params: { openGardenLens: toCounters ? 'daysUntil' : 'upcomingTasks' } };
   }
   if (data?.tab === 'life') {
     const lens = DATED_LENSES.find((option) => option === data.lens) ?? 'finances';

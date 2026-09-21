@@ -95,11 +95,12 @@ const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 // this component's own memo() contract.
 const COUNTRY_OPTIONS = sortByLabel(COUNTRIES.map((country) => ({ label: country.name, value: country.code })));
 
-type GardenLens = 'myZone' | 'plotsAndPlantings' | 'harvestLog' | 'upcomingTasks' | 'compost' | 'growingCosts' | 'horticulture';
+type GardenLens = 'myZone' | 'plotsAndPlantings' | 'daysUntil' | 'harvestLog' | 'upcomingTasks' | 'compost' | 'growingCosts' | 'horticulture';
 
 const GARDEN_LENS_FULL_NAMES: Record<GardenLens, string> = {
   myZone: 'My Zone',
   plotsAndPlantings: 'Plots &\nPlantings',
+  daysUntil: 'Days\nUntil',
   harvestLog: 'Harvest\nLog',
   upcomingTasks: 'Upcoming\nTasks',
   compost: 'Compost',
@@ -126,7 +127,22 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Plots & Plantings',
-        body: 'A garden area is a place you grow food: a raised bed, a container, an indoor grow tent, a whole outdoor garden. Adding one walks through where it is, what kind of space it is (a raised bed, containers, a tent, or a space you name yourself from the picker, which then stays on the list), how much sun it gets (or, indoors, what lights it: the kind of light, its wattage, hours a day, timer, spectrum and the stage it suits, since indoors the light is the sun), its size, and its hardiness zone: details a future planting algorithm can use, none of them required to just get started. Each area has a Grow Setup once saved: lights, containers and what they are made of, hydroponic gear, humidity, timers, cooling, heating, water filtration, fans, exhaust, air filters, meters and any kind you name, each with what it cost to buy (recorded under Growing Costs for that area, so the budget sees it once), any ongoing cost, and its wattage and hours, from which the app works out what the setup draws a month and prices it once an electricity bill is recorded under Growing Costs. Each area also has Days Until counters: name something (germination, transplanting out, the first harvest), say how many days and the day it started, tie it to one planting if you like, and it counts down, says Today on the day (the phone reminds you that morning; the switch for it is in Profile > Reminders), and keeps counting past it until you mark it done; the running ones are on the Home screen under Garden. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest. Each planting has a status you set as it goes: Growing, Harvested, Failed or Pulled out. Once every grow in an area has finished, Move to Past Areas takes the area off the working list and keeps everything recorded under it readable in Past Areas below, and Bring it back returns it. Delete Area is only offered while nothing has been recorded under an area, so a record of what grew where is never lost.',
+        body: 'A garden area is a place you grow food: a raised bed, a container, an indoor grow tent, a whole outdoor garden. Adding one walks through where it is, what kind of space it is (a raised bed, containers, a tent, or a space you name yourself from the picker, which then stays on the list), how much sun it gets (or, indoors, what lights it: the kind of light, its wattage, hours a day, timer, spectrum and the stage it suits, since indoors the light is the sun), its size, and its hardiness zone: details a future planting algorithm can use, none of them required to just get started. Each area has a Grow Setup once saved: lights, containers and what they are made of, hydroponic gear, humidity, timers, cooling, heating, water filtration, fans, exhaust, air filters, meters and any kind you name, each with what it cost to buy (recorded under Growing Costs for that area, so the budget sees it once), any ongoing cost, and its wattage and hours, from which the app works out what the setup draws a month and prices it once an electricity bill is recorded under Growing Costs. Each area also has Days Until counters: name something (germination, transplanting out, the first harvest), say how many days and the day it started, tie it to one planting if you like, and it counts down, says Today on the day (the phone reminds you that morning; the switch for it is in Profile > Reminders), and keeps counting past it until you mark it done; every counter in the garden is on the Days Until lens, where you can start one by picking its area, and the running ones are on the Home screen under Garden. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest. Each planting has a status you set as it goes: Growing, Harvested, Failed or Pulled out. Once every grow in an area has finished, Move to Past Areas takes the area off the working list and keeps everything recorded under it readable in Past Areas below, and Bring it back returns it. Delete Area is only offered while nothing has been recorded under an area, so a record of what grew where is never lost.',
+      },
+    ],
+  },
+  // 2026-09-21, direct request: "Add a Days Until counter to the Garden
+  // hub quick access." Every counter across the garden in one place, and
+  // a new one started here by picking its area, rather than only under
+  // that area on Plots & Plantings.
+  {
+    key: 'daysUntil',
+    label: 'Days Until',
+    icon: 'hourglass-outline',
+    help: [
+      {
+        heading: 'Days Until',
+        body: 'Every Days Until counter in the garden, soonest first, each naming its area and the planting it is for. Start one here: pick the area, name what you are counting to (germination, transplanting out, the first harvest, the cover coming off), say how many days and the day it started, and tie it to one planting in that area if you like. A counter says Today on its day (the phone reminds you that morning; the switch for it is in Profile > Reminders), keeps counting past it until you mark it done, and Done keeps it as the record of how long the thing took. The same counters sit under each area on Plots & Plantings, and the running ones are on the Home screen under Garden.',
       },
     ],
   },
@@ -310,6 +326,7 @@ export default function GardenScreen() {
       if (
         openGardenLens === 'myZone' ||
         openGardenLens === 'plotsAndPlantings' ||
+        openGardenLens === 'daysUntil' ||
         openGardenLens === 'harvestLog' ||
         openGardenLens === 'upcomingTasks' ||
         openGardenLens === 'compost' ||
@@ -360,7 +377,7 @@ export default function GardenScreen() {
       count: plantingCount,
       onPress: () => { setLens('plotsAndPlantings'); setRevealed(true); },
     },
-    { id: 'countdowns', label: 'Days Until', count: countdownCount, onPress: () => { setLens('plotsAndPlantings'); setRevealed(true); } },
+    { id: 'countdowns', label: 'Days Until', count: countdownCount, onPress: () => { setLens('daysUntil'); setRevealed(true); } },
     { id: 'harvests', label: 'Harvests', count: harvestCount, onPress: () => { setLens('harvestLog'); setRevealed(true); } },
     { id: 'tasks', label: 'Upcoming Tasks', count: taskCount, onPress: () => { setLens('upcomingTasks'); setRevealed(true); } },
     { id: 'compost', label: 'Compost Piles', count: pileCount, onPress: () => { setLens('compost'); setRevealed(true); } },
@@ -379,6 +396,8 @@ export default function GardenScreen() {
             <MyZoneLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'plotsAndPlantings' ? (
             <PlotsAndPlantingsLens scrollBottomPadding={scrollBottomPadding} />
+          ) : lens === 'daysUntil' ? (
+            <DaysUntilLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'harvestLog' ? (
             <HarvestLogLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'upcomingTasks' ? (
@@ -1473,6 +1492,33 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
 // Content and logic carried over unchanged from that card, just given its
 // own real screen.
 // ---------------------------------------------------------------------------
+
+// Days Until, 2026-09-21 ("Add a Days Until counter to the Garden hub
+// quick access"): the whole garden's counters on one band, with the form
+// asking which area a new one is under. The section is the same one each
+// area shows on Plots & Plantings, given the areas instead of one area.
+function DaysUntilLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
+  const [plots, setPlots] = useState<GardenPlot[]>([]);
+
+  const load = useCallback(async () => {
+    setPlots(await listGardenPlots());
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load]),
+  );
+
+  return (
+    <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
+      <View style={[band.box, styles.card]}>
+        <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Days Until</Text>
+        <DaysUntilSection plots={plots} showHeading={false} />
+      </View>
+    </ScrollView>
+  );
+}
 
 function UpcomingTasksLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
   const [upcomingTasks, setUpcomingTasks] = useState<Awaited<ReturnType<typeof listUpcomingGardenTasks>>>([]);

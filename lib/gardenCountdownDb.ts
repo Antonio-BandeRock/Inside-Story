@@ -6,7 +6,9 @@
 // removing one is a plain delete; marking one done keeps it as the record
 // of how long the thing took. Home reads the running ones across every
 // current area (listRunningGardenCountdowns), the area list reads its own,
-// done ones included (listGardenCountdowns).
+// done ones included (listGardenCountdowns), and the Days Until lens on
+// the Garden hub reads every counter across the current areas, done ones
+// included (listCurrentGardenCountdowns).
 
 import { getDatabase } from './db';
 import type { GardenCountdown, GardenCountdownRow } from './gardenCountdown';
@@ -36,6 +38,13 @@ export async function listRunningGardenCountdowns(): Promise<GardenCountdownRow[
   return db.getAllAsync<GardenCountdownRow>(
     `SELECT ${COLUMNS} ${FROM} WHERE c.done_at IS NULL AND p.archived_at IS NULL ORDER BY c.started_on ASC`,
   );
+}
+
+/** Every counter under areas still in use, running and done, for the
+ *  Days Until lens. A past area's counters read only under that area. */
+export async function listCurrentGardenCountdowns(): Promise<GardenCountdownRow[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<GardenCountdownRow>(`SELECT ${COLUMNS} ${FROM} WHERE p.archived_at IS NULL ORDER BY c.created_at ASC`);
 }
 
 export async function countRunningGardenCountdowns(): Promise<number> {

@@ -1,4 +1,5 @@
-// Days Until counters under one garden area, on the Plots & Plantings lens.
+// Days Until counters: under one garden area on the Plots & Plantings
+// lens, or every counter across the garden on the Days Until lens.
 //
 // Added 2026-09-21 by direct request: "create a Days Until counter the
 // user can create, Name, and start a timer in days. All this to be tied
@@ -18,12 +19,21 @@
 // reminder kind 'countdown', lib/reminderSources.ts). Adding, finishing or
 // removing a counter reconciles the queued reminders straight away, so a
 // counter marked done on its eve does not still ring the next morning.
+//
+// Two scopes since 1.0.42.14 ("Add a Days Until counter to the Garden hub
+// quick access"). Given a plot, this is that area's section, as before.
+// Given plots instead, it is the whole garden: every counter under an
+// area still in use, each row naming its area, and the form asks which
+// area first (the plantings offered follow that choice), so a counter can
+// be started from the Garden hub without finding the area on Plots &
+// Plantings. A counter still belongs to an area either way.
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
-import type { GardenPlanting, GardenPlot } from '../lib/db';
+import { listGardenPlantings, type GardenPlanting, type GardenPlot } from '../lib/db';
+import { sortByLabel } from '../lib/choiceOrder';
 import {
   countdownFigure,
   countdownFormProblem,
@@ -32,7 +42,13 @@ import {
   sortCountdowns,
   type GardenCountdownRow,
 } from '../lib/gardenCountdown';
-import { addGardenCountdown, deleteGardenCountdown, listGardenCountdowns, setGardenCountdownDone } from '../lib/gardenCountdownDb';
+import {
+  addGardenCountdown,
+  deleteGardenCountdown,
+  listCurrentGardenCountdowns,
+  listGardenCountdowns,
+  setGardenCountdownDone,
+} from '../lib/gardenCountdownDb';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
@@ -46,31 +62,74 @@ function todayDateString(): string {
 }
 
 type Props = {
-  plot: GardenPlot;
-  plantings: GardenPlanting[];
+  /** One area's counters, on Plots & Plantings. */
+  plot?: GardenPlot;
+  /** That area's plantings, offered when tying a counter to one. */
+  plantings?: GardenPlanting[];
+  /** Every counter across the garden instead, on the Days Until lens:
+   *  the areas still in use, one of which a new counter is started
+   *  under. */
+  plots?: GardenPlot[];
   /** Called after any change, so the area can re-read what is recorded
    *  under it (a counter counts). */
   onChanged?: () => void | Promise<void>;
   /** A past area reads its counters and changes nothing. */
   readOnly?: boolean;
+  /** Off when the band around this already says Days Until. */
+  showHeading?: boolean;
 };
 
-export function DaysUntilSection({ plot, plantings, onChanged, readOnly = false }: Props) {
+export function DaysUntilSection({ plot, plantings, plots, onChanged, readOnly = false, showHeading = true }: Props) {
+  const wholeGarden = !plot;
   const [items, setItems] = useState<GardenCountdownRow[]>([]);
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState('');
   const [days, setDays] = useState('');
   const [startedOn, setStartedOn] = useState(todayDateString());
+  const [plotId, setPlotId] = useState<string>(plot?.id ?? '');
   const [plantingId, setPlantingId] = useState<string>(WHOLE_AREA);
+  // Whole garden only: the plantings of whichever area is picked, read
+  // when the pick changes. One area's plantings arrive as a prop.
+  const [pickedPlantings, setPickedPlantings] = useState<GardenPlanting[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  const areaId = plot?.id;
   const load = useCallback(async () => {
-    setItems(await listGardenCountdowns(plot.id));
-  }, [plot.id]);
+    setItems(areaId ? await listGardenCountdowns(areaId) : await listCurrentGardenCountdowns());
+  }, [areaId]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  // Alphabetical, like every chooser list of names.
+  const plotOptions = useMemo(() => sortByLabel((plots ?? []).map((p) => ({ label: p.name, value: p.id }))), [plots]);
+
+  // The first area is picked until the person picks another; an area
+  // that has gone (to Past Areas, say) gives way to the first again.
+  useEffect(() => {
+    if (!wholeGarden) return;
+    if (plotId && plotOptions.some((option) => option.value === plotId)) return;
+    setPlotId(plotOptions[0]?.value ?? '');
+    setPlantingId(WHOLE_AREA);
+  }, [wholeGarden, plotOptions, plotId]);
+
+  useEffect(() => {
+    if (!wholeGarden) return;
+    let cancelled = false;
+    if (!plotId) {
+      setPickedPlantings([]);
+      return;
+    }
+    listGardenPlantings(plotId).then((rows) => {
+      if (!cancelled) setPickedPlantings(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [wholeGarden, plotId]);
+
+  const offeredPlantings = wholeGarden ? pickedPlantings : (plantings ?? []);
 
   async function handleSave() {
     const problem = countdownFormProblem({ name, days, startedOn });
@@ -78,8 +137,12 @@ export function DaysUntilSection({ plot, plantings, onChanged, readOnly = false 
       setError(problem);
       return;
     }
+    if (!plotId) {
+      setError('Pick the area the counter is for.');
+      return;
+    }
     await addGardenCountdown({
-      plotId: plot.id,
+      plotId,
       plantingId: plantingId === WHOLE_AREA ? null : plantingId,
       name,
       startedOn,
@@ -116,27 +179,37 @@ export function DaysUntilSection({ plot, plantings, onChanged, readOnly = false 
   // alphabetically, like every chooser list of names.
   const plantingOptions = [
     { label: 'The whole area', value: WHOLE_AREA },
-    ...[...plantings]
+    ...[...offeredPlantings]
       .sort((a, b) => a.foodName.toLowerCase().localeCompare(b.foodName.toLowerCase()))
       .map((planting) => ({ label: planting.varietyNote ? `${planting.foodName} (${planting.varietyNote})` : planting.foodName, value: planting.id })),
   ];
+  const noAreaYet = wholeGarden && plotOptions.length === 0;
 
   return (
     <View style={styles.section}>
-      <Text style={styles.heading}>Days Until</Text>
+      {showHeading ? <Text style={styles.heading}>Days Until</Text> : null}
       {items.length === 0 ? (
-        <Text style={styles.captionText}>Name something and count the days to it: germination, transplanting out, the first harvest, the cover coming off. The phone reminds you on the day, and a counter keeps counting past its day until you mark it done.</Text>
+        <Text style={styles.captionText}>
+          {noAreaYet
+            ? 'A counter lives under a garden area. Add an area on Plots & Plantings first, then count the days to germination, transplanting out, the first harvest, or the cover coming off here.'
+            : 'Name something and count the days to it: germination, transplanting out, the first harvest, the cover coming off. The phone reminds you on the day, and a counter keeps counting past its day until you mark it done.'}
+        </Text>
       ) : null}
       {ordered.map((item) => {
         const figure = countdownFigure(item, today);
         const progress = countdownProgress(item, today);
+        const where = wholeGarden
+          ? item.plantingName
+            ? `${item.plantingName}, ${item.plotName}`
+            : item.plotName
+          : item.plantingName;
         return (
           <View key={item.id} style={styles.itemRow}>
             <Text style={[styles.figure, item.doneAt ? styles.doneText : null]}>{figure}</Text>
             <View style={styles.itemText}>
               <Text style={[styles.bodyText, item.doneAt ? styles.doneText : null]}>
                 {item.name}
-                {item.plantingName ? ` · ${item.plantingName}` : ''}
+                {where ? ` · ${where}` : ''}
               </Text>
               <Text style={styles.captionText}>{describeCountdown(item, today)}</Text>
               {!item.doneAt ? (
@@ -159,8 +232,14 @@ export function DaysUntilSection({ plot, plantings, onChanged, readOnly = false 
         );
       })}
 
-      {readOnly ? null : adding ? (
+      {readOnly || noAreaYet ? null : adding ? (
         <View style={styles.nestedForm}>
+          {wholeGarden ? (
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>Area</Text>
+              <PopoverSelect options={plotOptions} selected={plotId} onSelect={(value) => { setPlotId(value); setPlantingId(WHOLE_AREA); }} tabColor={TAB_COLOR} width={220} />
+            </View>
+          ) : null}
           <View style={styles.fieldRow}>
             <Text style={styles.fieldLabel}>Days until what?</Text>
             <AppTextInput style={[styles.textInput, styles.wideInput]} value={name} onChangeText={setName} placeholder="Germination, transplant, first harvest" />
@@ -171,7 +250,7 @@ export function DaysUntilSection({ plot, plantings, onChanged, readOnly = false 
             <Text style={styles.fieldLabel}>Started on</Text>
             <AppTextInput style={[styles.textInput, styles.dateInput]} value={startedOn} onChangeText={setStartedOn} placeholder="YYYY-MM-DD" />
           </View>
-          {plantings.length > 0 ? (
+          {offeredPlantings.length > 0 ? (
             <View style={styles.fieldRow}>
               <Text style={styles.fieldLabel}>For</Text>
               <PopoverSelect options={plantingOptions} selected={plantingId} onSelect={setPlantingId} tabColor={TAB_COLOR} width={220} />
