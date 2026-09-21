@@ -5,6 +5,7 @@ import { useActiveField } from './ActiveInputContext';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { useFooterBandHeight } from '../constants/floatingButton';
 import { computeNextLift, LIFT_DURATION_MS } from '../lib/keyboardLift';
+import { isDesktopApp } from '../lib/desktop/bridge';
 
 // Keeps whatever field is being typed into above AppKeyboard, everywhere at
 // once.
@@ -70,6 +71,9 @@ const NO_LIFT: KeyboardLift = {
 const KeyboardLiftContext = createContext<KeyboardLift | null>(null);
 
 export function KeyboardLiftProvider({ children }: { children: ReactNode }) {
+  // The desktop app mounts no drawn keyboard (see app/_layout.tsx), so
+  // there is nothing to lift a field above: it provides the no-op lift.
+  const desktop = isDesktopApp();
   const lift = useSharedValue(0);
   // The same number in plain JS: read when computing the next lift, so the
   // maths never reads a half-finished animation frame out of the shared value.
@@ -121,7 +125,7 @@ export function KeyboardLiftProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [derivedKeyboardTopY]);
 
-  return <KeyboardLiftContext.Provider value={value}>{children}</KeyboardLiftContext.Provider>;
+  return <KeyboardLiftContext.Provider value={desktop ? NO_LIFT : value}>{children}</KeyboardLiftContext.Provider>;
 }
 
 // Forgiving rather than throwing, unlike useActiveInputControls: a field inside

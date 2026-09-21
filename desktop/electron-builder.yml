@@ -1,0 +1,41 @@
+# electron-builder settings for the Windows and Mac installers.
+# `npm run dist` in this folder exports the web build first, then packs it.
+appId: com.insidestoryapp.app
+productName: Inside Story
+copyright: Inside Story
+directories:
+  output: dist
+# The app's version is four parts (1.0.DAY.UPDATE, see constants/version.ts),
+# which is not semver, so package.json carries the first three and the whole
+# thing goes here: Windows shows it as the file version, and the installer
+# file is named by it.
+buildVersion: 1.0.42.16
+artifactName: ${productName} Setup ${buildVersion}.${ext}
+files:
+  - main.js
+  - preload.js
+  - sqlite.js
+  - secrets.js
+  - notifications.js
+  - files.js
+  - package.json
+  - web-build/**
+# The reference database ships beside the app (resources/foods_reference.db)
+# rather than inside the asar archive, and main.js copies it into the data
+# folder on first run and after an upgrade that changes it.
+extraResources:
+  - from: ../assets/data/foods_reference.db
+    to: foods_reference.db
+win:
+  target:
+    - nsis
+  icon: ../assets/images/icon.png
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  perMachine: false
+mac:
+  target:
+    - dmg
+  icon: ../assets/images/icon.png
+  category: public.app-category.healthcare-fitness

@@ -9,6 +9,7 @@ import { AppState, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ActiveInputProvider } from '../components/ActiveInputContext';
 import { AppKeyboard } from '../components/AppKeyboard';
+import { isDesktopApp } from '../lib/desktop/bridge';
 import { KeyboardLiftProvider, KeyboardLiftReleaser, KeyboardLiftView } from '../components/KeyboardLift';
 import { DatabaseSetupScreen } from '../components/DatabaseSetupScreen';
 import { StartupFailureScreen } from '../components/StartupFailureScreen';
@@ -703,7 +704,10 @@ export default function RootLayout() {
                   measured against the real keyboard rather than worked out from
                   the window height), while staying exactly where it is when the
                   content slides behind it. */}
-              <AppKeyboard />
+              {/* The desktop app (desktop/, Electron) has a physical keyboard, so
+                  the drawn one is not mounted there at all; KeyboardLiftProvider
+                  makes the same call and lifts nothing. */}
+              {isDesktopApp() ? null : <AppKeyboard />}
               <VersionLabel />
             </KeyboardLiftProvider>
           </OverlayProvider>

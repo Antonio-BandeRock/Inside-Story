@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.16',
+    date: '2026-09-21',
+    changes: [
+      'A fresh install no longer fails to set up its database: the favorites migration read a schedule column that did not exist yet on a brand-new phone, and the check was moved behind that column. Inside Story also runs on Windows and Mac now, as a desktop app sharing the same code, keeping its data in a folder on the computer; it is a first version, and carrying your phone\'s data over to it is the next step.',
+    ],
+  },
+  {
     version: '1.0.42.15',
     date: '2026-09-21',
     changes: [
