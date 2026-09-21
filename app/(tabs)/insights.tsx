@@ -117,11 +117,11 @@ import { WhyExplainer } from '../../components/WhyExplainer';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import {
   FLOATING_BUTTON_SIZE,
-  SECONDARY_HUB_CARD_LEFT_MARGIN,
   SECONDARY_HUB_GAP,
   useBottomLeftHubPosition,
   useFloatingButtonScrollPadding,
   useMenuCardBottom,
+  useSecondaryHubCardLeft,
 } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
@@ -166,6 +166,8 @@ function severityRowStyle(severity: StatusSeverity | TierSeverity) {
 // identity. Matches the same "box border = the tab it belongs to" rule
 // applied there, 2026-07-27.
 const TAB_COLOR = colors.tabInsights;
+// The ScopeHub card is capped at the LensHub card width.
+const SCOPE_CARD_MAX_WIDTH = 300;
 
 type Lens =
   | 'nutrients'
@@ -2037,6 +2039,9 @@ function ScopeHub<M extends NavigableMeal>({
   // the footer band; only the popup card floats clear above it (see
   // useMenuCardBottom's own comment in constants/floatingButton.ts).
   const cardBottom = useMenuCardBottom();
+  // The phone's left margin, or over the button on desktop: see
+  // useSecondaryHubCardLeft in constants/floatingButton.ts.
+  const cardLeft = useSecondaryHubCardLeft(SCOPE_CARD_MAX_WIDTH);
 
   const crumbs = scopeBreadcrumbs(breakdown, scope);
 
@@ -2115,7 +2120,7 @@ function ScopeHub<M extends NavigableMeal>({
       <Modal visible={open} transparent animationType={modalAnimationType('fade')} onRequestClose={() => setOpen(false)}>
         <View style={styles.backdrop}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
-          <View style={[styles.scopeCard, { bottom: cardBottom, left: SECONDARY_HUB_CARD_LEFT_MARGIN, borderColor: TAB_COLOR }]}>
+          <View style={[styles.scopeCard, { bottom: cardBottom, left: cardLeft, borderColor: TAB_COLOR }]}>
             <View style={styles.scopeCardHeaderRow}>
               {/* Title case, not the literal "DRILL DOWN" this used before
                   2026-07-28 -- no all-caps headers anywhere, per explicit
@@ -4281,7 +4286,7 @@ const styles = StyleSheet.create({
   // just as much "a menu accessed from this page" as LensHub itself.
   scopeCard: {
     position: 'absolute',
-    maxWidth: 300,
+    maxWidth: SCOPE_CARD_MAX_WIDTH,
     backgroundColor: colors.menuSurface,
     borderRadius: 14,
     borderWidth: 2,

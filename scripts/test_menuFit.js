@@ -29,7 +29,7 @@ function load(relPath) {
   return module.exports;
 }
 
-const { MENU_CARD_MIN_HEIGHT, MENU_CARD_TOP_GAP, fitMenuCard, menuCardRoom } = load('lib/menuFit.ts');
+const { MENU_CARD_MIN_HEIGHT, MENU_CARD_TOP_GAP, cornerHubLeft, fitMenuCard, menuCardRoom, secondaryHubCardLeft } = load('lib/menuFit.ts');
 
 let checks = 0;
 let failures = 0;
@@ -138,6 +138,28 @@ check('Display size Large in portrait still fits the tallest menu', displayLarge
 const displayLargest = fitMenuCard({ desired: 461, windowHeight: Math.round(GALAXY_PORTRAIT / 1.3), cardBottom: 137, topInset: 40 });
 check('the largest Display size clamps rather than clips', displayLargest.height <= 461, true);
 check('and what is clamped scrolls', displayLargest.height < 461 ? displayLargest.scrolls : true, true);
+
+// Where the corner hub (LensHub, and My Items and Insights' ScopeHub, which
+// position themselves from it) sits. Direct request, 2026-09-21: on Windows
+// "they should stay a specific distance from the TabHub menu icon ... no
+// matter how wide the app is made to be." A phone keeps its corner.
+const HUB = { buttonSize: 60, gap: 12, cornerMargin: 16 };
+check('a phone keeps the corner margin', cornerHubLeft({ ...HUB, windowWidth: 411, nearTabHub: false }), 16);
+check('a wide phone or tablet keeps it too', cornerHubLeft({ ...HUB, windowWidth: 1024, nearTabHub: false }), 16);
+check('a narrow phone pulls it in under the second slot', cornerHubLeft({ ...HUB, windowWidth: 320, nearTabHub: false }), 320 / 2 - 30 - 144);
+check('desktop at the default window width sits two slots left of TabHub', cornerHubLeft({ ...HUB, windowWidth: 600, nearTabHub: true }), 600 / 2 - 30 - 144);
+check('desktop at 1400 wide is still two slots left of TabHub', cornerHubLeft({ ...HUB, windowWidth: 1400, nearTabHub: true }), 1400 / 2 - 30 - 144);
+check('the distance to TabHub does not change with the window', cornerHubLeft({ ...HUB, windowWidth: 1400, nearTabHub: true }) - 1400 / 2, cornerHubLeft({ ...HUB, windowWidth: 600, nearTabHub: true }) - 600 / 2);
+check('desktop never goes past the left edge', cornerHubLeft({ ...HUB, windowWidth: 300, nearTabHub: true }), 0);
+
+// And where its popup card opens: the phone's margin, or over the button on
+// desktop, never past the right edge.
+check('a phone opens the card at the margin', secondaryHubCardLeft({ windowWidth: 411, cardWidth: 300, buttonLeft: 16, leftMargin: 16, nearTabHub: false }), 16);
+check('desktop opens the card over its button', secondaryHubCardLeft({ windowWidth: 1400, cardWidth: 300, buttonLeft: 526, leftMargin: 16, nearTabHub: true }), 526);
+check('desktop keeps the card inside a narrow window', secondaryHubCardLeft({ windowWidth: 600, cardWidth: 300, buttonLeft: 126, leftMargin: 16, nearTabHub: true }), 126);
+check('desktop clamps the card to the right edge', secondaryHubCardLeft({ windowWidth: 400, cardWidth: 300, buttonLeft: 126, leftMargin: 16, nearTabHub: true }), 100);
+check('and never past the left edge', secondaryHubCardLeft({ windowWidth: 250, cardWidth: 300, buttonLeft: 0, leftMargin: 16, nearTabHub: true }), 0);
+check('an unmeasured window falls back to the margin', secondaryHubCardLeft({ windowWidth: 0, cardWidth: 300, buttonLeft: 0, leftMargin: 16, nearTabHub: true }), 16);
 
 if (failures > 0) {
   console.error(`\n${failures} of ${checks} checks failed`);

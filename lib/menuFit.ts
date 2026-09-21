@@ -146,3 +146,64 @@ export function menuCardLeft(input: MenuCardLeftInput): number {
   if (!centered || !Number.isFinite(windowWidth) || windowWidth <= 0) return leftMargin;
   return Math.max(0, Math.round(windowWidth / 2 - cardWidth / 2));
 }
+
+// Where the corner hub (LensHub, and anything stacked on it) sits, and where
+// a secondary hub's card opens.
+//
+// On a phone LensHub is anchored to the bottom-left corner, a short reach from
+// the same thumb that reaches TabHub, and shifts right only on a screen too
+// narrow to hold it there clear of TabHub. The desktop build is a window of
+// any width, and the corner of a wide window is nowhere near TabHub, which
+// stays centered. Reported 2026-09-21: "instead of tying the LensHub icon and
+// the My (TabNameHere) to the left side of the screen as an anchor, they
+// should stay a specific distance from the TabHub menu icon. This is so no
+// matter how wide the app is made to be, the menus are always toward the
+// middle of the window and available for quick access."
+//
+// So on desktop the corner hub takes the second slot left of TabHub, the same
+// slot formula useSecondaryHubPosition uses, one slot further out: the empty
+// first slot is where My Items already centers itself, between LensHub's
+// right edge and TabHub's artwork. Whatever stacks above LensHub (Insights'
+// ScopeHub) reads the same left and follows. A phone keeps its corner.
+export type CornerHubLeftInput = {
+  /** useWindowDimensions().width, in dp. */
+  windowWidth: number;
+  buttonSize: number;
+  /** The gap between adjacent hub buttons. */
+  gap: number;
+  /** The phone's corner margin. */
+  cornerMargin: number;
+  /** True on the desktop build (isDesktopApp). */
+  nearTabHub: boolean;
+};
+
+export function cornerHubLeft(input: CornerHubLeftInput): number {
+  const { windowWidth, buttonSize, gap, cornerMargin, nearTabHub } = input;
+  const secondSlotLeft = windowWidth / 2 - buttonSize / 2 - 2 * (gap + buttonSize);
+  if (nearTabHub) return Math.max(0, secondSlotLeft);
+  return Math.min(cornerMargin, secondSlotLeft);
+}
+
+// A secondary hub's card (LensHub's lens picker, My Items, Insights' drill
+// down) opens at the phone's left margin, which on a phone is also where the
+// corner button is. On desktop the card opens over its button instead, so the
+// two stay together however wide the window is, and never past the right
+// edge: a window narrower than the card from the button starts it further
+// left, down to 0.
+export type SecondaryHubCardLeftInput = {
+  /** useWindowDimensions().width, in dp. */
+  windowWidth: number;
+  cardWidth: number;
+  /** The corner hub button's left, from cornerHubLeft. */
+  buttonLeft: number;
+  /** The phone's left margin. */
+  leftMargin: number;
+  /** True on the desktop build (isDesktopApp). */
+  nearTabHub: boolean;
+};
+
+export function secondaryHubCardLeft(input: SecondaryHubCardLeftInput): number {
+  const { windowWidth, cardWidth, buttonLeft, leftMargin, nearTabHub } = input;
+  if (!nearTabHub || !Number.isFinite(windowWidth) || windowWidth <= 0) return leftMargin;
+  return Math.max(0, Math.min(buttonLeft, windowWidth - cardWidth));
+}

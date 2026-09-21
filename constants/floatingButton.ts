@@ -1,7 +1,8 @@
 import { useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { fitMenuCard, type MenuCardFit } from '@/lib/menuFit';
+import { isDesktopApp } from '@/lib/desktop/bridge';
+import { cornerHubLeft, fitMenuCard, secondaryHubCardLeft, type MenuCardFit } from '@/lib/menuFit';
 
 // Shared sizing/position for the app's bottom-center floating buttons --
 // TabHub's own button and HelpSheet's close button both anchor to the
@@ -153,13 +154,42 @@ export function useSecondaryHubPosition(slotIndex: number): { bottom: number; le
 // already clears LensHub with room to spare, so this sits right at the
 // corner; only on an unusually narrow screen does it shift right just
 // enough to keep clear of LensHub, rather than overlapping it.
+//
+// On the desktop build the corner of a window is wherever the person dragged
+// the edge to, so there this hub keeps a fixed distance from TabHub instead
+// (the second slot left of it, see cornerHubLeft in lib/menuFit.ts), and My
+// Items, which centers itself between the two, follows. Direct request,
+// 2026-09-21: "no matter how wide the app is made to be, the menus are always
+// toward the middle of the window and available for quick access."
 export function useBottomLeftHubPosition(): { bottom: number; left: number } {
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
   const bottom = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET;
-  const pageMenuLeft = windowWidth / 2 - FLOATING_BUTTON_SIZE / 2 - SECONDARY_HUB_GAP - FLOATING_BUTTON_SIZE;
-  const left = Math.min(SECONDARY_HUB_CARD_LEFT_MARGIN, pageMenuLeft - SECONDARY_HUB_GAP - FLOATING_BUTTON_SIZE);
+  const left = cornerHubLeft({
+    windowWidth,
+    buttonSize: FLOATING_BUTTON_SIZE,
+    gap: SECONDARY_HUB_GAP,
+    cornerMargin: SECONDARY_HUB_CARD_LEFT_MARGIN,
+    nearTabHub: isDesktopApp(),
+  });
   return { bottom, left };
+}
+
+// Where a secondary hub's popup card sets its `left`: the shared margin on a
+// phone, and over the corner hub button on desktop, where that button is
+// nowhere near the margin (see secondaryHubCardLeft in lib/menuFit.ts). Every
+// card that used to type SECONDARY_HUB_CARD_LEFT_MARGIN reads this instead,
+// passing its own width so it can never open past the right edge.
+export function useSecondaryHubCardLeft(cardWidth: number): number {
+  const { width: windowWidth } = useWindowDimensions();
+  const { left: buttonLeft } = useBottomLeftHubPosition();
+  return secondaryHubCardLeft({
+    windowWidth,
+    cardWidth,
+    buttonLeft,
+    leftMargin: SECONDARY_HUB_CARD_LEFT_MARGIN,
+    nearTabHub: isDesktopApp(),
+  });
 }
 
 // The deferred left/right-handed layout toggle (see CLAUDE.md's Next

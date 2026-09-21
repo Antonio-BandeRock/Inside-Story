@@ -15,10 +15,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, lighten, MENU_LABEL_LIGHTEN_FRACTION } from '../constants/colors';
 import {
   FLOATING_BUTTON_SIZE,
-  SECONDARY_HUB_CARD_LEFT_MARGIN,
   useBottomLeftHubPosition,
   useMenuCardBottom,
   useMenuCardFit,
+  useSecondaryHubCardLeft,
 } from '../constants/floatingButton';
 import { TAB_ROUTES } from '../constants/tabs';
 import { TAB_REVEAL_DURATION_MS } from '../constants/tabReveal';
@@ -630,6 +630,9 @@ export function LensHub<T extends string>({
   }, [autoOpenSignal]);
   const insets = useSafeAreaInsets();
   const { bottom: buttonBottom, left: buttonLeft } = useBottomLeftHubPosition();
+  // The phone's left margin, or over the button on desktop: see
+  // useSecondaryHubCardLeft in constants/floatingButton.ts.
+  const cardLeft = useSecondaryHubCardLeft(CARD_WIDTH);
   // Falls back to the brand teal/list icon only if a page ever passes a
   // pageTitle with no TAB_ROUTES match AND no explicit icon/color override
   // -- shouldn't happen for a real tab, but cheaper than a crash if a
@@ -862,7 +865,7 @@ export function LensHub<T extends string>({
               styles.card,
               {
                 bottom: cardBottom,
-                left: SECONDARY_HUB_CARD_LEFT_MARGIN,
+                left: cardLeft,
                 width: CARD_WIDTH,
                 height: cardFit.height,
                 borderColor: tabColor,

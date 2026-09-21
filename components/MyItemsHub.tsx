@@ -6,10 +6,10 @@ import { colors } from '../constants/colors';
 import {
   FLOATING_BUTTON_BOTTOM_OFFSET,
   FLOATING_BUTTON_SIZE,
-  SECONDARY_HUB_CARD_LEFT_MARGIN,
   useBottomLeftHubPosition,
   useMenuCardBottom,
   useMenuCardFit,
+  useSecondaryHubCardLeft,
 } from '../constants/floatingButton';
 import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
 import { MENU_MAX_FONT_SCALE, textShadow, typography } from '../constants/typography';
@@ -148,6 +148,10 @@ export function MyItemsHub({
   });
   const { left: lensHubLeft } = useBottomLeftHubPosition();
   const cardBottom = useMenuCardBottom();
+  // The phone's left margin, or over LensHub's button on desktop, the same
+  // left as LensHub's card: see useSecondaryHubCardLeft in
+  // constants/floatingButton.ts.
+  const cardLeft = useSecondaryHubCardLeft(CARD_WIDTH);
   // How tall this card is allowed to get. It is content-sized, so on a normal
   // phone with a few saved items it is far shorter than this and the cap never
   // comes into play. 2026-09-18, direct request: "Do the display size and
@@ -233,7 +237,7 @@ export function MyItemsHub({
           <View
             style={[
               styles.card,
-              { bottom: cardBottom, left: SECONDARY_HUB_CARD_LEFT_MARGIN, borderColor: tabColor, maxHeight: cardMaxHeight },
+              { bottom: cardBottom, left: cardLeft, borderColor: tabColor, maxHeight: cardMaxHeight },
             ]}
           >
             <Text style={[styles.cardHeader, { color: tabColor }]} maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}>
@@ -286,6 +290,7 @@ const ICON_SIZE = 21;
 // accepted edge case rather than solved outright, same tradeoff this
 // app's own floating-button math already makes elsewhere.
 const TOUCH_SIZE = 32;
+const CARD_WIDTH = 240;
 // Proportional to ICON_SIZE the same way LensHub's own ring is to its
 // 32px icon (roughly icon size + 6px of ring showing around it).
 const RING_SIZE = ICON_SIZE + 15;
@@ -328,7 +333,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.menuSurface,
     borderRadius: 14,
     borderWidth: 2,
-    width: 240,
+    width: CARD_WIDTH,
     padding: 16,
     // `maxHeight` is set inline per render (CARD_MAX_HEIGHT, clamped by
     // useMenuCardFit) rather than here, so a window too short for the cap

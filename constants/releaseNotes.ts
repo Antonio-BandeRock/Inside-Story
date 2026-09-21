@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.21',
+    date: '2026-09-21',
+    changes: [
+      'On a computer the lens button, My Items and the corner menus keep a fixed distance from the TabHub button instead of sitting in the left corner, so they stay toward the middle of the window however wide it is. A phone is unchanged.',
+    ],
+  },
+  {
     version: '1.0.42.20',
     date: '2026-09-21',
     changes: [
