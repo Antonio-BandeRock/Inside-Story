@@ -61,6 +61,9 @@ import { gardenSpaceLabel, isRetiredGardenSpace, type CustomGardenSpace } from '
 import { listGardenSpaces } from '../../lib/gardenSpacesDb';
 import { PLANTING_STATUS_OPTIONS, pastAreaBlocker, plantingStatusLabel } from '../../lib/gardenAreaLifecycle';
 import { GardenSpaceField } from '../../components/GardenSpaceField';
+import { emptyLightDraft, GrowSetupSection, LightFields, lightDraftHasLight, lightDraftToInput, type LightDraft } from '../../components/GrowSetupSection';
+import type { CustomGardenTerm } from '../../lib/growSetup';
+import { addGrowEquipment, listGardenTerms } from '../../lib/growSetupDb';
 
 // This page's own identity color -- see constants/colors.ts's own comment
 // on tabGarden for how it was chosen.
@@ -120,7 +123,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Plots & Plantings',
-        body: 'A garden area is a place you grow food: a raised bed, a container, an indoor grow tent, a whole outdoor garden. Adding one walks through where it is, what kind of space it is (a raised bed, containers, a tent, or a space you name yourself from the picker, which then stays on the list), how much sun it gets, its size, and its hardiness zone: details a future planting algorithm can use, none of them required to just get started. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest. Each planting has a status you set as it goes: Growing, Harvested, Failed or Pulled out. Once every grow in an area has finished, Move to Past Areas takes the area off the working list and keeps everything recorded under it readable in Past Areas below, and Bring it back returns it. Delete Area is only offered while nothing has been recorded under an area, so a record of what grew where is never lost.',
+        body: 'A garden area is a place you grow food: a raised bed, a container, an indoor grow tent, a whole outdoor garden. Adding one walks through where it is, what kind of space it is (a raised bed, containers, a tent, or a space you name yourself from the picker, which then stays on the list), how much sun it gets (or, indoors, what lights it: the kind of light, its wattage, hours a day, timer, spectrum and the stage it suits, since indoors the light is the sun), its size, and its hardiness zone: details a future planting algorithm can use, none of them required to just get started. Each area has a Grow Setup once saved: lights, containers and what they are made of, hydroponic gear, humidity, timers, cooling, heating, water filtration, fans, exhaust, air filters, meters and any kind you name, each with what it cost to buy (recorded under Growing Costs for that area, so the budget sees it once), any ongoing cost, and its wattage and hours, from which the app works out what the setup draws a month and prices it once an electricity bill is recorded under Growing Costs. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest. Each planting has a status you set as it goes: Growing, Harvested, Failed or Pulled out. Once every grow in an area has finished, Move to Past Areas takes the area off the working list and keeps everything recorded under it readable in Past Areas below, and Bring it back returns it. Delete Area is only offered while nothing has been recorded under an area, so a record of what grew where is never lost.',
       },
     ],
   },
@@ -220,17 +223,25 @@ const LOCATION_TYPE_OPTIONS: { value: 'outdoor' | 'indoor' | 'greenhouse'; label
 // shared with the area form inside Growing Costs: four built-in spaces
 // plus any the person names, and the three equipment values that were on
 // this list (hydroponic, LED lights, temperature and humidity control)
-// are expenses under Growing Costs rather than spaces.
+// are pieces of the area's Grow Setup (components/GrowSetupSection.tsx)
+// rather than spaces.
 
 // Phase 3 -- Sunlight Exposure, the real structured replacement for the old
-// free-text "light source" field.
+// free-text "light source" field. Since 2026-09-21 the form offers the
+// three sun levels only: an indoor area is asked what lights it instead
+// (the light is saved as the first piece of its Grow Setup), and a
+// greenhouse is asked about sun and may add lights. The two values that
+// used to sit here are retired; an area recorded under one still reads
+// its label from RETIRED_SUNLIGHT_LABELS.
 const SUNLIGHT_OPTIONS: { value: GardenSunlightExposure; label: string }[] = [
   { value: 'full_sun', label: 'Full Sun (6+ hours)' },
   { value: 'partial_shade', label: 'Partial Shade (3-6 hours)' },
   { value: 'full_shade', label: 'Full Shade (<3 hours)' },
-  { value: 'indoor_led_timer', label: 'Indoor LED Lights, Timer required' },
-  { value: 'airflow', label: 'Airflow' },
 ];
+const RETIRED_SUNLIGHT_LABELS: Partial<Record<GardenSunlightExposure, string>> = {
+  indoor_led_timer: 'Indoor LED Lights, Timer required',
+  airflow: 'Airflow',
+};
 
 // Phase 4 -- Size & Dimensions' own Feet/Meters toggle.
 const SIZE_UNIT_OPTIONS: { value: GardenSizeUnit; label: string }[] = [
@@ -241,9 +252,10 @@ const SIZE_UNIT_OPTIONS: { value: GardenSizeUnit; label: string }[] = [
 // Real display-label lookups for the collapsed garden-area card's own
 // summary line -- reuses the exact same option arrays above rather than a
 // second, separately-maintained label map.
-const SUNLIGHT_LABELS: Record<GardenSunlightExposure, string> = Object.fromEntries(
-  SUNLIGHT_OPTIONS.map((o) => [o.value, o.label]),
-) as Record<GardenSunlightExposure, string>;
+const SUNLIGHT_LABELS: Record<GardenSunlightExposure, string> = {
+  ...(Object.fromEntries(SUNLIGHT_OPTIONS.map((o) => [o.value, o.label])) as Record<GardenSunlightExposure, string>),
+  ...RETIRED_SUNLIGHT_LABELS,
+};
 
 const HARVEST_UNIT_OPTIONS = ['g', 'kg', 'oz', 'lb', 'count'];
 
@@ -611,6 +623,15 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
   const [pastBlockers, setPastBlockers] = useState<Record<string, string>>({});
   // Phase 3 -- Sunlight Exposure.
   const [newAreaSunlight, setNewAreaSunlight] = useState<GardenSunlightExposure | null>(null);
+  // Indoors, the light is the sun: an indoor area is asked what lights it
+  // in place of how much sun it gets, and the light is saved as the first
+  // piece of the new area's Grow Setup. A greenhouse may add one too.
+  const [newAreaLight, setNewAreaLight] = useState<LightDraft>(emptyLightDraft);
+  const [newAreaGreenhouseLit, setNewAreaGreenhouseLit] = useState(false);
+  const [gardenTerms, setGardenTerms] = useState<CustomGardenTerm[]>([]);
+  const reloadGardenTerms = useCallback(async () => {
+    setGardenTerms(await listGardenTerms(true));
+  }, []);
   // Phase 4 -- Size & Dimensions.
   const [newAreaLength, setNewAreaLength] = useState('');
   const [newAreaWidth, setNewAreaWidth] = useState('');
@@ -630,11 +651,12 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
   const [pendingFoodName, setPendingFoodName] = useState('');
 
   const loadPlots = useCallback(async () => {
-    const [rows, spaces, active] = await Promise.all([listGardenPlots(true), listGardenSpaces(true), listGardenSpaces()]);
+    const [rows, spaces, active, terms] = await Promise.all([listGardenPlots(true), listGardenSpaces(true), listGardenSpaces(), listGardenTerms(true)]);
     setPlots(rows.filter((plot) => !plot.archivedAt));
     setPastPlots(rows.filter((plot) => plot.archivedAt));
     setCustomSpaces(spaces);
     setActiveSpaces(active);
+    setGardenTerms(terms);
   }, []);
 
   useFocusEffect(
@@ -681,11 +703,12 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
 
   async function handleAddGardenArea() {
     if (!newAreaName.trim()) return;
-    await createGardenPlot({
+    const asksForLight = newAreaLocationType === 'indoor' || (newAreaLocationType === 'greenhouse' && newAreaGreenhouseLit);
+    const plotId = await createGardenPlot({
       name: newAreaName,
       locationType: newAreaLocationType,
       spaceType: newAreaSpaceType,
-      sunlightExposure: newAreaSunlight,
+      sunlightExposure: newAreaLocationType === 'indoor' ? null : newAreaSunlight,
       length: newAreaLength.trim() ? Number(newAreaLength) : null,
       width: newAreaWidth.trim() ? Number(newAreaWidth) : null,
       sizeUnit: newAreaLength.trim() || newAreaWidth.trim() ? newAreaSizeUnit : null,
@@ -693,10 +716,15 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
       zoneCountry: newAreaZoneCountry,
       zonePostalCode: newAreaZonePostal.trim() || null,
     });
+    if (asksForLight && lightDraftHasLight(newAreaLight)) {
+      await addGrowEquipment(lightDraftToInput(newAreaLight, plotId, gardenTerms));
+    }
     setNewAreaName('');
     setNewAreaLocationType('outdoor');
     setNewAreaSpaceType(null);
     setNewAreaSunlight(null);
+    setNewAreaLight(emptyLightDraft());
+    setNewAreaGreenhouseLit(false);
     setNewAreaLength('');
     setNewAreaWidth('');
     setNewAreaSizeUnit('feet');
@@ -863,6 +891,9 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                     <GardenSpaceField label="Move this area to" selected={null} onSelect={(code) => handleMoveAreaSpace(plot.id, code)} />
                   </View>
                 ) : null}
+                <View style={styles.pendingCard}>
+                  <GrowSetupSection plot={plot} onChanged={() => loadPlantingsFor(plot.id)} />
+                </View>
                 {plantings.length === 0 ? (
                   <Text style={styles.captionText}>Nothing logged as planted here yet.</Text>
                 ) : (
@@ -1025,28 +1056,65 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
             <GardenSpaceField label="What type of space are you growing in?" selected={newAreaSpaceType} onSelect={setNewAreaSpaceType} />
           </View>
           <Text style={styles.captionText}>
-            Dictates soil depth limitations, drainage styles, root spacing rules, and indoor requirements. Lights, hydroponic gear and climate control are not spaces; record them under Growing Costs.
+            Dictates soil depth limitations, drainage styles, root spacing rules, and indoor requirements. Lights, hydroponic gear and climate control are not spaces; they are the area&apos;s Grow Setup, added once the area is saved.
           </Text>
 
-          <Text style={[styles.fieldLabel, { marginTop: 10 }]}>How much direct sun does this space get daily?</Text>
-          <View style={styles.pillRow}>
-            {SUNLIGHT_OPTIONS.map((option) => (
-              <TouchableOpacity
-                key={option.value}
-                style={[
-                  styles.pill,
-                  { borderColor: TAB_COLOR },
-                  newAreaSunlight === option.value ? { backgroundColor: PRIMARY_BUTTON_BACKGROUND } : null,
-                ]}
-                onPress={() => setNewAreaSunlight(newAreaSunlight === option.value ? null : option.value)}
-              >
-                <Text style={newAreaSunlight === option.value ? styles.pillTextActive : { color: TAB_COLOR }}>
-                  {option.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <Text style={styles.captionText}>Sunlight is the single biggest filter on which plants can actually survive here.</Text>
+          {newAreaLocationType !== 'indoor' ? (
+            <>
+              <Text style={[styles.fieldLabel, { marginTop: 10 }]}>How much direct sun does this space get daily?</Text>
+              <View style={styles.pillRow}>
+                {SUNLIGHT_OPTIONS.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[
+                      styles.pill,
+                      { borderColor: TAB_COLOR },
+                      newAreaSunlight === option.value ? { backgroundColor: PRIMARY_BUTTON_BACKGROUND } : null,
+                    ]}
+                    onPress={() => setNewAreaSunlight(newAreaSunlight === option.value ? null : option.value)}
+                  >
+                    <Text style={newAreaSunlight === option.value ? styles.pillTextActive : { color: TAB_COLOR }}>
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <Text style={styles.captionText}>Sunlight is the single biggest filter on which plants can actually survive here.</Text>
+            </>
+          ) : null}
+          {newAreaLocationType === 'greenhouse' ? (
+            <>
+              <Text style={[styles.fieldLabel, { marginTop: 10 }]}>Lights added?</Text>
+              <View style={styles.pillRow}>
+                {[{ value: true, label: 'Yes' }, { value: false, label: 'No' }].map((option) => (
+                  <TouchableOpacity
+                    key={option.label}
+                    style={[
+                      styles.pill,
+                      { borderColor: TAB_COLOR },
+                      newAreaGreenhouseLit === option.value ? { backgroundColor: PRIMARY_BUTTON_BACKGROUND } : null,
+                    ]}
+                    onPress={() => setNewAreaGreenhouseLit(option.value)}
+                  >
+                    <Text style={newAreaGreenhouseLit === option.value ? styles.pillTextActive : { color: TAB_COLOR }}>
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </>
+          ) : null}
+          {newAreaLocationType === 'indoor' || (newAreaLocationType === 'greenhouse' && newAreaGreenhouseLit) ? (
+            <View style={[styles.pendingCard, { marginTop: 10 }]}>
+              <Text style={styles.fieldLabel}>{newAreaLocationType === 'indoor' ? 'What lights this space?' : 'The lights'}</Text>
+              <LightFields draft={newAreaLight} onChange={setNewAreaLight} terms={gardenTerms} onTermsChanged={reloadGardenTerms} />
+              <Text style={styles.captionText}>
+                {newAreaLocationType === 'indoor'
+                  ? 'Indoors, the light is the sun, so it is asked for here in place of sun hours. What it cost is recorded under Growing Costs for this area. Containers, fans, exhaust, cooling, water filtration, humidity and the rest of the setup go under Grow Setup once the area is saved, each with what it cost to buy and what it runs on.'
+                  : 'What the lights cost is recorded under Growing Costs for this area. The rest of the setup goes under Grow Setup once the area is saved.'}
+              </Text>
+            </View>
+          ) : null}
 
           <Text style={[styles.fieldLabel, { marginTop: 10 }]}>What is the size of your space?</Text>
           <View style={styles.fieldRow}>

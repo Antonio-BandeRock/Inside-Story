@@ -6990,6 +6990,80 @@ async function runDatabaseInitialization() {
         FOREIGN KEY (plot_id) REFERENCES garden_plots(id) ON DELETE SET NULL
       );
 
+      -- Grow setup, 2026-09-21: "all of these things would need to be
+      -- accounted for in their grow when they are setting up everything.
+      -- All of these items from the start will have a cost." One row per
+      -- piece of equipment under an area: a grow light with its type,
+      -- wattage, hours, timer, spectrum and the stage it suits; containers
+      -- and what they are made of; hydroponic gear, humidity, cooling,
+      -- heating, filtration, fans, exhaust, meters, and any kind the person
+      -- names. Its purchase is a growing cost (purchase_entry_id points at
+      -- the finance_entries row, cleared if that row goes, the equipment
+      -- kept); its running cost is an amount on a cadence, and its wattage
+      -- and hours are what the electricity estimate reads. No cascade from
+      -- garden_plots: an area with equipment recorded is documentation and
+      -- moves to Past Areas rather than being deleted. See lib/growSetup.ts.
+      CREATE TABLE IF NOT EXISTS garden_equipment (
+        id TEXT PRIMARY KEY,
+        plot_id TEXT NOT NULL,
+        -- A built-in code (GROW_EQUIPMENT_KINDS) or the id of a
+        -- garden_custom_terms row on the equipment_kind list.
+        kind TEXT NOT NULL,
+        name TEXT,
+        quantity REAL NOT NULL DEFAULT 1,
+        watts REAL,
+        hours_per_day REAL,
+        on_timer INTEGER NOT NULL DEFAULT 0,
+        light_type TEXT,
+        spectrum TEXT,
+        plant_stage TEXT,
+        container_material TEXT,
+        container_size TEXT,
+        ongoing_amount REAL,
+        ongoing_cadence TEXT,
+        purchase_entry_id TEXT,
+        notes TEXT,
+        -- Set when the piece is no longer in use; kept as the record of
+        -- what the grow ran on.
+        retired_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (plot_id) REFERENCES garden_plots(id),
+        FOREIGN KEY (purchase_entry_id) REFERENCES finance_entries(id) ON DELETE SET NULL
+      );
+
+      -- The open lists the grow setup reads (equipment kinds, kinds of
+      -- light, container materials), one table keyed by which list a term
+      -- is on, so the next list this app needs is a code in
+      -- lib/growSetup.ts and nothing here. Removal follows garden_spaces:
+      -- equipment in use is moved first, a term retired equipment reads is
+      -- retired rather than deleted, and only an unused term is dropped.
+      CREATE TABLE IF NOT EXISTS garden_custom_terms (
+        id TEXT PRIMARY KEY,
+        list TEXT NOT NULL,
+        name TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        retired_at TEXT
+      );
+
+      -- Electricity bills, 2026-09-21: "there needs to be a way to record
+      -- the current electricity bill prior to starting their indoor grow."
+      -- A bill is the household's, never one area's, so it lives under
+      -- Growing Costs rather than under an area. before_grow marks the
+      -- baseline; bills after it are compared per day (lib/growSetup.ts,
+      -- compareElectricity), and the difference is what the grow costs in
+      -- electricity. Nothing references a bill, so deleting one is plain.
+      CREATE TABLE IF NOT EXISTS electricity_bills (
+        id TEXT PRIMARY KEY,
+        period_start TEXT NOT NULL,
+        period_end TEXT NOT NULL,
+        kwh REAL,
+        amount REAL NOT NULL,
+        before_grow INTEGER NOT NULL DEFAULT 0,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       -- Compost, asked for as a lens: "tracks the materials added to the
       -- compost, when it was turned, watered, and everything else about
       -- making good compost." One row per pile, bin or tumbler; the record
@@ -20851,9 +20925,10 @@ export async function deleteSymptomAssessment(id: string) {
 // reads all of them.
 
 // Sunlight Exposure -- Phase 3, the real structured replacement for the old
-// free-text lightSource field. 'airflow' sits alongside the real light-level
-// options per the original request's own exact spec, not a mistake left in
-// -- kept as given rather than second-guessed.
+// free-text lightSource field. Since 2026-09-21 the form offers the three
+// sun levels only: an indoor area is asked what lights it instead
+// (garden_equipment, lib/growSetup.ts), and 'indoor_led_timer' and
+// 'airflow' are retired values an area recorded before then still reads.
 export type GardenSunlightExposure = 'full_sun' | 'partial_shade' | 'full_shade' | 'indoor_led_timer' | 'airflow';
 
 export type GardenSizeUnit = 'feet' | 'meters';
@@ -21040,8 +21115,8 @@ export async function deleteGardenPlot(id: string): Promise<boolean> {
 }
 
 /** Whether anything is recorded under an area: a planting, a harvest, a
- *  growing cost, or a compost pile feeding it. An area with any of these
- *  is documentation and is never deleted. */
+ *  growing cost, a compost pile feeding it, or a piece of its setup. An
+ *  area with any of these is documentation and is never deleted. */
 export async function gardenPlotHasRecords(id: string): Promise<boolean> {
   const db = await getDatabase();
   const row = await db.getFirstAsync<{ n: number }>(
@@ -21049,8 +21124,10 @@ export async function gardenPlotHasRecords(id: string): Promise<boolean> {
       SELECT (SELECT COUNT(*) FROM garden_plantings WHERE plot_id = ?)
            + (SELECT COUNT(*) FROM garden_harvests WHERE plot_id = ?)
            + (SELECT COUNT(*) FROM garden_cost_details WHERE plot_id = ?)
-           + (SELECT COUNT(*) FROM compost_piles WHERE plot_id = ?) AS n
+           + (SELECT COUNT(*) FROM compost_piles WHERE plot_id = ?)
+           + (SELECT COUNT(*) FROM garden_equipment WHERE plot_id = ?) AS n
     `,
+    id,
     id,
     id,
     id,

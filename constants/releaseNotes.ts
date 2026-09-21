@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.10',
+    date: '2026-09-20',
+    changes: [
+      'An indoor area asks about its lights instead of the sun, with type, wattage, hours and timer; every area has a Grow Setup for lights, containers, fans, filters, hydroponics, humidity, climate control, timers and water filtration, each with a purchase recorded as a growing cost and an ongoing amount; the equipment, light and container lists take terms of your own; and an Electricity band under Growing Costs takes the bill from before the grow and every bill after it, shows the difference per day, prices the setup at what a kWh costs, and records the difference as a growing cost when asked.',
+    ],
+  },
+  {
     version: '1.0.42.9',
     date: '2026-09-20',
     changes: [

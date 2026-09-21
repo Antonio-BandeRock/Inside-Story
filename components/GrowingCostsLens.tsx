@@ -37,6 +37,7 @@ import {
 } from '../lib/gardenMoneyDb';
 import { formatTradeMoney } from '../lib/harvestTrade';
 import { AppTextInput } from './AppTextInput';
+import { ElectricityBand } from './ElectricityBand';
 import { GardenSpaceField } from './GardenSpaceField';
 import { HOME_BAND_GAP } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
@@ -88,6 +89,16 @@ import { makeTabBandStyles, TabBand } from './TabBand';
 // cost after it. A kind the person made can be renamed or removed from the
 // same spot; removing one leaves its costs reading as Something else and
 // deletes none of them. See KINDS in lib/gardenMoney.ts.
+//
+// ELECTRICITY, 2026-09-21: "there needs to be a way to record the current
+// electricity bill prior to starting their indoor grow." The Electricity
+// band (components/ElectricityBand.tsx) holds the household's bills, the
+// one from before the grow as the baseline, and what the bills since run
+// above it, beside what the equipment under every area's Grow Setup says
+// it draws. The difference becomes a growing cost only when the person
+// records it, under the Electricity kind. Equipment purchases arrive here
+// on their own: a piece added under an area's Grow Setup writes its cost
+// through recordGrowingCost, tied to that area.
 
 const TAB_COLOR = colors.tabGarden;
 const band = makeTabBandStyles(TAB_COLOR);
@@ -711,6 +722,8 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
           )}
         </View>
       </TabBand>
+
+      <ElectricityBand folds={folds} plotOptions={plotOptions} noPlotValue={NO_PLOT} groupPrefix={GROUP_PREFIX} onCostRecorded={load} />
 
       <TabBand folds={folds} color={TAB_COLOR} id="garden:costs:list" title="Growing Costs" icon="wallet-outline" count={costs.length}>
         <View style={styles.card}>

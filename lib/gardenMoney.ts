@@ -78,7 +78,8 @@ export type GrowingCostKind =
   | 'water'
   | 'tools_equipment'
   | 'pest_disease'
-  | 'containers_structures';
+  | 'containers_structures'
+  | 'electricity';
 
 /** A kind the person named. */
 export type CustomGrowingCostKind = { id: string; name: string };
@@ -106,9 +107,18 @@ export const GROWING_COST_KINDS: { code: GrowingCostKind; label: string; help: s
   },
   { code: 'compost_materials', label: 'Compost materials', help: 'Straw, bought manure, a bin or tumbler, anything paid for that went into a pile.' },
   { code: 'water', label: 'Water', help: 'The part of a water bill that went to the garden, when you can tell.' },
-  { code: 'tools_equipment', label: 'Tools and equipment', help: 'Hand tools, hoses, timers, a tiller, grow lights, hydroponic gear, a heater or humidifier.' },
+  {
+    code: 'tools_equipment',
+    label: 'Tools and equipment',
+    help: 'Hand tools, hoses, a tiller. A grow light, a fan or anything else an indoor grow runs on is best added under Grow Setup on the area, which records the cost here for you.',
+  },
   { code: 'pest_disease', label: 'Pest and disease control', help: 'Row cover, netting, sprays, traps.' },
   { code: 'containers_structures', label: 'Containers and structures', help: 'Pots, raised-bed lumber, trellis, a cold frame.' },
+  {
+    code: 'electricity',
+    label: 'Electricity',
+    help: 'What a bill runs above the one recorded before the grow started. The Electricity band below works the figure out from your bills.',
+  },
 ];
 
 /** Every kind there is: the built-ins first, in their order, then the

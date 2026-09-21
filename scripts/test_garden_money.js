@@ -107,7 +107,7 @@ checkTrue('no unpriced, no caveat', !describeGardenNet(ahead).includes('recorded
 
 // --- 3. Kinds ---------------------------------------------------------------
 
-check('eight built-in kinds, no catch-all', GROWING_COST_KINDS.length, 8);
+check('nine built-in kinds, no catch-all', GROWING_COST_KINDS.length, 9);
 checkTrue('no Something else in the list', !GROWING_COST_KINDS.some((entry) => entry.label === 'Something else'));
 checkTrue('every kind labelled', GROWING_COST_KINDS.every((entry) => entry.label.length > 0 && entry.help.length > 0));
 check('kind label', growingCostKindLabel('fertilizer_nutrients'), 'Fertilizer and nutrients');
@@ -117,7 +117,7 @@ const mine = [{ id: 'cost_kind_1', name: 'Mulch' }];
 const kindReplacements = replacementKindChoices('cost_kind_1', mine).map((entry) => entry.code);
 checkTrue('replacement kinds leave out the one going', !kindReplacements.includes('cost_kind_1') && kindReplacements.includes('water'));
 check('replacement kinds are one fewer than the list', kindReplacements.length, growingCostKindChoices(mine).length - 1);
-check('their kind follows the built-ins', growingCostKindChoices(mine).map((entry) => entry.code).slice(-2), ['containers_structures', 'cost_kind_1']);
+check('their kind follows the built-ins', growingCostKindChoices(mine).map((entry) => entry.code).slice(-2), ['electricity', 'cost_kind_1']);
 check('their kind is theirs, with no help line', [findGrowingCostKind('cost_kind_1', mine).mine, findGrowingCostKind('cost_kind_1', mine).help], [true, null]);
 check('a built-in is not theirs', findGrowingCostKind('water', mine).mine, false);
 check('their kind reads by name', growingCostKindLabel('cost_kind_1', mine), 'Mulch');
