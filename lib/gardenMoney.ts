@@ -106,7 +106,7 @@ export const GROWING_COST_KINDS: { code: GrowingCostKind; label: string; help: s
   },
   { code: 'compost_materials', label: 'Compost materials', help: 'Straw, bought manure, a bin or tumbler, anything paid for that went into a pile.' },
   { code: 'water', label: 'Water', help: 'The part of a water bill that went to the garden, when you can tell.' },
-  { code: 'tools_equipment', label: 'Tools and equipment', help: 'Hand tools, hoses, timers, a tiller.' },
+  { code: 'tools_equipment', label: 'Tools and equipment', help: 'Hand tools, hoses, timers, a tiller, grow lights, hydroponic gear, a heater or humidifier.' },
   { code: 'pest_disease', label: 'Pest and disease control', help: 'Row cover, netting, sprays, traps.' },
   { code: 'containers_structures', label: 'Containers and structures', help: 'Pots, raised-bed lumber, trellis, a cold frame.' },
 ];

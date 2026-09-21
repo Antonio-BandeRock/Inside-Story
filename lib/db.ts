@@ -6954,6 +6954,19 @@ async function runDatabaseInitialization() {
       -- routine_occasions has none: removing one resets the costs that
       -- used it to 'other' by hand (deleteGardenCostKind in
       -- lib/gardenMoneyDb.ts), and deletes none of them.
+      -- 2026-09-20, "The same needs to be applied for Spaces where the
+      -- grow might be." A kind of space the person named for a garden
+      -- area (a hoop house, a windowsill), stored by id in
+      -- garden_plots.space_type beside the built-in codes in
+      -- lib/gardenSpaces.ts. No foreign key, as with garden_cost_kinds:
+      -- removing one clears the plots that used it (deleteGardenSpace in
+      -- lib/gardenSpacesDb.ts) and deletes none of them.
+      CREATE TABLE IF NOT EXISTS garden_spaces (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       CREATE TABLE IF NOT EXISTS garden_cost_kinds (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
@@ -20820,14 +20833,11 @@ export async function deleteSymptomAssessment(id: string) {
 
 // Space Type -- Phase 2 of the "New Garden Area" wizard (garden.tsx), the
 // real structured replacement for the old free-text growingMedium field.
-export type GardenSpaceType =
-  | 'in_ground'
-  | 'raised_bed'
-  | 'containers'
-  | 'hydroponic'
-  | 'tent'
-  | 'led_lights'
-  | 'temp_humidity_control';
+// Since 2026-09-20 the value is a built-in code from lib/gardenSpaces.ts,
+// the id of a garden_spaces row the person named, or one of the three
+// retired codes ('hydroponic', 'led_lights', 'temp_humidity_control') on a
+// plot recorded before those were taken off the list; gardenSpaceLabel
+// reads all of them.
 
 // Sunlight Exposure -- Phase 3, the real structured replacement for the old
 // free-text lightSource field. 'airflow' sits alongside the real light-level
@@ -20841,7 +20851,7 @@ export type GardenPlot = {
   id: string;
   name: string;
   locationType: 'outdoor' | 'indoor' | 'greenhouse';
-  spaceType: GardenSpaceType | null;
+  spaceType: string | null;
   sunlightExposure: GardenSunlightExposure | null;
   length: number | null;
   width: number | null;
@@ -20881,7 +20891,7 @@ const GARDEN_PLOT_COLUMNS = `
 export async function createGardenPlot(input: {
   name: string;
   locationType: 'outdoor' | 'indoor' | 'greenhouse';
-  spaceType?: GardenSpaceType | null;
+  spaceType?: string | null;
   sunlightExposure?: GardenSunlightExposure | null;
   length?: number | null;
   width?: number | null;
@@ -20953,7 +20963,7 @@ export async function updateGardenPlot(
   update: Partial<{
     name: string;
     locationType: 'outdoor' | 'indoor' | 'greenhouse';
-    spaceType: GardenSpaceType | null;
+    spaceType: string | null;
     sunlightExposure: GardenSunlightExposure | null;
     length: number | null;
     width: number | null;

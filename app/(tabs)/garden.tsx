@@ -50,9 +50,11 @@ import {
   type GardenPlanting,
   type GardenPlot,
   type GardenSizeUnit,
-  type GardenSpaceType,
   type GardenSunlightExposure,
 } from '../../lib/db';
+import { gardenSpaceLabel, type CustomGardenSpace } from '../../lib/gardenSpaces';
+import { listGardenSpaces } from '../../lib/gardenSpacesDb';
+import { GardenSpaceField } from '../../components/GardenSpaceField';
 
 // This page's own identity color -- see constants/colors.ts's own comment
 // on tabGarden for how it was chosen.
@@ -112,7 +114,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Plots & Plantings',
-        body: 'A garden area is a place you grow food: a raised bed, a container, an indoor grow tent, a whole outdoor garden. Adding one walks through where it is, what kind of space it is, how much sun it gets, its size, and its hardiness zone: details a future planting algorithm can use, none of them required to just get started. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest.',
+        body: 'A garden area is a place you grow food: a raised bed, a container, an indoor grow tent, a whole outdoor garden. Adding one walks through where it is, what kind of space it is (a raised bed, containers, a tent, or a space you name yourself from the picker, which then stays on the list), how much sun it gets, its size, and its hardiness zone: details a future planting algorithm can use, none of them required to just get started. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest.',
       },
     ],
   },
@@ -207,16 +209,12 @@ const LOCATION_TYPE_OPTIONS: { value: 'outdoor' | 'indoor' | 'greenhouse'; label
 ];
 
 // Phase 2 -- Space Type, the real structured replacement for the old
-// free-text "growing medium" field.
-const SPACE_TYPE_OPTIONS: { value: GardenSpaceType; label: string }[] = [
-  { value: 'in_ground', label: 'In-Ground Plot' },
-  { value: 'raised_bed', label: 'Raised Bed' },
-  { value: 'containers', label: 'Containers & Pots' },
-  { value: 'hydroponic', label: 'Hydroponic' },
-  { value: 'tent', label: 'Tent' },
-  { value: 'led_lights', label: 'LED Lights' },
-  { value: 'temp_humidity_control', label: 'Temperature & Humidity Control' },
-];
+// free-text "growing medium" field. Since 2026-09-20 the list lives in
+// lib/gardenSpaces.ts and the picker is components/GardenSpaceField.tsx,
+// shared with the area form inside Growing Costs: four built-in spaces
+// plus any the person names, and the three equipment values that were on
+// this list (hydroponic, LED lights, temperature and humidity control)
+// are expenses under Growing Costs rather than spaces.
 
 // Phase 3 -- Sunlight Exposure, the real structured replacement for the old
 // free-text "light source" field.
@@ -237,9 +235,6 @@ const SIZE_UNIT_OPTIONS: { value: GardenSizeUnit; label: string }[] = [
 // Real display-label lookups for the collapsed garden-area card's own
 // summary line -- reuses the exact same option arrays above rather than a
 // second, separately-maintained label map.
-const SPACE_TYPE_LABELS: Record<GardenSpaceType, string> = Object.fromEntries(
-  SPACE_TYPE_OPTIONS.map((o) => [o.value, o.label]),
-) as Record<GardenSpaceType, string>;
 const SUNLIGHT_LABELS: Record<GardenSunlightExposure, string> = Object.fromEntries(
   SUNLIGHT_OPTIONS.map((o) => [o.value, o.label]),
 ) as Record<GardenSunlightExposure, string>;
@@ -591,7 +586,9 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
   // starting null -- every other new field below genuinely can stay unset.
   const [newAreaLocationType, setNewAreaLocationType] = useState<'outdoor' | 'indoor' | 'greenhouse'>('outdoor');
   // Phase 2 -- Space Type.
-  const [newAreaSpaceType, setNewAreaSpaceType] = useState<GardenSpaceType | null>(null);
+  const [newAreaSpaceType, setNewAreaSpaceType] = useState<string | null>(null);
+  // The spaces the person has named, for reading a saved area's space.
+  const [customSpaces, setCustomSpaces] = useState<CustomGardenSpace[]>([]);
   // Phase 3 -- Sunlight Exposure.
   const [newAreaSunlight, setNewAreaSunlight] = useState<GardenSunlightExposure | null>(null);
   // Phase 4 -- Size & Dimensions.
@@ -613,8 +610,9 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
   const [pendingFoodName, setPendingFoodName] = useState('');
 
   const loadPlots = useCallback(async () => {
-    const rows = await listGardenPlots();
+    const [rows, spaces] = await Promise.all([listGardenPlots(), listGardenSpaces()]);
     setPlots(rows);
+    setCustomSpaces(spaces);
   }, []);
 
   useFocusEffect(
@@ -775,8 +773,8 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
               <View style={styles.expandedSection}>
                 <Text style={styles.captionText}>
                   {plot.locationType === 'greenhouse' ? 'Greenhouse' : plot.locationType === 'indoor' ? 'Indoor' : 'Outdoor'}
-                  {plot.spaceType
-                    ? ` · ${SPACE_TYPE_LABELS[plot.spaceType]}`
+                  {gardenSpaceLabel(plot.spaceType, customSpaces)
+                    ? ` · ${gardenSpaceLabel(plot.spaceType, customSpaces)}`
                     : plot.growingMedium
                       ? ` · ${plot.growingMedium}`
                       : ''}
@@ -886,26 +884,11 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
           </View>
           <Text style={styles.captionText}>Determines temperature exposure, humidity levels, and natural climate risks.</Text>
 
-          <Text style={[styles.fieldLabel, { marginTop: 10 }]}>What type of space are you growing in?</Text>
-          <View style={styles.pillRow}>
-            {SPACE_TYPE_OPTIONS.map((option) => (
-              <TouchableOpacity
-                key={option.value}
-                style={[
-                  styles.pill,
-                  { borderColor: TAB_COLOR },
-                  newAreaSpaceType === option.value ? { backgroundColor: PRIMARY_BUTTON_BACKGROUND } : null,
-                ]}
-                onPress={() => setNewAreaSpaceType(newAreaSpaceType === option.value ? null : option.value)}
-              >
-                <Text style={newAreaSpaceType === option.value ? styles.pillTextActive : { color: TAB_COLOR }}>
-                  {option.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
+          <View style={{ marginTop: 10 }}>
+            <GardenSpaceField label="What type of space are you growing in?" selected={newAreaSpaceType} onSelect={setNewAreaSpaceType} />
           </View>
           <Text style={styles.captionText}>
-            Dictates soil depth limitations, drainage styles, root spacing rules, and indoor requirements.
+            Dictates soil depth limitations, drainage styles, root spacing rules, and indoor requirements. Lights, hydroponic gear and climate control are not spaces; record them under Growing Costs.
           </Text>
 
           <Text style={[styles.fieldLabel, { marginTop: 10 }]}>How much direct sun does this space get daily?</Text>

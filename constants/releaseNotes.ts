@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.8',
+    date: '2026-09-20',
+    changes: [
+      'The Space picker for a garden area, on Plots & Plantings and inside the Growing Costs area form, lists four spaces (in-ground plot, raised bed, containers and pots, tent) and ends with Add a space of your own, which works the way the Kind picker does: name it, and it is picked for this area and on the list for every area after. Hydroponic, LED Lights and Temperature & Humidity Control are off the list, since they are things bought rather than places a grow sits; record them under Growing Costs, where Tools and equipment now names them. The Not said yet placeholder is gone too. An area recorded under one of the three old values still reads by its old name until it is changed.',
+    ],
+  },
+  {
     version: '1.0.42.7',
     date: '2026-09-20',
     changes: [

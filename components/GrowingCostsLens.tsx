@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { useBandFolds } from '../hooks/useBandFolds';
-import { createGardenPlot, listGardenPlots, type GardenPlot, type GardenSpaceType } from '../lib/db';
+import { createGardenPlot, listGardenPlots, type GardenPlot } from '../lib/db';
 import {
   describeAreaSetting,
   describeGardenNet,
@@ -35,6 +35,7 @@ import {
 } from '../lib/gardenMoneyDb';
 import { formatTradeMoney } from '../lib/harvestTrade';
 import { AppTextInput } from './AppTextInput';
+import { GardenSpaceField } from './GardenSpaceField';
 import { HOME_BAND_GAP } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 import { makeTabBandStyles, TabBand } from './TabBand';
@@ -93,7 +94,6 @@ const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 const ADD_KIND = '__add_kind__';
 const NO_PLOT = '__none__';
 const GROUP_PREFIX = 'group:';
-const NO_SPACE = '__none__';
 
 type AreaLocationType = 'outdoor' | 'indoor' | 'greenhouse';
 const LOCATION_OPTIONS: { label: string; value: AreaLocationType }[] = [
@@ -101,18 +101,8 @@ const LOCATION_OPTIONS: { label: string; value: AreaLocationType }[] = [
   { label: 'Indoor', value: 'indoor' },
   { label: 'Greenhouse', value: 'greenhouse' },
 ];
-// The same space types Plots & Plantings offers, behind a picker here so
-// the short form stays short.
-const SPACE_OPTIONS: { label: string; value: string }[] = [
-  { label: 'Not said yet', value: NO_SPACE },
-  { label: 'In-Ground Plot', value: 'in_ground' },
-  { label: 'Raised Bed', value: 'raised_bed' },
-  { label: 'Containers & Pots', value: 'containers' },
-  { label: 'Hydroponic', value: 'hydroponic' },
-  { label: 'Tent', value: 'tent' },
-  { label: 'LED Lights', value: 'led_lights' },
-  { label: 'Temperature & Humidity Control', value: 'temp_humidity_control' },
-];
+// The Space picker is components/GardenSpaceField.tsx, the same one Plots &
+// Plantings uses, so a space named in either place is on the list in both.
 
 function todayDateString(): string {
   return new Date().toISOString().slice(0, 10);
@@ -146,7 +136,7 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
   const [addingArea, setAddingArea] = useState(false);
   const [areaName, setAreaName] = useState('');
   const [areaLocation, setAreaLocation] = useState<AreaLocationType>('outdoor');
-  const [areaSpace, setAreaSpace] = useState<string>(NO_SPACE);
+  const [areaSpace, setAreaSpace] = useState<string | null>(null);
   const [areaError, setAreaError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -303,7 +293,7 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
   function startArea() {
     setAreaName('');
     setAreaLocation('outdoor');
-    setAreaSpace(NO_SPACE);
+    setAreaSpace(null);
     setAreaError(null);
     setAddingArea(true);
   }
@@ -318,7 +308,7 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
     const id = await createGardenPlot({
       name: areaName,
       locationType: areaLocation,
-      spaceType: areaSpace === NO_SPACE ? null : (areaSpace as GardenSpaceType),
+      spaceType: areaSpace,
     });
     setPlots(await listGardenPlots());
     setPlotId(id);
@@ -550,10 +540,7 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
                   <Text style={styles.fieldLabel}>Where</Text>
                   <PopoverSelect options={LOCATION_OPTIONS} selected={areaLocation} onSelect={(value) => setAreaLocation(value as AreaLocationType)} tabColor={TAB_COLOR} />
                 </View>
-                <View style={styles.fieldRow}>
-                  <Text style={styles.fieldLabel}>Space</Text>
-                  <PopoverSelect options={SPACE_OPTIONS} selected={areaSpace} onSelect={setAreaSpace} tabColor={TAB_COLOR} width={220} />
-                </View>
+                <GardenSpaceField label="Space" selected={areaSpace} onSelect={setAreaSpace} />
                 <Text style={styles.captionText}>
                   Saving picks this area for the cost you are entering. Size, sunlight and zone can be filled in under Plots &amp; Plantings whenever you like.
                 </Text>
