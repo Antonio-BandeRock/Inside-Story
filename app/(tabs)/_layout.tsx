@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
+import { enableScreens } from 'react-native-screens';
 import { CurrentPageHelpProvider } from '../../components/CurrentPageHelp';
 import { ScreenBackground } from '../../components/ScreenBackground';
 import { ScreenHeader } from '../../components/ScreenHeader';
@@ -45,6 +46,25 @@ import { TabHub } from '../../components/TabHub';
 // background's `cover` crop (and everything <Tabs> renders inside it) is
 // automatically confined to the right region without this file needing to
 // know the header's own pixel height at all.
+// 2026-09-21: on the desktop build (the web target in an Electron
+// window) every tab a person had visited stayed drawn under the current
+// one, so Food came up over Home's bands with both showing through.
+// @react-navigation/bottom-tabs hides an inactive tab through
+// react-native-screens, and that library switches itself off on web
+// (screensEnabled() answers false there, since it has no native
+// screen to hand the work to), at which point bottom-tabs falls back
+// to a plain full-size View per tab at zIndex -1, hidden by nothing.
+// A phone never sees this: native screens hide the inactive ones. With
+// the sceneStyle below transparent by design (the shared background
+// lives behind <Tabs>), the fix is to turn screens on for web, which
+// makes the library's web Screen give an inactive tab display: none.
+// Module level, so it runs before the navigator first renders. The
+// root Stack needs nothing: native-stack's web view hides its own
+// unfocused routes.
+if (Platform.OS === 'web') {
+  enableScreens(true);
+}
+
 export default function TabLayout() {
   // 2026-08-21: a real, direct report traced the shared background here
   // (specifically its own footer divider line) visibly showing through

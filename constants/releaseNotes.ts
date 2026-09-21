@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.18',
+    date: '2026-09-21',
+    changes: [
+      'On a computer, opening another tab replaces the screen instead of drawing over Home.',
+    ],
+  },
+  {
     version: '1.0.42.17',
     date: '2026-09-21',
     changes: [
