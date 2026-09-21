@@ -1247,10 +1247,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // flexShrink: 0, 2026-09-21, the first day on Windows: "the label for the
+  // LensHub icons, that is supposed to be below them, is not below them. It
+  // isn't there at all." The button above is a fixed FLOATING_BUTTON_SIZE box
+  // holding a slot that size plus this label, so the pair is taller than the
+  // box. Yoga never shrinks a child (its flexShrink defaults to 0), so on a
+  // phone the label simply hangs past the bottom edge, as the comment on the
+  // element says. A browser's default is flex-shrink: 1, and numberOfLines
+  // gives this Text overflow: hidden, which lets a flex item shrink below its
+  // content, so on the desktop the label was laid out at zero height with the
+  // icon slot taking the whole box. react-native-web pins flexShrink to 0 on
+  // every View but leaves Text at the browser default, so this one line makes
+  // the label behave on a computer the way it always has on a phone.
   buttonLabel: {
     ...typography.caption,
     fontSize: 11,
     marginTop: 2,
+    flexShrink: 0,
     ...CORNER_ICON_SHADOW,
   },
   backdrop: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.25)' },

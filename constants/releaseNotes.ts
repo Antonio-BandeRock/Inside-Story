@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.20',
+    date: '2026-09-21',
+    changes: [
+      'The label under the corner lens button shows on the computer again: it was laid out at zero height on the web, where a browser shrinks a one-line label inside a fixed box the way a phone never does; desktop/check-collapsed-text.js asks the running desktop build for any text drawn at zero size and must stay at 0.',
+    ],
+  },
+  {
     version: '1.0.42.19',
     date: '2026-09-21',
     changes: [
