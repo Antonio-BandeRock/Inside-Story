@@ -5,6 +5,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { useBandFolds } from '../hooks/useBandFolds';
+import { sortByLabel } from '../lib/choiceOrder';
 import { createGardenPlot, listGardenPlots, type GardenPlot } from '../lib/db';
 import {
   describeAreaSetting,
@@ -110,9 +111,9 @@ const GROUP_PREFIX = 'group:';
 
 type AreaLocationType = 'outdoor' | 'indoor' | 'greenhouse';
 const LOCATION_OPTIONS: { label: string; value: AreaLocationType }[] = [
-  { label: 'Outdoor', value: 'outdoor' },
-  { label: 'Indoor', value: 'indoor' },
   { label: 'Greenhouse', value: 'greenhouse' },
+  { label: 'Indoor', value: 'indoor' },
+  { label: 'Outdoor', value: 'outdoor' },
 ];
 // The Space picker is components/GardenSpaceField.tsx, the same one Plots &
 // Plantings uses, so a space named in either place is on the list in both.
@@ -197,15 +198,18 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
   }, [groups]);
 
   // The picker offers each group as a whole, for a cost that fed every
-  // area in it, and then every area, saying which group an area is in.
+  // area in it, and every area, saying which group an area is in, the two
+  // in one alphabetical list under Unassigned.
   const plotOptions = useMemo(
     () => [
       { label: UNASSIGNED_AREA_NAME, value: NO_PLOT },
-      ...groups.map((group) => ({ label: `${group.name} (whole group)`, value: `${GROUP_PREFIX}${group.id}` })),
-      ...plots.map((plot) => {
-        const inGroup = groupNameOf.get(plot.id);
-        return { label: inGroup ? `${plot.name}, in ${inGroup}` : plot.name, value: plot.id };
-      }),
+      ...sortByLabel([
+        ...groups.map((group) => ({ label: `${group.name} (whole group)`, value: `${GROUP_PREFIX}${group.id}` })),
+        ...plots.map((plot) => {
+          const inGroup = groupNameOf.get(plot.id);
+          return { label: inGroup ? `${plot.name}, in ${inGroup}` : plot.name, value: plot.id };
+        }),
+      ]),
     ],
     [groups, plots, groupNameOf],
   );

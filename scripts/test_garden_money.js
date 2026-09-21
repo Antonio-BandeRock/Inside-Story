@@ -52,7 +52,8 @@ function loadModule(relPath, deps = {}) {
 }
 
 const H = loadModule('lib/harvestTrade.ts');
-const G = loadModule('lib/gardenMoney.ts', { './harvestTrade': H });
+const C = loadModule('lib/choiceOrder.ts');
+const G = loadModule('lib/gardenMoney.ts', { './harvestTrade': H, './choiceOrder': C });
 const {
   GROWING_COST_KINDS, growingCostKindLabel, isGrowingCostKind, growingCostKindChoices, findGrowingCostKind, replacementKindChoices, summarizeGardenMoney, describeGardenNet, RECEIVED_SHARE_UNITS,
   groupGardenMoneyByArea, describeNetShort, describeAreaSetting, UNASSIGNED_AREA_NAME,
@@ -117,7 +118,9 @@ const mine = [{ id: 'cost_kind_1', name: 'Mulch' }];
 const kindReplacements = replacementKindChoices('cost_kind_1', mine).map((entry) => entry.code);
 checkTrue('replacement kinds leave out the one going', !kindReplacements.includes('cost_kind_1') && kindReplacements.includes('water'));
 check('replacement kinds are one fewer than the list', kindReplacements.length, growingCostKindChoices(mine).length - 1);
-check('their kind follows the built-ins', growingCostKindChoices(mine).map((entry) => entry.code).slice(-2), ['electricity', 'cost_kind_1']);
+const kindLabels = growingCostKindChoices(mine).map((entry) => entry.label);
+check('kinds read alphabetically, theirs merged in', kindLabels, [...kindLabels].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())));
+checkTrue('their kind sits among the built-ins by name', kindLabels.indexOf('Mulch') > 0 && kindLabels.indexOf('Mulch') < kindLabels.length - 1);
 check('their kind is theirs, with no help line', [findGrowingCostKind('cost_kind_1', mine).mine, findGrowingCostKind('cost_kind_1', mine).help], [true, null]);
 check('a built-in is not theirs', findGrowingCostKind('water', mine).mine, false);
 check('their kind reads by name', growingCostKindLabel('cost_kind_1', mine), 'Mulch');

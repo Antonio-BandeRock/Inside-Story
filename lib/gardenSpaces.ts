@@ -25,6 +25,8 @@
 // No database here; lib/gardenSpacesDb.ts reads and writes the person's
 // spaces, and node scripts/test_garden_spaces.js checks this file.
 
+import { sortByLabel } from './choiceOrder';
+
 export type BuiltInGardenSpace = 'in_ground' | 'raised_bed' | 'containers' | 'tent';
 
 export const GARDEN_SPACE_TYPES: { code: BuiltInGardenSpace; label: string }[] = [
@@ -54,12 +56,12 @@ export const RETIRED_GARDEN_SPACE_LABELS: Record<string, string> = {
   temp_humidity_control: 'Temperature & Humidity Control',
 };
 
-/** Every space the picker offers: the built-ins first, in their order,
- *  then the person's, in the order they were added. */
+/** Every space the picker offers, in alphabetical order, the person's
+ *  merged in among the built-ins. */
 export function gardenSpaceChoices(custom: CustomGardenSpace[] = []): GardenSpaceChoice[] {
   const built: GardenSpaceChoice[] = GARDEN_SPACE_TYPES.map((entry) => ({ code: entry.code, label: entry.label, mine: false }));
   const mine: GardenSpaceChoice[] = custom.map((entry) => ({ code: entry.id, label: entry.name, mine: true }));
-  return [...built, ...mine];
+  return sortByLabel([...built, ...mine]);
 }
 
 export function findGardenSpace(code: string, custom: CustomGardenSpace[] = []): GardenSpaceChoice | null {

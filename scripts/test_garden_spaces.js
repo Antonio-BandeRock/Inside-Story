@@ -24,7 +24,7 @@ const fs = require('fs');
 const path = require('path');
 const ts = require('typescript');
 
-function loadModule(relPath) {
+function loadModule(relPath, deps = {}) {
   const source = fs.readFileSync(path.join(__dirname, '..', relPath), 'utf8');
   const { outputText } = ts.transpileModule(source, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
@@ -32,12 +32,14 @@ function loadModule(relPath) {
   });
   const module = { exports: {} };
   new Function('exports', 'module', 'require', outputText)(module.exports, module, (name) => {
+    if (deps[name]) return deps[name];
     throw new Error(`unexpected import ${name}`);
   });
   return module.exports;
 }
 
-const S = loadModule('lib/gardenSpaces.ts');
+const C = loadModule('lib/choiceOrder.ts');
+const S = loadModule('lib/gardenSpaces.ts', { './choiceOrder': C });
 const {
   GARDEN_SPACE_TYPES, RETIRED_GARDEN_SPACE_LABELS, gardenSpaceChoices, findGardenSpace, gardenSpaceLabel,
   isRetiredGardenSpace, replacementSpaceChoices, planSpaceRemoval,
@@ -72,8 +74,9 @@ for (const code of Object.keys(RETIRED_GARDEN_SPACE_LABELS)) {
 
 // 3. The person's spaces.
 const choices = gardenSpaceChoices(mine);
-check('built-ins come first', choices.slice(0, 4).every((entry) => !entry.mine));
-check('their spaces follow in order', choices[4].code === 'space_1' && choices[5].code === 'space_2');
+const spaceLabels = choices.map((entry) => entry.label);
+check('spaces read alphabetically, theirs merged in', JSON.stringify(spaceLabels) === JSON.stringify([...spaceLabels].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()))));
+check('their space sits among the built-ins by name', spaceLabels.indexOf('Windowsill') === spaceLabels.length - 1 && choices.some((entry, i) => entry.mine && i < spaceLabels.length - 1));
 check('their space is marked as theirs', findGardenSpace('space_1', mine).mine === true);
 check('a built-in is not theirs', findGardenSpace('raised_bed', mine).mine === false);
 check('their space reads by its name', gardenSpaceLabel('space_2', mine) === 'Windowsill');

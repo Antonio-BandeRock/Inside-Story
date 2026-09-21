@@ -34,6 +34,7 @@ import {
   setCompostPileStatus,
 } from '../lib/compostDb';
 import { listGardenPlots, scheduleGardenTask, type GardenPlot } from '../lib/db';
+import { sortByLabel } from '../lib/choiceOrder';
 import { listGardenCostGroups, type GardenCostGroup } from '../lib/gardenMoneyDb';
 import { AppTextInput } from './AppTextInput';
 import { HOME_BAND_GAP } from './HomeSectionBand';
@@ -63,12 +64,14 @@ const TAB_COLOR = colors.tabGarden;
 const band = makeTabBandStyles(TAB_COLOR);
 const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 
-const PILE_KIND_OPTIONS = COMPOST_PILE_KINDS.map((kind) => ({ label: kind.label, value: kind.code }));
+// Lists of names are alphabetical; status and moisture are scales and
+// keep their order.
+const PILE_KIND_OPTIONS = sortByLabel(COMPOST_PILE_KINDS.map((kind) => ({ label: kind.label, value: kind.code })));
 const STATUS_OPTIONS = COMPOST_PILE_STATUSES.map((status) => ({ label: status.label, value: status.code }));
-const CLASS_OPTIONS = COMPOST_MATERIAL_CLASSES.map((entry) => ({ label: entry.label, value: entry.code }));
+const CLASS_OPTIONS = sortByLabel(COMPOST_MATERIAL_CLASSES.map((entry) => ({ label: entry.label, value: entry.code })));
 const MOISTURE_OPTIONS = COMPOST_MOISTURE_LEVELS.map((entry) => ({ label: entry.label, value: entry.code }));
 const MATERIAL_OPTIONS = [
-  ...COMPOST_MATERIAL_SUGGESTIONS.map((entry) => ({ label: entry.name, value: entry.name })),
+  ...sortByLabel(COMPOST_MATERIAL_SUGGESTIONS.map((entry) => ({ label: entry.name, value: entry.name }))),
   { label: 'Something else', value: '__other__' },
 ];
 const AMOUNT_OPTIONS = ['0.5', '1', '2', '3', '4', '5', '6', '8', '10', '15', '20'];
@@ -86,8 +89,10 @@ const GROUP_PREFIX = 'group:';
 function feedsOptions(plots: GardenPlot[], groups: GardenCostGroup[]): { label: string; value: string }[] {
   return [
     { label: 'No area in particular', value: NO_PLOT },
-    ...groups.map((group) => ({ label: `${group.name} (whole group)`, value: `${GROUP_PREFIX}${group.id}` })),
-    ...plots.map((plot) => ({ label: plot.name, value: plot.id })),
+    ...sortByLabel([
+      ...groups.map((group) => ({ label: `${group.name} (whole group)`, value: `${GROUP_PREFIX}${group.id}` })),
+      ...plots.map((plot) => ({ label: plot.name, value: plot.id })),
+    ]),
   ];
 }
 function feedsValue(pile: { plotId: string | null; costGroupId: string | null }): string {
@@ -328,7 +333,7 @@ function PileBand({
   }, [materialPick]);
 
   const plotOptions = useMemo(
-    () => [{ label: 'Not a tracked plot', value: NO_PLOT }, ...plots.map((plot) => ({ label: plot.name, value: plot.id }))],
+    () => [{ label: 'Not a tracked plot', value: NO_PLOT }, ...sortByLabel(plots.map((plot) => ({ label: plot.name, value: plot.id })))],
     [plots],
   );
   const pileFeedsOptions = useMemo(() => feedsOptions(plots, groups), [plots, groups]);

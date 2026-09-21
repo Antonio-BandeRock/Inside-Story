@@ -60,6 +60,7 @@
 // a cost tied to a group whose areas are all in one place rolls up there,
 // and one tied to a group spread across places is shown on its own line.
 
+import { sortByLabel } from './choiceOrder';
 import { formatTradeMoney } from './harvestTrade';
 
 // KINDS. Eight built-in kinds, and any the person adds. "Instead of listing
@@ -121,8 +122,8 @@ export const GROWING_COST_KINDS: { code: GrowingCostKind; label: string; help: s
   },
 ];
 
-/** Every kind there is: the built-ins first, in their order, then the
- *  person's, in the order they were added. */
+/** Every kind there is, in alphabetical order, the person's merged in
+ *  among the built-ins. */
 export function growingCostKindChoices(custom: CustomGrowingCostKind[] = []): GrowingCostKindChoice[] {
   const built: GrowingCostKindChoice[] = GROWING_COST_KINDS.map((entry) => ({
     code: entry.code,
@@ -131,7 +132,7 @@ export function growingCostKindChoices(custom: CustomGrowingCostKind[] = []): Gr
     mine: false,
   }));
   const mine: GrowingCostKindChoice[] = custom.map((entry) => ({ code: entry.id, label: entry.name, help: null, mine: true }));
-  return [...built, ...mine];
+  return sortByLabel([...built, ...mine]);
 }
 
 export function findGrowingCostKind(kind: string, custom: CustomGrowingCostKind[] = []): GrowingCostKindChoice | null {

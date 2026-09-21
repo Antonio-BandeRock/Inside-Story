@@ -54,6 +54,7 @@
 // follows the standing rule: what is in use is moved first, what has
 // history is retired, and nothing is orphaned.
 
+import { sortByLabel } from './choiceOrder';
 import { formatTradeMoney } from './harvestTrade';
 
 // --- Open lists --------------------------------------------------------------
@@ -118,14 +119,14 @@ export const TERM_LIST_WORDS: Record<GardenTermList, { singular: string; example
   container_material: { singular: 'material', example: 'Coir' },
 };
 
-/** Every choice on a list: the built-ins first, in their order, then the
- *  person's, in the order they were added, retired ones left out. */
+/** Every choice on a list, in alphabetical order, the person's merged in
+ *  among the built-ins, retired ones left out. */
 export function termChoices(list: GardenTermList, custom: CustomGardenTerm[] = []): GardenTermChoice[] {
   const built: GardenTermChoice[] = BUILT_INS[list].map((entry) => ({ code: entry.code, label: entry.label, help: entry.help, mine: false }));
   const mine: GardenTermChoice[] = custom
     .filter((term) => term.list === list && !term.retiredAt)
     .map((term) => ({ code: term.id, label: term.name, help: null, mine: true }));
-  return [...built, ...mine];
+  return sortByLabel([...built, ...mine]);
 }
 
 /** The choice a stored code reads as, retired terms included, or null for
@@ -168,11 +169,13 @@ export function planTermRemoval(counts: { current: number; past: number }, moveT
 
 // --- Fixed lists ------------------------------------------------------------
 
+// Alphabetical, like every chooser list of names. The stage and cadence
+// lists below are scales and keep their order.
 export const LIGHT_SPECTRUMS: { value: string; label: string }[] = [
-  { value: 'full', label: 'Full spectrum' },
-  { value: 'veg', label: 'Blue-heavy (leafy growth)' },
-  { value: 'bloom', label: 'Red-heavy (flowering and fruiting)' },
   { value: 'adjustable', label: 'Adjustable' },
+  { value: 'veg', label: 'Blue-heavy (leafy growth)' },
+  { value: 'full', label: 'Full spectrum' },
+  { value: 'bloom', label: 'Red-heavy (flowering and fruiting)' },
 ];
 
 export const PLANT_STAGES: { value: string; label: string }[] = [

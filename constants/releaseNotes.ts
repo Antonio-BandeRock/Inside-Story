@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.11',
+    date: '2026-09-20',
+    changes: [
+      'Garden chooser lists read in alphabetical order: kinds of equipment, kinds of light, container materials, spaces, kinds of growing cost, compost pile kinds and materials, areas and cost groups, countries, and the place an area is in, with anything you named merged in among the built-ins and the entry that adds a new one kept last. Scales (sunlight, plant stage, planting status, moisture, cadence, units) keep their order.',
+    ],
+  },
+  {
     version: '1.0.42.10',
     date: '2026-09-20',
     changes: [

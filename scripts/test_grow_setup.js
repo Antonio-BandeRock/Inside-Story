@@ -52,7 +52,8 @@ function loadModule(relPath, deps = {}) {
 }
 
 const H = loadModule('lib/harvestTrade.ts');
-const S = loadModule('lib/growSetup.ts', { './harvestTrade': H });
+const C = loadModule('lib/choiceOrder.ts');
+const S = loadModule('lib/growSetup.ts', { './harvestTrade': H, './choiceOrder': C });
 const {
   GROW_EQUIPMENT_KINDS, LIGHT_TYPES, CONTAINER_MATERIALS, TERM_LIST_WORDS,
   termChoices, findTerm, termLabel, isRetiredTerm, replacementTermChoices, planTermRemoval,
@@ -94,10 +95,15 @@ const terms = [
   { id: 'term_c', list: 'light_type', name: 'Induction', retiredAt: null },
 ];
 const kinds = termChoices('equipment_kind', terms);
-check('built-ins first, then mine, retired left out', kinds.map((k) => k.code).slice(-2), ['meter', 'term_a']);
-check('mine flagged', kinds[kinds.length - 1].mine, true);
+const kindLabels = kinds.map((k) => k.label);
+check('the list is alphabetical, mine merged in, retired left out', kindLabels, [...kindLabels].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())));
+check('mine sits among the built-ins by name', kindLabels.indexOf('CO2 tank'), kindLabels.indexOf('Containers') - 1);
+check('the retired one is out', kindLabels.includes('Trellis'), false);
+check('mine flagged', kinds.find((k) => k.code === 'term_a').mine, true);
+check('a built-in is not mine', kinds.find((k) => k.code === 'fan').mine, false);
 check('other lists do not leak in', kinds.some((k) => k.code === 'term_c'), false);
-check('a light type list has only light types', termChoices('light_type', terms).map((k) => k.code).slice(-1), ['term_c']);
+check('a light type list has only light types', termChoices('light_type', terms).map((k) => k.code).sort(), ['cfl', 'cmh', 'hps', 'led', 'mh', 't5', 'term_c'].sort());
+check('light types read alphabetically', termChoices('light_type', terms).map((k) => k.label), ['Ceramic metal halide (CMH, LEC)', 'CFL', 'HPS (high-pressure sodium)', 'Induction', 'LED', 'Metal halide', 'T5 fluorescent']);
 check('a retired term still reads by label', termLabel('equipment_kind', 'term_b', terms), 'Trellis');
 check('a built-in reads by label', termLabel('equipment_kind', 'fan', terms), 'Fan');
 check('an unknown code reads null', termLabel('equipment_kind', 'gone', terms), null);

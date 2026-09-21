@@ -25,6 +25,7 @@ import { typography, textShadow } from '../../constants/typography';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { formatQuantity, formatTradeMoney, harvestUnitForPricing, perUnit, valueReceivedGoods } from '../../lib/harvestTrade';
 import { getLastPaidPrices } from '../../lib/harvestTradeDb';
+import { sortByLabel } from '../../lib/choiceOrder';
 import { listCompostPiles } from '../../lib/compostDb';
 import { listGrowingCosts } from '../../lib/gardenMoneyDb';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
@@ -90,7 +91,7 @@ const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 // PopoverSelect's own searchable list expects -- a real, stable array
 // reference across renders (not rebuilt inline in MyZoneLens), matching
 // this component's own memo() contract.
-const COUNTRY_OPTIONS = COUNTRIES.map((country) => ({ label: country.name, value: country.code }));
+const COUNTRY_OPTIONS = sortByLabel(COUNTRIES.map((country) => ({ label: country.name, value: country.code })));
 
 type GardenLens = 'myZone' | 'plotsAndPlantings' | 'harvestLog' | 'upcomingTasks' | 'compost' | 'growingCosts' | 'horticulture';
 
@@ -210,11 +211,12 @@ const GARDEN_HELP_SECTIONS: HelpSection[] = [
 ];
 
 // Phase 1 -- Location & Environment. Widened 2026-08-14 to include
-// Greenhouse alongside the original Outdoor/Indoor.
+// Greenhouse alongside the original Outdoor/Indoor; alphabetical since
+// 2026-09-21, the same order the Growing Costs area form uses.
 const LOCATION_TYPE_OPTIONS: { value: 'outdoor' | 'indoor' | 'greenhouse'; label: string }[] = [
-  { value: 'outdoor', label: 'Outdoor' },
-  { value: 'indoor', label: 'Indoor' },
   { value: 'greenhouse', label: 'Greenhouse' },
+  { value: 'indoor', label: 'Indoor' },
+  { value: 'outdoor', label: 'Outdoor' },
 ];
 
 // Phase 2 -- Space Type, the real structured replacement for the old
