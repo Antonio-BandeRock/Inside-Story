@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.19',
+    date: '2026-09-21',
+    changes: [
+      'Black text no longer carries a drop shadow anywhere, on the phone or the computer: every dark-coloured label on a filled button or selected pill lost the shadow that was smudging it, and a new check keeps it that way.',
+    ],
+  },
+  {
     version: '1.0.42.18',
     date: '2026-09-21',
     changes: [

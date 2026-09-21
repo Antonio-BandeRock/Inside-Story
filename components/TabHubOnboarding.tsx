@@ -178,7 +178,6 @@ const styles = StyleSheet.create({
   },
   welcomeActionText: {
     ...typography.label,
-    ...textShadow,
     color: colors.textOnButton,
   },
   welcomeArrow: {

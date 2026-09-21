@@ -933,7 +933,7 @@ export default function TrendsScreen() {
                 <View style={[band.box, styles.chartCard]}>
                   {sixDsSeries && sixDsSeries.length > 0 ? (
                     <>
-                      <Text style={[styles.singleDayHeading, { color: colors.statusFlagged }]}>
+                      <Text style={[styles.singleDayHeading, { color: colors.statusRedOnSurface }]}>
                         {Math.round(sixDsSeries[0].value)} flagged
                       </Text>
                       <Text style={styles.caption}>{formatDisplayDate(sixDsSeries[0].date)}</Text>
@@ -951,7 +951,7 @@ export default function TrendsScreen() {
                       rather than having to add up the points. Same sum
                       Home makes over the same series. */}
                   {sixDsSeries && sixDsSeries.length > 0 ? (
-                    <Text style={[styles.singleDayHeading, { color: colors.statusFlagged }]}>
+                    <Text style={[styles.singleDayHeading, { color: colors.statusRedOnSurface }]}>
                       {`${Math.round(sixDsSeries.reduce((sum, point) => sum + point.value, 0))} flagged across ${sixDsSeries.length} ${sixDsSeries.length === 1 ? 'day' : 'days'}`}
                     </Text>
                   ) : null}

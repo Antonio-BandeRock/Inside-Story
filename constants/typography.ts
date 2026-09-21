@@ -119,6 +119,12 @@ export const typography = {
 // coloured colors.textOnPrimary, colors.textOnButton, or colors.background
 // (all near-black, the last being every ground theme's own dark base, used
 // as TEXT colour on filled pills and buttons) carries no shadow at all.
+// That rule regressed once (2026-09-21, seen on the phone and on Windows:
+// "any font that is black ... looks like a smudged font"), so it is now
+// checked by scripts/audit_dark_text_shadow.js, which composes every
+// style and every Text's style array and must stay at 0. To put dark text
+// on a shadowed shared style, override with textShadowColor: 'transparent'
+// and textShadowRadius: 0 (the pillTextActive shape in life.tsx).
 
 // How far the phone's own font-size setting may grow the text inside a popup
 // menu whose card is a fixed size. Lived in components/LensHub.tsx as

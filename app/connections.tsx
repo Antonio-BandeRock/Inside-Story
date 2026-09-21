@@ -924,7 +924,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkBoxOn: { backgroundColor: colors.accent },
-  checkMark: { ...typography.caption, color: colors.textOnPrimary, ...textShadow },
+  checkMark: { ...typography.caption, color: colors.textOnPrimary },
   emptyText: { ...typography.body, color: colors.textMuted, ...textShadow },
   // One column, actions underneath. This used to lay the text and the actions
   // out side by side, which read fine when a connection was a name and a date.
@@ -971,7 +971,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.buttonColor, borderRadius: 10, paddingVertical: 9, paddingHorizontal: 14,
     ...BUTTON_SHADOW,
   },
-  rowFixButtonText: { ...typography.caption, color: colors.textOnButton, ...textShadow },
+  rowFixButtonText: { ...typography.caption, color: colors.textOnButton },
   rowWarn: { ...typography.caption, color: colors.statusYellowStandalone, marginTop: 4, ...textShadow },
   partnerHint: { ...typography.caption, color: colors.textMuted, marginTop: 6, ...textShadow },
   secondaryButton: {

@@ -522,7 +522,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: colors.accent,
   },
-  doneText: { ...typography.caption, ...textShadow, color: colors.surface },
+  doneText: { ...typography.caption, color: colors.surface },
   // The same band shape every row on Home already wears, at a fixed height
   // so the drag arithmetic above stays honest.
   row: {

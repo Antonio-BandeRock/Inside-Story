@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkBoxOn: { backgroundColor: colors.accent },
-  checkMark: { ...typography.caption, color: colors.textOnPrimary, ...textShadow },
+  checkMark: { ...typography.caption, color: colors.textOnPrimary },
   fingerprintBox: {
     marginTop: 8,
     padding: 14,
@@ -376,7 +376,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     ...BUTTON_SHADOW,
   },
-  primaryButtonText: { ...typography.body, color: colors.textOnButton, ...textShadow },
+  primaryButtonText: { ...typography.body, color: colors.textOnButton },
   secondaryButton: {
     flexDirection: 'row',
     alignItems: 'center',

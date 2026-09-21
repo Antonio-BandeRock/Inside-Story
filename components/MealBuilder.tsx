@@ -1687,7 +1687,7 @@ export function MealBuilder({
                     ]}
                     onPress={() => setMealType(type)}
                   >
-                    <Text style={[styles.typePillText, isSelected ? { color: colors.textOnPrimary } : null]}>
+                    <Text style={[styles.typePillText, isSelected ? styles.typePillTextActive : null]}>
                       {type[0].toUpperCase() + type.slice(1)}
                     </Text>
                   </TouchableOpacity>
@@ -1790,7 +1790,7 @@ export function MealBuilder({
                         ]}
                         onPress={() => setScheduleTimeBuffer((current) => ({ ...current, ampm: option }))}
                       >
-                        <Text style={[styles.typePillText, active ? { color: colors.textOnPrimary } : null]}>{option}</Text>
+                        <Text style={[styles.typePillText, active ? styles.typePillTextActive : null]}>{option}</Text>
                       </TouchableOpacity>
                     );
                   })}
@@ -1870,7 +1870,7 @@ export function MealBuilder({
                         ]}
                         onPress={() => setRoutineTimeBuffer((current) => ({ ...current, ampm: option }))}
                       >
-                        <Text style={[styles.typePillText, active ? { color: colors.textOnPrimary } : null]}>{option}</Text>
+                        <Text style={[styles.typePillText, active ? styles.typePillTextActive : null]}>{option}</Text>
                       </TouchableOpacity>
                     );
                   })}
@@ -1929,7 +1929,7 @@ export function MealBuilder({
                     ]}
                     onPress={() => setCorrectionDateChoice(option.key)}
                   >
-                    <Text style={[styles.typePillText, active ? { color: colors.textOnPrimary } : null]}>{option.label}</Text>
+                    <Text style={[styles.typePillText, active ? styles.typePillTextActive : null]}>{option.label}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -1979,7 +1979,7 @@ export function MealBuilder({
                         ]}
                         onPress={() => setCorrectionTimeBuffer((current) => ({ ...current, ampm: option }))}
                       >
-                        <Text style={[styles.typePillText, active ? { color: colors.textOnPrimary } : null]}>{option}</Text>
+                        <Text style={[styles.typePillText, active ? styles.typePillTextActive : null]}>{option}</Text>
                       </TouchableOpacity>
                     );
                   })}
@@ -2394,6 +2394,9 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
   },
   typePillText: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  // A selected pill fills with the tab colour and its label goes dark; dark
+  // text never carries a shadow (scripts/audit_dark_text_shadow.js).
+  typePillTextActive: { color: colors.textOnPrimary, textShadowColor: 'transparent', textShadowRadius: 0 },
   primaryButton: {
     borderRadius: 8,
     paddingVertical: 10,

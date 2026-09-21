@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
   deltaWatch: {
-    color: colors.statusFlagged,
+    color: colors.statusRedOnSurface,
   },
   framingNote: {
     ...typography.caption,

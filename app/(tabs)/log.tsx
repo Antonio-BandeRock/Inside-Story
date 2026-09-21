@@ -2063,7 +2063,7 @@ const styles = StyleSheet.create({
     ...textShadow,
 
   },
-  readyText: { color: colors.statusFlagged },
+  readyText: { color: colors.statusRedOnSurface },
   clearedText: { color: colors.primary },
   flaggedText: { color: colors.danger },
   waitingText: { color: colors.textMuted },

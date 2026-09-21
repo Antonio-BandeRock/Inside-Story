@@ -2108,7 +2108,7 @@ function ScopeHub<M extends NavigableMeal>({
             scrolling underneath it, not just while a popup happens to be
             open. */}
         <ActiveRingCircle size={FLOATING_BUTTON_SIZE} innerColor={TAB_COLOR}>
-          <Ionicons name="funnel-outline" size={24} color={colors.textOnPrimary} style={textShadow} />
+          <Ionicons name="funnel-outline" size={24} color={colors.textOnPrimary} />
         </ActiveRingCircle>
       </TouchableOpacity>
 

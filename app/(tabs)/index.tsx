@@ -2211,7 +2211,7 @@ export default function HomeScreen() {
     if (!isHomeSectionVisible(visualPrefs, 'worthALook')) return null;
     return renderActionRow('worthALook', 'Worth a Look', handleWorthALookPress, {
       value: mealsLoggedToday === 0 ? '—' : String(worthALookCount),
-      valueColor: worthALookCount > 0 ? colors.statusFlagged : undefined,
+      valueColor: worthALookCount > 0 ? colors.statusRedOnSurface : undefined,
     });
   }
 
