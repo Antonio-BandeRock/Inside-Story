@@ -27,12 +27,22 @@
 // area first (the plantings offered follow that choice), so a counter can
 // be started from the Garden hub without finding the area on Plots &
 // Plantings. A counter still belongs to an area either way.
+//
+// Since 1.0.42.15 ("Add a Days Until counter to the Home screen quick
+// access") the whole-garden scope reads its own areas, so Home's Days
+// Until card and the Days Until lens both render this with no props, and
+// it reloads whenever its screen comes into focus, so a counter marked
+// done on Garden is gone from Home on the way back. Home takes the
+// compact form: the running counters only, five at most, the same form
+// to start one, and one line to the lens for the rest.
 
+import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
-import { listGardenPlantings, type GardenPlanting, type GardenPlot } from '../lib/db';
+import { listGardenPlantings, listGardenPlots, type GardenPlanting, type GardenPlot } from '../lib/db';
 import { sortByLabel } from '../lib/choiceOrder';
 import {
   countdownFigure,
@@ -47,6 +57,7 @@ import {
   deleteGardenCountdown,
   listCurrentGardenCountdowns,
   listGardenCountdowns,
+  listRunningGardenCountdowns,
   setGardenCountdownDone,
 } from '../lib/gardenCountdownDb';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
@@ -56,6 +67,8 @@ import { PopoverSelect } from './PopoverSelect';
 const TAB_COLOR = colors.tabGarden;
 const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 const WHOLE_AREA = '__whole_area__';
+// How many running counters Home's card shows before pointing at the lens.
+const COMPACT_LIMIT = 5;
 
 function todayDateString(): string {
   return new Date().toISOString().slice(0, 10);
@@ -66,10 +79,9 @@ type Props = {
   plot?: GardenPlot;
   /** That area's plantings, offered when tying a counter to one. */
   plantings?: GardenPlanting[];
-  /** Every counter across the garden instead, on the Days Until lens:
-   *  the areas still in use, one of which a new counter is started
-   *  under. */
-  plots?: GardenPlot[];
+  /** Home's card: the running counters only, five at most, with the rest
+   *  a tap away on the Days Until lens. Whole garden, so no plot. */
+  compact?: boolean;
   /** Called after any change, so the area can re-read what is recorded
    *  under it (a counter counts). */
   onChanged?: () => void | Promise<void>;
@@ -79,8 +91,12 @@ type Props = {
   showHeading?: boolean;
 };
 
-export function DaysUntilSection({ plot, plantings, plots, onChanged, readOnly = false, showHeading = true }: Props) {
+export function DaysUntilSection({ plot, plantings, compact = false, onChanged, readOnly = false, showHeading = true }: Props) {
+  const router = useRouter();
+  // Given no plot, this is the whole garden: every counter under an area
+  // still in use, and the areas themselves read here for the form.
   const wholeGarden = !plot;
+  const [plots, setPlots] = useState<GardenPlot[]>([]);
   const [items, setItems] = useState<GardenCountdownRow[]>([]);
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState('');
@@ -95,15 +111,28 @@ export function DaysUntilSection({ plot, plantings, plots, onChanged, readOnly =
 
   const areaId = plot?.id;
   const load = useCallback(async () => {
-    setItems(areaId ? await listGardenCountdowns(areaId) : await listCurrentGardenCountdowns());
-  }, [areaId]);
+    if (areaId) {
+      setItems(await listGardenCountdowns(areaId));
+      return;
+    }
+    const [rows, areas] = await Promise.all([
+      compact ? listRunningGardenCountdowns() : listCurrentGardenCountdowns(),
+      listGardenPlots(),
+    ]);
+    setItems(rows);
+    setPlots(areas);
+  }, [areaId, compact]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  // On focus rather than on mount, so Home's card and the lens both read
+  // what happened on another screen the moment the person comes back.
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load]),
+  );
 
   // Alphabetical, like every chooser list of names.
-  const plotOptions = useMemo(() => sortByLabel((plots ?? []).map((p) => ({ label: p.name, value: p.id }))), [plots]);
+  const plotOptions = useMemo(() => sortByLabel(plots.map((p) => ({ label: p.name, value: p.id }))), [plots]);
 
   // The first area is picked until the person picks another; an area
   // that has gone (to Past Areas, say) gives way to the first again.
@@ -173,7 +202,9 @@ export function DaysUntilSection({ plot, plantings, plots, onChanged, readOnly =
   }
 
   const today = todayDateString();
-  const ordered = sortCountdowns(items, today);
+  const sorted = sortCountdowns(items, today);
+  const ordered = compact ? sorted.slice(0, COMPACT_LIMIT) : sorted;
+  const heldBack = sorted.length - ordered.length;
   if (readOnly && items.length === 0) return null;
   // The whole area is the fixed first entry; the plantings after it read
   // alphabetically, like every chooser list of names.
@@ -192,7 +223,9 @@ export function DaysUntilSection({ plot, plantings, plots, onChanged, readOnly =
         <Text style={styles.captionText}>
           {noAreaYet
             ? 'A counter lives under a garden area. Add an area on Plots & Plantings first, then count the days to germination, transplanting out, the first harvest, or the cover coming off here.'
-            : 'Name something and count the days to it: germination, transplanting out, the first harvest, the cover coming off. The phone reminds you on the day, and a counter keeps counting past its day until you mark it done.'}
+            : compact
+              ? 'No counters running. Name something and count the days to it: germination, transplanting out, the first harvest. The phone reminds you on the day.'
+              : 'Name something and count the days to it: germination, transplanting out, the first harvest, the cover coming off. The phone reminds you on the day, and a counter keeps counting past its day until you mark it done.'}
         </Text>
       ) : null}
       {ordered.map((item) => {
@@ -223,9 +256,11 @@ export function DaysUntilSection({ plot, plantings, plots, onChanged, readOnly =
                 <TouchableOpacity onPress={() => handleDone(item)}>
                   <Text style={styles.linkText}>{item.doneAt ? 'Start again' : 'Done'}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleRemove(item)}>
-                  <Text style={[styles.linkText, { color: colors.danger }]}>Remove</Text>
-                </TouchableOpacity>
+                {compact ? null : (
+                  <TouchableOpacity onPress={() => handleRemove(item)}>
+                    <Text style={[styles.linkText, { color: colors.danger }]}>Remove</Text>
+                  </TouchableOpacity>
+                )}
               </>
             ) : null}
           </View>
@@ -271,6 +306,15 @@ export function DaysUntilSection({ plot, plantings, plots, onChanged, readOnly =
           <Text style={styles.primaryButtonText}>+ Add a Days Until Counter</Text>
         </TouchableOpacity>
       )}
+      {compact && !noAreaYet ? (
+        <TouchableOpacity onPress={() => router.push({ pathname: '/garden', params: { openGardenLens: 'daysUntil' } })}>
+          <Text style={styles.linkText}>
+            {heldBack > 0
+              ? `${heldBack} more running, and every counter, on Garden > Days Until`
+              : 'Every counter, finished ones too, on Garden > Days Until'}
+          </Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 }

@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.15',
+    date: '2026-09-21',
+    changes: [
+      'Start a Days Until counter from the Home screen: the Days Until card in the Garden group is the same section the Garden lens shows, so a counter is named, started by picking its area, and marked done without leaving Home. Five running counters show; the rest, and the finished ones, are one tap away on Garden > Days Until.',
+    ],
+  },
+  {
     version: '1.0.42.14',
     date: '2026-09-20',
     changes: [

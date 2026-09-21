@@ -17,6 +17,7 @@ import {
 import { AppTextInput } from '../../components/AppTextInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
+import { DaysUntilSection } from '../../components/DaysUntilSection';
 import { DayArc } from '../../components/DayArc';
 import { EDGE_SHADOW_HEIGHT, EdgeShadow } from '../../components/EdgeShadow';
 import { EnergyOrb } from '../../components/EnergyOrb';
@@ -115,8 +116,6 @@ import {
   type Routine,
 } from '../../lib/routines';
 import { getRoutinesHomeData } from '../../lib/routinesDb';
-import { countdownFigure, sortCountdowns, type GardenCountdownRow } from '../../lib/gardenCountdown';
-import { listRunningGardenCountdowns } from '../../lib/gardenCountdownDb';
 import { reresolveSavedDishCookingMethods } from '../../lib/db';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { dateStringOffsetFrom } from '../../lib/trendAnalysis';
@@ -478,9 +477,6 @@ type DashboardData = {
   // with item_type 'garden', so they are the same kind of thing Today's
   // Reminders shows, just not bound to today.
   gardenTasks: (ScheduleItemRecord & { plotId: string | null; plantingId: string | null })[];
-  // Days Until counters still running under areas still in use,
-  // 2026-09-21, with the area and planting names Home shows beside each.
-  daysUntil: GardenCountdownRow[];
   captureCounts: { waiting: number; sorted: number };
   // Routines and the Did I Do It record, 2026-09-17. Both arrive whole
   // rather than as counts: the routine list is short by nature, and the
@@ -1298,10 +1294,6 @@ export default function HomeScreen() {
       // as everything above it. Three small queries inside one call, over
       // tables that only ever hold what somebody typed themselves.
       getRoutinesHomeData(),
-      // Days Until counters, 2026-09-21. Appended last for the same reason
-      // as everything above it: one query over one small table, running
-      // counters under areas still in use.
-      listRunningGardenCountdowns(),
     ]).then(
       ([
         todaysMeals,
@@ -1321,7 +1313,6 @@ export default function HomeScreen() {
         openToAnswer,
         assumedToConfirm,
         routinesHome,
-        daysUntil,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1357,7 +1348,6 @@ export default function HomeScreen() {
           daysSinceAssessment,
           checkinReminderDays: profile.checkinReminderDays,
           gardenTasks,
-          daysUntil,
           captureCounts,
           reconcileCounts: { open: openToAnswer, assumed: assumedToConfirm },
           routines: routinesHome.routines,
@@ -2949,44 +2939,20 @@ export default function HomeScreen() {
   }
 
   // Days Until, 2026-09-21: the counters running under the garden's areas,
-  // soonest first, the ones past their day ahead of those. The figure is
-  // the same one the area shows (countdownFigure), so Home and the lens
-  // never disagree. A row opens the Days Until lens on Garden, where every
-  // counter is and one is marked done or started.
+  // soonest first, the ones past their day ahead of those, five at most.
+  // Since 1.0.42.15 ("Add a Days Until counter to the Home screen quick
+  // access") the card is the same section the Days Until lens renders, in
+  // its compact form: a counter is started here, by picking its area, and
+  // marked done here, and the section reads its own counters on focus, so
+  // the Home load below carries nothing for it. The rest are one tap away
+  // on the lens.
   function renderDaysUntil() {
     if (!isHomeSectionVisible(visualPrefs, 'daysUntil')) return null;
-    const today = todayDateString();
-    const counters = sortCountdowns(data?.daysUntil ?? [], today).slice(0, 5);
     return renderBand(
       'daysUntil',
       'Days Until',
       <View style={styles.bandBody}>
-        {counters.length === 0 ? (
-          <Text style={styles.bandCaption}>No counters running. Start one on Garden &gt; Days Until: days to germination, to transplanting, to the first harvest.</Text>
-        ) : (
-          counters.map((counter) => (
-            <TouchableOpacity
-              key={counter.id}
-              style={styles.reminderRow}
-              activeOpacity={0.8}
-              onPress={() =>
-                router.push({ pathname: '/garden', params: { openGardenLens: 'daysUntil' } })
-              }
-            >
-              <Text style={styles.reminderTime} numberOfLines={1}>
-                {countdownFigure(counter, today)}
-              </Text>
-              <View style={styles.reminderBody}>
-                <Text style={styles.reminderTitle} numberOfLines={1}>
-                  {counter.name}
-                </Text>
-                <Text style={styles.reminderDetail} numberOfLines={1}>
-                  {counter.plantingName ? `${counter.plantingName}, ${counter.plotName}` : counter.plotName}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          ))
-        )}
+        <DaysUntilSection compact showHeading={false} />
       </View>,
     );
   }
