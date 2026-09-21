@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.7',
+    date: '2026-09-20',
+    changes: [
+      'The Kind picker on a growing cost no longer offers Something else. Its last choice is Add a kind of your own: give the kind a name (mulch, a soil test) and it is picked for the cost you are entering and on the list for every cost after it. A kind you made can be renamed or removed from the same spot. Removing one leaves the costs recorded under it reading as Something else and deletes none of them.',
+    ],
+  },
+  {
     version: '1.0.42.6',
     date: '2026-09-20',
     changes: [

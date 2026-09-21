@@ -10,11 +10,12 @@ import {
   describeAreaSetting,
   describeGardenNet,
   describeNetShort,
-  GROWING_COST_KINDS,
+  findGrowingCostKind,
+  growingCostKindChoices,
   growingCostKindLabel,
   UNASSIGNED_AREA_NAME,
   type GardenAreaMoney,
-  type GrowingCostKind,
+  type CustomGrowingCostKind,
 } from '../lib/gardenMoney';
 import {
   deleteGardenCostGroup,
@@ -27,6 +28,10 @@ import {
   type GardenCostGroup,
   type GardenMoneyPicture,
   type GrowingCostRecord,
+  createGardenCostKind,
+  deleteGardenCostKind,
+  listGardenCostKinds,
+  renameGardenCostKind,
 } from '../lib/gardenMoneyDb';
 import { formatTradeMoney } from '../lib/harvestTrade';
 import { AppTextInput } from './AppTextInput';
@@ -72,12 +77,20 @@ import { makeTabBandStyles, TabBand } from './TabBand';
 // what kind of space); saving it writes the same garden_plots row Plots &
 // Plantings does, picks the new area for the cost, and leaves every other
 // cost field as it was. Size, sunlight and zone stay on Plots & Plantings.
+//
+// A KIND OF THEIR OWN, 2026-09-20: "Instead of listing 'Something else' in
+// the Pick a Kind list, make it so the user can add their own." The Kind
+// picker ends with Add a kind of your own; picking it opens a one-line form
+// in place, and the saved kind is picked for the cost and listed for every
+// cost after it. A kind the person made can be renamed or removed from the
+// same spot; removing one leaves its costs reading as Something else and
+// deletes none of them. See KINDS in lib/gardenMoney.ts.
 
 const TAB_COLOR = colors.tabGarden;
 const band = makeTabBandStyles(TAB_COLOR);
 const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 
-const KIND_OPTIONS = GROWING_COST_KINDS.map((kind) => ({ label: kind.label, value: kind.code }));
+const ADD_KIND = '__add_kind__';
 const NO_PLOT = '__none__';
 const GROUP_PREFIX = 'group:';
 const NO_SPACE = '__none__';
@@ -122,7 +135,10 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
   const [groupMemberIds, setGroupMemberIds] = useState<string[]>([]);
   const [groupError, setGroupError] = useState<string | null>(null);
   const [description, setDescription] = useState('');
-  const [kind, setKind] = useState<GrowingCostKind | null>(null);
+  const [kind, setKind] = useState<string | null>(null);
+  const [customKinds, setCustomKinds] = useState<CustomGrowingCostKind[]>([]);
+  const [kindForm, setKindForm] = useState<{ id: string | null; name: string } | null>(null);
+  const [kindError, setKindError] = useState<string | null>(null);
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(todayDateString());
   const [plotId, setPlotId] = useState<string>(NO_PLOT);
@@ -134,17 +150,29 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
   const [areaError, setAreaError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const [costRows, money, plotRows, groupRows] = await Promise.all([
+    const [costRows, money, plotRows, groupRows, kindRows] = await Promise.all([
       listGrowingCosts(),
       loadGardenMoneyPicture(),
       listGardenPlots(),
       listGardenCostGroups(),
+      listGardenCostKinds(),
     ]);
     setCosts(costRows);
     setPicture(money);
     setPlots(plotRows);
     setGroups(groupRows);
+    setCustomKinds(kindRows);
   }, []);
+
+  // The built-ins, the person's kinds, and the way to add one.
+  const kindOptions = useMemo(
+    () => [
+      ...growingCostKindChoices(customKinds).map((entry) => ({ label: entry.label, value: entry.code })),
+      { label: 'Add a kind of your own', value: ADD_KIND },
+    ],
+    [customKinds],
+  );
+  const chosenKind = kind ? findGrowingCostKind(kind, customKinds) : null;
 
   useFocusEffect(
     useCallback(() => {
@@ -201,7 +229,7 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
     return listed;
   }, [costs, plots, groups, groupNameOf]);
 
-  const kindHelp = kind ? GROWING_COST_KINDS.find((entry) => entry.code === kind)?.help ?? null : null;
+  const kindHelp = chosenKind?.help ?? null;
 
   async function handleSave() {
     const value = Number(amount.replace(/[^0-9.]/g, ''));
@@ -209,7 +237,7 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
       setError('Say what it was.');
       return;
     }
-    if (!kind) {
+    if (!kind || !chosenKind) {
       setError('Pick what kind of cost it was.');
       return;
     }
@@ -241,6 +269,34 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
 
   async function handleDelete(id: string) {
     await deleteGrowingCost(id);
+    await load();
+  }
+
+  function startKind(entry: CustomGrowingCostKind | null) {
+    setKindForm({ id: entry?.id ?? null, name: entry?.name ?? '' });
+    setKindError(null);
+  }
+
+  // Saves the kind, picks it for the cost being entered and closes the
+  // one-line form; the cost's other fields are not touched.
+  async function handleSaveKind() {
+    if (!kindForm) return;
+    if (!kindForm.name.trim()) {
+      setKindError('Give the kind a name.');
+      return;
+    }
+    let id = kindForm.id;
+    if (id) await renameGardenCostKind(id, kindForm.name);
+    else id = await createGardenCostKind(kindForm.name);
+    setCustomKinds(await listGardenCostKinds());
+    setKind(id);
+    setKindForm(null);
+  }
+
+  async function handleRemoveKind(id: string) {
+    await deleteGardenCostKind(id);
+    setKindForm(null);
+    if (kind === id) setKind(null);
     await load();
   }
 
@@ -401,15 +457,56 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
             <View style={styles.fieldRow}>
               <Text style={styles.fieldLabel}>Kind</Text>
               <PopoverSelect
-                options={KIND_OPTIONS}
+                options={kindOptions}
                 selected={kind}
-                onSelect={(value) => setKind(value as GrowingCostKind)}
+                onSelect={(value) => {
+                  if (value === ADD_KIND) {
+                    startKind(null);
+                    return;
+                  }
+                  setKindForm(null);
+                  setKind(value);
+                }}
                 tabColor={TAB_COLOR}
                 width={240}
                 placeholder="Pick a kind"
               />
+              {chosenKind?.mine && !kindForm ? (
+                <>
+                  <TouchableOpacity onPress={() => startKind(customKinds.find((entry) => entry.id === kind) ?? null)}>
+                    <Text style={styles.linkText}>Rename</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => kind && handleRemoveKind(kind)}>
+                    <Text style={[styles.linkText, { color: colors.danger }]}>Remove</Text>
+                  </TouchableOpacity>
+                </>
+              ) : null}
             </View>
-            {kindHelp ? <Text style={styles.captionText}>{kindHelp}</Text> : null}
+            {kindForm ? (
+              <View style={styles.nestedForm}>
+                <Text style={styles.fieldLabel}>{kindForm.id ? 'Rename this kind' : 'A kind of your own'}</Text>
+                <AppTextInput
+                  style={styles.textInput}
+                  value={kindForm.name}
+                  onChangeText={(name) => setKindForm({ ...kindForm, name })}
+                  placeholder="Mulch"
+                />
+                <Text style={styles.captionText}>
+                  Saving picks it for the cost you are entering, and it is on the list for every cost after this one. Removing a kind later leaves its costs reading as Something else and deletes none of them.
+                </Text>
+                {kindError ? <Text style={styles.errorText}>{kindError}</Text> : null}
+                <View style={styles.actionRow}>
+                  <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSaveKind}>
+                    <Text style={styles.primaryButtonText}>Save Kind</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setKindForm(null)}>
+                    <Text style={styles.linkText}>Back to the cost</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : kindHelp ? (
+              <Text style={styles.captionText}>{kindHelp}</Text>
+            ) : null}
             <View style={styles.fieldRow}>
               <Text style={styles.fieldLabel}>Cost</Text>
               <AppTextInput
@@ -593,7 +690,7 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
                       </Text>
                       <Text style={styles.captionText}>
                         {cost.occurredOn}
-                        {cost.kind ? ` · ${growingCostKindLabel(cost.kind)}` : ' · Entered in Finances'}
+                        {cost.kind ? ` · ${growingCostKindLabel(cost.kind, customKinds)}` : ' · Entered in Finances'}
                         {cost.costGroupName ? ' · Whole group' : cost.plotName && group.key.startsWith(GROUP_PREFIX) ? ` · ${cost.plotName}` : ''}
                         {cost.compostPileName ? ` · ${cost.compostPileName}` : ''}
                       </Text>

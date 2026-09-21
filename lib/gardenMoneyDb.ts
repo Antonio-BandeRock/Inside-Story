@@ -23,12 +23,11 @@ import { createEntry, deleteEntry } from './financeDb';
 import { addKitchenItem } from './kitchenDb';
 import {
   groupGardenMoneyByArea,
-  isGrowingCostKind,
   summarizeGardenMoney,
+  type CustomGrowingCostKind,
   type GardenAreaMoney,
   type GardenLocationMoney,
   type GardenMoneySummary,
-  type GrowingCostKind,
 } from './gardenMoney';
 import { harvestUnitForPricing, valueReceivedGoods, type RecordedPrice, type ValuationResult } from './harvestTrade';
 import { getLastPaidPrices } from './harvestTradeDb';
@@ -40,7 +39,10 @@ export type GrowingCostRecord = {
   occurredOn: string;
   amount: number;
   description: string;
-  kind: GrowingCostKind | null;
+  /** A built-in code, the id of a kind the person added, or 'other' for a
+   *  cost whose kind was removed; null for an entry typed straight into
+   *  Finances. growingCostKindLabel reads it. */
+  kind: string | null;
   /** For a material bought for a compost pile, this is the area the pile
    *  feeds (compost_piles.plot_id), read at query time, since the cost row
    *  itself is tied to the pile alone. */
@@ -55,11 +57,56 @@ export type GrowingCostRecord = {
   compostPileName: string | null;
 };
 
+// --- Kinds the person added ------------------------------------------------
+
+export async function listGardenCostKinds(): Promise<CustomGrowingCostKind[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<CustomGrowingCostKind>('SELECT id, name FROM garden_cost_kinds ORDER BY created_at ASC, name ASC');
+}
+
+/** Adds a kind, or returns the one already there under the same name (the
+ *  case and spacing aside), so typing Mulch twice makes one kind. Returns
+ *  null for an empty name. */
+export async function createGardenCostKind(name: string): Promise<string | null> {
+  const trimmed = name.trim();
+  if (!trimmed) return null;
+  const db = await getDatabase();
+  const existing = await db.getFirstAsync<{ id: string }>(
+    'SELECT id FROM garden_cost_kinds WHERE lower(name) = lower(?) LIMIT 1',
+    trimmed,
+  );
+  if (existing) return existing.id;
+  const id = `cost_kind_${Date.now()}`;
+  await db.runAsync(
+    'INSERT INTO garden_cost_kinds (id, name, created_at) VALUES (?, ?, ?)',
+    id,
+    trimmed,
+    new Date().toISOString(),
+  );
+  return id;
+}
+
+export async function renameGardenCostKind(id: string, name: string): Promise<void> {
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  const db = await getDatabase();
+  await db.runAsync('UPDATE garden_cost_kinds SET name = ? WHERE id = ?', trimmed, id);
+}
+
+/** Removes the kind. Costs recorded under it keep their record and read as
+ *  Something else from then on; none is deleted. */
+export async function deleteGardenCostKind(id: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync("UPDATE garden_cost_details SET kind = 'other' WHERE kind = ?", id);
+  await db.runAsync('DELETE FROM garden_cost_kinds WHERE id = ?', id);
+}
+
 export async function recordGrowingCost(input: {
   occurredOn: string;
   amount: number;
   description: string;
-  kind: GrowingCostKind;
+  /** A built-in code or the id of a kind the person added. */
+  kind: string;
   plotId?: string | null;
   costGroupId?: string | null;
   compostPileId?: string | null;
@@ -213,7 +260,7 @@ export async function listGrowingCosts(limit = 200): Promise<GrowingCostRecord[]
       occurredOn: row.occurredOn,
       amount: row.amount,
       description: row.description ?? '',
-      kind: row.kind && isGrowingCostKind(row.kind) ? row.kind : null,
+      kind: row.kind ?? null,
       plotId,
       plotName: plotId ? (row.plotName ?? row.pilePlotName) : null,
       costGroupId: groupId,

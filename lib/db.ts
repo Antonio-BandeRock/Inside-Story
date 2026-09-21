@@ -6946,9 +6946,25 @@ async function runDatabaseInitialization() {
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- 2026-09-20, "Instead of listing 'Something else' in the Pick a Kind
+      -- list, make it so the user can add their own." A kind of growing
+      -- cost the person named: mulch, a soil test, whatever the built-in
+      -- list has no word for. Its id is stored in garden_cost_details.kind
+      -- beside the built-in codes, with no foreign key for the same reason
+      -- routine_occasions has none: removing one resets the costs that
+      -- used it to 'other' by hand (deleteGardenCostKind in
+      -- lib/gardenMoneyDb.ts), and deletes none of them.
+      CREATE TABLE IF NOT EXISTS garden_cost_kinds (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       CREATE TABLE IF NOT EXISTS garden_cost_details (
         finance_entry_id TEXT PRIMARY KEY,
-        -- See GROWING_COST_KINDS in lib/gardenMoney.ts.
+        -- A built-in code (GROWING_COST_KINDS in lib/gardenMoney.ts), the id
+        -- of a garden_cost_kinds row, or 'other' for a cost whose kind was
+        -- removed or recorded before kinds could be added.
         kind TEXT NOT NULL,
         plot_id TEXT,
         compost_pile_id TEXT,

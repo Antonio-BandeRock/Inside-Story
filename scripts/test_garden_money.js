@@ -54,7 +54,7 @@ function loadModule(relPath, deps = {}) {
 const H = loadModule('lib/harvestTrade.ts');
 const G = loadModule('lib/gardenMoney.ts', { './harvestTrade': H });
 const {
-  GROWING_COST_KINDS, growingCostKindLabel, isGrowingCostKind, summarizeGardenMoney, describeGardenNet, RECEIVED_SHARE_UNITS,
+  GROWING_COST_KINDS, growingCostKindLabel, isGrowingCostKind, growingCostKindChoices, findGrowingCostKind, summarizeGardenMoney, describeGardenNet, RECEIVED_SHARE_UNITS,
   groupGardenMoneyByArea, describeNetShort, describeAreaSetting, UNASSIGNED_AREA_NAME,
 } = G;
 
@@ -107,11 +107,19 @@ checkTrue('no unpriced, no caveat', !describeGardenNet(ahead).includes('recorded
 
 // --- 3. Kinds ---------------------------------------------------------------
 
-check('nine kinds', GROWING_COST_KINDS.length, 9);
+check('eight built-in kinds, no catch-all', GROWING_COST_KINDS.length, 8);
+checkTrue('no Something else in the list', !GROWING_COST_KINDS.some((entry) => entry.label === 'Something else'));
 checkTrue('every kind labelled', GROWING_COST_KINDS.every((entry) => entry.label.length > 0 && entry.help.length > 0));
 check('kind label', growingCostKindLabel('fertilizer_nutrients'), 'Fertilizer and nutrients');
 check('unknown kind falls back', growingCostKindLabel('mystery'), 'Something else');
-check('isGrowingCostKind', [isGrowingCostKind('water'), isGrowingCostKind('nope')], [true, false]);
+check('isGrowingCostKind', [isGrowingCostKind('water'), isGrowingCostKind('nope'), isGrowingCostKind('other')], [true, false, false]);
+const mine = [{ id: 'cost_kind_1', name: 'Mulch' }];
+check('their kind follows the built-ins', growingCostKindChoices(mine).map((entry) => entry.code).slice(-2), ['containers_structures', 'cost_kind_1']);
+check('their kind is theirs, with no help line', [findGrowingCostKind('cost_kind_1', mine).mine, findGrowingCostKind('cost_kind_1', mine).help], [true, null]);
+check('a built-in is not theirs', findGrowingCostKind('water', mine).mine, false);
+check('their kind reads by name', growingCostKindLabel('cost_kind_1', mine), 'Mulch');
+check('a removed kind reads as Something else', growingCostKindLabel('cost_kind_1'), 'Something else');
+check('an old other row reads as Something else', growingCostKindLabel('other', mine), 'Something else');
 checkTrue('fertilizer help says kitchen compost is free', GROWING_COST_KINDS.find((entry) => entry.code === 'fertilizer_nutrients').help.includes('costs nothing'));
 check('gift units include the two informal ones', RECEIVED_SHARE_UNITS.includes('bunch') && RECEIVED_SHARE_UNITS.includes('bag'), true);
 

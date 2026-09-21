@@ -62,6 +62,14 @@
 
 import { formatTradeMoney } from './harvestTrade';
 
+// KINDS. Eight built-in kinds, and any the person adds. "Instead of listing
+// 'Something else' in the Pick a Kind list, make it so the user can add
+// their own" (2026-09-20): the picker offers the built-ins, the person's
+// kinds, and an Add a kind of your own choice, never a catch-all. A cost is
+// stored with a built-in code or the id of a garden_cost_kinds row. The
+// label 'Something else' survives only as what an old 'other' row, or a
+// cost whose kind was removed, reads as.
+
 export type GrowingCostKind =
   | 'seeds_starts'
   | 'soil_amendments'
@@ -70,8 +78,23 @@ export type GrowingCostKind =
   | 'water'
   | 'tools_equipment'
   | 'pest_disease'
-  | 'containers_structures'
-  | 'other';
+  | 'containers_structures';
+
+/** A kind the person named. */
+export type CustomGrowingCostKind = { id: string; name: string };
+
+/** A built-in and a person's own seen the same way: what the picker lists
+ *  and what a label lookup reads. */
+export type GrowingCostKindChoice = {
+  code: string;
+  label: string;
+  /** The line under the picker, or null for a person's kind, where there is
+   *  nothing to say that the name does not say already. */
+  help: string | null;
+  /** Whether the person made it, which is the only kind that can be renamed
+   *  or removed. */
+  mine: boolean;
+};
 
 export const GROWING_COST_KINDS: { code: GrowingCostKind; label: string; help: string }[] = [
   { code: 'seeds_starts', label: 'Seeds and starts', help: 'Seed packets, seedlings, bulbs, bare-root plants.' },
@@ -86,15 +109,33 @@ export const GROWING_COST_KINDS: { code: GrowingCostKind; label: string; help: s
   { code: 'tools_equipment', label: 'Tools and equipment', help: 'Hand tools, hoses, timers, a tiller.' },
   { code: 'pest_disease', label: 'Pest and disease control', help: 'Row cover, netting, sprays, traps.' },
   { code: 'containers_structures', label: 'Containers and structures', help: 'Pots, raised-bed lumber, trellis, a cold frame.' },
-  { code: 'other', label: 'Something else', help: 'Any other money spent on growing.' },
 ];
 
-export function growingCostKindLabel(kind: string): string {
-  return GROWING_COST_KINDS.find((entry) => entry.code === kind)?.label ?? 'Something else';
+/** Every kind there is: the built-ins first, in their order, then the
+ *  person's, in the order they were added. */
+export function growingCostKindChoices(custom: CustomGrowingCostKind[] = []): GrowingCostKindChoice[] {
+  const built: GrowingCostKindChoice[] = GROWING_COST_KINDS.map((entry) => ({
+    code: entry.code,
+    label: entry.label,
+    help: entry.help,
+    mine: false,
+  }));
+  const mine: GrowingCostKindChoice[] = custom.map((entry) => ({ code: entry.id, label: entry.name, help: null, mine: true }));
+  return [...built, ...mine];
 }
 
-export function isGrowingCostKind(value: string): value is GrowingCostKind {
-  return GROWING_COST_KINDS.some((entry) => entry.code === value);
+export function findGrowingCostKind(kind: string, custom: CustomGrowingCostKind[] = []): GrowingCostKindChoice | null {
+  return growingCostKindChoices(custom).find((entry) => entry.code === kind) ?? null;
+}
+
+/** What a cost's kind reads as. A kind that was removed, or the old 'other'
+ *  code, reads as Something else rather than as nothing. */
+export function growingCostKindLabel(kind: string, custom: CustomGrowingCostKind[] = []): string {
+  return findGrowingCostKind(kind, custom)?.label ?? 'Something else';
+}
+
+export function isGrowingCostKind(value: string, custom: CustomGrowingCostKind[] = []): boolean {
+  return findGrowingCostKind(value, custom) !== null;
 }
 
 export type GardenMoneySummary = {
