@@ -29,6 +29,7 @@ export type ReminderKindKey =
   | 'bill'
   | 'upkeep'
   | 'benefit'
+  | 'countdown'
   | 'reminder';
 
 // Four more, 2026-09-16, direct request. Everything in Life that carries
@@ -54,6 +55,10 @@ export const ALL_REMINDER_KIND_KEYS: ReminderKindKey[] = [
   'bill',
   'upkeep',
   'benefit',
+  // 1.0.42.13. A Days Until counter under a garden area, on the day it
+  // lands. Direct request: "Add a reminder on the day for a Days Until
+  // counter." Dated like the three above it, so it sits with them.
+  'countdown',
   // 1.0.39.15. A thought from the capture inbox that somebody gave a day
   // to, which is the only way one ever becomes a scheduled thing. It has no
   // tab behind it and nothing else in the app defines it, so it needs a kind
@@ -72,6 +77,7 @@ export const REMINDER_KIND_LABELS: Record<ReminderKindKey, string> = {
   bill: 'Bills',
   upkeep: 'Upkeep & renewals',
   benefit: 'Work benefits',
+  countdown: 'Days Until counters',
   reminder: 'Things you noted down',
 };
 
@@ -90,6 +96,8 @@ export const REMINDER_KIND_CAPTIONS: Record<ReminderKindKey, string> = {
     'Something from Life > Upkeep coming due or running out: two weeks ahead, three days ahead, then the day itself.',
   benefit:
     'A work benefit resetting with some of it unused, a month ahead and again a week ahead, while there is still time to book something.',
+  countdown:
+    'A Days Until counter from Garden > Plots & Plantings, on the day it lands. Marking it done or removing it clears the reminder.',
   reminder:
     'Something you threw into Capture and later gave a day to, at the time you picked.',
 };
@@ -121,6 +129,9 @@ const DEFAULT_REMINDER_KIND_ENABLED: Record<ReminderKindKey, boolean> = {
   bill: true,
   upkeep: true,
   benefit: true,
+  // On. A counter is started by typing a number of days into it, which is
+  // the person saying which day they want pointed out to them.
+  countdown: true,
   // On, and of all of them this is the one with the strongest claim to it.
   // Nobody types a thought into Capture and then picks a day for it unless
   // they want to be told about it on that day.

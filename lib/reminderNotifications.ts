@@ -25,13 +25,13 @@ import { formatTime12 } from './timeOfDay';
 
 // Local reminders: the scheduled doses in Schedules > Meds, the visits in
 // Schedules > Appointments, the meals and drinks on the schedule, the work
-// planned in Garden > Upcoming Tasks, and, since 2026-09-16, the bills,
-// upkeep and work benefits in Life fire as phone notifications, entirely on
-// the device, through expo-notifications (compiled into the 1.0.37.33
+// planned in Garden > Upcoming Tasks, since 2026-09-16 the bills, upkeep and
+// work benefits in Life, and since 2026-09-21 the Days Until counters under
+// garden areas, fire as phone notifications, entirely on the device, through expo-notifications (compiled into the 1.0.37.33
 // rebuild). Nothing here talks to a server; the content-blind push relay the
 // architecture notes describe is a separate, later piece.
 //
-// Eight kinds, each with its own switch in Profile > Reminders (see
+// Eleven kinds, each with its own switch in Profile > Reminders (see
 // lib/reminderPreferences.ts for why drinks default off and the rest default
 // on). A kind switched off is dropped before anything is scheduled, so
 // turning one off clears what it had already queued at the next reconcile
@@ -151,6 +151,7 @@ const NUDGEABLE_TIMED_KINDS: ReminderKind[] = ['dose', 'meal', 'hydration', 'gar
 
 type ScheduleLens = 'meds' | 'appointments' | 'todaysMeals' | 'hydration';
 type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine';
+type GardenReminderLens = 'upcomingTasks' | 'plotsAndPlantings';
 
 type ReminderPayload = {
   kind: ReminderKind;
@@ -162,7 +163,7 @@ type ReminderPayload = {
   /** Which tab a tap opens. Absent on anything queued before 1.0.39.8, and
    *  read back as 'schedule', which is the only thing it could have been. */
   tab?: ReminderTab;
-  lens: ScheduleLens | 'upcomingTasks' | DatedReminderLens | 'reconcile' | 'walk';
+  lens: ScheduleLens | GardenReminderLens | DatedReminderLens | 'reconcile' | 'walk';
 };
 
 type PlannedNotification = {
@@ -422,6 +423,7 @@ const DATED_KIND_PREFIX: Record<DatedReminderKind, string | null> = {
   bill: null,
   upkeep: 'Upkeep',
   benefit: 'Work benefit',
+  countdown: 'Days Until',
 };
 
 // What the date actually means for each, which differs enough to be worth
@@ -430,6 +432,8 @@ const DATED_KIND_PREFIX: Record<DatedReminderKind, string | null> = {
 function describeDatedDue(kind: DatedReminderKind, lead: number): string {
   const when = describeLead(lead);
   if (kind === 'benefit') return `Resets ${when}`;
+  // A counter lands, the word its row on the Garden screen uses.
+  if (kind === 'countdown') return `Lands ${when}`;
   return lead < 0 ? `Was due ${when}` : `Due ${when}`;
 }
 
@@ -454,7 +458,7 @@ function buildDatedPlanned(
       kind: source.kind,
       scheduleItemId: source.sourceId,
       fireAt: fireAt.toISOString(),
-      tab: 'life',
+      tab: source.tab,
       lens: source.lens,
     },
   };
@@ -534,7 +538,7 @@ async function ensureAndroidChannels(): Promise<void> {
   });
   await Notifications.setNotificationChannelAsync(ANDROID_DATED_CHANNEL_ID, {
     name: 'Dates coming up',
-    description: 'Bills, upkeep and renewals, and work benefits about to reset.',
+    description: 'Bills, upkeep and renewals, work benefits about to reset, and Days Until counters landing.',
     importance: Notifications.AndroidImportance.DEFAULT,
     sound: 'default',
     vibrationPattern: [0, 180],
@@ -543,7 +547,7 @@ async function ensureAndroidChannels(): Promise<void> {
 }
 
 function channelFor(kind: ReminderKind): string {
-  if (kind === 'bill' || kind === 'upkeep' || kind === 'benefit') return ANDROID_DATED_CHANNEL_ID;
+  if (kind === 'bill' || kind === 'upkeep' || kind === 'benefit' || kind === 'countdown') return ANDROID_DATED_CHANNEL_ID;
   if (kind === 'meal' || kind === 'hydration' || kind === 'garden' || kind === 'reminder' || kind === 'routine')
     return ANDROID_ROUTINE_CHANNEL_ID;
   return ANDROID_CHANNEL_ID;
@@ -696,7 +700,7 @@ async function runSync(): Promise<ReminderSyncResult> {
 
 export type ReminderTapTarget =
   | { pathname: '/schedule'; params: { openScheduleLens: ScheduleLens } }
-  | { pathname: '/garden'; params: { openGardenLens: 'upcomingTasks' } }
+  | { pathname: '/garden'; params: { openGardenLens: GardenReminderLens } }
   | { pathname: '/life'; params: { openLifeLens: DatedReminderLens } }
   | { pathname: '/routine'; params: { id: string } }
   | { pathname: '/reconcile' };
@@ -725,7 +729,12 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
   if (data?.tab === 'routine' && typeof data.scheduleItemId === 'string' && data.scheduleItemId) {
     return { pathname: '/routine', params: { id: data.scheduleItemId } };
   }
-  if (data?.tab === 'garden') return { pathname: '/garden', params: { openGardenLens: 'upcomingTasks' } };
+  // A garden task lands on Upcoming Tasks and a Days Until counter on the
+  // area it sits under. An older payload that says garden and nothing
+  // about a lens is from before counters, so it can only be a task.
+  if (data?.tab === 'garden') {
+    return { pathname: '/garden', params: { openGardenLens: data.lens === 'plotsAndPlantings' ? 'plotsAndPlantings' : 'upcomingTasks' } };
+  }
   if (data?.tab === 'life') {
     const lens = DATED_LENSES.find((option) => option === data.lens) ?? 'finances';
     return { pathname: '/life', params: { openLifeLens: lens } };

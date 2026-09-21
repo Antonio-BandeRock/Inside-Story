@@ -23,8 +23,21 @@
 // Re-deriving any of those three here would be the drift this project keeps
 // having to unpick elsewhere: correct the rule in one place and the reminder
 // would quietly disagree.
+//
+// A fourth joined 2026-09-21, the Days Until counters under garden areas
+// ("Add a reminder on the day for a Days Until counter"), on the same rule:
+//
+//   Counters  garden_countdowns has started_on and days, and
+//             gardenCountdown's countdownDueDate is the one place that adds
+//             them; gardenCountdownDb's listRunningGardenCountdowns already
+//             knows which are still running under an area still in use.
+//
+// It is the one dated source that lands on Garden rather than Life when
+// tapped, which is what the tab field on a source is for.
 
 import { formatFinanceMoney } from './financeCore';
+import { countdownDueDate } from './gardenCountdown';
+import { listRunningGardenCountdowns } from './gardenCountdownDb';
 import { listRecurring } from './financeDb';
 import { nextOccurrence } from './financeSchedule';
 import { listUpkeepItems } from './upkeepDb';
@@ -35,7 +48,9 @@ import type { DatedReminderKind } from './reminderSchedule';
 
 /** Where a tapped reminder lands. All three live in Life, under a lens that
  *  already takes a deep link (openLifeLens, app/(tabs)/life.tsx). */
-export type DatedReminderLens = 'finances' | 'upkeep' | 'work';
+export type DatedReminderLens = 'finances' | 'upkeep' | 'work' | 'plotsAndPlantings';
+/** A countdown lands on Garden when tapped; the other three on Life. */
+export type DatedReminderTab = 'life' | 'garden';
 
 export type DatedReminderSource = {
   kind: DatedReminderKind;
@@ -49,6 +64,7 @@ export type DatedReminderSource = {
   detail: string | null;
   /** 'YYYY-MM-DD'. */
   dueOn: string;
+  tab: DatedReminderTab;
   lens: DatedReminderLens;
 };
 
@@ -63,10 +79,11 @@ export type DatedReminderSource = {
  * guessed date would be worse than none.
  */
 export async function listDatedReminderSources(today: string): Promise<DatedReminderSource[]> {
-  const [recurring, upkeepItems, benefits] = await Promise.all([
+  const [recurring, upkeepItems, benefits, countdowns] = await Promise.all([
     listRecurring(),
     listUpkeepItems(),
     listBenefits(),
+    listRunningGardenCountdowns(),
   ]);
 
   const sources: DatedReminderSource[] = [];
@@ -86,6 +103,7 @@ export async function listDatedReminderSources(today: string): Promise<DatedRemi
       title: row.name,
       detail: row.amount > 0 ? formatFinanceMoney(row.amount) : null,
       dueOn,
+      tab: 'life',
       lens: 'finances',
     });
   }
@@ -108,6 +126,7 @@ export async function listDatedReminderSources(today: string): Promise<DatedRemi
             : `${upkeepCategoryLabel(item.category)}, does not renew`
           : upkeepCategoryLabel(item.category),
       dueOn: standing.dueOn,
+      tab: 'life',
       lens: 'upkeep',
     });
   }
@@ -126,7 +145,27 @@ export async function listDatedReminderSources(today: string): Promise<DatedRemi
       title: benefit.name,
       detail: `${formatBenefitAmount(benefit.kind, standing.remaining)} still unused`,
       dueOn: benefit.resetOn.slice(0, 10),
+      tab: 'life',
       lens: 'work',
+    });
+  }
+
+  // Days Until counters, 2026-09-21. Only the running ones under areas
+  // still in use, which is the same list Home shows; a counter marked done
+  // or removed, or whose area moved to Past Areas, leaves this list and the
+  // next reconcile clears whatever it had queued. The day it lands comes
+  // from lib/gardenCountdown.ts, the same arithmetic the counter's row
+  // reads by. The detail names the area, and the planting when the counter
+  // is for one, so the line says where to go and look.
+  for (const countdown of countdowns) {
+    sources.push({
+      kind: 'countdown',
+      sourceId: countdown.id,
+      title: countdown.name,
+      detail: countdown.plantingName ? `${countdown.plotName}, ${countdown.plantingName}` : countdown.plotName,
+      dueOn: countdownDueDate(countdown),
+      tab: 'garden',
+      lens: 'plotsAndPlantings',
     });
   }
 

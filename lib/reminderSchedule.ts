@@ -26,10 +26,13 @@
  *  for no reason. */
 export const REMINDER_HOUR = 9;
 
-/** The three kinds that carry a date instead of a time. */
-export type DatedReminderKind = 'bill' | 'upkeep' | 'benefit';
+/** The kinds that carry a date instead of a time. The first three live in
+ *  Life; a countdown is a Days Until counter in Garden > Plots & Plantings,
+ *  which joined 2026-09-21 by direct request ("Add a reminder on the day for
+ *  a Days Until counter"). */
+export type DatedReminderKind = 'bill' | 'upkeep' | 'benefit' | 'countdown';
 
-export const ALL_DATED_REMINDER_KINDS: DatedReminderKind[] = ['bill', 'upkeep', 'benefit'];
+export const ALL_DATED_REMINDER_KINDS: DatedReminderKind[] = ['bill', 'upkeep', 'benefit', 'countdown'];
 
 /**
  * How many days ahead of the date each kind speaks up, longest lead first.
@@ -43,11 +46,18 @@ export const ALL_DATED_REMINDER_KINDS: DatedReminderKind[] = ['bill', 'upkeep', 
  * month and then a week; there is no day-of reminder because being told on
  * the day that a physiotherapy allowance resets tonight is not a reminder,
  * it is bad news.
+ *
+ * A Days Until counter speaks on the day and only on the day, because the
+ * day is the whole of what it holds: the person typed "14 days to
+ * germination" so that the fourteenth day would be pointed out to them.
+ * Nothing needs booking ahead of it, and a counter that lands unnoticed is
+ * not a crisis, so there is no lead and no warning.
  */
 export const LEAD_DAYS: Record<DatedReminderKind, number[]> = {
   bill: [3, 0],
   upkeep: [14, 3, 0],
   benefit: [30, 7],
+  countdown: [0],
 };
 
 /**
@@ -61,6 +71,11 @@ export const LEAD_DAYS: Record<DatedReminderKind, number[]> = {
  * got paid, and a work benefit is used down gradually rather than finished,
  * so for those two "until it is done" has nothing to read. Rather than
  * nagging about something it cannot tell the state of, neither one repeats.
+ *
+ * A countdown could honestly repeat (Done takes it out of the running list)
+ * and deliberately does not: a counter past its day is meant to keep
+ * counting on screen so the person can see how far past the mark the plant
+ * is running, and that is a thing to look at, not a thing left undone.
  */
 export const NUDGES_WHILE_OVERDUE: DatedReminderKind[] = ['upkeep'];
 

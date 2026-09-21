@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.13',
+    date: '2026-09-20',
+    changes: [
+      'A Days Until counter reminds you on the day it lands: one notification that morning, at the same hour as bills and upkeep, and Profile > Reminders has a switch for it. Tapping it opens the area on Plots & Plantings. Marking the counter done or removing it clears the reminder, and a counter past its day keeps counting on screen without ringing again.',
+    ],
+  },
+  {
     version: '1.0.42.12',
     date: '2026-09-20',
     changes: [

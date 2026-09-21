@@ -13,6 +13,11 @@
 // record of how long the thing took. The arithmetic and every sentence
 // are in lib/gardenCountdown.ts; Home's Days Until card reads the running
 // ones across every area through the same functions.
+//
+// Since 1.0.42.13 the phone reminds on the day a counter lands (dated
+// reminder kind 'countdown', lib/reminderSources.ts). Adding, finishing or
+// removing a counter reconciles the queued reminders straight away, so a
+// counter marked done on its eve does not still ring the next morning.
 
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -28,6 +33,7 @@ import {
   type GardenCountdownRow,
 } from '../lib/gardenCountdown';
 import { addGardenCountdown, deleteGardenCountdown, listGardenCountdowns, setGardenCountdownDone } from '../lib/gardenCountdownDb';
+import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
 
@@ -86,17 +92,20 @@ export function DaysUntilSection({ plot, plantings, onChanged, readOnly = false 
     setError(null);
     setAdding(false);
     await load();
+    void syncReminderNotifications();
     if (onChanged) await onChanged();
   }
 
   async function handleDone(item: GardenCountdownRow) {
     await setGardenCountdownDone(item.id, !item.doneAt);
     await load();
+    void syncReminderNotifications();
   }
 
   async function handleRemove(item: GardenCountdownRow) {
     await deleteGardenCountdown(item.id);
     await load();
+    void syncReminderNotifications();
     if (onChanged) await onChanged();
   }
 
@@ -116,7 +125,7 @@ export function DaysUntilSection({ plot, plantings, onChanged, readOnly = false 
     <View style={styles.section}>
       <Text style={styles.heading}>Days Until</Text>
       {items.length === 0 ? (
-        <Text style={styles.captionText}>Name something and count the days to it: germination, transplanting out, the first harvest, the cover coming off. A counter keeps counting past its day until you mark it done.</Text>
+        <Text style={styles.captionText}>Name something and count the days to it: germination, transplanting out, the first harvest, the cover coming off. The phone reminds you on the day, and a counter keeps counting past its day until you mark it done.</Text>
       ) : null}
       {ordered.map((item) => {
         const figure = countdownFigure(item, today);

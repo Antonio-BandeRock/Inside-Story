@@ -93,6 +93,16 @@ const benefit = datedReminderDays('benefit', '2026-12-31', '2026-09-16', false);
 check('a benefit speaks twice', benefit.map((d) => d.on), ['2026-12-01', '2026-12-24']);
 check('a benefit never speaks on the day itself', benefit.some((d) => d.lead === 0), false);
 
+// A Days Until counter (1.0.42.13) speaks on the day it lands and only then,
+// and never comes back: a counter past its day keeps counting on screen by
+// design, so nudging it would be nagging about a thing to look at.
+const countdown = datedReminderDays('countdown', '2026-10-04', '2026-09-20', false);
+check('a countdown speaks once', countdown.map((d) => d.on), ['2026-10-04']);
+check('a countdown speaks on the day itself', countdown.map((d) => d.lead), [0]);
+const countdownNudged = datedReminderDays('countdown', '2026-09-18', '2026-09-20', true);
+check('a countdown past its day stays quiet even with nudging on', countdownNudged.map((d) => d.on), ['2026-09-18']);
+check('a countdown is not a kind that nudges', NUDGES_WHILE_OVERDUE.includes('countdown'), false);
+
 // Soonest first, always, because the scheduler takes the first however-many
 // that fit inside the lookahead window.
 for (const kind of ALL_DATED_REMINDER_KINDS) {
@@ -101,7 +111,7 @@ for (const kind of ALL_DATED_REMINDER_KINDS) {
   check(`${kind} comes back in date order`, days.map((d) => d.on), sorted);
   check(`${kind} says as many days as it has leads`, days.length, LEAD_DAYS[kind].length);
   check(
-    `${kind} leads match its own schedule`,
+    `${kind} leads match the schedule set for it`,
     days.map((d) => d.lead).sort((a, b) => a - b),
     [...LEAD_DAYS[kind]].sort((a, b) => a - b),
   );
