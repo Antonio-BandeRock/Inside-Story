@@ -68,14 +68,20 @@ assets/data/test_current_shape.db
 # app code, not large unrelated data files.
 ClaudeWork/
 
-# unified-database's own real, large cached input artifact -- an
-# extracted copy of the legacy 7-source raw database (120MB, derived
-# from ClaudeWork's own already-excluded zipped original). Deliberately
-# NOT excluding unified_foods.sqlite itself here -- that one IS meant to
-# be a real, committed checkpoint of actual progress, the same way the
-# app's own bundled assets/data/foods_reference.db always is, even
-# though it's large and technically regenerable.
+# unified-database's large cached input artifact: an extracted copy of
+# the legacy 7-source raw database (120MB, derived from ClaudeWork's
+# already-excluded zipped original).
 unified-database/.cache/
+
+# The two SQLite databases left git on 2026-09-21. Each had been a Git
+# LFS file, and every commit of one uploaded a whole new 161 MB or 115 MB
+# object that GitHub keeps for good: 110 versions in history put the
+# account at 90% of its 10 GiB of LFS storage. They live on disk here,
+# EAS still uploads them for a build (.easignore does not exclude them),
+# and node scripts/backup_reference_dbs.js copies them to OneDrive; run
+# it whenever either one changes. Do not add either back to git.
+assets/data/foods_reference.db
+unified-database/unified_foods.sqlite
 
 # The audit tool's own derived, fully-regeneratable build outputs --
 # audit-data.json (a plain SQL export of unified_foods.sqlite) and
