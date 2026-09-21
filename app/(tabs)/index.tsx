@@ -115,6 +115,8 @@ import {
   type Routine,
 } from '../../lib/routines';
 import { getRoutinesHomeData } from '../../lib/routinesDb';
+import { countdownFigure, sortCountdowns, type GardenCountdownRow } from '../../lib/gardenCountdown';
+import { listRunningGardenCountdowns } from '../../lib/gardenCountdownDb';
 import { reresolveSavedDishCookingMethods } from '../../lib/db';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { dateStringOffsetFrom } from '../../lib/trendAnalysis';
@@ -476,6 +478,9 @@ type DashboardData = {
   // with item_type 'garden', so they are the same kind of thing Today's
   // Reminders shows, just not bound to today.
   gardenTasks: (ScheduleItemRecord & { plotId: string | null; plantingId: string | null })[];
+  // Days Until counters still running under areas still in use,
+  // 2026-09-21, with the area and planting names Home shows beside each.
+  daysUntil: GardenCountdownRow[];
   captureCounts: { waiting: number; sorted: number };
   // Routines and the Did I Do It record, 2026-09-17. Both arrive whole
   // rather than as counts: the routine list is short by nature, and the
@@ -705,6 +710,12 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.tabGarden,
     href: { pathname: '/garden', params: { openGardenLens: 'upcomingTasks' } } as Href,
   },
+  daysUntil: {
+    label: 'Days Until',
+    icon: 'hourglass',
+    color: colors.tabGarden,
+    href: { pathname: '/garden', params: { openGardenLens: 'plotsAndPlantings' } } as Href,
+  },
   logHarvest: {
     label: 'Log a Harvest',
     icon: 'basket',
@@ -769,6 +780,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'weekTrend',
   'makeReport',
   'gardenTasks',
+  'daysUntil',
   'logHarvest',
   'groceryList',
   'routines',
@@ -1286,6 +1298,10 @@ export default function HomeScreen() {
       // as everything above it. Three small queries inside one call, over
       // tables that only ever hold what somebody typed themselves.
       getRoutinesHomeData(),
+      // Days Until counters, 2026-09-21. Appended last for the same reason
+      // as everything above it: one query over one small table, running
+      // counters under areas still in use.
+      listRunningGardenCountdowns(),
     ]).then(
       ([
         todaysMeals,
@@ -1305,6 +1321,7 @@ export default function HomeScreen() {
         openToAnswer,
         assumedToConfirm,
         routinesHome,
+        daysUntil,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1340,6 +1357,7 @@ export default function HomeScreen() {
           daysSinceAssessment,
           checkinReminderDays: profile.checkinReminderDays,
           gardenTasks,
+          daysUntil,
           captureCounts,
           reconcileCounts: { open: openToAnswer, assumed: assumedToConfirm },
           routines: routinesHome.routines,
@@ -2930,6 +2948,49 @@ export default function HomeScreen() {
     );
   }
 
+  // Days Until, 2026-09-21: the counters running under the garden's areas,
+  // soonest first, the ones past their day ahead of those. The figure is
+  // the same one the area shows (countdownFigure), so Home and the lens
+  // never disagree. A row opens Plots & Plantings, where a counter is
+  // marked done.
+  function renderDaysUntil() {
+    if (!isHomeSectionVisible(visualPrefs, 'daysUntil')) return null;
+    const today = todayDateString();
+    const counters = sortCountdowns(data?.daysUntil ?? [], today).slice(0, 5);
+    return renderBand(
+      'daysUntil',
+      'Days Until',
+      <View style={styles.bandBody}>
+        {counters.length === 0 ? (
+          <Text style={styles.bandCaption}>No counters running. Start one under an area in Plots &amp; Plantings: days to germination, to transplanting, to the first harvest.</Text>
+        ) : (
+          counters.map((counter) => (
+            <TouchableOpacity
+              key={counter.id}
+              style={styles.reminderRow}
+              activeOpacity={0.8}
+              onPress={() =>
+                router.push({ pathname: '/garden', params: { openGardenLens: 'plotsAndPlantings' } })
+              }
+            >
+              <Text style={styles.reminderTime} numberOfLines={1}>
+                {countdownFigure(counter, today)}
+              </Text>
+              <View style={styles.reminderBody}>
+                <Text style={styles.reminderTitle} numberOfLines={1}>
+                  {counter.name}
+                </Text>
+                <Text style={styles.reminderDetail} numberOfLines={1}>
+                  {counter.plantingName ? `${counter.plantingName}, ${counter.plotName}` : counter.plotName}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
+      </View>,
+    );
+  }
+
   // The other half of Garden's group: picking something is the thing that
   // happens away from the phone and gets remembered later, so it is a
   // one-tap row into the Harvest Log rather than a card to read.
@@ -3045,6 +3106,8 @@ export default function HomeScreen() {
         return renderMakeReport();
       case 'gardenTasks':
         return renderGardenTasks();
+      case 'daysUntil':
+        return renderDaysUntil();
       case 'logHarvest':
         return renderLogHarvest();
       case 'digestCards':

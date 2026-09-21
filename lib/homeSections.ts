@@ -62,6 +62,7 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   // Profile."
   makeReport: '/reports',
   gardenTasks: '/garden',
+  daysUntil: '/garden',
   logHarvest: '/garden',
   yourDay: '/schedule',
   todaysReminders: '/schedule',

@@ -80,6 +80,7 @@ export async function renameGardenTerm(id: string, name: string): Promise<void> 
 const TERM_COLUMNS: Record<GardenTermList, string> = {
   equipment_kind: 'kind',
   light_type: 'light_type',
+  light_spectrum: 'spectrum',
   container_material: 'container_material',
 };
 

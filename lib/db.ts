@@ -7064,6 +7064,33 @@ async function runDatabaseInitialization() {
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- Days Until counters, 2026-09-21: "create a Days Until counter the
+      -- user can create, Name, and start a timer in days. All this to be
+      -- tied to Plots & Planting." One row per counter under an area, for
+      -- one planting in it if the person says so: days to germination, to
+      -- transplant, to harvest, counted in calendar days from started_on
+      -- (lib/gardenCountdown.ts). A counter keeps counting past its day
+      -- until it is marked done (done_at), which keeps it under the area
+      -- as the record of how long the thing took. Nothing refers to a
+      -- counter, so removing one is a plain delete. No cascade from
+      -- garden_plots: a counter goes with its area to Past Areas. A
+      -- planting's counters lose their planting on its removal (SET NULL)
+      -- and stay under the area.
+      CREATE TABLE IF NOT EXISTS garden_countdowns (
+        id TEXT PRIMARY KEY,
+        plot_id TEXT NOT NULL,
+        planting_id TEXT,
+        name TEXT NOT NULL,
+        started_on TEXT NOT NULL,
+        days INTEGER NOT NULL,
+        done_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (plot_id) REFERENCES garden_plots(id),
+        FOREIGN KEY (planting_id) REFERENCES garden_plantings(id) ON DELETE SET NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_garden_countdowns_plot ON garden_countdowns(plot_id);
+
       -- Compost, asked for as a lens: "tracks the materials added to the
       -- compost, when it was turned, watered, and everything else about
       -- making good compost." One row per pile, bin or tumbler; the record
@@ -21115,8 +21142,9 @@ export async function deleteGardenPlot(id: string): Promise<boolean> {
 }
 
 /** Whether anything is recorded under an area: a planting, a harvest, a
- *  growing cost, a compost pile feeding it, or a piece of its setup. An
- *  area with any of these is documentation and is never deleted. */
+ *  growing cost, a compost pile feeding it, a piece of its setup, or a
+ *  Days Until counter. An area with any of these is documentation and is
+ *  never deleted. */
 export async function gardenPlotHasRecords(id: string): Promise<boolean> {
   const db = await getDatabase();
   const row = await db.getFirstAsync<{ n: number }>(
@@ -21125,8 +21153,10 @@ export async function gardenPlotHasRecords(id: string): Promise<boolean> {
            + (SELECT COUNT(*) FROM garden_harvests WHERE plot_id = ?)
            + (SELECT COUNT(*) FROM garden_cost_details WHERE plot_id = ?)
            + (SELECT COUNT(*) FROM compost_piles WHERE plot_id = ?)
-           + (SELECT COUNT(*) FROM garden_equipment WHERE plot_id = ?) AS n
+           + (SELECT COUNT(*) FROM garden_equipment WHERE plot_id = ?)
+           + (SELECT COUNT(*) FROM garden_countdowns WHERE plot_id = ?) AS n
     `,
+    id,
     id,
     id,
     id,

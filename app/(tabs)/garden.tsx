@@ -62,6 +62,8 @@ import { gardenSpaceLabel, isRetiredGardenSpace, type CustomGardenSpace } from '
 import { listGardenSpaces } from '../../lib/gardenSpacesDb';
 import { PLANTING_STATUS_OPTIONS, pastAreaBlocker, plantingStatusLabel } from '../../lib/gardenAreaLifecycle';
 import { GardenSpaceField } from '../../components/GardenSpaceField';
+import { DaysUntilSection } from '../../components/DaysUntilSection';
+import { countRunningGardenCountdowns } from '../../lib/gardenCountdownDb';
 import { emptyLightDraft, GrowSetupSection, LightFields, lightDraftHasLight, lightDraftToInput, type LightDraft } from '../../components/GrowSetupSection';
 import type { CustomGardenTerm } from '../../lib/growSetup';
 import { addGrowEquipment, listGardenTerms } from '../../lib/growSetupDb';
@@ -124,7 +126,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Plots & Plantings',
-        body: 'A garden area is a place you grow food: a raised bed, a container, an indoor grow tent, a whole outdoor garden. Adding one walks through where it is, what kind of space it is (a raised bed, containers, a tent, or a space you name yourself from the picker, which then stays on the list), how much sun it gets (or, indoors, what lights it: the kind of light, its wattage, hours a day, timer, spectrum and the stage it suits, since indoors the light is the sun), its size, and its hardiness zone: details a future planting algorithm can use, none of them required to just get started. Each area has a Grow Setup once saved: lights, containers and what they are made of, hydroponic gear, humidity, timers, cooling, heating, water filtration, fans, exhaust, air filters, meters and any kind you name, each with what it cost to buy (recorded under Growing Costs for that area, so the budget sees it once), any ongoing cost, and its wattage and hours, from which the app works out what the setup draws a month and prices it once an electricity bill is recorded under Growing Costs. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest. Each planting has a status you set as it goes: Growing, Harvested, Failed or Pulled out. Once every grow in an area has finished, Move to Past Areas takes the area off the working list and keeps everything recorded under it readable in Past Areas below, and Bring it back returns it. Delete Area is only offered while nothing has been recorded under an area, so a record of what grew where is never lost.',
+        body: 'A garden area is a place you grow food: a raised bed, a container, an indoor grow tent, a whole outdoor garden. Adding one walks through where it is, what kind of space it is (a raised bed, containers, a tent, or a space you name yourself from the picker, which then stays on the list), how much sun it gets (or, indoors, what lights it: the kind of light, its wattage, hours a day, timer, spectrum and the stage it suits, since indoors the light is the sun), its size, and its hardiness zone: details a future planting algorithm can use, none of them required to just get started. Each area has a Grow Setup once saved: lights, containers and what they are made of, hydroponic gear, humidity, timers, cooling, heating, water filtration, fans, exhaust, air filters, meters and any kind you name, each with what it cost to buy (recorded under Growing Costs for that area, so the budget sees it once), any ongoing cost, and its wattage and hours, from which the app works out what the setup draws a month and prices it once an electricity bill is recorded under Growing Costs. Each area also has Days Until counters: name something (germination, transplanting out, the first harvest), say how many days and the day it started, tie it to one planting if you like, and it counts down, says Today on the day, and keeps counting past it until you mark it done; the running ones are on the Home screen under Garden. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest. Each planting has a status you set as it goes: Growing, Harvested, Failed or Pulled out. Once every grow in an area has finished, Move to Past Areas takes the area off the working list and keeps everything recorded under it readable in Past Areas below, and Bring it back returns it. Delete Area is only offered while nothing has been recorded under an area, so a record of what grew where is never lost.',
       },
     ],
   },
@@ -329,15 +331,17 @@ export default function GardenScreen() {
   const [taskCount, setTaskCount] = useState<number | undefined>(undefined);
   const [pileCount, setPileCount] = useState<number | undefined>(undefined);
   const [costCount, setCostCount] = useState<number | undefined>(undefined);
+  const [countdownCount, setCountdownCount] = useState<number | undefined>(undefined);
 
   const loadMyGardenCounts = useCallback(async () => {
-    const [plots, plantings, harvests, tasks, piles, costs] = await Promise.all([
+    const [plots, plantings, harvests, tasks, piles, costs, countdowns] = await Promise.all([
       listGardenPlots(),
       listGardenPlantings(),
       listGardenHarvests(500),
       listUpcomingGardenTasks(500),
       listCompostPiles(),
       listGrowingCosts(500),
+      countRunningGardenCountdowns(),
     ]);
     setPlotCount(plots.length);
     setPlantingCount(plantings.length);
@@ -345,6 +349,7 @@ export default function GardenScreen() {
     setTaskCount(tasks.length);
     setPileCount(piles.length);
     setCostCount(costs.length);
+    setCountdownCount(countdowns);
   }, []);
 
   const myGardenCategories: MyItemsCategory[] = [
@@ -355,6 +360,7 @@ export default function GardenScreen() {
       count: plantingCount,
       onPress: () => { setLens('plotsAndPlantings'); setRevealed(true); },
     },
+    { id: 'countdowns', label: 'Days Until', count: countdownCount, onPress: () => { setLens('plotsAndPlantings'); setRevealed(true); } },
     { id: 'harvests', label: 'Harvests', count: harvestCount, onPress: () => { setLens('harvestLog'); setRevealed(true); } },
     { id: 'tasks', label: 'Upcoming Tasks', count: taskCount, onPress: () => { setLens('upcomingTasks'); setRevealed(true); } },
     { id: 'compost', label: 'Compost Piles', count: pileCount, onPress: () => { setLens('compost'); setRevealed(true); } },
@@ -896,6 +902,9 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                 <View style={styles.pendingCard}>
                   <GrowSetupSection plot={plot} onChanged={() => loadPlantingsFor(plot.id)} />
                 </View>
+                <View style={styles.pendingCard}>
+                  <DaysUntilSection plot={plot} plantings={plantings} onChanged={() => loadPlantingsFor(plot.id)} />
+                </View>
                 {plantings.length === 0 ? (
                   <Text style={styles.captionText}>Nothing logged as planted here yet.</Text>
                 ) : (
@@ -1006,6 +1015,7 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                       {planting.varietyNote ? ` (${planting.varietyNote})` : ''}: {plantingStatusLabel(planting.status)}
                     </Text>
                   ))}
+                  <DaysUntilSection plot={plot} plantings={plantings} readOnly />
                   <TouchableOpacity onPress={() => handleBringBack(plot.id)}>
                     <Text style={styles.linkText}>Bring it back</Text>
                   </TouchableOpacity>

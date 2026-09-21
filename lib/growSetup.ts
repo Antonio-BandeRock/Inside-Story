@@ -47,8 +47,8 @@
 //      A bill is the household's, never one area's, which is why bills live
 //      under Growing Costs and not under an area.
 //
-// LISTS ARE OPEN. Every list here (equipment kinds, light types, container
-// materials) is built-ins plus whatever the person adds, stored in one
+// LISTS ARE OPEN. Every list here (equipment kinds, light types, light
+// spectrums, container materials) is built-ins plus whatever the person adds, stored in one
 // garden_custom_terms table keyed by which list the term belongs to, so the
 // next list this app needs is a new code here and nothing else. Removal
 // follows the standing rule: what is in use is moved first, what has
@@ -60,7 +60,7 @@ import { formatTradeMoney } from './harvestTrade';
 // --- Open lists --------------------------------------------------------------
 
 /** Which list a term the person named belongs to. */
-export type GardenTermList = 'equipment_kind' | 'light_type' | 'container_material';
+export type GardenTermList = 'equipment_kind' | 'light_type' | 'light_spectrum' | 'container_material';
 
 /** A term the person named, on one of the lists. */
 export type CustomGardenTerm = { id: string; list: GardenTermList; name: string; retiredAt?: string | null };
@@ -106,9 +106,19 @@ export const CONTAINER_MATERIALS: { code: string; label: string; help: string }[
   { code: 'metal', label: 'Metal', help: 'A galvanized tub or trough; heats up under a lamp.' },
 ];
 
+// A light's spectrum. Codes predate the open list (2026-09-21), so stored
+// rows keep reading.
+export const LIGHT_SPECTRUMS: { code: string; label: string; help: string }[] = [
+  { code: 'adjustable', label: 'Adjustable', help: 'Dials or channels that shift the balance between blue and red.' },
+  { code: 'veg', label: 'Blue-heavy (leafy growth)', help: 'Keeps plants short and leafy.' },
+  { code: 'full', label: 'Full spectrum', help: 'Close to daylight; covers every stage.' },
+  { code: 'bloom', label: 'Red-heavy (flowering and fruiting)', help: 'Pushes flowering and fruit.' },
+];
+
 const BUILT_INS: Record<GardenTermList, { code: string; label: string; help: string }[]> = {
   equipment_kind: GROW_EQUIPMENT_KINDS,
   light_type: LIGHT_TYPES,
+  light_spectrum: LIGHT_SPECTRUMS,
   container_material: CONTAINER_MATERIALS,
 };
 
@@ -116,6 +126,7 @@ const BUILT_INS: Record<GardenTermList, { code: string; label: string; help: str
 export const TERM_LIST_WORDS: Record<GardenTermList, { singular: string; example: string }> = {
   equipment_kind: { singular: 'kind of equipment', example: 'CO2 tank' },
   light_type: { singular: 'kind of light', example: 'Induction' },
+  light_spectrum: { singular: 'spectrum', example: 'Far red' },
   container_material: { singular: 'material', example: 'Coir' },
 };
 
@@ -169,15 +180,7 @@ export function planTermRemoval(counts: { current: number; past: number }, moveT
 
 // --- Fixed lists ------------------------------------------------------------
 
-// Alphabetical, like every chooser list of names. The stage and cadence
-// lists below are scales and keep their order.
-export const LIGHT_SPECTRUMS: { value: string; label: string }[] = [
-  { value: 'adjustable', label: 'Adjustable' },
-  { value: 'veg', label: 'Blue-heavy (leafy growth)' },
-  { value: 'full', label: 'Full spectrum' },
-  { value: 'bloom', label: 'Red-heavy (flowering and fruiting)' },
-];
-
+// The stage and cadence lists are scales and keep their order.
 export const PLANT_STAGES: { value: string; label: string }[] = [
   { value: 'seedlings', label: 'Seedlings and cuttings' },
   { value: 'vegetative', label: 'Leafy growth' },
@@ -283,7 +286,8 @@ export function describeEquipment(item: GrowEquipment, custom: CustomGardenTerm[
   if (item.kind === 'light') {
     const type = termLabel('light_type', item.lightType, custom);
     if (type) parts.push(type);
-    if (item.spectrum) parts.push(fixedLabel(LIGHT_SPECTRUMS, item.spectrum) ?? item.spectrum);
+    const spectrum = termLabel('light_spectrum', item.spectrum, custom);
+    if (spectrum) parts.push(spectrum);
     if (item.plantStage) parts.push(`for ${(fixedLabel(PLANT_STAGES, item.plantStage) ?? item.plantStage).toLowerCase()}`);
   }
   if (item.kind === 'container') {

@@ -55,7 +55,7 @@ const H = loadModule('lib/harvestTrade.ts');
 const C = loadModule('lib/choiceOrder.ts');
 const S = loadModule('lib/growSetup.ts', { './harvestTrade': H, './choiceOrder': C });
 const {
-  GROW_EQUIPMENT_KINDS, LIGHT_TYPES, CONTAINER_MATERIALS, TERM_LIST_WORDS,
+  GROW_EQUIPMENT_KINDS, LIGHT_TYPES, LIGHT_SPECTRUMS, CONTAINER_MATERIALS, TERM_LIST_WORDS,
   termChoices, findTerm, termLabel, isRetiredTerm, replacementTermChoices, planTermRemoval,
   monthlyEquivalent, monthlyKwh, summarizeSetupPower, summarizeOngoing, costKindForEquipment, describeEquipment,
   billDays, electricityRate, compareElectricity, estimateMonthlyCost, describeSetupPower, describeElectricity,
@@ -86,13 +86,15 @@ function near(label, actual, expected, tol = 0.01) {
 check('thirteen built-in kinds', GROW_EQUIPMENT_KINDS.length, 13);
 check('six built-in light types, LED first', [LIGHT_TYPES.length, LIGHT_TYPES[0].code], [6, 'led']);
 check('six built-in materials, fabric and terracotta named', CONTAINER_MATERIALS.slice(0, 2).map((m) => m.code), ['fabric', 'terracotta']);
-checkTrue('every built-in has help', [...GROW_EQUIPMENT_KINDS, ...LIGHT_TYPES, ...CONTAINER_MATERIALS].every((e) => e.help.length > 0));
-check('every list has words for its picker', Object.keys(TERM_LIST_WORDS).sort(), ['container_material', 'equipment_kind', 'light_type']);
+checkTrue('every built-in has help', [...GROW_EQUIPMENT_KINDS, ...LIGHT_TYPES, ...LIGHT_SPECTRUMS, ...CONTAINER_MATERIALS].every((e) => e.help.length > 0));
+check('four built-in spectrums, the codes stored rows already carry', LIGHT_SPECTRUMS.map((s) => s.code).sort(), ['adjustable', 'bloom', 'full', 'veg']);
+check('every list has words for its picker', Object.keys(TERM_LIST_WORDS).sort(), ['container_material', 'equipment_kind', 'light_spectrum', 'light_type']);
 
 const terms = [
   { id: 'term_a', list: 'equipment_kind', name: 'CO2 tank', retiredAt: null },
   { id: 'term_b', list: 'equipment_kind', name: 'Trellis', retiredAt: '2026-09-21' },
   { id: 'term_c', list: 'light_type', name: 'Induction', retiredAt: null },
+  { id: 'term_d', list: 'light_spectrum', name: 'Far red', retiredAt: null },
 ];
 const kinds = termChoices('equipment_kind', terms);
 const kindLabels = kinds.map((k) => k.label);
@@ -104,6 +106,8 @@ check('a built-in is not mine', kinds.find((k) => k.code === 'fan').mine, false)
 check('other lists do not leak in', kinds.some((k) => k.code === 'term_c'), false);
 check('a light type list has only light types', termChoices('light_type', terms).map((k) => k.code).sort(), ['cfl', 'cmh', 'hps', 'led', 'mh', 't5', 'term_c'].sort());
 check('light types read alphabetically', termChoices('light_type', terms).map((k) => k.label), ['Ceramic metal halide (CMH, LEC)', 'CFL', 'HPS (high-pressure sodium)', 'Induction', 'LED', 'Metal halide', 'T5 fluorescent']);
+check('spectrums read alphabetically with mine merged in', termChoices('light_spectrum', terms).map((k) => k.label), ['Adjustable', 'Blue-heavy (leafy growth)', 'Far red', 'Full spectrum', 'Red-heavy (flowering and fruiting)']);
+check('a spectrum the person named reads by its name', termLabel('light_spectrum', 'term_d', terms), 'Far red');
 check('a retired term still reads by label', termLabel('equipment_kind', 'term_b', terms), 'Trellis');
 check('a built-in reads by label', termLabel('equipment_kind', 'fan', terms), 'Fan');
 check('an unknown code reads null', termLabel('equipment_kind', 'gone', terms), null);
@@ -168,6 +172,7 @@ check('a kind the person named is an equipment cost', costKindForEquipment('term
 
 const lightLine = describeEquipment(piece({ kind: 'light', lightType: 'led', spectrum: 'full', plantStage: 'seedlings', watts: 240, hoursPerDay: 16, onTimer: true }), terms);
 checkTrue('a light names its type, spectrum, stage, watts, hours and timer', /Grow light · LED · Full spectrum · for seedlings and cuttings · 240 W · 16 h a day on a timer/.test(lightLine));
+checkTrue('a light with a spectrum the person named reads it', /LED · Far red/.test(describeEquipment(piece({ kind: 'light', lightType: 'led', spectrum: 'term_d' }), terms)));
 const potLine = describeEquipment(piece({ kind: 'container', quantity: 6, containerMaterial: 'fabric', containerSize: '5 gal' }), terms);
 check('containers name the count, material and size', potLine, '6 × Containers · fabric · 5 gal');
 check('a kind the person named reads by its name', describeEquipment(piece({ kind: 'term_a' }), terms), 'CO2 tank');

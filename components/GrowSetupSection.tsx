@@ -29,7 +29,6 @@ import {
   describeEquipment,
   describeSetupPower,
   electricityRate,
-  LIGHT_SPECTRUMS,
   ONGOING_CADENCES,
   PLANT_STAGES,
   summarizeOngoing,
@@ -175,17 +174,15 @@ export function LightFields({ draft, onChange, terms, onTermsChanged, withCost =
       </View>
       <Text style={styles.fieldLabel}>On a timer?</Text>
       <PillRow options={YES_NO} selected={draft.onTimer ? 'yes' : 'no'} onSelect={(value) => onChange({ ...draft, onTimer: value === 'yes' })} />
-      <View style={styles.fieldRow}>
-        <Text style={styles.fieldLabel}>Spectrum</Text>
-        <PopoverSelect
-          options={LIGHT_SPECTRUMS}
-          selected={draft.spectrum}
-          onSelect={(spectrum) => onChange({ ...draft, spectrum })}
-          tabColor={TAB_COLOR}
-          width={220}
-          placeholder="Pick one"
-        />
-      </View>
+      <GardenTermField
+        list="light_spectrum"
+        label="Spectrum"
+        selected={draft.spectrum}
+        onSelect={(spectrum) => onChange({ ...draft, spectrum })}
+        terms={terms}
+        onTermsChanged={onTermsChanged}
+        showHelp
+      />
       <View style={styles.fieldRow}>
         <Text style={styles.fieldLabel}>Suited to</Text>
         <PopoverSelect

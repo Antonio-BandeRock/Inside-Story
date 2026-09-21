@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.12',
+    date: '2026-09-20',
+    changes: [
+      'Garden: every area on Plots & Plantings has Days Until counters. Name one (germination, transplanting out, the first harvest), type how many days and the day it started, and tie it to one planting if you like. It counts down, says Today on its day, keeps counting past it until you mark it done, and Done keeps it as the record of how long the thing took. Home has a Days Until card in the Garden group showing the running counters, and the Garden hub has a Days Until chip. The light Spectrum picker now takes entries you name, with rename and move-first removal like the other open lists.',
+    ],
+  },
+  {
     version: '1.0.42.11',
     date: '2026-09-20',
     changes: [

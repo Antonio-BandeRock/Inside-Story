@@ -307,6 +307,9 @@ export type HomeSectionKey =
   // already had one: Low Stimulation, which moved there from Home.
   | 'makeReport'
   | 'gardenTasks'
+  // Days Until counters, 2026-09-21: "These will be available from the
+  // Home screen in Garden quick access."
+  | 'daysUntil'
   | 'logHarvest'
   | 'digestCards'
   // Routines and the Did I Do It record, 2026-09-17. Both are Life's,
@@ -362,6 +365,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'makeReport',
   // Garden.
   'gardenTasks',
+  'daysUntil',
   'logHarvest',
   // Life.
   'groceryList',
@@ -418,6 +422,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   weekTrend: "This Week's Trend",
   makeReport: 'Make a Report',
   gardenTasks: 'Garden Tasks',
+  daysUntil: 'Days Until',
   logHarvest: 'Log a Harvest',
   digestCards: 'Digest Cards',
   routines: 'Routines',
