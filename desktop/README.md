@@ -14,6 +14,7 @@ project root) swap the phone's native modules for the stand-ins in
 | `files.js` | The file system behind expo-file-system's File and Directory; `Documents/` and `Cache/` under `<userData>` |
 | `secrets.js` | The keystore, one `safeStorage`-encrypted file per key under `<userData>/secrets/` |
 | `notifications.js` | Reminders as timers that raise system notifications |
+| `zoom.js` | How large the app draws: page zoom kept in `<userData>/settings.json` (125% by default), the View menu, Ctrl and + / - / 0, and the Text size picker in Profile |
 | `build-web.js` | Runs the export into `web-build/` |
 | `electron-builder.yml` | The installer: NSIS for Windows, DMG for Mac; the reference database ships beside the asar |
 
@@ -32,7 +33,7 @@ npm run dist                # export and build dist/Inside Story Setup <version>
 server instead of the export (`INSIDE_STORY_DESKTOP=1 npx expo start --web`
 in the project root). `INSIDE_STORY_LOG=1` echoes the page console,
 `INSIDE_STORY_SCREENSHOT=<file.png>` captures the window and quits,
-`INSIDE_STORY_CLICK="label,label"` presses those first, and
+`INSIDE_STORY_CLICK="label,label"` presses those first, `INSIDE_STORY_WINDOW="1000x900"` opens at that size, and
 `INSIDE_STORY_EVAL="<expression>"` logs what an expression evaluates to in
 the page. Under Git Bash, set `MSYS_NO_PATHCONV=1` or a route such as
 `/food` is rewritten into a Windows path before Electron sees it.

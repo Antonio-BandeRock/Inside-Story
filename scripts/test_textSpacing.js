@@ -152,6 +152,11 @@ check(
 check('windows gets the browser answer', textSizeWhereToLook('windows'), textSizeWhereToLook('web'));
 check('and so does macos', textSizeWhereToLook('macos'), textSizeWhereToLook('web'));
 
+// The desktop app (Electron) also reports web, but Profile passes desktop
+// for it, and that answer is the keyboard, not the browser.
+check('desktop gets its own answer', textSizeWhereToLook('desktop') !== textSizeWhereToLook('web'), true);
+check('which names the keys', /Ctrl and \+/.test(textSizeWhereToLook('desktop')), true);
+
 
 // ============================================================ letter spacing
 

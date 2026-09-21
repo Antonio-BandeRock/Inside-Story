@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.17',
+    date: '2026-09-21',
+    changes: [
+      'On a computer, the navigation menu opens centered above its button however wide the window is, text is drawn a quarter larger by default with a Text size picker in Profile and Ctrl and + or - from anywhere, and tapping another menu button while a menu is open switches straight to it on every platform.',
+    ],
+  },
+  {
     version: '1.0.42.16',
     date: '2026-09-21',
     changes: [

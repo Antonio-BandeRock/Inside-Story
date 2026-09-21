@@ -32,6 +32,7 @@ import {
 } from '../constants/typography';
 import { HelpSheet, type HelpSection } from './HelpButton';
 import { ActiveRingCircle } from './ActiveRingCircle';
+import { useHubHandoff } from './HubHandoff';
 import { modalAnimationType } from '../lib/visualPreferences';
 
 export type LensOption<T extends string> = {
@@ -734,27 +735,38 @@ export function LensHub<T extends string>({
   const hasGroups = options.some((option) => option.group !== undefined || option.dividerBefore);
   const blanksBeforeInfo = hasGroups ? 0 : columns % 2 === 0 ? 0 : rowPadding + Math.floor(columns / 2);
 
+  // Everything a tap on the corner button does, in one place, because a tap
+  // on this button's stand-in inside another hub's open menu has to do the
+  // same (see lib/hubHandoff.ts).
+  function openMenu() {
+    setCardReady(false);
+    // Fresh measurements each time the popup opens -- stale hint
+    // state from a previous open (e.g. this same page re-opened
+    // after scrolling to the bottom last time) would otherwise show
+    // the wrong hint for one frame before the new ScrollView's own
+    // onLayout/onContentSizeChange fire. ScrollView also always
+    // remounts scrolled to the top on a fresh open (RN's own default,
+    // never overridden here), so canScrollDown/canScrollUp resetting
+    // to "top of list" (false/false, corrected to true/false the
+    // instant the real measurements land) matches where it will
+    // actually be, not just a safe placeholder.
+    scrollMetrics.current = { containerHeight: 0, contentHeight: 0, scrollY: 0 };
+    setCanScrollDown(false);
+    setCanScrollUp(false);
+    setOpen(true);
+  }
+  const handoff = useHubHandoff(
+    'lens',
+    { left: buttonLeft, bottom: buttonBottom, width: FLOATING_BUTTON_SIZE, height: FLOATING_BUTTON_SIZE },
+    openMenu,
+    () => setOpen(false),
+  );
+
   return (
     <>
       <TouchableOpacity
         style={[styles.button, { bottom: buttonBottom, left: buttonLeft }]}
-        onPress={() => {
-          setCardReady(false);
-          // Fresh measurements each time the popup opens -- stale hint
-          // state from a previous open (e.g. this same page re-opened
-          // after scrolling to the bottom last time) would otherwise show
-          // the wrong hint for one frame before the new ScrollView's own
-          // onLayout/onContentSizeChange fire. ScrollView also always
-          // remounts scrolled to the top on a fresh open (RN's own default,
-          // never overridden here), so canScrollDown/canScrollUp resetting
-          // to "top of list" (false/false, corrected to true/false the
-          // instant the real measurements land) matches where it will
-          // actually be, not just a safe placeholder.
-          scrollMetrics.current = { containerHeight: 0, contentHeight: 0, scrollY: 0 };
-          setCanScrollDown(false);
-          setCanScrollUp(false);
-          setOpen(true);
-        }}
+        onPress={openMenu}
         activeOpacity={0.85}
         accessibilityLabel={`Choose a view for ${pageTitle}`}
       >
@@ -825,6 +837,7 @@ export function LensHub<T extends string>({
         statusBarTranslucent
         navigationBarTranslucent
         onShow={() => setCardReady(true)}
+        onDismiss={handoff.onDismiss}
         onRequestClose={() => setOpen(false)}
       >
         {/* A ninth investigated (and disproven) theory for TabHub's own
@@ -841,6 +854,9 @@ export function LensHub<T extends string>({
             window is genuinely up. */}
         <View style={styles.backdrop}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
+          {/* A tap on another hub's button while this menu is open lands on
+              that hub rather than only closing this one: see lib/hubHandoff.ts. */}
+          {handoff.targets}
           <View
             style={[
               styles.card,

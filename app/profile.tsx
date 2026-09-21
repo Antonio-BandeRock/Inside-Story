@@ -28,6 +28,8 @@ import { downloadText, listFiles, uploadText } from '../lib/oneDriveGraph';
 import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreferences';
 import { useReminderPreferences } from '../hooks/useReminderPreferences';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
+import { useDesktopTextSize } from '../hooks/useDesktopTextSize';
+import { DESKTOP_TEXT_SIZE_LABELS, desktopTextSizeForLabel, desktopTextSizeLabel } from '../lib/desktop/zoom';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
 import { routeForDigestEntry } from '../lib/digestNavigation';
 import { CONDITION_STAGING_MODELS } from '../lib/conditionStages';
@@ -89,6 +91,7 @@ import {
   LINE_SPACING_CAPTIONS,
   LINE_SPACING_LABELS,
   TEXT_SIZE_EXPLANATION,
+  TEXT_SIZE_EXPLANATION_DESKTOP,
   TEXT_SIZE_HEADING,
   textSizeWhereToLook,
   type LetterSpacingKey,
@@ -522,6 +525,9 @@ export default function ProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  // The desktop build only: the size the window draws the app at, which
+  // stands in for the phone setting this app follows everywhere else.
+  const desktopTextSize = useDesktopTextSize();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile>({
     firstName: null,
@@ -4206,8 +4212,30 @@ export default function ProfileScreen() {
                   {LETTER_SPACING_CAPTIONS[visualPrefs.letterSpacing]}
                 </Text>
                 <Text style={styles.subLabelDivided}>{TEXT_SIZE_HEADING}</Text>
-                <Text style={styles.helpText}>{TEXT_SIZE_EXPLANATION}</Text>
-                <Text style={styles.derivedText}>{textSizeWhereToLook(Platform.OS)}</Text>
+                {desktopTextSize.available ? (
+                  <>
+                    <Text style={styles.helpText}>{TEXT_SIZE_EXPLANATION_DESKTOP}</Text>
+                    <PickerField label="Text size on this computer">
+                      <PopoverSelect
+                        options={[...DESKTOP_TEXT_SIZE_LABELS]}
+                        selected={desktopTextSize.factor === null ? '' : desktopTextSizeLabel(desktopTextSize.factor)}
+                        minWidth={150}
+                        tabColor={colors.menuIconMuted}
+                        groundSurface
+                        onSelect={(label) => {
+                          const picked = desktopTextSizeForLabel(label);
+                          if (picked !== null) desktopTextSize.setFactor(picked);
+                        }}
+                      />
+                    </PickerField>
+                    <Text style={styles.derivedText}>{textSizeWhereToLook('desktop')}</Text>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.helpText}>{TEXT_SIZE_EXPLANATION}</Text>
+                    <Text style={styles.derivedText}>{textSizeWhereToLook(Platform.OS)}</Text>
+                  </>
+                )}
               </>
             ) : null}
           </View>

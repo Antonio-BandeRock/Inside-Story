@@ -107,12 +107,24 @@ export const TEXT_SIZE_HEADING = 'Text size';
 export const TEXT_SIZE_EXPLANATION =
   'Text size is set by your phone, not by this app, and this app follows it everywhere. Turn it up there and everything here comes up with it.';
 
+// The desktop build has no phone setting to follow, so there the app is
+// the one that holds the size (desktop/zoom.js), and the same section
+// carries the picker. Everything scales with it, menus and artwork
+// included, the way a phone's display size setting works.
+export const TEXT_SIZE_EXPLANATION_DESKTOP =
+  'On this computer, text size is set here. Everything comes up with it, and the size is kept for next time.';
+
 // Takes a plain string rather than the three names, because Platform.OS on
 // this project also answers 'windows' and 'macos': both of those run the
 // web target as an installed PWA, so the browser answer is the right one
 // for them, and anything unrecognized lands there too rather than on a
-// screen with no pointer at all.
+// screen with no pointer at all. The desktop app reports 'web' too, so
+// Profile passes 'desktop' for it (isDesktopApp), and the answer names
+// the keys that change the size from anywhere in the app.
 export function textSizeWhereToLook(platform: string): string {
+  if (platform === 'desktop') {
+    return 'From anywhere in the app: Ctrl and + for larger, Ctrl and - for smaller, Ctrl and 0 for the standard size. On a Mac, Cmd instead of Ctrl.';
+  }
   if (platform === 'ios') {
     return 'On an iPhone: Settings, then Accessibility, then Display & Text Size, then Larger Text.';
   }

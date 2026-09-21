@@ -16,6 +16,16 @@ function unwrap(reply) {
 }
 
 const responseListeners = new Set();
+const zoomListeners = new Set();
+ipcRenderer.on('zoom:changed', (_event, factor) => {
+  for (const listener of zoomListeners) {
+    try {
+      listener(factor);
+    } catch (error) {
+      console.error('zoom listener failed', error);
+    }
+  }
+});
 ipcRenderer.on('notifications:response', (_event, response) => {
   for (const listener of responseListeners) {
     try {
@@ -54,6 +64,16 @@ contextBridge.exposeInMainWorld('insideStoryDesktop', {
     list: (uri) => unwrap(ipcRenderer.sendSync('files:list', uri)),
     copy: (from, to) => unwrap(ipcRenderer.sendSync('files:copy', from, to)),
     move: (from, to) => unwrap(ipcRenderer.sendSync('files:move', from, to)),
+  },
+  zoom: {
+    get: () => ipcRenderer.invoke('zoom:get'),
+    set: (factor) => ipcRenderer.invoke('zoom:set', factor),
+    onChange: (listener) => {
+      zoomListeners.add(listener);
+      return () => {
+        zoomListeners.delete(listener);
+      };
+    },
   },
   notifications: {
     schedule: (request) => ipcRenderer.invoke('notifications:schedule', request),

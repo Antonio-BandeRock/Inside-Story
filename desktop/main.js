@@ -8,9 +8,10 @@
 // native modules do is done here instead: SQLite runs in this process on
 // node:sqlite (sqlite.js), secrets are encrypted with safeStorage
 // (secrets.js), reminders are timers that raise system notifications
-// (notifications.js), files live under the data folder (files.js), and
-// the reference database is copied out of the
-// install folder on first run. preload.js exposes those to the page as
+// (notifications.js), files live under the data folder (files.js), how
+// large the app draws is page zoom kept in settings.json (zoom.js), and
+// the reference database is copied out of the install folder on first
+// run. preload.js exposes those to the page as
 // window.insideStoryDesktop, and lib/desktop/bridge.ts in the app is the
 // TypeScript description of that object.
 //
@@ -26,6 +27,7 @@ const sqlite = require('./sqlite');
 const secrets = require('./secrets');
 const notifications = require('./notifications');
 const files = require('./files');
+const zoom = require('./zoom');
 
 const APP_ID = 'com.insidestoryapp.app';
 const SCHEME = 'app';
@@ -35,11 +37,14 @@ const REFERENCE_DB_FILE = 'foods_reference.db';
 
 // A phone-shaped window: the app lays itself out for one column, the
 // popup menus measure the window to place themselves, and this size keeps
-// both looking as they do on a phone. The person can resize it.
-const DEFAULT_WIDTH = 480;
-const DEFAULT_HEIGHT = 920;
-const MIN_WIDTH = 360;
-const MIN_HEIGHT = 560;
+// both looking as they do on a phone. The person can resize it. These are
+// screen pixels; at the standard zoom (zoom.js, 125%) the app sees a 480
+// by 800 window, the phone shape the 2026-09-21 build opened at, drawn a
+// quarter larger so it reads at arm's length.
+const DEFAULT_WIDTH = 600;
+const DEFAULT_HEIGHT = 1000;
+const MIN_WIDTH = 400;
+const MIN_HEIGHT = 600;
 
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -168,9 +173,12 @@ let mainWindow = null;
 
 function createWindow() {
   const workArea = screen.getPrimaryDisplay().workAreaSize;
+  // INSIDE_STORY_WINDOW="900x700" opens at that size instead, for checking
+  // what a resized window does to the popup menus without dragging one.
+  const sizeOverride = /^(\d+)x(\d+)$/.exec(process.env.INSIDE_STORY_WINDOW || '');
   mainWindow = new BrowserWindow({
-    width: Math.min(DEFAULT_WIDTH, workArea.width),
-    height: Math.min(DEFAULT_HEIGHT, workArea.height - 24),
+    width: sizeOverride ? Number(sizeOverride[1]) : Math.min(DEFAULT_WIDTH, workArea.width),
+    height: sizeOverride ? Number(sizeOverride[2]) : Math.min(DEFAULT_HEIGHT, workArea.height - 24),
     minWidth: MIN_WIDTH,
     minHeight: MIN_HEIGHT,
     title: 'Inside Story',
@@ -181,8 +189,10 @@ function createWindow() {
       contextIsolation: true,
       sandbox: true,
       nodeIntegration: false,
+      zoomFactor: zoom.current,
     },
   });
+  zoom.attach(mainWindow);
 
   notifications.setDeliver((response) => {
     if (mainWindow && !mainWindow.isDestroyed()) {
@@ -299,6 +309,7 @@ app.setAppUserModelId(APP_ID);
 app.whenReady().then(() => {
   protocol.handle(SCHEME, serveWebFile);
   registerIpc();
+  zoom.install(app.getPath('userData'), () => mainWindow);
   createWindow();
 
   app.on('activate', () => {

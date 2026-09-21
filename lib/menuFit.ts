@@ -120,3 +120,29 @@ export function fitMenuCard(input: MenuCardFitInput): MenuCardFit {
   const floor = Math.min(minHeight, desired);
   return { height: Math.max(room, floor), scrolls: true, room };
 }
+
+// Where a menu card's left edge goes.
+//
+// On a phone every card is anchored to the left margin, for the thumb (see
+// TabHub's component comment). On the desktop build the window is whatever
+// width the person drags it to, and TabHub's card, pinned to that margin,
+// drifted away from its button, which is centered. Reported 2026-09-21: "On
+// the computer we aren't needing to keep anything left or right oriented, so
+// it should just pop up in the middle directly above the TabHub icon." So
+// there the card is centered on the window, from the live width, and follows
+// a resize. Never negative: a window narrower than the card starts it at 0.
+export type MenuCardLeftInput = {
+  /** useWindowDimensions().width, in dp. */
+  windowWidth: number;
+  cardWidth: number;
+  /** The phone's left anchor. */
+  leftMargin: number;
+  /** True on the desktop build (isDesktopApp). */
+  centered: boolean;
+};
+
+export function menuCardLeft(input: MenuCardLeftInput): number {
+  const { windowWidth, cardWidth, leftMargin, centered } = input;
+  if (!centered || !Number.isFinite(windowWidth) || windowWidth <= 0) return leftMargin;
+  return Math.max(0, Math.round(windowWidth / 2 - cardWidth / 2));
+}

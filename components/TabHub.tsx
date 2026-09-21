@@ -28,11 +28,14 @@ import {
   typography,
 } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
+import { isDesktopApp } from '../lib/desktop/bridge';
+import { menuCardLeft } from '../lib/menuFit';
 import { modalAnimationType, type TabHubIconChoice } from '../lib/visualPreferences';
 import { useCurrentPageHelp } from './CurrentPageHelp';
 import { DessertBuilderIcon } from './FoodBuilderIcons';
 import { HelpSheet } from './HelpButton';
 import { ActiveRingCircle } from './ActiveRingCircle';
+import { useHubHandoff } from './HubHandoff';
 import { TabHubPointer, TabHubWelcome, useTabHubOnboarding } from './TabHubOnboarding';
 import { TabRouteIcon } from './TabRouteIcon';
 
@@ -161,6 +164,7 @@ function TabHubCardRing({ children }: { children: ReactNode }) {
 // instead of spreading out on a wider phone.
 const CARD_WIDTH = 216;
 const CARD_LEFT_MARGIN = 16;
+
 
 // 2026-07-28: `card` below used to have no fixed height at all -- it sized
 // itself to its own flexWrap content, recomputed fresh every time this
@@ -433,6 +437,15 @@ export function TabHub() {
   const onboarding = useTabHubOnboarding();
 
   const buttonBottom = insets.bottom + BOTTOM_OFFSET;
+  const { width: windowWidth } = useWindowDimensions();
+  // Left-anchored on a phone, centered on the window (so on the button) on
+  // the desktop build: see menuCardLeft in lib/menuFit.ts.
+  const cardLeft = menuCardLeft({
+    windowWidth,
+    cardWidth: CARD_WIDTH,
+    leftMargin: CARD_LEFT_MARGIN,
+    centered: isDesktopApp(),
+  });
   // Independent of buttonBottom -- the button itself stays anchored inside
   // the footer band; only the popup card floats clear above it (see
   // useMenuCardBottom's own comment in constants/floatingButton.ts).
@@ -443,6 +456,33 @@ export function TabHub() {
   // app. The card is bottom-anchored, so the extra height goes upward into
   // empty screen rather than down through the nav bar.
   const { fontScale } = useWindowDimensions();
+
+  // Everything a tap on the button does, in one place, because a tap on
+  // this button's stand-in inside another hub's open menu has to do the
+  // same (see lib/hubHandoff.ts).
+  function openMenu() {
+    // Clears the pointer for good. Tapping is the only thing that does:
+    // reading about a button is not the same as knowing where it is.
+    onboarding.markUsed();
+    dropTimingOpenedAtRef.current = Date.now();
+    logDropTiming('tap (setOpen(true) about to run)');
+    setCardReady(false);
+    setOpen(true);
+  }
+  // The button's box plus the artwork's overhang (the same area hitSlop
+  // covers below), so the stand-in in the other menus is as easy to hit as
+  // the button itself.
+  const handoff = useHubHandoff(
+    'tab',
+    {
+      left: windowWidth / 2 - BUTTON_SIZE / 2 - buttonIconOverhangX,
+      bottom: buttonBottom - buttonIconOverhangBottomY,
+      width: BUTTON_SIZE + buttonIconOverhangX * 2,
+      height: BUTTON_SIZE + buttonIconOverhangTopY + buttonIconOverhangBottomY,
+    },
+    openMenu,
+    () => setOpen(false),
+  );
   // ...and it shrinks again when the window is too short to hold it, which is
   // what Android's Display size setting, a split-screen or landscape viewport,
   // a foldable, and an Android 16+ large screen all do. The grid below scrolls,
@@ -597,15 +637,7 @@ export function TabHub() {
       {onboarding.showPointer && !open ? <TabHubPointer buttonBottom={buttonBottom} /> : null}
       <TouchableOpacity
         style={[styles.button, { bottom: buttonBottom }]}
-        onPress={() => {
-          // Clears the pointer for good. Tapping is the only thing that does:
-          // reading about a button is not the same as knowing where it is.
-          onboarding.markUsed();
-          dropTimingOpenedAtRef.current = Date.now();
-          logDropTiming('tap (setOpen(true) about to run)');
-          setCardReady(false);
-          setOpen(true);
-        }}
+        onPress={openMenu}
         activeOpacity={0.85}
         accessibilityLabel="Open navigation menu"
         hitSlop={{ left: buttonIconOverhangX, right: buttonIconOverhangX, top: buttonIconOverhangTopY, bottom: buttonIconOverhangBottomY }}
@@ -738,17 +770,21 @@ export function TabHub() {
         statusBarTranslucent
         navigationBarTranslucent
         onShow={handleModalShow}
+        onDismiss={handoff.onDismiss}
         onRequestClose={() => setOpen(false)}
       >
         <View style={styles.backdrop}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
+          {/* A tap on another hub's button while this menu is open lands on
+              that hub rather than only closing this one: see lib/hubHandoff.ts. */}
+          {handoff.targets}
           {/* Shadow lives on this outermost box -- overflow: 'hidden' on
               cardRing below (needed to clip the gradient into the same
               rounded rect) would otherwise clip the shadow too. */}
           <View
             style={[
               styles.cardShadowWrap,
-              { bottom: cardBottom, left: CARD_LEFT_MARGIN, width: CARD_WIDTH },
+              { bottom: cardBottom, left: cardLeft, width: CARD_WIDTH },
               // Invisible (not just unmounted -- see cardReady's own
               // comment above) until Android confirms its Dialog window
               // is genuinely up, so nothing ever paints during whatever

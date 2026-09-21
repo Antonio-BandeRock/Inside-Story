@@ -15,6 +15,7 @@ import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
 import { MENU_MAX_FONT_SCALE, textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { ActiveRingCircle } from './ActiveRingCircle';
+import { useHubHandoff } from './HubHandoff';
 import { modalAnimationType } from '../lib/visualPreferences';
 
 // 2026-07-28: fills the gap deliberately left between the LensHub button
@@ -183,6 +184,14 @@ export function MyItemsHub({
   // button is shorter than that row, so bottom-aligning it would sit its
   // icon noticeably lower than theirs).
   const buttonBottom = rowBottom + (FLOATING_BUTTON_SIZE - TOUCH_SIZE) / 2;
+  // A submenu instance has no button of its own, so it registers nothing;
+  // it still renders the stand-ins, since it is a full-screen menu too.
+  const handoff = useHubHandoff(
+    'myItems',
+    hideTriggerButton ? null : { left: buttonLeft, bottom: buttonBottom, width: TOUCH_SIZE, height: TOUCH_SIZE },
+    () => setOpen(true),
+    () => setOpen(false),
+  );
 
   return (
     <>
@@ -213,10 +222,14 @@ export function MyItemsHub({
         animationType={modalAnimationType('fade')}
         statusBarTranslucent
         navigationBarTranslucent
+        onDismiss={handoff.onDismiss}
         onRequestClose={() => setOpen(false)}
       >
         <View style={styles.backdrop}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
+          {/* A tap on another hub's button while this menu is open lands on
+              that hub rather than only closing this one: see lib/hubHandoff.ts. */}
+          {handoff.targets}
           <View
             style={[
               styles.card,

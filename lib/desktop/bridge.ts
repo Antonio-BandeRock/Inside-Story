@@ -57,6 +57,18 @@ export type DesktopNotificationsBridge = {
   onResponse(listener: (response: DesktopNotificationResponse) => void): () => void;
 };
 
+/**
+ * How large the app draws on this computer: Chromium's page zoom, kept by
+ * desktop/zoom.js. The steps are the list in lib/desktop/zoom.ts.
+ */
+export type DesktopZoomBridge = {
+  get(): Promise<number>;
+  /** Lands on the nearest step and resolves with it. */
+  set(factor: number): Promise<number>;
+  /** Fires for every change, including ones made from the keyboard or the menu. Returns the remover. */
+  onChange(listener: (factor: number) => void): () => void;
+};
+
 export type DesktopFileInfo = {
   exists: boolean;
   isDirectory: boolean;
@@ -109,6 +121,7 @@ export type DesktopBridge = {
   secrets: DesktopSecretsBridge;
   files: DesktopFilesBridge;
   notifications: DesktopNotificationsBridge;
+  zoom: DesktopZoomBridge;
 };
 
 declare global {
