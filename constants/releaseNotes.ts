@@ -41,6 +41,13 @@ export type ReleaseNote = {
 // caught up on at once.
 export const RELEASE_NOTES: ReleaseNote[] = [
   {
+    version: '1.0.42.9',
+    date: '2026-09-20',
+    changes: [
+      'Nothing is orphaned when a list entry goes. Removing a space or a cost kind you named asks which one to move the areas or costs under it to, and deletes none of them; a past area keeps its space as part of its record. Each planting now has a status you set (Growing, Harvested, Failed, Pulled out). Move to Past Areas replaces Archive Area and is allowed only once every grow in the area has finished; a Past Areas band on Plots and Plantings keeps what grew there readable, with Bring it back. Delete Area is offered only while nothing has been recorded under an area. An area whose space is no longer on the list is offered a move to one that is.',
+    ],
+  },
+  {
     version: '1.0.42.8',
     date: '2026-09-20',
     changes: [

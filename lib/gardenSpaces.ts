@@ -14,6 +14,14 @@
 // the person changes it, since a record is never blanked by a list change.
 // The picker never offers a retired value.
 //
+// Removing a space the person named, since 2026-09-21 ("I don't think
+// anything should be orphaned if the user deletes a field label they
+// created. That isn't good database management."): every current area
+// under it is moved to a space the person picks first, a past area keeps
+// it as documentation and the row is retired rather than deleted while
+// any past area still reads it, and the row is deleted outright only when
+// nothing refers to it. planSpaceRemoval below is that decision.
+//
 // No database here; lib/gardenSpacesDb.ts reads and writes the person's
 // spaces, and node scripts/test_garden_spaces.js checks this file.
 
@@ -64,4 +72,34 @@ export function findGardenSpace(code: string, custom: CustomGardenSpace[] = []):
 export function gardenSpaceLabel(code: string | null | undefined, custom: CustomGardenSpace[] = []): string | null {
   if (!code) return null;
   return findGardenSpace(code, custom)?.label ?? RETIRED_GARDEN_SPACE_LABELS[code] ?? null;
+}
+
+/** Whether a plot's space is one the picker no longer offers: a retired
+ *  built-in, or a space of the person's that was removed while this plot
+ *  still read it. A current area holding one is offered a move. */
+export function isRetiredGardenSpace(code: string | null | undefined, custom: CustomGardenSpace[] = []): boolean {
+  if (!code) return false;
+  return findGardenSpace(code, custom) === null;
+}
+
+/** The spaces a current area can be moved to when the space it is under
+ *  is being removed: everything on the list except that one. */
+export function replacementSpaceChoices(removingCode: string, custom: CustomGardenSpace[] = []): GardenSpaceChoice[] {
+  return gardenSpaceChoices(custom).filter((entry) => entry.code !== removingCode);
+}
+
+/** How many areas read a space, split by whether they are current or past
+ *  (archived). */
+export type SpaceUseCounts = { current: number; past: number };
+
+export type SpaceRemovalPlan =
+  /** Current areas are under it and no space was picked to move them to. */
+  | { ok: false; reason: 'needs_move' }
+  /** Go ahead: move any current areas to moveTo, then keep the row hidden
+   *  (a past area still reads it) or delete it (nothing does). */
+  | { ok: true; keepRow: boolean };
+
+export function planSpaceRemoval(counts: SpaceUseCounts, moveTo: string | null): SpaceRemovalPlan {
+  if (counts.current > 0 && !moveTo) return { ok: false, reason: 'needs_move' };
+  return { ok: true, keepRow: counts.past > 0 };
 }

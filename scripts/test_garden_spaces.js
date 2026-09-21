@@ -12,6 +12,9 @@
 //  3. A space the person named follows the built-ins, is marked as theirs,
 //     and reads by its name; a built-in is not theirs.
 //  4. A removed space, or no space, reads as nothing rather than throwing.
+//  5. Removing a space (2026-09-21): current areas under it have to be
+//     moved first, a past area keeps the row, and the replacement list
+//     never offers the one being removed.
 //
 // Run with: node scripts/test_garden_spaces.js
 // Exits non-zero on any failure.
@@ -35,7 +38,10 @@ function loadModule(relPath) {
 }
 
 const S = loadModule('lib/gardenSpaces.ts');
-const { GARDEN_SPACE_TYPES, RETIRED_GARDEN_SPACE_LABELS, gardenSpaceChoices, findGardenSpace, gardenSpaceLabel } = S;
+const {
+  GARDEN_SPACE_TYPES, RETIRED_GARDEN_SPACE_LABELS, gardenSpaceChoices, findGardenSpace, gardenSpaceLabel,
+  isRetiredGardenSpace, replacementSpaceChoices, planSpaceRemoval,
+} = S;
 
 let passed = 0;
 let failed = 0;
@@ -77,6 +83,20 @@ check('no custom spaces is fine', gardenSpaceChoices().length === 4);
 // 4. Nothing to read.
 check('a removed space reads as nothing', gardenSpaceLabel('space_gone', mine) === null);
 check('no space reads as nothing', gardenSpaceLabel(null, mine) === null && gardenSpaceLabel(undefined) === null);
+
+// 5. Removing a space.
+check('current areas need a move first', JSON.stringify(planSpaceRemoval({ current: 2, past: 0 }, null)) === JSON.stringify({ ok: false, reason: 'needs_move' }));
+check('moved, nothing past: the row goes', JSON.stringify(planSpaceRemoval({ current: 2, past: 0 }, 'raised_bed')) === JSON.stringify({ ok: true, keepRow: false }));
+check('moved, a past area reads it: the row stays', JSON.stringify(planSpaceRemoval({ current: 1, past: 3 }, 'space_2')) === JSON.stringify({ ok: true, keepRow: true }));
+check('nothing current: no move needed', JSON.stringify(planSpaceRemoval({ current: 0, past: 0 }, null)) === JSON.stringify({ ok: true, keepRow: false }));
+check('only past areas: kept without a move', JSON.stringify(planSpaceRemoval({ current: 0, past: 1 }, null)) === JSON.stringify({ ok: true, keepRow: true }));
+const replacements = replacementSpaceChoices('space_1', mine).map((entry) => entry.code);
+check('replacements leave out the one going', !replacements.includes('space_1') && replacements.includes('space_2') && replacements.includes('raised_bed'));
+check('replacements are one fewer than the list', replacements.length === gardenSpaceChoices(mine).length - 1);
+check('a removed space counts as retired', isRetiredGardenSpace('space_gone', mine) === true);
+check('a retired built-in counts as retired', isRetiredGardenSpace('hydroponic', mine) === true);
+check('a listed space is not retired', isRetiredGardenSpace('space_1', mine) === false && isRetiredGardenSpace('tent', mine) === false);
+check('no space is not retired', isRetiredGardenSpace(null, mine) === false);
 
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

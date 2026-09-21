@@ -93,12 +93,25 @@ export async function renameGardenCostKind(id: string, name: string): Promise<vo
   await db.runAsync('UPDATE garden_cost_kinds SET name = ? WHERE id = ?', trimmed, id);
 }
 
-/** Removes the kind. Costs recorded under it keep their record and read as
- *  Something else from then on; none is deleted. */
-export async function deleteGardenCostKind(id: string): Promise<void> {
+/** How many costs are recorded under a kind. */
+export async function countCostsUnderKind(id: string): Promise<number> {
   const db = await getDatabase();
-  await db.runAsync("UPDATE garden_cost_details SET kind = 'other' WHERE kind = ?", id);
+  const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM garden_cost_details WHERE kind = ?', id);
+  return row?.n ?? 0;
+}
+
+/** Removes the kind. Costs recorded under it move to moveTo, which has to
+ *  be given when there are any (returns false otherwise, and changes
+ *  nothing); none is deleted and none is dropped to Something else. Since
+ *  2026-09-21, from "I don't think anything should be orphaned if the user
+ *  deletes a field label they created." */
+export async function deleteGardenCostKind(id: string, moveTo: string | null): Promise<boolean> {
+  const db = await getDatabase();
+  const inUse = await countCostsUnderKind(id);
+  if (inUse > 0 && !moveTo) return false;
+  if (inUse > 0) await db.runAsync('UPDATE garden_cost_details SET kind = ? WHERE kind = ?', moveTo, id);
   await db.runAsync('DELETE FROM garden_cost_kinds WHERE id = ?', id);
+  return true;
 }
 
 export async function recordGrowingCost(input: {

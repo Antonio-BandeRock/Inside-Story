@@ -13,6 +13,7 @@ import {
   findGrowingCostKind,
   growingCostKindChoices,
   growingCostKindLabel,
+  replacementKindChoices,
   UNASSIGNED_AREA_NAME,
   type GardenAreaMoney,
   type CustomGrowingCostKind,
@@ -28,6 +29,7 @@ import {
   type GardenCostGroup,
   type GardenMoneyPicture,
   type GrowingCostRecord,
+  countCostsUnderKind,
   createGardenCostKind,
   deleteGardenCostKind,
   listGardenCostKinds,
@@ -129,6 +131,9 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
   const [customKinds, setCustomKinds] = useState<CustomGrowingCostKind[]>([]);
   const [kindForm, setKindForm] = useState<{ id: string | null; name: string } | null>(null);
   const [kindError, setKindError] = useState<string | null>(null);
+  // The move-first step of removing a kind that costs are recorded under,
+  // 2026-09-21: nothing is dropped to Something else any more.
+  const [kindRemoval, setKindRemoval] = useState<{ id: string; name: string; count: number; moveTo: string | null } | null>(null);
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(todayDateString());
   const [plotId, setPlotId] = useState<string>(NO_PLOT);
@@ -283,10 +288,25 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
     setKindForm(null);
   }
 
+  // Remove goes straight through when no cost is under the kind; otherwise
+  // it opens the move-first step and waits for a pick.
   async function handleRemoveKind(id: string) {
-    await deleteGardenCostKind(id);
+    const count = await countCostsUnderKind(id);
     setKindForm(null);
-    if (kind === id) setKind(null);
+    if (count > 0) {
+      const entry = customKinds.find((item) => item.id === id);
+      setKindRemoval({ id, name: entry?.name ?? '', count, moveTo: null });
+      return;
+    }
+    await finishKindRemoval(id, null);
+  }
+
+  async function finishKindRemoval(id: string, moveTo: string | null) {
+    const done = await deleteGardenCostKind(id, moveTo);
+    if (!done) return;
+    setKindRemoval(null);
+    // The cost being entered follows its neighbours to the picked kind.
+    if (kind === id) setKind(moveTo);
     await load();
   }
 
@@ -451,17 +471,19 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
                 selected={kind}
                 onSelect={(value) => {
                   if (value === ADD_KIND) {
+                    setKindRemoval(null);
                     startKind(null);
                     return;
                   }
                   setKindForm(null);
+                  setKindRemoval(null);
                   setKind(value);
                 }}
                 tabColor={TAB_COLOR}
                 width={240}
                 placeholder="Pick a kind"
               />
-              {chosenKind?.mine && !kindForm ? (
+              {chosenKind?.mine && !kindForm && !kindRemoval ? (
                 <>
                   <TouchableOpacity onPress={() => startKind(customKinds.find((entry) => entry.id === kind) ?? null)}>
                     <Text style={styles.linkText}>Rename</Text>
@@ -482,7 +504,7 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
                   placeholder="Mulch"
                 />
                 <Text style={styles.captionText}>
-                  Saving picks it for the cost you are entering, and it is on the list for every cost after this one. Removing a kind later leaves its costs reading as Something else and deletes none of them.
+                  Saving picks it for the cost you are entering, and it is on the list for every cost after this one. Removing a kind later asks which kind to move its costs to, and deletes none of them.
                 </Text>
                 {kindError ? <Text style={styles.errorText}>{kindError}</Text> : null}
                 <View style={styles.actionRow}>
@@ -491,6 +513,36 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => setKindForm(null)}>
                     <Text style={styles.linkText}>Back to the cost</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : kindRemoval ? (
+              <View style={styles.nestedForm}>
+                <Text style={styles.fieldLabel}>Before {kindRemoval.name} is removed</Text>
+                <Text style={styles.captionText}>
+                  {kindRemoval.count === 1 ? '1 cost is' : `${kindRemoval.count} costs are`} recorded under {kindRemoval.name}. Pick the kind to move {kindRemoval.count === 1 ? 'it' : 'them'} to; nothing is deleted.
+                </Text>
+                <View style={styles.fieldRow}>
+                  <Text style={styles.fieldLabel}>Move to</Text>
+                  <PopoverSelect
+                    options={replacementKindChoices(kindRemoval.id, customKinds).map((entry) => ({ label: entry.label, value: entry.code }))}
+                    selected={kindRemoval.moveTo}
+                    onSelect={(value) => setKindRemoval({ ...kindRemoval, moveTo: value })}
+                    tabColor={TAB_COLOR}
+                    width={240}
+                    placeholder="Pick a kind"
+                  />
+                </View>
+                <View style={styles.actionRow}>
+                  <TouchableOpacity
+                    style={[styles.primaryButton, { backgroundColor: kindRemoval.moveTo ? PRIMARY_BUTTON_BACKGROUND : colors.border }]}
+                    disabled={!kindRemoval.moveTo}
+                    onPress={() => finishKindRemoval(kindRemoval.id, kindRemoval.moveTo)}
+                  >
+                    <Text style={styles.primaryButtonText}>{kindRemoval.count === 1 ? 'Move It' : 'Move Them'} and Remove {kindRemoval.name}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setKindRemoval(null)}>
+                    <Text style={styles.linkText}>Keep it</Text>
                   </TouchableOpacity>
                 </View>
               </View>

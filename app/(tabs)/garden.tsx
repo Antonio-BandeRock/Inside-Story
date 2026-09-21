@@ -32,28 +32,34 @@ import { USDA_ZONES, zoneBandInfo } from '../../lib/gardenZones';
 import { lookupGrowingZone, type GrowingZoneLookupResult } from '../../lib/gardenZoneLookup';
 import {
   archiveGardenPlot,
+  countGrowingPlantings,
   createGardenPlanting,
   createGardenPlot,
   deleteGardenHarvest,
   deleteGardenPlanting,
   deleteGardenPlot,
+  gardenPlotHasRecords,
   getUserProfile,
   listGardenHarvests,
   listGardenPlantings,
   listGardenPlots,
+  listPlantingHarvestCounts,
   listUpcomingGardenTasks,
   recordGardenHarvest,
   setGardenHarvestOnHand,
   scheduleGardenTask,
   setUserProfile,
+  updateGardenPlanting,
+  updateGardenPlot,
   type GardenHarvest,
   type GardenPlanting,
   type GardenPlot,
   type GardenSizeUnit,
   type GardenSunlightExposure,
 } from '../../lib/db';
-import { gardenSpaceLabel, type CustomGardenSpace } from '../../lib/gardenSpaces';
+import { gardenSpaceLabel, isRetiredGardenSpace, type CustomGardenSpace } from '../../lib/gardenSpaces';
 import { listGardenSpaces } from '../../lib/gardenSpacesDb';
+import { PLANTING_STATUS_OPTIONS, pastAreaBlocker, plantingStatusLabel } from '../../lib/gardenAreaLifecycle';
 import { GardenSpaceField } from '../../components/GardenSpaceField';
 
 // This page's own identity color -- see constants/colors.ts's own comment
@@ -114,7 +120,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Plots & Plantings',
-        body: 'A garden area is a place you grow food: a raised bed, a container, an indoor grow tent, a whole outdoor garden. Adding one walks through where it is, what kind of space it is (a raised bed, containers, a tent, or a space you name yourself from the picker, which then stays on the list), how much sun it gets, its size, and its hardiness zone: details a future planting algorithm can use, none of them required to just get started. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest.',
+        body: 'A garden area is a place you grow food: a raised bed, a container, an indoor grow tent, a whole outdoor garden. Adding one walks through where it is, what kind of space it is (a raised bed, containers, a tent, or a space you name yourself from the picker, which then stays on the list), how much sun it gets, its size, and its hardiness zone: details a future planting algorithm can use, none of them required to just get started. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest. Each planting has a status you set as it goes: Growing, Harvested, Failed or Pulled out. Once every grow in an area has finished, Move to Past Areas takes the area off the working list and keeps everything recorded under it readable in Past Areas below, and Bring it back returns it. Delete Area is only offered while nothing has been recorded under an area, so a record of what grew where is never lost.',
       },
     ],
   },
@@ -587,8 +593,22 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
   const [newAreaLocationType, setNewAreaLocationType] = useState<'outdoor' | 'indoor' | 'greenhouse'>('outdoor');
   // Phase 2 -- Space Type.
   const [newAreaSpaceType, setNewAreaSpaceType] = useState<string | null>(null);
-  // The spaces the person has named, for reading a saved area's space.
+  // The spaces the person has named. allSpaces includes retired ones, for
+  // reading a past area's space by name; activeSpaces is the picker's list,
+  // for telling a current area its space is no longer offered.
   const [customSpaces, setCustomSpaces] = useState<CustomGardenSpace[]>([]);
+  const [activeSpaces, setActiveSpaces] = useState<CustomGardenSpace[]>([]);
+  // Areas moved to Past Areas (garden_plots.archived_at), 2026-09-21: kept
+  // as documentation, listed in their own fold band under the current ones.
+  const [pastPlots, setPastPlots] = useState<GardenPlot[]>([]);
+  const [showPastAreas, setShowPastAreas] = useState(false);
+  // Per area: harvests logged from each planting (a planting with one is a
+  // record and offers no Remove) and whether anything at all is recorded
+  // under it (only an empty area offers Delete).
+  const [plotFacts, setPlotFacts] = useState<Record<string, { harvestsByPlanting: Record<string, number>; hasRecords: boolean }>>({});
+  // The line shown under an area whose move to Past Areas was refused
+  // because a grow in it is still going.
+  const [pastBlockers, setPastBlockers] = useState<Record<string, string>>({});
   // Phase 3 -- Sunlight Exposure.
   const [newAreaSunlight, setNewAreaSunlight] = useState<GardenSunlightExposure | null>(null);
   // Phase 4 -- Size & Dimensions.
@@ -610,9 +630,11 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
   const [pendingFoodName, setPendingFoodName] = useState('');
 
   const loadPlots = useCallback(async () => {
-    const [rows, spaces] = await Promise.all([listGardenPlots(), listGardenSpaces()]);
-    setPlots(rows);
+    const [rows, spaces, active] = await Promise.all([listGardenPlots(true), listGardenSpaces(true), listGardenSpaces()]);
+    setPlots(rows.filter((plot) => !plot.archivedAt));
+    setPastPlots(rows.filter((plot) => plot.archivedAt));
     setCustomSpaces(spaces);
+    setActiveSpaces(active);
   }, []);
 
   useFocusEffect(
@@ -622,8 +644,13 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
   );
 
   async function loadPlantingsFor(plotId: string) {
-    const rows = await listGardenPlantings(plotId);
+    const [rows, harvestsByPlanting, hasRecords] = await Promise.all([
+      listGardenPlantings(plotId),
+      listPlantingHarvestCounts(plotId),
+      gardenPlotHasRecords(plotId),
+    ]);
     setPlantingsByPlot((current) => ({ ...current, [plotId]: rows }));
+    setPlotFacts((current) => ({ ...current, [plotId]: { harvestsByPlanting, hasRecords } }));
   }
 
   // Opens the New Garden Area form, pre-filling Phase 5's own zone fields
@@ -681,13 +708,53 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
     await loadPlots();
   }
 
-  async function handleArchivePlot(id: string) {
+  // Move to Past Areas, only once every grow in the area has finished:
+  // "the area should only be able to be removed if a grow currently using
+  // it is completed." The count is re-read from the database rather than
+  // trusted from state, so a planting added on another screen still counts.
+  async function handleMoveToPast(id: string) {
+    const growing = await countGrowingPlantings(id);
+    if (growing > 0) {
+      const line = pastAreaBlocker(Array.from({ length: growing }, () => ({ status: 'growing' as const })));
+      setPastBlockers((current) => ({ ...current, [id]: line ?? '' }));
+      return;
+    }
     await archiveGardenPlot(id, true);
+    setPastBlockers((current) => ({ ...current, [id]: '' }));
+    if (expandedPlotId === id) setExpandedPlotId(null);
     await loadPlots();
   }
 
+  async function handleBringBack(id: string) {
+    await archiveGardenPlot(id, false);
+    await loadPlots();
+  }
+
+  // Delete is offered only for an area with nothing recorded under it, and
+  // deleteGardenPlot refuses anything else, so a record is never lost.
   async function handleDeletePlot(id: string) {
-    await deleteGardenPlot(id);
+    const deleted = await deleteGardenPlot(id);
+    if (!deleted) {
+      await loadPlantingsFor(id);
+      return;
+    }
+    await loadPlots();
+  }
+
+  async function handlePlantingStatus(plotId: string, plantingId: string, status: string) {
+    const option = PLANTING_STATUS_OPTIONS.find((entry) => entry.value === status);
+    if (!option) return;
+    await updateGardenPlanting(plantingId, { status: option.value });
+    setPastBlockers((current) => ({ ...current, [plotId]: '' }));
+    await loadPlantingsFor(plotId);
+  }
+
+  // A current area still holding a space the picker no longer offers (a
+  // built-in retired since, or a space of the person's removed while this
+  // area read it) is moved to one that is.
+  async function handleMoveAreaSpace(plotId: string, code: string | null) {
+    if (!code) return;
+    await updateGardenPlot(plotId, { spaceType: code });
     await loadPlots();
   }
 
@@ -706,6 +773,8 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
     await loadPlantingsFor(plotId);
   }
 
+  // Only for a planting with no harvest logged; one with a harvest is a
+  // record, and its status says what became of it instead.
   async function handleRemovePlanting(plotId: string, plantingId: string) {
     await deleteGardenPlanting(plantingId);
     await loadPlantingsFor(plotId);
@@ -786,20 +855,40 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                   {plot.length && plot.width ? ` · ${plot.length}×${plot.width} ${plot.sizeUnit ?? ''}` : ''}
                   {plot.zone ? ` · Zone ${plot.zone}` : ''}
                 </Text>
+                {isRetiredGardenSpace(plot.spaceType, activeSpaces) ? (
+                  <View style={styles.pendingCard}>
+                    <Text style={styles.captionText}>
+                      {gardenSpaceLabel(plot.spaceType, customSpaces) ?? 'The space this area was under'} is no longer on the list of spaces. Pick where this area is now; its record is kept either way.
+                    </Text>
+                    <GardenSpaceField label="Move this area to" selected={null} onSelect={(code) => handleMoveAreaSpace(plot.id, code)} />
+                  </View>
+                ) : null}
                 {plantings.length === 0 ? (
                   <Text style={styles.captionText}>Nothing logged as planted here yet.</Text>
                 ) : (
-                  plantings.map((planting) => (
-                    <View key={planting.id} style={styles.plantingRow}>
-                      <Text style={styles.bodyText}>
-                        {planting.foodName}
-                        {planting.varietyNote ? ` (${planting.varietyNote})` : ''}: {planting.status}
-                      </Text>
-                      <TouchableOpacity onPress={() => handleRemovePlanting(plot.id, planting.id)}>
-                        <Text style={[styles.linkText, { color: colors.danger }]}>Remove</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ))
+                  plantings.map((planting) => {
+                    const harvests = plotFacts[plot.id]?.harvestsByPlanting[planting.id] ?? 0;
+                    return (
+                      <View key={planting.id} style={styles.plantingRow}>
+                        <Text style={[styles.bodyText, styles.plantingName]}>
+                          {planting.foodName}
+                          {planting.varietyNote ? ` (${planting.varietyNote})` : ''}
+                        </Text>
+                        <PopoverSelect
+                          options={PLANTING_STATUS_OPTIONS}
+                          selected={planting.status}
+                          onSelect={(value) => handlePlantingStatus(plot.id, planting.id, value)}
+                          tabColor={TAB_COLOR}
+                          width={140}
+                        />
+                        {harvests === 0 ? (
+                          <TouchableOpacity onPress={() => handleRemovePlanting(plot.id, planting.id)}>
+                            <Text style={[styles.linkText, { color: colors.danger }]}>Remove</Text>
+                          </TouchableOpacity>
+                        ) : null}
+                      </View>
+                    );
+                  })
                 )}
 
                 {/* The raw food-search step (addingPlantingToPlot === plot.id
@@ -833,18 +922,66 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                 )}
 
                 <View style={styles.actionRow}>
-                  <TouchableOpacity onPress={() => handleArchivePlot(plot.id)}>
-                    <Text style={styles.linkText}>Archive Area</Text>
+                  <TouchableOpacity onPress={() => handleMoveToPast(plot.id)}>
+                    <Text style={styles.linkText}>Move to Past Areas</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleDeletePlot(plot.id)}>
-                    <Text style={[styles.linkText, { color: colors.danger }]}>Delete Area</Text>
-                  </TouchableOpacity>
+                  {plotFacts[plot.id] && !plotFacts[plot.id].hasRecords ? (
+                    <TouchableOpacity onPress={() => handleDeletePlot(plot.id)}>
+                      <Text style={[styles.linkText, { color: colors.danger }]}>Delete Area</Text>
+                    </TouchableOpacity>
+                  ) : null}
                 </View>
+                {pastBlockers[plot.id] ? (
+                  <Text style={styles.captionText}>{pastBlockers[plot.id]}</Text>
+                ) : null}
               </View>
             </HomeSectionBand>
           );
         })
       )}
+
+      {pastPlots.length > 0 ? (
+        <HomeSectionBand
+          kind="fold"
+          title="Past Areas"
+          icon="archive-outline"
+          color={TAB_COLOR}
+          expanded={showPastAreas}
+          onToggle={() => {
+            const next = !showPastAreas;
+            setShowPastAreas(next);
+            if (next) pastPlots.forEach((plot) => loadPlantingsFor(plot.id));
+          }}
+        >
+          <View style={styles.expandedSection}>
+            <Text style={styles.captionText}>
+              Areas you no longer grow in. What was planted, harvested and spent here stays on record; Bring it back returns an area to the list above.
+            </Text>
+            {pastPlots.map((plot) => {
+              const plantings = plantingsByPlot[plot.id] ?? [];
+              return (
+                <View key={plot.id} style={styles.pastArea}>
+                  <Text style={styles.bodyText}>{plot.name}</Text>
+                  <Text style={styles.captionText}>
+                    {plot.locationType === 'greenhouse' ? 'Greenhouse' : plot.locationType === 'indoor' ? 'Indoor' : 'Outdoor'}
+                    {gardenSpaceLabel(plot.spaceType, customSpaces) ? ` · ${gardenSpaceLabel(plot.spaceType, customSpaces)}` : ''}
+                    {plot.archivedAt ? ` · Moved here ${plot.archivedAt.slice(0, 10)}` : ''}
+                  </Text>
+                  {plantings.map((planting) => (
+                    <Text key={planting.id} style={styles.captionText}>
+                      {planting.foodName}
+                      {planting.varietyNote ? ` (${planting.varietyNote})` : ''}: {plantingStatusLabel(planting.status)}
+                    </Text>
+                  ))}
+                  <TouchableOpacity onPress={() => handleBringBack(plot.id)}>
+                    <Text style={styles.linkText}>Bring it back</Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
+          </View>
+        </HomeSectionBand>
+      ) : null}
 
       {showAddPlot ? (
         <View style={[band.box, styles.card]}>
@@ -1411,7 +1548,9 @@ const styles = StyleSheet.create({
 
   },
   expandedSection: { gap: 8, marginTop: 4 },
-  plantingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  plantingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  plantingName: { flex: 1 },
+  pastArea: { gap: 4, paddingTop: 6, borderTopWidth: 1, borderTopColor: colors.border },
   // A harvest row carries two links (on hand, delete) and sometimes a
   // second line, so its text and its actions each get a column.
   harvestRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },

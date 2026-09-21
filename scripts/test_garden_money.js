@@ -32,6 +32,7 @@
 // Run with: node scripts/test_garden_money.js
 // Exits non-zero on any failure.
 
+/* global __dirname */
 const fs = require('fs');
 const path = require('path');
 const ts = require('typescript');
@@ -43,7 +44,6 @@ function loadModule(relPath, deps = {}) {
     fileName: path.basename(relPath),
   });
   const module = { exports: {} };
-  // eslint-disable-next-line no-new-func
   new Function('exports', 'module', 'require', outputText)(module.exports, module, (name) => {
     if (deps[name]) return deps[name];
     throw new Error(`unexpected import ${name}`);
@@ -54,7 +54,7 @@ function loadModule(relPath, deps = {}) {
 const H = loadModule('lib/harvestTrade.ts');
 const G = loadModule('lib/gardenMoney.ts', { './harvestTrade': H });
 const {
-  GROWING_COST_KINDS, growingCostKindLabel, isGrowingCostKind, growingCostKindChoices, findGrowingCostKind, summarizeGardenMoney, describeGardenNet, RECEIVED_SHARE_UNITS,
+  GROWING_COST_KINDS, growingCostKindLabel, isGrowingCostKind, growingCostKindChoices, findGrowingCostKind, replacementKindChoices, summarizeGardenMoney, describeGardenNet, RECEIVED_SHARE_UNITS,
   groupGardenMoneyByArea, describeNetShort, describeAreaSetting, UNASSIGNED_AREA_NAME,
 } = G;
 
@@ -114,6 +114,9 @@ check('kind label', growingCostKindLabel('fertilizer_nutrients'), 'Fertilizer an
 check('unknown kind falls back', growingCostKindLabel('mystery'), 'Something else');
 check('isGrowingCostKind', [isGrowingCostKind('water'), isGrowingCostKind('nope'), isGrowingCostKind('other')], [true, false, false]);
 const mine = [{ id: 'cost_kind_1', name: 'Mulch' }];
+const kindReplacements = replacementKindChoices('cost_kind_1', mine).map((entry) => entry.code);
+checkTrue('replacement kinds leave out the one going', !kindReplacements.includes('cost_kind_1') && kindReplacements.includes('water'));
+check('replacement kinds are one fewer than the list', kindReplacements.length, growingCostKindChoices(mine).length - 1);
 check('their kind follows the built-ins', growingCostKindChoices(mine).map((entry) => entry.code).slice(-2), ['containers_structures', 'cost_kind_1']);
 check('their kind is theirs, with no help line', [findGrowingCostKind('cost_kind_1', mine).mine, findGrowingCostKind('cost_kind_1', mine).help], [true, null]);
 check('a built-in is not theirs', findGrowingCostKind('water', mine).mine, false);

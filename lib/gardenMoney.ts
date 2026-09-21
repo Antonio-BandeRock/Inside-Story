@@ -138,6 +138,14 @@ export function isGrowingCostKind(value: string, custom: CustomGrowingCostKind[]
   return findGrowingCostKind(value, custom) !== null;
 }
 
+/** The kinds a cost can be moved to when the kind it is under is being
+ *  removed: everything on the list except that one. Since 2026-09-21 a
+ *  kind with costs under it is removed only after they are moved to a kind
+ *  the person picks, never dropped to Something else. */
+export function replacementKindChoices(removingCode: string, custom: CustomGrowingCostKind[] = []): GrowingCostKindChoice[] {
+  return growingCostKindChoices(custom).filter((entry) => entry.code !== removingCode);
+}
+
 export type GardenMoneySummary = {
   /** What kept harvests would have cost, at recorded prices only. */
   harvestsAvoided: number;

@@ -6964,7 +6964,11 @@ async function runDatabaseInitialization() {
       CREATE TABLE IF NOT EXISTS garden_spaces (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
-        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        -- 2026-09-21: set when the person removed the space while a past
+        -- area still read it. Off the picker, still readable as that
+        -- area's documentation. See removeGardenSpace in lib/gardenSpacesDb.ts.
+        retired_at TEXT
       );
 
       CREATE TABLE IF NOT EXISTS garden_cost_kinds (
@@ -7568,6 +7572,13 @@ async function runDatabaseInitialization() {
       if (!routineColumns.some((column) => column.name === 'reminder_on')) {
         await db.execAsync('ALTER TABLE routines ADD COLUMN reminder_on INTEGER NOT NULL DEFAULT 0;');
       }
+    }
+
+    // garden_spaces.retired_at, 1.0.42.9. The table shipped a version
+    // earlier in 1.0.42.8, so a phone can already have it without this.
+    const spaceColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(garden_spaces)');
+    if (spaceColumns.length > 0 && !spaceColumns.some((column) => column.name === 'retired_at')) {
+      await db.execAsync('ALTER TABLE garden_spaces ADD COLUMN retired_at TEXT;');
     }
 
     // The Grocery List's own two later columns, 2026-09-01. The table shipped
@@ -21015,14 +21026,59 @@ export async function archiveGardenPlot(id: string, archived: boolean): Promise<
   await db.runAsync('UPDATE garden_plots SET archived_at = ?, updated_at = ? WHERE id = ?', archived ? now : null, now, id);
 }
 
-// Hard delete -- real, deliberate cascade: every real planting in this plot
-// (and every harvest tied to either the plot or one of its plantings) goes
-// with it, per the FOREIGN KEY ... ON DELETE CASCADE/SET NULL already on
-// those tables. Archiving (above) is the safer, non-destructive default;
-// this is for a plot that was genuinely created by mistake.
-export async function deleteGardenPlot(id: string): Promise<void> {
+// Hard delete, for an area with nothing recorded under it (the one made by
+// mistake). Since 2026-09-21 it refuses an area that has any planting,
+// harvest, cost or compost pile, and returns false: such an area is moved
+// to Past Areas instead (archiveGardenPlot), where its record stays
+// readable. The FOREIGN KEY cascades on garden_plantings/garden_harvests
+// remain in the schema and are no longer reached from the app.
+export async function deleteGardenPlot(id: string): Promise<boolean> {
   const db = await getDatabase();
+  if (await gardenPlotHasRecords(id)) return false;
   await db.runAsync('DELETE FROM garden_plots WHERE id = ?', id);
+  return true;
+}
+
+/** Whether anything is recorded under an area: a planting, a harvest, a
+ *  growing cost, or a compost pile feeding it. An area with any of these
+ *  is documentation and is never deleted. */
+export async function gardenPlotHasRecords(id: string): Promise<boolean> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ n: number }>(
+    `
+      SELECT (SELECT COUNT(*) FROM garden_plantings WHERE plot_id = ?)
+           + (SELECT COUNT(*) FROM garden_harvests WHERE plot_id = ?)
+           + (SELECT COUNT(*) FROM garden_cost_details WHERE plot_id = ?)
+           + (SELECT COUNT(*) FROM compost_piles WHERE plot_id = ?) AS n
+    `,
+    id,
+    id,
+    id,
+    id,
+  );
+  return (row?.n ?? 0) > 0;
+}
+
+/** How many plantings in an area are still growing: what stands between
+ *  the area and Past Areas. */
+export async function countGrowingPlantings(plotId: string): Promise<number> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ n: number }>(
+    "SELECT COUNT(*) AS n FROM garden_plantings WHERE plot_id = ? AND status = 'growing'",
+    plotId,
+  );
+  return row?.n ?? 0;
+}
+
+/** How many harvests were logged from each planting in an area, keyed by
+ *  planting id. A planting with a harvest is a record and is not deleted. */
+export async function listPlantingHarvestCounts(plotId: string): Promise<Record<string, number>> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ plantingId: string; n: number }>(
+    'SELECT planting_id AS plantingId, COUNT(*) AS n FROM garden_harvests WHERE planting_id IS NOT NULL AND plot_id = ? GROUP BY planting_id',
+    plotId,
+  );
+  return Object.fromEntries(rows.map((row) => [row.plantingId, row.n]));
 }
 
 export type GardenPlanting = {
