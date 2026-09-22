@@ -74,6 +74,13 @@ export type SnapshotSyncState = {
   lastHash: string | null;
   /** A notice to show once after the restart that follows an automatic load. */
   pendingNotice: string | null;
+  /**
+   * Whether to say on screen what each merge brought in and sent out.
+   * Off still fills the log, which is the point of having one: "to not
+   * see them and assume that the system works each time, but there is a
+   * log for them to view". Per device, since it is about this screen.
+   */
+  announce: boolean;
 };
 
 export const EMPTY_SYNC_STATE: SnapshotSyncState = {
@@ -87,6 +94,7 @@ export const EMPTY_SYNC_STATE: SnapshotSyncState = {
   lastProblem: null,
   lastHash: null,
   pendingNotice: null,
+  announce: true,
 };
 
 export const SYNC_RECORD_FILE_NAME = 'inside-story-sync.json';
@@ -175,6 +183,17 @@ export function isDeviceLocalMetaKey(key: unknown): boolean {
 }
 
 /**
+ * Whole tables that stay on the device that wrote them.
+ *
+ * sync_change_log is what THIS device merged in and when, so sending it
+ * over would have the other device write down every one of those merges
+ * a second time as though they had happened there. Each device keeps its
+ * own account of the same conversation, which is also what makes the log
+ * readable: "your computer added" is said from the side reading it.
+ */
+export const DEVICE_LOCAL_TABLES: readonly string[] = ['sync_change_log'];
+
+/**
  * The snapshot's tables with this device's bookkeeping taken out.
  *
  * A copy rather than an edit in place, since the envelope it came from is
@@ -184,9 +203,15 @@ export function isDeviceLocalMetaKey(key: unknown): boolean {
 export function withoutDeviceLocalRows(
   tables: Record<string, Record<string, unknown>[]>,
 ): Record<string, Record<string, unknown>[]> {
-  const meta = tables[APP_META_TABLE];
-  if (!Array.isArray(meta)) return tables;
-  return { ...tables, [APP_META_TABLE]: meta.filter((row) => !isDeviceLocalMetaKey(row.key)) };
+  const kept: Record<string, Record<string, unknown>[]> = {};
+  for (const [table, rows] of Object.entries(tables)) {
+    if (DEVICE_LOCAL_TABLES.includes(table)) continue;
+    kept[table] =
+      table === APP_META_TABLE && Array.isArray(rows)
+        ? rows.filter((row) => !isDeviceLocalMetaKey(row.key))
+        : rows;
+  }
+  return kept;
 }
 
 export function snapshotFileName(device: SyncDevice): string {
@@ -247,19 +272,26 @@ export function describeMoment(iso: string): string {
 
 export type ArrivalPlan =
   | { action: 'nothing'; reason: 'off' | 'noRecord' | 'mine' | 'current' }
-  | { action: 'load'; record: SnapshotRecord }
-  | { action: 'conflict'; record: SnapshotRecord; reason: 'unsavedChanges' | 'firstTime' };
+  | { action: 'merge'; record: SnapshotRecord }
+  | { action: 'conflict'; record: SnapshotRecord; reason: 'firstTime' };
 
 /**
  * What to do with the record found in the folder.
  *
  * A record from this device, or one this device has already loaded, is
- * nothing to act on. The other device's newer copy loads on its own when
- * nothing here has changed since the last save or load, which is the
- * ordinary case of picking up the phone after using the computer. It is a
- * question for the person when this device has unsaved changes, and on the
- * first check after turning sync on, since then nothing is known about how
- * the two devices' contents relate.
+ * nothing to act on. Anything else is brought together with what is here,
+ * row by row (lib/snapshotMerge.ts), whether or not this device has
+ * unsaved changes of its own. Until 1.0.49.3 unsaved changes here made it
+ * a question with two answers that both threw work away, which is the
+ * thing that was wrong with it: "All changes that either side perform
+ * should be completed in the order that they were done between the two
+ * devices, no matter how many changes there were."
+ *
+ * The first check after sync is turned on is still a question. Two
+ * devices that have never been in step have no shared history to work
+ * out changes against, so a merge there would be a union of two whole
+ * databases: right for a phone and a computer holding the same life,
+ * wrong for a device that was set up separately. The person says which.
  */
 export function planOnArrival(
   record: SnapshotRecord | null,
@@ -271,22 +303,23 @@ export function planOnArrival(
   if (sameDevice(record.latest.device, me)) return { action: 'nothing', reason: 'mine' };
   if (record.latest.savedAt === state.loadedSavedAt) return { action: 'nothing', reason: 'current' };
   if (state.loadedSavedAt === null) return { action: 'conflict', record, reason: 'firstTime' };
-  if (state.dirtySince !== null) return { action: 'conflict', record, reason: 'unsavedChanges' };
-  return { action: 'load', record };
+  return { action: 'merge', record };
 }
 
 export type SavePlan =
   | { action: 'skip'; reason: 'off' | 'clean' }
-  | { action: 'conflict'; record: SnapshotRecord }
+  | { action: 'merge'; record: SnapshotRecord }
   | { action: 'save' };
 
 /**
  * Whether a save may go ahead, given what the folder holds right now.
  *
  * The record is read again immediately before every save, because the
- * other device may have saved since this device last looked. A newer copy
- * from the other device that this one has not loaded stops the save: the
- * person decides which copy wins. `force` is that decision, made.
+ * other device may have saved in the seconds since this device last
+ * looked. A copy from the other device that this one has not taken in
+ * stops the save and asks for a merge first, so the upload can never be
+ * this device's rows standing where both devices' rows belong. `force`
+ * skips that, and is only ever the answer to the first-time question.
  */
 export function planBeforeSave(
   record: SnapshotRecord | null,
@@ -295,15 +328,18 @@ export function planBeforeSave(
   options: { force?: boolean } = {},
 ): SavePlan {
   if (!state.enabled) return { action: 'skip', reason: 'off' };
-  if (!options.force && state.dirtySince === null) return { action: 'skip', reason: 'clean' };
   if (
     record &&
     !options.force &&
     !sameDevice(record.latest.device, me) &&
     record.latest.savedAt !== state.loadedSavedAt
   ) {
-    return { action: 'conflict', record };
+    // Before the clean check, deliberately: a device with nothing of its
+    // own to send still has the other device's copy to take in, which is
+    // what Sync Now on a device that has changed nothing is asking for.
+    return { action: 'merge', record };
   }
+  if (!options.force && state.dirtySince === null) return { action: 'skip', reason: 'clean' };
   return { action: 'save' };
 }
 
@@ -349,7 +385,10 @@ function changeSentences(notes: SyncChangeNotes): string {
   return parts.length > 0 ? ' ' + parts.join(' ') : '';
 }
 
-/** The sentence a conflict dialog opens with. */
+/**
+ * The sentence the first-time question opens with. The only question
+ * left: every later arrival is merged (see planOnArrival).
+ */
 export function conflictMessage(
   plan: Extract<ArrivalPlan, { action: 'conflict' }>,
   me: SyncDevice,
@@ -358,24 +397,39 @@ export function conflictMessage(
   const other = describeDevice(plan.record.latest.device);
   const here = me.kind === 'phone' ? 'this phone' : 'this computer';
   const when = describeMoment(plan.record.latest.savedAt);
-  const firstTime = plan.reason === 'firstTime';
-  const opening = firstTime
-    ? 'A copy saved from ' + other + ' on ' + when + ' is in your shared folder.'
-    : 'Changes were made on ' + here + ' that have not been saved yet, and ' + other + ' saved a copy on ' + when + '.';
-  const choice = firstTime
-    ? ' Load it here, replacing what is on ' + here + ', or keep what is here and save it over that copy.'
-    : ' Load that copy, losing the changes made here, or keep what is here and save it over that copy.';
-  return opening + changeSentences(notes) + choice;
+  return (
+    'A copy saved from ' + other + ' on ' + when + ' is in your shared folder.' +
+    changeSentences(notes) +
+    ' Load it here, replacing what is on ' + here + ', or keep what is here and save it over that copy.' +
+    ' From then on the two are kept in step on their own and nothing has to be chosen again.'
+  );
 }
 
-/** The sentence a save refuses with when the folder moved on. */
-export function saveConflictMessage(record: SnapshotRecord, me: SyncDevice, notes: SyncChangeNotes = {}): string {
-  const here = me.kind === 'phone' ? 'this phone' : 'this computer';
-  const opening =
-    describeDevice(record.latest.device).replace(/^y/, 'Y') + ' saved a copy on ' +
-    describeMoment(record.latest.savedAt) + ' that ' + here + ' has not loaded.';
-  return opening + changeSentences(notes) +
-    ' Load that copy, losing the changes made here, or keep what is here and save it over that copy.';
+/**
+ * What the person is told after two devices have been brought together,
+ * naming each side. "Both" is how many records had been changed in both
+ * places at once, where the later change stands and the other is in the
+ * log.
+ */
+export function mergedNotice(
+  record: SnapshotRecord,
+  notes: SyncChangeNotes = {},
+  both = 0,
+): string {
+  const parts: string[] = [
+    'Brought together with the copy ' + describeDevice(record.latest.device) + ' saved on ' +
+      describeMoment(record.latest.savedAt) + '.',
+  ];
+  if (notes.there && notes.there.length > 0) parts.push('What came over: ' + listPhrases(notes.there) + '.');
+  if (notes.here && notes.here.length > 0) parts.push('What was already here: ' + listPhrases(notes.here) + '.');
+  if (both > 0) {
+    parts.push(
+      both === 1
+        ? 'One record had been changed in both places, and the later change stands.'
+        : both + ' records had been changed in both places, and the later change stands in each.',
+    );
+  }
+  return parts.join(' ');
 }
 
 /** What the person is told once, after the restart that follows an automatic load. */

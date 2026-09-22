@@ -32,8 +32,10 @@ import {
   disableSnapshotSync,
   enableSnapshotSync,
   loadSnapshot,
+  mergeSnapshot,
   readSyncState,
   saveSnapshot,
+  updateSyncState,
 } from '../lib/snapshotSyncDevice';
 import { AppActionSheet } from '../components/AppActionSheet';
 import { restartAfterLoad } from '../components/SnapshotSyncWatcher';
@@ -1173,8 +1175,13 @@ export default function ProfileScreen() {
     setSyncState(await readSyncState());
     if (outcome.status === 'problem') {
       showBackupAlert('Could not save', outcome.reason);
-    } else if (outcome.status === 'conflict') {
-      setSyncChoice(outcome.record);
+    } else if (outcome.status === 'merge') {
+      // The folder holds something this device has not taken in. The two
+      // are brought together and the result saved, rather than the person
+      // being asked to pick one copy and lose the other.
+      await runSyncMerge(outcome.record);
+    } else if (outcome.status === 'skipped' && outcome.reason === 'clean') {
+      showBackupAlert('Nothing new to save', 'The copy in your shared folder already has everything on this device.');
     } else if (outcome.status === 'saved') {
       showBackupAlert('Saved', 'Your ' + otherDeviceKind + ' will load this copy the next time it opens with sync on.');
     } else if (outcome.status === 'unchanged') {
@@ -1182,11 +1189,62 @@ export default function ProfileScreen() {
     }
   }
 
+  async function runSyncMerge(record: SnapshotRecord) {
+    showBusy('Bringing the two copies together...');
+    let outcome: Awaited<ReturnType<typeof mergeSnapshot>>;
+    try {
+      outcome = await mergeSnapshot(record);
+    } finally {
+      hideBusy();
+    }
+    setSyncState(await readSyncState());
+    if (outcome.status === 'problem') {
+      showBackupAlert('Could not sync', outcome.reason);
+      return;
+    }
+    if (outcome.status === 'noBase') {
+      // Two devices with no shared history to work changes out against,
+      // which is the first sync after it is turned on.
+      setSyncChoice(outcome.record);
+      return;
+    }
+    // Straight back to the folder, so the other device gets the merged
+    // result rather than waiting for the next thing to change here.
+    showBusy('Saving to your shared folder...');
+    let saved: Awaited<ReturnType<typeof saveSnapshot>>;
+    try {
+      saved = await saveSnapshot();
+    } finally {
+      hideBusy();
+    }
+    setSyncState(await readSyncState());
+    if (saved.status === 'problem') {
+      showBackupAlert('Could not save', saved.reason);
+      return;
+    }
+    if (outcome.restart) {
+      await restartAfterLoad(showBackupAlert);
+      return;
+    }
+    if (outcome.notice) showBackupAlert('Brought together', outcome.notice);
+  }
+
+  // Sync Now no longer forces: forcing would put this device's rows where
+  // both devices' rows belong. A copy in the folder this device has not
+  // taken in is merged first (planBeforeSave), so the button does the
+  // whole round trip.
+  // Whether a merge says so on screen. Off is a deliberate choice to
+  // trust it and read the log later, never a way of turning the merging
+  // itself off.
+  async function toggleSyncAnnounce() {
+    setSyncState(await updateSyncState({ announce: !syncState.announce }));
+  }
+
   async function handleSyncNow() {
     if (syncBusy) return;
     setSyncBusy(true);
     try {
-      await runSyncSave(true);
+      await runSyncSave(false);
     } finally {
       setSyncBusy(false);
     }
@@ -4512,6 +4570,31 @@ export default function ProfileScreen() {
                     <TouchableOpacity style={styles.checkinButton} disabled={syncBusy} onPress={handleSyncNow}>
                       <Text style={styles.checkinButtonText}>{syncBusy ? 'Working…' : 'Save to the Shared Folder Now'}</Text>
                     </TouchableOpacity>
+                    {/* The notice, and the log. Direct instruction,
+                        2026-09-22: "The user should be able to have the
+                        update on the screen that tells them about each
+                        change that was made by which device, or to not see
+                        them and assume that the system works each time, but
+                        there is a log for them to view." The pill is the
+                        first half; the log fills either way. */}
+                    <View style={styles.pillRow}>
+                      <TouchableOpacity
+                        style={[styles.pill, syncState.announce && styles.pillActive]}
+                        onPress={() => void toggleSyncAnnounce()}
+                      >
+                        <Text style={[styles.pillText, syncState.announce && styles.pillTextActive]}>
+                          Tell me what changed
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                    <Text style={styles.helpText}>
+                      {syncState.announce
+                        ? 'Each time the two devices come into step, a short notice says what came over and what was already here. Turn this off to let it happen quietly.'
+                        : 'The two devices come into step quietly. Everything that happens is still written down in the activity below.'}
+                    </Text>
+                    <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/sync-activity')}>
+                      <Text style={styles.checkinButtonText}>See Sync Activity</Text>
+                    </TouchableOpacity>
                     <TouchableOpacity style={styles.checkinButton} disabled={syncBusy} onPress={handleTurnOffSync}>
                       <Text style={styles.checkinButtonText}>Turn Off Automatic Sync</Text>
                     </TouchableOpacity>
@@ -4531,7 +4614,8 @@ export default function ProfileScreen() {
                 syncChoice
                   ? 'A copy saved from your ' + otherDeviceKind + ' on ' + new Date(syncChoice.latest.savedAt).toLocaleString() +
                     ' is in your shared folder. Load it here, replacing what is on this ' + (isDesktopApp() ? 'computer' : 'phone') +
-                    ', or keep what is here and save it over that copy.'
+                    ', or keep what is here and save it over that copy.' +
+                    ' From then on the two are kept in step on their own and nothing has to be chosen again.'
                   : undefined
               }
               actions={

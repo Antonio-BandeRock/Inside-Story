@@ -363,3 +363,21 @@ export function parseChangeList(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.filter((phrase): phrase is string => typeof phrase === 'string' && phrase.length > 0);
 }
+
+/** The words a table's rows are said in, and whether counting them means anything. */
+export type TableWords = { one: string; many: string; counts: boolean };
+
+/**
+ * How one table is spoken about, for lib/snapshotMerge.ts, which works a
+ * row at a time and so cannot use the counts above.
+ *
+ * `counts` is false for a table that only marks its area as touched: the
+ * six ingredient rows under a salad are not six salads, so they read as
+ * edits to salads however they arrived. A settings row is addressed as
+ * "app_meta/<key>", the same way stampTables addresses it.
+ */
+export function wordsForTable(table: string): TableWords | null {
+  const found = lookUp(table);
+  if (!found) return null;
+  return { one: found.area.one, many: found.area.many, counts: found.counts };
+}

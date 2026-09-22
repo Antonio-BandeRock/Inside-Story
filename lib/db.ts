@@ -7492,6 +7492,32 @@ async function runDatabaseInitialization() {
         note TEXT,
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
+
+      -- What automatic sync brought in and what it sent out, grouped so a
+      -- merge carrying eleven rows of one thing reads as one line. 2026-09-22,
+      -- direct instruction: the person should be able to see "each change that
+      -- was made by which device, or to not see them and assume that the
+      -- system works each time, but there is a log for them to view".
+      --
+      -- Device local (DEVICE_LOCAL_TABLES in lib/snapshotSync.ts): it records
+      -- what THIS device merged, so travelling inside a snapshot would have
+      -- the other device log every one of those merges a second time.
+      CREATE TABLE IF NOT EXISTS sync_change_log (
+        id TEXT PRIMARY KEY,
+        merged_at TEXT NOT NULL,
+        -- phone or computer: the device the change was MADE on, which is not
+        -- always the device writing the row down.
+        device_kind TEXT NOT NULL,
+        -- The words a person reads for it, from lib/snapshotChanges.ts,
+        -- kept both ways so one of a thing does not read as "1 more meals".
+        area TEXT NOT NULL,
+        area_one TEXT NOT NULL,
+        kind TEXT NOT NULL CHECK (kind IN ('added', 'changed', 'removed')),
+        count INTEGER NOT NULL,
+        -- 1 when both devices had moved the same record and this side won.
+        conflict INTEGER NOT NULL DEFAULT 0
+      );
+      CREATE INDEX IF NOT EXISTS idx_sync_change_log_at ON sync_change_log(merged_at DESC);
     `);
 
     // Finances' due-rule column, 2026-09-05. finance_recurring shipped in

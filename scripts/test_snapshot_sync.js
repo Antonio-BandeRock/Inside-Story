@@ -9,11 +9,14 @@
 // 2. On arrival (startup, foreground): nothing happens while sync is off,
 //    while there is no record, while the latest copy is this device's, or
 //    while it is the copy already loaded; the first check after turning
-//    sync on asks; a newer copy with unsaved changes here asks; a newer copy
-//    with nothing unsaved here loads on its own.
-// 3. Before a save: skipped while off or clean; a newer copy from the other
-//    device that this device never loaded is a conflict rather than being
-//    written over, unless the person chose to keep what is here (force).
+//    sync on asks, since two devices with no shared history have nothing
+//    to work changes out against; every arrival after that is merged,
+//    whether or not anything here is unsaved (1.0.49.3).
+// 3. Before a save: a copy in the folder this device has not taken in is
+//    merged first rather than written over, ahead of the clean check so
+//    that Sync Now on a device that has changed nothing still brings the
+//    other device's copy in; skipped while off, or while clean with
+//    nothing waiting; forced only as the answer to the first question.
 // 4. Every sentence a person reads is free of the banned dashes and filler.
 // 5. Each of those sentences says what actually changed, on each side, in
 //    the words lib/snapshotChanges.ts hands it.
@@ -87,14 +90,21 @@ check(arrive(record, state({ loadedSavedAt: record.latest.savedAt }), phone).rea
 const first = arrive(record, state({ loadedSavedAt: null }), phone);
 check(first.action === 'conflict' && first.reason === 'firstTime', 'first time: ask');
 const dirty = arrive(record, state({ loadedSavedAt: 'older', dirtySince: 'now' }), phone);
-check(dirty.action === 'conflict' && dirty.reason === 'unsavedChanges', 'unsaved changes here: ask');
+check(dirty.action === 'merge' && dirty.record === record, 'unsaved changes here: merge, never a choice');
 const clean = arrive(record, state({ loadedSavedAt: 'older', dirtySince: null }), phone);
-check(clean.action === 'load' && clean.record === record, 'clean and newer: load');
+check(clean.action === 'merge' && clean.record === record, 'clean and newer: merge');
 
 // 3. Before a save.
 const before = (rec, st, me, opts) => sync.planBeforeSave(rec, st, me, opts);
 check(before(record, state({ enabled: false, dirtySince: 'now' }), phone).reason === 'off', 'off: skip');
-check(before(record, state({ dirtySince: null }), phone).reason === 'clean', 'clean: skip');
+check(
+  before(record, state({ dirtySince: null, loadedSavedAt: record.latest.savedAt }), phone).reason === 'clean',
+  'clean, with nothing waiting: skip',
+);
+check(
+  before(record, state({ dirtySince: null, loadedSavedAt: 'older' }), phone).action === 'merge',
+  'clean, with a copy never taken in: merge, so Sync Now still brings it over',
+);
 check(before(null, state({ dirtySince: 'now' }), phone).action === 'save', 'no record: save');
 check(before(sync.buildSnapshotRecord(phone, 't1'), state({ dirtySince: 'now' }), phone).action === 'save', 'over my own copy: save');
 check(
@@ -102,7 +112,7 @@ check(
   'over the copy I loaded: save',
 );
 const clash = before(record, state({ dirtySince: 'now', loadedSavedAt: 'older' }), phone);
-check(clash.action === 'conflict' && clash.record === record, 'over a copy I never loaded: conflict');
+check(clash.action === 'merge' && clash.record === record, 'over a copy I never took in: merge first');
 check(
   before(record, state({ dirtySince: 'now', loadedSavedAt: 'older' }), phone, { force: true }).action === 'save',
   'forced: save anyway',
@@ -140,7 +150,17 @@ check(strippedTables.app_meta.length === 1, 'device local rows are taken out');
 check(strippedTables.app_meta[0].key === 'visual_preferences', 'the settings row is the one kept');
 check(strippedTables.meals.length === 1, 'every other table is untouched');
 const noMeta = { meals: [{ id: 1 }] };
-check(sync.withoutDeviceLocalRows(noMeta) === noMeta, 'tables without app_meta come back as they were');
+check(
+  JSON.stringify(sync.withoutDeviceLocalRows(noMeta)) === JSON.stringify(noMeta),
+  'tables without app_meta come back as they were',
+);
+
+// Whole tables that stay where they were written (1.0.49.3). The log of
+// what this device merged would be written down twice if it travelled.
+check(sync.DEVICE_LOCAL_TABLES.includes('sync_change_log'), 'the sync log is device local');
+const withLog = sync.withoutDeviceLocalRows({ meals: [{ id: 1 }], sync_change_log: [{ id: 'a' }] });
+check(withLog.sync_change_log === undefined, 'a device local table is left out of the snapshot');
+check(withLog.meals.length === 1, 'and every other table still travels');
 
 // Fingerprint.
 check(sync.fingerprintText('abc') === sync.fingerprintText('abc'), 'fingerprint stable');
@@ -151,8 +171,8 @@ check(/^[a-z0-9]+$/.test(sync.fingerprintText('anything')), 'fingerprint is a pl
 const banned = /[–—]| -- |\b(real|genuine|genuinely)\b/i;
 const sentences = [
   sync.conflictMessage(first, phone),
-  sync.conflictMessage(dirty, phone),
-  sync.saveConflictMessage(record, phone),
+  sync.mergedNotice(record),
+  sync.mergedNotice(record, { there: ['3 more meals'], here: ['1 more capture'] }, 2),
   sync.loadedNotice(record),
   sync.describeSyncStatus(sync.EMPTY_SYNC_STATE, 'computer'),
   sync.describeSyncStatus(
@@ -183,7 +203,7 @@ check(sync.listPhrases(['a', 'b']) === 'a and b', 'two phrases are joined with a
 check(sync.listPhrases(['a', 'b', 'c']) === 'a, b and c', 'three phrases read as a list');
 
 const notes = { there: ['3 more meals', 'edits to your schedule'], here: ['1 more capture'] };
-const both = sync.conflictMessage(dirty, phone, notes);
+const both = sync.conflictMessage(first, phone, notes);
 check(
   both.includes('What that copy brings: 3 more meals and edits to your schedule.'),
   'the question says what the copy that arrived brings',
@@ -194,33 +214,51 @@ check(
   'what arrived is said before what is waiting here',
 );
 check(
-  both.indexOf('saved a copy on') < both.indexOf('What that copy brings'),
+  both.indexOf('is in your shared folder') < both.indexOf('What that copy brings'),
   'what changed comes after the opening',
 );
-check(both.endsWith('save it over that copy.'), 'the choice is still the last thing said');
 check(
-  sync.conflictMessage(dirty, phone) === sync.conflictMessage(dirty, phone, {}),
+  both.includes('nothing has to be chosen again'),
+  'the one question left says it is the only one',
+);
+check(
+  sync.conflictMessage(first, phone) === sync.conflictMessage(first, phone, {}),
   'a question with nothing to add reads as it did before',
 );
 check(
-  !sync.conflictMessage(dirty, phone, { there: [] }).includes('What that copy brings'),
+  !sync.conflictMessage(first, phone, { there: [] }).includes('What that copy brings'),
   'a copy that changed nothing worth saying is left unsaid',
 );
 check(
-  !sync.conflictMessage(dirty, phone, { here: ['1 more capture'] }).includes('What that copy brings'),
+  !sync.conflictMessage(first, phone, { here: ['1 more capture'] }).includes('What that copy brings'),
   'only the side that is known yet is spoken for',
 );
-check(
-  sync.conflictMessage(first, phone, notes).includes('What that copy brings: 3 more meals'),
-  'the first check after turning sync on says it too',
-);
 
-const refused = sync.saveConflictMessage(record, phone, notes);
+// The notice after a merge, which is what replaced the second question.
+const merged = sync.mergedNotice(record, notes, 0);
+check(merged.startsWith('Brought together with the copy your computer saved on'), 'the merge notice names the other device');
 check(
-  refused.includes('What that copy brings: 3 more meals and edits to your schedule.'),
-  'a refused save says what the copy in the folder brings',
+  merged.includes('What came over: 3 more meals and edits to your schedule.'),
+  'the merge notice says what came over',
 );
-check(refused.includes('Not saved here yet: 1 more capture.'), 'a refused save says what is waiting here');
+check(merged.includes('What was already here: 1 more capture.'), 'the merge notice says what was already here');
+check(
+  merged.indexOf('What came over') < merged.indexOf('What was already here'),
+  'what came over is said before what was here',
+);
+check(!merged.includes('changed in both places'), 'nothing is said about both places when there was no clash');
+check(
+  sync.mergedNotice(record, notes, 1).endsWith('One record had been changed in both places, and the later change stands.'),
+  'one record changed in both places is said in the singular',
+);
+check(
+  sync.mergedNotice(record, notes, 3).includes('3 records had been changed in both places'),
+  'several are counted',
+);
+check(
+  sync.mergedNotice(record, {}, 0) === sync.mergedNotice(record),
+  'a merge with nothing worth saying is still a sentence',
+);
 
 check(
   sync.loadedNotice(record, ['3 more meals']).endsWith('What came over: 3 more meals.'),
@@ -232,7 +270,7 @@ check(
   'the notice lists everything that came over',
 );
 
-for (const sentence of [both, refused, sync.loadedNotice(record, ['3 more meals', '2 fewer garden areas'])]) {
+for (const sentence of [both, merged, sync.loadedNotice(record, ['3 more meals', '2 fewer garden areas'])]) {
   check(!banned.test(sentence), 'sentence clean: ' + sentence.slice(0, 60));
   check(!/\.\s*\./.test(sentence), 'sentence has no doubled full stop: ' + sentence.slice(0, 60));
   check(!/ {2}/.test(sentence), 'sentence has no doubled space: ' + sentence.slice(0, 60));

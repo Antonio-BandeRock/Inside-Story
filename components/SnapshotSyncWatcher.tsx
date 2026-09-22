@@ -4,12 +4,15 @@
 // nothing of its own except the dialogs it needs. What it does, and when:
 //
 //   - At startup and every time the app comes to the foreground: reads the
-//     record in the shared folder (lib/snapshotSyncDevice.ts). The other
-//     device's newer copy loads on its own when nothing here has changed
-//     since the last save or load, and the app restarts so every screen
-//     reads the loaded data; the notice for that shows after the restart.
-//     With unsaved changes here, or on the first check after sync was
-//     turned on, it asks instead. Then, if anything here is unsaved, saves.
+//     record in the shared folder (lib/snapshotSyncDevice.ts). A copy from
+//     the other device is brought together with what is here, row by row,
+//     keeping both devices' changes however many there are
+//     (lib/snapshotMerge.ts); the merged result is saved straight back so
+//     the other device gets it, and the app restarts only when the merge
+//     actually changed something here. The first check after sync was
+//     turned on asks instead, since two devices with no shared history
+//     have nothing to work changes out against. Then, if anything here is
+//     unsaved, saves.
 //   - Every half minute while the app sits open in front
 //     (CHECK_INTERVAL_MS): the same check, skipped within fifteen seconds
 //     of a write (CHECK_QUIET_MS) and skipped while a question is on
@@ -36,19 +39,22 @@
 // (1.0.42.29, "I recorded a capture on the mobile and it isn't showing up
 // on the computer").
 //
-// Both questions say what changed on each side, since a person asked to
-// choose between two copies of their own database has nothing else to go
-// on ("it doesn't actually say what the change was that caused this
-// update to synchronize from the other device"). The words come from
-// lib/snapshotChanges.ts. Neither list is in hand the moment the
-// question is asked, so it goes up with what it has and gains the rest
-// as it arrives.
+// The first-time question says what changed on each side, since a person
+// asked to choose between two copies of their own database has nothing
+// else to go on ("it doesn't actually say what the change was that
+// caused this update to synchronize from the other device"). The words
+// come from lib/snapshotChanges.ts. Neither list is in hand the moment
+// the question is asked, so it goes up with what it has and gains the
+// rest as it arrives. Every merge after that says what came over and
+// what was already here, unless the person has turned those notices off
+// in Profile, in which case it goes to the log and nothing interrupts
+// (lib/syncLog.ts).
 //
-// A save that finds a newer copy from the other device stops and asks,
+// A save that finds a copy this device has not taken in merges first,
 // which is the same-time guard: nothing is ever written over that this
-// device has not loaded, and nothing unsaved is ever thrown away without
-// the person saying so. Every decision behind that is in
-// lib/snapshotSync.ts and covered by scripts/test_snapshot_sync.js.
+// device has not seen, and nothing unsaved is ever thrown away. Every
+// decision behind that is in lib/snapshotSync.ts and covered by
+// scripts/test_snapshot_sync.js.
 // Checks and saves run one at a time, in the order they were asked for,
 // so a focus check and a timer save can never read and write the folder
 // over each other.
@@ -62,7 +68,6 @@ import {
   CHECK_QUIET_MS,
   conflictMessage,
   SAVE_DEBOUNCE_MS,
-  saveConflictMessage,
   type SnapshotRecord,
   type SyncChangeNotes,
   type SyncDevice,
@@ -73,6 +78,7 @@ import {
   getMyDevice,
   loadSnapshot,
   markDatabaseDirty,
+  mergeSnapshot,
   peekIncomingChanges,
   readSyncState,
   saveSnapshot,
@@ -167,30 +173,63 @@ export function SnapshotSyncWatcher() {
   );
 
   const askAboutArrival = useCallback(
-    async (record: SnapshotRecord, reason: 'unsavedChanges' | 'firstTime') => {
+    async (record: SnapshotRecord) => {
       const mine = await me();
       ask('Which copy do you want?', record, (notes) =>
-        conflictMessage({ action: 'conflict', record, reason }, mine, notes));
+        conflictMessage({ action: 'conflict', record, reason: 'firstTime' }, mine, notes));
     },
     [ask, me],
   );
 
+  // doSave asks for a merge and doMerge saves, so one of the two is
+  // reached through a ref rather than either being declared twice.
+  const mergeRef = useRef<(record: SnapshotRecord) => Promise<void>>(async () => {});
+
+  // A save, and a merge first where the folder holds something this
+  // device has not taken in. `allowMerge` is false for the save that
+  // follows a merge: the other device saving again in those few seconds
+  // is the next check's to deal with, not a reason to go round again
+  // here.
   const doSave = useCallback(
-    async (source: SaveSource) => {
+    async (source: SaveSource, allowMerge = true) => {
       const outcome = await saveSnapshot();
       if (outcome.status === 'problem') {
         tellOnce(outcome.reason);
         return;
       }
-      if (outcome.status === 'conflict') {
+      if (outcome.status === 'merge' && allowMerge) {
         if (source === 'timer' && declinedRef.current === outcome.record.latest.savedAt) return;
-        const mine = await me();
-        ask('Which copy do you want?', outcome.record, (notes) =>
-          saveConflictMessage(outcome.record, mine, notes));
+        await mergeRef.current(outcome.record);
       }
     },
-    [ask, me, tellOnce],
+    [tellOnce],
   );
+
+  // Brings the other device's copy together with this one, saves the
+  // result straight back so the other device converges, and restarts only
+  // when the merge changed something here (the notice for after that
+  // restart is left in the sync state by mergeSnapshot).
+  const doMerge = useCallback(
+    async (record: SnapshotRecord) => {
+      const outcome = await mergeSnapshot(record);
+      if (outcome.status === 'problem') {
+        tellOnce(outcome.reason);
+        return;
+      }
+      if (outcome.status === 'noBase') {
+        await askAboutArrival(outcome.record);
+        return;
+      }
+      await doSave('foreground', false);
+      if (outcome.restart) {
+        await restartAfterLoad(showNotice);
+        return;
+      }
+      if (outcome.notice) showNotice('Brought together with your other device', outcome.notice);
+    },
+    [askAboutArrival, doSave, showNotice, tellOnce],
+  );
+  mergeRef.current = doMerge;
 
   const runSave = useCallback((source: SaveSource) => enqueue(() => doSave(source)), [doSave, enqueue]);
 
@@ -204,18 +243,13 @@ export function SnapshotSyncWatcher() {
         if (lastWrite > 0 && Date.now() - lastWrite < CHECK_QUIET_MS) return;
       }
       const outcome = await checkForArrival();
-      if (outcome.action === 'load') {
-        const loaded = await loadSnapshot(outcome.record);
-        if (loaded.status === 'loaded') {
-          await restartAfterLoad(showNotice);
-          return;
-        }
-        showNotice('Could not load', loaded.reason);
+      if (outcome.action === 'merge') {
+        await doMerge(outcome.record);
         return;
       }
       if (outcome.action === 'conflict') {
         if (source === 'interval' && declinedRef.current === outcome.record.latest.savedAt) return;
-        await askAboutArrival(outcome.record, outcome.reason);
+        await askAboutArrival(outcome.record);
         return;
       }
       if (outcome.action === 'problem') {
@@ -229,7 +263,7 @@ export function SnapshotSyncWatcher() {
       }
       await doSave('foreground');
     },
-    [askAboutArrival, doSave, showNotice, tellOnce],
+    [askAboutArrival, doMerge, doSave, tellOnce],
   );
 
   const runCheck = useCallback((source: CheckSource) => enqueue(() => doCheck(source)), [doCheck, enqueue]);
@@ -242,7 +276,7 @@ export function SnapshotSyncWatcher() {
       const state = await readSyncState();
       if (!state.enabled || cancelled) return;
       const notice = await takePendingNotice();
-      if (notice && !cancelled) showNotice('Loaded from your other device', notice);
+      if (notice && !cancelled) showNotice('Brought together with your other device', notice);
       if (!cancelled) await runCheck('startup');
     })();
     return () => {

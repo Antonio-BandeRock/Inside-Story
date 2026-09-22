@@ -12,6 +12,7 @@
 // device is the same-time problem in miniature, so everything here queues
 // behind a single promise.
 
+import { File, Paths } from 'expo-file-system';
 import { isDesktopApp } from './desktop/bridge';
 import { getMyKeyFingerprint } from './deviceIdentity';
 import {
@@ -35,8 +36,18 @@ import {
   parseChangeList,
   parseStamps,
   stampTables,
+  wordsForTable,
   type TableStamps,
 } from './snapshotChanges';
+import {
+  conflictsIn,
+  describeMerge,
+  mergeTables,
+  type MergeSide,
+  type Tables,
+} from './snapshotMerge';
+import { readSchemaShapes, WORKED_OUT_TABLES } from './snapshotShapes';
+import { recordMerge } from './syncLog';
 import {
   APP_META_TABLE,
   CHANGE_BASELINE_META_KEY,
@@ -46,6 +57,7 @@ import {
   EMPTY_SYNC_STATE,
   fingerprintText,
   loadedNotice,
+  mergedNotice,
   parseSnapshotRecord,
   planBeforeSave,
   planOnArrival,
@@ -54,6 +66,7 @@ import {
   type ArrivalPlan,
   type SnapshotRecord,
   type SnapshotSyncState,
+  type SyncChangeNotes,
   type SyncDevice,
 } from './snapshotSync';
 
@@ -306,13 +319,14 @@ export type SaveOutcome =
   | { status: 'saved'; savedAt: string }
   | { status: 'unchanged' }
   | { status: 'skipped'; reason: 'off' | 'clean' }
-  | { status: 'conflict'; record: SnapshotRecord }
+  | { status: 'merge'; record: SnapshotRecord }
   | { status: 'problem'; reason: string };
 
 /**
- * Saves this device's snapshot, unless the folder holds a newer copy from
- * the other device that this one has not loaded (a conflict, handed back
- * for the person to settle). `force` is that decision: save over it.
+ * Saves this device's snapshot, unless the folder holds a copy from the
+ * other device that this one has not taken in, which is handed back for
+ * the caller to merge first. `force` skips that, and is only ever the
+ * answer to the first-time question.
  */
 export function saveSnapshot(options: { force?: boolean } = {}): Promise<SaveOutcome> {
   return enqueue(async () => {
@@ -328,7 +342,7 @@ export function saveSnapshot(options: { force?: boolean } = {}): Promise<SaveOut
 
     const plan = planBeforeSave(record.value, state, me, options);
     if (plan.action === 'skip') return { status: 'skipped', reason: plan.reason };
-    if (plan.action === 'conflict') return { status: 'conflict', record: plan.record };
+    if (plan.action === 'merge') return { status: 'merge', record: plan.record };
 
     const writesBefore = getDatabaseWriteCount();
     let envelope: BackupEnvelope;
@@ -371,6 +385,8 @@ export function saveSnapshot(options: { force?: boolean } = {}): Promise<SaveOut
     );
     if (!recorded.ok) return problem(recorded.reason);
     await writeChangeBaseline(stamps);
+    // What both devices now hold in common, for the next merge.
+    writeMergeBase(envelope.tables as Tables);
 
     await updateSyncState({
       loadedSavedAt: savedAt,
@@ -422,7 +438,9 @@ export function loadSnapshot(record: SnapshotRecord): Promise<LoadOutcome> {
     // Stamped from what was loaded rather than by reading the tables back:
     // these rows are exactly the ones just written. The restore emptied
     // app_meta, so this lands after it rather than inside it.
-    await writeChangeBaseline(stampTables(withoutDeviceLocalRows(envelope.tables), fingerprintText));
+    const loaded = withoutDeviceLocalRows(envelope.tables) as Tables;
+    await writeChangeBaseline(stampTables(loaded, fingerprintText));
+    writeMergeBase(loaded);
     peeked = null;
     const now = new Date().toISOString();
     await updateSyncState({
@@ -435,6 +453,178 @@ export function loadSnapshot(record: SnapshotRecord): Promise<LoadOutcome> {
       pendingNotice: loadedNotice(record, changes),
     });
     return { status: 'loaded', record };
+  });
+}
+
+// THE LAST COPY THE TWO DEVICES AGREED ON.
+//
+// A merge needs three things: what arrived, what is here, and what both
+// devices last held in common. Without the third, a row only one side
+// has cannot be told apart from a row the other side deleted, and the
+// merge would quietly bring back everything either device has ever
+// removed. So every save, load and merge writes the agreed copy down.
+//
+// A file rather than a table: it is a copy of every table, so keeping it
+// in the database would double the database and travel inside the next
+// snapshot. It sits beside the database in the app's private storage, no
+// more reachable than the database itself, and the desktop app gets the
+// same File and Paths through lib/desktop.
+//
+// Missing is survivable. A device with nothing written since its last
+// save is itself the agreed copy, which is the ordinary case, so the
+// file only decides anything when there are unsaved changes here at the
+// moment a copy arrives. Missing with unsaved changes falls back to
+// asking, which is the first merge after an upgrade from 1.0.49.2 and
+// nothing after that.
+
+const MERGE_BASE_FILE_NAME = 'inside-story-sync-base.json';
+
+function mergeBaseFile(): File {
+  return new File(Paths.document, MERGE_BASE_FILE_NAME);
+}
+
+async function readMergeBase(): Promise<Tables | null> {
+  try {
+    const file = mergeBaseFile();
+    if (!file.exists) return null;
+    const parsed: unknown = JSON.parse(await file.text());
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
+    return parsed as Tables;
+  } catch (error) {
+    console.error('[snapshotSync] could not read the agreed copy', error);
+    return null;
+  }
+}
+
+function writeMergeBase(tables: Tables): void {
+  try {
+    mergeBaseFile().write(JSON.stringify(tables));
+  } catch (error) {
+    // The next merge asks instead, which is where this was before.
+    console.error('[snapshotSync] could not write the agreed copy', error);
+  }
+}
+
+function forgetMergeBase(): void {
+  try {
+    const file = mergeBaseFile();
+    if (file.exists) file.delete();
+  } catch (error) {
+    console.error('[snapshotSync] could not clear the agreed copy', error);
+  }
+}
+
+export type MergeOutcome =
+  | { status: 'merged'; record: SnapshotRecord; restart: boolean; notice: string | null }
+  | { status: 'noBase'; record: SnapshotRecord }
+  | { status: 'problem'; reason: string };
+
+/**
+ * Brings the copy in the folder together with what is on this device,
+ * row by row, keeping every change either device made.
+ *
+ * This is what replaced the question with two answers that both threw
+ * work away (1.0.49.3). What it cannot do is invent a shared history:
+ * with no agreed copy to work changes out against it answers 'noBase'
+ * and the caller asks instead.
+ *
+ * It writes to the database only when the merge actually changed
+ * something here, so a copy carrying nothing new costs no restart. The
+ * caller saves afterwards: the merged result is not in the folder until
+ * it does, and the other device is waiting for it.
+ */
+export function mergeSnapshot(record: SnapshotRecord): Promise<MergeOutcome> {
+  return enqueue(async () => {
+    const state = await readSyncState();
+    const me = await getMyDevice();
+    if (!state.enabled || !state.password) {
+      return { status: 'problem', reason: 'Sync is off on this device.' };
+    }
+
+    const folder = await getBackupsFolder();
+    if (!folder.ok) return problem(folder.reason);
+    const downloaded = await downloadSnapshot(folder.value, record, state.password);
+    if (!downloaded.ok) return problem(downloaded.reason);
+
+    let built: BackupEnvelope;
+    try {
+      built = await buildBackupEnvelope();
+    } catch (error) {
+      console.error('[snapshotSync] could not read this device for the merge', error);
+      return problem('What is on this device could not be read.');
+    }
+    const here = withoutDeviceLocalRows(built.tables) as Tables;
+    const there = withoutDeviceLocalRows(downloaded.value.envelope.tables) as Tables;
+
+    let base = await readMergeBase();
+    if (!base && state.dirtySince === null) base = here;
+    if (!base) return { status: 'noBase', record };
+
+    // Which device to believe about one record both devices moved that
+    // carries no time of its own. The row's own timestamp settles it
+    // where there is one (laterOf in lib/snapshotMerge.ts); this is the
+    // fallback, and it compares when the writing here began against when
+    // the other device saved.
+    const laterSide: MergeSide =
+      state.dirtySince !== null && state.dirtySince > record.latest.savedAt ? 'here' : 'there';
+
+    let merged;
+    try {
+      const { shapes } = await readSchemaShapes(Object.keys(here));
+      merged = mergeTables(base, here, there, { shapes, laterSide, wholesale: WORKED_OUT_TABLES });
+    } catch (error) {
+      console.error('[snapshotSync] the merge failed', error);
+      return problem('The two copies could not be brought together on this device.');
+    }
+
+    const restart = fingerprintText(JSON.stringify(merged.tables)) !== fingerprintText(JSON.stringify(here));
+    if (restart) {
+      try {
+        await withDatabaseWriteTrackingSuspended(async () => {
+          const mine = await readDeviceLocalRows();
+          await restoreFromBackupEnvelope({
+            ...built,
+            tableNames: Object.keys(merged.tables),
+            tables: merged.tables,
+          });
+          await putBackDeviceLocalRows(mine);
+        });
+      } catch (error) {
+        console.error('[snapshotSync] writing the merged copy failed', error);
+        return problem('The merged copy could not be written to this device.');
+      }
+    }
+
+    writeMergeBase(merged.tables);
+    await writeChangeBaseline(stampTables(merged.tables, fingerprintText));
+    await recordMerge(merged.entries, { here: me.kind, there: record.latest.device.kind });
+    peeked = null;
+
+    const notice = state.announce
+      ? mergedNotice(
+          record,
+          {
+            there: describeMerge(merged.entries, wordsForTable, 'there'),
+            here: describeMerge(merged.entries, wordsForTable, 'here'),
+          } satisfies SyncChangeNotes,
+          conflictsIn(merged.entries).length,
+        )
+      : null;
+
+    const now = new Date().toISOString();
+    await updateSyncState({
+      loadedSavedAt: record.latest.savedAt,
+      lastLoadedAt: now,
+      lastCheckedAt: now,
+      // Cleared rather than set to what was just merged: the folder does
+      // not hold this yet, and the save that follows must not decide it
+      // has nothing to send.
+      lastHash: null,
+      dirtySince: now,
+      lastProblem: null,
+      pendingNotice: restart ? notice : null,
+    });
+    return { status: 'merged', record, restart, notice };
   });
 }
 
@@ -484,6 +674,8 @@ export async function checkPasswordAgainstFolder(
 }
 
 export async function enableSnapshotSync(password: string): Promise<void> {
+  // Nothing from a previous pairing counts as agreed with this one.
+  forgetMergeBase();
   await updateSyncState({
     ...EMPTY_SYNC_STATE,
     enabled: true,
@@ -497,6 +689,7 @@ export async function disableSnapshotSync(): Promise<void> {
   await updateSyncState({ ...EMPTY_SYNC_STATE });
   // Nothing of the password, or of the other device, is kept once sync is off.
   forgetDerivedKeys();
+  forgetMergeBase();
   peeked = null;
 }
 
