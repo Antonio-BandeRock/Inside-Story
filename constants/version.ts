@@ -31,10 +31,21 @@
 // one bump; a second, later request the same day is a second bump, even
 // if the first request is still technically in progress.
 //
-// Bump this by hand at the start of handling each new request going
-// forward (the same discipline already applied to tsc/eslint/git push/
-// Notion sync, see feedback_keep_git_notion_appguide_current in this
-// project's own memory) -- there's no mechanical trigger for it.
+// Do not type this by hand. Run node scripts/bump_version.js at the start
+// of handling each new request; it reads the day count out of git, resets
+// UPDATE to 1 on a new day, and writes all four files at once (this one,
+// app.json, package.json and desktop/electron-builder.yml). --check reports
+// whether the day is stale and exits 1 if it is.
+//
+// 2026-09-22: that script exists because hand-typing this failed six times.
+// 09-03, 09-06, 09-07, 09-14, 09-17 and 09-21 each carried the previous
+// day's DAY forward instead of incrementing it, so 2026-09-22 opened on
+// 1.0.42.x when git said it was the 49th day of work. Direct correction:
+// "Once midnight happens, it is the next day, and the version must be
+// switched from third position ... It absolutely never should ever continue
+// with version numbering from the previous day of work." The seven shipped
+// versions between 1.0.32.x and 1.0.42.x are left as they shipped; only the
+// number going forward was corrected, from 1.0.42.30 to 1.0.49.1.
 //
 // A known limitation, not yet a live problem: this exact 4-segment string
 // isn't strict semver (package.json/app.json's own "version" fields are
@@ -43,4 +54,4 @@
 // String. Irrelevant today (no App Store submission exists yet, iPhone
 // is still a planned platform, not a shipped one), worth revisiting only
 // once that actually applies.
-export const APP_VERSION = '1.0.42.30';
+export const APP_VERSION = '1.0.49.1';
