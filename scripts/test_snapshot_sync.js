@@ -110,6 +110,12 @@ check(
   'forced while clean: save',
 );
 
+// Timing (1.0.42.29): a periodic check while the app sits open, quiet for
+// a while after a write, and the save debounce shorter than both.
+check(sync.CHECK_INTERVAL_MS >= 60 * 1000, 'periodic check is at least a minute apart');
+check(sync.CHECK_QUIET_MS > sync.SAVE_DEBOUNCE_MS, 'the quiet period outlasts the save debounce');
+check(sync.CHECK_INTERVAL_MS > sync.CHECK_QUIET_MS, 'a check waits longer than the quiet period');
+
 // Fingerprint.
 check(sync.fingerprintText('abc') === sync.fingerprintText('abc'), 'fingerprint stable');
 check(sync.fingerprintText('abc') !== sync.fingerprintText('abd'), 'fingerprint differs');

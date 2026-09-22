@@ -10,21 +10,41 @@
 //     reads the loaded data; the notice for that shows after the restart.
 //     With unsaved changes here, or on the first check after sync was
 //     turned on, it asks instead. Then, if anything here is unsaved, saves.
+//   - Every two minutes while the app sits open in front
+//     (CHECK_INTERVAL_MS): the same check, skipped within a minute of a
+//     write (CHECK_QUIET_MS) and skipped while a question is on screen. The
+//     foreground event fires only when the app was put away first, so
+//     without this a phone left on the desk, or the desktop app left open,
+//     showed the old data until it was put away and brought back. A copy
+//     the person declined is not asked about again from here.
 //   - Eight seconds after the last write (SAVE_DEBOUNCE_MS): saves.
 //   - When the app goes to the background: saves at once, since a phone
 //     may be put down for the day at that moment.
+//
+// On the desktop app "foreground" and "background" come from the window
+// gaining and losing focus. react-native-web's AppState follows the
+// document's visibility, which changes only when the window is minimized
+// and brought back, so clicking over to another program and back, which
+// is how a computer is used, never reached the check or the save
+// (1.0.42.29, "I recorded a capture on the mobile and it isn't showing up
+// on the computer").
 //
 // A save that finds a newer copy from the other device stops and asks,
 // which is the same-time guard: nothing is ever written over that this
 // device has not loaded, and nothing unsaved is ever thrown away without
 // the person saying so. Every decision behind that is in
 // lib/snapshotSync.ts and covered by scripts/test_snapshot_sync.js.
+// Checks and saves run one at a time, in the order they were asked for,
+// so a focus check and a timer save can never read and write the folder
+// over each other.
 
 import * as Updates from 'expo-updates';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, type AppStateStatus } from 'react-native';
-import { addDatabaseWriteListener } from '../lib/databaseActivity';
+import { AppState, Platform, type AppStateStatus } from 'react-native';
+import { addDatabaseWriteListener, getLastDatabaseWriteAt } from '../lib/databaseActivity';
 import {
+  CHECK_INTERVAL_MS,
+  CHECK_QUIET_MS,
   conflictMessage,
   SAVE_DEBOUNCE_MS,
   saveConflictMessage,
@@ -49,6 +69,9 @@ type Question = {
   record: SnapshotRecord;
 };
 
+type CheckSource = 'startup' | 'foreground' | 'interval';
+type SaveSource = 'timer' | 'background' | 'foreground';
+
 /** Restarts the app so every module-level cache reads the loaded data. */
 export async function restartAfterLoad(showNotice: (title: string, message: string) => void): Promise<void> {
   try {
@@ -62,11 +85,24 @@ export async function restartAfterLoad(showNotice: (title: string, message: stri
 export function SnapshotSyncWatcher() {
   const [showNotice, noticeElement] = useInfoAlert();
   const [question, setQuestion] = useState<Question | null>(null);
+  const questionRef = useRef<Question | null>(null);
+  questionRef.current = question;
   const meRef = useRef<SyncDevice | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // A copy the person chose not to load or save over is not asked about
-  // again from the save timer; the next foreground asks once more.
+  // again from the save timer or the periodic check; the next foreground
+  // asks once more.
   const declinedRef = useRef<string | null>(null);
+  // One check or save at a time, in order.
+  const queueRef = useRef<Promise<void>>(Promise.resolve());
+
+  const enqueue = useCallback((work: () => Promise<void>) => {
+    const next = queueRef.current.then(work, work).catch((error) => {
+      console.error('[snapshotSync] watcher step failed', error);
+    });
+    queueRef.current = next;
+    return next;
+  }, []);
 
   const me = useCallback(async () => {
     if (!meRef.current) meRef.current = await getMyDevice();
@@ -84,8 +120,8 @@ export function SnapshotSyncWatcher() {
     [me],
   );
 
-  const runSave = useCallback(
-    async (source: 'timer' | 'background' | 'foreground') => {
+  const doSave = useCallback(
+    async (source: SaveSource) => {
       const outcome = await saveSnapshot();
       if (outcome.status === 'conflict') {
         if (source === 'timer' && declinedRef.current === outcome.record.latest.savedAt) return;
@@ -99,29 +135,49 @@ export function SnapshotSyncWatcher() {
     [me],
   );
 
-  const runCheck = useCallback(async () => {
-    const outcome = await checkForArrival();
-    if (outcome.action === 'load') {
-      const loaded = await loadSnapshot(outcome.record);
-      if (loaded.status === 'loaded') {
-        await restartAfterLoad(showNotice);
+  const runSave = useCallback((source: SaveSource) => enqueue(() => doSave(source)), [doSave, enqueue]);
+
+  const doCheck = useCallback(
+    async (source: CheckSource) => {
+      if (source === 'interval') {
+        // Not over a question already on screen, and not while the person
+        // is in the middle of something here.
+        if (questionRef.current) return;
+        const lastWrite = getLastDatabaseWriteAt();
+        if (lastWrite > 0 && Date.now() - lastWrite < CHECK_QUIET_MS) return;
+      }
+      const outcome = await checkForArrival();
+      if (outcome.action === 'load') {
+        const loaded = await loadSnapshot(outcome.record);
+        if (loaded.status === 'loaded') {
+          await restartAfterLoad(showNotice);
+          return;
+        }
+        showNotice('Could not load', loaded.reason);
         return;
       }
-      showNotice('Could not load', loaded.reason);
-      return;
-    }
-    if (outcome.action === 'conflict') {
-      await askAboutArrival(outcome.record, outcome.reason);
-      return;
-    }
-    if (outcome.action === 'problem') {
-      // Reported on Profile's Backup & Restore card rather than as a
-      // dialog: a folder that is briefly unreachable is not worth a
-      // dialog every time the app is opened.
-      return;
-    }
-    await runSave('foreground');
-  }, [askAboutArrival, runSave, showNotice]);
+      if (outcome.action === 'conflict') {
+        if (source === 'interval' && declinedRef.current === outcome.record.latest.savedAt) return;
+        await askAboutArrival(outcome.record, outcome.reason);
+        return;
+      }
+      if (outcome.action === 'problem') {
+        // Reported on Profile's Backup & Restore card rather than as a
+        // dialog: a folder that is briefly unreachable is not worth a
+        // dialog every time the app is opened.
+        return;
+      }
+      if (source === 'interval') {
+        // The save timer already covers anything unsaved here; a periodic
+        // check only looks for what the other device saved.
+        return;
+      }
+      await doSave('foreground');
+    },
+    [askAboutArrival, doSave, showNotice],
+  );
+
+  const runCheck = useCallback((source: CheckSource) => enqueue(() => doCheck(source)), [doCheck, enqueue]);
 
   // Startup: the notice from an automatic load before the restart, then
   // the first check.
@@ -132,30 +188,64 @@ export function SnapshotSyncWatcher() {
       if (!state.enabled || cancelled) return;
       const notice = await takePendingNotice();
       if (notice && !cancelled) showNotice('Loaded from your other device', notice);
-      if (!cancelled) await runCheck();
+      if (!cancelled) await runCheck('startup');
     })();
     return () => {
       cancelled = true;
     };
-    // Once, at mount: later checks come from the foreground listener below.
+    // Once, at mount: later checks come from the listeners below.
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const cancelSaveTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
   }, []);
 
   // Foreground and background.
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (next: AppStateStatus) => {
       if (next === 'active') {
-        runCheck();
+        runCheck('foreground');
       } else if (next === 'background' || next === 'inactive') {
-        if (timerRef.current) {
-          clearTimeout(timerRef.current);
-          timerRef.current = null;
-        }
+        cancelSaveTimer();
         runSave('background');
       }
     });
     return () => subscription.remove();
-  }, [runCheck, runSave]);
+  }, [cancelSaveTimer, runCheck, runSave]);
+
+  // The desktop app: the window gaining and losing focus, which is what
+  // switching between programs on a computer looks like (see the note at
+  // the top). AppState above still covers minimize and restore there.
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    const onFocus = () => {
+      runCheck('foreground');
+    };
+    const onBlur = () => {
+      cancelSaveTimer();
+      runSave('background');
+    };
+    window.addEventListener('focus', onFocus);
+    window.addEventListener('blur', onBlur);
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      window.removeEventListener('blur', onBlur);
+    };
+  }, [cancelSaveTimer, runCheck, runSave]);
+
+  // While the app sits open in front: look at the folder every so often,
+  // since neither listener above fires until the app is put away.
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (AppState.currentState !== 'active') return;
+      runCheck('interval');
+    }, CHECK_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [runCheck]);
 
   // Every write: mark the unsaved period, and save once the writing pauses.
   useEffect(() => {

@@ -95,6 +95,23 @@ const SNAPSHOT_FILE_PREFIX = 'inside-story-snapshot-';
 /** How long after the last write the save waits, so a burst of edits is one upload. */
 export const SAVE_DEBOUNCE_MS = 8000;
 
+/**
+ * How often an app left open in front looks at the folder, since the
+ * foreground event fires only when the app was put away first. A phone
+ * left on the desk while the computer saves, or the desktop app sitting
+ * open while the phone saves, would otherwise show the old data until it
+ * was put away and brought back.
+ */
+export const CHECK_INTERVAL_MS = 2 * 60 * 1000;
+
+/**
+ * A periodic check is skipped this soon after a write: a load restarts
+ * the app, and a write this recent means the person is in the middle of
+ * something. The foreground check has no such guard, since coming back is
+ * the moment a restart costs least.
+ */
+export const CHECK_QUIET_MS = 60 * 1000;
+
 export function snapshotFileName(device: SyncDevice): string {
   return SNAPSHOT_FILE_PREFIX + device.kind + '-' + device.fingerprint + '.json';
 }

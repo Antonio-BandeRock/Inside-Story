@@ -17,6 +17,7 @@
 type WriteListener = (count: number) => void;
 
 let writeCount = 0;
+let lastWriteAt = 0;
 let suspendDepth = 0;
 const listeners = new Set<WriteListener>();
 
@@ -32,6 +33,7 @@ export function isRowChangingSql(sql: string): boolean {
 export function noteDatabaseWrite(): void {
   if (suspendDepth > 0) return;
   writeCount += 1;
+  lastWriteAt = Date.now();
   for (const listener of listeners) {
     try {
       listener(writeCount);
@@ -39,6 +41,11 @@ export function noteDatabaseWrite(): void {
       console.error('[databaseActivity] listener failed', error);
     }
   }
+}
+
+/** When the last counted write happened (Date.now()), or 0 when nothing has been written this run. */
+export function getLastDatabaseWriteAt(): number {
+  return lastWriteAt;
 }
 
 /** Rises by one on every counted write; compare two readings to see whether anything happened between them. */
