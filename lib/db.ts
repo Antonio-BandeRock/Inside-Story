@@ -1,6 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 import { File } from 'expo-file-system';
 import { REFERENCE_DB_VERSION } from './referenceDbVersion';
+import { attachWriteTracking } from './databaseActivity';
 import { ageFromBirthDate } from './profile';
 import { normalizeSupplementAmount } from './supplementUnits';
 import { isAlcoholicFood } from './alcoholAdvisory';
@@ -4783,7 +4784,10 @@ export async function getAssessmentItems(domainCode?: string) {
 
 export async function getDatabase() {
   if (!databasePromise) {
-    databasePromise = SQLite.openDatabaseAsync(DB_NAME);
+    // Every write in the app goes through this one connection, which is
+    // how automatic snapshot sync hears about them without any screen
+    // having to say so. See lib/databaseActivity.ts.
+    databasePromise = SQLite.openDatabaseAsync(DB_NAME).then(attachWriteTracking);
   }
 
   return databasePromise;

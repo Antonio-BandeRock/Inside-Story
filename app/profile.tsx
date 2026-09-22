@@ -25,6 +25,18 @@ import { isSignedIn as isOneDriveSignedIn } from '../lib/oneDriveAuth';
 import { getBackupsFolder, getSharedFolder } from '../lib/oneDriveFolders';
 import type { DriveItemRef } from '../lib/oneDriveGraph';
 import { downloadText, listFiles, uploadText } from '../lib/oneDriveGraph';
+import { isDesktopApp } from '../lib/desktop/bridge';
+import { describeSyncStatus, EMPTY_SYNC_STATE, type SnapshotRecord, type SnapshotSyncState } from '../lib/snapshotSync';
+import {
+  checkPasswordAgainstFolder,
+  disableSnapshotSync,
+  enableSnapshotSync,
+  loadSnapshot,
+  readSyncState,
+  saveSnapshot,
+} from '../lib/snapshotSyncDevice';
+import { AppActionSheet } from '../components/AppActionSheet';
+import { restartAfterLoad } from '../components/SnapshotSyncWatcher';
 import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreferences';
 import { useReminderPreferences } from '../hooks/useReminderPreferences';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
@@ -889,6 +901,14 @@ export default function ProfileScreen() {
   // somewhere it cannot reach.
   const [backupFolder, setBackupFolder] = useState<DriveItemRef | null>(null);
   const [oneDriveConnected, setOneDriveConnected] = useState(false);
+  // Automatic snapshot sync with the other device (1.0.42.28), see
+  // lib/snapshotSync.ts. Read from the secure store on every focus, the
+  // same as the folder, since the watcher in app/_layout.tsx moves it on.
+  const [syncState, setSyncState] = useState<SnapshotSyncState>(EMPTY_SYNC_STATE);
+  const [syncBusy, setSyncBusy] = useState(false);
+  // The first save after turning sync on, when the other device already
+  // saved a copy: which one wins is the person's call.
+  const [syncChoice, setSyncChoice] = useState<SnapshotRecord | null>(null);
   // Password-based encryption, 2026-08-16, see lib/backupEncryption.ts's
   // header comment for the full reasoning. One shared prompt
   // (components/PasswordPrompt.tsx) covers both moments this needs to
@@ -1096,8 +1116,116 @@ export default function ProfileScreen() {
   useFocusEffect(
     useCallback(() => {
       void refreshBackupFolder();
+      void readSyncState().then(setSyncState);
     }, [refreshBackupFolder]),
   );
+
+  const otherDeviceKind = isDesktopApp() ? 'phone' : 'computer';
+
+  async function handleTurnOnSync() {
+    if (syncBusy) return;
+    if (!backupFolder) {
+      showBackupAlert('No shared folder yet', 'Set up your shared folder first, then both devices have somewhere to meet.');
+      return;
+    }
+    const password = await promptPassword(
+      'set',
+      'Set a Sync Password',
+      'Every copy saved to your shared folder is encrypted with this password, and your ' + otherDeviceKind +
+        ' needs the same one to read it. Choose something you will remember; there is no way to reset it later.',
+    );
+    if (password === null) return;
+    setSyncBusy(true);
+    try {
+      showBusy('Checking your shared folder...');
+      let checked: Awaited<ReturnType<typeof checkPasswordAgainstFolder>>;
+      try {
+        checked = await checkPasswordAgainstFolder(password);
+      } finally {
+        hideBusy();
+      }
+      if (!checked.ok) {
+        showBackupAlert('Could not turn sync on', checked.reason);
+        return;
+      }
+      await enableSnapshotSync(password);
+      const otherDevicesCopy =
+        checked.record && checked.record.latest.device.kind === otherDeviceKind ? checked.record : null;
+      if (otherDevicesCopy) {
+        setSyncState(await readSyncState());
+        setSyncChoice(otherDevicesCopy);
+        return;
+      }
+      await runSyncSave(true);
+    } finally {
+      setSyncBusy(false);
+    }
+  }
+
+  async function runSyncSave(force: boolean) {
+    showBusy('Saving to your shared folder...');
+    let outcome: Awaited<ReturnType<typeof saveSnapshot>>;
+    try {
+      outcome = await saveSnapshot({ force });
+    } finally {
+      hideBusy();
+    }
+    setSyncState(await readSyncState());
+    if (outcome.status === 'problem') {
+      showBackupAlert('Could not save', outcome.reason);
+    } else if (outcome.status === 'conflict') {
+      setSyncChoice(outcome.record);
+    } else if (outcome.status === 'saved') {
+      showBackupAlert('Saved', 'Your ' + otherDeviceKind + ' will load this copy the next time it opens with sync on.');
+    } else if (outcome.status === 'unchanged') {
+      showBackupAlert('Nothing new to save', 'The copy in your shared folder already has everything on this device.');
+    }
+  }
+
+  async function handleSyncNow() {
+    if (syncBusy) return;
+    setSyncBusy(true);
+    try {
+      await runSyncSave(true);
+    } finally {
+      setSyncBusy(false);
+    }
+  }
+
+  async function handleTurnOffSync() {
+    if (syncBusy) return;
+    const confirmed = await confirmBackup({
+      title: 'Turn off automatic sync?',
+      message:
+        'This device stops saving to your shared folder and stops loading what your ' + otherDeviceKind +
+        ' saves. Nothing on this device is removed, and the copies already in the folder stay there.',
+      confirmLabel: 'Turn Off',
+    });
+    if (!confirmed) return;
+    await disableSnapshotSync();
+    setSyncState(await readSyncState());
+  }
+
+  async function handleSyncChoiceLoad(record: SnapshotRecord) {
+    setSyncBusy(true);
+    try {
+      showBusy('Loading from your shared folder...');
+      let outcome: Awaited<ReturnType<typeof loadSnapshot>>;
+      try {
+        outcome = await loadSnapshot(record);
+      } finally {
+        hideBusy();
+      }
+      if (outcome.status === 'loaded') {
+        await restartAfterLoad(showBackupAlert);
+      } else {
+        setSyncState(await readSyncState());
+        showBackupAlert('Could not load', outcome.reason);
+      }
+    } finally {
+      setSyncBusy(false);
+    }
+  }
 
   const [mealTimeBuffers, setMealTimeBuffers] = useState<Record<DayPart, TimeOfDayInput>>({
     breakfast: BLANK_TIME,
@@ -4368,6 +4496,61 @@ export default function ProfileScreen() {
                 </Text>
               </TouchableOpacity>
             </View>
+            {/* AUTOMATIC SYNC WITH THE OTHER DEVICE, 1.0.42.28. The whole
+                database, encrypted with one password, saved to the Backups
+                folder shortly after anything changes here and loaded from
+                there when the other device saved something newer. The
+                decisions are in lib/snapshotSync.ts; the watcher in
+                app/_layout.tsx does the work while the app runs. This row
+                only turns it on and off and reports where things stand. */}
+            {backupFolder ? (
+              <View style={styles.concernRow}>
+                <Text style={styles.subLabel}>Keep this device in step with your {otherDeviceKind}</Text>
+                <Text style={styles.derivedText}>{describeSyncStatus(syncState, otherDeviceKind)}</Text>
+                {syncState.enabled ? (
+                  <>
+                    <TouchableOpacity style={styles.checkinButton} disabled={syncBusy} onPress={handleSyncNow}>
+                      <Text style={styles.checkinButtonText}>{syncBusy ? 'Working…' : 'Save to the Shared Folder Now'}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.checkinButton} disabled={syncBusy} onPress={handleTurnOffSync}>
+                      <Text style={styles.checkinButtonText}>Turn Off Automatic Sync</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <TouchableOpacity style={styles.checkinButton} disabled={syncBusy} onPress={handleTurnOnSync}>
+                    <Text style={styles.checkinButtonText}>{syncBusy ? 'Working…' : 'Turn On Automatic Sync'}</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            ) : null}
+            <AppActionSheet
+              visible={syncChoice !== null}
+              onClose={() => setSyncChoice(null)}
+              title="Which copy do you want?"
+              message={
+                syncChoice
+                  ? 'A copy saved from your ' + otherDeviceKind + ' on ' + new Date(syncChoice.latest.savedAt).toLocaleString() +
+                    ' is in your shared folder. Load it here, replacing what is on this ' + (isDesktopApp() ? 'computer' : 'phone') +
+                    ', or keep what is here and save it over that copy.'
+                  : undefined
+              }
+              actions={
+                syncChoice
+                  ? [
+                      {
+                        label: 'Load the Copy from Your ' + (otherDeviceKind === 'phone' ? 'Phone' : 'Computer'),
+                        destructive: true,
+                        onPress: () => void handleSyncChoiceLoad(syncChoice),
+                      },
+                      {
+                        label: 'Keep What Is Here and Save It',
+                        onPress: () => void handleSyncNow(),
+                      },
+                      { label: 'Not Now', onPress: () => undefined },
+                    ]
+                  : []
+              }
+            />
             {/* A durable "document and display the file path" record, per
                 direct feedback: always reflects what's genuinely still
                 sitting in this app's cache directory right now, not a

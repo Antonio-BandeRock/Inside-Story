@@ -14,6 +14,7 @@ import { KeyboardLiftProvider, KeyboardLiftReleaser, KeyboardLiftView } from '..
 import { DatabaseSetupScreen } from '../components/DatabaseSetupScreen';
 import { StartupFailureScreen } from '../components/StartupFailureScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
+import { SnapshotSyncWatcher } from '../components/SnapshotSyncWatcher';
 import { VersionLabel } from '../components/VersionLabel';
 import { colors } from '../constants/colors';
 import { useHomeDataReady } from '../hooks/useHomeDataReady';
@@ -695,6 +696,11 @@ export default function RootLayout() {
                   field costs nothing; subscribing the provider itself would
                   re-render every mounted screen on every focus change. */}
               <KeyboardLiftReleaser />
+              {/* Automatic snapshot sync with the person's other device
+                  (1.0.42.28): inside OverlayProvider for the dialogs it
+                  raises, mounted only once the database is ready, since
+                  dbReady is true for everything rendered here. */}
+              <SnapshotSyncWatcher />
               {/* Before AppKeyboard, deliberately -- see OverlayContext.tsx's own
                   comment: the keyboard must always paint on top of an open
                   dropdown's backdrop/menu, never the other way around. */}
