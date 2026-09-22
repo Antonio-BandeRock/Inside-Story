@@ -244,8 +244,18 @@ export class File {
     return unsupported('File.slice');
   }
 
-  static async pickFileAsync(): Promise<never> {
-    return unsupported('File.pickFileAsync');
+  /**
+   * The operating system's Open dialog. Every caller in the app treats a
+   * falsy answer as a cancel (Restore from a File, the .is import), so a
+   * closed dialog answers null rather than throwing. A picked file can be
+   * anywhere on the disk, and reads are allowed anywhere.
+   */
+  static async pickFileAsync(initialUri?: string, mimeType?: string): Promise<File | null> {
+    const picked = await getDesktopBridge().files.pick({
+      mimeType,
+      defaultPath: initialUri,
+    });
+    return picked ? new File(picked.uri) : null;
   }
 
   static async downloadFileAsync(): Promise<never> {

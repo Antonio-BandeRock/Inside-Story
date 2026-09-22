@@ -64,6 +64,8 @@ contextBridge.exposeInMainWorld('insideStoryDesktop', {
     list: (uri) => unwrap(ipcRenderer.sendSync('files:list', uri)),
     copy: (from, to) => unwrap(ipcRenderer.sendSync('files:copy', from, to)),
     move: (from, to) => unwrap(ipcRenderer.sendSync('files:move', from, to)),
+    pick: (options) => ipcRenderer.invoke('files:pick', options),
+    saveAs: (uri, options) => ipcRenderer.invoke('files:saveAs', uri, options),
   },
   cloudFolder: {
     roots: () => ipcRenderer.invoke('cloud:roots'),

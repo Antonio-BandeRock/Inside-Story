@@ -27,7 +27,13 @@
 // the actual file attachment -- two real native actions, not one combined
 // one, since Android genuinely has no single mechanism this app can reach
 // that does both at once.
+//
+// On a computer (the desktop app, since 1.0.42.27) there is no share
+// sheet; the same call opens the operating system's Save As dialog and
+// copies the file where the person chose, which is what "share a file"
+// means on a PC for a backup or a report.
 import * as Sharing from 'expo-sharing';
+import { getDesktopBridge, isDesktopApp } from './desktop/bridge';
 
 export interface ShareFileOptions {
   mimeType?: string;
@@ -48,6 +54,13 @@ export interface ShareFileOptions {
 // error.
 export async function shareFileIfAvailable(uri: string, options?: ShareFileOptions): Promise<boolean> {
   try {
+    if (isDesktopApp()) {
+      const saved = await getDesktopBridge().files.saveAs(uri, {
+        title: options?.dialogTitle,
+        mimeType: options?.mimeType,
+      });
+      return saved !== null;
+    }
     const available = await Sharing.isAvailableAsync();
     if (!available) return false;
     await Sharing.shareAsync(uri, options);

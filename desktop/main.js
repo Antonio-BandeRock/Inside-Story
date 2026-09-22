@@ -161,6 +161,9 @@ function registerIpc() {
   syncFile('files:list', (uri) => files.list(uri));
   syncFile('files:copy', (from, to) => files.copy(userData, from, to));
   syncFile('files:move', (from, to) => files.move(userData, from, to));
+  // The two dialogs wait on the person, so they answer asynchronously.
+  ipcMain.handle('files:pick', (_event, options) => files.pick(() => mainWindow, options));
+  ipcMain.handle('files:saveAs', (_event, uri, options) => files.saveAs(() => mainWindow, uri, options));
 
   ipcMain.handle('secrets:get', (_event, key) => secrets.get(userData, key));
   ipcMain.handle('secrets:set', (_event, key, value) => secrets.set(userData, key, value));

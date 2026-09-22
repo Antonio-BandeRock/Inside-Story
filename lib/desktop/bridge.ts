@@ -105,6 +105,34 @@ export type DesktopFilesBridge = {
   list(uri: string): DesktopDirectoryEntry[];
   copy(from: string, to: string): void;
   move(from: string, to: string): void;
+  /**
+   * The operating system's Open dialog (asynchronous: it waits on the
+   * person). Answers null when it was closed without a choice.
+   */
+  pick(options: DesktopPickFileOptions): Promise<DesktopPickedFile | null>;
+  /**
+   * The operating system's Save As dialog, then a copy of the file to the
+   * place chosen, anywhere on the disk. Answers the destination path, or
+   * null when the dialog was closed without a choice.
+   */
+  saveAs(uri: string, options: DesktopSaveAsOptions): Promise<string | null>;
+};
+
+export type DesktopPickFileOptions = {
+  title?: string;
+  /** Narrows the dialog's filter; an unknown type shows every file. */
+  mimeType?: string;
+  /** Where the dialog opens: a file:// URI or a bare path. */
+  defaultPath?: string;
+};
+
+export type DesktopPickedFile = { uri: string; name: string };
+
+export type DesktopSaveAsOptions = {
+  title?: string;
+  /** The name offered in the dialog; the source file's name when absent. */
+  fileName?: string;
+  mimeType?: string;
 };
 
 export type DesktopCloudFolderEntry = { name: string; path: string };
