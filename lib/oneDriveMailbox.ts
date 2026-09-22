@@ -28,6 +28,8 @@ import { getUserConditions } from './db';
 import { buildSyncPayload } from './partnerSync';
 import { getMealPlanForSync } from './mealPlanSync';
 import { applySyncFileText, PARTNER_SYNC_FILE_KIND } from './partnerTransfer';
+import { talksAutomatically } from './peerRelationships';
+import { readPeerTables } from './peerSyncDevice';
 import { REFERENCE_DB_VERSION } from './referenceDbVersion';
 import { buildSyncFileName, incomingFilesFor } from './syncInbox';
 import {
@@ -108,7 +110,7 @@ export async function sendViaOneDrive(): Promise<{
     getMealPlanForSync(),
   ]);
 
-  const partners = connections.filter((connection) => connection.role === 'partner');
+  const partners = connections.filter((connection) => talksAutomatically(connection.role));
   const outcomes: MailboxSendOutcome[] = [];
 
   for (const partner of partners) {
@@ -139,12 +141,14 @@ export async function sendViaOneDrive(): Promise<{
     // Read here rather than passed in, so no call site can send more than was
     // granted by handing over the wrong argument.
     const payload = buildSyncPayload({
+      role: partner.role,
       grants: partner.grants,
       myConditionCodes: myConditions,
       plan: myPlan,
       referenceDbVersion: REFERENCE_DB_VERSION,
       fromFingerprint: myFingerprint,
       sentAt: new Date().toISOString(),
+      shared: await readPeerTables({ role: partner.role, grants: partner.grants }),
     });
 
     let sealed: string;

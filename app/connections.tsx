@@ -36,6 +36,7 @@ import {
   type ShareScope,
 } from '../lib/partners';
 import { getMailboxFolderName } from '../lib/db';
+import { areasThatMerge, describeWhatMerges } from '../lib/peerRelationships';
 import {
   describeSharedFolderProblem,
   getSharedFolder,
@@ -687,6 +688,17 @@ export default function ConnectionsScreen() {
                           while nothing can actually travel between the phones,
                           reads as a working feature. */}
                       <Text style={styles.rowPending}>{PARTNER_SHARING_STATE}</Text>
+                      {/* The sentence above describes a link with
+                          everything switched on. Somebody who has turned
+                          the shopping list off would be reading something
+                          untrue of their link, so that case says its own
+                          piece rather than being left to the standing
+                          wording. */}
+                      {areasThatMerge(connection.role, connection.grants).length === 0 ? (
+                        <Text style={styles.rowMeta}>
+                          {describeWhatMerges(connection.role, connection.grants, connection.name)}
+                        </Text>
+                      ) : null}
                       {/* SHOWING A CODE AGAIN IS HOW CONDITIONS ACTUALLY CROSS,
                           and this was gated behind the missing-key case, so for
                           anyone already holding a key it was invisible.

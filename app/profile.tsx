@@ -4576,7 +4576,13 @@ export default function ProfileScreen() {
                         change that was made by which device, or to not see
                         them and assume that the system works each time, but
                         there is a log for them to view." The pill is the
-                        first half; the log fills either way. */}
+                        first half; the log fills either way.
+
+                        It governs both kinds of merge, since it is one
+                        question: tell me what changed, or work quietly
+                        and let me look. A merge with a partner, a child
+                        or somebody who helps you reads the same way and
+                        lands in the same log (lib/peerSyncDevice.ts). */}
                     <View style={styles.pillRow}>
                       <TouchableOpacity
                         style={[styles.pill, syncState.announce && styles.pillActive]}
@@ -4589,8 +4595,11 @@ export default function ProfileScreen() {
                     </View>
                     <Text style={styles.helpText}>
                       {syncState.announce
-                        ? 'Each time the two devices come into step, a short notice says what came over and what was already here. Turn this off to let it happen quietly.'
-                        : 'The two devices come into step quietly. Everything that happens is still written down in the activity below.'}
+                        ? 'Each time this device comes into step with your ' +
+                          otherDeviceKind +
+                          ', or with somebody you share with, a short notice says what came over and what was already ' +
+                          'here. Turn this off to let it happen quietly.'
+                        : 'Everything comes into step quietly. What happens is still written down in the activity below.'}
                     </Text>
                     <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/sync-activity')}>
                       <Text style={styles.checkinButtonText}>See Sync Activity</Text>

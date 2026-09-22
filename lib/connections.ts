@@ -28,7 +28,21 @@ import { getDeviceIdentity } from './deviceIdentity';
 import { decodeBase64Utf8, encodeBase64Utf8 } from './sharing';
 import { canEncryptTo } from './partnerCrypto';
 import { clearPartnerMealPlan } from './mealPlanSync';
-import { defaultGrantsForRole, type ConnectionRole, type ShareGrants } from './partners';
+import { CONNECTION_ROLES, defaultGrantsForRole, type ConnectionRole, type ShareGrants } from './partners';
+import { areasTheyOwn } from './peerRelationships';
+
+/**
+ * A stored or received role, read back safely.
+ *
+ * A row written before roles existed, or a role this version has never
+ * heard of, reads as a recipe link: the one that carries nothing and does
+ * nothing on its own. Falling back to anything else would have an unknown
+ * string quietly grant more than it should.
+ */
+function asRole(value: string | null | undefined): ConnectionRole {
+  const known = CONNECTION_ROLES.find((role) => role.code === value);
+  return known ? known.code : 'recipe';
+}
 
 export type Connection = {
   id: string;
@@ -120,7 +134,7 @@ function fromRow(row: ConnectionRow): Connection {
     pairedAt: row.paired_at,
     // A row migrated from before roles existed is a recipe connection, which
     // is what every connection made before 2026-09-06 was for.
-    role: row.role === 'partner' ? 'partner' : 'recipe',
+    role: asRole(row.role),
     theyHaveMeAt: row.they_have_me_at,
     fingerprintVerifiedAt: row.fingerprint_verified_at,
     // Number() rather than === 1, as a belt-and-braces guard: these columns
@@ -258,10 +272,12 @@ export async function setConnectionRole(id: string, role: ConnectionRole): Promi
     grants.conditions ? 1 : 0,
     id,
   );
-  // Their conditions are dropped on demotion. Keeping a diagnosis list for
-  // someone you are no longer planning meals with would be holding health
-  // data for no remaining reason.
-  if (role !== 'partner') {
+  // Their conditions are dropped when the new role does not carry them.
+  // Keeping a diagnosis list for someone you are no longer planning meals
+  // with would be holding health data for no remaining reason. Asked of
+  // lib/peerRelationships.ts rather than compared against 'partner' here,
+  // so a role added later cannot quietly keep a list it never earned.
+  if (!areasTheyOwn(role, grants).includes('conditions')) {
     await db.runAsync(
       'UPDATE connections SET their_condition_codes_json = NULL, their_conditions_at = NULL WHERE id = ?',
       id,
@@ -635,7 +651,7 @@ export function decodeConnectionInvite(raw: string): ConnectionInvite | null {
     // another device, so a field being the wrong type is a real possibility,
     // and the failure has to be "treated as absent" rather than a crash on a
     // screen whose whole job is to let someone accept or discard safely.
-    const role: ConnectionRole = parsed.role === 'partner' ? 'partner' : 'recipe';
+    const role: ConnectionRole = asRole(typeof parsed.role === 'string' ? parsed.role : null);
     const rawGrants = (parsed.grants ?? {}) as Partial<ShareGrants>;
     const grants: ShareGrants = {
       meals: rawGrants.meals === true,

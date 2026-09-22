@@ -48,20 +48,64 @@
 // someone you send a recipe to, and two rows would guarantee her key goes stale
 // in one of them.
 
-export type ConnectionRole = 'recipe' | 'partner';
+// The four ways one person can stand to another, written down here since
+// 2026-09-22 so that everything the app does between two people reads from
+// one list. lib/peerRelationships.ts says what each of them carries and
+// which way it travels; this is the vocabulary those descriptions key off.
+//
+// Two of the four cannot be set up yet, and the app says so rather than
+// offering a link it cannot finish: a child link needs the setting-up where
+// a parent says what their child can reach, and a caregiver link needs the
+// step where the person being cared for says yes. The talking between two
+// phones is the same for all four, which is the point of naming them all
+// now instead of when each one ships.
+// The one import this module has, and it is safe in both directions:
+// lib/peerRelationships.ts only takes TYPES from here, which are erased, so
+// nothing is half-built when either of them loads.
+import { talksAutomatically } from './peerRelationships';
 
-export const CONNECTION_ROLES: { code: ConnectionRole; label: string; what: string }[] = [
+export type ConnectionRole = 'recipe' | 'partner' | 'child' | 'caregiver';
+
+export const CONNECTION_ROLES: {
+  code: ConnectionRole;
+  label: string;
+  what: string;
+  /** Whether a link of this kind can be set up today. */
+  offered: boolean;
+}[] = [
   {
     code: 'recipe',
     label: 'Recipes only',
     what: 'You can send each other a dish. Nothing else is shared and nothing happens on its own.',
+    offered: true,
   },
   {
     code: 'partner',
     label: 'Partner',
-    what: 'You plan meals together. You both see the same days, each with what those meals mean for your conditions.',
+    what: 'You plan meals together. You both see the same days, each with what those meals mean for your conditions, and you share one shopping list.',
+    offered: true,
+  },
+  {
+    code: 'child',
+    label: 'Your child',
+    what: 'You keep their side of things going, and they see what you choose to let them see, at your pace.',
+    offered: false,
+  },
+  {
+    code: 'caregiver',
+    label: 'Someone who helps you',
+    what: 'They can record meals, medicines, how you are doing and what is on your day, on your behalf.',
+    offered: false,
   },
 ];
+
+/** The kinds of link that can be set up today, for a screen to offer. */
+export const OFFERED_CONNECTION_ROLES = CONNECTION_ROLES.filter((role) => role.offered);
+
+/** Whether a role is a person acting for somebody else, either way round. */
+export function isCareRole(role: ConnectionRole): boolean {
+  return role === 'child' || role === 'caregiver';
+}
 
 // --- What you grant them ----------------------------------------------------
 //
@@ -105,7 +149,10 @@ export const SHARE_SCOPES: {
 export type ShareGrants = Record<ShareScope, boolean>;
 
 export function defaultGrantsForRole(role: ConnectionRole): ShareGrants {
-  if (role !== 'partner') return { meals: false, shopping: false, conditions: false };
+  // A recipe link votes on none of these, so it starts with nothing allowed.
+  // The other three all plan and shop together, so they start where a
+  // partner starts, with the condition list still off until it is asked for.
+  if (role === 'recipe') return { meals: false, shopping: false, conditions: false };
   return SHARE_SCOPES.reduce((acc, scope) => {
     acc[scope.code] = scope.defaultOn;
     return acc;
@@ -122,18 +169,25 @@ export function describeGrants(grants: ShareGrants): string {
  * The honest state of a partner link, today.
  *
  * Pairing is finished: the keys are exchanged, the role is stored, and these
- * permissions are recorded. Two of the three things a permission can cover now
- * actually move between two phones, over any of the five carriers. The third,
- * the shopping list, does not yet.
+ * permissions are recorded. All three things a permission can cover now move
+ * between two phones, over any of the five carriers. The shopping list was the
+ * last of them and landed on 2026-09-22, and it works differently from the
+ * other two: conditions and a meal plan belong to whoever sent them, so the
+ * latest send IS their state, while a shopping list belongs to both people, so
+ * it is merged record by record and nothing either of you did is thrown away
+ * (lib/peerMerge.ts).
  *
  * This is deliberately one string in one place rather than wording scattered
  * across the screens, so that what the app claims about itself is changed in
- * exactly one edit when the last piece ships. It was called
- * PARTNER_SHARING_NOT_LIVE while nothing moved at all; the name changed with
- * the facts rather than being left to quietly mean the opposite of what it says.
+ * exactly one edit when a piece ships. It was called
+ * PARTNER_SHARING_NOT_LIVE while nothing moved at all, and the wording has
+ * changed with the facts each time rather than being left to quietly mean the
+ * opposite of what it says.
  */
 export const PARTNER_SHARING_STATE =
-  'Which conditions you track, and the meal plan built around both of you, cross between two paired phones whenever one of you sends them. Shopping lists do not travel between phones yet.';
+  'Which conditions you track, and the meal plan built around both of you, cross between two paired phones ' +
+  'whenever one of you sends them. Your shopping list is one list between you: whatever either of you adds or ' +
+  'ticks off, both of you end up with, and nothing either of you did is thrown away.';
 
 // --- Whether the link actually works both ways -------------------------------
 //
@@ -174,7 +228,7 @@ export function fingerprintStanding(role: ConnectionRole, verifiedAt: string | n
   message: string;
 } {
   const verified = !!verifiedAt;
-  const matters = role === 'partner';
+  const matters = talksAutomatically(role);
   if (verified) {
     return { verified: true, matters, message: 'You have compared this code with them.' };
   }

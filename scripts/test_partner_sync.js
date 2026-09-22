@@ -19,9 +19,15 @@
 //     stage, a note or a weight.
 //  4. MALFORMED INPUT MUST NOT THROW. This is the boundary where another
 //     device's data arrives.
+//  5. SINCE VERSION 2 (2026-09-22), A PAYLOAD ALSO CARRIES RECORDS, so the
+//     allowlist in lib/peerRelationships.ts has to hold on the way out.
+//     Nothing in PERSONAL_HEALTH_TABLES may leave, whatever a caller hands
+//     over, and a column marked as staying here has to stay here.
 //
 // Run with: node scripts/test_partner_sync.js
 // Exits non-zero on any failure.
+
+/* global __dirname */
 
 const fs = require('fs');
 const path = require('path');
@@ -103,6 +109,7 @@ const NOTHING = { meals: false, shopping: false, conditions: false };
 
 function build(grants, over = {}) {
   return buildSyncPayload({
+    role: 'partner',
     grants,
     myConditionCodes: CODES,
     plan: PLAN,
@@ -280,6 +287,79 @@ check('and a future timestamp never goes negative', daysSinceSent('2026-12-01T00
   check('and the result holds only the declared keys',
     Object.keys(smuggled.payload).sort(),
     ['conditionCodes', 'fromFingerprint', 'plan', 'referenceDbVersion', 'sentAt', 'v']);
+}
+
+// --- 8. THE ALLOWLIST HOLDS ON THE WAY OUT ---------------------------------
+//
+// Version 2 carries records, so the question is no longer only which FIELDS
+// travel but which TABLES do. buildSyncPayload is handed far more than the
+// link carries, deliberately, because that is what a caller reading the
+// whole database will do.
+
+{
+  const { PERSONAL_HEALTH_TABLES, tableNamesThatCross } = loadModule('peerRelationships');
+
+  const everything = {
+    grocery_lists: [{ id: 'L1', name: 'Week', status: 'open' }],
+    grocery_list_items: [{ id: 'I1', list_id: 'L1', food_name: 'Kale', note: 'for me only', checked: 0 }],
+  };
+  for (const table of PERSONAL_HEALTH_TABLES) {
+    everything[table] = [{ id: 'X1', severity: 8, value: 71.2 }];
+  }
+
+  const sent = build(ALL, { shared: everything }).shared;
+  const allowed = tableNamesThatCross('partner', ALL);
+  check('only the tables this link carries are sent', Object.keys(sent).sort(), [...allowed].sort());
+
+  for (const table of PERSONAL_HEALTH_TABLES) {
+    checkFalse(table + ' cannot cross to a partner',
+      Object.prototype.hasOwnProperty.call(sent, table));
+  }
+
+  checkFalse('and nothing from those tables appears anywhere in the bytes',
+    /severity|71\.2/.test(JSON.stringify(build(ALL, { shared: everything }))));
+
+  // A column marked as staying here is stripped, while the rest of its row
+  // travels. This is the case that would look like the app had eaten
+  // somebody's note if it were got wrong.
+  check('a column that stays here is not sent',
+    Object.keys(sent.grocery_list_items[0]).sort(),
+    ['checked', 'food_name', 'id', 'list_id']);
+  check('while the rest of the row travels', sent.grocery_list_items[0].food_name, 'Kale');
+
+  // A link that carries nothing sends nothing, and the key is absent rather
+  // than empty.
+  const recipeOnly = buildSyncPayload({
+    role: 'recipe', grants: ALL, myConditionCodes: CODES, plan: PLAN,
+    referenceDbVersion: DB, fromFingerprint: 'AA', sentAt: SENT, shared: everything,
+  });
+  checkFalse('a recipe link carries no records at all',
+    Object.prototype.hasOwnProperty.call(recipeOnly, 'shared'));
+
+  // Turning shopping off turns off the records that belong to it.
+  const noShopping = build({ meals: true, shopping: false, conditions: true }, { shared: everything });
+  checkFalse('turning shopping off stops its records travelling',
+    Object.prototype.hasOwnProperty.call(noShopping, 'shared'));
+
+  // Reading back: version 1 still works, since the other phone updates when
+  // it updates.
+  const v1 = readSyncPayload(JSON.stringify({ ...build(ALL), v: 1 }), { myReferenceDbVersion: DB });
+  checkTrue('a version 1 payload is still readable', v1 !== null);
+  check('and it says which version it was', v1.payload.v, 1);
+
+  const nested = readSyncPayload(
+    JSON.stringify(build(ALL, { shared: { grocery_lists: [{ id: 'L1', name: { deep: 1 } }] } })),
+    { myReferenceDbVersion: DB },
+  );
+  check('a row holding something nested is dropped rather than written',
+    nested.payload.shared.grocery_lists, []);
+
+  const oddName = readSyncPayload(
+    JSON.stringify({ ...build(ALL), shared: { 'grocery_lists; DROP TABLE x': [{ id: 'a' }] } }),
+    { myReferenceDbVersion: DB },
+  );
+  checkFalse('a table name that is not a plain identifier never survives the read',
+    Object.prototype.hasOwnProperty.call(oddName.payload, 'shared'));
 }
 
 if (failures) {

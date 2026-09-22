@@ -32,6 +32,7 @@
 
 import { digestStringAsync, getRandomBytesAsync, CryptoDigestAlgorithm } from 'expo-crypto';
 
+import { talksAutomatically } from './peerRelationships';
 import { listConnections } from './connections';
 import { getUserConditions } from './db';
 import {
@@ -179,7 +180,7 @@ export async function sendViaRelay(): Promise<{ outcomes: RelaySendOutcome[] }> 
   ]);
 
   const myFingerprint = compactFingerprint(myFingerprintRaw);
-  const partners = connections.filter((connection) => connection.role === 'partner');
+  const partners = connections.filter((connection) => talksAutomatically(connection.role));
   if (!myFingerprint) {
     return {
       outcomes: partners.map((partner) => ({

@@ -32,6 +32,7 @@
 
 import { NativeModules, Platform, TurboModuleRegistry } from 'react-native';
 import type { Connection } from './connections';
+import { talksAutomatically } from './peerRelationships';
 import { listConnections } from './connections';
 import { getUserConditions } from './db';
 import { computeKeyFingerprint, getMyKeyFingerprint } from './deviceIdentity';
@@ -333,7 +334,7 @@ export async function startLanSync(): Promise<LanSyncStatus> {
   }
 
   const connections = await listConnections();
-  const partners = connections.filter((c) => c.role === 'partner');
+  const partners = connections.filter((c) => talksAutomatically(c.role));
   const myFingerprint = await getMyKeyFingerprint();
   const myCompact = compactFingerprint(myFingerprint) ?? '';
 

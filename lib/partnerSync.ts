@@ -23,9 +23,31 @@
 // side that can honour it. The receiving side takes absence of data as absence
 // of a grant, the same reading lib/partners.ts already documents, which is why
 // there is no second set of columns here to disagree with reality.
-import type { ShareGrants } from './partners';
+// WHAT VERSION 2 ADDED, 2026-09-22. A payload used to be a one-way
+// statement: here are my conditions, here is my plan, replace what you had.
+// Direct instruction the same day: "the communication flow as per what is
+// being done between the user's devices needs to be the same kind of
+// process that happens between partners, and their children, and where
+// applicable, their care giver." So a payload now also carries the records
+// of anything the two people hold BETWEEN them, and the receiving side
+// merges them rather than replacing, which is what lib/peerMerge.ts does.
+//
+// The allowlist is applied HERE, on the way out, through tablesToSend.
+// That is the same reason the condition list is filtered here rather than
+// at a call site: a privacy decision is either enforced in one place or
+// hoped for in several. lib/peerRelationships.ts holds the list itself.
+//
+// A version 1 payload is still read, since the other phone updates when it
+// updates and a link that stops working on an app update is worse than one
+// that carries less for a week.
+import type { ShareGrants, ConnectionRole } from './partners';
+import { tablesToSend } from './peerMerge';
+import type { Row, Tables } from './snapshotMerge';
 
-export const SYNC_PAYLOAD_VERSION = 1;
+export const SYNC_PAYLOAD_VERSION = 2;
+
+/** Versions this app can read. Older ones carry less, never something wrong. */
+export const READABLE_SYNC_PAYLOAD_VERSIONS: readonly number[] = [1, 2];
 
 /** A slot in a shared day. Matches the generator's own three meals. */
 export type SyncSlotName = 'breakfast' | 'lunch' | 'dinner';
@@ -39,7 +61,7 @@ export type SyncPlanDay = {
 };
 
 export type SyncPayload = {
-  v: 1;
+  v: 1 | 2;
   /** ISO timestamp, so the other side can say how fresh this is. */
   sentAt: string;
   /**
@@ -56,7 +78,50 @@ export type SyncPayload = {
   conditionCodes?: string[];
   /** Present only when the sender granted meals. */
   plan?: SyncPlanDay[];
+  /**
+   * The records of whatever this relationship holds between the two people,
+   * version 2 onward, already cut down to what lib/peerRelationships.ts
+   * says crosses. Merged on arrival, never used to replace.
+   */
+  shared?: Tables;
 };
+
+/**
+ * A received table of records, read back without trusting any of it.
+ *
+ * Rows only, flat values only. Anything nested is dropped rather than
+ * passed through: a merge writes these straight into SQLite, and a column
+ * holding an object is either a mistake or somebody probing.
+ */
+function cleanTables(value: unknown): Tables | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const out: Tables = {};
+  for (const [table, rows] of Object.entries(value as Record<string, unknown>)) {
+    if (!TABLE_NAME_SHAPE.test(table)) continue;
+    if (!Array.isArray(rows)) continue;
+    const kept: Row[] = [];
+    for (const row of rows) {
+      if (!row || typeof row !== 'object' || Array.isArray(row)) continue;
+      const clean: Row = {};
+      let usable = true;
+      for (const [column, cell] of Object.entries(row as Record<string, unknown>)) {
+        if (!TABLE_NAME_SHAPE.test(column)) { usable = false; break; }
+        if (cell === null || typeof cell === 'string' || typeof cell === 'number' || typeof cell === 'boolean') {
+          clean[column] = cell;
+        } else {
+          usable = false;
+          break;
+        }
+      }
+      if (usable && Object.keys(clean).length > 0) kept.push(clean);
+    }
+    out[table] = kept;
+  }
+  return Object.keys(out).length > 0 ? out : null;
+}
+
+/** Plain identifiers only, since these become table and column names in SQL. */
+const TABLE_NAME_SHAPE = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 function cleanCodes(codes: readonly unknown[]): string[] {
   return [...new Set(codes.filter((c): c is string => typeof c === 'string' && c.trim().length > 0).map((c) => c.trim()))].sort();
@@ -94,12 +159,15 @@ function cleanDay(day: unknown): SyncPlanDay | null {
  * point where a privacy decision can be enforced rather than hoped for.
  */
 export function buildSyncPayload(input: {
+  role: ConnectionRole;
   grants: ShareGrants;
   myConditionCodes: string[];
   plan: SyncPlanDay[];
   referenceDbVersion: string;
   fromFingerprint: string;
   sentAt: string;
+  /** Everything this device holds for the carried tables, unfiltered. */
+  shared?: Tables;
 }): SyncPayload {
   const payload: SyncPayload = {
     v: SYNC_PAYLOAD_VERSION,
@@ -114,6 +182,12 @@ export function buildSyncPayload(input: {
   if (input.grants.meals) {
     const days = input.plan.map(cleanDay).filter((day): day is SyncPlanDay => day !== null);
     if (days.length > 0) payload.plan = days;
+  }
+  if (input.shared) {
+    // The allowlist, applied on the way out. Handed the whole of what this
+    // device holds and told who it is for, so a caller cannot widen it.
+    const shared = tablesToSend(input.shared, { role: input.role, grants: input.grants });
+    if (Object.keys(shared).length > 0) payload.shared = shared;
   }
   return payload;
 }
@@ -154,17 +228,26 @@ export function readSyncPayload(
   if (!parsed || typeof parsed !== 'object') return null;
 
   const p = parsed as Partial<SyncPayload>;
-  if (p.v !== SYNC_PAYLOAD_VERSION) return null;
+  if (typeof p.v !== 'number' || !READABLE_SYNC_PAYLOAD_VERSIONS.includes(p.v)) return null;
   if (typeof p.sentAt !== 'string' || !p.sentAt.trim()) return null;
   if (typeof p.referenceDbVersion !== 'string' || !p.referenceDbVersion.trim()) return null;
   if (typeof p.fromFingerprint !== 'string' || !p.fromFingerprint.trim()) return null;
 
   const payload: SyncPayload = {
-    v: SYNC_PAYLOAD_VERSION,
+    // Kept as sent rather than restamped, so a caller can tell what the
+    // other phone is able to do.
+    v: p.v === 1 ? 1 : 2,
     sentAt: p.sentAt,
     referenceDbVersion: p.referenceDbVersion,
     fromFingerprint: p.fromFingerprint,
   };
+
+  // Read back structurally only. WHICH tables are allowed is settled by
+  // lib/peerMerge.ts against this link's own standing, which is the side
+  // that knows the role and the grants; anything outside it is named and
+  // left out there rather than quietly dropped here.
+  const shared = cleanTables(p.shared);
+  if (shared) payload.shared = shared;
 
   if (Array.isArray(p.conditionCodes)) {
     const codes = cleanCodes(p.conditionCodes);

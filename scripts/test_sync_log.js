@@ -12,6 +12,10 @@
 //    however the row arrived.
 // 5. The busiest line is said first.
 // 6. The sentence each line reads as, singular and plural.
+// 7. A merge with another PERSON names them on the lines that came from
+//    them, and leaves the lines made here without a name (2026-09-22,
+//    same instruction carried into the partner, child and caregiver
+//    links).
 //
 // The module reads and writes the database, so its runtime imports are
 // stubbed here rather than refused. Exits non-zero on any failure.
@@ -90,6 +94,7 @@ same(
   [
     {
       deviceKind: 'computer',
+      person: null,
       area: 'shopping list items',
       areaOne: 'shopping list item',
       kind: 'changed',
@@ -139,7 +144,17 @@ check(
 // 4. A table that only marks its area as touched reads as an edit.
 same(
   log.linesForMerge([entry('meal_items', 'x', 'added', 'there')], DEVICES, words),
-  [{ deviceKind: 'computer', area: 'meals', areaOne: 'meal', kind: 'changed', count: 1, conflict: false }],
+  [
+    {
+      deviceKind: 'computer',
+      person: null,
+      area: 'meals',
+      areaOne: 'meal',
+      kind: 'changed',
+      count: 1,
+      conflict: false,
+    },
+  ],
   'a row that only marks its area as touched reads as an edit, however it arrived',
 );
 
@@ -190,6 +205,43 @@ for (const sentence of [log.describeLogRow(line()), log.describeLogRow(line({ ki
   check(!/\s--\s|—|–/.test(sentence), 'no dashes standing in for punctuation: ' + sentence);
   check(!/\b(real|genuine|genuinely)\b/i.test(sentence), 'no filler words: ' + sentence);
 }
+
+// 7. A merge with another person.
+const SARAH = { name: 'Sarah', role: 'partner' };
+const withSarah = log.linesForMerge(
+  [entry('meals', 'a', 'added', 'there'), entry('meals', 'b', 'added', 'here')],
+  { here: 'phone', there: 'phone' },
+  words,
+  { there: SARAH },
+);
+check(withSarah.length === 2, 'a person merge keeps each side on a line of its own');
+same(
+  withSarah.find((found) => found.person !== null).person,
+  SARAH,
+  'the lines that came from the other person carry their name and the kind of link',
+);
+check(
+  withSarah.some((found) => found.person === null),
+  'and the lines made here carry no name, so they read as this device',
+);
+
+// Two people changing the same kind of thing do not fold together, which
+// is the same rule two devices follow.
+const twoPeople = log.linesForMerge(
+  [entry('meals', 'a', 'added', 'there'), entry('meals', 'b', 'added', 'here')],
+  { here: 'phone', there: 'phone' },
+  words,
+  { there: { name: 'Alex', role: 'child' } },
+);
+check(twoPeople.length === 2, 'a change made here and one made by a person stay apart');
+
+// A device merge is unchanged by any of this: no name on either side.
+check(
+  log
+    .linesForMerge([entry('meals', 'a', 'added', 'there')], DEVICES, words)
+    .every((found) => found.person === null),
+  'a merge between two devices carries no name at all',
+);
 
 // How many merges are kept, which is what the viewer tells the person.
 check(log.SYNC_LOG_KEPT === 200, 'the log keeps the last 200 merges');

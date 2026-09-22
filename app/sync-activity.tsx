@@ -1,5 +1,5 @@
-// Sync Activity: every time this device and the other one were brought
-// together, and what each of them had changed.
+// Sync Activity: every time this device was brought together with another
+// one, or with somebody you share with, and what each side had changed.
 //
 // Direct instruction, 2026-09-22: "The user should be able to have the
 // update on the screen that tells them about each change that was made by
@@ -13,6 +13,12 @@
 // phone" and "your computer" always read from where the person is
 // standing. The lines come grouped from lib/syncLog.ts: a shopping list
 // with eleven items ticked off is one line, not eleven.
+//
+// A line made by another PERSON names them instead of a device, since
+// that is the part somebody wants to know (2026-09-22, the same
+// instruction carried into the partner, child and caregiver links). The
+// lines made here during that merge stay as this device, so the page
+// reads the same whichever kind of merge it was.
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -25,6 +31,7 @@ import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { isDesktopApp } from '../lib/desktop/bridge';
+import { howYouAreLinked } from '../lib/peerRelationships';
 import { describeMoment } from '../lib/snapshotSync';
 import {
   clearSyncLog,
@@ -35,8 +42,15 @@ import {
   type SyncLogRow,
 } from '../lib/syncLog';
 
-/** "Your phone" or "your computer", from where the person is standing. */
-function deviceName(row: SyncLogRow, hereIsComputer: boolean): string {
+/**
+ * Who made the change: a person by name, otherwise a device.
+ *
+ * "Your phone" and "your computer" read from where the person is
+ * standing, since this log never travels. Somebody else's name never
+ * needs that, so it is said plainly and the link is said after it.
+ */
+function whoChangedIt(row: SyncLogRow, hereIsComputer: boolean): string {
+  if (row.person) return row.person.name + ', ' + howYouAreLinked(row.person.role);
   const here = hereIsComputer ? 'computer' : 'phone';
   return row.deviceKind === here ? 'This ' + here : 'Your ' + row.deviceKind;
 }
@@ -62,15 +76,21 @@ export default function SyncActivityScreen() {
   useFocusEffect(load);
 
   const lineCount = merges?.reduce((sum, merge) => sum + merge.rows.length, 0) ?? 0;
+  // Whether anybody else is in this log, which decides how the page
+  // describes itself. Somebody who only has two devices should not be
+  // told about people they do not share with.
+  const peopleToo = merges?.some((merge) => merge.rows.some((row) => row.person !== null)) ?? false;
+  const cameIntoStep = peopleToo ? 'things came into step' : 'your devices came into step';
 
   function explain() {
     showInfoAlert(
       'How this is kept',
-      'Each time your other device saves, the two copies are brought together record by record, so nothing either ' +
-        'device changed is thrown away. This page is what happened each time, as seen from here.\n\n' +
+      'Each time your other device saves, or somebody you share with does, the two copies are brought together ' +
+        'record by record, so nothing either side changed is thrown away. This page is what happened each time, ' +
+        'as seen from here.\n\n' +
         'One line covers everything of the same kind changed in one go: a shopping list with eleven items ticked ' +
         'off reads as one line, not eleven.\n\n' +
-        'Where both devices had changed the same record, the later change stands and the line says so.\n\n' +
+        'Where both sides had changed the same record, the later change stands and the line says so.\n\n' +
         'The last ' + SYNC_LOG_KEPT + ' of these are kept here, on this device only. Nothing on this page is sent anywhere.',
     );
   }
@@ -83,7 +103,7 @@ export default function SyncActivityScreen() {
         visible={askClear}
         onClose={() => setAskClear(false)}
         title="Clear this log?"
-        message="The record of what was brought together is removed from this device. Nothing you have recorded is touched, and the log starts filling again the next time your two devices come into step."
+        message="The record of what was brought together is removed from this device. Nothing you have recorded is touched, and the log starts filling again the next time anything comes into step."
         actions={[
           {
             label: 'Clear the Log',
@@ -103,14 +123,15 @@ export default function SyncActivityScreen() {
               : merges.length === 0
                 ? 'Nothing brought together yet'
                 : merges.length === 1
-                  ? '1 time your devices came into step'
-                  : merges.length + ' times your devices came into step'}
+                  ? '1 time ' + cameIntoStep
+                  : merges.length + ' times ' + cameIntoStep}
           </Text>
           <Text style={styles.summaryCaption}>
             {merges == null
               ? 'Reading what has been kept.'
               : merges.length === 0
-                ? 'Once your other device saves something while automatic sync is on, what came over shows up here.'
+                ? 'Once your other device saves something while automatic sync is on, or somebody you share with ' +
+                  'does, what came over shows up here.'
                 : lineCount + (lineCount === 1 ? ' change' : ' changes') + ' in all. Tap for how this is kept.'}
           </Text>
         </TouchableOpacity>
@@ -121,7 +142,13 @@ export default function SyncActivityScreen() {
             {merge.rows.map((row) => (
               <View key={row.id} style={styles.row}>
                 <Ionicons
-                  name={row.deviceKind === 'computer' ? 'desktop-outline' : 'phone-portrait-outline'}
+                  name={
+                    row.person
+                      ? 'person-outline'
+                      : row.deviceKind === 'computer'
+                        ? 'desktop-outline'
+                        : 'phone-portrait-outline'
+                  }
                   size={16}
                   color={colors.tabProfile}
                   style={textShadow}
@@ -129,8 +156,12 @@ export default function SyncActivityScreen() {
                 <View style={styles.rowMain}>
                   <Text style={styles.rowTitle}>{describeLogRow(row)}</Text>
                   <Text style={styles.rowCaption}>
-                    {deviceName(row, hereIsComputer)}
-                    {row.conflict ? ', where both devices had changed the same record and this change was later' : ''}
+                    {whoChangedIt(row, hereIsComputer)}
+                    {row.conflict
+                      ? row.person
+                        ? ', where you had both changed the same record and this change was later'
+                        : ', where both devices had changed the same record and this change was later'
+                      : ''}
                   </Text>
                 </View>
               </View>

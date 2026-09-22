@@ -22,6 +22,8 @@
 // SENDING IS PER RECIPIENT, AND SO IS THE OUTCOME. One partner having no
 // encryption key must not stop another partner's file being written, so each one
 // gets its own result and the caller reports all of them.
+import { talksAutomatically } from './peerRelationships';
+import { readPeerTables, mergeFromPeer } from './peerSyncDevice';
 import { REFERENCE_DB_VERSION } from './referenceDbVersion';
 import { computeKeyFingerprint, getMyKeyFingerprint, openSealedForMe, sealForRecipient } from './deviceIdentity';
 import {
@@ -76,7 +78,11 @@ export async function sendToPartners(options?: { plan?: SyncPlanDay[] }): Promis
   ]);
   const plan = options?.plan ?? scheduledPlan;
 
-  const partners = connections.filter((connection) => connection.role === 'partner');
+  // Everybody whose link keeps something in step on its own, which since
+  // 2026-09-22 is a partner, a child and a caregiver rather than a partner
+  // alone. A recipe link is left out: it carries a dish when somebody
+  // presses send and nothing between times.
+  const partners = connections.filter((connection) => talksAutomatically(connection.role));
   if (partners.length === 0) return { outcomes: [], folderProblem: null };
 
   // getUserConditions returns the codes themselves, confirmed by the type checker
@@ -102,12 +108,17 @@ export async function sendToPartners(options?: { plan?: SyncPlanDay[] }): Promis
     // inside buildSyncPayload rather than passing the fields is what stops a
     // caller here sending a condition list that was never granted.
     const payload = buildSyncPayload({
+      role: partner.role,
       grants: partner.grants,
       myConditionCodes,
       plan,
       referenceDbVersion: REFERENCE_DB_VERSION,
       fromFingerprint: myFingerprint,
       sentAt,
+      // Read whole and cut down inside buildSyncPayload, so what leaves
+      // this device is decided in one place against this person's own
+      // standing rather than here.
+      shared: await readPeerTables({ role: partner.role, grants: partner.grants }),
     });
 
     let sealed: string;
@@ -155,6 +166,8 @@ export type ReceiveOutcome = {
   conditionCount: number;
   /** What was refused and why, if anything was. */
   note?: string;
+  /** What the merge did, naming them, when anything moved. */
+  mergeNotice?: string;
 };
 
 /**
@@ -228,11 +241,11 @@ export async function receiveFromPartners(): Promise<{
       });
       continue;
     }
-    if (connection.role !== 'partner') {
+    if (!talksAutomatically(connection.role)) {
       outcomes.push({
         name: connection.name,
         conditionCount: 0,
-        note: `${connection.name} is not set up as a partner, so what they sent was not used.`,
+        note: `You and ${connection.name} only send each other dishes, so what arrived was not used.`,
       });
       continue;
     }
@@ -242,14 +255,28 @@ export async function receiveFromPartners(): Promise<{
       await setPartnerConditionCodes(connection.id, codes);
     }
 
+    // What the two of you hold between you is MERGED rather than stored over
+    // the top, which is the 2026-09-22 instruction: nothing either side did
+    // is thrown away, and there is a log of what happened. The conditions
+    // above stay a plain copy, since they belong to them and this device
+    // never changes them.
+    const merge = result.payload.shared
+      ? await mergeFromPeer(connection, result.payload.shared, result.payload.sentAt)
+      : null;
+
     // The plan is reported on but not stored, because nothing reads a partner's
     // plan yet. Saying so is better than silently discarding it.
     const note =
       result.planRefusal === 'differentReferenceDatabase'
         ? 'Their meal plan was left out because the two apps are on different versions of the food database. Updating both fixes it.'
-        : undefined;
+        : (merge?.refused ?? undefined);
 
-    outcomes.push({ name: connection.name, conditionCount: codes.length, note });
+    outcomes.push({
+      name: connection.name,
+      conditionCount: codes.length,
+      note,
+      mergeNotice: merge?.notice ?? undefined,
+    });
   }
 
   return { outcomes, skipped, folderProblem: null };
@@ -283,6 +310,11 @@ export function describeReceive(result: {
       : 'Nothing new has arrived yet.';
   }
   const parts = result.outcomes.map((outcome) => {
+    // What the merge did comes first, since it is the part that changed
+    // something somebody will look for.
+    if (outcome.mergeNotice) {
+      return outcome.note ? `${outcome.mergeNotice} ${outcome.note}` : outcome.mergeNotice;
+    }
     if (outcome.note) return outcome.note;
     if (outcome.conditionCount === 0) return `${outcome.name} did not share any conditions.`;
     const n = outcome.conditionCount;
@@ -369,12 +401,14 @@ export async function buildWireForPartner(
   if (!partner.encryptionPublicKeyBase64) return { ok: false, reason: 'noKey' };
 
   const payload = buildSyncPayload({
+    role: partner.role,
     grants: partner.grants,
     myConditionCodes,
     plan: await getMealPlanForSync(),
     referenceDbVersion: REFERENCE_DB_VERSION,
     fromFingerprint: myFingerprint,
     sentAt: new Date().toISOString(),
+    shared: await readPeerTables({ role: partner.role, grants: partner.grants }),
   });
 
   let sealed: string;
@@ -418,8 +452,8 @@ export async function sendToPartnerAsFile(connectionId: string): Promise<{
 
   const partner = connections.find((connection) => connection.id === connectionId);
   if (!partner) return { sent: false, reason: 'That partner is no longer in your list.' };
-  if (partner.role !== 'partner') {
-    return { sent: false, reason: `${partner.name} is not set up as a partner.` };
+  if (!talksAutomatically(partner.role)) {
+    return { sent: false, reason: `You and ${partner.name} only send each other dishes.` };
   }
 
   const built = await buildWireForPartner(partner, myFingerprint, myConditions);
@@ -529,15 +563,22 @@ export async function applySyncFileText(
       message: 'That came from a device you are not paired with, so nothing was used from it.',
     };
   }
-  if (connection.role !== 'partner') {
+  if (!talksAutomatically(connection.role)) {
     return {
       applied: false,
-      message: `${connection.name} is not set up as a partner, so what they sent was not used.`,
+      message: `You and ${connection.name} only send each other dishes, so what arrived was not used.`,
     };
   }
 
   const codes = result.payload.conditionCodes ?? [];
   if (codes.length > 0) await setPartnerConditionCodes(connection.id, codes);
+
+  // Merged, not stored over the top. Same reasoning as receiveFromPartners
+  // above: a file picked by hand carries the same records as one that came
+  // through the folder, so it goes through the same merge.
+  const merge = result.payload.shared
+    ? await mergeFromPeer(connection, result.payload.shared, result.payload.sentAt)
+    : null;
 
   // The plan, stored rather than mentioned and dropped, 2026-09-15. Only when
   // readSyncPayload says it is usable: on a reference-database mismatch it has
@@ -564,8 +605,11 @@ export async function applySyncFileText(
       'Their meal plan was left out because the two apps are on different versions of the food database. Updating both fixes it.',
     );
   }
+  if (merge?.notice) parts.push(merge.notice);
+  if (merge?.refused) parts.push(merge.refused);
 
-  return { applied: codes.length > 0 || plan.length > 0, message: parts.join(' ') };
+  const merged = (merge?.result.entries.length ?? 0) > 0;
+  return { applied: codes.length > 0 || plan.length > 0 || merged, message: parts.join(' ') };
 }
 /**
  * Reads a file a partner handed over, after the person picks it.

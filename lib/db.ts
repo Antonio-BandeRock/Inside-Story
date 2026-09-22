@@ -7518,6 +7518,33 @@ async function runDatabaseInitialization() {
         conflict INTEGER NOT NULL DEFAULT 0
       );
       CREATE INDEX IF NOT EXISTS idx_sync_change_log_at ON sync_change_log(merged_at DESC);
+
+      -- The copy this device and one other PERSON last agreed on, one row
+      -- per connection. 2026-09-22, direct instruction: the way two of one
+      -- person's devices are brought together "needs to be the same kind of
+      -- process that happens between partners, and their children, and
+      -- where applicable, their care giver".
+      --
+      -- Between two devices that agreed copy is a file at Paths.document,
+      -- since there is only ever one of it. Between people there is one per
+      -- person, so it lives in a table keyed by the connection. It is what
+      -- makes a removal tellable from an addition: without it, a line
+      -- somebody ticked off and deleted comes straight back on the next
+      -- merge, which is exactly what 1.0.49.3 fixed between two devices.
+      --
+      -- It holds only what lib/peerRelationships.ts says that link carries,
+      -- because it is written from the merged result of those same tables.
+      --
+      -- NOT device local. Both of this person's devices talk to the same
+      -- partner, so a base one of them agreed is the base the other needs
+      -- too; keeping it from travelling would have the second device
+      -- resurrect what the first had already settled.
+      CREATE TABLE IF NOT EXISTS peer_sync_base (
+        connection_id TEXT PRIMARY KEY,
+        -- The carried tables as they stood after the last merge, as JSON.
+        tables_json TEXT NOT NULL,
+        agreed_at TEXT NOT NULL
+      );
     `);
 
     // Finances' due-rule column, 2026-09-05. finance_recurring shipped in
@@ -7624,6 +7651,12 @@ async function runDatabaseInitialization() {
       // finds the row it already wrote instead of adding it again.
       ['body_measurements', 'source'],
       ['body_measurements', 'external_id'],
+      // Who made the change, 2026-09-22, when the merge between two devices
+      // became the merge between two people as well. Both stay null for a
+      // device merge, which is what every row written before this is, so an
+      // old row still reads correctly as one device against another.
+      ['sync_change_log', 'person_name'],
+      ['sync_change_log', 'person_role'],
     ] as const) {
       const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
       if (columns.length > 0 && !columns.some((entry) => entry.name === column)) {
