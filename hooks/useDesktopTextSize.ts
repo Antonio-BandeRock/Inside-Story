@@ -6,7 +6,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { getDesktopBridge, isDesktopApp } from '../lib/desktop/bridge';
-import { nearestDesktopTextSize, pinnedZoomScale } from '../lib/desktop/zoom';
+import { nearestDesktopTextSize } from '../lib/desktop/zoom';
 
 export type DesktopTextSize = {
   available: boolean;
@@ -45,14 +45,4 @@ export function useDesktopTextSize(): DesktopTextSize {
   );
 
   return { available, factor, setFactor };
-}
-
-/**
- * The multiplier for a thing pinned against the desktop's text size (see
- * pinnedZoomScale): 1 on a phone, 1 until the first read answers, and the
- * standard zoom over the current one from then on, following every change.
- */
-export function usePinnedZoomScale(): number {
-  const { available, factor } = useDesktopTextSize();
-  return available ? pinnedZoomScale(factor) : 1;
 }

@@ -211,24 +211,6 @@ check('and stays against the margin', wideBox.right, 16);
 const narrowBox = pageIdentityBoxSpan({ ...BOX, windowWidth: 400, desktop: true });
 check('desktop dragged narrower gives the phone span, clear of the artwork', narrowBox, { left: 400 / 2 + 44, right: 16 });
 
-// Pinned against the text-size zoom, 2026-09-21: "Pin the corner box against
-// the text-size zoom too." Page zoom scales every dp, so at 200% the window
-// that was 480 dp at the standard 125% reports 300 dp, and a box drawn at
-// its starting width would be 1.6x the pixels. The scale (1.25 / 2) keeps
-// the pixels; the artwork clearance and margin stay in zoomed dp. The 1400 dp
-// window at 125% is 1750 px, which at 200% reports 875 dp.
-const startBoxWidth = 480 - startBox.right - startBox.left;
-const zoomedWide = pageIdentityBoxSpan({ ...BOX, windowWidth: 875, desktop: true, scale: 1.25 / 2 });
-check('at 200% a wide window keeps the starting width in pixels', (875 - zoomedWide.right - zoomedWide.left) * 2, startBoxWidth * 1.25);
-check('with the margin still in zoomed dp', zoomedWide.right, 16);
-const zoomedStart = pageIdentityBoxSpan({ ...BOX, windowWidth: 300, desktop: true, scale: 1.25 / 2 });
-check('at 200% the starting window gives the box only what is clear of the artwork', zoomedStart, { left: 300 / 2 + 44, right: 16 });
-const zoomedOut = pageIdentityBoxSpan({ ...BOX, windowWidth: 600, desktop: true, scale: 1.25 });
-check('at 100% the box is smaller in dp to be the same in pixels', (600 - zoomedOut.right - zoomedOut.left) / 1.25, startBoxWidth);
-check('a scale of 1 is the unpinned span', pageIdentityBoxSpan({ ...BOX, windowWidth: 1400, desktop: true, scale: 1 }), wideBox);
-check('a scale that is not a number is ignored', pageIdentityBoxSpan({ ...BOX, windowWidth: 1400, desktop: true, scale: NaN }), wideBox);
-check('a phone ignores the scale', pageIdentityBoxSpan({ ...BOX, windowWidth: 411, desktop: false, scale: 0.5 }), { left: 411 / 2 + 44, right: 16 });
-
 if (failures > 0) {
   console.error(`\n${failures} of ${checks} checks failed`);
   process.exit(1);

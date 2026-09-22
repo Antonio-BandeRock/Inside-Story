@@ -10,7 +10,6 @@ import {
 import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
 import { pinnedLineHeight, textShadow, typography } from '../constants/typography';
-import { usePinnedZoomScale } from '../hooks/useDesktopTextSize';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { pageIdentityBoxSpan } from '../lib/menuFit';
@@ -91,16 +90,8 @@ import { TabRouteIcon } from './TabRouteIcon';
 // beyond the initial size it is given on install on Windows." The arithmetic
 // is pageIdentityBoxSpan in lib/menuFit.ts, so scripts/test_menuFit.js covers
 // it; a phone's span is unchanged.
-//
-// The width is also pinned against the desktop's text size, which is page
-// zoom and so scales every dp (direct request, the same day: "Pin the corner
-// box against the text-size zoom too"): the starting width is multiplied by
-// usePinnedZoomScale, the standard zoom over the current one, so the box is
-// the same pixels on the glass at every size. The clearance from the artwork
-// and the margin still zoom, since the artwork does.
 export function usePageIdentityBoxSpan(): { left: number; right: number } {
   const { width: windowWidth } = useWindowDimensions();
-  const scale = usePinnedZoomScale();
   const { tabHubIcon } = useVisualPreferences();
   const { width: buttonIconWidth, bottomOverhang } = getTabHubIconRenderSize(tabHubIcon);
   const buttonIconOverhangY = Math.max(0, Math.ceil(bottomOverhang));
@@ -111,7 +102,6 @@ export function usePageIdentityBoxSpan(): { left: number; right: number } {
     clearOfButton: buttonIconWidth / 2 + verticalBuffer,
     margin: SECONDARY_HUB_CARD_LEFT_MARGIN,
     desktop: isDesktopApp(),
-    scale,
   });
   // The mirror image for the other hand: the near and far edges swap sides.
   return NAVIGATION_HAND === 'left' ? span : { left: span.right, right: span.left };
@@ -137,15 +127,18 @@ export function usePageIdentityBoxSpan(): { left: number; right: number } {
 //     Roomier would otherwise set an 11px line to 20 and fit three lines of
 //     the resting prompt where four are needed, which is the same clipping
 //     the TabHub menu was reported for the same day.
-//  3. On the desktop build, 2026-09-21, the text size is page zoom, which
-//     scales every dp including this box's, so neither pin above reached it
-//     ("Pin the corner box against the text-size zoom too"). Every number
-//     the box is drawn with (its height, padding, corner radius, font, icon
-//     and line height) is multiplied by usePinnedZoomScale, the standard
-//     zoom over the current one, so on the glass it is the same box at every
-//     text size. Its bottom edge stays on the artwork's bottom edge, which
-//     does zoom, and its width is pinned in usePageIdentityBoxSpan above.
-//     On a phone the scale is 1 and nothing here changes.
+//
+// Not pinned against the desktop's text size, on purpose. Text size on a
+// computer is page zoom (desktop/zoom.js), which scales every dp on screen,
+// the TabHub artwork included, so a box in plain dp zooms with the artwork
+// and stays level with it exactly as on a phone, where the font-size setting
+// touches neither. 1.0.42.23 multiplied the box's height, padding, font and
+// the version number by a scale of standard zoom over current zoom to hold
+// them at the same pixels, which made the box 14% taller than the artwork at
+// 110% and shorter at 150%. Reported 2026-09-21: "You made the corner box too
+// tall on the Windows version ... Please match how the mobile version is
+// done." Undone in 1.0.42.24 with the choice made explicitly: the box follows
+// the artwork at every text size, rather than the whole footer being pinned.
 
 // Both states of the box, at the size matched to LensHub's own buttonLabel
 // (the label under that corner button) so the two read as one size.
@@ -187,7 +180,6 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   // Same span the version label below this box uses, from one shared hook
   // rather than two copies of the math that could drift apart.
   const horizontalPosition = usePageIdentityBoxSpan();
-  const scale = usePinnedZoomScale();
 
   // Nothing to show at all until a real lens is picked, 2026-08-08 -- see
   // this file's own 2026-08-08 comment above for why the box no longer
@@ -243,29 +235,28 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   // so a window losing height takes nothing away from it. The menus overflowed
   // because they are tall and grow upward; this one is short and does not grow
   // at all, which is the whole point of it.
-  const boxHeight = (FLOATING_BUTTON_SIZE + buttonIconOverhangY * 2) * scale;
-  const pinnedText = { fontSize: BOX_FONT_SIZE * scale, lineHeight: pinnedLineHeight(BOX_FONT_SIZE) * scale };
+  const boxHeight = FLOATING_BUTTON_SIZE + buttonIconOverhangY * 2;
   return (
     <View
       style={[
         styles.container,
         horizontalPosition,
-        { bottom: boxBottom, height: boxHeight, borderColor: tabColor, padding: 8 * scale, borderRadius: 12 * scale },
+        { bottom: boxBottom, height: boxHeight, borderColor: tabColor },
         resting ? styles.containerResting : null,
       ]}
       pointerEvents="none"
     >
       {resting && tabRoute ? (
         <>
-          <Text style={[styles.prompt, pinnedText]} allowFontScaling={false}>
-            <TabRouteIcon route={tabRoute} size={PROMPT_ICON_SIZE * scale} />
+          <Text style={styles.prompt} allowFontScaling={false}>
+            <TabRouteIcon route={tabRoute} size={PROMPT_ICON_SIZE} />
             {' Tap the '}
             <Text style={{ color: tabColor }}>{title}</Text>
             {' button in the corner to pick a tool.'}
           </Text>
         </>
       ) : (
-        <Text style={[styles.text, pinnedText, { color: tabColor }]} allowFontScaling={false}>
+        <Text style={[styles.text, { color: tabColor }]} allowFontScaling={false}>
           {activeLensLabel}
         </Text>
       )}
@@ -285,10 +276,10 @@ const styles = StyleSheet.create({
     // iridescent line (ScreenBackground.tsx's own footerLine, a flat 1px),
     // not the 2px this used before.
     borderWidth: 1,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    // padding and borderRadius are set inline, multiplied by the pinned zoom
-    // scale (see the 2026-09-21 comment above); 8 and 12 on a phone.
+    padding: 8,
     // 2026-08-23, direct report: this box was deliberately fill-less from
     // the start ("no fill, so whatever's already behind it shows straight
     // through," see this file's own 2026-07-28 comment above), a real

@@ -23,22 +23,6 @@ export function desktopTextSizeForLabel(label: string): number | null {
   return index < 0 ? null : DESKTOP_TEXT_SIZE_STEPS[index];
 }
 
-/**
- * What a thing pinned against the text size multiplies its dp by, so it keeps
- * the same number of pixels on the glass at every zoom: the standard zoom over
- * the current one. Page zoom scales every dp, so at 200% a 78 dp box is twice
- * the pixels it was at the standard 125%; drawn at 78 * (1.25 / 2) dp it is
- * the same box. 1 until the first read answers, and 1 for anything that is
- * not a zoom. Direct request, 2026-09-21: "Pin the corner box against the
- * text-size zoom too." The corner box and the version number under it are
- * the two things pinned (components/PageIdentityLabel.tsx, VersionLabel.tsx),
- * the same two the phone's font-size setting is pinned for.
- */
-export function pinnedZoomScale(factor: number | null | undefined): number {
-  if (factor == null || !Number.isFinite(factor) || factor <= 0) return 1;
-  return DESKTOP_TEXT_SIZE_DEFAULT / factor;
-}
-
 /** The listed step closest to a factor, so a stored value off the list still selects something. */
 export function nearestDesktopTextSize(factor: number): number {
   if (!Number.isFinite(factor)) return DESKTOP_TEXT_SIZE_DEFAULT;
