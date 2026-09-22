@@ -101,16 +101,86 @@ export const SAVE_DEBOUNCE_MS = 8000;
  * left on the desk while the computer saves, or the desktop app sitting
  * open while the phone saves, would otherwise show the old data until it
  * was put away and brought back.
+ *
+ * Half a minute (1.0.42.30, "I waited several minutes. Nothing updated on
+ * the computer app. This absolutely must work automatically"). It was two
+ * minutes, which on top of the eight seconds the save waits and the time
+ * the OneDrive client takes to carry the file made the whole trip feel
+ * like nothing was happening. A listing of one folder is a small request,
+ * and it only runs while the app is open in front.
  */
-export const CHECK_INTERVAL_MS = 2 * 60 * 1000;
+export const CHECK_INTERVAL_MS = 30 * 1000;
 
 /**
  * A periodic check is skipped this soon after a write: a load restarts
  * the app, and a write this recent means the person is in the middle of
  * something. The foreground check has no such guard, since coming back is
  * the moment a restart costs least.
+ *
+ * Long enough to outlast the save debounce, and no longer: at a minute it
+ * was possible for somebody working steadily to stop the check running at
+ * all, which is the opposite of what it is for.
  */
-export const CHECK_QUIET_MS = 60 * 1000;
+export const CHECK_QUIET_MS = 15 * 1000;
+
+// WHAT NEVER TRAVELS INSIDE A SNAPSHOT.
+//
+// A snapshot is the whole database, and app_meta is in it. Most of that
+// table is the person's settings and belongs on both devices. A few rows
+// are this device's bookkeeping about things that exist only here, and
+// carrying them across does damage:
+//
+//   onedrive_folder      A phone stores the shared folder's Graph address,
+//                        a computer stores its path on the disk. Loading
+//                        the computer's copy on the phone left the phone
+//                        pointing at a Windows path, so the phone asked to
+//                        set up a shared folder it had already set up, and
+//                        then could not save anything at all. That is the
+//                        bug this list exists for (1.0.42.30).
+//   sync_folder_uri      An Android folder permission. Meaningless anywhere
+//                        else.
+//   reference_db_version Whether the bundled food database has been
+//                        imported into this device's copy. Clearing it
+//                        starts a re-import of 160 MB.
+//   health_connect_*     A phone-only connection and how far it has read.
+//   mailbox_folder_name  The same kind of local addressing as the folder.
+//   last_seen_app_version What this device has already shown the person
+//                        about a new version.
+//
+// Kept out of the snapshot as it is built, and put back after a load,
+// both: the first stops this device's bookkeeping being published to the
+// other, the second stops a copy saved before this fix from wiping what
+// is here.
+export const APP_META_TABLE = 'app_meta';
+
+export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
+  'onedrive_folder',
+  'sync_folder_uri',
+  'reference_db_version',
+  'health_connect_enabled',
+  'health_connect_last_sync',
+  'mailbox_folder_name',
+  'last_seen_app_version',
+];
+
+export function isDeviceLocalMetaKey(key: unknown): boolean {
+  return typeof key === 'string' && DEVICE_LOCAL_META_KEYS.includes(key);
+}
+
+/**
+ * The snapshot's tables with this device's bookkeeping taken out.
+ *
+ * A copy rather than an edit in place, since the envelope it came from is
+ * also what a manual backup writes, and a backup restored onto a
+ * replacement phone does want every row.
+ */
+export function withoutDeviceLocalRows(
+  tables: Record<string, Record<string, unknown>[]>,
+): Record<string, Record<string, unknown>[]> {
+  const meta = tables[APP_META_TABLE];
+  if (!Array.isArray(meta)) return tables;
+  return { ...tables, [APP_META_TABLE]: meta.filter((row) => !isDeviceLocalMetaKey(row.key)) };
+}
 
 export function snapshotFileName(device: SyncDevice): string {
   return SNAPSHOT_FILE_PREFIX + device.kind + '-' + device.fingerprint + '.json';

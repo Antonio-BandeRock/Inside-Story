@@ -110,11 +110,35 @@ check(
   'forced while clean: save',
 );
 
-// Timing (1.0.42.29): a periodic check while the app sits open, quiet for
-// a while after a write, and the save debounce shorter than both.
-check(sync.CHECK_INTERVAL_MS >= 60 * 1000, 'periodic check is at least a minute apart');
+// Timing (1.0.42.29, shortened 1.0.42.30): a periodic check while the app
+// sits open, quiet for a while after a write, and the save debounce
+// shorter than both.
+check(sync.CHECK_INTERVAL_MS >= 20 * 1000, 'periodic check is not so often it hammers the folder');
+check(sync.CHECK_INTERVAL_MS <= 60 * 1000, 'periodic check is at most a minute apart');
 check(sync.CHECK_QUIET_MS > sync.SAVE_DEBOUNCE_MS, 'the quiet period outlasts the save debounce');
 check(sync.CHECK_INTERVAL_MS > sync.CHECK_QUIET_MS, 'a check waits longer than the quiet period');
+
+// What never travels inside a snapshot (1.0.42.30). The shared folder is
+// addressed one way on a phone and another on a computer, so a copy
+// carrying it left the other device with no folder it could use.
+check(sync.DEVICE_LOCAL_META_KEYS.includes('onedrive_folder'), 'the shared folder is device local');
+check(sync.DEVICE_LOCAL_META_KEYS.includes('reference_db_version'), 'the reference database marker is device local');
+check(sync.isDeviceLocalMetaKey('sync_folder_uri'), 'an Android folder permission is device local');
+check(!sync.isDeviceLocalMetaKey('visual_preferences'), 'settings still travel');
+check(!sync.isDeviceLocalMetaKey(undefined), 'a missing key is not device local');
+const strippedTables = sync.withoutDeviceLocalRows({
+  app_meta: [
+    { key: 'onedrive_folder', value: '{}' },
+    { key: 'visual_preferences', value: '{}' },
+    { key: 'reference_db_version', value: '5' },
+  ],
+  meals: [{ id: 1 }],
+});
+check(strippedTables.app_meta.length === 1, 'device local rows are taken out');
+check(strippedTables.app_meta[0].key === 'visual_preferences', 'the settings row is the one kept');
+check(strippedTables.meals.length === 1, 'every other table is untouched');
+const noMeta = { meals: [{ id: 1 }] };
+check(sync.withoutDeviceLocalRows(noMeta) === noMeta, 'tables without app_meta come back as they were');
 
 // Fingerprint.
 check(sync.fingerprintText('abc') === sync.fingerprintText('abc'), 'fingerprint stable');

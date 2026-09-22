@@ -410,3 +410,34 @@ export async function checkFolder(
   const name = child.name ?? folder.name;
   return { ok: true, value: { name, path: describeItemPath(child.parentReference?.path, name) } };
 }
+
+/**
+ * A folder chosen on a computer, found again in this OneDrive.
+ *
+ * The mirror of folderFromPhonePath in lib/desktop/cloudFolder.ts, and the
+ * repair for what that one never had: a phone that loaded a snapshot saved
+ * on a computer came away holding a Windows path as its shared folder, so
+ * it asked the person to set up a folder they had already set up and could
+ * save nothing in the meantime (1.0.42.30). The sentence the computer
+ * stored, "OneDrive / Documents / Inside Story", names the same folder
+ * here, so it is looked up by that path.
+ *
+ * Only a sentence beginning with the plain word OneDrive, which is the
+ * personal drive this account signs in to. A work root reads as
+ * "OneDrive - Contoso" on a computer and is a different drive entirely, so
+ * that case answers null and the caller says plainly where the folder was
+ * chosen rather than opening the wrong one.
+ */
+export async function folderFromComputerPath(described: string | undefined): Promise<DriveItemRef | null> {
+  if (isDesktopApp() || !described) return null;
+  const parts = described.split(' / ').map((part) => part.trim()).filter((part) => part.length > 0);
+  if (parts.length < 2 || parts[0].toLowerCase() !== 'onedrive') return null;
+  const drive = await getMyDriveId();
+  if (!drive.ok) return null;
+  const route = parts.slice(1).map((part) => encodeURIComponent(part)).join('/');
+  const result = await graphFetch('/me/drive/root:/' + route + '?$select=id,name,folder,parentReference');
+  if (!result.ok) return null;
+  const child = result.value as GraphChild;
+  if (!child.folder) return null;
+  return toRef(child, drive.value);
+}

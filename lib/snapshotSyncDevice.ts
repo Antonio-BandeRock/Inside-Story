@@ -24,7 +24,11 @@ import { decryptBackupPayload, encryptBackupPayload, isEncryptedBackupWire } fro
 import { getDatabaseWriteCount, withDatabaseWriteTrackingSuspended } from './databaseActivity';
 import { downloadText, listFiles, uploadText, type DriveItemRef } from './oneDriveGraph';
 import { getBackupsFolder } from './oneDriveFolders';
+import { getDatabase } from './db';
 import {
+  APP_META_TABLE,
+  DEVICE_LOCAL_META_KEYS,
+  withoutDeviceLocalRows,
   buildSnapshotRecord,
   EMPTY_SYNC_STATE,
   fingerprintText,
@@ -117,6 +121,41 @@ export async function readSyncRecord(): Promise<FolderResult<SnapshotRecord | nu
   return readRecordFrom(folder.value);
 }
 
+// THIS DEVICE'S OWN ROWS IN app_meta.
+//
+// See DEVICE_LOCAL_META_KEYS in lib/snapshotSync.ts for what is in the
+// list and why. A snapshot is built without them, and a load puts back
+// what was here before it, so a copy saved by an older build (which does
+// carry them) cannot take the shared folder out from under this device.
+
+type MetaRow = { key: string; value: string; updated_at: string | null };
+
+async function readDeviceLocalRows(): Promise<MetaRow[]> {
+  const db = await getDatabase();
+  const places = DEVICE_LOCAL_META_KEYS.map(() => '?').join(', ');
+  return db.getAllAsync<MetaRow>(
+    `SELECT key, value, updated_at FROM ${APP_META_TABLE} WHERE key IN (${places})`,
+    [...DEVICE_LOCAL_META_KEYS],
+  );
+}
+
+async function putBackDeviceLocalRows(rows: MetaRow[]): Promise<void> {
+  if (rows.length === 0) return;
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  for (const row of rows) {
+    await db.runAsync(
+      `
+        INSERT INTO ${APP_META_TABLE} (key, value, updated_at) VALUES (?, ?, ?)
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+      `,
+      row.key,
+      row.value,
+      row.updated_at ?? now,
+    );
+  }
+}
+
 // THE SNAPSHOT'S CONTENTS.
 
 function tablesHash(envelope: BackupEnvelope): string {
@@ -185,7 +224,11 @@ export function saveSnapshot(options: { force?: boolean } = {}): Promise<SaveOut
     const writesBefore = getDatabaseWriteCount();
     let envelope: BackupEnvelope;
     try {
-      envelope = await buildBackupEnvelope();
+      const built = await buildBackupEnvelope();
+      // This device's bookkeeping stays here rather than being published
+      // to the other device. Done before the hash, so a change to a row
+      // that never travels is not a reason to upload.
+      envelope = { ...built, tables: withoutDeviceLocalRows(built.tables) };
     } catch (error) {
       console.error('[snapshotSync] could not build the snapshot', error);
       return problem('The snapshot could not be built on this device.');
@@ -250,7 +293,11 @@ export function loadSnapshot(record: SnapshotRecord): Promise<LoadOutcome> {
     const envelope = await downloadSnapshot(folder.value, record, state.password);
     if (!envelope.ok) return problem(envelope.reason);
     try {
-      await withDatabaseWriteTrackingSuspended(() => restoreFromBackupEnvelope(envelope.value));
+      await withDatabaseWriteTrackingSuspended(async () => {
+        const mine = await readDeviceLocalRows();
+        await restoreFromBackupEnvelope(envelope.value);
+        await putBackDeviceLocalRows(mine);
+      });
     } catch (error) {
       console.error('[snapshotSync] the restore failed', error);
       return problem('The copy could not be loaded onto this device.');

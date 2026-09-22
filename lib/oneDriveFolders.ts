@@ -40,7 +40,13 @@ import { getOneDriveFolder, setOneDriveFolder, type StoredOneDriveFolder } from 
 import { isDesktopApp } from './desktop/bridge';
 import { folderFromPhonePath, isDiskFolder } from './desktop/cloudFolder';
 import { isSignedIn } from './oneDriveAuth';
-import { checkFolder, ensureChildFolder, type DriveItemRef, type GraphResult } from './oneDriveGraph';
+import {
+  checkFolder,
+  ensureChildFolder,
+  folderFromComputerPath,
+  type DriveItemRef,
+  type GraphResult,
+} from './oneDriveGraph';
 
 /** What the two children are called. Fixed, because the app owns them. */
 export const MAILBOX_FOLDER_NAME = 'Mailbox';
@@ -96,13 +102,26 @@ export async function getSharedFolder(): Promise<SharedFolderState> {
   }
 
   if (!isDesktopApp() && isDiskFolder(stored)) {
+    // Chosen on a computer, and the sentence it stored names the same
+    // folder in this OneDrive. Both directions repair themselves now: a
+    // phone that loaded a snapshot saved on a computer used to be left
+    // holding a Windows path, which read as no shared folder at all
+    // (1.0.42.30). Device-local rows stay out of a snapshot from that
+    // build on, so this is for phones already in that state and for a
+    // folder restored from an older backup.
+    const adopted = await folderFromComputerPath(stored.path);
+    if (adopted) {
+      stored = { ...adopted };
+      await setOneDriveFolder(stored);
+      return { state: 'ready', folder: stored };
+    }
     return {
       state: 'unreachable',
       name: stored.name,
       reason:
         'That folder was chosen on a computer' +
         (stored.path ? ' (' + stored.path + ')' : '') +
-        '. Choose it again on this phone from the Shared Folder screen.',
+        ', and no folder at that place was found in OneDrive on this phone. Choose it again on the Shared Folder screen.',
     };
   }
 

@@ -10,16 +10,23 @@
 //     reads the loaded data; the notice for that shows after the restart.
 //     With unsaved changes here, or on the first check after sync was
 //     turned on, it asks instead. Then, if anything here is unsaved, saves.
-//   - Every two minutes while the app sits open in front
-//     (CHECK_INTERVAL_MS): the same check, skipped within a minute of a
-//     write (CHECK_QUIET_MS) and skipped while a question is on screen. The
-//     foreground event fires only when the app was put away first, so
-//     without this a phone left on the desk, or the desktop app left open,
-//     showed the old data until it was put away and brought back. A copy
-//     the person declined is not asked about again from here.
+//   - Every half minute while the app sits open in front
+//     (CHECK_INTERVAL_MS): the same check, skipped within fifteen seconds
+//     of a write (CHECK_QUIET_MS) and skipped while a question is on
+//     screen. The foreground event fires only when the app was put away
+//     first, so without this a phone left on the desk, or the desktop app
+//     left open, showed the old data until it was put away and brought
+//     back. A copy the person declined is not asked about again from here.
 //   - Eight seconds after the last write (SAVE_DEBOUNCE_MS): saves.
 //   - When the app goes to the background: saves at once, since a phone
 //     may be put down for the day at that moment.
+//
+// A folder that cannot be reached is said once per run rather than left
+// on Profile's Backup & Restore card for somebody to find: a phone whose
+// shared folder had been taken out from under it by a snapshot went on
+// looking normal while nothing it recorded reached the computer
+// (1.0.42.30). Once per distinct sentence, since the check runs every
+// half minute and a dialog each time would be its own problem.
 //
 // On the desktop app "foreground" and "background" come from the window
 // gaining and losing focus. react-native-web's AppState follows the
@@ -95,6 +102,18 @@ export function SnapshotSyncWatcher() {
   const declinedRef = useRef<string | null>(null);
   // One check or save at a time, in order.
   const queueRef = useRef<Promise<void>>(Promise.resolve());
+  // Sentences already said this run, so a folder that stays unreachable
+  // is reported once rather than every half minute.
+  const toldRef = useRef<Set<string>>(new Set());
+
+  const tellOnce = useCallback(
+    (reason: string) => {
+      if (toldRef.current.has(reason)) return;
+      toldRef.current.add(reason);
+      showNotice('Sync could not reach your shared folder', reason);
+    },
+    [showNotice],
+  );
 
   const enqueue = useCallback((work: () => Promise<void>) => {
     const next = queueRef.current.then(work, work).catch((error) => {
@@ -123,6 +142,10 @@ export function SnapshotSyncWatcher() {
   const doSave = useCallback(
     async (source: SaveSource) => {
       const outcome = await saveSnapshot();
+      if (outcome.status === 'problem') {
+        tellOnce(outcome.reason);
+        return;
+      }
       if (outcome.status === 'conflict') {
         if (source === 'timer' && declinedRef.current === outcome.record.latest.savedAt) return;
         setQuestion({
@@ -132,7 +155,7 @@ export function SnapshotSyncWatcher() {
         });
       }
     },
-    [me],
+    [me, tellOnce],
   );
 
   const runSave = useCallback((source: SaveSource) => enqueue(() => doSave(source)), [doSave, enqueue]);
@@ -162,9 +185,7 @@ export function SnapshotSyncWatcher() {
         return;
       }
       if (outcome.action === 'problem') {
-        // Reported on Profile's Backup & Restore card rather than as a
-        // dialog: a folder that is briefly unreachable is not worth a
-        // dialog every time the app is opened.
+        tellOnce(outcome.reason);
         return;
       }
       if (source === 'interval') {
@@ -174,7 +195,7 @@ export function SnapshotSyncWatcher() {
       }
       await doSave('foreground');
     },
-    [askAboutArrival, doSave, showNotice],
+    [askAboutArrival, doSave, showNotice, tellOnce],
   );
 
   const runCheck = useCallback((source: CheckSource) => enqueue(() => doCheck(source)), [doCheck, enqueue]);
