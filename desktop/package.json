@@ -7,9 +7,9 @@
   "scripts": {
     "start": "electron .",
     "export": "node build-web.js",
-    "dist": "node build-web.js && electron-builder --win nsis",
-    "dist:mac": "node build-web.js && electron-builder --mac dmg",
-    "pack": "electron-builder --win nsis"
+    "dist": "node check-packaged-files.js && node build-web.js && electron-builder --win nsis",
+    "dist:mac": "node check-packaged-files.js && node build-web.js && electron-builder --mac dmg",
+    "pack": "node check-packaged-files.js && electron-builder --win nsis"
   },
   "devDependencies": {
     "electron": "^44.4.3",
