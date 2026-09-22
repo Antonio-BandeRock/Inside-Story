@@ -209,3 +209,77 @@ export function findNutrientGaps(entries: NutrientGapEntry[]): NutrientGapEntry[
 export function findExcessRisks(entries: NutrientGapEntry[]): NutrientGapEntry[] {
   return entries.filter((entry) => entry.status === 'excess_risk');
 }
+
+// Where a nutrient's total actually came from, food or a pill.
+//
+// Direct statement of the goal, 2026-09-22: "the goal is to modify how a
+// person eats so with their food they are receiving an optimal amount of
+// every one of them and not have to take any supplements, but to also
+// make sure that you do take the ones you cannot receive from your food
+// because of whatever reason, such as being vegan, or alergic, etc."
+//
+// A combined number cannot show progress toward that, since a row reading
+// 100% looks the same whether it came from lentils or from a capsule.
+// Both numbers were already on the entry (see analyzeNutrientIntake
+// above); this turns them into the two shares a bar can draw, plus a line
+// of words saying what food alone is covering.
+//
+// Returns null when no supplement contributed, which covers most rows: a
+// row with nothing to say about supplements stays quiet rather than
+// adding a second line to all thirty of them.
+export type NutrientSourceSplit = {
+  // Both fractions of the TARGET, never summing past 1, which is what a
+  // two-segment bar draws. Intake past the target is clipped rather than
+  // rescaled, so one row at 300% cannot shrink every other row's segments
+  // to nothing.
+  foodShare: number;
+  supplementShare: number;
+  foodPercentOfTarget: number;
+  supplementPercentOfTarget: number;
+  // True when food alone already reaches the target, so the supplement is
+  // sitting on top of an intake that does not need it. Stated as a fact
+  // about today's numbers and nothing further: whether to keep taking it
+  // is between the person and whoever recommended it.
+  foodAloneCoversTarget: boolean;
+  sentence: string;
+};
+
+export function nutrientSourceSplit(entry: NutrientGapEntry): NutrientSourceSplit | null {
+  if (entry.fromSupplements <= 0) return null;
+  // No usable target to measure either share against. Every DRI row
+  // carries one, so this is a guard rather than a case to design for.
+  if (!(entry.target > 0)) return null;
+
+  const foodShare = Math.min(entry.fromFood / entry.target, 1);
+  const supplementShare = Math.min(entry.fromSupplements / entry.target, 1 - foodShare);
+  const foodPercentOfTarget = (entry.fromFood / entry.target) * 100;
+  const supplementPercentOfTarget = (entry.fromSupplements / entry.target) * 100;
+  const foodAloneCoversTarget = entry.fromFood >= entry.target;
+
+  const food = formatAmount(entry.fromFood, entry.unit);
+  const supplement = formatAmount(entry.fromSupplements, entry.unit);
+
+  let sentence: string;
+  if (entry.targetType === 'CDRR') {
+    // Sodium, the one ceiling-type row: more is not better, so none of
+    // the "food is covering it for you" wording below applies.
+    sentence = `${food} of this came from food and ${supplement} from a supplement.`;
+  } else if (foodAloneCoversTarget) {
+    sentence = `Food alone already covers this target (${food}). The supplement adds ${supplement} on top of it.`;
+  } else if (entry.fromFood <= 0) {
+    sentence = `All ${supplement} of this came from a supplement. Nothing you ate today carried any.`;
+  } else {
+    sentence =
+      `Food covered ${Math.round(foodPercentOfTarget)}% of your target (${food}), ` +
+      `and the supplement brought it to ${Math.round(entry.percentOfTarget)}%.`;
+  }
+
+  return {
+    foodShare,
+    supplementShare,
+    foodPercentOfTarget,
+    supplementPercentOfTarget,
+    foodAloneCoversTarget,
+    sentence,
+  };
+}

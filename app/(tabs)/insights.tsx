@@ -81,6 +81,7 @@ import { lbToKg } from '../../lib/measurement';
 import {
   analyzeNutrientIntake,
   formatAmount,
+  nutrientSourceSplit,
   nutrientStatusSeverity,
   percentOfDailyTarget,
   type NutrientGapEntry,
@@ -1519,6 +1520,10 @@ export function NutrientsTable({
     };
   };
 
+  // Whether any row has a food/supplement division to draw, so the key
+  // above the table appears only when there is a bar to explain.
+  const anySourceSplit = sorted.some((entry) => nutrientSourceSplit(entry) !== null);
+
   const table =
     sorted.length === 0 ? (
       <Text style={styles.emptyText}>
@@ -1530,6 +1535,11 @@ export function NutrientsTable({
       <View style={styles.bandTable}>
         {canExpandContributors ? (
           <Text style={styles.bandTableHint}>Tap any nutrient to see which foods contributed to it.</Text>
+        ) : null}
+        {anySourceSplit ? (
+          <Text style={styles.bandTableHint}>
+            A bar under a row splits that nutrient between food, in green, and a supplement, in amber.
+          </Text>
         ) : null}
         <View style={[styles.tableRow, styles.tableHeaderRow, styles.bandTableHeaderRow]}>
           <Text style={[styles.tableCell, styles.tableHeaderCell, styles.colNutrient]}>Nutrient</Text>
@@ -1551,6 +1561,12 @@ export function NutrientsTable({
           const contributors = rowExpanded ? contributorsForNutrient(breakdown, scope, entry.nutrientCode) : [];
           const now = statusCell(entry);
           const end = statusCell(projectedByCode.get(entry.nutrientCode));
+          // Null on every row no supplement touched, and on every sub-day
+          // scope, where supplements are left out of the totals altogether
+          // (see the analyzeNutrientIntake call at the top of this
+          // component). So the bar is drawn only where there is a division
+          // to draw.
+          const split = nutrientSourceSplit(entry);
           return (
             <View key={`${entry.nutrientCode}_${index}`}>
               <TouchableOpacity
@@ -1595,8 +1611,15 @@ export function NutrientsTable({
                   </>
                 )}
               </TouchableOpacity>
+              {split ? (
+                <View style={styles.sourceBarTrack}>
+                  <View style={[styles.sourceBarFood, { width: `${split.foodShare * 100}%` }]} />
+                  <View style={[styles.sourceBarSupplement, { width: `${split.supplementShare * 100}%` }]} />
+                </View>
+              ) : null}
               {rowExpanded ? (
                 <View style={styles.detailBlock}>
+                  {split ? <Text style={styles.sourceSplitText}>{split.sentence}</Text> : null}
                   {contributors.length === 0 ? (
                     <Text style={styles.detailText}>Nothing logged here actually contributed to this.</Text>
                   ) : (
@@ -4173,6 +4196,40 @@ const styles = StyleSheet.create({
   // same neutral gray as "no judgment," not a 4th traffic-light color.
   statusNeutralText: {
     color: colors.textSecondary,
+  },
+  // Food and supplement drawn as two segments of one bar, 2026-09-22.
+  // The row already carried a combined number, which reads the same
+  // whether it came from lentils or from a capsule. The goal the app is
+  // built around is that food supplies the optimum and a supplement
+  // covers only what a person cannot get from food (vegan, an allergy,
+  // absorption), so a row says how much of its target food carried and
+  // how much a supplement did. Drawn only on rows a supplement actually
+  // contributed to, see nutrientSourceSplit in lib/nutrientAnalysis.ts.
+  // The track colour shows through as the part of the target neither
+  // source has reached.
+  sourceBarTrack: {
+    flexDirection: 'row',
+    height: 4,
+    borderRadius: 2,
+    overflow: 'hidden',
+    backgroundColor: colors.border,
+    marginHorizontal: 4,
+    marginBottom: 8,
+  },
+  sourceBarFood: {
+    height: '100%',
+    backgroundColor: colors.statusGreenOnSurface,
+  },
+  sourceBarSupplement: {
+    height: '100%',
+    backgroundColor: colors.statusYellowOnSurface,
+  },
+  sourceSplitText: {
+    ...typography.caption,
+    color: colors.textPrimary,
+    lineHeight: 17,
+    marginBottom: 6,
+    ...textShadow,
   },
   subTable: {
     backgroundColor: colors.surfaceMuted,
