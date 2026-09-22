@@ -20,13 +20,26 @@ import {
   restoreFromBackupEnvelope,
   type BackupEnvelope,
 } from './dataBackup';
-import { decryptBackupPayload, encryptBackupPayload, isEncryptedBackupWire } from './backupEncryption';
+import {
+  decryptBackupPayload,
+  encryptBackupPayload,
+  forgetDerivedKeys,
+  isEncryptedBackupWire,
+} from './backupEncryption';
 import { getDatabaseWriteCount, withDatabaseWriteTrackingSuspended } from './databaseActivity';
 import { downloadText, listFiles, uploadText, type DriveItemRef } from './oneDriveGraph';
 import { getBackupsFolder } from './oneDriveFolders';
 import { getDatabase } from './db';
 import {
+  describeChanges,
+  parseChangeList,
+  parseStamps,
+  stampTables,
+  type TableStamps,
+} from './snapshotChanges';
+import {
   APP_META_TABLE,
+  CHANGE_BASELINE_META_KEY,
   DEVICE_LOCAL_META_KEYS,
   withoutDeviceLocalRows,
   buildSnapshotRecord,
@@ -156,6 +169,96 @@ async function putBackDeviceLocalRows(rows: MetaRow[]): Promise<void> {
   }
 }
 
+// WHAT CHANGED SINCE LAST TIME.
+//
+// The words a person reads come from lib/snapshotChanges.ts, which needs
+// a stamp of the tables as they stood the last time this device and the
+// folder agreed. That stamp is a few kilobytes, past what the secure
+// store holds on Android, so it lives in app_meta under a key that never
+// travels (CHANGE_BASELINE_META_KEY) and is written with the write
+// tracking suspended, since bookkeeping is not a change to save.
+//
+// It is reset on a save and on a load alike. Resetting only on a load
+// would be truer to what the other device has actually seen, and would
+// also let one device build a list that grows for as long as the other
+// stays away. The accepted cost of resetting on both: several saves in a
+// row before the other device catches up leave the notice naming the
+// last batch rather than all of them.
+
+async function readChangeBaseline(): Promise<TableStamps | null> {
+  try {
+    const db = await getDatabase();
+    const row = await db.getFirstAsync<{ value: string }>(
+      `SELECT value FROM ${APP_META_TABLE} WHERE key = ?`,
+      CHANGE_BASELINE_META_KEY,
+    );
+    return parseStamps(row?.value);
+  } catch (error) {
+    console.error('[snapshotSync] could not read the change baseline', error);
+    return null;
+  }
+}
+
+async function writeChangeBaseline(stamps: TableStamps): Promise<void> {
+  try {
+    await withDatabaseWriteTrackingSuspended(async () => {
+      const db = await getDatabase();
+      await db.runAsync(
+        `
+          INSERT INTO ${APP_META_TABLE} (key, value, updated_at) VALUES (?, ?, ?)
+          ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+        `,
+        CHANGE_BASELINE_META_KEY,
+        JSON.stringify(stamps),
+        new Date().toISOString(),
+      );
+    });
+  } catch (error) {
+    console.error('[snapshotSync] could not write the change baseline', error);
+  }
+}
+
+/**
+ * What this device has written since it last saved or loaded, said the
+ * same way the other copy says its own. Built on the spot for a question
+ * that is about to be asked, since it reads every table.
+ */
+export function describeUnsavedChangesHere(): Promise<string[]> {
+  return enqueue(async () => {
+    const state = await readSyncState();
+    if (!state.enabled) return [];
+    const baseline = await readChangeBaseline();
+    if (!baseline) return [];
+    try {
+      const built = await buildBackupEnvelope();
+      return describeChanges(baseline, stampTables(withoutDeviceLocalRows(built.tables), fingerprintText));
+    } catch (error) {
+      console.error('[snapshotSync] could not work out what is unsaved here', error);
+      return [];
+    }
+  });
+}
+
+// What the copy in the folder says it brings, kept by the moment it was
+// saved: the question and the load that usually follows it both want it,
+// and the download costs the same either way. Deliberately outside the
+// queue, since it only reads, and a save waiting behind a download of a
+// whole database would be its own delay.
+let peeked: { savedAt: string; changes: string[] } | null = null;
+
+/** What the copy in the folder brings, or nothing when it cannot be read. */
+export async function peekIncomingChanges(record: SnapshotRecord): Promise<string[]> {
+  if (peeked && peeked.savedAt === record.latest.savedAt) return peeked.changes;
+  const state = await readSyncState();
+  if (!state.enabled || !state.password) return [];
+  const folder = await getBackupsFolder();
+  if (!folder.ok) return [];
+  const downloaded = await downloadSnapshot(folder.value, record, state.password);
+  if (!downloaded.ok) return [];
+  peeked = { savedAt: record.latest.savedAt, changes: downloaded.value.changes };
+  return peeked.changes;
+}
+
 // THE SNAPSHOT'S CONTENTS.
 
 function tablesHash(envelope: BackupEnvelope): string {
@@ -168,7 +271,7 @@ async function downloadSnapshot(
   folder: DriveItemRef,
   record: SnapshotRecord,
   password: string,
-): Promise<FolderResult<BackupEnvelope>> {
+): Promise<FolderResult<{ envelope: BackupEnvelope; changes: string[] }>> {
   const text = await downloadText(folder, record.latest.fileName);
   if (!text.ok) return text;
   let wire: unknown;
@@ -190,7 +293,13 @@ async function downloadSnapshot(
   }
   const envelope = parseBackupEnvelope(json);
   if (!envelope) return { ok: false, reason: 'The copy in your shared folder could not be read.' };
-  return { ok: true, value: envelope };
+  // The list of changes rides inside the encrypted payload beside the
+  // tables, never in the plaintext record: what somebody added to is as
+  // much their health as what they added. parseBackupEnvelope answers the
+  // parsed object as it stands, so the extra key is already here and the
+  // several megabytes are parsed once.
+  const changes = parseChangeList((envelope as { syncChanges?: unknown }).syncChanges);
+  return { ok: true, value: { envelope, changes } };
 }
 
 export type SaveOutcome =
@@ -245,7 +354,13 @@ export function saveSnapshot(options: { force?: boolean } = {}): Promise<SaveOut
       return { status: 'unchanged' };
     }
 
-    const wire = await encryptBackupPayload(JSON.stringify(envelope), state.password);
+    const stamps = stampTables(envelope.tables, fingerprintText);
+    const baseline = await readChangeBaseline();
+    const changes = baseline ? describeChanges(baseline, stamps) : [];
+    const wire = await encryptBackupPayload(
+      JSON.stringify({ ...envelope, syncChanges: changes }),
+      state.password,
+    );
     const savedAt = envelope.exportedAt;
     const uploaded = await uploadText(folder.value, snapshotFileName(me), JSON.stringify(wire));
     if (!uploaded.ok) return problem(uploaded.reason);
@@ -255,6 +370,7 @@ export function saveSnapshot(options: { force?: boolean } = {}): Promise<SaveOut
       JSON.stringify(buildSnapshotRecord(me, savedAt)),
     );
     if (!recorded.ok) return problem(recorded.reason);
+    await writeChangeBaseline(stamps);
 
     await updateSyncState({
       loadedSavedAt: savedAt,
@@ -290,27 +406,33 @@ export function loadSnapshot(record: SnapshotRecord): Promise<LoadOutcome> {
     if (!state.enabled || !state.password) return { status: 'problem', reason: 'Sync is off on this device.' };
     const folder = await getBackupsFolder();
     if (!folder.ok) return problem(folder.reason);
-    const envelope = await downloadSnapshot(folder.value, record, state.password);
-    if (!envelope.ok) return problem(envelope.reason);
+    const downloaded = await downloadSnapshot(folder.value, record, state.password);
+    if (!downloaded.ok) return problem(downloaded.reason);
+    const { envelope, changes } = downloaded.value;
     try {
       await withDatabaseWriteTrackingSuspended(async () => {
         const mine = await readDeviceLocalRows();
-        await restoreFromBackupEnvelope(envelope.value);
+        await restoreFromBackupEnvelope(envelope);
         await putBackDeviceLocalRows(mine);
       });
     } catch (error) {
       console.error('[snapshotSync] the restore failed', error);
       return problem('The copy could not be loaded onto this device.');
     }
+    // Stamped from what was loaded rather than by reading the tables back:
+    // these rows are exactly the ones just written. The restore emptied
+    // app_meta, so this lands after it rather than inside it.
+    await writeChangeBaseline(stampTables(withoutDeviceLocalRows(envelope.tables), fingerprintText));
+    peeked = null;
     const now = new Date().toISOString();
     await updateSyncState({
       loadedSavedAt: record.latest.savedAt,
       lastLoadedAt: now,
       lastCheckedAt: now,
-      lastHash: tablesHash(envelope.value),
+      lastHash: tablesHash(envelope),
       dirtySince: null,
       lastProblem: null,
-      pendingNotice: loadedNotice(record),
+      pendingNotice: loadedNotice(record, changes),
     });
     return { status: 'loaded', record };
   });
@@ -351,8 +473,8 @@ export async function checkPasswordAgainstFolder(
   if (!record.value) return { ok: true, record: null };
   const me = await getMyDevice();
   if (record.value.latest.device.fingerprint === me.fingerprint) return { ok: true, record: record.value };
-  const envelope = await downloadSnapshot(folder.value, record.value, password);
-  if (!envelope.ok) {
+  const downloaded = await downloadSnapshot(folder.value, record.value, password);
+  if (!downloaded.ok) {
     return {
       ok: false,
       reason: 'That is not the password sync was turned on with on your other device. Enter the same one here.',
@@ -373,6 +495,9 @@ export async function enableSnapshotSync(password: string): Promise<void> {
 
 export async function disableSnapshotSync(): Promise<void> {
   await updateSyncState({ ...EMPTY_SYNC_STATE });
+  // Nothing of the password, or of the other device, is kept once sync is off.
+  forgetDerivedKeys();
+  peeked = null;
 }
 
 /** The one-time notice left by an automatic load, cleared as it is read. */

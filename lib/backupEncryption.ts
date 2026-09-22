@@ -147,10 +147,52 @@ async function deriveKey(password: string, salt: Uint8Array): Promise<Uint8Array
   return material.slice(0, nacl.secretbox.keyLength);
 }
 
+// Keys already derived this run, so the same file is not paid for twice.
+//
+// Snapshot sync (lib/snapshotSyncDevice.ts) opens one copy twice: once
+// to read what it brings while the person decides which copy to keep,
+// and again to load it. Each pass is the 100,000 hashes above, measured
+// at up to a minute on a phone, so the second one would be a minute of
+// somebody's day for a file just read. Held in memory only, never
+// written anywhere, and the password it came from is already in memory
+// beside it, so nothing is within reach that was not already. Small, and
+// the least recently used goes first: one password, a handful of salts.
+const KEY_CACHE_LIMIT = 6;
+const keyCache = new Map<string, Uint8Array>();
+
+function cacheKeyFor(password: string, salt: Uint8Array): string {
+  // The password is hashed rather than used as the key of the map, so a
+  // heap dump of the cache alone does not read it back.
+  return bytesToBase64(nacl.hash(utf8Bytes(password)).slice(0, 16)) + '|' + bytesToBase64(salt);
+}
+
+async function deriveKeyCached(password: string, salt: Uint8Array): Promise<Uint8Array> {
+  const cacheKey = cacheKeyFor(password, salt);
+  const found = keyCache.get(cacheKey);
+  if (found) {
+    keyCache.delete(cacheKey);
+    keyCache.set(cacheKey, found);
+    return found;
+  }
+  const key = await deriveKey(password, salt);
+  keyCache.set(cacheKey, key);
+  while (keyCache.size > KEY_CACHE_LIMIT) {
+    const oldest = keyCache.keys().next();
+    if (oldest.done) break;
+    keyCache.delete(oldest.value);
+  }
+  return key;
+}
+
+/** Forgets every derived key, for turning sync off or changing the password. */
+export function forgetDerivedKeys(): void {
+  keyCache.clear();
+}
+
 export async function encryptBackupPayload(plaintextJson: string, password: string): Promise<EncryptedBackupWire> {
   const salt = await Crypto.getRandomBytesAsync(SALT_LENGTH);
   const nonce = await Crypto.getRandomBytesAsync(nacl.secretbox.nonceLength);
-  const key = await deriveKey(password, salt);
+  const key = await deriveKeyCached(password, salt);
   const ciphertext = nacl.secretbox(utf8Bytes(plaintextJson), nonce, key);
   return {
     encrypted: true,
@@ -172,7 +214,7 @@ export async function decryptBackupPayload(wire: EncryptedBackupWire, password: 
     const salt = base64ToBytes(wire.salt);
     const nonce = base64ToBytes(wire.nonce);
     const ciphertext = base64ToBytes(wire.ciphertext);
-    const key = await deriveKey(password, salt);
+    const key = await deriveKeyCached(password, salt);
     const opened = nacl.secretbox.open(ciphertext, nonce, key);
     return opened ? bytesToUtf8(opened) : null;
   } catch {

@@ -36,6 +36,14 @@
 // (1.0.42.29, "I recorded a capture on the mobile and it isn't showing up
 // on the computer").
 //
+// Both questions say what changed on each side, since a person asked to
+// choose between two copies of their own database has nothing else to go
+// on ("it doesn't actually say what the change was that caused this
+// update to synchronize from the other device"). The words come from
+// lib/snapshotChanges.ts. Neither list is in hand the moment the
+// question is asked, so it goes up with what it has and gains the rest
+// as it arrives.
+//
 // A save that finds a newer copy from the other device stops and asks,
 // which is the same-time guard: nothing is ever written over that this
 // device has not loaded, and nothing unsaved is ever thrown away without
@@ -56,13 +64,16 @@ import {
   SAVE_DEBOUNCE_MS,
   saveConflictMessage,
   type SnapshotRecord,
+  type SyncChangeNotes,
   type SyncDevice,
 } from '../lib/snapshotSync';
 import {
   checkForArrival,
+  describeUnsavedChangesHere,
   getMyDevice,
   loadSnapshot,
   markDatabaseDirty,
+  peekIncomingChanges,
   readSyncState,
   saveSnapshot,
   takePendingNotice,
@@ -128,15 +139,40 @@ export function SnapshotSyncWatcher() {
     return meRef.current;
   }, []);
 
-  const askAboutArrival = useCallback(
-    async (record: SnapshotRecord, reason: 'unsavedChanges' | 'firstTime') => {
-      setQuestion({
-        title: 'Which copy do you want?',
-        message: conflictMessage({ action: 'conflict', record, reason }, await me()),
-        record,
+  // Puts the question up at once, then fills in what changed on each
+  // side as it lands: what is unsaved here means reading every table,
+  // and what the other copy brings means downloading and decrypting it.
+  // Both happen behind the question rather than ahead of it, and a
+  // question the person has already answered is left alone.
+  const ask = useCallback(
+    (title: string, record: SnapshotRecord, message: (notes: SyncChangeNotes) => string) => {
+      const notes: SyncChangeNotes = {};
+      const show = (first: boolean) => {
+        setQuestion((current) => {
+          if (!first && current?.record.latest.savedAt !== record.latest.savedAt) return current;
+          return { title, message: message(notes), record };
+        });
+      };
+      show(true);
+      (async () => {
+        notes.here = await describeUnsavedChangesHere();
+        show(false);
+        notes.there = await peekIncomingChanges(record);
+        show(false);
+      })().catch((error) => {
+        console.error('[snapshotSync] could not say what changed', error);
       });
     },
-    [me],
+    [],
+  );
+
+  const askAboutArrival = useCallback(
+    async (record: SnapshotRecord, reason: 'unsavedChanges' | 'firstTime') => {
+      const mine = await me();
+      ask('Which copy do you want?', record, (notes) =>
+        conflictMessage({ action: 'conflict', record, reason }, mine, notes));
+    },
+    [ask, me],
   );
 
   const doSave = useCallback(
@@ -148,14 +184,12 @@ export function SnapshotSyncWatcher() {
       }
       if (outcome.status === 'conflict') {
         if (source === 'timer' && declinedRef.current === outcome.record.latest.savedAt) return;
-        setQuestion({
-          title: 'Which copy do you want?',
-          message: saveConflictMessage(outcome.record, await me()),
-          record: outcome.record,
-        });
+        const mine = await me();
+        ask('Which copy do you want?', outcome.record, (notes) =>
+          saveConflictMessage(outcome.record, mine, notes));
       }
     },
-    [me, tellOnce],
+    [ask, me, tellOnce],
   );
 
   const runSave = useCallback((source: SaveSource) => enqueue(() => doSave(source)), [doSave, enqueue]);

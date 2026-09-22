@@ -146,12 +146,18 @@ export const CHECK_QUIET_MS = 15 * 1000;
 //   mailbox_folder_name  The same kind of local addressing as the folder.
 //   last_seen_app_version What this device has already shown the person
 //                        about a new version.
+//   sync_change_baseline What this device last published or loaded,
+//                        table by table, so the next save can say what
+//                        changed since (lib/snapshotChanges.ts).
 //
 // Kept out of the snapshot as it is built, and put back after a load,
 // both: the first stops this device's bookkeeping being published to the
 // other, the second stops a copy saved before this fix from wiping what
 // is here.
 export const APP_META_TABLE = 'app_meta';
+
+/** The app_meta row this device keeps its last stamp of the tables in. */
+export const CHANGE_BASELINE_META_KEY = 'sync_change_baseline';
 
 export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'onedrive_folder',
@@ -161,6 +167,7 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'health_connect_last_sync',
   'mailbox_folder_name',
   'last_seen_app_version',
+  CHANGE_BASELINE_META_KEY,
 ];
 
 export function isDeviceLocalMetaKey(key: unknown): boolean {
@@ -320,39 +327,63 @@ export function fingerprintText(text: string): string {
   return (h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0');
 }
 
+/**
+ * What changed on each side, from lib/snapshotChanges.ts. `there` is what
+ * the copy in the folder brings, read out of the copy itself; `here` is
+ * what this device has written and not saved yet. Either may be unknown,
+ * in which case its sentence is left out rather than guessed at.
+ */
+export type SyncChangeNotes = { here?: readonly string[]; there?: readonly string[] };
+
+/** "a", "a and b", "a, b and c". */
+export function listPhrases(parts: readonly string[]): string {
+  if (parts.length === 0) return '';
+  if (parts.length === 1) return parts[0];
+  return parts.slice(0, -1).join(', ') + ' and ' + parts[parts.length - 1];
+}
+
+function changeSentences(notes: SyncChangeNotes): string {
+  const parts: string[] = [];
+  if (notes.there && notes.there.length > 0) parts.push('What that copy brings: ' + listPhrases(notes.there) + '.');
+  if (notes.here && notes.here.length > 0) parts.push('Not saved here yet: ' + listPhrases(notes.here) + '.');
+  return parts.length > 0 ? ' ' + parts.join(' ') : '';
+}
+
 /** The sentence a conflict dialog opens with. */
-export function conflictMessage(plan: Extract<ArrivalPlan, { action: 'conflict' }>, me: SyncDevice): string {
+export function conflictMessage(
+  plan: Extract<ArrivalPlan, { action: 'conflict' }>,
+  me: SyncDevice,
+  notes: SyncChangeNotes = {},
+): string {
   const other = describeDevice(plan.record.latest.device);
   const here = me.kind === 'phone' ? 'this phone' : 'this computer';
   const when = describeMoment(plan.record.latest.savedAt);
-  if (plan.reason === 'firstTime') {
-    return (
-      'A copy saved from ' + other + ' on ' + when + ' is in your shared folder. ' +
-      'Load it here, replacing what is on ' + here + ', or keep what is here and save it over that copy.'
-    );
-  }
-  return (
-    'Changes were made on ' + here + ' that have not been saved yet, and ' + other +
-    ' saved a copy on ' + when + '. Load that copy, losing the changes made here, or keep what is here and save it over that copy.'
-  );
+  const firstTime = plan.reason === 'firstTime';
+  const opening = firstTime
+    ? 'A copy saved from ' + other + ' on ' + when + ' is in your shared folder.'
+    : 'Changes were made on ' + here + ' that have not been saved yet, and ' + other + ' saved a copy on ' + when + '.';
+  const choice = firstTime
+    ? ' Load it here, replacing what is on ' + here + ', or keep what is here and save it over that copy.'
+    : ' Load that copy, losing the changes made here, or keep what is here and save it over that copy.';
+  return opening + changeSentences(notes) + choice;
 }
 
 /** The sentence a save refuses with when the folder moved on. */
-export function saveConflictMessage(record: SnapshotRecord, me: SyncDevice): string {
+export function saveConflictMessage(record: SnapshotRecord, me: SyncDevice, notes: SyncChangeNotes = {}): string {
   const here = me.kind === 'phone' ? 'this phone' : 'this computer';
-  return (
+  const opening =
     describeDevice(record.latest.device).replace(/^y/, 'Y') + ' saved a copy on ' +
-    describeMoment(record.latest.savedAt) + ' that ' + here + ' has not loaded. ' +
-    'Load that copy, losing the changes made here, or keep what is here and save it over that copy.'
-  );
+    describeMoment(record.latest.savedAt) + ' that ' + here + ' has not loaded.';
+  return opening + changeSentences(notes) +
+    ' Load that copy, losing the changes made here, or keep what is here and save it over that copy.';
 }
 
 /** What the person is told once, after the restart that follows an automatic load. */
-export function loadedNotice(record: SnapshotRecord): string {
-  return (
+export function loadedNotice(record: SnapshotRecord, changes: readonly string[] = []): string {
+  const opening =
     'Loaded the copy ' + describeDevice(record.latest.device) + ' saved on ' +
-    describeMoment(record.latest.savedAt) + '.'
-  );
+    describeMoment(record.latest.savedAt) + '.';
+  return changes.length > 0 ? opening + ' What came over: ' + listPhrases(changes) + '.' : opening;
 }
 
 /** The status line under the switch in Profile. */
