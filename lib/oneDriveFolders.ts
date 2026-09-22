@@ -26,8 +26,19 @@
 // LOOKED UP BY NAME, NOT REMEMBERED BY ID. Somebody can delete or recreate
 // either child in OneDrive, and an id remembered from months ago would point at
 // nothing while the folder they can plainly see sits there unused.
+//
+// ONE FOLDER, CHOSEN ON EITHER KIND OF DEVICE. A phone stores the folder's
+// Graph address; a computer stores its path on the disk (driveId 'disk',
+// lib/desktop/cloudFolder.ts). A backup restored across the two carries the
+// other kind's address, so getSharedFolder reads the stored folder's path
+// sentence ("OneDrive / Apps / Inside Story") back into a folder on this
+// computer when it can, and says plainly where the folder was chosen when it
+// cannot, rather than reporting a Graph error about an id that means nothing
+// here or a disk path that means nothing on a phone.
 
 import { getOneDriveFolder, setOneDriveFolder, type StoredOneDriveFolder } from './db';
+import { isDesktopApp } from './desktop/bridge';
+import { folderFromPhonePath, isDiskFolder } from './desktop/cloudFolder';
 import { isSignedIn } from './oneDriveAuth';
 import { checkFolder, ensureChildFolder, type DriveItemRef, type GraphResult } from './oneDriveGraph';
 
@@ -62,8 +73,38 @@ export type SharedFolderState =
 export async function getSharedFolder(): Promise<SharedFolderState> {
   if (!(await isSignedIn())) return { state: 'notSignedIn' };
 
-  const stored = await getOneDriveFolder();
+  let stored = await getOneDriveFolder();
   if (!stored) return { state: 'notSetUp' };
+
+  if (isDesktopApp() && !isDiskFolder(stored)) {
+    // Chosen on a phone. Its path sentence names the same folder under
+    // OneDrive on this computer, if that folder is here.
+    const adopted = await folderFromPhonePath(stored.path);
+    if (!adopted) {
+      return {
+        state: 'unreachable',
+        name: stored.name,
+        reason:
+          'That folder was chosen on a phone' +
+          (stored.path ? ' (' + stored.path + ')' : '') +
+          ', and no folder at that place was found in OneDrive on this computer. Choose it again on the Shared Folder screen.',
+      };
+    }
+    stored = { ...adopted };
+    await setOneDriveFolder(stored);
+    return { state: 'ready', folder: stored };
+  }
+
+  if (!isDesktopApp() && isDiskFolder(stored)) {
+    return {
+      state: 'unreachable',
+      name: stored.name,
+      reason:
+        'That folder was chosen on a computer' +
+        (stored.path ? ' (' + stored.path + ')' : '') +
+        '. Choose it again on this phone from the Shared Folder screen.',
+    };
+  }
 
   const checked = await checkFolder(stored);
   if (!checked.ok) {

@@ -24,11 +24,22 @@
 // PUBLIC client and the authorization code is protected by PKCE instead: a
 // random value made per sign-in, hashed, and checked by Microsoft against the
 // original.
+//
+// ON A COMPUTER THERE IS NO SIGN-IN. The OneDrive client on the machine is
+// already signed in and keeps its folder on the disk, which is where
+// lib/desktop/cloudFolder.ts reads and writes. Asking the person to sign in
+// again would be asking for something the app does not use, and on a PC it
+// could not finish anyway: Microsoft's redirect goes to hashimotosapp://,
+// which nothing on a computer is registered for, so the 2026-09-21 attempt
+// "kept waiting and waiting and never completed". So isSignedIn answers yes,
+// signIn succeeds without opening anything, and signOut has nothing to
+// forget.
 
 import * as Crypto from 'expo-crypto';
 import * as SecureStore from 'expo-secure-store';
 import * as WebBrowser from 'expo-web-browser';
 
+import { isDesktopApp } from './desktop/bridge';
 import { ONEDRIVE_CLIENT_ID, ONEDRIVE_REDIRECT_URI, ONEDRIVE_SCOPES } from './oneDriveConfig';
 
 /**
@@ -112,6 +123,7 @@ export function isOneDriveConfigured(): boolean {
 }
 
 export async function isSignedIn(): Promise<boolean> {
+  if (isDesktopApp()) return true;
   if (!isOneDriveConfigured()) return false;
   try {
     return (await SecureStore.getItemAsync(REFRESH_TOKEN_KEY)) !== null;
@@ -121,6 +133,7 @@ export async function isSignedIn(): Promise<boolean> {
 }
 
 export async function signOut(): Promise<void> {
+  if (isDesktopApp()) return;
   cachedAccessToken = null;
   inFlightExchange = null;
   try {
@@ -195,6 +208,7 @@ async function exchange(
  * are signing in to.
  */
 export async function signIn(): Promise<{ ok: true } | { ok: false; reason: string }> {
+  if (isDesktopApp()) return { ok: true };
   if (!ONEDRIVE_CLIENT_ID) {
     return { ok: false, reason: 'This build has no OneDrive application id set up.' };
   }
@@ -334,6 +348,9 @@ async function redeemCode(code: string): Promise<{ ok: true } | { ok: false; rea
 export async function getAccessToken(): Promise<
   { ok: true; token: string } | { ok: false; reason: string }
 > {
+  if (isDesktopApp()) {
+    return { ok: false, reason: 'On a computer the app reads the OneDrive folder on the disk, not the OneDrive service.' };
+  }
   if (!ONEDRIVE_CLIENT_ID) {
     return { ok: false, reason: 'This build has no OneDrive application id set up.' };
   }

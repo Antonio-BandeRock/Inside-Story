@@ -6,8 +6,11 @@
 // Nothing outside lib/desktop/ should need this. The Metro redirects in
 // metro.config.js (INSIDE_STORY_DESKTOP=1, web platform only) point
 // expo-sqlite, expo-secure-store, expo-notifications and expo-file-system
-// at the stand-ins,
-// so the app's code keeps calling the packages it always called.
+// at the stand-ins, so the app's code keeps calling the packages it always
+// called. The one exception is the shared folder: lib/oneDriveGraph.ts and
+// lib/oneDriveAuth.ts ask isDesktopApp() themselves and hand the call to
+// lib/desktop/cloudFolder.ts, since what changes there is not a package
+// but where the folder is.
 
 export type DesktopSqlParam = string | number | boolean | null | Uint8Array;
 
@@ -104,6 +107,40 @@ export type DesktopFilesBridge = {
   move(from: string, to: string): void;
 };
 
+export type DesktopCloudFolderEntry = { name: string; path: string };
+
+export type DesktopCloudFolderStat = {
+  exists: boolean;
+  isDirectory: boolean;
+  name: string;
+  path: string;
+};
+
+/**
+ * The shared folder on a computer: the OneDrive folder on the disk, which
+ * the OneDrive client keeps signed in and in step with the cloud, so the
+ * app needs no sign-in of its own. lib/desktop/cloudFolder.ts answers
+ * lib/oneDriveGraph.ts's calls through this; desktop/cloudFolder.js does
+ * the work. A folder is its absolute path. Every call rejects with an
+ * Error carrying a sentence when the disk refuses.
+ */
+export type DesktopCloudFolderBridge = {
+  /** The OneDrive folders found on this computer, usually one. */
+  roots(): Promise<DesktopCloudFolderEntry[]>;
+  /** The operating system's folder dialog; null when it was closed without a choice. */
+  pickFolder(defaultPath: string | null): Promise<string | null>;
+  stat(folder: string): Promise<DesktopCloudFolderStat>;
+  listFolders(folder: string): Promise<DesktopCloudFolderEntry[]>;
+  listFiles(folder: string): Promise<string[]>;
+  /** Makes the folder, under the next free name if that one is taken. */
+  makeFolder(parent: string, name: string): Promise<DesktopCloudFolderEntry>;
+  readText(folder: string, fileName: string): Promise<string>;
+  /** Written whole: to a temporary name beside the final one, then renamed into place. */
+  writeText(folder: string, fileName: string, text: string): Promise<void>;
+  deleteFile(folder: string, fileName: string): Promise<void>;
+  moveFile(fromFolder: string, fileName: string, intoFolder: string): Promise<void>;
+};
+
 export type DesktopPaths = {
   /** file:// URI of the app's Documents folder, with a trailing slash. */
   document: string;
@@ -122,6 +159,7 @@ export type DesktopBridge = {
   files: DesktopFilesBridge;
   notifications: DesktopNotificationsBridge;
   zoom: DesktopZoomBridge;
+  cloudFolder: DesktopCloudFolderBridge;
 };
 
 declare global {

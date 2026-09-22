@@ -8,8 +8,10 @@
 // native modules do is done here instead: SQLite runs in this process on
 // node:sqlite (sqlite.js), secrets are encrypted with safeStorage
 // (secrets.js), reminders are timers that raise system notifications
-// (notifications.js), files live under the data folder (files.js), how
-// large the app draws is page zoom kept in settings.json (zoom.js), and
+// (notifications.js), files live under the data folder (files.js), the
+// shared folder is the OneDrive folder on the disk with no sign-in of its
+// own (cloudFolder.js), how large the app draws is page zoom kept in
+// settings.json (zoom.js), and
 // the reference database is copied out of the install folder on first
 // run. preload.js exposes those to the page as
 // window.insideStoryDesktop, and lib/desktop/bridge.ts in the app is the
@@ -27,6 +29,7 @@ const sqlite = require('./sqlite');
 const secrets = require('./secrets');
 const notifications = require('./notifications');
 const files = require('./files');
+const cloudFolder = require('./cloudFolder');
 const zoom = require('./zoom');
 
 const APP_ID = 'com.insidestoryapp.app';
@@ -162,6 +165,20 @@ function registerIpc() {
   ipcMain.handle('secrets:get', (_event, key) => secrets.get(userData, key));
   ipcMain.handle('secrets:set', (_event, key, value) => secrets.set(userData, key, value));
   ipcMain.handle('secrets:delete', (_event, key) => secrets.remove(userData, key));
+
+  // The shared folder: OneDrive's folder on this disk, no sign-in. Each
+  // call answers a value or throws, and lib/desktop/cloudFolder.ts turns
+  // the throw into the sentence the app shows.
+  ipcMain.handle('cloud:roots', () => cloudFolder.roots());
+  ipcMain.handle('cloud:pickFolder', (_event, defaultPath) => cloudFolder.pickFolder(() => mainWindow, defaultPath));
+  ipcMain.handle('cloud:stat', (_event, folder) => cloudFolder.stat(folder));
+  ipcMain.handle('cloud:listFolders', (_event, folder) => cloudFolder.listFolders(folder));
+  ipcMain.handle('cloud:listFiles', (_event, folder) => cloudFolder.listFiles(folder));
+  ipcMain.handle('cloud:makeFolder', (_event, parent, name) => cloudFolder.makeFolder(parent, name));
+  ipcMain.handle('cloud:readText', (_event, folder, fileName) => cloudFolder.readText(folder, fileName));
+  ipcMain.handle('cloud:writeText', (_event, folder, fileName, text) => cloudFolder.writeText(folder, fileName, text));
+  ipcMain.handle('cloud:deleteFile', (_event, folder, fileName) => cloudFolder.deleteFile(folder, fileName));
+  ipcMain.handle('cloud:moveFile', (_event, from, fileName, into) => cloudFolder.moveFile(from, fileName, into));
 
   ipcMain.handle('notifications:schedule', (_event, request) => notifications.schedule(request));
   ipcMain.handle('notifications:cancel', (_event, identifier) => notifications.cancel(identifier));

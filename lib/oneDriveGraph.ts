@@ -17,7 +17,18 @@
 // refreshes it when it has aged out, and turns a Graph error body into a
 // sentence rather than a status code. One place means a permission problem
 // reads the same wherever it surfaces.
+//
+// ON A COMPUTER NONE OF THIS RUNS. The OneDrive client there already keeps
+// the folder on the disk, signed in by the person once for the whole
+// machine, so every exported function below hands off to
+// lib/desktop/cloudFolder.ts when isDesktopApp() says so, and the folder is
+// read and written like any other folder. Same DriveItemRef shape, with
+// driveId 'disk' and the absolute path as the itemId, so nothing above this
+// module knows the difference. A runtime check rather than a metro swap,
+// because what changes is where the folder is, not which package answers.
 
+import { isDesktopApp } from './desktop/bridge';
+import * as disk from './desktop/cloudFolder';
 import { getAccessToken } from './oneDriveAuth';
 
 const GRAPH = 'https://graph.microsoft.com/v1.0';
@@ -156,6 +167,7 @@ function isFolder(child: GraphChild): boolean {
 
 /** The id of the signed-in person's own drive, needed to address its root. */
 export async function getMyDriveId(): Promise<GraphResult<string>> {
+  if (isDesktopApp()) return { ok: true, value: disk.DISK_DRIVE_ID };
   const result = await graphFetch('/me/drive?$select=id');
   if (!result.ok) return result;
   const id = (result.value as { id?: string }).id;
@@ -165,6 +177,7 @@ export async function getMyDriveId(): Promise<GraphResult<string>> {
 
 /** Folders at the top of the person's own OneDrive. */
 export async function listMyRootFolders(): Promise<GraphResult<DriveItemRef[]>> {
+  if (isDesktopApp()) return disk.listRoots();
   const drive = await getMyDriveId();
   if (!drive.ok) return drive;
   const result = await graphFetch('/me/drive/root/children?$top=200&$select=id,name,folder,parentReference');
@@ -184,6 +197,9 @@ export async function listMyRootFolders(): Promise<GraphResult<DriveItemRef[]>> 
  * finds it under their own files instead, which is why both lists are offered.
  */
 export async function listSharedFolders(): Promise<GraphResult<DriveItemRef[]>> {
+  // A folder somebody shared appears inside the OneDrive folder on the disk
+  // once the person adds it to their own files, so there is no second list.
+  if (isDesktopApp()) return { ok: true, value: [] };
   const result = await graphFetch('/me/drive/sharedWithMe');
   if (!result.ok) return result;
   const items = ((result.value as { value?: GraphChild[] }).value ?? [])
@@ -195,6 +211,7 @@ export async function listSharedFolders(): Promise<GraphResult<DriveItemRef[]>> 
 
 /** Folders inside a folder, so the picker can go deeper than one level. */
 export async function listChildFolders(parent: DriveItemRef): Promise<GraphResult<DriveItemRef[]>> {
+  if (isDesktopApp()) return disk.listChildFolders(parent);
   const result = await graphFetch(
     '/drives/' + parent.driveId + '/items/' + parent.itemId +
       '/children?$top=200&$select=id,name,folder,parentReference',
@@ -246,6 +263,7 @@ export async function createFolder(
   parent: DriveItemRef,
   name: string,
 ): Promise<GraphResult<DriveItemRef>> {
+  if (isDesktopApp()) return disk.createFolder(parent, name);
   const result = await graphFetch('/drives/' + parent.driveId + '/items/' + parent.itemId + '/children', {
     method: 'POST',
     contentType: 'application/json',
@@ -275,6 +293,7 @@ export type DriveFileRef = { itemId: string; name: string };
  * cannot be done with a name at all.
  */
 export async function listFiles(folder: DriveItemRef): Promise<GraphResult<DriveFileRef[]>> {
+  if (isDesktopApp()) return disk.listFiles(folder);
   const result = await graphFetch(
     '/drives/' + folder.driveId + '/items/' + folder.itemId + '/children?$top=200&$select=id,name,file',
   );
@@ -297,6 +316,7 @@ export async function moveFile(
   file: DriveFileRef,
   into: DriveItemRef,
 ): Promise<GraphResult<null>> {
+  if (isDesktopApp()) return disk.moveFile(from, file, into);
   const result = await graphFetch('/drives/' + from.driveId + '/items/' + file.itemId, {
     method: 'PATCH',
     contentType: 'application/json',
@@ -307,6 +327,7 @@ export async function moveFile(
 }
 
 export async function listFileNames(folder: DriveItemRef): Promise<GraphResult<string[]>> {
+  if (isDesktopApp()) return disk.listFileNames(folder);
   const result = await graphFetch(
     '/drives/' + folder.driveId + '/items/' + folder.itemId + '/children?$top=200&$select=id,name,file',
   );
@@ -330,6 +351,7 @@ export async function uploadText(
   fileName: string,
   text: string,
 ): Promise<GraphResult<null>> {
+  if (isDesktopApp()) return disk.uploadText(folder, fileName, text);
   const result = await graphFetch(
     '/drives/' + folder.driveId + '/items/' + folder.itemId + ':/' +
       encodeURIComponent(fileName) + ':/content?@microsoft.graph.conflictBehavior=replace',
@@ -344,6 +366,7 @@ export async function downloadText(
   folder: DriveItemRef,
   fileName: string,
 ): Promise<GraphResult<string>> {
+  if (isDesktopApp()) return disk.downloadText(folder, fileName);
   const result = await graphFetch(
     '/drives/' + folder.driveId + '/items/' + folder.itemId + ':/' +
       encodeURIComponent(fileName) + ':/content',
@@ -358,6 +381,7 @@ export async function deleteFile(
   folder: DriveItemRef,
   fileName: string,
 ): Promise<GraphResult<null>> {
+  if (isDesktopApp()) return disk.deleteFile(folder, fileName);
   const result = await graphFetch(
     '/drives/' + folder.driveId + '/items/' + folder.itemId + ':/' + encodeURIComponent(fileName),
     { method: 'DELETE' },
@@ -376,6 +400,7 @@ export async function deleteFile(
 export async function checkFolder(
   folder: DriveItemRef,
 ): Promise<GraphResult<{ name: string; path?: string }>> {
+  if (isDesktopApp()) return disk.checkFolder(folder);
   const result = await graphFetch(
     '/drives/' + folder.driveId + '/items/' + folder.itemId + '?$select=id,name,folder,parentReference',
   );

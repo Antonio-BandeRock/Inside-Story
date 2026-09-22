@@ -22,6 +22,17 @@
 // you does not appear anywhere in your own OneDrive; it sits under Shared with me
 // and physically lives in their drive. Whoever MADE the folder finds it under
 // their own files instead.
+//
+// ON A COMPUTER THERE IS NO SIGN-IN AND ONE STARTING POINT. The OneDrive
+// client on the machine is already signed in and keeps its folder on the
+// disk, so the picker starts inside that folder (lib/desktop/cloudFolder.ts
+// finds it), a shared folder is whatever the person added to their own
+// OneDrive, and the operating system's folder dialog is offered beside the
+// listing for anyone who would rather point at the folder directly. The
+// sign-in and sign-out cards are not shown, because there is nothing to sign
+// in to: the 2026-09-21 report was a sign-in page that "kept waiting and
+// waiting and never completed", since Microsoft's redirect had nowhere to
+// land on a PC.
 
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -34,15 +45,17 @@ import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import { getOneDriveFolder, setMailboxFolderName, setOneDriveFolder } from '../lib/db';
+import { isDesktopApp } from '../lib/desktop/bridge';
+import { pickFolder } from '../lib/desktop/cloudFolder';
 import { isOneDriveConfigured, isSignedIn, signIn, signOut } from '../lib/oneDriveAuth';
 import {
   BACKUPS_FOLDER_NAME,
   forgetResolvedFolders,
+  getSharedFolder,
   MAILBOX_FOLDER_NAME,
   prepareSharedFolder,
 } from '../lib/oneDriveFolders';
 import {
-  checkFolder,
   createFolder,
   listChildFolders,
   listMyRootFolders,
@@ -57,11 +70,14 @@ type Root = 'shared' | 'mine';
 export default function OneDriveFolderScreen() {
   const router = useRouter();
   const scrollPadding = useFloatingButtonScrollPadding();
+  const desktop = isDesktopApp();
 
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
-  const [root, setRoot] = useState<Root>('shared');
+  // A computer has no Shared with me: a folder somebody shared sits inside
+  // the OneDrive folder on the disk once the person adds it to their files.
+  const [root, setRoot] = useState<Root>(desktop ? 'mine' : 'shared');
   // The path from a root down to wherever the person is now. Empty means they
   // are looking at a root listing. The last entry is the current folder, which
   // is also the one the Use button would pick.
@@ -94,18 +110,18 @@ export default function OneDriveFolderScreen() {
    *
    * A folder renamed or moved since it was picked otherwise shows as something
    * that does not match what the person sees in OneDrive, which is exactly the
-   * confusion showing a path was meant to remove. A folder that cannot be reached
-   * right now is left alone: losing the choice over one failed request would be
-   * worse than a slightly stale name.
+   * confusion showing a path was meant to remove. getSharedFolder does the
+   * checking, and on a computer it also reads a folder chosen on a phone back
+   * into the same folder on this disk. A folder that cannot be reached right
+   * now is kept and the reason shown: losing the choice over one failed
+   * request would be worse than a slightly stale name.
    */
   const refreshStored = useCallback(async (saved: DriveItemRef | null): Promise<DriveItemRef | null> => {
     if (!saved) return null;
-    const checked = await checkFolder(saved);
-    if (!checked.ok) return saved;
-    if (checked.value.name === saved.name && checked.value.path === saved.path) return saved;
-    const refreshed: DriveItemRef = { ...saved, name: checked.value.name, path: checked.value.path };
-    await setOneDriveFolder(refreshed);
-    return refreshed;
+    const shared = await getSharedFolder();
+    if (shared.state === 'ready') return shared.folder;
+    if (shared.state === 'unreachable') setNote(shared.reason);
+    return saved;
   }, []);
 
   useEffect(() => {
@@ -116,9 +132,21 @@ export default function OneDriveFolderScreen() {
       if (!alreadySignedIn) return;
       const currentFolder = await refreshStored(saved);
       setChosen(currentFolder);
-      await load('shared', []);
+      if (desktop) {
+        // Start inside the OneDrive folder itself when there is one, since
+        // a listing that says only "OneDrive" is a tap for nothing. Two
+        // roots (a personal account and a work one) are listed to choose
+        // between.
+        const roots = await listMyRootFolders();
+        if (roots.ok && roots.value.length === 1) {
+          setTrail([roots.value[0]]);
+          await load('mine', [roots.value[0]]);
+          return;
+        }
+      }
+      await load(desktop ? 'mine' : 'shared', []);
     })();
-  }, [load, refreshStored]);
+  }, [desktop, load, refreshStored]);
 
   const handleSignIn = async () => {
     setBusy(true);
@@ -168,15 +196,14 @@ export default function OneDriveFolderScreen() {
     await load(root, nextTrail);
   };
 
-  const handleUse = async () => {
-    if (!current) return;
+  const adoptFolder = async (folder: DriveItemRef, nextTrail: DriveItemRef[]) => {
     setBusy(true);
-    await setOneDriveFolder(current);
+    await setOneDriveFolder(folder);
     // The name is written too, and not as a duplicate. It is what travels in a
     // pairing code so the other phone can say which folder it means. The address
     // is what this app opens; the name is what a person reads.
-    await setMailboxFolderName(current.name);
-    setChosen(current);
+    await setMailboxFolderName(folder.name);
+    setChosen(folder);
     // Made now rather than on first use, so somebody can open OneDrive straight
     // afterwards and see the shape they were told about.
     const prepared = await prepareSharedFolder();
@@ -184,15 +211,39 @@ export default function OneDriveFolderScreen() {
     setNote(
       prepared.ok
         ? 'Using ' +
-          current.name +
+          folder.name +
           '. ' +
           MAILBOX_FOLDER_NAME +
           ' and ' +
           BACKUPS_FOLDER_NAME +
           ' are ready inside it.'
-        : 'Using ' + current.name + ', but its folders could not be made yet. ' + (prepared.reason ?? ''),
+        : 'Using ' + folder.name + ', but its folders could not be made yet. ' + (prepared.reason ?? ''),
     );
-    await load(root, trail);
+    await load(root, nextTrail);
+  };
+
+  const handleUse = async () => {
+    if (!current) return;
+    await adoptFolder(current, trail);
+  };
+
+  /**
+   * The operating system's folder dialog, on a computer only.
+   *
+   * The folder it hands back is used straight away and the listing moves
+   * there, so what is on the screen is what was just chosen.
+   */
+  const handleChooseFolder = async () => {
+    const picked = await pickFolder();
+    if (!picked.ok) {
+      setNote(picked.reason);
+      return;
+    }
+    if (!picked.value) return;
+    const nextTrail = [picked.value];
+    setTrail(nextTrail);
+    setRoot('mine');
+    await adoptFolder(picked.value, nextTrail);
   };
 
   const handleCreate = async () => {
@@ -284,19 +335,32 @@ export default function OneDriveFolderScreen() {
       {signedIn ? (
         <>
           <View style={styles.card}>
-            <View style={styles.rootRow}>
-              <TouchableOpacity onPress={() => handleSwitchRoot('shared')} hitSlop={8}>
-                <Text style={root === 'shared' ? styles.rootActive : styles.rootInactive}>Shared with me</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleSwitchRoot('mine')} hitSlop={8}>
-                <Text style={root === 'mine' ? styles.rootActive : styles.rootInactive}>My files</Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.hint}>
-              {root === 'shared'
-                ? 'Folders other people have shared with you. Look here if they made the folder.'
-                : 'Folders in your OneDrive. Look here if you made the folder, or make one below.'}
-            </Text>
+            {desktop ? (
+              <>
+                <Text style={styles.label}>OneDrive on this computer</Text>
+                <Text style={styles.hint}>
+                  The folder OneDrive keeps on this computer, already signed in. A folder somebody shared with you is
+                  in here once you add it to your OneDrive. Open one and tap Use, make one below, or choose any folder
+                  with the button.
+                </Text>
+              </>
+            ) : (
+              <>
+                <View style={styles.rootRow}>
+                  <TouchableOpacity onPress={() => handleSwitchRoot('shared')} hitSlop={8}>
+                    <Text style={root === 'shared' ? styles.rootActive : styles.rootInactive}>Shared with me</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleSwitchRoot('mine')} hitSlop={8}>
+                    <Text style={root === 'mine' ? styles.rootActive : styles.rootInactive}>My files</Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.hint}>
+                  {root === 'shared'
+                    ? 'Folders other people have shared with you. Look here if they made the folder.'
+                    : 'Folders in your OneDrive. Look here if you made the folder, or make one below.'}
+                </Text>
+              </>
+            )}
 
             {trail.length > 0 ? (
               <View style={styles.trailRow}>
@@ -315,9 +379,11 @@ export default function OneDriveFolderScreen() {
               <Text style={styles.hint}>
                 {trail.length > 0
                   ? 'Nothing but files in here. You can still use this folder, or make one inside it.'
-                  : root === 'shared'
-                    ? 'Nobody has shared a folder with you yet. Ask them to share one, or switch to My files and make one.'
-                    : 'No folders at the top of your OneDrive.'}
+                  : desktop
+                    ? 'OneDrive was not found on this computer. Install it and sign in, or choose a folder with the button below.'
+                    : root === 'shared'
+                      ? 'Nobody has shared a folder with you yet. Ask them to share one, or switch to My files and make one.'
+                      : 'No folders at the top of your OneDrive.'}
               </Text>
             ) : null}
 
@@ -341,6 +407,13 @@ export default function OneDriveFolderScreen() {
                 <Text style={styles.primaryButtonText}>Use {current.name}</Text>
               </TouchableOpacity>
             ) : null}
+
+            {desktop ? (
+              <TouchableOpacity style={styles.primaryButton} onPress={handleChooseFolder} disabled={busy}>
+                <Ionicons name="folder-open-outline" size={18} color={colors.textOnButton} />
+                <Text style={styles.primaryButtonText}>Choose a Folder</Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
 
           <View style={styles.card}>
@@ -361,11 +434,13 @@ export default function OneDriveFolderScreen() {
             </TouchableOpacity>
           </View>
 
-          <View style={styles.card}>
-            <TouchableOpacity onPress={handleSignOut} hitSlop={8}>
-              <Text style={styles.action}>Sign Out of OneDrive</Text>
-            </TouchableOpacity>
-          </View>
+          {desktop ? null : (
+            <View style={styles.card}>
+              <TouchableOpacity onPress={handleSignOut} hitSlop={8}>
+                <Text style={styles.action}>Sign Out of OneDrive</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </>
       ) : null}
 

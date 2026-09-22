@@ -65,6 +65,18 @@ contextBridge.exposeInMainWorld('insideStoryDesktop', {
     copy: (from, to) => unwrap(ipcRenderer.sendSync('files:copy', from, to)),
     move: (from, to) => unwrap(ipcRenderer.sendSync('files:move', from, to)),
   },
+  cloudFolder: {
+    roots: () => ipcRenderer.invoke('cloud:roots'),
+    pickFolder: (defaultPath) => ipcRenderer.invoke('cloud:pickFolder', defaultPath),
+    stat: (folder) => ipcRenderer.invoke('cloud:stat', folder),
+    listFolders: (folder) => ipcRenderer.invoke('cloud:listFolders', folder),
+    listFiles: (folder) => ipcRenderer.invoke('cloud:listFiles', folder),
+    makeFolder: (parent, name) => ipcRenderer.invoke('cloud:makeFolder', parent, name),
+    readText: (folder, fileName) => ipcRenderer.invoke('cloud:readText', folder, fileName),
+    writeText: (folder, fileName, text) => ipcRenderer.invoke('cloud:writeText', folder, fileName, text),
+    deleteFile: (folder, fileName) => ipcRenderer.invoke('cloud:deleteFile', folder, fileName),
+    moveFile: (from, fileName, into) => ipcRenderer.invoke('cloud:moveFile', from, fileName, into),
+  },
   zoom: {
     get: () => ipcRenderer.invoke('zoom:get'),
     set: (factor) => ipcRenderer.invoke('zoom:set', factor),
