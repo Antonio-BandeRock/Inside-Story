@@ -42,6 +42,7 @@ import {
   type PeerStanding,
 } from './peerMerge';
 import { tableNamesThatCross } from './peerRelationships';
+import { ANNOUNCE_MERGES } from './snapshotSync';
 import { readSchemaShapes } from './snapshotShapes';
 import type { MergeSide, Row, Tables } from './snapshotMerge';
 import { recordPeerMerge } from './syncLog';
@@ -218,7 +219,7 @@ export async function mergeFromPeer(
   // tell me what changed, or work quietly and let me look in the log.
   return {
     result,
-    notice: state.announce ? peerMergeNotice(result, wordsForPeerTable, connection.name) : null,
+    notice: ANNOUNCE_MERGES ? peerMergeNotice(result, wordsForPeerTable, connection.name) : null,
     refused: refusedNotice(result.refused, connection.name),
   };
 }

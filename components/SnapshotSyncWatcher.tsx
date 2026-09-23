@@ -45,10 +45,10 @@
 // caused this update to synchronize from the other device"). The words
 // come from lib/snapshotChanges.ts. Neither list is in hand the moment
 // the question is asked, so it goes up with what it has and gains the
-// rest as it arrives. Every merge after that says what came over and
-// what was already here, unless the person has turned those notices off
-// in Profile, in which case it goes to the log and nothing interrupts
-// (lib/syncLog.ts).
+// rest as it arrives. Every merge after that happens quietly and goes to
+// the log instead (lib/syncLog.ts, read on app/sync-activity.tsx), which
+// is ANNOUNCE_MERGES in lib/snapshotSync.ts and the reason the notice
+// paths below are left standing rather than deleted.
 //
 // A save that finds a copy this device has not taken in merges first,
 // which is the same-time guard: nothing is ever written over that this

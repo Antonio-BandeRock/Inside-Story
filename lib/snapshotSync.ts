@@ -74,14 +74,30 @@ export type SnapshotSyncState = {
   lastHash: string | null;
   /** A notice to show once after the restart that follows an automatic load. */
   pendingNotice: string | null;
-  /**
-   * Whether to say on screen what each merge brought in and sent out.
-   * Off still fills the log, which is the point of having one: "to not
-   * see them and assume that the system works each time, but there is a
-   * log for them to view". Per device, since it is about this screen.
-   */
-  announce: boolean;
 };
+
+/**
+ * Whether a merge says on screen what it brought in and sent out.
+ *
+ * Off since 1.0.49.9, by direct instruction: "The changes in app from
+ * either side don't need to be displayed across the screen for each one
+ * ... I think we have proven the changes work and are reliable. Now we
+ * need to turn off the notifications until we see a reason to make them
+ * available, how and where."
+ *
+ * Nothing about the merging itself changed. Every merge still happens,
+ * still writes its line to sync_change_log, and Sync Activity under
+ * Profile is where it is read. The wording is still built and still
+ * tested (lib/snapshotChanges.ts, scripts/test_snapshot_changes.js),
+ * since the first-time question, the one place somebody has to choose
+ * between two copies of their database, has nothing else to go on.
+ *
+ * It was a per-device switch in Profile, and that switch is the part
+ * that is gone: where and how to offer this again is an open question
+ * rather than a setting sitting there unasked for. Turning it back on is
+ * this one line.
+ */
+export const ANNOUNCE_MERGES = false;
 
 export const EMPTY_SYNC_STATE: SnapshotSyncState = {
   enabled: false,
@@ -94,7 +110,6 @@ export const EMPTY_SYNC_STATE: SnapshotSyncState = {
   lastProblem: null,
   lastHash: null,
   pendingNotice: null,
-  announce: true,
 };
 
 export const SYNC_RECORD_FILE_NAME = 'inside-story-sync.json';

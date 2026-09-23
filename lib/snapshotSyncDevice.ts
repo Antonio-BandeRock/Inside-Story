@@ -49,6 +49,7 @@ import {
 import { readSchemaShapes, WORKED_OUT_TABLES } from './snapshotShapes';
 import { recordMerge } from './syncLog';
 import {
+  ANNOUNCE_MERGES,
   APP_META_TABLE,
   CHANGE_BASELINE_META_KEY,
   DEVICE_LOCAL_META_KEYS,
@@ -600,7 +601,7 @@ export function mergeSnapshot(record: SnapshotRecord): Promise<MergeOutcome> {
     await recordMerge(merged.entries, { here: me.kind, there: record.latest.device.kind });
     peeked = null;
 
-    const notice = state.announce
+    const notice = ANNOUNCE_MERGES
       ? mergedNotice(
           record,
           {

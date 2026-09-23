@@ -35,7 +35,6 @@ import {
   mergeSnapshot,
   readSyncState,
   saveSnapshot,
-  updateSyncState,
 } from '../lib/snapshotSyncDevice';
 import { AppActionSheet } from '../components/AppActionSheet';
 import { restartAfterLoad } from '../components/SnapshotSyncWatcher';
@@ -1257,20 +1256,19 @@ export default function ProfileScreen() {
       await restartAfterLoad(showBackupAlert);
       return;
     }
-    if (outcome.notice) showBackupAlert('Brought together', outcome.notice);
+    showBackupAlert(
+      'Brought together',
+      outcome.notice ??
+        'This device and your ' +
+          otherDeviceKind +
+          ' now hold the same thing. See Sync Activity for what each of you changed.',
+    );
   }
 
   // Sync Now no longer forces: forcing would put this device's rows where
   // both devices' rows belong. A copy in the folder this device has not
   // taken in is merged first (planBeforeSave), so the button does the
   // whole round trip.
-  // Whether a merge says so on screen. Off is a deliberate choice to
-  // trust it and read the log later, never a way of turning the merging
-  // itself off.
-  async function toggleSyncAnnounce() {
-    setSyncState(await updateSyncState({ announce: !syncState.announce }));
-  }
-
   async function handleSyncNow() {
     if (syncBusy) return;
     setSyncBusy(true);
@@ -4601,36 +4599,21 @@ export default function ProfileScreen() {
                     <TouchableOpacity style={styles.checkinButton} disabled={syncBusy} onPress={handleSyncNow}>
                       <Text style={styles.checkinButtonText}>{syncBusy ? 'Working…' : 'Save to the Shared Folder Now'}</Text>
                     </TouchableOpacity>
-                    {/* The notice, and the log. Direct instruction,
-                        2026-09-22: "The user should be able to have the
-                        update on the screen that tells them about each
-                        change that was made by which device, or to not see
-                        them and assume that the system works each time, but
-                        there is a log for them to view." The pill is the
-                        first half; the log fills either way.
-
-                        It governs both kinds of merge, since it is one
-                        question: tell me what changed, or work quietly
-                        and let me look. A merge with a partner, a child
-                        or somebody who helps you reads the same way and
-                        lands in the same log (lib/peerSyncDevice.ts). */}
-                    <View style={styles.pillRow}>
-                      <TouchableOpacity
-                        style={[styles.pill, syncState.announce && styles.pillActive]}
-                        onPress={() => void toggleSyncAnnounce()}
-                      >
-                        <Text style={[styles.pillText, syncState.announce && styles.pillTextActive]}>
-                          Tell me what changed
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
+                    {/* Quietly, and the log is where it is read. Direct
+                        instruction, 1.0.49.9: "we have proven the changes
+                        work and are reliable. Now we need to turn off the
+                        notifications until we see a reason to make them
+                        available, how and where." The Tell me what changed
+                        pill that stood here is gone with them; one line in
+                        lib/snapshotSync.ts (ANNOUNCE_MERGES) brings both
+                        back when there is an answer to where they belong.
+                        Nothing about the merging changed, and it covers a
+                        partner, a child or somebody who helps you the same
+                        way (lib/peerSyncDevice.ts). */}
                     <Text style={styles.helpText}>
-                      {syncState.announce
-                        ? 'Each time this device comes into step with your ' +
-                          otherDeviceKind +
-                          ', or with somebody you share with, a short notice says what came over and what was already ' +
-                          'here. Turn this off to let it happen quietly.'
-                        : 'Everything comes into step quietly. What happens is still written down in the activity below.'}
+                      {'Everything comes into step quietly, with your ' +
+                        otherDeviceKind +
+                        ' and with anybody you share with. What each of you changed is written down in the activity below.'}
                     </Text>
                     <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/sync-activity')}>
                       <Text style={styles.checkinButtonText}>See Sync Activity</Text>
