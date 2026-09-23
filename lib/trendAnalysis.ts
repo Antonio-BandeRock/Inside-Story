@@ -7,6 +7,7 @@ import {
   getProjectedNutrientTotalsByDateRange,
   getProjectedSixDimensionsFlagCountsByDateRange,
   getSixDimensionsFlagCountsByDateRange,
+  getSupplementNutrientTotalsByDate,
   listCheckins,
   type CheckinType,
   type EatingWindowDayCount,
@@ -76,6 +77,15 @@ export type TrendPoint = { date: string; value: number };
 
 export type NutrientTrendSeries = {
   points: TrendPoint[]; // percentOfTarget per day, one entry per day that actually had a meal logged
+  // The same days again, counting food alone. The space between the two
+  // lines is what a supplement added, which is the whole food-first
+  // question: did the figure rise because somebody ate differently, or
+  // because they swallowed more capsules (2026-09-23).
+  foodPoints: TrendPoint[];
+  // What the supplement half rests on, for the caption to say out loud.
+  // See lib/supplementWindow.ts: nothing in this app records a dose being
+  // swallowed, so this is the regimen as the person described it.
+  supplementBasis: 'none' | 'dated' | 'undated';
   latestStatus: NutrientStatus | null;
   displayName: string | null;
   unit: string | null;
@@ -93,7 +103,16 @@ export type NutrientTrendSeries = {
 // do with real intake.
 export async function getNutrientTrendSeriesForRange(nutrientCode: string, startDate: string, endDate: string): Promise<NutrientTrendSeries> {
   const bySeries = await getNutrientTrendSeriesForCodes([nutrientCode], startDate, endDate);
-  return bySeries.get(nutrientCode) ?? { points: [], latestStatus: null, displayName: null, unit: null };
+  return (
+    bySeries.get(nutrientCode) ?? {
+      points: [],
+      foodPoints: [],
+      supplementBasis: 'none',
+      latestStatus: null,
+      displayName: null,
+      unit: null,
+    }
+  );
 }
 
 // Several nutrients from one pass over the range (2026-09-14). The
@@ -111,35 +130,50 @@ export async function getNutrientTrendSeriesForCodes(
   const today = todayDateString();
   const dayTotals: Record<string, Record<string, number>> = {};
   let driRows: Awaited<ReturnType<typeof getNutrientTotalsByDateRange>>['driRows'] = [];
-  let supplementTotals: Record<string, number> = {};
 
   if (startDate <= today) {
     const actual = await getNutrientTotalsByDateRange(startDate, endDate <= today ? endDate : today);
     Object.assign(dayTotals, actual.dayTotals);
     driRows = actual.driRows;
-    supplementTotals = actual.supplementTotals;
   }
   if (endDate > today) {
     const projectedStart = startDate > today ? startDate : dateStringOffsetFrom(today, 1);
     const projected = await getProjectedNutrientTotalsByDateRange(projectedStart, endDate);
     Object.assign(dayTotals, projected.dayTotals);
     if (driRows.length === 0) driRows = projected.driRows;
-    if (Object.keys(supplementTotals).length === 0) supplementTotals = projected.supplementTotals;
   }
 
-  const result = new Map<string, NutrientTrendSeries>();
-  for (const code of nutrientCodes) result.set(code, { points: [], latestStatus: null, displayName: null, unit: null });
+  // Per day rather than one flat figure for the range (2026-09-23). Both
+  // of the calls above hand back the CURRENT regimen, which applied to
+  // every day charted meant a supplement started yesterday read as having
+  // been there for months, and one stopped in July still counted through
+  // September. This reads each supplement's own dates instead.
+  const dates = dateRangeStringsBetween(startDate, endDate);
+  const supplements = await getSupplementNutrientTotalsByDate(dates);
 
-  for (const date of dateRangeStringsBetween(startDate, endDate)) {
+  const result = new Map<string, NutrientTrendSeries>();
+  for (const code of nutrientCodes) {
+    result.set(code, {
+      points: [],
+      foodPoints: [],
+      supplementBasis: supplements.basis,
+      latestStatus: null,
+      displayName: null,
+      unit: null,
+    });
+  }
+
+  for (const date of dates) {
     const totals = dayTotals[date];
     if (!totals) continue;
 
-    const entries = analyzeNutrientIntake(driRows, totals, supplementTotals);
+    const entries = analyzeNutrientIntake(driRows, totals, supplements.byDate[date] ?? {});
     for (const code of nutrientCodes) {
       const entry = entries.find((e) => e.nutrientCode === code);
       if (!entry || !Number.isFinite(entry.percentOfTarget)) continue;
       const series = result.get(code)!;
       series.points.push({ date, value: entry.percentOfTarget });
+      if (entry.target > 0) series.foodPoints.push({ date, value: (entry.fromFood / entry.target) * 100 });
       series.latestStatus = entry.status;
       series.displayName = entry.displayName;
       series.unit = entry.unit;

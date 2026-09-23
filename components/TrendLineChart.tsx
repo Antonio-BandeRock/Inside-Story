@@ -44,6 +44,9 @@ export function TrendLineChart({
   valueFormatter = (value) => String(Math.round(value)),
   emptyMessage = 'Not enough logged history yet to chart a trend.',
   lineColor = colors.primary,
+  secondaryPoints,
+  secondaryLabel,
+  secondaryFillColor = colors.statusYellowOnSurface,
 }: {
   points: TrendLineChartPoint[];
   yMin: number;
@@ -59,6 +62,19 @@ export function TrendLineChart({
   valueFormatter?: (value: number) => string;
   emptyMessage?: string;
   lineColor?: string;
+  // A second, lower line drawn under the first, with the space between
+  // them filled (2026-09-23). Added for the Trends food-versus-supplement
+  // split, where the lower line is what food alone came to and the filled
+  // space is what a supplement added, in the same amber Insights and
+  // Home's rings already use for a supplement share. A date missing from
+  // this list is simply not part of the filled space, so a partly covered
+  // range draws without a gap in the main line.
+  secondaryPoints?: { date: string; value: number }[];
+  // What the lower line is, for the readout above the chart: the selected
+  // day reads "118% (72% from food)" rather than leaving somebody to guess
+  // which line they tapped.
+  secondaryLabel?: string;
+  secondaryFillColor?: string;
 }) {
   // The chart fills whatever it is placed in, 2026-09-19. It used to take
   // the window width minus a 20 dp page inset, which was wider than the
@@ -119,6 +135,25 @@ export function TrendLineChart({
 
   const pathD = sorted.map((point, index) => `${index === 0 ? 'M' : 'L'} ${dateToX(point.date)},${valueToY(point.value)}`).join(' ');
   const plotRightEdge = Y_AXIS_LABEL_WIDTH + NODE_RADIUS + plotWidth;
+
+  // The lower line, and the band between the two. The band is the upper
+  // line forward and the lower line back, closed, so it is one filled
+  // shape rather than a stack of vertical slivers. Only the dates present
+  // in both lists take part, since a day with no lower figure has no
+  // space to fill.
+  const secondaryByDate = new Map((secondaryPoints ?? []).map((point) => [point.date, point.value]));
+  const shared = sorted.filter((point) => secondaryByDate.has(point.date));
+  const hasSecondary = shared.length >= 2;
+  const secondaryD = hasSecondary
+    ? shared.map((point, index) => `${index === 0 ? 'M' : 'L'} ${dateToX(point.date)},${valueToY(secondaryByDate.get(point.date)!)}`).join(' ')
+    : null;
+  const bandD = hasSecondary
+    ? `${shared.map((point, index) => `${index === 0 ? 'M' : 'L'} ${dateToX(point.date)},${valueToY(point.value)}`).join(' ')} ${[...shared]
+        .reverse()
+        .map((point) => `L ${dateToX(point.date)},${valueToY(secondaryByDate.get(point.date)!)}`)
+        .join(' ')} Z`
+    : null;
+  const selectedSecondary = secondaryByDate.get(selectedPoint.date);
   const referenceY = referenceLine != null ? valueToY(referenceLine) : null;
 
   return (
@@ -129,6 +164,9 @@ export function TrendLineChart({
           the headline figure, not a footnote. */}
       <Text style={styles.selectedValueText}>
         {formatShortDate(selectedPoint.date)}: {valueFormatter(selectedPoint.value)}
+        {selectedSecondary != null && secondaryLabel
+          ? ` (${valueFormatter(selectedSecondary)} ${secondaryLabel})`
+          : ''}
       </Text>
 
       <Svg width={plotRightEdge + NODE_RADIUS + SVG_RIGHT_MARGIN} height={HEIGHT}>
@@ -159,6 +197,8 @@ export function TrendLineChart({
           </SvgText>
         ) : null}
 
+        {bandD ? <Path d={bandD} fill={secondaryFillColor} fillOpacity={0.35} stroke="none" /> : null}
+        {secondaryD ? <Path d={secondaryD} stroke={secondaryFillColor} strokeWidth={2} fill="none" /> : null}
         <Path d={pathD} stroke={lineColor} strokeWidth={3} fill="none" />
 
         {sorted.map((point, index) => (

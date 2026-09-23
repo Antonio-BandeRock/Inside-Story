@@ -4,6 +4,7 @@ import { REFERENCE_DB_VERSION } from './referenceDbVersion';
 import { attachWriteTracking } from './databaseActivity';
 import { ageFromBirthDate } from './profile';
 import { normalizeSupplementAmount } from './supplementUnits';
+import { supplementBasis, supplementCoversDate, type SupplementWindow } from './supplementWindow';
 import { isAlcoholicFood } from './alcoholAdvisory';
 import { isCoffeeFood } from './coffeeAdvisory';
 import { isJuiceFood } from './juiceAdvisory';
@@ -18588,49 +18589,142 @@ async function getNutrientCanonicalUnits(): Promise<Record<string, string>> {
 // Ingredients whose label unit can't be confidently normalized (e.g. an IU
 // dose for a nutrient with no single official IU factor, like vitamin E)
 // are skipped and reported separately rather than silently guessed at.
-export async function getSupplementNutrientTotals(): Promise<{
-  totals: Record<string, number>;
-  skipped: { treatmentId: string; treatmentName: string; nutrientCode: string; reason: string }[];
-}> {
-  const [treatments, canonicalUnits] = await Promise.all([listSupplementTreatments(true), getNutrientCanonicalUnits()]);
-  const totals: Record<string, number> = {};
-  const skipped: { treatmentId: string; treatmentName: string; nutrientCode: string; reason: string }[] = [];
+type SupplementSkip = { treatmentId: string; treatmentName: string; nutrientCode: string; reason: string };
 
-  for (const treatment of treatments) {
-    if (!treatment.unitsPerDay) continue;
-    const ingredients = await getTreatmentNutrients(treatment.id);
+type SupplementContribution = {
+  window: SupplementWindow;
+  totals: Record<string, number>;
+  skipped: SupplementSkip[];
+};
+
+// Every supplement on record, switched on or off, with what it supplies
+// per day and the stretch of dates it covers. Split out from
+// getSupplementNutrientTotals on 2026-09-23 so the Trends food-versus-
+// supplement split can ask about a past day without re-deriving any of
+// the unit normalization. Deliberately not filtered to active rows: a
+// supplement stopped in July genuinely was part of June, and the whole
+// point of the split is that a trend stops pretending otherwise.
+async function getSupplementContributions(): Promise<{ contributions: SupplementContribution[]; skipped: SupplementSkip[] }> {
+  const db = await getDatabase();
+  const [rows, canonicalUnits] = await Promise.all([
+    db.getAllAsync<{
+      id: string;
+      name: string;
+      units_per_day: number | null;
+      start_date: string | null;
+      end_date: string | null;
+      active: number;
+      updated_at: string | null;
+    }>(
+      `
+        SELECT id, name, units_per_day, start_date, end_date, active, updated_at
+        FROM treatments
+        WHERE treatment_type = 'supplement'
+        ORDER BY name
+      `,
+    ),
+    getNutrientCanonicalUnits(),
+  ]);
+
+  const contributions: SupplementContribution[] = [];
+  const skipped: SupplementSkip[] = [];
+
+  for (const row of rows) {
+    if (!row.units_per_day) continue;
+    const ingredients = await getTreatmentNutrients(row.id);
+    const totals: Record<string, number> = {};
+    const rowSkipped: SupplementSkip[] = [];
 
     for (const ingredient of ingredients) {
       const canonicalUnit = canonicalUnits[ingredient.nutrientCode];
-      const dailyAmount = ingredient.amountPerUnit * treatment.unitsPerDay;
+      const dailyAmount = ingredient.amountPerUnit * row.units_per_day;
 
       if (!canonicalUnit) {
-        skipped.push({
-          treatmentId: treatment.id,
-          treatmentName: treatment.name,
-          nutrientCode: ingredient.nutrientCode,
-          reason: 'unknown_unit',
-        });
+        rowSkipped.push({ treatmentId: row.id, treatmentName: row.name, nutrientCode: ingredient.nutrientCode, reason: 'unknown_unit' });
         continue;
       }
 
       const normalized = normalizeSupplementAmount(ingredient.nutrientCode, dailyAmount, ingredient.unit, canonicalUnit);
 
       if (!normalized.ok) {
-        skipped.push({
-          treatmentId: treatment.id,
-          treatmentName: treatment.name,
-          nutrientCode: ingredient.nutrientCode,
-          reason: normalized.reason,
-        });
+        rowSkipped.push({ treatmentId: row.id, treatmentName: row.name, nutrientCode: ingredient.nutrientCode, reason: normalized.reason });
         continue;
       }
 
       totals[ingredient.nutrientCode] = (totals[ingredient.nutrientCode] ?? 0) + normalized.amount;
     }
+
+    contributions.push({
+      window: {
+        startDate: row.start_date,
+        endDate: row.end_date,
+        active: row.active === 1,
+        // updated_at is stored by datetime('now'), so its first ten
+        // characters are the date it was last switched.
+        updatedDate: row.updated_at ? row.updated_at.slice(0, 10) : null,
+      },
+      totals,
+      skipped: rowSkipped,
+    });
+    skipped.push(...rowSkipped);
+  }
+
+  return { contributions, skipped };
+}
+
+export async function getSupplementNutrientTotals(): Promise<{
+  totals: Record<string, number>;
+  skipped: SupplementSkip[];
+}> {
+  const { contributions } = await getSupplementContributions();
+  const totals: Record<string, number> = {};
+  const skipped: SupplementSkip[] = [];
+
+  for (const contribution of contributions) {
+    if (!contribution.window.active) continue;
+    for (const [code, amount] of Object.entries(contribution.totals)) {
+      totals[code] = (totals[code] ?? 0) + amount;
+    }
+    skipped.push(...contribution.skipped);
   }
 
   return { totals, skipped };
+}
+
+// The same figures, worked out per day rather than as one flat number for
+// the whole range. Used by the Trends nutrient split, which until now
+// applied today's regimen to every day charted, so a supplement started
+// yesterday read as having been there three months ago.
+//
+// 'basis' says what the answer rests on, so the chart can say it out loud:
+// 'dated' when every supplement reaching these days carries a start date,
+// 'undated' when at least one is being counted across the range for want
+// of one, 'none' when no supplement touches the range at all.
+export async function getSupplementNutrientTotalsByDate(dates: string[]): Promise<{
+  byDate: Record<string, Record<string, number>>;
+  basis: 'none' | 'dated' | 'undated';
+}> {
+  const { contributions } = await getSupplementContributions();
+  const byDate: Record<string, Record<string, number>> = {};
+  const reaching: SupplementWindow[] = [];
+
+  for (const date of dates) byDate[date] = {};
+
+  for (const contribution of contributions) {
+    if (Object.keys(contribution.totals).length === 0) continue;
+    let reachesAnyDay = false;
+    for (const date of dates) {
+      if (!supplementCoversDate(contribution.window, date)) continue;
+      reachesAnyDay = true;
+      const day = byDate[date];
+      for (const [code, amount] of Object.entries(contribution.totals)) {
+        day[code] = (day[code] ?? 0) + amount;
+      }
+    }
+    if (reachesAnyDay) reaching.push(contribution.window);
+  }
+
+  return { byDate, basis: supplementBasis(reaching) };
 }
 
 function normalizeUnitForConversion(unit: string): MeasurementUnit | null {

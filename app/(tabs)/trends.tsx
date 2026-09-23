@@ -21,6 +21,7 @@ import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { TrendLineChart } from '../../components/TrendLineChart';
+import { summarizeSourceSplit } from '../../lib/supplementWindow';
 import { colors } from '../../constants/colors';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP } from '../../components/HomeSectionBand';
 import { makeTabBandStyles, TabBand } from '../../components/TabBand';
@@ -841,6 +842,22 @@ export default function TrendsScreen() {
 
   const activeLensLabel = TRENDS_LENSES.find((option) => option.key === lens)?.label;
   const latestNutrientPoint = nutrientSeries && nutrientSeries.points.length > 0 ? nutrientSeries.points[nutrientSeries.points.length - 1] : null;
+
+  // Food against supplements over the charted range (2026-09-23), asked
+  // for directly: the standing goal is that food supplies the optimum and
+  // a supplement covers only what food cannot, and until now Trends drew
+  // the two added together with no way to tell which had moved. The
+  // arithmetic and every sentence live in lib/supplementWindow.ts.
+  const nutrientSplit = useMemo(() => {
+    const foodByDate = new Map((nutrientSeries?.foodPoints ?? []).map((point) => [point.date, point.value]));
+    const points = (nutrientSeries?.points ?? [])
+      .filter((point) => foodByDate.has(point.date))
+      .map((point) => ({ date: point.date, foodPercent: foodByDate.get(point.date)!, totalPercent: point.value }));
+    return summarizeSourceSplit(points, nutrientSeries?.supplementBasis ?? 'none');
+  }, [nutrientSeries]);
+  const singleDayFoodPercent = latestNutrientPoint
+    ? (nutrientSeries?.foodPoints.find((point) => point.date === latestNutrientPoint.date)?.value ?? null)
+    : null;
   // Same reasoning as Insights' own identical testOptions/nutrientOptions
   // memoization -- labTests only changes once per visit (see the once-per-
   // focus effect above), so a fresh array on every render would otherwise
@@ -1030,6 +1047,11 @@ export default function TrendsScreen() {
                         <Text style={styles.caption}>
                           {nutrientSeries?.displayName ?? selectedNutrient} · {formatDisplayDate(latestNutrientPoint.date)}
                         </Text>
+                        {singleDayFoodPercent != null && latestNutrientPoint.value - singleDayFoodPercent >= 1 ? (
+                          <Text style={styles.caption}>
+                            {`Your food reached ${Math.round(singleDayFoodPercent)}% of it. What you take covered the rest.`}
+                          </Text>
+                        ) : null}
                       </>
                     ) : (
                       <Text style={styles.loadingText}>
@@ -1048,7 +1070,16 @@ export default function TrendsScreen() {
                       valueFormatter={(value) => `${Math.round(value)}%`}
                       lineColor={nutrientStatusColor(nutrientSeries?.latestStatus ?? null)}
                       emptyMessage="Log a few meals on different days (or schedule some ahead) to see this nutrient's trend."
+                      secondaryPoints={nutrientSplit.supplementInvolved ? nutrientSeries?.foodPoints : undefined}
+                      secondaryLabel="from food"
                     />
+                    {nutrientSplit.daysCharted > 0 ? (
+                      <>
+                        <Text style={styles.caption}>{nutrientSplit.headline}</Text>
+                        {nutrientSplit.legendNote ? <Text style={styles.caption}>{nutrientSplit.legendNote}</Text> : null}
+                        {nutrientSplit.basisNote ? <Text style={styles.caption}>{nutrientSplit.basisNote}</Text> : null}
+                      </>
+                    ) : null}
                   </View>
                 )}
               </>
