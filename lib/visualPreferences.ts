@@ -316,6 +316,12 @@ export type HomeSectionKey =
   // for the person whose reason for opening the app is that daily life
   // will not stay in their head.
   | 'keepingUp'
+  // What the garden gave this month, 2026-09-23. It sits with the other
+  // Trends cards rather than with the Garden ones because a card's group
+  // is the tab it opens, and this one opens Trends > Garden Yield. The
+  // Garden group keeps what is done in the garden (tasks, counters, logging
+  // a picking); this is the reading taken from it.
+  | 'gardenYield'
   // 2026-09-16, direct request: "make sure there is a Group for
   // Gardening on the Home screen... The same goes for Reports, as well
   // as Profile." A group only appears once something real is in it
@@ -386,6 +392,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'weekTrend',
   'varietyThisWeek',
   'keepingUp',
+  'gardenYield',
   // Reports.
   'makeReport',
   // Garden.
@@ -449,6 +456,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   weekTrend: "This Week's Trend",
   varietyThisWeek: 'Variety This Week',
   keepingUp: 'Keeping Up',
+  gardenYield: 'Garden Yield',
   makeReport: 'Make a Report',
   gardenTasks: 'Garden Tasks',
   daysUntil: 'Days Until in the Garden',

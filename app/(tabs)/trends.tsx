@@ -99,6 +99,8 @@ import {
 import { getEatingVarietyInputs, getSafeListInputs } from '../../lib/eatingVarietyDb';
 import type { KeepingUpSummary } from '../../lib/keepingUp';
 import { getKeepingUpSummary } from '../../lib/keepingUpDb';
+import { monthsBack, type HarvestYieldSummary, type PeriodRow } from '../../lib/harvestYield';
+import { getEarliestGardenDate, getHarvestYieldSummary } from '../../lib/harvestYieldDb';
 import { CORE_NUTRIENT_CODES } from './index';
 
 // Every text box on this page belongs to this one page's own tab, so
@@ -120,6 +122,7 @@ type TrendsLens =
   | 'labs'
   | 'groceries'
   | 'keepingUp'
+  | 'harvest'
   | 'patterns'
   | 'therapyResponse';
 
@@ -320,6 +323,33 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       {
         heading: 'Where each of these is recorded',
         body: 'Ticks and routines live on Life > Did I Do It and Life > Routines, captures in the Capture inbox, upkeep on Life > Upkeep, and the work check-in on Life > Work. This lens only reads them: everything is still added and changed where it lives.',
+      },
+    ],
+  },
+  {
+    key: 'harvest',
+    label: 'Garden Yield',
+    icon: 'basket-outline',
+    help: [
+      {
+        heading: 'Garden Yield',
+        body: 'Four readings over the whole life of your garden: what it gave and when, how long each crop took against how long you expected, what your compost has produced and where it went, and what has gone out to other people or come back from them. Open a band to read it.',
+      },
+      {
+        heading: 'Why this one counts in months',
+        body: 'A garden gives nothing for months and then gives everything at once, so a week is the wrong length to look at it in. The range picker here offers a year at a time rather than the 7, 30 and 90 days the other lenses use.',
+      },
+      {
+        heading: 'A blank month is not a month that grew nothing',
+        body: 'Most gardens have a season. A month with nothing recorded is left blank and counted, rather than drawn as a zero, because the app cannot tell an out-of-season month from one where picking simply did not get logged.',
+      },
+      {
+        heading: 'Weights and counts stay apart',
+        body: 'Grams, kilos, ounces and pounds all add up together. A count of cucumbers is not a weight and never joins one, and anything measured another way (bunches, buckets) is kept on a line of its own. Percentages are only ever taken of a weight, so a crop you count rather than weigh has no share next to it.',
+      },
+      {
+        heading: 'Where each of these is recorded',
+        body: 'Pickings go in on Garden > Harvest Log, plantings and their expected dates on Garden > Plots & Plantings, compost on Garden > Compost, and what went out or came back on Garden > Harvest Log. This lens only reads them: everything is still added and changed where it lives.',
       },
     ],
   },
@@ -539,6 +569,48 @@ function renderWeekRows(weeks: WeekCount[], emptyLabel: string = 'not logged') {
   );
 }
 
+// The same drawing as renderWeekRows, over a period that carries its own
+// label and its own formatted figure. A weight cannot be printed with
+// String(value) the way a count can: 2450 grams reads as 2.5 kg or 5.4 lb
+// depending on what the person set, and the bar still needs the raw
+// number to size itself against. So the row carries both.
+function renderPeriodRows(rows: PeriodRow[]) {
+  const highest = Math.max(1, ...rows.map((row) => row.value ?? 0));
+  return (
+    <View style={styles.weekRows}>
+      {rows.map((row) => (
+        <View key={row.key} style={styles.shareRow}>
+          <Text style={styles.shareLabel} numberOfLines={1}>
+            {row.label}
+          </Text>
+          <View style={styles.shareTrack}>
+            {row.value === null || row.value === 0 ? null : (
+              <View
+                style={[
+                  styles.shareBar,
+                  { width: `${Math.max(2, Math.round((row.value / highest) * 100))}%`, backgroundColor: TAB_COLOR },
+                ]}
+              />
+            )}
+          </View>
+          <Text style={styles.weekValue} numberOfLines={1}>
+            {row.display}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+// A garden earns over seasons, so this lens gets its own picker rather
+// than the 7, 30 and 90 days the others share. Everything resolves to the
+// earliest thing recorded anywhere in the garden.
+const HARVEST_RANGE_OPTIONS = [
+  { value: 12, label: 'Last 12 months' },
+  { value: 24, label: 'Last 2 years' },
+  { value: 0, label: 'Everything' },
+] as const;
+
 export default function TrendsScreen() {
   useRegisterScreenHelp('Trends', TRENDS_HELP_SECTIONS, '/trends');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -605,6 +677,9 @@ export default function TrendsScreen() {
   const [fiberSeries, setFiberSeries] = useState<NutrientTrendSeries | null>(null);
   const [varietySummary, setVarietySummary] = useState<EatingVarietySummary | null>(null);
   const [keepingUpSummary, setKeepingUpSummary] = useState<KeepingUpSummary | null>(null);
+  const [harvestSummary, setHarvestSummary] = useState<HarvestYieldSummary | null>(null);
+  // 0 means everything, resolved against the earliest date the garden has.
+  const [harvestMonths, setHarvestMonths] = useState<12 | 24 | 0>(12);
   const [loading, setLoading] = useState(true);
 
   const [nutrientSeries, setNutrientSeries] = useState<NutrientTrendSeries | null>(null);
@@ -740,6 +815,23 @@ export default function TrendsScreen() {
       getKeepingUpSummary(dateStringOffsetFrom(keepingUpEnd, -(days - 1)), keepingUpEnd)
         .then(setKeepingUpSummary)
         .finally(() => setLoading(false));
+    } else if (lens === 'harvest') {
+      // Ends today, and reaches back in whole months: a picking belongs to
+      // the month it happened in, and a range ending in the middle of one
+      // would compare a half month against eleven whole ones.
+      const harvestEnd = todayDateString();
+      (harvestMonths === 0 ? getEarliestGardenDate() : Promise.resolve(null))
+        .then((earliest) =>
+          getHarvestYieldSummary(
+            harvestMonths === 0
+              ? (earliest ? `${earliest.slice(0, 7)}-01` : monthsBack(harvestEnd, 12))
+              : monthsBack(harvestEnd, harvestMonths),
+            harvestEnd,
+            measurementSystem === 'imperial' ? 'imperial' : 'metric',
+          ),
+        )
+        .then(setHarvestSummary)
+        .finally(() => setLoading(false));
     } else if (lens === 'sixDs') {
       const conditionCodes = personalizationProfile?.trackedConditions.map((condition) => condition.code) ?? [];
       getSixDimensionsFlagTrendSeriesForRange(resolvedRange.startDate, resolvedRange.endDate, conditionCodes).then((points) => {
@@ -813,7 +905,7 @@ export default function TrendsScreen() {
         setLoading(false);
       });
     }
-  }, [lens, days, resolvedRange, selectedNutrient, selectedTestCode, selectedGroceryFood, patternWindow, personalizationProfile]);
+  }, [lens, days, harvestMonths, measurementSystem, resolvedRange, selectedNutrient, selectedTestCode, selectedGroceryFood, patternWindow, personalizationProfile]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
@@ -1158,6 +1250,20 @@ export default function TrendsScreen() {
                   </View>
                 ) : null}
               </>
+            ) : lens === 'harvest' ? (
+              <View style={[band.inset, styles.pillRow]}>
+                {HARVEST_RANGE_OPTIONS.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[styles.pill, harvestMonths === option.value && styles.pillActive]}
+                    onPress={() => setHarvestMonths(option.value)}
+                  >
+                    <Text style={[styles.pillText, harvestMonths === option.value && styles.pillTextActive]}>
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             ) : (
               <View style={[band.inset, styles.pillRow]}>
                 {DAY_RANGE_OPTIONS.map((option) => (
@@ -1599,6 +1705,149 @@ export default function TrendsScreen() {
                       </>
                     ) : null}
                     <Text style={styles.patternRowCaption}>{keepingUpSummary.work.caveat}</Text>
+                  </TabBand>
+                </>
+              )
+            ) : lens === 'harvest' ? (
+              loading ? (
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>Reading what the garden gave…</Text>
+                </View>
+              ) : !harvestSummary || !harvestSummary.hasAnything ? (
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>
+                    {'Nothing from the garden in this stretch yet. Log a picking on Garden > Harvest Log, or reach further back with the range above, and this fills in on its own.'}
+                  </Text>
+                </View>
+              ) : (
+                <>
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:harvest:weight"
+                    title="What the garden gave"
+                    icon="basket-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{harvestSummary.yields.headline}</Text>
+                    {renderPeriodRows(harvestSummary.yields.rows)}
+                    {harvestSummary.yields.gapNote ? (
+                      <Text style={styles.patternRowCaption}>{harvestSummary.yields.gapNote}</Text>
+                    ) : null}
+                    {harvestSummary.yields.countLine ? (
+                      <Text style={styles.patternRowCaption}>{harvestSummary.yields.countLine}</Text>
+                    ) : null}
+                    {harvestSummary.yields.otherUnitsLine ? (
+                      <Text style={styles.patternRowCaption}>{harvestSummary.yields.otherUnitsLine}</Text>
+                    ) : null}
+                    {harvestSummary.yields.byCrop.map((crop) => (
+                      <View key={`crop:${crop.name}`} style={styles.patternRow}>
+                        <Text style={styles.patternRowTitle}>{crop.name}</Text>
+                        <Text style={styles.patternRowCaption}>
+                          {crop.share == null ? crop.display : `${crop.display}, ${crop.share}% of the weight`}
+                        </Text>
+                      </View>
+                    ))}
+                    {harvestSummary.yields.byArea.length > 0 ? (
+                      <Text style={styles.patternRowCaption}>By area:</Text>
+                    ) : null}
+                    {harvestSummary.yields.byArea.map((area) => (
+                      <View key={`area:${area.name}`} style={styles.patternRow}>
+                        <Text style={styles.patternRowTitle}>{area.name}</Text>
+                        <Text style={styles.patternRowCaption}>
+                          {area.share == null ? area.display : `${area.display}, ${area.share}% of the weight`}
+                        </Text>
+                      </View>
+                    ))}
+                    {harvestSummary.yields.unassignedLine ? (
+                      <Text style={styles.patternRowCaption}>{harvestSummary.yields.unassignedLine}</Text>
+                    ) : null}
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:harvest:timing"
+                    title="How long each crop took"
+                    icon="time-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{harvestSummary.timing.headline}</Text>
+                    {harvestSummary.timing.byCrop.map((crop) => (
+                      <View key={`timing:${crop.foodName}`} style={styles.patternRow}>
+                        <Text style={styles.patternRowCaption}>{crop.line}</Text>
+                      </View>
+                    ))}
+                    {harvestSummary.timing.runs.map((planting) => (
+                      <View key={`run:${planting.plantingId}`} style={styles.patternRow}>
+                        <Text style={styles.patternRowCaption}>{planting.line}</Text>
+                      </View>
+                    ))}
+                    {harvestSummary.timing.stillGrowing.map((waiting) => (
+                      <View key={`waiting:${waiting.plantingId}`} style={styles.patternRow}>
+                        <Text style={styles.patternRowCaption}>{waiting.line}</Text>
+                      </View>
+                    ))}
+                    {harvestSummary.timing.noExpectedLine ? (
+                      <Text style={styles.patternRowCaption}>{harvestSummary.timing.noExpectedLine}</Text>
+                    ) : null}
+                    <Text style={styles.patternRowCaption}>{harvestSummary.timing.caveat}</Text>
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:harvest:compost"
+                    title="Compost made and compost used"
+                    icon="repeat-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{harvestSummary.compost.headline}</Text>
+                    {harvestSummary.compost.appliedByArea.map((area) => (
+                      <View key={`compost:${area.name}`} style={styles.patternRow}>
+                        <Text style={styles.patternRowTitle}>{area.name}</Text>
+                        <Text style={styles.patternRowCaption}>{area.display}</Text>
+                      </View>
+                    ))}
+                    {harvestSummary.compost.materialsLine ? (
+                      <Text style={styles.patternRowCaption}>{harvestSummary.compost.materialsLine}</Text>
+                    ) : null}
+                    {harvestSummary.compost.turnsLine ? (
+                      <Text style={styles.patternRowCaption}>{harvestSummary.compost.turnsLine}</Text>
+                    ) : null}
+                    {harvestSummary.compost.pilesLine ? (
+                      <Text style={styles.patternRowCaption}>{harvestSummary.compost.pilesLine}</Text>
+                    ) : null}
+                    {harvestSummary.compost.unmeasuredLine ? (
+                      <Text style={styles.patternRowCaption}>{harvestSummary.compost.unmeasuredLine}</Text>
+                    ) : null}
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:harvest:sharing"
+                    title="Given away, traded and received"
+                    icon="swap-horizontal-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{harvestSummary.sharing.headline}</Text>
+                    {harvestSummary.sharing.outgoing.map((row) => (
+                      <View key={`out:${row.foodName}:${row.display}`} style={styles.patternRow}>
+                        <Text style={styles.patternRowTitle}>{row.foodName}</Text>
+                        <Text style={styles.patternRowCaption}>{`${row.display}, ${row.kinds}`}</Text>
+                      </View>
+                    ))}
+                    {harvestSummary.sharing.receivedLine ? (
+                      <Text style={styles.patternRowCaption}>{harvestSummary.sharing.receivedLine}</Text>
+                    ) : null}
+                    {harvestSummary.sharing.received.map((row) => (
+                      <View key={`in:${row.foodName}:${row.display}`} style={styles.patternRow}>
+                        <Text style={styles.patternRowTitle}>{row.foodName}</Text>
+                        <Text style={styles.patternRowCaption}>
+                          {row.from ? `${row.display}, from ${row.from}` : row.display}
+                        </Text>
+                      </View>
+                    ))}
+                    {harvestSummary.sharing.note ? (
+                      <Text style={styles.patternRowCaption}>{harvestSummary.sharing.note}</Text>
+                    ) : null}
                   </TabBand>
                 </>
               )

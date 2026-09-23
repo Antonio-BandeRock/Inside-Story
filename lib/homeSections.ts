@@ -93,6 +93,11 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   // It, Routines, Capture and Upkeep: this card and its lens only read
   // them, which is why it sits with Trends rather than with Life.
   keepingUp: '/trends',
+  // Garden Yield, 2026-09-23. Trends rather than Garden on purpose: the
+  // picking is recorded on Garden > Harvest Log and the timeline over
+  // months is read on Trends, so the card is a window into Trends and
+  // belongs in that group beside the other two readings.
+  gardenYield: '/trends',
   // 2026-09-19: the Digest tab is gone, but the cards keep a group of
   // their own. They sat in the Home group for one release (1.0.41.13),
   // and the correction the same day was "they need to be out on their

@@ -110,6 +110,8 @@ import { getCaptureInboxCounts } from '../../lib/captureNotesDb';
 import { getVarietyHomeSummary, type VarietyHomeSummary } from '../../lib/eatingVarietyDb';
 import type { KeepingUpHomeSummary } from '../../lib/keepingUp';
 import { getKeepingUpHomeSummary } from '../../lib/keepingUpDb';
+import type { GardenYieldHomeSummary } from '../../lib/harvestYield';
+import { getGardenYieldHomeSummary } from '../../lib/harvestYieldDb';
 import { describeWhereIsItRow } from '../../lib/whereIsIt';
 import { countPlaceRecords } from '../../lib/whereIsItDb';
 import { describeReconcileQueue, lookbackDateString } from '../../lib/reconciliation';
@@ -528,6 +530,11 @@ type DashboardData = {
   // caption, worked out in lib/keepingUp.ts. Home draws what it is
   // handed, including the wording for having nothing set up yet.
   keepingUp: KeepingUpHomeSummary;
+  // What the garden gave this calendar month, 2026-09-23. A weight or a
+  // count, what it came to at prices this person has recorded paying, and
+  // nothing when the garden is out of season. Worked out in
+  // lib/harvestYield.ts.
+  gardenYield: GardenYieldHomeSummary;
 };
 
 // The periodic symptom check-in's own automatic re-prompt cadence --
@@ -758,6 +765,12 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.tabTrends,
     href: { pathname: '/trends', params: { openTrendsLens: 'keepingUp' } } as Href,
   },
+  gardenYield: {
+    label: 'Garden Yield',
+    icon: 'basket',
+    color: colors.tabTrends,
+    href: { pathname: '/trends', params: { openTrendsLens: 'harvest' } } as Href,
+  },
   makeReport: {
     label: 'Make a Report',
     icon: 'document-text',
@@ -855,6 +868,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'weekTrend',
   'varietyThisWeek',
   'keepingUp',
+  'gardenYield',
   'makeReport',
   'gardenTasks',
   'daysUntil',
@@ -1406,6 +1420,10 @@ export default function HomeScreen() {
       // for a run to have built up and short enough that the card is
       // about now.
       getKeepingUpHomeSummary(date),
+      // Garden Yield, 2026-09-23. This calendar month only, since the card
+      // is about what the garden is giving now; the months behind it are
+      // the lens's job.
+      getGardenYieldHomeSummary(date),
     ]).then(
       ([
         todaysMeals,
@@ -1430,6 +1448,7 @@ export default function HomeScreen() {
         placeCount,
         variety,
         keepingUp,
+        gardenYield,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1487,6 +1506,7 @@ export default function HomeScreen() {
           placeCount,
           variety,
           keepingUp,
+          gardenYield,
           reconcileCounts: { open: openToAnswer, assumed: assumedToConfirm },
           routines: routinesHome.routines,
           doneChecks: routinesHome.checks,
@@ -2713,6 +2733,36 @@ export default function HomeScreen() {
     );
   }
 
+  // The fourth thing Trends knows, 2026-09-23, and the one that comes out
+  // of the ground. The weight leads where there is one, since that is what
+  // a garden is measured in, and a crop somebody counts rather than weighs
+  // is said in its own words instead of being turned into a weight. The
+  // money line is what this month's picking would have cost at prices the
+  // person has recorded paying, so it is money not spent rather than
+  // money made, and it says so.
+  function renderGardenYield() {
+    if (!isHomeSectionVisible(visualPrefs, 'gardenYield')) return null;
+    if (!data) return null;
+    const gardenYield = data.gardenYield;
+    return renderBand(
+      'gardenYield',
+      'Garden Yield',
+      <TouchableOpacity
+        onPress={() => router.push({ pathname: '/trends', params: { openTrendsLens: 'harvest' } })}
+        activeOpacity={0.75}
+      >
+        {gardenYield.headline == null ? null : (
+          <Text style={[styles.trendNumber, { color: tabColorFor('/trends') }]}>{gardenYield.headline}</Text>
+        )}
+        <Text style={[styles.trendDelta, { color: tabColorFor('/trends') }]}>{gardenYield.line}</Text>
+        {gardenYield.caption ? (
+          <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>{gardenYield.caption}</Text>
+        ) : null}
+        <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>Tap to see it month by month →</Text>
+      </TouchableOpacity>,
+    );
+  }
+
   // See digestFlipCardPool's own comment (top of file) for what these
   // are, 2026-08-23: real Digest entries, scoped to Basic Health plus the
   // person's own conditions, one card per group, each moving to a
@@ -3443,6 +3493,8 @@ export default function HomeScreen() {
         return renderVarietyThisWeek();
       case 'keepingUp':
         return renderKeepingUp();
+      case 'gardenYield':
+        return renderGardenYield();
       case 'makeReport':
         return renderMakeReport();
       case 'gardenTasks':

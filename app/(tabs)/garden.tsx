@@ -1,5 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
@@ -1481,6 +1481,20 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
           </Text>
         </View>
       </TabBand>
+
+      {/* The record stays here and the timeline lives on Trends, which is the
+          rule the whole 2026-09-23 push runs on: Garden keeps its eight lenses
+          and gains a way through rather than a chart of its own. */}
+      <View style={[band.box, styles.card]}>
+        <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Over a longer stretch</Text>
+        <Text style={styles.captionText}>
+          Weight month by month, how long each crop took against how long you expected, what your compost produced, and
+          what has gone out to other people.
+        </Text>
+        <TouchableOpacity onPress={() => router.push({ pathname: '/trends', params: { openTrendsLens: 'harvest' } })}>
+          <Text style={styles.linkText}>Open Garden Yield on Trends</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
