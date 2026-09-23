@@ -605,6 +605,79 @@ export async function completeRoutine(routineId: string): Promise<void> {
   );
 }
 
+// ------------------------------------------------- the record of each walk
+//
+// Added 2026-09-23 for Trends > Keeping Up, which had nothing to chart:
+// routines.last_completed_at holds one timestamp and forgets the walk
+// before it.
+//
+// The row is opened when the walk STARTS and moved along as it goes, so a
+// walk somebody put down half way through still leaves the record of where
+// they got to. Writing it only on completion would have missed the one
+// case worth seeing.
+
+export async function startRoutineRun(
+  routineId: string,
+  routineName: string,
+  stepsTotal: number,
+  firstStep: string | null,
+): Promise<string | null> {
+  if (stepsTotal <= 0) return null;
+  const db = await getDatabase();
+  const id = newId('run');
+  await db.runAsync(
+    `INSERT INTO routine_runs (id, routine_id, routine_name, started_at, steps_total, stopped_on_step, stopped_on_position)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    id,
+    routineId,
+    routineName,
+    new Date().toISOString(),
+    stepsTotal,
+    firstStep,
+    0,
+  );
+  return id;
+}
+
+/** Where the walk has got to. Called on every move, so the row is right
+ *  the moment somebody closes the screen rather than only at the end. */
+export async function markRoutineRunProgress(
+  runId: string | null,
+  progress: { stepsDone: number; stepsSkipped: number; step: string | null; position: number },
+): Promise<void> {
+  if (!runId) return;
+  const db = await getDatabase();
+  await db.runAsync(
+    `UPDATE routine_runs SET steps_done = ?, steps_skipped = ?, stopped_on_step = ?, stopped_on_position = ?
+     WHERE id = ?`,
+    progress.stepsDone,
+    progress.stepsSkipped,
+    progress.step,
+    progress.position,
+    runId,
+  );
+}
+
+/** The last step was reached. stopped_on_step goes back to null, since a
+ *  finished walk stopped nowhere. */
+export async function finishRoutineRun(
+  runId: string | null,
+  stepsDone: number,
+  stepsSkipped: number,
+): Promise<void> {
+  if (!runId) return;
+  const db = await getDatabase();
+  await db.runAsync(
+    `UPDATE routine_runs SET completed_at = ?, steps_done = ?, steps_skipped = ?,
+            stopped_on_step = NULL, stopped_on_position = NULL
+     WHERE id = ?`,
+    new Date().toISOString(),
+    stepsDone,
+    stepsSkipped,
+    runId,
+  );
+}
+
 // ------------------------------------------------------------ what Home reads
 
 export async function getRoutinesHomeData(): Promise<{

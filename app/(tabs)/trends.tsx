@@ -97,6 +97,8 @@ import {
   type WeekCount,
 } from '../../lib/eatingVariety';
 import { getEatingVarietyInputs, getSafeListInputs } from '../../lib/eatingVarietyDb';
+import type { KeepingUpSummary } from '../../lib/keepingUp';
+import { getKeepingUpSummary } from '../../lib/keepingUpDb';
 import { CORE_NUTRIENT_CODES } from './index';
 
 // Every text box on this page belongs to this one page's own tab, so
@@ -117,6 +119,7 @@ type TrendsLens =
   | 'movement'
   | 'labs'
   | 'groceries'
+  | 'keepingUp'
   | 'patterns'
   | 'therapyResponse';
 
@@ -290,6 +293,33 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       {
         heading: 'Prices per pound and per kilo',
         body: 'A price entered per weight is charted as that unit price, not as what the line came to, since what you paid depends on how much you bought. A package price is charted as the package price. The unit is named under the chart so the two are never confused.',
+      },
+    ],
+  },
+  {
+    key: 'keepingUp',
+    label: 'Keeping Up',
+    icon: 'checkmark-done-outline',
+    help: [
+      {
+        heading: 'Keeping Up',
+        body: 'Five readings of how daily life is going: the things you tick off, the routines you walk, what you capture and whether it gets sorted, whether upkeep is getting done on time, and how work has felt. Open a band to read it.',
+      },
+      {
+        heading: 'Nothing here is a score',
+        body: 'A thin week is not a failure and nothing on this lens marks one. It is here because drifting happens quietly, on a hard week or after something changed, and seeing it is what lets you pick it back up on purpose.',
+      },
+      {
+        heading: 'A day with no mark is not a day undone',
+        body: 'The app knows when you tapped something, not what you did. Plenty gets done without anybody tapping anything, so a blank day means no mark was made and nothing more than that. A week with no marks at all reads as nothing marked rather than as zero.',
+      },
+      {
+        heading: 'Two of these bands start from today',
+        body: 'Routine walks and upkeep doings only began being kept on 23 September 2026. Before that the app held the last one and forgot the one before it, so those two bands count from the day they started keeping every one rather than pretending to see further back.',
+      },
+      {
+        heading: 'Where each of these is recorded',
+        body: 'Ticks and routines live on Life > Did I Do It and Life > Routines, captures in the Capture inbox, upkeep on Life > Upkeep, and the work check-in on Life > Work. This lens only reads them: everything is still added and changed where it lives.',
       },
     ],
   },
@@ -478,7 +508,10 @@ const TRENDS_HELP_SECTIONS: HelpSection[] = [
 // week either joins to its neighbours, which invents a week that never
 // happened, or sits at zero, which says somebody ate nothing. A row can
 // simply say so.
-function renderWeekRows(weeks: WeekCount[]) {
+// emptyLabel exists because "not logged" is the right words for meals and
+// the wrong ones for a week nobody ticked anything off in: the app was
+// used, nothing was marked. Each caller says what a blank means there.
+function renderWeekRows(weeks: WeekCount[], emptyLabel: string = 'not logged') {
   const highest = Math.max(1, ...weeks.map((week) => week.value ?? 0));
   return (
     <View style={styles.weekRows}>
@@ -498,7 +531,7 @@ function renderWeekRows(weeks: WeekCount[]) {
             )}
           </View>
           <Text style={styles.weekValue} numberOfLines={1}>
-            {week.value === null ? 'not logged' : String(week.value)}
+            {week.value === null ? emptyLabel : String(week.value)}
           </Text>
         </View>
       ))}
@@ -571,6 +604,7 @@ export default function TrendsScreen() {
   // adding it there would have changed both without being asked.
   const [fiberSeries, setFiberSeries] = useState<NutrientTrendSeries | null>(null);
   const [varietySummary, setVarietySummary] = useState<EatingVarietySummary | null>(null);
+  const [keepingUpSummary, setKeepingUpSummary] = useState<KeepingUpSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [nutrientSeries, setNutrientSeries] = useState<NutrientTrendSeries | null>(null);
@@ -697,6 +731,14 @@ export default function TrendsScreen() {
         .then(([inputs, safe]) => {
           setVarietySummary(summarizeEatingVariety(inputs, safe.safeFoods, safe.trials));
         })
+        .finally(() => setLoading(false));
+    } else if (lens === 'keepingUp') {
+      // Ends today for the same reason Variety does: a streak is a run up
+      // to now, and counting one to the end of some past range would say a
+      // person is on a run they finished three weeks ago.
+      const keepingUpEnd = todayDateString();
+      getKeepingUpSummary(dateStringOffsetFrom(keepingUpEnd, -(days - 1)), keepingUpEnd)
+        .then(setKeepingUpSummary)
         .finally(() => setLoading(false));
     } else if (lens === 'sixDs') {
       const conditionCodes = personalizationProfile?.trackedConditions.map((condition) => condition.code) ?? [];
@@ -1426,6 +1468,137 @@ export default function TrendsScreen() {
                     {varietySummary.safeList.trialNote ? (
                       <Text style={styles.patternRowCaption}>{varietySummary.safeList.trialNote}</Text>
                     ) : null}
+                  </TabBand>
+                </>
+              )
+            ) : lens === 'keepingUp' ? (
+              loading ? (
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>Reading how it has been going…</Text>
+                </View>
+              ) : !keepingUpSummary || !keepingUpSummary.hasAnything ? (
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>
+                    {'Nothing to read yet. Tick something off on Life > Did I Do It, walk a routine, or capture a note, and this fills in on its own.'}
+                  </Text>
+                </View>
+              ) : (
+                <>
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:keepingUp:checks"
+                    title="What you tick off"
+                    icon="checkbox-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{keepingUpSummary.checks.headline}</Text>
+                    {renderWeekRows(keepingUpSummary.checks.weeks, 'nothing marked')}
+                    {keepingUpSummary.checks.gapNote ? (
+                      <Text style={styles.patternRowCaption}>{keepingUpSummary.checks.gapNote}</Text>
+                    ) : null}
+                    {keepingUpSummary.checks.standings.map((standing) => (
+                      <View key={standing.checkId} style={styles.patternRow}>
+                        <Text style={styles.patternRowTitle}>{standing.name}</Text>
+                        <Text style={styles.patternRowCaption}>{standing.line}</Text>
+                      </View>
+                    ))}
+                    <Text style={styles.patternRowCaption}>{keepingUpSummary.checks.caveat}</Text>
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:keepingUp:routines"
+                    title="Routines you walk"
+                    icon="footsteps-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{keepingUpSummary.routines.headline}</Text>
+                    {keepingUpSummary.routines.hasRuns ? (
+                      <>
+                        {renderWeekRows(keepingUpSummary.routines.weeks, 'none walked')}
+                        {keepingUpSummary.routines.gapNote ? (
+                          <Text style={styles.patternRowCaption}>{keepingUpSummary.routines.gapNote}</Text>
+                        ) : null}
+                        {keepingUpSummary.routines.standings.map((standing) => (
+                          <View key={standing.routineId} style={styles.patternRow}>
+                            <Text style={styles.patternRowTitle}>{standing.routineName}</Text>
+                            <Text style={styles.patternRowCaption}>{standing.line}</Text>
+                          </View>
+                        ))}
+                        {keepingUpSummary.routines.stalls.map((stall) => (
+                          <Text key={`${stall.routineName}|${stall.step}`} style={styles.patternRowCaption}>
+                            {stall.line}
+                          </Text>
+                        ))}
+                      </>
+                    ) : null}
+                    {keepingUpSummary.routines.note ? (
+                      <Text style={styles.patternRowCaption}>{keepingUpSummary.routines.note}</Text>
+                    ) : null}
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:keepingUp:captures"
+                    title="What you capture, and what happens to it"
+                    icon="download-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{keepingUpSummary.captures.headline}</Text>
+                    {keepingUpSummary.captures.hasCaptures ? (
+                      <>
+                        {renderWeekRows(keepingUpSummary.captures.weeks, 'none captured')}
+                        {keepingUpSummary.captures.gapNote ? (
+                          <Text style={styles.patternRowCaption}>{keepingUpSummary.captures.gapNote}</Text>
+                        ) : null}
+                      </>
+                    ) : null}
+                    {keepingUpSummary.captures.note ? (
+                      <Text style={styles.patternRowCaption}>{keepingUpSummary.captures.note}</Text>
+                    ) : null}
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:keepingUp:upkeep"
+                    title="Upkeep, on time against late"
+                    icon="construct-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{keepingUpSummary.upkeep.standingLine}</Text>
+                    <Text style={styles.patternRowCaption}>{keepingUpSummary.upkeep.headline}</Text>
+                    {keepingUpSummary.upkeep.recent.map((doing) => (
+                      <View key={`${doing.itemName}|${doing.doneOn}`} style={styles.patternRow}>
+                        <Text style={styles.patternRowTitle}>{doing.itemName}</Text>
+                        <Text style={styles.patternRowCaption}>{doing.line}</Text>
+                      </View>
+                    ))}
+                    <Text style={styles.patternRowCaption}>{keepingUpSummary.upkeep.historyNote}</Text>
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:keepingUp:work"
+                    title="How work has felt"
+                    icon="briefcase-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{keepingUpSummary.work.headline}</Text>
+                    {keepingUpSummary.work.hasCheckins ? (
+                      <>
+                        {renderWeekRows(keepingUpSummary.work.weeks, 'not answered')}
+                        {keepingUpSummary.work.gapNote ? (
+                          <Text style={styles.patternRowCaption}>{keepingUpSummary.work.gapNote}</Text>
+                        ) : null}
+                        {keepingUpSummary.work.drainDirection ? (
+                          <Text style={styles.patternRowCaption}>{keepingUpSummary.work.drainDirection}</Text>
+                        ) : null}
+                        {keepingUpSummary.work.needsLine ? (
+                          <Text style={styles.patternRowCaption}>{keepingUpSummary.work.needsLine}</Text>
+                        ) : null}
+                      </>
+                    ) : null}
+                    <Text style={styles.patternRowCaption}>{keepingUpSummary.work.caveat}</Text>
                   </TabBand>
                 </>
               )

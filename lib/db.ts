@@ -5337,6 +5337,35 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_upkeep_items_active ON upkeep_items(active);
 
+      -- Every upkeep doing kept, not just the last one (2026-09-23).
+      --
+      -- upkeep_items.last_done_on is overwritten every time something is
+      -- marked done, so until now the app forgot the doing before it. That
+      -- makes "is this getting done on time" unanswerable over any span
+      -- longer than one cycle, which is exactly the span it matters over.
+      -- Same reasoning as done_check_marks above, and the same warning: it
+      -- costs one row per doing to keep and cannot be reconstructed later.
+      --
+      -- due_on is what the item was due on AT THE TIME, copied in rather
+      -- than worked out later from interval_months, which the person can
+      -- change afterwards. NULL where nothing had ever set a date, and
+      -- that reads as could not be told rather than as on time: see
+      -- describeUpkeepDoing in lib/keepingUp.ts.
+      --
+      -- item_name is carried on the row so the history stays readable
+      -- after a rename, and there is deliberately NO foreign key, so
+      -- removing an upkeep item leaves the record of what was done to it
+      -- rather than destroying it.
+      CREATE TABLE IF NOT EXISTS upkeep_doings (
+        id TEXT PRIMARY KEY,
+        item_id TEXT NOT NULL,
+        item_name TEXT NOT NULL,
+        done_on TEXT NOT NULL,
+        due_on TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_upkeep_doings_done ON upkeep_doings(done_on);
+
       -- --- The capture inbox: somewhere to throw a thought (2026-09-16) ------
       --
       -- The one table in this file that deliberately knows nothing about what
@@ -5489,6 +5518,40 @@ async function runDatabaseInitialization() {
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
       CREATE INDEX IF NOT EXISTS idx_routine_steps_routine ON routine_steps(routine_id, position);
+
+      -- One row per walk of a routine (2026-09-23).
+      --
+      -- routines.last_completed_at says when the last step was last
+      -- reached and nothing else, so there was no history to read: no way
+      -- to say how often a routine gets walked, how often a walk gets
+      -- abandoned, or which step it tends to stop on. That last one is the
+      -- useful part, since a step things keep stopping on is usually in
+      -- the wrong place in the order or is two steps wearing one label.
+      --
+      -- WRITTEN AT THE START OF THE WALK, not at the end, and updated as
+      -- it moves. A walk somebody abandoned is the case worth recording,
+      -- and a row written only on completion would be the one case that
+      -- never got written. completed_at stays NULL for an abandoned walk
+      -- and steps_done says how far it got.
+      --
+      -- stopped_on_step is the WORDING of the step rather than its id, so
+      -- the history survives the routine being edited, and routine_name is
+      -- carried for the same reason. No foreign key, deliberately:
+      -- deleting a routine should not destroy the record of having walked
+      -- it. See lib/keepingUp.ts for what gets read back out.
+      CREATE TABLE IF NOT EXISTS routine_runs (
+        id TEXT PRIMARY KEY,
+        routine_id TEXT NOT NULL,
+        routine_name TEXT NOT NULL,
+        started_at TEXT NOT NULL,
+        completed_at TEXT,
+        steps_done INTEGER NOT NULL DEFAULT 0,
+        steps_total INTEGER NOT NULL DEFAULT 0,
+        steps_skipped INTEGER NOT NULL DEFAULT 0,
+        stopped_on_step TEXT,
+        stopped_on_position INTEGER
+      );
+      CREATE INDEX IF NOT EXISTS idx_routine_runs_routine ON routine_runs(routine_id, started_at);
 
       -- --- Emergency & Essentials: what someone else needs to know (2026-09-05) --
       --

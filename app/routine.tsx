@@ -28,7 +28,7 @@
 // the claim that the whole routine was done.
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -44,10 +44,13 @@ import {
 } from '../lib/routines';
 import {
   completeRoutine,
+  finishRoutineRun,
   getDoneChecks,
   getRoutine,
   getRoutineOccasions,
   markDoneCheck,
+  markRoutineRunProgress,
+  startRoutineRun,
   undoLastCheckMark,
 } from '../lib/routinesDb';
 
@@ -70,6 +73,15 @@ export default function RoutineWalkScreen() {
   const [ticked, setTicked] = useState<Record<string, string>>({});
   const [finished, setFinished] = useState(false);
 
+  // The walk's own row, opened the moment the routine loads and moved
+  // along as the walk goes, so a walk somebody puts down half way through
+  // still says where they got to. Held in refs rather than state because
+  // nothing on screen shows either of them, and a re-render here would be
+  // a re-render for nobody. startedFor is what keeps a second render, or a
+  // Fast Refresh, from opening a second row for one walk.
+  const runIdRef = useRef<string | null>(null);
+  const startedForRef = useRef<string | null>(null);
+
   const load = useCallback(async () => {
     if (!routineId) {
       setLoading(false);
@@ -84,6 +96,15 @@ export default function RoutineWalkScreen() {
     setChecks(allChecks);
     setOccasions(allOccasions);
     setLoading(false);
+    if (found && found.steps.length > 0 && startedForRef.current !== found.id) {
+      startedForRef.current = found.id;
+      runIdRef.current = await startRoutineRun(
+        found.id,
+        found.name,
+        found.steps.length,
+        found.steps[0]?.text ?? null,
+      );
+    }
   }, [routineId]);
 
   useEffect(() => {
@@ -112,6 +133,23 @@ export default function RoutineWalkScreen() {
     }
     return lines;
   }, [checks, steps, ticked]);
+
+  /** Where the walk stands, worked out from the two lists rather than
+   *  counted up as it goes, so pressing Back and walking forward again
+   *  cannot inflate it. */
+  const progressFor = useCallback(
+    (position: number, skippedIds: string[]) => {
+      const passed = steps.slice(0, position);
+      const skippedCount = passed.filter((entry) => skippedIds.includes(entry.id)).length;
+      return {
+        stepsDone: passed.length - skippedCount,
+        stepsSkipped: skippedCount,
+        step: steps[position]?.text ?? null,
+        position,
+      };
+    },
+    [steps],
+  );
 
   /** The tick itself, which is the person saying they have just done this
    *  one. Tapping again takes it back, since the likeliest mistake on a
@@ -157,11 +195,15 @@ export default function RoutineWalkScreen() {
       await markDoneCheck(checkId, 'routine', routine.id, markedAt);
       setTicked((current) => ({ ...current, [stepId]: markedAt }));
     }
+    const nextSkipped = skipThisOne && !skipped.includes(stepId) ? [...skipped, stepId] : skipped;
     if (index + 1 < steps.length) {
       setIndex(index + 1);
+      await markRoutineRunProgress(runIdRef.current, progressFor(index + 1, nextSkipped));
       return;
     }
     await completeRoutine(routine.id);
+    const last = progressFor(steps.length, nextSkipped);
+    await finishRoutineRun(runIdRef.current, last.stepsDone, last.stepsSkipped);
     setFinished(true);
   }
 
@@ -258,7 +300,11 @@ export default function RoutineWalkScreen() {
               <TouchableOpacity
                 style={[styles.minorButton, index === 0 ? styles.minorButtonOff : null]}
                 disabled={index === 0}
-                onPress={() => setIndex(Math.max(0, index - 1))}
+                onPress={() => {
+                  const back = Math.max(0, index - 1);
+                  setIndex(back);
+                  markRoutineRunProgress(runIdRef.current, progressFor(back, skipped));
+                }}
               >
                 <Ionicons name="arrow-back" size={16} color={colors.textSecondary} />
                 <Text style={styles.minorButtonText}>Back</Text>

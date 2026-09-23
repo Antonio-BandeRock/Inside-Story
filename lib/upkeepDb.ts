@@ -6,7 +6,13 @@
 // they can be tested without one, and the reading and writing here.
 
 import { getDatabase } from './db';
-import { nextDueAfterDoing, type UpkeepCadence, type UpkeepCategory, type UpkeepItem } from './upkeep';
+import {
+  nextDueAfterDoing,
+  upkeepStanding,
+  type UpkeepCadence,
+  type UpkeepCategory,
+  type UpkeepItem,
+} from './upkeep';
 
 export async function upsertUpkeepItem(input: {
   id?: string;
@@ -87,11 +93,28 @@ export async function markUpkeepDone(id: string, doneOn: string): Promise<{ next
   );
   if (!row) return { nextDueOn: null };
 
+  const item = toItem(row);
+
+  // The date it was due on BEFORE this doing, written down as it stood.
+  // Working it out later from interval_months would read the schedule as
+  // it is now rather than as it was, and the interval is a thing people
+  // change. Null where nothing had ever set one, which the lens reads as
+  // could not be told rather than as on time.
+  const dueOn = upkeepStanding(item, doneOn).dueOn;
+  await db.runAsync(
+    'INSERT INTO upkeep_doings (id, item_id, item_name, done_on, due_on) VALUES (?, ?, ?, ?, ?)',
+    `updone_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    id,
+    item.name,
+    doneOn,
+    dueOn,
+  );
+
   await db.runAsync(
     'UPDATE upkeep_items SET last_done_on = ?, updated_at = ? WHERE id = ?',
     doneOn, new Date().toISOString(), id,
   );
-  return { nextDueOn: nextDueAfterDoing({ ...toItem(row), lastDoneOn: doneOn }, doneOn) };
+  return { nextDueOn: nextDueAfterDoing({ ...item, lastDoneOn: doneOn }, doneOn) };
 }
 
 /** Renew something that expires, by pushing its date out. */

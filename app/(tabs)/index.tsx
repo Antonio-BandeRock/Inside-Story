@@ -108,6 +108,8 @@ import { getActiveGroceryListSummary, type GroceryListSummary } from '../../lib/
 import { describeInbox } from '../../lib/captureNotes';
 import { getCaptureInboxCounts } from '../../lib/captureNotesDb';
 import { getVarietyHomeSummary, type VarietyHomeSummary } from '../../lib/eatingVarietyDb';
+import type { KeepingUpHomeSummary } from '../../lib/keepingUp';
+import { getKeepingUpHomeSummary } from '../../lib/keepingUpDb';
 import { describeWhereIsItRow } from '../../lib/whereIsIt';
 import { countPlaceRecords } from '../../lib/whereIsItDb';
 import { describeReconcileQueue, lookbackDateString } from '../../lib/reconciliation';
@@ -522,6 +524,10 @@ type DashboardData = {
   // at most one food name, worked out in lib/eatingVariety.ts, so Home
   // draws what it is handed and decides nothing here.
   variety: VarietyHomeSummary;
+  // How daily living is going, 2026-09-23. One line of streaks and one
+  // caption, worked out in lib/keepingUp.ts. Home draws what it is
+  // handed, including the wording for having nothing set up yet.
+  keepingUp: KeepingUpHomeSummary;
 };
 
 // The periodic symptom check-in's own automatic re-prompt cadence --
@@ -746,6 +752,12 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.tabTrends,
     href: { pathname: '/trends', params: { openTrendsLens: 'variety' } } as Href,
   },
+  keepingUp: {
+    label: 'Keeping Up',
+    icon: 'checkmark-done',
+    color: colors.tabTrends,
+    href: { pathname: '/trends', params: { openTrendsLens: 'keepingUp' } } as Href,
+  },
   makeReport: {
     label: 'Make a Report',
     icon: 'document-text',
@@ -842,6 +854,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'fuelGauges',
   'weekTrend',
   'varietyThisWeek',
+  'keepingUp',
   'makeReport',
   'gardenTasks',
   'daysUntil',
@@ -1389,6 +1402,10 @@ export default function HomeScreen() {
       // one reference-database lookup, the same read the lens does over a
       // shorter range.
       getVarietyHomeSummary(date),
+      // Keeping Up, 2026-09-23. Eight weeks back, which is long enough
+      // for a run to have built up and short enough that the card is
+      // about now.
+      getKeepingUpHomeSummary(date),
     ]).then(
       ([
         todaysMeals,
@@ -1412,6 +1429,7 @@ export default function HomeScreen() {
         reminderPrefs,
         placeCount,
         variety,
+        keepingUp,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1468,6 +1486,7 @@ export default function HomeScreen() {
           captureCounts,
           placeCount,
           variety,
+          keepingUp,
           reconcileCounts: { open: openToAnswer, assumed: assumedToConfirm },
           routines: routinesHome.routines,
           doneChecks: routinesHome.checks,
@@ -2663,6 +2682,37 @@ export default function HomeScreen() {
     );
   }
 
+  // The third thing Trends knows, 2026-09-23, and the one that is not
+  // about food: how daily living is going. The longest run of something
+  // being kept up leads, since that is the one somebody is keeping going,
+  // and whatever is waiting sits under it. Every sentence comes from
+  // lib/keepingUp.ts, including the wording for having nothing set up
+  // yet, so nothing here decides what a quiet week means.
+  function renderKeepingUp() {
+    if (!isHomeSectionVisible(visualPrefs, 'keepingUp')) return null;
+    if (!data) return null;
+    const keepingUp = data.keepingUp;
+    return renderBand(
+      'keepingUp',
+      'Keeping Up',
+      <TouchableOpacity
+        onPress={() => router.push({ pathname: '/trends', params: { openTrendsLens: 'keepingUp' } })}
+        activeOpacity={0.75}
+      >
+        {keepingUp.streakDays == null ? null : (
+          <Text style={[styles.trendNumber, { color: tabColorFor('/trends') }]}>
+            {`${keepingUp.streakDays} ${keepingUp.streakDays === 1 ? 'day' : 'days'} running`}
+          </Text>
+        )}
+        <Text style={[styles.trendDelta, { color: tabColorFor('/trends') }]}>{keepingUp.line}</Text>
+        {keepingUp.caption ? (
+          <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>{keepingUp.caption}</Text>
+        ) : null}
+        <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>Tap to see how it has been going →</Text>
+      </TouchableOpacity>,
+    );
+  }
+
   // See digestFlipCardPool's own comment (top of file) for what these
   // are, 2026-08-23: real Digest entries, scoped to Basic Health plus the
   // person's own conditions, one card per group, each moving to a
@@ -3391,6 +3441,8 @@ export default function HomeScreen() {
         return renderWeekTrend();
       case 'varietyThisWeek':
         return renderVarietyThisWeek();
+      case 'keepingUp':
+        return renderKeepingUp();
       case 'makeReport':
         return renderMakeReport();
       case 'gardenTasks':
