@@ -101,6 +101,8 @@ import type { KeepingUpSummary } from '../../lib/keepingUp';
 import { getKeepingUpSummary } from '../../lib/keepingUpDb';
 import { monthsBack, type HarvestYieldSummary, type PeriodRow } from '../../lib/harvestYield';
 import { getEarliestGardenDate, getHarvestYieldSummary } from '../../lib/harvestYieldDb';
+import type { CostSummary } from '../../lib/costOfEating';
+import { getCostSummary, getEarliestMoneyDate } from '../../lib/costOfEatingDb';
 import { CORE_NUTRIENT_CODES } from './index';
 
 // Every text box on this page belongs to this one page's own tab, so
@@ -123,6 +125,7 @@ type TrendsLens =
   | 'groceries'
   | 'keepingUp'
   | 'harvest'
+  | 'cost'
   | 'patterns'
   | 'therapyResponse';
 
@@ -350,6 +353,33 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       {
         heading: 'Where each of these is recorded',
         body: 'Pickings go in on Garden > Harvest Log, plantings and their expected dates on Garden > Plots & Plantings, compost on Garden > Compost, and what went out or came back on Garden > Harvest Log. This lens only reads them: everything is still added and changed where it lives.',
+      },
+    ],
+  },
+  {
+    key: 'cost',
+    label: 'What It Costs',
+    icon: 'cash-outline',
+    help: [
+      {
+        heading: 'What It Costs',
+        body: 'Four readings on the money side of living this way: what your condition has cost month by month, what eating this way comes to a day, what the garden costs against what it gave, and what supplements cost beside what food is reaching on its own. Open a band to read it.',
+      },
+      {
+        heading: 'Life > Finances is still the ledger',
+        body: 'Every account, bill, budget and total lives on Life > Finances, and nothing here changes any of it. This lens asks the four questions a ledger cannot answer by itself, because answering them means knowing which condition a bill was for, which shopping line came out of your kitchen, how many kilos a bed gave for what it cost, and which nutrients your food is reaching.',
+      },
+      {
+        heading: 'Only money you recorded on a date',
+        body: 'A repeating bill on Finances says what is meant to happen every month. This counts only what was entered against a day, so a month you did not get to is left blank rather than filled in from a rule.',
+      },
+      {
+        heading: 'A blank month is not a month you spent nothing',
+        body: 'Months with nothing recorded are left blank and counted under each headline, and every average divides by the months that carried a record rather than by the whole stretch.',
+      },
+      {
+        heading: 'Nothing here says a supplement was unnecessary',
+        body: 'The last band reports what food by itself is reaching, which is the goal this app is built around. It never says that stopping a supplement was right. Nothing in this app records a dose being swallowed, and none of it is advice to stop taking anything.',
       },
     ],
   },
@@ -602,10 +632,13 @@ function renderPeriodRows(rows: PeriodRow[]) {
   );
 }
 
-// A garden earns over seasons, so this lens gets its own picker rather
-// than the 7, 30 and 90 days the others share. Everything resolves to the
-// earliest thing recorded anywhere in the garden.
-const HARVEST_RANGE_OPTIONS = [
+// A garden earns over seasons and money adds up the same way, so those two
+// lenses get this picker rather than the 7, 30 and 90 days the others share.
+// Everything resolves per lens: to the earliest thing recorded anywhere in
+// the garden for Garden Yield, and to the earliest money recorded for What
+// It Costs, so a garden logged since 2019 with one receipt entered last
+// month does not draw six blank years of spending.
+const MONTH_RANGE_OPTIONS = [
   { value: 12, label: 'Last 12 months' },
   { value: 24, label: 'Last 2 years' },
   { value: 0, label: 'Everything' },
@@ -680,6 +713,11 @@ export default function TrendsScreen() {
   const [harvestSummary, setHarvestSummary] = useState<HarvestYieldSummary | null>(null);
   // 0 means everything, resolved against the earliest date the garden has.
   const [harvestMonths, setHarvestMonths] = useState<12 | 24 | 0>(12);
+  const [costSummary, setCostSummary] = useState<CostSummary | null>(null);
+  // Its own state rather than harvestMonths shared: the two lenses reach
+  // back over different records, and a range chosen for one should not
+  // silently move the other.
+  const [costMonths, setCostMonths] = useState<12 | 24 | 0>(12);
   const [loading, setLoading] = useState(true);
 
   const [nutrientSeries, setNutrientSeries] = useState<NutrientTrendSeries | null>(null);
@@ -832,6 +870,22 @@ export default function TrendsScreen() {
         )
         .then(setHarvestSummary)
         .finally(() => setLoading(false));
+    } else if (lens === 'cost') {
+      // Whole months, the same reason Garden Yield uses them: a receipt
+      // belongs to the month it was dated, and a range ending mid-month
+      // would set a half month beside eleven whole ones.
+      const costEnd = todayDateString();
+      (costMonths === 0 ? getEarliestMoneyDate() : Promise.resolve(null))
+        .then((earliest) =>
+          getCostSummary(
+            costMonths === 0
+              ? (earliest ? `${earliest.slice(0, 7)}-01` : monthsBack(costEnd, 12))
+              : monthsBack(costEnd, costMonths),
+            costEnd,
+          ),
+        )
+        .then(setCostSummary)
+        .finally(() => setLoading(false));
     } else if (lens === 'sixDs') {
       const conditionCodes = personalizationProfile?.trackedConditions.map((condition) => condition.code) ?? [];
       getSixDimensionsFlagTrendSeriesForRange(resolvedRange.startDate, resolvedRange.endDate, conditionCodes).then((points) => {
@@ -905,7 +959,7 @@ export default function TrendsScreen() {
         setLoading(false);
       });
     }
-  }, [lens, days, harvestMonths, measurementSystem, resolvedRange, selectedNutrient, selectedTestCode, selectedGroceryFood, patternWindow, personalizationProfile]);
+  }, [lens, days, harvestMonths, costMonths, measurementSystem, resolvedRange, selectedNutrient, selectedTestCode, selectedGroceryFood, patternWindow, personalizationProfile]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
@@ -1250,19 +1304,20 @@ export default function TrendsScreen() {
                   </View>
                 ) : null}
               </>
-            ) : lens === 'harvest' ? (
+            ) : lens === 'harvest' || lens === 'cost' ? (
               <View style={[band.inset, styles.pillRow]}>
-                {HARVEST_RANGE_OPTIONS.map((option) => (
-                  <TouchableOpacity
-                    key={option.value}
-                    style={[styles.pill, harvestMonths === option.value && styles.pillActive]}
-                    onPress={() => setHarvestMonths(option.value)}
-                  >
-                    <Text style={[styles.pillText, harvestMonths === option.value && styles.pillTextActive]}>
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+                {MONTH_RANGE_OPTIONS.map((option) => {
+                  const chosen = (lens === 'cost' ? costMonths : harvestMonths) === option.value;
+                  return (
+                    <TouchableOpacity
+                      key={option.value}
+                      style={[styles.pill, chosen && styles.pillActive]}
+                      onPress={() => (lens === 'cost' ? setCostMonths(option.value) : setHarvestMonths(option.value))}
+                    >
+                      <Text style={[styles.pillText, chosen && styles.pillTextActive]}>{option.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             ) : (
               <View style={[band.inset, styles.pillRow]}>
@@ -1848,6 +1903,143 @@ export default function TrendsScreen() {
                     {harvestSummary.sharing.note ? (
                       <Text style={styles.patternRowCaption}>{harvestSummary.sharing.note}</Text>
                     ) : null}
+                  </TabBand>
+                </>
+              )
+            ) : lens === 'cost' ? (
+              loading ? (
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>Adding up what it has cost…</Text>
+                </View>
+              ) : !costSummary || !costSummary.hasAnything ? (
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>
+                    {'No money recorded in this stretch yet. Enter a bill or a shop on Life > Finances, or reach further back with the range above, and this fills in on its own.'}
+                  </Text>
+                </View>
+              ) : (
+                <>
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:cost:condition"
+                    title="What your condition costs"
+                    icon="medkit-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{costSummary.condition.headline}</Text>
+                    {renderPeriodRows(costSummary.condition.rows)}
+                    {costSummary.condition.gapNote ? (
+                      <Text style={styles.patternRowCaption}>{costSummary.condition.gapNote}</Text>
+                    ) : null}
+                    {costSummary.condition.careLine ? (
+                      <Text style={styles.patternRowCaption}>{costSummary.condition.careLine}</Text>
+                    ) : null}
+                    {costSummary.condition.byKind.map((slice) => (
+                      <View key={`kind:${slice.name}`} style={styles.patternRow}>
+                        <Text style={styles.patternRowTitle}>{slice.name}</Text>
+                        <Text style={styles.patternRowCaption}>
+                          {slice.share === null ? slice.display : `${slice.display}, ${slice.share}% of it`}
+                        </Text>
+                      </View>
+                    ))}
+                    {costSummary.condition.byCondition.length > 0 ? (
+                      <Text style={styles.patternRowCaption}>Tagged to a condition</Text>
+                    ) : null}
+                    {costSummary.condition.byCondition.map((slice) => (
+                      <View key={`condition:${slice.name}`} style={styles.patternRow}>
+                        <Text style={styles.patternRowTitle}>{slice.name}</Text>
+                        <Text style={styles.patternRowCaption}>{slice.display}</Text>
+                      </View>
+                    ))}
+                    {costSummary.condition.untaggedLine ? (
+                      <Text style={styles.patternRowCaption}>{costSummary.condition.untaggedLine}</Text>
+                    ) : null}
+                    <Text style={styles.patternRowCaption}>{costSummary.condition.sourcesNote}</Text>
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:cost:food"
+                    title="What eating this way costs"
+                    icon="restaurant-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{costSummary.food.headline}</Text>
+                    {renderPeriodRows(costSummary.food.rows)}
+                    {costSummary.food.gapNote ? (
+                      <Text style={styles.patternRowCaption}>{costSummary.food.gapNote}</Text>
+                    ) : null}
+                    {costSummary.food.perDayLine ? (
+                      <Text style={styles.patternRowCaption}>{costSummary.food.perDayLine}</Text>
+                    ) : null}
+                    {costSummary.food.splitLine ? (
+                      <Text style={styles.patternRowCaption}>{costSummary.food.splitLine}</Text>
+                    ) : null}
+                    {costSummary.food.kitchenLine ? (
+                      <Text style={styles.patternRowCaption}>{costSummary.food.kitchenLine}</Text>
+                    ) : null}
+                    {costSummary.food.saleLine ? (
+                      <Text style={styles.patternRowCaption}>{costSummary.food.saleLine}</Text>
+                    ) : null}
+                    <Text style={styles.patternRowCaption}>{costSummary.food.note}</Text>
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:cost:growing"
+                    title="What the garden costs to grow"
+                    icon="leaf-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{costSummary.growing.headline}</Text>
+                    {renderPeriodRows(costSummary.growing.rows)}
+                    {costSummary.growing.gapNote ? (
+                      <Text style={styles.patternRowCaption}>{costSummary.growing.gapNote}</Text>
+                    ) : null}
+                    {costSummary.growing.perWeightLine ? (
+                      <Text style={styles.patternRowCaption}>{costSummary.growing.perWeightLine}</Text>
+                    ) : null}
+                    {costSummary.growing.shopLine ? (
+                      <Text style={styles.patternRowCaption}>{costSummary.growing.shopLine}</Text>
+                    ) : null}
+                    <Text style={styles.patternRowCaption}>{costSummary.growing.netLine}</Text>
+                    {costSummary.growing.countedOutLine ? (
+                      <Text style={styles.patternRowCaption}>{costSummary.growing.countedOutLine}</Text>
+                    ) : null}
+                    {costSummary.growing.byAreaLine ? (
+                      <Text style={styles.patternRowCaption}>{costSummary.growing.byAreaLine}</Text>
+                    ) : null}
+                    <Text style={styles.patternRowCaption}>{costSummary.growing.caveat}</Text>
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:cost:supplements"
+                    title="Supplements, and what food is reaching"
+                    icon="medical-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{costSummary.supplements.headline}</Text>
+                    {renderPeriodRows(costSummary.supplements.rows)}
+                    {costSummary.supplements.gapNote ? (
+                      <Text style={styles.patternRowCaption}>{costSummary.supplements.gapNote}</Text>
+                    ) : null}
+                    {costSummary.supplements.ended.map((row) => (
+                      <View key={`ended:${row.id}`} style={styles.patternRow}>
+                        <Text style={styles.patternRowTitle}>{row.name}</Text>
+                        <Text style={styles.patternRowCaption}>{row.line}</Text>
+                      </View>
+                    ))}
+                    {costSummary.supplements.coverage.map((row) => (
+                      <Text key={`coverage:${row.nutrientCode}`} style={styles.patternRowCaption}>
+                        {row.line}
+                      </Text>
+                    ))}
+                    {costSummary.supplements.coverageNote ? (
+                      <Text style={styles.patternRowCaption}>{costSummary.supplements.coverageNote}</Text>
+                    ) : null}
+                    <Text style={styles.patternRowCaption}>{costSummary.supplements.runningLine}</Text>
+                    <Text style={styles.patternRowCaption}>{costSummary.supplements.boundary}</Text>
                   </TabBand>
                 </>
               )

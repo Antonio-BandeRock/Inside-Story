@@ -239,6 +239,13 @@ export async function getHarvestYieldSummary(
 /** The earliest date anything in the garden was recorded, which is what the
  *  Everything range resolves to. Null where the garden is empty, and the
  *  caller falls back to a year. */
+/** The same pickings Trends > Garden Yield counts, handed to Trends > What
+ *  It Costs so it can set growing money against them. One query, one place,
+ *  so the two lenses can never disagree about what was picked. */
+export async function getHarvestsForRange(startDate: string, endDate: string): Promise<HarvestRecord[]> {
+  return readHarvests(startDate, endDate);
+}
+
 export async function getEarliestGardenDate(): Promise<string | null> {
   const db = await getDatabase();
   const row = await db.getFirstAsync<{ earliest: string | null }>(
