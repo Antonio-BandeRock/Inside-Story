@@ -7214,6 +7214,12 @@ async function runDatabaseInitialization() {
         -- moves everything it ever cost.
         plot_id TEXT,
         cost_group_id TEXT,
+        -- How often this pile is turned, in days. Null means the default
+        -- fortnight in lib/compost.ts, which is what every pile started
+        -- before the turn reminder existed carries. The reminder and the
+        -- guidance line on the pile's row both read it, so they say the
+        -- same thing.
+        turn_interval_days INTEGER,
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
@@ -8258,6 +8264,12 @@ async function runDatabaseInitialization() {
         if (!compostPileColumns.some((existing) => existing.name === column)) {
           await db.execAsync(`ALTER TABLE compost_piles ADD COLUMN ${column} TEXT;`);
         }
+      }
+      // The pile's turning cadence, 2026-09-23, when turning became a
+      // dated reminder that comes back rather than a one-off task
+      // somebody had to book again after every turn.
+      if (!compostPileColumns.some((existing) => existing.name === 'turn_interval_days')) {
+        await db.execAsync('ALTER TABLE compost_piles ADD COLUMN turn_interval_days INTEGER;');
       }
     }
 

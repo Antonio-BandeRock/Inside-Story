@@ -103,6 +103,18 @@ const countdownNudged = datedReminderDays('countdown', '2026-09-18', '2026-09-20
 check('a countdown past its day stays quiet even with nudging on', countdownNudged.map((d) => d.on), ['2026-09-18']);
 check('a countdown is not a kind that nudges', NUDGES_WHILE_OVERDUE.includes('countdown'), false);
 
+// A compost pile (2026-09-23) speaks on the day it is due a turn and then
+// keeps asking, because recording a turn is a thing this app reads back and
+// it moves the date on. A pile left unturned is the single most common way
+// a pile goes wrong, so going quiet about it would be the wrong silence.
+const compost = datedReminderDays('compost', '2026-10-04', '2026-09-20', false);
+check('a compost turn speaks once with nudging off', compost.map((d) => d.on), ['2026-10-04']);
+check('a compost turn speaks on the day itself', compost.map((d) => d.lead), [0]);
+const compostNudged = datedReminderDays('compost', '2026-09-18', '2026-09-20', true);
+check('a compost turn keeps asking while it waits', compostNudged.length > 1, true);
+check('the first of them is the day it was due', compostNudged[0].on, '2026-09-18');
+check('a compost turn is a kind that nudges', NUDGES_WHILE_OVERDUE.includes('compost'), true);
+
 // Soonest first, always, because the scheduler takes the first however-many
 // that fit inside the lookahead window.
 for (const kind of ALL_DATED_REMINDER_KINDS) {
@@ -140,10 +152,13 @@ check(
   3,
 );
 
-// Only upkeep repeats, and only because marking one done is the one thing
-// this app can actually read back. A bill has no per-occurrence paid record
-// and a benefit is drawn down gradually, so neither can tell when to stop.
-check('only upkeep nudges', NUDGES_WHILE_OVERDUE, ['upkeep']);
+// Two kinds repeat, and both for the same reason: the doing is recorded, so
+// the app can tell when to stop. Marking an upkeep item done moves its next
+// date and recording a turn on a pile moves the next turn. A bill has no
+// per-occurrence paid record, a benefit is drawn down gradually, and a
+// counter past its day keeps counting on screen by design, so none of those
+// three can say when they have been answered.
+check('upkeep and compost are the kinds that nudge', NUDGES_WHILE_OVERDUE, ['upkeep', 'compost']);
 check(
   'a bill still does not nudge with nudging on',
   datedReminderDays('bill', '2026-09-10', '2026-09-16', true).map((d) => d.on),

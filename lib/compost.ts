@@ -94,6 +94,10 @@ export type CompostPile = {
    *  pile feeds nothing in particular yet. */
   plotId: string | null;
   costGroupId: string | null;
+  /** How many days this pile should go between turns. Null takes the
+   *  default below, which is what every pile started before the turn
+   *  reminder existed carries. */
+  turnIntervalDays: number | null;
 };
 
 export type CompostEvent = {
@@ -216,6 +220,67 @@ export function summarizeCompostPile(pile: CompostPile, events: CompostEvent[], 
   return summary;
 }
 
+// --- When a pile is next due a turn -----------------------------------------
+// Written 2026-09-23, so a pile waiting to be turned reaches Home and the
+// notification tray on its own rather than only being visible to somebody
+// who opened the Compost lens. Before this the lens had a "remind me in N
+// days" button that booked one garden task and then forgot: it did not come
+// back, and it did not clear when the pile was actually turned.
+//
+// The numbers agree with summarizeCompostPile above on purpose. A pile
+// turned every week or two finishes in three to five months, and one a week
+// old that has never been turned wants its first. A reminder that disagreed
+// with the line printed on the pile's row would be worse than no reminder.
+
+/** Days between turns when the pile has not been given a cadence. */
+export const COMPOST_DEFAULT_TURN_INTERVAL_DAYS = 14;
+
+/** The longest a pile goes before its first turn, whatever its cadence. */
+export const COMPOST_FIRST_TURN_DAYS = 7;
+
+/** The cadence this pile is being turned on. */
+export function compostTurnInterval(pile: CompostPile): number {
+  const days = pile.turnIntervalDays;
+  return days !== null && days > 0 ? days : COMPOST_DEFAULT_TURN_INTERVAL_DAYS;
+}
+
+function addDays(dateStr: string, days: number): string {
+  const moved = new Date(
+    Date.UTC(Number(dateStr.slice(0, 4)), Number(dateStr.slice(5, 7)) - 1, Number(dateStr.slice(8, 10))),
+  );
+  moved.setUTCDate(moved.getUTCDate() + days);
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${moved.getUTCFullYear()}-${pad(moved.getUTCMonth() + 1)}-${pad(moved.getUTCDate())}`;
+}
+
+/**
+ * The day this pile is next due a turn, or null when there is nothing to
+ * say.
+ *
+ * Null for a curing or a finished pile, both of which are left alone by
+ * definition, and null rather than a guess for a date that will not read.
+ *
+ * A pile never turned is due at its cadence or at a week, whichever comes
+ * first, so a fortnightly pile still gets asked after seven days the way
+ * the guidance line already asks.
+ */
+export function compostTurnDueOn(pile: CompostPile, lastTurnedOn: string | null): string | null {
+  if (pile.status !== 'active') return null;
+  const anchor = (lastTurnedOn ?? pile.startedOn).slice(0, 10);
+  if (anchor.length !== 10 || Number.isNaN(Date.parse(anchor))) return null;
+  const interval = compostTurnInterval(pile);
+  return addDays(anchor, lastTurnedOn ? interval : Math.min(interval, COMPOST_FIRST_TURN_DAYS));
+}
+
+/** One short line of standing for a turn reminder: how long it has been,
+ *  or that the pile has never been turned at all. */
+export function describeCompostTurn(lastTurnedOn: string | null, today: string): string {
+  if (!lastTurnedOn) return 'Not turned yet';
+  const days = daysBetween(lastTurnedOn.slice(0, 10), today);
+  if (days === 0) return 'Turned today';
+  return days === 1 ? 'Turned yesterday' : `Turned ${days} days ago`;
+}
+
 export function describeCompostEvent(event: CompostEvent): string {
   switch (event.kind) {
     case 'added': {
@@ -252,5 +317,5 @@ export function formatCompostAmount(amount: number, unit: string): string {
 
 export const COMPOST_AMOUNT_UNITS = ['bucket', 'bag', 'wheelbarrow', 'handful', 'L', 'gal', 'kg', 'lb'] as const;
 
-/** How many days between turnings the reminder offers. */
-export const COMPOST_TURN_INTERVALS = [3, 5, 7, 10, 14] as const;
+/** The cadences a pile can be set to turn on. */
+export const COMPOST_TURN_INTERVALS = [3, 5, 7, 10, 14, 21] as const;

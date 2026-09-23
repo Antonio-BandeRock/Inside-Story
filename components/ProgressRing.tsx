@@ -19,6 +19,14 @@ export function ProgressRing({
   // where it is heading as it fills. Callers that pass only `color` are
   // unchanged and still draw a solid ring.
   gradientTo,
+  // 2026-09-23: how much of `percent` came from a supplement rather than
+  // from food. The standing rule is that everywhere the app shows a
+  // nutrient amount it says which of the two it came from, and a single
+  // filled ring said nothing: 100% looks the same whether it came from
+  // lentils or from a capsule. Given, the last stretch of the ring is
+  // drawn in the supplement colour, so the ring reads as a two-segment
+  // bar bent into a circle. Left out, the ring is exactly what it was.
+  supplementPercent = 0,
   size = 64,
   strokeWidth = 7,
   label,
@@ -27,6 +35,7 @@ export function ProgressRing({
   percent: number;
   color: string;
   gradientTo?: string;
+  supplementPercent?: number;
   size?: number;
   strokeWidth?: number;
   label: string;
@@ -36,6 +45,11 @@ export function ProgressRing({
   const circumference = 2 * Math.PI * radius;
   const clamped = Math.max(0, Math.min(100, percent));
   const strokeDashoffset = circumference * (1 - clamped / 100);
+  // The supplement can only ever be part of what is drawn: a ring already
+  // capped at 100% cannot grow a second time to make room for it.
+  const supplementDrawn = Math.max(0, Math.min(supplementPercent, clamped));
+  const foodDrawn = clamped - supplementDrawn;
+  const supplementLength = circumference * (supplementDrawn / 100);
   // Several rings render side by side in one row, and an SVG gradient is
   // referenced by id, so a fixed id would make every ring after the first
   // paint with the first one's colours.
@@ -67,12 +81,34 @@ export function ProgressRing({
           stroke={gradientTo ? `url(#${gradientId})` : color}
           strokeWidth={strokeWidth}
           fill="none"
-          strokeLinecap="round"
+          // A round cap at the end of the food stretch would sit half a
+          // stroke past where food actually stopped, which is the whole
+          // thing this segment is here to be honest about.
+          strokeLinecap={supplementDrawn > 0 ? 'butt' : 'round'}
           strokeDasharray={`${circumference} ${circumference}`}
-          strokeDashoffset={strokeDashoffset}
+          strokeDashoffset={
+            supplementDrawn > 0 ? circumference * (1 - foodDrawn / 100) : strokeDashoffset
+          }
           rotation="-90"
           origin={`${size / 2}, ${size / 2}`}
         />
+        {supplementDrawn > 0 ? (
+          <Circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke={SUPPLEMENT_COLOR}
+            strokeWidth={strokeWidth}
+            fill="none"
+            strokeLinecap="round"
+            strokeDasharray={`${supplementLength} ${circumference}`}
+            // A negative offset starts the dash further round the circle,
+            // which is where food left off.
+            strokeDashoffset={-circumference * (foodDrawn / 100)}
+            rotation="-90"
+            origin={`${size / 2}, ${size / 2}`}
+          />
+        ) : null}
       </Svg>
       <Text style={styles.label} numberOfLines={1}>{label}</Text>
       {sublabel ? (
@@ -81,6 +117,10 @@ export function ProgressRing({
     </View>
   );
 }
+
+// The same amber Insights > Nutrients draws a supplement share in, so the
+// two places that split food from supplement read as one language.
+const SUPPLEMENT_COLOR = colors.statusYellowOnSurface;
 
 const styles = StyleSheet.create({
   container: { alignItems: 'center', width: 78 },

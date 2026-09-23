@@ -37,11 +37,23 @@
 // kinds raise the same reminder on the same rule; they differ only in where
 // a tap lands, Garden for one and Life for the other, which is what the tab
 // field on a source is for.
+//
+// A fifth joined 2026-09-23, a compost pile waiting to be turned:
+//
+//   Compost   compost_piles carries the pile's cadence and compost_events
+//             carries every turn, and compost's compostTurnDueOn adds the
+//             two. Before this the Compost lens booked a single garden task
+//             that did not come back and did not clear when the pile was
+//             actually turned; now the date is worked out from the pile
+//             itself, so recording a turn moves it and nobody has to book
+//             anything again.
 
 import { formatFinanceMoney } from './financeCore';
 import { countdownDueDate } from './countdown';
 import { listRunningGardenCountdowns } from './gardenCountdownDb';
 import { listRunningCountdowns } from './countdownDb';
+import { compostTurnDueOn, compostTurnInterval, describeCompostTurn } from './compost';
+import { listCompostPilesToTurn } from './compostDb';
 import { listRecurring } from './financeDb';
 import { nextOccurrence } from './financeSchedule';
 import { listUpkeepItems } from './upkeepDb';
@@ -50,10 +62,12 @@ import { listBenefits } from './workDb';
 import { benefitStanding, formatBenefitAmount } from './workBenefits';
 import type { DatedReminderKind } from './reminderSchedule';
 
-/** Where a tapped reminder lands. All three live in Life, under a lens that
- *  already takes a deep link (openLifeLens, app/(tabs)/life.tsx). */
-export type DatedReminderLens = 'finances' | 'upkeep' | 'work' | 'daysUntil';
-/** A garden counter lands on Garden when tapped; everything else on Life. */
+/** Where a tapped reminder lands, each a lens that already takes a deep
+ *  link (openLifeLens in app/(tabs)/life.tsx, openGardenLens in
+ *  app/(tabs)/garden.tsx). */
+export type DatedReminderLens = 'finances' | 'upkeep' | 'work' | 'daysUntil' | 'compost';
+/** A garden counter and a compost pile land on Garden when tapped;
+ *  everything else on Life. */
 export type DatedReminderTab = 'life' | 'garden';
 
 export type DatedReminderSource = {
@@ -83,12 +97,13 @@ export type DatedReminderSource = {
  * guessed date would be worse than none.
  */
 export async function listDatedReminderSources(today: string): Promise<DatedReminderSource[]> {
-  const [recurring, upkeepItems, benefits, countdowns, freeCountdowns] = await Promise.all([
+  const [recurring, upkeepItems, benefits, countdowns, freeCountdowns, piles] = await Promise.all([
     listRecurring(),
     listUpkeepItems(),
     listBenefits(),
     listRunningGardenCountdowns(),
     listRunningCountdowns(),
+    listCompostPilesToTurn(),
   ]);
 
   const sources: DatedReminderSource[] = [];
@@ -188,6 +203,27 @@ export async function listDatedReminderSources(today: string): Promise<DatedRemi
       dueOn: countdownDueDate(countdown),
       tab: 'life',
       lens: 'daysUntil',
+    });
+  }
+
+  // Compost piles waiting to be turned, 2026-09-23. Active piles only,
+  // which is the same line summarizeCompostPile draws: a curing pile is
+  // left alone by definition and a finished one is gone. The day comes
+  // from lib/compost.ts, the same arithmetic behind the turning sentence
+  // on the pile's row, so the reminder and the row cannot say different
+  // things. Recording a turn moves the day on, which is why this kind
+  // nudges while it is overdue.
+  for (const { pile, lastTurnedOn } of piles) {
+    const dueOn = compostTurnDueOn(pile, lastTurnedOn);
+    if (!dueOn) continue;
+    sources.push({
+      kind: 'compost',
+      sourceId: pile.id,
+      title: pile.name,
+      detail: `${describeCompostTurn(lastTurnedOn, today)}, turned every ${compostTurnInterval(pile)} days`,
+      dueOn,
+      tab: 'garden',
+      lens: 'compost',
     });
   }
 

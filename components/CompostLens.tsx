@@ -13,6 +13,8 @@ import {
   COMPOST_PILE_KINDS,
   COMPOST_PILE_STATUSES,
   COMPOST_TURN_INTERVALS,
+  compostTurnDueOn,
+  compostTurnInterval,
   describeCompostEvent,
   summarizeCompostPile,
   type CompostEvent,
@@ -32,8 +34,10 @@ import {
   listCompostPiles,
   setCompostPileFeeds,
   setCompostPileStatus,
+  setCompostTurnInterval,
 } from '../lib/compostDb';
-import { listGardenPlots, scheduleGardenTask, type GardenPlot } from '../lib/db';
+import { listGardenPlots, type GardenPlot } from '../lib/db';
+import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { sortByLabel } from '../lib/choiceOrder';
 import { listGardenCostGroups, type GardenCostGroup } from '../lib/gardenMoneyDb';
 import { AppTextInput } from './AppTextInput';
@@ -316,11 +320,18 @@ function PileBand({
   const [plotId, setPlotId] = useState<string>(NO_PLOT);
   const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [reminderDays, setReminderDays] = useState<string | null>(null);
-  const [reminderSet, setReminderSet] = useState<string | null>(null);
+
   const [showAll, setShowAll] = useState(false);
 
   const summary = useMemo(() => summarizeCompostPile(pile, events, today), [pile, events, today]);
+  const turnDueOn = useMemo(() => {
+    let lastTurnedOn: string | null = null;
+    for (const event of events) {
+      if (event.pileId !== pile.id || event.kind !== 'turned') continue;
+      if (!lastTurnedOn || event.occurredOn > lastTurnedOn) lastTurnedOn = event.occurredOn;
+    }
+    return compostTurnDueOn(pile, lastTurnedOn);
+  }, [pile, events]);
 
   useEffect(() => {
     setError(null);
@@ -401,21 +412,28 @@ function PileBand({
     });
     reset();
     await onChanged();
+    // A turn moves the next one on, and going curing or finished stops the
+    // asking altogether, so the queue is rebuilt rather than left to the
+    // next app start.
+    await syncReminderNotifications();
   }
 
-  async function handleReminder() {
-    if (!reminderDays) return;
-    const due = new Date();
-    due.setDate(due.getDate() + Number(reminderDays));
-    const dateString = due.toISOString().slice(0, 10);
-    await scheduleGardenTask({ title: `Turn the compost: ${pile.name}`, scheduledFor: `${dateString}T09:00` });
-    setReminderSet(dateString);
-    setReminderDays(null);
+  // The cadence, 2026-09-23. This used to book one garden task and then
+  // forget: it did not come back, and it did not clear when the pile was
+  // actually turned, so somebody had to set it again after every turn. Now
+  // it sets how often the pile wants turning and the reminder works the day
+  // out from the pile itself (compostTurnDueOn), which means recording a
+  // turn moves it on with nothing else to do.
+  async function handleInterval(value: string) {
+    await setCompostTurnInterval(pile.id, Number(value));
+    await onChanged();
+    await syncReminderNotifications();
   }
 
   async function handleStatus(status: string) {
     await setCompostPileStatus(pile.id, status as CompostPileStatus);
     await onChanged();
+    await syncReminderNotifications();
   }
 
   async function handleFeeds(value: string) {
@@ -632,16 +650,20 @@ function PileBand({
 
         {pile.status === 'active' ? (
           <View style={styles.fieldRow}>
-            <Text style={styles.fieldLabel}>Remind me to turn it in</Text>
-            <PopoverSelect options={TURN_INTERVAL_OPTIONS} selected={reminderDays} onSelect={setReminderDays} tabColor={TAB_COLOR} placeholder="Pick days" />
-            {reminderDays ? (
-              <TouchableOpacity onPress={handleReminder}>
-                <Text style={styles.linkText}>Set</Text>
-              </TouchableOpacity>
-            ) : null}
+            <Text style={styles.fieldLabel}>Turn it every</Text>
+            <PopoverSelect
+              options={TURN_INTERVAL_OPTIONS}
+              selected={String(compostTurnInterval(pile))}
+              onSelect={handleInterval}
+              tabColor={TAB_COLOR}
+            />
           </View>
         ) : null}
-        {reminderSet ? <Text style={styles.captionText}>Reminder set for {reminderSet} at 9:00, under Upcoming Tasks.</Text> : null}
+        {turnDueOn ? (
+          <Text style={styles.captionText}>
+            Next turn due {turnDueOn}. You will be reminded at 9:00 that day, and again every few days until you record one.
+          </Text>
+        ) : null}
 
         <View style={styles.fieldRow}>
           <Text style={styles.fieldLabel}>Status</Text>

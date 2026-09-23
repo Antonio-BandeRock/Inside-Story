@@ -9,10 +9,10 @@ import {
 } from './reminderPreferences';
 import {
   datedReminderDays,
-  describeLead,
+  DATED_KIND_PREFIX,
+  describeDatedDue,
   NUDGE_FOLLOW_UP_MINUTES,
   REMINDER_HOUR,
-  type DatedReminderKind,
 } from './reminderSchedule';
 import {
   listDatedReminderSources,
@@ -154,7 +154,7 @@ type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine';
 // 'plotsAndPlantings' is what a 1.0.42.13 payload says for a counter; it
 // opens the Days Until lens too, which has held every counter since
 // 1.0.42.14.
-type GardenReminderLens = 'upcomingTasks' | 'plotsAndPlantings' | 'daysUntil';
+type GardenReminderLens = 'upcomingTasks' | 'plotsAndPlantings' | 'daysUntil' | 'compost';
 
 type ReminderPayload = {
   kind: ReminderKind;
@@ -417,28 +417,12 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
   };
 }
 
-// --- The dated kinds: bills, upkeep, work benefits --------------------------
+// --- The dated kinds: bills, upkeep, benefits, counters, compost ------------
 
-// What each one is called at the front of its notification, so the line says
-// which part of Life it came from before it says anything else. A bill needs
-// no such word: the name of the bill plus a date is already unambiguous.
-const DATED_KIND_PREFIX: Record<DatedReminderKind, string | null> = {
-  bill: null,
-  upkeep: 'Upkeep',
-  benefit: 'Work benefit',
-  countdown: 'Days Until',
-};
-
-// What the date actually means for each, which differs enough to be worth
-// saying: a bill is owed, a service is due, a benefit resets and takes
-// whatever is left with it.
-function describeDatedDue(kind: DatedReminderKind, lead: number): string {
-  const when = describeLead(lead);
-  if (kind === 'benefit') return `Resets ${when}`;
-  // A counter lands, the word its row on the Garden screen uses.
-  if (kind === 'countdown') return `Lands ${when}`;
-  return lead < 0 ? `Was due ${when}` : `Due ${when}`;
-}
+// DATED_KIND_PREFIX and describeDatedDue used to live here. They moved to
+// lib/reminderSchedule.ts on 2026-09-23 so that Home could label a row with
+// exactly the words its notification uses, rather than a second set written
+// to match by hand.
 
 function buildDatedPlanned(
   source: DatedReminderSource,
@@ -550,7 +534,9 @@ async function ensureAndroidChannels(): Promise<void> {
 }
 
 function channelFor(kind: ReminderKind): string {
-  if (kind === 'bill' || kind === 'upkeep' || kind === 'benefit' || kind === 'countdown') return ANDROID_DATED_CHANNEL_ID;
+  if (kind === 'bill' || kind === 'upkeep' || kind === 'benefit' || kind === 'countdown' || kind === 'compost') {
+    return ANDROID_DATED_CHANNEL_ID;
+  }
   if (kind === 'meal' || kind === 'hydration' || kind === 'garden' || kind === 'reminder' || kind === 'routine')
     return ANDROID_ROUTINE_CHANNEL_ID;
   return ANDROID_CHANNEL_ID;
@@ -709,6 +695,9 @@ export type ReminderTapTarget =
   | { pathname: '/reconcile' };
 
 const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'todaysMeals', 'hydration'];
+// The dated lenses that live on Life. 'compost' is a dated lens too and is
+// deliberately not here: it is on Garden, and this list is the fallback for
+// the Life branch below.
 const DATED_LENSES: DatedReminderLens[] = ['finances', 'upkeep', 'work', 'daysUntil'];
 
 // Where a tapped reminder should land: the lens the thing lives in. Null for
@@ -732,11 +721,12 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
   if (data?.tab === 'routine' && typeof data.scheduleItemId === 'string' && data.scheduleItemId) {
     return { pathname: '/routine', params: { id: data.scheduleItemId } };
   }
-  // A garden task lands on Upcoming Tasks and a Days Until counter on the
-  // Days Until lens, where every counter is. An older payload that says
-  // garden and nothing about a lens is from before counters, so it can
-  // only be a task.
+  // A garden task lands on Upcoming Tasks, a Days Until counter on the Days
+  // Until lens where every counter is, and a pile due a turn on Compost
+  // Piles. An older payload that says garden and nothing about a lens is
+  // from before counters, so it can only be a task.
   if (data?.tab === 'garden') {
+    if (data.lens === 'compost') return { pathname: '/garden', params: { openGardenLens: 'compost' } };
     const toCounters = data.lens === 'daysUntil' || data.lens === 'plotsAndPlantings';
     return { pathname: '/garden', params: { openGardenLens: toCounters ? 'daysUntil' : 'upcomingTasks' } };
   }

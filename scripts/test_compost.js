@@ -14,6 +14,11 @@
 //  3. The hot threshold is 131°F / 55°C, in either unit.
 //  4. A finished pile gets no guidance, and a curing pile is not told to
 //     turn.
+//  5. The day a pile is next due a turn, added 2026-09-23 when turning
+//     became a reminder. It has to agree with the guidance line above it:
+//     a pile never turned is asked after a week at the latest, and one in
+//     the habit after its own cadence. Nothing at all is said about a
+//     curing or a finished pile, which is the same line rule 4 draws.
 //
 // Run with: node scripts/test_compost.js
 // Exits non-zero on any failure.
@@ -39,6 +44,8 @@ function loadModule(relPath) {
 const C = loadModule('lib/compost.ts');
 const {
   summarizeCompostPile, describeCompostEvent, isHotTemperature,
+  compostTurnDueOn, compostTurnInterval, describeCompostTurn,
+  COMPOST_DEFAULT_TURN_INTERVAL_DAYS, COMPOST_FIRST_TURN_DAYS,
   COMPOST_PILE_KINDS, COMPOST_PILE_STATUSES, COMPOST_MATERIAL_CLASSES, COMPOST_MOISTURE_LEVELS,
   COMPOST_MATERIAL_SUGGESTIONS, COMPOST_EVENT_LABELS, COMPOST_TURN_INTERVALS,
 } = C;
@@ -57,7 +64,8 @@ function check(label, actual, expected) {
 function checkTrue(label, actual) { check(label, actual === true, true); }
 
 const pile = (over = {}) => ({
-  id: 'p1', name: 'Back pile', kind: 'pile', startedOn: '2026-09-01', location: null, status: 'active', notes: null, ...over,
+  id: 'p1', name: 'Back pile', kind: 'pile', startedOn: '2026-09-01', location: null, status: 'active', notes: null,
+  plotId: null, costGroupId: null, turnIntervalDays: null, ...over,
 });
 let seq = 0;
 const ev = (over = {}) => ({
@@ -157,7 +165,47 @@ check('three classes', COMPOST_MATERIAL_CLASSES.map((entry) => entry.code), ['gr
 check('three moisture levels', COMPOST_MOISTURE_LEVELS.map((entry) => entry.code), ['dry', 'damp', 'wet']);
 checkTrue('every suggestion has a class', COMPOST_MATERIAL_SUGGESTIONS.every((entry) => ['green', 'brown', 'other'].includes(entry.materialClass)));
 check('eight event kinds labelled', Object.keys(COMPOST_EVENT_LABELS).length, 8);
-check('turn intervals', COMPOST_TURN_INTERVALS, [3, 5, 7, 10, 14]);
+check('turn intervals', COMPOST_TURN_INTERVALS, [3, 5, 7, 10, 14, 21]);
+
+// --- 7. When the next turn is due -------------------------------------------
+
+check('cadence falls back to the default', compostTurnInterval(pile()), COMPOST_DEFAULT_TURN_INTERVAL_DAYS);
+check('cadence is read from the pile', compostTurnInterval(pile({ turnIntervalDays: 5 })), 5);
+check('a cadence of zero is not a cadence', compostTurnInterval(pile({ turnIntervalDays: 0 })), COMPOST_DEFAULT_TURN_INTERVAL_DAYS);
+
+check('never turned, due a week after it started', compostTurnDueOn(pile(), null), '2026-09-08');
+check('never turned on a short cadence, due at that cadence', compostTurnDueOn(pile({ turnIntervalDays: 3 }), null), '2026-09-04');
+check(
+  'never turned on a long cadence, still asked at a week',
+  compostTurnDueOn(pile({ turnIntervalDays: 21 }), null),
+  '2026-09-08',
+);
+check('a week is the longest first wait', COMPOST_FIRST_TURN_DAYS, 7);
+check('turned, due a fortnight later by default', compostTurnDueOn(pile(), '2026-09-10'), '2026-09-24');
+check('turned, due on its own cadence', compostTurnDueOn(pile({ turnIntervalDays: 5 }), '2026-09-10'), '2026-09-15');
+check('over a month end', compostTurnDueOn(pile({ turnIntervalDays: 7 }), '2026-09-28'), '2026-10-05');
+check('curing pile is never due a turn', compostTurnDueOn(pile({ status: 'curing' }), '2026-09-10'), null);
+check('finished pile is never due a turn', compostTurnDueOn(pile({ status: 'finished' }), null), null);
+check('a date that will not read says nothing', compostTurnDueOn(pile({ startedOn: '' }), null), null);
+
+// The reminder and the guidance line have to draw the same line. A pile
+// started on the 1st and never turned is told to turn on the 8th, and that
+// is the day summarizeCompostPile starts saying so too.
+const firstDue = summarizeCompostPile(pile(), [ev({ occurredOn: '2026-09-02' })], '2026-09-08');
+checkTrue(
+  'the guidance starts on the day the reminder does',
+  firstDue.guidance.some((line) => line.startsWith('Not turned yet')),
+);
+const dayBefore = summarizeCompostPile(pile(), [ev({ occurredOn: '2026-09-02' })], '2026-09-07');
+checkTrue(
+  'and not the day before it',
+  !dayBefore.guidance.some((line) => line.startsWith('Not turned yet')),
+);
+
+check('never turned reads as never turned', describeCompostTurn(null, TODAY), 'Not turned yet');
+check('turned today', describeCompostTurn('2026-09-20', TODAY), 'Turned today');
+check('turned yesterday', describeCompostTurn('2026-09-19', TODAY), 'Turned yesterday');
+check('turned a while ago', describeCompostTurn('2026-09-06', TODAY), 'Turned 14 days ago');
 
 console.log(`${checks} checks, ${failures} failures`);
 process.exit(failures === 0 ? 0 : 1);

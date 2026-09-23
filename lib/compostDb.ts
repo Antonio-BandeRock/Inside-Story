@@ -87,6 +87,13 @@ export async function setCompostPileFeeds(id: string, feeds: { plotId: string | 
   );
 }
 
+/** Sets how often this pile should be turned. The turn reminder reads it,
+ *  and so does the line on the pile's row, so the two cannot drift. */
+export async function setCompostTurnInterval(id: string, days: number | null): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('UPDATE compost_piles SET turn_interval_days = ? WHERE id = ?', days, id);
+}
+
 export async function setCompostPileStatus(id: string, status: CompostPileStatus): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('UPDATE compost_piles SET status = ? WHERE id = ?', status, id);
@@ -112,10 +119,12 @@ export async function listCompostPiles(): Promise<CompostPile[]> {
     notes: string | null;
     plotId: string | null;
     costGroupId: string | null;
+    turnIntervalDays: number | null;
   }>(
     `
       SELECT id, name, kind, started_on AS startedOn, location, status, notes,
-             plot_id AS plotId, cost_group_id AS costGroupId
+             plot_id AS plotId, cost_group_id AS costGroupId,
+             turn_interval_days AS turnIntervalDays
       FROM compost_piles
       ORDER BY CASE status WHEN 'active' THEN 0 WHEN 'curing' THEN 1 ELSE 2 END, started_on DESC
     `,
@@ -124,6 +133,59 @@ export async function listCompostPiles(): Promise<CompostPile[]> {
     ...row,
     kind: asPileKind(row.kind),
     status: asPileStatus(row.status),
+  }));
+}
+
+/**
+ * Every active pile with the day it was last turned, for the turn
+ * reminder.
+ *
+ * Its own query rather than reading listCompostPiles and then every pile's
+ * events, since the reminder pass runs at startup, on foreground and after
+ * every schedule change, and a pile's whole history is not wanted for it.
+ */
+export async function listCompostPilesToTurn(): Promise<
+  { pile: CompostPile; lastTurnedOn: string | null }[]
+> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{
+    id: string;
+    name: string;
+    kind: string;
+    startedOn: string;
+    location: string | null;
+    status: string;
+    notes: string | null;
+    plotId: string | null;
+    costGroupId: string | null;
+    turnIntervalDays: number | null;
+    lastTurnedOn: string | null;
+  }>(
+    `
+      SELECT p.id, p.name, p.kind, p.started_on AS startedOn, p.location, p.status, p.notes,
+             p.plot_id AS plotId, p.cost_group_id AS costGroupId,
+             p.turn_interval_days AS turnIntervalDays,
+             (SELECT MAX(e.occurred_on) FROM compost_events e
+               WHERE e.pile_id = p.id AND e.kind = 'turned') AS lastTurnedOn
+      FROM compost_piles p
+      WHERE p.status = 'active'
+      ORDER BY p.started_on DESC
+    `,
+  );
+  return rows.map((row) => ({
+    pile: {
+      id: row.id,
+      name: row.name,
+      kind: asPileKind(row.kind),
+      startedOn: row.startedOn,
+      location: row.location,
+      status: asPileStatus(row.status),
+      notes: row.notes,
+      plotId: row.plotId,
+      costGroupId: row.costGroupId,
+      turnIntervalDays: row.turnIntervalDays,
+    },
+    lastTurnedOn: row.lastTurnedOn,
   }));
 }
 

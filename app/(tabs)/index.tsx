@@ -71,6 +71,7 @@ import {
   deleteMealPhotoDraft,
   getCheckinForDate,
   getCuriousAboutConditions,
+  getDayMealAndDoseTimeline,
   getLastSeenAppVersion,
   getNutrientTotalsByDateRange,
   getFlaggedItemsByDateRange,
@@ -100,6 +101,7 @@ import {
   analyzeNutrientIntake,
   findExcessRisks,
   findNutrientGaps,
+  nutrientSourceSplit,
   type NutrientGapEntry,
 } from '../../lib/nutrientAnalysis';
 import { getActiveGroceryListSummary, type GroceryListSummary } from '../../lib/groceryDb';
@@ -117,6 +119,18 @@ import {
   type Routine,
 } from '../../lib/routines';
 import { getRoutinesHomeData } from '../../lib/routinesDb';
+import { listDatedReminderSources, type DatedReminderSource } from '../../lib/reminderSources';
+import {
+  DATED_KIND_PREFIX,
+  datedReminderLeadToday,
+  describeDatedDue,
+} from '../../lib/reminderSchedule';
+import {
+  getReminderPreferences,
+  isNudgeUntilDoneEnabled,
+  isReminderKindEnabled,
+} from '../../lib/reminderPreferences';
+import { buildDayTimeline, type DoseFoodNote } from '../../lib/doseMealTiming';
 import { reresolveSavedDishCookingMethods } from '../../lib/db';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { dateStringOffsetFrom } from '../../lib/trendAnalysis';
@@ -458,6 +472,11 @@ type DashboardData = {
   // Doses and appointments for today, every status. Separate from
   // scheduledToday above, which is meals and only meals.
   todaysReminders: TodaysReminder[];
+  // Everything else carrying a date that speaks today, 2026-09-23: a bill,
+  // a service, a benefit about to reset, a counter landing, a pile due a
+  // turn. Already filtered to what today has something to say about, and
+  // already ordered with whatever is furthest past its day first.
+  datedToday: DatedReminderToday[];
   nutrientEntries: NutrientGapEntry[];
   sixDsFlagCount: number;
   recentMaxSeverity: number | null;
@@ -571,6 +590,23 @@ function gardenTaskDayLabel(scheduledFor: string, today: string): string {
   const day = scheduledFor.slice(0, 10);
   if (day === today) return 'Today';
   return new Date(`${day}T12:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+// One dated thing that has something to say today, 2026-09-23. The lead is
+// how far off the day itself is, negative once it has passed, and it is the
+// number the notification for the same thing was built from.
+type DatedReminderToday = { source: DatedReminderSource; lead: number };
+
+// The left column of a dated row, which has no clock time to put there. The
+// verb ("Due", "Resets", "Turn it") is on the detail line, in the words the
+// notification used; this is the when, short enough for the same 62-wide
+// column a dose time sits in.
+function datedDayLabel(lead: number): string {
+  if (lead === 0) return 'Today';
+  if (lead === 1) return 'Tomorrow';
+  if (lead > 1) return `In ${lead} days`;
+  if (lead === -1) return 'Yesterday';
+  return `${Math.abs(lead)} days ago`;
 }
 
 // What each Home section is a window INTO, 2026-09-05.
@@ -1011,6 +1047,13 @@ export default function HomeScreen() {
   // actually happened.
   const [testDataPresent, setTestDataPresent] = useState(false);
   const [data, setData] = useState<DashboardData | null>(null);
+  // What the meals around a dose do to it, 2026-09-23, keyed by the dose's
+  // schedule_items id. Loaded on its own after the dashboard rather than
+  // inside it, and only when the day actually holds a dose: working this
+  // out reads every scheduled meal's ingredients through to nutrients (see
+  // getDayMealAndDoseTimeline), which is not work to put in front of the
+  // first paint of Home for the many days that hold no dose at all.
+  const [doseFoodNotes, setDoseFoodNotes] = useState<Record<string, DoseFoodNote>>({});
   const [loading, setLoading] = useState(true);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   // Only ever opens when "Worth a look" is genuinely made of both kinds of
@@ -1302,6 +1345,20 @@ export default function HomeScreen() {
       // as everything above it. Three small queries inside one call, over
       // tables that only ever hold what somebody typed themselves.
       getRoutinesHomeData(),
+      // The dated things, 2026-09-23. Direct question: of everything added
+      // lately, what belongs on Home that is not there? Three of the five
+      // dated reminder kinds had nowhere on Home at all, so a bill due on
+      // the 5th existed only as a notification that is gone the second it
+      // is swiped. The band widened rather than a new section being added,
+      // which keeps one place to look for "what is today asking of me".
+      //
+      // The preferences come with it because Home honours the same two
+      // switches the scheduler does: a kind switched off in Profile stays
+      // silent here too, and nudging decides whether something past its day
+      // keeps being shown. The band and the notification saying different
+      // things would be worse than either of them alone.
+      listDatedReminderSources(date),
+      getReminderPreferences(),
     ]).then(
       ([
         todaysMeals,
@@ -1321,6 +1378,8 @@ export default function HomeScreen() {
         openToAnswer,
         assumedToConfirm,
         routinesHome,
+        datedSources,
+        reminderPrefs,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1337,6 +1396,23 @@ export default function HomeScreen() {
           .map((entry) => entry.severity as number);
         const recentMaxSeverity = recentSeverities.length > 0 ? Math.max(...recentSeverities) : null;
 
+        // Which of the dated things has anything to say today, worked out
+        // the way the scheduler works it out rather than by comparing dates
+        // here: datedReminderDays owns the leads per kind (a bill speaks
+        // three days out and again on the day, a benefit a month and a week
+        // out), and asking it is what stops this band drifting away from
+        // what the phone said. Ordered by lead, so anything already past
+        // its day sits at the top.
+        const nudge = isNudgeUntilDoneEnabled(reminderPrefs);
+        const datedToday: DatedReminderToday[] = [];
+        for (const source of datedSources) {
+          if (!isReminderKindEnabled(reminderPrefs, source.kind)) continue;
+          const lead = datedReminderLeadToday(source.kind, source.dueOn, date, nudge);
+          if (lead === null) continue;
+          datedToday.push({ source, lead });
+        }
+        datedToday.sort((a, b) => a.lead - b.lead || a.source.title.localeCompare(b.source.title));
+
         const lastAssessment = recentAssessments[0] ?? null;
         const daysSinceAssessment = lastAssessment
           ? Math.floor((Date.now() - new Date(lastAssessment.completedAt).getTime()) / (24 * 60 * 60 * 1000))
@@ -1348,6 +1424,7 @@ export default function HomeScreen() {
           grocerySummary,
           scheduledToday,
           todaysReminders,
+          datedToday,
           nutrientEntries,
           sixDsFlagCount,
           recentMaxSeverity,
@@ -1510,6 +1587,60 @@ export default function HomeScreen() {
       });
     }, [load, loadWeekTrend, loadSkyData, loadDigestConditionScope, loadSharedFolderState, announceAppliedUpdate, repairSavedDishes, refreshTestDataBanner]),
   );
+
+  // What the meals around today's doses do to them, 2026-09-23.
+  //
+  // Schedules > Today's Meals has said this since 1.0.49.6, and it is the
+  // one thing on that lens somebody needs BEFORE the dose rather than after
+  // it: a levothyroxine at 7:00 beside a yogurt breakfast at 7:30 is only
+  // worth knowing while there is still time to move one of them. Home
+  // already lists the dose, so the sentence goes on the row that is
+  // already there rather than into a section of its own.
+  //
+  // Its own pass, after the dashboard, for the reason set out where
+  // doseFoodNotes is declared. Only the two notes that are about today
+  // reach Home: a clash, and a dose with nothing near it to absorb with.
+  // What is already fine, and what could not be checked, stay on the lens,
+  // where there is room to say why.
+  const doseIdsToday = useMemo(
+    () =>
+      (data?.todaysReminders ?? [])
+        .filter((reminder) => reminder.itemType !== 'appointment')
+        .map((reminder) => reminder.id)
+        .join(','),
+    [data?.todaysReminders],
+  );
+
+  useEffect(() => {
+    if (doseIdsToday.length === 0) {
+      setDoseFoodNotes({});
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        const day = await getDayMealAndDoseTimeline(todayDateString());
+        if (cancelled) return;
+        const entries = buildDayTimeline(day.meals, day.doses, day.rules, day.timings, day.nutrientNames);
+        const byDose: Record<string, DoseFoodNote> = {};
+        for (const entry of entries) {
+          if (entry.kind !== 'dose') continue;
+          // doseFoodNotes already orders clash before missing, so the first
+          // one that qualifies is the one worth the single line a row has.
+          const note = entry.notes.find((candidate) => candidate.kind === 'clash' || candidate.kind === 'missing');
+          if (note) byDose[entry.dose.id] = note;
+        }
+        setDoseFoodNotes(byDose);
+      } catch (error) {
+        // A row without the sentence is the same row Home shipped with, so
+        // a failure here leaves the band working rather than blank.
+        console.warn('dose food notes failed', error);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [doseIdsToday]);
 
 
   // --- Today's Check-In (2026-08-08) -------------------------------------
@@ -2140,55 +2271,104 @@ export default function HomeScreen() {
   // destination a tapped notification lands on (resolveReminderTap in
   // lib/reminderNotifications.ts). Marking a dose taken stays in the Meds
   // lens rather than being duplicated here.
+  //
+  // 2026-09-23: the band widened to everything else that carries a date.
+  // Bills, upkeep, benefits, Days Until counters and a compost pile due a
+  // turn all reach the phone as notifications and none of them had anywhere
+  // on Home, so "what is today asking of me" was answerable only for the
+  // two kinds that live on a schedule. They come after the timed rows,
+  // which keeps the clock reading down the left edge, and they are ordered
+  // with whatever is furthest past its day at the top. The same pass put
+  // the meal-timing sentence on the dose rows; see doseFoodNotes above.
   function renderTodaysReminders() {
     if (!isHomeSectionVisible(visualPrefs, 'todaysReminders')) return null;
     const reminders = data?.todaysReminders ?? [];
+    const dated = data?.datedToday ?? [];
     const nowKey = `${todayDateString()}T${nowTimeString24()}`;
     return renderBand(
       'todaysReminders',
       "Today's Reminders",
       <View style={styles.bandBody}>
-        {reminders.length === 0 ? (
-          <Text style={styles.bandCaption}>No doses or appointments on today’s schedule.</Text>
-        ) : (
-          reminders.map((reminder) => {
-            const isAppointment = reminder.itemType === 'appointment';
-            const detail = isAppointment
-              ? [reminder.location, reminder.providerName ? `with ${reminder.providerName}` : null]
-                  .filter(Boolean)
-                  .join(', ')
-              : describeReminderDose(reminder);
-            const state = describeReminderState(reminder, nowKey);
-            return (
-              <TouchableOpacity
-                key={reminder.id}
-                style={styles.reminderRow}
-                activeOpacity={0.8}
-                onPress={() =>
-                  router.navigate({
-                    pathname: '/schedule',
-                    params: { openScheduleLens: isAppointment ? 'appointments' : 'meds' },
-                  })
-                }
-              >
-                <Text style={styles.reminderTime}>{formatTime12(reminder.scheduledFor.slice(11, 16))}</Text>
-                <View style={styles.reminderBody}>
-                  <Text style={styles.reminderTitle} numberOfLines={1}>
-                    {reminder.title}
+        {reminders.length === 0 && dated.length === 0 ? (
+          <Text style={styles.bandCaption}>Nothing on today’s schedule, and nothing else due.</Text>
+        ) : null}
+        {reminders.map((reminder) => {
+          const isAppointment = reminder.itemType === 'appointment';
+          const detail = isAppointment
+            ? [reminder.location, reminder.providerName ? `with ${reminder.providerName}` : null]
+                .filter(Boolean)
+                .join(', ')
+            : describeReminderDose(reminder);
+          const state = describeReminderState(reminder, nowKey);
+          const foodNote = isAppointment ? undefined : doseFoodNotes[reminder.id];
+          return (
+            <TouchableOpacity
+              key={reminder.id}
+              style={styles.reminderRow}
+              activeOpacity={0.8}
+              onPress={() =>
+                router.navigate({
+                  pathname: '/schedule',
+                  // A dose with something to say about the meals around it
+                  // opens the day itself, where the meal and the dose sit
+                  // in one list and either can be moved. Every other row
+                  // keeps opening the lens it is acted on from.
+                  params: {
+                    openScheduleLens: isAppointment ? 'appointments' : foodNote ? 'todaysMeals' : 'meds',
+                  },
+                })
+              }
+            >
+              <Text style={styles.reminderTime}>{formatTime12(reminder.scheduledFor.slice(11, 16))}</Text>
+              <View style={styles.reminderBody}>
+                <Text style={styles.reminderTitle} numberOfLines={1}>
+                  {reminder.title}
+                </Text>
+                {detail ? (
+                  <Text style={styles.reminderDetail} numberOfLines={1}>
+                    {detail}
                   </Text>
-                  {detail ? (
-                    <Text style={styles.reminderDetail} numberOfLines={1}>
-                      {detail}
-                    </Text>
-                  ) : null}
-                </View>
-                {state ? (
-                  <Text style={[styles.reminderState, { color: state.color }]}>{state.label}</Text>
                 ) : null}
-              </TouchableOpacity>
-            );
-          })
-        )}
+                {foodNote ? (
+                  <Text style={styles.reminderFoodNote} numberOfLines={2}>
+                    {foodNote.headline}
+                  </Text>
+                ) : null}
+              </View>
+              {state ? (
+                <Text style={[styles.reminderState, { color: state.color }]}>{state.label}</Text>
+              ) : null}
+            </TouchableOpacity>
+          );
+        })}
+        {dated.map(({ source, lead }) => {
+          const prefix = DATED_KIND_PREFIX[source.kind];
+          const detail = [describeDatedDue(source.kind, lead), source.detail].filter(Boolean).join('. ');
+          return (
+            <TouchableOpacity
+              key={`${source.kind}:${source.sourceId}`}
+              style={styles.reminderRow}
+              activeOpacity={0.8}
+              onPress={() =>
+                source.tab === 'garden'
+                  ? router.push({ pathname: '/garden', params: { openGardenLens: source.lens } })
+                  : router.push({ pathname: '/life', params: { openLifeLens: source.lens } })
+              }
+            >
+              <Text style={styles.reminderTime} numberOfLines={1}>
+                {datedDayLabel(lead)}
+              </Text>
+              <View style={styles.reminderBody}>
+                <Text style={styles.reminderTitle} numberOfLines={1}>
+                  {prefix ? `${prefix}: ${source.title}` : source.title}
+                </Text>
+                <Text style={styles.reminderDetail} numberOfLines={2}>
+                  {detail}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
       </View>,
     );
   }
@@ -2327,8 +2507,11 @@ export default function HomeScreen() {
             percentages represent. Is it so far today, or does it represent
             how much they will have all day." Confirmed by reading
             analyzeNutrientIntake: it is what has actually been logged so
-            far (food plus supplements) against the whole day's target, so
-            it climbs as the day goes on. Nothing is projected. */}
+            far, food and supplements together, against the whole day's
+            target, so it climbs as the day goes on. Nothing is projected.
+            2026-09-23: which of those two a reading came from is now drawn
+            on the ring itself, so "together" is no longer the whole of
+            what the card says. See the key line below the row. */}
         <Text style={[styles.fuelGaugesCaption, { color: tabColorFor('/insights') }]}>
           Percent of your whole day&apos;s target, from what you have logged so far today. These climb as you log
           more, so a low number early is normal.
@@ -2336,6 +2519,10 @@ export default function HomeScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.ringRow}>
           {coreNutrientRings.map((entry) => {
             const ringColors = nutrientRingColors(entry);
+            // Null unless a supplement actually contributed to this one,
+            // which is most of them on most days, and those rings are
+            // drawn exactly as they always were.
+            const split = nutrientSourceSplit(entry);
             return (
               <TouchableOpacity
                 key={entry.nutrientCode}
@@ -2346,6 +2533,7 @@ export default function HomeScreen() {
                   percent={entry.percentOfTarget}
                   color={ringColors.from}
                   gradientTo={ringColors.to}
+                  supplementPercent={split ? split.supplementShare * 100 : 0}
                   label={entry.displayName}
                   sublabel={`${Math.round(entry.percentOfTarget)}%`}
                 />
@@ -2353,6 +2541,15 @@ export default function HomeScreen() {
             );
           })}
         </ScrollView>
+        {/* Only when one of the rings on screen actually carries a
+            supplement stretch. A key for a colour nothing is drawn in
+            would be a line to read past every day. */}
+        {coreNutrientRings.some((entry) => nutrientSourceSplit(entry) != null) ? (
+          <Text style={styles.fuelGaugesSourceKey}>
+            Where a ring ends in amber, that stretch came from a supplement rather than from food. Tap through for
+            the amounts.
+          </Text>
+        ) : null}
         {overLimitNutrients.length > 0 ? (
           <Text style={styles.fuelGaugesOverLimit}>
             {`Over a safe upper limit today: ${overLimitNutrients.map((entry) => entry.displayName).join(', ')}. Tap through for the detail.`}
@@ -3608,6 +3805,10 @@ const styles = StyleSheet.create({
   reminderBody: { flex: 1, gap: 2 },
   reminderTitle: { ...typography.body, ...textShadow, color: colors.textPrimary },
   reminderDetail: { ...typography.caption, ...textShadow, color: colors.textMuted },
+  // The one sentence about the meals around a dose. Amber rather than the
+  // muted grey of the line above it, because it is the only line on the
+  // row that is asking for something to be moved.
+  reminderFoodNote: { ...typography.caption, ...textShadow, color: colors.statusYellowOnSurface },
   reminderState: { ...typography.caption, ...textShadow },
 
   // Same colors.surface "dark blue" card used everywhere else on this page
@@ -3748,6 +3949,15 @@ const styles = StyleSheet.create({
     ...typography.caption,
     ...textShadow,
     color: colors.danger,
+    lineHeight: 17,
+    marginTop: 12,
+  },
+  // 2026-09-23. The amber the supplement stretch of a ring is drawn in,
+  // so the line saying what that colour means is written in it.
+  fuelGaugesSourceKey: {
+    ...typography.caption,
+    ...textShadow,
+    color: colors.statusYellowOnSurface,
     lineHeight: 17,
     marginTop: 12,
   },

@@ -30,9 +30,21 @@ export const REMINDER_HOUR = 9;
  *  Life; a countdown is a Days Until counter in Garden > Plots & Plantings,
  *  which joined 2026-09-21 by direct request ("Add a reminder on the day for
  *  a Days Until counter"). */
-export type DatedReminderKind = 'bill' | 'upkeep' | 'benefit' | 'countdown';
+//
+// A fifth joined 2026-09-23, a compost pile waiting to be turned. It is
+// dated in the same sense the other four are: lib/compost.ts already works
+// out the day a pile is next due a turn from when it was last turned, and
+// until now that day existed only on the Compost lens, where somebody had
+// to go and look at it.
+export type DatedReminderKind = 'bill' | 'upkeep' | 'benefit' | 'countdown' | 'compost';
 
-export const ALL_DATED_REMINDER_KINDS: DatedReminderKind[] = ['bill', 'upkeep', 'benefit', 'countdown'];
+export const ALL_DATED_REMINDER_KINDS: DatedReminderKind[] = [
+  'bill',
+  'upkeep',
+  'benefit',
+  'countdown',
+  'compost',
+];
 
 /**
  * How many days ahead of the date each kind speaks up, longest lead first.
@@ -52,32 +64,41 @@ export const ALL_DATED_REMINDER_KINDS: DatedReminderKind[] = ['bill', 'upkeep', 
  * germination" so that the fourteenth day would be pointed out to them.
  * Nothing needs booking ahead of it, and a counter that lands unnoticed is
  * not a crisis, so there is no lead and no warning.
+ *
+ * A compost pile is the same shape for a different reason. There is nothing
+ * to book ahead of turning a pile and nothing that goes wrong if it happens
+ * a day late, so a warning three days out would be noise. It speaks on the
+ * day it is due, and unlike a counter it comes back, for which see
+ * NUDGES_WHILE_OVERDUE below.
  */
 export const LEAD_DAYS: Record<DatedReminderKind, number[]> = {
   bill: [3, 0],
   upkeep: [14, 3, 0],
   benefit: [30, 7],
   countdown: [0],
+  compost: [0],
 };
 
 /**
  * Which dated kinds keep coming back once the date has passed, when nudging
  * is switched on.
  *
- * Only upkeep, and the reason is honest rather than arbitrary: marking an
- * upkeep item done moves last_done_on (or renews expires_on), which moves
- * the next date, which is how the reconcile knows to stop. Nothing in this
- * app records that one particular month of one particular recurring bill
- * got paid, and a work benefit is used down gradually rather than finished,
- * so for those two "until it is done" has nothing to read. Rather than
- * nagging about something it cannot tell the state of, neither one repeats.
+ * Upkeep and compost, and the reason is honest rather than arbitrary: both
+ * record the doing. Marking an upkeep item done moves last_done_on (or
+ * renews expires_on) and recording a turn on a compost pile writes a
+ * 'turned' event, and in each case that moves the next date, which is how
+ * the reconcile knows to stop. Nothing in this app records that one
+ * particular month of one particular recurring bill got paid, and a work
+ * benefit is used down gradually rather than finished, so for those two
+ * "until it is done" has nothing to read. Rather than nagging about
+ * something it cannot tell the state of, neither one repeats.
  *
  * A countdown could honestly repeat (Done takes it out of the running list)
  * and deliberately does not: a counter past its day is meant to keep
  * counting on screen so the person can see how far past the mark the plant
  * is running, and that is a thing to look at, not a thing left undone.
  */
-export const NUDGES_WHILE_OVERDUE: DatedReminderKind[] = ['upkeep'];
+export const NUDGES_WHILE_OVERDUE: DatedReminderKind[] = ['upkeep', 'compost'];
 
 /** An overdue nudge gives up after two weeks. Something ignored for a
  *  fortnight is a decision, not a thing that was forgotten, and a daily
@@ -205,4 +226,56 @@ export function describeLead(lead: number): string {
   if (lead > 1) return `in ${lead} days`;
   if (lead === -1) return 'yesterday';
   return `${Math.abs(lead)} days ago`;
+}
+
+/**
+ * The lead today speaks with, or null when this thing has nothing to say
+ * today.
+ *
+ * Added 2026-09-23, when Home's Today's Reminders band widened to carry the
+ * dated kinds as well as the doses and appointments it started with. A
+ * notification is gone the second it is swiped, and a bill due on the 5th
+ * had nowhere on Home at all, so the band had to be able to ask the same
+ * question the scheduler asks: does this speak today, and with what wording?
+ * Reading it from datedReminderDays rather than re-deriving it is what keeps
+ * the band and the notification saying the same thing.
+ */
+export function datedReminderLeadToday(
+  kind: DatedReminderKind,
+  dueOn: string,
+  today: string,
+  nudge: boolean,
+): number | null {
+  const day = datedReminderDays(kind, dueOn, today, nudge).find((entry) => entry.on === today);
+  return day ? day.lead : null;
+}
+
+/** The word in front of a dated reminder's title, for the kinds whose name
+ *  alone would not say what sort of thing it is. A bill carries its own
+ *  name and needs none. Lives here rather than in
+ *  lib/reminderNotifications.ts so that Home can label a row with exactly
+ *  the words the notification used. */
+export const DATED_KIND_PREFIX: Record<DatedReminderKind, string | null> = {
+  bill: null,
+  upkeep: 'Upkeep',
+  benefit: 'Work benefit',
+  countdown: 'Days Until',
+  compost: 'Compost',
+};
+
+/**
+ * What the date actually means for each, which differs enough to be worth
+ * saying: a bill is owed, a service is due, a benefit resets and takes
+ * whatever is left with it.
+ */
+export function describeDatedDue(kind: DatedReminderKind, lead: number): string {
+  const when = describeLead(lead);
+  if (kind === 'benefit') return `Resets ${when}`;
+  // A counter lands, the word its row on the Garden screen uses.
+  if (kind === 'countdown') return `Lands ${when}`;
+  // A pile is turned, and past its day it is still waiting rather than
+  // late: nothing is spoiled by a turn that happens on the eighteenth day
+  // instead of the fourteenth.
+  if (kind === 'compost') return lead < 0 ? `Ready to turn ${when}` : `Turn it ${when}`;
+  return lead < 0 ? `Was due ${when}` : `Due ${when}`;
 }
