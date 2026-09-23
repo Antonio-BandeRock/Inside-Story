@@ -18,6 +18,7 @@ import {
   deleteScheduleSeries,
   ensureScheduleSeriesGenerated,
   getDailyNutrientAnalysis,
+  getDayMealAndDoseTimeline,
   getDietPreferences,
   getUpcomingScheduleCountsByType,
   getUserConditions,
@@ -85,6 +86,11 @@ import {
   type DeviceCalendarEvent,
 } from '../../lib/deviceCalendar';
 import { evaluateInteractionRules, type InteractionWarning, type ReferenceOnlyRule } from '../../lib/interactionRules';
+// Meals and doses read as one day, 2026-09-22. Every decision and every
+// sentence lives in this module, which has no database and no React in
+// it, so scripts/test_dose_meal_timing.js can check the wording without a
+// phone; lib/db.ts builds exactly the shapes it takes.
+import { buildDayTimeline, timelineSummary, type TimelineEntry } from '../../lib/doseMealTiming';
 import { hasReminderPermission, requestReminderPermission, syncReminderNotifications } from '../../lib/reminderNotifications';
 import type { NutrientGapEntry } from '../../lib/nutrientAnalysis';
 import { buildTime24, describeTimeInputProblem, formatTime12, splitTime24, type TimeOfDayInput } from '../../lib/timeOfDay';
@@ -199,6 +205,22 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: 'Where the steps come from',
         body: 'A meal built from saved dishes carries each dish’s own ingredients and whatever steps were written for it, including the steps that come with a system recipe when you build one. A meal typed in directly has no recipe behind it and says so, rather than showing an empty panel.',
+      },
+      {
+        heading: 'Your doses, in among the meals',
+        body: 'Anything scheduled on the Meds lens, prescription, over the counter or supplement, sits in this list at the time it is due, between the meals it falls between, so the day reads as it actually runs rather than as two separate lists.',
+      },
+      {
+        heading: 'What a dose says about the food near it',
+        body: 'Open a dose and it reads the meals around it: whether one of them carries enough calcium, iron, zinc or magnesium to get in the way, and how far apart the two are; or, for anything that needs fat to be absorbed, whether a meal within two hours has any. Every line names the amount and the gap, so you can judge it yourself, and cites where the rule comes from.',
+      },
+      {
+        heading: 'What it cannot tell you',
+        body: 'A meal typed in by hand, or built from dishes with nothing linked to the food database, has no nutrient amounts behind it. A dose near one of those says it could not be checked rather than reading the meal as carrying nothing.',
+      },
+      {
+        heading: 'Moving a dose',
+        body: 'Nothing here changes a dose. Times, taken, skipped and removed all stay on the Meds lens, so there is one place that record lives.',
       },
       {
         heading: 'If a dish has no steps',
@@ -2375,9 +2397,27 @@ function roundForDisplay(value: number): string {
 // It shows the whole day, not just what has already been eaten, since you
 // cook a meal before you log it -- a lens that only listed logged meals
 // would be useless for the thing it was asked for.
+// Today's Meals became the day itself, meals and doses together,
+// 2026-09-22.
+//
+// Direct instruction: "when they were taken throughout the day is part of
+// scheduling and should be visible right along side the meal schedule."
+// The Meds lens already showed every dose, and this lens already showed
+// every meal, and neither one could show a dose sitting twenty minutes
+// from a breakfast that competes with it, because the two lists never met.
+// They meet here. The order is the clock, so a dose reads in the place the
+// day actually puts it.
+//
+// Why this lens rather than Meds: the doses are being read against the
+// food, and the food is here. Meds keeps the editing (time, taken,
+// skipped, removed), which is why nothing below writes anything; a person
+// who wants to move a dose is sent there rather than given a second set of
+// controls that could drift from the first.
 function TodaysMealsLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [meals, setMeals] = useState<TodaysMeal[]>([]);
+  const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -2385,8 +2425,12 @@ function TodaysMealsLens() {
   const load = useCallback(() => {
     setLoading(true);
     setErrorMessage('');
-    listTodaysMealsWithRecipes(todayDateString())
-      .then(setMeals)
+    const date = todayDateString();
+    Promise.all([listTodaysMealsWithRecipes(date), getDayMealAndDoseTimeline(date)])
+      .then(([todaysMeals, day]) => {
+        setMeals(todaysMeals);
+        setTimeline(buildDayTimeline(day.meals, day.doses, day.rules, day.timings, day.nutrientNames));
+      })
       .catch((error) =>
         setErrorMessage(`Could not load today's meals: ${error instanceof Error ? error.message : String(error)}`),
       )
@@ -2412,20 +2456,210 @@ function TodaysMealsLens() {
   }, [meals]);
   const marks = useFoodSafetyMarks(ingredientNames);
 
+  // The timeline decides the order and the doses; this lens still owns
+  // what a meal looks like once opened, which is the resolved dishes,
+  // ingredients and steps the timeline has no use for.
+  const mealsById = useMemo(() => {
+    const byId = new Map<string, TodaysMeal>();
+    for (const meal of meals) byId.set(meal.scheduleItemId, meal);
+    return byId;
+  }, [meals]);
+
+  const summary = useMemo(() => timelineSummary(timeline), [timeline]);
+  const doseCount = useMemo(() => timeline.filter((entry) => entry.kind === 'dose').length, [timeline]);
+
+  function renderMealBand(meal: TodaysMeal) {
+    const expanded = expandedId === meal.scheduleItemId;
+    return (
+      <View key={meal.scheduleItemId} style={styles.bandOut}>
+        <HomeSectionBand
+          kind="fold"
+          title={`${formatTime12(meal.scheduledFor.slice(11, 16))} · ${meal.title}`}
+          icon="restaurant-outline"
+          color={TAB_COLOR}
+          expanded={expanded}
+          onToggle={() => setExpandedId(expanded ? null : meal.scheduleItemId)}
+        >
+          <View style={styles.todaysMealBody}>
+            <Text style={styles.rowMeta}>
+              {[
+                meal.mealType ? capitalizeFirst(meal.mealType) : null,
+                // 'Eaten' rather than 'Logged' here, because this lens is
+                // about the food itself and not about the record of it.
+                meal.status === 'logged' ? 'Eaten' : (describeStatus(meal.status) ?? 'Planned'),
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </Text>
+            {!meal.hasComponents ? (
+              // A meal typed in by hand has no recipe behind it to
+              // open. Saying so plainly beats an empty panel that
+              // reads as broken.
+              <Text style={styles.emptyText}>
+                This one was entered directly rather than built from saved dishes, so there is nothing to cook
+                from here. Building it in the Food tab is what gives a meal its ingredients and steps.
+              </Text>
+            ) : (
+              <>
+                {!meal.anyInstructions ? (
+                  <Text style={styles.emptyText}>
+                    The ingredients are below, but no steps were written for these dishes. You can add them by
+                    editing the dish in its builder.
+                  </Text>
+                ) : null}
+                {meal.components.map((component, index) => (
+                  <View key={`${component.componentType}-${index}`} style={styles.todaysMealComponent}>
+                    <Text style={styles.todaysMealComponentName}>{component.name}</Text>
+                    {component.yourSharePercent !== 100 ? (
+                      <Text style={styles.rowMeta}>{`Your share: ${component.yourSharePercent}% of the batch`}</Text>
+                    ) : null}
+
+                    <Text style={styles.todaysMealSectionLabel}>Ingredients</Text>
+                    {component.ingredients.length === 0 ? (
+                      <Text style={styles.rowMeta}>No ingredients recorded.</Text>
+                    ) : (
+                      component.ingredients.map((ingredient, ingredientIndex) => (
+                        <FoodSafetyRow
+                          key={`${ingredient.foodName}-${ingredientIndex}`}
+                          foodName={ingredient.foodName}
+                          primaryText={`${ingredient.foodName}: ${roundForDisplay(ingredient.quantity)} ${ingredient.unit}`}
+                          metaText={ingredient.notes ? ingredient.notes : null}
+                          marks={marks}
+                        />
+                      ))
+                    )}
+
+                    {component.instructions.length > 0 ? (
+                      <>
+                        <Text style={styles.todaysMealSectionLabel}>Steps</Text>
+                        {component.instructions.map((step, stepIndex) => (
+                          <Text key={stepIndex} style={styles.todaysMealStep}>
+                            {`${stepIndex + 1}. ${step}`}
+                          </Text>
+                        ))}
+                      </>
+                    ) : null}
+                  </View>
+                ))}
+              </>
+            )}
+            {meal.notes ? <Text style={styles.rowMeta}>{`Note: ${meal.notes}`}</Text> : null}
+          </View>
+        </HomeSectionBand>
+      </View>
+    );
+  }
+
+  function renderDoseBand(entry: Extract<TimelineEntry, { kind: 'dose' }>) {
+    const { dose, notes, guidance } = entry;
+    const bandId = `dose:${dose.id}`;
+    const expanded = expandedId === bandId;
+    const worst = notes[0]?.kind ?? null;
+    const needsAttention = worst === 'clash' || worst === 'missing';
+    // Folded, a dose has to say whether there is something to look at,
+    // since the whole point is noticing it without opening every band in
+    // the day. The icon carries it and the title says it in words, because
+    // an icon on its own leaves somebody guessing which of the two it is.
+    const titleSuffix = worst === 'clash' ? ' · check the timing' : worst === 'missing' ? ' · nothing to take it with' : '';
+    return (
+      <View key={bandId} style={styles.bandOut}>
+        <HomeSectionBand
+          kind="fold"
+          title={`${formatTime12(dose.time)} · ${dose.treatmentName}${titleSuffix}`}
+          icon={needsAttention ? 'alert-circle-outline' : 'medkit-outline'}
+          color={TAB_COLOR}
+          expanded={expanded}
+          onToggle={() => setExpandedId(expanded ? null : bandId)}
+        >
+          <View style={styles.todaysMealBody}>
+            <Text style={styles.rowMeta}>
+              {[
+                dose.doseLabel,
+                treatmentTypeLabel(dose.treatmentType),
+                dose.status === 'logged' ? 'Taken' : dose.status === 'skipped' ? 'Skipped' : 'Not taken yet',
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </Text>
+
+            {notes.length === 0 ? (
+              <Text style={styles.emptyText}>
+                Nothing in today&apos;s meals competes with this one, and nothing about it depends on eating. It can
+                be taken at the time it is scheduled for.
+              </Text>
+            ) : (
+              notes.map((note, index) => (
+                <View
+                  key={`${note.ruleId ?? note.kind}-${index}`}
+                  style={[
+                    styles.interactionCard,
+                    // A verdict that needs acting on is filled; one saying
+                    // the day is already right, or that it could not be
+                    // worked out, is outlined, so the two never read the
+                    // same at a glance.
+                    note.kind === 'clash' || note.kind === 'missing' ? null : styles.interactionCardReference,
+                  ]}
+                >
+                  <Text style={styles.interactionTitle}>{note.headline}</Text>
+                  <Text style={styles.interactionMessage}>{note.detail}</Text>
+                  {note.citation ? <Text style={styles.interactionCitation}>{note.citation}</Text> : null}
+                  <WhyExplainer title={note.headline} mechanism={note.mechanism} onPress={showInfoAlert} />
+                </View>
+              ))
+            )}
+
+            {guidance.length > 0 ? (
+              // Reference text about the nutrient itself rather than a
+              // verdict about today, so it opens on request the way the
+              // standing rule asks, instead of sitting under every dose.
+              <TouchableOpacity
+                onPress={() =>
+                  showInfoAlert(
+                    `When to take ${dose.treatmentName}`,
+                    guidance
+                      .map((line) => `${line.nutrientName}: ${line.bestTaken}${line.citation ? `\n${line.citation}` : ''}`)
+                      .join('\n\n'),
+                  )
+                }
+              >
+                <Text style={styles.actionTextPrimary}>
+                  {guidance.length === 1 ? 'When this one is best taken' : 'When these are best taken'}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
+
+            <Text style={styles.rowMeta}>
+              Doses are moved, marked taken or skipped on the Meds lens, so there is one place that record lives.
+            </Text>
+          </View>
+        </HomeSectionBand>
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
       {errorMessage ? <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View> : null}
       {loading ? (
         <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
-      ) : meals.length === 0 ? (
+      ) : timeline.length === 0 ? (
         <View style={styles.bandBox}>
         <Text style={styles.emptyText}>
           Nothing scheduled to eat today yet. Anything you schedule on the Meals lens, or generate from a meal plan,
-          shows up here with its steps ready to cook from.
+          shows up here with its steps ready to cook from, and any dose you have scheduled shows up beside it.
         </Text>
         </View>
       ) : (
         <>
+        {summary ? (
+          <View style={styles.bandBox}>
+            <Text style={styles.interactionTitle}>{summary}</Text>
+            <Text style={styles.interactionMessage}>
+              Open the dose below to read which meal, and how far apart they are.
+            </Text>
+          </View>
+        ) : null}
         <View style={styles.bandBox}>
           <Text style={styles.emptyText}>
             Every ingredient below carries the same three marks as My Safe Foods. Plus means safe for you, the
@@ -2434,96 +2668,39 @@ function TodaysMealsLens() {
             plan this app generates.
           </Text>
         </View>
+        {doseCount > 0 ? (
+          <View style={styles.bandBox}>
+            <Text style={styles.emptyText}>
+              Doses sit in the day at the time they are scheduled for, in among the meals. What each one says is
+              worked out from the meals around it: what they carry, how much of it, and how far apart the two are.
+              A meal with nothing linked to the food database says so rather than being read as carrying nothing.
+            </Text>
+          </View>
+        ) : null}
         {
         // 2026-09-13: one fold band per meal, the time leading its title so
         // the folded list still reads as the day in order. One open at a
-        // time, as before, since this is read at the stove.
-        meals.map((meal) => {
-          const expanded = expandedId === meal.scheduleItemId;
-          return (
-            <View key={meal.scheduleItemId} style={styles.bandOut}>
-              <HomeSectionBand
-                kind="fold"
-                title={`${formatTime12(meal.scheduledFor.slice(11, 16))} · ${meal.title}`}
-                icon="restaurant-outline"
-                color={TAB_COLOR}
-                expanded={expanded}
-                onToggle={() => setExpandedId(expanded ? null : meal.scheduleItemId)}
-              >
-                <View style={styles.todaysMealBody}>
-                  <Text style={styles.rowMeta}>
-                    {[
-                      meal.mealType ? capitalizeFirst(meal.mealType) : null,
-                      // 'Eaten' rather than 'Logged' here, because this lens is
-                      // about the food itself and not about the record of it.
-                      meal.status === 'logged' ? 'Eaten' : (describeStatus(meal.status) ?? 'Planned'),
-                    ]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  </Text>
-                  {!meal.hasComponents ? (
-                    // A meal typed in by hand has no recipe behind it to
-                    // open. Saying so plainly beats an empty panel that
-                    // reads as broken.
-                    <Text style={styles.emptyText}>
-                      This one was entered directly rather than built from saved dishes, so there is nothing to cook
-                      from here. Building it in the Food tab is what gives a meal its ingredients and steps.
-                    </Text>
-                  ) : (
-                    <>
-                      {!meal.anyInstructions ? (
-                        <Text style={styles.emptyText}>
-                          The ingredients are below, but no steps were written for these dishes. You can add them by
-                          editing the dish in its builder.
-                        </Text>
-                      ) : null}
-                      {meal.components.map((component, index) => (
-                        <View key={`${component.componentType}-${index}`} style={styles.todaysMealComponent}>
-                          <Text style={styles.todaysMealComponentName}>{component.name}</Text>
-                          {component.yourSharePercent !== 100 ? (
-                            <Text style={styles.rowMeta}>{`Your share: ${component.yourSharePercent}% of the batch`}</Text>
-                          ) : null}
-
-                          <Text style={styles.todaysMealSectionLabel}>Ingredients</Text>
-                          {component.ingredients.length === 0 ? (
-                            <Text style={styles.rowMeta}>No ingredients recorded.</Text>
-                          ) : (
-                            component.ingredients.map((ingredient, ingredientIndex) => (
-                              <FoodSafetyRow
-                                key={`${ingredient.foodName}-${ingredientIndex}`}
-                                foodName={ingredient.foodName}
-                                primaryText={`${ingredient.foodName}: ${roundForDisplay(ingredient.quantity)} ${ingredient.unit}`}
-                                metaText={ingredient.notes ? ingredient.notes : null}
-                                marks={marks}
-                              />
-                            ))
-                          )}
-
-                          {component.instructions.length > 0 ? (
-                            <>
-                              <Text style={styles.todaysMealSectionLabel}>Steps</Text>
-                              {component.instructions.map((step, stepIndex) => (
-                                <Text key={stepIndex} style={styles.todaysMealStep}>
-                                  {`${stepIndex + 1}. ${step}`}
-                                </Text>
-                              ))}
-                            </>
-                          ) : null}
-                        </View>
-                      ))}
-                    </>
-                  )}
-                  {meal.notes ? <Text style={styles.rowMeta}>{`Note: ${meal.notes}`}</Text> : null}
-                </View>
-              </HomeSectionBand>
-            </View>
-          );
+        // time, as before, since this is read at the stove. Since
+        // 2026-09-22 a dose band takes its place in the same order.
+        timeline.map((entry) => {
+          if (entry.kind === 'dose') return renderDoseBand(entry);
+          const meal = mealsById.get(entry.meal.id);
+          return meal ? renderMealBand(meal) : null;
         })
         }
         </>
       )}
     </ScrollView>
   );
+}
+
+// How a med reads in a line beside its dose. The database's own three
+// kinds, in the words the rest of the app uses for them.
+function treatmentTypeLabel(treatmentType: string | null): string | null {
+  if (treatmentType === 'supplement') return 'Supplement';
+  if (treatmentType === 'prescription') return 'Prescription';
+  if (treatmentType === 'otc') return 'Over the counter';
+  return null;
 }
 
 function capitalizeFirst(value: string): string {

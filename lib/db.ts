@@ -36,6 +36,12 @@ import {
 // runtime dependency; TypeScript erases a type-only import before Metro
 // ever sees it, so there's nothing left at runtime to actually cycle.
 import type { RecipeDepthResult } from './recipeDepth';
+// Type-only for the same reason as the line above: lib/doseMealTiming.ts
+// reaches this file through lib/nutrientAnalysis.ts, so importing its
+// shapes as values would close a runtime circle for nothing. The two
+// functions below build exactly these, which is what lets the Schedules
+// screen hand them straight to buildDayTimeline.
+import type { TimelineDose, TimelineMeal } from './doseMealTiming';
 
 // Exported as of 2026-08-19 -- lib/visualPreferences.ts's own
 // getGroundThemeSync() needs to open this exact same file (by name, via
@@ -4444,6 +4450,39 @@ export async function getNutrientTiming(nutrientCode: string): Promise<NutrientT
     citation: row.citation,
     notes: row.notes,
   };
+}
+
+// The whole table in one call, 2026-09-22, for the day timeline on the
+// Today's Meals lens: it reads a dose against the meals around it,
+// and a dose can carry several nutrients, so asking per nutrient would
+// be a query per ingredient of every supplement on the day. Anything
+// wanting one row still goes through getNutrientTiming.
+export async function listNutrientTiming(): Promise<NutrientTiming[]> {
+  const db = await getReferenceDatabase();
+  const rows = await db.getAllAsync<{
+    nutrient_code: string;
+    solubility: string;
+    best_taken: string;
+    avoid_with: string | null;
+    pairs_well_with: string | null;
+    citation: string | null;
+    notes: string | null;
+  }>(
+    `
+      SELECT nutrient_code, solubility, best_taken, avoid_with, pairs_well_with, citation, notes
+      FROM nutrient_timing
+      ORDER BY nutrient_code
+    `,
+  );
+  return rows.map((row) => ({
+    nutrientCode: row.nutrient_code,
+    solubility: row.solubility,
+    bestTaken: row.best_taken,
+    avoidWith: row.avoid_with,
+    pairsWellWith: row.pairs_well_with,
+    citation: row.citation,
+    notes: row.notes,
+  }));
 }
 
 // A real, deliberately bounded starting set of common medications -- see
@@ -19256,6 +19295,170 @@ export async function getNutrientTotalsByDateRange(startLocal: string, endLocal:
 
   return { dayTotals, driRows, supplementTotals: supplementResult.totals };
 }
+// Everything one day needs to be read as meals and doses together, in one
+// call, 2026-09-22.
+//
+// Direct instruction: "when they were taken throughout the day is part of
+// scheduling and should be visible right along side the meal schedule."
+// lib/interactionRules.ts checks a dose time against another DOSE time and
+// checks fat against the WHOLE day, so a dose sitting twenty minutes from a
+// calcium-heavy breakfast has never been visible. Reading that needs a
+// scheduled meal resolved to nutrients PER MEAL rather than per day, which
+// is what this adds; the decisions and the wording live in
+// lib/doseMealTiming.ts, which has no database in it.
+//
+// Every status comes back rather than planned rows only, since a meal
+// already marked eaten still sits beside the dose that follows it, and a
+// skipped one is dropped by the timeline rather than here, where the reason
+// for dropping it would be invisible.
+export async function getDayMealAndDoseTimeline(date: string): Promise<{
+  meals: TimelineMeal[];
+  doses: TimelineDose[];
+  rules: InteractionRuleRecord[];
+  timings: NutrientTiming[];
+  nutrientNames: Record<string, string>;
+}> {
+  const db = await getDatabase();
+  const [mealItems, doseItems, rules, timings, tracked] = await Promise.all([
+    listScheduledMealsForDate(date),
+    db.getAllAsync<ScheduleItemRecord>(
+      `
+        SELECT ${SCHEDULE_ITEM_COLUMNS}
+        FROM schedule_items
+        WHERE item_type IN (${MED_DOSE_ITEM_TYPES.map(() => '?').join(', ')})
+          AND linked_treatment_id IS NOT NULL
+          AND substr(scheduled_for, 1, 10) = ?
+        ORDER BY scheduled_for ASC
+      `,
+      ...MED_DOSE_ITEM_TYPES,
+      date,
+    ),
+    listInteractionRules(),
+    listNutrientTiming(),
+    listTrackedNutrients(),
+  ]);
+
+  const nutrientNames: Record<string, string> = {};
+  for (const nutrient of tracked) nutrientNames[nutrient.code] = nutrient.displayName;
+
+  // One set of caches across the whole day, for the reason
+  // getProjectedIngredientsByDateRange keeps one across a range: a rotation
+  // reuses the same dishes, and resolving them once per day beats once per
+  // meal that happens to contain them.
+  const caches = createIngredientResolutionCaches();
+  const componentCache = new Map<string, MealIngredientInput[]>();
+
+  const meals: TimelineMeal[] = [];
+  for (const item of mealItems) {
+    let selections: MealComponentSelection[] = [];
+    if (item.sourceMealId) {
+      selections = (await getMealComponents(item.sourceMealId)).map((record) => ({
+        componentType: record.componentType,
+        componentId: record.componentId,
+        yourSharePercent: record.yourSharePercent,
+      }));
+    } else if (item.sourceFavoriteId) {
+      const favorite = await getMealFavorite(item.sourceFavoriteId);
+      selections = (favorite?.components ?? []).map((component) => ({
+        componentType: component.componentType,
+        componentId: component.componentId,
+        yourSharePercent: component.yourSharePercent,
+      }));
+    }
+
+    const nutrients: Record<string, number> = {};
+    let resolvedAny = false;
+    for (const selection of selections) {
+      const key = `${selection.componentType}:${selection.componentId}:${selection.yourSharePercent}`;
+      let ingredients = componentCache.get(key);
+      if (!ingredients) {
+        ingredients = (await resolveMealComponent(selection))?.ingredients ?? [];
+        componentCache.set(key, ingredients);
+      }
+      for (const ingredient of ingredients) {
+        const totals = await resolveIngredientNutrientTotals(
+          {
+            foodId: ingredient.foodId,
+            foodName: ingredient.foodName,
+            category: ingredient.category,
+            rawAmount: ingredient.quantity,
+            rawUnit: ingredient.unit,
+            dishServings: ingredient.dishServings,
+            yourSharePercent: ingredient.yourSharePercent,
+          },
+          caches,
+        );
+        if (!totals) continue;
+        resolvedAny = true;
+        addNutrientTotalsInto(nutrients, totals);
+      }
+    }
+
+    meals.push({
+      id: item.id,
+      title: item.title,
+      time: item.scheduledFor.slice(11, 16),
+      mealType: item.mealType,
+      status: item.status,
+      nutrients,
+      // A meal nothing resolved from is unknown rather than empty, and the
+      // timeline says so instead of quietly clearing the dose beside it.
+      nutrientsResolved: resolvedAny,
+    });
+  }
+
+  // A dose row left behind by a med since switched off is dropped, the way
+  // the Meds lens hides it: it is not being taken, so it clashes with
+  // nothing.
+  const treatmentIds = Array.from(
+    new Set(doseItems.map((item) => item.linkedTreatmentId).filter((id): id is string => Boolean(id))),
+  );
+  const activeTreatments = await listAllActiveTreatments();
+  const treatmentById = new Map(activeTreatments.map((treatment) => [treatment.id, treatment]));
+  const nutrientCodesByTreatment = new Map<string, string[]>();
+  for (const treatmentId of treatmentIds) {
+    if (!treatmentById.has(treatmentId)) continue;
+    const ingredients = await getTreatmentNutrients(treatmentId);
+    nutrientCodesByTreatment.set(
+      treatmentId,
+      ingredients.map((ingredient) => ingredient.nutrientCode),
+    );
+  }
+
+  const doses: TimelineDose[] = [];
+  for (const item of doseItems) {
+    const treatment = item.linkedTreatmentId ? treatmentById.get(item.linkedTreatmentId) : undefined;
+    if (!treatment) continue;
+    doses.push({
+      id: item.id,
+      time: item.scheduledFor.slice(11, 16),
+      treatmentId: treatment.id,
+      treatmentName: treatment.name,
+      treatmentType: treatment.treatmentType,
+      status: item.status,
+      doseLabel: describeTreatmentDose(treatment),
+      nutrientCodes: nutrientCodesByTreatment.get(treatment.id) ?? [],
+      genericName: treatment.genericName,
+    });
+  }
+
+  return { meals, doses, rules, timings, nutrientNames };
+}
+
+// What one dose of a med amounts to, in the words its kind uses: a
+// supplement counts labelled servings, a prescription or an OTC drug carries
+// an amount and a unit. Null when neither was entered, so a caller leaves
+// the line out rather than printing an apology.
+export function describeTreatmentDose(treatment: TreatmentRecord): string | null {
+  if (treatment.treatmentType === 'supplement') {
+    if (!treatment.unitsPerDay || !treatment.servingUnitLabel) return null;
+    const plural = Number(treatment.unitsPerDay) === 1 ? '' : 's';
+    return `${treatment.unitsPerDay} ${treatment.servingUnitLabel}${plural}`;
+  }
+  if (treatment.doseAmount == null) return null;
+  return `${treatment.doseAmount}${treatment.doseUnit ? ' ' + treatment.doseUnit : ''}`;
+}
+
 
 // The real future half of the same fix -- a day that hasn't happened yet
 // has no real meals/meal_items row at all (confirmed: settlePastScheduledMeals
