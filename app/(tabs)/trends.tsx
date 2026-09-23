@@ -6,6 +6,8 @@ import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import type { HelpSection } from '../../components/HelpButton';
 import { useInfoAlert } from '../../components/InfoAlert';
+import { AppTextInput } from '../../components/AppTextInput';
+import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import {
   getGroceryPriceHistory,
@@ -41,6 +43,7 @@ import {
 } from '../../lib/movementMeaning';
 import {
   getDietaryReferenceIntakesForCurrentUser,
+  createPersonalRule,
   getFoodIdentity,
   getLabResultTrend,
   getLabTests,
@@ -62,6 +65,13 @@ import {
   type PatternWindowHours,
 } from '../../lib/patternFinder';
 import { markPendingFoodTrialReturn } from '../../lib/pendingFoodTrialReturn';
+import {
+  keywordFromFoodName,
+  proposeCategoryPatternRule,
+  proposeDimensionPatternRule,
+  proposeFoodPatternRule,
+  type PatternRuleProposal,
+} from '../../lib/patternRules';
 import {
   dateStringOffsetFrom,
   getCheckinSeverityTrendSeries,
@@ -498,6 +508,18 @@ export default function TrendsScreen() {
   const [patternResult, setPatternResult] = useState<PatternFinderResult | null>(null);
   const [therapyResponse, setTherapyResponse] = useState<TherapyResponseResult | null>(null);
   const [startingTrialKey, setStartingTrialKey] = useState<string | null>(null);
+  // 2026-09-23: the rule being drafted from a pattern, if any. One at a
+  // time, keyed by the same row key the trial button already uses, so
+  // opening a second draft closes the first rather than leaving two
+  // half-written boxes open down the list. `description` is held apart
+  // from `proposal` because the proposal is what the app suggested and
+  // the description is what the person has since made of it.
+  const [ruleDraft, setRuleDraft] = useState<{
+    key: string;
+    proposal: PatternRuleProposal;
+    description: string;
+  } | null>(null);
+  const [savingRule, setSavingRule] = useState(false);
   const router = useRouter();
 
   // 2026-08-26 -- the same real tracked-conditions list Insights/
@@ -679,6 +701,112 @@ export default function TrendsScreen() {
     } finally {
       setStartingTrialKey(null);
     }
+  }
+
+  // Turning something this lens noticed into one of the person's own
+  // saved rules, 2026-09-23. The wording is proposed, never saved on the
+  // person's behalf: lib/patternRules.ts builds the sentence from the
+  // count alone, this opens it in an editable box, and nothing reaches
+  // the database until Save is pressed. Same "the app suggests and the
+  // person accepts" rule the healing stages already follow.
+  async function handleDraftFoodRule(candidate: FoodPatternCandidate, key: string) {
+    if (ruleDraft?.key === key) {
+      setRuleDraft(null);
+      return;
+    }
+    // The engine matches a food rule by looking for the keyword inside
+    // the names of what was logged, so the keyword has to be the food
+    // rather than its full reference name with the preparation on the
+    // end. baseName is exactly that; the name itself is the fallback
+    // when the identity row cannot be read.
+    const identity = await getFoodIdentity(candidate.foodId, candidate.source);
+    const proposal = proposeFoodPatternRule({
+      foodName: candidate.foodName,
+      keyword: identity?.baseName ?? keywordFromFoodName(candidate.foodName),
+      occurrenceCount: candidate.occurrenceCount,
+      totalSymptomInstances: patternResult?.totalSymptomInstances ?? 0,
+    });
+    setRuleDraft({ key, proposal, description: proposal.description });
+  }
+
+  function openRuleDraft(key: string, build: () => PatternRuleProposal) {
+    if (ruleDraft?.key === key) {
+      setRuleDraft(null);
+      return;
+    }
+    const proposal = build();
+    setRuleDraft({ key, proposal, description: proposal.description });
+  }
+
+  async function handleSaveRule() {
+    if (!ruleDraft) return;
+    const description = ruleDraft.description.trim();
+    if (!description) {
+      showInfoAlert('Almost there', 'Say what you want this rule to remind you of before saving it.');
+      return;
+    }
+    setSavingRule(true);
+    try {
+      await createPersonalRule({
+        description,
+        source: 'self',
+        linkType: ruleDraft.proposal.linkType,
+        linkValue: ruleDraft.proposal.linkValue,
+        linkLabel: ruleDraft.proposal.linkLabel,
+      });
+    } catch (error) {
+      setSavingRule(false);
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
+      return;
+    }
+    setSavingRule(false);
+    setRuleDraft(null);
+    showInfoAlert(
+      'Saved to your rules',
+      `${description}\n\nPause it or delete it under Insights > My Meds.`,
+    );
+  }
+
+  // The editable box itself, rendered under whichever row opened it.
+  function renderRuleDraft(key: string) {
+    if (ruleDraft?.key !== key) return null;
+    return (
+      <View style={[styles.ruleDraft, { borderColor: TAB_COLOR }]}>
+        <Text style={styles.patternRowCaption}>{ruleDraft.proposal.checkNote}</Text>
+        <View style={styles.ruleDraftLabelRow}>
+          <Text style={[styles.ruleDraftLabel, { color: TAB_COLOR }]}>What should this remind you of?</Text>
+          <VoiceInputButton
+            onResult={(text) => setRuleDraft((current) => (current ? { ...current, description: text } : current))}
+            color={TAB_COLOR}
+          />
+        </View>
+        <AppTextInput
+          style={styles.ruleDraftInput}
+          value={ruleDraft.description}
+          onChangeText={(text) => setRuleDraft((current) => (current ? { ...current, description: text } : current))}
+          placeholder="Say what you noticed, and what you want to do about it"
+          placeholderTextColor={colors.textMuted}
+          multiline
+        />
+        <Text style={styles.patternRowCaption}>
+          {
+            'Starts from the count in your logged data. Edit it to whatever you actually want to be told, and it saves as something you noticed yourself.'
+          }
+        </Text>
+        <View style={styles.ruleDraftButtons}>
+          <TouchableOpacity style={[styles.trialButton, { borderColor: colors.border }]} onPress={() => setRuleDraft(null)}>
+            <Text style={[styles.trialButtonText, { color: colors.textMuted }]}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.trialButton, { borderColor: TAB_COLOR }]}
+            disabled={savingRule}
+            onPress={handleSaveRule}
+          >
+            <Text style={[styles.trialButtonText, { color: TAB_COLOR }]}>{savingRule ? 'Saving…' : 'Save this rule'}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
   }
 
   // Same overrides-based, stale-closure-avoiding commit pattern as
@@ -1376,22 +1504,35 @@ export default function TrendsScreen() {
                         {patternResult.foodCandidates.map((candidate) => {
                           const key = `${candidate.foodId}|${candidate.source}`;
                           return (
-                            <View key={key} style={styles.patternRow}>
-                              <View style={styles.patternRowText}>
-                                <Text style={styles.patternRowTitle}>{candidate.foodName}</Text>
-                                <Text style={styles.patternRowCaption}>
-                                  Logged before {candidate.occurrenceCount} of your {patternResult.totalSymptomInstances} flares/reactions
-                                </Text>
+                            <View key={key}>
+                              <View style={styles.patternRow}>
+                                <View style={styles.patternRowText}>
+                                  <Text style={styles.patternRowTitle}>{candidate.foodName}</Text>
+                                  <Text style={styles.patternRowCaption}>
+                                    Logged before {candidate.occurrenceCount} of your {patternResult.totalSymptomInstances} flares/reactions
+                                  </Text>
+                                </View>
+                                <View style={styles.patternRowActions}>
+                                  <TouchableOpacity
+                                    style={[styles.trialButton, { borderColor: TAB_COLOR }]}
+                                    disabled={startingTrialKey === key}
+                                    onPress={() => handleStartTrial(candidate)}
+                                  >
+                                    <Text style={[styles.trialButtonText, { color: TAB_COLOR }]}>
+                                      {startingTrialKey === key ? 'Starting…' : 'Start a trial'}
+                                    </Text>
+                                  </TouchableOpacity>
+                                  <TouchableOpacity
+                                    style={[styles.trialButton, { borderColor: TAB_COLOR }]}
+                                    onPress={() => handleDraftFoodRule(candidate, key)}
+                                  >
+                                    <Text style={[styles.trialButtonText, { color: TAB_COLOR }]}>
+                                      {ruleDraft?.key === key ? 'Close' : 'Make this a rule'}
+                                    </Text>
+                                  </TouchableOpacity>
+                                </View>
                               </View>
-                              <TouchableOpacity
-                                style={[styles.trialButton, { borderColor: TAB_COLOR }]}
-                                disabled={startingTrialKey === key}
-                                onPress={() => handleStartTrial(candidate)}
-                              >
-                                <Text style={[styles.trialButtonText, { color: TAB_COLOR }]}>
-                                  {startingTrialKey === key ? 'Starting…' : 'Start a trial'}
-                                </Text>
-                              </TouchableOpacity>
+                              {renderRuleDraft(key)}
                             </View>
                           );
                         })}
@@ -1400,22 +1541,43 @@ export default function TrendsScreen() {
 
                     {patternResult.dimensionCandidates.length > 0 ? (
                       <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:scoring-factors'} title={'Condition scoring factors'} icon="analytics-outline">
-                        {patternResult.dimensionCandidates.map((candidate) => (
-                          <View
-                            key={`${candidate.conditionCode}::${candidate.subCriterion}::${candidate.tier}`}
-                            style={styles.patternRow}
-                          >
-                            <View style={styles.patternRowText}>
-                              <Text style={styles.patternRowTitle}>
-                                {candidate.subCriterion} · {candidate.tier}
-                              </Text>
-                              <Text style={styles.patternRowCaption}>
-                                Relevant to {candidate.conditionName} · logged before {candidate.occurrenceCount} of your{' '}
-                                {patternResult.totalSymptomInstances} flares/reactions
-                              </Text>
+                        {patternResult.dimensionCandidates.map((candidate) => {
+                          const key = `${candidate.conditionCode}::${candidate.subCriterion}::${candidate.tier}`;
+                          return (
+                            <View key={key}>
+                              <View style={styles.patternRow}>
+                                <View style={styles.patternRowText}>
+                                  <Text style={styles.patternRowTitle}>
+                                    {candidate.subCriterion} · {candidate.tier}
+                                  </Text>
+                                  <Text style={styles.patternRowCaption}>
+                                    Relevant to {candidate.conditionName} · logged before {candidate.occurrenceCount} of your{' '}
+                                    {patternResult.totalSymptomInstances} flares/reactions
+                                  </Text>
+                                </View>
+                                <TouchableOpacity
+                                  style={[styles.trialButton, { borderColor: TAB_COLOR }]}
+                                  onPress={() =>
+                                    openRuleDraft(key, () =>
+                                      proposeDimensionPatternRule({
+                                        subCriterion: candidate.subCriterion,
+                                        tier: candidate.tier,
+                                        conditionName: candidate.conditionName,
+                                        occurrenceCount: candidate.occurrenceCount,
+                                        totalSymptomInstances: patternResult.totalSymptomInstances,
+                                      }),
+                                    )
+                                  }
+                                >
+                                  <Text style={[styles.trialButtonText, { color: TAB_COLOR }]}>
+                                    {ruleDraft?.key === key ? 'Close' : 'Make this a rule'}
+                                  </Text>
+                                </TouchableOpacity>
+                              </View>
+                              {renderRuleDraft(key)}
                             </View>
-                          </View>
-                        ))}
+                          );
+                        })}
                       </TabBand>
                     ) : (personalizationProfile?.trackedConditions.length ?? 0) === 0 ? (
                       // 2026-08-26 -- an honest reason for an empty section,
@@ -1431,16 +1593,38 @@ export default function TrendsScreen() {
 
                     {patternResult.categoryCandidates.length > 0 ? (
                       <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:food-categories'} title={'Food categories'} icon="grid-outline">
-                        {patternResult.categoryCandidates.map((candidate) => (
-                          <View key={candidate.category} style={styles.patternRow}>
-                            <View style={styles.patternRowText}>
-                              <Text style={styles.patternRowTitle}>{candidate.category}</Text>
-                              <Text style={styles.patternRowCaption}>
-                                Logged before {candidate.occurrenceCount} of your {patternResult.totalSymptomInstances} flares/reactions
-                              </Text>
+                        {patternResult.categoryCandidates.map((candidate) => {
+                          const key = `category::${candidate.category}`;
+                          return (
+                            <View key={key}>
+                              <View style={styles.patternRow}>
+                                <View style={styles.patternRowText}>
+                                  <Text style={styles.patternRowTitle}>{candidate.category}</Text>
+                                  <Text style={styles.patternRowCaption}>
+                                    Logged before {candidate.occurrenceCount} of your {patternResult.totalSymptomInstances} flares/reactions
+                                  </Text>
+                                </View>
+                                <TouchableOpacity
+                                  style={[styles.trialButton, { borderColor: TAB_COLOR }]}
+                                  onPress={() =>
+                                    openRuleDraft(key, () =>
+                                      proposeCategoryPatternRule({
+                                        category: candidate.category,
+                                        occurrenceCount: candidate.occurrenceCount,
+                                        totalSymptomInstances: patternResult.totalSymptomInstances,
+                                      }),
+                                    )
+                                  }
+                                >
+                                  <Text style={[styles.trialButtonText, { color: TAB_COLOR }]}>
+                                    {ruleDraft?.key === key ? 'Close' : 'Make this a rule'}
+                                  </Text>
+                                </TouchableOpacity>
+                              </View>
+                              {renderRuleDraft(key)}
                             </View>
-                          </View>
-                        ))}
+                          );
+                        })}
                       </TabBand>
                     ) : null}
                   </>
@@ -1619,4 +1803,21 @@ const styles = StyleSheet.create({
   patternRowCaption: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
   trialButton: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7 },
   trialButtonText: { ...typography.caption, fontWeight: '400', ...textShadow },
+  // Two buttons on one food row, which is the only row that has two.
+  // Wrapping rather than shrinking: at a large font scale the pair goes
+  // to two lines instead of squeezing the food name out of the row, and
+  // this is reading text, so it scales without a cap.
+  patternRowActions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 8 },
+  ruleDraft: {
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: HOME_BAND_CONTENT_PADDING,
+    marginBottom: 10,
+    gap: 8,
+    backgroundColor: colors.surface,
+  },
+  ruleDraftLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  ruleDraftLabel: { ...typography.caption, fontWeight: '400', flex: 1, ...textShadow },
+  ruleDraftInput: { minHeight: 72, textAlignVertical: 'top' },
+  ruleDraftButtons: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 8 },
 });
