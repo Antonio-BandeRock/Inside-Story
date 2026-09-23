@@ -17,6 +17,8 @@
 //    at them.
 // 6. The first sync, with no base to compare against.
 // 7. The words a person reads for what a merge did.
+// 8. Whether the merged copy still has anything to send back, which is
+//    what stops two open devices answering each other every half minute.
 //
 // The module imports nothing. Exits non-zero on any failure.
 
@@ -248,6 +250,81 @@ const cached = merge.mergeTables(
 check(cached.tables.cache[0].total === 3, 'a table the app works out is taken from the later side');
 same(cached.wholesale, ['cache'], 'and is named so the caller can say so');
 check(cached.entries.length === 0, 'a table taken whole is not somebody having made a change');
+
+// 11. Whether there is anything to send back.
+const nothingNew = merge.mergeTables(
+  { meals: [{ id: 'm1', name: 'Soup', updated_at: '2026-09-22T10:00:00Z' }] },
+  { meals: [{ id: 'm1', name: 'Soup', updated_at: '2026-09-22T10:00:00Z' }] },
+  {
+    meals: [
+      { id: 'm1', name: 'Soup', updated_at: '2026-09-22T10:00:00Z' },
+      { id: 'm2', name: 'Salad', updated_at: '2026-09-22T11:00:00Z' },
+    ],
+  },
+  { shapes, laterSide: 'there' },
+);
+check(
+  nothingNew.sendsBack === false,
+  'taking in what the other device sent leaves nothing to send back to it',
+);
+const mineToo = merge.mergeTables(
+  { meals: [] },
+  { meals: [{ id: 'm3', name: 'Toast', updated_at: '2026-09-22T09:00:00Z' }] },
+  { meals: [{ id: 'm2', name: 'Salad', updated_at: '2026-09-22T11:00:00Z' }] },
+  { shapes, laterSide: 'there' },
+);
+check(mineToo.sendsBack === true, 'something added here has to go back the other way');
+const orderOnly = merge.mergeTables(
+  { meals: [] },
+  {
+    meals: [
+      { id: 'm2', name: 'Salad', updated_at: '2026-09-22T11:00:00Z' },
+      { id: 'm1', name: 'Soup', updated_at: '2026-09-22T10:00:00Z' },
+    ],
+  },
+  {
+    meals: [
+      { id: 'm1', name: 'Soup', updated_at: '2026-09-22T10:00:00Z' },
+      { id: 'm2', name: 'Salad', updated_at: '2026-09-22T11:00:00Z' },
+    ],
+  },
+  { shapes, laterSide: 'there' },
+);
+check(
+  orderOnly.sendsBack === false,
+  'the same rows read back in a different order are the same rows',
+);
+const tableOnlyHere = merge.mergeTables(
+  null,
+  { meals: [], moon_phases: [{ id: 'p1' }] },
+  { meals: [] },
+  { shapes, laterSide: 'there' },
+);
+check(tableOnlyHere.sendsBack === true, 'a table only this device has, with rows in it, goes back');
+const emptyTableOnlyHere = merge.mergeTables(
+  null,
+  { meals: [], moon_phases: [] },
+  { meals: [] },
+  { shapes, laterSide: 'there' },
+);
+check(
+  emptyTableOnlyHere.sendsBack === false,
+  'an empty table the other device has not built yet is nothing to send',
+);
+check(
+  cached.sendsBack === false,
+  'a worked-out table taken from the other side is nothing to send back',
+);
+const wholesaleHere = merge.mergeTables(
+  { cache: [{ id: 'c1', total: 1 }] },
+  { cache: [{ id: 'c1', total: 2 }] },
+  { cache: [{ id: 'c1', total: 3 }] },
+  { shapes, laterSide: 'here', wholesale: ['cache'] },
+);
+check(
+  wholesaleHere.sendsBack === true,
+  'a worked-out table kept from this side does have to go back',
+);
 
 // 9. The words.
 const words = (table) => {

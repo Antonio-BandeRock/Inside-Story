@@ -617,11 +617,16 @@ export function mergeSnapshot(record: SnapshotRecord): Promise<MergeOutcome> {
       loadedSavedAt: record.latest.savedAt,
       lastLoadedAt: now,
       lastCheckedAt: now,
-      // Cleared rather than set to what was just merged: the folder does
-      // not hold this yet, and the save that follows must not decide it
-      // has nothing to send.
+      // Cleared rather than set to what was just merged, since the folder
+      // may not hold this yet. A later write on this device then always
+      // saves, instead of being read as matching what was last sent.
       lastHash: null,
-      dirtySince: now,
+      // Only when the merge left something the copy that arrived does not
+      // already hold. Saving back a copy identical to the one in the
+      // folder tells the other device nothing, and it costs: that device
+      // reads the fresh record as an arrival, merges it, saves in its
+      // turn, and the two answer each other for as long as both are open.
+      dirtySince: merged.sendsBack ? now : null,
       lastProblem: null,
       pendingNotice: restart ? notice : null,
     });

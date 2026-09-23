@@ -172,6 +172,11 @@ export const CHECK_QUIET_MS = 15 * 1000;
 //   sync_change_baseline What this device last published or loaded,
 //                        table by table, so the next save can say what
 //                        changed since (lib/snapshotChanges.ts).
+//   visual_fold_state    Which bands and Home sections are open on this
+//                        screen. Folding a band shut on the phone is no
+//                        reason to fold it shut on the computer, and
+//                        while it travelled, every tap on either device
+//                        had the other one merge and reload its window.
 //
 // Kept out of the snapshot as it is built, and put back after a load,
 // both: the first stops this device's bookkeeping being published to the
@@ -190,6 +195,7 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'health_connect_last_sync',
   'mailbox_folder_name',
   'last_seen_app_version',
+  'visual_fold_state',
   CHANGE_BASELINE_META_KEY,
 ];
 

@@ -772,6 +772,41 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
 
 const VISUAL_PREFERENCES_KEY = 'visual_preferences';
 
+// Which bands and which Home sections are open sits in a row of its own,
+// 2026-09-22, and DEVICE_LOCAL_META_KEYS in lib/snapshotSync.ts holds that
+// row back from a snapshot.
+//
+// A fold is about the screen in front of somebody on the device they are
+// holding, not about the app: folding a band shut on the phone is no
+// reason to fold it shut on the computer. While the two maps lived in the
+// settings blob they travelled, so every tap on either device rewrote a
+// row the other device then merged, took in, and reloaded the window for.
+// Two devices open at once reloaded each other roughly once a check.
+const VISUAL_FOLD_STATE_KEY = 'visual_fold_state';
+
+type FoldState = Pick<VisualPreferences, 'homeSectionExpanded' | 'bandExpanded'>;
+
+function foldStateOf(preferences: VisualPreferences): FoldState {
+  return {
+    homeSectionExpanded: preferences.homeSectionExpanded,
+    bandExpanded: preferences.bandExpanded,
+  };
+}
+
+/** The settings blob as it is stored, with the folds taken out of it. */
+function withoutFoldState(preferences: VisualPreferences): Record<string, unknown> {
+  const rest: Record<string, unknown> = { ...preferences };
+  delete rest.homeSectionExpanded;
+  delete rest.bandExpanded;
+  return rest;
+}
+
+// What each of the two rows was last read or written as, so a change to
+// one of them does not bump the other row's updated_at. An untouched row
+// that keeps its time is a row the other device has no reason to look at.
+let writtenSettings: string | null = null;
+let writtenFolds: string | null = null;
+
 // A synchronous read, 2026-08-19 -- deliberately NOT going through
 // getVisualPreferences()/the cache above. First shipped version of the
 // ground-theme picker used that normal async path from app/_layout.tsx's
@@ -975,6 +1010,13 @@ export async function getVisualPreferences(): Promise<VisualPreferences> {
       VISUAL_PREFERENCES_KEY,
     );
 
+    const foldRow = await db.getFirstAsync<{ value: string }>(
+      'SELECT value FROM app_meta WHERE key = ?',
+      VISUAL_FOLD_STATE_KEY,
+    );
+    writtenSettings = row?.value ?? null;
+    writtenFolds = foldRow?.value ?? null;
+
     let loaded = DEFAULT_VISUAL_PREFERENCES;
     if (row?.value) {
       try {
@@ -999,6 +1041,24 @@ export async function getVisualPreferences(): Promise<VisualPreferences> {
         // A corrupted/unparseable blob falls back to defaults rather than
         // throwing -- this is a cosmetic preference, not core data.
         loaded = DEFAULT_VISUAL_PREFERENCES;
+      }
+    }
+
+    // The folds sit over whatever the settings blob still carries, which
+    // is what carries a device written before the split over: the blob's
+    // own copy is read until the first fold is tapped, and dropped from
+    // it by the write that follows.
+    if (foldRow?.value) {
+      try {
+        const parsed = JSON.parse(foldRow.value) as Partial<FoldState>;
+        loaded = {
+          ...loaded,
+          homeSectionExpanded: { ...(parsed.homeSectionExpanded ?? {}) },
+          bandExpanded: { ...(parsed.bandExpanded ?? {}) },
+        };
+      } catch {
+        // Unreadable folds leave whatever the settings blob had, the same
+        // way an unreadable settings blob falls back to the defaults.
       }
     }
 
@@ -1059,15 +1119,27 @@ export async function setVisualPreferences(update: Partial<VisualPreferences>): 
   writeLetterSpacingMirror(merged.letterSpacing);
   const db = await getDatabase();
   const now = new Date().toISOString();
-  await db.runAsync(
-    `
-      INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?)
-      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
-    `,
-    VISUAL_PREFERENCES_KEY,
-    JSON.stringify(merged),
-    now,
-  );
+  const settingsText = JSON.stringify(withoutFoldState(merged));
+  const foldText = JSON.stringify(foldStateOf(merged));
+  const writeRow = async (key: string, value: string): Promise<void> => {
+    await db.runAsync(
+      `
+        INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?)
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+      `,
+      key,
+      value,
+      now,
+    );
+  };
+  if (settingsText !== writtenSettings) {
+    await writeRow(VISUAL_PREFERENCES_KEY, settingsText);
+    writtenSettings = settingsText;
+  }
+  if (foldText !== writtenFolds) {
+    await writeRow(VISUAL_FOLD_STATE_KEY, foldText);
+    writtenFolds = foldText;
+  }
 
   notifyListeners();
   return merged;

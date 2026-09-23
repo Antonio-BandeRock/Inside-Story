@@ -93,6 +93,14 @@ export type MergeResult = {
   entries: MergeEntry[];
   /** Tables taken whole from one side, named so the caller can say so. */
   wholesale: string[];
+  /**
+   * Whether the merged copy still has anything the copy that arrived does
+   * not already hold. False means the folder is holding this exact result
+   * already, so saving it back would say nothing: the other device would
+   * read the fresh record as an arrival, merge it, save in its turn, and
+   * the two would go on talking for as long as both stayed open.
+   */
+  sendsBack: boolean;
 };
 
 export type MergeOptions = {
@@ -161,6 +169,21 @@ function indexRows(rows: Row[] | undefined, shape: TableShape | undefined): Map<
     if (!index.has(key)) index.set(key, row);
   }
   return index;
+}
+
+/**
+ * Whether two sets of rows hold the same thing, by what each row says
+ * rather than by the order the rows arrived in: the same rows read back
+ * off two devices come out in whatever order each one's table held them.
+ */
+function sameRows(mine: Row[], theirs: Row[]): boolean {
+  if (mine.length !== theirs.length) return false;
+  const left = mine.map(rowText).sort();
+  const right = theirs.map(rowText).sort();
+  for (let index = 0; index < left.length; index += 1) {
+    if (left[index] !== right[index]) return false;
+  }
+  return true;
 }
 
 function timeOf(row: Row): string | null {
@@ -383,6 +406,9 @@ export function mergeTables(
   const entries: MergeEntry[] = [];
   const takenWhole: string[] = [];
 
+  // Set false by the first table whose merged rows are not what arrived.
+  let matchesThere = true;
+
   const names = new Set<string>([...Object.keys(here), ...Object.keys(incoming)]);
   for (const table of names) {
     const mine = here[table];
@@ -397,21 +423,25 @@ export function mergeTables(
     }
     if (!Array.isArray(theirs)) {
       tables[table] = mine;
+      if (mine.length > 0) matchesThere = false;
       continue;
     }
 
     if (wholesale.includes(table)) {
-      tables[table] = laterSide === 'here' ? mine : theirs;
+      const taken = laterSide === 'here' ? mine : theirs;
+      tables[table] = taken;
       takenWhole.push(table);
+      if (!sameRows(taken, theirs)) matchesThere = false;
       continue;
     }
 
     const merged = mergeOneTable(table, base?.[table], mine, theirs, shapes[table], laterSide);
     tables[table] = merged.rows;
     for (const entry of merged.entries) entries.push(entry);
+    if (!sameRows(merged.rows, theirs)) matchesThere = false;
   }
 
-  return { tables, entries, wholesale: takenWhole };
+  return { tables, entries, wholesale: takenWhole, sendsBack: !matchesThere };
 }
 
 /** How many phrases a notice says before the rest become "and N other things". */

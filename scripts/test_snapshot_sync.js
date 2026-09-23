@@ -137,6 +137,10 @@ check(sync.DEVICE_LOCAL_META_KEYS.includes('onedrive_folder'), 'the shared folde
 check(sync.DEVICE_LOCAL_META_KEYS.includes('reference_db_version'), 'the reference database marker is device local');
 check(sync.isDeviceLocalMetaKey('sync_folder_uri'), 'an Android folder permission is device local');
 check(!sync.isDeviceLocalMetaKey('visual_preferences'), 'settings still travel');
+check(
+  sync.isDeviceLocalMetaKey('visual_fold_state'),
+  'which bands are open belongs to the screen in front of somebody',
+);
 check(!sync.isDeviceLocalMetaKey(undefined), 'a missing key is not device local');
 const strippedTables = sync.withoutDeviceLocalRows({
   app_meta: [
