@@ -85,6 +85,10 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   worthALook: '/insights',
   fuelGauges: '/insights',
   weekTrend: '/trends',
+  // Trends', 2026-09-23. Opens the What You Eat lens rather than the
+  // resting picker, the same way every other Home card that names a lens
+  // opens the one it took its number from.
+  varietyThisWeek: '/trends',
   // 2026-09-19: the Digest tab is gone, but the cards keep a group of
   // their own. They sat in the Home group for one release (1.0.41.13),
   // and the correction the same day was "they need to be out on their

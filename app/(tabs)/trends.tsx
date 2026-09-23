@@ -88,6 +88,15 @@ import {
   type NutrientTrendSeries,
   type TrendPoint,
 } from '../../lib/trendAnalysis';
+import {
+  describeRepeat,
+  METHOD_NOT_SAID,
+  shortDate,
+  summarizeEatingVariety,
+  type EatingVarietySummary,
+  type WeekCount,
+} from '../../lib/eatingVariety';
+import { getEatingVarietyInputs, getSafeListInputs } from '../../lib/eatingVarietyDb';
 import { CORE_NUTRIENT_CODES } from './index';
 
 // Every text box on this page belongs to this one page's own tab, so
@@ -98,7 +107,18 @@ import { CORE_NUTRIENT_CODES } from './index';
 const TAB_COLOR = colors.tabTrends;
 const band = makeTabBandStyles(TAB_COLOR);
 
-type TrendsLens = 'nutrients' | 'sixDs' | 'symptoms' | 'eatingWindow' | 'weight' | 'movement' | 'labs' | 'groceries' | 'patterns' | 'therapyResponse';
+type TrendsLens =
+  | 'nutrients'
+  | 'sixDs'
+  | 'variety'
+  | 'symptoms'
+  | 'eatingWindow'
+  | 'weight'
+  | 'movement'
+  | 'labs'
+  | 'groceries'
+  | 'patterns'
+  | 'therapyResponse';
 
 // Shared across all three lenses' own Info content below -- the same
 // caveat applies regardless of which chart you're looking at. Reworded
@@ -135,6 +155,34 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
         // tracked conditions, not any of the app's currently-scored
         // sub-criteria regardless of relevance.
         body: 'How many distinct scoring factors relevant to your tracked conditions got flagged per day, across the date range.',
+      },
+      TRENDS_PATTERN_CAVEAT_HELP,
+    ],
+  },
+  {
+    key: 'variety',
+    label: 'What You Eat',
+    icon: 'restaurant-outline',
+    help: [
+      {
+        heading: 'What You Eat',
+        body: 'Six readings of the same logged meals: how many different foods a week, what keeps coming back, how much of it feeds your gut, how it gets cooked, how much of it came out of a package, and how your safe list has grown. Open a band to read it.',
+      },
+      {
+        heading: 'A week you did not log is a gap, not a zero',
+        body: 'A week with nothing logged reads as not logged rather than as zero, since a week you were too busy to log still had food in it. The number of blank weeks is shown under the count so you can see how much of the range the reading rests on.',
+      },
+      {
+        heading: 'Why the number of different foods is worth watching',
+        body: 'A narrow week is not a failure and nothing here scores it. It is worth seeing because narrowing tends to happen without being noticed, on a hard week or after cutting something out, and noticing it is what lets you widen it again on purpose. The suggestions come from your safe list, so they are foods you have already ruled on.',
+      },
+      {
+        heading: 'Fermented and gut-supporting foods',
+        body: "The gut-supporting count comes from the app's Microbiome Effects scoring, which is cited per food. Fermented foods are counted on top of that, from the cooking method you picked and from the food's name. Vinegar pickles are deliberately left out, since preserved in vinegar is not the same as fermented and nothing live survives it.",
+      },
+      {
+        heading: 'What it could not tell',
+        body: 'A meal typed as free text still counts toward how many different foods you ate, since you ate it. What it cannot do is say whether that was bought ready or made at home, so those are counted apart and named rather than folded into one side.',
       },
       TRENDS_PATTERN_CAVEAT_HELP,
     ],
@@ -425,6 +473,39 @@ const TRENDS_HELP_SECTIONS: HelpSection[] = [
   },
 ];
 
+// The weekly bands draw as labelled rows rather than as a line, because a
+// week nobody logged has to read as not logged. On a line chart a blank
+// week either joins to its neighbours, which invents a week that never
+// happened, or sits at zero, which says somebody ate nothing. A row can
+// simply say so.
+function renderWeekRows(weeks: WeekCount[]) {
+  const highest = Math.max(1, ...weeks.map((week) => week.value ?? 0));
+  return (
+    <View style={styles.weekRows}>
+      {weeks.map((week) => (
+        <View key={week.weekStart} style={styles.shareRow}>
+          <Text style={styles.shareLabel} numberOfLines={1}>
+            {shortDate(week.weekStart)}
+          </Text>
+          <View style={styles.shareTrack}>
+            {week.value === null ? null : (
+              <View
+                style={[
+                  styles.shareBar,
+                  { width: `${Math.max(2, Math.round((week.value / highest) * 100))}%`, backgroundColor: TAB_COLOR },
+                ]}
+              />
+            )}
+          </View>
+          <Text style={styles.weekValue} numberOfLines={1}>
+            {week.value === null ? 'not logged' : String(week.value)}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 export default function TrendsScreen() {
   useRegisterScreenHelp('Trends', TRENDS_HELP_SECTIONS, '/trends');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -484,6 +565,12 @@ export default function TrendsScreen() {
 
   const [selectedNutrient, setSelectedNutrient] = useState<string>(CORE_NUTRIENT_CODES[0]);
   const [nutrientLabels, setNutrientLabels] = useState<Record<string, string>>({});
+  // Fiber rides alongside whichever nutrient is picked rather than sitting
+  // in the picker: it is the one nutrient most people fall short on, and
+  // CORE_NUTRIENT_CODES also feeds Home's rings and the Overview report, so
+  // adding it there would have changed both without being asked.
+  const [fiberSeries, setFiberSeries] = useState<NutrientTrendSeries | null>(null);
+  const [varietySummary, setVarietySummary] = useState<EatingVarietySummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   const [nutrientSeries, setNutrientSeries] = useState<NutrientTrendSeries | null>(null);
@@ -590,10 +677,27 @@ export default function TrendsScreen() {
   const load = useCallback(() => {
     setLoading(true);
     if (lens === 'nutrients') {
-      getNutrientTrendSeriesForRange(selectedNutrient, resolvedRange.startDate, resolvedRange.endDate).then((series) => {
+      Promise.all([
+        getNutrientTrendSeriesForRange(selectedNutrient, resolvedRange.startDate, resolvedRange.endDate),
+        getNutrientTrendSeriesForRange('fiber_total', resolvedRange.startDate, resolvedRange.endDate),
+      ]).then(([series, fiber]) => {
         setNutrientSeries(series);
+        setFiberSeries(fiber);
         setLoading(false);
       });
+    } else if (lens === 'variety') {
+      // Always ends today, which is what lets the repetition band say how
+      // long ago something was last logged rather than how far it sat from
+      // the end of some range.
+      const varietyEnd = todayDateString();
+      Promise.all([
+        getEatingVarietyInputs(dateStringOffsetFrom(varietyEnd, -(days - 1)), varietyEnd),
+        getSafeListInputs(),
+      ])
+        .then(([inputs, safe]) => {
+          setVarietySummary(summarizeEatingVariety(inputs, safe.safeFoods, safe.trials));
+        })
+        .finally(() => setLoading(false));
     } else if (lens === 'sixDs') {
       const conditionCodes = personalizationProfile?.trackedConditions.map((condition) => condition.code) ?? [];
       getSixDimensionsFlagTrendSeriesForRange(resolvedRange.startDate, resolvedRange.endDate, conditionCodes).then((points) => {
@@ -872,6 +976,19 @@ export default function TrendsScreen() {
     [groceryFoods],
   );
 
+  const fiberChart = useMemo(() => {
+    const points = (fiberSeries?.points ?? []).map((point) => ({ date: point.date, value: point.value }));
+    if (points.length === 0) return null;
+    const latest = points[points.length - 1];
+    const average = Math.round(points.reduce((sum, point) => sum + point.value, 0) / points.length);
+    const atTarget = points.filter((point) => point.value >= 100).length;
+    return {
+      points,
+      title: `Fiber, ${average}% of target on average`,
+      caption: `${atTarget} of ${points.length} logged ${points.length === 1 ? 'day' : 'days'} reached the target. Most recent: ${Math.round(latest.value)}%.`,
+    };
+  }, [fiberSeries]);
+
   const showsRangePicker = lens === 'nutrients' || lens === 'sixDs';
 
   return (
@@ -1015,6 +1132,34 @@ export default function TrendsScreen() {
 
             {lens === 'nutrients' ? (
               <>
+                {fiberChart && !resolvedRange.isSingleDay ? (
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:nutrients:fiber"
+                    title={fiberChart.title}
+                    icon="leaf-outline"
+                  >
+                    <View style={[band.box, styles.chartCard]}>
+                      <TrendLineChart
+                        points={fiberChart.points}
+                        yMin={0}
+                        yMax={Math.max(120, ...fiberChart.points.map((point) => point.value))}
+                        referenceLine={100}
+                        referenceLineLabel="100% target"
+                        valueFormatter={(value) => `${Math.round(value)}%`}
+                        lineColor={TAB_COLOR}
+                        emptyMessage="Log a few meals on different days to see your fiber trend."
+                      />
+                    </View>
+                    <Text style={styles.patternRowCaption}>{fiberChart.caption}</Text>
+                    <Text style={styles.patternRowCaption}>
+                      {
+                        'Fiber is what most of the bacteria in your gut live on, which is why it sits above the picker rather than inside it. The target is the NASEM adequate intake for your age and sex.'
+                      }
+                    </Text>
+                  </TabBand>
+                ) : null}
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -1123,6 +1268,166 @@ export default function TrendsScreen() {
                     emptyMessage="Log a few meals on different days (or schedule some ahead) to see flagged items trend over time."
                   />
                 </View>
+              )
+            ) : lens === 'variety' ? (
+              loading ? (
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>Reading what you have logged…</Text>
+                </View>
+              ) : !varietySummary || !varietySummary.hasAnything ? (
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>
+                    {'Nothing logged in this range yet. Log a few meals on the Food tab and this fills in on its own.'}
+                  </Text>
+                </View>
+              ) : (
+                <>
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:variety:distinct"
+                    title="How many different foods"
+                    icon="color-palette-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{varietySummary.distinct.headline}</Text>
+                    {renderWeekRows(varietySummary.distinct.weeks)}
+                    {varietySummary.distinct.gapNote ? (
+                      <Text style={styles.patternRowCaption}>{varietySummary.distinct.gapNote}</Text>
+                    ) : null}
+                    <Text style={styles.patternRowCaption}>
+                      {`${varietySummary.distinct.distinctAcrossRange} different foods across the whole range.`}
+                    </Text>
+                    {varietySummary.nearThingsNote ? (
+                      <Text style={styles.patternRowCaption}>{varietySummary.nearThingsNote}</Text>
+                    ) : null}
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:variety:rotation"
+                    title="What keeps coming back"
+                    icon="repeat-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{varietySummary.rotation.headline}</Text>
+                    {varietySummary.rotation.mostRepeated.map((repeat) => (
+                      <View key={repeat.foodKey} style={styles.patternRow}>
+                        <View style={styles.patternRowText}>
+                          <Text style={styles.patternRowTitle}>{repeat.foodName}</Text>
+                          <Text style={styles.patternRowCaption}>{describeRepeat(repeat)}</Text>
+                        </View>
+                      </View>
+                    ))}
+                    {varietySummary.rotation.concentrationNote ? (
+                      <Text style={styles.patternRowCaption}>{varietySummary.rotation.concentrationNote}</Text>
+                    ) : null}
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:variety:gut"
+                    title="Foods that feed your gut"
+                    icon="leaf-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{varietySummary.gutFoods.headline}</Text>
+                    {renderWeekRows(varietySummary.gutFoods.weeks)}
+                    {varietySummary.gutFoods.names.length > 0 ? (
+                      <Text style={styles.patternRowCaption}>
+                        {`In this range: ${varietySummary.gutFoods.names.join(', ')}.`}
+                      </Text>
+                    ) : null}
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:variety:methods"
+                    title="How it gets cooked"
+                    icon="flame-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{varietySummary.methodMix.headline}</Text>
+                    {varietySummary.methodMix.shares.map((share) => (
+                      <View key={share.method} style={styles.shareRow}>
+                        <Text style={styles.shareLabel} numberOfLines={1}>
+                          {share.method}
+                        </Text>
+                        <View style={styles.shareTrack}>
+                          <View
+                            style={[
+                              styles.shareBar,
+                              {
+                                width: `${Math.max(2, Math.round(share.share * 100))}%`,
+                                backgroundColor: share.method === METHOD_NOT_SAID ? colors.surfaceMuted : TAB_COLOR,
+                              },
+                            ]}
+                          />
+                        </View>
+                        <Text style={styles.weekValue} numberOfLines={1}>{`${Math.round(share.share * 100)}%`}</Text>
+                      </View>
+                    ))}
+                    {varietySummary.methodMix.notSaidNote ? (
+                      <Text style={styles.patternRowCaption}>{varietySummary.methodMix.notSaidNote}</Text>
+                    ) : null}
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:variety:packaged"
+                    title="Bought ready against made at home"
+                    icon="basket-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{varietySummary.packaged.headline}</Text>
+                    {varietySummary.packaged.boughtShare !== null ? (
+                      <View style={styles.shareRow}>
+                        <Text style={styles.shareLabel} numberOfLines={1}>
+                          Bought ready
+                        </Text>
+                        <View style={styles.shareTrack}>
+                          <View
+                            style={[
+                              styles.shareBar,
+                              {
+                                width: `${Math.max(2, Math.round(varietySummary.packaged.boughtShare * 100))}%`,
+                                backgroundColor: TAB_COLOR,
+                              },
+                            ]}
+                          />
+                        </View>
+                        <Text style={styles.weekValue} numberOfLines={1}>
+                          {`${Math.round(varietySummary.packaged.boughtShare * 100)}%`}
+                        </Text>
+                      </View>
+                    ) : null}
+                    {varietySummary.packaged.unknownNote ? (
+                      <Text style={styles.patternRowCaption}>{varietySummary.packaged.unknownNote}</Text>
+                    ) : null}
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:variety:safelist"
+                    title="How your safe list has grown"
+                    icon="shield-checkmark-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{varietySummary.safeList.headline}</Text>
+                    <View style={[band.box, styles.chartCard]}>
+                      <TrendLineChart
+                        points={varietySummary.safeList.points}
+                        yMin={0}
+                        yMax={Math.max(5, ...varietySummary.safeList.points.map((point) => point.value))}
+                        valueFormatter={(value) => `${Math.round(value)} foods`}
+                        lineColor={TAB_COLOR}
+                        emptyMessage="Mark a food safe under Food > Safe Foods and this starts filling in."
+                      />
+                    </View>
+                    {varietySummary.safeList.trialNote ? (
+                      <Text style={styles.patternRowCaption}>{varietySummary.safeList.trialNote}</Text>
+                    ) : null}
+                  </TabBand>
+                </>
               )
             ) : lens === 'symptoms' ? (
               loading ? (
@@ -1830,6 +2135,12 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   patternRowText: { flex: 1 },
+  weekRows: { gap: 6, marginTop: 8 },
+  shareRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
+  shareLabel: { ...typography.caption, color: colors.textMuted, width: 92, ...textShadow },
+  shareTrack: { flex: 1, height: 10, borderRadius: 5, backgroundColor: colors.surfaceMuted, overflow: 'hidden' },
+  shareBar: { height: 10, borderRadius: 5 },
+  weekValue: { ...typography.caption, color: colors.textMuted, width: 72, textAlign: 'right', ...textShadow },
   patternRowTitle: { ...typography.body, color: colors.textPrimary, fontWeight: '400', ...textShadow },
   patternRowCaption: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
   trialButton: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7 },

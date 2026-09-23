@@ -107,6 +107,7 @@ import {
 import { getActiveGroceryListSummary, type GroceryListSummary } from '../../lib/groceryDb';
 import { describeInbox } from '../../lib/captureNotes';
 import { getCaptureInboxCounts } from '../../lib/captureNotesDb';
+import { getVarietyHomeSummary, type VarietyHomeSummary } from '../../lib/eatingVarietyDb';
 import { describeWhereIsItRow } from '../../lib/whereIsIt';
 import { countPlaceRecords } from '../../lib/whereIsItDb';
 import { describeReconcileQueue, lookbackDateString } from '../../lib/reconciliation';
@@ -517,6 +518,10 @@ type DashboardData = {
   // many the app answered for on somebody's behalf. Two numbers, not the
   // rows themselves: Home never reads what any of them were.
   reconcileCounts: { open: number; assumed: number };
+  // How varied this week's eating has been, 2026-09-23. One sentence and
+  // at most one food name, worked out in lib/eatingVariety.ts, so Home
+  // draws what it is handed and decides nothing here.
+  variety: VarietyHomeSummary;
 };
 
 // The periodic symptom check-in's own automatic re-prompt cadence --
@@ -735,6 +740,12 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.tabTrends,
     href: '/week-flags' as Href,
   },
+  varietyThisWeek: {
+    label: 'Variety This Week',
+    icon: 'color-palette',
+    color: colors.tabTrends,
+    href: { pathname: '/trends', params: { openTrendsLens: 'variety' } } as Href,
+  },
   makeReport: {
     label: 'Make a Report',
     icon: 'document-text',
@@ -830,6 +841,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'worthALook',
   'fuelGauges',
   'weekTrend',
+  'varietyThisWeek',
   'makeReport',
   'gardenTasks',
   'daysUntil',
@@ -1373,6 +1385,10 @@ export default function HomeScreen() {
       listDatedReminderSources(date),
       getReminderPreferences(),
       countPlaceRecords(),
+      // Variety, 2026-09-23. Four weeks of meal items over one query plus
+      // one reference-database lookup, the same read the lens does over a
+      // shorter range.
+      getVarietyHomeSummary(date),
     ]).then(
       ([
         todaysMeals,
@@ -1395,6 +1411,7 @@ export default function HomeScreen() {
         datedSources,
         reminderPrefs,
         placeCount,
+        variety,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1450,6 +1467,7 @@ export default function HomeScreen() {
           gardenTasks,
           captureCounts,
           placeCount,
+          variety,
           reconcileCounts: { open: openToAnswer, assumed: assumedToConfirm },
           routines: routinesHome.routines,
           doneChecks: routinesHome.checks,
@@ -2614,6 +2632,37 @@ export default function HomeScreen() {
     );
   }
 
+  // The other half of what Trends knows about a week, 2026-09-23.
+  // weekTrend counts what got flagged; this counts how wide the eating
+  // was, which is the question this app is centrally for. The sentence
+  // and the suggestion both come from lib/eatingVariety.ts, including
+  // the wording for a week with nothing logged yet, so nothing here has
+  // to decide what a missing week means.
+  function renderVarietyThisWeek() {
+    if (!isHomeSectionVisible(visualPrefs, 'varietyThisWeek')) return null;
+    if (!data) return null;
+    const variety = data.variety;
+    return renderBand(
+      'varietyThisWeek',
+      'Variety This Week',
+      <TouchableOpacity
+        onPress={() => router.push({ pathname: '/trends', params: { openTrendsLens: 'variety' } })}
+        activeOpacity={0.75}
+      >
+        <Text style={[styles.trendNumber, { color: tabColorFor('/trends') }]}>
+          {variety.distinctThisWeek == null ? 'Nothing logged this week yet' : `${variety.distinctThisWeek} different ${variety.distinctThisWeek === 1 ? 'food' : 'foods'}`}
+        </Text>
+        <Text style={[styles.trendDelta, { color: tabColorFor('/trends') }]}>{variety.line}</Text>
+        {variety.nearThing ? (
+          <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>
+            {`On your safe list and not eaten lately: ${variety.nearThing}.`}
+          </Text>
+        ) : null}
+        <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>Tap to see the whole picture →</Text>
+      </TouchableOpacity>,
+    );
+  }
+
   // See digestFlipCardPool's own comment (top of file) for what these
   // are, 2026-08-23: real Digest entries, scoped to Basic Health plus the
   // person's own conditions, one card per group, each moving to a
@@ -3340,6 +3389,8 @@ export default function HomeScreen() {
         return renderFuelGauges();
       case 'weekTrend':
         return renderWeekTrend();
+      case 'varietyThisWeek':
+        return renderVarietyThisWeek();
       case 'makeReport':
         return renderMakeReport();
       case 'gardenTasks':

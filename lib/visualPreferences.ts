@@ -305,6 +305,11 @@ export type HomeSectionKey =
   | 'howYoureFeeling'
   | 'fuelGauges'
   | 'weekTrend'
+  // How varied this week's eating has been, 2026-09-23. Trends' second
+  // card, and the one that answers the question the app is centrally for:
+  // weekTrend counts what got flagged, this counts how wide the eating
+  // was. Both are Trends' and both are a tap from the lens they come from.
+  | 'varietyThisWeek'
   // 2026-09-16, direct request: "make sure there is a Group for
   // Gardening on the Home screen... The same goes for Reports, as well
   // as Profile." A group only appears once something real is in it
@@ -373,6 +378,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'fuelGauges',
   // Trends.
   'weekTrend',
+  'varietyThisWeek',
   // Reports.
   'makeReport',
   // Garden.
@@ -434,6 +440,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   howYoureFeeling: "How You're Feeling",
   fuelGauges: "Today's Fuel Gauges",
   weekTrend: "This Week's Trend",
+  varietyThisWeek: 'Variety This Week',
   makeReport: 'Make a Report',
   gardenTasks: 'Garden Tasks',
   daysUntil: 'Days Until in the Garden',
