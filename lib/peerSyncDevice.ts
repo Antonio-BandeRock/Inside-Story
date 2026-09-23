@@ -12,11 +12,11 @@
 // four are here:
 //
 //   1. Nothing either side did is thrown away. The arrival is merged
-//      against the copy the two people last agreed on, record by record,
-//      rather than replacing what is here.
-//   2. The agreed copy is kept, per person, in peer_sync_base. Without it
-//      a line somebody ticked off and deleted comes straight back on the
-//      next merge.
+//      against the copy that last arrived from that person, record by
+//      record, rather than replacing what is here.
+//   2. That copy is kept, per person, in peer_sync_base. Without it a line
+//      somebody ticked off and deleted comes straight back on the next
+//      merge.
 //   3. What happened is said, naming who did it, unless the person has
 //      turned the saying off.
 //   4. It is written down either way, in the same log the device merges go
@@ -72,13 +72,16 @@ export async function buildPeerTables(standing: PeerStanding): Promise<Tables> {
   return tablesToSend(await readPeerTables(standing), standing);
 }
 
-// THE AGREED COPY, one row per person, in peer_sync_base.
+// WHAT THAT PERSON LAST SENT, one row per person, in peer_sync_base.
 //
 // Between two devices this is a file at Paths.document, since there is only
 // ever one of it. Between people there is one per person, so it is a table.
 // It is deliberately NOT device local: both of this person's devices talk
-// to the same partner, and a base one of them agreed is the base the other
-// needs, or the second device resurrects what the first had settled.
+// to the same partner, and a base one of them wrote down is the base the
+// other needs, or the second device resurrects what the first had settled.
+//
+// What arrived, never what was sent back, for the reason set out over the
+// base in lib/snapshotSyncDevice.ts.
 
 export async function readPeerBase(connectionId: string): Promise<Tables | null> {
   try {
@@ -205,11 +208,14 @@ export async function mergeFromPeer(
     await writeTables(result.tables);
   }
 
-  // The agreed copy is what both sides now hold, written from the merged
-  // result rather than from either side's own. Suspended from the write
-  // tracking: agreeing is bookkeeping, not somebody's change.
+  // The base is what arrived from that person, which is what they hold
+  // until they are handed the merged copy. Written from the merged result
+  // instead, it would say they had seen records they have never been sent,
+  // and the next copy they send would read those records as deletions.
+  // Suspended from the write tracking: agreeing is bookkeeping, not
+  // somebody's change.
   await withDatabaseWriteTrackingSuspended(async () => {
-    await writePeerBase(connection.id, tablesToSend(result.tables, standing));
+    await writePeerBase(connection.id, result.incoming);
   });
 
   const me = await getMyDevice();

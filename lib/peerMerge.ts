@@ -68,6 +68,12 @@ export type PeerMergeResult = {
   entries: MergeEntry[];
   /** Tables the other side sent that this relationship does not carry. */
   refused: string[];
+  /**
+   * What arrived, scoped to the carried tables and renumbered into this
+   * device's ids: what the other person holds, as far as this side can
+   * know, and so what the caller keeps as the base for next time.
+   */
+  incoming: Tables;
 };
 
 function withoutColumns(rows: readonly Row[], columns: readonly string[]): Row[] {
@@ -112,11 +118,16 @@ export function refusedTables(there: Tables, standing: PeerStanding): string[] {
 /**
  * Base against here against there, over the carried tables only.
  *
- * The base is the copy the two people last agreed on, kept per person the
- * way lib/snapshotSyncDevice.ts keeps one per pair of devices. Without it
- * there is no way to tell a record somebody added from one the other
- * person removed, which is the whole of what 1.0.49.3 fixed between two
- * devices and the whole of what this carries into a relationship.
+ * The base is the copy that last arrived from that person, kept per
+ * person the way lib/snapshotSyncDevice.ts keeps one per pair of devices.
+ * Without it there is no way to tell a record somebody added from one the
+ * other person removed, which is the whole of what 1.0.49.3 fixed between
+ * two devices and the whole of what this carries into a relationship.
+ *
+ * What arrived rather than what the merge made of it, for the reason set
+ * out at length over the base in lib/snapshotSyncDevice.ts: the other
+ * person has not been handed the merged copy yet, and writing it down as
+ * though they had turns a record added here into a record they deleted.
  *
  * With no base at all, every record on both sides is kept: two lists that
  * were never one cannot be told apart into changes, and keeping both loses
@@ -175,7 +186,12 @@ export function mergePeerTables(
     });
   }
 
-  return { tables, entries: merged.entries, refused: refusedTables(there, standing) };
+  return {
+    tables,
+    entries: merged.entries,
+    refused: refusedTables(there, standing),
+    incoming: merged.incoming,
+  };
 }
 
 type Words = { one: string; many: string; counts: boolean } | null;

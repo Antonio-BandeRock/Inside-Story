@@ -211,6 +211,36 @@ const nothing = peer.mergePeerTables(base, mine, theirs, { ...options, role: 're
 same(nothing.tables, {}, 'a recipe link merges nothing');
 same(nothing.entries, [], 'and writes nothing down');
 
+// WHAT THAT PERSON IS RECORDED AS HOLDING, for the next merge. What
+// arrived, never what the merge made of it: they have not been handed the
+// merged copy yet, and writing it down as though they had turns a line
+// added here into a line they deleted.
+check(
+  merged.incoming.grocery_list_items[0].checked === 1,
+  'what arrived from them comes back for the caller to keep',
+);
+check(
+  !('note' in merged.incoming.grocery_list_items[0]),
+  'with what stays on this device left out of it, the way it was left out of the merge',
+);
+check(
+  !('symptom_assessments' in smuggled.incoming),
+  'and with nothing the link does not carry recorded against them either',
+);
+const hereAdded = peer.mergePeerTables(
+  merged.incoming,
+  {
+    grocery_lists: mine.grocery_lists,
+    grocery_list_items: [merged.tables.grocery_list_items[0], item({ id: 'i3', food_name: 'Chard' })],
+  },
+  theirs,
+  options,
+);
+check(
+  hereAdded.tables.grocery_list_items.some((row) => row.id === 'i3'),
+  'so a line added here survives the next copy they send from before they saw it',
+);
+
 // 4. WHAT IT SAYS AFTERWARDS.
 const words = (table) =>
   ({

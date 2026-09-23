@@ -19,6 +19,9 @@
 // 7. The words a person reads for what a merge did.
 // 8. Whether the merged copy still has anything to send back, which is
 //    what stops two open devices answering each other every half minute.
+// 9. What arrived, handed back for the caller to keep as the base, so the
+//    next merge works against what the other device holds rather than
+//    against what this one last sent.
 //
 // The module imports nothing. Exits non-zero on any failure.
 
@@ -251,7 +254,7 @@ check(cached.tables.cache[0].total === 3, 'a table the app works out is taken fr
 same(cached.wholesale, ['cache'], 'and is named so the caller can say so');
 check(cached.entries.length === 0, 'a table taken whole is not somebody having made a change');
 
-// 11. Whether there is anything to send back.
+// 9. Whether there is anything to send back.
 const nothingNew = merge.mergeTables(
   { meals: [{ id: 'm1', name: 'Soup', updated_at: '2026-09-22T10:00:00Z' }] },
   { meals: [{ id: 'm1', name: 'Soup', updated_at: '2026-09-22T10:00:00Z' }] },
@@ -326,7 +329,56 @@ check(
   'a worked-out table kept from this side does have to go back',
 );
 
-// 9. The words.
+// 10. What the other device is recorded as holding.
+//
+// The base for next time is what arrived, never what the merge made of
+// it. Writing down the merged copy says the other device has seen rows it
+// has never been handed, and the next copy it sends reads every one of
+// them as a deletion.
+const arrived = { meals: [{ id: 'm2', name: 'Stew' }] };
+const carried = run({ meals: [] }, { meals: [{ id: 'm1', name: 'Soup' }] }, arrived);
+same(carried.incoming, arrived, 'what arrived comes back as it arrived');
+same(rowsOf(carried, 'meals'), ['m1', 'm2'], 'while the merge itself keeps both');
+check(
+  wholesaleHere.tables.cache[0].total === 2 && wholesaleHere.incoming.cache[0].total === 3,
+  'a table taken whole from this side is still written down as what the other side holds',
+);
+check(
+  scanned.incoming.scanned_products[0].id === rice.id,
+  'a renumbered id is handed back in this device ids, not in theirs',
+);
+check(
+  scanned.incoming.scanned_product_nutrients[0].scanned_product_id === rice.id,
+  'and the rows that pointed at it were carried along',
+);
+
+// The two rounds the shadow exists for. A phone and a computer, one
+// upkeep item between them.
+const bothHeld = { upkeep_items: [{ id: 'u1', title: 'Filters' }] };
+const phoneSent = { upkeep_items: [{ id: 'u1', title: 'Filters' }, { id: 'u2', title: 'Gutters' }] };
+const roundOne = run(bothHeld, bothHeld, phoneSent);
+same(rowsOf(roundOne, 'upkeep_items'), ['u1', 'u2'], 'the computer takes in what the phone added');
+same(roundOne.incoming, phoneSent, 'and writes down what the phone holds');
+
+// The computer adds one of its own, then the phone saves a copy it built
+// before it had read any of that.
+const computerNow = {
+  upkeep_items: [{ id: 'u1', title: 'Filters' }, { id: 'u2', title: 'Gutters' }, { id: 'u3', title: 'Drains' }],
+};
+const roundTwo = run(roundOne.incoming, computerNow, phoneSent);
+same(
+  rowsOf(roundTwo, 'upkeep_items'),
+  ['u1', 'u2', 'u3'],
+  'against what the phone holds, the computer keeps the item it added',
+);
+const wrongBase = run(computerNow, computerNow, phoneSent);
+same(
+  rowsOf(wrongBase, 'upkeep_items'),
+  ['u1', 'u2'],
+  'against what the computer last sent, that same item reads as deleted and goes',
+);
+
+// 11. The words.
 const words = (table) => {
   const map = {
     upkeep_items: { one: 'upkeep item', many: 'upkeep items', counts: true },
@@ -362,7 +414,7 @@ const said = merge.describeMerge(manyKinds, words, 'there');
 check(said.length === merge.MOST_MERGES_SAID + 1, 'past the fourth phrase the rest are counted');
 check(said[said.length - 1] === '2 other things', 'the rest are counted in plain words');
 
-// 10. The words themselves.
+// 12. The words themselves.
 const banned = /[–—]| -- |\b(real|genuine|genuinely)\b/i;
 for (const phrase of [...said, ...merge.describeMerge(entries, words, 'here')]) {
   check(!banned.test(phrase), 'phrase clean: ' + phrase);

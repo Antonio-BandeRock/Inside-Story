@@ -101,6 +101,17 @@ export type MergeResult = {
    * the two would go on talking for as long as both stayed open.
    */
   sendsBack: boolean;
+  /**
+   * What arrived, renumbered into this device's ids: the same rows the
+   * merge worked from rather than the rows as they were sent.
+   *
+   * This is what the other side holds, as far as this side can know, so
+   * it is what the caller keeps as the base for next time. Keeping the
+   * merged result instead would claim the other side has seen rows it has
+   * never been handed, and the next copy it sends would read every one of
+   * them as a deletion.
+   */
+  incoming: Tables;
 };
 
 export type MergeOptions = {
@@ -441,7 +452,7 @@ export function mergeTables(
     if (!sameRows(merged.rows, theirs)) matchesThere = false;
   }
 
-  return { tables, entries, wholesale: takenWhole, sendsBack: !matchesThere };
+  return { tables, entries, wholesale: takenWhole, sendsBack: !matchesThere, incoming };
 }
 
 /** How many phrases a notice says before the rest become "and N other things". */

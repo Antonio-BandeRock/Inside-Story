@@ -386,8 +386,10 @@ export function saveSnapshot(options: { force?: boolean } = {}): Promise<SaveOut
     );
     if (!recorded.ok) return problem(recorded.reason);
     await writeChangeBaseline(stamps);
-    // What both devices now hold in common, for the next merge.
-    writeMergeBase(envelope.tables as Tables);
+    // Only for a pair with no history yet, where the other device reads
+    // this copy whole. After that the base is what arrived, since sending
+    // says nothing about what the other device has read.
+    seedMergeBase(envelope.tables as Tables);
 
     await updateSyncState({
       loadedSavedAt: savedAt,
@@ -457,13 +459,30 @@ export function loadSnapshot(record: SnapshotRecord): Promise<LoadOutcome> {
   });
 }
 
-// THE LAST COPY THE TWO DEVICES AGREED ON.
+// THE COPY THE OTHER DEVICE LAST HELD.
 //
 // A merge needs three things: what arrived, what is here, and what both
 // devices last held in common. Without the third, a row only one side
 // has cannot be told apart from a row the other side deleted, and the
 // merge would quietly bring back everything either device has ever
-// removed. So every save, load and merge writes the agreed copy down.
+// removed.
+//
+// THE BASE IS THE COPY THAT ARRIVED, AND NEVER THE COPY THAT WAS SENT.
+// A save learns nothing about the other device: it puts a file in the
+// folder and cannot know whether anybody has read it. Writing the base
+// from a save claimed the other device had seen those rows, so when that
+// device saved a copy it had built before reading ours, every row added
+// here looked like a row deleted there and was dropped. A row could flip
+// between present and absent on each exchange, and a change made inside
+// the minute OneDrive takes to carry a file could go quietly. So the base
+// moves only when a copy is read: a load takes it whole, a merge takes
+// what arrived (renumbered into this device's ids, which is why
+// mergeTables hands that back), and a save seeds it only when there is
+// nothing there at all.
+//
+// It goes stale in the safe direction. The other device has usually
+// merged and moved on past the copy recorded here, which makes a row it
+// holds look added rather than deleted, and an addition is kept.
 //
 // A file rather than a table: it is a copy of every table, so keeping it
 // in the database would double the database and travel inside the next
@@ -504,6 +523,21 @@ function writeMergeBase(tables: Tables): void {
     // The next merge asks instead, which is where this was before.
     console.error('[snapshotSync] could not write the agreed copy', error);
   }
+}
+
+/**
+ * The starting point for a pair with nothing between them yet, which is
+ * the copy this device just published: the other device reads it whole
+ * the first time. Does nothing once there is a base to go on.
+ */
+function seedMergeBase(tables: Tables): void {
+  try {
+    if (mergeBaseFile().exists) return;
+  } catch (error) {
+    console.error('[snapshotSync] could not look for the agreed copy', error);
+    return;
+  }
+  writeMergeBase(tables);
 }
 
 function forgetMergeBase(): void {
@@ -596,7 +630,10 @@ export function mergeSnapshot(record: SnapshotRecord): Promise<MergeOutcome> {
       }
     }
 
-    writeMergeBase(merged.tables);
+    // What arrived, not what the merge made of it. The other device has
+    // not been handed the merged copy yet, and until it has, these are the
+    // rows it holds.
+    writeMergeBase(merged.incoming);
     await writeChangeBaseline(stampTables(merged.tables, fingerprintText));
     await recordMerge(merged.entries, { here: me.kind, there: record.latest.device.kind });
     peeked = null;
