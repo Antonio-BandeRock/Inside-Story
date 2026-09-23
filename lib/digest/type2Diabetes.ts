@@ -633,4 +633,30 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
       'handson-tracking-whether-it-works',
     ],
   },
+  // Protein source and type 2 diabetes risk, added 2026-09-23 after the
+  // Cell Metabolism 2026 methionine paper (Fanti et al., PMID 42335894)
+  // put three Harvard cohorts back in front of people. The adjusted
+  // prospective analysis of those same cohorts is Malik 2016, and that is
+  // the number this entry leads on; the 2026 paper's cross-sectional
+  // prevalence figures are unadjusted and are described as such.
+  {
+    id: 'type2-plant-vs-animal-protein-diet-risk',
+    category: 'type2Diabetes',
+    title: 'Replacing Animal Protein With Plant Protein in the Diet Tracked With Lower Type 2 Diabetes Risk',
+    teaser:
+      'Three long-running cohorts, 4.1 million person-years, 15,580 new cases. Swapping 5% of calories from vegetable protein in place of animal protein tracked with 23% lower risk.',
+    summary:
+      "The Nurses' Health Study, Nurses' Health Study II and the Health Professionals Follow-up Study between them recorded 4,146,216 person-years and 15,580 new cases of type 2 diabetes. After adjusting for body mass index, the top fifth of animal protein intake carried 13% higher risk than the bottom fifth (95% CI 6 to 21), total protein carried 7% higher risk (CI 1 to 17), and vegetable protein went the other way, with a hazard ratio of 0.91 (CI 0.84 to 0.98). The substitution figure is the useful one: replacing 5% of daily calories from animal protein with the same amount from vegetable protein tracked with 23% lower risk (CI 16 to 30). A 2026 paper in Cell Metabolism went back to the same three cohorts and reported prevalence at a single point in time rather than new cases over years. In that cross-section the top fifth of animal protein intake had roughly twice the prevalence of type 2 diabetes as the bottom fifth, and the top fifth of plant protein intake still had 65% more. Those figures were not adjusted for body weight, calories, or anything else, and the paper's authors state directly that they cannot conclude methionine is causing diabetes in these studies. So the adjusted prospective numbers are the finding, and the unadjusted cross-section is a description of who the high-protein eaters were. None of this is an argument for eating less protein with type 2 diabetes. Protein helps with fullness and with holding on to muscle, both of which matter here, and the question the evidence answers is which foods the protein arrives in.",
+    citations: [
+      { source: 'Malik VS et al. 2016: Dietary Protein Intake and Risk of Type 2 Diabetes in US Men and Women, Am J Epidemiol 183(8):715-28, PMID 27022032', url: 'https://pubmed.ncbi.nlm.nih.gov/27022032/' },
+      { source: 'Fanti M et al. 2026: Methionine-supplemented longevity diet increases growth hormone, GLP-1, and FGF21; reduces frailty; and promotes healthspan, Cell Metab 38(8):1579-1598, PMID 42335894', url: 'https://pubmed.ncbi.nlm.nih.gov/42335894/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: [
+      'type2-low-fat-vegan-diet-rct',
+      'protein-animal-vs-plant-protein-mortality',
+      'protein-methionine-longevity-diet',
+      'ckd-protein-restriction-plant-based',
+    ],
+  },
 ];

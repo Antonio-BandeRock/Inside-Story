@@ -734,4 +734,32 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
       'handson-safety-and-what-to-ask',
     ],
   },
+  // Protein source and cardiovascular mortality, added 2026-09-23
+  // alongside the type 2 diabetes and Health Literacy entries from the
+  // same 2026 Cell Metabolism paper. Song 2016's finding that the signal
+  // disappeared in people with no unhealthy lifestyle factor is the part
+  // that keeps this entry honest, and it is kept in the summary rather
+  // than buried in a caveat line.
+  {
+    id: 'cvd-protein-source-diet-mortality',
+    category: 'cardiovascularDisease',
+    title: 'Where Diet Protein Comes From Tracked With Heart Deaths More Closely Than How Much of It There Was',
+    teaser:
+      'Across cohorts totalling well over a million people, plant protein tracked with fewer cardiovascular deaths and animal protein with more. In one of them the association vanished entirely among people with no unhealthy lifestyle habits.',
+    summary:
+      "Three large analyses point the same direction. A 2020 BMJ meta-analysis pooled 32 cohorts covering 715,128 people and 113,039 deaths: plant protein carried a relative risk of 0.92 for death from any cause (95% CI 0.87 to 0.97) and 0.88 for cardiovascular death (CI 0.80 to 0.96), and an extra 3% of daily calories from plant protein tracked with 5% lower all-cause mortality. A 2016 JAMA Internal Medicine analysis of 131,342 people found animal protein was not associated with death from any cause (hazard ratio 1.02 per 10% of calories) but was associated with cardiovascular death (1.08, CI 1.01 to 1.16), while plant protein tracked with 0.90 all-cause and 0.88 cardiovascular mortality per 3% of calories. Swapping 3% of calories from processed red meat to plant protein carried a hazard ratio of 0.66. A 2020 NIH-AARP analysis of 416,104 people and 77,614 deaths found replacing 3% of calories from animal protein with plant protein tracked with 10% lower overall mortality and 11 to 12% lower cardiovascular mortality, with the largest shifts coming from eggs (24% in men, 21% in women) and red meat (13% and 15%). Two things stop this from being a causal claim. The JAMA analysis found the associations were confined to people carrying at least one unhealthy lifestyle factor, such as smoking, heavy drinking, excess weight or inactivity, and were not evident among people carrying none, which is what confounding tends to look like. And the only controlled feeding trial in this area ran four weeks in 20 healthy adults; restricting sulfur-containing amino acids there did lower total cholesterol and LDL alongside body weight, but 20 people over four weeks cannot tell anybody what happens to a heart over a decade.",
+    citations: [
+      { source: 'Song M et al. 2016: Association of Animal and Plant Protein Intake With All-Cause and Cause-Specific Mortality, JAMA Intern Med 176(10):1453-63, PMID 27479196', url: 'https://pubmed.ncbi.nlm.nih.gov/27479196/' },
+      { source: 'Naghshi S et al. 2020: Dietary intake of total, animal, and plant proteins and risk of all cause, cardiovascular, and cancer mortality, BMJ 370:m2412, PMID 32699048', url: 'https://pubmed.ncbi.nlm.nih.gov/32699048/' },
+      { source: 'Huang J et al. 2020: Association Between Plant and Animal Protein Intake and Overall and Cause-Specific Mortality, JAMA Intern Med 180(9):1173-84, PMID 32658243', url: 'https://pubmed.ncbi.nlm.nih.gov/32658243/' },
+      { source: 'Richie JP et al. 2023: Dietary Methionine and Total Sulfur Amino Acid Restriction in Healthy Adults, J Nutr Health Aging 27(2):111-123, PMID 36806866', url: 'https://pubmed.ncbi.nlm.nih.gov/36806866/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: [
+      'cvd-mediterranean-diet-predimed',
+      'cvd-plant-based-diet-existing-disease',
+      'protein-animal-vs-plant-protein-mortality',
+      'protein-sulfur-amino-acid-restriction-trial',
+    ],
+  },
 ];

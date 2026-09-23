@@ -931,7 +931,7 @@ export const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partia
     'Diet & Food': [
       {
         label: 'Diet Pattern Evidence',
-        ids: ['masld-mediterranean-diet', 'masld-mediterranean-diet-2year-real-biomarkers', 'masld-vegetarian-diet-rct-weight-loss-mechanism', 'masld-fermented-drinks'],
+        ids: ['masld-mediterranean-diet', 'masld-mediterranean-diet-2year-real-biomarkers', 'masld-vegetarian-diet-rct-weight-loss-mechanism', 'masld-fermented-drinks', 'masld-fgf21-diet-mechanism-and-drug-trials'],
       },
       { label: 'Weight, Exercise & Alcohol', ids: ['masld-weight-loss-thresholds', 'masld-exercise-independent-weight-loss', 'masld-metald-alcohol-threshold'] },
       {

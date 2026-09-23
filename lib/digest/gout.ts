@@ -649,4 +649,29 @@ export const GOUT_ENTRIES: DigestEntry[] = [
       'gout-overview',
     ],
   },
+  // Added 2026-09-23. Uric acid fell in the 2023 sulfur-amino-acid
+  // feeding trial, which is the most gout-relevant number in that paper
+  // and the reason this entry exists. It is scoped hard: nobody in the
+  // trial had gout, and methionine and purines travel together in the
+  // same foods, so the trial cannot separate them.
+  {
+    id: 'gout-sulfur-amino-acid-diet-uric-acid',
+    category: 'gout',
+    title: 'Cutting Sulfur Amino Acids in the Diet Lowered Uric Acid in a Small Controlled Feeding Trial',
+    teaser:
+      'Uric acid fell under both methionine restriction and full sulfur amino acid restriction. The trial ran four weeks in 20 healthy adults, none of whom had gout.',
+    summary:
+      "A controlled feeding study fed 20 healthy adults (11 women, 9 men) through three four-week periods, restricting either methionine alone or methionine together with cysteine, with washouts between. Uric acid fell significantly under both. Restricting both also lowered body weight, total cholesterol, LDL, leptin, insulin, blood urea nitrogen and IGF-1, and raised FGF-21. No adverse effects were reported and the researchers declared no conflicts of interest. Uric acid is the number gout turns on, which makes this worth knowing about, and it is also why the limits need saying plainly. Nobody in the trial had gout, so no flares were counted and no urate target was aimed at. Twenty people over four weeks with every meal supplied by a research kitchen is a mechanism study rather than a treatment result. And methionine and cysteine are concentrated in the same meat, fish and shellfish that carry the most purines, so a diet lower in one is almost always lower in the other; this trial had no way to tell which change moved the uric acid. For gout itself the evidence that supports action is elsewhere: urate-lowering therapy treated to a target, the DASH pattern, weight loss, and the whole-food plant-based pilot trial, all covered separately here.",
+    citations: [
+      { source: 'Richie JP et al. 2023: Dietary Methionine and Total Sulfur Amino Acid Restriction in Healthy Adults, J Nutr Health Aging 27(2):111-123, PMID 36806866', url: 'https://pubmed.ncbi.nlm.nih.gov/36806866/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'gout-purine-foods-and-dairy',
+      'gout-dash-diet-quality',
+      'gout-whole-food-plant-based-pilot-rct',
+      'gout-urate-lowering-therapy',
+      'protein-sulfur-amino-acid-restriction-trial',
+    ],
+  },
 ];

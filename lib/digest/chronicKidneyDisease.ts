@@ -671,4 +671,31 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
       'ckd-overview',
     ],
   },
+  // Added 2026-09-23. This one exists to head off a misreading rather
+  // than to recommend anything: the 2023 sulfur-amino-acid feeding trial
+  // lowered BUN, which reads as kidney-relevant to anybody scanning the
+  // results, and CKD is the one condition in this app where lowering
+  // protein is already part of the conversation. The entry says what the
+  // trial measured and what it did not, and points back at
+  // ckd-protein-restriction-plant-based for the actual guidance.
+  {
+    id: 'ckd-methionine-restriction-diet-urea-caution',
+    category: 'chronicKidneyDisease',
+    title: 'A Low-Sulfur-Amino-Acid Diet Lowered Blood Urea Nitrogen in Healthy Adults, Which Is Not a Kidney Treatment',
+    teaser:
+      'Blood urea nitrogen fell in a four-week feeding trial, and so did uric acid and IGF-1. Nobody in the trial had kidney disease, and no kidney outcome was measured.',
+    summary:
+      "A controlled feeding study put 20 healthy adults (11 women, 9 men) through three four-week periods, restricting either methionine alone or methionine together with cysteine. Restricting both lowered body weight, total cholesterol, LDL, uric acid, leptin, insulin, blood urea nitrogen and IGF-1, and raised body temperature and plasma FGF-21. Restricting methionine alone moved fewer markers, with blood urea nitrogen, uric acid and 8-isoprostane falling and FGF-21 rising. The researchers reported no adverse effects and declared no conflicts of interest. The blood urea nitrogen result is the one worth being careful about. Urea is what the body makes when it breaks protein down, so blood urea nitrogen falls when protein intake falls whether or not anything about the kidney has changed. It is a marker that moves with diet, not a measurement of how well a kidney is filtering, and eGFR and the albumin-to-creatinine ratio are what answer that question. Nobody in this trial had chronic kidney disease, the trial ran four weeks, every meal came from a research kitchen, and no kidney outcome was followed. The 2026 mouse work in the same area points at the risk in the other direction: when methionine was dropped to the lowest level tested, the animals lost weight fast enough that the researchers had to step in, and the study settled on a higher level to keep weight stable. In chronic kidney disease the protein target is set with a nephrology team, because too little protein carries a documented cost in muscle loss and frailty, and the evidence that does exist is about the level and the source rather than about one amino acid.",
+    citations: [
+      { source: 'Richie JP et al. 2023: Dietary Methionine and Total Sulfur Amino Acid Restriction in Healthy Adults, J Nutr Health Aging 27(2):111-123, PMID 36806866', url: 'https://pubmed.ncbi.nlm.nih.gov/36806866/' },
+      { source: 'Fanti M et al. 2026: Methionine-supplemented longevity diet increases growth hormone, GLP-1, and FGF21; reduces frailty; and promotes healthspan, Cell Metab 38(8):1579-1598, PMID 42335894', url: 'https://pubmed.ncbi.nlm.nih.gov/42335894/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'ckd-protein-restriction-plant-based',
+      'ckd-egfr-acr-monitoring',
+      'protein-sulfur-amino-acid-restriction-trial',
+      'protein-requirements-rda-vs-real-need',
+    ],
+  },
 ];

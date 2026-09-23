@@ -622,4 +622,30 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
       'masld-time-restricted-eating',
     ],
   },
+  // Added 2026-09-23. The one place where the 2026 methionine paper and
+  // human trial evidence meet: FGF21 was required for that diet's effect
+  // in mice, and two FGF21 analogue drugs have biopsy endpoints in people
+  // with MASH. The entry is careful that the drug trials do not transfer
+  // to the diet, which is the misreading this finding invites.
+  {
+    id: 'masld-fgf21-diet-mechanism-and-drug-trials',
+    category: 'fattyLiverDisease',
+    title: 'FGF21 Is the Liver Hormone Behind Both a Low-Protein Diet Result and Two MASH Drug Trials',
+    teaser:
+      'Mice bred without FGF21 lost the entire benefit of a low-protein diet. Two phase 2b trials of FGF21 analogue drugs improved fibrosis on biopsy in people with MASH.',
+    summary:
+      "FGF21 is a hormone made mostly in the liver that shifts how the body handles fat and sugar. A 2026 study in Cell Metabolism fed old mice a low-protein, methionine-adjusted diet and found it raised FGF21 along with growth hormone and GLP-1, lowered IGF-1, cut body fat without any loss of lean mass, and left the animals less frail. Mice bred without FGF21 lost the fat loss and the improved insulin sensitivity entirely, so the hormone was carrying the effect rather than travelling alongside it. Separately, two phase 2b trials have given FGF21 analogue drugs to people with biopsy-confirmed MASH and stage F2 or F3 fibrosis. In ENLIVEN, 219 people received pegozafermin or placebo over 24 weeks; fibrosis improved by at least one stage with no worsening of MASH in 27% on the highest dose against 7% on placebo (difference 20 percentage points, 95% CI 5 to 35, p=0.008). In HARMONY, 128 people received efruxifermin or placebo; in the biopsy set, fibrosis improved in 39% at 28 mg and 41% at 50 mg against 20% on placebo (risk ratio 2.3, CI 1.1 to 4.8, p=0.025). Diarrhoea and nausea were the common side effects, and both trials were funded by the companies developing the drugs. What connects these and what does not: the drug trials show that pushing FGF21 signalling hard with an injected analogue changes liver fibrosis in people, on 24-week biopsies in phase 2. They do not show that a diet nudging FGF21 up by a far smaller amount does the same thing, and no diet trial has tested that. For MASLD, the human diet evidence still sits where it did, with the Mediterranean pattern, weight loss past the thresholds that matter, and exercise.",
+    citations: [
+      { source: 'Fanti M et al. 2026: Methionine-supplemented longevity diet increases growth hormone, GLP-1, and FGF21; reduces frailty; and promotes healthspan, Cell Metab 38(8):1579-1598, PMID 42335894', url: 'https://pubmed.ncbi.nlm.nih.gov/42335894/' },
+      { source: 'Loomba R et al. 2023: Randomized, Controlled Trial of the FGF21 Analogue Pegozafermin in NASH (ENLIVEN), N Engl J Med 389(11):998-1008, PMID 37356033', url: 'https://pubmed.ncbi.nlm.nih.gov/37356033/' },
+      { source: 'Harrison SA et al. 2023: Safety and efficacy of once-weekly efruxifermin versus placebo in non-alcoholic steatohepatitis (HARMONY), Lancet Gastroenterol Hepatol 8(12):1080-1093, PMID 37802088', url: 'https://pubmed.ncbi.nlm.nih.gov/37802088/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: [
+      'masld-mediterranean-diet',
+      'masld-weight-loss-thresholds',
+      'horizon-masld',
+      'protein-methionine-longevity-diet',
+    ],
+  },
 ];

@@ -1764,6 +1764,79 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       sourceNote: "This app's reference database (USDA/Germany_BLS-sourced values)",
     },
   },
+  // Protein source, methionine and the 2026 longevity-diet study, three
+  // entries added 2026-09-23 after a direct request to work out what
+  // peer-reviewed evidence sits behind that paper. They are deliberately
+  // split into the animal study, the one human trial, and the cohort
+  // evidence, because those three sit at very different strengths and a
+  // single entry would have had to average them into something
+  // misleading. The condition-side entries that go with these live on
+  // type 2 diabetes, cardiovascular disease, chronic kidney disease,
+  // fatty liver disease and gout.
+  {
+    id: 'protein-methionine-longevity-diet',
+    category: 'basicHealth',
+    title: 'The 2026 Longevity Diet Mouse Study Improved Health in Old Age but Did Not Extend Lifespan',
+    teaser:
+      'A low-protein diet with methionine added back left old mice leaner, stronger and less frail, with fewer tumours. Against the healthy control diet it added no significant lifespan in either sex.',
+    summary:
+      "Researchers at the USC Longevity Institute, with co-authors at Harvard T.H. Chan School of Public Health, the University of Toronto and the University of Campinas, published this in Cell Metabolism in August 2026. Genetically varied mice were started at 20 months old, which the paper puts at roughly a 60 to 65 year old person, and fed to appetite on one of five diets: a standard control, a Western diet, a ketogenic diet, a fasting-mimicking cycle, and a plant-and-fish based longevity diet at about 11% protein built from a fifteen-vegetable mix, chickpeas, potato starch, fishmeal, fish oil and olive oil. The longevity diet was tested at three levels of methionine, one of the nine amino acids the body cannot make. At 0.14% the mice lost weight fast enough that the researchers had to step in. At 0.7%, matching the control diet, the benefit disappeared. At 0.3%, the level the study settled on, the mice lost more body fat than any other group with no loss of lean mass and without eating less, ended up the least frail, and had the fewest tumours at necropsy (57%, against 74% on the ketogenic diet and 66% on the control). Growth hormone, GLP-1 and FGF21 all rose while IGF-1 fell, and mice bred without FGF21 lost the fat loss and the insulin-sensitivity gain entirely, which is what identifies FGF21 as the hormone carrying the effect. Energy expenditure adjusted for body mass did not change, so burning more was not the explanation, though that sub-study used only three animals per group. The lifespan result is where care is needed, and the paper states it without hedging: starting this diet at 20 months had a strong effect on healthspan and no significant effect on lifespan in either sex against the standard control. In males the comparison came out at p=0.2. In females it reached p=0.046, with median lifespan 5.6% longer than the Western diet group, which is a comparison against a worse diet rather than a better one, and the hazard ratios against the control (0.94 in females, 0.95 in males) were not significant. The Western diet did the clearest damage, cutting maximum lifespan by up to 200 days. The authors name the likely reason for the flat lifespan result themselves: the intervention began very late in life, when any intervention has less room to work. Three disclosures belong with this. The senior author holds equity in a nutrition company, he and two co-authors hold fasting-mimicking diet patents licensed to it with royalty potential, and he and the first author are named inventors on a provisional patent covering methods and findings in this paper.",
+    citations: [
+      { source: 'Fanti M et al. 2026: Methionine-supplemented longevity diet increases growth hormone, GLP-1, and FGF21; reduces frailty; and promotes healthspan, Cell Metab 38(8):1579-1598.e6, PMID 42335894', url: 'https://pubmed.ncbi.nlm.nih.gov/42335894/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'protein-overview',
+      'protein-requirements-rda-vs-real-need',
+      'protein-sulfur-amino-acid-restriction-trial',
+      'protein-animal-vs-plant-protein-mortality',
+      'diet-high-protein',
+      'masld-fgf21-diet-mechanism-and-drug-trials',
+    ],
+  },
+  {
+    id: 'protein-sulfur-amino-acid-restriction-trial',
+    category: 'basicHealth',
+    title: 'The Only Human Trial of Sulfur Amino Acid Restriction Ran Four Weeks in Twenty People',
+    teaser:
+      'Cholesterol, LDL, uric acid, insulin, leptin and IGF-1 all fell, and FGF-21 rose, with no adverse effects. Twenty people over four weeks cannot say anything about ageing or disease.',
+    summary:
+      "Methionine restriction has been studied in laboratory animals since the 1990s, where it reliably extends life. Almost none of that work has been repeated in people, and this controlled feeding study is the closest anyone has come. Twenty healthy adults (11 women, 9 men) were assigned to restrict either methionine alone or methionine together with cysteine, through three four-week periods each: a control period, a lower level of restriction (70% for methionine alone, 50% for both), and a higher level (90% and 65%), separated by washouts of three to four weeks. Restricting both amino acids significantly lowered body weight, total cholesterol, LDL, uric acid, leptin, insulin, blood urea nitrogen and IGF-1, and raised body temperature and plasma FGF-21. Restricting methionine alone moved fewer markers: blood urea nitrogen, uric acid and 8-isoprostane fell, and FGF-21 rose. At the highest level of restriction, blood methionine and cysteine fell by 15% and 13%. Compliance was high and no adverse effects showed up at either level. The researchers declared no conflicts of interest. What this study can support is narrow. It measured markers rather than outcomes: no disease was prevented, no lifespan was measured, and four weeks is long enough for cholesterol and insulin to move and nowhere near long enough for anything else. Twenty healthy adults eating meals prepared by a research kitchen is also nothing like twenty people doing this at home, where methionine and cysteine are concentrated in meat, fish, eggs and dairy, and cutting them by 65% means rebuilding the whole diet. The researchers themselves put it as support for further clinical development rather than as a result anyone should act on.",
+    citations: [
+      { source: 'Richie JP et al. 2023: Dietary Methionine and Total Sulfur Amino Acid Restriction in Healthy Adults, J Nutr Health Aging 27(2):111-123, PMID 36806866', url: 'https://pubmed.ncbi.nlm.nih.gov/36806866/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: [
+      'protein-methionine-longevity-diet',
+      'protein-overview',
+      'protein-requirements-rda-vs-real-need',
+      'gout-sulfur-amino-acid-diet-uric-acid',
+      'ckd-methionine-restriction-diet-urea-caution',
+    ],
+  },
+  {
+    id: 'protein-animal-vs-plant-protein-mortality',
+    category: 'basicHealth',
+    title: 'Large Cohorts Link Plant Protein to Lower Death Rates, and One of Them Shows Why That May Not Be the Protein',
+    teaser:
+      'Over a million people across four analyses point the same way. In the one that checked, the association disappeared among people with no unhealthy lifestyle habits.',
+    summary:
+      "Four large observational analyses have looked at where protein comes from rather than how much of it there is. A 2020 BMJ meta-analysis pooled 32 cohorts covering 715,128 people and 113,039 deaths, and found plant protein carried a relative risk of 0.92 for death from any cause (95% CI 0.87 to 0.97) and 0.88 for cardiovascular death (CI 0.80 to 0.96), with no association either way for cancer death; an extra 3% of daily calories from plant protein tracked with 5% lower all-cause mortality. A 2016 JAMA Internal Medicine analysis of 131,342 people found animal protein was not associated with death from any cause but was associated with cardiovascular death (hazard ratio 1.08 per 10% of calories, CI 1.01 to 1.16), and that swapping 3% of calories from processed red meat to plant protein carried a hazard ratio of 0.66. A 2020 analysis of 416,104 people in the NIH-AARP study found that replacing 3% of calories from animal protein with plant protein tracked with 10% lower overall mortality, the largest shifts coming from eggs and red meat. And a 2014 analysis found that among people aged 50 to 65, high protein intake tracked with 75% higher overall mortality and four times the cancer death rate over 18 years, weakened or abolished when the protein came from plants, while over 65 the same association reversed toward lower mortality. The 2016 analysis contains the finding that should govern how the rest are read: the associations were confined to people carrying at least one unhealthy lifestyle factor, such as smoking, heavy drinking, excess weight or inactivity, and were not evident among people carrying none. People who eat more plant protein differ from people who eat less in many ways that no statistical adjustment fully removes, and that result is what confounding looks like when a study is able to see it. The reversal after 65 points the same direction as the protein requirement evidence, where the case for older adults runs toward more protein rather than less.",
+    citations: [
+      { source: 'Naghshi S et al. 2020: Dietary intake of total, animal, and plant proteins and risk of all cause, cardiovascular, and cancer mortality, BMJ 370:m2412, PMID 32699048', url: 'https://pubmed.ncbi.nlm.nih.gov/32699048/' },
+      { source: 'Song M et al. 2016: Association of Animal and Plant Protein Intake With All-Cause and Cause-Specific Mortality, JAMA Intern Med 176(10):1453-63, PMID 27479196', url: 'https://pubmed.ncbi.nlm.nih.gov/27479196/' },
+      { source: 'Huang J et al. 2020: Association Between Plant and Animal Protein Intake and Overall and Cause-Specific Mortality, JAMA Intern Med 180(9):1173-84, PMID 32658243', url: 'https://pubmed.ncbi.nlm.nih.gov/32658243/' },
+      { source: 'Levine ME et al. 2014: Low protein intake is associated with a major reduction in IGF-1, cancer, and overall mortality in the 65 and younger but not older population, Cell Metab 19(3):407-17, PMID 24606898', url: 'https://pubmed.ncbi.nlm.nih.gov/24606898/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: [
+      'protein-requirements-rda-vs-real-need',
+      'protein-methionine-longevity-diet',
+      'diet-high-protein',
+      'type2-plant-vs-animal-protein-diet-risk',
+      'cvd-protein-source-diet-mortality',
+    ],
+  },
   {
     id: 'protein-tying-together',
     category: 'basicHealth',
