@@ -7159,6 +7159,37 @@ async function runDatabaseInitialization() {
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- Tell Claude, 2026-09-22: a note about a piece of this app, made
+      -- from inside the app, for building the app and nothing else. The
+      -- whole feature sits behind a switch in Profile that starts off, so
+      -- nobody using the app to run their life ever meets it. band_id is
+      -- what makes a note findable in the source, since every fold band
+      -- already carries one; a note about a screen rather than one band
+      -- has none. device, app_version, tab and lens are filled in by the
+      -- app rather than asked for. status and done_version are written
+      -- back once the change has shipped, from a status line in the file
+      -- these are published to. No foreign key: a note names a band that
+      -- is a string in a .tsx file, not a row. See lib/devNotes.ts for
+      -- the shape and lib/devNotesDb.ts for the reading and writing.
+      CREATE TABLE IF NOT EXISTS dev_notes (
+        id TEXT PRIMARY KEY,
+        created_at TEXT NOT NULL,
+        -- phone or computer.
+        device TEXT NOT NULL,
+        app_version TEXT NOT NULL,
+        tab TEXT,
+        lens TEXT,
+        band_id TEXT,
+        band_title TEXT,
+        -- wording, behaviour, bug or idea.
+        kind TEXT NOT NULL DEFAULT 'idea',
+        body TEXT NOT NULL,
+        -- open or done.
+        status TEXT NOT NULL DEFAULT 'open',
+        done_version TEXT,
+        done_at TEXT
+      );
+
       -- Compost, asked for as a lens: "tracks the materials added to the
       -- compost, when it was turned, watered, and everything else about
       -- making good compost." One row per pile, bin or tumbler; the record

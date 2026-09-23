@@ -56,10 +56,13 @@ type Area = {
 // Bookkeeping the app keeps for itself. A log of what happened and a cache
 // of totals already in the database are not something to remind anybody of,
 // and achievement progress is worked out from everything else.
+// dev_notes is here for a different reason: the Tell Claude notes are
+// about building this app rather than about the person using it.
 const NOT_WORTH_SAYING: readonly string[] = [
   'activity_log',
   'daily_nutrient_totals_cache',
   'dev_seed_records',
+  'dev_notes',
   'achievement_criteria_progress',
 ];
 

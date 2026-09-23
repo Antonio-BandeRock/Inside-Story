@@ -15,6 +15,7 @@ import { DatabaseSetupScreen } from '../components/DatabaseSetupScreen';
 import { StartupFailureScreen } from '../components/StartupFailureScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
 import { SnapshotSyncWatcher } from '../components/SnapshotSyncWatcher';
+import { TellClaudeHost } from '../components/TellClaudeHost';
 import { VersionLabel } from '../components/VersionLabel';
 import { colors } from '../constants/colors';
 import { useHomeDataReady } from '../hooks/useHomeDataReady';
@@ -701,6 +702,13 @@ export default function RootLayout() {
                   raises, mounted only once the database is ready, since
                   dbReady is true for everything rendered here. */}
               <SnapshotSyncWatcher />
+              {/* Tell Claude (1.0.49.8): the button and the sheet a note is
+                  typed into. Renders nothing at all while the Profile switch
+                  is off, which is every install but this one. Before
+                  AppKeyboard for the same reason OverlayRoot is: the sheet
+                  has a text box, and the drawn keyboard has to paint on top
+                  of it. */}
+              <TellClaudeHost />
               {/* Before AppKeyboard, deliberately -- see OverlayContext.tsx's own
                   comment: the keyboard must always paint on top of an open
                   dropdown's backdrop/menu, never the other way around. */}

@@ -61,6 +61,9 @@ import {
   type LocalBackupFile,
 } from '../lib/dataBackup';
 import { clearSeededTestData, seedHealthTestData, seedTest90Days } from '../lib/devSeed';
+import { summariseDevNotes } from '../lib/devNotes';
+import type { DevNote } from '../lib/devNotes';
+import { clearShippedDevNotes, listDevNotes, syncDevNotes } from '../lib/devNotesDb';
 import { seedKitchenSources } from '../lib/testData';
 import { shareFileIfAvailable } from '../lib/nativeSharing';
 import { ACTIVITY_LEVEL_INFO, ACTIVITY_LEVELS, type ActivityLevel } from '../lib/energyNeeds';
@@ -886,6 +889,34 @@ export default function ProfileScreen() {
   const [seedingHealth, setSeedingHealth] = useState(false);
   const [seedingKitchen, setSeedingKitchen] = useState(false);
   const [clearingSeededData, setClearingSeededData] = useState(false);
+
+  // Tell Claude, 2026-09-22. The switch itself lives in visual
+  // preferences (developerNotes), so a band can read it without this
+  // screen being open; what is held here is only what the card says back:
+  // how many notes are waiting, and whether the last publish reached the
+  // folder. See lib/devNotes.ts for the whole thing.
+  const [devNotes, setDevNotes] = useState<DevNote[]>([]);
+  const [devNotesMessage, setDevNotesMessage] = useState<string | null>(null);
+  const [devNotesBusy, setDevNotesBusy] = useState(false);
+
+  useEffect(() => {
+    if (!visualPrefs.developerNotes) {
+      setDevNotes([]);
+      setDevNotesMessage(null);
+      return;
+    }
+    let live = true;
+    listDevNotes()
+      .then((notes) => {
+        if (live) setDevNotes(notes);
+      })
+      .catch((error) => {
+        console.error('[tellClaude] could not read the notes', error);
+      });
+    return () => {
+      live = false;
+    };
+  }, [visualPrefs.developerNotes]);
 
   // Backup & Restore card, 2026-08-16, see lib/dataBackup.ts's header
   // comment for the full design reasoning. One shared "something's in
@@ -4735,6 +4766,87 @@ export default function ProfileScreen() {
           {renderCardHeader('developer', 'Developer Tools')}
           {!collapsedSections.has('developer') ? (
             <View style={styles.cardBody}>
+              {/* Tell Claude, 2026-09-22. Turning this on puts a long press on
+                  every fold band in the app and a small button against the left
+                  edge, either of which writes a note about wherever you are. It
+                  sits in this card because this card renders nothing at all in a
+                  store release, which is what "for development purposes only"
+                  means here. */}
+              <Text style={styles.helpText}>
+                Tell Claude: long press any band to leave a note about it, or use the button against
+                the left edge for anything that is not a band, which is also how it works in the
+                Windows app where there is no long press. A note remembers which device you were on,
+                the version, and which tab, lens and band you were looking at. Nothing on screen
+                changes until the change is shipped.
+              </Text>
+              <View style={styles.pillRow}>
+                {[false, true].map((value) => {
+                  const on = visualPrefs.developerNotes === value;
+                  return (
+                    <TouchableOpacity
+                      key={value ? 'on' : 'off'}
+                      style={[styles.pill, on && styles.pillActive]}
+                      onPress={() => {
+                        void setVisualPreferences({ developerNotes: value });
+                      }}
+                    >
+                      <Text style={[styles.pillText, on && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              {visualPrefs.developerNotes ? (
+                <>
+                  <Text style={styles.helpText}>{summariseDevNotes(devNotes)}</Text>
+                  {devNotesMessage ? <Text style={styles.helpText}>{devNotesMessage}</Text> : null}
+                  <TouchableOpacity
+                    style={styles.addAllergyButton}
+                    disabled={devNotesBusy}
+                    onPress={async () => {
+                      setDevNotesBusy(true);
+                      try {
+                        const result = await syncDevNotes();
+                        setDevNotes(await listDevNotes());
+                        setDevNotesMessage(
+                          result.problem
+                            ? result.problem
+                            : `Sent ${result.published}, and took back ${result.answered} answer(s).`,
+                        );
+                      } catch (error) {
+                        console.error('[tellClaude] could not send the notes', error);
+                        setDevNotesMessage('Could not reach the folder.');
+                      } finally {
+                        setDevNotesBusy(false);
+                      }
+                    }}
+                  >
+                    <Text style={styles.addAllergyButtonText}>
+                      {devNotesBusy ? 'Working…' : 'Send the Notes'}
+                    </Text>
+                  </TouchableOpacity>
+                  {devNotes.some((note) => note.status === 'done') ? (
+                    <TouchableOpacity
+                      style={styles.addAllergyButton}
+                      disabled={devNotesBusy}
+                      onPress={async () => {
+                        setDevNotesBusy(true);
+                        try {
+                          const cleared = await clearShippedDevNotes();
+                          setDevNotes(await listDevNotes());
+                          setDevNotesMessage(`Cleared ${cleared}. The file keeps every one of them.`);
+                        } catch (error) {
+                          console.error('[tellClaude] could not clear the notes', error);
+                          setDevNotesMessage('Could not clear those.');
+                        } finally {
+                          setDevNotesBusy(false);
+                        }
+                      }}
+                    >
+                      <Text style={styles.addAllergyButtonText}>Clear the Shipped Ones</Text>
+                    </TouchableOpacity>
+                  ) : null}
+                </>
+              ) : null}
               <Text style={styles.helpText}>
                 Shown in development and on the preview channel, never in a store release. Everything
                 seeded here carries a [TEST] prefix. The 90-day span covers meals (60 past days already

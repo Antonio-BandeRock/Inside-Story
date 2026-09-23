@@ -615,6 +615,11 @@ export type VisualPreferences = {
   // only thing that clears the pointer: dismissing the welcome does not, since
   // reading about a button is not the same as knowing where it is.
   hasUsedTabHub: boolean;
+  // Tell Claude, 2026-09-22. Off, and off is the only state anybody but
+  // the person building this app will ever see it in: it turns on a long
+  // press on any fold band and a button beside the corner box, both of
+  // which write a note for Claude to read. See lib/devNotes.ts.
+  developerNotes: boolean;
 };
 
 // Which background a given scope actually draws, once low stimulation has
@@ -762,6 +767,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   letterSpacing: DEFAULT_LETTER_SPACING,
   hasSeenTabHubWelcome: false,
   hasUsedTabHub: false,
+  developerNotes: false,
 };
 
 const VISUAL_PREFERENCES_KEY = 'visual_preferences';

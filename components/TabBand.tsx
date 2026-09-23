@@ -25,6 +25,7 @@ import { StyleSheet } from 'react-native';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import type { useBandFolds } from '../hooks/useBandFolds';
+import { openTellClaude, useTellClaudeOn } from '../lib/tellClaude';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
 
 type Folds = ReturnType<typeof useBandFolds>;
@@ -46,6 +47,16 @@ export function TabBand({
   count?: number;
   children: ReactNode;
 }) {
+  // Tell Claude, 2026-09-22. Every lens band in the app passes through
+  // here, so one long press covers all of them, and a band holding a form
+  // with six steps is one note about all six, which is what was asked
+  // for. Handed over only while the switch is on: a Touchable carrying an
+  // onLongPress swallows the tap that would follow, so wiring one always
+  // would stop a band folding for somebody who never asked for any of
+  // this. Home is deliberately untouched, since a long press on a Home
+  // band is already how sections are rearranged; the button beside the
+  // corner box covers Home and anything else outside a band.
+  const tellClaude = useTellClaudeOn();
   return (
     <HomeSectionBand
       kind="fold"
@@ -54,6 +65,7 @@ export function TabBand({
       color={color}
       expanded={folds.isOpen(id)}
       onToggle={() => folds.toggle(id)}
+      onLongPress={tellClaude ? () => openTellClaude({ bandId: id, bandTitle: title }) : undefined}
     >
       {children}
     </HomeSectionBand>

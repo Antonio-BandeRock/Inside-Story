@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
@@ -13,6 +14,7 @@ import { pinnedLineHeight, textShadow, typography } from '../constants/typograph
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { pageIdentityBoxSpan } from '../lib/menuFit';
+import { reportTellClaudeScreen } from '../lib/tellClaude';
 
 import { TabRouteIcon } from './TabRouteIcon';
 
@@ -180,6 +182,16 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   // Same span the version label below this box uses, from one shared hook
   // rather than two copies of the math that could drift apart.
   const horizontalPosition = usePageIdentityBoxSpan();
+
+  // Tell Claude, 2026-09-22. This box renders on every screen in the app
+  // and already receives the tab and the open lens, which is exactly what
+  // a note has to say about where it was made. Reporting it from here
+  // covers a screen added later without anybody remembering to, and the
+  // box itself is unchanged: nothing is drawn, measured or made tappable
+  // for this. See lib/tellClaude.ts.
+  useEffect(() => {
+    reportTellClaudeScreen(title, activeLensLabel ?? null);
+  }, [title, activeLensLabel]);
 
   // Nothing to show at all until a real lens is picked, 2026-08-08 -- see
   // this file's own 2026-08-08 comment above for why the box no longer
