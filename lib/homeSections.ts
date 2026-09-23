@@ -56,6 +56,10 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   logAgain: '/food',
   scanProduct: '/food',
   groceryList: '/life',
+  // Free-form Days Until counters, 2026-09-22. The garden's own card is
+  // 'daysUntil' below and stays in the Garden group; a counter that is
+  // about anything else belongs with the rest of daily living.
+  countdowns: '/life',
   // 2026-09-16, direct request: "make sure there is a Group for
   // Gardening on the Home screen, as there will most definitely be quick
   // access things from that group. The same goes for Reports, as well as

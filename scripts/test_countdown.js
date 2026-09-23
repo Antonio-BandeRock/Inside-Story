@@ -1,4 +1,4 @@
-// Runs lib/gardenCountdown.ts: the Days Until counter's arithmetic and
+// Runs lib/countdown.ts: the Days Until counter's arithmetic and
 // every sentence it reads through, without a phone.
 //
 // Built 2026-09-21, from "create a Days Until counter the user can create,
@@ -19,8 +19,16 @@
 //     ones after, newest done first.
 //  6. The form refuses an empty name, a non-number, zero, a fraction and a
 //     bad date, and accepts a whole number of days.
+//  7. Two kinds, one list: a garden counter and a free-form one read into
+//     the same shape, and merging them orders both by when they land.
 //
-// Run with: node scripts/test_garden_countdown.js
+// A counter stopped having to be about the garden on 2026-09-22, from "Days
+// Until should be something that is also available in a free form allowing
+// the user to create their own Days Until for something that we don't have
+// covered in the app." The arithmetic above did not change; section 7 is
+// the only part that knows there are two kinds at all.
+//
+// Run with: node scripts/test_countdown.js
 // Exits non-zero on any failure.
 
 /* global __dirname */
@@ -41,10 +49,11 @@ function loadModule(relPath) {
   return module.exports;
 }
 
-const C = loadModule('lib/gardenCountdown.ts');
+const C = loadModule('lib/countdown.ts');
 const {
   calendarDaysBetween, addCalendarDays, countdownDueDate, daysUntil, countdownState, countdownFigure,
   describeCountdown, countdownProgress, sortCountdowns, countdownFormProblem,
+  gardenAsAny, freeAsAny, mergeCountdowns,
 } = C;
 
 let passed = 0;
@@ -120,6 +129,46 @@ check('zero days is refused', countdownFormProblem({ name: 'x', days: '0', start
 check('a fraction is refused', countdownFormProblem({ name: 'x', days: '2.5', startedOn: '2026-09-21' }), 'How many days? A whole number, at least 1.');
 check('words are refused', countdownFormProblem({ name: 'x', days: 'ten', startedOn: '2026-09-21' }), 'How many days? A whole number, at least 1.');
 check('a bad date is refused', countdownFormProblem({ name: 'x', days: '10', startedOn: '21/09/2026' }), 'Pick the day it started.');
+
+// 7. Two kinds, one list.
+const gardenRow = {
+  id: 'g1', plotId: 'p1', plantingId: 'pl1', name: 'Days to transplant',
+  plotName: 'Back bed', plantingName: 'Tomatoes',
+  startedOn: '2026-09-21', days: 14, doneAt: null,
+};
+check('a garden counter says where it is', gardenAsAny(gardenRow).where, 'Tomatoes, Back bed');
+check('a garden counter keeps its kind', gardenAsAny(gardenRow).kind, 'garden');
+check('inside one area the area name is left off', gardenAsAny(gardenRow, { namesArea: false }).where, 'Tomatoes');
+check(
+  'an area counter with no planting says the area',
+  gardenAsAny({ ...gardenRow, plantingId: null, plantingName: null }).where,
+  'Back bed',
+);
+check(
+  'an area counter with no planting says nothing inside that area',
+  gardenAsAny({ ...gardenRow, plantingId: null, plantingName: null }, { namesArea: false }).where,
+  null,
+);
+
+const freeRow = { id: 'f1', name: 'Passport', about: 'Posted the form', startedOn: '2026-09-21', days: 21, doneAt: null };
+check('a free counter says what was written under it', freeAsAny(freeRow).where, 'Posted the form');
+check('a free counter keeps its kind', freeAsAny(freeRow).kind, 'free');
+check('nothing written reads as nothing', freeAsAny({ ...freeRow, about: null }).where, null);
+check('a blank line reads as nothing', freeAsAny({ ...freeRow, about: '   ' }).where, null);
+check('a written line is trimmed', freeAsAny({ ...freeRow, about: '  Posted the form  ' }).where, 'Posted the form');
+
+const merged = mergeCountdowns(
+  [
+    { id: 'f1', name: 'Passport', about: null, startedOn: '2026-09-01', days: 40, doneAt: null }, // lands Oct 11
+    { id: 'f2', name: 'Cast off', about: null, startedOn: '2026-09-01', days: 5, doneAt: null }, // landed Sep 6
+  ],
+  [gardenRow], // lands Oct 5
+  '2026-09-21',
+);
+check('both kinds land in one list', merged.length, 3);
+check('ordered by when they land, overdue first', merged.map((row) => row.id), ['f2', 'g1', 'f1']);
+check('each row still says which kind it is', merged.map((row) => row.kind), ['free', 'garden', 'free']);
+check('the arithmetic is the same arithmetic', countdownFigure(merged[1], '2026-09-21'), '14 days');
 
 console.log(`${passed + failed} checks, ${failed} failures`);
 process.exit(failed ? 1 : 0);

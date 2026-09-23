@@ -732,6 +732,12 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.tabLife,
     href: { pathname: '/life', params: { openLifeLens: 'didIDoIt' } } as Href,
   },
+  countdowns: {
+    label: 'Days Until',
+    icon: 'hourglass',
+    color: colors.tabLife,
+    href: { pathname: '/life', params: { openLifeLens: 'daysUntil' } } as Href,
+  },
   // Belongs to no tab, so it keeps colors.primary the way the shared-
   // folder nudge does.
   captureInbox: {
@@ -782,6 +788,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'groceryList',
   'routines',
   'doneChecks',
+  'countdowns',
   'digestCards',
 ];
 
@@ -2811,6 +2818,25 @@ export default function HomeScreen() {
     );
   }
 
+  // Days Until, anything at all, 2026-09-22: "Days Until should be
+  // something that is also available in a free form allowing the user to
+  // create their own Days Until for something that we don't have covered
+  // in the app." The Garden group's card above holds the counters under a
+  // garden area; this one holds the rest, and starting one here asks for
+  // nothing but a name, a number of days and the day it started. The
+  // section reads its counters on focus, so the Home load carries nothing
+  // for it, and Life > Days Until is where both kinds read together.
+  function renderCountdowns() {
+    if (!isHomeSectionVisible(visualPrefs, 'countdowns')) return null;
+    return renderBand(
+      'countdowns',
+      'Days Until',
+      <View style={styles.bandBody}>
+        <DaysUntilSection scope="free" tabColor={colors.tabLife} compact showHeading={false} />
+      </View>,
+    );
+  }
+
   // Did I Do It, 2026-09-17. Read-only here on purpose. The question this
   // answers is asked on the stairs, so the whole value is being able to
   // look; recording something is a decision, and a decision belongs on the
@@ -3086,6 +3112,8 @@ export default function HomeScreen() {
         return renderRoutines();
       case 'doneChecks':
         return renderDoneChecks();
+      case 'countdowns':
+        return renderCountdowns();
       default:
         return null;
     }

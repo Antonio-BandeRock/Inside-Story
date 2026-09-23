@@ -205,7 +205,12 @@ function summaryFor(result, therapyType) {
   check('and nothing is called worse either', summary.worseThanBaselineDays, []);
 
   const sentence = describeTherapyResponse(summary, 'a massage');
-  checkTrue('a flat result says it is a real reading', sentence.includes('real reading'));
+  // The wording was 'a real reading' until the 2026-09-18 sweep took the
+  // filler word out of it. What the check guards is unchanged: a flat result
+  // has to be stated as something the data says, never as missing data,
+  // which is the same honesty the rest of the app owes a null finding.
+  checkTrue('a flat result is stated as a finding', sentence.includes('That is a finding'));
+  checkTrue('and never as a gap in what was logged', !/[Nn]ot enough/.test(sentence));
 }
 
 // --- Nearest-session attribution -------------------------------------------

@@ -28,16 +28,20 @@
 // ("Add a reminder on the day for a Days Until counter"), on the same rule:
 //
 //   Counters  garden_countdowns has started_on and days, and
-//             gardenCountdown's countdownDueDate is the one place that adds
+//             countdown's countdownDueDate is the one place that adds
 //             them; gardenCountdownDb's listRunningGardenCountdowns already
 //             knows which are still running under an area still in use.
 //
-// It is the one dated source that lands on Garden rather than Life when
-// tapped, which is what the tab field on a source is for.
+// That source stopped being only about the garden on 2026-09-22, when a
+// counter could be started for anything at all (lib/countdownDb.ts). Both
+// kinds raise the same reminder on the same rule; they differ only in where
+// a tap lands, Garden for one and Life for the other, which is what the tab
+// field on a source is for.
 
 import { formatFinanceMoney } from './financeCore';
-import { countdownDueDate } from './gardenCountdown';
+import { countdownDueDate } from './countdown';
 import { listRunningGardenCountdowns } from './gardenCountdownDb';
+import { listRunningCountdowns } from './countdownDb';
 import { listRecurring } from './financeDb';
 import { nextOccurrence } from './financeSchedule';
 import { listUpkeepItems } from './upkeepDb';
@@ -49,7 +53,7 @@ import type { DatedReminderKind } from './reminderSchedule';
 /** Where a tapped reminder lands. All three live in Life, under a lens that
  *  already takes a deep link (openLifeLens, app/(tabs)/life.tsx). */
 export type DatedReminderLens = 'finances' | 'upkeep' | 'work' | 'daysUntil';
-/** A countdown lands on Garden when tapped; the other three on Life. */
+/** A garden counter lands on Garden when tapped; everything else on Life. */
 export type DatedReminderTab = 'life' | 'garden';
 
 export type DatedReminderSource = {
@@ -79,11 +83,12 @@ export type DatedReminderSource = {
  * guessed date would be worse than none.
  */
 export async function listDatedReminderSources(today: string): Promise<DatedReminderSource[]> {
-  const [recurring, upkeepItems, benefits, countdowns] = await Promise.all([
+  const [recurring, upkeepItems, benefits, countdowns, freeCountdowns] = await Promise.all([
     listRecurring(),
     listUpkeepItems(),
     listBenefits(),
     listRunningGardenCountdowns(),
+    listRunningCountdowns(),
   ]);
 
   const sources: DatedReminderSource[] = [];
@@ -154,7 +159,7 @@ export async function listDatedReminderSources(today: string): Promise<DatedRemi
   // still in use, which is the same list Home shows; a counter marked done
   // or removed, or whose area moved to Past Areas, leaves this list and the
   // next reconcile clears whatever it had queued. The day it lands comes
-  // from lib/gardenCountdown.ts, the same arithmetic the counter's row
+  // from lib/countdown.ts, the same arithmetic the counter's row
   // reads by. The detail names the area, and the planting when the counter
   // is for one, so the line says where to go and look.
   for (const countdown of countdowns) {
@@ -165,6 +170,23 @@ export async function listDatedReminderSources(today: string): Promise<DatedRemi
       detail: countdown.plantingName ? `${countdown.plotName}, ${countdown.plantingName}` : countdown.plotName,
       dueOn: countdownDueDate(countdown),
       tab: 'garden',
+      lens: 'daysUntil',
+    });
+  }
+
+  // The counters that are about anything else, 2026-09-22. Same arithmetic,
+  // same one reminder on the day it lands; the detail is whatever the person
+  // wrote under the name, and there may be nothing, in which case the name
+  // carries the line by itself. Ids cannot collide with the garden ones,
+  // which is what the two prefixes in the two add functions are for.
+  for (const countdown of freeCountdowns) {
+    sources.push({
+      kind: 'countdown',
+      sourceId: countdown.id,
+      title: countdown.name,
+      detail: countdown.about,
+      dueOn: countdownDueDate(countdown),
+      tab: 'life',
       lens: 'daysUntil',
     });
   }

@@ -7112,7 +7112,7 @@ async function runDatabaseInitialization() {
       -- tied to Plots & Planting." One row per counter under an area, for
       -- one planting in it if the person says so: days to germination, to
       -- transplant, to harvest, counted in calendar days from started_on
-      -- (lib/gardenCountdown.ts). A counter keeps counting past its day
+      -- (lib/countdown.ts). A counter keeps counting past its day
       -- until it is marked done (done_at), which keeps it under the area
       -- as the record of how long the thing took. Nothing refers to a
       -- counter, so removing one is a plain delete. No cascade from
@@ -7133,6 +7133,31 @@ async function runDatabaseInitialization() {
         FOREIGN KEY (planting_id) REFERENCES garden_plantings(id) ON DELETE SET NULL
       );
       CREATE INDEX IF NOT EXISTS idx_garden_countdowns_plot ON garden_countdowns(plot_id);
+
+      -- The same counter, tied to nothing, 2026-09-22: "Days Until should
+      -- be something that is also available in a free form allowing the
+      -- user to create their own Days Until for something that we do not
+      -- have covered in the app." A passport in the post, a course
+      -- starting, a cast coming off, a batch of cider. Same three columns
+      -- that matter (started_on, days, done_at) read by the same
+      -- arithmetic in lib/countdown.ts, and no foreign key at all, since
+      -- there is nothing for it to belong to. about is the one optional
+      -- line the person adds under the name, which reads where the area
+      -- and planting read on a garden counter. Kept apart from
+      -- garden_countdowns rather than making plot_id nullable: a garden
+      -- counter travels to Past Areas with its area and counts toward
+      -- whether that area still has records, and neither of those is true
+      -- of this one. See lib/countdownDb.ts.
+      CREATE TABLE IF NOT EXISTS countdowns (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        about TEXT,
+        started_on TEXT NOT NULL,
+        days INTEGER NOT NULL,
+        done_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
 
       -- Compost, asked for as a lens: "tracks the materials added to the
       -- compost, when it was turned, watered, and everything else about

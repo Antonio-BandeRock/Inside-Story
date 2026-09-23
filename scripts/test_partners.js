@@ -85,7 +85,8 @@ const {
   linkState, describeLinkState, fingerprintStanding,
   CONDITIONS_STALE_AFTER_DAYS, mergeConditionCodes, describeMerge,
   verdictForSharedMeal, describeSharedMealVerdict, describeEmptyPool,
-  PARTNER_SHARING_NOT_LIVE,
+  PARTNER_SHARING_STATE,
+  OFFERED_CONNECTION_ROLES,
 } = P;
 
 let failures = 0;
@@ -109,10 +110,18 @@ const TODAY = '2026-09-06';
 // ---------------------------------------------------------------------------
 
 {
-  check('there are exactly two roles', CONNECTION_ROLES.length, 2);
+  // Two roles when this was written, four since 1.0.49.4 described a child
+  // and a caregiver link. Only the first two can be set up today, which is
+  // what the offered flag is for, and the check is on that rather than on
+  // the length, so describing a fifth relationship does not break a test
+  // about what somebody can actually do.
+  check('four kinds of link are described', CONNECTION_ROLES.length, 4);
+  check('two of them can be set up today', OFFERED_CONNECTION_ROLES.length, 2);
   check('recipe-only is the first, since it is what every existing connection is',
     CONNECTION_ROLES[0].code, 'recipe');
-  check('and partner is the new one', CONNECTION_ROLES[1].code, 'partner');
+  check('and partner is the second', CONNECTION_ROLES[1].code, 'partner');
+  check('the two that cannot be set up yet are the care ones',
+    CONNECTION_ROLES.filter((role) => !role.offered).map((role) => role.code), ['child', 'caregiver']);
   checkTrue('every role explains what it actually does',
     CONNECTION_ROLES.every((role) => role.what.length > 30));
 
@@ -143,7 +152,10 @@ const TODAY = '2026-09-06';
   // phones. Conditions now do: app/pair.tsx rebuilds the invite from current
   // conditions every time it opens, and app/connect.tsx applies incoming codes
   // to a connection that already exists, so showing each other a code again is
-  // a real exchange. The plan itself still cannot cross.
+  // a real exchange. Since 1.0.49.4 the shopping list is one list between the
+  // two of them and merges both ways, and the constant was renamed from
+  // PARTNER_SHARING_NOT_LIVE to PARTNER_SHARING_STATE, since by then it was
+  // describing something that happens rather than something that does not.
   //
   // So the risk they exist for is unchanged: a partner card that reads as
   // finished while half of it does not work is the same overclaiming this
@@ -151,11 +163,13 @@ const TODAY = '2026-09-06';
   // still saying nothing moves would now be wrong in the other direction, and an
   // app that understates what it does teaches somebody not to trust it either.
   checkTrue('the notice says conditions do cross',
-    /conditions/i.test(PARTNER_SHARING_NOT_LIVE) && /crosses|cross/i.test(PARTNER_SHARING_NOT_LIVE));
-  checkTrue('the notice still says the plan itself does not',
-    /not built yet/.test(PARTNER_SHARING_NOT_LIVE));
+    /conditions/i.test(PARTNER_SHARING_STATE) && /crosses|cross/i.test(PARTNER_SHARING_STATE));
+  checkTrue('and that the shopping list is one list between them',
+    /shopping list is one list/i.test(PARTNER_SHARING_STATE));
+  checkTrue('and that neither side loses what they did',
+    /nothing either of you did is thrown away/i.test(PARTNER_SHARING_STATE));
   checkFalse('and it no longer claims nothing moves at all',
-    /nothing is moving/.test(PARTNER_SHARING_NOT_LIVE));
+    /nothing is moving/.test(PARTNER_SHARING_STATE));
   checkTrue('meals and shopping read as a permission, not a live behaviour',
     SHARE_SCOPES.filter((scope) => scope.code !== 'conditions')
       .every((scope) => scope.what.startsWith('Permission to')));

@@ -18,6 +18,7 @@ import { FinanceMoneySection } from '../../components/FinanceMoneySection';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { TabBand, makeTabBandStyles } from '../../components/TabBand';
+import { DaysUntilSection } from '../../components/DaysUntilSection';
 import { DidIDoItSection } from '../../components/DidIDoItSection';
 import { KitchenSection } from '../../components/KitchenSection';
 import { RoutinesSection } from '../../components/RoutinesSection';
@@ -162,7 +163,8 @@ type LifeLens =
   | 'myMeds'
   | 'movement'
   | 'routines'
-  | 'didIDoIt';
+  | 'didIDoIt'
+  | 'daysUntil';
 type FinanceSection = 'overview' | 'health' | 'recurring' | 'spending' | 'upcoming' | 'money' | 'goals';
 
 const SECTIONS: { key: FinanceSection; label: string }[] = [
@@ -429,6 +431,25 @@ const EARTH_MATTERS_HELP_SECTIONS: HelpSection[] = [
   DIGEST_READING_HELP,
 ];
 
+const DAYS_UNTIL_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'What this is for',
+    body: 'Anything you are waiting on, counted in days. A passport in the post, a course starting, a cast coming off, a warranty running out, a batch of cider. Name it, say how many days, and it counts down here.',
+  },
+  {
+    heading: 'It keeps counting past its day',
+    body: 'A counter that reaches its day says Today, and the day after that it says 1 day over. It stays until you mark it done, because a thing running late is the thing you most want to see. Done keeps it as the record of how long it actually took, and Start again puts it back.',
+  },
+  {
+    heading: 'The garden ones are here too',
+    body: 'A counter started under a garden area (days to germination, days to transplant) reads in this list beside the rest, naming its area. Starting one still asks which area, and Garden > Days Until is where those live on their own.',
+  },
+  {
+    heading: 'The phone tells you on the day',
+    body: 'Each counter raises one reminder, on the day it lands, and nothing after that: a counter past its day is already saying so on screen. The switch for them is in Profile > Reminders.',
+  },
+];
+
 const LIFE_LENSES: LensOption<LifeLens>[] = [
   // 2026-09-12, direct request: "create a Grocery List with the shopping
   // cart icon in the Life tab LensHub menu. Have it be the first icon after
@@ -479,6 +500,11 @@ const LIFE_LENSES: LensOption<LifeLens>[] = [
   // step can write a check, which is the join the whole design rests on.
   { key: 'routines', label: 'Routines', icon: 'footsteps-outline', help: ROUTINES_HELP_SECTIONS },
   { key: 'didIDoIt', label: 'Did I Do It', icon: 'checkmark-done-outline', help: DID_I_DO_IT_HELP_SECTIONS },
+  // 2026-09-22, when a Days Until counter stopped having to be about the
+  // garden. Every counter of either kind reads here, in the order they
+  // land; a counter started here belongs to nothing unless a garden area
+  // is picked for it. See components/DaysUntilSection.tsx.
+  { key: 'daysUntil', label: 'Days Until', icon: 'hourglass-outline', help: DAYS_UNTIL_HELP_SECTIONS },
 ];
 
 const DIRECTION_OPTIONS = [
@@ -1909,6 +1935,12 @@ export default function LifeScreen() {
             {lens === 'movement' ? <MovementSection tabColor={TAB_COLOR} /> : null}
             {lens === 'routines' ? <RoutinesSection tabColor={TAB_COLOR} /> : null}
             {lens === 'didIDoIt' ? <DidIDoItSection tabColor={TAB_COLOR} /> : null}
+            {lens === 'daysUntil' ? (
+              <View style={band.box}>
+                <Text style={styles.cardTitle}>Days Until</Text>
+                <DaysUntilSection scope="everything" tabColor={TAB_COLOR} showHeading={false} />
+              </View>
+            ) : null}
 
             {lens === 'finances' ? (
             <View style={band.column}>

@@ -317,7 +317,11 @@ export type HomeSectionKey =
   // is asked while standing somewhere, and an answer two taps deep is an
   // answer nobody waits for.
   | 'routines'
-  | 'doneChecks';
+  | 'doneChecks'
+  // Free-form Days Until counters, 2026-09-22. The Garden group's card
+  // ('daysUntil') keeps the garden ones; this is the card for everything
+  // else somebody is counting the days to.
+  | 'countdowns';
 
 // The default order, 2026-09-12: grouped by the tab each section is a
 // window into (see lib/homeSections.ts), in the same order TabHub's own
@@ -371,6 +375,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'groceryList',
   'routines',
   'doneChecks',
+  'countdowns',
   // The Digest, last. 2026-09-16 put the groups "into the order they exist
   // in the TabHub menu", which ran the Digest ahead of Life while it was a
   // tab. The tab went on 2026-09-19 and the cards kept a group of their
@@ -422,11 +427,12 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   weekTrend: "This Week's Trend",
   makeReport: 'Make a Report',
   gardenTasks: 'Garden Tasks',
-  daysUntil: 'Days Until',
+  daysUntil: 'Days Until in the Garden',
   logHarvest: 'Log a Harvest',
   digestCards: 'Digest Cards',
   routines: 'Routines',
   doneChecks: 'Did I Do It',
+  countdowns: 'Days Until',
 };
 
 export type VisualPreferences = {

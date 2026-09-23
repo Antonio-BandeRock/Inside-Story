@@ -1,16 +1,25 @@
-// A Days Until counter in the garden: the person names it, ties it to an
-// area (and to one planting in it if they like), and starts it for so
-// many days. Added 2026-09-21 by direct request: "create a Days Until
-// counter the user can create, Name, and start a timer in days. All this
-// to be tied to Plots & Planting. These will be available from the Home
-// screen in Garden quick access."
+// A Days Until counter: the person names something, says how many days,
+// and the app counts them down. Added 2026-09-21 for the garden by direct
+// request ("create a Days Until counter the user can create, Name, and
+// start a timer in days. All this to be tied to Plots & Planting"), and
+// opened up to anything at all on 2026-09-22: "Days Until should be
+// something that is also available in a free form allowing the user to
+// create their own Days Until for something that we don't have covered in
+// the app in various places where it might be necessary or available."
 //
-// WHAT IT IS FOR. Days to germination, days to transplant, days to
-// harvest, days until the cover comes off: whatever the seed packet or the
-// person's own experience says, counted from the day they started it. It
-// is a counter, not a task: nothing fires, nothing has to be marked done
-// to keep the list honest, and a counter that reaches zero keeps counting
-// so the person can see how far past the mark the plant is running.
+// TWO KINDS, ONE ARITHMETIC. A garden counter belongs to an area and often
+// to one planting in it (GardenCountdown, garden_countdowns). A free-form
+// counter belongs to nothing: a passport in the post, a course starting, a
+// cast coming off, a batch of cider (Countdown, countdowns). Everything
+// below works on either, because none of it asks what the counter is about:
+// a start date, a number of days, and whether it has been marked done are
+// the whole of it. AnyCountdown is the shape a list holding both reads in.
+//
+// WHAT IT IS FOR. Whatever the seed packet, the letter, or the person's
+// experience says, counted from the day they started it. It is a counter,
+// not a task: nothing has to be marked done to keep the list honest, and a
+// counter that reaches zero keeps counting so the person can see how far
+// past the mark the thing is running.
 //
 // CALENDAR DAYS. The count is in whole calendar days between the start
 // date and today, so a counter started at 11 pm and read at 7 am has
@@ -19,13 +28,15 @@
 // strings throughout, added and compared at noon so daylight-saving
 // changes cannot move a boundary.
 //
-// NEVER ORPHANED. A counter belongs to its area and goes with it to Past
-// Areas, staying readable there. It is the person's own note, nothing
-// refers to it, so removing one deletes the row outright; marking it done
-// keeps it under the area as a record of how long the thing took.
+// NEVER ORPHANED. A garden counter belongs to its area and goes with it to
+// Past Areas, staying readable there. A free-form counter refers to nothing
+// and nothing refers to it. Either way removing one deletes the row
+// outright; marking it done keeps it as the record of how long the thing
+// took.
 //
-// No database in here: lib/gardenCountdownDb.ts reads and writes, and
-// scripts/test_garden_countdown.js checks this file without a phone.
+// No database in here: lib/gardenCountdownDb.ts and lib/countdownDb.ts read
+// and write, and scripts/test_countdown.js checks this file without a
+// phone.
 
 export type GardenCountdown = {
   id: string;
@@ -44,6 +55,32 @@ export type GardenCountdown = {
 export type GardenCountdownRow = GardenCountdown & {
   plotName: string;
   plantingName: string | null;
+};
+
+/** A counter tied to nothing, for anything the app has no place for. The
+ *  optional about line reads where the area and planting read on a garden
+ *  counter. */
+export type Countdown = {
+  id: string;
+  name: string;
+  about: string | null;
+  /** YYYY-MM-DD, the day the counter started. */
+  startedOn: string;
+  days: number;
+  doneAt: string | null;
+};
+
+/** Either kind, in the shape a list holding both reads in. The where line
+ *  under the name is the area and planting for a garden counter, the note
+ *  the person added for a free-form one, and null when there is neither. */
+export type AnyCountdown = {
+  id: string;
+  kind: 'garden' | 'free';
+  name: string;
+  where: string | null;
+  startedOn: string;
+  days: number;
+  doneAt: string | null;
 };
 
 export type CountdownState = 'ahead' | 'today' | 'over' | 'done';
@@ -146,4 +183,45 @@ export function countdownFormProblem(input: { name: string; days: string; starte
   if (!input.days.trim() || !Number.isInteger(days) || days <= 0) return 'How many days? A whole number, at least 1.';
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.startedOn)) return 'Pick the day it started.';
   return null;
+}
+
+/** A garden counter in the shape a mixed list reads in. The option
+ *  namesArea decides whether the area is named: a list covering one area
+ *  already says which, so only the planting is added there. */
+export function gardenAsAny(row: GardenCountdownRow, options?: { namesArea?: boolean }): AnyCountdown {
+  const namesArea = options?.namesArea ?? true;
+  const where = namesArea
+    ? row.plantingName
+      ? `${row.plantingName}, ${row.plotName}`
+      : row.plotName
+    : row.plantingName;
+  return {
+    id: row.id,
+    kind: 'garden',
+    name: row.name,
+    where,
+    startedOn: row.startedOn,
+    days: row.days,
+    doneAt: row.doneAt,
+  };
+}
+
+/** A free-form counter in the same shape. */
+export function freeAsAny(row: Countdown): AnyCountdown {
+  return {
+    id: row.id,
+    kind: 'free',
+    name: row.name,
+    where: row.about && row.about.trim() ? row.about.trim() : null,
+    startedOn: row.startedOn,
+    days: row.days,
+    doneAt: row.doneAt,
+  };
+}
+
+/** Both kinds as one list, in the order a list of counters reads in. The
+ *  two ids come from different tables, so a row carries its kind and every
+ *  caller keys on both together. */
+export function mergeCountdowns(free: readonly Countdown[], garden: readonly GardenCountdownRow[], today: string): AnyCountdown[] {
+  return sortCountdowns([...free.map(freeAsAny), ...garden.map((row) => gardenAsAny(row))], today);
 }

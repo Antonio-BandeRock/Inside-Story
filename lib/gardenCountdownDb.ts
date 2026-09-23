@@ -1,5 +1,5 @@
 // Reading and writing Days Until counters. The arithmetic and every
-// sentence are in lib/gardenCountdown.ts with no database; this is the
+// sentence are in lib/countdown.ts with no database; this is the
 // reading and writing. See garden_countdowns in lib/db.ts.
 //
 // Added 2026-09-21. A counter is the person's own note under an area, so
@@ -11,7 +11,7 @@
 // included (listCurrentGardenCountdowns).
 
 import { getDatabase } from './db';
-import type { GardenCountdown, GardenCountdownRow } from './gardenCountdown';
+import type { GardenCountdown, GardenCountdownRow } from './countdown';
 
 const COLUMNS = `
   c.id, c.plot_id AS plotId, c.planting_id AS plantingId, c.name, c.started_on AS startedOn,
@@ -25,7 +25,7 @@ const FROM = `
 `;
 
 /** Every counter under an area, running ones first by how soon they land,
- *  done ones after. The order is settled in lib/gardenCountdown.ts
+ *  done ones after. The order is settled in lib/countdown.ts
  *  (sortCountdowns), since it depends on today's date. */
 export async function listGardenCountdowns(plotId: string): Promise<GardenCountdownRow[]> {
   const db = await getDatabase();

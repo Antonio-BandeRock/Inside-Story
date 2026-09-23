@@ -709,7 +709,7 @@ export type ReminderTapTarget =
   | { pathname: '/reconcile' };
 
 const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'todaysMeals', 'hydration'];
-const DATED_LENSES: DatedReminderLens[] = ['finances', 'upkeep', 'work'];
+const DATED_LENSES: DatedReminderLens[] = ['finances', 'upkeep', 'work', 'daysUntil'];
 
 // Where a tapped reminder should land: the lens the thing lives in. Null for
 // any notification this module did not create.
