@@ -242,6 +242,12 @@ export type HomeSectionKey =
   // arriving has not been assigned to an area yet, and a band to open
   // first is a tap the two seconds cannot afford.
   | 'captureInbox'
+  // Where did I put it, 2026-09-23. Belongs to no tab for the same reason
+  // capture does not: where the spare batteries are is a fact about the
+  // house rather than about Food, Garden or Life. It sits directly under
+  // Capture because the two are halves of one habit, putting something
+  // down somewhere and finding it again.
+  | 'whereIsIt'
   // The greeting card, a section like any other since 2026-09-16.
   // It was outside this system entirely until then, which is what made
   // it the one thing on Home nobody could move, fold or turn off. Named
@@ -335,6 +341,8 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   // Capture leads, behind only the one-off folder nudge: it is the one
   // card whose whole value is being reachable before a thought is gone.
   'captureInbox',
+  // And finding it again, right behind it.
+  'whereIsIt',
   // Home. 2026-09-16, direct correction: "You removed the Home group from
   // the Home screen. It should remain at the top in order of occurance in
   // the TabHub menu." Home leads TabHub’s own grid, so it leads the
@@ -408,6 +416,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   weather: 'Weather & Sunrise/Sunset',
   sharedFolderSetup: 'Shared Folder Setup',
   captureInbox: 'Capture',
+  whereIsIt: 'Where Is It',
   today: 'Today',
   lowStimulation: 'Low Stimulation',
   symptomCheckinReminder: 'Symptom Check-In',

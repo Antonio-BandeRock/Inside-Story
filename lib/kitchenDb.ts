@@ -33,6 +33,7 @@ import {
   recordFermentationHarvestUsage,
   recordHarvestUsage,
 } from './db';
+import { cleanPlaceName, isPlaceNameUsable } from './whereIsIt';
 
 // 'trade' added 2026-09-05: food that arrived by swapping surplus harvest
 // for it. Its own source rather than 'manual', because how a jar of honey got
@@ -64,6 +65,14 @@ export type KitchenInventoryItem = {
   // made is not a row in anyone's food database).
   foodId: string | null;
   note: string | null;
+  // Where it was put, 2026-09-23, in the person's own words, or null where
+  // nobody said. Only kitchen_items carries one: a harvest is found by the bed
+  // it came out of and a ferment by the batch it belongs to.
+  location: string | null;
+  // ISO date that place was written down or last confirmed. Apart from
+  // addedAt on purpose, since confirming where something is makes the ANSWER
+  // current again without claiming the food itself is fresh.
+  locationSetAt: string | null;
   // ISO date. What makes an unverifiable amount honest: the screen can say how
   // long this has been claimed rather than presenting it as current fact.
   addedAt: string;
@@ -80,12 +89,15 @@ type KitchenItemRow = {
   kind: string;
   foodId: string | null;
   note: string | null;
+  location: string | null;
+  locationSetAt: string | null;
   addedAt: string;
 };
 
 const COLUMNS = `
   id, category, food_name AS foodName, quantity, unit,
-  quantity_remaining AS quantityRemaining, source, kind, food_id AS foodId, note, added_at AS addedAt
+  quantity_remaining AS quantityRemaining, source, kind, food_id AS foodId, note,
+  location, location_set_at AS locationSetAt, added_at AS addedAt
 `;
 
 // Everything on hand, newest first, across all three sources.
@@ -131,6 +143,8 @@ export async function listKitchenInventory(kind: KitchenItemKind = 'food'): Prom
       unit: harvest.unit,
       quantityRemaining: harvest.quantityRemaining,
       note: harvest.notes,
+      location: null,
+      locationSetAt: null,
       addedAt: harvest.harvestedAt.slice(0, 10),
     });
   }
@@ -147,6 +161,8 @@ export async function listKitchenInventory(kind: KitchenItemKind = 'food'): Prom
       unit: harvest.unit,
       quantityRemaining: harvest.quantityRemaining,
       note: harvest.notes,
+      location: null,
+      locationSetAt: null,
       addedAt: harvest.readyAt.slice(0, 10),
     });
   }
@@ -196,13 +212,20 @@ export async function addKitchenItem(input: {
   foodId?: string | null;
   note?: string | null;
   source?: KitchenItemSource;
+  // Optional everywhere it is asked, 2026-09-23. Most things that arrive in a
+  // kitchen go somewhere obvious, and demanding a place before an item can be
+  // saved would cost more than the answer is worth.
+  location?: string | null;
 }): Promise<string> {
   const db = await getDatabase();
   const id = `kitchen_${Date.now()}`;
   const quantity = Math.max(0, input.quantity);
+  const location = cleanPlaceName(input.location ?? '');
   await db.runAsync(
-    `INSERT INTO kitchen_items (id, category, food_name, quantity, unit, quantity_remaining, source, note, food_id, kind)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO kitchen_items
+       (id, category, food_name, quantity, unit, quantity_remaining, source, note, food_id, kind,
+        location, location_set_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     id,
     input.category?.trim() || '',
     input.foodName.trim(),
@@ -214,8 +237,49 @@ export async function addKitchenItem(input: {
     input.note?.trim() || null,
     input.foodId ?? null,
     input.kind ?? 'food',
+    isPlaceNameUsable(location) ? location : null,
+    // Dated only when there is a place to date. An empty column with a
+    // timestamp beside it would read as an answer somebody confirmed.
+    isPlaceNameUsable(location) ? new Date().toISOString().slice(0, 10) : null,
   );
   return id;
+}
+
+// Writes where something is, or clears it when the field is emptied.
+//
+// Clearing is a first-class answer rather than an edge case: somebody who no
+// longer knows where a thing is is better served by the app saying nothing
+// than by it repeating the last place it was told. See lib/whereIsIt.ts for
+// the rule behind that.
+export async function setKitchenItemLocation(id: string, place: string): Promise<boolean> {
+  if (id.startsWith('garden:') || id.startsWith('fermentation:')) return false;
+  const cleaned = cleanPlaceName(place);
+  const db = await getDatabase();
+  if (!isPlaceNameUsable(cleaned)) {
+    await db.runAsync('UPDATE kitchen_items SET location = NULL, location_set_at = NULL WHERE id = ?', id);
+    return true;
+  }
+  await db.runAsync(
+    'UPDATE kitchen_items SET location = ?, location_set_at = ? WHERE id = ?',
+    cleaned,
+    new Date().toISOString().slice(0, 10),
+    id,
+  );
+  return true;
+}
+
+// "Still there." Moves the date forward without touching the place, which is
+// the whole point of keeping the two columns apart: the answer earns its trust
+// back the moment somebody lays eyes on the thing.
+export async function confirmKitchenItemLocation(id: string): Promise<boolean> {
+  if (id.startsWith('garden:') || id.startsWith('fermentation:')) return false;
+  const db = await getDatabase();
+  await db.runAsync(
+    'UPDATE kitchen_items SET location_set_at = ? WHERE id = ? AND location IS NOT NULL',
+    new Date().toISOString().slice(0, 10),
+    id,
+  );
+  return true;
 }
 
 // Adds what a ticked grocery line actually bought.
@@ -268,6 +332,9 @@ export async function addKitchenItemFromPurchase(input: {
     return true;
   }
 
+  // No place recorded here on purpose: a line ticked at the till has not been
+  // put anywhere yet. Where it ended up gets asked in the Kitchen, once it
+  // has.
   await db.runAsync(
     `INSERT INTO kitchen_items
        (id, category, food_name, quantity, unit, quantity_remaining, source, grocery_item_id, food_id)

@@ -32,6 +32,11 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   // here is what keeps it a top-level row instead of a card inside a
   // band, so reaching it is one tap rather than two.
   captureInbox: null,
+  // Where did I put it, 2026-09-23. Null for the same reason, and with the
+  // same consequence: a top-level row, so looking something up is one tap.
+  // Somebody standing in front of an open cupboard will not go two taps
+  // deep, which is the whole test this feature has to pass.
+  whereIsIt: null,
   // Home, since 1.0.39.10. 1.0.39.7 left Home with no group at all, by
   // moving its one member (Low Stimulation) under Profile where the
   // switch actually lives, and the comment written here at the time

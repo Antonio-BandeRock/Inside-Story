@@ -40,8 +40,11 @@ import {
   listKitchenInventory,
   markKitchenItemGone,
   consumeKitchenItem,
+  setKitchenItemLocation,
   type KitchenInventoryItem,
 } from '../lib/kitchenDb';
+import { describePlaceAge, placeConfidence, stalePrompt } from '../lib/whereIsIt';
+import { listUsedPlaces } from '../lib/whereIsItDb';
 import {
   DISPOSITION_KINDS,
   DONATION_RECORD_NOTE,
@@ -99,6 +102,17 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
   const [pickerSearch, setPickerSearch] = useState('');
   const [foods, setFoods] = useState<PurchasableFood[]>([]);
   const [newQuantity, setNewQuantity] = useState('');
+  // Where it is being put, 2026-09-23. Optional on purpose: somebody stocking
+  // a shelf should not be stopped by a question they have no answer to, and a
+  // blank here costs nothing. See lib/whereIsIt.ts for what the answer is for.
+  const [newPlace, setNewPlace] = useState('');
+  // The places already in use, offered as chips so the second thing going into
+  // the pantry is one tap rather than typing "pantry" again. Read back out of
+  // the rows themselves, so the list keeps itself.
+  const [usedPlaces, setUsedPlaces] = useState<string[]>([]);
+  // Which row has its place open for editing, and what is being typed into it.
+  const [placeEditId, setPlaceEditId] = useState<string | null>(null);
+  const [placeDraft, setPlaceDraft] = useState('');
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [confirmSheet, confirmSheetElement] = useConfirmSheet();
   const [disposition, setDisposition] = useState<DispositionForm | null>(null);
@@ -131,6 +145,18 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
     void getLastPaidPrices().then(setLastPaid).catch(() => setLastPaid({}));
   }, []);
 
+  const loadPlaces = useCallback(() => {
+    void listUsedPlaces().then(setUsedPlaces).catch(() => setUsedPlaces([]));
+  }, []);
+
+  useEffect(() => {
+    loadPlaces();
+  }, [loadPlaces]);
+
+  // Today as a plain date, for saying how old an answer is. Recomputed on each
+  // render rather than held, so an app left open overnight still reads right.
+  const today = new Date().toISOString().slice(0, 10);
+
   async function run(action: () => Promise<void>) {
     setBusy(true);
     try {
@@ -154,11 +180,27 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
         unit: picked.unit,
         category: picked.category,
         kind,
+        location: newPlace,
       });
       setPicked(null);
       setNewQuantity('');
       setPickerSearch('');
+      setNewPlace('');
       setAddOpen(false);
+      loadPlaces();
+    });
+  }
+
+  // Changing where something is, or clearing the answer by emptying the field.
+  // Both are first-class: "I do not know any more" is better than a place that
+  // sends somebody to an empty cupboard.
+  async function handleSavePlace(item: KitchenInventoryItem) {
+    const draft = placeDraft;
+    await run(async () => {
+      await setKitchenItemLocation(item.id, draft);
+      setPlaceEditId(null);
+      setPlaceDraft('');
+      loadPlaces();
     });
   }
 
@@ -355,6 +397,42 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
                     <Text style={styles.smallButtonText}>Add</Text>
                   </TouchableOpacity>
                 </View>
+
+                <Text style={styles.fieldLabel}>Where is it? (you can leave this blank)</Text>
+                <AppTextInput
+                  style={styles.input}
+                  value={newPlace}
+                  onChangeText={setNewPlace}
+                  placeholder="pantry, chest freezer, garage shelf"
+                />
+                {usedPlaces.length > 0 ? (
+                  <View style={styles.actionRow}>
+                    {usedPlaces.map((place) => (
+                      <TouchableOpacity
+                        key={place}
+                        style={[
+                          styles.secondaryButton,
+                          newPlace.trim().toLowerCase() === place.toLowerCase() && {
+                            backgroundColor: tabColor,
+                            borderColor: tabColor,
+                          },
+                        ]}
+                        activeOpacity={0.85}
+                        onPress={() => setNewPlace(newPlace.trim().toLowerCase() === place.toLowerCase() ? '' : place)}
+                      >
+                        <Text
+                          style={
+                            newPlace.trim().toLowerCase() === place.toLowerCase()
+                              ? styles.smallButtonText
+                              : styles.secondaryButtonText
+                          }
+                        >
+                          {place}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                ) : null}
               </>
             ) : (
               <>
@@ -418,11 +496,76 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
                   <Text style={styles.itemMeta}>
                     {SOURCE_LABEL[item.source]} · {describeKitchenAge(item.addedAt)}
                   </Text>
+                  {item.location ? (
+                    <Text style={styles.itemMeta}>
+                      {item.location}
+                      {item.locationSetAt ? ` · written down ${describePlaceAge(item.locationSetAt, today)}` : ''}
+                    </Text>
+                  ) : null}
                   {item.note ? <Text style={styles.itemMeta}>{item.note}</Text> : null}
                 </TouchableOpacity>
 
                 {expanded ? (
                   <View style={styles.actions}>
+                    {item.source === 'garden' || item.source === 'fermentation' ? null : placeEditId === item.id ? (
+                      <>
+                        <Text style={styles.fieldLabel}>Where is it? (empty it to say you no longer know)</Text>
+                        <View style={styles.row}>
+                          <AppTextInput
+                            style={[styles.input, styles.rowGrow]}
+                            value={placeDraft}
+                            onChangeText={setPlaceDraft}
+                            placeholder="pantry, chest freezer, garage shelf"
+                          />
+                          <TouchableOpacity
+                            style={[styles.smallButton, { backgroundColor: tabColor }]}
+                            activeOpacity={0.85}
+                            disabled={busy}
+                            onPress={() => void handleSavePlace(item)}
+                          >
+                            <Text style={styles.smallButtonText}>Save</Text>
+                          </TouchableOpacity>
+                        </View>
+                        {usedPlaces.length > 0 ? (
+                          <View style={styles.actionRow}>
+                            {usedPlaces.map((place) => (
+                              <TouchableOpacity
+                                key={place}
+                                style={styles.secondaryButton}
+                                activeOpacity={0.85}
+                                onPress={() => setPlaceDraft(place)}
+                              >
+                                <Text style={styles.secondaryButtonText}>{place}</Text>
+                              </TouchableOpacity>
+                            ))}
+                          </View>
+                        ) : null}
+                      </>
+                    ) : (
+                      <>
+                        {item.location && item.locationSetAt
+                          ? (() => {
+                              const warning = stalePrompt(placeConfidence(item.locationSetAt, today));
+                              return warning ? <Text style={styles.placeWarning}>{warning}</Text> : null;
+                            })()
+                          : null}
+                        <View style={styles.actionRow}>
+                          <TouchableOpacity
+                            style={styles.secondaryButton}
+                            activeOpacity={0.85}
+                            disabled={busy}
+                            onPress={() => {
+                              setPlaceEditId(item.id);
+                              setPlaceDraft(item.location ?? '');
+                            }}
+                          >
+                            <Text style={styles.secondaryButtonText}>
+                              {item.location ? 'Change where it is' : 'Say where it is'}
+                            </Text>
+                          </TouchableOpacity>
+                        </View>
+                      </>
+                    )}
                     <Text style={styles.fieldLabel}>Used how much?</Text>
                     <View style={styles.row}>
                       <AppTextInput
@@ -750,6 +893,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   receiptLabel: { ...typography.body, ...textShadow, color: colors.textPrimary, flex: 1 },
+  // Amber rather than red: a location going stale is worth a glance, not an
+  // alarm, and nothing here knows whether the thing actually moved.
+  placeWarning: { ...typography.caption, ...textShadow, color: colors.statusYellowStandalone },
   addBlock: { gap: 8, marginTop: 4 },
   kindRow: { flexDirection: 'row', gap: 8, marginBottom: 2 },
   kindPill: {

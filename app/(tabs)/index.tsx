@@ -107,6 +107,8 @@ import {
 import { getActiveGroceryListSummary, type GroceryListSummary } from '../../lib/groceryDb';
 import { describeInbox } from '../../lib/captureNotes';
 import { getCaptureInboxCounts } from '../../lib/captureNotesDb';
+import { describeWhereIsItRow } from '../../lib/whereIsIt';
+import { countPlaceRecords } from '../../lib/whereIsItDb';
 import { describeReconcileQueue, lookbackDateString } from '../../lib/reconciliation';
 import {
   checkStanding,
@@ -498,6 +500,10 @@ type DashboardData = {
   // Reminders shows, just not bound to today.
   gardenTasks: (ScheduleItemRecord & { plotId: string | null; plantingId: string | null })[];
   captureCounts: { waiting: number; sorted: number };
+  // How many things have a place written down, 2026-09-23. A count rather
+  // than the rows: Home says how much is findable and never names any of
+  // it, since this page gets read over a shoulder.
+  placeCount: number;
   // Routines and the Did I Do It record, 2026-09-17. Both arrive whole
   // rather than as counts: the routine list is short by nature, and the
   // whole point of the checks is reading what each one says, which a
@@ -782,6 +788,12 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.primary,
     href: '/capture' as Href,
   },
+  whereIsIt: {
+    label: 'Where Is It',
+    icon: 'search-outline',
+    color: colors.primary,
+    href: '/where-is-it' as Href,
+  },
   // 2026-09-19: the Digest tab is gone, its categories spread over Life,
   // Garden and Food, and the cards "should each be the color of the tab
   // they come from." They spent one release in the Home group before the
@@ -803,6 +815,7 @@ const HOME_LENS_DESTINATIONS: Partial<
 const HOME_LENS_ORDER: HomeSectionKey[] = [
   'today',
   'captureInbox',
+  'whereIsIt',
   'logAgain',
   'scanProduct',
   'yourDay',
@@ -1359,6 +1372,7 @@ export default function HomeScreen() {
       // things would be worse than either of them alone.
       listDatedReminderSources(date),
       getReminderPreferences(),
+      countPlaceRecords(),
     ]).then(
       ([
         todaysMeals,
@@ -1380,6 +1394,7 @@ export default function HomeScreen() {
         routinesHome,
         datedSources,
         reminderPrefs,
+        placeCount,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1434,6 +1449,7 @@ export default function HomeScreen() {
           checkinReminderDays: profile.checkinReminderDays,
           gardenTasks,
           captureCounts,
+          placeCount,
           reconcileCounts: { open: openToAnswer, assumed: assumedToConfirm },
           routines: routinesHome.routines,
           doneChecks: routinesHome.checks,
@@ -3252,6 +3268,33 @@ export default function HomeScreen() {
   // Single dispatcher rather than a Record<HomeSectionKey, fn> object --
   // this only ever gets called with a REORDERABLE_HOME_SECTION_KEYS
   // member (see getOrderedHomeSectionKeys), never 'weather' (the sky grid is
+  // Where did I put it, 2026-09-23, phase 1 of the cross-app push. The
+  // other half of Capture: one is for putting a thing down somewhere, this
+  // is for finding it again. A row rather than a card inside a band, and
+  // directly under Capture, because the moment it has to serve is somebody
+  // standing in front of an open cupboard with a phone in one hand.
+  function renderWhereIsIt() {
+    if (!isHomeSectionVisible(visualPrefs, 'whereIsIt')) return null;
+    return renderBand(
+      'whereIsIt',
+      'Where Is It',
+      <View style={styles.bandBody}>
+        <Text style={styles.bandCaption}>
+          {describeWhereIsItRow(data?.placeCount ?? 0)} Kitchen items, anything sorted to Where it is in Capture,
+          and what is growing in the garden.
+        </Text>
+        <TouchableOpacity
+          style={[styles.logAgainSpeakButton, { borderColor: colors.primary }]}
+          onPress={() => router.push('/where-is-it')}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="search-outline" size={18} color={colors.primary} style={textShadow} />
+          <Text style={[styles.logAgainSpeakText, { color: colors.primary }]}>Look something up</Text>
+        </TouchableOpacity>
+      </View>,
+    );
+  }
+
   // drawn inside the Today card rather than being a card of its own, so there
   // is nothing to give it a position), so the default branch below covering
   // 'weather' is a deliberate safety net, not a case expected to fire.
@@ -3261,6 +3304,8 @@ export default function HomeScreen() {
         return renderSharedFolderSetup();
       case 'captureInbox':
         return renderCaptureInbox();
+      case 'whereIsIt':
+        return renderWhereIsIt();
       case 'today':
         return renderToday();
       case 'lowStimulation':

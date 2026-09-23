@@ -7446,6 +7446,15 @@ async function runDatabaseInitialization() {
         food_id TEXT,
         grocery_item_id TEXT,
         note TEXT,
+        -- Where it was put, 2026-09-23, so it can be found again. See
+        -- lib/whereIsIt.ts for the rule the whole feature rests on: a
+        -- location nobody has confirmed in months sends somebody to an empty
+        -- cupboard, which leaves them worse off than telling them nothing.
+        location TEXT,
+        -- When that place was written down or last confirmed. Kept apart
+        -- from added_at on purpose: confirming where something is makes the
+        -- ANSWER current again without claiming the food itself is fresh.
+        location_set_at TEXT,
         added_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
@@ -7845,6 +7854,21 @@ async function runDatabaseInitialization() {
     const spaceColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(garden_spaces)');
     if (spaceColumns.length > 0 && !spaceColumns.some((column) => column.name === 'retired_at')) {
       await db.execAsync('ALTER TABLE garden_spaces ADD COLUMN retired_at TEXT;');
+    }
+
+    // Where a kitchen item was put, 2026-09-23. The table shipped on
+    // 2026-09-05, so every device already holding one needs both columns
+    // added. Both TEXT and both nullable: almost nothing on a phone today
+    // has a place written down, and an empty column is the correct reading
+    // of that rather than a default standing in for an answer nobody gave.
+    const kitchenColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(kitchen_items)');
+    if (kitchenColumns.length > 0) {
+      if (!kitchenColumns.some((column) => column.name === 'location')) {
+        await db.execAsync('ALTER TABLE kitchen_items ADD COLUMN location TEXT;');
+      }
+      if (!kitchenColumns.some((column) => column.name === 'location_set_at')) {
+        await db.execAsync('ALTER TABLE kitchen_items ADD COLUMN location_set_at TEXT;');
+      }
     }
 
     // The Grocery List's own two later columns, 2026-09-01. The table shipped

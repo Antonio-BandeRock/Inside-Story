@@ -176,9 +176,21 @@ check(
   CAPTURE_DESTINATIONS.filter((d) => d.tabPath && !realTabPaths.includes(d.tabPath)).map((d) => d.key),
   [],
 );
+// A destination belonging to a tab opens that tab. 'place' is the one that
+// belongs to no tab and still opens something: where a thing was put is a fact
+// about the house rather than about Food, Garden or Life, so it opens the
+// standalone screen built for it. Checked against the file rather than waved
+// through, so a typo in the route still fails here.
 check(
-  'a destination that opens something opens its own tab',
-  CAPTURE_DESTINATIONS.filter((d) => d.open && d.open.pathname !== d.tabPath).map((d) => d.key),
+  'a destination on a tab opens that tab',
+  CAPTURE_DESTINATIONS.filter((d) => d.open && d.tabPath && d.open.pathname !== d.tabPath).map((d) => d.key),
+  [],
+);
+check(
+  'a destination off any tab opens a screen the app has',
+  CAPTURE_DESTINATIONS.filter(
+    (d) => d.open && !d.tabPath && !fs.existsSync(path.join(__dirname, '..', 'app', `${d.open.pathname.slice(1)}.tsx`)),
+  ).map((d) => d.key),
   [],
 );
 // The one that belongs nowhere opens nothing, which is the honest answer for a

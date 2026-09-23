@@ -36,6 +36,11 @@ export type CaptureDestinationKey =
   | 'upkeep'
   | 'money'
   | 'health'
+  // Where something was put, 2026-09-23. The one destination that is a
+  // record rather than a handoff: "the spare batteries are in the hall
+  // cupboard" is already finished business, and sorting it here makes it
+  // findable instead of asking somebody to turn it into a task.
+  | 'place'
   | 'thought';
 
 export type CaptureNote = {
@@ -112,6 +117,16 @@ export const CAPTURE_DESTINATIONS: CaptureDestination[] = [
     hint: 'Something to mention at an appointment, or to keep an eye on.',
     tabPath: '/log',
     open: { pathname: '/log' },
+  },
+  {
+    key: 'place',
+    label: 'Where it is',
+    hint: 'Where something has been put, so it can be found again later.',
+    // Belongs to no tab, the same as a thought kept as a thought: a passport
+    // in a drawer is not Food, Garden or Life's business, it is a fact about
+    // the house.
+    tabPath: null,
+    open: { pathname: '/where-is-it' },
   },
   {
     key: 'thought',

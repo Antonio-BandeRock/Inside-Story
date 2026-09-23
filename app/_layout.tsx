@@ -618,6 +618,20 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
+                {/* Where did I put it, 2026-09-23. A Stack screen beside
+                    Capture, and for the same reason: where the spare
+                    batteries are is a fact about the house rather than
+                    about Food, Garden or Life, so no tab is the right
+                    place to keep it. Reached from its own Home row. */}
+                <Stack.Screen
+                  name="where-is-it"
+                  options={{
+                    headerShown: true,
+                    title: 'Where Is It',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
                 {/* Walking a routine, 2026-09-17. A Stack screen rather
                     than part of the Life lens that builds routines,
                     because the two are opposite jobs: building one wants
