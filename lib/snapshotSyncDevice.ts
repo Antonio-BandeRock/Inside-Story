@@ -40,6 +40,7 @@ import {
   type TableStamps,
 } from './snapshotChanges';
 import {
+  clashedRows,
   conflictsIn,
   describeMerge,
   mergeTables,
@@ -51,6 +52,8 @@ import { recordMerge } from './syncLog';
 import {
   ANNOUNCE_MERGES,
   APP_META_TABLE,
+  CLASH_TABLES,
+  clashNotice,
   CHANGE_BASELINE_META_KEY,
   DEVICE_LOCAL_META_KEYS,
   withoutDeviceLocalRows,
@@ -604,8 +607,9 @@ export function mergeSnapshot(record: SnapshotRecord): Promise<MergeOutcome> {
       state.dirtySince !== null && state.dirtySince > record.latest.savedAt ? 'here' : 'there';
 
     let merged;
+    let shapes;
     try {
-      const { shapes } = await readSchemaShapes(Object.keys(here));
+      ({ shapes } = await readSchemaShapes(Object.keys(here)));
       merged = mergeTables(base, here, there, { shapes, laterSide, wholesale: WORKED_OUT_TABLES });
     } catch (error) {
       console.error('[snapshotSync] the merge failed', error);
@@ -647,7 +651,7 @@ export function mergeSnapshot(record: SnapshotRecord): Promise<MergeOutcome> {
           } satisfies SyncChangeNotes,
           conflictsIn(merged.entries).length,
         )
-      : null;
+      : clashNotice(clashedRows(merged.entries, merged.tables, shapes, CLASH_TABLES));
 
     const now = new Date().toISOString();
     await updateSyncState({

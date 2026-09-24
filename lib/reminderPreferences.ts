@@ -18,6 +18,7 @@
 // app does, not how it looks.
 
 import { getDatabase } from './db';
+import { isValidQuietHours, type QuietHours } from './quietHours';
 
 export type ReminderKindKey =
   | 'dose'
@@ -165,6 +166,9 @@ export type ReminderPreferences = {
   // and for which kinds honestly cannot do it because nothing in the app
   // records that they were finished.
   nudgeUntilDone?: boolean;
+  // Quiet hours (Phase A, 2026-09-24): null or missing means off. See
+  // lib/quietHours.ts for what they hold back and what they never do.
+  quietHours?: QuietHours | null;
   // Only what the person has actually changed. A key missing here means
   // "whatever DEFAULT_REMINDER_KIND_ENABLED says," so a kind added later
   // picks up its own default without needing a migration, and so changing a
@@ -220,6 +224,7 @@ export async function getReminderPreferences(): Promise<ReminderPreferences> {
         loaded = {
           enabledKinds: { ...(parsed.enabledKinds ?? {}) },
           nudgeUntilDone: typeof parsed.nudgeUntilDone === 'boolean' ? parsed.nudgeUntilDone : undefined,
+          quietHours: isValidQuietHours(parsed.quietHours) ? parsed.quietHours : null,
         };
       } catch {
         // A blob that will not parse falls back to defaults rather than
@@ -254,6 +259,12 @@ export async function setReminderKindEnabled(
 export async function setNudgeUntilDone(enabled: boolean): Promise<ReminderPreferences> {
   const current = await getReminderPreferences();
   return persist({ ...current, nudgeUntilDone: enabled });
+}
+
+// Null switches quiet hours off. Reconciled by the caller, like the rest.
+export async function setQuietHours(quietHours: QuietHours | null): Promise<ReminderPreferences> {
+  const current = await getReminderPreferences();
+  return persist({ ...current, quietHours: isValidQuietHours(quietHours) ? quietHours : null });
 }
 
 async function persist(merged: ReminderPreferences): Promise<ReminderPreferences> {

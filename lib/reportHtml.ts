@@ -125,7 +125,7 @@ export function renderReportHtml(doc: ReportDocument): string {
   for (const paragraph of doc.preface) body.push(`<p>${escapeHtml(paragraph)}</p>`);
   body.push('</div>');
   for (const section of doc.sections) body.push(renderSection(section));
-  body.push(`<footer>${escapeHtml(doc.footer)}</footer>`);
+  body.push(`<footer>${escapeHtml(doc.footer)}<br>${escapeHtml(doc.versionLine)}</footer>`);
 
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${escapeHtml(doc.title)}</title><style>${CSS}</style></head><body>${body.join('')}</body></html>`;
 }

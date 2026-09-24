@@ -518,3 +518,25 @@ export function describeMerge(
 export function conflictsIn(entries: readonly MergeEntry[]): MergeEntry[] {
   return entries.filter((entry) => entry.conflict !== undefined);
 }
+
+/**
+ * The clashes that landed in the tables named, each with the row that now
+ * stands (null when the edit that stood was a removal or the row cannot be
+ * found under its shape). Which tables matter is the caller's policy
+ * (CLASHES_ALWAYS_SAID in lib/snapshotSync.ts); this only finds them.
+ */
+export function clashedRows(
+  entries: readonly MergeEntry[],
+  tables: Tables,
+  shapes: Shapes,
+  only: ReadonlySet<string>,
+): { table: string; row: Row | null }[] {
+  const found: { table: string; row: Row | null }[] = [];
+  for (const entry of conflictsIn(entries)) {
+    if (!only.has(entry.table)) continue;
+    const rows = tables[entry.table] ?? [];
+    const row = rows.find((candidate) => keyOf(candidate, shapes[entry.table]) === entry.key) ?? null;
+    found.push({ table: entry.table, row });
+  }
+  return found;
+}

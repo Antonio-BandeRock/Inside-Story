@@ -56,9 +56,12 @@ import {
   pickAndReadBackupFile,
   readBackupFileContent,
   restoreFromBackupEnvelope,
+  BACKUP_SCHEMA_VERSION,
   type BackupEnvelope,
   type LocalBackupFile,
 } from '../lib/dataBackup';
+import { backupCheckSentence, lastCheckLine, summarizeBackup, type BackupCheckRecord } from '../lib/backupCheck';
+import { currentTableNames, getLastBackupCheck, saveBackupCheck } from '../lib/backupCheckDb';
 import { clearSeededTestData, seedHealthTestData, seedTest90Days } from '../lib/devSeed';
 import { summariseDevNotes } from '../lib/devNotes';
 import type { DevNote } from '../lib/devNotes';
@@ -76,9 +79,11 @@ import {
   REMINDER_KIND_CAPTIONS,
   REMINDER_KIND_LABELS,
   setNudgeUntilDone,
+  setQuietHours,
   setReminderKindEnabled,
   type ReminderKindKey,
 } from '../lib/reminderPreferences';
+import { DEFAULT_QUIET_HOURS, quietTimeOptions, SNOOZE_MINUTES, type QuietHours } from '../lib/quietHours';
 import {
   ALL_NEURO_PROFILE_KEYS,
   describeTurnedOff,
@@ -191,6 +196,9 @@ import {
 } from '../lib/visualPreferences';
 import { groupHomeSectionsForDisplay, homeGroupIdOf } from '../lib/homeSections';
 import { homeGroupIdentity } from '../constants/homeGroups';
+
+// Whether a backup that has been reached is restored or only checked.
+type BackupUse = 'restore' | 'check';
 
 // Every tab that gets its own revealed background image (see
 // GatedTabContent.tsx). Home is deliberately excluded, since it has no
@@ -353,6 +361,7 @@ const ALL_CARD_SECTION_KEYS = [
   'home-screen',
   'appearance',
   // Device & Account
+  'app-status',
   'connections',
   'backup',
   'app-updates',
@@ -529,6 +538,9 @@ function toIsoDate(year: number, month: number, day: number): string {
 // don't need). A plain function, not a wrapped component, would have
 // worked too, but a component reads more clearly at each call site than a
 // function returning JSX.
+// Half-hour steps for the quiet hours pickers, built once.
+const QUIET_TIME_OPTIONS = quietTimeOptions();
+
 function PickerField({ label, children }: { label: string; children: ReactNode }) {
   return (
     <View style={styles.pickerFieldGroup}>
@@ -784,6 +796,12 @@ export default function ProfileScreen() {
     );
   }
 
+  // Quiet hours (Phase A, 2026-09-24), reconciled the same way, so a
+  // reminder already queued for 3 AM moves as soon as the window is set.
+  function saveQuietHours(quiet: QuietHours | null) {
+    void setQuietHours(quiet).then(() => syncReminderNotifications());
+  }
+
   // Home Screen section toggles, 2026-08-21, direct request: "make it
   // capable of turning on and off whatever the user wants to from the
   // home screen." Same one-key-at-a-time pattern as
@@ -928,6 +946,16 @@ export default function ProfileScreen() {
   // fresh every time, so this always reflects what's genuinely still
   // there, not a stale one-time snapshot.
   const [localBackups, setLocalBackups] = useState<LocalBackupFile[]>([]);
+  const [lastBackupCheck, setLastBackupCheck] = useState<BackupCheckRecord | null>(null);
+  useEffect(() => {
+    let isMounted = true;
+    getLastBackupCheck().then((record) => {
+      if (isMounted) setLastBackupCheck(record);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   // Where backups go in OneDrive, and whether an account is connected at all.
   // Both read rather than assumed, so this card never offers to write
   // somewhere it cannot reach.
@@ -2078,7 +2106,7 @@ export default function ProfileScreen() {
   // Newest by name, not by a timestamp OneDrive reports: the name carries the
   // moment the backup was taken, which is the thing that matters, while a file
   // date changes if it is ever copied or moved between folders.
-  async function handleRestoreFromOneDrive() {
+  async function handleRestoreFromOneDrive(use: BackupUse = 'restore') {
     if (backupBusy) return;
     if (!backupFolder) {
       showBackupAlert('No shared folder yet', 'Set up your shared folder first, then backups have somewhere to go.');
@@ -2102,7 +2130,7 @@ export default function ProfileScreen() {
         .sort((a, b) => b.name.localeCompare(a.name));
       if (backups.length === 0) {
         showBackupAlert(
-          'Nothing to restore',
+          'No backups there',
           'There are no Inside Story backups in ' + (backupFolder.path ?? backupFolder.name) + '.',
         );
         return;
@@ -2119,7 +2147,7 @@ export default function ProfileScreen() {
         showBackupAlert('Could not read that backup', text.reason);
         return;
       }
-      await runRestore(text.value);
+      await openBackupContent(text.value, use, 'OneDrive');
     } finally {
       setBackupBusy(false);
     }
@@ -2228,6 +2256,32 @@ export default function ProfileScreen() {
     }
   }
 
+  // Phase A of the 2026-09-24 gap review: the three ways of reaching a
+  // backup (OneDrive, this device, a picked file) now either restore it or
+  // only check that it opens. A check goes through the same password and
+  // decrypt as a restore, so a check that passes means a restore would
+  // start, and it writes nothing but the date of the check.
+  async function openBackupContent(content: string, use: BackupUse, source: string) {
+    if (use === 'restore') {
+      await runRestore(content);
+      return;
+    }
+    const envelope = await resolveBackupEnvelope(content);
+    if (envelope === 'cancelled') return;
+    if (!envelope) {
+      showBackupAlert(
+        'That backup did not open',
+        'It is not a backup file, or it was cut short on its way here. Export a fresh backup and check that one.',
+      );
+      return;
+    }
+    const summary = summarizeBackup(envelope, await currentTableNames(), BACKUP_SCHEMA_VERSION);
+    const record: BackupCheckRecord = { ...summary, checkedAt: new Date().toISOString(), source };
+    await saveBackupCheck(record);
+    setLastBackupCheck(record);
+    showBackupAlert('Backup checked', backupCheckSentence(summary, new Date(envelope.exportedAt).toLocaleString()));
+  }
+
   async function runRestore(content: string) {
     const envelope = await resolveBackupEnvelope(content);
     if (envelope === 'cancelled') return;
@@ -2288,7 +2342,7 @@ export default function ProfileScreen() {
     }
   }
 
-  async function handleRestoreMostRecent() {
+  async function handleRestoreMostRecent(use: BackupUse = 'restore') {
     if (backupBusy) return;
     // Deliberately stays true through the whole call below (the password
     // prompt, the no-longer-frozen-but-still-slow decrypt, the
@@ -2310,13 +2364,13 @@ export default function ProfileScreen() {
         showBackupAlert('Something went wrong', 'Could not read that backup file.');
         return;
       }
-      await runRestore(content);
+      await openBackupContent(content, use, 'this device');
     } finally {
       setBackupBusy(false);
     }
   }
 
-  async function handleRestoreFromFile() {
+  async function handleRestoreFromFile(use: BackupUse = 'restore') {
     if (backupBusy) return;
     // Same fix as handleRestoreMostRecent above: stays true through the
     // whole flow, not reset early.
@@ -2324,7 +2378,7 @@ export default function ProfileScreen() {
     try {
       const picked = await pickAndReadBackupFile();
       if (!picked) return; // a cancel, or a read failure already logged
-      await runRestore(picked.content);
+      await openBackupContent(picked.content, use, 'a file you picked');
     } finally {
       setBackupBusy(false);
     }
@@ -3550,6 +3604,52 @@ export default function ProfileScreen() {
               benefits cannot, because nothing here records that one month&apos;s bill got paid or that an
               allowance was finished with.
             </Text>
+            <View style={styles.pillRow}>
+              <TouchableOpacity
+                style={[styles.pill, reminderPrefs.quietHours && styles.pillActive]}
+                onPress={() => saveQuietHours(reminderPrefs.quietHours ? null : DEFAULT_QUIET_HOURS)}
+              >
+                <Text style={[styles.pillText, reminderPrefs.quietHours && styles.pillTextActive]}>Quiet hours</Text>
+              </TouchableOpacity>
+            </View>
+            {reminderPrefs.quietHours ? (
+              <View style={styles.dateRow}>
+                <PickerField label="From">
+                  <PopoverSelect
+                    options={QUIET_TIME_OPTIONS}
+                    selected={reminderPrefs.quietHours.start}
+                    minWidth={110}
+                    tabColor={colors.menuIconMuted}
+                    groundSurface
+                    onSelect={(value) => {
+                      if (reminderPrefs.quietHours) saveQuietHours({ ...reminderPrefs.quietHours, start: value });
+                    }}
+                  />
+                </PickerField>
+                <PickerField label="Until">
+                  <PopoverSelect
+                    options={QUIET_TIME_OPTIONS}
+                    selected={reminderPrefs.quietHours.end}
+                    minWidth={110}
+                    tabColor={colors.menuIconMuted}
+                    groundSurface
+                    onSelect={(value) => {
+                      if (reminderPrefs.quietHours) saveQuietHours({ ...reminderPrefs.quietHours, end: value });
+                    }}
+                  />
+                </PickerField>
+              </View>
+            ) : null}
+            <Text style={styles.helpText}>
+              Quiet hours: a reminder that would arrive in this window waits until it ends, and says what
+              time it was for. A repeat that falls inside the window is skipped. A dose and an appointment
+              always arrive on time, because moving either one could matter more than the sleep. Every
+              reminder also has a Snooze {SNOOZE_MINUTES} min button, which briefly opens the app so it
+              works even when the app was closed.
+            </Text>
+            <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/app-status')}>
+              <Text style={styles.checkinButtonText}>A Reminder Did Not Come</Text>
+            </TouchableOpacity>
           </View>
         ) : null}
       </View>
@@ -4462,6 +4562,23 @@ export default function ProfileScreen() {
       </View>
 
       {renderGroupHeading('Device & Account')}
+      {/* App Status, Phase A of the 2026-09-24 gap review: every "is this
+          working?" answer in one place, see lib/appStatus.ts. */}
+      <View style={styles.card}>
+        {renderCardHeader('app-status', 'App Status')}
+        {!collapsedSections.has('app-status') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Which version is running, which food data it scores against, whether reminders can arrive, and whether
+              backups and sync are working, all on one page.
+            </Text>
+            <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/app-status')}>
+              <Text style={styles.checkinButtonText}>See App Status</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+      </View>
+
       {/* Step 4 of the device-pairing prerequisite list, 2026-08-15, see
           CLAUDE.md's "Sharing individual recipes between two people"
           security-requirement note. Management for this device's paired
@@ -4681,6 +4798,42 @@ export default function ProfileScreen() {
                 ))}
               </View>
             ) : null}
+            <Text style={styles.subLabel}>Check a backup opens</Text>
+            <Text style={[styles.helpText, styles.derivedText]}>
+              Opens a backup with its password and counts what is in it, without changing anything here. A backup
+              that has never been opened could have a forgotten password or a file cut short, and this is how to
+              find out before the day it is needed.
+            </Text>
+            <Text style={[styles.helpText, styles.derivedText]}>
+              {lastCheckLine(
+                lastBackupCheck,
+                lastBackupCheck ? new Date(lastBackupCheck.checkedAt).toLocaleString() : '',
+                lastBackupCheck ? new Date(lastBackupCheck.exportedAt).toLocaleString() : '',
+              )}
+            </Text>
+            {backupFolder ? (
+              <TouchableOpacity
+                style={styles.checkinButton}
+                disabled={backupBusy}
+                onPress={() => void handleRestoreFromOneDrive('check')}
+              >
+                <Text style={styles.checkinButtonText}>{backupBusy ? 'Working…' : 'Check Newest on OneDrive'}</Text>
+              </TouchableOpacity>
+            ) : null}
+            <TouchableOpacity
+              style={styles.checkinButton}
+              disabled={backupBusy}
+              onPress={() => void handleRestoreMostRecent('check')}
+            >
+              <Text style={styles.checkinButtonText}>{backupBusy ? 'Working…' : 'Check Most Recent Backup'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.checkinButton}
+              disabled={backupBusy}
+              onPress={() => void handleRestoreFromFile('check')}
+            >
+              <Text style={styles.checkinButtonText}>{backupBusy ? 'Working…' : 'Check a File…'}</Text>
+            </TouchableOpacity>
             <Text style={[styles.helpText, styles.derivedText]}>
               Restoring replaces everything currently on this device with what&apos;s in the backup. This can&apos;t
               be undone.
@@ -4692,17 +4845,17 @@ export default function ProfileScreen() {
               <TouchableOpacity
                 style={styles.dangerButton}
                 disabled={backupBusy}
-                onPress={handleRestoreFromOneDrive}
+                onPress={() => void handleRestoreFromOneDrive()}
               >
                 <Text style={styles.dangerButtonText}>
                   {backupBusy ? 'Working…' : 'Restore Newest from OneDrive'}
                 </Text>
               </TouchableOpacity>
             ) : null}
-            <TouchableOpacity style={styles.dangerButton} disabled={backupBusy} onPress={handleRestoreMostRecent}>
+            <TouchableOpacity style={styles.dangerButton} disabled={backupBusy} onPress={() => void handleRestoreMostRecent()}>
               <Text style={styles.dangerButtonText}>{backupBusy ? 'Working…' : 'Restore Most Recent Backup'}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.dangerButton} disabled={backupBusy} onPress={handleRestoreFromFile}>
+            <TouchableOpacity style={styles.dangerButton} disabled={backupBusy} onPress={() => void handleRestoreFromFile()}>
               <Text style={styles.dangerButtonText}>{backupBusy ? 'Working…' : 'Restore from a File…'}</Text>
             </TouchableOpacity>
           </View>

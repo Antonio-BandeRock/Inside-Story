@@ -17,6 +17,8 @@ import {
   getStepTrendPoints,
 } from './trendAnalysis';
 import { APP_VERSION } from '../constants/version';
+import { REFERENCE_DB_VERSION } from './referenceDbVersion';
+import { reportVersionLine } from './reportVersion';
 
 // Same real, small nutrient set app/(tabs)/index.tsx (Home) and
 // app/(tabs)/trends.tsx both already use, duplicated here rather than
@@ -75,6 +77,13 @@ export type ReportDocument = {
   preface: string[];
   sections: ReportSection[];
   footer: string;
+  /** What produced the figures. A score in this app is worked out live
+   *  from the bundled reference database, which also holds the cited
+   *  interaction rules, so the same weeks reported twice can differ after
+   *  a reference update. Without this line nothing on the page would say
+   *  why, and a clinician comparing two printouts could not tell a change
+   *  in the person from a change in the app. */
+  versionLine: string;
 };
 
 function isoDate(d: Date): string {
@@ -322,6 +331,7 @@ export async function buildReport(days: number): Promise<ReportDocument> {
     ],
     sections,
     footer: `Generated on the phone by Inside Story ${APP_VERSION}. Nothing in this report left the phone until the person chose to share it.`,
+    versionLine: reportVersionLine(APP_VERSION, REFERENCE_DB_VERSION),
   };
 }
 
@@ -362,6 +372,7 @@ export function renderReportText(doc: ReportDocument): string {
   }
 
   lines.push(doc.footer);
+  lines.push(doc.versionLine);
   return lines.join('\n');
 }
 

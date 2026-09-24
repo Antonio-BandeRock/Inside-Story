@@ -22,6 +22,7 @@ import {
 import { describeReminderDays, nextReminderTimes, type Routine } from './routines';
 import { listRoutineReminders } from './routinesDb';
 import { formatTime12 } from './timeOfDay';
+import { quietDecision, SNOOZE_MINUTES } from './quietHours';
 
 // Local reminders: the scheduled doses in Schedules > Meds, the visits in
 // Schedules > Appointments, the meals and drinks on the schedule, the work
@@ -103,7 +104,19 @@ import { formatTime12 } from './timeOfDay';
 // minutes late is still the right reminder.
 
 const IDENTIFIER_PREFIX = 'inside-story-reminder:';
-const LOOKAHEAD_DAYS = 7;
+// A snoozed copy is one-off and comes from a button press rather than from
+// any record, so it carries a prefix of its own: the reconcile below cancels
+// anything with IDENTIFIER_PREFIX that the schedule no longer asks for, and
+// would take a snooze away on the next foreground. A tap on one still lands
+// where the original would have.
+const SNOOZE_PREFIX = 'inside-story-snooze:';
+// The Snooze button (Phase A, 2026-09-24). It brings the app forward for a
+// moment, because a button that does not do so does nothing at all while
+// the app is closed (expo-notifications documents this), and a snooze that
+// silently fails is worse than no snooze.
+const REMINDER_CATEGORY = 'inside-story-reminder';
+const SNOOZE_ACTION = 'snooze';
+export const LOOKAHEAD_DAYS = 7;
 // iOS caps pending local notifications at 64; keeping under that on both
 // platforms means the nearest week never silently loses its tail.
 //
@@ -119,7 +132,7 @@ const LOOKAHEAD_DAYS = 7;
 // on would quadruple the queue and pull the window in from a week to about a
 // day, which would trade reminders for something that is not a real reminder
 // at all: three more copies of one somebody has already seen.
-const MAX_PENDING = 60;
+export const MAX_PENDING = 60;
 const APPOINTMENT_LEAD_MINUTES = 60;
 // Three Android channels, because a dose, a glass of water and a bill due
 // next week do not deserve the same interruption. Doses and appointments
@@ -546,6 +559,20 @@ function isOurs(identifier: string): boolean {
   return identifier.startsWith(IDENTIFIER_PREFIX);
 }
 
+function isSnoozed(identifier: string): boolean {
+  return identifier.startsWith(SNOOZE_PREFIX);
+}
+
+async function ensureCategory(): Promise<void> {
+  await Notifications.setNotificationCategoryAsync(REMINDER_CATEGORY, [
+    {
+      identifier: SNOOZE_ACTION,
+      buttonTitle: `Snooze ${SNOOZE_MINUTES} min`,
+      options: { opensAppToForeground: true },
+    },
+  ]);
+}
+
 async function cancelAllOurs(): Promise<number> {
   const pending = await Notifications.getAllScheduledNotificationsAsync();
   const ours = pending.filter((request) => isOurs(request.identifier));
@@ -582,6 +609,7 @@ async function runSync(): Promise<ReminderSyncResult> {
     return { permission: 'denied', pending: 0 };
   }
   await ensureAndroidChannels();
+  await ensureCategory();
 
   const now = new Date();
   const today = localDateString(now);
@@ -640,6 +668,27 @@ async function runSync(): Promise<ReminderSyncResult> {
     }
   }
 
+  // Quiet hours, applied after everything is planned and before anything is
+  // cut, so a held reminder competes for a slot at the time it will arrive.
+  // A first reminder is held to the end of the window and says so; a
+  // follow-up nudge inside the window is dropped, since the held first one
+  // arrives in the morning anyway. Doses and appointments are never held.
+  const quiet = preferences.quietHours;
+  for (const [identifier, planned] of first) {
+    const decision = quietDecision(planned.payload.kind, planned.fireAt, false, quiet);
+    if (decision.action !== 'hold') continue;
+    const dueAt = formatTime12(`${pad(planned.fireAt.getHours())}:${pad(planned.fireAt.getMinutes())}`);
+    first.set(identifier, {
+      ...planned,
+      body: `Due at ${dueAt}, held until your quiet hours ended. ${planned.body}`,
+      fireAt: decision.until,
+      payload: { ...planned.payload, fireAt: decision.until.toISOString() },
+    });
+  }
+  for (const [identifier, planned] of followUps) {
+    if (quietDecision(planned.payload.kind, planned.fireAt, true, quiet).action === 'drop') followUps.delete(identifier);
+  }
+
   const byTime = (a: PlannedNotification, b: PlannedNotification) => a.fireAt.getTime() - b.fireAt.getTime();
   const kept = [...first.values()].sort(byTime).slice(0, MAX_PENDING);
   const room = MAX_PENDING - kept.length;
@@ -654,7 +703,15 @@ async function runSync(): Promise<ReminderSyncResult> {
     const data = request.content.data as Partial<ReminderPayload> | undefined;
     // Same moment and same wording means the pending one is already right;
     // anything else (moved time, edited title, dropped row) is replaced.
-    if (want && data?.fireAt === want.payload.fireAt && request.content.title === want.title && request.content.body === want.body) {
+    // The category check replaces, once, every reminder queued before the
+    // Snooze button existed, so each one gets the button.
+    if (
+      want &&
+      data?.fireAt === want.payload.fireAt &&
+      request.content.title === want.title &&
+      request.content.body === want.body &&
+      request.content.categoryIdentifier === REMINDER_CATEGORY
+    ) {
       unchanged.add(request.identifier);
       continue;
     }
@@ -672,6 +729,7 @@ async function runSync(): Promise<ReminderSyncResult> {
           body: planned.body,
           data: planned.payload,
           sound: true,
+          categoryIdentifier: REMINDER_CATEGORY,
         },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -685,6 +743,33 @@ async function runSync(): Promise<ReminderSyncResult> {
     }
   }
   return { permission: 'granted', pending: scheduled };
+}
+
+export type QueuedReminder = {
+  title: string;
+  body: string;
+  fireAt: Date;
+  snoozed: boolean;
+};
+
+// What this app has queued with the phone right now, soonest first, for
+// the status page. Empty wherever reminders are not queued with the OS.
+export async function listQueuedReminders(): Promise<QueuedReminder[]> {
+  if (!supported) return [];
+  const pending = await Notifications.getAllScheduledNotificationsAsync();
+  return pending
+    .filter((request) => isOurs(request.identifier) || isSnoozed(request.identifier))
+    .map((request) => {
+      const data = request.content.data as Partial<ReminderPayload> | undefined;
+      return {
+        title: request.content.title ?? 'Reminder',
+        body: request.content.body ?? '',
+        fireAt: new Date(data?.fireAt ?? 0),
+        snoozed: isSnoozed(request.identifier),
+      };
+    })
+    .filter((queued) => !Number.isNaN(queued.fireAt.getTime()))
+    .sort((a, b) => a.fireAt.getTime() - b.fireAt.getTime());
 }
 
 export type ReminderTapTarget =
@@ -710,7 +795,7 @@ const DATED_LENSES: DatedReminderLens[] = ['finances', 'upkeep', 'work', 'daysUn
 // send anybody.
 export function resolveReminderTap(response: Notifications.NotificationResponse | null): ReminderTapTarget | null {
   const request = response?.notification.request;
-  if (!request || !isOurs(request.identifier)) return null;
+  if (!request || !(isOurs(request.identifier) || isSnoozed(request.identifier))) return null;
   const data = request.content.data as Partial<ReminderPayload> | undefined;
 
   if (data?.tab === 'reconcile') return { pathname: '/reconcile' };
@@ -738,19 +823,70 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
   return { pathname: '/schedule', params: { openScheduleLens: lens } };
 }
 
+// The same reminder again in SNOOZE_MINUTES, once, carrying its payload so
+// a tap still lands where the original would have. The one on screen is
+// dismissed, since it has been answered. Snoozing a snooze keeps the
+// original's name rather than growing a longer one each time.
+async function snoozeReminder(response: Notifications.NotificationResponse): Promise<void> {
+  const { request } = response.notification;
+  const fireAt = new Date(Date.now() + SNOOZE_MINUTES * 60_000);
+  const data = (request.content.data ?? {}) as Partial<ReminderPayload>;
+  const base = isSnoozed(request.identifier) ? request.identifier.split('@')[0] : SNOOZE_PREFIX + request.identifier;
+  await Notifications.scheduleNotificationAsync({
+    identifier: `${base}@${fireAt.getTime()}`,
+    content: {
+      title: request.content.title ?? 'Reminder',
+      body: request.content.body ?? '',
+      data: { ...data, fireAt: fireAt.toISOString() },
+      sound: true,
+      categoryIdentifier: REMINDER_CATEGORY,
+    },
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.DATE,
+      date: fireAt,
+      channelId: data.kind ? channelFor(data.kind) : ANDROID_CHANNEL_ID,
+    },
+  });
+  await Notifications.dismissNotificationAsync(request.identifier).catch(() => undefined);
+}
+
+// A press is handled once even when the cold-start read and the listener
+// both report it, which they can on a launch the press itself caused.
+const answered = new Set<string>();
+
+function handleResponse(
+  response: Notifications.NotificationResponse | null,
+  navigate: (target: ReminderTapTarget) => void,
+): void {
+  if (!response) return;
+  const request = response.notification.request;
+  const key = `${request.identifier}|${response.notification.date}|${response.actionIdentifier}`;
+  if (answered.has(key)) return;
+  answered.add(key);
+  if (response.actionIdentifier === SNOOZE_ACTION) {
+    if (isOurs(request.identifier) || isSnoozed(request.identifier)) {
+      snoozeReminder(response).catch((error) => console.error('[reminderNotifications] snooze failed', error));
+    }
+    return;
+  }
+  const target = resolveReminderTap(response);
+  if (target) navigate(target);
+}
+
 // Cold start from a tapped reminder plus the already-running case, same
 // shape as the .is file listener in app/_layout.tsx. Returns the unsubscribe.
+// The cold-start response is cleared once read, so a Snooze pressed once is
+// not pressed again on every later start.
 export function listenForReminderTaps(navigate: (target: ReminderTapTarget) => void): () => void {
   if (!supported) return () => {};
   Notifications.getLastNotificationResponseAsync()
     .then((response) => {
-      const target = resolveReminderTap(response);
-      if (target) navigate(target);
+      handleResponse(response, navigate);
+      if (response) Notifications.clearLastNotificationResponse();
     })
     .catch((error) => console.error('[reminderNotifications] getLastNotificationResponseAsync failed', error));
   const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-    const target = resolveReminderTap(response);
-    if (target) navigate(target);
+    handleResponse(response, navigate);
   });
   return () => subscription.remove();
 }

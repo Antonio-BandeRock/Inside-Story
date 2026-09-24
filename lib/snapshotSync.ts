@@ -99,6 +99,69 @@ export type SnapshotSyncState = {
  */
 export const ANNOUNCE_MERGES = false;
 
+/**
+ * The one exception to ANNOUNCE_MERGES, 2026-09-24 (Phase A of the gap
+ * review): a clash in any of these tables is said out loud whatever that
+ * constant holds.
+ *
+ * A clash is one record changed on both devices before either saw the
+ * other's change, and the merge settles it by keeping the later edit.
+ * For a salad that is the right call and nobody needs telling. For a
+ * dose it is not: 100 mcg typed on the phone and 125 mcg typed on the
+ * computer, settled in silence, leaves somebody taking whichever number
+ * happened to be saved second, and the log in Sync Activity is somewhere
+ * they would only look if they already suspected something. So the
+ * merge still decides, since two devices cannot stop and wait for a
+ * person, but the person is told which record to check.
+ *
+ * Each entry names the column that says which record it is, where there
+ * is one, so the notice can say "levothyroxine" rather than "a
+ * medication". Only a clash is said here; ordinary additions and edits
+ * from the other device stay as quiet as ANNOUNCE_MERGES keeps them.
+ */
+export const CLASHES_ALWAYS_SAID: Readonly<Record<string, { what: string; nameColumn: string | null }>> = {
+  treatments: { what: 'medication or supplement', nameColumn: 'name' },
+  treatment_nutrients: { what: 'amount in a supplement', nameColumn: null },
+  user_food_allergies: { what: 'allergy', nameColumn: 'allergen_name' },
+  user_conditions: { what: 'condition', nameColumn: 'condition_code' },
+  lab_results: { what: 'lab result', nameColumn: 'test_code' },
+  personal_rules: { what: 'personal or clinician rule', nameColumn: 'description' },
+  emergency_profile: { what: 'emergency detail', nameColumn: null },
+  emergency_contacts: { what: 'emergency contact', nameColumn: 'name' },
+};
+
+export const CLASH_TABLES: ReadonlySet<string> = new Set(Object.keys(CLASHES_ALWAYS_SAID));
+
+/** How long a name from a row may run in the notice before it is cut. */
+const CLASH_NAME_LIMIT = 60;
+
+/**
+ * The sentence for clashes in CLASHES_ALWAYS_SAID tables, or null when
+ * there were none. Rows arrive as the merge left them, so a name is the
+ * one that now stands.
+ */
+export function clashNotice(clashes: readonly { table: string; row: Record<string, unknown> | null }[]): string | null {
+  const named: string[] = [];
+  for (const clash of clashes) {
+    const policy = CLASHES_ALWAYS_SAID[clash.table];
+    if (!policy) continue;
+    const raw = policy.nameColumn && clash.row ? clash.row[policy.nameColumn] : null;
+    const name = typeof raw === 'string' && raw.trim().length > 0 ? raw.trim() : null;
+    const shown = name && name.length > CLASH_NAME_LIMIT ? name.slice(0, CLASH_NAME_LIMIT - 1).trimEnd() + '…' : name;
+    const phrase = shown ? 'the ' + policy.what + ' "' + shown + '"' : (/^[aeiou]/i.test(policy.what) ? 'an ' : 'a ') + policy.what;
+    if (!named.includes(phrase)) named.push(phrase);
+  }
+  if (named.length === 0) return null;
+  const said = named.slice(0, 4);
+  const left = named.length - said.length;
+  if (left > 0) said.push(left + ' other health record' + (left === 1 ? '' : 's'));
+  return (
+    'Your two devices had each changed ' + listPhrases(said) + ' before either saw the other’s change. ' +
+    'The later change is the one kept. Please check ' + (named.length === 1 ? 'it' : 'each one') +
+    ' says what you meant, since the earlier change was replaced. Profile, Sync Activity keeps a record of this merge.'
+  );
+}
+
 export const EMPTY_SYNC_STATE: SnapshotSyncState = {
   enabled: false,
   password: null,
@@ -196,6 +259,7 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'mailbox_folder_name',
   'last_seen_app_version',
   'visual_fold_state',
+  'backup_last_check',
   CHANGE_BASELINE_META_KEY,
 ];
 
