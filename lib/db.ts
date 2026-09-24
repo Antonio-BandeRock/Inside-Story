@@ -6999,6 +6999,44 @@ async function runDatabaseInitialization() {
         FOREIGN KEY (plot_id) REFERENCES garden_plots(id) ON DELETE SET NULL
       );
 
+      -- --- What the garden actually put on a plate (2026-09-23) ----------
+      --
+      -- Phase 6 of the cross-app push. quantity_remaining above is drawn
+      -- down by recordHarvestUsage, which overwrites one number and keeps
+      -- no history, so a bed could feed a household all summer and the only
+      -- thing left of it would be a zero. This is the record beside it,
+      -- append-only, one row per picking that went onto a plate, on the
+      -- same footing as upkeep_doings and done_check_marks.
+      --
+      -- quantity_used is 0 where the meal recorded units the picking is not
+      -- measured in. Units are never converted across kinds, so nothing
+      -- comes off quantity_remaining in that case, and the row still stands
+      -- as the record that the garden fed somebody: the share band counts
+      -- foods on a plate, and the money band leaves an amountless row out
+      -- of its figure and says so.
+      --
+      -- used_on is the LOCAL day the meal was eaten, taken off
+      -- meals.eaten_at, which is already local. Nothing here stores a UTC
+      -- instant, so phase 3's dayOf machinery does not apply.
+      --
+      -- food_name is carried on the row and there is deliberately NO foreign
+      -- key, the upkeep_doings precedent: deleting a picking or a meal leaves
+      -- the record of what it fed rather than destroying it.
+      CREATE TABLE IF NOT EXISTS harvest_uses (
+        id TEXT PRIMARY KEY,
+        harvest_id TEXT NOT NULL,
+        meal_id TEXT,
+        food_id INTEGER,
+        source TEXT,
+        food_name TEXT NOT NULL,
+        quantity_used REAL NOT NULL,
+        unit TEXT NOT NULL,
+        used_on TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_harvest_uses_used_on ON harvest_uses(used_on);
+      CREATE INDEX IF NOT EXISTS idx_harvest_uses_harvest ON harvest_uses(harvest_id);
+
       -- A real, basic Scheduler tie-in, 2026-08-13 -- schedule_items.item_type
       -- is already a free-text, extensible vocabulary (see that table's own
       -- comment further up) with 'meal'/'supplement'/'prescription'/

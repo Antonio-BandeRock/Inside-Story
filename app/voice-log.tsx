@@ -74,6 +74,7 @@ import {
 } from '../lib/quickLog';
 import { useVoiceDictation, type VoiceRecognitionMode } from '../hooks/useVoiceDictation';
 import { isDesktopApp } from '../lib/desktop/bridge';
+import { offerGardenUse } from '../lib/gardenPlateOffer';
 
 // meals.eaten_at's own stored format: 'YYYY-MM-DDTHH:mm', local time. See
 // listMealsForDate in lib/db.ts for why a UTC toISOString() would break every
@@ -442,6 +443,7 @@ export default function VoiceLogScreen() {
         photoUri: photoUri ?? null,
       });
       await resolveReplacedMeal(meal.id);
+      offerGardenUse(meal.id);
       await clearFinishedDraft();
       router.back();
     } catch (error) {
@@ -466,6 +468,7 @@ export default function VoiceLogScreen() {
           return;
         }
         await resolveReplacedMeal(result.id);
+        offerGardenUse(result.id);
       } else {
         const favorite = await getMealFavorite(mealProposal.id);
         if (!favorite) {
@@ -487,6 +490,7 @@ export default function VoiceLogScreen() {
           return;
         }
         await resolveReplacedMeal(result.id);
+        offerGardenUse(result.id);
       }
       await clearFinishedDraft();
       router.back();

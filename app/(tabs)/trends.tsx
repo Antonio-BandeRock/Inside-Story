@@ -103,6 +103,8 @@ import { monthsBack, type HarvestYieldSummary, type PeriodRow } from '../../lib/
 import { getEarliestGardenDate, getHarvestYieldSummary } from '../../lib/harvestYieldDb';
 import type { CostSummary } from '../../lib/costOfEating';
 import { getCostSummary, getEarliestMoneyDate } from '../../lib/costOfEatingDb';
+import { summarizePlateShare, type PlateShareBand, type PlateValueBand } from '../../lib/plateSource';
+import { getPlateUses, getPlateValueBand } from '../../lib/plateSourceDb';
 import { CORE_NUTRIENT_CODES } from './index';
 
 // Every text box on this page belongs to this one page's own tab, so
@@ -709,6 +711,13 @@ export default function TrendsScreen() {
   // adding it there would have changed both without being asked.
   const [fiberSeries, setFiberSeries] = useState<NutrientTrendSeries | null>(null);
   const [varietySummary, setVarietySummary] = useState<EatingVarietySummary | null>(null);
+  // Phase 6 of the 2026-09-23 push. Two bands rather than a lens of their
+  // own: what the garden put on a plate is a part of what gets eaten and a
+  // part of what eating costs, so each rides on the lens that already asks
+  // that question. Loaded beside those lenses' own summaries, since neither
+  // lib/eatingVariety.ts nor lib/costOfEating.ts reads harvest_uses.
+  const [plateShare, setPlateShare] = useState<PlateShareBand | null>(null);
+  const [plateValue, setPlateValue] = useState<PlateValueBand | null>(null);
   const [keepingUpSummary, setKeepingUpSummary] = useState<KeepingUpSummary | null>(null);
   const [harvestSummary, setHarvestSummary] = useState<HarvestYieldSummary | null>(null);
   // 0 means everything, resolved against the earliest date the garden has.
@@ -837,12 +846,23 @@ export default function TrendsScreen() {
       // long ago something was last logged rather than how far it sat from
       // the end of some range.
       const varietyEnd = todayDateString();
+      const varietyStart = dateStringOffsetFrom(varietyEnd, -(days - 1));
       Promise.all([
-        getEatingVarietyInputs(dateStringOffsetFrom(varietyEnd, -(days - 1)), varietyEnd),
+        getEatingVarietyInputs(varietyStart, varietyEnd),
         getSafeListInputs(),
+        getPlateUses(varietyStart, varietyEnd),
       ])
-        .then(([inputs, safe]) => {
-          setVarietySummary(summarizeEatingVariety(inputs, safe.safeFoods, safe.trials));
+        .then(([inputs, safe, uses]) => {
+          const summary = summarizeEatingVariety(inputs, safe.safeFoods, safe.trials);
+          setVarietySummary(summary);
+          // Same weeks as every other band on this lens, so a blank week is
+          // blank in the same places.
+          setPlateShare(
+            summarizePlateShare(
+              { startDate: varietyStart, endDate: varietyEnd, eaten: inputs.records, uses },
+              summary.weeks,
+            ),
+          );
         })
         .finally(() => setLoading(false));
     } else if (lens === 'keepingUp') {
@@ -876,15 +896,17 @@ export default function TrendsScreen() {
       // would set a half month beside eleven whole ones.
       const costEnd = todayDateString();
       (costMonths === 0 ? getEarliestMoneyDate() : Promise.resolve(null))
-        .then((earliest) =>
-          getCostSummary(
+        .then((earliest) => {
+          const costStart =
             costMonths === 0
               ? (earliest ? `${earliest.slice(0, 7)}-01` : monthsBack(costEnd, 12))
-              : monthsBack(costEnd, costMonths),
-            costEnd,
-          ),
-        )
-        .then(setCostSummary)
+              : monthsBack(costEnd, costMonths);
+          return Promise.all([getCostSummary(costStart, costEnd), getPlateValueBand(costStart, costEnd)]);
+        })
+        .then(([summary, plate]) => {
+          setCostSummary(summary);
+          setPlateValue(plate);
+        })
         .finally(() => setLoading(false));
     } else if (lens === 'sixDs') {
       const conditionCodes = personalizationProfile?.trackedConditions.map((condition) => condition.code) ?? [];
@@ -1630,6 +1652,34 @@ export default function TrendsScreen() {
                       <Text style={styles.patternRowCaption}>{varietySummary.safeList.trialNote}</Text>
                     ) : null}
                   </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:variety:garden"
+                    title="How much of it came out of your garden"
+                    icon="leaf-outline"
+                  >
+                    {plateShare ? (
+                      <>
+                        <Text style={styles.patternRowCaption}>{plateShare.headline}</Text>
+                        {renderPeriodRows(plateShare.rows)}
+                        {plateShare.gapNote ? (
+                          <Text style={styles.patternRowCaption}>{plateShare.gapNote}</Text>
+                        ) : null}
+                        {plateShare.crops.map((crop) => (
+                          <View key={`plateCrop:${crop.foodName}`} style={styles.patternRow}>
+                            <Text style={styles.patternRowTitle}>{crop.foodName}</Text>
+                            <Text style={styles.patternRowCaption}>{crop.line}</Text>
+                          </View>
+                        ))}
+                        {plateShare.unmatchedLine ? (
+                          <Text style={styles.patternRowCaption}>{plateShare.unmatchedLine}</Text>
+                        ) : null}
+                        <Text style={styles.patternRowCaption}>{plateShare.caveat}</Text>
+                      </>
+                    ) : null}
+                  </TabBand>
                 </>
               )
             ) : lens === 'keepingUp' ? (
@@ -2040,6 +2090,37 @@ export default function TrendsScreen() {
                     ) : null}
                     <Text style={styles.patternRowCaption}>{costSummary.supplements.runningLine}</Text>
                     <Text style={styles.patternRowCaption}>{costSummary.supplements.boundary}</Text>
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:cost:plate"
+                    title="What the garden put on your plate"
+                    icon="leaf-outline"
+                  >
+                    {plateValue ? (
+                      <>
+                        <Text style={styles.patternRowCaption}>{plateValue.headline}</Text>
+                        {renderPeriodRows(plateValue.rows)}
+                        {plateValue.gapNote ? (
+                          <Text style={styles.patternRowCaption}>{plateValue.gapNote}</Text>
+                        ) : null}
+                        {plateValue.crops.map((crop) => (
+                          <View key={`plateValue:${crop.foodName}`} style={styles.patternRow}>
+                            <Text style={styles.patternRowTitle}>{crop.foodName}</Text>
+                            <Text style={styles.patternRowCaption}>{crop.line}</Text>
+                          </View>
+                        ))}
+                        {plateValue.unpricedLine ? (
+                          <Text style={styles.patternRowCaption}>{plateValue.unpricedLine}</Text>
+                        ) : null}
+                        {plateValue.noAmountLine ? (
+                          <Text style={styles.patternRowCaption}>{plateValue.noAmountLine}</Text>
+                        ) : null}
+                        <Text style={styles.patternRowCaption}>{plateValue.boundary}</Text>
+                      </>
+                    ) : null}
                   </TabBand>
                 </>
               )

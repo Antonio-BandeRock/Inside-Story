@@ -47,6 +47,7 @@ import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
 import { ALL_DIGEST_ENTRIES } from '../lib/digest';
+import { offerGardenUse } from '../lib/gardenPlateOffer';
 import { isProblemFoodEntry } from '../lib/digest/types';
 import { encodeBuildMealHandoff, type BuildMealItem } from '../lib/mealBuilderHandoff';
 import {
@@ -543,6 +544,7 @@ export function FindMealView({
         capturedAt && capturedAt.length >= 16 ? capturedAt : `${todayLocalDateString()}T${nowLocalTime24()}`;
       const id = await logSelectedAt(eatenAt);
       if (!id) return;
+      offerGardenUse(id);
       await clearFinishedDraft();
       onDone();
     } catch (error) {
@@ -563,6 +565,7 @@ export function FindMealView({
     try {
       const id = await logSelectedAt(`${todayLocalDateString()}T${time24}`);
       if (!id) return;
+      offerGardenUse(id);
       await clearFinishedDraft();
       onDone();
     } catch (error) {
@@ -629,6 +632,7 @@ export function FindMealView({
       const eatenAt = planned.scheduledFor.length >= 16 ? planned.scheduledFor : `${todayLocalDateString()}T${nowLocalTime24()}`;
       const id = await logSelectedAt(eatenAt);
       if (!id) return;
+      offerGardenUse(id);
       try {
         await markScheduledMealLogged(planned.id, id);
       } catch (error) {

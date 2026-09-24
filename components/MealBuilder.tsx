@@ -40,6 +40,7 @@ import {
   type TrialNeedingReconciliation,
 } from '../lib/db';
 import { getConditionStagingModel, resolveDeclaredStage, type DeclaredConditionStage } from '../lib/conditionStages';
+import { offerGardenUse } from '../lib/gardenPlateOffer';
 import { parseAmountValue } from '../lib/measurement';
 import type { BuildMealHandoff } from '../lib/mealBuilderHandoff';
 import { computeRecipeDepth, type RecipeDepthResult } from '../lib/recipeDepth';
@@ -1016,6 +1017,7 @@ export function MealBuilder({
       showInfoAlert('Save failed', result.error);
       return;
     }
+    offerGardenUse(result.id);
     // Independent of the real log above -- 2026-08-08, see SideBuilder.tsx's
     // own identical block for the full reasoning.
     if (alsoSaveAsFavorite) {

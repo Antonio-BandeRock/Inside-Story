@@ -12,6 +12,7 @@ import { AppKeyboard } from '../components/AppKeyboard';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { KeyboardLiftProvider, KeyboardLiftReleaser, KeyboardLiftView } from '../components/KeyboardLift';
 import { DatabaseSetupScreen } from '../components/DatabaseSetupScreen';
+import { GardenPlateOfferHost } from '../components/GardenPlateOfferHost';
 import { StartupFailureScreen } from '../components/StartupFailureScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
 import { SnapshotSyncWatcher } from '../components/SnapshotSyncWatcher';
@@ -723,6 +724,12 @@ export default function RootLayout() {
                   has a text box, and the drawn keyboard has to paint on top
                   of it. */}
               <TellClaudeHost />
+              {/* From your garden (1.0.50.11): the sheet that offers to take
+                  what a meal just used off what the garden has on hand. Saving
+                  a meal happens on five screens and each of them calls one
+                  line, so the sheet lives here and comes up only when a saved
+                  meal matches a picking with something left on it. */}
+              <GardenPlateOfferHost />
               {/* Before AppKeyboard, deliberately -- see OverlayContext.tsx's own
                   comment: the keyboard must always paint on top of an open
                   dropdown's backdrop/menu, never the other way around. */}

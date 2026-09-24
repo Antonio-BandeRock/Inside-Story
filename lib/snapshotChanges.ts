@@ -211,7 +211,9 @@ const AREAS: readonly Area[] = [
   { one: 'shared recipe', many: 'shared recipes', count: ['shared_recipes'], quiet: [] },
   { one: 'garden area', many: 'garden areas', count: ['garden_plots'], quiet: ['garden_spaces'] },
   { one: 'planting', many: 'plantings', count: ['garden_plantings'], quiet: ['garden_task_links'] },
-  { one: 'harvest', many: 'harvests', count: ['garden_harvests'], quiet: [] },
+  // harvest_uses is quiet, 2026-09-23: marking a picking onto a plate is
+  // not another harvest, and a count comes from one table per area.
+  { one: 'harvest', many: 'harvests', count: ['garden_harvests'], quiet: ['harvest_uses'] },
   // Both kinds of counter read as one thing here, 2026-09-22: somebody who
   // started three of them does not care which tab each was born on.
   { one: 'Days Until counter', many: 'Days Until counters', count: ['garden_countdowns', 'countdowns'], quiet: [] },
