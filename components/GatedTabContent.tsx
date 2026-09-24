@@ -1,11 +1,9 @@
 import type { ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { colors } from '../constants/colors';
+import { StyleSheet, View } from 'react-native';
 import { TAB_ROUTES } from '../constants/tabs';
-import { textShadow, typography } from '../constants/typography';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
-import { ScreenBackground, useBackgroundBottomInset, type BackgroundVariant } from './ScreenBackground';
-import { TabRouteIcon } from './TabRouteIcon';
+import { useVisualPreferences } from '../hooks/useVisualPreferences';
+import { resolveBackgroundStyle } from '../lib/visualPreferences';
+import { ScreenBackground, type BackgroundVariant } from './ScreenBackground';
 
 // 2026-07-26: replaces every non-Home tab's own distinct background always
 // being on screen. Instead, every one of them rests on the *same* shared
@@ -41,16 +39,32 @@ import { TabRouteIcon } from './TabRouteIcon';
 // including the swipe-transition "peek" bug this gating exists to
 // sidestep (see the 2026-07-26 history above) staying avoided.
 //
-// 2026-08-23: gained an optional `restingContent` -- a tab's own real
-// "Desktop" (see food.tsx, the first caller), shown in the resting branch
-// below INSTEAD of rendering nothing. Deliberately NOT wrapped in its own
-// ScreenBackground the way the revealed branch is: the shared resting
-// scene (mounted once in app/(tabs)/_layout.tsx, see the next paragraph)
-// is already visible behind this component at rest, and restingContent is
-// meant to layer directly on top of THAT image, not introduce a second,
-// competing one. Every other screen's own `revealed` behavior (nothing
-// shown at rest) is unchanged -- this prop is optional and undefined
-// everywhere except food.tsx for now.
+// 2026-08-23: gained an optional `restingContent`, a tab's own "Desktop"
+// (food.tsx, its only caller), and 2026-09-13 a `restingIntro` inside the
+// signpost box. Both are gone as of 2026-09-24, along with the box, by
+// direct instruction: "remove the informational black background thing at
+// the top of each of the screen on each tab that tells the user to tap the
+// tab icon in the corner. The botto right box is doing this as well and we
+// don't need 2 places for it to occur." PageIdentityLabel, in the corner,
+// is that one place now (it names the button by the same icon and colour,
+// and has carried the same sentence since 2026-07-28). Food's Desktop went
+// in the same pass, since every row it drew was a row of the My Foods
+// popup: see app/(tabs)/food.tsx. So the resting branch is empty again,
+// which is the point of emptying it. These screens are where a person's
+// use of the app is meant to show over time, and nothing can grow on a
+// screen already full of links to somewhere else.
+//
+// 2026-09-24: which also settles what the resting screen is a picture OF.
+// A tab's own background choice (Profile > Appearance > Individual tab
+// backgrounds) used to reach only the revealed state, so at rest every tab
+// showed the shared scene whatever the person had picked. Now a tab set to
+// Off, Generic or a photo of a person's own shows that at rest too, while
+// the default, Photo, still leaves the shared scene alone rather than
+// bringing that tab's bundled image forward: that is the 2026-07-26
+// decision above, and the thing the 2026-08-22 revert put back. Direct
+// instruction: "should the user be able to replace the tab screen
+// backgrounds that will now carry their achievements in using the app with
+// nothing or a personal image they added themselves. I say yes."
 //
 // This component does NOT render the shared resting background itself --
 // that's a single, genuinely constant `<ScreenBackground variant="field"
@@ -77,15 +91,10 @@ export function GatedTabContent({
   variant,
   revealed,
   children,
-  restingContent,
-  restingIntro,
 }: {
-  // Still required, even though this component no longer reads it itself
-  // (used to feed the on-page resting prompt this component owned --
-  // that moved to PageIdentityLabel.tsx, 2026-07-28, see its own comment).
-  // Kept as a required prop anyway rather than touching every call site
-  // just to drop it, matching LensHub's own `pageTitle` contract at the
-  // same call site.
+  // Which tab this is, by the title in TAB_ROUTES. The only thing read
+  // from it is the route key that picks this screen's background
+  // preference out of visual preferences, both revealed and at rest.
   pageTitle: string;
   // Which of ScreenBackground's own per-tab images this screen shows once
   // a function is picked -- exactly what used to be passed straight to
@@ -97,19 +106,6 @@ export function GatedTabContent({
   // ScopeHub gating.
   revealed: boolean;
   children?: ReactNode;
-  // Shown at rest (see this component's own 2026-08-23 comment above),
-  // layered directly over the already-visible shared background rather
-  // than a new ScreenBackground of its own. Optional and unused unless a
-  // caller actually passes it.
-  restingContent?: ReactNode;
-  // A heading and blurb for what the tab's resting area holds, shown
-  // inside the prompt box beneath the tap-the-button line (Food's "My
-  // Foods"), so the resting area opens with one box rather than a prompt
-  // and a second intro box beneath it. 2026-09-13, direct request.
-  // 2026-09-13, same day: the body is the same size as the prompt's own
-  // line and the title is optional, since Food's reads as one paragraph
-  // ("Honestly, I don't think we need the words 'My Foods' in there").
-  restingIntro?: { title?: string; body?: string };
 }) {
   // 2026-08-08: which per-tab visual-preferences override (if any) applies
   // to this screen's own revealed background -- resolved from pageTitle via
@@ -118,58 +114,23 @@ export function GatedTabContent({
   // comment for how it's used.
   const routeKey = TAB_ROUTES.find((route) => route.title === pageTitle)?.path as string | undefined;
 
-  const route = TAB_ROUTES.find((entry) => entry.title === pageTitle);
-  const tabColor = route?.color ?? colors.primary;
-  // The footer band's own height. A revealed lens renders inside
-  // ScreenBackground, whose opaque bottom mask covers anything scrolled
-  // beneath the band; the resting area has no mask and the shared band is
-  // a layer under this screen, so resting content that scrolls (Food's
-  // twenty-three-row Saved & Favorites list, reported 2026-09-13 as "the
-  // next screen doesn't have the footer at the bottom") slid over the band
-  // and hid it. Insetting the resting area by the same height keeps its
-  // scroll viewport above the band, the edge the revealed state respects.
-  const footerBandHeight = useBackgroundBottomInset();
+  // What this tab is set to show. 'photo', the default, means leave the
+  // resting screen to the shared scene mounted once in
+  // app/(tabs)/_layout.tsx: rendering nothing here is what keeps that scene
+  // one canvas that never slides, resizes or remounts between tabs, the
+  // whole reason it lives up there rather than in each screen. Anything
+  // else is a choice the person made for this tab, so this screen draws it,
+  // and it travels with the screen on a swipe the way its content does.
+  const visualPrefs = useVisualPreferences();
+  const restingStyle = resolveBackgroundStyle(visualPrefs, routeKey);
+  const restingIsShared = restingStyle === 'photo';
 
   return (
     <View style={styles.body}>
       {revealed ? (
         <ScreenBackground variant={variant} routeKey={routeKey}>{children}</ScreenBackground>
-      ) : (
-        <View style={[styles.restingWrap, { paddingBottom: footerBandHeight }]}>
-          {/* 2026-08-30. The menu no longer opens itself on arrival (see
-              hooks/useAutoOpenLensHubSignal.ts), so something has to say where
-              the tools are. This is that: one box, at the top of every tab's
-              resting area, naming the corner button by the same icon and colour
-              the button itself uses so the two read as the same thing. */}
-          {/* Restored 2026-09-13 (1.0.37.20) to exactly the shape it had
-              before 1.0.37.6, which removed this box from every tab that
-              passes no restingIntro, nine of the ten. That commit's own
-              instruction was about where the tap-the-button LINE lives
-              (the corner box carries it too, see PageIdentityLabel); it
-              said nothing about removing the box, and the work that day
-              was on Food alone. Direct correction: "you had no reason to
-              remove anything from any of the other home screens for the
-              other tabs. Fix it." So: one box on every tab, always. A tab
-              with an intro shows it (Food); a tab without one keeps the
-              line it had. */}
-          <View style={[styles.prompt, { borderColor: tabColor }]}>
-            <View style={styles.promptRow}>
-              {route ? <TabRouteIcon route={route} size={20} /> : null}
-              <Text style={[styles.promptTitle, { color: tabColor }]}>{pageTitle}</Text>
-            </View>
-            {restingIntro ? (
-              <>
-                {restingIntro.title ? <Text style={[styles.introTitle, { color: tabColor }]}>{restingIntro.title}</Text> : null}
-                {restingIntro.body ? <Text style={styles.promptBody}>{restingIntro.body}</Text> : null}
-              </>
-            ) : (
-              <Text style={styles.promptBody}>
-                Tap the {pageTitle} button in the corner to pick a tool.
-              </Text>
-            )}
-          </View>
-          {restingContent ?? null}
-        </View>
+      ) : restingIsShared ? null : (
+        <ScreenBackground variant={variant} routeKey={routeKey} />
       )}
     </View>
   );
@@ -177,22 +138,4 @@ export function GatedTabContent({
 
 const styles = StyleSheet.create({
   body: { flex: 1 },
-  // The prompt and whatever resting content follows it sit the standard
-  // band gap apart (2026-09-13; see HOME_BAND_GAP's own comment).
-  restingWrap: { flex: 1, gap: HOME_BAND_GAP },
-  // The band look, 2026-09-13 (see components/HomeSectionBand.tsx): the
-  // accent bar, the hairlines and the edge-to-edge reach of every other
-  // band, keeping the dark fill this box has always had so it still reads
-  // as the one signpost on the page rather than one more surface.
-  prompt: {
-    ...homeBandStyle,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    marginTop: 16,
-    padding: HOME_BAND_CONTENT_PADDING,
-    gap: 4,
-  },
-  introTitle: { ...typography.sectionTitle, fontWeight: '400', ...textShadow },
-  promptRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  promptTitle: { ...typography.bodyEmphasis, ...textShadow },
-  promptBody: { ...typography.caption, color: colors.textSecondary, ...textShadow },
 });

@@ -71,11 +71,13 @@ export type MyItemsCategory = {
   // to open every one just to check.
   count?: number;
   onPress: () => void;
-  // The glyph an action band shows for this category (TabDesktopMenu,
-  // 2026-09-12). The popup itself does not draw it.
+  // The glyph and the explaining line a category carries. Neither is drawn
+  // in the popup, which is a label and a count per row. They were read by
+  // TabDesktopMenu, the Food screen's resting list of these same rows,
+  // removed 2026-09-24 once that screen stopped saying twice what the popup
+  // already said. Kept on the type because they describe the category
+  // itself, not that one deleted renderer.
   icon?: ComponentProps<typeof Ionicons>['name'];
-  // A line under the label on the desktop's action band, for a row whose
-  // label alone does not say what it does. The popup does not draw it.
   caption?: string;
 };
 

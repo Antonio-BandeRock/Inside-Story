@@ -4250,7 +4250,7 @@ export default function ProfileScreen() {
             {!collapsedAppearanceSubsections.has('sharedBackground') ? (
               <>
                 <Text style={styles.helpText}>
-                  The flowery scene behind Home and every tab before you pick a function. &ldquo;Generic&rdquo; swaps
+                  The flowery scene behind Home, and behind every tab left on Photo below until you pick a function. &ldquo;Generic&rdquo; swaps
                   it for a calm gradient instead (pick the color combination below); &ldquo;Off&rdquo; removes it
                   entirely, leaving the same flat background color as the header and footer. &ldquo;Custom
                   image&rdquo; lets you upload your own photo; it&apos;s automatically resized and compressed to
@@ -4267,9 +4267,11 @@ export default function ProfileScreen() {
             {!collapsedAppearanceSubsections.has('individualTabBackgrounds') ? (
               <>
                 <Text style={styles.helpText}>
-                  Each tab&apos;s own background photo (Food, Insights, Schedules, and the rest), set independently
-                  rather than all at once; turn off just the ones you don&apos;t want, and leave the rest as they
-                  are.
+                  Each tab&apos;s background, set one at a time rather than all at once (Food, Insights,
+                  Schedules, and the rest). Photo, the default, gives a tab its bundled image once you pick a tool
+                  from the corner button, and leaves the shared background above showing until you do. Off,
+                  Generic and a photo you added yourself take effect the moment you open the tab, so the tab&apos;s
+                  resting screen is whatever you picked here.
                 </Text>
                 {BACKGROUND_TAB_ROUTES.map((route) => (
                   <View key={route.path as string} style={styles.mealTimeRow}>

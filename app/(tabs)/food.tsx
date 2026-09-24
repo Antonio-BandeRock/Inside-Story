@@ -1,7 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
@@ -23,7 +23,6 @@ import { SnackBuilder } from '../../components/SnackBuilder';
 import { SaucesBuilder } from '../../components/SaucesBuilder';
 import { SoupBuilder } from '../../components/SoupBuilder';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
-import { TabDesktopMenu } from '../../components/TabDesktopMenu';
 import { FindMealView } from '../../components/FindMealView';
 import { FoodItemDetailView } from '../../components/FoodItemDetailView';
 import { FoodItemsView, type FoodItemsListParams } from '../../components/FoodItemsView';
@@ -34,8 +33,6 @@ import { FoodProductDetailView } from '../../components/FoodProductDetailView';
 import { ScanProductView } from '../../components/ScanProductView';
 import { PhoneOnlyNotice } from '../../components/PhoneOnlyNotice';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
-import { HOME_BAND_GAP } from '../../components/HomeSectionBand';
-import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { colors } from '../../constants/colors';
 import {
   listBakedGoods,
@@ -91,16 +88,16 @@ type FoodLens =
   // ("All 10 tab related screens should always continue to keep their own
   // background or the shared one and not be screens like Profile is").
   // scanProduct is in the corner menu; the other three are only ever
-  // reached from a row (a list from the Desktop or My Foods popup, a
-  // detail from a list), so they carry their own state (listParams and
-  // the rest below) rather than a menu entry.
+  // reached from a row (a list from the My Foods popup, a detail from a
+  // list), so they carry their own state (listParams and the rest below)
+  // rather than a menu entry.
   | 'scanProduct'
   | 'myFoodsList'
   | 'myFoodsDetail'
   | 'myFoodProduct'
   // The person's list of what is safe for them, 2026-09-18. Reached from
-  // the My Foods menu and the Desktop, next to My Food Products, the same
-  // way every other list on that menu is.
+  // the My Foods menu, next to My Food Products, the same way every other
+  // list on that menu is.
   | 'mySafeFoods'
   // What the person has on hand from their own garden, 2026-09-20. The
   // tile pushed into Garden > Harvest Log until then; direct instruction:
@@ -415,7 +412,6 @@ const FOOD_HELP_SECTIONS: HelpSection[] = [
 export default function FoodScreen() {
   useRegisterScreenHelp('Food', FOOD_HELP_SECTIONS, '/food');
   const router = useRouter();
-  const scrollBottomPadding = useFloatingButtonScrollPadding();
   // Set when reached via a saved side's/salad's/smoothie's/fermentation's/
   // beverage's/snack's/baked good's/soup's/sauce's own Edit button (see
   // components/FoodItemsView.tsx), 2026-08-01 (editSaladId/editSmoothieId/
@@ -658,20 +654,17 @@ export default function FoodScreen() {
   // works exactly as it always has, fully independent of this state -- see
   // that component's own open/onOpenChange comment for the full "why."
   const [myFoodsOpen, setMyFoodsOpen] = useState(false);
-  // 2026-08-23: the Food tab's own resting-screen "Desktop" -- everything
-  // My Foods' popup already knows how to show (myFoodsCategories, computed
-  // further down), ALSO shown as the tab's own default resting content
-  // instead of a small, easy-to-miss corner icon, direct request: "an area
-  // where their things that they create through their use of that Tab's
-  // lenses... accessed by using a menu system just like the Digest uses."
-  // The popup itself is untouched, still available as a quick shortcut
-  // even once a builder is open, since this Desktop only ever shows at
-  // rest (see GatedTabContent's own restingContent, passed below).
-  //
-  // 2026-09-18: it no longer drills into a submenu of its own. The one
-  // submenu it had, Saved & Favorites, became My Recipes, which is a lens
-  // holding every one of those lists at once rather than a menu of links
-  // to them.
+  // The popup is where the saved-item lists live, and since 2026-09-24 it
+  // is the only place they live. From 2026-08-23 this tab also drew the
+  // same rows as a resting-screen "Desktop", on a direct request for "an
+  // area where their things that they create through their use of that
+  // Tab's lenses... accessed by using a menu system just like the Digest
+  // uses." Removed on the instruction that followed from it: "move the Log
+  // or Schedule a Meal into the My Food menu, and remove the rest from the
+  // Food screen. That will free up the Food screen." Log or Schedule a
+  // Meal now leads myFoodsCategories below, so nothing was lost, and the
+  // screen behind this popup is free for what a person's use of it grows
+  // there.
   // A real food-trial round trip, 2026-08-14 -- see lib/pendingFoodTrialReturn.ts's
   // own comment for the full "why." A ref, not state, deliberately -- this
   // screen itself never unmounts on a tab switch (app/(tabs)/_layout.tsx's
@@ -1126,24 +1119,24 @@ export default function FoodScreen() {
     setDessertFavoriteCount(dessertFavorites.length);
     setMealFavoriteCount(mealFavorites.length);
   }
-  // 2026-08-23: the Desktop (see foodDesktopContent below) has
-  // no popup "onOpen" moment of its own to hook a refetch onto the way My
-  // Foods' popup does -- it's just always there at rest. useFocusEffect
-  // fires on the screen's initial mount too, not only later focus events,
-  // so this alone covers both "counts are fresh the first time the
-  // Desktop ever shows" and "counts are fresh again after saving
-  // something elsewhere and coming back." Deliberately its own small
-  // effect rather than folded into the large useFocusEffect above, which
-  // already has enough real, deep-link-driven branches of its own.
+  // 2026-08-23: written for the resting-screen Desktop, which had no
+  // popup "onOpen" moment to hook a refetch onto the way the My Foods
+  // popup does. The Desktop is gone (2026-09-24) and the popup's own
+  // onOpen would cover this again, but the effect stays: useFocusEffect
+  // fires on the screen's initial mount as well as on later focus events,
+  // so a count is right the first time the popup opens rather than one
+  // open behind. Deliberately a small effect of its own rather than folded
+  // into the large useFocusEffect above, which already has enough
+  // deep-link-driven branches.
   useFocusEffect(
     useCallback(() => {
       loadMyFoodsCounts();
     }, []),
   );
-  // Always land back on the Desktop's own top level once a lens is
-  // actually revealed, 2026-08-23 -- so returning to rest after using a
-  // builder never leaves someone stuck inside "Saved & Favorites" with no
-  // memory of how they got there. Watches `revealed` itself rather than
+  // Always land back at the top level once a lens is actually revealed,
+  // 2026-08-23 -- so returning to rest after using a builder never leaves
+  // someone stuck inside "Saved & Favorites" with no memory of how they
+  // got there. Watches `revealed` itself rather than
   // hooking into every individual setRevealed(true) call site above (the
   // large useFocusEffect alone has a dozen of them), so this stays correct
   // regardless of which path actually reveals a lens.
@@ -1182,6 +1175,26 @@ export default function FoodScreen() {
     dessertFavoriteCount +
     mealFavoriteCount;
   const myFoodsCategories: MyItemsCategory[] = [
+    {
+      // 2026-08-30, direct steer: "these are very powerful tools that should
+      // also be available on the Food screen. Find a meal should be available
+      // on the Food screen." It reaches everything a person has logged or
+      // favorited plus every system recipe, which is what this tab is about,
+      // so it leads the list rather than sitting below the saved-item rows.
+      //
+      // "Log or Schedule a Meal" with a caption, 2026-09-13: "Find a Meal
+      // isn't exactly self explanatory. Are they finding a meal to edit one
+      // on their schedule? Are they finding a meal to add to their schedule?
+      // Are they finding a past meal?" The row names what the screen does.
+      id: 'find-a-meal',
+      icon: 'search-outline',
+      label: 'Log or Schedule a Meal',
+      caption: 'Pick any meal you have logged or saved, one already on your schedule, or a system recipe, then log it or put it on your schedule.',
+      onPress: () => {
+        setLens('findMeal');
+        setRevealed(true);
+      },
+    },
     {
       // "My Food Products" -- unchanged from its own 2026-08-16 original
       // (see scannedProductCount's own comment above), just promoted to a
@@ -1263,48 +1276,6 @@ export default function FoodScreen() {
     },
   ];
 
-  // The Desktop's own top-level list, 2026-08-23: myFoodsCategories above
-  // with one row in front of it. Spread rather than a second hand-written
-  // array, so the rows can never silently drift out of sync between the
-  // popup and the Desktop.
-  const desktopMyFoodsCategories: MyItemsCategory[] = [
-    // 2026-08-30, direct steer: "these are very powerful tools that should also
-    // be available on the Food screen. Find a meal should be available on the
-    // Food screen." It reaches everything a person has logged or favorited plus
-    // every system recipe, which is exactly what this tab is about, so it leads
-    // rather than sitting under a submenu.
-    {
-      // "Log or Schedule a Meal" with a caption, 2026-09-13: "Find a Meal
-      // isn't exactly self explanatory. Are they finding a meal to edit one
-      // on their schedule? Are they finding a meal to add to their schedule?
-      // Are they finding a past meal?" The row now names what the screen
-      // does and the caption names where the meals come from.
-      id: 'find-a-meal',
-      icon: 'search-outline',
-      label: 'Log or Schedule a Meal',
-      caption: 'Pick any meal you have logged or saved, one already on your schedule, or a system recipe, then log it or put it on your schedule.',
-      onPress: () => {
-        setLens('findMeal');
-        setRevealed(true);
-      },
-    },
-    ...myFoodsCategories,
-  ];
-
-  // The Desktop's own scrollable body, 2026-08-23. It went without
-  // floating-button clearance from 2026-09-13 (GatedTabContent insets the
-  // resting area above the footer band, so the last row already stopped
-  // above the hub buttons), and takes the shared padding again from
-  // 2026-09-19 for the one-window run-out every scrolling screen carries.
-  const foodDesktopContent = (
-    <ScrollView
-      contentContainerStyle={[styles.desktopContent, { paddingBottom: scrollBottomPadding }]}
-      showsVerticalScrollIndicator={false}
-    >
-      <TabDesktopMenu categories={desktopMyFoodsCategories} tabColor={TAB_COLOR} />
-    </ScrollView>
-  );
-
   // Done with the scanner means back to where it was opened from: the grocery
   // list when one sent us here, Home when Home did, this tab's own resting
   // screen otherwise.
@@ -1333,10 +1304,6 @@ export default function FoodScreen() {
           pageTitle="Food"
           variant="produce"
           revealed={revealed}
-          restingContent={foodDesktopContent}
-          restingIntro={{
-            body: 'Recipes you have built here, your saved and favorite foods, garden harvests, and the store-bought products you allow in your diet.',
-          }}
         >
           {lens === 'findMeal' ? (
             <FindMealView
@@ -1381,8 +1348,7 @@ export default function FoodScreen() {
               // screen. Pushing this tab's own route with new params is
               // what the focus effect above already reacts to.
               onOpenBuilder={(params) => router.push({ pathname: '/food', params })}
-              // Back to the Desktop, drilled into Saved & Favorites when
-              // that is where this list lives.
+              // Back to the tab's resting screen.
               onClose={() => setRevealed(false)}
             />
           ) : lens === 'myRecipes' ? (
@@ -1652,15 +1618,4 @@ export default function FoodScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  // Same conventions as Digest's own topic-menu header (categoryHeaderText/
-  // categoryDescription/backToHomeText in purple-digest.tsx) -- this
-  // Desktop is explicitly meant to read as "the same menu system," not a
-  // one-off invented separately, so it borrows those exact styles rather
-  // than a second, similar-but-not-identical set.
-  // No padding at all, 2026-09-12/13: every category row is a band that
-  // runs edge to edge (see TabDesktopMenu), inset only by its own content
-  // padding, and the top starts flush because GatedTabContent's own
-  // resting column already puts the standard band gap between its prompt
-  // box (which now carries the My Foods heading and blurb) and this.
-  desktopContent: { paddingHorizontal: 0, paddingTop: 0, paddingBottom: HOME_BAND_GAP, gap: HOME_BAND_GAP },
 });
