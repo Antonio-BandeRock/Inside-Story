@@ -66,6 +66,9 @@ import {
   type PatternWindowHours,
 } from '../../lib/patternFinder';
 import { markPendingFoodTrialReturn } from '../../lib/pendingFoodTrialReturn';
+import { basisSentence, comparisonSentence, thresholdSentence } from '../../lib/patternBasis';
+import { CONTEXT_CAVEAT } from '../../lib/patternContext';
+import { usualSentence } from '../../lib/yourUsual';
 import {
   keywordFromFoodName,
   proposeCategoryPatternRule,
@@ -463,8 +466,12 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
         body: "How far back before a symptom counts as 'before it' varies by person and condition, so pick whichever window feels closest to how your body actually reacts.",
       },
       {
-        heading: 'Start a trial',
-        body: "A food that shows up here can be sent straight into Signals as a food trial, the same deliberate, tracked way to actually test whether it is the cause, rather than just guessing from this list.",
+        heading: 'What each finding is based on',
+        body: 'The top of the list says how many flares and reactions were looked at and how many had meals logged before them. Each row then compares how often the food came before a flare with how often it turns up in any stretch of the same length, so a food you eat every day does not look suspicious just for being everywhere.',
+      },
+      {
+        heading: 'Test this',
+        body: 'A food that shows up here can be tested as an experiment in Signals: leave it out for a set number of days, then bring it back, and see what was logged before, without it and after. One run on one person can still be chance, and it says so.',
       },
     ],
   },
@@ -1071,6 +1078,7 @@ export default function TrendsScreen() {
           trialCategory: identity.category,
           trialSubcategory: identity.subcategory ?? '',
           trialPrepMethod: identity.prepMethod ?? '',
+          trialDesign: 'remove_return',
         },
       });
     } finally {
@@ -2372,6 +2380,14 @@ export default function TrendsScreen() {
                           Most recent: {latest.value.toFixed(1)} {measurementSystem === 'imperial' ? 'lb' : 'kg'}
                         </Text>
                       ) : null}
+                      {latest ? (
+                        <Text style={styles.caption}>
+                          {usualSentence(
+                            displayPoints.map((point) => point.value),
+                            (value) => `${value.toFixed(1)} ${measurementSystem === 'imperial' ? 'lb' : 'kg'}`,
+                          )}
+                        </Text>
+                      ) : null}
                     </View>
                   );
                 })()
@@ -2405,6 +2421,14 @@ export default function TrendsScreen() {
                             {Math.round(stepsAverage).toLocaleString()} a day over {steps.length} recorded day{steps.length === 1 ? '' : 's'}
                           </Text>
                         ) : null}
+                        {stepsAverage !== null ? (
+                          <Text style={styles.caption}>
+                            {usualSentence(
+                              steps.map((point) => point.value),
+                              (value) => `${Math.round(value).toLocaleString()} steps`,
+                            )}
+                          </Text>
+                        ) : null}
                         </View>
                       </TabBand>
                       <TabBand folds={folds} color={TAB_COLOR} id={'trends:movement:hours-slept'} title={'Hours slept'} icon="moon-outline">
@@ -2419,6 +2443,14 @@ export default function TrendsScreen() {
                         {sleepAverage !== null ? (
                           <Text style={styles.caption}>
                             {sleepAverage.toFixed(1)} h a night over {sleep.length} recorded night{sleep.length === 1 ? '' : 's'}
+                          </Text>
+                        ) : null}
+                        {sleepAverage !== null ? (
+                          <Text style={styles.caption}>
+                            {usualSentence(
+                              sleep.map((point) => point.value),
+                              (value) => `${value.toFixed(1)} h`,
+                            )}
                           </Text>
                         ) : null}
                         </View>
@@ -2626,6 +2658,14 @@ export default function TrendsScreen() {
                               : ''}
                           </Text>
                         ) : null}
+                        {latest ? (
+                          <Text style={styles.caption}>
+                            {usualSentence(
+                              (labSeries ?? []).filter((row) => row.unit === latest.unit).map((row) => row.value),
+                              (value) => `${Math.round(value * 100) / 100} ${latest.unit}`.trim(),
+                            )}
+                          </Text>
+                        ) : null}
                       </View>
                     );
                   })()
@@ -2668,13 +2708,16 @@ export default function TrendsScreen() {
                   patternResult.categoryCandidates.length === 0 ? (
                   <View style={band.boxMuted}>
                     <Text style={styles.loadingText}>
-                      {"Nothing showed up before 2 or more of your "}
-                      {patternResult.totalSymptomInstances}
-                      {" logged flares/reactions in this window. That's a result too; try a longer window, or keep logging."}
+                      {basisSentence(patternResult.basis)}
+                      {' Nothing showed up before 2 or more of them in this window. That is a result too; try a longer window, or keep logging.'}
                     </Text>
                   </View>
                 ) : (
                   <>
+                    <View style={band.boxMuted}>
+                      <Text style={styles.patternRowCaption}>{basisSentence(patternResult.basis)}</Text>
+                      <Text style={styles.patternRowCaption}>{thresholdSentence()}</Text>
+                    </View>
                     {patternResult.foodCandidates.length > 0 ? (
                       <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:specific-foods'} title={'Specific foods'} icon="nutrition-outline">
                         {patternResult.foodCandidates.map((candidate) => {
@@ -2685,7 +2728,7 @@ export default function TrendsScreen() {
                                 <View style={styles.patternRowText}>
                                   <Text style={styles.patternRowTitle}>{candidate.foodName}</Text>
                                   <Text style={styles.patternRowCaption}>
-                                    Logged before {candidate.occurrenceCount} of your {patternResult.totalSymptomInstances} flares/reactions
+                                    {comparisonSentence(candidate.comparison, patternResult.basis.windowHours)}
                                   </Text>
                                 </View>
                                 <View style={styles.patternRowActions}>
@@ -2695,7 +2738,7 @@ export default function TrendsScreen() {
                                     onPress={() => handleStartTrial(candidate)}
                                   >
                                     <Text style={[styles.trialButtonText, { color: TAB_COLOR }]}>
-                                      {startingTrialKey === key ? 'Starting…' : 'Start a trial'}
+                                      {startingTrialKey === key ? 'Opening…' : 'Test this'}
                                     </Text>
                                   </TouchableOpacity>
                                   <TouchableOpacity
@@ -2727,8 +2770,8 @@ export default function TrendsScreen() {
                                     {candidate.subCriterion} · {candidate.tier}
                                   </Text>
                                   <Text style={styles.patternRowCaption}>
-                                    Relevant to {candidate.conditionName} · logged before {candidate.occurrenceCount} of your{' '}
-                                    {patternResult.totalSymptomInstances} flares/reactions
+                                    Relevant to {candidate.conditionName}.{' '}
+                                    {comparisonSentence(candidate.comparison, patternResult.basis.windowHours)}
                                   </Text>
                                 </View>
                                 <TouchableOpacity
@@ -2777,7 +2820,7 @@ export default function TrendsScreen() {
                                 <View style={styles.patternRowText}>
                                   <Text style={styles.patternRowTitle}>{candidate.category}</Text>
                                   <Text style={styles.patternRowCaption}>
-                                    Logged before {candidate.occurrenceCount} of your {patternResult.totalSymptomInstances} flares/reactions
+                                    {comparisonSentence(candidate.comparison, patternResult.basis.windowHours)}
                                   </Text>
                                 </View>
                                 <TouchableOpacity
@@ -2805,6 +2848,17 @@ export default function TrendsScreen() {
                     ) : null}
                   </>
                 )}
+
+                {!loading && patternResult && patternResult.context.length > 0 ? (
+                  <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:around-flares'} title={'Other things around the same flares'} icon="git-compare-outline">
+                    {patternResult.context.map((line) => (
+                      <Text key={line} style={styles.patternRowCaption}>
+                        {line}
+                      </Text>
+                    ))}
+                    <Text style={styles.patternRowCaption}>{CONTEXT_CAVEAT}</Text>
+                  </TabBand>
+                ) : null}
 
                 {!loading && patternResult ? (
                   <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:work-weeks'} title={'Work, week by week'} icon="briefcase-outline">

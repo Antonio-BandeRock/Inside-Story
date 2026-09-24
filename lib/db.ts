@@ -16,6 +16,7 @@ import {
 import { analyzeNutrientIntake, NutrientGapEntry, sumFoodNutrientTotals } from './nutrientAnalysis';
 import { ACTIVITY_LEVELS, ActivityLevel } from './energyNeeds';
 import { isFlaggedTier, tierSeverity } from './sixDimensionsReference';
+import { isInRemoval, type TrialDesign } from './foodExperiment';
 import { buildPerConditionSummaries, type ConditionDimensionSummary } from './conditionDimensions';
 import { convertToGrams, MASS_UNITS, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
 import {
@@ -8603,6 +8604,21 @@ async function runDatabaseInitialization() {
     if (!foodTrialColumns.some((existing) => existing.name === 'food_id')) {
       await db.execAsync('ALTER TABLE food_trials ADD COLUMN food_id INTEGER;');
     }
+    // Experiments, Phase B of the 2026-09-24 gap review (lib/foodExperiment.ts):
+    // design is 'watch' (the original trial) or 'remove_return'; for the
+    // latter, removal_started_on and removal_days are the days without the
+    // food, and measure is what the person said they would watch. All
+    // nullable, so every trial made before this reads as 'watch'.
+    for (const [column, type] of [
+      ['design', 'TEXT'],
+      ['removal_started_on', 'TEXT'],
+      ['removal_days', 'INTEGER'],
+      ['measure', 'TEXT'],
+    ] as const) {
+      if (!foodTrialColumns.some((existing) => existing.name === column)) {
+        await db.execAsync(`ALTER TABLE food_trials ADD COLUMN ${column} ${type};`);
+      }
+    }
 
     // Ties a lightweight daily during-a-trial check-in (or its escalated
     // full symptom log -- same table either way, see recordCheckin's own
@@ -14985,7 +15001,13 @@ export async function activateWaitingTrialsForComponents(
       if (!source || Number.isNaN(foodId)) continue;
 
       const trials = await getFoodTrialHistory(foodId, source);
-      const waitingTrial = trials.find((trial) => trial.status === 'waiting');
+      // An experiment still in its days without the food is not started by
+      // eating it: that meal is counted against the without period instead
+      // (lib/foodExperiment.ts), and the trial waits until those days end.
+      const waitingTrial = trials.find(
+        (trial) =>
+          trial.status === 'waiting' && !isInRemoval(trial.removalStartedOn, trial.removalDays, occurredAt.slice(0, 10)),
+      );
       const db = await getDatabase();
       const now = new Date().toISOString();
 
@@ -21107,6 +21129,12 @@ export type FoodTrialRecord = {
   // matches against.
   activatedByScheduleItemId: string | null;
   activatedByMealId: string | null;
+  // Experiments (lib/foodExperiment.ts). design is null on trials made
+  // before experiments existed, which read as 'watch'.
+  design: TrialDesign | null;
+  removalStartedOn: string | null;
+  removalDays: number | null;
+  measure: string | null;
 };
 
 // A new food being watched over time rather than a single moment-in-time
@@ -21134,17 +21162,28 @@ export async function createFoodTrial(input: {
   source?: string | null;
   prepMethod?: string | null;
   conditionCode?: string | null;
+  design?: TrialDesign;
+  // The local date the days without the food begin, from the caller,
+  // since startedAt is a UTC timestamp and its first ten characters can
+  // be tomorrow in the evening west of Greenwich.
+  removalStartedOn?: string | null;
+  removalDays?: number | null;
+  measure?: string | null;
 }): Promise<{ id: string; status: FoodTrialStatus }> {
   const db = await getDatabase();
   const id = `food_trial_${Date.now()}`;
   const now = new Date().toISOString();
   const status: FoodTrialStatus = input.foodId != null && input.source ? 'waiting' : 'trialing';
+  // An experiment needs a food the app can recognize coming back, so it
+  // only takes effect for a trial linked to a reference food.
+  const experiment = input.design === 'remove_return' && status === 'waiting' && !!input.removalDays;
 
   await db.runAsync(
     `
       INSERT INTO food_trials
-        (id, food_name, started_at, observation_days, status, notes, food_id, source, prep_method, condition_code, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (id, food_name, started_at, observation_days, status, notes, food_id, source, prep_method, condition_code,
+         design, removal_started_on, removal_days, measure, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.foodName.trim(),
@@ -21156,6 +21195,10 @@ export async function createFoodTrial(input: {
     input.source ?? null,
     input.prepMethod ?? null,
     input.conditionCode ?? null,
+    experiment ? 'remove_return' : 'watch',
+    experiment ? (input.removalStartedOn ?? input.startedAt.slice(0, 10)) : null,
+    experiment ? (input.removalDays ?? null) : null,
+    input.measure?.trim() || null,
     now,
     now,
   );
@@ -21170,7 +21213,8 @@ export async function listFoodTrials(limit = 100): Promise<FoodTrialRecord[]> {
       SELECT id, food_name AS foodName, started_at AS startedAt, observation_days AS observationDays,
              status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
              condition_code AS conditionCode, activated_by_schedule_item_id AS activatedByScheduleItemId,
-             activated_by_meal_id AS activatedByMealId, created_at AS createdAt, updated_at AS updatedAt
+             activated_by_meal_id AS activatedByMealId, design, removal_started_on AS removalStartedOn,
+             removal_days AS removalDays, measure, created_at AS createdAt, updated_at AS updatedAt
       FROM food_trials
       ORDER BY started_at DESC
       LIMIT ?
@@ -21193,7 +21237,8 @@ export async function getFoodTrialHistory(foodId: number, source: string): Promi
       SELECT id, food_name AS foodName, started_at AS startedAt, observation_days AS observationDays,
              status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
              condition_code AS conditionCode, activated_by_schedule_item_id AS activatedByScheduleItemId,
-             activated_by_meal_id AS activatedByMealId, created_at AS createdAt, updated_at AS updatedAt
+             activated_by_meal_id AS activatedByMealId, design, removal_started_on AS removalStartedOn,
+             removal_days AS removalDays, measure, created_at AS createdAt, updated_at AS updatedAt
       FROM food_trials
       WHERE food_id = ? AND source = ?
       ORDER BY started_at DESC
@@ -21435,7 +21480,8 @@ export async function getFoodTrialsForCondition(conditionCode: string): Promise<
       SELECT id, food_name AS foodName, started_at AS startedAt, observation_days AS observationDays,
              status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
              condition_code AS conditionCode, activated_by_schedule_item_id AS activatedByScheduleItemId,
-             activated_by_meal_id AS activatedByMealId, created_at AS createdAt, updated_at AS updatedAt
+             activated_by_meal_id AS activatedByMealId, design, removal_started_on AS removalStartedOn,
+             removal_days AS removalDays, measure, created_at AS createdAt, updated_at AS updatedAt
       FROM food_trials
       WHERE condition_code = ?
       ORDER BY started_at DESC

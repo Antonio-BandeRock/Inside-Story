@@ -48,6 +48,15 @@ import {
   type WellbeingCheckin,
 } from '../../lib/db';
 import { buildTime24, formatTime12, splitTime24, type TimeOfDayInput } from '../../lib/timeOfDay';
+import {
+  DEFAULT_REMOVAL_DAYS,
+  isInRemoval,
+  MEASURE_OPTIONS,
+  REMOVAL_DAY_OPTIONS,
+  removalProgressLine,
+  type TrialDesign,
+} from '../../lib/foodExperiment';
+import { readExperimentResult } from '../../lib/foodExperimentDb';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -782,7 +791,13 @@ function FoodReactionsLens() {
 // full window by default regardless of a mid-window report (see
 // lib/db.ts's own cancelFoodTrialCheckins comment) -- only the existing,
 // unchanged manual resolveFoodTrial call ends it early.
-function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
+function NewFoodsLens({
+  prefill,
+  prefillDesign,
+}: {
+  prefill?: ResolvedFoodSelection | null;
+  prefillDesign?: TrialDesign | null;
+}) {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [trials, setTrials] = useState<FoodTrialRecord[]>([]);
@@ -798,6 +813,11 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
   const [dateChoice, setDateChoice] = useState<DateChoice>('today');
   const [customDate, setCustomDate] = useState('');
   const [observationDays, setObservationDays] = useState('3');
+  // Experiments, Phase B of the 2026-09-24 gap review (lib/foodExperiment.ts).
+  const [design, setDesign] = useState<TrialDesign>('watch');
+  const [removalDays, setRemovalDays] = useState<number>(DEFAULT_REMOVAL_DAYS);
+  const [measure, setMeasure] = useState<string>(MEASURE_OPTIONS[0]);
+  const [experimentResults, setExperimentResults] = useState<Record<string, string[]>>({});
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   // One real, live-fetched "did I already check in today" entry per active
@@ -823,6 +843,12 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
         setTrackedConditions(allConditions.filter((condition) => selectedCodes.includes(condition.code)));
         setFoodAllergies(allergies);
         setLoading(false);
+
+        const experiments = rows.filter((trial) => trial.design === 'remove_return');
+        const results = await Promise.all(
+          experiments.map(async (trial) => [trial.id, (await readExperimentResult(trial)) ?? []] as const),
+        );
+        setExperimentResults(Object.fromEntries(results));
 
         // Real, per-trial "checked in today yet" status -- one small query
         // per currently-active trial (a real, small list in practice).
@@ -865,8 +891,9 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
     appliedPrefillKey.current = key;
     setPickedFood(prefill);
     setFoodName(`${prefill.baseName}${prefill.prepMethod ? ` (${prefill.prepMethod})` : ''}`);
+    if (prefillDesign) setDesign(prefillDesign);
     setFormOpen(true);
-  }, [prefill]);
+  }, [prefill, prefillDesign]);
 
   // Real per-food test history, refreshed whenever a real, reference-linked
   // food is picked -- see getFoodTrialHistory's own comment in lib/db.ts.
@@ -897,6 +924,9 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
     setDateChoice('today');
     setCustomDate('');
     setObservationDays('3');
+    setDesign('watch');
+    setRemovalDays(DEFAULT_REMOVAL_DAYS);
+    setMeasure(MEASURE_OPTIONS[0]);
   }
 
   async function handleSave() {
@@ -936,6 +966,10 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
       source: pickedFood?.source ?? null,
       prepMethod: pickedFood?.prepMethod ?? null,
       conditionCode: selectedConditionCode,
+      design: pickedFood ? design : 'watch',
+      removalDays,
+      removalStartedOn: todayDateString(),
+      measure: pickedFood && design === 'remove_return' ? measure : null,
     });
 
     // Only a real, immediately-'trialing' free-text trial gets its
@@ -1137,7 +1171,66 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
               />
             </>
           ) : null}
-          <Text style={styles.label}>Watch it for how many days?</Text>
+          {pickedFood ? (
+            <>
+              <Text style={styles.label}>How do you want to test it?</Text>
+              <View style={styles.pillRow}>
+                {(
+                  [
+                    ['watch', 'Watch after eating it'],
+                    ['remove_return', 'Leave it out, then bring it back'],
+                  ] as const
+                ).map(([key, label]) => (
+                  <TouchableOpacity
+                    key={key}
+                    style={[styles.pill, design === key && styles.pillActive]}
+                    onPress={() => setDesign(key)}
+                  >
+                    <Text style={[styles.pillText, design === key && styles.pillTextActive]}>{label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {design === 'remove_return' ? (
+                <>
+                  <Text style={styles.helperText}>
+                    Starting today, leave {foodName || 'it'} out. Once those days are done, it comes back the next time
+                    you log or schedule a meal with it, and the days you choose below are watched from there. The same
+                    number of days before today are read from what you already logged, so the result compares
+                    before, without and back.
+                  </Text>
+                  <Text style={styles.label}>Leave it out for how many days?</Text>
+                  <View style={styles.pillRow}>
+                    {REMOVAL_DAY_OPTIONS.map((option) => (
+                      <TouchableOpacity
+                        key={option}
+                        style={[styles.pill, removalDays === option && styles.pillActive]}
+                        onPress={() => setRemovalDays(option)}
+                      >
+                        <Text style={[styles.pillText, removalDays === option && styles.pillTextActive]}>
+                          {option} days
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                  <Text style={styles.label}>What will you watch?</Text>
+                  <View style={styles.pillRow}>
+                    {MEASURE_OPTIONS.map((option) => (
+                      <TouchableOpacity
+                        key={option}
+                        style={[styles.pill, measure === option && styles.pillActive]}
+                        onPress={() => setMeasure(option)}
+                      >
+                        <Text style={[styles.pillText, measure === option && styles.pillTextActive]}>{option}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </>
+              ) : null}
+            </>
+          ) : null}
+          <Text style={styles.label}>
+            {pickedFood && design === 'remove_return' ? 'Once it is back, watch it for how many days?' : 'Watch it for how many days?'}
+          </Text>
           <AppTextInput
             style={[styles.input, styles.timeInput]}
             keyboardType="number-pad"
@@ -1145,7 +1238,7 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
             value={observationDays}
             onChangeText={setObservationDays}
           />
-          {pickedFood ? (
+          {pickedFood && design === 'remove_return' ? null : pickedFood ? (
             <Text style={styles.helperText}>
               This will start automatically once you log or schedule a meal with {foodName} -- or you can start it
               right now from the trial list below once it&apos;s saved.
@@ -1163,7 +1256,9 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={handleSave}>
-              <Text style={styles.primaryButtonText}>Start trial</Text>
+              <Text style={styles.primaryButtonText}>
+                {pickedFood && design === 'remove_return' ? 'Start experiment' : 'Start trial'}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -1194,9 +1289,22 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
                     // submitted, not a genuine start (see createFoodTrial's
                     // own comment), so showing it here would misrepresent
                     // exactly the thing this whole feature exists to fix.
-                    <Text style={[styles.rowMeta, styles.waitingText]}>
-                      Waiting to start: will begin automatically once you log or schedule a meal with this food
-                    </Text>
+                    trial.design === 'remove_return' &&
+                    trial.removalStartedOn &&
+                    trial.removalDays &&
+                    isInRemoval(trial.removalStartedOn, trial.removalDays, todayDateString()) ? (
+                      <Text style={[styles.rowMeta, styles.waitingText]}>
+                        {removalProgressLine(trial.removalStartedOn, trial.removalDays, todayDateString())}
+                      </Text>
+                    ) : trial.design === 'remove_return' ? (
+                      <Text style={[styles.rowMeta, styles.waitingText]}>
+                        The days without it are done. It comes back the next time you log or schedule a meal with it.
+                      </Text>
+                    ) : (
+                      <Text style={[styles.rowMeta, styles.waitingText]}>
+                        Waiting to start: will begin automatically once you log or schedule a meal with this food
+                      </Text>
+                    )
                   ) : (
                     <>
                       <Text style={styles.rowMeta}>Started {formatEntryDate(trial.startedAt)}</Text>
@@ -1238,6 +1346,18 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
                   </TouchableOpacity>
                 </View>
 
+                {experimentResults[trial.id]?.length ? (
+                  <View style={{ marginTop: 10, gap: 4 }}>
+                    <Text style={styles.rowMeta}>
+                      Experiment{trial.measure ? `, watching ${trial.measure.toLowerCase()}` : ''}:
+                    </Text>
+                    {experimentResults[trial.id].map((line) => (
+                      <Text key={line} style={styles.rowMeta}>
+                        {line}
+                      </Text>
+                    ))}
+                  </View>
+                ) : null}
                 {/* The lightweight daily prompt, 2026-08-14 -- only shows
                     while a trial is still active AND today's real check-in
                     (light or escalated) hasn't already been logged.
@@ -1781,8 +1901,9 @@ export default function LogScreen() {
   // trialPrepMethod -- a real cross-tab deep link from a Food builder's own
   // "Worth testing?" button (see SideBuilder.tsx's own comment), the same
   // shape food.tsx's own editXId/fromXFavoriteId params already use.
-  const { trialFoodId, trialSource, trialBaseName, trialCategory, trialSubcategory, trialPrepMethod } =
+  const { trialFoodId, trialSource, trialBaseName, trialCategory, trialSubcategory, trialPrepMethod, trialDesign } =
     useLocalSearchParams<{
+      trialDesign?: string;
       trialFoodId?: string;
       trialSource?: string;
       trialBaseName?: string;
@@ -1846,7 +1967,10 @@ export default function LogScreen() {
           ) : lens === 'foodReactions' ? (
             <FoodReactionsLens />
           ) : lens === 'newFoods' ? (
-            <NewFoodsLens prefill={trialPrefill} />
+            <NewFoodsLens
+              prefill={trialPrefill}
+              prefillDesign={trialDesign === 'remove_return' ? 'remove_return' : null}
+            />
           ) : lens === 'exercise' ? (
             <ExerciseLens />
           ) : lens === 'bloodPressure' ? (
