@@ -7037,6 +7037,50 @@ async function runDatabaseInitialization() {
       CREATE INDEX IF NOT EXISTS idx_harvest_uses_used_on ON harvest_uses(used_on);
       CREATE INDEX IF NOT EXISTS idx_harvest_uses_harvest ON harvest_uses(harvest_id);
 
+      -- What the growing conditions actually were, 2026-09-23. Stage 0 of
+      -- the sensor work: the reading is separated from the radio, because a
+      -- soil moisture figure is worth the same whether it arrived over Wi-Fi
+      -- or was read off a cheap meter pushed into the bed, and until now
+      -- there was nowhere in the app to put one at all. Eleven garden tables
+      -- held what was planted, spent, picked and eaten, and not one
+      -- measurement of the conditions any of it grew in.
+      --
+      -- Append-only, the harvest_uses and upkeep_doings precedent: no
+      -- foreign key, and plot_name carried on the row, so an area moved to
+      -- Past Areas or deleted leaves its readings readable as the record of
+      -- what that ground was like rather than destroying them. A reading
+      -- itself can be deleted, since a mistyped figure has to be fixable
+      -- and nothing else refers to one.
+      --
+      -- measurement is a code from lib/growSetup.ts's measurement_kind list
+      -- (a built-in code, or the id of a term the person named), so the list
+      -- is open the same way every other garden list is. unit is TEXT rather
+      -- than a code because a unit is never reassigned: it is only ever read
+      -- back beside the figure it belongs to.
+      --
+      -- source is how the reading arrived: 'hand' today, and 'device' once
+      -- stage 1 discovers sensors on the local network. The column exists
+      -- now so that stage needs no migration, and so a blank month can say
+      -- "nothing came in" for a measurement a device feeds and "nothing
+      -- measured" for one somebody reads by hand.
+      CREATE TABLE IF NOT EXISTS garden_readings (
+        id TEXT PRIMARY KEY,
+        plot_id TEXT,
+        plot_name TEXT,
+        planting_id TEXT,
+        measurement TEXT NOT NULL,
+        value REAL NOT NULL,
+        unit TEXT NOT NULL,
+        measured_on TEXT NOT NULL,
+        source TEXT NOT NULL DEFAULT 'hand',
+        device_name TEXT,
+        note TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_garden_readings_measured_on ON garden_readings(measured_on);
+      CREATE INDEX IF NOT EXISTS idx_garden_readings_measurement ON garden_readings(measurement);
+      CREATE INDEX IF NOT EXISTS idx_garden_readings_plot ON garden_readings(plot_id);
+
       -- A real, basic Scheduler tie-in, 2026-08-13 -- schedule_items.item_type
       -- is already a free-text, extensible vocabulary (see that table's own
       -- comment further up) with 'meal'/'supplement'/'prescription'/

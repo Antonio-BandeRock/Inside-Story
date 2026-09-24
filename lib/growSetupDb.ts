@@ -75,43 +75,57 @@ export async function renameGardenTerm(id: string, name: string): Promise<void> 
   await db.runAsync('UPDATE garden_custom_terms SET name = ? WHERE id = ?', trimmed, id);
 }
 
-/** Which garden_equipment column each list is stored in. Adding a list
- *  means adding its column here. */
-const TERM_COLUMNS: Record<GardenTermList, string> = {
-  equipment_kind: 'kind',
-  light_type: 'light_type',
-  light_spectrum: 'spectrum',
-  container_material: 'container_material',
+/** Which table and column each list is read from. Adding a list means
+ *  adding its source here.
+ *
+ *  retiredColumn is what tells a thing still in use apart from one kept as
+ *  a record. A table of history has no such column, because nothing in it
+ *  is in use: garden_readings holds measurements that already happened, so
+ *  every row reading a term counts as past, which leaves the term retired
+ *  rather than deleted and asks for no reassignment. movable says whether a
+ *  row can be moved to another term at all; a reading cannot, since moving
+ *  it would change what was measured. */
+const TERM_SOURCES: Record<GardenTermList, { table: string; column: string; retiredColumn: string | null; movable: boolean }> = {
+  equipment_kind: { table: 'garden_equipment', column: 'kind', retiredColumn: 'retired_at', movable: true },
+  light_type: { table: 'garden_equipment', column: 'light_type', retiredColumn: 'retired_at', movable: true },
+  light_spectrum: { table: 'garden_equipment', column: 'spectrum', retiredColumn: 'retired_at', movable: true },
+  container_material: { table: 'garden_equipment', column: 'container_material', retiredColumn: 'retired_at', movable: true },
+  measurement_kind: { table: 'garden_readings', column: 'measurement', retiredColumn: null, movable: false },
 };
 
-/** How many pieces of equipment read a term: current ones, which have to be
- *  moved before it goes, and retired ones, which keep it as their record. */
-export async function countEquipmentUnderTerm(list: GardenTermList, id: string): Promise<{ current: number; past: number }> {
+/** How many records read a term: current ones, which have to be moved
+ *  before it goes, and past ones, which keep it as their record. */
+export async function countRecordsUnderTerm(list: GardenTermList, id: string): Promise<{ current: number; past: number }> {
   const db = await getDatabase();
-  const column = TERM_COLUMNS[list];
+  const source = TERM_SOURCES[list];
+  const split = source.retiredColumn
+    ? `SUM(CASE WHEN ${source.retiredColumn} IS NULL THEN 1 ELSE 0 END) AS current,
+             SUM(CASE WHEN ${source.retiredColumn} IS NOT NULL THEN 1 ELSE 0 END) AS past`
+    : '0 AS current, COUNT(*) AS past';
   const row = await db.getFirstAsync<{ current: number; past: number }>(
-    `
-      SELECT SUM(CASE WHEN retired_at IS NULL THEN 1 ELSE 0 END) AS current,
-             SUM(CASE WHEN retired_at IS NOT NULL THEN 1 ELSE 0 END) AS past
-      FROM garden_equipment WHERE ${column} = ?
-    `,
+    `SELECT ${split} FROM ${source.table} WHERE ${source.column} = ?`,
     id,
   );
   return { current: row?.current ?? 0, past: row?.past ?? 0 };
 }
 
-/** Removes a term. Current equipment reading it moves to moveTo, which has
- *  to be given when there is any (returns false otherwise, and changes
- *  nothing). Retired equipment keeps the term, so the row is retired rather
- *  than deleted; with nothing reading it, the row goes. */
+/** Removes a term. Current records reading it move to moveTo, which has to
+ *  be given when there is any (returns false otherwise, and changes
+ *  nothing). Past records keep the term, so the row is retired rather than
+ *  deleted; with nothing reading it, the row goes. */
 export async function removeGardenTerm(list: GardenTermList, id: string, moveTo: string | null): Promise<boolean> {
   const db = await getDatabase();
-  const counts = await countEquipmentUnderTerm(list, id);
+  const counts = await countRecordsUnderTerm(list, id);
   const plan = planTermRemoval(counts, moveTo);
   if (!plan.ok) return false;
-  const column = TERM_COLUMNS[list];
-  if (counts.current > 0) {
-    await db.runAsync(`UPDATE garden_equipment SET ${column} = ?, updated_at = ? WHERE ${column} = ? AND retired_at IS NULL`, moveTo, new Date().toISOString(), id);
+  const source = TERM_SOURCES[list];
+  if (counts.current > 0 && source.movable) {
+    await db.runAsync(
+      `UPDATE ${source.table} SET ${source.column} = ?, updated_at = ? WHERE ${source.column} = ? AND ${source.retiredColumn} IS NULL`,
+      moveTo,
+      new Date().toISOString(),
+      id,
+    );
   }
   if (plan.keepRow) await db.runAsync('UPDATE garden_custom_terms SET retired_at = ? WHERE id = ?', new Date().toISOString(), id);
   else await db.runAsync('DELETE FROM garden_custom_terms WHERE id = ?', id);

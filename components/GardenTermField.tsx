@@ -23,10 +23,12 @@ import {
   replacementTermChoices,
   TERM_LIST_WORDS,
   termChoices,
+  termRemovalNote,
+  termSaveNote,
   type CustomGardenTerm,
   type GardenTermList,
 } from '../lib/growSetup';
-import { countEquipmentUnderTerm, createGardenTerm, removeGardenTerm, renameGardenTerm } from '../lib/growSetupDb';
+import { countRecordsUnderTerm, createGardenTerm, removeGardenTerm, renameGardenTerm } from '../lib/growSetupDb';
 import { useState } from 'react';
 import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
@@ -80,7 +82,7 @@ export function GardenTermField({ list, label, selected, onSelect, terms, onTerm
   }
 
   async function handleRemove(id: string) {
-    const counts = await countEquipmentUnderTerm(list, id);
+    const counts = await countRecordsUnderTerm(list, id);
     setForm(null);
     if (counts.current > 0) {
       const entry = terms.find((term) => term.id === id);
@@ -140,9 +142,7 @@ export function GardenTermField({ list, label, selected, onSelect, terms, onTerm
             onChangeText={(name) => setForm({ ...form, name })}
             placeholder={words.example}
           />
-          <Text style={styles.captionText}>
-            Saving picks it here, and it is on the list from now on. Removing it later asks where to move the equipment recorded under it, and deletes none of that.
-          </Text>
+          <Text style={styles.captionText}>{termSaveNote(list)}</Text>
           {formError ? <Text style={styles.errorText}>{formError}</Text> : null}
           <View style={styles.actionRow}>
             <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSave}>
@@ -157,10 +157,7 @@ export function GardenTermField({ list, label, selected, onSelect, terms, onTerm
       {removal ? (
         <View style={styles.nestedForm}>
           <Text style={styles.fieldLabel}>Before {removal.name} is removed</Text>
-          <Text style={styles.captionText}>
-            {removal.counts.current === 1 ? '1 piece of equipment is' : `${removal.counts.current} pieces of equipment are`} recorded under {removal.name}. Pick what to move {removal.counts.current === 1 ? 'it' : 'them'} to; nothing is deleted.
-            {removal.counts.past > 0 ? ` ${removal.counts.past === 1 ? 'A retired piece keeps' : `${removal.counts.past} retired pieces keep`} ${removal.name} as part of ${removal.counts.past === 1 ? 'its' : 'their'} record.` : ''}
-          </Text>
+          <Text style={styles.captionText}>{termRemovalNote(list, removal.name, removal.counts)}</Text>
           <View style={styles.fieldRow}>
             <Text style={styles.fieldLabel}>Move to</Text>
             <PopoverSelect

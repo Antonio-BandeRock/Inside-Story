@@ -14,6 +14,7 @@ import { MyItemsHub, type MyItemsCategory } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { CompostLens } from '../../components/CompostLens';
+import { GrowingConditionsLens } from '../../components/GrowingConditionsLens';
 import { GrowingCostsLens } from '../../components/GrowingCostsLens';
 import { AppTextInput } from '../../components/AppTextInput';
 import { FoodLookup, type ResolvedFoodSelection } from '../../components/FoodLookup';
@@ -95,7 +96,16 @@ const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 // this component's own memo() contract.
 const COUNTRY_OPTIONS = sortByLabel(COUNTRIES.map((country) => ({ label: country.name, value: country.code })));
 
-type GardenLens = 'myZone' | 'plotsAndPlantings' | 'daysUntil' | 'harvestLog' | 'upcomingTasks' | 'compost' | 'growingCosts' | 'horticulture';
+type GardenLens =
+  | 'myZone'
+  | 'plotsAndPlantings'
+  | 'daysUntil'
+  | 'harvestLog'
+  | 'upcomingTasks'
+  | 'compost'
+  | 'growingConditions'
+  | 'growingCosts'
+  | 'horticulture';
 
 const GARDEN_LENS_FULL_NAMES: Record<GardenLens, string> = {
   myZone: 'My Zone',
@@ -104,6 +114,7 @@ const GARDEN_LENS_FULL_NAMES: Record<GardenLens, string> = {
   harvestLog: 'Harvest\nLog',
   upcomingTasks: 'Upcoming\nTasks',
   compost: 'Compost',
+  growingConditions: 'Growing\nConditions',
   growingCosts: 'Growing\nCosts',
   horticulture: 'Horticulture',
 };
@@ -179,6 +190,22 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
       {
         heading: 'Compost',
         body: 'One band per pile, bin, tumbler, worm bin or trench. Record what goes in and whether it was green or brown, when it was turned and watered, a temperature reading, a squeeze test for moisture, and when finished compost comes out or goes onto a plot. The pile reads back what it needs from what you recorded: a greens-to-browns lean, a dry or wet last check, too long since a turn, whether it reached the heat that kills weed seeds. Kitchen scraps cost nothing; a bought material takes a cost and becomes a growing cost, counted under the area or whole group the pile feeds, which you set when you start it and can change on its band. "Remind me to turn it" puts a task under Upcoming Tasks.',
+      },
+    ],
+  },
+  // 2026-09-23, stage 0 of the sensor work: the reading is separated from
+  // the radio, since eleven garden tables held what was planted, spent,
+  // picked and eaten and not one held a measurement of the conditions any
+  // of it grew in.
+  {
+    key: 'growingConditions',
+    label: 'Growing Conditions',
+    icon: 'thermometer-outline',
+    help: [
+      {
+        heading: 'Growing Conditions',
+        body:
+          'What the conditions actually were where something grew. Soil moisture, soil and air temperature, humidity, pH, light, EC, rainfall, what you watered, CO2, or anything else you measure, which you can add to the list yourself. Record the figure, the unit it was read in, the day, and the area and planting it was about if it was about one. A figure read off a meter in your hand counts the same as one from a sensor, which is why this is worth keeping whether or not you ever wire anything up. Units are only ever turned into one another where the two mean the same quantity: Celsius and Fahrenheit do, and a moisture percentage and a tensiometer centibar do not, so those stay apart rather than being added together. One band per measurement holds its readings, newest first, and Trends > Growing Conditions draws one measurement month by month, says what you are measuring and how recently, and names the areas with nothing recorded against them.',
       },
     ],
   },
@@ -330,6 +357,7 @@ export default function GardenScreen() {
         openGardenLens === 'harvestLog' ||
         openGardenLens === 'upcomingTasks' ||
         openGardenLens === 'compost' ||
+        openGardenLens === 'growingConditions' ||
         openGardenLens === 'growingCosts' ||
         openGardenLens === 'horticulture'
       ) {
@@ -410,6 +438,8 @@ export default function GardenScreen() {
                 setLens('horticulture');
               }}
             />
+          ) : lens === 'growingConditions' ? (
+            <GrowingConditionsLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'growingCosts' ? (
             <GrowingCostsLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'horticulture' ? (

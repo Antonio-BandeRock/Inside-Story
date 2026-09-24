@@ -101,6 +101,7 @@ import type { KeepingUpSummary } from '../../lib/keepingUp';
 import { getKeepingUpSummary } from '../../lib/keepingUpDb';
 import { monthsBack, type HarvestYieldSummary, type PeriodRow } from '../../lib/harvestYield';
 import { getEarliestGardenDate, getHarvestYieldSummary } from '../../lib/harvestYieldDb';
+import { getEarliestReadingDate, getGrowingConditionsSummary, type GrowingConditionsSummary } from '../../lib/growingConditionsDb';
 import type { CostSummary } from '../../lib/costOfEating';
 import { getCostSummary, getEarliestMoneyDate } from '../../lib/costOfEatingDb';
 import { summarizePlateShare, type PlateShareBand, type PlateValueBand } from '../../lib/plateSource';
@@ -127,6 +128,7 @@ type TrendsLens =
   | 'groceries'
   | 'keepingUp'
   | 'harvest'
+  | 'conditions'
   | 'cost'
   | 'patterns'
   | 'therapyResponse';
@@ -355,6 +357,41 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       {
         heading: 'Where each of these is recorded',
         body: 'Pickings go in on Garden > Harvest Log, plantings and their expected dates on Garden > Plots & Plantings, compost on Garden > Compost, and what went out or came back on Garden > Harvest Log. This lens only reads them: everything is still added and changed where it lives.',
+      },
+    ],
+  },
+  // 2026-09-23, stage 0 of the sensor work. A lens rather than a band on
+  // Garden Yield: the conditions a garden was kept in are a subject of
+  // their own, and they stay worth keeping for somebody who never picks
+  // anything (a houseplant, a seedling tray, an indoor tent between grows).
+  {
+    key: 'conditions',
+    label: 'Growing Conditions',
+    icon: 'thermometer-outline',
+    help: [
+      {
+        heading: 'Growing Conditions',
+        body: 'Three readings over what you have measured: one measurement month by month, everything you are measuring and how recently, and which areas have readings against them. Pick the measurement with the buttons above the first band.',
+      },
+      {
+        heading: 'Why this one counts in months',
+        body: 'Soil warms and cools over a season, not over a week, so this shares the range picker Garden Yield uses: a year at a time rather than the 7, 30 and 90 days the other lenses offer.',
+      },
+      {
+        heading: 'Added up, or averaged',
+        body: 'Rainfall and water given are added up over a month, since what a month gave is the sum of what fell. Everything else is averaged, and the month also says its lowest and highest reading, since an average soil temperature hides the night that dropped below freezing.',
+      },
+      {
+        heading: 'Units that mean the same thing, and units that do not',
+        body: 'Celsius and Fahrenheit are the same quantity read two ways, so a month mixing them is worked out in one of them. A moisture percentage and a tensiometer centibar are not, and neither are lux and PPFD, so readings in the odd one out are set aside with a line saying how many and in what unit, rather than being folded in as if they matched.',
+      },
+      {
+        heading: 'A blank month is not a month with nothing to measure',
+        body: 'A month with no readings is left blank and counted rather than drawn as a zero, the same rule the rest of Trends follows. Where a sensor has been feeding readings in, the blank says nothing came in, which is a different thing from nobody having measured.',
+      },
+      {
+        heading: 'Where this is recorded',
+        body: 'Readings go in on Garden > Growing Conditions, by hand, from any meter or by eye. This lens only reads them.',
       },
     ],
   },
@@ -722,6 +759,14 @@ export default function TrendsScreen() {
   const [harvestSummary, setHarvestSummary] = useState<HarvestYieldSummary | null>(null);
   // 0 means everything, resolved against the earliest date the garden has.
   const [harvestMonths, setHarvestMonths] = useState<12 | 24 | 0>(12);
+  const [conditionsSummary, setConditionsSummary] = useState<GrowingConditionsSummary | null>(null);
+  // Months again, for the reason Garden Yield counts in them: a season is
+  // the length soil and air move over. Its own state rather than shared
+  // with the other two month lenses, same reasoning as the cost range.
+  const [conditionMonths, setConditionMonths] = useState<12 | 24 | 0>(12);
+  // Null means whatever the summary picks, which is the measurement with
+  // the most recent reading. Set once the person taps another.
+  const [pickedMeasurement, setPickedMeasurement] = useState<string | null>(null);
   const [costSummary, setCostSummary] = useState<CostSummary | null>(null);
   // Its own state rather than harvestMonths shared: the two lenses reach
   // back over different records, and a range chosen for one should not
@@ -890,6 +935,21 @@ export default function TrendsScreen() {
         )
         .then(setHarvestSummary)
         .finally(() => setLoading(false));
+    } else if (lens === 'conditions') {
+      // Whole months, the same reason Garden Yield uses them.
+      const conditionsEnd = todayDateString();
+      (conditionMonths === 0 ? getEarliestReadingDate() : Promise.resolve(null))
+        .then((earliest) =>
+          getGrowingConditionsSummary(
+            conditionMonths === 0
+              ? (earliest ? `${earliest.slice(0, 7)}-01` : monthsBack(conditionsEnd, 12))
+              : monthsBack(conditionsEnd, conditionMonths),
+            conditionsEnd,
+            pickedMeasurement,
+          ),
+        )
+        .then(setConditionsSummary)
+        .finally(() => setLoading(false));
     } else if (lens === 'cost') {
       // Whole months, the same reason Garden Yield uses them: a receipt
       // belongs to the month it was dated, and a range ending mid-month
@@ -981,7 +1041,7 @@ export default function TrendsScreen() {
         setLoading(false);
       });
     }
-  }, [lens, days, harvestMonths, costMonths, measurementSystem, resolvedRange, selectedNutrient, selectedTestCode, selectedGroceryFood, patternWindow, personalizationProfile]);
+  }, [lens, days, harvestMonths, conditionMonths, pickedMeasurement, costMonths, measurementSystem, resolvedRange, selectedNutrient, selectedTestCode, selectedGroceryFood, patternWindow, personalizationProfile]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
@@ -1326,15 +1386,23 @@ export default function TrendsScreen() {
                   </View>
                 ) : null}
               </>
-            ) : lens === 'harvest' || lens === 'cost' ? (
+            ) : lens === 'harvest' || lens === 'conditions' || lens === 'cost' ? (
               <View style={[band.inset, styles.pillRow]}>
                 {MONTH_RANGE_OPTIONS.map((option) => {
-                  const chosen = (lens === 'cost' ? costMonths : harvestMonths) === option.value;
+                  const months =
+                    lens === 'cost' ? costMonths : lens === 'conditions' ? conditionMonths : harvestMonths;
+                  const chosen = months === option.value;
                   return (
                     <TouchableOpacity
                       key={option.value}
                       style={[styles.pill, chosen && styles.pillActive]}
-                      onPress={() => (lens === 'cost' ? setCostMonths(option.value) : setHarvestMonths(option.value))}
+                      onPress={() =>
+                        lens === 'cost'
+                          ? setCostMonths(option.value)
+                          : lens === 'conditions'
+                            ? setConditionMonths(option.value)
+                            : setHarvestMonths(option.value)
+                      }
                     >
                       <Text style={[styles.pillText, chosen && styles.pillTextActive]}>{option.label}</Text>
                     </TouchableOpacity>
@@ -1953,6 +2021,83 @@ export default function TrendsScreen() {
                     {harvestSummary.sharing.note ? (
                       <Text style={styles.patternRowCaption}>{harvestSummary.sharing.note}</Text>
                     ) : null}
+                  </TabBand>
+                </>
+              )
+            ) : lens === 'conditions' ? (
+              loading ? (
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>Reading what the conditions were…</Text>
+                </View>
+              ) : !conditionsSummary || conditionsSummary.empty ? (
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>
+                    {'Nothing measured yet. Record a reading on Garden > Growing Conditions: soil moisture off a meter, the temperature in a greenhouse, the pH of a bed, how much rain fell. One reading a week is enough for this to start saying something.'}
+                  </Text>
+                </View>
+              ) : (
+                <>
+                  {conditionsSummary.measurements.length > 1 ? (
+                    <View style={[band.inset, styles.pillRow]}>
+                      {conditionsSummary.measurements.map((entry) => {
+                        const chosen = conditionsSummary.band?.measurement === entry.code;
+                        return (
+                          <TouchableOpacity
+                            key={entry.code}
+                            style={[styles.pill, chosen && styles.pillActive]}
+                            onPress={() => setPickedMeasurement(entry.code)}
+                          >
+                            <Text style={[styles.pillText, chosen && styles.pillTextActive]}>{entry.label}</Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  ) : null}
+                  {conditionsSummary.band ? (
+                    <TabBand
+                      folds={folds}
+                      color={TAB_COLOR}
+                      id="trends:conditions:measurement"
+                      title={conditionsSummary.band.label}
+                      icon="thermometer-outline"
+                    >
+                      <Text style={styles.patternRowCaption}>{conditionsSummary.band.headline}</Text>
+                      {renderPeriodRows(conditionsSummary.band.rows)}
+                      {conditionsSummary.band.notes.map((note, index) => (
+                        <Text key={index} style={styles.patternRowCaption}>
+                          {note}
+                        </Text>
+                      ))}
+                    </TabBand>
+                  ) : null}
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:conditions:measuring"
+                    title="What you are measuring"
+                    icon="speedometer-outline"
+                  >
+                    {conditionsSummary.things.map((thing) => (
+                      <View key={thing.measurement} style={styles.patternRow}>
+                        <Text style={styles.patternRowTitle}>{thing.line}</Text>
+                        <Text style={styles.patternRowCaption}>{thing.caption}</Text>
+                      </View>
+                    ))}
+                  </TabBand>
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:conditions:areas"
+                    title="By area"
+                    icon="grid-outline"
+                  >
+                    {conditionsSummary.coverage.measured.map((area) => (
+                      <View key={area.plotId ?? area.name} style={styles.patternRow}>
+                        <Text style={styles.patternRowTitle}>{area.line}</Text>
+                        <Text style={styles.patternRowCaption}>{area.caption}</Text>
+                      </View>
+                    ))}
+                    <Text style={styles.patternRowCaption}>{conditionsSummary.coverage.note}</Text>
                   </TabBand>
                 </>
               )

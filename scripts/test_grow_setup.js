@@ -88,7 +88,7 @@ check('six built-in light types, LED first', [LIGHT_TYPES.length, LIGHT_TYPES[0]
 check('six built-in materials, fabric and terracotta named', CONTAINER_MATERIALS.slice(0, 2).map((m) => m.code), ['fabric', 'terracotta']);
 checkTrue('every built-in has help', [...GROW_EQUIPMENT_KINDS, ...LIGHT_TYPES, ...LIGHT_SPECTRUMS, ...CONTAINER_MATERIALS].every((e) => e.help.length > 0));
 check('four built-in spectrums, the codes stored rows already carry', LIGHT_SPECTRUMS.map((s) => s.code).sort(), ['adjustable', 'bloom', 'full', 'veg']);
-check('every list has words for its picker', Object.keys(TERM_LIST_WORDS).sort(), ['container_material', 'equipment_kind', 'light_spectrum', 'light_type']);
+check('every list has words for its picker', Object.keys(TERM_LIST_WORDS).sort(), ['container_material', 'equipment_kind', 'light_spectrum', 'light_type', 'measurement_kind']);
 
 const terms = [
   { id: 'term_a', list: 'equipment_kind', name: 'CO2 tank', retiredAt: null },

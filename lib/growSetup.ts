@@ -60,7 +60,7 @@ import { formatTradeMoney } from './harvestTrade';
 // --- Open lists --------------------------------------------------------------
 
 /** Which list a term the person named belongs to. */
-export type GardenTermList = 'equipment_kind' | 'light_type' | 'light_spectrum' | 'container_material';
+export type GardenTermList = 'equipment_kind' | 'light_type' | 'light_spectrum' | 'container_material' | 'measurement_kind';
 
 /** A term the person named, on one of the lists. */
 export type CustomGardenTerm = { id: string; list: GardenTermList; name: string; retiredAt?: string | null };
@@ -115,11 +115,30 @@ export const LIGHT_SPECTRUMS: { code: string; label: string; help: string }[] = 
   { code: 'bloom', label: 'Red-heavy (flowering and fruiting)', help: 'Pushes flowering and fruit.' },
 ];
 
+// What can be measured about the conditions something grows in, 2026-09-23.
+// An open list like every other, so a person measuring something nobody
+// thought of records it under a name they chose rather than under Other.
+// Each code's units live in lib/growingConditions.ts, beside the arithmetic
+// that has to know which ones add up and which ones average.
+export const MEASUREMENT_KINDS: { code: string; label: string; help: string }[] = [
+  { code: 'soil_moisture', label: 'Soil moisture', help: 'How wet the ground is. A cheap probe reads a percentage; a tensiometer reads centibars, which go UP as the soil dries.' },
+  { code: 'soil_temperature', label: 'Soil temperature', help: 'Measured at root depth. Seeds germinate on soil temperature rather than air temperature.' },
+  { code: 'air_temperature', label: 'Air temperature', help: 'At the plants, not what the forecast said for the town.' },
+  { code: 'humidity', label: 'Humidity', help: 'Relative humidity as a percentage. High humidity slows drying and invites mildew.' },
+  { code: 'soil_ph', label: 'Soil pH', help: 'Acid below 7, alkaline above. It decides which nutrients in the soil a plant can actually take up.' },
+  { code: 'light', label: 'Light', help: 'Lux from a phone or a light meter, or PPFD from a quantum sensor. The two are not interchangeable, since lux weights the colours a human eye sees.' },
+  { code: 'soil_ec', label: 'Soil or water EC', help: 'Electrical conductivity: how much dissolved fertiliser and salt the water or soil is carrying.' },
+  { code: 'rainfall', label: 'Rainfall', help: 'What fell, from a gauge. Added up over a month rather than averaged.' },
+  { code: 'water_given', label: 'Water given', help: 'What you put on, by hand or through a system. Added up over a month.' },
+  { code: 'co2', label: 'CO2', help: 'Parts per million. Around 420 outdoors; a closed room with plants in it runs lower.' },
+];
+
 const BUILT_INS: Record<GardenTermList, { code: string; label: string; help: string }[]> = {
   equipment_kind: GROW_EQUIPMENT_KINDS,
   light_type: LIGHT_TYPES,
   light_spectrum: LIGHT_SPECTRUMS,
   container_material: CONTAINER_MATERIALS,
+  measurement_kind: MEASUREMENT_KINDS,
 };
 
 /** What the picker says as its add-a-term choice and its placeholder. */
@@ -128,7 +147,44 @@ export const TERM_LIST_WORDS: Record<GardenTermList, { singular: string; example
   light_type: { singular: 'kind of light', example: 'Induction' },
   light_spectrum: { singular: 'spectrum', example: 'Far red' },
   container_material: { singular: 'material', example: 'Coir' },
+  measurement_kind: { singular: 'measurement', example: 'Soil nitrogen' },
 };
+
+// What is recorded under a term on each list, and whether one of those
+// records can be moved to another term at all. A reading cannot: moving it
+// would change what was measured, so a measurement name with readings under
+// it is retired and stays readable rather than being reassigned.
+const TERM_RECORDS: Record<GardenTermList, { one: string; many: string; movable: boolean }> = {
+  equipment_kind: { one: 'piece of equipment', many: 'pieces of equipment', movable: true },
+  light_type: { one: 'light', many: 'lights', movable: true },
+  light_spectrum: { one: 'light', many: 'lights', movable: true },
+  container_material: { one: 'container', many: 'containers', movable: true },
+  measurement_kind: { one: 'reading', many: 'readings', movable: false },
+};
+
+/** What the picker says under the box while a name is being added, so
+ *  somebody knows what removing it later will do before they commit to it. */
+export function termSaveNote(list: GardenTermList): string {
+  const words = TERM_RECORDS[list];
+  if (!words.movable) {
+    return `Saving picks it here, and it is on the list from now on. Removing it later keeps every ${words.one} already recorded under it, and keeps this name on them.`;
+  }
+  return `Saving picks it here, and it is on the list from now on. Removing it later asks where to move the ${words.many} recorded under it, and deletes none of that.`;
+}
+
+/** What the picker says when a term with things under it is being removed. */
+export function termRemovalNote(list: GardenTermList, name: string, counts: { current: number; past: number }): string {
+  const words = TERM_RECORDS[list];
+  const subject = counts.current === 1 ? `1 ${words.one} is` : `${counts.current} ${words.many} are`;
+  let note = `${subject} recorded under ${name}. Pick what to move ${counts.current === 1 ? 'it' : 'them'} to; nothing is deleted.`;
+  if (counts.past > 0) {
+    const kept = words.movable ? 'retired' : 'past';
+    note += counts.past === 1
+      ? ` A ${kept} ${words.one} keeps ${name} as part of its record.`
+      : ` ${counts.past} ${kept} ${words.many} keep ${name} as part of their record.`;
+  }
+  return note;
+}
 
 /** Every choice on a list, in alphabetical order, the person's merged in
  *  among the built-ins, retired ones left out. */
