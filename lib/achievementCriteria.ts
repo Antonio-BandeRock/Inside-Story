@@ -20,6 +20,42 @@
 //   criterion's future leaf should borrow (Phase 2's job), not something
 //   exhaustively confirmed against how each feature is actually
 //   categorized in-app -- fine to revisit once the vine actually needs it.
+//
+// 2026-09-24: what Phase 2 is allowed to draw, settled in the design
+// conversation that followed 1.0.51.1 emptying every tab screen body. The
+// full account is in docs/CLAUDE-ARCHIVE-2026-09-14.md under "The reward
+// design for the freed tab screens", and CLAUDE.md open next step 29 is the
+// short version. Nothing there is approved for building yet, but the
+// constraints are, and each one rules out a design a later session would
+// otherwise reach for first:
+//
+// - What grows is MADE OUT OF the person's records, never awarded for them.
+//   A record cannot be taken away, needs no praise language, and stops
+//   growing through a gap instead of wilting.
+// - So no streak, level, point total or percentage. scripts/test_keeping_up.js
+//   bans praise ("well done", "good job", "keep it up") as squarely as blame,
+//   and a blank period draws as a gap rather than a zero, which is what makes
+//   accumulating growth the only shape that fits.
+// - No animation. AnimatedSky came out 2026-08-17 for measured battery drain
+//   and this would be mounted behind nine tabs at once: static, composed on
+//   focus.
+// - It stays reachable when a tab's background is Off, Generic or a photo the
+//   person added, on the instruction that "the achievements continue to build
+//   themselves so if the user decides to look, they can." Low Stimulation
+//   turns it off with everything else.
+// - Elapsed time earns part of it, not volume alone, or "more logging" quietly
+//   becomes "better person", which is scoring in a costume. And nothing ever
+//   regresses.
+// - Signals must not grow with symptom count, or the app rewards being sick.
+//   Count the check-ins, never what was in them.
+//
+// Two things gate a build. The open question is whether growth counts
+// DISTINCT things or repetitions (recommendation on the table: variety plus
+// elapsed time, since variety is the gut-healing goal). And the `tab` spread
+// below is lopsided: counted 2026-09-24, /food 17, /schedule 6, /insights 5,
+// /log 1, /garden 1, and '/', /trends, /reports and /life carry NONE. Life is
+// the sharpest of those, being the tab the second audience lives on, so
+// filling the registry out comes before anything draws from it.
 import { getAchievedCriteriaKeys, getDatabase, recordAchievementCriterionMet } from './db';
 import type { TabRoute } from '../constants/tabs';
 

@@ -3615,3 +3615,66 @@ Each of these kept its instruction in CLAUDE.md and lost the elaboration around 
 ### The no-long-shelf rule
 
 - **No topic renders as one long, undifferentiated horizontal shelf once it grows past roughly a dozen entries.** Direct instruction, 2026-08-25: "There should be groups of information that is specific to one diet or eating style or another, rather than one continuous scrolling left to right list of them," confirmed the same day to mean literally throughout the Digest: "Everything must have continuity throughout the Digest." Basic Health topics get real `subtopics` (the `BasicHealthTopic.subtopics` mechanism Essential Nutrients established); an oversized condition topic gets an entry in `CONDITION_TOPIC_SUBGROUPS`, keyed by `entry.category` and the `ConditionTopic` name, hooked into `groupConditionEntries` (`purple-digest.tsx`). Both mechanisms group by whatever distinguishes that shelf's entries, verified programmatically against the corpus before shipping (every id accounted for, none dropped or duplicated), never an arbitrary split. Applied 2026-08-25 to 7 Basic Health topics and 18 (condition, topic) pairs across 13 conditions. Most remaining topics are small enough (2 to 10 entries) that this does not apply; check real counts before assuming one needs it.
+
+## The reward design for the freed tab screens, 2026-09-24
+
+Written the day 1.0.51.1 emptied the tab screen bodies. Asked directly: "what ideas do you have related to how to use the individual tab screen backgrounds? How can they be rewarded for the use, what should they see, what will motivate them to keep inputting data?" This is the design conversation that follows the emptying, recorded because nothing here is built and a later session will otherwise re-derive it or, worse, reach for the version of this that fails.
+
+**Nothing below is approved for building.** One question is still open at the end and it changes every query underneath, so it gets settled before code.
+
+### The decision that shapes everything else
+
+**What grows is made out of the person's records, not awarded for them.** A badge is a token handed over for behaviour. A picture assembled from what somebody actually recorded is a record of their life. Three consequences, each of which is why this shape was picked over the obvious one:
+
+1. It can never be taken away, so there is no loss state and nothing to protect.
+2. It needs no praise language, so it clears the no-scoring rule without trying. `scripts/test_keeping_up.js` forbids "well done", "good job" and "keep it up" alongside "you failed" and "slacking", which means praise is banned as squarely as blame. Any design whose point is to congratulate somebody is already outside the rules this app enforces on itself.
+3. When somebody logs nothing for three weeks it simply does not grow. It does not wilt, reset or comment. That is the gap-not-zero rule (every periodic figure is `number | null`, a blank period says so in words) applied to a picture instead of a chart.
+
+Every alternative considered contradicted one of the three. A streak breaks, which is a loss state and the documented reason people quit health apps. A level or a point total is a score. A percentage complete implies a finish line somebody is behind.
+
+### What each tab's canvas could be made of
+
+Drawn from that tab's tables, in that tab's colour from `constants/tabs.ts`:
+
+- **Garden** writes itself: plants from the plantings recorded, at the stage each has reached, fruit from the harvests logged, a Past Area's plants drawn back rather than erased.
+- **Food** is a table or pantry that fills with one item per DISTINCT whole food ever logged. This is the strongest of the nine, because dietary variety is itself the gut-healing goal, so the picture is a picture of microbiome diversity rather than a prize for app use.
+- **Life** is the second audience's tab and has no criteria at all today. A room that furnishes itself as routines run, upkeep gets done, captures get sorted and counters land. The metaphor restates the promise to that audience: this is the outside place holding the details.
+- **Signals** must not grow with symptom count, or the app rewards being sick. Stars for check-ins, never for what was in them.
+- **Schedules** fills a day arc with meals and doses actually placed.
+- **Insights** gains something per pattern found and per food looked up.
+- **Trends** and **Reports** read rather than record, so they may deserve span of time covered rather than growth, or nothing.
+- **Home** has no gated background (it is the shared canvas mounted once in `app/(tabs)/_layout.tsx`), so it is outside this entirely.
+
+### Three layers, and only one of them is decoration
+
+Decoration alone will not sustain logging. It buys a novelty bump and then nothing, which is the failure mode of every health app that tried gamification.
+
+1. **The canvas.** Ambient. Never asks for anything, never announces itself, never sends a notification. The moment it says "your vine grew" it has become the app begging for data, which is the manipulative pattern and is out.
+2. **Proximity to an answer.** This is the motivator, and probably the whole thing. Not "you broke your streak" but "Pattern Finder needs four more meals logged alongside a symptom before it can say anything about dairy." It is a statement about what the analysis requires, never about the person's virtue, so it is honest and it clears every rule. The machinery exists; the app has never said how close it is.
+3. **The payoff.** The moment it says something true about somebody's body that they did not know. That is the core purpose, and the only durable reason anybody logs anything.
+
+### Five constraints to build against
+
+1. **No animation.** The AnimatedSky came out on 2026-08-17 for confirmed battery drain. This thing would be mounted behind every tab, always. Static, composed on focus, or that bug repeats at nine times the scale.
+2. **It must be findable when the background is off or personal.** Direct instruction, the same day: "the achievements continue to build themselves so if the user decides to look, they can." So the growth is a layer over whatever background is set, plus one place that shows the whole thing regardless. Default it on for Photo and Generic, off for a photo somebody added, since they chose that photo to be looked at. Low Stimulation turns it off with everything else.
+3. **Elapsed time earns some of it, not only volume.** Somebody who logs lightly for a year should have a substantial canvas. Otherwise "more logging" quietly becomes "better person", which is scoring wearing a costume.
+4. **Nothing ever regresses.** A gap pauses growth and never reverses it.
+5. **Day one must not look broken.** Start it as a season rather than an empty frame, so a new canvas reads as early rather than as failure.
+
+### Badges, in the one form that is allowed
+
+A badge is acceptable as a named fact that stays ("logged something in all twelve builders") and not as a rank. The 30 criteria already in `lib/achievementCriteria.ts` are written the first way, which is the precedent to follow.
+
+### Ruled out explicitly
+
+No numbers on the background (points, counts, percentages). No notification about growth. No leaderboard and no comparison against another person, ever. No loss state of any kind.
+
+### What already exists, so none of it gets rebuilt
+
+`lib/achievementCriteria.ts` is Phase 1 of the header growth vine and Timeline plan (2026-08-21), built deliberately before the vine. 30 criteria, all Tier 1, each backed by an `existsQuery` over a table that exists for its own ordinary reason, each carrying a `tab` the plan earmarks for Phase 2's leaf colour. Storage is `achievement_criteria_progress` in `lib/db.ts`, with `getAchievedCriteriaKeys` and `recordAchievementCriterionMet` as the accessors. Tier 2 (screen-open criteria) needs a usage table and is Phase 7.
+
+**The registry is lopsided, and that is the first piece of work whatever shape wins.** Counted 2026-09-24: Food 17, Schedules 6, Insights 5, Signals 1, Garden 1. **Home, Trends, Reports and Life have none at all.** Life having none is the sharpest gap, since it is the tab the second audience lives on.
+
+### The open question
+
+**Variety or volume?** Does the Food canvas grow from how many DIFFERENT foods have been logged, or from how many times logging happened? The recommendation on the table is variety plus elapsed time, because variety is the gut-healing goal and repetition rewards grinding. Not settled, and it changes every query underneath, so it gets answered before anything is written.
