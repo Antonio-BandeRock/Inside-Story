@@ -29,6 +29,7 @@ import {
   canStepBack,
   getStoryWalk,
   setStoryWalk,
+  setWalkMark,
   subscribeStoryWalk,
   walkBack,
   walkEntry,
@@ -113,11 +114,19 @@ export function StoryWalkHost() {
     return () => clearInterval(timer);
   }, [walkKey, saved, pathname, checkRecord]);
 
-  if (!walk || !entry || pathname === '/your-story') return null;
-
+  const hidden = !walk || !entry || pathname === '/your-story';
   const place = { pathname, tab: screen.tab, lens: screen.lens };
-  const at = walkPosition(steps, walk.cursor, walk.skipped, place);
+  const at = walk ? walkPosition(steps, walk.cursor, walk.skipped, place) : 0;
   const step = at < steps.length ? steps[at] : null;
+  // The button the line names is outlined on the screen (stage 2), and
+  // nothing is once the record is saved or the strip is not showing.
+  const mark = !hidden && !saved && step?.mark ? step.mark : null;
+  useEffect(() => {
+    setWalkMark(mark);
+  }, [mark]);
+  useEffect(() => () => setWalkMark(null), []);
+
+  if (hidden) return null;
   const waits = !walk.startedDone && !!(entry.item || entry.record);
 
   const stop = () => setStoryWalk(null);

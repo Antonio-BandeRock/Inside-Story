@@ -56,6 +56,7 @@ import {
   updateRoutineStep,
 } from '../lib/routinesDb';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
+import { useWalkMark } from './WalkMark';
 
 // Routines: an order you do not want to hold in your head.
 //
@@ -151,6 +152,8 @@ function buildTime(hour: number, minute: number): string {
 }
 
 export function RoutinesSection({ tabColor }: Props) {
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const router = useRouter();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [routines, setRoutines] = useState<Routine[]>([]);
@@ -357,7 +360,7 @@ export function RoutinesSection({ tabColor }: Props) {
         </Text>
         {!form ? (
           <TouchableOpacity
-            style={styles.primaryButton}
+            style={[styles.primaryButton, walkMark('routines.add')]}
             onPress={() => {
               setOccasionForm(null);
               setForm({ id: null, name: '', occasion: fits ?? 'other', reminderTime: null, reminderDays: [] });
@@ -587,7 +590,7 @@ export function RoutinesSection({ tabColor }: Props) {
 
             {routine.steps.length > 0 ? (
               <TouchableOpacity
-                style={styles.primaryButton}
+                style={[styles.primaryButton, walkMark('routines.walk')]}
                 onPress={() => router.push({ pathname: '/routine', params: { id: routine.id } })}
               >
                 <Text style={styles.primaryButtonText}>Walk it</Text>
@@ -774,7 +777,7 @@ export function RoutinesSection({ tabColor }: Props) {
                   </View>
                 ) : (
                   <TouchableOpacity
-                    style={styles.primaryButton}
+                    style={[styles.primaryButton, walkMark('routines.addStep')]}
                     onPress={() => {
                       setCheckForm(null);
                       setStepForm({ routineId: routine.id, id: null, text: '', detail: '', checkId: NO_CHECK });

@@ -35,6 +35,7 @@ import { HelpSheet, type HelpSection } from './HelpButton';
 import { ActiveRingCircle } from './ActiveRingCircle';
 import { useHubHandoff } from './HubHandoff';
 import { modalAnimationType } from '../lib/visualPreferences';
+import { useWalkMark } from './WalkMark';
 
 export type LensOption<T extends string> = {
   key: T;
@@ -539,6 +540,8 @@ export function LensHub<T extends string>({
   // see useAutoOpenLensHubSignal's own comment) that a horizontal swipe
   // between tabs never produces, so the exact swipe-through friction named
   // above can't recur through this path.
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const [open, setOpen] = useState(false);
   // Same fix as TabHub's own Modal (components/TabHub.tsx) -- see that
   // file's longer comment for the full reasoning and the real, captured
@@ -781,7 +784,7 @@ export function LensHub<T extends string>({
   return (
     <>
       <TouchableOpacity
-        style={[styles.button, { bottom: buttonBottom, left: buttonLeft }]}
+        style={[styles.button, { bottom: buttonBottom, left: buttonLeft }, walkMark('corner')]}
         onPress={openMenu}
         activeOpacity={0.85}
         accessibilityLabel={`Choose a view for ${pageTitle}`}

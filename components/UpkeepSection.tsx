@@ -32,6 +32,7 @@ import {
   upsertUpkeepItem,
 } from '../lib/upkeepDb';
 import { parsePriceInput } from '../lib/groceryList';
+import { useWalkMark } from './WalkMark';
 
 // Upkeep: things that need doing again, and things that run out.
 //
@@ -87,6 +88,8 @@ function blankForm(): ItemForm {
 }
 
 export function UpkeepSection({ tabColor }: Props) {
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const router = useRouter();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [items, setItems] = useState<UpkeepItem[]>([]);
@@ -194,7 +197,7 @@ export function UpkeepSection({ tabColor }: Props) {
         <Text style={styles.cardTitle}>Upkeep</Text>
         <Text style={styles.bodyText}>{describeUpkeepSummary(summary)}</Text>
         {!form ? (
-          <TouchableOpacity style={styles.primaryButton} onPress={() => setForm(blankForm())}>
+          <TouchableOpacity style={[styles.primaryButton, walkMark('upkeep.add')]} onPress={() => setForm(blankForm())}>
             <Text style={styles.primaryButtonText}>+ Add something</Text>
           </TouchableOpacity>
         ) : null}

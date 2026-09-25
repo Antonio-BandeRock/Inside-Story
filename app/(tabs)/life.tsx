@@ -102,6 +102,8 @@ import {
   type FinanceRecurringRecord,
 } from '../../lib/financeDb';
 import { parsePriceInput } from '../../lib/groceryList';
+import { useWalkMark } from '../../components/WalkMark';
+import type { WalkMark } from '../../lib/storyWalk';
 
 // The 10th tab, added 2026-09-04, and its first real area, added
 // 2026-09-05. Direct request: "Let's start with Finances... Finances is
@@ -706,6 +708,8 @@ export default function LifeScreen() {
   // One full window of run-out is part of this now, on every screen
   // (see useFloatingButtonScrollPadding), so the Conditions lens no
   // longer adds its own.
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const folds = useBandFolds();
   const { openLifeLens, focusTreatmentId, openEntryId } = useLocalSearchParams<{ openLifeLens?: string; focusTreatmentId?: string; openEntryId?: string }>();
@@ -1130,7 +1134,7 @@ export default function LifeScreen() {
       <View style={band.column}>
         {!recurringForm ? (
           <View style={[band.inset, styles.actionRow]}>
-            <TouchableOpacity style={styles.primaryButton} onPress={() => openAddRecurring('expense')}>
+            <TouchableOpacity style={[styles.primaryButton, walkMark('finance.addBill')]} onPress={() => openAddRecurring('expense')}>
               <Text style={styles.primaryButtonText}>+ Add a bill</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => openAddRecurring('income')}>
@@ -1508,7 +1512,7 @@ export default function LifeScreen() {
       <View style={band.column}>
         {!entryForm ? (
           <View style={band.inset}>
-            <TouchableOpacity style={styles.primaryButton} onPress={() => setEntryForm(blankEntryForm())}>
+            <TouchableOpacity style={[styles.primaryButton, walkMark('finance.record')]} onPress={() => setEntryForm(blankEntryForm())}>
               <Text style={styles.primaryButtonText}>+ Record something</Text>
             </TouchableOpacity>
           </View>
@@ -1948,7 +1952,7 @@ export default function LifeScreen() {
               {SECTIONS.map((entry) => (
                 <TouchableOpacity
                   key={entry.key}
-                  style={[styles.pill, section === entry.key && styles.pillActive]}
+                  style={[styles.pill, section === entry.key && styles.pillActive, walkMark(`finance.${entry.key}` as WalkMark)]}
                   onPress={() => setSection(entry.key)}
                 >
                   <Text style={[styles.pillText, section === entry.key && styles.pillTextActive]}>{entry.label}</Text>

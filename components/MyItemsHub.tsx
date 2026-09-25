@@ -17,6 +17,7 @@ import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { ActiveRingCircle } from './ActiveRingCircle';
 import { useHubHandoff } from './HubHandoff';
 import { modalAnimationType } from '../lib/visualPreferences';
+import { useWalkMark } from './WalkMark';
 
 // 2026-07-28: fills the gap deliberately left between the LensHub button
 // and the butterfly -- a "My Foods"/"My Insights"/"My Schedules"/etc.
@@ -123,6 +124,8 @@ export function MyItemsHub({
   // permanently unreachable.
   hideTriggerButton?: boolean;
 }) {
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
   const [internalOpen, setInternalOpen] = useState(false);
@@ -203,7 +206,7 @@ export function MyItemsHub({
     <>
       {hideTriggerButton ? null : (
         <TouchableOpacity
-          style={[styles.button, { bottom: buttonBottom, left: buttonLeft }]}
+          style={[styles.button, { bottom: buttonBottom, left: buttonLeft }, walkMark('bookmarks')]}
           onPress={() => setOpen(true)}
           activeOpacity={0.85}
           accessibilityLabel={`${label}, your saved items`}

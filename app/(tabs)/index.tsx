@@ -166,6 +166,7 @@ import { homeGroupIdentity } from '../../constants/homeGroups';
 import { HomeArrangeList } from '../../components/HomeArrangeList';
 import { useVisualPreferences } from '../../hooks/useVisualPreferences';
 import { useBandFolds } from '../../hooks/useBandFolds';
+import { useWalkMark } from '../../components/WalkMark';
 
 // 'YYYY-MM-DD' in LOCAL time -- same helper (and same reasoning) duplicated
 // in food.tsx/insights.tsx/schedule.tsx/log.tsx: UTC's calendar date is
@@ -1055,6 +1056,8 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
 
 export default function HomeScreen() {
   useRegisterScreenHelp('Home', HOME_HELP_SECTIONS, '/');
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const router = useRouter();
   // Sent from elsewhere to a card on Home or to one of its quick-log forms,
   // 2026-09-24: Your Story's "Go there" for an item that lives on Home.
@@ -2439,7 +2442,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
-            style={[styles.feelingStartButton, { borderColor: tabColorFor('/log') }]}
+            style={[styles.feelingStartButton, { borderColor: tabColorFor('/log') }, walkMark('home.checkin')]}
             onPress={openFeelingPicker}
             activeOpacity={0.85}
           >

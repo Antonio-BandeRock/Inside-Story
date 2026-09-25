@@ -451,6 +451,46 @@ const back = load('lib/storyReturn.ts');
     walk.WALK_STORY_LABEL, walk.WALK_WAITING_LINE, walk.WALK_NO_RECORD_LINE, walk.WALK_SAVED_LINE, walk.WALK_CAPTION,
     walk.WALK_SHRINK_LABEL, walk.WALK_GROW_LABEL,
   );
+
+  // Stage 2 (1.0.51.11): the outline on the button a line names, only on
+  // Start here and Every day steps. Every mark named is one a line can reach
+  // and one a screen draws, since an outline nobody wired up is a line
+  // pointing at nothing.
+  same(steps.map((step) => step.mark ?? null), ['hub', 'corner', 'routines.walk', null], 'routine walk marks the round button, the corner, then Walk it');
+  const reached = new Set();
+  for (const def of guides.GUIDES) {
+    for (const entry of def.entries) {
+      const marks = walk.walkSteps(entry).map((step) => step.mark).filter(Boolean);
+      if (!walk.walkMarks(entry)) check(marks.length === 0, `${def.key}/${entry.key} (${entry.when}) carries no marks`);
+      for (const mark of marks) reached.add(mark);
+      const tapMarks = walk.TAP_MARKS[entry.key];
+      if (tapMarks) check(tapMarks.length <= (entry.taps ?? []).length, `${entry.key} names no more buttons than it has taps`);
+    }
+  }
+  const everyEntry = guides.GUIDES.flatMap((def) => def.entries);
+  for (const [key, marks] of Object.entries(walk.TAP_MARKS)) {
+    check(everyEntry.some((entry) => entry.key === key && walk.walkMarks(entry)), `${key} in TAP_MARKS is a Start here or Every day step`);
+    for (const mark of marks) if (mark) check(reached.has(mark), `${mark} is reached by some walk line`);
+  }
+  const sourceFiles = (dir) =>
+    fs.readdirSync(dir, { withFileTypes: true }).flatMap((item) =>
+      item.isDirectory() ? sourceFiles(path.join(dir, item.name)) : [path.join(dir, item.name)],
+    );
+  const markSource = ['app', 'components']
+    .flatMap((dir) => sourceFiles(path.join(__dirname, '..', dir)))
+    .filter((file) => /\.tsx?$/.test(file))
+    .map((file) => fs.readFileSync(file, 'utf8'))
+    .join('\n');
+  for (const mark of reached) {
+    const drawn =
+      markSource.includes(`walkMark('${mark}')`) ||
+      (mark.startsWith('profile.') && markSource.includes('walkMark(`profile.${key}`')) ||
+      (mark.startsWith('finance.') && markSource.includes('walkMark(`finance.${entry.key}`'));
+    check(drawn, `${mark} is drawn on a screen`);
+  }
+  walk.setWalkMark('upkeep.add');
+  same(walk.getWalkMark(), 'upkeep.add', 'the mark store holds a mark');
+  walk.setWalkMark(null);
 }
 // it what the screen calls it. Nothing else may say healing. "Step by step"
 // is the name of a way of writing the guides and "+ Add a step" a button on

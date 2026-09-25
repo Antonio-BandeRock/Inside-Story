@@ -41,6 +41,7 @@ import {
 } from '../lib/db';
 import { evaluateInteractionRules, type InteractionWarning, type ReferenceOnlyRule } from '../lib/interactionRules';
 import type { NutrientGapEntry } from '../lib/nutrientAnalysis';
+import { useWalkMark } from '../components/WalkMark';
 
 // My Meds, the registry of everything a person takes: prescriptions, OTC
 // drugs and supplements, each with its dose, form, timing rules, interactions
@@ -165,6 +166,8 @@ type Props = {
 };
 
 export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
   const router = useRouter();
   const folds = useBandFolds();
@@ -630,13 +633,13 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
         <>
           {addMode === null ? (
             <View style={styles.myMedsAddRow}>
-              <TouchableOpacity style={styles.addButton} onPress={() => openAddMed('prescription')}>
+              <TouchableOpacity style={[styles.addButton, walkMark('myMeds.add')]} onPress={() => openAddMed('prescription')}>
                 <Text style={styles.addButtonText}>+ Prescription</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.addButton} onPress={() => openAddMed('otc')}>
+              <TouchableOpacity style={[styles.addButton, walkMark('myMeds.add')]} onPress={() => openAddMed('otc')}>
                 <Text style={styles.addButtonText}>+ OTC drug</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.addButton} onPress={openAddSupplement}>
+              <TouchableOpacity style={[styles.addButton, walkMark('myMeds.add')]} onPress={openAddSupplement}>
                 <Text style={styles.addButtonText}>+ Supplement</Text>
               </TouchableOpacity>
             </View>

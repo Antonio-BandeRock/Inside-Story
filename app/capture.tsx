@@ -58,6 +58,7 @@ import {
   setCaptureNoteDone,
   updateCaptureNoteText,
 } from '../lib/captureNotesDb';
+import { useWalkMark } from '../components/WalkMark';
 
 // A destination wears the colour and icon of the tab it hands off to, rather
 // than a palette invented here, so "In the garden" reads as Garden before the
@@ -80,6 +81,8 @@ const DESTINATION_ICONS: Record<CaptureDestinationKey, ComponentProps<typeof Ion
 };
 
 export default function CaptureScreen() {
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const router = useRouter();
   const scrollPadding = useFloatingButtonScrollPadding();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -283,7 +286,7 @@ export default function CaptureScreen() {
         <View style={styles.captureCard}>
           <View style={styles.captureRow}>
             <AppTextInput
-              style={styles.captureField}
+              style={[styles.captureField, walkMark('capture.box')]}
               value={draft}
               onChangeText={(text) => {
                 spokenRef.current = false;

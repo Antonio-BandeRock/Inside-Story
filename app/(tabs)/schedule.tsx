@@ -112,6 +112,7 @@ import { listUpkeepItems, markUpkeepDone } from '../../lib/upkeepDb';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { describeStatus } from '../../lib/reconciliation';
 import { modalAnimationType } from '../../lib/visualPreferences';
+import { useWalkMark } from '../../components/WalkMark';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -731,6 +732,8 @@ function ScheduleBand({
 }
 
 function MealsLens() {
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const folds = useBandFolds();
@@ -1292,7 +1295,7 @@ function MealsLens() {
             </View>
 
             {!showForm ? (
-              <TouchableOpacity style={styles.addButton} onPress={openAddForm}>
+              <TouchableOpacity style={[styles.addButton, walkMark('schedule.addMeal')]} onPress={openAddForm}>
                 <Text style={styles.addButtonText}>+ Schedule a meal</Text>
               </TouchableOpacity>
             ) : (
@@ -1489,7 +1492,7 @@ function MealsLens() {
                     <View style={styles.rowActions}>
                       {item.status === 'planned' ? (
                         <>
-                          <TouchableOpacity onPress={() => handleLogNow(item)}>
+                          <TouchableOpacity style={walkMark('schedule.logNow')} onPress={() => handleLogNow(item)}>
                             <Text style={styles.actionTextPrimary}>Log now</Text>
                           </TouchableOpacity>
                           {favoriteRotatingIngredients(item.sourceFavoriteId).length > 0 ? (
@@ -2716,6 +2719,8 @@ function capitalizeFirst(value: string): string {
 // and assuming otherwise would be actively wrong for a lot of people's
 // real intermittent-fasting practice.
 function HydrationLens() {
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const folds = useBandFolds();
@@ -2968,7 +2973,7 @@ function HydrationLens() {
           ) : null}
 
           {!showForm ? (
-            <TouchableOpacity style={styles.addButton} onPress={openAddForm}>
+            <TouchableOpacity style={[styles.addButton, walkMark('schedule.addDrink')]} onPress={openAddForm}>
               <Text style={styles.addButtonText}>+ Schedule a drink</Text>
             </TouchableOpacity>
           ) : (
@@ -3159,6 +3164,8 @@ const MEDS_GROUPS: MedsGroup[] = [
 ];
 
 function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const folds = useBandFolds();
@@ -3460,7 +3467,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
                   {doseFormTreatmentId === treatment.id ? (
                     renderDoseForm(treatment)
                   ) : (
-                    <TouchableOpacity onPress={() => openDoseForm(treatment.id)}>
+                    <TouchableOpacity style={walkMark('meds.addTime')} onPress={() => openDoseForm(treatment.id)}>
                       <Text style={styles.actionTextPrimary}>+ Add a reminder time</Text>
                     </TouchableOpacity>
                   )}

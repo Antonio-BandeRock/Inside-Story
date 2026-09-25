@@ -35,6 +35,7 @@ import {
   undoLastCheckMark,
   updateDoneCheck,
 } from '../lib/routinesDb';
+import { useWalkMark } from './WalkMark';
 
 // Did I Do It: one question, asked later.
 //
@@ -77,6 +78,8 @@ const CADENCE_OPTIONS = CHECK_CADENCES.map((entry) => ({ label: entry.label, val
 type CheckForm = { id: string | null; name: string; cadence: CheckCadence };
 
 export function DidIDoItSection({ tabColor }: Props) {
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const router = useRouter();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [checks, setChecks] = useState<DoneCheck[]>([]);
@@ -180,7 +183,7 @@ export function DidIDoItSection({ tabColor }: Props) {
         {summaryLine ? <Text style={styles.rowMeta}>{summaryLine}</Text> : null}
         {!form ? (
           <TouchableOpacity
-            style={styles.primaryButton}
+            style={[styles.primaryButton, walkMark('didIDoIt.add')]}
             onPress={() => setForm({ id: null, name: '', cadence: 'daily' })}
           >
             <Text style={styles.primaryButtonText}>+ Add something to check</Text>

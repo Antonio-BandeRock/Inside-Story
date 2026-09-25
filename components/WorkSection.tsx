@@ -48,6 +48,7 @@ import {
   upsertBenefit,
 } from '../lib/workDb';
 import { parsePriceInput } from '../lib/groceryList';
+import { useWalkMark } from './WalkMark';
 
 // Work: what it gives you, and how it is actually going.
 //
@@ -108,6 +109,8 @@ function blankBenefitForm(): BenefitForm {
 type CheckinForm = { autonomy: number; competence: number; relatedness: number; drain: number; note: string };
 
 export function WorkSection({ tabColor }: Props) {
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [section, setSection] = useState<Section>('overview');
   const [benefits, setBenefits] = useState<Benefit[]>([]);
@@ -284,7 +287,7 @@ export function WorkSection({ tabColor }: Props) {
         <>
           {!benefitForm ? (
             <View style={band.inset}>
-              <TouchableOpacity style={styles.primaryButton} onPress={() => setBenefitForm(blankBenefitForm())}>
+              <TouchableOpacity style={[styles.primaryButton, walkMark('work.addBenefit')]} onPress={() => setBenefitForm(blankBenefitForm())}>
                 <Text style={styles.primaryButtonText}>+ Add something you get</Text>
               </TouchableOpacity>
             </View>
@@ -625,7 +628,7 @@ export function WorkSection({ tabColor }: Props) {
                 <TouchableOpacity style={styles.secondaryButton} onPress={() => setCheckinForm(null)}>
                   <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.primaryButton} onPress={saveCheckin}>
+                <TouchableOpacity style={[styles.primaryButton, walkMark('work.saveWeek')]} onPress={saveCheckin}>
                   <Text style={styles.primaryButtonText}>Save this week</Text>
                 </TouchableOpacity>
               </View>

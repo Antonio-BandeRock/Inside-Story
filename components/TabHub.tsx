@@ -43,6 +43,7 @@ import { ActiveRingCircle } from './ActiveRingCircle';
 import { useHubHandoff } from './HubHandoff';
 import { TabHubPointer, TabHubWelcome, useTabHubOnboarding } from './TabHubOnboarding';
 import { TabRouteIcon } from './TabRouteIcon';
+import { useWalkMark } from './WalkMark';
 
 // Thickness of the line around the popup menu card, below -- matches the
 // old card's own borderWidth (1) exactly, not just visually close -- the
@@ -260,6 +261,8 @@ function cardHeightFor(fontScale: number): number {
 // Swiping (see SwipeableTabScreen) remains the fast path between adjacent
 // tabs; this is the fast path to anywhere else.
 export function TabHub() {
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const [open, setOpen] = useState(false);
   // A tenth attempt at the "card drops in from above" bug, 2026-08-01 --
   // unlike the nine before it (see the Modal's own long comment below),
@@ -640,7 +643,7 @@ export function TabHub() {
       ) : null}
       {onboarding.showPointer && !open ? <TabHubPointer buttonBottom={buttonBottom} /> : null}
       <TouchableOpacity
-        style={[styles.button, { bottom: buttonBottom }]}
+        style={[styles.button, { bottom: buttonBottom }, walkMark('hub')]}
         onPress={openMenu}
         activeOpacity={0.85}
         accessibilityLabel="Open navigation menu"

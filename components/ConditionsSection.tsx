@@ -42,6 +42,7 @@ import {
 } from '../lib/digest';
 import { groupConditionEntries } from '../lib/digest/conditionGrouping';
 import { routeForDigestEntry } from '../lib/digestNavigation';
+import { useWalkMark } from './WalkMark';
 
 // The 19 conditions, on the Life tab. Direct instruction, 2026-09-19:
 // "move Conditions from Digest to Life, all condition icons be changed to
@@ -152,6 +153,8 @@ export function ConditionsSection({
   // route the entry lives at.
   onJumpElsewhere?: (id: string) => void;
 }) {
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const router = useRouter();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
@@ -601,7 +604,7 @@ export function ConditionsSection({
               );
             })}
             {familyForm ? null : (
-              <TouchableOpacity style={styles.primaryButton} onPress={() => setFamilyForm(blankFamilyForm())}>
+              <TouchableOpacity style={[styles.primaryButton, walkMark('family.add')]} onPress={() => setFamilyForm(blankFamilyForm())}>
                 <Text style={styles.primaryButtonText}>+ Add a family member</Text>
               </TouchableOpacity>
             )}
@@ -649,7 +652,7 @@ export function ConditionsSection({
                 })}
               </View>
               <TouchableOpacity
-                style={styles.checkRow}
+                style={[styles.checkRow, walkMark('family.planMeals')]}
                 onPress={() => setFamilyForm({ ...familyForm, includeInMealPlan: !familyForm.includeInMealPlan })}
               >
                 <Ionicons

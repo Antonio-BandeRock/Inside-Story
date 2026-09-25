@@ -68,6 +68,7 @@ import { countRunningGardenCountdowns } from '../../lib/gardenCountdownDb';
 import { emptyLightDraft, GrowSetupSection, LightFields, lightDraftHasLight, lightDraftToInput, type LightDraft } from '../../components/GrowSetupSection';
 import type { CustomGardenTerm } from '../../lib/growSetup';
 import { addGrowEquipment, listGardenTerms } from '../../lib/growSetupDb';
+import { useWalkMark } from '../../components/WalkMark';
 
 // This page's own identity color -- see constants/colors.ts's own comment
 // on tabGarden for how it was chosen.
@@ -651,6 +652,8 @@ function HorticultureLens({ scrollBottomPadding, openEntryId }: { scrollBottomPa
 // ---------------------------------------------------------------------------
 
 function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const [plots, setPlots] = useState<GardenPlot[]>([]);
   const [plantingsByPlot, setPlantingsByPlot] = useState<Record<string, GardenPlanting[]>>({});
   const [expandedPlotId, setExpandedPlotId] = useState<string | null>(null);
@@ -1005,7 +1008,7 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                   </View>
                 ) : (
                   <TouchableOpacity
-                    style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
+                    style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }, walkMark('garden.addPlanting')]}
                     onPress={() => setAddingPlantingToPlot(plot.id)}
                   >
                     <Text style={styles.primaryButtonText}>+ Add a Planting</Text>
@@ -1277,7 +1280,7 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
       ) : (
         <View style={band.inset}>
           <TouchableOpacity
-            style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
+            style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }, walkMark('garden.addArea')]}
             onPress={handleShowAddPlot}
           >
             <Text style={styles.primaryButtonText}>+ Add a Garden Area</Text>

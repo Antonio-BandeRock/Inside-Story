@@ -44,6 +44,9 @@ export type WalkPoint = 'hub' | 'corner' | 'bookmarks' | null;
 export type WalkStep = {
   say: string;
   point: WalkPoint;
+  // The button this line is about, outlined while the line is showing
+  // (stage 2). Only Start here and Every day steps carry marks.
+  mark?: WalkMark;
   // A getting-there line: met once this screen (and lens) is open.
   until?: { pathname: string; lens?: string };
 };
@@ -54,6 +57,88 @@ export type WalkPlace = {
   tab: string | null;
   lens: string | null;
 };
+
+// STAGE 2, 1.0.51.11 ("Yes, build stage 2"): the button a line names is
+// outlined on the screen itself while that line shows, for the steps the
+// guides call Start here and Every day, the ones somebody is most likely to
+// be doing for the first time or doing without thinking. Each name below is
+// passed to the walkMark function from components/WalkMark.ts at exactly one
+// kind of button, and scripts/test_your_story.js checks every name here is
+// used somewhere, so a renamed button cannot leave a line pointing at
+// nothing. An outline draws outside the button and moves nothing, so a
+// screen with no walk under way looks exactly as it always has.
+export type WalkMark =
+  | 'hub'
+  | 'corner'
+  | 'bookmarks'
+  | 'profile.backup'
+  | 'profile.backupOneDrive'
+  | 'profile.personal-info'
+  | 'profile.conditions'
+  | 'profile.diet-preferences'
+  | 'profile.reminders'
+  | 'myMeds.add'
+  | 'meds.addTime'
+  | 'emergency.addPerson'
+  | 'emergency.save'
+  | 'home.checkin'
+  | 'schedule.addMeal'
+  | 'schedule.logNow'
+  | 'schedule.addDrink'
+  | 'capture.box'
+  | 'didIDoIt.add'
+  | 'upkeep.add'
+  | 'garden.addArea'
+  | 'garden.addPlanting'
+  | 'finance.recurring'
+  | 'finance.addBill'
+  | 'finance.spending'
+  | 'finance.record'
+  | 'routines.add'
+  | 'routines.addStep'
+  | 'routines.walk'
+  | 'work.addBenefit'
+  | 'work.saveWeek'
+  | 'family.add'
+  | 'family.planMeals';
+
+// Which button each tap line names, by guide step key and line. A step that
+// appears in two guides has the same taps in both, and null is a line with
+// no one button to point at (fill in a form, read down a list).
+export const TAP_MARKS: Record<string, (WalkMark | null)[]> = {
+  'item:backup': ['profile.backup', 'profile.backupOneDrive'],
+  'item:aboutYou': ['profile.personal-info'],
+  'item:conditions': ['profile.conditions'],
+  conditionStage: ['profile.conditions'],
+  'item:allergies': ['profile.conditions'],
+  'item:eatingStyle': ['profile.diet-preferences'],
+  reminders: ['profile.reminders'],
+  'item:neuro': ['profile.conditions'],
+  'item:meds': ['myMeds.add'],
+  doseTimes: [null, 'meds.addTime'],
+  'item:emergency': [null, 'emergency.addPerson', 'emergency.save'],
+  'item:checkin': ['home.checkin'],
+  'item:meal': ['schedule.addMeal', 'schedule.logNow'],
+  'item:water': ['schedule.addDrink'],
+  'item:capture': ['capture.box'],
+  'item:didIDoIt': ['didIDoIt.add'],
+  'item:upkeep': ['upkeep.add'],
+  'item:gardenArea': ['garden.addArea'],
+  'item:planting': [null, 'garden.addPlanting'],
+  'item:bills': ['finance.recurring', 'finance.addBill'],
+  'item:spending': ['finance.spending', 'finance.record'],
+  'item:routine': ['routines.add', 'routines.addStep'],
+  routineRun: ['routines.walk'],
+  'item:workBenefits': ['work.addBenefit'],
+  'item:workCheckin': [null, 'work.saveWeek'],
+  'item:familyMember': ['family.add'],
+  familyInMealPlan: ['family.planMeals'],
+};
+
+/** Whether a guide step gets its buttons outlined. */
+export function walkMarks(entry: GuideEntry): boolean {
+  return entry.when === 'start' || entry.when === 'daily';
+}
 
 export const WALK_START_LABEL = 'Walk me through it';
 export const WALK_STOP_LABEL = 'Stop';
@@ -68,8 +153,20 @@ export const WALK_CAPTION = 'Walking through';
 export const WALK_SHRINK_LABEL = 'Make this smaller';
 export const WALK_GROW_LABEL = 'Show all of this';
 
-/** Every line of the walk for one guide step, getting there first. */
+/** Every line of the walk for one guide step, getting there first, with
+ * each line's button mark when the step is one that carries them. */
 export function walkSteps(entry: GuideEntry): WalkStep[] {
+  const steps = walkLines(entry);
+  if (!walkMarks(entry)) return steps;
+  const tapMarks = TAP_MARKS[entry.key] ?? [];
+  const firstTap = steps.length - (entry.taps ?? []).length;
+  return steps.map((step, index) => {
+    const mark = index >= firstTap ? tapMarks[index - firstTap] : step.point;
+    return mark ? { ...step, mark } : step;
+  });
+}
+
+function walkLines(entry: GuideEntry): WalkStep[] {
   const destination = entry.destination;
   const taps: WalkStep[] = (entry.taps ?? []).map((say) => ({ say, point: null }));
   if (destination.kind === 'beats') return taps;
@@ -171,6 +268,28 @@ export function walkNext(walk: StoryWalk, steps: WalkStep[], at: number): StoryW
 
 export function walkBack(walk: StoryWalk, at: number): StoryWalk {
   return { ...walk, cursor: Math.max(0, at - 1) };
+}
+
+// The button outlined right now, set by components/StoryWalkHost.tsx from
+// the line it is showing and read by every walkMark function.
+let activeMark: WalkMark | null = null;
+const markListeners = new Set<(value: WalkMark | null) => void>();
+
+export function setWalkMark(value: WalkMark | null): void {
+  if (value === activeMark) return;
+  activeMark = value;
+  for (const listener of markListeners) listener(value);
+}
+
+export function getWalkMark(): WalkMark | null {
+  return activeMark;
+}
+
+export function subscribeWalkMark(listener: (value: WalkMark | null) => void): () => void {
+  markListeners.add(listener);
+  return () => {
+    markListeners.delete(listener);
+  };
 }
 
 let current: StoryWalk | null = null;

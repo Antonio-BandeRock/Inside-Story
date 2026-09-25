@@ -198,6 +198,8 @@ import {
 } from '../lib/visualPreferences';
 import { groupHomeSectionsForDisplay, homeGroupIdOf } from '../lib/homeSections';
 import { homeGroupIdentity } from '../constants/homeGroups';
+import { useWalkMark } from '../components/WalkMark';
+import type { WalkMark } from '../lib/storyWalk';
 
 // Whether a backup that has been reached is restored or only checked.
 type BackupUse = 'restore' | 'check';
@@ -553,6 +555,8 @@ function PickerField({ label, children }: { label: string; children: ReactNode }
 }
 
 export default function ProfileScreen() {
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -613,7 +617,7 @@ export default function ProfileScreen() {
   function renderCardHeader(key: CardSectionKey, title: string) {
     const collapsed = collapsedSections.has(key);
     return (
-      <TouchableOpacity style={styles.cardHeaderRow} onPress={() => toggleSection(key)} activeOpacity={0.7}>
+      <TouchableOpacity style={[styles.cardHeaderRow, walkMark(`profile.${key}` as WalkMark)]} onPress={() => toggleSection(key)} activeOpacity={0.7}>
         <Text style={styles.label}>{title}</Text>
         <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={18} color={colors.menuIconMuted} />
       </TouchableOpacity>
@@ -4658,7 +4662,7 @@ export default function ProfileScreen() {
             {backupFolder ? (
               <>
                 <TouchableOpacity
-                  style={styles.checkinButton}
+                  style={[styles.checkinButton, walkMark('profile.backupOneDrive')]}
                   disabled={backupBusy}
                   onPress={handleBackUpToOneDrive}
                 >

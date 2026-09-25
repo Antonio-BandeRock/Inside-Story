@@ -31,6 +31,7 @@ import {
   saveEmergencyProfile,
   upsertEmergencyContact,
 } from '../lib/emergencyDb';
+import { useWalkMark } from './WalkMark';
 
 // Emergency & Essentials: what someone else needs to know when you cannot tell
 // them. Life's fifth area, 2026-09-05.
@@ -114,6 +115,8 @@ const PROFILE_FIELDS: {
 ];
 
 export function EmergencySection({ tabColor }: Props) {
+  // The outline on a button a Your Story walk line names (components/WalkMark.ts).
+  const walkMark = useWalkMark();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [profile, setProfile] = useState<EmergencyProfile | null>(null);
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
@@ -387,7 +390,7 @@ export function EmergencySection({ tabColor }: Props) {
             </View>
           </View>
         ) : (
-          <TouchableOpacity style={styles.primaryButton} onPress={() => setContactForm(blankContact())}>
+          <TouchableOpacity style={[styles.primaryButton, walkMark('emergency.addPerson')]} onPress={() => setContactForm(blankContact())}>
             <Text style={styles.primaryButtonText}>Add someone</Text>
           </TouchableOpacity>
         )}
@@ -431,7 +434,7 @@ export function EmergencySection({ tabColor }: Props) {
             <TouchableOpacity style={styles.secondaryButton} onPress={() => setEditing(null)}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.primaryButton} onPress={saveProfile}>
+            <TouchableOpacity style={[styles.primaryButton, walkMark('emergency.save')]} onPress={saveProfile}>
               <Text style={styles.primaryButtonText}>Save</Text>
             </TouchableOpacity>
           </View>
