@@ -179,6 +179,8 @@ const AREAS: readonly Area[] = [
       'user_food_allergies',
       'user_nutrient_targets',
       'user_neuro_profile',
+      'user_beats',
+      'your_story_items',
     ],
   },
   { one: 'family member', many: 'family members', count: ['family_members'], quiet: ['family_member_conditions'] },

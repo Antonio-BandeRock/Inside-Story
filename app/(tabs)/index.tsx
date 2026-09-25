@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { useRouter, type Href } from 'expo-router';
+import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import {
   Image,
@@ -26,6 +26,8 @@ import type { HelpSection } from '../../components/HelpButton';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from '../../components/HomeSectionBand';
 import { AppActionSheet } from '../../components/AppActionSheet';
 import { useInfoAlert } from '../../components/InfoAlert';
+import { YourStorySection, useYourStory } from '../../components/YourStorySection';
+import { nextLine, type StoryDestination } from '../../lib/yourStory';
 import { ProgressRing } from '../../components/ProgressRing';
 
 import { useBackgroundBottomInset } from '../../components/ScreenBackground';
@@ -144,6 +146,7 @@ import { dateStringOffsetFrom } from '../../lib/trendAnalysis';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import {
   getOrderedHomeSectionKeys,
+  HOME_SECTION_LABELS,
   HOME_TAB_GROUP_BAND_KEY_PREFIX,
   isHomeGroupVisible,
   isHomeSectionExpanded,
@@ -830,6 +833,16 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.primary,
     href: '/where-is-it' as Href,
   },
+  // Your Story, 2026-09-24. The menu goes to the full page rather than
+  // scrolling to the card, since the card shows one section and the page
+  // shows them all. A book rather than the newspaper, which is the Digest
+  // cards' mark.
+  yourStory: {
+    label: 'Your Story',
+    icon: 'book-outline',
+    color: colors.primary,
+    href: '/your-story' as Href,
+  },
   // 2026-09-19: the Digest tab is gone, its categories spread over Life,
   // Garden and Food, and the cards "should each be the color of the tab
   // they come from." They spent one release in the Home group before the
@@ -850,6 +863,7 @@ const HOME_LENS_DESTINATIONS: Partial<
 // time someone reordered the literal above, so it is stated.
 const HOME_LENS_ORDER: HomeSectionKey[] = [
   'today',
+  'yourStory',
   'captureInbox',
   'whereIsIt',
   'logAgain',
@@ -1033,6 +1047,12 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
 export default function HomeScreen() {
   useRegisterScreenHelp('Home', HOME_HELP_SECTIONS, '/');
   const router = useRouter();
+  // Sent from elsewhere to a card on Home or to one of its quick-log forms,
+  // 2026-09-24: Your Story's "Go there" for an item that lives on Home.
+  const { openHomeSection, openHomeQuickLog } = useLocalSearchParams<{
+    openHomeSection?: string;
+    openHomeQuickLog?: string;
+  }>();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const bottomInset = useBackgroundBottomInset();
   // The Digest corner shortcut's own position -- same hook LensHub
@@ -1113,6 +1133,10 @@ export default function HomeScreen() {
   const [worthALookChoiceOpen, setWorthALookChoiceOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ScheduleItemRecord | null>(null);
   const [quickLogModal, setQuickLogModal] = useState<'bp' | 'exercise' | null>(null);
+  // Your Story's view, read on focus by the hook and again whenever Home's
+  // own data reloads (below), so a meal or a check-in logged right here
+  // ticks its item without leaving the page.
+  const [yourStory, reloadYourStory] = useYourStory();
   // Quick-log phase 4. Two sheets rather than one: picking where a photo comes
   // from, and deciding what an already-taken one actually was.
   const [photoSourceSheetOpen, setPhotoSourceSheetOpen] = useState(false);
@@ -1661,6 +1685,27 @@ export default function HomeScreen() {
     }, [load, loadWeekTrend, loadSkyData, loadDigestConditionScope, loadSharedFolderState, announceAppliedUpdate, repairSavedDishes, refreshTestDataBanner]),
   );
 
+  // Your Story reads the same records Home just reloaded, so it reads them
+  // again whenever Home does: a meal logged from Home ticks its item here.
+  useEffect(() => {
+    if (data) void reloadYourStory();
+  }, [data, reloadYourStory]);
+
+  // Arriving from Your Story elsewhere with a card or a quick-log form to
+  // open, 2026-09-24. Waits for the first load, since the page it scrolls
+  // is not laid out behind the loading card, then clears the request so
+  // coming back to Home later does not repeat it.
+  useEffect(() => {
+    if (loading) return;
+    if (!openHomeSection && !openHomeQuickLog) return;
+    if (openHomeQuickLog === 'exercise') goToHomeDestination({ kind: 'quickLog', form: 'exercise' });
+    else if (openHomeSection) goToHomeDestination({ kind: 'home', section: openHomeSection });
+    router.setParams({ openHomeSection: '', openHomeQuickLog: '' });
+    // goToHomeDestination is rebuilt every render and reads current state
+    // through its own closure; the request itself is what this waits on.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, openHomeSection, openHomeQuickLog]);
+
   // What the meals around today's doses do to them, 2026-09-23.
   //
   // Schedules > Today's Meals has said this since 1.0.49.6, and it is the
@@ -2129,6 +2174,46 @@ export default function HomeScreen() {
     void setVisualPreferences({ homeSectionExpanded: { [key]: !isHomeSectionExpanded(visualPrefs, key) } });
   }
 
+  // Scrolls to a card on Home, opening its tab's group first: jumping to a
+  // folded group would land on a closed row and look like nothing happened
+  // (2026-09-16). Shared by the corner menu and by Your Story since
+  // 2026-09-24, which also opens the card itself, because an item saying
+  // "go there" should land on the thing rather than on its name.
+  function revealHomeSection(key: HomeSectionKey, openCard = false) {
+    const tabPath = HOME_SECTION_TAB_PATH[key];
+    if (tabPath) {
+      const foldKey = `${HOME_TAB_GROUP_BAND_KEY_PREFIX}${tabPath}`;
+      if (!tabGroupFolds.isOpen(foldKey)) tabGroupFolds.toggle(foldKey);
+    }
+    if (openCard && !isHomeSectionExpanded(visualPrefs, key)) {
+      void setVisualPreferences({ homeSectionExpanded: { [key]: true } });
+    }
+    // Falls back to the top rather than doing nothing if the section has
+    // not been measured yet, which can only happen if it is off-screen and
+    // has never been laid out. A frame's wait lets a group just opened lay
+    // its cards out first.
+    requestAnimationFrame(() => {
+      const y = sectionOffsets.current[key];
+      scrollRef.current?.scrollTo({ y: y != null ? Math.max(0, y - 12) : 0, animated: true });
+    });
+  }
+
+  // Where a Your Story item that lives on Home goes. A card somebody has
+  // turned off cannot be scrolled to, so the check-in falls back to
+  // Signals, where the same check-in is kept.
+  function goToHomeDestination(destination: Extract<StoryDestination, { kind: 'home' | 'quickLog' }>) {
+    if (destination.kind === 'quickLog') {
+      setQuickLogModal(destination.form);
+      return;
+    }
+    const key = destination.section as HomeSectionKey;
+    if (!(key in HOME_SECTION_LABELS) || !isHomeSectionVisible(visualPrefs, key)) {
+      router.push('/log' as Href);
+      return;
+    }
+    revealHomeSection(key, true);
+  }
+
   // One band per section. Colour and icon come from the tab the section is
   // a window into (lib/homeSections.ts, the same mapping that groups them),
   // looked up in TAB_ROUTES so they can never drift from the tab's own.
@@ -2144,6 +2229,8 @@ export default function HomeScreen() {
       renderIcon?: (size: number, color: string) => ReactNode;
       color?: string;
       contentStyle?: StyleProp<ViewStyle>;
+      // One line under the title while the band is folded (Your Story).
+      foldedCaption?: string;
     },
   ) {
     const identity = homeGroupIdentity(HOME_SECTION_TAB_PATH[key]);
@@ -2158,6 +2245,7 @@ export default function HomeScreen() {
         onToggle={() => toggleHomeSection(key)}
         onLongPress={() => beginArranging(key)}
         contentStyle={options?.contentStyle}
+        foldedCaption={options?.foldedCaption}
       >
         {children}
       </HomeSectionBand>
@@ -3273,6 +3361,31 @@ export default function HomeScreen() {
   // scheduled." It shows whenever there is anything at all to answer,
   // including when the inbox itself is empty, since a week of unanswered
   // meals is exactly the case somebody needs pointing at.
+  // Your Story, 2026-09-24 (lib/yourStory.ts, components/YourStorySection.tsx).
+  // Always shown: it folds and moves like every card, and is the one card
+  // with no switch (HOME_SECTIONS_ALWAYS_SHOWN). Folded, it is one line
+  // naming the next thing to set up, or "Your Story Continues" once there
+  // is nothing left to set up. No badge and no count.
+  function renderYourStory() {
+    return renderBand(
+      'yourStory',
+      yourStory?.heading ?? 'Your Story',
+      <View style={styles.bandBody}>
+        <YourStorySection
+          mode="card"
+          view={yourStory}
+          onChanged={() => void reloadYourStory()}
+          onHomeDestination={goToHomeDestination}
+        />
+      </View>,
+      {
+        icon: 'book-outline',
+        color: colors.primary,
+        foldedCaption: yourStory ? nextLine(yourStory) : undefined,
+      },
+    );
+  }
+
   function renderCaptureInbox() {
     if (!isHomeSectionVisible(visualPrefs, 'captureInbox')) return null;
     const counts = data?.captureCounts ?? { waiting: 0, sorted: 0 };
@@ -3451,6 +3564,8 @@ export default function HomeScreen() {
     switch (key) {
       case 'sharedFolderSetup':
         return renderSharedFolderSetup();
+      case 'yourStory':
+        return renderYourStory();
       case 'captureInbox':
         return renderCaptureInbox();
       case 'whereIsIt':
@@ -3754,19 +3869,7 @@ export default function HomeScreen() {
             setQuickLogModal(entry.open);
             return;
           }
-          // Stays on Home. The section now lives inside its tab’s group,
-          // so open that first: jumping to a folded band would land on a
-          // closed row and look like nothing happened (2026-09-16).
-          const tabPath = HOME_SECTION_TAB_PATH[key];
-          if (tabPath) {
-            const foldKey = `${HOME_TAB_GROUP_BAND_KEY_PREFIX}${tabPath}`;
-            if (!tabGroupFolds.isOpen(foldKey)) tabGroupFolds.toggle(foldKey);
-          }
-          // Falls back to the top rather than doing nothing if the section
-          // has not been measured yet, which can only happen if it is
-          // off-screen and has never been laid out.
-          const y = sectionOffsets.current[key];
-          scrollRef.current?.scrollTo({ y: y != null ? Math.max(0, y - 12) : 0, animated: true });
+          revealHomeSection(key);
         }}
       />
 

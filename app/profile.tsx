@@ -50,6 +50,7 @@ import { CONDITION_STAGING_MODELS } from '../lib/conditionStages';
 import { decryptBackupPayload, isEncryptedBackupWire } from '../lib/backupEncryption';
 import {
   buildBackupFileContent,
+  recordBackupSaved,
   exportBackupToFile,
   listLocalBackupFiles,
   parseBackupEnvelope,
@@ -185,6 +186,7 @@ import {
   getOrderedHomeSectionKeys,
   HOME_SECTION_LABELS,
   isHomeGroupVisible,
+  HOME_SECTIONS_ALWAYS_SHOWN,
   isHomeSectionVisible,
   setLowStimulation,
   setVisualPreferences,
@@ -2092,6 +2094,7 @@ export default function ProfileScreen() {
         showBackupAlert('It did not reach OneDrive', sent.reason);
         return;
       }
+      await recordBackupSaved();
       showBackupAlert(
         'Backed up',
         built.fileName + ' is now in ' + (backupFolder.path ?? backupFolder.name) + '.',
@@ -2826,6 +2829,19 @@ export default function ProfileScreen() {
           you’ll see recommendations for every applicable population instead of one tailored to you. Nothing here
           is guessed on your behalf.
         </Text>
+      </View>
+      {/* Your Story, 2026-09-24. Reachable from here as well as from its
+          Home card, since Profile is where somebody goes looking for how
+          the app is set up, and much of what Your Story asks for is set
+          up on this very page. */}
+      <View style={styles.introBox}>
+        <Text style={styles.intro}>
+          Your Story shows each part of the app in the order it helps most, what is already on record, and a link
+          straight to anything not set up yet.
+        </Text>
+        <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/your-story')}>
+          <Text style={styles.checkinButtonText}>Open Your Story</Text>
+        </TouchableOpacity>
       </View>
       {savedFlash ? (
         <View style={styles.savedFlashBox}>
@@ -4188,7 +4204,7 @@ export default function ProfileScreen() {
 
             <Text style={styles.subLabelDivided}>Cards</Text>
             <View style={styles.pillRow}>
-              {ALL_HOME_SECTION_KEYS.map((key) => {
+              {ALL_HOME_SECTION_KEYS.filter((key) => !HOME_SECTIONS_ALWAYS_SHOWN.has(key)).map((key) => {
                 const shown = isHomeSectionVisible(visualPrefs, key);
                 return (
                   <TouchableOpacity

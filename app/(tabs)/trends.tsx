@@ -8,6 +8,7 @@ import type { HelpSection } from '../../components/HelpButton';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { AppTextInput } from '../../components/AppTextInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
+import { YourStoryMissingLine } from '../../components/YourStoryMissingLine';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import {
   getGroceryPriceHistory,
@@ -1580,6 +1581,7 @@ export default function TrendsScreen() {
                   <Text style={styles.loadingText}>
                     {'Nothing logged in this range yet. Log a few meals on the Food tab and this fills in on its own.'}
                   </Text>
+                  <YourStoryMissingLine itemKey="trends" />
                 </View>
               ) : (
                 <>
@@ -1768,6 +1770,7 @@ export default function TrendsScreen() {
                   <Text style={styles.loadingText}>
                     {'Nothing to read yet. Tick something off on Life > Did I Do It, walk a routine, or capture a note, and this fills in on its own.'}
                   </Text>
+                  <YourStoryMissingLine itemKey="keepingUp" />
                 </View>
               ) : (
                 <>
@@ -2119,6 +2122,7 @@ export default function TrendsScreen() {
                   <Text style={styles.loadingText}>
                     {'No money recorded in this stretch yet. Enter a bill or a shop on Life > Finances, or reach further back with the range above, and this fills in on its own.'}
                   </Text>
+                  <YourStoryMissingLine itemKey="whatItCosts" />
                 </View>
               ) : (
                 <>
@@ -2702,6 +2706,7 @@ export default function TrendsScreen() {
                     <Text style={styles.loadingText}>
                       {"Log a flare or food reaction in Signals first; there's nothing to look for a pattern in yet."}
                     </Text>
+                    <YourStoryMissingLine itemKey="patterns" />
                   </View>
                 ) : patternResult.foodCandidates.length === 0 &&
                   patternResult.dimensionCandidates.length === 0 &&

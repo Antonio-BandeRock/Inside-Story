@@ -6132,6 +6132,28 @@ async function runDatabaseInitialization() {
         added_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- Your Story, 2026-09-24 (lib/yourStory.ts). The parts of life a
+      -- person asked Inside Story to follow: a closed list of nine keys,
+      -- written only when one is added, so a device opening the app does
+      -- not stir the sync. Travels between one person's devices; never
+      -- between people, since lib/peerRelationships.ts names no table
+      -- it does not list.
+      CREATE TABLE IF NOT EXISTS user_beats (
+        beat_key TEXT PRIMARY KEY,
+        added_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      -- What Your Story remembers, and it is deliberately little: the
+      -- local day an item was first seen done, so a record removed later
+      -- can be said to have been there, and the day somebody set an item
+      -- aside. Whether an item is done is never stored; it is read from
+      -- the record each time.
+      CREATE TABLE IF NOT EXISTS your_story_items (
+        item_key TEXT PRIMARY KEY,
+        seen_done_on TEXT,
+        set_aside_on TEXT
+      );
+
       -- The person's own personal interaction rules, 2026-08-18 -- the
       -- second half of the interaction rules engine named in this app's
       -- own Architecture section from the start ("lets the individual

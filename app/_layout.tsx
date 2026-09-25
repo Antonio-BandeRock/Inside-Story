@@ -633,6 +633,19 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
+                {/* Your Story, 2026-09-24. The whole paper, section by
+                    section, beside Capture and Where Is It because it
+                    belongs to no tab: its job is to say where each tab
+                    fits. Reached from its Home card and from Profile. */}
+                <Stack.Screen
+                  name="your-story"
+                  options={{
+                    headerShown: true,
+                    title: 'Your Story',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
                 {/* Walking a routine, 2026-09-17. A Stack screen rather
                     than part of the Life lens that builds routines,
                     because the two are opposite jobs: building one wants

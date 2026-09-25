@@ -260,6 +260,7 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'last_seen_app_version',
   'visual_fold_state',
   'backup_last_check',
+  'backup_last_saved',
   CHANGE_BASELINE_META_KEY,
 ];
 

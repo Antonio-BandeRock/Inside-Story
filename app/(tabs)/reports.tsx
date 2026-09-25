@@ -6,6 +6,7 @@ import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { useInfoAlert } from '../../components/InfoAlert';
+import { YourStoryMissingLine } from '../../components/YourStoryMissingLine';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
@@ -18,6 +19,7 @@ import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { buildReport, renderReportText, type ReportDocument } from '../../lib/reportGenerator';
 import { exportReportAsPdf } from '../../lib/reportPdf';
+import { markYourStorySeen } from '../../lib/yourStoryDb';
 
 const TAB_COLOR = colors.tabReports;
 const band = makeTabBandStyles(TAB_COLOR);
@@ -124,7 +126,10 @@ export default function ReportsScreen() {
   async function handleShareText() {
     if (!reportText) return;
     try {
-      await Share.share({ message: reportText });
+      const outcome = await Share.share({ message: reportText });
+      // Your Story's "Make a report" item holds once a report has left the
+      // phone. A dismissed sheet is not a share, so it is not counted.
+      if (outcome.action !== Share.dismissedAction) void markYourStorySeen('report');
     } catch {
       // Real share-sheet cancellation/dismissal throws too on some Android
       // versions -- silently ignored the same way this app already treats
@@ -138,6 +143,9 @@ export default function ReportsScreen() {
     setExporting(true);
     try {
       const result = await exportReportAsPdf(report);
+      // A PDF handed to the share sheet, or written where the person can
+      // reach it, is a report made; Your Story's report item holds from here.
+      if (result.status !== 'failed') void markYourStorySeen('report');
       if (result.status === 'failed') {
         showInfoAlert('PDF not made', result.message);
       } else if (result.status === 'savedOnly') {
@@ -177,6 +185,11 @@ export default function ReportsScreen() {
                 </TouchableOpacity>
               ))}
             </View>
+
+            {/* While meals are logged on fewer than seven days, most sections
+                below will say there is nothing in range; this names why and
+                where it fits, and disappears once the week is there. */}
+            {!loading && !loadError ? <YourStoryMissingLine itemKey="trends" standaloneColor={TAB_COLOR} /> : null}
 
             {loading ? (
               <View style={band.boxMuted}><Text style={styles.loadingText}>Putting your report together…</Text></View>

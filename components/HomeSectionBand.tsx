@@ -112,6 +112,11 @@ type FoldProps = CommonProps & {
   // Applied to the content wrapper once expanded, for a section whose
   // content wants to centre itself (the day arc, the mood orb).
   contentStyle?: StyleProp<ViewStyle>;
+  // A line under the title shown only while the band is folded, so a
+  // folded band can still say one thing (Your Story names the next thing
+  // to set up, 2026-09-24). Opening the band hides it, since the content
+  // says it in full.
+  foldedCaption?: string;
   children: ReactNode;
 };
 
@@ -203,9 +208,18 @@ export function HomeSectionBand(props: FoldProps | ActionProps | StaticProps) {
         accessibilityLabel={`${title}, ${expanded ? 'collapse' : 'expand'}`}
       >
         {glyph}
-        <Text style={[styles.title, { color: textColor }]} numberOfLines={1}>
-          {title}
-        </Text>
+        {!expanded && props.foldedCaption ? (
+          <View style={styles.titleColumn}>
+            <Text style={[styles.title, { color: textColor }]} numberOfLines={1}>
+              {title}
+            </Text>
+            <Text style={styles.caption}>{props.foldedCaption}</Text>
+          </View>
+        ) : (
+          <Text style={[styles.title, { color: textColor }]} numberOfLines={1}>
+            {title}
+          </Text>
+        )}
         <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={color} style={textShadow} />
       </TouchableOpacity>
       {expanded ? <View style={[styles.content, contentStyle]}>{children}</View> : null}

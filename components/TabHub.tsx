@@ -36,6 +36,7 @@ import {
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { modalAnimationType, type TabHubIconChoice } from '../lib/visualPreferences';
 import { useCurrentPageHelp } from './CurrentPageHelp';
+import { YourStoryHelpLine } from './YourStoryHelpLine';
 import { DessertBuilderIcon } from './FoodBuilderIcons';
 import { HelpSheet } from './HelpButton';
 import { ActiveRingCircle } from './ActiveRingCircle';
@@ -851,6 +852,9 @@ export function TabHub() {
         onClose={() => setHelpVisible(false)}
         pageTitle={currentHelp?.title ?? ''}
         sections={currentHelp?.sections ?? []}
+        // Every tab's sheet ends by saying where the tab fits in Your
+        // Story, 2026-09-24 (components/YourStoryHelpLine.tsx).
+        extra={<YourStoryHelpLine tabPath={activeTabPath} onOpenYourStory={() => setHelpVisible(false)} />}
       />
     </>
   );

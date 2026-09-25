@@ -248,6 +248,11 @@ export type HomeSectionKey =
   // Capture because the two are halves of one habit, putting something
   // down somewhere and finding it again.
   | 'whereIsIt'
+  // Your Story, 2026-09-24 (lib/yourStory.ts). Belongs to no tab, since
+  // its job is to say where each tab fits, so it is a top-level row like
+  // Capture. The one card on Home that cannot be turned off: see
+  // HOME_SECTIONS_ALWAYS_SHOWN below.
+  | 'yourStory'
   // The greeting card, a section like any other since 2026-09-16.
   // It was outside this system entirely until then, which is what made
   // it the one thing on Home nobody could move, fold or turn off. Named
@@ -355,6 +360,10 @@ export type HomeSectionKey =
 export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'weather',
   'sharedFolderSetup',
+  // Your Story, ahead of Capture: before anything is set up it is the
+  // most useful thing on the page, and once everything is it has folded to
+  // one line that names nothing left to do.
+  'yourStory',
   // Capture leads, behind only the one-off folder nudge: it is the one
   // card whose whole value is being reachable before a thought is gone.
   'captureInbox',
@@ -437,6 +446,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   sharedFolderSetup: 'Shared Folder Setup',
   captureInbox: 'Capture',
   whereIsIt: 'Where Is It',
+  yourStory: 'Your Story',
   today: 'Today',
   lowStimulation: 'Low Stimulation',
   symptomCheckinReminder: 'Symptom Check-In',
@@ -693,8 +703,17 @@ export function modalAnimationType(preferred: 'fade' | 'slide'): 'fade' | 'slide
 // own toggle grid both read through this one function rather than
 // inlining `!== false` at each call site.
 export function isHomeSectionVisible(prefs: VisualPreferences, key: HomeSectionKey): boolean {
+  if (HOME_SECTIONS_ALWAYS_SHOWN.has(key)) return true;
   return prefs.homeSectionVisibility[key] !== false;
 }
+
+// Cards that can be folded and moved but never turned off, 2026-09-24.
+// One so far, Your Story, by direct decision: it is the way back to
+// everything that has dropped off it, so a switch that hid it would hide
+// the map with it. A written exception to "every Home card is
+// individually toggleable"; Profile and the arranging list both leave the
+// switch off these rather than offering one that does nothing.
+export const HOME_SECTIONS_ALWAYS_SHOWN: ReadonlySet<HomeSectionKey> = new Set<HomeSectionKey>(['yourStory']);
 
 // The same contract for a whole group. See homeGroupVisibility above for
 // why a group carries its own switch rather than writing through to the
@@ -757,6 +776,10 @@ export function getOrderedHomeSectionKeys(prefs: VisualPreferences): HomeSection
 // the greeting folded away behind two taps.
 export const BANDS_OPEN_UNTIL_CLOSED: ReadonlySet<string> = new Set([
   'today',
+  // Your Story, 2026-09-24: open on a first launch, since that is when it
+  // has the most to say, and folded to its one line once somebody closes
+  // it.
+  'yourStory',
   `${HOME_TAB_GROUP_BAND_KEY_PREFIX}/`,
 ]);
 

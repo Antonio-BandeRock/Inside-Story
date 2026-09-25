@@ -61,6 +61,7 @@ const NAMED = [
   'lib/foodStageReordering.ts',
   'lib/keepingUp.ts',
   'lib/growingConditions.ts',
+  'lib/yourStory.ts',
 ];
 
 function targets() {

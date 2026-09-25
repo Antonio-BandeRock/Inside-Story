@@ -176,6 +176,30 @@ export async function buildBackupFileContent(
   }
 }
 
+// The day a backup was last saved from this device, to a file or to the
+// shared folder. Your Story's Archive reads it (lib/yourStoryDb.ts), and it
+// is device-local (DEVICE_LOCAL_META_KEYS in lib/snapshotSync.ts), since a
+// backup saved on the computer says nothing about whether the phone has one.
+export const BACKUP_LAST_SAVED_META_KEY = 'backup_last_saved';
+
+export async function recordBackupSaved(): Promise<void> {
+  try {
+    const db = await getDatabase();
+    const now = new Date().toISOString();
+    await db.runAsync(
+      `
+        INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?)
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+      `,
+      BACKUP_LAST_SAVED_META_KEY,
+      now,
+      now,
+    );
+  } catch (error) {
+    console.error('[dataBackup] Failed to note when the backup was saved', error);
+  }
+}
+
 export async function exportBackupToFile(password: string): Promise<string | null> {
   try {
     const envelope = await buildBackupEnvelope();
@@ -186,6 +210,7 @@ export async function exportBackupToFile(password: string): Promise<string | nul
     const stamp = envelope.exportedAt.replace(/[:.]/g, '-');
     const file = new File(dir, `inside-story-backup-${stamp}.json`);
     file.write(JSON.stringify(wire));
+    await recordBackupSaved();
     return file.uri;
   } catch (error) {
     console.error('[dataBackup] Failed to write the backup file', error);

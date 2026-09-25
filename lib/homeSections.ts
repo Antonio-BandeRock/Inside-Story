@@ -37,6 +37,9 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   // Somebody standing in front of an open cupboard will not go two taps
   // deep, which is the whole test this feature has to pass.
   whereIsIt: null,
+  // Your Story, 2026-09-24. Null because it spans every tab: its job is
+  // to say where each one fits. A top-level row, like Capture.
+  yourStory: null,
   // Home, since 1.0.39.10. 1.0.39.7 left Home with no group at all, by
   // moving its one member (Low Stimulation) under Profile where the
   // switch actually lives, and the comment written here at the time

@@ -95,6 +95,7 @@ import {
 import {
   HOME_SECTION_LABELS,
   isHomeGroupVisible,
+  HOME_SECTIONS_ALWAYS_SHOWN,
   isHomeSectionVisible,
   type HomeSectionKey,
   type VisualPreferences,
@@ -346,7 +347,9 @@ export function HomeArrangeList({
     inset: boolean;
     caption?: string;
     onLayoutTop?: (y: number) => void;
-    onToggleVisible: () => void;
+    // Absent for a card that cannot be turned off (Your Story), which gets
+    // no eye button rather than one that does nothing.
+    onToggleVisible?: () => void;
     onPress?: () => void;
   }) {
     const { rowKey, kind, groupId, index, count, title, icon, color, visible, inset, caption } = options;
@@ -388,18 +391,20 @@ export function HomeArrangeList({
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={options.onToggleVisible}
-          style={styles.rowButton}
-          accessibilityRole="button"
-          accessibilityLabel={visible ? `Turn off ${title}` : `Turn on ${title}`}
-        >
-          <Ionicons
-            name={visible ? 'eye-outline' : 'eye-off-outline'}
-            size={18}
-            color={visible ? color : colors.textMuted}
-          />
-        </TouchableOpacity>
+        {options.onToggleVisible ? (
+          <TouchableOpacity
+            onPress={options.onToggleVisible}
+            style={styles.rowButton}
+            accessibilityRole="button"
+            accessibilityLabel={visible ? `Turn off ${title}` : `Turn on ${title}`}
+          >
+            <Ionicons
+              name={visible ? 'eye-outline' : 'eye-off-outline'}
+              size={18}
+              color={visible ? color : colors.textMuted}
+            />
+          </TouchableOpacity>
+        ) : null}
 
         {canDrag ? (
           <View
@@ -470,7 +475,10 @@ export function HomeArrangeList({
                 : `${members.length} ${members.length === 1 ? 'card' : 'cards'}${
                     hiddenCount > 0 ? `, ${hiddenCount} turned off` : ''
                   }`,
-              onToggleVisible: () => (solo ? onToggleSection(members[0]) : onToggleGroup(groupId)),
+              onToggleVisible:
+                solo && HOME_SECTIONS_ALWAYS_SHOWN.has(members[0])
+                  ? undefined
+                  : () => (solo ? onToggleSection(members[0]) : onToggleGroup(groupId)),
               onPress: solo ? undefined : () => setOpenGroupId(open ? null : groupId),
               onLayoutTop:
                 openFor && open
@@ -493,7 +501,7 @@ export function HomeArrangeList({
                     color,
                     visible: isHomeSectionVisible(prefs, key),
                     inset: true,
-                    onToggleVisible: () => onToggleSection(key),
+                    onToggleVisible: HOME_SECTIONS_ALWAYS_SHOWN.has(key) ? undefined : () => onToggleSection(key),
                   }),
                 )
               : null}
