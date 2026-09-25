@@ -306,16 +306,93 @@ same(
   'the card points into the guide holding the next thing',
 );
 
+// 1.0.51.8: every step says when it belongs, every guide says what comes
+// first, and Step by step can say how to reach every destination.
+for (const guide of guides.GUIDES) {
+  check(!!guide.firstResult && guide.firstResult.startsWith('What you get first'), `${guide.key} says what comes first`);
+  check(guide.entries.some((entry) => entry.when === 'start' || entry.when === 'daily'), `${guide.key} has a first or everyday step`);
+  for (const entry of guide.entries) {
+    check(guides.GUIDE_WHEN_ORDER.includes(entry.when), `${guide.key}/${entry.key} says when it belongs`);
+    check(!!guides.cadenceLine(entry), `${guide.key}/${entry.key} has a cadence line`);
+    if (entry.destination.kind !== 'beats') {
+      check(!!guides.navigationLine(entry.destination), `${guide.key}/${entry.key} says how to get there`);
+    }
+    const tabParam = entry.destination.kind === 'route' && TAB_FILES[entry.destination.pathname];
+    if (tabParam) {
+      const lens = entry.destination.params[tabParam[0]];
+      check(
+        !!(guides.LENS_NAMES[entry.destination.pathname] || {})[lens],
+        `${guide.key}/${entry.key}: the lens ${lens} has a name to say`,
+      );
+    }
+  }
+}
+// Each lens name the navigation line says is what the tab screen shows.
+for (const [pathname, lenses] of Object.entries(guides.LENS_NAMES)) {
+  const tab = TAB_FILES[pathname];
+  if (!tab) continue;
+  const file = tab[1];
+  tabSource[file] = tabSource[file] || fs.readFileSync(path.join(__dirname, '..', 'app', '(tabs)', file), 'utf8');
+  for (const [lens, name] of Object.entries(lenses)) {
+    check(tabSource[file].includes(`'${lens}'`), `${file} knows the lens ${lens}`);
+    check(tabSource[file].includes(`'${name}'`) || tabSource[file].includes(`"${name}"`), `${file} calls ${lens} ${name}`);
+  }
+}
+same(
+  guides.navigationLine({ kind: 'route', pathname: '/life', params: { openLifeLens: 'routines' } }),
+  'Tap the round button at the bottom of the screen and choose Life. Then tap the button in the bottom-left corner and choose Routines.',
+  'the way to a lens names the tab and the lens',
+);
+same(guides.cadenceLine({ when: 'daily', takes: 'Under a minute' }), 'Every day. Under a minute.', 'the cadence line says how often and how long');
+
+// A step two guides share is written out in the first guide shown and
+// pointed to from the rest, and the card never points into a pointer.
+const sharedBuilt = guides.buildGuides(facts({ beats: ['health', 'food', 'routines'] }), {});
+const byKey = (key) => sharedBuilt.find((guide) => guide.def.key === key);
+same(byKey('health').entries.find((entry) => entry.entry.key === 'item:aboutYou').sharedWith, null, 'written out in the first guide');
+same(byKey('food').entries.find((entry) => entry.entry.key === 'item:aboutYou').sharedWith, 'health', 'pointed to from a later guide');
+same(byKey('routines').entries.find((entry) => entry.entry.key === 'item:capture').sharedWith, 'basics', 'Capture points back to The Basics');
+// Entries read in group order, Start here first.
+for (const guide of sharedBuilt) {
+  const order = guide.entries.map((entry) => guides.GUIDE_WHEN_ORDER.indexOf(entry.entry.when));
+  check(order.every((value, index) => index === 0 || value >= order[index - 1]), `${guide.def.key} reads in group order`);
+}
+check(guides.isGuideStyle('short') && guides.isGuideStyle('steps') && !guides.isGuideStyle('other'), 'the two ways of writing');
+
 for (const guide of guides.GUIDES) {
   written.push(guide.name, guide.title, guide.opening);
-  for (const entry of guide.entries) written.push(entry.doThis, entry.forYou, entry.leadsTo || '');
+  written.push(guide.firstResult);
+  for (const entry of guide.entries) {
+    written.push(entry.doThis, entry.forYou, entry.leadsTo || '', entry.takes || '', ...(entry.taps || []));
+    written.push(guides.cadenceLine(entry), guides.navigationLine(entry.destination) || '');
+  }
+  written.push(guides.sharedLine(guide.key), guides.alsoInLine(guide.key));
   written.push(guides.openGuideLabel(guide.key), guides.guideCardLine(guide.key));
 }
 written.push(guides.GUIDES_HEADING, guides.GUIDES_LEAD, guides.READ_LABEL);
+written.push(
+  ...Object.values(guides.GUIDE_WHEN_HEADINGS),
+  guides.GUIDE_STYLE_QUESTION,
+  ...Object.values(guides.GUIDE_STYLE_LABELS),
+  ...Object.values(guides.GUIDE_STYLE_CAPTIONS),
+  guides.GUIDE_STYLE_CHANGE_LINE,
+  guides.STEP_NEXT_LABEL,
+  guides.STEP_BACK_LABEL,
+  guides.SHOW_ALL_LABEL,
+  guides.SHOW_ONE_LABEL,
+  guides.HOW_TO_GET_THERE,
+  guides.ONCE_THERE,
+);
 
 // "Healing Stage" is the name of an Insights lens, and a guide has to call
-// it what the screen calls it. Nothing else may say healing.
-const allText = written.join(' ').replace(/Healing Stage/g, 'Stage Foods');
+// it what the screen calls it. Nothing else may say healing. "Step by step"
+// is the name of a way of writing the guides and "+ Add a step" a button on
+// Routines; neither counts anybody's steps.
+const allText = written
+  .join(' ')
+  .replace(/Healing Stage/g, 'Stage Foods')
+  .replace(/Step by step/g, 'Detailed')
+  .replace(/\+ Add a step/g, '+ Add a part');
 const lower = allText.toLowerCase();
 for (const word of [
   'well done', 'good job', 'great job', 'keep it up', 'congrat', 'streak', 'you should', 'you failed', 'behind',
@@ -328,7 +405,8 @@ check(!/\bstep\s*\d|\d+\s*of\s*\d+\s*steps/i.test(allText), 'no step numbers');
 check(!/[–—]/.test(allText) && !allText.includes(' -- '), 'no dashes in Your Story');
 check(!/\b(?:real|genuine|genuinely)\b/i.test(allText), 'no filler words in Your Story');
 // "On their own" is the idiom the house rule keeps.
-check(!/\bown\b/i.test(allText.replace(/on their own/g, '')), 'no redundant own');
+// "+ Add a Rule of Your Own" is a button on Insights, quoted as it reads.
+check(!/\bown\b/i.test(allText.replace(/on their own/g, '').replace(/Rule of Your Own/g, '')), 'no redundant own');
 
 console.log(`${checks - failures}/${checks} checks passed`);
 if (failures > 0) process.exit(1);

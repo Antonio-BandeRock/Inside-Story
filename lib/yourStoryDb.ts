@@ -11,8 +11,8 @@
 
 import { dayKey, localDayOf, normalizeBeatKeys, buildYourStory } from './yourStory';
 import type { ArchiveFacts, BeatKey, YourStoryFacts, YourStoryItemKey, YourStoryView } from './yourStory';
-import { buildGuides } from './yourStoryGuides';
-import type { GuideRecordKey, GuideRecords, GuideView } from './yourStoryGuides';
+import { buildGuides, isGuideStyle } from './yourStoryGuides';
+import type { GuideRecordKey, GuideRecords, GuideStyle, GuideView } from './yourStoryGuides';
 import { getDatabase } from './db';
 import { BACKUP_LAST_SAVED_META_KEY, listLocalBackupFiles } from './dataBackup';
 import { readSyncState } from './snapshotSyncDevice';
@@ -327,4 +327,29 @@ export async function loadYourStoryWithGuides(withGuides = true): Promise<{ view
   if (!withGuides) return { view, guides: [] };
   const db = await getDatabase();
   return { view, guides: buildGuides(facts, await lookForGuideRecords(db)) };
+}
+
+// How the guides are written, Short or Step by step (1.0.51.8). Null until
+// the person has chosen, which is what makes the page ask. It travels
+// between one person's devices like any other setting, since it is about
+// the person rather than the device.
+const GUIDE_STYLE_META_KEY = 'your_story_guide_style';
+
+export async function getGuideStyle(): Promise<GuideStyle | null> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ value: string }>('SELECT value FROM app_meta WHERE key = ?', GUIDE_STYLE_META_KEY);
+  return isGuideStyle(row?.value) ? row.value : null;
+}
+
+export async function setGuideStyle(style: GuideStyle): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(
+    `
+      INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?)
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+    `,
+    GUIDE_STYLE_META_KEY,
+    style,
+    new Date().toISOString(),
+  );
 }
