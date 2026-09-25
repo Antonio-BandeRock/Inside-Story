@@ -7,7 +7,8 @@
 // Every other export is passed through as a getter, so nothing is read from
 // React Native until something asks for it, the same laziness React
 // Native's own index relies on.
-const ReactNative = require('react-native');
+// 'react-native/index' rather than 'react-native': see reactNativeText.js.
+const ReactNative = require('react-native/index');
 const { EditableText } = require('./EditableText');
 
 const withEditableText = {};

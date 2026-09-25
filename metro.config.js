@@ -17,11 +17,22 @@ config.resolver.assetExts.push('db');
 // babel-preset-expo has already rewritten each named import into a deep
 // import such as 'react-native-web/dist/exports/Text', so that path is
 // swapped for components/editableTextForWeb.js the same way.
+//
+// The files below are left out by name, but that only works for a path
+// with a slash in it. Metro caches a bare 'react-native' ONCE for every file
+// outside node_modules (isSensitiveToOriginFolder in its DependencyGraph),
+// so this function is asked about it once and every such file gets that
+// one answer. That is why the swap's own files reach React Native through
+// components/reactNativeText.js ('react-native/index') and never by the
+// bare name: 1.0.51.12 did, got the swap back, and closed on launch.
+// scripts/test_editable_text_resolver.js checks an Android export for it.
 const OWN_SOURCE_FOLDERS = new Set(['app', 'components', 'lib', 'constants', 'hooks']);
 const EDITABLE_TEXT_FILES = new Set([
   path.join(__dirname, 'components', 'reactNativeWithEditableText.js'),
   path.join(__dirname, 'components', 'EditableText.tsx'),
   path.join(__dirname, 'components', 'editableTextForWeb.js'),
+  path.join(__dirname, 'components', 'reactNativeText.js'),
+  path.join(__dirname, 'components', 'reactNativeText.web.js'),
 ]);
 const WEB_TEXT_MODULES = new Set(['react-native-web/dist/exports/Text', 'react-native-web/dist/cjs/exports/Text']);
 function editableTextFor(context, moduleName) {

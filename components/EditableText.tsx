@@ -27,7 +27,8 @@
 //     wraps itself in PlainTextZone, so a tap on the editor never opens
 //     another editor.
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode, type Ref } from 'react';
-import { Text as NativeText, type TextProps } from 'react-native';
+import type { TextProps } from 'react-native';
+import { Text as NativeText } from './reactNativeText';
 import { flattenTextChildren } from '../lib/devNotes';
 import {
   getWordingEditState,
