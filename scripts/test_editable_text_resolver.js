@@ -8,6 +8,14 @@
 //   node scripts/test_editable_text_resolver.js            exports, then checks
 //   node scripts/test_editable_text_resolver.js <bundle>   checks an existing
 //                                                          unminified bundle
+//   node scripts/test_editable_text_resolver.js --web      the same for the
+//                                                          desktop web export
+//
+// --web exists because 1.0.52.3's Windows app opened to a black screen:
+// components/reactNativeText.web.js asked for
+// 'react-native-web/dist/exports/Text', which Metro had already resolved to
+// the swap for another file in components/, so EditableText and the swap
+// imported each other and React was handed an undefined Text.
 /* global __dirname */
 const fs = require('fs');
 const os = require('os');
@@ -24,6 +32,51 @@ function exportBundle() {
   });
   const dir = path.join(out, '_expo', 'static', 'js', 'android');
   return path.join(dir, fs.readdirSync(dir).find((name) => name.endsWith('.js')));
+}
+
+if (process.argv[2] === '--web') {
+  process.exit(checkWeb());
+}
+
+// The web export in dev mode names each module's file after its
+// dependency list, '},<id>,[<deps>],"<path>");', so a module is found by
+// its path.
+function checkWeb() {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'editable-text-web-'));
+  execSync(`npx expo export -p web --dev --no-minify --output-dir "${out}"`, {
+    cwd: root,
+    stdio: 'ignore',
+    env: { ...process.env, INSIDE_STORY_DESKTOP: '1', CI: '1' },
+  });
+  const dir = path.join(out, '_expo', 'static', 'js', 'web');
+  const bundle = fs.readFileSync(path.join(dir, fs.readdirSync(dir).find((name) => name.endsWith('.js'))), 'utf8');
+  const byPath = new Map();
+  const pattern = /\},(\d+),\[([\d,]*)\],"([^"]+)"\);/g;
+  let found;
+  while ((found = pattern.exec(bundle))) {
+    byPath.set(found[3], { id: Number(found[1]), deps: found[2] ? found[2].split(',').map(Number) : [] });
+  }
+  let failed = 0;
+  const expect = (label, ok) => {
+    if (!ok) failed += 1;
+    console.log(`${ok ? 'ok  ' : 'FAIL'} ${label}`);
+  };
+  const swap = byPath.get('components/editableTextForWeb.js');
+  const editable = byPath.get('components/EditableText.tsx');
+  const text = byPath.get('components/reactNativeText.web.js');
+  const webText = byPath.get('node_modules/react-native-web/dist/exports/Text/index.js');
+  expect('the web export carries all four modules', !!(swap && editable && text && webText));
+  if (swap && editable && text && webText) {
+    expect('the web swap reaches EditableText', swap.deps.includes(editable.id));
+    expect('EditableText reaches reactNativeText.web.js', editable.deps.includes(text.id));
+    expect('reactNativeText.web.js is React Native Web Text', text.deps.includes(webText.id));
+    expect('reactNativeText.web.js never depends on the swap', !text.deps.includes(swap.id));
+    expect('EditableText never depends on the swap', !editable.deps.includes(swap.id));
+    const users = [...byPath.values()].filter((mod) => mod.deps.includes(swap.id)).length;
+    expect(`the app's own files use the web swap (${users} modules)`, users > 50);
+  }
+  console.log(failed ? `\n${failed} failed` : '\nall passed');
+  return failed ? 1 : 0;
 }
 
 const bundlePath = process.argv[2] || exportBundle();
