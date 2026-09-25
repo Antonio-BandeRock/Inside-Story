@@ -5,6 +5,35 @@ const config = getDefaultConfig(__dirname);
 
 config.resolver.assetExts.push('db');
 
+// Tell Claude's Edit wording mode (1.0.51.12): this app's own files get
+// components/reactNativeWithEditableText.js when they import 'react-native',
+// which is React Native with Text swapped for components/EditableText.tsx,
+// so any words on screen can be tapped and changed without the files that
+// draw them knowing. Libraries in node_modules, and the two files that
+// build the swap, get React Native itself. While the Tell Claude switch is
+// off the swapped Text renders exactly as React Native's does. Neither
+// @expo/fingerprint nor the runtime version reads this file, so this ships
+// as an ordinary update.
+const OWN_SOURCE_FOLDERS = new Set(['app', 'components', 'lib', 'constants', 'hooks']);
+const EDITABLE_TEXT_FILES = new Set([
+  path.join(__dirname, 'components', 'reactNativeWithEditableText.js'),
+  path.join(__dirname, 'components', 'EditableText.tsx'),
+]);
+function editableTextFor(context, moduleName) {
+  if (moduleName !== 'react-native') return null;
+  const origin = context.originModulePath;
+  if (!origin || EDITABLE_TEXT_FILES.has(origin)) return null;
+  const relative = path.relative(__dirname, origin);
+  const top = relative.split(path.sep)[0];
+  if (!OWN_SOURCE_FOLDERS.has(top)) return null;
+  return { type: 'sourceFile', filePath: path.join(__dirname, 'components', 'reactNativeWithEditableText.js') };
+}
+{
+  const upstream = config.resolver.resolveRequest;
+  config.resolver.resolveRequest = (context, moduleName, platform) =>
+    editableTextFor(context, moduleName) ?? (upstream || context.resolveRequest)(context, moduleName, platform);
+}
+
 // The desktop app (desktop/, an Electron shell around this same code on
 // its web target) is built with INSIDE_STORY_DESKTOP=1 in the environment.
 // Under that flag, and only on the web platform, a handful of modules

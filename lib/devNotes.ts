@@ -10,12 +10,21 @@
 // Four decisions were settled the same day, and each one is why a piece of
 // this looks the way it does.
 //
-// 1. A NOTE IS QUEUED, NOT APPLIED. An edit to the wording does not replace
-//    what is on screen. It is written down with the exact text, Claude
-//    changes the source, and it arrives on the next update. The alternative
-//    (an override layer the running app prefers) would have meant a wrapper
-//    around every Text in the app and a standing hazard of the phone showing
-//    words that are nowhere in the repository.
+// 1. A NOTE IS QUEUED, AND A WORDING EDIT IS PREVIEWED. Reversed in part on
+//    2026-09-24 (1.0.51.12), from "it is kind of hard to tell you what to
+//    change in the text when the window that opens covers all of the text on
+//    the screen... if it is just a text area, even if it is a title or a
+//    header, just text, not with code behind it, I would like to be able to
+//    directly edit it." Edit wording mode lets any text on screen be tapped
+//    and changed in place. The note carries the words exactly as they were
+//    drawn (originalText) and the words wanted (newText), so the source is
+//    found by searching for the one and changed to the other. The edit shows
+//    on the device it was made on straight away, and only there, until the
+//    note is marked shipped; a Profile switch hides pending edits to show
+//    what the app itself says. The wrapper this once ruled out is
+//    components/EditableText.tsx, reached through metro.config.js, and it
+//    does nothing while the switch is off. The source is still the only
+//    place a change is made: an edit leaves its device only as a note.
 // 2. A NOTE BELONGS TO A BAND. Every fold band already carries an id and a
 //    title (components/TabBand.tsx), so a note anchors to the one under the
 //    finger. A form with six steps inside one band is one note covering all
@@ -72,6 +81,11 @@ export type DevNote = {
   bandTitle: string | null;
   kind: DevNoteKind;
   body: string;
+  /** A wording edit made in place: the words exactly as they were drawn,
+   *  numbers and names filled in. Null for any other note. */
+  originalText: string | null;
+  /** What the person changed them to. */
+  newText: string | null;
   status: DevNoteStatus;
   /** The version the change shipped in, once Claude has written it back. */
   doneVersion: string | null;
@@ -210,6 +224,8 @@ export function parseDevNoteLine(line: string): DevNoteLine | null {
       bandTitle: asString(parsed.bandTitle),
       kind: asKind(parsed.kind),
       body,
+      originalText: typeof parsed.originalText === 'string' ? parsed.originalText : null,
+      newText: typeof parsed.newText === 'string' ? parsed.newText : null,
       status: parsed.status === 'done' ? 'done' : 'open',
       doneVersion: asString(parsed.doneVersion),
       doneAt: asString(parsed.doneAt),
@@ -260,4 +276,62 @@ export function readNoteIds(text: string): Set<string> {
  *  written with no folder set up is published the moment there is one. */
 export function notesToPublish(notes: readonly DevNote[], publishedIds: ReadonlySet<string>): DevNote[] {
   return notes.filter((note) => !publishedIds.has(note.id));
+}
+
+// EDITING WORDS IN PLACE (1.0.51.12).
+
+/** What a wording edit asks for, written so it can be acted on without the
+ *  screen in front of whoever reads it. */
+export function describeWordingChange(originalText: string, newText: string): string {
+  if (originalText === newText) return `Put back as it was: "${originalText}".`;
+  return `Change "${originalText}" to "${newText}".`;
+}
+
+/** What is wrong with a wording edit as typed, or null when it can be saved. */
+export function wordingEditProblem(originalText: string, newText: string, shownNow: string): string | null {
+  if (!originalText) return 'There are no words there to change.';
+  if (!newText.trim()) return 'Say what it should read, or tap Cancel.';
+  if (newText === shownNow) return 'That is what it says already.';
+  return null;
+}
+
+/**
+ * The edits a device shows before they ship, keyed by the words as the app
+ * draws them. Only open wording notes carrying both texts count, oldest
+ * first so the latest edit of the same words wins, and an edit that puts the
+ * words back as they were removes the entry rather than mapping the words to
+ * themselves. A shipped note drops out by itself, which is what hands the
+ * screen back to the source once the change has arrived.
+ */
+export function editsFromNotes(notes: readonly DevNote[]): Map<string, string> {
+  const edits = new Map<string, string>();
+  const ordered = notes
+    .filter((note) => note.kind === 'wording' && note.status === 'open' && note.originalText && note.newText !== null)
+    .slice()
+    .sort((a, b) => (a.createdAt < b.createdAt ? -1 : a.createdAt > b.createdAt ? 1 : 0));
+  for (const note of ordered) {
+    const from = note.originalText as string;
+    const to = note.newText as string;
+    if (to === from) edits.delete(from);
+    else edits.set(from, to);
+  }
+  return edits;
+}
+
+/**
+ * The words a piece of text draws, from whatever its children are: strings
+ * and numbers as they read, nested text flattened into the sentence it is
+ * part of, and anything drawing no words (null, false, an element with no
+ * children) as nothing. Written against the shape of a React element rather
+ * than importing React, so the test runs it on plain objects.
+ */
+export function flattenTextChildren(children: unknown): string {
+  if (children === null || children === undefined || typeof children === 'boolean') return '';
+  if (typeof children === 'string') return children;
+  if (typeof children === 'number' || typeof children === 'bigint') return String(children);
+  if (Array.isArray(children)) return children.map(flattenTextChildren).join('');
+  if (typeof children === 'object' && 'props' in children) {
+    return flattenTextChildren((children as { props?: { children?: unknown } }).props?.children);
+  }
+  return '';
 }

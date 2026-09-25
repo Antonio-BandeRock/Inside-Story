@@ -4934,8 +4934,9 @@ export default function ProfileScreen() {
                 Tell Claude: long press any band to leave a note about it, or use the button against
                 the left edge for anything that is not a band, which is also how it works in the
                 Windows app where there is no long press. A note remembers which device you were on,
-                the version, and which tab, lens and band you were looking at. Nothing on screen
-                changes until the change is shipped.
+                the version, and which tab, lens and band you were looking at. The button also offers
+                Edit wording, which underlines every piece of text so you can tap it and change the
+                words right there.
               </Text>
               <View style={styles.pillRow}>
                 {[false, true].map((value) => {
@@ -4955,6 +4956,28 @@ export default function ProfileScreen() {
               </View>
               {visualPrefs.developerNotes ? (
                 <>
+                  {/* Edit wording, 1.0.51.12: words changed in place show on
+                      this device straight away, until the change ships. */}
+                  <Text style={styles.helpText}>
+                    Show my wording edits before they ship. Off shows what the app itself says. An edit
+                    only ever shows on the device it was made on, and goes once its change is shipped.
+                  </Text>
+                  <View style={styles.pillRow}>
+                    {[false, true].map((value) => {
+                      const on = visualPrefs.developerNotesPreview === value;
+                      return (
+                        <TouchableOpacity
+                          key={value ? 'on' : 'off'}
+                          style={[styles.pill, on && styles.pillActive]}
+                          onPress={() => {
+                            void setVisualPreferences({ developerNotesPreview: value });
+                          }}
+                        >
+                          <Text style={[styles.pillText, on && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
                   <Text style={styles.helpText}>{summariseDevNotes(devNotes)}</Text>
                   {devNotesMessage ? <Text style={styles.helpText}>{devNotesMessage}</Text> : null}
                   <TouchableOpacity

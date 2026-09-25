@@ -22,6 +22,7 @@ import { getDatabase } from './db';
 import {
   DEV_NOTES_FILE_NAME,
   devNoteToLine,
+  editsFromNotes,
   notesToPublish,
   readNoteIds,
   readStatusLines,
@@ -31,6 +32,7 @@ import type { DevNote, DevNoteKind, DevNoteStatusLine } from './devNotes';
 import { getBackupsFolder } from './oneDriveFolders';
 import { downloadText, uploadText } from './oneDriveGraph';
 import { getMyDevice } from './snapshotSyncDevice';
+import { setWordingEdits } from './wordingEdits';
 
 const COLUMNS = [
   'id',
@@ -43,6 +45,8 @@ const COLUMNS = [
   'band_title AS bandTitle',
   'kind',
   'body',
+  'original_text AS originalText',
+  'new_text AS newText',
   'status',
   'done_version AS doneVersion',
   'done_at AS doneAt',
@@ -61,6 +65,9 @@ export type NewDevNote = {
   lens: string | null;
   bandId: string | null;
   bandTitle: string | null;
+  /** Only for a wording edit made by tapping the words on screen. */
+  originalText?: string | null;
+  newText?: string | null;
 };
 
 /**
@@ -83,14 +90,17 @@ export async function addDevNote(input: NewDevNote): Promise<DevNote> {
     bandTitle: input.bandTitle,
     kind: input.kind,
     body: input.body.trim(),
+    originalText: input.originalText ?? null,
+    newText: input.newText ?? null,
     status: 'open',
     doneVersion: null,
     doneAt: null,
   };
   await db.runAsync(
     `INSERT INTO dev_notes
-       (id, created_at, device, app_version, tab, lens, band_id, band_title, kind, body, status, done_version, done_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', NULL, NULL)`,
+       (id, created_at, device, app_version, tab, lens, band_id, band_title, kind, body,
+        original_text, new_text, status, done_version, done_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', NULL, NULL)`,
     note.id,
     note.createdAt,
     note.device,
@@ -101,7 +111,10 @@ export async function addDevNote(input: NewDevNote): Promise<DevNote> {
     note.bandTitle,
     note.kind,
     note.body,
+    note.originalText,
+    note.newText,
   );
+  if (note.originalText) await reloadWordingEdits();
   return note;
 }
 
@@ -113,6 +126,7 @@ export async function addDevNote(input: NewDevNote): Promise<DevNote> {
 export async function clearShippedDevNotes(): Promise<number> {
   const db = await getDatabase();
   const result = await db.runAsync("DELETE FROM dev_notes WHERE status = 'done'");
+  await reloadWordingEdits();
   return result.changes ?? 0;
 }
 
@@ -129,6 +143,16 @@ export async function applyDevNoteStatuses(statuses: readonly DevNoteStatusLine[
       status.id,
     );
   }
+  // A shipped wording edit stops being shown in place, since the source now
+  // says it.
+  await reloadWordingEdits();
+}
+
+/** Reads the wording edits still waiting and hands them to the text on
+ *  screen (lib/wordingEdits.ts). Called whenever a note is added or
+ *  answered, and once when the switch is turned on. */
+export async function reloadWordingEdits(): Promise<void> {
+  setWordingEdits(editsFromNotes(await listDevNotes()));
 }
 
 export type DevNoteSyncResult = {

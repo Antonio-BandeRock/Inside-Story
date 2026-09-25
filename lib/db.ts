@@ -7353,6 +7353,10 @@ async function runDatabaseInitialization() {
         -- wording, behaviour, bug or idea.
         kind TEXT NOT NULL DEFAULT 'idea',
         body TEXT NOT NULL,
+        -- A wording edit made in place (1.0.51.12): the words exactly as
+        -- drawn and the words wanted, both null for any other note.
+        original_text TEXT,
+        new_text TEXT,
         -- open or done.
         status TEXT NOT NULL DEFAULT 'open',
         done_version TEXT,
@@ -8735,6 +8739,17 @@ async function runDatabaseInitialization() {
       const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(shared_recipes)`);
       if (!columns.some((column) => column.name === 'sender_public_key_base64')) {
         await db.execAsync(`ALTER TABLE shared_recipes ADD COLUMN sender_public_key_base64 TEXT;`);
+      }
+    }
+    // Tell Claude's wording edits, 1.0.51.12: a note made by tapping text on
+    // screen carries the words as drawn and the words wanted. Additive and
+    // nullable, since every earlier note is about something else.
+    {
+      const columns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(dev_notes)');
+      for (const column of ['original_text', 'new_text']) {
+        if (!columns.some((existing) => existing.name === column)) {
+          await db.execAsync(`ALTER TABLE dev_notes ADD COLUMN ${column} TEXT;`);
+        }
       }
     }
   } catch (error) {

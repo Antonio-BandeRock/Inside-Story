@@ -19,6 +19,7 @@ import { SnapshotSyncWatcher } from '../components/SnapshotSyncWatcher';
 import { StoryReturnHost } from '../components/StoryReturnHost';
 import { StoryWalkHost } from '../components/StoryWalkHost';
 import { TellClaudeHost } from '../components/TellClaudeHost';
+import { WordingEditProvider } from '../components/EditableText';
 import { VersionLabel } from '../components/VersionLabel';
 import { colors } from '../constants/colors';
 import { useHomeDataReady } from '../hooks/useHomeDataReady';
@@ -415,6 +416,7 @@ export default function RootLayout() {
           static color instead ("features that stay active but not
           animated"), with no shared animation value left to provide. */}
       <ActiveInputProvider>
+          <WordingEditProvider>
           <OverlayProvider>
             {/* contentStyle, 2026-08-21: without an explicit background here,
                 a Stack.Screen's own NATIVE container has no guaranteed
@@ -768,6 +770,7 @@ export default function RootLayout() {
               <VersionLabel />
             </KeyboardLiftProvider>
           </OverlayProvider>
+          </WordingEditProvider>
         </ActiveInputProvider>
         </GestureHandlerRootView>
       ) : null}

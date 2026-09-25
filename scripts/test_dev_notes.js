@@ -25,6 +25,11 @@
 //     that says something new is applied.
 //  9. Publishing: a note the file has never carried goes out, one it
 //     already has does not.
+// 10. Editing words in place (1.0.51.12): the note an edit writes reads
+//     without the screen, an edit that changes nothing is refused, the
+//     latest open edit of the same words is the one shown, putting words
+//     back removes the edit, a shipped note stops showing, and the words a
+//     Text draws are read out of nested children as one sentence.
 //
 // Run with: node scripts/test_dev_notes.js
 // Exits non-zero on any failure.
@@ -53,6 +58,7 @@ const {
   devNoteProblem, describeDevNoteWhere, describeDevNoteDevice, describeDevNote, summariseDevNotes,
   devNoteToLine, devNoteStatusToLine, parseDevNoteLine, readStatusLines, statusesToApply,
   readNoteIds, notesToPublish,
+  describeWordingChange, wordingEditProblem, editsFromNotes, flattenTextChildren,
 } = N;
 
 let passed = 0;
@@ -76,6 +82,8 @@ const note = {
   bandTitle: 'Electricity',
   kind: 'wording',
   body: 'Say kilowatt hours rather than kWh on the first line.',
+  originalText: null,
+  newText: null,
   status: 'open',
   doneVersion: null,
   doneAt: null,
@@ -199,6 +207,43 @@ check(
 );
 check('an empty file publishes everything', notesToPublish([note], new Set()).map((row) => row.id), ['note_1']);
 check('nothing to publish is an empty list', notesToPublish([], published), []);
+
+// 10. Editing words in place.
+check('a change reads on its own', describeWordingChange('Grow Setup', 'Your Grow Setup'), 'Change "Grow Setup" to "Your Grow Setup".');
+check('putting back reads on its own', describeWordingChange('Grow Setup', 'Grow Setup'), 'Put back as it was: "Grow Setup".');
+check('no words to change', wordingEditProblem('', 'x', ''), 'There are no words there to change.');
+check('nothing typed', wordingEditProblem('Grow Setup', '  ', 'Grow Setup'), 'Say what it should read, or tap Cancel.');
+check('unchanged', wordingEditProblem('Grow Setup', 'Grow Setup', 'Grow Setup'), 'That is what it says already.');
+check('a change is accepted', wordingEditProblem('Grow Setup', 'Your Grow Setup', 'Grow Setup'), null);
+check('putting back an edit is accepted', wordingEditProblem('Grow Setup', 'Grow Setup', 'Your Grow Setup'), null);
+
+const edit = (id, createdAt, from, to, extra) => ({
+  ...note, id, createdAt, originalText: from, newText: to, body: describeWordingChange(from, to), ...extra,
+});
+const editNotes = [
+  edit('e2', '2026-09-24T10:05:00.000Z', 'Grow Setup', 'Your Grow Setup'),
+  edit('e1', '2026-09-24T10:00:00.000Z', 'Grow Setup', 'Setup'),
+  edit('e3', '2026-09-24T10:00:00.000Z', 'Days Until', 'Counting Down'),
+  edit('e4', '2026-09-24T10:10:00.000Z', 'Days Until', 'Days Until'),
+  edit('e5', '2026-09-24T10:00:00.000Z', 'Electricity', 'Power', { status: 'done' }),
+  edit('e6', '2026-09-24T10:00:00.000Z', 'Compost', 'Compost Piles', { kind: 'idea' }),
+  note,
+];
+check('the latest edit wins, put back and shipped drop out', [...editsFromNotes(editNotes)], [['Grow Setup', 'Your Grow Setup']]);
+check('no notes, no edits', editsFromNotes([]).size, 0);
+
+const el = (children) => ({ type: 'Text', props: { children } });
+check('a string', flattenTextChildren('Hello'), 'Hello');
+check('a number', flattenTextChildren(42), '42');
+check('nothing', [null, undefined, false, true].map(flattenTextChildren), ['', '', '', '']);
+check('an array with a nested Text', flattenTextChildren(['Tap ', el('Save'), ' when done, ', 3, ' left', null]), 'Tap Save when done, 3 left');
+check('an element with no children', flattenTextChildren(el(undefined)), '');
+check('deeply nested', flattenTextChildren(el([el(['a', el('b')]), 'c'])), 'abc');
+check(
+  'an edit round-trips through the file',
+  parseDevNoteLine(devNoteToLine(editNotes[0])).note.newText,
+  'Your Grow Setup',
+);
 
 console.log(`${passed + failed} checks, ${failed} failures`);
 process.exit(failed ? 1 : 0);

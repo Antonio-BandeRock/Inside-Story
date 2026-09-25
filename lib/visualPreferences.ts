@@ -662,6 +662,10 @@ export type VisualPreferences = {
   // press on any fold band and a button beside the corner box, both of
   // which write a note for Claude to read. See lib/devNotes.ts.
   developerNotes: boolean;
+  // Tell Claude's Edit wording mode, 1.0.51.12: whether words changed in
+  // place show on this device before the change ships. On by default, as
+  // asked; off shows what the app itself says. See lib/wordingEdits.ts.
+  developerNotesPreview: boolean;
 };
 
 // Which background a given scope actually draws, once low stimulation has
@@ -823,6 +827,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   hasSeenTabHubWelcome: false,
   hasUsedTabHub: false,
   developerNotes: false,
+  developerNotesPreview: true,
 };
 
 const VISUAL_PREFERENCES_KEY = 'visual_preferences';
