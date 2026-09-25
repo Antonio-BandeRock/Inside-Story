@@ -28,6 +28,7 @@ import { AppActionSheet } from '../../components/AppActionSheet';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { YourStorySection, useYourStory } from '../../components/YourStorySection';
 import { nextLine, type StoryDestination } from '../../lib/yourStory';
+import { buildTabGuide, tabGuideLine } from '../../lib/yourStoryTabs';
 import { ProgressRing } from '../../components/ProgressRing';
 
 import { useBackgroundBottomInset } from '../../components/ScreenBackground';
@@ -3422,7 +3423,9 @@ export default function HomeScreen() {
   // Always shown: it folds and moves like every card, and is the one card
   // with no switch (HOME_SECTIONS_ALWAYS_SHOWN). Folded, it is one line
   // naming the next thing to set up, or "Your Story Continues" once there
-  // is nothing left to set up. No badge and no count.
+  // is nothing left to set up. No badge and no count. Open, it lists every
+  // tab with what it gives back and what it needs first (1.0.52.3,
+  // lib/yourStoryTabs.ts).
   function renderYourStory() {
     return renderBand(
       'yourStory',
@@ -3439,7 +3442,7 @@ export default function HomeScreen() {
       {
         icon: 'book-outline',
         color: colors.primary,
-        foldedCaption: yourStory ? nextLine(yourStory) : undefined,
+        foldedCaption: yourStory ? tabGuideLine(buildTabGuide(yourStory), nextLine(yourStory)) : undefined,
       },
     );
   }

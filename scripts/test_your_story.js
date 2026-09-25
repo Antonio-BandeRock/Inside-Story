@@ -196,6 +196,74 @@ same(later.current, 'gardenBeat', 'a new page with something to do comes before 
 check(sectionKeys(later).indexOf('gardenBeat') > sectionKeys(later).indexOf('insideStory'), 'extra pages come after the first edition');
 same(story.sectionSummary(later.sections.find((section) => section.def.key === 'insideStory')), '1 of the 2 so far.', 'a waiting section behind the current one shows its count');
 
+// "Continues" waits until nothing is left to set up, even once Trends has
+// something to show (the heading read Continues over a card with most of
+// it untouched, 2026-09-25).
+const showsButOpen = story.buildYourStory(
+  facts({
+    beats: story.ALL_BEATS,
+    doneOn: { beats: '2026-09-01', aboutYou: '2026-09-01', meal: '2026-09-02' },
+    counts: { trends: 7 },
+  }),
+);
+same(showsButOpen.heading, story.HEADING_TAKING_SHAPE, 'something to show with setup still open is taking shape');
+
+// By tab (lib/yourStoryTabs.ts).
+const tabs = load('lib/yourStoryTabs.ts', { './yourStory': story });
+const tabsSource = fs.readFileSync(path.join(__dirname, '..', 'constants', 'tabs.ts'), 'utf8');
+const tabPaths = [...tabsSource.matchAll(/path: '([^']+)'/g)].map((match) => match[1]).filter((p) => p !== '/');
+same(tabs.TAB_GUIDES.map((def) => def.path).sort(), tabPaths.slice().sort(), 'every tab but Home has a row');
+check(tabs.TAB_GUIDES.every((def) => def.needs.every((key) => story.ITEM_BY_KEY[key])), 'every tab names items that exist');
+check(Object.entries(tabs.FILLED_BY).every(([waitingKey, feeder]) => story.ITEM_BY_KEY[waitingKey].kind === 'waiting' && story.ITEM_BY_KEY[feeder].kind === 'needed'), 'a waiting item is filled by something to do');
+const groups = tabs.TAB_GUIDES.map((def) => def.group);
+same(groups.lastIndexOf('goesIn') < groups.indexOf('givesBack'), true, 'records go in before they give back');
+const tabRow = (guide, pathName) => guide.tabs.find((tab) => tab.def.path === pathName);
+
+const freshTabs = tabs.buildTabGuide(fresh);
+same(freshTabs.before.map((entry) => entry.def.key), ['beats', 'backup'], 'before choosing, the question and a backup come first');
+same(freshTabs.tabs.length, 8, 'every tab is listed from the start');
+check(freshTabs.tabs.every((tab) => tab.status === 'waitingOnChoice'), 'each tab waits on the question');
+same(freshTabs.startHere, null, 'nothing marked start here while the question is open');
+check(tabs.tabGuideLine(freshTabs, '').startsWith('First: Choose the parts of your life'), 'the folded line asks the question');
+
+// Everything chosen, the question answered and backed up, nothing else.
+const everything = story.buildYourStory(
+  facts({
+    beats: story.ALL_BEATS,
+    doneOn: { beats: '2026-09-01', aboutYou: '2026-09-01' },
+    archive: { ...archiveOff, syncOn: true, syncSavedOn: '2026-09-24' },
+  }),
+);
+const everythingTabs = tabs.buildTabGuide(everything);
+same(everythingTabs.before, [], 'nothing left before every tab');
+same(everythingTabs.startHere.def.path, '/life', 'Life is where to start');
+same(tabRow(everythingTabs, '/life').item.def.key, 'meds', 'Life asks for medicines first');
+same(tabRow(everythingTabs, '/schedule').item.def.key, 'meal', 'Schedules asks for a meal');
+same(tabRow(everythingTabs, '/insights').status, 'first', 'Insights needs something first');
+same(tabRow(everythingTabs, '/insights').item.def.key, 'meal', 'and names the meal, which goes in on Schedules');
+check(tabRow(everythingTabs, '/insights').line.includes('in Schedules under Meals'), 'the line says where it goes in');
+same(tabRow(everythingTabs, '/trends').item.def.key, 'meal', 'Trends needs a meal first');
+same(tabRow(everythingTabs, '/food').status, 'ready', 'Food works from the start');
+check(tabRow(everythingTabs, '/food').note.startsWith(tabs.MORE_LABEL), 'and says what would make it say more');
+same(everythingTabs.tabs.filter((tab) => tab.startHere).length, 1, 'only one start here');
+
+// Meals on three days: Trends fills in and sends the person to log.
+const filling = story.buildYourStory(
+  facts({
+    beats: ['health', 'food'],
+    doneOn: { beats: '2026-09-01', aboutYou: '2026-09-01', meal: '2026-09-02', checkin: '2026-09-02', meds: '2026-09-02' },
+    counts: { trends: 3, patterns: 2 },
+    archive: { ...archiveOff, syncOn: true, syncSavedOn: '2026-09-24' },
+  }),
+);
+const fillingTrends = tabRow(tabs.buildTabGuide(filling), '/trends');
+same(fillingTrends.status, 'filling', 'Trends fills in with time');
+same(fillingTrends.goLabel, 'Log some more', 'and sends the person to log');
+same(fillingTrends.go.params.openScheduleLens, 'meals', 'where meals go in');
+check(fillingTrends.note.includes('3 of the 7') && fillingTrends.note.includes('Already showing: Pattern Finder'), 'it says how close, and what already shows');
+same(tabRow(tabs.buildTabGuide(filling), '/reports').status, 'ready', 'Reports is ready once medicines, a meal and a check-in are there');
+same(tabRow(tabs.buildTabGuide(filling), '/garden').status, 'notChosen', 'a tab outside the parts chosen still shows');
+
 // Help lines.
 check(story.tabStoryLine('/life', removed).includes('Next here: Add the medicines'), 'the life help line names the next thing there');
 same(story.tabStoryLine('/nowhere', null), null, 'an unknown tab has no line');
@@ -209,6 +277,22 @@ for (const def of story.ITEMS) {
   if (def.progress) written.push(def.progress(1, def.need), def.progress(0, def.need));
 }
 for (const section of story.SECTIONS) written.push(section.name, section.caption);
+for (const def of tabs.TAB_GUIDES) written.push(def.title, def.gives, def.readyLine);
+written.push(
+  ...Object.values(tabs.TAB_GROUP_HEADINGS),
+  ...Object.values(tabs.TAB_GROUP_CAPTIONS),
+  ...Object.values(tabs.SHOWS_AS),
+  tabs.BEFORE_ANYTHING_HEADING,
+  tabs.BEFORE_ANYTHING_CAPTION,
+  tabs.START_HERE_LABEL,
+  tabs.FIRST_LABEL,
+  tabs.FILLING_LABEL,
+  tabs.READY_LABEL,
+  tabs.MORE_LABEL,
+  tabs.NOT_CHOSEN_LINE,
+  tabs.NOTHING_CHOSEN_LINE,
+  tabs.NOTHING_NEEDED_LINE,
+);
 written.push(
   ...Object.values(story.BEAT_LABELS),
   ...Object.values(story.BEAT_CAPTIONS),

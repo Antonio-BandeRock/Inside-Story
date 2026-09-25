@@ -9,9 +9,13 @@
 // (components/YourStoryGuides.tsx), and the card says which guide the next
 // thing belongs to and opens it.
 //
-// One component in two shapes, so the Home card and the full page can never
+// One component in three shapes, so the Home card and the full page can never
 // disagree about what an item says or where it goes:
-//   card  the current section and its items, plus a way to the full page.
+//   card  every tab, what it gives back and what it needs first
+//         (lib/yourStoryTabs.ts, 1.0.52.3), plus a way to the full page.
+//         It showed only the current section until then, which left
+//         somebody who had chosen every part of life looking at two lines.
+//   tabs  the same list on its own, first on the full page.
 //   page  every section: the current one open, the others as one line each,
 //         any of them opened with a tap.
 //
@@ -41,6 +45,20 @@ import {
 } from '../lib/yourStory';
 import { bringYourStoryItemBack, loadYourStoryWithGuides, setYourStoryItemAside } from '../lib/yourStoryDb';
 import { currentGuideKey, guideCardLine, openGuideLabel, type GuideView } from '../lib/yourStoryGuides';
+import {
+  BEFORE_ANYTHING_CAPTION,
+  BEFORE_ANYTHING_HEADING,
+  FILLING_LABEL,
+  FIRST_LABEL,
+  READY_LABEL,
+  START_HERE_LABEL,
+  TAB_GROUP_CAPTIONS,
+  TAB_GROUP_HEADINGS,
+  buildTabGuide,
+  type TabGroup,
+  type TabGuideView,
+} from '../lib/yourStoryTabs';
+import { TAB_ROUTES } from '../constants/tabs';
 import { markStoryReturn } from '../lib/storyReturn';
 import { BeatPicker } from './BeatPicker';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
@@ -108,7 +126,9 @@ export function useStoryGo(
 }
 
 type Props = {
-  mode: 'card' | 'page';
+  // tabs is the by-tab guide on its own (lib/yourStoryTabs.ts), which the
+  // full page puts first; the card carries the same list.
+  mode: 'card' | 'page' | 'tabs';
   view: YourStoryView | null;
   // The guides for the parts of life chosen; the card uses them to say
   // which guide the next thing belongs to.
@@ -229,12 +249,6 @@ export function YourStorySection({ mode, view, guides, onChanged, onHomeDestinat
     );
   }
 
-  const current = view.sections.find((section) => section.def.key === view.current) ?? null;
-  // While the chooser is open the Front Page holds its place: choosing one
-  // part of life can finish the Front Page, and moving on at that moment
-  // took the chooser away before a second part could be picked.
-  const frontPage = view.sections.find((section) => section.def.key === 'frontPage') ?? null;
-  const shown = beatsOpen ? frontPage ?? current : current;
   const guideKey = guides && guides.length > 0 ? currentGuideKey(view, guides) : null;
 
   // Once the Front Page is behind the card, this is the way back to it.
@@ -251,20 +265,109 @@ export function YourStorySection({ mode, view, guides, onChanged, onHomeDestinat
     );
   }
 
+  // BY TAB (1.0.52.3). Every tab, in the order worth taking them, each
+  // saying what it gives back and the one thing it needs first.
+  const tabGuide = buildTabGuide(view);
+
+  function renderTab(tab: TabGuideView) {
+    const route = TAB_ROUTES.find((entry) => entry.path === tab.def.path);
+    const label =
+      tab.status === 'first' ? FIRST_LABEL : tab.status === 'filling' ? FILLING_LABEL : tab.status === 'ready' ? READY_LABEL : null;
+    const quiet = tab.status === 'notChosen' || tab.status === 'waitingOnChoice';
+    return (
+      <View key={tab.def.path} style={styles.tabRow}>
+        <View style={styles.tabHead}>
+          <Ionicons name={route?.icon ?? 'ellipse-outline'} size={18} color={route?.color ?? colors.primary} style={textShadow} />
+          <Text style={styles.tabTitle}>{tab.def.title}</Text>
+          {tab.startHere ? <Text style={styles.startHere}>{START_HERE_LABEL}</Text> : null}
+        </View>
+        <View style={styles.tabBody}>
+          <Text style={styles.tabGives}>{tab.def.gives}</Text>
+          <Text style={quiet ? styles.muted : styles.tabStatus}>
+            {label ? <Text style={tab.status === 'ready' ? styles.readyLabel : styles.firstLabel}>{`${label} `}</Text> : null}
+            {tab.line}
+          </Text>
+          {tab.note ? <Text style={styles.note}>{tab.note}</Text> : null}
+          <View style={styles.tabActions}>
+            <TouchableOpacity style={styles.action} onPress={() => go(tab.go)} accessibilityRole="button">
+              <Text style={styles.actionText}>{tab.goLabel}</Text>
+              <Ionicons name="arrow-forward" size={13} color={colors.primary} style={textShadow} />
+            </TouchableOpacity>
+            {tab.status === 'first' && tab.item ? (
+              <TouchableOpacity
+                style={styles.action}
+                onPress={() => tab.item && showInfoAlert(WHY_LABEL, tab.item.def.why)}
+                accessibilityRole="button"
+              >
+                <Text style={styles.actionText}>{WHY_LABEL}</Text>
+              </TouchableOpacity>
+            ) : null}
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  function renderTabGroup(group: TabGroup) {
+    const rows = tabGuide.tabs.filter((tab) => tab.def.group === group);
+    return (
+      <View key={group} style={styles.tabGroup}>
+        <View style={styles.sectionHead}>
+          <Text style={styles.sectionName}>{TAB_GROUP_HEADINGS[group]}</Text>
+          <Text style={styles.sectionCaption}>{TAB_GROUP_CAPTIONS[group]}</Text>
+        </View>
+        <View style={styles.items}>{rows.map(renderTab)}</View>
+      </View>
+    );
+  }
+
+  const beatsItem = view.allItems.beats;
+  function renderBefore() {
+    // While the chooser is open, the question stays on screen even once it
+    // has an answer, so a second part of life can be picked.
+    const before =
+      beatsOpen && !tabGuide.before.some((item) => item.def.key === 'beats') ? [beatsItem, ...tabGuide.before] : tabGuide.before;
+    if (before.length === 0) return null;
+    return (
+      <View style={styles.tabGroup}>
+        <View style={styles.sectionHead}>
+          <Text style={styles.sectionName}>{BEFORE_ANYTHING_HEADING}</Text>
+          <Text style={styles.sectionCaption}>{BEFORE_ANYTHING_CAPTION}</Text>
+        </View>
+        <View style={styles.items}>{before.map(renderItem)}</View>
+      </View>
+    );
+  }
+
+  function renderTabGuide() {
+    return (
+      <>
+        {renderBefore()}
+        {renderTabGroup('goesIn')}
+        {renderTabGroup('givesBack')}
+      </>
+    );
+  }
+
+  if (mode === 'tabs') {
+    return (
+      <View style={styles.page}>
+        <View style={[styles.sectionCard, styles.sectionCardCurrent]}>
+          {renderTabGuide()}
+          {view.beats.length > 0 && !tabGuide.before.some((item) => item.def.key === 'beats')
+            ? renderFollowing(styles.followingRow)
+            : null}
+        </View>
+        {infoAlertElement}
+      </View>
+    );
+  }
+
   if (mode === 'card') {
     return (
       <View style={styles.cardBody}>
-        {shown ? (
-          <>
-            {renderSectionHead(shown)}
-            <View style={styles.items}>{shown.items.map(renderItem)}</View>
-          </>
-        ) : (
-          <Text style={styles.body}>
-            {"Every section of your paper has what it needs. Your Story keeps each record's date, and anything that goes missing shows here again."}
-          </Text>
-        )}
-        {shown?.def.key !== 'frontPage' ? renderFollowing(styles.followingRow) : null}
+        {renderTabGuide()}
+        {!tabGuide.before.some((item) => item.def.key === 'beats') ? renderFollowing(styles.followingRow) : null}
         {guideKey ? (
           <View style={styles.guideRow}>
             <Text style={styles.followingText}>{guideCardLine(guideKey)}</Text>
@@ -371,4 +474,17 @@ const styles = StyleSheet.create({
   followingRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 12, backgroundColor: colors.surface },
   guideRow: { gap: 4, backgroundColor: colors.surface },
   followingText: { ...typography.caption, color: colors.textSecondary, ...textShadow, flexShrink: 1 },
+  // By tab. Each row is the tab's name, one line of what it gives back, and
+  // one line of what it needs first or that it is ready.
+  tabGroup: { gap: 10, backgroundColor: colors.surface },
+  tabRow: { gap: 4, backgroundColor: colors.surface },
+  tabHead: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
+  tabTitle: { ...typography.label, color: colors.textPrimary, ...textShadow },
+  startHere: { ...typography.caption, color: colors.accent, ...textShadow },
+  tabBody: { gap: 3, paddingLeft: 26 },
+  tabGives: { ...typography.caption, color: colors.textSecondary, ...textShadow },
+  tabStatus: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  firstLabel: { color: colors.accent },
+  readyLabel: { color: colors.primary },
+  tabActions: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 16 },
 });

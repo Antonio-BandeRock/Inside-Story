@@ -785,6 +785,9 @@ export type YourStoryView = {
   // The parts of life chosen, so a card whose Front Page is behind it can
   // still say what it follows and offer to change it.
   beats: BeatKey[];
+  // Every item, whether or not it applies to the parts of life chosen, for
+  // the by-tab guide (lib/yourStoryTabs.ts), which decides what applies.
+  allItems: Record<YourStoryItemKey, ItemView>;
   // Every item the database layer should remember as seen done today.
   newlySeen: { key: YourStoryItemKey; day: string }[];
 };
@@ -841,14 +844,26 @@ export function buildYourStory(facts: YourStoryFacts): YourStoryView {
   const insideStory = sections.find((section) => section.def.key === 'insideStory');
   const insideStoryShows = insideStory?.items.some((item) => item.def.kind === 'waiting' && item.state === 'done') ?? false;
   const anythingDone = sections.some((section) => section.items.some((item) => item.state === 'done'));
+  // "Continues" only once nothing is left to set up. It used to show as soon
+  // as Trends had something to draw, which put it over a Home card with most
+  // of the chosen parts of life still untouched (2026-09-25).
   const heading =
-    settled || insideStoryShows ? HEADING_CONTINUES : beats.length === 0 && !anythingDone ? HEADING_BEGINS : HEADING_TAKING_SHAPE;
+    beats.length === 0 && !anythingDone
+      ? HEADING_BEGINS
+      : firstActionable || !(settled || insideStoryShows)
+        ? HEADING_TAKING_SHAPE
+        : HEADING_CONTINUES;
 
   const nextItem = currentSection
     ? currentSection.openItems.find((item) => item.def.kind === 'needed') ?? currentSection.openItems[0] ?? null
     : null;
 
-  return { heading, sections, current: currentSection?.def.key ?? null, settled, nextItem, beats, newlySeen };
+  const allItems = Object.fromEntries(ITEMS.map((def) => [def.key, evaluateItem(def, scoped)])) as Record<
+    YourStoryItemKey,
+    ItemView
+  >;
+
+  return { heading, sections, current: currentSection?.def.key ?? null, settled, nextItem, beats, allItems, newlySeen };
 }
 
 // The one line the folded Home card shows.

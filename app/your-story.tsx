@@ -50,12 +50,12 @@ export default function YourStoryScreen() {
         <View style={styles.leadBox}>
           <Text style={styles.heading}>{view?.heading ?? 'Your Story'}</Text>
           <Text style={styles.lead}>
-            Everything you keep in Inside Story makes up your paper. First come the guides, one for each part of your
-            life, walking through how the app works for it from the first thing to set up to what your records show
-            over time. After them come the sections of your paper. Every line takes you straight there, and once
-            something is on record it carries the date it went in.
+            Start from any tab. Each one says what it gives you and, when it needs something from another tab first,
+            what that is and where. Below them are the guides, one for each part of your life, and then your paper
+            section by section. Every line takes you straight there.
           </Text>
         </View>
+        <YourStorySection mode="tabs" view={view} onChanged={() => void reload()} />
         {ready ? (
           <YourStoryGuides
             guides={guides}
