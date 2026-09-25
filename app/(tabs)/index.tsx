@@ -552,6 +552,15 @@ type DashboardData = {
 // scripts/patch_assessment_item_timeframes.py) now assumes.
 const ASSESSMENT_DUE_AFTER_DAYS = 30;
 
+// How long Home's first load may hold the page on "Loading today…". An
+// ordinary start finishes well inside it; past it, the page shows what it
+// has rather than one line with nothing to do.
+const HOME_LOAD_PATIENCE_MS = 20_000;
+const HOME_LOAD_RUNNING_LONG_TEXT =
+  'Today is taking longer than usual to read. Each card fills in as its records arrive, and the rest of the app is open to you meanwhile.';
+const HOME_LOAD_PROBLEM_TEXT =
+  'Some of today could not be read. Visit another tab and come back to Home to try again.';
+
 // otherCount, 2026-09-12: flags that were tripped this week but are tied
 // to no condition the person tracks, so they are not in thisWeekCount.
 // Named on the row so a count that dropped when a condition was added is
@@ -1127,6 +1136,13 @@ export default function HomeScreen() {
   // first paint of Home for the many days that hold no dose at all.
   const [doseFoodNotes, setDoseFoodNotes] = useState<Record<string, DoseFoodNote>>({});
   const [loading, setLoading] = useState(true);
+  // Home's first load stops holding the page once HOME_LOAD_PATIENCE_MS
+  // has passed, 2026-09-24: after an update the phone sat on "Loading
+  // today…" for about three minutes with nothing else to look at. Past the
+  // limit the page shows whatever has arrived, with one line saying the
+  // rest is still coming; a load that fails outright says so instead.
+  const [loadRunningLong, setLoadRunningLong] = useState(false);
+  const [loadProblem, setLoadProblem] = useState(false);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   // Only ever opens when "Worth a look" is genuinely made of both kinds of
   // flag at once -- see handleWorthALookPress below.
@@ -1256,6 +1272,10 @@ export default function HomeScreen() {
   // case, without re-showing "Loading today…" or fighting wherever the
   // person had scrolled to).
   const hasLoadedOnceRef = useRef(false);
+  // True once "Loading today…" has gone, whether because the first load
+  // finished or because it ran past the time limit, so a return to Home
+  // while that load is still going never brings the gate back.
+  const homeShownRef = useRef(false);
   const scrollRef = useRef<ScrollView>(null);
   // Where each section sits down the page, recorded as it lays out, so the
   // lens menu can scroll to the one option that stays on Home. A ref rather
@@ -1657,14 +1677,34 @@ export default function HomeScreen() {
       // the card it feeds is the only thing that depends on the answer.
       void loadSharedFolderState();
       const isFirstLoad = !hasLoadedOnceRef.current;
-      if (isFirstLoad) setLoading(true);
+      const gated = isFirstLoad && !homeShownRef.current;
+      if (gated) setLoading(true);
+      let patience: ReturnType<typeof setTimeout> | null = null;
+      if (gated) {
+        patience = setTimeout(() => {
+          patience = null;
+          if (hasLoadedOnceRef.current) return;
+          homeShownRef.current = true;
+          setLoadRunningLong(true);
+          setLoading(false);
+          // The startup overlay waits on Home too, so it lets go here as well.
+          markHomeDataReady();
+        }, HOME_LOAD_PATIENCE_MS);
+      }
       // The condition scope first, then everything that counts by it: see
       // loadDigestConditionScope's own comment for why the order matters.
       loadDigestConditionScope()
         .then(() => Promise.all([load(), loadWeekTrend(), loadSkyData(), refreshTestDataBanner()]))
         .then(() => {
-        if (!isFirstLoad) return;
+        if (patience) clearTimeout(patience);
+        setLoadProblem(false);
+        if (!isFirstLoad || hasLoadedOnceRef.current) return;
         hasLoadedOnceRef.current = true;
+        // Past the time limit the person may already be reading or
+        // scrolling, so the page is left where it is.
+        const alreadyShown = homeShownRef.current;
+        homeShownRef.current = true;
+        setLoadRunningLong(false);
         setLoading(false);
         // Deliberately here, inside the first-load branch, rather than in
         // its own mount effect: this is the exact moment the startup
@@ -1680,8 +1720,22 @@ export default function HomeScreen() {
         // clear -- see lib/homeReadySignal.ts's own header comment for
         // the full "why."
         markHomeDataReady();
-        scrollRef.current?.scrollTo({ y: 0, animated: false });
-      });
+        if (!alreadyShown) scrollRef.current?.scrollTo({ y: 0, animated: false });
+      })
+        .catch((error) => {
+          if (patience) clearTimeout(patience);
+          console.warn('Home load failed', error);
+          // A later refresh failing leaves what is already on the page.
+          if (hasLoadedOnceRef.current) return;
+          homeShownRef.current = true;
+          setLoadRunningLong(false);
+          setLoadProblem(true);
+          setLoading(false);
+          markHomeDataReady();
+        });
+      return () => {
+        if (patience) clearTimeout(patience);
+      };
     }, [load, loadWeekTrend, loadSkyData, loadDigestConditionScope, loadSharedFolderState, announceAppliedUpdate, repairSavedDishes, refreshTestDataBanner]),
   );
 
@@ -3735,6 +3789,12 @@ export default function HomeScreen() {
                 Test data is loaded. Some harvests, ferments and past shopping here are made up. Remove it from Profile
                 &gt; Developer Tools.
               </Text>
+            </View>
+          ) : null}
+
+          {!loading && (loadRunningLong || loadProblem) ? (
+            <View style={styles.loadingCard}>
+              <Text style={styles.loadingText}>{loadProblem ? HOME_LOAD_PROBLEM_TEXT : HOME_LOAD_RUNNING_LONG_TEXT}</Text>
             </View>
           ) : null}
 
