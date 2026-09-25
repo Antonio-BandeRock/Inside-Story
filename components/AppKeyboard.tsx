@@ -6,6 +6,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-na
 import { useActiveInputControls, useActiveInputValue } from './ActiveInputContext';
 import { useKeyboardLift } from './KeyboardLift';
 import { AppTextInput } from './AppTextInput';
+import { PlainTextZone } from './EditableText';
 import { VoiceInputButton } from './VoiceInputButton';
 import { colors } from '../constants/colors';
 import {
@@ -42,6 +43,19 @@ const LETTER_ROWS = [
 const NUMBER_ROWS = [
   ['1', '2', '3', '4', '5'],
   ['6', '7', '8', '9', '0'],
+];
+// What 123 opens on a text field, 1.0.52.2. Reported while typing in Tell
+// Claude's Edit wording editor: no comma, no period, only the apostrophe
+// and a dash. NUMBER_ROWS stays the pad for a number field, which has no
+// use for a question mark; a text field gets the digits plus the
+// punctuation a sentence needs, laid out the way most phone keyboards put
+// their symbols page. The comma and period also sit either side of the
+// space bar on every text-field layout, since they are typed far more
+// often than anything else here.
+const SYMBOL_ROWS = [
+  ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+  ['-', '/', ':', ';', '(', ')', '&', '@', '"', '%'],
+  ['.', ',', '?', '!', "'", '$', '+', '#'],
 ];
 // A curated, not exhaustive, set of accented/special Latin characters --
 // 2026-07-28, added after hitting a real wall trying to type "Sautéed" as
@@ -243,7 +257,20 @@ export function AppKeyboard() {
   }
 
   const mainKeys =
-    showsNumbersLayout ? (
+    showsNumbersLayout && canToggleMode ? (
+      <>
+        {SYMBOL_ROWS.map((row, rowIndex) => (
+          <View key={rowIndex} style={styles.row}>
+            {row.map((char) => (
+              <Key key={char} label={char} onPress={() => insertText(char)} />
+            ))}
+            {rowIndex === SYMBOL_ROWS.length - 1 ? (
+              <Key label="backspace" icon="backspace-outline" onPress={backspace} flex={2} muted />
+            ) : null}
+          </View>
+        ))}
+      </>
+    ) : showsNumbersLayout ? (
       <>
         {NUMBER_ROWS.map((row, rowIndex) => (
           <View key={rowIndex} style={styles.row}>
@@ -315,7 +342,9 @@ export function AppKeyboard() {
           muted
         />
       ) : null}
-      <Key label="" onPress={() => insertText(' ')} flex={canToggleMode ? 4 : 6} muted />
+      {canToggleMode ? <Key label="," onPress={() => insertText(',')} /> : null}
+      <Key label="" onPress={() => insertText(' ')} flex={canToggleMode ? 3 : 6} muted />
+      {canToggleMode ? <Key label="." onPress={() => insertText('.')} /> : null}
     </View>
   );
 
@@ -407,11 +436,15 @@ export function AppKeyboard() {
       }}
       ref={clipRef}
     >
-      <Animated.View style={[styles.container, risenStyle]}>
-        {searchRow}
-        {mainKeys}
-        {bottomRow}
-      </Animated.View>
+      {/* Key labels are not wording anybody edits, and a tap on a key must
+          type rather than open the Edit wording editor. */}
+      <PlainTextZone>
+        <Animated.View style={[styles.container, risenStyle]}>
+          {searchRow}
+          {mainKeys}
+          {bottomRow}
+        </Animated.View>
+      </PlainTextZone>
     </View>
   );
 }
