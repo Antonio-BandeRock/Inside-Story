@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useEffect } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
@@ -192,6 +193,15 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   useEffect(() => {
     reportTellClaudeScreen(title, activeLensLabel ?? null);
   }, [title, activeLensLabel]);
+  // Tabs stay mounted, so coming back to one re-renders nothing and the
+  // effect above never runs again. Reporting on focus as well keeps the
+  // report on the tab actually showing, which Walk me through it relies on
+  // (lib/storyWalk.ts). Still draws nothing.
+  useFocusEffect(
+    useCallback(() => {
+      reportTellClaudeScreen(title, activeLensLabel ?? null);
+    }, [title, activeLensLabel]),
+  );
 
   // Nothing to show at all until a real lens is picked, 2026-08-08 -- see
   // this file's own 2026-08-08 comment above for why the box no longer

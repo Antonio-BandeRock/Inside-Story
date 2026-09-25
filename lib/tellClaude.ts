@@ -38,9 +38,20 @@ export type TellClaudeScreen = { tab: string | null; lens: string | null };
 let screen: TellClaudeScreen = { tab: null, lens: null };
 
 /** Called from the corner box as each screen renders. */
+const screenListeners = new Set<(value: TellClaudeScreen) => void>();
+
 export function reportTellClaudeScreen(tab: string | null, lens: string | null): void {
   if (screen.tab === tab && screen.lens === lens) return;
   screen = { tab, lens };
+  for (const listener of screenListeners) listener(screen);
+}
+
+/** Walk me through it (lib/storyWalk.ts) follows the open lens from here. */
+export function subscribeTellClaudeScreen(listener: (value: TellClaudeScreen) => void): () => void {
+  screenListeners.add(listener);
+  return () => {
+    screenListeners.delete(listener);
+  };
 }
 
 export function currentTellClaudeScreen(): TellClaudeScreen {

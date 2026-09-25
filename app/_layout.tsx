@@ -17,6 +17,7 @@ import { StartupFailureScreen } from '../components/StartupFailureScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
 import { SnapshotSyncWatcher } from '../components/SnapshotSyncWatcher';
 import { StoryReturnHost } from '../components/StoryReturnHost';
+import { StoryWalkHost } from '../components/StoryWalkHost';
 import { TellClaudeHost } from '../components/TellClaudeHost';
 import { VersionLabel } from '../components/VersionLabel';
 import { colors } from '../constants/colors';
@@ -747,6 +748,9 @@ export default function RootLayout() {
                   screen a Your Story line opened, taking the person back to
                   where they left from. Renders nothing otherwise. */}
               <StoryReturnHost />
+              {/* Walk me through it (1.0.51.10): the strip that stays on
+                  top of every screen while one guide step is being done. */}
+              <StoryWalkHost />
               <GardenPlateOfferHost />
               {/* Before AppKeyboard, deliberately -- see OverlayContext.tsx's own
                   comment: the keyboard must always paint on top of an open

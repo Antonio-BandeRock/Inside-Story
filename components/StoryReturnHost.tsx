@@ -25,6 +25,7 @@ import {
   subscribeStoryReturn,
   type StoryReturn,
 } from '../lib/storyReturn';
+import { useStoryWalk } from './StoryWalkHost';
 
 function useStoryReturn(): [StoryReturn | null, (next: StoryReturn | null) => void] {
   const [value, setValue] = useState<StoryReturn | null>(getStoryReturn);
@@ -40,13 +41,15 @@ export function StoryReturnHost() {
   const pathname = usePathname();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  // A walk under way carries its own way back on its strip.
+  const walking = useStoryWalk() !== null;
   const { show, next } = storyReturnOnPath(value, pathname);
 
   useEffect(() => {
     if (next !== value) setValue(next);
   }, [next, value, setValue]);
 
-  if (!show || !value) return null;
+  if (!show || !value || walking) return null;
 
   const goBack = () => {
     const target = storyReturnTarget(value.origin);

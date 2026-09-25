@@ -24,6 +24,7 @@ import { StyleSheet, Text, TouchableOpacity, View, type LayoutChangeEvent } from
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import type { StoryDestination } from '../lib/yourStory';
+import { WALK_START_LABEL, startStoryWalk } from '../lib/storyWalk';
 import { getGuideStyle, setGuideStyle } from '../lib/yourStoryDb';
 import {
   GUIDES_HEADING,
@@ -132,6 +133,27 @@ export function YourStoryGuides({ guides, initiallyOpen, go, onChanged, onGuideL
     );
   }
 
+  // Walk me through it (lib/storyWalk.ts): goes there as Go there does, and
+  // a strip stays on top of every screen saying the one thing to do now,
+  // until the record is saved. Offered on anything not already done.
+  function walkButton(guideKey: GuideKey, view: GuideEntryView) {
+    const { destination } = view.entry;
+    if (destination.kind === 'beats' || view.state === 'done' || view.state === 'setAside') return null;
+    return (
+      <TouchableOpacity
+        style={styles.action}
+        onPress={() => {
+          startStoryWalk(guideKey, view.entry.key, false);
+          go(destination, guideKey);
+        }}
+        accessibilityRole="button"
+      >
+        <Ionicons name="footsteps-outline" size={13} color={colors.primary} style={textShadow} />
+        <Text style={styles.actionText}>{WALK_START_LABEL}</Text>
+      </TouchableOpacity>
+    );
+  }
+
   function beatPicker(view: GuideEntryView) {
     if (view.entry.destination.kind !== 'beats' || !beatsOpen) return null;
     return (
@@ -176,7 +198,8 @@ export function YourStoryGuides({ guides, initiallyOpen, go, onChanged, onGuideL
             {stateLines(view)}
           </View>
         </View>
-        <View style={styles.actions}>{goButton(guideKey, view)}</View>
+        <View style={styles.actions}>{goButton(guideKey, view)}
+          {walkButton(guideKey, view)}</View>
         {beatPicker(view)}
       </View>
     );
@@ -223,7 +246,8 @@ export function YourStoryGuides({ guides, initiallyOpen, go, onChanged, onGuideL
             ))}
           </View>
         ) : null}
-        <View style={styles.actions}>{goButton(guideKey, view)}</View>
+        <View style={styles.actions}>{goButton(guideKey, view)}
+          {walkButton(guideKey, view)}</View>
         {beatPicker(view)}
       </View>
     );

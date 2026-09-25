@@ -406,6 +406,52 @@ const back = load('lib/storyReturn.ts');
   same(back.storyReturnTarget({ kind: 'page', guide: null }), { pathname: '/your-story', params: {} }, 'page target with no guide');
   written.push(back.STORY_RETURN_LABEL, back.STORY_RETURN_CLOSE_LABEL);
 }
+// Walk me through it (lib/storyWalk.ts, 1.0.51.10). Getting there moves on by
+// itself as the screen and lens are reached, falls back when the person
+// wanders off, and Next can always pass a line so a walk never sticks.
+{
+  const walk = load('lib/storyWalk.ts', { './yourStoryGuides': guides });
+  for (const def of guides.GUIDES) {
+    for (const entry of def.entries) {
+      const steps = walk.walkSteps(entry);
+      if (entry.destination.kind !== 'beats') check(steps.length > 0, `${def.key}/${entry.key} has a walk`);
+      for (const step of steps) {
+        check(typeof step.say === 'string' && step.say.trim().length > 0, `${def.key}/${entry.key} walk line has words`);
+        written.push(step.say);
+      }
+    }
+  }
+  const routine = guides.GUIDE_BY_KEY.routines.entries.find((entry) => entry.key === 'routineRun');
+  const steps = walk.walkSteps(routine);
+  check(steps[0].say.endsWith('choose Life.') && steps[0].point === 'hub', 'routine walk starts at the round button');
+  check(steps[1].say.includes('choose Routines') && steps[1].until.lens === 'Routines', 'then the lens');
+  same(steps[2].say, 'Tap Walk it on the routine.', 'then the taps');
+  const nowhere = { pathname: '/garden', tab: 'Garden', lens: null };
+  const onLife = { pathname: '/life', tab: 'Life', lens: 'Grocery List' };
+  const onRoutines = { pathname: '/life', tab: 'Life', lens: 'Routines' };
+  same(walk.walkPosition(steps, 0, [], nowhere), 0, 'elsewhere: choose Life');
+  same(walk.walkPosition(steps, 0, [], onLife), 1, 'on Life: choose Routines');
+  same(walk.walkPosition(steps, 0, [], onRoutines), 2, 'on Routines: the first tap');
+  same(walk.walkPosition(steps, 3, [], onRoutines), 3, 'the tap line Next reached holds');
+  same(walk.walkPosition(steps, 3, [], nowhere), 0, 'wandering off comes back to choose Life');
+  same(walk.walkPosition(steps, 0, [], { pathname: '/life', tab: 'Garden', lens: null }), 2, 'an unreported lens is not a circle');
+  const started = { guide: 'routines', entryKey: 'routineRun', startedDone: false, cursor: 0, skipped: [] };
+  const passed = walk.walkNext(started, steps, 0);
+  same(passed.skipped, [0], 'Next passes an unmet getting-there line');
+  same(walk.walkPosition(steps, passed.cursor, passed.skipped, nowhere), 1, 'and it stays passed');
+  check(!walk.canStepBack(steps, 2), 'no Back onto a getting-there line');
+  check(walk.canStepBack(steps, 3), 'Back onto a tap line');
+  same(walk.walkBack({ ...started, cursor: 3 }, 3).cursor, 2, 'Back moves one line');
+  same(walk.walkEntry(started), routine, 'the walk finds its guide step');
+  walk.startStoryWalk('routines', 'routineRun', false);
+  same(walk.getStoryWalk(), started, 'a walk starts at its first line');
+  walk.setStoryWalk(null);
+  written.push(
+    walk.WALK_START_LABEL, walk.WALK_STOP_LABEL, walk.WALK_CLOSE_LABEL, walk.WALK_NEXT_LABEL, walk.WALK_BACK_LABEL,
+    walk.WALK_STORY_LABEL, walk.WALK_WAITING_LINE, walk.WALK_NO_RECORD_LINE, walk.WALK_SAVED_LINE, walk.WALK_CAPTION,
+    walk.WALK_SHRINK_LABEL, walk.WALK_GROW_LABEL,
+  );
+}
 // it what the screen calls it. Nothing else may say healing. "Step by step"
 // is the name of a way of writing the guides and "+ Add a step" a button on
 // Routines; neither counts anybody's steps.

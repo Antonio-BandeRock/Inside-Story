@@ -1362,7 +1362,7 @@ export function isGuideKey(value: string | null | undefined): value is GuideKey 
 
 // HOW TO GET THERE, FOR STEP BY STEP.
 
-const HUB = 'Tap the round button at the bottom of the screen';
+export const HUB = 'Tap the round button at the bottom of the screen';
 
 export const TAB_NAMES: Record<string, string> = {
   '/life': 'Life',
@@ -1454,17 +1454,17 @@ export const LENS_NAMES: Record<string, Record<string, string>> = {
 };
 
 // Lenses reached from the small bookmarks button rather than the corner one.
-const MY_ITEMS_LENSES: Record<string, string[]> = { '/food': ['systemRecipes'] };
+export const MY_ITEMS_LENSES: Record<string, string[]> = { '/food': ['systemRecipes'] };
 
 // Screens opened from a band on Home: the band's name and its button.
-const FROM_HOME: Record<string, [string, string]> = {
+export const FROM_HOME: Record<string, [string, string]> = {
   '/capture': ['Capture', 'Type it'],
   '/where-is-it': ['Where Is It', 'Look something up'],
   '/voice-log': ['Say What You Ate', 'Say it'],
   '/assessment': ['Symptom Check-In', 'the button on it'],
 };
 
-const GO_HOME = `${HUB} and choose Home.`;
+export const GO_HOME = `${HUB} and choose Home.`;
 
 // How to reach a destination from anywhere in the app, built from the
 // destination itself so it always matches where Go there goes.
