@@ -9,24 +9,31 @@ config.resolver.assetExts.push('db');
 // components/reactNativeWithEditableText.js when they import 'react-native',
 // which is React Native with Text swapped for components/EditableText.tsx,
 // so any words on screen can be tapped and changed without the files that
-// draw them knowing. Libraries in node_modules, and the two files that
+// draw them knowing. Libraries in node_modules, and the files that
 // build the swap, get React Native itself. While the Tell Claude switch is
 // off the swapped Text renders exactly as React Native's does. Neither
 // @expo/fingerprint nor the runtime version reads this file, so this ships
-// as an ordinary update.
+// as an ordinary update. On the web target, which the Windows app runs,
+// babel-preset-expo has already rewritten each named import into a deep
+// import such as 'react-native-web/dist/exports/Text', so that path is
+// swapped for components/editableTextForWeb.js the same way.
 const OWN_SOURCE_FOLDERS = new Set(['app', 'components', 'lib', 'constants', 'hooks']);
 const EDITABLE_TEXT_FILES = new Set([
   path.join(__dirname, 'components', 'reactNativeWithEditableText.js'),
   path.join(__dirname, 'components', 'EditableText.tsx'),
+  path.join(__dirname, 'components', 'editableTextForWeb.js'),
 ]);
+const WEB_TEXT_MODULES = new Set(['react-native-web/dist/exports/Text', 'react-native-web/dist/cjs/exports/Text']);
 function editableTextFor(context, moduleName) {
-  if (moduleName !== 'react-native') return null;
+  const web = WEB_TEXT_MODULES.has(moduleName);
+  if (moduleName !== 'react-native' && !web) return null;
   const origin = context.originModulePath;
   if (!origin || EDITABLE_TEXT_FILES.has(origin)) return null;
   const relative = path.relative(__dirname, origin);
   const top = relative.split(path.sep)[0];
   if (!OWN_SOURCE_FOLDERS.has(top)) return null;
-  return { type: 'sourceFile', filePath: path.join(__dirname, 'components', 'reactNativeWithEditableText.js') };
+  const swap = web ? 'editableTextForWeb.js' : 'reactNativeWithEditableText.js';
+  return { type: 'sourceFile', filePath: path.join(__dirname, 'components', swap) };
 }
 {
   const upstream = config.resolver.resolveRequest;
