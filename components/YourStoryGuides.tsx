@@ -57,7 +57,8 @@ type Props = {
   // Opened when the page first shows: the guide asked for, or the one the
   // Home card points into.
   initiallyOpen: GuideKey | null;
-  go: (destination: Exclude<StoryDestination, { kind: 'beats' }>) => void;
+  // The guide is passed along so the way back (lib/storyReturn.ts) reopens it.
+  go: (destination: Exclude<StoryDestination, { kind: 'beats' }>, guide: GuideKey) => void;
   onChanged: () => void;
   // Where each guide band sits in the scroll content, so the page can
   // scroll to the one asked for.
@@ -117,12 +118,12 @@ export function YourStoryGuides({ guides, initiallyOpen, go, onChanged, onGuideL
     return done ? 'Open' : 'Go there';
   }
 
-  function goButton(view: GuideEntryView) {
+  function goButton(guideKey: GuideKey, view: GuideEntryView) {
     const { destination } = view.entry;
     return (
       <TouchableOpacity
         style={styles.action}
-        onPress={() => (destination.kind === 'beats' ? setBeatsOpen((value) => !value) : go(destination))}
+        onPress={() => (destination.kind === 'beats' ? setBeatsOpen((value) => !value) : go(destination, guideKey))}
         accessibilityRole="button"
       >
         <Text style={styles.actionText}>{goLabel(view)}</Text>
@@ -175,7 +176,7 @@ export function YourStoryGuides({ guides, initiallyOpen, go, onChanged, onGuideL
             {stateLines(view)}
           </View>
         </View>
-        <View style={styles.actions}>{goButton(view)}</View>
+        <View style={styles.actions}>{goButton(guideKey, view)}</View>
         {beatPicker(view)}
       </View>
     );
@@ -222,7 +223,7 @@ export function YourStoryGuides({ guides, initiallyOpen, go, onChanged, onGuideL
             ))}
           </View>
         ) : null}
-        <View style={styles.actions}>{goButton(view)}</View>
+        <View style={styles.actions}>{goButton(guideKey, view)}</View>
         {beatPicker(view)}
       </View>
     );

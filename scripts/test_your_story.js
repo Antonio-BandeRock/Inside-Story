@@ -385,6 +385,27 @@ written.push(
 );
 
 // "Healing Stage" is the name of an Insights lens, and a guide has to call
+
+// The way back to Your Story (lib/storyReturn.ts, 1.0.51.9). Hidden until
+// the person has left where they set out from, shown everywhere else, and
+// forgotten once they are back on Home's card or the Your Story page.
+const back = load('lib/storyReturn.ts');
+{
+  const fromHome = { origin: { kind: 'home' }, left: false };
+  same(back.storyReturnOnPath(null, '/life'), { show: false, next: null }, 'no way back, no button');
+  same(back.storyReturnOnPath(fromHome, '/'), { show: false, next: fromHome }, 'not shown before leaving Home');
+  const away = back.storyReturnOnPath(fromHome, '/life');
+  same(away, { show: true, next: { origin: { kind: 'home' }, left: true } }, 'shown on the tab a Home line opened');
+  same(back.storyReturnOnPath(away.next, '/capture'), { show: true, next: away.next }, 'still shown on the next screen');
+  same(back.storyReturnOnPath(away.next, '/'), { show: false, next: null }, 'forgotten once back on Home');
+  same(back.storyReturnOnPath(away.next, '/your-story'), { show: false, next: null }, 'never shown on the Your Story page');
+  const fromPage = { origin: { kind: 'page', guide: 'food' }, left: true };
+  same(back.storyReturnOnPath(fromPage, '/'), { show: true, next: fromPage }, 'shown on Home when the page sent them there');
+  same(back.storyReturnTarget({ kind: 'home' }), { pathname: '/', params: { openHomeSection: 'yourStory' } }, 'Home target opens the card');
+  same(back.storyReturnTarget(fromPage.origin), { pathname: '/your-story', params: { guide: 'food' } }, 'page target reopens the guide');
+  same(back.storyReturnTarget({ kind: 'page', guide: null }), { pathname: '/your-story', params: {} }, 'page target with no guide');
+  written.push(back.STORY_RETURN_LABEL, back.STORY_RETURN_CLOSE_LABEL);
+}
 // it what the screen calls it. Nothing else may say healing. "Step by step"
 // is the name of a way of writing the guides and "+ Add a step" a button on
 // Routines; neither counts anybody's steps.

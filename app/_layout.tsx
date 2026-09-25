@@ -16,6 +16,7 @@ import { GardenPlateOfferHost } from '../components/GardenPlateOfferHost';
 import { StartupFailureScreen } from '../components/StartupFailureScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
 import { SnapshotSyncWatcher } from '../components/SnapshotSyncWatcher';
+import { StoryReturnHost } from '../components/StoryReturnHost';
 import { TellClaudeHost } from '../components/TellClaudeHost';
 import { VersionLabel } from '../components/VersionLabel';
 import { colors } from '../constants/colors';
@@ -742,6 +743,10 @@ export default function RootLayout() {
                   a meal happens on five screens and each of them calls one
                   line, so the sheet lives here and comes up only when a saved
                   meal matches a picking with something left on it. */}
+              {/* Back to Your Story (1.0.51.9): one button on whatever
+                  screen a Your Story line opened, taking the person back to
+                  where they left from. Renders nothing otherwise. */}
+              <StoryReturnHost />
               <GardenPlateOfferHost />
               {/* Before AppKeyboard, deliberately -- see OverlayContext.tsx's own
                   comment: the keyboard must always paint on top of an open

@@ -29,7 +29,7 @@ export default function YourStoryScreen() {
   const asked: GuideKey | null = isGuideKey(guide) ? guide : null;
   const scrollRef = useRef<ScrollView>(null);
   const scrolled = useRef(false);
-  const go = useStoryGo();
+  const go = useStoryGo('page');
 
   const onGuideLayout = useCallback(
     (key: GuideKey, y: number) => {

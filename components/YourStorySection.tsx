@@ -41,6 +41,7 @@ import {
 } from '../lib/yourStory';
 import { bringYourStoryItemBack, loadYourStoryWithGuides, setYourStoryItemAside } from '../lib/yourStoryDb';
 import { currentGuideKey, guideCardLine, openGuideLabel, type GuideView } from '../lib/yourStoryGuides';
+import { markStoryReturn } from '../lib/storyReturn';
 import { BeatPicker } from './BeatPicker';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
 import { useInfoAlert } from './InfoAlert';
@@ -75,12 +76,19 @@ export function useYourStory(): [YourStoryView | null, () => Promise<void>, Guid
 }
 
 // Where a Your Story destination leads, shared by the paper and the guides.
+// `from` is where the person is leaving from: before anything opens it is
+// remembered (lib/storyReturn.ts), so the screen they land on carries a
+// Back to Your Story button. A Home destination opened in place on Home
+// leaves nothing to come back from, so it marks nothing.
 export function useStoryGo(
+  from: 'home' | 'page',
   onHomeDestination?: (destination: Extract<StoryDestination, { kind: 'home' | 'quickLog' }>) => void,
-): (destination: Exclude<StoryDestination, { kind: 'beats' }>) => void {
+): (destination: Exclude<StoryDestination, { kind: 'beats' }>, guide?: string) => void {
   const router = useRouter();
   return useCallback(
-    (destination) => {
+    (destination, guide) => {
+      const inPlace = destination.kind !== 'route' && !!onHomeDestination;
+      if (!inPlace) markStoryReturn(from === 'home' ? { kind: 'home' } : { kind: 'page', guide: guide ?? null });
       if (destination.kind === 'route') {
         router.push({ pathname: destination.pathname, params: destination.params } as Href);
         return;
@@ -95,7 +103,7 @@ export function useStoryGo(
         router.push({ pathname: '/', params: { openHomeQuickLog: destination.form } } as Href);
       }
     },
-    [router, onHomeDestination],
+    [router, from, onHomeDestination],
   );
 }
 
@@ -119,7 +127,7 @@ export function YourStorySection({ mode, view, guides, onChanged, onHomeDestinat
   // On the full page, sections opened by hand beyond the current one.
   const [openSections, setOpenSections] = useState<SectionKey[]>([]);
 
-  const goElsewhere = useStoryGo(onHomeDestination);
+  const goElsewhere = useStoryGo(mode === 'card' ? 'home' : 'page', onHomeDestination);
   const go = useCallback(
     (destination: StoryDestination) => {
       if (destination.kind === 'beats') {
