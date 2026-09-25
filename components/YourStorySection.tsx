@@ -5,6 +5,10 @@
 // is, when it counts as done, every sentence) and lib/yourStoryDb.ts (the
 // records it reads); this file only lays that out.
 //
+// Since 1.0.51.7 the page also carries a guide for each part of life
+// (components/YourStoryGuides.tsx), and the card says which guide the next
+// thing belongs to and opens it.
+//
 // One component in two shapes, so the Home card and the full page can never
 // disagree about what an item says or where it goes:
 //   card  the current section and its items, plus a way to the full page.
@@ -35,20 +39,25 @@ import {
   type StoryDestination,
   type YourStoryView,
 } from '../lib/yourStory';
-import { bringYourStoryItemBack, loadYourStory, setYourStoryItemAside } from '../lib/yourStoryDb';
+import { bringYourStoryItemBack, loadYourStoryWithGuides, setYourStoryItemAside } from '../lib/yourStoryDb';
+import { currentGuideKey, guideCardLine, openGuideLabel, type GuideView } from '../lib/yourStoryGuides';
 import { BeatPicker } from './BeatPicker';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
 import { useInfoAlert } from './InfoAlert';
 
 // Loads Your Story whenever the screen holding it comes into focus, which is
 // how an item done on another tab is already ticked on the way back.
-export function useYourStory(): [YourStoryView | null, () => Promise<void>] {
+export function useYourStory(): [YourStoryView | null, () => Promise<void>, GuideView[]] {
   const [view, setView] = useState<YourStoryView | null>(null);
+  const [guides, setGuides] = useState<GuideView[]>([]);
   const live = useRef(true);
   const reload = useCallback(async () => {
     try {
-      const next = await loadYourStory();
-      if (live.current) setView(next);
+      const next = await loadYourStoryWithGuides();
+      if (live.current) {
+        setView(next.view);
+        setGuides(next.guides);
+      }
     } catch (error) {
       console.warn('loadYourStory failed', error);
     }
@@ -62,32 +71,16 @@ export function useYourStory(): [YourStoryView | null, () => Promise<void>] {
       };
     }, [reload]),
   );
-  return [view, reload];
+  return [view, reload, guides];
 }
 
-type Props = {
-  mode: 'card' | 'page';
-  view: YourStoryView | null;
-  onChanged: () => void;
-  // Home passes this, since a card on Home and Home's quick-log form open in
-  // place there. Anywhere else those go back to Home, which opens them.
-  onHomeDestination?: (destination: Extract<StoryDestination, { kind: 'home' | 'quickLog' }>) => void;
-};
-
-export function YourStorySection({ mode, view, onChanged, onHomeDestination }: Props) {
+// Where a Your Story destination leads, shared by the paper and the guides.
+export function useStoryGo(
+  onHomeDestination?: (destination: Extract<StoryDestination, { kind: 'home' | 'quickLog' }>) => void,
+): (destination: Exclude<StoryDestination, { kind: 'beats' }>) => void {
   const router = useRouter();
-  const [showInfoAlert, infoAlertElement] = useInfoAlert();
-  // Which item has its part-of-life chooser open in place.
-  const [beatsOpen, setBeatsOpen] = useState(false);
-  // On the full page, sections opened by hand beyond the current one.
-  const [openSections, setOpenSections] = useState<SectionKey[]>([]);
-
-  const go = useCallback(
-    (destination: StoryDestination) => {
-      if (destination.kind === 'beats') {
-        setBeatsOpen((open) => !open);
-        return;
-      }
+  return useCallback(
+    (destination) => {
       if (destination.kind === 'route') {
         router.push({ pathname: destination.pathname, params: destination.params } as Href);
         return;
@@ -103,6 +96,39 @@ export function YourStorySection({ mode, view, onChanged, onHomeDestination }: P
       }
     },
     [router, onHomeDestination],
+  );
+}
+
+type Props = {
+  mode: 'card' | 'page';
+  view: YourStoryView | null;
+  // The guides for the parts of life chosen; the card uses them to say
+  // which guide the next thing belongs to.
+  guides?: GuideView[];
+  onChanged: () => void;
+  // Home passes this, since a card on Home and Home's quick-log form open in
+  // place there. Anywhere else those go back to Home, which opens them.
+  onHomeDestination?: (destination: Extract<StoryDestination, { kind: 'home' | 'quickLog' }>) => void;
+};
+
+export function YourStorySection({ mode, view, guides, onChanged, onHomeDestination }: Props) {
+  const router = useRouter();
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  // Which item has its part-of-life chooser open in place.
+  const [beatsOpen, setBeatsOpen] = useState(false);
+  // On the full page, sections opened by hand beyond the current one.
+  const [openSections, setOpenSections] = useState<SectionKey[]>([]);
+
+  const goElsewhere = useStoryGo(onHomeDestination);
+  const go = useCallback(
+    (destination: StoryDestination) => {
+      if (destination.kind === 'beats') {
+        setBeatsOpen((open) => !open);
+        return;
+      }
+      goElsewhere(destination);
+    },
+    [goElsewhere],
   );
 
   const setAside = useCallback(
@@ -201,6 +227,7 @@ export function YourStorySection({ mode, view, onChanged, onHomeDestination }: P
   // took the chooser away before a second part could be picked.
   const frontPage = view.sections.find((section) => section.def.key === 'frontPage') ?? null;
   const shown = beatsOpen ? frontPage ?? current : current;
+  const guideKey = guides && guides.length > 0 ? currentGuideKey(view, guides) : null;
 
   // Once the Front Page is behind the card, this is the way back to it.
   function renderFollowing(style: StyleProp<ViewStyle>) {
@@ -230,6 +257,19 @@ export function YourStorySection({ mode, view, onChanged, onHomeDestination }: P
           </Text>
         )}
         {shown?.def.key !== 'frontPage' ? renderFollowing(styles.followingRow) : null}
+        {guideKey ? (
+          <View style={styles.guideRow}>
+            <Text style={styles.followingText}>{guideCardLine(guideKey)}</Text>
+            <TouchableOpacity
+              style={styles.action}
+              onPress={() => router.push({ pathname: '/your-story', params: { guide: guideKey } } as Href)}
+              accessibilityRole="button"
+            >
+              <Text style={styles.actionText}>{openGuideLabel(guideKey)}</Text>
+              <Ionicons name="arrow-forward" size={13} color={colors.primary} style={textShadow} />
+            </TouchableOpacity>
+          </View>
+        ) : null}
         <TouchableOpacity style={styles.action} onPress={() => router.push('/your-story' as Href)} accessibilityRole="button">
           <Text style={styles.actionText}>Open Your Story</Text>
           <Ionicons name="arrow-forward" size={13} color={colors.primary} style={textShadow} />
@@ -321,5 +361,6 @@ const styles = StyleSheet.create({
   actionMuted: { ...typography.caption, color: colors.textMuted, ...textShadow },
   beatsBox: { paddingLeft: 26 },
   followingRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 12, backgroundColor: colors.surface },
+  guideRow: { gap: 4, backgroundColor: colors.surface },
   followingText: { ...typography.caption, color: colors.textSecondary, ...textShadow, flexShrink: 1 },
 });

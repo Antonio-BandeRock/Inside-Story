@@ -11,6 +11,8 @@
 
 import { dayKey, localDayOf, normalizeBeatKeys, buildYourStory } from './yourStory';
 import type { ArchiveFacts, BeatKey, YourStoryFacts, YourStoryItemKey, YourStoryView } from './yourStory';
+import { buildGuides } from './yourStoryGuides';
+import type { GuideRecordKey, GuideRecords, GuideView } from './yourStoryGuides';
 import { getDatabase } from './db';
 import { BACKUP_LAST_SAVED_META_KEY, listLocalBackupFiles } from './dataBackup';
 import { readSyncState } from './snapshotSyncDevice';
@@ -148,6 +150,72 @@ async function lookForRecords(db: Db): Promise<Partial<Record<YourStoryItemKey, 
   };
 }
 
+// THE GUIDES' RECORDS (lib/yourStoryGuides.ts), for the steps that are
+// not Your Story items. Each one is asked for separately and a failure
+// leaves just that step unticked, since a guide reaches into more tables
+// than any other screen and one missing column must not blank the page.
+const GUIDE_RECORD_SQL: Record<GuideRecordKey, string[]> = {
+  connection: ['SELECT MIN(paired_at) AS at FROM connections'],
+  conditionStage: ['SELECT MIN(updated_at) AS at FROM user_condition_stages'],
+  doseTimes: ["SELECT MIN(created_at) AS at FROM schedule_items WHERE item_type IN ('prescription', 'otc', 'supplement')"],
+  personalRule: ['SELECT MIN(created_at) AS at FROM personal_rules'],
+  appointment: ["SELECT MIN(created_at) AS at FROM schedule_items WHERE item_type = 'appointment'"],
+  flare: ["SELECT MIN(logged_at) AS at FROM wellbeing_checkins WHERE checkin_type = 'flare'"],
+  foodReaction: ["SELECT MIN(logged_at) AS at FROM wellbeing_checkins WHERE checkin_type = 'post_meal'"],
+  labs: ['SELECT MIN(created_at) AS at FROM lab_results'],
+  bloodPressure: ["SELECT MIN(created_at) AS at FROM body_measurements WHERE measurement_type LIKE 'blood_pressure%'"],
+  weight: ["SELECT MIN(created_at) AS at FROM body_measurements WHERE measurement_type = 'weight'"],
+  therapy: ['SELECT MIN(created_at) AS at FROM therapy_sessions'],
+  assessment: ['SELECT MIN(completed_at) AS at FROM symptom_assessments'],
+  experiment: ['SELECT MIN(created_at) AS at FROM food_trials'],
+  nutrientTargets: ['SELECT MIN(updated_at) AS at FROM user_nutrient_targets'],
+  safeFoods: ['SELECT MIN(added_at) AS at FROM my_safe_foods'],
+  savedRecipe: [
+    'SELECT MIN(created_at) AS at FROM favorites',
+    ...['sides', 'salads', 'smoothies', 'fermentations', 'beverages', 'snacks', 'baked_goods', 'soups', 'sauces', 'handhelds', 'desserts'].map(
+      (table) => `SELECT MIN(created_at) AS at FROM ${table}`,
+    ),
+  ],
+  scannedProduct: ['SELECT MIN(scanned_at) AS at FROM scanned_products'],
+  mealPlan: ['SELECT MIN(created_at) AS at FROM meal_plan_slots'],
+  groceryList: ['SELECT MIN(created_at) AS at FROM grocery_lists'],
+  fermentation: ['SELECT MIN(created_at) AS at FROM fermentation_batches'],
+  healthConnect: ['SELECT MIN(updated_at) AS at FROM daily_step_counts'],
+  routineRun: ['SELECT MIN(started_at) AS at FROM routine_runs'],
+  upkeepDone: ['SELECT MIN(created_at) AS at FROM upkeep_doings'],
+  doneMark: ['SELECT MIN(marked_at) AS at FROM done_check_marks'],
+  gardenSetup: ['SELECT MIN(created_at) AS at FROM garden_equipment'],
+  gardenTask: ["SELECT MIN(created_at) AS at FROM schedule_items WHERE item_type = 'garden'"],
+  gardenCountdown: ['SELECT MIN(created_at) AS at FROM garden_countdowns'],
+  gardenReading: ['SELECT MIN(created_at) AS at FROM garden_readings'],
+  compost: ['SELECT MIN(created_at) AS at FROM compost_piles'],
+  gardenCost: ['SELECT MIN(created_at) AS at FROM garden_cost_details'],
+  electricity: ['SELECT MIN(created_at) AS at FROM electricity_bills'],
+  harvestUse: ['SELECT MIN(created_at) AS at FROM harvest_uses'],
+  harvestGift: ['SELECT MIN(created_at) AS at FROM harvest_shares_received'],
+  accounts: ['SELECT MIN(created_at) AS at FROM finance_accounts'],
+  goals: ['SELECT MIN(created_at) AS at FROM finance_goals'],
+  medicalBill: ['SELECT MIN(created_at) AS at FROM finance_medical_bills'],
+  insurancePlan: ['SELECT MIN(created_at) AS at FROM finance_insurance_plans'],
+  familyInMealPlan: ['SELECT MIN(created_at) AS at FROM family_members WHERE include_in_meal_plan = 1'],
+};
+
+async function lookForGuideRecords(db: Db): Promise<GuideRecords> {
+  const records: GuideRecords = {};
+  for (const key of Object.keys(GUIDE_RECORD_SQL) as GuideRecordKey[]) {
+    const days: (string | null)[] = [];
+    for (const sql of GUIDE_RECORD_SQL[key]) {
+      try {
+        days.push(await earliest(db, sql));
+      } catch {
+        days.push(null);
+      }
+    }
+    records[key] = earliestOf(...days);
+  }
+  return records;
+}
+
 // Parses the local date-time strings meals and check-ins carry, and the
 // ISO ones, into a moment. Null when the string is not a time at all.
 function momentOf(stamp: string): number | null {
@@ -245,10 +313,18 @@ export async function loadYourStoryFacts(): Promise<YourStoryFacts> {
 // Builds the view and remembers anything seen done for the first time, so
 // its record being removed later can be said to have been there.
 export async function loadYourStory(): Promise<YourStoryView> {
+  return (await loadYourStoryWithGuides(false)).view;
+}
+
+// The same, plus the guides for the parts of life chosen. The Home card
+// asks for them only to say which guide it points into; the page shows them.
+export async function loadYourStoryWithGuides(withGuides = true): Promise<{ view: YourStoryView; guides: GuideView[] }> {
   const facts = await loadYourStoryFacts();
   const view = buildYourStory(facts);
   for (const seen of view.newlySeen) {
     await markYourStorySeen(seen.key, seen.day);
   }
-  return view;
+  if (!withGuides) return { view, guides: [] };
+  const db = await getDatabase();
+  return { view, guides: buildGuides(facts, await lookForGuideRecords(db)) };
 }

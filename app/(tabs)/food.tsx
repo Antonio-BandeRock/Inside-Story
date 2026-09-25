@@ -925,6 +925,16 @@ export default function FoodScreen() {
         setRevealed(true);
         return;
       }
+      // Any other builder by its key, 2026-09-24, so a Your Story guide can
+      // link straight to the Soups builder rather than to the Food menu.
+      // Last in the chain, so every edit, favorite and recipe link above
+      // still wins.
+      const requestedFoodLens = FOOD_LENSES.find((option) => option.key === openFoodLens);
+      if (requestedFoodLens) {
+        setLens(requestedFoodLens.key);
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return handleBlur;
     }, [

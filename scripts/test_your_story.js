@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const ts = require('typescript');
 
-function load(relPath) {
+function load(relPath, allowed = {}) {
   const source = fs.readFileSync(path.join(__dirname, '..', relPath), 'utf8');
   const { outputText } = ts.transpileModule(source, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
@@ -22,12 +22,15 @@ function load(relPath) {
   });
   const module = { exports: {} };
   new Function('exports', 'module', 'require', outputText)(module.exports, module, (name) => {
+    if (allowed[name]) return allowed[name];
     throw new Error(`${relPath} must stay free of runtime imports (asked for ${name})`);
   });
   return module.exports;
 }
 
 const story = load('lib/yourStory.ts');
+// The guides may lean on lib/yourStory.ts and nothing else.
+const guides = load('lib/yourStoryGuides.ts', { './yourStory': story });
 
 let checks = 0;
 let failures = 0;
@@ -224,7 +227,95 @@ written.push(
   meds.note,
   ...[fresh, chosen, waiting, ready, later].map(story.nextLine),
 );
-const allText = written.join(' ');
+
+// THE GUIDES (lib/yourStoryGuides.ts, 1.0.51.7).
+
+// Every Your Story item that applies to a part of life has a place in that
+// part's guide or in The Basics, so no item is left without instructions.
+for (const beat of story.ALL_BEATS) {
+  same(guides.itemsWithoutAGuide([beat]), [], `every item for ${beat} is in its guide or The Basics`);
+}
+same(guides.itemsWithoutAGuide([]), [], 'every item for nobody in particular is in The Basics');
+same(
+  guides.guidesFor(['garden', 'health']).map((guide) => guide.key),
+  ['basics', 'health', 'garden'],
+  'The Basics first, then the chosen guides in the order the parts are listed',
+);
+for (const beat of story.ALL_BEATS) check(!!guides.GUIDE_BY_KEY[beat], `a guide for ${beat}`);
+for (const guide of guides.GUIDES) {
+  const keys = guide.entries.map((entry) => entry.key);
+  check(new Set(keys).size === keys.length, `entry keys unique in ${guide.key}`);
+  check(guide.entries.length >= 3, `${guide.key} walks through more than a couple of things`);
+}
+
+// Every destination is a screen that exists, and every lens a key that
+// screen knows.
+const TAB_FILES = {
+  '/life': ['openLifeLens', 'life.tsx'],
+  '/schedule': ['openScheduleLens', 'schedule.tsx'],
+  '/trends': ['openTrendsLens', 'trends.tsx'],
+  '/garden': ['openGardenLens', 'garden.tsx'],
+  '/insights': ['openInsightsLens', 'insights.tsx'],
+  '/food': ['openFoodLens', 'food.tsx'],
+  '/log': ['openSignalsLens', 'log.tsx'],
+};
+const tabSource = {};
+for (const guide of guides.GUIDES) {
+  for (const entry of guide.entries) {
+    const destination = entry.destination;
+    if (destination.kind !== 'route') continue;
+    const tab = TAB_FILES[destination.pathname];
+    if (tab) {
+      const [param, file] = tab;
+      tabSource[file] = tabSource[file] || fs.readFileSync(path.join(__dirname, '..', 'app', '(tabs)', file), 'utf8');
+      const lens = destination.params && destination.params[param];
+      check(!!lens, `${guide.key}/${entry.key} names a lens with ${param}`);
+      if (lens) check(tabSource[file].includes(`'${lens}'`), `${guide.key}/${entry.key}: ${file} has a lens ${lens}`);
+    } else {
+      const name = destination.pathname.slice(1);
+      check(
+        fs.existsSync(path.join(__dirname, '..', 'app', name + '.tsx')) ||
+          fs.existsSync(path.join(__dirname, '..', 'app', '(tabs)', name + '.tsx')),
+        `${guide.key}/${entry.key}: a screen at ${destination.pathname}`,
+      );
+    }
+  }
+}
+
+// Ticking follows the item or the record, and reading is never ticked.
+const guideFacts = facts({ beats: ['health'], doneOn: { meds: '2026-09-20' } });
+const built = guides.buildGuides(guideFacts, { doseTimes: '2026-09-21' });
+const health = built.find((guide) => guide.def.key === 'health');
+const entryState = (key) => health.entries.find((entry) => entry.entry.key === key);
+same(entryState('item:meds').state, 'done', 'an item entry is done when its item is');
+same(entryState('doseTimes').state, 'done', 'a record entry is done when its record exists');
+check(!!entryState('doseTimes').dateline, 'a done record entry carries its date');
+same(entryState('personalRule').state, 'open', 'a record entry with no record is open');
+same(entryState('interactions').state, 'reading', 'a reading entry is never ticked');
+// With nothing done the next thing is the backup, which is The Basics;
+// once it is kept, the next thing is in the Health guide.
+same(guides.currentGuideKey(story.buildYourStory(guideFacts), built), 'basics', 'the backup comes first, in The Basics');
+const kept = facts({
+  beats: ['health'],
+  doneOn: { beats: '2026-09-20', meds: '2026-09-20' },
+  archive: { ...archiveOff, lastBackupOn: '2026-09-23' },
+});
+same(
+  guides.currentGuideKey(story.buildYourStory(kept), guides.buildGuides(kept, {})),
+  'health',
+  'the card points into the guide holding the next thing',
+);
+
+for (const guide of guides.GUIDES) {
+  written.push(guide.name, guide.title, guide.opening);
+  for (const entry of guide.entries) written.push(entry.doThis, entry.forYou, entry.leadsTo || '');
+  written.push(guides.openGuideLabel(guide.key), guides.guideCardLine(guide.key));
+}
+written.push(guides.GUIDES_HEADING, guides.GUIDES_LEAD, guides.READ_LABEL);
+
+// "Healing Stage" is the name of an Insights lens, and a guide has to call
+// it what the screen calls it. Nothing else may say healing.
+const allText = written.join(' ').replace(/Healing Stage/g, 'Stage Foods');
 const lower = allText.toLowerCase();
 for (const word of [
   'well done', 'good job', 'great job', 'keep it up', 'congrat', 'streak', 'you should', 'you failed', 'behind',

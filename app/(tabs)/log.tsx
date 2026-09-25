@@ -1901,8 +1901,9 @@ export default function LogScreen() {
   // trialPrepMethod -- a real cross-tab deep link from a Food builder's own
   // "Worth testing?" button (see SideBuilder.tsx's own comment), the same
   // shape food.tsx's own editXId/fromXFavoriteId params already use.
-  const { trialFoodId, trialSource, trialBaseName, trialCategory, trialSubcategory, trialPrepMethod, trialDesign } =
+  const { trialFoodId, trialSource, trialBaseName, trialCategory, trialSubcategory, trialPrepMethod, trialDesign, openSignalsLens } =
     useLocalSearchParams<{
+      openSignalsLens?: string;
       trialDesign?: string;
       trialFoodId?: string;
       trialSource?: string;
@@ -1933,9 +1934,17 @@ export default function LogScreen() {
         setRevealed(true);
         return;
       }
+      // A lens by its key, 2026-09-24, the same param shape every other
+      // tab takes, so a Your Story guide can link straight to Flares.
+      const requestedLens = LENSES.find((option) => option.key === openSignalsLens);
+      if (requestedLens) {
+        setLens(requestedLens.key);
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return () => setRevealed(false);
-    }, [trialFoodId]),
+    }, [trialFoodId, openSignalsLens]),
   );
   const autoOpenLensHub = useAutoOpenLensHubSignal();
 

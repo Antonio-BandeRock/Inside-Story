@@ -1152,7 +1152,7 @@ export default function HomeScreen() {
   // Your Story's view, read on focus by the hook and again whenever Home's
   // own data reloads (below), so a meal or a check-in logged right here
   // ticks its item without leaving the page.
-  const [yourStory, reloadYourStory] = useYourStory();
+  const [yourStory, reloadYourStory, yourStoryGuides] = useYourStory();
   // Quick-log phase 4. Two sheets rather than one: picking where a photo comes
   // from, and deciding what an already-taken one actually was.
   const [photoSourceSheetOpen, setPhotoSourceSheetOpen] = useState(false);
@@ -3428,6 +3428,7 @@ export default function HomeScreen() {
         <YourStorySection
           mode="card"
           view={yourStory}
+          guides={yourStoryGuides}
           onChanged={() => void reloadYourStory()}
           onHomeDestination={goToHomeDestination}
         />
