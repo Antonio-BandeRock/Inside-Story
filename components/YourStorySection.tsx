@@ -19,7 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter, type Href } from 'expo-router';
 import { useCallback, useRef, useState, type ComponentProps } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import {
@@ -27,6 +27,7 @@ import {
   OPTIONAL_LABEL,
   WAITING_LABEL,
   WHY_LABEL,
+  followingLine,
   sectionSummary,
   type ItemView,
   type SectionKey,
@@ -178,7 +179,7 @@ export function YourStorySection({ mode, view, onChanged, onHomeDestination }: P
         </View>
         {def.destination.kind === 'beats' && beatsOpen ? (
           <View style={styles.beatsBox}>
-            <BeatPicker onChanged={onChanged} />
+            <BeatPicker onChanged={onChanged} onDone={() => setBeatsOpen(false)} />
           </View>
         ) : null}
       </View>
@@ -195,20 +196,40 @@ export function YourStorySection({ mode, view, onChanged, onHomeDestination }: P
   }
 
   const current = view.sections.find((section) => section.def.key === view.current) ?? null;
+  // While the chooser is open the Front Page holds its place: choosing one
+  // part of life can finish the Front Page, and moving on at that moment
+  // took the chooser away before a second part could be picked.
+  const frontPage = view.sections.find((section) => section.def.key === 'frontPage') ?? null;
+  const shown = beatsOpen ? frontPage ?? current : current;
+
+  // Once the Front Page is behind the card, this is the way back to it.
+  function renderFollowing(style: StyleProp<ViewStyle>) {
+    if (!view || beatsOpen || view.beats.length === 0) return null;
+    return (
+      <View style={style}>
+        <Text style={styles.followingText}>{followingLine(view.beats)}</Text>
+        <TouchableOpacity style={styles.action} onPress={() => setBeatsOpen(true)} accessibilityRole="button">
+          <Text style={styles.actionText}>Change</Text>
+          <Ionicons name="arrow-forward" size={13} color={colors.primary} style={textShadow} />
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   if (mode === 'card') {
     return (
       <View style={styles.cardBody}>
-        {current ? (
+        {shown ? (
           <>
-            {renderSectionHead(current)}
-            <View style={styles.items}>{current.items.map(renderItem)}</View>
+            {renderSectionHead(shown)}
+            <View style={styles.items}>{shown.items.map(renderItem)}</View>
           </>
         ) : (
           <Text style={styles.body}>
             {"Every section of your paper has what it needs. Your Story keeps each record's date, and anything that goes missing shows here again."}
           </Text>
         )}
+        {shown?.def.key !== 'frontPage' ? renderFollowing(styles.followingRow) : null}
         <TouchableOpacity style={styles.action} onPress={() => router.push('/your-story' as Href)} accessibilityRole="button">
           <Text style={styles.actionText}>Open Your Story</Text>
           <Ionicons name="arrow-forward" size={13} color={colors.primary} style={textShadow} />
@@ -220,9 +241,11 @@ export function YourStorySection({ mode, view, onChanged, onHomeDestination }: P
 
   return (
     <View style={styles.page}>
+      {view.current !== 'frontPage' ? renderFollowing([styles.sectionCard, styles.followingRow]) : null}
       {view.sections.map((section) => {
         const isCurrent = section.def.key === view.current;
-        const open = isCurrent || openSections.includes(section.def.key);
+        const open =
+          isCurrent || openSections.includes(section.def.key) || (beatsOpen && section.def.key === 'frontPage');
         return (
           <View key={section.def.key} style={[styles.sectionCard, isCurrent && styles.sectionCardCurrent]}>
             <TouchableOpacity
@@ -297,4 +320,6 @@ const styles = StyleSheet.create({
   actionText: { ...typography.caption, color: colors.primary, ...textShadow },
   actionMuted: { ...typography.caption, color: colors.textMuted, ...textShadow },
   beatsBox: { paddingLeft: 26 },
+  followingRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 12, backgroundColor: colors.surface },
+  followingText: { ...typography.caption, color: colors.textSecondary, ...textShadow, flexShrink: 1 },
 });

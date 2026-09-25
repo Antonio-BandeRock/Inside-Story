@@ -70,6 +70,12 @@ export const BEATS_QUESTION = 'What parts of your life do you want Inside Story 
 export const BEATS_NOTE =
   'This only shapes this guide. Every part of the app stays open to you whatever you choose, and you can change it any time.';
 
+// The line that stays on the card once the Front Page is behind it, so the
+// choice can always be reopened from where the person is.
+export function followingLine(beats: readonly BeatKey[]): string {
+  return `Following ${beatListSentence(beats)}.`;
+}
+
 export function normalizeBeatKeys(values: readonly string[]): BeatKey[] {
   const wanted = new Set(values);
   return ALL_BEATS.filter((key) => wanted.has(key));
@@ -776,6 +782,9 @@ export type YourStoryView = {
   current: SectionKey | null;
   settled: boolean;
   nextItem: ItemView | null;
+  // The parts of life chosen, so a card whose Front Page is behind it can
+  // still say what it follows and offer to change it.
+  beats: BeatKey[];
   // Every item the database layer should remember as seen done today.
   newlySeen: { key: YourStoryItemKey; day: string }[];
 };
@@ -839,7 +848,7 @@ export function buildYourStory(facts: YourStoryFacts): YourStoryView {
     ? currentSection.openItems.find((item) => item.def.kind === 'needed') ?? currentSection.openItems[0] ?? null
     : null;
 
-  return { heading, sections, current: currentSection?.def.key ?? null, settled, nextItem, newlySeen };
+  return { heading, sections, current: currentSection?.def.key ?? null, settled, nextItem, beats, newlySeen };
 }
 
 // The one line the folded Home card shows.

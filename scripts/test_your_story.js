@@ -101,6 +101,11 @@ check(!chosen.sections.some((section) => section.def.key === 'calendar'), 'no ca
 same(chosen.newlySeen, [{ key: 'beats', day: '2026-09-20' }], 'a newly done item is handed back to be remembered');
 
 // Setting aside.
+// The chosen parts of life ride on the view, so a card past the Front Page
+// can still say what it follows and reopen the chooser.
+same(chosen.beats.join(','), 'health,food', 'the view carries the parts of life chosen');
+same(story.followingLine(chosen.beats), 'Following Health and Food.', 'the way back to the chooser reads plainly');
+
 const setAside = story.buildYourStory(
   facts({ beats: ['health'], doneOn: { beats: '2026-09-20' }, setAsideOn: { aboutYou: '2026-09-21' } }),
 );

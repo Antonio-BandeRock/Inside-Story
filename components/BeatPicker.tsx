@@ -18,9 +18,12 @@ type Props = {
   onChanged?: (beats: BeatKey[]) => void;
   // A card that already carries the question in its heading can leave it off.
   showQuestion?: boolean;
+  // Closes the chooser. Choosing one part of life never closes it, since
+  // most people follow more than one.
+  onDone?: () => void;
 };
 
-export function BeatPicker({ onChanged, showQuestion = true }: Props) {
+export function BeatPicker({ onChanged, showQuestion = true, onDone }: Props) {
   const [chosen, setChosen] = useState<BeatKey[] | null>(null);
 
   useEffect(() => {
@@ -78,6 +81,11 @@ export function BeatPicker({ onChanged, showQuestion = true }: Props) {
         })}
       </View>
       <Text style={styles.note}>{BEATS_NOTE}</Text>
+      {onDone ? (
+        <TouchableOpacity style={styles.done} onPress={onDone} accessibilityRole="button">
+          <Text style={styles.doneText}>Done choosing</Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 }
@@ -104,4 +112,12 @@ const styles = StyleSheet.create({
   label: { ...typography.body, color: colors.textPrimary, ...textShadow },
   caption: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   note: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  done: {
+    alignSelf: 'flex-start',
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    backgroundColor: colors.primary,
+  },
+  doneText: { ...typography.body, color: colors.textOnPrimary, textShadowColor: 'transparent', textShadowRadius: 0 },
 });
