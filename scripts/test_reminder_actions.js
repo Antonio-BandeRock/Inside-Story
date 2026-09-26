@@ -27,8 +27,11 @@ function load(relPath) {
 }
 
 const {
+  ACTION_TEXT_INPUT,
   ALL_REMINDER_CATEGORY_KEYS,
   CATEGORY_ACTIONS,
+  answerLine,
+  answeredConfirmation,
   REMINDER_CATEGORY_IDS,
   categoryKeyFor,
   planReminderAction,
@@ -85,8 +88,40 @@ check('Turned it on a dose does nothing', planReminderAction('dose', 'turned') =
 check('a plain tap does nothing', planReminderAction('dose', 'expo.modules.notifications.actions.DEFAULT') === null);
 check('dose writes logged', planReminderAction('dose', 'taken').status === 'logged');
 check('garden writes completed', planReminderAction('garden', 'done').status === 'completed');
-check('How are you writes nothing', planReminderAction('checkin', 'howAreYou').write === null);
-check('Log a flare lands on Flares', planReminderAction('afterMeal', 'logFlare').lands === 'flares');
+check('Add a note writes a check-in note', planReminderAction('checkin', 'howAreYou').write === 'checkinNote');
+check('Log a flare writes a flare', planReminderAction('afterMeal', 'logFlare').write === 'flare');
+check('both check-in buttons take words', !!ACTION_TEXT_INPUT.howAreYou && !!ACTION_TEXT_INPUT.logFlare);
+check('Taken does not take words', !ACTION_TEXT_INPUT.taken);
+
+// Each reminder says what its buttons record; a plain one has none to say.
+for (const kind of ['dose', 'hydration', 'meal', 'garden', 'reminder', 'upkeep', 'compost', 'checkin', 'afterMeal']) {
+  check(`${kind} says what its buttons do`, typeof answerLine(kind) === 'string' && answerLine(kind).length > 0);
+}
+check('a bill says nothing about buttons', answerLine('bill') === null);
+check('an upkeep that cannot be marked says nothing', answerLine('upkeep', false) === null);
+
+// What a press says afterwards.
+const said = [];
+function confirm(plan, kind, words) {
+  const result = answeredConfirmation(plan, kind, 'Levothyroxine', '8:05 AM', 15, words);
+  if (result) said.push(result.title, result.body);
+  return result;
+}
+check('a dose confirms where it went', confirm(planReminderAction('dose', 'taken'), 'dose', false).body.includes('Meds'));
+check('a snooze says when it returns', confirm('snooze', 'dose', false).body.includes('15 minutes'));
+check('a note with no words says nothing', confirm(planReminderAction('checkin', 'howAreYou'), 'checkin', false) === null);
+check('a note with words is saved', confirm(planReminderAction('checkin', 'howAreYou'), 'checkin', true).title === 'Note saved');
+check('a flare with no words still logs', confirm(planReminderAction('afterMeal', 'logFlare'), 'afterMeal', false).title === 'Flare logged');
+confirm(planReminderAction('afterMeal', 'logFlare'), 'afterMeal', true);
+confirm(planReminderAction('upkeep', 'doneToday'), 'upkeep', false);
+confirm(planReminderAction('compost', 'turned'), 'compost', false);
+confirm(planReminderAction('garden', 'done'), 'garden', false);
+confirm(planReminderAction('hydration', 'drank'), 'hydration', false);
+confirm(planReminderAction('meal', 'ate'), 'meal', false);
+for (const [id, input] of Object.entries(ACTION_TEXT_INPUT)) said.push(input.placeholder, input.submitButtonTitle, id);
+for (const kind of ['dose', 'hydration', 'meal', 'garden', 'reminder', 'upkeep', 'compost', 'checkin']) said.push(answerLine(kind));
+const sentenceForbidden = /well done|good job|keep it up|great|you should|real|genuine|own|[—–]| -- /i;
+for (const line of said) check(`"${line}" has no praise, dashes or filler`, typeof line === 'string' && !sentenceForbidden.test(line));
 
 // Button wording follows the app's writing rules.
 const titles = ALL_REMINDER_CATEGORY_KEYS.flatMap((key) => CATEGORY_ACTIONS[key]).map((a) => reminderActionTitle(a, 15));

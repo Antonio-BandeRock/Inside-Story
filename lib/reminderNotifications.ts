@@ -4,10 +4,13 @@ import { getCheckinReminderInputs } from './checkinReminderDb';
 import { seriesReminderBody, seriesReminderTitle } from './photoSeries';
 import { listSeriesReminderInputs } from './photoSeriesDb';
 import { addCompostEvent, listCompostPilesToTurn } from './compostDb';
-import { listReminderCandidates, setScheduleItemStatus, type ReminderCandidate } from './db';
+import { listReminderCandidates, recordCheckin, setScheduleItemStatus, type ReminderCandidate } from './db';
 import {
+  ACTION_TEXT_INPUT,
   AFTER_MEAL_MINUTES,
   ALL_REMINDER_CATEGORY_KEYS,
+  answeredConfirmation,
+  answerLine,
   CATEGORY_ACTIONS,
   categoryKeyFor,
   localDay,
@@ -16,6 +19,7 @@ import {
   planReminderAction,
   REMINDER_CATEGORY_IDS,
   reminderActionTitle,
+  type ReminderActionPlan,
 } from './reminderActions';
 import {
   checkinTimeOf,
@@ -101,12 +105,12 @@ import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
 // deactivating a med, paying off a service or removing a series all drop the
 // reminder at the next sync, and the rolling-window series generator in
 // lib/db.ts keeps new occurrences flowing in. That is also what stops a
-// nudge: opening the app is both how something gets marked done and what
-// triggers the reconcile, so the two happen together.
+// nudge: marking something done, in the app or from a button on the
+// notification, is followed by the reconcile, so the two happen together.
 //
 // Freshness, per the architecture note that a reminder should say what it
-// was based on: every notification body ends with "Based on your schedule
-// as of {time}", the moment this sync computed it. That is what the phone
+// was based on: every notification body ends with "Schedule as of {time}"
+// (or records, routines, check-ins), the moment this sync computed it. That is what the phone
 // will show even if the schedule changes while the app is closed, so the
 // stamp is the honest part. Background execution is throttled on both
 // platforms, so the reconcile only ever runs in the foreground.
@@ -128,10 +132,15 @@ const IDENTIFIER_PREFIX = 'inside-story-reminder:';
 // would take a snooze away on the next foreground. A tap on one still lands
 // where the original would have.
 const SNOOZE_PREFIX = 'inside-story-snooze:';
-// The Snooze button (Phase A, 2026-09-24). It brings the app forward for a
-// moment, because a button that does not do so does nothing at all while
-// the app is closed (expo-notifications documents this), and a snooze that
-// silently fails is worse than no snooze.
+// The quiet line that says what a press recorded (1.0.53.10). Its own
+// prefix, so no reconcile ever treats it as a reminder.
+const ANSWERED_PREFIX = 'inside-story-answered:';
+const ANDROID_ANSWER_CHANNEL_ID = 'inside-story-answers';
+// Long enough to read, short enough not to become one more thing to clear.
+const ANSWERED_SHOWS_MS = 6_000;
+// The Snooze button (Phase A, 2026-09-24). Since 1.0.53.10 it no longer
+// brings the app forward, like every other button: see the header of
+// lib/reminderActions.ts for what that means while the app is closed.
 //
 // Since C1 (2026-09-26) each kind has a set of buttons of its own, beside
 // Snooze, defined in lib/reminderActions.ts. The Snooze-only set keeps
@@ -209,6 +218,10 @@ type ReminderPayload = {
   ownerKind?: string;
   ownerId?: string;
   title?: string;
+  /** The thing itself with nothing prefixed ("Levothyroxine", not "Time
+   *  for Levothyroxine"), so the line after a press can name it. Absent on
+   *  anything queued before 1.0.53.10, which falls back to the title. */
+  subject?: string;
 };
 
 type PlannedNotification = {
@@ -341,7 +354,13 @@ function mealTypeLabel(mealType: string | null): string | null {
 function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotification | null {
   const scheduledFor = parseLocalDateTime(candidate.scheduledFor);
   if (!scheduledFor) return null;
-  const freshness = (fireAt: Date) => `Based on your schedule as of ${describeFreshness(now, fireAt)}.`;
+  // Every body says three things and nothing else (1.0.53.10, direct
+  // instruction: "succinct but clear on what is being done and why"): when
+  // it is due and where it is kept, what the button records, and how fresh
+  // the schedule it came from is.
+  const freshness = (fireAt: Date) => `Schedule as of ${describeFreshness(now, fireAt)}.`;
+  const due = formatTime12(`${pad(scheduledFor.getHours())}:${pad(scheduledFor.getMinutes())}`);
+  const saying = (lead: string, kind: ReminderKind) => [lead, answerLine(kind), freshness(scheduledFor)].filter(Boolean).join(' ');
 
   if (candidate.itemType === 'appointment') {
     const fireAt = new Date(scheduledFor.getTime() - APPOINTMENT_LEAD_MINUTES * 60_000);
@@ -356,7 +375,7 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
     return {
       identifier: `${IDENTIFIER_PREFIX}appointment:${candidate.id}`,
       title: `${candidate.title} at ${time}`,
-      body: `${where ? `${where}. ` : ''}In about an hour. ${freshness(fireAt)}`,
+      body: `${where ? `${where}. ` : ''}Starts in about an hour. ${freshness(fireAt)}`,
       fireAt,
       payload: {
         kind: 'appointment',
@@ -382,10 +401,11 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
     return {
       identifier: `${IDENTIFIER_PREFIX}reminder:${candidate.id}`,
       title: candidate.title,
-      body: freshness(scheduledFor),
+      body: saying(`You asked to be reminded at ${due}.`, 'reminder'),
       fireAt: scheduledFor,
       payload: {
         kind: 'reminder',
+        subject: candidate.title,
         scheduleItemId: candidate.id,
         fireAt: scheduledFor.toISOString(),
         tab: 'reconcile',
@@ -401,10 +421,11 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
     return {
       identifier: `${IDENTIFIER_PREFIX}garden:${candidate.id}`,
       title: `Garden: ${candidate.title}`,
-      body: freshness(scheduledFor),
+      body: saying(`Due ${due} in your garden tasks.`, 'garden'),
       fireAt: scheduledFor,
       payload: {
         kind: 'garden',
+        subject: candidate.title,
         scheduleItemId: candidate.id,
         fireAt: scheduledFor.toISOString(),
         tab: 'garden',
@@ -423,10 +444,11 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
       return {
         identifier: `${IDENTIFIER_PREFIX}hydration:${candidate.id}`,
         title: candidate.title,
-        body: freshness(scheduledFor),
+        body: saying(`Due ${due} on your Hydration schedule.`, 'hydration'),
         fireAt: scheduledFor,
         payload: {
           kind: 'hydration',
+          subject: candidate.title,
           scheduleItemId: candidate.id,
           fireAt: scheduledFor.toISOString(),
           tab: 'schedule',
@@ -438,10 +460,11 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
     return {
       identifier: `${IDENTIFIER_PREFIX}meal:${candidate.id}`,
       title: label ? `${label}: ${candidate.title}` : `Time to eat: ${candidate.title}`,
-      body: freshness(scheduledFor),
+      body: saying(`Planned for ${due} on Today's Meals.`, 'meal'),
       fireAt: scheduledFor,
       payload: {
         kind: 'meal',
+        subject: candidate.title,
         scheduleItemId: candidate.id,
         fireAt: scheduledFor.toISOString(),
         tab: 'schedule',
@@ -454,10 +477,11 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
   return {
     identifier: `${IDENTIFIER_PREFIX}dose:${candidate.id}`,
     title: `Time for ${candidate.title}`,
-    body: `${dose ? `${dose}. ` : ''}${freshness(scheduledFor)}`,
+    body: saying(`${dose ? `${dose}, due` : 'Due'} ${due} on your Meds schedule.`, 'dose'),
     fireAt: scheduledFor,
     payload: {
       kind: 'dose',
+      subject: candidate.title,
       scheduleItemId: candidate.id,
       fireAt: scheduledFor.toISOString(),
       tab: 'schedule',
@@ -488,10 +512,13 @@ function buildDatedPlanned(
     // and they have to be able to coexist rather than replace each other.
     identifier: `${IDENTIFIER_PREFIX}${source.kind}:${source.sourceId}:${day.on}`,
     title: prefix ? `${prefix}: ${source.title}` : source.title,
-    body: `${pieces.join('. ')}. Based on your records as of ${describeFreshness(now, fireAt)}.`,
+    body: [`${pieces.join('. ')}.`, answerLine(source.kind, source.markable ?? true), `Records as of ${describeFreshness(now, fireAt)}.`]
+      .filter(Boolean)
+      .join(' '),
     fireAt,
     payload: {
       kind: source.kind,
+      subject: source.title,
       scheduleItemId: source.sourceId,
       fireAt: fireAt.toISOString(),
       tab: source.tab,
@@ -519,7 +546,7 @@ function buildRoutinePlanned(routine: Routine, fireAt: Date, now: Date): Planned
     // reason a captured thought keeps its own words: they wrote it to
     // recognise it. What the body adds is the one thing a notification can
     // usefully say, which is that tapping it starts the walk.
-    body: `Tap to walk it one step at a time, ${describeReminderDays(routine.reminderDays)}. Based on your routines as of ${describeFreshness(now, fireAt)}.`,
+    body: `Tap to walk it one step at a time, ${describeReminderDays(routine.reminderDays)}. Routines as of ${describeFreshness(now, fireAt)}.`,
     fireAt,
     payload: {
       kind: 'routine',
@@ -534,14 +561,14 @@ function buildRoutinePlanned(routine: Routine, fireAt: Date, now: Date): Planned
 // --- The two check-in reminders (C1, 2026-09-26) ---------------------------
 //
 // The only reminders that come from no record: the person asked for a
-// question, once a day or after eating. Both open Signals, and neither
-// button writes anything, since how somebody feels is theirs to put into
-// words. The wording asks and never suggests an answer.
+// question, once a day or after eating. Both buttons take a typed reply
+// on the notification (1.0.53.10), since how somebody feels is theirs to
+// put into words. The wording asks and never suggests an answer.
 function buildDailyCheckinPlanned(fireAt: Date, now: Date): PlannedNotification {
   return {
     identifier: `${IDENTIFIER_PREFIX}checkin:${localDateString(fireAt)}`,
     title: 'How are you today?',
-    body: `How are you opens a note in Signals, and Log a flare opens Flares. Based on your check-ins as of ${describeFreshness(now, fireAt)}.`,
+    body: `The daily check-in you asked for. ${answerLine('checkin')} Check-ins as of ${describeFreshness(now, fireAt)}.`,
     fireAt,
     payload: {
       kind: 'checkin',
@@ -583,7 +610,7 @@ function buildAfterMealPlanned(meal: { id: string; name: string }, fireAt: Date,
   return {
     identifier: `${IDENTIFIER_PREFIX}afterMeal:${meal.id}`,
     title: `How are you after ${meal.name}?`,
-    body: `About ${AFTER_MEAL_MINUTES / 60} hours since you ate. How are you opens a note in Signals, and Log a flare opens Flares. Based on your meals as of ${describeFreshness(now, fireAt)}.`,
+    body: `About ${AFTER_MEAL_MINUTES / 60} hours since you ate. ${answerLine('afterMeal')} Meals as of ${describeFreshness(now, fireAt)}.`,
     fireAt,
     payload: {
       kind: 'afterMeal',
@@ -610,7 +637,7 @@ function buildNudges(planned: PlannedNotification, now: Date): PlannedNotificati
     nudges.push({
       identifier: `${planned.identifier}#nudge${index + 1}`,
       title: planned.title,
-      body: `Still showing as not done. Based on your schedule as of ${describeFreshness(now, fireAt)}.`,
+      body: [`Still not marked.`, answerLine(planned.payload.kind), `Schedule as of ${describeFreshness(now, fireAt)}.`].filter(Boolean).join(' '),
       fireAt,
       payload: { ...planned.payload, fireAt: fireAt.toISOString() },
     });
@@ -645,6 +672,16 @@ async function ensureAndroidChannels(): Promise<void> {
     vibrationPattern: [0, 180],
     lightColor: '#244147',
   });
+  // LOW makes no sound and does not pop up: the line after a press is
+  // there to be glanced at, since the person just pressed the button.
+  await Notifications.setNotificationChannelAsync(ANDROID_ANSWER_CHANNEL_ID, {
+    name: 'What a button recorded',
+    description: 'A short line after you press a button on a reminder, saying what went in and where.',
+    importance: Notifications.AndroidImportance.LOW,
+    sound: null,
+    vibrationPattern: null,
+    lightColor: '#244147',
+  });
 }
 
 function channelFor(kind: ReminderKind): string {
@@ -675,16 +712,21 @@ function isSnoozed(identifier: string): boolean {
 
 // Every set of buttons, registered on each reconcile, which costs nothing
 // and means a set changed in an update reaches the phone without a step.
+// No button opens the app (1.0.53.10); see lib/reminderActions.ts.
 async function ensureCategories(): Promise<void> {
   await Promise.all(
     ALL_REMINDER_CATEGORY_KEYS.map((key) =>
       Notifications.setNotificationCategoryAsync(
         REMINDER_CATEGORY_IDS[key],
-        CATEGORY_ACTIONS[key].map((action) => ({
-          identifier: action,
-          buttonTitle: reminderActionTitle(action, SNOOZE_MINUTES),
-          options: { opensAppToForeground: true },
-        })),
+        CATEGORY_ACTIONS[key].map((action) => {
+          const textInput = ACTION_TEXT_INPUT[action];
+          return {
+            identifier: action,
+            buttonTitle: reminderActionTitle(action, SNOOZE_MINUTES),
+            options: { opensAppToForeground: false },
+            ...(textInput ? { textInput } : {}),
+          };
+        }),
       ),
     ),
   );
@@ -1017,10 +1059,35 @@ async function snoozeReminder(response: Notifications.NotificationResponse): Pro
   await Notifications.dismissNotificationAsync(request.identifier).catch(() => undefined);
 }
 
+// What a button recorded, said once on the quiet channel and taken away
+// after a few seconds, so a press made without opening the app still says
+// what it did. Nothing depends on it arriving.
+async function showAnswered(confirmation: { title: string; body: string } | null): Promise<void> {
+  if (!confirmation) return;
+  const identifier = `${ANSWERED_PREFIX}${Date.now()}`;
+  await Notifications.scheduleNotificationAsync({
+    identifier,
+    content: { title: confirmation.title, body: confirmation.body, sound: false },
+    trigger: Platform.OS === 'android' ? { channelId: ANDROID_ANSWER_CHANNEL_ID } : null,
+  });
+  setTimeout(() => {
+    void Notifications.dismissNotificationAsync(identifier).catch(() => undefined);
+  }, ANSWERED_SHOWS_MS);
+}
+
+function nowTime(): string {
+  const now = new Date();
+  return formatTime12(`${pad(now.getHours())}:${pad(now.getMinutes())}`);
+}
+
 // A press is handled once even when the cold-start read and the listener
 // both report it, which they can on a launch the press itself caused.
 const answered = new Set<string>();
 
+// A button does its work where it is pressed and never opens the app
+// (1.0.53.10): the record is written, the reminder is taken off the screen,
+// and a short line says what was recorded and where. Only a tap on the
+// reminder itself opens the app, on the lens the thing lives in.
 function handleResponse(
   response: Notifications.NotificationResponse | null,
   navigate: (target: ReminderTapTarget) => void,
@@ -1030,40 +1097,58 @@ function handleResponse(
   const key = `${request.identifier}|${response.notification.date}|${response.actionIdentifier}`;
   if (answered.has(key)) return;
   answered.add(key);
+  const ours = isOurs(request.identifier) || isSnoozed(request.identifier);
   const data = request.content.data as Partial<ReminderPayload> | undefined;
+  const what = data?.subject ?? request.content.title ?? 'Reminder';
+  const kind = data?.kind ?? '';
   if (response.actionIdentifier === SNOOZE_ACTION) {
-    if (isOurs(request.identifier) || isSnoozed(request.identifier)) {
-      snoozeReminder(response).catch((error) => console.error('[reminderNotifications] snooze failed', error));
-    }
+    if (!ours) return;
+    snoozeReminder(response)
+      .then(() => showAnswered(answeredConfirmation('snooze', kind, what, nowTime(), SNOOZE_MINUTES, false)))
+      .catch((error) => console.error('[reminderNotifications] snooze failed', error));
     return;
   }
   const plan = data?.kind ? planReminderAction(data.kind, response.actionIdentifier) : null;
-  if (plan && (isOurs(request.identifier) || isSnoozed(request.identifier))) {
+  if (plan && ours) {
     void Notifications.dismissNotificationAsync(request.identifier).catch(() => undefined);
-    if (plan.write === null) {
-      navigate({ pathname: '/log', params: { openSignalsLens: plan.lands } });
-      return;
-    }
-    const target = resolveReminderTap(response);
-    recordAnswer(plan, data?.scheduleItemId ?? '')
+    const words = (response.userText ?? '').trim();
+    recordAnswer(plan, data?.scheduleItemId ?? '', words, kind)
+      .then(() => showAnswered(answeredConfirmation(plan, kind, what, nowTime(), SNOOZE_MINUTES, words.length > 0)))
       .catch((error) => console.error('[reminderNotifications] answer failed', error))
       .finally(() => {
         void syncReminderNotifications();
-        if (target) navigate(target);
       });
     return;
   }
+  if (response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) return;
   const target = resolveReminderTap(response);
   if (target) navigate(target);
 }
 
 // The same record the app writes when the thing is answered where it lives:
 // the schedule status Reconciliation writes, a doing in Upkeep, a turn on
-// the pile. Upkeep and compost check first whether today is already
-// recorded, so a second press from a copy still on screen adds nothing.
-async function recordAnswer(plan: NonNullable<ReturnType<typeof planReminderAction>>, id: string): Promise<void> {
+// the pile, a check-in in Signals. Upkeep and compost check first whether
+// today is already recorded, so a second press from a copy still on screen
+// adds nothing. A note with no words is not a note, so nothing is written.
+async function recordAnswer(plan: ReminderActionPlan, id: string, words: string, kind: string): Promise<void> {
+  const now = new Date();
+  const today = localDateString(now);
+  if (plan.write === 'checkinNote') {
+    if (!words) return;
+    await recordCheckin({ loggedAt: localDateTimeString(now), checkinType: 'general', valence: 'neutral', notes: words });
+    return;
+  }
+  if (plan.write === 'flare') {
+    await recordCheckin({
+      loggedAt: localDateTimeString(now),
+      checkinType: 'flare',
+      valence: 'negative',
+      notes: words || undefined,
+      relatedMealId: kind === 'afterMeal' && id ? id : undefined,
+    });
+    return;
+  }
   if (!id) return;
-  const today = localDateString(new Date());
   if (plan.write === 'scheduleStatus') {
     await setScheduleItemStatus(id, plan.status);
     return;

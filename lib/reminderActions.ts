@@ -9,11 +9,17 @@
 // scripts/test_reminder_actions.js can check every kind without a phone.
 // lib/reminderNotifications.ts registers the categories and does the writes.
 //
-// Every button opens the app for a moment (opensAppToForeground). A button
-// that does not do so needs a background task to run anything at all, and
-// expo-task-manager is not installed; adding it is a native rebuild. The
-// same reason the Snooze button has always opened the app. It also means
-// the person lands where the thing is kept and can see the answer went in.
+// No button opens the app (1.0.53.10, direct instruction 2026-09-26: "it
+// should just do it rather than take the user to the app to do it there").
+// The press is recorded where the notification sits, the reminder goes
+// away, and a quiet line says what went in, worded by answeredConfirmation
+// below. Until 1.0.53.9 every button opened the app for a moment.
+//
+// Android hands a press to the app's JavaScript whenever the app is still
+// running in the background, which is most of the time. When the phone has
+// closed the app completely, the press is kept and recorded the next time
+// the app opens; recording it at once in that case needs expo-task-manager,
+// which is a native rebuild and is on the list for the next one.
 //
 // What gets a button, and what deliberately does not:
 //   - A dose, a drink and a planned meal write the same schedule status the
@@ -25,9 +31,13 @@
 //     button, because renewing it needs the new expiry date, which a button
 //     cannot ask for.
 //   - A compost pile records a turn for today.
-//   - The two check-in kinds open Signals: How are you on a general note,
-//     Log a flare on Flares. Nothing is written by the button itself,
-//     because how somebody feels is theirs to put into words.
+//   - The two check-in kinds take a typed reply on the notification itself:
+//     Add a note saves the words as a general note in Signals, Log a flare
+//     saves a flare with the words as its note. How somebody feels is
+//     theirs to put into words, so the reply box is where the words come
+//     from and no button supplies any. A note with no words saves nothing;
+//     a flare with no words is still a flare, since pressing it was the
+//     answer.
 //   - Appointments, bills, work benefits, Days Until counters and routines
 //     keep Snooze only. Nothing in the app records a bill as paid or a
 //     benefit as used, a counter is marked done where it lives, and a
@@ -79,7 +89,7 @@ export function reminderActionTitle(action: ReminderActionId, snoozeMinutes: num
     case 'turned':
       return 'Turned it';
     case 'howAreYou':
-      return 'How are you';
+      return 'Add a note';
     case 'logFlare':
       return 'Log a flare';
   }
@@ -125,11 +135,21 @@ export function categoryKeyFor(kind: string, markable = true): ReminderCategoryK
   }
 }
 
+/**
+ * The two buttons that take a typed reply instead of a plain press. Android
+ * and iPhone both open a small text box on the notification itself.
+ */
+export const ACTION_TEXT_INPUT: Partial<Record<ReminderActionId, { submitButtonTitle: string; placeholder: string }>> = {
+  howAreYou: { submitButtonTitle: 'Save', placeholder: 'How are you? In your words' },
+  logFlare: { submitButtonTitle: 'Save', placeholder: 'What is flaring? A few words is fine' },
+};
+
 export type ReminderActionPlan =
-  | { write: 'scheduleStatus'; status: 'logged' | 'completed'; lands: 'usual' }
-  | { write: 'upkeepDone'; lands: 'usual' }
-  | { write: 'compostTurned'; lands: 'usual' }
-  | { write: null; lands: 'generalNote' | 'flares' };
+  | { write: 'scheduleStatus'; status: 'logged' | 'completed' }
+  | { write: 'upkeepDone' }
+  | { write: 'compostTurned' }
+  | { write: 'checkinNote' }
+  | { write: 'flare' };
 
 /**
  * What a pressed button does. Null for Snooze (handled on its own), for a
@@ -138,21 +158,82 @@ export type ReminderActionPlan =
  * possibly since before an update.
  */
 export function planReminderAction(kind: string, action: string): ReminderActionPlan | null {
-  if (action === 'howAreYou' && (kind === 'checkin' || kind === 'afterMeal')) {
-    return { write: null, lands: 'generalNote' };
-  }
-  if (action === 'logFlare' && (kind === 'checkin' || kind === 'afterMeal')) {
-    return { write: null, lands: 'flares' };
-  }
-  if (action === 'taken' && kind === 'dose') return { write: 'scheduleStatus', status: 'logged', lands: 'usual' };
-  if (action === 'drank' && kind === 'hydration') return { write: 'scheduleStatus', status: 'logged', lands: 'usual' };
-  if (action === 'ate' && kind === 'meal') return { write: 'scheduleStatus', status: 'logged', lands: 'usual' };
-  if (action === 'done' && (kind === 'garden' || kind === 'reminder')) {
-    return { write: 'scheduleStatus', status: 'completed', lands: 'usual' };
-  }
-  if (action === 'doneToday' && kind === 'upkeep') return { write: 'upkeepDone', lands: 'usual' };
-  if (action === 'turned' && kind === 'compost') return { write: 'compostTurned', lands: 'usual' };
+  if (action === 'howAreYou' && (kind === 'checkin' || kind === 'afterMeal')) return { write: 'checkinNote' };
+  if (action === 'logFlare' && (kind === 'checkin' || kind === 'afterMeal')) return { write: 'flare' };
+  if (action === 'taken' && kind === 'dose') return { write: 'scheduleStatus', status: 'logged' };
+  if (action === 'drank' && kind === 'hydration') return { write: 'scheduleStatus', status: 'logged' };
+  if (action === 'ate' && kind === 'meal') return { write: 'scheduleStatus', status: 'logged' };
+  if (action === 'done' && (kind === 'garden' || kind === 'reminder')) return { write: 'scheduleStatus', status: 'completed' };
+  if (action === 'doneToday' && kind === 'upkeep') return { write: 'upkeepDone' };
+  if (action === 'turned' && kind === 'compost') return { write: 'compostTurned' };
   return null;
+}
+
+// --- What a reminder says, and what a press says back -----------------------
+
+/**
+ * The one sentence a reminder's body uses to say what its button records
+ * and where, so nobody has to guess what pressing it will do. Null for a
+ * reminder whose only button is Snooze.
+ */
+export function answerLine(kind: string, markable = true): string | null {
+  switch (categoryKeyFor(kind, markable)) {
+    case 'dose':
+      return 'Taken marks it taken on Meds.';
+    case 'hydration':
+      return 'Drank it marks it on Hydration.';
+    case 'meal':
+      return "Ate it marks it eaten on Today's Meals.";
+    case 'task':
+      return kind === 'garden' ? 'Done marks it done in Upcoming Tasks.' : 'Done marks it done.';
+    case 'upkeep':
+      return 'Done today records it in Upkeep.';
+    case 'compost':
+      return 'Turned it records a turn for today.';
+    case 'checkin':
+      return 'Add a note or log a flare right here, in your words.';
+    default:
+      return null;
+  }
+}
+
+/**
+ * The quiet line shown after a press, saying what went in and where. `what`
+ * is the reminder's title; `at` is the time already worded ("7:04 AM").
+ * Null when nothing was recorded, which is only a note sent with no words.
+ */
+export function answeredConfirmation(
+  plan: ReminderActionPlan | 'snooze',
+  kind: string,
+  what: string,
+  at: string,
+  snoozeMinutes: number,
+  hasWords: boolean,
+): { title: string; body: string } | null {
+  if (plan === 'snooze') {
+    return { title: `Snoozed: ${what}`, body: `It comes back in ${snoozeMinutes} minutes.` };
+  }
+  switch (plan.write) {
+    case 'scheduleStatus':
+      if (kind === 'dose') return { title: `Recorded: ${what}`, body: `Marked taken on Meds at ${at}.` };
+      if (kind === 'hydration') return { title: `Recorded: ${what}`, body: `Marked on Hydration at ${at}.` };
+      if (kind === 'meal') return { title: `Recorded: ${what}`, body: `Marked eaten on Today's Meals at ${at}.` };
+      return { title: `Done: ${what}`, body: `Marked done at ${at}.` };
+    case 'upkeepDone':
+      return { title: `Done: ${what}`, body: 'Recorded in Upkeep for today.' };
+    case 'compostTurned':
+      return { title: `Turned: ${what}`, body: 'A turn is recorded for today.' };
+    case 'checkinNote':
+      if (!hasWords) return null;
+      return { title: 'Note saved', body: `Saved in Signals at ${at}.` };
+    case 'flare':
+      return {
+        title: 'Flare logged',
+        body: hasWords
+          ? `Saved in Signals at ${at}. How severe it was can be added there.`
+          : `Saved in Signals at ${at}, with no words. What it was and how severe can be added there.`,
+      };
+  }
 }
 
 // --- The two check-in reminders ---------------------------------------------
