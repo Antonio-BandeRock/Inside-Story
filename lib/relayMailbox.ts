@@ -43,6 +43,7 @@ import {
   signMessage,
 } from './deviceIdentity';
 import { applySyncFileText, buildWireForPartner } from './partnerTransfer';
+import { PEER_PHOTO_BUDGET_RELAY } from './peerPhotos';
 import {
   canonicalRequest,
   describeRelayHttpFailure,
@@ -206,7 +207,10 @@ export async function sendViaRelay(): Promise<{ outcomes: RelaySendOutcome[] }> 
       continue;
     }
 
-    const built = await buildWireForPartner(partner, myFingerprintRaw, myConditions);
+    const built = await buildWireForPartner(partner, myFingerprintRaw, myConditions, {
+      photoBudget: PEER_PHOTO_BUDGET_RELAY,
+      allowFullPhotos: false,
+    });
     if (!built.ok) {
       outcomes.push({
         connectionId: partner.id,

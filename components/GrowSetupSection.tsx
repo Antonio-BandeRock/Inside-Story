@@ -48,6 +48,7 @@ import {
 import { AppTextInput } from './AppTextInput';
 import { GardenTermField } from './GardenTermField';
 import { PopoverSelect } from './PopoverSelect';
+import { RecordPhotos } from './RecordPhotos';
 
 const TAB_COLOR = colors.tabGarden;
 const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
@@ -366,6 +367,7 @@ export function GrowSetupSection({ plot, onChanged }: Props) {
             <Text style={styles.bodyText}>{describeEquipment(item, terms)}</Text>
             {item.name ? <Text style={styles.captionText}>{item.name}</Text> : null}
             {item.notes ? <Text style={styles.captionText}>{item.notes}</Text> : null}
+            <RecordPhotos ownerKind="equipment" ownerId={item.id} tabColor={TAB_COLOR} title={describeEquipment(item, terms)} />
           </View>
           <TouchableOpacity onPress={() => handleRetire(item)}>
             <Text style={styles.linkText}>No longer in use</Text>

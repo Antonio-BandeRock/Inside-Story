@@ -72,6 +72,9 @@ const NAMED = [
   'lib/patternOutcome.ts',
   'lib/customTrackers.ts',
   'lib/media.ts',
+  'lib/photoSeries.ts',
+  'lib/peerPhotos.ts',
+  'lib/reportPhotos.ts',
 ];
 
 function targets() {

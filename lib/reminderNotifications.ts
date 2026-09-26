@@ -1,6 +1,8 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { getCheckinReminderInputs } from './checkinReminderDb';
+import { seriesReminderBody, seriesReminderTitle } from './photoSeries';
+import { listSeriesReminderInputs } from './photoSeriesDb';
 import { addCompostEvent, listCompostPilesToTurn } from './compostDb';
 import { listReminderCandidates, setScheduleItemStatus, type ReminderCandidate } from './db';
 import {
@@ -183,7 +185,7 @@ export type ReminderKind = ReminderKindKey;
 const NUDGEABLE_TIMED_KINDS: ReminderKind[] = ['dose', 'meal', 'hydration', 'garden', 'reminder', 'routine'];
 
 type ScheduleLens = 'meds' | 'appointments' | 'todaysMeals' | 'hydration';
-type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine' | 'signals';
+type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine' | 'signals' | 'camera';
 // The two check-in reminders land on Signals (C1).
 type SignalsReminderLens = 'generalNote' | 'flares';
 // 'plotsAndPlantings' is what a 1.0.42.13 payload says for a counter; it
@@ -201,7 +203,12 @@ type ReminderPayload = {
   /** Which tab a tap opens. Absent on anything queued before 1.0.39.8, and
    *  read back as 'schedule', which is the only thing it could have been. */
   tab?: ReminderTab;
-  lens: ScheduleLens | GardenReminderLens | DatedReminderLens | SignalsReminderLens | 'reconcile' | 'walk';
+  lens: ScheduleLens | GardenReminderLens | DatedReminderLens | SignalsReminderLens | 'reconcile' | 'walk' | 'guide';
+  /** A Photo Series only: what the photo is of and its name, so a tap opens
+   *  the camera on that owner without reading the database first. */
+  ownerKind?: string;
+  ownerId?: string;
+  title?: string;
 };
 
 type PlannedNotification = {
@@ -546,6 +553,32 @@ function buildDailyCheckinPlanned(fireAt: Date, now: Date): PlannedNotification 
   };
 }
 
+// A Photo Series asking for today's photo. The identifier carries the day,
+// so a photo taken today drops today's from the next reconcile while the
+// rest of the week stays queued.
+function buildSeriesPlanned(
+  series: { id: string; ownerKind: string; ownerId: string; title: string },
+  frameCount: number,
+  fireAt: Date,
+): PlannedNotification {
+  return {
+    identifier: `${IDENTIFIER_PREFIX}photoSeries:${series.id}:${localDateString(fireAt)}`,
+    title: seriesReminderTitle(series.title),
+    body: seriesReminderBody(frameCount),
+    fireAt,
+    payload: {
+      kind: 'photoSeries',
+      scheduleItemId: series.id,
+      fireAt: fireAt.toISOString(),
+      tab: 'camera',
+      lens: 'guide',
+      ownerKind: series.ownerKind,
+      ownerId: series.ownerId,
+      title: series.title,
+    },
+  };
+}
+
 function buildAfterMealPlanned(meal: { id: string; name: string }, fireAt: Date, now: Date): PlannedNotification {
   return {
     identifier: `${IDENTIFIER_PREFIX}afterMeal:${meal.id}`,
@@ -625,7 +658,8 @@ function channelFor(kind: ReminderKind): string {
     kind === 'reminder' ||
     kind === 'routine' ||
     kind === 'checkin' ||
-    kind === 'afterMeal'
+    kind === 'afterMeal' ||
+    kind === 'photoSeries'
   )
     return ANDROID_ROUTINE_CHANNEL_ID;
   return ANDROID_CHANNEL_ID;
@@ -699,12 +733,13 @@ async function runSync(): Promise<ReminderSyncResult> {
   const horizon = new Date(now);
   horizon.setDate(horizon.getDate() + LOOKAHEAD_DAYS);
   const since = localDateTimeString(new Date(now.getTime() - AFTER_MEAL_MINUTES * 60_000));
-  const [candidates, datedSources, routines, preferences, checkinInputs] = await Promise.all([
+  const [candidates, datedSources, routines, preferences, checkinInputs, seriesInputs] = await Promise.all([
     listReminderCandidates(localDateTimeString(now), localDateString(horizon)),
     listDatedReminderSources(today),
     listRoutineReminders(),
     getReminderPreferences(),
     getCheckinReminderInputs(since),
+    listSeriesReminderInputs(localDay(now)),
   ]);
   const nudging = isNudgeUntilDoneEnabled(preferences);
 
@@ -748,6 +783,17 @@ async function runSync(): Promise<ReminderSyncResult> {
       const planned = buildDailyCheckinPlanned(fireAt, now);
       (index === 0 ? first : followUps).set(planned.identifier, planned);
     });
+  }
+  // A Photo Series: one a day at the series time, today's left out once
+  // today's photo is in. The first is a first-time reminder and the rest of
+  // the week queues behind, the same as the daily check-in.
+  if (isReminderKindEnabled(preferences, 'photoSeries')) {
+    for (const input of seriesInputs) {
+      planDailyCheckins(input.series.reminderTime, now, LOOKAHEAD_DAYS - 1, input.photoToday).forEach((fireAt, index) => {
+        const planned = buildSeriesPlanned(input.series, input.frameCount, fireAt);
+        (index === 0 ? first : followUps).set(planned.identifier, planned);
+      });
+    }
   }
   if (isReminderKindEnabled(preferences, 'afterMeal')) {
     const nudge = planAfterMealNudge(checkinInputs.recentMeals, checkinInputs.lastCheckinAt, now);
@@ -882,7 +928,8 @@ export type ReminderTapTarget =
   | { pathname: '/life'; params: { openLifeLens: DatedReminderLens } }
   | { pathname: '/routine'; params: { id: string } }
   | { pathname: '/log'; params: { openSignalsLens: SignalsReminderLens } }
-  | { pathname: '/reconcile' };
+  | { pathname: '/reconcile' }
+  | { pathname: '/photo-camera'; params: { ownerKind: string; ownerId: string; guide: '1'; title: string } };
 
 const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'todaysMeals', 'hydration'];
 // The dated lenses that live on Life. 'compost' is a dated lens too and is
@@ -904,6 +951,18 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
   const data = request.content.data as Partial<ReminderPayload> | undefined;
 
   if (data?.tab === 'reconcile') return { pathname: '/reconcile' };
+  // A Photo Series opens the camera on the thing with the last photo over
+  // the view. A payload missing its owner lands on Garden instead, since
+  // the camera cannot keep a photo of nothing.
+  if (data?.tab === 'camera') {
+    if (typeof data.ownerKind === 'string' && data.ownerKind && typeof data.ownerId === 'string' && data.ownerId) {
+      return {
+        pathname: '/photo-camera',
+        params: { ownerKind: data.ownerKind, ownerId: data.ownerId, guide: '1', title: typeof data.title === 'string' ? data.title : '' },
+      };
+    }
+    return { pathname: '/garden', params: { openGardenLens: 'plotsAndPlantings' } };
+  }
   if (data?.tab === 'signals') {
     return { pathname: '/log', params: { openSignalsLens: data.lens === 'flares' ? 'flares' : 'generalNote' } };
   }

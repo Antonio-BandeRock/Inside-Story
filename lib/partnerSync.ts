@@ -42,6 +42,7 @@
 // that carries less for a week.
 import type { ShareGrants, ConnectionRole } from './partners';
 import { tablesToSend } from './peerMerge';
+import { cleanPeerPhotoPart, photosForPlan, type PeerPhotoPart } from './peerPhotos';
 import type { Row, Tables } from './snapshotMerge';
 
 export const SYNC_PAYLOAD_VERSION = 2;
@@ -84,7 +85,7 @@ export type SyncPayload = {
    * says crosses. Merged on arrival, never used to replace.
    */
   shared?: Tables;
-};
+} & PeerPhotoPart;
 
 /**
  * A received table of records, read back without trusting any of it.
@@ -168,6 +169,9 @@ export function buildSyncPayload(input: {
   sentAt: string;
   /** Everything this device holds for the carried tables, unfiltered. */
   shared?: Tables;
+  /** Photos of dishes, and what this phone says about theirs
+   *  (lib/peerPhotosDb.ts). Cut down here to what the grants allow. */
+  photos?: PeerPhotoPart;
 }): SyncPayload {
   const payload: SyncPayload = {
     v: SYNC_PAYLOAD_VERSION,
@@ -188,6 +192,22 @@ export function buildSyncPayload(input: {
     // device holds and told who it is for, so a caller cannot widen it.
     const shared = tablesToSend(input.shared, { role: input.role, grants: input.grants });
     if (Object.keys(shared).length > 0) payload.shared = shared;
+  }
+  if (input.photos) {
+    // A photo goes only beside the dish it is of, on a plan that is itself
+    // going, and only with both Meals and Photos granted. What this phone
+    // says about THEIR photos (arrived, asked for) is ids and nothing more,
+    // so it always goes.
+    const photos = input.photos;
+    if (input.grants.meals && input.grants.photos && payload.plan) {
+      const onPlan = new Set(payload.plan.flatMap((day) => day.slots.flatMap((slot) => slot.recipeIds)));
+      const thumbs = photosForPlan(photos.photos ?? [], onPlan);
+      if (thumbs.length > 0) payload.photos = thumbs;
+      if (photos.photoFull?.length) payload.photoFull = photos.photoFull;
+    }
+    if (photos.photoAcks?.length) payload.photoAcks = photos.photoAcks;
+    if (photos.photoFullAcks?.length) payload.photoFullAcks = photos.photoFullAcks;
+    if (photos.photoRequests?.length) payload.photoRequests = photos.photoRequests;
   }
   return payload;
 }
@@ -248,6 +268,8 @@ export function readSyncPayload(
   // left out there rather than quietly dropped here.
   const shared = cleanTables(p.shared);
   if (shared) payload.shared = shared;
+
+  Object.assign(payload, cleanPeerPhotoPart(parsed as Record<string, unknown>));
 
   if (Array.isArray(p.conditionCodes)) {
     const codes = cleanCodes(p.conditionCodes);

@@ -4,15 +4,22 @@
 // rest: a row of thumbnails, newest day first, an Add button, and a tap that
 // opens the photo large with the day it was taken and a way to remove it.
 //
+// Since 1.0.53.7 the row draws the 320 px thumbnail and only the opened
+// photo reads the report size, and Take a Photo opens the app's camera
+// (app/photo-camera.tsx), which keeps the shot here straight away. Once the
+// thing has a photo, "Line up with the last photo" opens the same camera
+// with that photo faintly over the view.
+//
 // A photo whose row came over from the other device before its file did
 // shows a placeholder saying so, rather than a blank or a broken image. On
 // the desktop app taking or picking a photo is phone-only and says so; the
 // photos themselves show there once sync has brought them over.
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useEffect, useState } from 'react';
+import { Image } from 'expo-image';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
-  Image,
   Modal,
   Pressable,
   ScrollView,
@@ -33,57 +40,72 @@ import {
   type MediaItem,
   type MediaOwnerKind,
 } from '../lib/media';
-import { addPhoto, listMediaFor, mediaDisplayUri, removePhoto } from '../lib/mediaDb';
+import { addPhoto, listMediaFor, mediaDisplayUri, mediaThumbUri, removePhoto } from '../lib/mediaDb';
+import { openPhotoCamera } from '../lib/photoCamera';
 import { modalAnimationType } from '../lib/visualPreferences';
 import { AppActionSheet } from './AppActionSheet';
 import { useInfoAlert } from './InfoAlert';
 
 type Shown = { item: MediaItem; uri: string | null };
+type Opened = { item: MediaItem; uri: string | null };
 
 export function PhotoStrip({
   ownerKind,
   ownerId,
   tabColor,
   addLabel = 'Add a Photo',
+  title,
 }: {
   ownerKind: MediaOwnerKind;
   ownerId: string;
   tabColor: string;
   addLabel?: string;
+  /** What the photos are of, for the camera's heading. */
+  title?: string;
 }) {
+  const router = useRouter();
   const [shown, setShown] = useState<Shown[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [busy, setBusy] = useState(false);
   const [pickerVisible, setPickerVisible] = useState(false);
-  const [open, setOpen] = useState<Shown | null>(null);
+  const [open, setOpen] = useState<Opened | null>(null);
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   const load = useCallback(async () => {
     const items = await listMediaFor(ownerKind, ownerId);
     const next: Shown[] = [];
-    for (const item of items) next.push({ item, uri: await mediaDisplayUri(item) });
+    for (const item of items) next.push({ item, uri: await mediaThumbUri(item) });
     setShown(next);
     setLoaded(true);
   }, [ownerKind, ownerId]);
 
-  useEffect(() => {
-    void load();
-  }, [load]);
+  // On focus rather than once, so a photo taken in the camera screen shows
+  // on coming back.
+  useFocusEffect(
+    useCallback(() => {
+      void load();
+    }, [load]),
+  );
 
-  async function handlePick(source: 'camera' | 'library') {
+  async function openLarge(entry: Shown) {
+    setOpen({ item: entry.item, uri: entry.uri });
+    const uri = await mediaDisplayUri(entry.item);
+    setOpen((current) => (current && current.item.id === entry.item.id ? { item: entry.item, uri: uri ?? entry.uri } : current));
+  }
+
+  function takePhoto(guide: boolean) {
+    openPhotoCamera(router, { kind: ownerKind, id: ownerId }, { guide, title });
+  }
+
+  async function handleLibrary() {
     setBusy(true);
     try {
-      const result = await addPhoto(source, { kind: ownerKind, id: ownerId });
+      const result = await addPhoto('library', { kind: ownerKind, id: ownerId });
       if (result.status === 'added') {
         await load();
       } else if (result.status === 'permission-denied') {
-        showInfoAlert(
-          'Permission needed',
-          source === 'camera'
-            ? 'Allow camera access in your phone settings to take a photo.'
-            : 'Allow photo access in your phone settings to choose one.',
-        );
+        showInfoAlert('Permission needed', 'Allow photo access in your phone settings to choose one.');
       } else if (result.status === 'too-small') {
         showInfoAlert('Photo too small', 'Please choose a larger photo.');
       } else if (result.status === 'too-large') {
@@ -124,11 +146,11 @@ export function PhotoStrip({
             <TouchableOpacity
               key={entry.item.id}
               activeOpacity={0.8}
-              onPress={() => setOpen(entry)}
+              onPress={() => void openLarge(entry)}
               accessibilityLabel={`${takenOnLabel(entry.item.takenOn, today)}${entry.item.caption ? `, ${entry.item.caption}` : ''}`}
             >
               {entry.uri ? (
-                <Image source={{ uri: entry.uri }} style={styles.thumb} resizeMode="cover" />
+                <Image source={{ uri: entry.uri }} style={styles.thumb} contentFit="cover" recyclingKey={entry.item.id} />
               ) : (
                 <View style={[styles.thumb, styles.placeholder]}>
                   <Ionicons name="cloud-download-outline" size={20} color={colors.textMuted} />
@@ -167,7 +189,7 @@ export function PhotoStrip({
                     styles.large,
                     open.item.width && open.item.height ? { aspectRatio: open.item.width / open.item.height } : null,
                   ]}
-                  resizeMode="contain"
+                  contentFit="contain"
                 />
               ) : (
                 <View style={[styles.large, styles.placeholder]}>
@@ -204,8 +226,9 @@ export function PhotoStrip({
         onClose={() => setPickerVisible(false)}
         title={addLabel}
         actions={[
-          { label: 'Take a Photo', onPress: () => void handlePick('camera') },
-          { label: 'Choose from Library', onPress: () => void handlePick('library') },
+          { label: 'Take a Photo', onPress: () => takePhoto(false) },
+          ...(shown.length > 0 ? [{ label: 'Line Up With the Last Photo', onPress: () => takePhoto(true) }] : []),
+          { label: 'Choose from Library', onPress: () => void handleLibrary() },
           { label: 'Cancel', onPress: () => {} },
         ]}
       />

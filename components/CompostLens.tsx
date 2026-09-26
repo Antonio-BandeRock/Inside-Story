@@ -43,6 +43,7 @@ import { listGardenCostGroups, type GardenCostGroup } from '../lib/gardenMoneyDb
 import { AppTextInput } from './AppTextInput';
 import { HOME_BAND_GAP } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
+import { RecordPhotos } from './RecordPhotos';
 import { makeTabBandStyles, TabBand } from './TabBand';
 
 // Compost, a lens of Garden.
@@ -495,6 +496,8 @@ function PileBand({
             <Text style={styles.captionText}>Nothing it needs from what you have recorded.</Text>
           ) : null}
         </View>
+
+        <RecordPhotos ownerKind="compost_pile" ownerId={pile.id} tabColor={TAB_COLOR} title={pile.name} />
 
         {pile.status !== 'finished' ? (
           <View style={styles.pillRow}>

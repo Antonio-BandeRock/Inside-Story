@@ -18,8 +18,13 @@
 
 // Typed or spoken. Kept because the two read differently later: a spoken note
 // carries whatever the recognizer heard, so a person re-reading a strange line
-// deserves to know a microphone wrote it rather than their own thumbs.
-export type CaptureSource = 'typed' | 'spoken';
+// deserves to know a microphone wrote it rather than their own thumbs. A
+// photo note (1.0.53.7) is one thrown in with the camera, its words whatever
+// was in the box at the time or PHOTO_CAPTURE_TEXT when nothing was.
+export type CaptureSource = 'typed' | 'spoken' | 'photo';
+
+/** The words on a photo thrown in with nothing typed. */
+export const PHOTO_CAPTURE_TEXT = 'A photo';
 
 // waiting: thrown in, nothing decided.
 // sorted: given a destination, not finished with.

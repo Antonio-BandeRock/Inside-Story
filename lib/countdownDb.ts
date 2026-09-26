@@ -65,6 +65,8 @@ export async function setCountdownDone(id: string, done: boolean): Promise<void>
 export async function deleteCountdown(id: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM countdowns WHERE id = ?', id);
+  // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
+  await (await import('./mediaDb')).removePhotosOf('countdown', `free_${id}`);
 }
 
 /** Both kinds, running and done, for Life's Days Until lens. Garden

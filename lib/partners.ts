@@ -114,7 +114,7 @@ export function isCareRole(role: ConnectionRole): boolean {
 // Absence of their data is absence of their grant, and the screen can say so
 // without keeping a second set of columns that could disagree with reality.
 
-export type ShareScope = 'meals' | 'shopping' | 'conditions';
+export type ShareScope = 'meals' | 'shopping' | 'conditions' | 'photos';
 
 export const SHARE_SCOPES: {
   code: ShareScope;
@@ -144,6 +144,15 @@ export const SHARE_SCOPES: {
     // something on your behalf that it has no business deciding.
     defaultOn: false,
   },
+  {
+    code: 'photos',
+    label: 'Photos of shared meals',
+    what: 'Permission to see a small photo of each dish on a plan you send, when you have taken one. The larger photo goes only if they ask for it, and photos of anything else never go.',
+    // On with Meals, since a photo only ever travels beside a dish on a plan
+    // that is already being sent (lib/peerPhotos.ts), so it adds no new kind
+    // of information, only a picture of something already shared.
+    defaultOn: true,
+  },
 ];
 
 export type ShareGrants = Record<ShareScope, boolean>;
@@ -152,7 +161,7 @@ export function defaultGrantsForRole(role: ConnectionRole): ShareGrants {
   // A recipe link votes on none of these, so it starts with nothing allowed.
   // The other three all plan and shop together, so they start where a
   // partner starts, with the condition list still off until it is asked for.
-  if (role === 'recipe') return { meals: false, shopping: false, conditions: false };
+  if (role === 'recipe') return { meals: false, shopping: false, conditions: false, photos: false };
   return SHARE_SCOPES.reduce((acc, scope) => {
     acc[scope.code] = scope.defaultOn;
     return acc;

@@ -15,9 +15,19 @@
 // the file names in the folder carry nothing but a random id. The desktop
 // app shows a photo from the copy that arrived that way.
 //
-// Never across people: the media table is not in the allowlist in
-// lib/peerRelationships.ts, so nothing here reaches a partner, a child or
-// a caregiver unless a relationship names it one day.
+// Two sizes of every photo (2026-09-26, 1.0.53.7). Direct request: "Photos
+// taken into the app need to have two sizes, thumbnails, and reporting
+// size." The report size is the file above; the thumbnail sits beside it as
+// <id>.thumb.jpg (MEDIA_THUMB_DIMENSION) and is what every row of photos
+// shows, so a screen of forty photos reads forty small files. Both are made
+// on save, and a photo kept before thumbnails existed gets one the first
+// time it is shown. The original a camera took goes to the phone's gallery
+// with its full detail; the app keeps only these two.
+//
+// Across people: a photo crosses only when what it is a photo of crosses,
+// and only as a thumbnail unless the other person opens it
+// (lib/peerPhotos.ts). The media table itself is never in the allowlist in
+// lib/peerRelationships.ts.
 //
 // Pure, no imports at run time, so scripts/test_media.js checks every rule
 // and sentence here without a phone. The reading and writing is
@@ -59,6 +69,11 @@ export const MEDIA_MAX_DIMENSION = 1600;
 export const MEDIA_MIN_DIMENSION = 200;
 export const MEDIA_MAX_FILE_SIZE_BYTES = 600 * 1024;
 
+/** The small size every row of photos shows. 320 on the longest edge is
+ *  sharp at the 84 dp a strip draws on the densest phone screens. */
+export const MEDIA_THUMB_DIMENSION = 320;
+export const MEDIA_THUMB_MAX_FILE_SIZE_BYTES = 50 * 1024;
+
 /** The folder under the app's document folder that holds the files. */
 export const MEDIA_FOLDER = 'media';
 
@@ -73,6 +88,24 @@ export function newMediaId(now: number, random: string): string {
 
 export function mediaFileName(id: string): string {
   return `${id.replace(/[^a-zA-Z0-9_-]/g, '_')}.jpg`;
+}
+
+const THUMB_SUFFIX = '.thumb.jpg';
+
+/** The thumbnail kept beside a photo's file. */
+export function thumbFileName(fileName: string): string {
+  const base = fileName.endsWith('.jpg') ? fileName.slice(0, -4) : fileName.replace(/./g, '_');
+  return `${base}${THUMB_SUFFIX}`;
+}
+
+export function isThumbFileName(name: string): boolean {
+  return name.endsWith(THUMB_SUFFIX);
+}
+
+/** What kind of image a kept file is, from its name. A series GIF is the
+ *  one file here that is not a JPEG. */
+export function mediaMimeType(fileName: string): 'image/gif' | 'image/jpeg' {
+  return fileName.endsWith('.gif') ? 'image/gif' : 'image/jpeg';
 }
 
 /** The name of a photo's encrypted copy in the shared folder. */
@@ -192,8 +225,34 @@ export function planPhotoSync(input: {
 /** Files in the media folder here that no row refers to, which happens
  *  when the other device removed a photo and the merge took the row away. */
 export function orphanedLocalFiles(rowFileNames: readonly string[], localFileNames: readonly string[]): string[] {
-  const kept = new Set(rowFileNames);
-  return localFileNames.filter((name) => name.endsWith('.jpg') && !kept.has(name)).sort();
+  const kept = new Set<string>();
+  for (const name of rowFileNames) {
+    kept.add(name);
+    kept.add(thumbFileName(name));
+  }
+  return localFileNames.filter((name) => (name.endsWith('.jpg') || name.endsWith('.gif')) && !kept.has(name)).sort();
+}
+
+/** A size in bytes the way Profile says it. */
+export function bytesLabel(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  const mb = bytes / (1024 * 1024);
+  return mb < 100 ? `${mb.toFixed(1)} MB` : `${Math.round(mb)} MB`;
+}
+
+/** The storage line in Profile: how many photos, and the room both sizes
+ *  take, plus the ones other people sent (lib/peerPhotosDb.ts). */
+export function photoStorageSentence(
+  photos: number,
+  bytes: number,
+  fromOthers: { photos: number; bytes: number } = { photos: 0, bytes: 0 },
+): string {
+  const own =
+    photos === 0
+      ? 'No photos kept on this device yet.'
+      : `${plural(photos, 'photo', 'photos')} kept on this device, taking ${bytesLabel(bytes)} with their thumbnails. A photo chosen from your gallery is still there at full size.`;
+  if (fromOthers.photos === 0) return own;
+  return `${own} ${plural(fromOthers.photos, 'photo', 'photos')} from people you share meals with take ${bytesLabel(fromOthers.bytes)} more.`;
 }
 
 export type PhotoSyncStatus = {
@@ -226,6 +285,11 @@ export function photoSyncSentence(status: PhotoSyncStatus | null, syncOn: boolea
 export const PHOTO_ON_THE_WAY = 'On the way from your other device';
 
 export const PHOTO_STRIP_EMPTY_LINE = 'No photos yet.';
+
+/** Said once, after a camera shot, when the phone cannot yet keep the
+ *  original in its gallery. The next app build adds that. */
+export const PHOTO_ORIGINAL_NOT_KEPT =
+  'This version of the app keeps the photo at two sizes but cannot yet put the full-size original in your gallery. The next app build adds that.';
 
 export function photoRemovalSentence(): string {
   return 'This photo is removed here, and from your other device the next time the two come into step.';

@@ -49,3 +49,32 @@ declare module 'react-native-zeroconf' {
     removeDeviceListeners(): void;
   }
 }
+
+// gifenc 1.0 ships plain JavaScript and no type declarations. Only what
+// lib/photoGif.ts uses is declared here, read from the package's src.
+declare module 'gifenc' {
+  export type Palette = number[][];
+  export type GIFEncoderInstance = {
+    writeFrame(
+      index: Uint8Array,
+      width: number,
+      height: number,
+      options?: { palette?: Palette; delay?: number; repeat?: number; transparent?: boolean; dispose?: number },
+    ): void;
+    finish(): void;
+    bytes(): Uint8Array;
+  };
+  export function GIFEncoder(options?: { auto?: boolean; initialCapacity?: number }): GIFEncoderInstance;
+  export function quantize(rgba: Uint8Array | Uint8ClampedArray, maxColors: number, options?: { format?: 'rgb565' | 'rgb444' | 'rgba4444' }): Palette;
+  export function applyPalette(rgba: Uint8Array | Uint8ClampedArray, palette: Palette, format?: 'rgb565' | 'rgb444' | 'rgba4444'): Uint8Array;
+}
+
+// The decoder half of jpeg-js on its own, so the encoder, which reaches for
+// Node's Buffer, is never loaded on the phone.
+declare module 'jpeg-js/lib/decoder' {
+  function decode(
+    jpegData: Uint8Array,
+    opts: { useTArray: true; formatAsRGBA?: boolean; tolerantDecoding?: boolean; maxMemoryUsageInMB?: number },
+  ): { width: number; height: number; data: Uint8Array };
+  export = decode;
+}

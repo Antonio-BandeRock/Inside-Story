@@ -24,6 +24,7 @@ import { AppTextInput } from './AppTextInput';
 import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
 import { TabBand, makeTabBandStyles } from './TabBand';
+import { RecordPhotos } from './RecordPhotos';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -507,6 +508,13 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
 
                 {expanded ? (
                   <View style={styles.actions}>
+                    <RecordPhotos
+                      // A row from the garden is a harvest, so it shows the same photos Garden does.
+                      ownerKind={item.source === 'garden' ? 'harvest' : 'item'}
+                      ownerId={item.source === 'garden' ? item.id.slice('garden:'.length) : item.id}
+                      tabColor={tabColor}
+                      title={item.foodName}
+                    />
                     {item.source === 'garden' || item.source === 'fermentation' ? null : placeEditId === item.id ? (
                       <>
                         <Text style={styles.fieldLabel}>Where is it? (empty it to say you no longer know)</Text>

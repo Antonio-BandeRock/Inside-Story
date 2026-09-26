@@ -33,6 +33,7 @@ import {
 } from '../lib/upkeepDb';
 import { parsePriceInput } from '../lib/groceryList';
 import { useWalkMark } from './WalkMark';
+import { RecordPhotos } from './RecordPhotos';
 
 // Upkeep: things that need doing again, and things that run out.
 //
@@ -377,6 +378,7 @@ export function UpkeepSection({ tabColor }: Props) {
                   {item.cost != null ? (
                     <Text style={styles.rowMeta}>{formatUpkeepMoney(item.cost)} when it comes round.</Text>
                   ) : null}
+                  <RecordPhotos ownerKind="upkeep" ownerId={item.id} tabColor={tabColor} title={item.name} />
 
                   {renewForm?.id === item.id ? (
                     <View style={styles.inlineForm}>

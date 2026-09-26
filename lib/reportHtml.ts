@@ -4,7 +4,9 @@
 // things; this file only decides how it looks on a page.
 //
 // Kept to what a WebView prints reliably: one system font stack, tables
-// with plain borders, no images, no web fonts, no scripts. Page breaks
+// with plain borders, no web fonts, no scripts. The one kind of image is a
+// photo section (1.0.53.7), each photo embedded as a data address at the
+// report size, two to a row, never split across a page. Page breaks
 // are discouraged inside a table row and after a heading so a section
 // title never ends up alone at the foot of a page. Letter size is
 // expo-print's default and is left alone; the layout is fluid enough for
@@ -74,6 +76,10 @@ const CSS = `
     color: #7a5b12;
     margin-bottom: 4px;
   }
+  .photos { display: flex; flex-wrap: wrap; gap: 10px; }
+  figure { margin: 0; width: calc(50% - 5px); page-break-inside: avoid; }
+  figure img { width: 100%; max-height: 300px; object-fit: contain; border: 1px solid ${LINE}; border-radius: 4px; background: ${ZEBRA}; }
+  figcaption { font-size: 9pt; color: ${MUTED}; margin-top: 2px; }
   footer { margin-top: 22px; padding-top: 8px; border-top: 1px solid ${LINE}; font-size: 9pt; color: ${MUTED}; }
 `;
 
@@ -95,6 +101,12 @@ function renderSection(section: ReportSection): string {
   if (section.note) parts.push(`<p class="note">${escapeHtml(section.note)}</p>`);
   if (section.rows.length === 0) {
     parts.push(`<p class="empty">${escapeHtml(section.empty)}</p>`);
+  } else if (section.kind === 'photos') {
+    parts.push('<div class="photos">');
+    for (const photo of section.rows) {
+      parts.push(`<figure><img src="${escapeHtml(photo.dataUri)}" alt=""><figcaption>${escapeHtml(photo.caption)}</figcaption></figure>`);
+    }
+    parts.push('</div>');
   } else if (section.kind === 'list') {
     parts.push('<ul>');
     for (const row of section.rows) parts.push(`<li>${escapeHtml(row)}</li>`);

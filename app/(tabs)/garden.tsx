@@ -69,6 +69,8 @@ import { emptyLightDraft, GrowSetupSection, LightFields, lightDraftHasLight, lig
 import type { CustomGardenTerm } from '../../lib/growSetup';
 import { addGrowEquipment, listGardenTerms } from '../../lib/growSetupDb';
 import { useWalkMark } from '../../components/WalkMark';
+import { RecordPhotos } from '../../components/RecordPhotos';
+import { PhotoSeriesBand } from '../../components/PhotoSeriesBand';
 
 // This page's own identity color -- see constants/colors.ts's own comment
 // on tabGarden for how it was chosen.
@@ -957,13 +959,16 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                 <View style={styles.pendingCard}>
                   <DaysUntilSection plot={plot} plantings={plantings} onChanged={() => loadPlantingsFor(plot.id)} />
                 </View>
+                <RecordPhotos ownerKind="garden_area" ownerId={plot.id} tabColor={TAB_COLOR} title={plot.name} />
                 {plantings.length === 0 ? (
                   <Text style={styles.captionText}>Nothing logged as planted here yet.</Text>
                 ) : (
                   plantings.map((planting) => {
                     const harvests = plotFacts[plot.id]?.harvestsByPlanting[planting.id] ?? 0;
+                    const plantingTitle = planting.varietyNote ? `${planting.foodName} (${planting.varietyNote})` : planting.foodName;
                     return (
-                      <View key={planting.id} style={styles.plantingRow}>
+                      <View key={planting.id}>
+                      <View style={styles.plantingRow}>
                         <Text style={[styles.bodyText, styles.plantingName]}>
                           {planting.foodName}
                           {planting.varietyNote ? ` (${planting.varietyNote})` : ''}
@@ -980,6 +985,10 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                             <Text style={[styles.linkText, { color: colors.danger }]}>Remove</Text>
                           </TouchableOpacity>
                         ) : null}
+                      </View>
+                      <RecordPhotos ownerKind="planting" ownerId={planting.id} tabColor={TAB_COLOR} title={plantingTitle}>
+                        <PhotoSeriesBand ownerKind="planting" ownerId={planting.id} title={plantingTitle} tabColor={TAB_COLOR} />
+                      </RecordPhotos>
                       </View>
                     );
                   })
@@ -1487,7 +1496,8 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
             <Text style={styles.captionText}>Nothing logged yet.</Text>
           ) : (
             harvests.map((harvest) => (
-              <View key={harvest.id} style={styles.harvestRow}>
+              <View key={harvest.id}>
+              <View style={styles.harvestRow}>
                 <View style={styles.harvestRowText}>
                   <Text style={styles.bodyText}>
                     {harvest.foodName}: {formatQuantity(harvest.quantityRemaining, harvest.unit)} of{' '}
@@ -1505,6 +1515,8 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
                     <Text style={[styles.linkText, { color: colors.danger }]}>Delete</Text>
                   </TouchableOpacity>
                 </View>
+              </View>
+              <RecordPhotos ownerKind="harvest" ownerId={harvest.id} tabColor={TAB_COLOR} title={harvest.foodName} />
               </View>
             ))
           )}

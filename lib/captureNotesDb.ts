@@ -29,7 +29,7 @@ function toNote(row: CaptureRow): CaptureNote {
   return {
     id: row.id,
     text: row.text,
-    source: row.source === 'spoken' ? 'spoken' : 'typed',
+    source: row.source === 'spoken' ? 'spoken' : row.source === 'photo' ? 'photo' : 'typed',
     status: row.status === 'sorted' || row.status === 'done' ? (row.status as CaptureStatus) : 'waiting',
     destination: (row.destination as CaptureDestinationKey | null) ?? null,
     createdAt: row.createdAt,
@@ -140,6 +140,8 @@ export async function setCaptureNoteDone(id: string, done: boolean): Promise<voi
 export async function deleteCaptureNote(id: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync(`DELETE FROM capture_notes WHERE id = ?`, id);
+  // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
+  await (await import('./mediaDb')).removePhotosOf('capture_note', id);
 }
 
 /**

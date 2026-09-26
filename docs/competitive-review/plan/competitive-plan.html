@@ -1,0 +1,1806 @@
+<title>Inside Story Build Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+:root{
+ --bg:#f4f6f3;--panel:#ffffff;--ink:#1d2621;--muted:#5b6961;--line:#d6ddd8;--accent:#2f6b4f;--accent-soft:#e2eee7;
+ --ota:#2f6b4f;--ota-bg:#e2eee7;--r1:#8a4d12;--r1-bg:#f6e8d8;--r2:#3f4f8f;--r2-bg:#e4e8f6;--wk:#6a3f86;--wk-bg:#efe6f5;--ask:#9b2d2d;--ask-bg:#f7e2e2;
+ color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+ --bg:#141a17;--panel:#1c2420;--ink:#e3ebe6;--muted:#9aaba1;--line:#2f3a34;--accent:#7cc39c;--accent-soft:#223329;
+ --ota:#8fd1ac;--ota-bg:#1f3328;--r1:#e6b07a;--r1-bg:#3a2a1a;--r2:#a8b6f0;--r2-bg:#242b45;--wk:#cfa6ea;--wk-bg:#322340;--ask:#f0a0a0;--ask-bg:#402222;
+ color-scheme:dark;}}
+:root[data-theme="dark"]{
+ --bg:#141a17;--panel:#1c2420;--ink:#e3ebe6;--muted:#9aaba1;--line:#2f3a34;--accent:#7cc39c;--accent-soft:#223329;
+ --ota:#8fd1ac;--ota-bg:#1f3328;--r1:#e6b07a;--r1-bg:#3a2a1a;--r2:#a8b6f0;--r2-bg:#242b45;--wk:#cfa6ea;--wk-bg:#322340;--ask:#f0a0a0;--ask-bg:#402222;
+ color-scheme:dark;}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans",system-ui,sans-serif;padding-inline:16px;padding-block:28px 64px}
+.wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:34px}
+h1,h2,h3{font-family:"Source Serif 4",Georgia,serif;font-weight:600;text-wrap:balance;margin:0}
+h1{font-size:2rem;line-height:1.15}
+h2{font-size:1.4rem}
+h3{font-size:1.08rem;margin-bottom:6px}
+p{margin:0;max-width:72ch}
+.lead{color:var(--muted);margin-top:6px}
+.kicker{font:500 .75rem "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+header{display:flex;flex-direction:column;gap:10px}
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-variant-numeric:tabular-nums}
+.stat b{font-size:1.15rem;margin-right:6px}
+.box{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+.box.warn{border-left-color:var(--ask)}
+.box ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:5px;max-width:78ch}
+.phase{display:flex;flex-direction:column;gap:8px;scroll-margin-top:70px}
+.count{font:500 .8rem "IBM Plex Mono",monospace;color:var(--muted);margin-left:6px}
+.tw{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th{text-align:left;font:600 .72rem "IBM Plex Sans",sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line)}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.id{font:500 .82rem "IBM Plex Mono",monospace;color:var(--accent);white-space:nowrap}
+td.tabs{font-size:.82rem;color:var(--muted);white-space:nowrap}
+td.size{font:500 .82rem "IBM Plex Mono",monospace;white-space:nowrap}
+.t{font-weight:600}
+.how{margin-top:3px}
+.meta{margin-top:4px;font-size:.8rem;color:var(--muted)}
+.ship{display:inline-block;font-size:.76rem;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.ship.ota{color:var(--ota);background:var(--ota-bg)}.ship.r1{color:var(--r1);background:var(--r1-bg)}
+.ship.r2{color:var(--r2);background:var(--r2-bg)}.ship.wk{color:var(--wk);background:var(--wk-bg)}.ship.ask{color:var(--ask);background:var(--ask-bg)}
+.filters{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;border-bottom:1px solid var(--line)}
+.filters button{font:500 .82rem "IBM Plex Sans",sans-serif;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:99px;padding:5px 11px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.filters input{flex:1 1 180px;min-width:0;font:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.card ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;font-size:.92rem}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.88rem}
+nav.toc a{color:var(--accent)}
+.hide{display:none}
+</style>
+<div class="wrap">
+<header>
+<span class="kicker">Inside Story · written 2026-09-25 · from the nine competitor reviews</span>
+<h1>Everything the competitors do, and how Inside Story gets there</h1>
+<p class="lead">Every gap the nine tab reviews named, merged where two tabs asked for the same thing, then ordered so each phase stands on the one before. Nothing from the review is left out: items that break a standing rule or need a server are listed in Phase 7 with the reason, waiting on your yes.</p>
+<div class="stats">
+<span class="stat"><b>220</b>items</span>
+<span class="stat"><b>174</b>ship over the air</span>
+<span class="stat"><b>11</b>in the Android rebuild</span>
+<span class="stat"><b>2</b>in the iPhone build</span>
+<span class="stat"><b>9</b>on the Worker</span>
+<span class="stat"><b>24</b>wait on your decision</span>
+</div>
+</header>
+
+<section class="box warn" id="sms">
+<h2>Can Inside Story be the default texting app?</h2>
+<p><b>Technically, on Android only. Not advisable, and local-first is not what stops it.</b> A text travels through the carrier, not a company server, so it fits the privacy model fine. What stops it:</p>
+<ul>
+<li><b>Google Play policy.</b> The SMS and Call Log permissions are granted only to apps whose core purpose is messaging, through a Permissions Declaration Google reviews. A health and daily-living app asking to be the default SMS handler is very likely refused, and a refusal can hold up every other update.</li>
+<li><b>The person loses RCS</b> (typing dots, read receipts, full-size photos, encrypted chats with Google Messages users), since Google gives no other app access to RCS.</li>
+<li><b>It is a whole messaging app to build:</b> the receivers, MMS, group threads, blocking, delivery reports, and a Kotlin native module.</li>
+<li><b>It cannot exist on iPhone or on the desktop app</b>, so it would never be part of Inside Story everywhere.</li>
+</ul>
+<p><b>What gets most of the value without that:</b> read phone contacts into Emergency, prescriber, pharmacy and the family roster (O1); text or call from inside the app with the message filled in (O2); share any text, link or photo into Capture from any app (C11); and <b>encrypted messages between Inside Story users</b> through the device keys already built, carried by a relay that cannot read them (O3, M1). That last one is the communication system that fits local-first, and it is what makes a missed-dose alert reach a caregiver on time. The default-texting item stays on the list as O5 so nothing is dropped.</p>
+</section>
+
+<nav class="toc">
+<a href="#p0">Phase 0: Decisions only you can make</a>
+<a href="#p1">Phase 1: Foundations</a>
+<a href="#p2">Phase 2: Quick wins over the air</a>
+<a href="#p3">Phase 3: Larger builds over the air</a>
+<a href="#p4">Phase 4: The Android rebuild (R1)</a>
+<a href="#p5">Phase 5: The Worker and the relay</a>
+<a href="#p6">Phase 6: The iPhone build (R2)</a>
+<a href="#p7">Phase 7: Opt-in, server and ruled-out items</a>
+<a href="#rebuilds">Rebuild map</a><a href="#owner">What waits on you</a><a href="#checks">Checks done</a>
+</nav>
+
+<section class="phase" id="rebuilds">
+<h2>The rebuild map</h2>
+<p class="lead">Native work is expensive in one way: every build makes both phones reinstall. So everything native is gathered. JS for each feature can ship first and simply light up when the build arrives.</p>
+<div class="grid2">
+<div class="card"><h3>R1, one Android build</h3><ul>
+<li>Share target: a SEND intent filter for text, links and images (C11)</li>
+<li>expo-quick-actions plus a quick settings tile (C12)</li>
+<li>react-native-android-widget: next thing, next dose, Capture, grocery, Fuel Gauges, routine step, one-tap glass (L2)</li>
+<li>Health Connect: breathing rate and body temperature permissions (L4)</li>
+<li>expo-keep-awake for cook mode (G4)</li>
+<li>expo-audio for relaxation audio (D15)</li>
+<li>expo-location for weather by place, coarsened (F22, G36)</li>
+<li>expo-contacts and expo-sms (O1, O2)</li>
+<li>FCM remote push setup for the relay (M1)</li>
+<li>react-native-webview for marking up a recipe page (G3)</li>
+<li>ML Kit image labelling, on the phone (G24)</li>
+<li>A small HTTP listener for Ecowitt pushes (I22)</li>
+<li>Only if you say so: the notification listener (O4) and the default SMS module (O5)</li>
+</ul></div>
+<div class="card"><h3>R2, the iPhone build</h3><ul>
+<li>HealthKit behind the same interface as lib/healthConnect.ts (L1)</li>
+<li>WidgetKit widgets and a Live Activity for the current routine or dose, through @bacons/apple-targets (L3, B3)</li>
+<li>iOS push through APNs for the relay (M1)</li>
+<li>Check notification action buttons on iPhone (C1)</li>
+<li>Needs an Apple developer account ($99 a year) to sign it; that is a decision on its own</li>
+</ul></div>
+<div class="card"><h3>Worker and relay (Phase 5, no phone rebuild)</h3><ul>
+<li>Content-blind push relay: a wake-up and sealed bytes only (M1), unlocking on-time caregiver alerts (A16), instant household sync (J12) and messages (O3)</li>
+<li>Recall bundle matched on the phone (A14)</li>
+<li>Weather as a coarsened bundle (F22)</li>
+<li>Pl@ntNet plant identification, opt-in per photo (I24)</li>
+<li>A try-before-install page (C21)</li>
+<li>Later and costed: chain menus (Z7), seed barcodes (Z8), vision and AI opt-ins (Z1, Z3)</li>
+<li>Workers Paid at $5 a month from the first lookup, as item 27 already set</li>
+</ul></div>
+<div class="card"><h3>The order, and why</h3><ul>
+<li>Phases 1 to 3 ship over the air in whatever order suits, each an update on its own</li>
+<li>R1 goes once C11, G4, L2 and O1's JS halves exist, so the build lands with its screens ready</li>
+<li>The relay follows R1, since it needs FCM in the build</li>
+<li>R2 last, once the Android versions of widgets and health reads have settled</li>
+</ul></div>
+</div>
+</section>
+
+<section class="phase" id="owner">
+<h2>What waits on you</h2>
+<div class="grid2">
+<div class="card"><h3>Touches the live database</h3><ul>
+<li><b>A9</b> A third severity level, major. interaction_rules lives in foods_reference.db</li>
+<li><b>G23</b> Amount-aware cautions. Needs new columns; better done in the unified database's Phase 5</li>
+<li>Crop family stays out of the DB: lib/cropFamilies.ts keyed on food_id instead (I10)</li>
+</ul></div>
+<div class="card"><h3>Money and licences</h3><ul>
+<li><b>A11</b> Drug-to-drug data inside the app; <b>A15</b> Pill identifier</li>
+<li>Questionnaire licences beyond PHQ-9 and GAD-7 (D13) and relaxation audio content (D15)</li>
+<li><b>I25</b> What is wrong with this plant; <b>Z7</b> Chain restaurant menus</li>
+<li>Apple developer account for R2</li>
+</ul></div>
+<div class="card"><h3>Bends a standing rule</h3><ul>
+<li><b>Z2</b> A readiness, stress or energy score. A score standing in for a clinician (Phase A)</li>
+<li><b>Z4</b> Streaks, challenges and characters. Keeping Up bans praise and streaks</li>
+<li><b>Z12</b> Store and restaurant guides. Home cooking over commercial</li>
+<li><b>Z1</b> Photo sent to a vision model for ingredients; <b>Z3</b> AI chat and a model behind "ask your records"; <b>C14</b> AI breaks a task into steps. Something leaves the phone</li>
+</ul></div>
+<div class="card"><h3>Product decisions</h3><ul>
+<li><b>C17</b> Something that grows from the person's records. Distinct things or repetitions (item 29)</li>
+<li><b>Z15</b> A lifetime price and a hardship price</li>
+<li>The Free-tier line, redrawn for a way in without a condition (item 28)</li>
+<li><b>G29</b> Portal records (FHIR); <b>O5</b> Inside Story as the default texting app</li>
+<li>Servers: <b>Z5</b> How others with my condition are doing; <b>Z6</b> Grocery delivery (Instacart, AmazonFresh); <b>Z9</b> Add by Alexa or Google Assistant; <b>Z10</b> Linked bank accounts; <b>Z11</b> A clinician dashboard or live link</li>
+</ul></div>
+</div>
+</section>
+
+<section class="box" id="checks">
+<h2>Checks already done before the rebuild list was written</h2>
+<ul>
+<li><b>Health Connect already has read permission</b> for steps, distance, exercise, sleep, glucose, menstruation, weight, blood pressure, heart rate, resting heart rate, HRV, blood oxygen, skin temperature, hydration and nutrition. So the Body Signals lens (F9), heart rate and HRV in reports (K8) and the Home readings need <b>no rebuild</b>, although two tab reviews said they did. Only breathing rate and body temperature need new permissions (L4).</li>
+<li><b>Lab values from a photo need no rebuild:</b> ML Kit OCR (rn-mlkit-ocr) is already in the build (G28, G2, G27).</li>
+<li>Also already in the build: expo-sensors (light meter, I3), expo-speech (B6), expo-calendar (B2), react-native-zeroconf (I20), expo-image-picker (X1).</li>
+<li>chrono-node for plain-language dates is pure JS, so it ships over the air (C4).</li>
+<li>Not installed, so they sit in R1: expo-keep-awake, expo-audio, expo-location, expo-contacts, expo-sms, react-native-webview, expo-quick-actions, react-native-android-widget, a share-intent module.</li>
+<li>app.json has VIEW intent filters only, so the share target is new native config (C11). Notification categories exist only for Snooze, and adding more is JS (C1).</li>
+</ul>
+</section>
+
+<div class="filters" id="filters">
+<button data-tab="" aria-pressed="true">All tabs</button>
+<button data-tab="Home" aria-pressed="false">Home</button><button data-tab="Food" aria-pressed="false">Food</button><button data-tab="Schedules" aria-pressed="false">Schedules</button><button data-tab="Signals" aria-pressed="false">Signals</button><button data-tab="Insights" aria-pressed="false">Insights</button><button data-tab="Trends" aria-pressed="false">Trends</button><button data-tab="Reports" aria-pressed="false">Reports</button><button data-tab="Garden" aria-pressed="false">Garden</button><button data-tab="Life" aria-pressed="false">Life</button>
+<input type="search" id="q" placeholder="Search items, e.g. refill, cycle, Paprika" aria-label="Search items">
+</div>
+
+<section class="phase" id="p0">
+<h2>Phase 0. Decisions only you can make <span class="count">4</span></h2>
+<p class="lead">Nothing here is code yet. Each one either touches the live database, costs money, or bends a standing rule, so it waits for your answer. None of them blocks Phase 1.</p>
+<div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
+<tbody><tr data-tabs="Insights" data-text="a third severity level, major add major to interaction_rules.severity and interactionwarning; regrade existing rules against their citations. the rules live in the live foods_reference.db, so this waits for your yes. drugs.com">
+<td class="id">A9</td>
+<td><div class="t">A third severity level, major</div><div class="how">Add major to interaction_rules.severity and InteractionWarning; regrade existing rules against their citations. The rules live in the LIVE foods_reference.db, so this waits for your yes.</div><div class="meta">Medication logistics · answers Drugs.com</div></td>
+<td class="tabs">Insights</td>
+<td><span class="ship ask">Live DB, your yes</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Insights" data-text="drug-to-drug data inside the app nlm retired its free interaction api in january 2024; first databank, medi-span and drugbank are licensed and priced for companies. a cost decision before any code. drugs.com, medisafe">
+<td class="id">A11</td>
+<td><div class="t">Drug-to-drug data inside the app</div><div class="how">NLM retired its free interaction API in January 2024; First Databank, Medi-Span and DrugBank are licensed and priced for companies. A cost decision before any code.</div><div class="meta">Medication logistics · answers Drugs.com, Medisafe</div></td>
+<td class="tabs">Insights</td>
+<td><span class="ship ask">Your decision</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Home|all tabs" data-text="something that grows from the person's records open item 29. waits on distinct things versus repetitions, then fills the registry for home, trends, reports and life. static, no animation. finch">
+<td class="id">C17</td>
+<td><div class="t">Something that grows from the person's records</div><div class="how">Open item 29. Waits on distinct things versus repetitions, then fills the registry for Home, Trends, Reports and Life. Static, no animation.</div><div class="meta">Capture, reminders and the second audience · answers Finch</div></td>
+<td class="tabs">Home<br>all tabs</td>
+<td><span class="ship ask">Your decision</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Food" data-text="amount-aware cautions a threshold per serving on sub-criteria. needs new columns in the live db, so waits on the unified database's phase 5, and on published per-serving figures (monash data cannot be copied). monash fodmap">
+<td class="id">G23</td>
+<td><div class="t">Amount-aware cautions</div><div class="how">A threshold per serving on sub-criteria. Needs new columns in the live DB, so waits on the unified database's Phase 5, and on published per-serving figures (Monash data cannot be copied).</div><div class="meta">Food, scanning and Insights · answers Monash FODMAP</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship ask">Live DB, your yes</span></td>
+<td class="size">L</td>
+</tr></tbody></table></div>
+</section>
+<section class="phase" id="p1">
+<h2>Phase 1. Foundations <span class="count">10</span></h2>
+<p class="lead">Built first because many later items stand on them: repeats, the one-day timeline, the photo layer, notification buttons, custom trackers and scales, Pattern Finder for any factor, the Body Signals lens, report charts and recipe import. All over the air.</p>
+<div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
+<tbody><tr data-tabs="Schedules|Life|Signals" data-text="weekly, weekday and every-n-days repeats extend repeattype in lib/db.ts with weekly (chosen weekdays) and every_n_days; update the 60-day series generator, repeatpicker in app/(tabs)/schedule.tsx and lib/reminderschedule.ts. one piece of work serves meds (weekly methotrexate, biologics every 2 or 4 weeks, monthly vitamin d, b12), meals, appointments, upkeep and exercise. careclinic, structured, todoist">
+<td class="id">A1</td>
+<td><div class="t">Weekly, weekday and every-N-days repeats</div><div class="how">Extend RepeatType in lib/db.ts with weekly (chosen weekdays) and every_n_days; update the 60-day series generator, RepeatPicker in app/(tabs)/schedule.tsx and lib/reminderSchedule.ts. One piece of work serves meds (weekly methotrexate, biologics every 2 or 4 weeks, monthly vitamin D, B12), meals, appointments, upkeep and Exercise.</div><div class="meta">Medication logistics · answers CareClinic, Structured, Todoist</div></td>
+<td class="tabs">Schedules<br>Life<br>Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Home|Schedules|Life|Signals" data-text="one today timeline pure lib/daytimeline.ts extending getdaymealanddosetimeline with routines, upkeep due, appointments, dated reminders, days until, check-ins, flares and sleep, overdue first, a "now" line. a home card and a schedules lens, read-only; app/timeline.tsx reads the same builder. tiimo, todoist, structured, mysymptoms">
+<td class="id">B1</td>
+<td><div class="t">One Today timeline</div><div class="how">Pure lib/dayTimeline.ts extending getDayMealAndDoseTimeline with routines, upkeep due, appointments, dated reminders, Days Until, check-ins, flares and sleep, overdue first, a "now" line. A Home card and a Schedules lens, read-only; app/timeline.tsx reads the same builder.</div><div class="meta">The day as one picture · answers Tiimo, Todoist, Structured, mySymptoms</div></td>
+<td class="tabs">Home<br>Schedules<br>Life<br>Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Schedules|Signals|Life|Home" data-text="buttons on the notification itself expo-notifications categories beside the existing snooze: taken, done, + glass, log a flare, how are you. needs an iphone check once r2 exists. due, waterllama, medisafe, oura, bearable">
+<td class="id">C1</td>
+<td><div class="t">Buttons on the notification itself</div><div class="how">expo-notifications categories beside the existing Snooze: Taken, Done, + glass, Log a flare, How are you. Needs an iPhone check once R2 exists.</div><div class="meta">Capture, reminders and the second audience · answers Due, Waterllama, Medisafe, Oura, Bearable</div></td>
+<td class="tabs">Schedules<br>Signals<br>Life<br>Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Home|Signals|Trends" data-text="mood, energy and stress on a 1 to 5 scale columns on wellbeing_checkins (or daily_scales), on the home feeling check-in, charted on trends, usable as a pattern finder outcome. bearable, visible, daylio, tiimo, mysymptoms">
+<td class="id">D1</td>
+<td><div class="t">Mood, energy and stress on a 1 to 5 scale</div><div class="how">Columns on wellbeing_checkins (or daily_scales), on the Home feeling check-in, charted on Trends, usable as a Pattern Finder outcome.</div><div class="meta">Check-ins and signals · answers Bearable, Visible, Daylio, Tiimo, mySymptoms</div></td>
+<td class="tabs">Home<br>Signals<br>Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Signals|Trends" data-text="trackers the person names custom_trackers and custom_tracker_entries (scale, count, duration, measurement), an open list, charted and fed to f1. exist, cronometer, bearable">
+<td class="id">D2</td>
+<td><div class="t">Trackers the person names</div><div class="how">custom_trackers and custom_tracker_entries (scale, count, duration, measurement), an open list, charted and fed to F1.</div><div class="meta">Check-ins and signals · answers Exist, Cronometer, Bearable</div></td>
+<td class="tabs">Signals<br>Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Trends|Signals" data-text="pattern finder for any factor candidates from check-in tags, sleep, doses taken or skipped, steps, hydration, weather, cycle and d2 trackers, each turned into moments lib/patternbasis.ts already compares. "shows up before", never "causes"; new generators added to named in audit_clinical_claims.js. bearable, exist, welltory">
+<td class="id">F1</td>
+<td><div class="t">Pattern Finder for any factor</div><div class="how">Candidates from check-in tags, sleep, doses taken or skipped, steps, hydration, weather, cycle and D2 trackers, each turned into moments lib/patternBasis.ts already compares. "Shows up before", never "causes"; new generators added to NAMED in audit_clinical_claims.js.</div><div class="meta">Patterns and Trends · answers Bearable, Exist, Welltory</div></td>
+<td class="tabs">Trends<br>Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M-L</td>
+</tr>
+<tr data-tabs="Trends" data-text="body signals lens heart rate, resting heart rate, hrv, glucose, blood oxygen and skin temperature, which health connect already reads and the app already has permission for. no rebuild. your usual range, no score. guava, welltory, oura, bearable">
+<td class="id">F9</td>
+<td><div class="t">Body Signals lens</div><div class="how">Heart rate, resting heart rate, HRV, glucose, blood oxygen and skin temperature, which Health Connect already reads and the app already has permission for. No rebuild. Your usual range, no score.</div><div class="meta">Patterns and Trends · answers Guava, Welltory, Oura, Bearable</div></td>
+<td class="tabs">Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Food" data-text="import a recipe from a web link lib/recipeimport.ts reads the schema.org recipe block, then an ingredient matcher maps each line to reference foods, unmatched lines shown to pick, and the recipe runs through the same scoring before it can appear anywhere. cronometer, plan to eat, anylist, samsung food, paprika">
+<td class="id">G1</td>
+<td><div class="t">Import a recipe from a web link</div><div class="how">lib/recipeImport.ts reads the schema.org Recipe block, then an ingredient matcher maps each line to reference foods, unmatched lines shown to pick, and the recipe runs through the same scoring before it can appear anywhere.</div><div class="meta">Food, scanning and Insights · answers Cronometer, Plan to Eat, AnyList, Samsung Food, Paprika</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Reports" data-text="charts in the pdf inline svg from lib/reportcharts.ts; gaps as gaps, bars or dots. bearable, visible, careclinic">
+<td class="id">K3</td>
+<td><div class="t">Charts in the PDF</div><div class="how">Inline SVG from lib/reportCharts.ts; gaps as gaps, bars or dots.</div><div class="meta">Reports · answers Bearable, Visible, CareClinic</div></td>
+<td class="tabs">Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="all" data-text="one photo layer a media table (owner kind, owner id, file, taken_on), shrink on save, stored under the app folder, copied into the backups folder and restored beside the encrypted snapshot, never in the plaintext record, shown on desktop from the synced copy. serves a5, d12, i13, j4, j9. gardenize, sortly, monarch, guava, medisafe">
+<td class="id">X1</td>
+<td><div class="t">One photo layer</div><div class="how">A media table (owner kind, owner id, file, taken_on), shrink on save, stored under the app folder, copied into the Backups folder and restored beside the encrypted snapshot, never in the plaintext record, shown on desktop from the synced copy. Serves A5, D12, I13, J4, J9.</div><div class="meta">Shared foundations · answers Gardenize, Sortly, Monarch, Guava, Medisafe</div></td>
+<td class="tabs">all</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr></tbody></table></div>
+</section>
+<section class="phase" id="p2">
+<h2>Phase 2. Quick wins over the air <span class="count">103</span></h2>
+<p class="lead">Small and medium items that each close a named competitor gap with no rebuild. Most take an hour to a day each.</p>
+<div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
+<tbody><tr data-tabs="Life|Schedules|Signals|Insights" data-text="pills on hand and refill reminder supply_on_hand, supply_unit and refill_lead_days on treatments, drawn down when a dose is marked taken on meds, a refill kind in lib/remindersources.ts, "about 6 days left" in mymedssection.tsx. medisafe, mytherapy, careclinic, guava">
+<td class="id">A3</td>
+<td><div class="t">Pills on hand and refill reminder</div><div class="how">supply_on_hand, supply_unit and refill_lead_days on treatments, drawn down when a dose is marked taken on Meds, a refill kind in lib/reminderSources.ts, "about 6 days left" in MyMedsSection.tsx.</div><div class="meta">Medication logistics · answers Medisafe, MyTherapy, CareClinic, Guava</div></td>
+<td class="tabs">Life<br>Schedules<br>Signals<br>Insights</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Life" data-text="photo of each pill a photo field on treatments through the shared photo layer (x1), so two white tablets can be told apart. medisafe">
+<td class="id">A5</td>
+<td><div class="t">Photo of each pill</div><div class="how">A photo field on treatments through the shared photo layer (X1), so two white tablets can be told apart.</div><div class="meta">Medication logistics · answers Medisafe</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="pharmacy and prescriber contact with tap to call two optional contacts on treatments, or a link to a life &gt; emergency contact; linking opens the dialer. picks from phone contacts once o1 ships in r1. mytherapy">
+<td class="id">A6</td>
+<td><div class="t">Pharmacy and prescriber contact with tap to call</div><div class="how">Two optional contacts on treatments, or a link to a Life &gt; Emergency contact; Linking opens the dialer. Picks from phone contacts once O1 ships in R1.</div><div class="meta">Medication logistics · answers MyTherapy</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="interaction check the moment a med is added the my meds save handler runs evaluateinteractionrules for the new treatment and shows any new warning in the sheet that already reports food supply. medisafe">
+<td class="id">A8</td>
+<td><div class="t">Interaction check the moment a med is added</div><div class="how">The My Meds save handler runs evaluateInteractionRules for the new treatment and shows any new warning in the sheet that already reports food supply.</div><div class="meta">Medication logistics · answers Medisafe</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life|Insights" data-text="drug-to-drug check through drugs.com a "check this list on drugs.com" button that opens the checker in the browser (the app sends nothing), plus one line saying the app's rules cover food and supplement timing. drugs.com, medisafe">
+<td class="id">A10</td>
+<td><div class="t">Drug-to-drug check through Drugs.com</div><div class="how">A "Check this list on Drugs.com" button that opens the checker in the browser (the app sends nothing), plus one line saying the app's rules cover food and supplement timing.</div><div class="meta">Medication logistics · answers Drugs.com, Medisafe</div></td>
+<td class="tabs">Life<br>Insights</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Trends|Reports" data-text="doses taken, said in words "taken on 24 of the 28 days a dose was due, 4 not marked" on trends and in the doctor report. no percentage, no praise. medisafe, mytherapy">
+<td class="id">A12</td>
+<td><div class="t">Doses taken, said in words</div><div class="how">"Taken on 24 of the 28 days a dose was due, 4 not marked" on Trends and in the doctor report. No percentage, no praise.</div><div class="meta">Medication logistics · answers Medisafe, MyTherapy</div></td>
+<td class="tabs">Trends<br>Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Reports" data-text="a clinician line on each interaction the mechanism field rides in the doctor report in clinician wording. drugs.com">
+<td class="id">A13</td>
+<td><div class="t">A clinician line on each interaction</div><div class="how">The mechanism field rides in the doctor report in clinician wording.</div><div class="meta">Medication logistics · answers Drugs.com</div></td>
+<td class="tabs">Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="put the summary into the phone's medical id a guided screen in emergencysection.tsx showing each field to copy and opening the phone setting. an app cannot write it directly. medisafe">
+<td class="id">A17</td>
+<td><div class="t">Put the summary into the phone's Medical ID</div><div class="how">A guided screen in EmergencySection.tsx showing each field to copy and opening the phone setting. An app cannot write it directly.</div><div class="meta">Medication logistics · answers Medisafe</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="printable wallet card lib/emergency.ts text laid out as a card through expo-print. medisafe">
+<td class="id">A18</td>
+<td><div class="t">Printable wallet card</div><div class="how">lib/emergency.ts text laid out as a card through expo-print.</div><div class="meta">Medication logistics · answers Medisafe</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Home|Life" data-text="emergency details on the lock screen an opt-in ongoing notification with the lines the person picks. the widget version rides in r1 and r2. apple health">
+<td class="id">A19</td>
+<td><div class="t">Emergency details on the lock screen</div><div class="how">An opt-in ongoing notification with the lines the person picks. The widget version rides in R1 and R2.</div><div class="meta">Medication logistics · answers Apple Health</div></td>
+<td class="tabs">Home<br>Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Home|Schedules" data-text="phone calendar events on the timeline read today's and tomorrow's events live through lib/devicecalendar.ts without copying them in. the desktop says phone only. structured">
+<td class="id">B2</td>
+<td><div class="t">Phone calendar events on the timeline</div><div class="how">Read today's and tomorrow's events live through lib/deviceCalendar.ts without copying them in. The desktop says phone only.</div><div class="meta">The day as one picture · answers Structured</div></td>
+<td class="tabs">Home<br>Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Home|Life" data-text=""next in 25 minutes" and a running countdown a line on the timeline, plus an ongoing notification with a chronometer for the current routine or item. tiimo">
+<td class="id">B3</td>
+<td><div class="t">"Next in 25 minutes" and a running countdown</div><div class="how">A line on the timeline, plus an ongoing notification with a chronometer for the current routine or item.</div><div class="meta">The day as one picture · answers Tiimo</div></td>
+<td class="tabs">Home<br>Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Life|Schedules" data-text="minutes on routine steps and scheduled items optional minutes, a routine total ("about 25 minutes"), and whether the day's timed items fit. tiimo, routinery">
+<td class="id">B4</td>
+<td><div class="t">Minutes on routine steps and scheduled items</div><div class="how">Optional minutes, a routine total ("about 25 minutes"), and whether the day's timed items fit.</div><div class="meta">The day as one picture · answers Tiimo, Routinery</div></td>
+<td class="tabs">Life<br>Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Life" data-text="read the next step aloud expo-speech is already in the build; a switch per routine. routinery">
+<td class="id">B6</td>
+<td><div class="t">Read the next step aloud</div><div class="how">expo-speech is already in the build; a switch per routine.</div><div class="meta">The day as one picture · answers Routinery</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Home" data-text=""how full is today" one sentence counting the day's meals, doses, routines, appointments and upkeep. keeping up wording rules. structured">
+<td class="id">B7</td>
+<td><div class="t">"How full is today"</div><div class="how">One sentence counting the day's meals, doses, routines, appointments and upkeep. Keeping Up wording rules.</div><div class="meta">The day as one picture · answers Structured</div></td>
+<td class="tabs">Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Schedules|Life" data-text="move what is left to tomorrow non-meal items move; a meal gets a new occurrence and the old one stays skipped, so the record stays honest. structured">
+<td class="id">B8</td>
+<td><div class="t">Move what is left to tomorrow</div><div class="how">Non-meal items move; a meal gets a new occurrence and the old one stays Skipped, so the record stays honest.</div><div class="meta">The day as one picture · answers Structured</div></td>
+<td class="tabs">Schedules<br>Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Home|Signals" data-text="sleep, steps and workouts filled in from health connect rows lib/healthsync.ts already imports shown on the home check-in and the timeline. welltory">
+<td class="id">B9</td>
+<td><div class="t">Sleep, steps and workouts filled in from Health Connect</div><div class="how">Rows lib/healthSync.ts already imports shown on the Home check-in and the timeline.</div><div class="meta">The day as one picture · answers Welltory</div></td>
+<td class="tabs">Home<br>Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="keep reminding me until i mark it an interval per reminder, repeats scheduled in lib/reminderschedule.ts, cancelled when the mark or record appears. extends nudges_while_overdue to routines, checks and free reminders. due">
+<td class="id">C2</td>
+<td><div class="t">Keep reminding me until I mark it</div><div class="how">An interval per reminder, repeats scheduled in lib/reminderSchedule.ts, cancelled when the mark or record appears. Extends NUDGES_WHILE_OVERDUE to routines, checks and free reminders.</div><div class="meta">Capture, reminders and the second audience · answers Due</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Life|Home" data-text="a plain one-off reminder "move the laundry in 40 minutes": quick_reminders or a capture destination, preset times. due">
+<td class="id">C3</td>
+<td><div class="t">A plain one-off reminder</div><div class="how">"Move the laundry in 40 minutes": quick_reminders or a capture destination, preset times.</div><div class="meta">Capture, reminders and the second audience · answers Due</div></td>
+<td class="tabs">Life<br>Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life|Home" data-text="plain-language dates chrono-node (pure js, ships over the air) in lib/capturenotes.ts and the upkeep form; offers a date, never assumes one. todoist, due">
+<td class="id">C4</td>
+<td><div class="t">Plain-language dates</div><div class="how">chrono-node (pure JS, ships over the air) in lib/captureNotes.ts and the Upkeep form; offers a date, never assumes one.</div><div class="meta">Capture, reminders and the second audience · answers Todoist, Due</div></td>
+<td class="tabs">Life<br>Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Life|Home" data-text="put a capture note on a day turns a note into an upkeep item, a dated reminder or a days until counter. structured">
+<td class="id">C5</td>
+<td><div class="t">Put a capture note on a day</div><div class="how">Turns a note into an upkeep item, a dated reminder or a Days Until counter.</div><div class="meta">Capture, reminders and the second audience · answers Structured</div></td>
+<td class="tabs">Life<br>Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Life|Home" data-text="capture note to the grocery list, and a home quick-add a grocery destination in lib/capturenotes.ts and a home row registered in lib/homesections.ts. anylist">
+<td class="id">C6</td>
+<td><div class="t">Capture note to the grocery list, and a Home quick-add</div><div class="how">A grocery destination in lib/captureNotes.ts and a Home row registered in lib/homeSections.ts.</div><div class="meta">Capture, reminders and the second audience · answers AnyList</div></td>
+<td class="tabs">Life<br>Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="capture note to a routine or several checks split a note's lines into routine_steps or did i do it checks. goblin.tools">
+<td class="id">C7</td>
+<td><div class="t">Capture note to a routine or several checks</div><div class="how">Split a note's lines into routine_steps or Did I Do It checks.</div><div class="meta">Capture, reminders and the second audience · answers Goblin.tools</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="starter lists to copy routines and hard starts (taxes, moving, a doctor visit, a room) and upkeep for a kitchen or bathroom; offered, never auto-added. routinery, goblin.tools, sweepy">
+<td class="id">C13</td>
+<td><div class="t">Starter lists to copy</div><div class="how">Routines and hard starts (taxes, moving, a doctor visit, a room) and upkeep for a kitchen or bathroom; offered, never auto-added.</div><div class="meta">Capture, reminders and the second audience · answers Routinery, Goblin.tools, Sweepy</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Home" data-text="pick a few things for today a "today i want to" list backed by did i do it marks; keeping up forbidden-words sweep. finch">
+<td class="id">C15</td>
+<td><div class="t">Pick a few things for today</div><div class="how">A "today I want to" list backed by Did I Do It marks; Keeping Up forbidden-words sweep.</div><div class="meta">Capture, reminders and the second audience · answers Finch</div></td>
+<td class="tabs">Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Home" data-text="welcome-back line after a gap one sentence and one easy action when the last record is days old. no blame. finch">
+<td class="id">C16</td>
+<td><div class="t">Welcome-back line after a gap</div><div class="how">One sentence and one easy action when the last record is days old. No blame.</div><div class="meta">Capture, reminders and the second audience · answers Finch</div></td>
+<td class="tabs">Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Home" data-text="one clear next thing on home the first your story item not done, one line, one button. the start of simple view. noom">
+<td class="id">C18</td>
+<td><div class="t">One clear next thing on Home</div><div class="how">The first Your Story item not done, one line, one button. The start of Simple View.</div><div class="meta">Capture, reminders and the second audience · answers Noom</div></td>
+<td class="tabs">Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Home" data-text=""what this means for you" after the interview each answer mapped to what it switched on, shown before the tour. noom">
+<td class="id">C19</td>
+<td><div class="t">"What this means for you" after the interview</div><div class="how">Each answer mapped to what it switched on, shown before the tour.</div><div class="meta">Capture, reminders and the second audience · answers Noom</div></td>
+<td class="tabs">Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Signals" data-text="the person's own symptom tags an open list merged into lib/checkintags.ts through sortbylabel; removal retires. bearable">
+<td class="id">D3</td>
+<td><div class="t">The person's own symptom tags</div><div class="how">An open list merged into lib/checkinTags.ts through sortByLabel; removal retires.</div><div class="meta">Check-ins and signals · answers Bearable</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Signals" data-text="severity per symptom severity on checkin_tags. bearable">
+<td class="id">D4</td>
+<td><div class="t">Severity per symptom</div><div class="how">severity on checkin_tags.</div><div class="meta">Check-ins and signals · answers Bearable</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Signals" data-text="finer severity an optional 0 to 10 beside the four named steps, with a mapping for older rows on trends. careclinic">
+<td class="id">D5</td>
+<td><div class="t">Finer severity</div><div class="how">An optional 0 to 10 beside the four named steps, with a mapping for older rows on Trends.</div><div class="meta">Check-ins and signals · answers CareClinic</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Home|Signals" data-text="my daily list, "none today" included chosen tags pinned to the home check-in, rated 0 to 4. zeros are stored, which gives pattern finder its good days. flaredown">
+<td class="id">D6</td>
+<td><div class="t">My daily list, "none today" included</div><div class="how">Chosen tags pinned to the Home check-in, rated 0 to 4. Zeros are stored, which gives Pattern Finder its good days.</div><div class="meta">Check-ins and signals · answers Flaredown</div></td>
+<td class="tabs">Home<br>Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Home|Signals" data-text="morning check-in a reminder, a compact form, last night's sleep and resting heart rate and hrv beside the usual range. no budget, no score. visible">
+<td class="id">D7</td>
+<td><div class="t">Morning check-in</div><div class="how">A reminder, a compact form, last night's sleep and resting heart rate and HRV beside the usual range. No budget, no score.</div><div class="meta">Check-ins and signals · answers Visible</div></td>
+<td class="tabs">Home<br>Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Signals" data-text="check-in reminders a reminder kind with a profile switch and a time of day. bearable, tiimo">
+<td class="id">D9</td>
+<td><div class="t">Check-in reminders</div><div class="how">A reminder kind with a Profile switch and a time of day.</div><div class="meta">Check-ins and signals · answers Bearable, Tiimo</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Signals" data-text="journal prompts a short prompt list above general note. careclinic">
+<td class="id">D14</td>
+<td><div class="t">Journal prompts</div><div class="how">A short prompt list above General Note.</div><div class="meta">Check-ins and signals · answers CareClinic</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Signals" data-text="log period days by hand cycle_days with source hand or device, so health connect and hand entries share one table. the only route on iphone until r2. never travels unless named in the allowlist. clue, guava, oura">
+<td class="id">E1</td>
+<td><div class="t">Log period days by hand</div><div class="how">cycle_days with source hand or device, so Health Connect and hand entries share one table. The only route on iPhone until R2. Never travels unless named in the allowlist.</div><div class="meta">Cycle · answers Clue, Guava, Oura</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Trends" data-text="cycle day beside flares a context line in lib/patterncontext.ts, never the explanation. open item 25. clue, oura">
+<td class="id">E2</td>
+<td><div class="t">Cycle day beside flares</div><div class="how">A context line in lib/patternContext.ts, never the explanation. Open item 25.</div><div class="meta">Cycle · answers Clue, Oura</div></td>
+<td class="tabs">Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Signals" data-text="next period from the person's average said as an average of past cycles, never for contraception. clue">
+<td class="id">E5</td>
+<td><div class="t">Next period from the person's average</div><div class="how">Said as an average of past cycles, never for contraception.</div><div class="meta">Cycle · answers Clue</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Signals|Life" data-text="perimenopause tags (hot flushes, night sweats) and a health literacy entry. clue">
+<td class="id">E6</td>
+<td><div class="t">Perimenopause</div><div class="how">Tags (hot flushes, night sweats) and a Health Literacy entry.</div><div class="meta">Cycle · answers Clue</div></td>
+<td class="tabs">Signals<br>Life</td>
+<td><span class="ship ota">Reading content</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Trends" data-text="typical delay from food to flare median hours with the count behind it on each candidate. mysymptoms">
+<td class="id">F3</td>
+<td><div class="t">Typical delay from food to flare</div><div class="how">Median hours with the count behind it on each candidate.</div><div class="meta">Patterns and Trends · answers mySymptoms</div></td>
+<td class="tabs">Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Trends" data-text="best days beside worst days foods on the lowest-symptom days next to the highest, with counts. cara care">
+<td class="id">F4</td>
+<td><div class="t">Best days beside worst days</div><div class="how">Foods on the lowest-symptom days next to the highest, with counts.</div><div class="meta">Patterns and Trends · answers Cara Care</div></td>
+<td class="tabs">Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Trends" data-text="your usual as a shaded band two y values on trendlinechart. oura">
+<td class="id">F11</td>
+<td><div class="t">Your usual as a shaded band</div><div class="how">Two y values on TrendLineChart.</div><div class="meta">Patterns and Trends · answers Oura</div></td>
+<td class="tabs">Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Home|Trends" data-text="outside your usual range, and silent otherwise a home line and a trends line for nights or days outside the usual range. describes, never predicts. oura, apple health">
+<td class="id">F12</td>
+<td><div class="t">Outside your usual range, and silent otherwise</div><div class="how">A Home line and a Trends line for nights or days outside the usual range. Describes, never predicts.</div><div class="meta">Patterns and Trends · answers Oura, Apple Health</div></td>
+<td class="tabs">Home<br>Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Home|Trends" data-text="your week pure lib/weeklysummary.ts, a home card and a local notification on a chosen day. blank weeks say not logged. exist, bearable">
+<td class="id">F13</td>
+<td><div class="t">Your week</div><div class="how">Pure lib/weeklySummary.ts, a Home card and a local notification on a chosen day. Blank weeks say not logged.</div><div class="meta">Patterns and Trends · answers Exist, Bearable</div></td>
+<td class="tabs">Home<br>Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Trends" data-text="averages by weekday and by month a helper beside lib/yourusual.ts, with the number of days behind each. exist, daylio">
+<td class="id">F14</td>
+<td><div class="t">Averages by weekday and by month</div><div class="how">A helper beside lib/yourUsual.ts, with the number of days behind each.</div><div class="meta">Patterns and Trends · answers Exist, Daylio</div></td>
+<td class="tabs">Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Trends" data-text="six months and a year weekly or monthly averages past about 90 points, gaps kept; check the sql speed on a year. oura, daylio">
+<td class="id">F17</td>
+<td><div class="t">Six months and a year</div><div class="how">Weekly or monthly averages past about 90 points, gaps kept; check the SQL speed on a year.</div><div class="meta">Patterns and Trends · answers Oura, Daylio</div></td>
+<td class="tabs">Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Trends|Reports" data-text="since your last appointment a band on appointments and care and a section in the doctor report. guava">
+<td class="id">F19</td>
+<td><div class="t">Since your last appointment</div><div class="how">A band on Appointments and Care and a section in the doctor report.</div><div class="meta">Patterns and Trends · answers Guava</div></td>
+<td class="tabs">Trends<br>Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Insights" data-text="different targets on different weekdays a weekday column on personal nutrient targets. cronometer">
+<td class="id">F21</td>
+<td><div class="t">Different targets on different weekdays</div><div class="how">A weekday column on personal nutrient targets.</div><div class="meta">Patterns and Trends · answers Cronometer</div></td>
+<td class="tabs">Insights</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Food|Schedules" data-text="cook mode with step timers one step at a time, big text, "start 20 min timer" from pure lib/steptimers.ts. keeping the screen awake needs expo-keep-awake in r1. samsung food, paprika">
+<td class="id">G4</td>
+<td><div class="t">Cook mode with step timers</div><div class="how">One step at a time, big text, "Start 20 min timer" from pure lib/stepTimers.ts. Keeping the screen awake needs expo-keep-awake in R1.</div><div class="meta">Food, scanning and Insights · answers Samsung Food, Paprika</div></td>
+<td class="tabs">Food<br>Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Food|Schedules" data-text="scale a recipe and household servings "make it for n" before loading the builder; a serving count on a scheduled meal multiplies the grocery lines. paprika, eat this much">
+<td class="id">G5</td>
+<td><div class="t">Scale a recipe and household servings</div><div class="how">"Make it for N" before loading the builder; a serving count on a scheduled meal multiplies the grocery lines.</div><div class="meta">Food, scanning and Insights · answers Paprika, Eat This Much</div></td>
+<td class="tabs">Food<br>Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Life" data-text="grocery list by store section reference category as the aisle, stores and aisles as an open list the person orders. paprika, anylist">
+<td class="id">G6</td>
+<td><div class="t">Grocery list by store section</div><div class="how">Reference category as the aisle, stores and aisles as an open list the person orders.</div><div class="meta">Food, scanning and Insights · answers Paprika, AnyList</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Life|Food" data-text="scan a barcode onto the grocery list from the scan result, and for non-food kitchen items. ourgroceries">
+<td class="id">G7</td>
+<td><div class="t">Scan a barcode onto the grocery list</div><div class="how">From the scan result, and for non-food Kitchen items.</div><div class="meta">Food, scanning and Insights · answers OurGroceries</div></td>
+<td class="tabs">Life<br>Food</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="send the list to a store app as text the share sheet. a delivery api is item z6. myfitnesspal, eat this much">
+<td class="id">G8</td>
+<td><div class="t">Send the list to a store app as text</div><div class="how">The share sheet. A delivery API is item Z6.</div><div class="meta">Food, scanning and Insights · answers MyFitnessPal, Eat This Much</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Food|Insights" data-text="richest foods for a nutrient from inside a builder nutrient ranking linked from the ingredient picker. cronometer">
+<td class="id">G10</td>
+<td><div class="t">Richest foods for a nutrient from inside a builder</div><div class="how">Nutrient Ranking linked from the ingredient picker.</div><div class="meta">Food, scanning and Insights · answers Cronometer</div></td>
+<td class="tabs">Food<br>Insights</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Food" data-text="where each food's numbers come from the national source as a caption. cronometer">
+<td class="id">G11</td>
+<td><div class="t">Where each food's numbers come from</div><div class="how">The national source as a caption.</div><div class="meta">Food, scanning and Insights · answers Cronometer</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Insights" data-text="foods that would close a short nutrient nutrient ranking filtered through safe foods scoring, preferring foods already in the person's history. cronometer">
+<td class="id">G12</td>
+<td><div class="t">Foods that would close a short nutrient</div><div class="how">Nutrient Ranking filtered through Safe Foods scoring, preferring foods already in the person's history.</div><div class="meta">Food, scanning and Insights · answers Cronometer</div></td>
+<td class="tabs">Insights</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Insights|Trends" data-text="distinct plants this week lib/eatingvariety.ts, "counted" not "good", a blank week a gap. zoe">
+<td class="id">G14</td>
+<td><div class="t">Distinct plants this week</div><div class="how">lib/eatingVariety.ts, "counted" not "good", a blank week a gap.</div><div class="meta">Food, scanning and Insights · answers ZOE</div></td>
+<td class="tabs">Insights<br>Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Food" data-text="one word for each food, for this person "fits all your conditions" or "one caution", never a number; detail one tap away. zoe">
+<td class="id">G15</td>
+<td><div class="t">One word for each food, for this person</div><div class="how">"Fits all your conditions" or "one caution", never a number; detail one tap away.</div><div class="meta">Food, scanning and Insights · answers ZOE</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Food|Insights" data-text="processing level and additives from a scan open food facts already returns nova_group and additives_tags; store, show, and link each additive to its reading entry. yuka, zoe">
+<td class="id">G16</td>
+<td><div class="t">Processing level and additives from a scan</div><div class="how">Open Food Facts already returns nova_group and additives_tags; store, show, and link each additive to its reading entry.</div><div class="meta">Food, scanning and Insights · answers Yuka, ZOE</div></td>
+<td class="tabs">Food<br>Insights</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Food" data-text="one line at the top of a scan "worth a second look for 2 of your conditions: sodium, carrageenan", counted by severity. yuka">
+<td class="id">G17</td>
+<td><div class="t">One line at the top of a scan</div><div class="how">"Worth a second look for 2 of your conditions: sodium, carrageenan", counted by severity.</div><div class="meta">Food, scanning and Insights · answers Yuka</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Food|Insights" data-text="who in the household it suits a line per family member on a scan or recipe, and a "for whom" switch on food lookup. fig">
+<td class="id">G20</td>
+<td><div class="t">Who in the household it suits</div><div class="how">A line per family member on a scan or recipe, and a "for whom" switch on Food Lookup.</div><div class="meta">Food, scanning and Insights · answers Fig</div></td>
+<td class="tabs">Food<br>Insights</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Food" data-text="scan with no signal queue the barcode and look it up once back online. yuka">
+<td class="id">G21</td>
+<td><div class="t">Scan with no signal</div><div class="how">Queue the barcode and look it up once back online.</div><div class="meta">Food, scanning and Insights · answers Yuka</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Home|Food" data-text=""log your usual lunch?" from meal history and usual times, as a home line or a notification button. cal ai">
+<td class="id">G25</td>
+<td><div class="t">"Log your usual lunch?"</div><div class="how">From meal history and usual times, as a Home line or a notification button.</div><div class="meta">Food, scanning and Insights · answers Cal AI</div></td>
+<td class="tabs">Home<br>Food</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Food" data-text="one line across all conditions for a person's own recipe the recipe condition computation exposed for saved recipes. heali">
+<td class="id">G26</td>
+<td><div class="t">One line across all conditions for a person's own recipe</div><div class="how">The recipe condition computation exposed for saved recipes.</div><div class="meta">Food, scanning and Insights · answers Heali</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Home" data-text="choose which nutrients the gauges show a popoverselect list stored in app_meta. cronometer">
+<td class="id">G31</td>
+<td><div class="t">Choose which nutrients the gauges show</div><div class="how">A PopoverSelect list stored in app_meta.</div><div class="meta">Food, scanning and Insights · answers Cronometer</div></td>
+<td class="tabs">Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Home" data-text="hours since the last meal an optional window stored in profile. cronometer">
+<td class="id">G33</td>
+<td><div class="t">Hours since the last meal</div><div class="how">An optional window stored in Profile.</div><div class="meta">Food, scanning and Insights · answers Cronometer</div></td>
+<td class="tabs">Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Schedules" data-text="one tap for a glass quick buttons on hydration and a caffeine line for the day. waterllama">
+<td class="id">G34</td>
+<td><div class="t">One tap for a glass</div><div class="how">Quick buttons on Hydration and a caffeine line for the day.</div><div class="meta">Food, scanning and Insights · answers Waterllama</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Schedules" data-text="hydration reminders stop at the target skip the rest of the day's reminders once the total is reached. waterllama">
+<td class="id">G35</td>
+<td><div class="t">Hydration reminders stop at the target</div><div class="how">Skip the rest of the day's reminders once the total is reached.</div><div class="meta">Food, scanning and Insights · answers Waterllama</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Schedules" data-text="the generator prefers what the kitchen holds a score bonus for recipes kitchencoveragefor mostly covers. eat this much">
+<td class="id">H1</td>
+<td><div class="t">The generator prefers what the kitchen holds</div><div class="how">A score bonus for recipes kitchenCoverageFor mostly covers.</div><div class="meta">Meal planning · answers Eat This Much</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Life|Schedules" data-text="use-by dates use_by on kitchen_items, a reminder kind, a "use soon" band, and a generator bonus. paprika, sortly">
+<td class="id">H2</td>
+<td><div class="t">Use-by dates</div><div class="how">use_by on kitchen_items, a reminder kind, a "use soon" band, and a generator bonus.</div><div class="meta">Meal planning · answers Paprika, Sortly</div></td>
+<td class="tabs">Life<br>Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Schedules" data-text="swap one meal reruns one slot against what the day still needs. eat this much">
+<td class="id">H4</td>
+<td><div class="t">Swap one meal</div><div class="how">Reruns one slot against what the day still needs.</div><div class="meta">Meal planning · answers Eat This Much</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Schedules" data-text="move a meal to another day a day picker on one occurrence. plan to eat">
+<td class="id">H5</td>
+<td><div class="t">Move a meal to another day</div><div class="how">A day picker on one occurrence.</div><div class="meta">Meal planning · answers Plan to Eat</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Schedules" data-text="notes on the calendar an item_type of note in the week strip. plan to eat">
+<td class="id">H7</td>
+<td><div class="t">Notes on the calendar</div><div class="how">An item_type of note in the week strip.</div><div class="meta">Meal planning · answers Plan to Eat</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Schedules" data-text="month view a month grid from the same dot data. paprika">
+<td class="id">H8</td>
+<td><div class="t">Month view</div><div class="how">A month grid from the same dot data.</div><div class="meta">Meal planning · answers Paprika</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Schedules" data-text="this week's plan as a notification in place of an email, which would need a server. eat this much">
+<td class="id">H10</td>
+<td><div class="t">This week's plan as a notification</div><div class="how">In place of an email, which would need a server.</div><div class="meta">Meal planning · answers Eat This Much</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Garden" data-text="rain forecast on a watering task from the forecast home already fetches. planta">
+<td class="id">I2</td>
+<td><div class="t">Rain forecast on a watering task</div><div class="how">From the forecast Home already fetches.</div><div class="meta">Garden · answers Planta</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Garden" data-text="light meter expo-sensors lightsensor, already in the build, saved as a reading. android only. planta">
+<td class="id">I3</td>
+<td><div class="t">Light meter</div><div class="how">expo-sensors LightSensor, already in the build, saved as a reading. Android only.</div><div class="meta">Garden · answers Planta</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Garden" data-text="last and first frost dates from the open-meteo history the zone lookup already pulls. seedtime">
+<td class="id">I4</td>
+<td><div class="t">Last and first frost dates</div><div class="how">From the Open-Meteo history the zone lookup already pulls.</div><div class="meta">Garden · answers Seedtime</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Garden" data-text="succession sowing "every n days, k times" writes several plantings and counters. seedtime">
+<td class="id">I6</td>
+<td><div class="t">Succession sowing</div><div class="how">"Every N days, K times" writes several plantings and counters.</div><div class="meta">Garden · answers Seedtime</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Garden" data-text="crop rotation note lib/cropfamilies.ts keyed on food_id (not a live db column), read against the same area's last three years. growveg">
+<td class="id">I10</td>
+<td><div class="t">Crop rotation note</div><div class="how">lib/cropFamilies.ts keyed on food_id (not a live DB column), read against the same area's last three years.</div><div class="meta">Garden · answers GrowVeg</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Garden" data-text="this month in the garden a monthly reminder once i4 and i5 exist, with a profile switch. growveg">
+<td class="id">I12</td>
+<td><div class="t">This month in the garden</div><div class="how">A monthly reminder once I4 and I5 exist, with a Profile switch.</div><div class="meta">Garden · answers GrowVeg</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Garden" data-text="what was done to each planting garden_planting_events, append-only, event kinds an open list. gardenize">
+<td class="id">I14</td>
+<td><div class="t">What was done to each planting</div><div class="how">garden_planting_events, append-only, event kinds an open list.</div><div class="meta">Garden · answers Gardenize</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Garden|Reports" data-text="garden csv plantings and harvests. gardenize">
+<td class="id">I15</td>
+<td><div class="t">Garden CSV</div><div class="how">Plantings and harvests.</div><div class="meta">Garden · answers Gardenize</div></td>
+<td class="tabs">Garden<br>Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Garden" data-text="seed packet photo and typed variety a barcode lookup would be a worker job (z8). from seed to spoon">
+<td class="id">I17</td>
+<td><div class="t">Seed packet photo and typed variety</div><div class="how">A barcode lookup would be a Worker job (Z8).</div><div class="meta">Garden · answers From Seed to Spoon</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Garden|Trends" data-text="vpd from temperature and humidity readings derived in lib/growingconditions.ts; no verdict words. ac infinity">
+<td class="id">I18</td>
+<td><div class="t">VPD from temperature and humidity readings</div><div class="how">Derived in lib/growingConditions.ts; no verdict words.</div><div class="meta">Garden · answers AC Infinity</div></td>
+<td class="tabs">Garden<br>Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Garden" data-text="import a controller's history file garden_readings with source device. ac infinity">
+<td class="id">I19</td>
+<td><div class="t">Import a controller's history file</div><div class="how">garden_readings with source device.</div><div class="meta">Garden · answers AC Infinity</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Garden" data-text="rain from the station feeds the rain total. after i20. ecowitt">
+<td class="id">I21</td>
+<td><div class="t">Rain from the station</div><div class="how">Feeds the Rain total. After I20.</div><div class="meta">Garden · answers Ecowitt</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="spot repeating charges offer to make them bills. after j1. monarch">
+<td class="id">J2</td>
+<td><div class="t">Spot repeating charges</div><div class="how">Offer to make them bills. After J1.</div><div class="meta">Money, upkeep and places · answers Monarch</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="category rules finance_rules applied on import. monarch">
+<td class="id">J3</td>
+<td><div class="t">Category rules</div><div class="how">finance_rules applied on import.</div><div class="meta">Money, upkeep and places · answers Monarch</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="receipt photo on an entry through x1. monarch">
+<td class="id">J4</td>
+<td><div class="t">Receipt photo on an entry</div><div class="how">Through X1.</div><div class="meta">Money, upkeep and places · answers Monarch</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="upkeep by room or area an open list with counts and dates, never a score. sweepy">
+<td class="id">J6</td>
+<td><div class="t">Upkeep by room or area</div><div class="how">An open list with counts and dates, never a score.</div><div class="meta">Money, upkeep and places · answers Sweepy</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text=""i have 20 minutes" optional minutes on upkeep and a filter. sweepy">
+<td class="id">J7</td>
+<td><div class="t">"I have 20 minutes"</div><div class="how">Optional minutes on upkeep and a filter.</div><div class="meta">Money, upkeep and places · answers Sweepy</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="photo on an item or a place through x1. sortly">
+<td class="id">J9</td>
+<td><div class="t">Photo on an item or a place</div><div class="how">Through X1.</div><div class="meta">Money, upkeep and places · answers Sortly</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Life" data-text="check the shared folder more often a shorter check interval. instant needs m1. anylist">
+<td class="id">J12</td>
+<td><div class="t">Check the shared folder more often</div><div class="how">A shorter check interval. Instant needs M1.</div><div class="meta">Money, upkeep and places · answers AnyList</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Reports" data-text="six months, a year, any range, since the last visit buildreport already takes any number of days. guava, bearable, visible">
+<td class="id">K1</td>
+<td><div class="t">Six months, a year, any range, since the last visit</div><div class="how">buildReport already takes any number of days.</div><div class="meta">Reports · answers Guava, Bearable, Visible</div></td>
+<td class="tabs">Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Reports" data-text="at a glance front page top symptoms by days, doses as words, latest weight and blood pressure, labs outside the lab's printed range. guava">
+<td class="id">K2</td>
+<td><div class="t">At a glance front page</div><div class="how">Top symptoms by days, doses as words, latest weight and blood pressure, labs outside the lab's printed range.</div><div class="meta">Reports · answers Guava</div></td>
+<td class="tabs">Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Reports" data-text="csv export table sections through lib/nativesharing.ts. bearable, mysymptoms, gardenize">
+<td class="id">K5</td>
+<td><div class="t">CSV export</div><div class="how">Table sections through lib/nativeSharing.ts.</div><div class="meta">Reports · answers Bearable, mySymptoms, Gardenize</div></td>
+<td class="tabs">Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Reports" data-text="what i have noticed pattern finder candidates with denominators and experiment results, each a hypothesis from one person's records. mysymptoms">
+<td class="id">K6</td>
+<td><div class="t">What I have noticed</div><div class="how">Pattern Finder candidates with denominators and experiment results, each a hypothesis from one person's records.</div><div class="meta">Reports · answers mySymptoms</div></td>
+<td class="tabs">Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Reports" data-text="report history what was made, when and for whom. guava">
+<td class="id">K7</td>
+<td><div class="t">Report history</div><div class="how">What was made, when and for whom.</div><div class="meta">Reports · answers Guava</div></td>
+<td class="tabs">Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Reports" data-text="heart rate and hrv in reports health connect already reads both with permission; no rebuild. visible">
+<td class="id">K8</td>
+<td><div class="t">Heart rate and HRV in reports</div><div class="how">Health Connect already reads both with permission; no rebuild.</div><div class="meta">Reports · answers Visible</div></td>
+<td class="tabs">Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Reports" data-text="day-by-day food and symptom diary a section in the nutritionist report. mysymptoms">
+<td class="id">K9</td>
+<td><div class="t">Day-by-day food and symptom diary</div><div class="how">A section in the nutritionist report.</div><div class="meta">Reports · answers mySymptoms</div></td>
+<td class="tabs">Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Reports" data-text="choose the sections tick which sections a report carries. cronometer">
+<td class="id">K10</td>
+<td><div class="t">Choose the sections</div><div class="how">Tick which sections a report carries.</div><div class="meta">Reports · answers Cronometer</div></td>
+<td class="tabs">Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Reports" data-text="print from the phone expo-print printasync. cronometer">
+<td class="id">K11</td>
+<td><div class="t">Print from the phone</div><div class="how">expo-print printAsync.</div><div class="meta">Reports · answers Cronometer</div></td>
+<td class="tabs">Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr></tbody></table></div>
+</section>
+<section class="phase" id="p3">
+<h2>Phase 3. Larger builds over the air <span class="count">61</span></h2>
+<p class="lead">Bigger pieces of JS work: new tables with their own screens, drawn editors, experiments, the caregiver holding, garden planning, bank import.</p>
+<div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
+<tbody><tr data-tabs="Schedules" data-text="tapering doses a taper step list on treatments (amount per date range), read by the series generator and the dose reminder text. prednisone tapers in ra, ibd and lupus flares. needs a1. careclinic">
+<td class="id">A2</td>
+<td><div class="t">Tapering doses</div><div class="how">A taper step list on treatments (amount per date range), read by the series generator and the dose reminder text. Prednisone tapers in RA, IBD and lupus flares. Needs A1.</div><div class="meta">Medication logistics · answers CareClinic</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Schedules" data-text="injection site rotation dose_sites table, a body-site picker on the dose row, next-site suggestion from pure lib/injectionsites.ts with a test script. mytherapy">
+<td class="id">A4</td>
+<td><div class="t">Injection site rotation</div><div class="how">dose_sites table, a body-site picker on the dose row, next-site suggestion from pure lib/injectionSites.ts with a test script.</div><div class="meta">Medication logistics · answers MyTherapy</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Schedules" data-text="travel: keep home time or shift to local a per-treatment switch read by lib/reminderschedule.ts when the phone's time zone changes. medisafe">
+<td class="id">A7</td>
+<td><div class="t">Travel: keep home time or shift to local</div><div class="how">A per-treatment switch read by lib/reminderSchedule.ts when the phone's time zone changes.</div><div class="meta">Medication logistics · answers Medisafe</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Life|Schedules|Insights" data-text="caregiver or partner sees a missed dose turn on meds, schedule and symptoms for the ontheirbehalf holding in lib/peerrelationships.ts, merge rules in lib/peermerge.ts, the consent and attestation steps from the caregiver tier, then a local notification on the other phone after a merge. timely delivery needs the relay (m1). medisafe, careclinic">
+<td class="id">A16</td>
+<td><div class="t">Caregiver or partner sees a missed dose</div><div class="how">Turn on meds, schedule and symptoms for the onTheirBehalf holding in lib/peerRelationships.ts, merge rules in lib/peerMerge.ts, the consent and attestation steps from the Caregiver tier, then a local notification on the other phone after a merge. Timely delivery needs the relay (M1).</div><div class="meta">Medication logistics · answers Medisafe, CareClinic</div></td>
+<td class="tabs">Life<br>Schedules<br>Insights</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Life" data-text="shrinking ring timer on a routine step drawn with react-native-svg, with an alert when it ends. tiimo">
+<td class="id">B5</td>
+<td><div class="t">Shrinking ring timer on a routine step</div><div class="how">Drawn with react-native-svg, with an alert when it ends.</div><div class="meta">The day as one picture · answers Tiimo</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Life|Home" data-text="sorting help for a brain dump rule-based suggestions (dates, buy, call, place words) in lib/capturenotes.ts. on the phone only. tiimo">
+<td class="id">C8</td>
+<td><div class="t">Sorting help for a brain dump</div><div class="how">Rule-based suggestions (dates, buy, call, place words) in lib/captureNotes.ts. On the phone only.</div><div class="meta">Capture, reminders and the second audience · answers Tiimo</div></td>
+<td class="tabs">Life<br>Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Home|Life" data-text="plan by sentence a rule parser for times and verbs behind the existing voice screen. structured">
+<td class="id">C9</td>
+<td><div class="t">Plan by sentence</div><div class="how">A rule parser for times and verbs behind the existing voice screen.</div><div class="meta">Capture, reminders and the second audience · answers Structured</div></td>
+<td class="tabs">Home<br>Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Life" data-text="a to-do list with dates and repeats a tasks table (or done_checks with a due date), a band on work and a personal one on life, reminders through lib/remindersources.ts, repeats through a1. todoist">
+<td class="id">C10</td>
+<td><div class="t">A to-do list with dates and repeats</div><div class="how">A tasks table (or done_checks with a due date), a band on Work and a personal one on Life, reminders through lib/reminderSources.ts, repeats through A1.</div><div class="meta">Capture, reminders and the second audience · answers Todoist</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Life|Home" data-text="one read a day, in order for the person a picker over the reading corpus by condition and healing stage, remembered so it moves forward, shown as the first something to read card. noom">
+<td class="id">C20</td>
+<td><div class="t">One read a day, in order for the person</div><div class="how">A picker over the reading corpus by condition and healing stage, remembered so it moves forward, shown as the first Something to Read card.</div><div class="meta">Capture, reminders and the second audience · answers Noom</div></td>
+<td class="tabs">Life<br>Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Home" data-text="ask a question of your records rule-based routing to pattern finder, trends and search. a model behind it is item z3. apple health">
+<td class="id">C22</td>
+<td><div class="t">Ask a question of your records</div><div class="how">Rule-based routing to Pattern Finder, Trends and search. A model behind it is item Z3.</div><div class="meta">Capture, reminders and the second audience · answers Apple Health</div></td>
+<td class="tabs">Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Home" data-text="one-flow daily check-in check-in, feeling and flare forms stepped through as one sequence ending on a summary. bearable">
+<td class="id">D8</td>
+<td><div class="t">One-flow daily check-in</div><div class="how">Check-in, feeling and flare forms stepped through as one sequence ending on a summary.</div><div class="meta">Check-ins and signals · answers Bearable</div></td>
+<td class="tabs">Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Signals|Trends" data-text="bowel log with the bristol scale bowel_movements (append-only, local-day rule), pictured types 1 to 7, urgency, blood, pain; a trends band; a pattern finder outcome. cara care">
+<td class="id">D10</td>
+<td><div class="t">Bowel log with the Bristol scale</div><div class="how">bowel_movements (append-only, local-day rule), pictured types 1 to 7, urgency, blood, pain; a Trends band; a Pattern Finder outcome.</div><div class="meta">Check-ins and signals · answers Cara Care</div></td>
+<td class="tabs">Signals<br>Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Signals|Trends" data-text="body map a tappable svg outline front and back, checkin_body_regions, and a trends band of regions. guava">
+<td class="id">D11</td>
+<td><div class="t">Body map</div><div class="how">A tappable SVG outline front and back, checkin_body_regions, and a Trends band of regions.</div><div class="meta">Check-ins and signals · answers Guava</div></td>
+<td class="tabs">Signals<br>Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Signals" data-text="photos of a symptom over time checkin_photos through x1; kept out of anything that travels between people unless named in the allowlist. guava, cara care, bearable">
+<td class="id">D12</td>
+<td><div class="t">Photos of a symptom over time</div><div class="how">checkin_photos through X1; kept out of anything that travels between people unless named in the allowlist.</div><div class="meta">Check-ins and signals · answers Guava, Cara Care, Bearable</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Signals" data-text="standard questionnaires phq-9 and gad-7 (free to use), fatigue and pain scales after a licence check each, in the assessment framework, shown as each scale's published bands with talk-to-your-clinician wording. clinical-claims audit. careclinic">
+<td class="id">D13</td>
+<td><div class="t">Standard questionnaires</div><div class="how">PHQ-9 and GAD-7 (free to use), fatigue and pain scales after a licence check each, in the assessment framework, shown as each scale's published bands with talk-to-your-clinician wording. Clinical-claims audit.</div><div class="meta">Check-ins and signals · answers CareClinic</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Trends|Home" data-text="pacing view as a record exercise, steps, therapy sessions and overload tags against the person's typical day. never a limit set by the app. visible">
+<td class="id">D16</td>
+<td><div class="t">Pacing view as a record</div><div class="how">Exercise, steps, therapy sessions and overload tags against the person's typical day. Never a limit set by the app.</div><div class="meta">Check-ins and signals · answers Visible</div></td>
+<td class="tabs">Trends<br>Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M-L</td>
+</tr>
+<tr data-tabs="Trends" data-text="trends &gt; cycle symptoms by cycle day, a builder in lib/trendsmore.ts. clue">
+<td class="id">E3</td>
+<td><div class="t">Trends &gt; Cycle</div><div class="how">Symptoms by cycle day, a builder in lib/trendsMore.ts.</div><div class="meta">Cycle · answers Clue</div></td>
+<td class="tabs">Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Trends" data-text="cycle shading on any chart shaded columns behind trendlinechart. oura">
+<td class="id">E4</td>
+<td><div class="t">Cycle shading on any chart</div><div class="how">Shaded columns behind TrendLineChart.</div><div class="meta">Cycle · answers Oura</div></td>
+<td class="tabs">Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Trends" data-text="body readings as outcomes "on days after x, resting heart rate was in its usual range n of m times." needs f1. welltory">
+<td class="id">F2</td>
+<td><div class="t">Body readings as outcomes</div><div class="how">"On days after X, resting heart rate was in its usual range N of M times." Needs F1.</div><div class="meta">Patterns and Trends · answers Welltory</div></td>
+<td class="tabs">Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Signals" data-text="experiments beyond food subject_kind on food_trials: a bedtime, a supplement, a walk. bearable, exist">
+<td class="id">F5</td>
+<td><div class="t">Experiments beyond food</div><div class="how">subject_kind on food_trials: a bedtime, a supplement, a walk.</div><div class="meta">Patterns and Trends · answers Bearable, Exist</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Signals" data-text="an elimination series queues the next trial when one ends; keeps the one-run limit sentence. cara care">
+<td class="id">F6</td>
+<td><div class="t">An elimination series</div><div class="how">Queues the next trial when one ends; keeps the one-run limit sentence.</div><div class="meta">Patterns and Trends · answers Cara Care</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Signals" data-text="stepped reintroduction small, medium, large, then a washout, each step read on its own. monash fodmap">
+<td class="id">F7</td>
+<td><div class="t">Stepped reintroduction</div><div class="how">Small, medium, large, then a washout, each step read on its own.</div><div class="meta">Patterns and Trends · answers Monash FODMAP</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Signals" data-text="glucose as an experiment measure after f10. levels">
+<td class="id">F8</td>
+<td><div class="t">Glucose as an experiment measure</div><div class="how">After F10.</div><div class="meta">Patterns and Trends · answers Levels</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Insights|Trends" data-text="glucose around each meal pure lib/mealglucose.ts: rise and time back to the pre-meal level, on signals today and a trends history. "rose by", never "spiked because of". levels, cronometer">
+<td class="id">F10</td>
+<td><div class="t">Glucose around each meal</div><div class="how">Pure lib/mealGlucose.ts: rise and time back to the pre-meal level, on Signals Today and a Trends history. "Rose by", never "spiked because of".</div><div class="meta">Patterns and Trends · answers Levels, Cronometer</div></td>
+<td class="tabs">Insights<br>Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Trends|Signals" data-text="a year in squares components/calendarheatstrip.tsx; an unlogged day is an empty outline, never the lowest colour. then a small add per lens. daylio">
+<td class="id">F15</td>
+<td><div class="t">A year in squares</div><div class="how">components/CalendarHeatStrip.tsx; an unlogged day is an empty outline, never the lowest colour. Then a small add per lens.</div><div class="meta">Patterns and Trends · answers Daylio</div></td>
+<td class="tabs">Trends<br>Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Trends|Food|Insights" data-text="compare any two series nutrient, weight, lab, steps, sleep, symptom severity on one date axis, each on its own scale, with a caption that moving together is not causing. cronometer">
+<td class="id">F16</td>
+<td><div class="t">Compare any two series</div><div class="how">Nutrient, weight, lab, steps, sleep, symptom severity on one date axis, each on its own scale, with a caption that moving together is not causing.</div><div class="meta">Patterns and Trends · answers Cronometer</div></td>
+<td class="tabs">Trends<br>Food<br>Insights</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Trends" data-text="tags as marks under a chart after f15 or d2. oura">
+<td class="id">F18</td>
+<td><div class="t">Tags as marks under a chart</div><div class="how">After F15 or D2.</div><div class="meta">Patterns and Trends · answers Oura</div></td>
+<td class="tabs">Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Trends" data-text="tags against the next night's sleep and heart rate with counts and the usual range. oura">
+<td class="id">F20</td>
+<td><div class="t">Tags against the next night's sleep and heart rate</div><div class="how">With counts and the usual range.</div><div class="meta">Patterns and Trends · answers Oura</div></td>
+<td class="tabs">Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Food" data-text="recipe from a cookbook photo ml kit ocr is already in the build; the lines go to g1's matcher. samsung food">
+<td class="id">G2</td>
+<td><div class="t">Recipe from a cookbook photo</div><div class="how">ML Kit OCR is already in the build; the lines go to G1's matcher.</div><div class="meta">Food, scanning and Insights · answers Samsung Food</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Food" data-text="log a restaurant or takeaway meal source restaurant with an estimate flag; a stand-in recipe or ticked ingredients. a chain menu database is z7. myfitnesspal">
+<td class="id">G9</td>
+<td><div class="t">Log a restaurant or takeaway meal</div><div class="how">source restaurant with an estimate flag; a stand-in recipe or ticked ingredients. A chain menu database is Z7.</div><div class="meta">Food, scanning and Insights · answers MyFitnessPal</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Insights" data-text="calcium, iron and zinc absorption estimate oxalate and phytate already in the db; cited coefficients; labelled an estimate with its tier. cronometer">
+<td class="id">G13</td>
+<td><div class="t">Calcium, iron and zinc absorption estimate</div><div class="how">Oxalate and phytate already in the DB; cited coefficients; labelled an estimate with its tier.</div><div class="meta">Food, scanning and Insights · answers Cronometer</div></td>
+<td class="tabs">Insights</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Food|Insights" data-text="every ingredient checked, with a named reason lib/ingredientflags.ts: additives, fodmap ingredients, histamine liberators, gluten grains, per-diet lists and an uncertain class. allergen-aware wording (item 26). citations are the work. fig">
+<td class="id">G18</td>
+<td><div class="t">Every ingredient checked, with a named reason</div><div class="how">lib/ingredientFlags.ts: additives, FODMAP ingredients, histamine liberators, gluten grains, per-diet lists and an uncertain class. Allergen-aware wording (item 26). Citations are the work.</div><div class="meta">Food, scanning and Insights · answers Fig</div></td>
+<td class="tabs">Food<br>Insights</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M-L</td>
+</tr>
+<tr data-tabs="Food|Profile" data-text="more restrictions to choose histamine, salicylate, sulfite, alpha-gal, nightshade, lectin, each mapped to db properties or g18. fig">
+<td class="id">G19</td>
+<td><div class="t">More restrictions to choose</div><div class="how">Histamine, salicylate, sulfite, alpha-gal, nightshade, lectin, each mapped to DB properties or G18.</div><div class="meta">Food, scanning and Insights · answers Fig</div></td>
+<td class="tabs">Food<br>Profile</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Food|Insights" data-text="a home recipe or whole food in place of a packaged one from the scan result, recipes and reference foods in the same category that score clean. yuka">
+<td class="id">G22</td>
+<td><div class="t">A home recipe or whole food in place of a packaged one</div><div class="how">From the scan result, recipes and reference foods in the same category that score clean.</div><div class="meta">Food, scanning and Insights · answers Yuka</div></td>
+<td class="tabs">Food<br>Insights</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Food" data-text="menu scan, limited ocr finds ingredient words and runs condition matching. a model version is z3. heali">
+<td class="id">G27</td>
+<td><div class="t">Menu scan, limited</div><div class="how">OCR finds ingredient words and runs condition matching. A model version is Z3.</div><div class="meta">Food, scanning and Insights · answers Heali</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Insights|Signals|Reports" data-text="labs without typing a photo of the sheet through the ml kit ocr already in the build (no rebuild), a pasted table or csv, and a whole-panel form; every value confirmed before saving. levels, guava, guava reports">
+<td class="id">G28</td>
+<td><div class="t">Labs without typing</div><div class="how">A photo of the sheet through the ML Kit OCR already in the build (no rebuild), a pasted table or CSV, and a whole-panel form; every value confirmed before saving.</div><div class="meta">Food, scanning and Insights · answers Levels, Guava, Guava Reports</div></td>
+<td class="tabs">Insights<br>Signals<br>Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Signals" data-text="microbiome test as a typed record a lab-style record for a test the person bought. zoe">
+<td class="id">G30</td>
+<td><div class="t">Microbiome test as a typed record</div><div class="how">A lab-style record for a test the person bought.</div><div class="meta">Food, scanning and Insights · answers ZOE</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Home" data-text="today grouped by body system or by condition a fold inside fuel gauges; says what is counted, never "too low". cronometer">
+<td class="id">G32</td>
+<td><div class="t">Today grouped by body system or by condition</div><div class="how">A fold inside Fuel Gauges; says what is counted, never "too low".</div><div class="meta">Food, scanning and Insights · answers Cronometer</div></td>
+<td class="tabs">Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Schedules" data-text="hydration per drink and a goal that moves a cited hydration index per drink (rule engine steps 1 to 3), activity from health connect now, heat once f22 exists. waterllama">
+<td class="id">G36</td>
+<td><div class="t">Hydration per drink and a goal that moves</div><div class="how">A cited hydration index per drink (Rule Engine steps 1 to 3), activity from Health Connect now, heat once F22 exists.</div><div class="meta">Food, scanning and Insights · answers Waterllama</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Schedules" data-text="optional calorie and macro band in the generator offered, never default; careful for ibd and celiac where under-eating is the risk. eat this much">
+<td class="id">G37</td>
+<td><div class="t">Optional calorie and macro band in the generator</div><div class="how">Offered, never default; careful for IBD and celiac where under-eating is the risk.</div><div class="meta">Food, scanning and Insights · answers Eat This Much</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Schedules" data-text="a budget ceiling from the person's recorded prices only where prices exist; never guessed. eat this much">
+<td class="id">G38</td>
+<td><div class="t">A budget ceiling from the person's recorded prices</div><div class="how">Only where prices exist; never guessed.</div><div class="meta">Food, scanning and Insights · answers Eat This Much</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Schedules" data-text="leftovers and batch cooking "makes n, eat again at" links later slots to the same meal; ties to open item 18. eat this much">
+<td class="id">H3</td>
+<td><div class="t">Leftovers and batch cooking</div><div class="how">"Makes N, eat again at" links later slots to the same meal; ties to open item 18.</div><div class="meta">Meal planning · answers Eat This Much</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Schedules" data-text="save a week and reuse it saved_plans by day offset. plan to eat">
+<td class="id">H6</td>
+<td><div class="t">Save a week and reuse it</div><div class="how">saved_plans by day offset.</div><div class="meta">Meal planning · answers Plan to Eat</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Schedules" data-text="shared household meal calendar the schedule area for meals only in the peer allowlist. plan to eat">
+<td class="id">H9</td>
+<td><div class="t">Shared household meal calendar</div><div class="how">The schedule area for meals only in the peer allowlist.</div><div class="meta">Meal planning · answers Plan to Eat</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M-L</td>
+</tr>
+<tr data-tabs="Schedules" data-text="build the exercise lens uses a1 repeats and health connect workouts. careclinic">
+<td class="id">H11</td>
+<td><div class="t">Build the Exercise lens</div><div class="how">Uses A1 repeats and Health Connect workouts.</div><div class="meta">Meal planning · answers CareClinic</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Garden" data-text="care cadence per crop a cited lib/cropcare.ts offering a repeating task series. planta">
+<td class="id">I1</td>
+<td><div class="t">Care cadence per crop</div><div class="how">A cited lib/cropCare.ts offering a repeating task series.</div><div class="meta">Garden · answers Planta</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Garden" data-text="sowing calendar and expected dates a cited lib/sowingwindows.ts (weeks from frost, days to sprout and to harvest) filling expected dates and two days until counters. seedtime, from seed to spoon">
+<td class="id">I5</td>
+<td><div class="t">Sowing calendar and expected dates</div><div class="how">A cited lib/sowingWindows.ts (weeks from frost, days to sprout and to harvest) filling expected dates and two Days Until counters.</div><div class="meta">Garden · answers Seedtime, From Seed to Spoon</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M-L</td>
+</tr>
+<tr data-tabs="Garden" data-text="companion planting lib/companionpairs.ts with evidence tiers; a caption, never a block. seedtime">
+<td class="id">I7</td>
+<td><div class="t">Companion planting</div><div class="how">lib/companionPairs.ts with evidence tiers; a caption, never a block.</div><div class="meta">Garden · answers Seedtime</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Garden" data-text="bed layout drawn to scale width and length on areas, grid position on plantings, an svg editor. seedtime, growveg">
+<td class="id">I8</td>
+<td><div class="t">Bed layout drawn to scale</div><div class="how">Width and length on areas, grid position on plantings, an SVG editor.</div><div class="meta">Garden · answers Seedtime, GrowVeg</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Garden" data-text="seed inventory garden_seeds with packet date; a planting draws down a packet. seedtime">
+<td class="id">I9</td>
+<td><div class="t">Seed inventory</div><div class="how">garden_seeds with packet date; a planting draws down a packet.</div><div class="meta">Garden · answers Seedtime</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Garden" data-text="pests and beneficial insects a horticulture subgroup, following the reading pattern rules. growveg">
+<td class="id">I11</td>
+<td><div class="t">Pests and beneficial insects</div><div class="how">A Horticulture subgroup, following the reading pattern rules.</div><div class="meta">Garden · answers GrowVeg</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Reading content</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Garden" data-text="photos on plantings, areas, harvests and piles garden_photos through x1. gardenize">
+<td class="id">I13</td>
+<td><div class="t">Photos on plantings, areas, harvests and piles</div><div class="how">garden_photos through X1.</div><div class="meta">Garden · answers Gardenize</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Garden" data-text="what to grow for my conditions crops for the person's climate ranked by the condition scoring food lookup already uses. from seed to spoon">
+<td class="id">I16</td>
+<td><div class="t">What to grow for my conditions</div><div class="how">Crops for the person's climate ranked by the condition scoring Food Lookup already uses.</div><div class="meta">Garden · answers From Seed to Spoon</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Garden" data-text="read an ecowitt gateway on the home network polling by ip (zeroconf and cleartext lan already in the build) while the app is open. ecowitt">
+<td class="id">I20</td>
+<td><div class="t">Read an Ecowitt gateway on the home network</div><div class="how">Polling by IP (zeroconf and cleartext LAN already in the build) while the app is open.</div><div class="meta">Garden · answers Ecowitt</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Garden" data-text="a symptom guide in horticulture "yellow lower leaves on tomatoes: what it can be", cited, nothing leaves the phone. picturethis">
+<td class="id">I26</td>
+<td><div class="t">A symptom guide in Horticulture</div><div class="how">"Yellow lower leaves on tomatoes: what it can be", cited, nothing leaves the phone.</div><div class="meta">Garden · answers PictureThis</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Reading content</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Life" data-text="import a bank export csv, ofx or qfx into finance_entries with a duplicate check; the file never leaves the device. ynab, monarch">
+<td class="id">J1</td>
+<td><div class="t">Import a bank export</div><div class="how">CSV, OFX or QFX into finance_entries with a duplicate check; the file never leaves the device.</div><div class="meta">Money, upkeep and places · answers YNAB, Monarch</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Life" data-text="give every dollar a job a view over finance_budgets. ynab">
+<td class="id">J5</td>
+<td><div class="t">Give every dollar a job</div><div class="how">A view over finance_budgets.</div><div class="meta">Money, upkeep and places · answers YNAB</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Life" data-text="shared chores upkeep in the peer allowlist. sweepy">
+<td class="id">J8</td>
+<td><div class="t">Shared chores</div><div class="how">upkeep in the peer allowlist.</div><div class="meta">Money, upkeep and places · answers Sweepy</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Life" data-text="places inside places a places table with a parent, as an open list; where did i put it walks the path. sortly">
+<td class="id">J10</td>
+<td><div class="t">Places inside places</div><div class="how">A places table with a parent, as an open list; Where did I put it walks the path.</div><div class="meta">Money, upkeep and places · answers Sortly</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Life" data-text="qr labels for boxes pure js qr, printed through expo-print, scanned with the camera already there. the label carries an id only. sortly">
+<td class="id">J11</td>
+<td><div class="t">QR labels for boxes</div><div class="how">Pure JS QR, printed through expo-print, scanned with the camera already there. The label carries an id only.</div><div class="meta">Money, upkeep and places · answers Sortly</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Reports|Insights" data-text="visit prep questions visit_questions tied to an appointment, reorder and tick off, in the person's words. guava">
+<td class="id">K4</td>
+<td><div class="t">Visit prep questions</div><div class="how">visit_questions tied to an appointment, reorder and tick off, in the person's words.</div><div class="meta">Reports · answers Guava</div></td>
+<td class="tabs">Reports<br>Insights</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr></tbody></table></div>
+</section>
+<section class="phase" id="p4">
+<h2>Phase 4. The Android rebuild (R1) <span class="count">11</span></h2>
+<p class="lead">Everything below needs native code, so it is gathered into one EAS build. Both phones reinstall once.</p>
+<div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
+<tbody><tr data-tabs="Life|Home|Food" data-text="share into inside story from any app a send intent filter for text, links and images. a link to a recipe goes to the importer (g1); anything else lands in capture. todoist, samsung food, plan to eat">
+<td class="id">C11</td>
+<td><div class="t">Share into Inside Story from any app</div><div class="how">A SEND intent filter for text, links and images. A link to a recipe goes to the importer (G1); anything else lands in Capture.</div><div class="meta">Capture, reminders and the second audience · answers Todoist, Samsung Food, Plan to Eat</div></td>
+<td class="tabs">Life<br>Home<br>Food</td>
+<td><span class="ship r1">Android rebuild</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Home" data-text="app icon shortcuts and a quick settings tile expo-quick-actions plus a tile config plugin: capture, did i take it, where is it. todoist">
+<td class="id">C12</td>
+<td><div class="t">App icon shortcuts and a quick settings tile</div><div class="how">expo-quick-actions plus a tile config plugin: Capture, Did I take it, Where is it.</div><div class="meta">Capture, reminders and the second audience · answers Todoist</div></td>
+<td class="tabs">Home</td>
+<td><span class="ship r1">Android rebuild</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Signals" data-text="relaxation and gut-directed audio expo-audio and a player screen. the content has to be licensed or recorded, which is the larger job. cara care">
+<td class="id">D15</td>
+<td><div class="t">Relaxation and gut-directed audio</div><div class="how">expo-audio and a player screen. The content has to be licensed or recorded, which is the larger job.</div><div class="meta">Check-ins and signals · answers Cara Care</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship r1">Android rebuild</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Food" data-text="mark up any web page as a recipe react-native-webview, for sites with no structured data. paprika">
+<td class="id">G3</td>
+<td><div class="t">Mark up any web page as a recipe</div><div class="how">react-native-webview, for sites with no structured data.</div><div class="meta">Food, scanning and Insights · answers Paprika</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship r1">Android rebuild</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Food" data-text="photo gives a first guess at ingredients, on the phone ml kit image labelling: broad items only, confirmed by the person, never saved unconfirmed. the cloud version is z1. cal ai">
+<td class="id">G24</td>
+<td><div class="t">Photo gives a first guess at ingredients, on the phone</div><div class="how">ML Kit image labelling: broad items only, confirmed by the person, never saved unconfirmed. The cloud version is Z1.</div><div class="meta">Food, scanning and Insights · answers Cal AI</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship r1">Android rebuild</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Garden" data-text="receive the gateway's pushes a small http listener native module. polling covers it until then. ecowitt">
+<td class="id">I22</td>
+<td><div class="t">Receive the gateway's pushes</div><div class="how">A small HTTP listener native module. Polling covers it until then.</div><div class="meta">Garden · answers Ecowitt</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship r1">Android rebuild</span></td>
+<td class="size">M-L</td>
+</tr>
+<tr data-tabs="Home|Life|Schedules" data-text="android home screen widgets react-native-android-widget: next thing, next dose, capture, grocery list, fuel gauges, current routine step, one-tap glass. a "hide health details on widgets" switch, since a locked phone shows them. tiimo, anylist, todoist, waterllama, medisafe, cronometer">
+<td class="id">L2</td>
+<td><div class="t">Android home screen widgets</div><div class="how">react-native-android-widget: next thing, next dose, Capture, grocery list, Fuel Gauges, current routine step, one-tap glass. A "hide health details on widgets" switch, since a locked phone shows them.</div><div class="meta">Phones, widgets and devices · answers Tiimo, AnyList, Todoist, Waterllama, Medisafe, Cronometer</div></td>
+<td class="tabs">Home<br>Life<br>Schedules</td>
+<td><span class="ship r1">Android rebuild</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Trends|Signals" data-text="breathing rate and body temperature two more health connect permissions. oura">
+<td class="id">L4</td>
+<td><div class="t">Breathing rate and body temperature</div><div class="how">Two more Health Connect permissions.</div><div class="meta">Phones, widgets and devices · answers Oura</div></td>
+<td class="tabs">Trends<br>Signals</td>
+<td><span class="ship r1">Android rebuild</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="all" data-text="camera originals to the gallery, and wi-fi only photos expo-media-library saves the full camera picture, with its details, to the phone's gallery while the app keeps its two small sizes (x1, 1.0.53.7). expo-network tells wi-fi from mobile data, so "send and fetch shared photos on wi-fi only" holds on the phone; until then lib/photonative.ts reports unknown and photos go either way. (your question)">
+<td class="id">L5</td>
+<td><div class="t">Camera originals to the gallery, and Wi-Fi only photos</div><div class="how">expo-media-library saves the full camera picture, with its details, to the phone's gallery while the app keeps its two small sizes (X1, 1.0.53.7). expo-network tells Wi-Fi from mobile data, so "Send and fetch shared photos on Wi-Fi only" holds on the phone; until then lib/photoNative.ts reports unknown and photos go either way.</div><div class="meta">Phones, widgets and devices · answers (your question)</div></td>
+<td class="tabs">all</td>
+<td><span class="ship r1">Android rebuild</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="phone contacts inside the app expo-contacts: pick a contact for emergency, a prescriber, a pharmacy, the family roster or a caregiver invite. read on the phone, nothing copied out. (your question)">
+<td class="id">O1</td>
+<td><div class="t">Phone contacts inside the app</div><div class="how">expo-contacts: pick a contact for Emergency, a prescriber, a pharmacy, the family roster or a caregiver invite. Read on the phone, nothing copied out.</div><div class="meta">Talking to people · answers (your question)</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship r1">Android rebuild</span></td>
+<td class="size">S-M</td>
+</tr>
+<tr data-tabs="Life" data-text="text or call from inside the app expo-sms opens the phone's texting app with the message filled in; calling already works through linking. (your question)">
+<td class="id">O2</td>
+<td><div class="t">Text or call from inside the app</div><div class="how">expo-sms opens the phone's texting app with the message filled in; calling already works through Linking.</div><div class="meta">Talking to people · answers (your question)</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship r1">Android rebuild</span></td>
+<td class="size">S</td>
+</tr></tbody></table></div>
+</section>
+<section class="phase" id="p5">
+<h2>Phase 5. The Worker and the relay <span class="count">6</span></h2>
+<p class="lead">Cloudflare work on inside-story-site: the content-blind relay, and the public-data bundles under the three privacy shapes from item 27.</p>
+<div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
+<tbody><tr data-tabs="Insights|Life|Food" data-text="recalls matched to my meds and scanned foods external data item 27: the worker pre-fetches fda recall feeds as one bundle and the phone matches names locally, so the med list never leaves it. drugs.com">
+<td class="id">A14</td>
+<td><div class="t">Recalls matched to My Meds and scanned foods</div><div class="how">External data item 27: the Worker pre-fetches FDA recall feeds as one bundle and the phone matches names locally, so the med list never leaves it.</div><div class="meta">Medication logistics · answers Drugs.com</div></td>
+<td class="tabs">Insights<br>Life<br>Food</td>
+<td><span class="ship wk">Worker</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="none" data-text="try-before-install page a page on inside-story-site describing the app by audience. collects nothing. noom">
+<td class="id">C21</td>
+<td><div class="t">Try-before-install page</div><div class="how">A page on inside-story-site describing the app by audience. Collects nothing.</div><div class="meta">Capture, reminders and the second audience · answers Noom</div></td>
+<td class="tabs">none</td>
+<td><span class="ship wk">Worker</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Signals|Trends" data-text="weather beside symptoms daily_weather from the worker bundle with a coarsened location (item 27), listed beside flares in lib/patterncontext.ts. a typed city ships over the air; automatic location needs expo-location in r1. flaredown">
+<td class="id">F22</td>
+<td><div class="t">Weather beside symptoms</div><div class="how">daily_weather from the Worker bundle with a coarsened location (item 27), listed beside flares in lib/patternContext.ts. A typed city ships over the air; automatic location needs expo-location in R1.</div><div class="meta">Patterns and Trends · answers Flaredown</div></td>
+<td class="tabs">Signals<br>Trends</td>
+<td><span class="ship wk">Worker</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Garden" data-text="what plant is this pl@ntnet through the worker so the key stays off the phone; the photo leaves only on an explicit opt-in each time. picturethis, planta">
+<td class="id">I24</td>
+<td><div class="t">What plant is this</div><div class="how">Pl@ntNet through the Worker so the key stays off the phone; the photo leaves only on an explicit opt-in each time.</div><div class="meta">Garden · answers PictureThis, Planta</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship wk">Worker</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Life" data-text="messages between inside story users end to end encrypted with the keys in lib/deviceidentity.ts and the connections roster; the relay (m1) carries sealed bytes it cannot read. caregiver, partner and family notes, a missed-dose alert, a shared list change. (your question)">
+<td class="id">O3</td>
+<td><div class="t">Messages between Inside Story users</div><div class="how">End to end encrypted with the keys in lib/deviceIdentity.ts and the connections roster; the relay (M1) carries sealed bytes it cannot read. Caregiver, partner and family notes, a missed-dose alert, a shared list change.</div><div class="meta">Talking to people · answers (your question)</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship wk">Relay</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="all" data-text="content-blind push relay the worker plus fcm, carrying a wake-up and sealed bytes only. unlocks a16 on time, j12 instantly, and o3. remote push setup rides in r1. medisafe, anylist, careclinic">
+<td class="id">M1</td>
+<td><div class="t">Content-blind push relay</div><div class="how">The Worker plus FCM, carrying a wake-up and sealed bytes only. Unlocks A16 on time, J12 instantly, and O3. Remote push setup rides in R1.</div><div class="meta">Servers and relay · answers Medisafe, AnyList, CareClinic</div></td>
+<td class="tabs">all</td>
+<td><span class="ship wk">Relay</span></td>
+<td class="size">L</td>
+</tr></tbody></table></div>
+</section>
+<section class="phase" id="p6">
+<h2>Phase 6. The iPhone build (R2) <span class="count">2</span></h2>
+<p class="lead">Apple Health, widgets and Live Activity. Needs an Apple developer account for signing an iPhone build, which is its own decision.</p>
+<div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
+<tbody><tr data-tabs="Home|Trends|Signals|Insights" data-text="apple health on iphone a healthkit module behind the lib/healthconnect.ts interface, so every reader stays the same. bearable, guava, welltory, oura, levels, apple health">
+<td class="id">L1</td>
+<td><div class="t">Apple Health on iPhone</div><div class="how">A HealthKit module behind the lib/healthConnect.ts interface, so every reader stays the same.</div><div class="meta">Phones, widgets and devices · answers Bearable, Guava, Welltory, Oura, Levels, Apple Health</div></td>
+<td class="tabs">Home<br>Trends<br>Signals<br>Insights</td>
+<td><span class="ship r2">iPhone build</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Home|Life" data-text="iphone widgets and live activity widgetkit through a config plugin, same content and switch. tiimo, medisafe">
+<td class="id">L3</td>
+<td><div class="t">iPhone widgets and Live Activity</div><div class="how">WidgetKit through a config plugin, same content and switch.</div><div class="meta">Phones, widgets and devices · answers Tiimo, Medisafe</div></td>
+<td class="tabs">Home<br>Life</td>
+<td><span class="ship r2">iPhone build</span></td>
+<td class="size">L</td>
+</tr></tbody></table></div>
+</section>
+<section class="phase" id="p7">
+<h2>Phase 7. Opt-in, server and ruled-out items <span class="count">23</span></h2>
+<p class="lead">Kept on the list so nothing from the review is dropped. Each one either sends something off the phone, needs a company server, costs a licence, or breaks a standing rule. Each needs your yes before any work.</p>
+<div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
+<tbody><tr data-tabs="Life" data-text="pill identifier needs a licensed imprint and image database. listed so nothing is dropped; a cost decision. drugs.com">
+<td class="id">A15</td>
+<td><div class="t">Pill identifier</div><div class="how">Needs a licensed imprint and image database. Listed so nothing is dropped; a cost decision.</div><div class="meta">Medication logistics · answers Drugs.com</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ask">Your decision</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Life" data-text="ai breaks a task into steps needs a language model off the phone: explicit opt-in per use, text only, no health content, through the worker. goblin.tools, tiimo">
+<td class="id">C14</td>
+<td><div class="t">AI breaks a task into steps</div><div class="how">Needs a language model off the phone: explicit opt-in per use, text only, no health content, through the Worker.</div><div class="meta">Capture, reminders and the second audience · answers Goblin.tools, Tiimo</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ask">Opt-in only</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Signals|Reports" data-text="portal records (fhir) us only, an app registration per health system, or health connect medical records. a decision on scope first. guava, apple health">
+<td class="id">G29</td>
+<td><div class="t">Portal records (FHIR)</div><div class="how">US only, an app registration per health system, or Health Connect medical records. A decision on scope first.</div><div class="meta">Food, scanning and Insights · answers Guava, Apple Health</div></td>
+<td class="tabs">Signals<br>Reports</td>
+<td><span class="ship ask">Your decision</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Garden" data-text="live ac infinity readings only through an undocumented cloud api; opt-in, stated, fragile. ac infinity">
+<td class="id">I23</td>
+<td><div class="t">Live AC Infinity readings</div><div class="how">Only through an undocumented cloud API; opt-in, stated, fragile.</div><div class="meta">Garden · answers AC Infinity</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ask">Opt-in only</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Garden" data-text="what is wrong with this plant a paid diagnosis service or a vision model, opt-in per use. cost decision. picturethis">
+<td class="id">I25</td>
+<td><div class="t">What is wrong with this plant</div><div class="how">A paid diagnosis service or a vision model, opt-in per use. Cost decision.</div><div class="meta">Garden · answers PictureThis</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ask">Opt-in only</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Life" data-text="capture from other apps' notifications a notification listener. google play treats it as sensitive, android 15 hides its setting for sideloaded apps; opt-in only. (your question)">
+<td class="id">O4</td>
+<td><div class="t">Capture from other apps' notifications</div><div class="how">A notification listener. Google Play treats it as sensitive, Android 15 hides its setting for sideloaded apps; opt-in only.</div><div class="meta">Talking to people · answers (your question)</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ask">Opt-in only</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Life" data-text="inside story as the default texting app android only, play policy likely refuses it, the person loses rcs, and it cannot exist on iphone or desktop. ruled out by the owner on 2026-09-26; kept on the list only as the record of that decision. o1, o2, c11 and o3 are the route instead. (your question)">
+<td class="id">O5</td>
+<td><div class="t">Inside Story as the default texting app</div><div class="how">Android only, Play policy likely refuses it, the person loses RCS, and it cannot exist on iPhone or desktop. Ruled out by the owner on 2026-09-26; kept on the list only as the record of that decision. O1, O2, C11 and O3 are the route instead.</div><div class="meta">Talking to people · answers (your question)</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ask">Your decision</span></td>
+<td class="size">XL</td>
+</tr>
+<tr data-tabs="Food|Insights" data-text="photo sent to a vision model for ingredients open item 21. opt-in each time, through the worker, nothing stored, the person confirms every line. cal ai, cronometer">
+<td class="id">Z1</td>
+<td><div class="t">Photo sent to a vision model for ingredients</div><div class="how">Open item 21. Opt-in each time, through the Worker, nothing stored, the person confirms every line.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers Cal AI, Cronometer</div></td>
+<td class="tabs">Food<br>Insights</td>
+<td><span class="ship ask">Opt-in only</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Trends|Signals" data-text="a readiness, stress or energy score breaks the phase a rule that a score never stands in for a clinician. only if you change that rule. welltory, oura">
+<td class="id">Z2</td>
+<td><div class="t">A readiness, stress or energy score</div><div class="how">Breaks the Phase A rule that a score never stands in for a clinician. Only if you change that rule.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers Welltory, Oura</div></td>
+<td class="tabs">Trends<br>Signals</td>
+<td><span class="ship ask">Your decision</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Home|Insights" data-text="ai chat and a model behind "ask your records" opt-in, answering only from the cited reading corpus with its evidence tier shown. heali, apple health">
+<td class="id">Z3</td>
+<td><div class="t">AI chat and a model behind "ask your records"</div><div class="how">Opt-in, answering only from the cited reading corpus with its evidence tier shown.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers Heali, Apple Health</div></td>
+<td class="tabs">Home<br>Insights</td>
+<td><span class="ship ask">Opt-in only</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Schedules|Signals" data-text="streaks, challenges and characters ruled out by the keeping up rules. listed because the competitors lead with them. mytherapy, waterllama">
+<td class="id">Z4</td>
+<td><div class="t">Streaks, challenges and characters</div><div class="how">Ruled out by the Keeping Up rules. Listed because the competitors lead with them.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers MyTherapy, Waterllama</div></td>
+<td class="tabs">Schedules<br>Signals</td>
+<td><span class="ship ask">Your decision</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Signals" data-text="how others with my condition are doing needs a server holding pooled health data. flaredown">
+<td class="id">Z5</td>
+<td><div class="t">How others with my condition are doing</div><div class="how">Needs a server holding pooled health data.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers Flaredown</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ask">Needs a server</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Life" data-text="grocery delivery (instacart, amazonfresh) a partner key and a server; the list goes to a company. g8 covers most of it. myfitnesspal, eat this much">
+<td class="id">Z6</td>
+<td><div class="t">Grocery delivery (Instacart, AmazonFresh)</div><div class="how">A partner key and a server; the list goes to a company. G8 covers most of it.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers MyFitnessPal, Eat This Much</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ask">Needs a server</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Food" data-text="chain restaurant menus a keyed lookup through the worker. licensing the data is the cost. myfitnesspal">
+<td class="id">Z7</td>
+<td><div class="t">Chain restaurant menus</div><div class="how">A keyed lookup through the Worker. Licensing the data is the cost.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers MyFitnessPal</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship wk">Worker</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Garden" data-text="seed packet barcode to variety a keyed lookup; open data rarely resolves seeds. from seed to spoon">
+<td class="id">Z8</td>
+<td><div class="t">Seed packet barcode to variety</div><div class="how">A keyed lookup; open data rarely resolves seeds.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers From Seed to Spoon</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship wk">Worker</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Life" data-text="add by alexa or google assistant a skill needs a company server. ourgroceries">
+<td class="id">Z9</td>
+<td><div class="t">Add by Alexa or Google Assistant</div><div class="how">A skill needs a company server.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers OurGroceries</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ask">Needs a server</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="linked bank accounts plaid or gocardless tokens held on a server. j1 covers most of it. ynab, monarch">
+<td class="id">Z10</td>
+<td><div class="t">Linked bank accounts</div><div class="how">Plaid or GoCardless tokens held on a server. J1 covers most of it.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers YNAB, Monarch</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ask">Needs a server</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Reports|Schedules" data-text="a clinician dashboard or live link health data on a server. the pdf and csv cover the visit. guava, mysymptoms, healthie, careclinic">
+<td class="id">Z11</td>
+<td><div class="t">A clinician dashboard or live link</div><div class="how">Health data on a server. The PDF and CSV cover the visit.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers Guava, mySymptoms, Healthie, CareClinic</div></td>
+<td class="tabs">Reports<br>Schedules</td>
+<td><span class="ship ask">Needs a server</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Food|Insights" data-text="store and restaurant guides pulls against home cooking over commercial products. fig">
+<td class="id">Z12</td>
+<td><div class="t">Store and restaurant guides</div><div class="how">Pulls against home cooking over commercial products.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers Fig</div></td>
+<td class="tabs">Food<br>Insights</td>
+<td><span class="ship ask">Your decision</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Signals" data-text="heart rate from the camera frame processing and validation; out of proportion. visible, welltory">
+<td class="id">Z13</td>
+<td><div class="t">Heart rate from the camera</div><div class="how">Frame processing and validation; out of proportion.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers Visible, Welltory</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ask">Your decision</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Signals" data-text="a buzz from a worn sensor when overdoing it continuous background bluetooth; heavy on battery. visible">
+<td class="id">Z14</td>
+<td><div class="t">A buzz from a worn sensor when overdoing it</div><div class="how">Continuous background Bluetooth; heavy on battery.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers Visible</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ask">Your decision</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="none" data-text="a lifetime price and a hardship price store billing decisions for the tier table. structured, mytherapy, paprika, welltory, bearable">
+<td class="id">Z15</td>
+<td><div class="t">A lifetime price and a hardship price</div><div class="how">Store billing decisions for the tier table.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers Structured, MyTherapy, Paprika, Welltory, Bearable</div></td>
+<td class="tabs">none</td>
+<td><span class="ship ask">Your decision</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Food|Insights" data-text="scanning fully offline a country subset of open food facts is still large; the worker cache plus g21 covers most of it. yuka">
+<td class="id">Z16</td>
+<td><div class="t">Scanning fully offline</div><div class="how">A country subset of Open Food Facts is still large; the Worker cache plus G21 covers most of it.</div><div class="meta">Asked of you: these meet a standing rule or need a company server · answers Yuka</div></td>
+<td class="tabs">Food<br>Insights</td>
+<td><span class="ship wk">Worker</span></td>
+<td class="size">L</td>
+</tr></tbody></table></div>
+</section>
+
+<section class="box">
+<h2>Rules every item is built under</h2>
+<ul>
+<li>Never diagnose, claim a cause, change a medication, or let a score stand in for a clinician; every new sentence generator goes into audit_clinical_claims.js.</li>
+<li>No praise, blame, streaks or percentages on anything about keeping up; a blank period is drawn as a gap.</li>
+<li>Every new list has add-your-own, and removal moves or retires rather than orphans.</li>
+<li>Anything that leaves the phone is opt-in, says what leaves, and goes through the Worker in one of the three privacy shapes.</li>
+<li>Photos and new tables that describe health never travel between people unless the peer allowlist names them.</li>
+<li>Each request: tsc, eslint, the audits, a version bump, and an over-the-air update to Android plus a desktop installer.</li>
+</ul>
+</section>
+</div>
+<script>
+(function(){
+ var tab='',q='';
+ var btns=[].slice.call(document.querySelectorAll('#filters button'));
+ var rows=[].slice.call(document.querySelectorAll('tr[data-tabs]'));
+ function apply(){
+  rows.forEach(function(r){
+   var okT=!tab||r.getAttribute('data-tabs').split('|').indexOf(tab)>=0||r.getAttribute('data-tabs')==='all';
+   var okQ=!q||r.getAttribute('data-text').indexOf(q)>=0;
+   r.classList.toggle('hide',!(okT&&okQ));
+  });
+  document.querySelectorAll('section.phase[id^="p"]').forEach(function(s){
+   var n=s.querySelectorAll('tr[data-tabs]:not(.hide)').length;
+   var c=s.querySelector('.count'); if(c) c.textContent=n;
+  });
+ }
+ btns.forEach(function(b){b.addEventListener('click',function(){
+  tab=b.getAttribute('data-tab'); btns.forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false')}); apply();
+ })});
+ document.getElementById('q').addEventListener('input',function(e){q=e.target.value.trim().toLowerCase();apply();});
+})();
+</script>

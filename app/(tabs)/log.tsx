@@ -19,6 +19,7 @@ import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { TherapySessionsSection } from '../../components/TherapySessionsSection';
 import { textShadow, typography } from '../../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../../components/HomeSectionBand';
+import { RecordPhotos } from '../../components/RecordPhotos';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { getCheckinTagsByCategory, type CheckinTagDefinition } from '../../lib/checkinTags';
 import { EMPTY_DAILY_SCALES, describeScales, hasAnyScale, localStamp, localStampOf, type DailyScaleValues } from '../../lib/dailyScales';
@@ -590,6 +591,15 @@ function CheckinRow({ entry, onDelete }: { entry: WellbeingCheckin; onDelete: (i
           <Text style={styles.rowMeta}>{entry.tags.map((code) => tagLabel(code)).join(', ')}</Text>
         ) : null}
         {entry.notes ? <Text style={styles.rowMeta}>{entry.notes}</Text> : null}
+        {/* A rash, a swelling or a reaction looks different by tomorrow, and a
+            photo from the day is what a doctor asks for. The doctor report
+            carries these at report size. */}
+        <RecordPhotos
+          ownerKind="symptom"
+          ownerId={entry.id}
+          tabColor={TAB_COLOR}
+          title={entry.foodName ?? severityLabel ?? 'Logged'}
+        />
       </View>
       <View style={styles.rowActions}>
         <TouchableOpacity onPress={() => onDelete(entry.id)}>

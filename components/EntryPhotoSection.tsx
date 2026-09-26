@@ -15,7 +15,8 @@
 // that isn't a saved builder creation, a favorite, or a curated recipe, in
 // which case this whole component renders nothing at all.
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet } from './AppActionSheet';
 import { colors } from '../constants/colors';
@@ -23,7 +24,8 @@ import { textShadow, typography } from '../constants/typography';
 import type { DigestEntry } from '../lib/digest/types';
 import { useInfoAlert } from './InfoAlert';
 import { announcePhoneOnly } from '../lib/desktop/phoneOnly';
-import { getPhotoForTarget, pickAndSaveMealPhoto, setPhotoForTarget, type PhotoTarget } from '../lib/mealPhotos';
+import { dishOwnerFor, getPhotoForTarget, pickAndSaveMealPhoto, setPhotoForTarget, type PhotoTarget } from '../lib/mealPhotos';
+import { openPhotoCamera } from '../lib/photoCamera';
 
 export function resolvePhotoTarget(entry: DigestEntry): PhotoTarget | null {
   const action = entry.dynamicAction;
@@ -57,21 +59,25 @@ export function EntryPhotoSection({ entry, tabColor }: { entry: DigestEntry; tab
   const [sheetVisible, setSheetVisible] = useState(false);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
-  useEffect(() => {
-    if (!target) return;
-    let cancelled = false;
-    getPhotoForTarget(target).then((uri) => {
-      if (!cancelled) setPhotoUri(uri);
-    });
-    return () => {
-      cancelled = true;
-    };
-    // target is a fresh object every render (resolvePhotoTarget is pure,
-    // derived from entry) -- entry.id alone is what actually identifies
-    // which real photo this section is about, and is stable across
-    // unrelated re-renders of the same card.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entry.id]);
+  const router = useRouter();
+
+  // On focus, so a photo taken in the app's camera shows on coming back.
+  // target is a fresh object every render (resolvePhotoTarget is pure,
+  // derived from entry), so entry.id is what identifies the photo. Since
+  // 1.0.53.7 the photo lives in the one photo layer (lib/mealPhotos.ts).
+  useFocusEffect(
+    useCallback(() => {
+      if (!target) return;
+      let cancelled = false;
+      getPhotoForTarget(target).then((uri) => {
+        if (!cancelled) setPhotoUri(uri);
+      });
+      return () => {
+        cancelled = true;
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [entry.id]),
+  );
 
   if (!target) return null;
   // A staged, not-yet-decided share (lib/sharing.ts's own shared_recipes
@@ -80,14 +86,20 @@ export function EntryPhotoSection({ entry, tabColor }: { entry: DigestEntry; tab
   // a real saved record or favorite of their own.
   const editable = target.kind !== 'sharedRecipe';
 
+  function takePhoto() {
+    const owner = target ? dishOwnerFor(target) : null;
+    if (!owner) return;
+    openPhotoCamera(router, owner, { replace: true, title: entry.title });
+  }
+
   async function handlePick(source: 'camera' | 'library') {
     if (!target) return;
     setLoading(true);
     try {
-      const result = await pickAndSaveMealPhoto(source, entry.id, photoUri ?? undefined);
+      const result = await pickAndSaveMealPhoto(source, entry.id);
       if (result.status === 'success') {
         await setPhotoForTarget(target, result.uri);
-        setPhotoUri(result.uri);
+        setPhotoUri(await getPhotoForTarget(target));
       } else if (result.status === 'permission-denied') {
         showInfoAlert(
           'Permission needed',
@@ -154,7 +166,7 @@ export function EntryPhotoSection({ entry, tabColor }: { entry: DigestEntry; tab
         onClose={() => setSheetVisible(false)}
         title="Add a Photo"
         actions={[
-          { label: 'Take a Photo', onPress: () => handlePick('camera') },
+          { label: 'Take a Photo', onPress: takePhoto },
           { label: 'Choose from Library', onPress: () => handlePick('library') },
           { label: 'Cancel', onPress: () => {} },
         ]}

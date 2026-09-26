@@ -20,8 +20,10 @@ import {
   orphanedLocalFiles,
   photoCopyName,
   planPhotoSync,
+  thumbFileName,
   type PhotoSyncStatus,
 } from './media';
+import { migrateLegacyDishPhotos } from './mealPhotos';
 import { listAllMedia, listLocalMediaFileNames, mediaFile } from './mediaDb';
 import { deleteFile, downloadText, ensureChildFolder, listFileNames, uploadText } from './oneDriveGraph';
 import { getBackupsFolder } from './oneDriveFolders';
@@ -43,7 +45,10 @@ export function getPhotoSyncStatus(): PhotoSyncStatus | null {
   return status;
 }
 
-type PhotoCopy = { v: 1; id: string; base64: string };
+// Version 2 (1.0.53.7) carries the thumbnail beside the report size, so the
+// other device does not have to make its own. A version 1 copy still opens;
+// its thumbnail is made the first time the photo is shown.
+type PhotoCopy = { v: 1 | 2; id: string; base64: string; thumbBase64?: string };
 
 /**
  * One pass: send the photos the folder lacks, fetch the ones this device
@@ -66,6 +71,9 @@ export function syncPhotos(options: { afterSave: boolean }): Promise<void> {
 async function runPass(afterSave: boolean): Promise<void> {
   const checkedAt = new Date().toISOString();
   try {
+    // Dish photos kept before the one photo layer move into it first, on
+    // every device, whether or not sync is on (lib/mealPhotos.ts).
+    await migrateLegacyDishPhotos().catch(() => undefined);
     const state = await readSyncState();
     if (!state.enabled || !state.password) return;
     const password = state.password;
@@ -117,7 +125,8 @@ async function runPass(afterSave: boolean): Promise<void> {
       if (!row) continue;
       try {
         const base64 = await (await mediaFile(row.fileName)).base64();
-        const copy: PhotoCopy = { v: 1, id, base64 };
+        const thumb = await mediaFile(thumbFileName(row.fileName));
+        const copy: PhotoCopy = { v: 2, id, base64, thumbBase64: thumb.exists ? await thumb.base64() : undefined };
         salt = salt ?? (await newBackupSalt());
         const wire = await encryptBackupPayload(JSON.stringify(copy), password, salt);
         const sent = await uploadText(folder.value, photoCopyName(id), JSON.stringify(wire));
@@ -148,6 +157,9 @@ async function runPass(afterSave: boolean): Promise<void> {
         const copy = JSON.parse(plain) as Partial<PhotoCopy>;
         if (copy.id !== id || typeof copy.base64 !== 'string') throw new Error('A photo copy did not match its name.');
         (await mediaFile(row.fileName)).write(base64ToBytes(copy.base64));
+        if (typeof copy.thumbBase64 === 'string') {
+          (await mediaFile(thumbFileName(row.fileName))).write(base64ToBytes(copy.thumbBase64));
+        }
       } catch (error) {
         failedDownloads += 1;
         problem = error instanceof Error ? error.message : String(error);

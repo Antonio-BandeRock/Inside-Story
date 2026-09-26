@@ -2,7 +2,7 @@
 
 Written 2026-09-25. Work starts 2026-09-26, first thing. Page: https://claude.ai/artifact/YJWZeijM5gEoWwdKc5sT6C (private until shared). The nine per-tab competitor reviews it comes from are the other `.md` files in this folder, and the full review page is https://claude.ai/artifact/H7w3rGJX4uDAZgU5xj48DE.
 
-**The owner's instruction:** "I agree with your assessment on each items, but I want to do literally everything we can to compete against all of these various competitors. I don't want to leave anything out from what was assessed from each competitor gap identified." So every gap is here: 219 items after merging the ones two or three tabs asked for. Items that break a standing rule or need a server are in Phase 7 with the reason, not dropped.
+**The owner's instruction:** "I agree with your assessment on each items, but I want to do literally everything we can to compete against all of these various competitors. I don't want to leave anything out from what was assessed from each competitor gap identified." So every gap is here: 220 items (219 at first, plus L5 on 2026-09-26) after merging the ones two or three tabs asked for. Items that break a standing rule or need a server are in Phase 7 with the reason, not dropped.
 
 **Source of truth:** `plan/items.txt` (one line per item: `id|phase|ship|size|tabs|competitors|title|how`). `plan/build-plan.js` regenerates the published page, `plan/build-md.js` regenerates this file's item list. Edit items.txt, never the generated output.
 
@@ -28,7 +28,7 @@ Possible on Android only, not recommended. Local-first is not the blocker (SMS g
 
 ## Rebuild map
 
-**R1, one Android build (both phones reinstall once):** share target SEND for text, links, images (C11); expo-quick-actions plus a quick settings tile (C12); react-native-android-widget with next thing, next dose, Capture, grocery, Fuel Gauges, routine step, one-tap glass, and a hide-health-details switch (L2); Health Connect RespiratoryRate and BodyTemperature permissions (L4); expo-keep-awake (G4); expo-audio (D15); expo-location, coarsened (F22, G36); expo-contacts and expo-sms (O1, O2); FCM remote push (M1); react-native-webview (G3); ML Kit image labelling (G24); a small HTTP listener for Ecowitt pushes (I22). Only on the owner's yes: notification listener (O4). The default SMS module (O5) was ruled out by the owner on 2026-09-26.
+**R1, one Android build (both phones reinstall once):** share target SEND for text, links, images (C11); expo-quick-actions plus a quick settings tile (C12); react-native-android-widget with next thing, next dose, Capture, grocery, Fuel Gauges, routine step, one-tap glass, and a hide-health-details switch (L2); Health Connect RespiratoryRate and BodyTemperature permissions (L4); expo-media-library and expo-network for photos (L5); expo-keep-awake (G4); expo-audio (D15); expo-location, coarsened (F22, G36); expo-contacts and expo-sms (O1, O2); FCM remote push (M1); react-native-webview (G3); ML Kit image labelling (G24); a small HTTP listener for Ecowitt pushes (I22). Only on the owner's yes: notification listener (O4). The default SMS module (O5) was ruled out by the owner on 2026-09-26.
 
 **R2, iPhone:** HealthKit behind the `lib/healthConnect.ts` interface (L1); WidgetKit and Live Activity through @bacons/apple-targets (L3, B3); APNs for the relay; check notification actions (C1). Needs the $99 a year Apple developer account.
 
@@ -42,7 +42,7 @@ Possible on Android only, not recommended. Local-first is not the blocker (SMS g
 - rn-mlkit-ocr is installed, so lab photo OCR (G28, G2, G27) is JS only.
 - Also installed: expo-sensors, expo-speech, expo-calendar, react-native-zeroconf, expo-image-picker, react-native-health-connect.
 - chrono-node is pure JS (C4, over the air).
-- Not installed (R1): expo-keep-awake, expo-audio or expo-av, expo-location, expo-contacts, expo-sms, react-native-webview, expo-quick-actions, react-native-android-widget, a share-intent module, and for R2 a HealthKit library.
+- Not installed (R1): expo-media-library, expo-network, expo-keep-awake, expo-audio or expo-av, expo-location, expo-contacts, expo-sms, react-native-webview, expo-quick-actions, react-native-android-widget, a share-intent module, and for R2 a HealthKit library.
 - app.json has VIEW intent filters only (no SEND). Notification categories exist only for Snooze.
 
 ## What waits on the owner
@@ -956,7 +956,7 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Answers:** Guava · **Theme:** Reports
 - **How:** visit_questions tied to an appointment, reorder and tick off, in the person's words.
 
-## Phase 4. The Android rebuild (R1) (10 items)
+## Phase 4. The Android rebuild (R1) (11 items)
 
 ### C11. Share into Inside Story from any app
 - **Ships by:** Android rebuild R1 · **Size:** M · **Tabs:** Life,Home,Food
@@ -997,6 +997,11 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Ships by:** Android rebuild R1 · **Size:** S · **Tabs:** Trends,Signals
 - **Answers:** Oura · **Theme:** Phones, widgets and devices
 - **How:** Two more Health Connect permissions.
+
+### L5. Camera originals to the gallery, and Wi-Fi only photos
+- **Ships by:** Android rebuild R1 · **Size:** S · **Tabs:** all
+- **Answers:** (your question) · **Theme:** Phones, widgets and devices
+- **How:** expo-media-library saves the full camera picture, with its details, to the phone's gallery while the app keeps its two small sizes (X1, 1.0.53.7). expo-network tells Wi-Fi from mobile data, so "Send and fetch shared photos on Wi-Fi only" holds on the phone; until then lib/photoNative.ts reports unknown and photos go either way.
 
 ### O1. Phone contacts inside the app
 - **Ships by:** Android rebuild R1 · **Size:** S-M · **Tabs:** Life

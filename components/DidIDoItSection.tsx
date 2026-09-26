@@ -36,6 +36,7 @@ import {
   updateDoneCheck,
 } from '../lib/routinesDb';
 import { useWalkMark } from './WalkMark';
+import { RecordPhotos } from './RecordPhotos';
 
 // Did I Do It: one question, asked later.
 //
@@ -262,6 +263,9 @@ export function DidIDoItSection({ tabColor }: Props) {
                 <Text style={styles.cardTitle}>{check.name}</Text>
                 <Text style={[styles.rowMeta, done ? styles.metaDone : null]}>{standing?.line}</Text>
                 <Text style={styles.rowMeta}>{checkCadenceLabel(check.cadence)}.</Text>
+                {/* A photo of the stove off or the door locked is the one answer to
+                    "did I do it" that needs no remembering at all. */}
+                <RecordPhotos ownerKind="done_check" ownerId={check.id} tabColor={tabColor} title={check.name} />
 
                 {check.active ? (
                   <TouchableOpacity

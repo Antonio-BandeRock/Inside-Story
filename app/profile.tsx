@@ -4,6 +4,9 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { mediaStorageUsed } from '../lib/mediaDb';
+import { PEER_PHOTOS_WIFI_ONLY_LABEL, PEER_PHOTOS_WIFI_ONLY_WHAT } from '../lib/peerPhotos';
+import { getPeerPhotosWifiOnly, peerPhotoStorageUsed, setPeerPhotosWifiOnly } from '../lib/peerPhotosDb';
 import { AppTextInput } from '../components/AppTextInput';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { GenericBackground } from '../components/GenericBackground';
@@ -27,7 +30,7 @@ import type { DriveItemRef } from '../lib/oneDriveGraph';
 import { downloadText, listFiles, uploadText } from '../lib/oneDriveGraph';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { describeSyncStatus, EMPTY_SYNC_STATE, type SnapshotRecord, type SnapshotSyncState } from '../lib/snapshotSync';
-import { photoSyncSentence } from '../lib/media';
+import { photoStorageSentence, photoSyncSentence } from '../lib/media';
 import { getPhotoSyncStatus } from '../lib/mediaSyncDevice';
 import {
   checkPasswordAgainstFolder,
@@ -975,6 +978,8 @@ export default function ProfileScreen() {
   // Both read rather than assumed, so this card never offers to write
   // somewhere it cannot reach.
   const [backupFolder, setBackupFolder] = useState<DriveItemRef | null>(null);
+  const [photoStorageLine, setPhotoStorageLine] = useState<string | null>(null);
+  const [peerPhotosWifiOnly, setPeerPhotosWifiOnlyState] = useState(true);
   const [oneDriveConnected, setOneDriveConnected] = useState(false);
   // Automatic snapshot sync with the other device (1.0.42.28), see
   // lib/snapshotSync.ts. Read from the secure store on every focus, the
@@ -1192,6 +1197,12 @@ export default function ProfileScreen() {
     useCallback(() => {
       void refreshBackupFolder();
       void readSyncState().then(setSyncState);
+      // Photos, 1.0.53.7: the room they take, and whether shared ones wait
+      // for Wi-Fi.
+      void Promise.all([mediaStorageUsed(), peerPhotoStorageUsed()])
+        .then(([mine, theirs]) => setPhotoStorageLine(photoStorageSentence(mine.photos, mine.bytes, theirs)))
+        .catch(() => {});
+      void getPeerPhotosWifiOnly().then(setPeerPhotosWifiOnlyState);
     }, [refreshBackupFolder]),
   );
 
@@ -4647,6 +4658,25 @@ export default function ProfileScreen() {
             <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/connections')}>
               <Text style={styles.checkinButtonText}>Manage Connections</Text>
             </TouchableOpacity>
+            <Text style={styles.helpText}>{PEER_PHOTOS_WIFI_ONLY_LABEL}</Text>
+            <Text style={styles.helpText}>{PEER_PHOTOS_WIFI_ONLY_WHAT}</Text>
+            <View style={styles.pillRow}>
+              {[false, true].map((value) => {
+                const on = peerPhotosWifiOnly === value;
+                return (
+                  <TouchableOpacity
+                    key={value ? 'on' : 'off'}
+                    style={[styles.pill, on && styles.pillActive]}
+                    onPress={() => {
+                      setPeerPhotosWifiOnlyState(value);
+                      void setPeerPhotosWifiOnly(value);
+                    }}
+                  >
+                    <Text style={[styles.pillText, on && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
         ) : null}
       </View>
@@ -4690,6 +4720,7 @@ export default function ProfileScreen() {
                 ? 'Everything on this device (meals, schedule, conditions, trials, connections, and more) goes into one password-protected file in your shared folder, so it survives this phone being lost or replaced. It carries the references to your photos, not the photo files themselves.'
                 : "Export everything on this device (meals, schedule, conditions, trials, connections, and more) into one file you can save wherever you like (a cloud drive, an email to yourself). Doesn't include the actual photo files a saved dish or recipe may reference, only their stored references."}
             </Text>
+            {photoStorageLine ? <Text style={styles.helpText}>{photoStorageLine}</Text> : null}
             {backupFolder ? (
               <>
                 <TouchableOpacity

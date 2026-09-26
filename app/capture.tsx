@@ -26,8 +26,8 @@
 //      the same refusal lib/quickLog.ts makes about an amount it cannot
 //      honestly resolve.
 import { Ionicons } from '@expo/vector-icons';
-import { Stack, useLocalSearchParams, useRouter, type Href } from 'expo-router';
-import { useCallback, useEffect, useRef, useState, type ComponentProps } from 'react';
+import { Stack, useFocusEffect, useLocalSearchParams, useRouter, type Href } from 'expo-router';
+import { useCallback, useRef, useState, type ComponentProps } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
 import { useInfoAlert } from '../components/InfoAlert';
@@ -59,6 +59,9 @@ import {
   updateCaptureNoteText,
 } from '../lib/captureNotesDb';
 import { useWalkMark } from '../components/WalkMark';
+import { RecordPhotos } from '../components/RecordPhotos';
+import { PHOTO_CAPTURE_TEXT } from '../lib/captureNotes';
+import { openPhotoCamera } from '../lib/photoCamera';
 
 // A destination wears the colour and icon of the tab it hands off to, rather
 // than a palette invented here, so "In the garden" reads as Garden before the
@@ -113,9 +116,29 @@ export default function CaptureScreen() {
     setLoading(false);
   }, []);
 
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
+  // On focus rather than once, so a note thrown in with the camera shows its
+  // photo on coming back from it.
+  useFocusEffect(
+    useCallback(() => {
+      void refresh();
+    }, [refresh]),
+  );
+
+  // Throws a note in and opens the camera on it, so the photo is the note.
+  // Whatever is in the box becomes its words; with nothing typed, it reads
+  // PHOTO_CAPTURE_TEXT and can be reworded later like any note.
+  async function takePhoto() {
+    if (saving) return;
+    const typed = cleanCaptureText(draft);
+    const text = isCaptureTextUsable(typed) ? typed : PHOTO_CAPTURE_TEXT;
+    setSaving(true);
+    const id = await createCaptureNote(text, 'photo');
+    setSaving(false);
+    if (!id) return;
+    setDraft('');
+    spokenRef.current = false;
+    openPhotoCamera(router, { kind: 'capture_note', id }, { title: text });
+  }
 
   async function save() {
     const text = cleanCaptureText(draft);
@@ -209,9 +232,12 @@ export default function CaptureScreen() {
         <View style={styles.noteMetaRow}>
           {note.source === 'spoken' ? (
             <Ionicons name="mic-outline" size={13} color={colors.textMuted} />
+          ) : note.source === 'photo' ? (
+            <Ionicons name="camera-outline" size={13} color={colors.textMuted} />
           ) : null}
           <Text style={styles.noteMeta}>{describeCaptureAge(note.createdAt, now)}</Text>
         </View>
+        <RecordPhotos ownerKind="capture_note" ownerId={note.id} tabColor={colors.accent} title={note.text} />
         <View style={styles.noteActionRow}>
           {note.status !== 'done' ? (
             <TouchableOpacity
@@ -326,6 +352,10 @@ export default function CaptureScreen() {
             <Ionicons name="arrow-down-circle-outline" size={18} color={colors.background} />
             <Text style={styles.saveButtonText}>{saving ? 'Keeping it…' : 'Throw it in'}</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.photoButton} onPress={() => void takePhoto()} disabled={saving} activeOpacity={0.8}>
+            <Ionicons name="camera-outline" size={18} color={colors.accent} />
+            <Text style={styles.photoButtonText}>Take a photo</Text>
+          </TouchableOpacity>
           <Text style={styles.privacyNote}>
             Speech is turned into words by your phone, and the note stays on it. See Profile for what your phone does
             with dictation.
@@ -439,6 +469,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   saveButtonOff: { opacity: 0.45 },
+  photoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    backgroundColor: colors.surface,
+  },
+  photoButtonText: { ...typography.bodyEmphasis, color: colors.accent, textShadowColor: 'transparent', textShadowRadius: 0 },
   saveButtonText: { ...typography.bodyEmphasis, color: colors.background },
   privacyNote: { ...typography.caption, color: colors.textMuted, ...textShadow },
   emptyCard: {

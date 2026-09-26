@@ -5,6 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Linking, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
 import { DayTimeline } from '../../components/DayTimeline';
+import { PeerDishPhotos } from '../../components/PeerDishPhotos';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
 import { useConfirmSheet } from '../../components/ConfirmSheet';
@@ -101,6 +102,7 @@ import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PopoverSelect } from '../../components/PopoverSelect';
+import { RecordPhotos } from '../../components/RecordPhotos';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { WhyExplainer } from '../../components/WhyExplainer';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
@@ -2185,7 +2187,7 @@ function DailyMealPlanLens() {
   // What a partner last sent, shown beside the person's own plan rather than
   // mixed into it. Two people planning together still each have a plan, and a
   // screen that merged them would have to invent a rule for whose dinner wins.
-  const [partnerPlan, setPartnerPlan] = useState<{ name: string; plan: PartnerMealPlanNamed } | null>(null);
+  const [partnerPlan, setPartnerPlan] = useState<{ id: string; name: string; plan: PartnerMealPlanNamed } | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -2211,7 +2213,7 @@ function DailyMealPlanLens() {
             return;
           }
           const plan = await getPartnerMealPlanNamed(partner.id);
-          if (!cancelled) setPartnerPlan({ name: partner.name, plan });
+          if (!cancelled) setPartnerPlan({ id: partner.id, name: partner.name, plan });
         })
         .catch(() => {
           // Nobody linked, or nothing sent yet. Both are ordinary, and both
@@ -2418,6 +2420,12 @@ function DailyMealPlanLens() {
               usually means the two apps are on different versions.
             </Text>
           ) : null}
+          <PeerDishPhotos
+            connectionId={partnerPlan.id}
+            personName={partnerPlan.name}
+            dishes={partnerPlan.plan.dishes}
+            tabColor={TAB_COLOR}
+          />
         </ScheduleBand>
       ) : null}
 
@@ -4330,6 +4338,7 @@ function AppointmentsLens() {
                         {statusSuffix(item.status)}
                         {item.linkedDeviceCalendarEventId ? ' · On phone calendar' : ''}
                       </Text>
+                      <RecordPhotos ownerKind="appointment" ownerId={item.id} tabColor={TAB_COLOR} title={item.title} />
                     </View>
                   </View>
 

@@ -34,6 +34,7 @@ export type ReminderKindKey =
   | 'benefit'
   | 'countdown'
   | 'compost'
+  | 'photoSeries'
   | 'reminder';
 
 // Four more, 2026-09-16, direct request. Everything in Life that carries
@@ -74,6 +75,10 @@ export const ALL_REMINDER_KIND_KEYS: ReminderKindKey[] = [
   // it, and worked out from the pile rather than booked by hand, which is
   // what the Compost lens used to ask for.
   'compost',
+  // 1.0.53.7. A Photo Series asking for today's photo, at the time it was
+  // given, skipped on a day the photo is already in. Timed like a routine,
+  // but a record of something, so it sits after the dated kinds.
+  'photoSeries',
   // 1.0.39.15. A thought from the capture inbox that somebody gave a day
   // to, which is the only way one ever becomes a scheduled thing. It has no
   // tab behind it and nothing else in the app defines it, so it needs a kind
@@ -96,6 +101,7 @@ export const REMINDER_KIND_LABELS: Record<ReminderKindKey, string> = {
   benefit: 'Work benefits',
   countdown: 'Days Until counters',
   compost: 'Turning the compost',
+  photoSeries: 'Photo series',
   reminder: 'Things you noted down',
 };
 
@@ -122,6 +128,8 @@ export const REMINDER_KIND_CAPTIONS: Record<ReminderKindKey, string> = {
     'A Days Until counter, in the Garden or about anything else, on the day it lands. Marking it done or removing it clears the reminder.',
   compost:
     'A compost pile due a turn, on the day and then every few days until you record one. Only piles still being added to.',
+  photoSeries:
+    "A Photo Series asking for today's photo, at the time set on the series. Tapping it opens the camera with the last photo faintly over the view. Skipped on a day the photo is already in.",
   reminder:
     'Something you threw into Capture and later gave a day to, at the time you picked.',
 };
@@ -165,6 +173,9 @@ const DEFAULT_REMINDER_KIND_ENABLED: Record<ReminderKindKey, boolean> = {
   // adding to it, and a pile left unturned is the single thing most likely
   // to go wrong with it.
   compost: true,
+  // On. A series exists only because somebody started one to take a photo
+  // a day, and the reminder can be switched off on the series itself.
+  photoSeries: true,
   // On, and of all of them this is the one with the strongest claim to it.
   // Nobody types a thought into Capture and then picks a day for it unless
   // they want to be told about it on that day.

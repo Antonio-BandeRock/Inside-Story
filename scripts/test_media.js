@@ -112,6 +112,89 @@ check(`behind counts (${behind})`, behind.includes('3 photos on this device.') &
 check('problem said', problem.includes('could not be copied this time'));
 
 // Sweep.
+// Photos in a report (lib/reportPhotos.ts) --------------------------------
+const rp = load('lib/reportPhotos.ts');
+{
+  const items = [
+    { id: 'media_1_a', fileName: 'a.jpg', takenOn: '2026-09-01', caption: null },
+    { id: 'media_2_b', fileName: 'b.jpg', takenOn: '2026-09-10', caption: 'first flowers' },
+    { id: 'media_3_c', fileName: 'c.jpg', takenOn: '2026-09-10', caption: null },
+    { id: 'media_4_d', fileName: 'd.jpg', takenOn: '2026-10-02', caption: null },
+  ];
+  const picked = rp.choosePhotosForReport(items, '2026-09-01', '2026-09-30', 2);
+  check('report photos: out-of-range left out of the total', picked.total === 3);
+  check('report photos: newest first, capped', picked.chosen.map((i) => i.id).join() === 'media_3_c,media_2_b');
+  check('report caption joins subject and caption', rp.reportPhotoCaption('2026-09-20', 'Tomato', 'first flowers') === '2026-09-20, Tomato: first flowers');
+  check('report caption with nothing is the day', rp.reportPhotoCaption('2026-09-20', null, '  ') === '2026-09-20');
+  check('report note says what was left out', rp.reportPhotoNote(12, 20, 0).includes('newest 12 of 20'));
+  check('report note says what could not be read', rp.reportPhotoNote(3, 4, 1).includes('1 could not be read'));
+  check('report text line singular', rp.reportPhotoTextLine(1) === '1 photo, shown in the PDF.');
+}
+
+// Photos between two people (lib/peerPhotos.ts) ------------------------------
+const pp = load('lib/peerPhotos.ts');
+{
+  check('mobile with Wi-Fi only holds photos', pp.photosMayTravel('mobile', true) === false);
+  check('Wi-Fi with Wi-Fi only sends', pp.photosMayTravel('wifi', true) === true);
+  check('unknown network does not hold photos back', pp.photosMayTravel('unknown', true) === true);
+  check('mobile with the switch off sends', pp.photosMayTravel('mobile', false) === true);
+
+  const now = Date.parse('2026-09-26T12:00:00Z');
+  const hourAgo = new Date(now - 3600 * 1000).toISOString();
+  const twoDaysAgo = new Date(now - 48 * 3600 * 1000).toISOString();
+  const thumbs = [
+    { id: 'p_old', recipeId: 'r1', takenOn: '2026-09-01', base64Length: 40000 },
+    { id: 'p_new', recipeId: 'r2', takenOn: '2026-09-20', base64Length: 40000 },
+    { id: 'p_acked', recipeId: 'r3', takenOn: '2026-09-25', base64Length: 40000 },
+    { id: 'p_recent', recipeId: 'r4', takenOn: '2026-09-24', base64Length: 40000 },
+    { id: 'p_stale', recipeId: 'r5', takenOn: '2026-09-23', base64Length: 40000 },
+  ];
+  const thumbState = new Map([
+    ['p_acked', { sentAt: twoDaysAgo, ackedAt: hourAgo }],
+    ['p_recent', { sentAt: hourAgo, ackedAt: null }],
+    ['p_stale', { sentAt: twoDaysAgo, ackedAt: null }],
+  ]);
+  const chosen = pp.choosePeerPhotos({
+    thumbs, thumbState, requestedFull: [{ id: 'p_old', base64Length: 500000 }], fullState: new Map(), budget: 600000, now,
+  });
+  check('asked-for report size goes first', chosen.fullIds.join() === 'p_old');
+  check('acknowledged and just-sent thumbnails wait; newest due ones fill what is left',
+    chosen.thumbIds.join() === 'p_stale,p_new', );
+  const relay = pp.choosePeerPhotos({ thumbs, thumbState: new Map(), requestedFull: [], fullState: new Map(), budget: 100000, now });
+  check('a small budget takes only what fits', relay.thumbIds.length === 2 && relay.thumbIds[0] === 'p_acked');
+
+  check('photos travel only beside a dish on the plan',
+    pp.photosForPlan([{ recipeId: 'a' }, { recipeId: 'b' }], new Set(['b'])).length === 1);
+  const newest = pp.newestPerRecipe([
+    { id: 'x1', recipeId: 'a', takenOn: '2026-09-01' },
+    { id: 'x2', recipeId: 'a', takenOn: '2026-09-05' },
+    { id: 'x3', recipeId: 'b', takenOn: '2026-09-02' },
+  ]);
+  check('newest per dish', newest.map((p) => p.id).sort().join() === 'x2,x3');
+
+  const clean = pp.cleanPeerPhotoPart({
+    photos: [
+      { id: 'media_1_a', recipeId: 'curated_smoothie_green_glow', takenOn: '2026-09-20', caption: ' lunch ', thumb: 'QUJD' },
+      { id: 'bad id!', recipeId: 'r', takenOn: '2026-09-20', thumb: 'QUJD' },
+      { id: 'media_2', recipeId: 'r', takenOn: 'yesterday', thumb: 'QUJD' },
+      { id: 'media_3', recipeId: 'r', takenOn: '2026-09-20', thumb: 'not base64 at all' },
+      { id: 'media_4', recipeId: 'r', takenOn: '2026-09-20', thumb: 'A'.repeat(pp.PEER_MAX_THUMB_BASE64 + 4) },
+    ],
+    photoFull: [{ id: 'media_1_a', data: 'QUJD' }, { id: 'media_1_a', data: 42 }],
+    photoAcks: ['media_1_a', 'media_1_a', '../etc', 7],
+    photoRequests: 'media_1_a',
+  });
+  check('only the well-formed thumbnail is kept', clean.photos && clean.photos.length === 1 && clean.photos[0].caption === 'lunch');
+  check('only the well-formed full size is kept', clean.photoFull && clean.photoFull.length === 1);
+  check('acks deduplicated and shape-checked', clean.photoAcks && clean.photoAcks.join() === 'media_1_a');
+  check('a non-list of requests is dropped', clean.photoRequests === undefined);
+  check('an empty payload gives an empty part', Object.keys(pp.cleanPeerPhotoPart({})).length === 0);
+}
+
+// The storage line with photos from other people.
+check('storage line counts photos from others', m.photoStorageSentence(3, 3000000, { photos: 2, bytes: 90000 }).includes('2 photos from people you share meals with'));
+check('storage line leaves others out when there are none', !m.photoStorageSentence(3, 3000000).includes('share meals'));
+
 const FORBIDDEN = [
   'real', 'genuine', ' own ', '—', '–', ' -- ',
   'well done', 'good job', 'keep it up', 'great job', 'you should', 'normal', 'healthy',
@@ -121,6 +204,9 @@ const sentences = [
   off, notYet, none, inStep, behind, problem,
   m.PHOTO_ON_THE_WAY, m.PHOTO_STRIP_EMPTY_LINE, m.photoRemovalSentence(),
   m.takenOnLabel('2026-09-03', '2026-09-26'), m.takenOnLabel('x', '2026-09-26'),
+  m.photoStorageSentence(0, 0), m.photoStorageSentence(3, 3000000, { photos: 1, bytes: 40000 }),
+  rp.reportPhotoNote(12, 20, 2), rp.reportPhotoNote(2, 2, 0), rp.reportPhotoTextLine(3),
+  pp.PEER_PHOTO_TAP_LINE, pp.peerPhotoAskedLine('Sam'), pp.PEER_PHOTOS_WIFI_ONLY_LABEL, pp.PEER_PHOTOS_WIFI_ONLY_WHAT,
 ];
 for (const sentence of sentences) {
   const lower = ` ${String(sentence).toLowerCase()} `;

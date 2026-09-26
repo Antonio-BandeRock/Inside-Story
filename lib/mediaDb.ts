@@ -16,13 +16,18 @@ import {
   MEDIA_MAX_DIMENSION,
   MEDIA_MAX_FILE_SIZE_BYTES,
   MEDIA_MIN_DIMENSION,
+  MEDIA_THUMB_DIMENSION,
+  MEDIA_THUMB_MAX_FILE_SIZE_BYTES,
   mediaFileName,
   newMediaId,
+  mediaMimeType,
   sortMedia,
+  thumbFileName,
   type MediaItem,
   type MediaOwnerKind,
 } from './media';
 import { shrinkPhotoFile } from './mealPhotos';
+import { saveOriginalToGallery } from './photoNative';
 
 const COLUMNS =
   'id, owner_kind AS ownerKind, owner_id AS ownerId, file_name AS fileName, taken_on AS takenOn, caption, width, height, created_at AS createdAt';
@@ -49,7 +54,7 @@ export async function listAllMedia(): Promise<MediaItem[]> {
   return db.getAllAsync<MediaItem>(`SELECT ${COLUMNS} FROM media`);
 }
 
-async function mediaDirectory() {
+export async function mediaDirectory() {
   const { Directory, Paths } = await import('expo-file-system');
   const dir = new Directory(Paths.document, MEDIA_FOLDER);
   dir.create({ intermediates: true, idempotent: true });
@@ -82,15 +87,75 @@ export async function mediaDisplayUri(item: Pick<MediaItem, 'fileName'>): Promis
   try {
     const file = await mediaFile(item.fileName);
     if (!file.exists) return null;
-    if (isDesktopApp()) return `data:image/jpeg;base64,${await file.base64()}`;
+    if (isDesktopApp()) return `data:${mediaMimeType(item.fileName)};base64,${await file.base64()}`;
     return file.uri;
   } catch {
     return null;
   }
 }
 
+/**
+ * The thumbnail of a photo, for a row of photos. A photo kept before
+ * thumbnails existed, or one whose thumbnail did not come over with it, gets
+ * one made here the first time it is shown. Falls back to the photo itself
+ * when a thumbnail cannot be made, and on the desktop app, which reads every
+ * photo from the copy sync brought over.
+ */
+export async function mediaThumbUri(item: Pick<MediaItem, 'fileName'>): Promise<string | null> {
+  if (isDesktopApp()) return mediaDisplayUri(item);
+  try {
+    const main = await mediaFile(item.fileName);
+    if (!main.exists) return null;
+    const thumb = await mediaFile(thumbFileName(item.fileName));
+    if (thumb.exists) return thumb.uri;
+    if (await writeThumbnail(main.uri, item.fileName)) return thumb.uri;
+    return main.uri;
+  } catch {
+    return null;
+  }
+}
+
+/** Makes the thumbnail beside a kept photo. False when it could not be
+ *  made, which is never fatal: the strip shows the photo itself instead. */
+async function writeThumbnail(sourceUri: string, fileName: string): Promise<boolean> {
+  try {
+    const shrunk = await shrinkPhotoFile(sourceUri, MEDIA_THUMB_DIMENSION, MEDIA_THUMB_MAX_FILE_SIZE_BYTES);
+    if (!shrunk) return false;
+    const { File } = await import('expo-file-system');
+    const temporary = new File(shrunk.uri);
+    const destination = await mediaFile(thumbFileName(fileName));
+    if (destination.exists) destination.delete();
+    temporary.copy(destination);
+    try {
+      temporary.delete();
+    } catch {
+      // Cleared by the system in time.
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** How many photos this device keeps and the room both sizes take, for
+ *  the line in Profile. */
+export async function mediaStorageUsed(): Promise<{ photos: number; bytes: number }> {
+  try {
+    const rows = await listAllMedia();
+    const dir = await mediaDirectory();
+    const { File } = await import('expo-file-system');
+    let bytes = 0;
+    for (const entry of dir.list()) {
+      if (entry instanceof File) bytes += entry.size ?? 0;
+    }
+    return { photos: rows.length, bytes };
+  } catch {
+    return { photos: 0, bytes: 0 };
+  }
+}
+
 export type AddPhotoResult =
-  | { status: 'added'; item: MediaItem }
+  | { status: 'added'; item: MediaItem; originalInGallery?: boolean }
   | { status: 'canceled' }
   | { status: 'permission-denied' }
   | { status: 'too-small' }
@@ -122,21 +187,35 @@ export async function addPhoto(
         : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1, allowsEditing: false, exif: false });
     if (picked.canceled || picked.assets.length === 0) return { status: 'canceled' };
     const asset = picked.assets[0];
-    return await keepPhoto(asset.uri, asset.width ?? 0, asset.height ?? 0, owner, options);
+    // A camera shot's original goes to the gallery; a photo picked from the
+    // gallery is already there and is never copied back into it.
+    return await keepPhoto(asset.uri, asset.width ?? 0, asset.height ?? 0, owner, {
+      ...options,
+      originalToGallery: source === 'camera',
+    });
   } catch (error) {
     return { status: 'error', message: error instanceof Error ? error.message : String(error) };
   }
 }
 
-/** The same keeping, for a photo already taken in the app's camera view. */
+/**
+ * The same keeping, for a photo already taken in the app's camera view or
+ * handed over from elsewhere in the app. Two sizes are kept: the report size
+ * and its thumbnail. `originalToGallery` puts the untouched source file in
+ * the phone's gallery first, for a camera shot; the result says whether that
+ * happened, since the installed build may not be able to yet
+ * (lib/photoNative.ts). `deleteSource` removes the source file once kept,
+ * for a file the app itself wrote to its cache.
+ */
 export async function keepPhoto(
   sourceUri: string,
   sourceWidth: number,
   sourceHeight: number,
   owner: { kind: MediaOwnerKind; id: string },
-  options: { takenOn?: string; caption?: string | null } = {},
+  options: { takenOn?: string; caption?: string | null; originalToGallery?: boolean; deleteSource?: boolean } = {},
 ): Promise<AddPhotoResult> {
   try {
+    const originalInGallery = options.originalToGallery ? await saveOriginalToGallery(sourceUri) : undefined;
     const shorter = Math.min(sourceWidth, sourceHeight);
     if (shorter > 0 && shorter < MEDIA_MIN_DIMENSION) return { status: 'too-small' };
     const shrunk = await shrinkPhotoFile(sourceUri, MEDIA_MAX_DIMENSION, MEDIA_MAX_FILE_SIZE_BYTES);
@@ -152,6 +231,15 @@ export async function keepPhoto(
       temporary.delete();
     } catch {
       // The cache is cleared by the system in time; the photo is kept.
+    }
+
+    await writeThumbnail(destination.uri, fileName);
+    if (options.deleteSource) {
+      try {
+        new File(sourceUri).delete();
+      } catch {
+        // Cleared by the system in time.
+      }
     }
 
     const now = new Date().toISOString();
@@ -174,6 +262,7 @@ export async function keepPhoto(
     );
     return {
       status: 'added',
+      originalInGallery,
       item: {
         id,
         ownerKind: owner.kind,
@@ -189,6 +278,43 @@ export async function keepPhoto(
   } catch (error) {
     return { status: 'error', message: error instanceof Error ? error.message : String(error) };
   }
+}
+
+/**
+ * Keeps a file the app made itself, such as a series GIF, as a photo of
+ * its owner. It is not shrunk, since it was made at its size.
+ */
+export async function keepGeneratedFile(
+  base64: string,
+  extension: 'gif' | 'jpg',
+  width: number,
+  height: number,
+  owner: { kind: MediaOwnerKind; id: string },
+  options: { caption?: string | null } = {},
+): Promise<MediaItem> {
+  const { base64ToBytes } = await import('./deviceIdentity');
+  const id = newMediaId(Date.now(), Math.random().toString(36).slice(2));
+  const fileName = `${mediaFileName(id).slice(0, -4)}.${extension}`;
+  (await mediaFile(fileName)).write(base64ToBytes(base64));
+  const now = new Date().toISOString();
+  const takenOn = localDay(new Date());
+  const caption = options.caption && options.caption.trim() ? options.caption.trim() : null;
+  const db = await getDatabase();
+  await db.runAsync(
+    `INSERT INTO media (id, owner_kind, owner_id, file_name, taken_on, caption, width, height, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    id,
+    owner.kind,
+    owner.id,
+    fileName,
+    takenOn,
+    caption,
+    width,
+    height,
+    now,
+    now,
+  );
+  return { id, ownerKind: owner.kind, ownerId: owner.id, fileName, takenOn, caption, width, height, createdAt: now };
 }
 
 export async function updatePhotoDetails(id: string, details: { takenOn: string; caption: string | null }): Promise<void> {
@@ -216,6 +342,8 @@ export async function removePhoto(item: Pick<MediaItem, 'id' | 'fileName'>): Pro
   try {
     const file = await mediaFile(item.fileName);
     if (file.exists) file.delete();
+    const thumb = await mediaFile(thumbFileName(item.fileName));
+    if (thumb.exists) thumb.delete();
   } catch {
     // A file that could not be removed now is removed by the next sync
     // pass, which clears files no row refers to.
@@ -228,4 +356,23 @@ export async function removePhotosOf(ownerKind: MediaOwnerKind, ownerId: string)
   for (const item of await listMediaFor(ownerKind, ownerId)) {
     await removePhoto(item);
   }
+  // A Photo Series of the owner goes too, with any GIF made from it. Read
+  // here by table name rather than through lib/photoSeriesDb.ts, which
+  // imports this module. 'photo_series_gif' is SERIES_GIF_OWNER_KIND there.
+  const db = await getDatabase();
+  const series = await db.getAllAsync<{ id: string }>('SELECT id FROM photo_series WHERE owner_kind = ? AND owner_id = ?', ownerKind, ownerId);
+  for (const { id } of series) {
+    for (const item of await listMediaFor('photo_series_gif', id)) {
+      await removePhoto(item);
+    }
+  }
+  if (series.length > 0) await db.runAsync('DELETE FROM photo_series WHERE owner_kind = ? AND owner_id = ?', ownerKind, ownerId);
+}
+
+/** How many photos one owner has, for a row that shows the count before
+ *  anything is loaded. */
+export async function countMediaFor(ownerKind: MediaOwnerKind, ownerId: string): Promise<number> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM media WHERE owner_kind = ? AND owner_id = ?', ownerKind, ownerId);
+  return row?.n ?? 0;
 }

@@ -36,6 +36,8 @@ import {
 import { getUserConditions } from './db';
 import { buildSyncPayload, readSyncPayload, type SyncPlanDay } from './partnerSync';
 import { getMealPlanForSync, setPartnerMealPlan } from './mealPlanSync';
+import { PEER_PHOTO_BUDGET_DIRECT } from './peerPhotos';
+import { applyPeerPhotos, peerPhotoPartFor } from './peerPhotosDb';
 import { resolveSender } from './syncInbox';
 import {
   readInboxFromFolder,
@@ -61,6 +63,11 @@ export type SendOutcome = {
  * whose meals are being planned with yours, and the role distinction already
  * exists precisely so this does not have to guess.
  */
+/** Every dish on a plan, which is what a photo has to be beside to travel. */
+export function planRecipeIdsOf(plan: readonly SyncPlanDay[]): string[] {
+  return [...new Set(plan.flatMap((day) => day.slots.flatMap((slot) => slot.recipeIds)))];
+}
+
 export async function sendToPartners(options?: { plan?: SyncPlanDay[] }): Promise<{
   outcomes: SendOutcome[];
   folderProblem: SyncFolderProblem | null;
@@ -119,6 +126,10 @@ export async function sendToPartners(options?: { plan?: SyncPlanDay[] }): Promis
       // this device is decided in one place against this person's own
       // standing rather than here.
       shared: await readPeerTables({ role: partner.role, grants: partner.grants }),
+      photos: await peerPhotoPartFor(partner, planRecipeIdsOf(plan), {
+        budget: PEER_PHOTO_BUDGET_DIRECT,
+        allowFull: true,
+      }),
     });
 
     let sealed: string;
@@ -263,6 +274,7 @@ export async function receiveFromPartners(): Promise<{
     const merge = result.payload.shared
       ? await mergeFromPeer(connection, result.payload.shared, result.payload.sentAt)
       : null;
+    await applyPeerPhotos(connection.id, result.payload);
 
     // The plan is reported on but not stored, because nothing reads a partner's
     // plan yet. Saying so is better than silently discarding it.
@@ -397,18 +409,27 @@ export async function buildWireForPartner(
   partner: Connection,
   myFingerprint: string,
   myConditionCodes: string[],
+  // How much room photos get. The relay carries a small body, so it passes
+  // PEER_PHOTO_BUDGET_RELAY and no larger photos; a file or the home network
+  // takes the direct budget.
+  options?: { photoBudget?: number; allowFullPhotos?: boolean },
 ): Promise<{ ok: true; wire: PartnerSyncFile } | { ok: false; reason: 'noKey' | 'sealFailed' }> {
   if (!partner.encryptionPublicKeyBase64) return { ok: false, reason: 'noKey' };
 
+  const plan = await getMealPlanForSync();
   const payload = buildSyncPayload({
     role: partner.role,
     grants: partner.grants,
     myConditionCodes,
-    plan: await getMealPlanForSync(),
+    plan,
     referenceDbVersion: REFERENCE_DB_VERSION,
     fromFingerprint: myFingerprint,
     sentAt: new Date().toISOString(),
     shared: await readPeerTables({ role: partner.role, grants: partner.grants }),
+    photos: await peerPhotoPartFor(partner, planRecipeIdsOf(plan), {
+      budget: options?.photoBudget ?? PEER_PHOTO_BUDGET_DIRECT,
+      allowFull: options?.allowFullPhotos ?? true,
+    }),
   });
 
   let sealed: string;
@@ -579,6 +600,7 @@ export async function applySyncFileText(
   const merge = result.payload.shared
     ? await mergeFromPeer(connection, result.payload.shared, result.payload.sentAt)
     : null;
+  await applyPeerPhotos(connection.id, result.payload);
 
   // The plan, stored rather than mentioned and dropped, 2026-09-15. Only when
   // readSyncPayload says it is usable: on a reference-database mismatch it has

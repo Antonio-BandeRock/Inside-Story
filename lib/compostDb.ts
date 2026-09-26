@@ -105,6 +105,8 @@ export async function deleteCompostPile(id: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM compost_events WHERE pile_id = ?', id);
   await db.runAsync('DELETE FROM compost_piles WHERE id = ?', id);
+  // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
+  await (await import('./mediaDb')).removePhotosOf('compost_pile', id);
 }
 
 export async function listCompostPiles(): Promise<CompostPile[]> {

@@ -137,7 +137,7 @@ const TODAY = '2026-09-06';
   checkFalse('but NOT conditions, which is a list of diagnoses and has to be asked for',
     partnerGrants.conditions);
 
-  check('the scopes are the three decided, and no more', SHARE_SCOPES.length, 3);
+  check('the scopes are the four decided, and no more', SHARE_SCOPES.length, 4);
   const conditionScope = SHARE_SCOPES.find((scope) => scope.code === 'conditions');
   checkTrue('the conditions scope says outright what is NOT sent',
     /[Nn]ever your symptoms/.test(conditionScope.what));
@@ -484,7 +484,7 @@ const tiers = (map) => (code) => map[code] ?? 'unknown';
   const v1 = decodeConnectionInvite(wire({ v: 1, fromName: 'Ana', publicKeyBase64: 'AAAAkey1' }));
   check('a v1 invite still decodes', v1.fromName, 'Ana');
   check('and reads as a recipe connection', v1.role, 'recipe');
-  check('granting nothing', v1.grants, { meals: false, shopping: false, conditions: false });
+  check('granting nothing', v1.grants, { meals: false, shopping: false, conditions: false, photos: false });
   check('with no codes', v1.conditionCodes, undefined);
   checkFalse('and claiming nothing about having me', v1.alreadyHaveYou);
 
@@ -495,7 +495,7 @@ const tiers = (map) => (code) => map[code] ?? 'unknown';
     conditionCodes: ['celiac', 'ibs'], alreadyHaveYou: true,
   }));
   check('a partner invite reads as one', partner.role, 'partner');
-  check('its grants come through', partner.grants, { meals: true, shopping: true, conditions: true });
+  check('its grants come through', partner.grants, { meals: true, shopping: true, conditions: true, photos: false });
   check('its codes come through', partner.conditionCodes, ['celiac', 'ibs']);
   checkTrue('and the claim that they added me', partner.alreadyHaveYou);
 
@@ -518,7 +518,7 @@ const tiers = (map) => (code) => map[code] ?? 'unknown';
     conditionCodes: 'celiac', alreadyHaveYou: 'true',
   }));
   check('an unknown role falls back to recipe', junk.role, 'recipe');
-  check('a string is not a granted boolean', junk.grants, { meals: false, shopping: false, conditions: false });
+  check('a string is not a granted boolean', junk.grants, { meals: false, shopping: false, conditions: false, photos: false });
   check('nor is the number 1', junk.grants.shopping, false);
   check('a string where an array belongs is dropped', junk.conditionCodes, undefined);
   checkFalse('and a string is not a claim', junk.alreadyHaveYou);

@@ -387,6 +387,8 @@ export async function deleteKitchenItem(id: string): Promise<boolean> {
   if (id.startsWith('garden:') || id.startsWith('fermentation:')) return false;
   const db = await getDatabase();
   await db.runAsync('DELETE FROM kitchen_items WHERE id = ?', id);
+  // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
+  await (await import('./mediaDb')).removePhotosOf('item', id);
   return true;
 }
 

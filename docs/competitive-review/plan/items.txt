@@ -209,6 +209,7 @@ L1|6|R2|L|Home,Trends,Signals,Insights|Bearable, Guava, Welltory, Oura, Levels, 
 L2|4|R1|L|Home,Life,Schedules|Tiimo, AnyList, Todoist, Waterllama, Medisafe, Cronometer|Android home screen widgets|react-native-android-widget: next thing, next dose, Capture, grocery list, Fuel Gauges, current routine step, one-tap glass. A "hide health details on widgets" switch, since a locked phone shows them.
 L3|6|R2|L|Home,Life|Tiimo, Medisafe|iPhone widgets and Live Activity|WidgetKit through a config plugin, same content and switch.
 L4|4|R1|S|Trends,Signals|Oura|Breathing rate and body temperature|Two more Health Connect permissions.
+L5|4|R1|S|all|(your question)|Camera originals to the gallery, and Wi-Fi only photos|expo-media-library saves the full camera picture, with its details, to the phone's gallery while the app keeps its two small sizes (X1, 1.0.53.7). expo-network tells Wi-Fi from mobile data, so "Send and fetch shared photos on Wi-Fi only" holds on the phone; until then lib/photoNative.ts reports unknown and photos go either way.
 ## Talking to people
 O1|4|R1|S-M|Life|(your question)|Phone contacts inside the app|expo-contacts: pick a contact for Emergency, a prescriber, a pharmacy, the family roster or a caregiver invite. Read on the phone, nothing copied out.
 O2|4|R1|S|Life|(your question)|Text or call from inside the app|expo-sms opens the phone's texting app with the message filled in; calling already works through Linking.

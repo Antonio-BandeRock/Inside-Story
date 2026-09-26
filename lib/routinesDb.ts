@@ -122,6 +122,8 @@ export async function setDoneCheckActive(id: string, active: boolean): Promise<v
 export async function deleteDoneCheck(id: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync(`DELETE FROM done_checks WHERE id = ?`, id);
+  // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
+  await (await import('./mediaDb')).removePhotosOf('done_check', id);
 }
 
 /**

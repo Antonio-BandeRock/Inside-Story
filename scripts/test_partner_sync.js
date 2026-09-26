@@ -362,6 +362,42 @@ check('and a future timestamp never goes negative', daysSinceSent('2026-12-01T00
     Object.prototype.hasOwnProperty.call(oddName.payload, 'shared'));
 }
 
+// --- Photos (X1, 1.0.53.7) ---------------------------------------------------
+// A photo goes only beside a dish on a plan that is itself going, and only
+// with both Meals and Photos granted. Acknowledgements and requests are ids
+// and always go.
+
+{
+  const PHOTOS = {
+    photos: [
+      { id: 'media_1_a', recipeId: 'curated_snack_greek_yogurt_bowl', takenOn: '2026-09-05', caption: null, thumb: 'QUJD' },
+      { id: 'media_2_b', recipeId: 'curated_not_on_the_plan', takenOn: '2026-09-05', caption: null, thumb: 'QUJD' },
+    ],
+    photoFull: [{ id: 'media_1_a', data: 'QUJD' }],
+    photoAcks: ['media_9_z'],
+    photoRequests: ['media_8_y'],
+  };
+  const withPhotos = { meals: true, shopping: true, conditions: false, photos: true };
+  const sent = build(withPhotos, { photos: PHOTOS });
+  check('only the photo of a dish on the plan travels', (sent.photos || []).map((p) => p.id), ['media_1_a']);
+  checkTrue('an asked-for full size travels', Array.isArray(sent.photoFull) && sent.photoFull.length === 1);
+  check('acks travel', sent.photoAcks, ['media_9_z']);
+
+  const noPhotoGrant = build({ ...withPhotos, photos: false }, { photos: PHOTOS });
+  checkFalse('without the Photos grant no photo travels', Object.prototype.hasOwnProperty.call(noPhotoGrant, 'photos'));
+  checkFalse('nor any full size', Object.prototype.hasOwnProperty.call(noPhotoGrant, 'photoFull'));
+  check('but acks and requests still go', [noPhotoGrant.photoAcks, noPhotoGrant.photoRequests], [['media_9_z'], ['media_8_y']]);
+
+  const noMeals = build({ ...withPhotos, meals: false }, { photos: PHOTOS });
+  checkFalse('without the Meals grant no photo travels', Object.prototype.hasOwnProperty.call(noMeals, 'photos'));
+
+  const read = readSyncPayload(
+    JSON.stringify({ ...sent, photos: [...sent.photos, { id: 'bad id!', recipeId: 'x', takenOn: '2026-09-05', thumb: 'QUJD' }] }),
+    { myReferenceDbVersion: DB },
+  );
+  check('reading back keeps only well-formed photos', read.payload.photos.map((p) => p.id), ['media_1_a']);
+}
+
 if (failures) {
   console.error(`\n${failures} of ${checks} checks failed`);
   process.exit(1);

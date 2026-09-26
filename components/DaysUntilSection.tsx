@@ -85,6 +85,7 @@ import {
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
+import { RecordPhotos } from './RecordPhotos';
 
 const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 const WHOLE_AREA = '__whole_area__';
@@ -332,6 +333,9 @@ export function DaysUntilSection({
                 {item.where ? ` · ${item.where}` : ''}
               </Text>
               <Text style={styles.captionText}>{describeCountdown(item, today)}</Text>
+              {compact || readOnly ? null : (
+                <RecordPhotos ownerKind="countdown" ownerId={`${item.kind}_${item.id}`} tabColor={tabColor} title={item.name} />
+              )}
               {!item.doneAt ? (
                 <View style={styles.track}>
                   <View style={[styles.fill, { width: `${Math.round(progress * 100)}%`, backgroundColor: tabColor }]} />

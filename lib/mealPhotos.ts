@@ -39,6 +39,7 @@
 
 import type { File as FileType } from 'expo-file-system';
 import type { Action, ImageResult } from 'expo-image-manipulator';
+import { isDesktopApp } from './desktop/bridge';
 import { COMPONENT_TABLE_BY_TYPE, getDatabase, type MealComponentType } from './db';
 
 export const MEAL_PHOTO_MAX_DIMENSION = 1000;
@@ -405,7 +406,32 @@ export async function setFavoritePhoto(favoriteId: string, photoUri: string | nu
   }
 }
 
-export async function getPhotoForTarget(target: PhotoTarget): Promise<string | null> {
+// 2026-09-26 (1.0.53.7): a dish or meal photo now lives in the one photo
+// layer (lib/media.ts), filed under owner kind 'dish' or 'meal', so it gets
+// the thumbnail, travels to the person's other device and can go to a
+// partner. The old columns (a component's photo_uri, meals.photo_uri, a
+// favorite's payload photoUri and the curated override map) are read once:
+// a photo found there is adopted into the media table, its file moved, and
+// the column cleared. A staged share keeps its photo_uri, since it is not
+// the person's record until they keep it.
+type DishOwner = { kind: 'dish' | 'meal'; id: string };
+
+export function dishOwnerFor(target: PhotoTarget): DishOwner | null {
+  switch (target.kind) {
+    case 'component':
+      return { kind: 'dish', id: `component:${target.componentType}:${target.componentId}` };
+    case 'meal':
+      return { kind: 'meal', id: target.mealId };
+    case 'favorite':
+      return { kind: 'dish', id: `favorite:${target.favoriteId}` };
+    case 'curatedRecipe':
+      return { kind: 'dish', id: `recipe:${target.recipeId}` };
+    case 'sharedRecipe':
+      return null;
+  }
+}
+
+async function readLegacyPhoto(target: PhotoTarget): Promise<string | null> {
   const db = await getDatabase();
   switch (target.kind) {
     case 'component': {
@@ -433,29 +459,105 @@ export async function getPhotoForTarget(target: PhotoTarget): Promise<string | n
   }
 }
 
-export async function setPhotoForTarget(target: PhotoTarget, photoUri: string | null): Promise<void> {
+async function clearLegacyPhoto(target: PhotoTarget): Promise<void> {
+  const db = await getDatabase();
   switch (target.kind) {
     case 'component': {
-      const db = await getDatabase();
       const table = COMPONENT_TABLE_BY_TYPE[target.componentType];
-      await db.runAsync(`UPDATE ${table} SET photo_uri = ? WHERE id = ?`, photoUri, target.componentId);
+      await db.runAsync(`UPDATE ${table} SET photo_uri = NULL WHERE id = ?`, target.componentId);
       return;
     }
-    case 'meal': {
-      const db = await getDatabase();
-      await db.runAsync('UPDATE meals SET photo_uri = ? WHERE id = ?', photoUri, target.mealId);
+    case 'meal':
+      await db.runAsync('UPDATE meals SET photo_uri = NULL WHERE id = ?', target.mealId);
       return;
-    }
     case 'favorite':
-      await setFavoritePhoto(target.favoriteId, photoUri);
+      await setFavoritePhoto(target.favoriteId, null);
       return;
     case 'curatedRecipe':
-      await setCuratedRecipePhotoOverride(target.recipeId, photoUri);
+      await setCuratedRecipePhotoOverride(target.recipeId, null);
       return;
     case 'sharedRecipe':
-      // Deliberately a no-op -- a staged share's own photo (if any) is
-      // whatever the sender included, read-only until the person promotes
-      // it to a real saved record or favorite of their own.
       return;
+  }
+}
+
+async function legacyFileExists(uri: string): Promise<boolean> {
+  try {
+    const { File } = await import('expo-file-system');
+    return new File(uri).exists;
+  } catch {
+    return false;
+  }
+}
+
+/** Moves one target's old-column photo into the media table. True when the
+ *  target now has its photo there. */
+async function adoptLegacyPhoto(target: PhotoTarget, owner: DishOwner): Promise<boolean> {
+  const legacy = await readLegacyPhoto(target);
+  if (!legacy) return false;
+  // The column is left alone when its file is not on this device: it may be
+  // a path on the other device, which adopts it there, and clearing it here
+  // would travel over and take the photo's only pointer away.
+  if (isDesktopApp() || !(await legacyFileExists(legacy))) return false;
+  const { keepPhoto } = await import('./mediaDb');
+  const result = await keepPhoto(legacy, 0, 0, owner, { deleteSource: true });
+  if (result.status !== 'added') return false;
+  await clearLegacyPhoto(target);
+  return true;
+}
+
+export async function getPhotoForTarget(target: PhotoTarget): Promise<string | null> {
+  const owner = dishOwnerFor(target);
+  if (!owner) return readLegacyPhoto(target);
+  const { listMediaFor, mediaDisplayUri } = await import('./mediaDb');
+  let items = await listMediaFor(owner.kind, owner.id);
+  if (items.length === 0 && (await adoptLegacyPhoto(target, owner))) {
+    items = await listMediaFor(owner.kind, owner.id);
+  }
+  if (items.length === 0) return null;
+  return mediaDisplayUri(items[0]);
+}
+
+/**
+ * Sets the one photo a dish or meal card shows, replacing any it had. The
+ * file at `photoUri` (written by pickAndSaveMealPhoto or a received share)
+ * is kept in the photo layer and removed from where it was.
+ */
+export async function setPhotoForTarget(target: PhotoTarget, photoUri: string | null): Promise<void> {
+  const owner = dishOwnerFor(target);
+  if (!owner) return;
+  const { keepPhoto, removePhotosOf } = await import('./mediaDb');
+  await removePhotosOf(owner.kind, owner.id);
+  const legacy = await readLegacyPhoto(target);
+  if (legacy && legacy !== photoUri) await deleteMealPhotoFile(legacy);
+  await clearLegacyPhoto(target);
+  if (photoUri) await keepPhoto(photoUri, 0, 0, owner, { deleteSource: true });
+}
+
+/**
+ * Adopts every photo still in an old column. Run from the photo sync pass,
+ * so dish photos reach the other device without anybody opening each card.
+ * Safe to run any number of times: a column is cleared once its photo is in.
+ */
+export async function migrateLegacyDishPhotos(): Promise<void> {
+  if (isDesktopApp()) return;
+  const db = await getDatabase();
+  const targets: PhotoTarget[] = [];
+  for (const [componentType, table] of Object.entries(COMPONENT_TABLE_BY_TYPE) as [MealComponentType, string][]) {
+    try {
+      const rows = await db.getAllAsync<{ id: string }>(`SELECT id FROM ${table} WHERE photo_uri IS NOT NULL AND photo_uri <> ''`);
+      for (const row of rows) targets.push({ kind: 'component', componentType, componentId: row.id });
+    } catch {
+      // A table without the column has nothing to move.
+    }
+  }
+  const meals = await db.getAllAsync<{ id: string }>("SELECT id FROM meals WHERE photo_uri IS NOT NULL AND photo_uri <> ''");
+  for (const row of meals) targets.push({ kind: 'meal', mealId: row.id });
+  const favorites = await db.getAllAsync<{ id: string; payload_json: string }>("SELECT id, payload_json FROM favorites WHERE payload_json LIKE '%photoUri%'");
+  for (const row of favorites) targets.push({ kind: 'favorite', favoriteId: row.id });
+  for (const recipeId of Object.keys(await getCuratedRecipePhotoOverrides())) targets.push({ kind: 'curatedRecipe', recipeId });
+  for (const target of targets) {
+    const owner = dishOwnerFor(target);
+    if (owner) await adoptLegacyPhoto(target, owner).catch(() => false);
   }
 }

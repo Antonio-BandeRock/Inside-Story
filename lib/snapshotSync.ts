@@ -261,6 +261,7 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'visual_fold_state',
   'backup_last_check',
   'backup_last_saved',
+  'peer_photos_wifi_only',
   CHANGE_BASELINE_META_KEY,
 ];
 
@@ -276,8 +277,12 @@ export function isDeviceLocalMetaKey(key: unknown): boolean {
  * a second time as though they had happened there. Each device keeps its
  * own account of the same conversation, which is also what makes the log
  * readable: "your computer added" is said from the side reading it.
+ *
+ * peer_photo_out and peer_photos are photos between this device and
+ * another person (lib/peerPhotosDb.ts). The files sit on this device only,
+ * so the rows stay with them.
  */
-export const DEVICE_LOCAL_TABLES: readonly string[] = ['sync_change_log'];
+export const DEVICE_LOCAL_TABLES: readonly string[] = ['sync_change_log', 'peer_photo_out', 'peer_photos'];
 
 /**
  * The snapshot's tables with this device's bookkeeping taken out.

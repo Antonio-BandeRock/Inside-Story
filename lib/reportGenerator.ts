@@ -37,6 +37,8 @@ import { getActiveInsurancePlan, listMedicalBills } from './financeHealthDb';
 import { describePlanStanding, planStanding } from './financeHealth';
 import { getCostSummary } from './costOfEatingDb';
 import { getHarvestYieldSummary } from './harvestYieldDb';
+import { reportPhotoTextLine } from './reportPhotos';
+import { plantingPhotoSection, symptomPhotoSection } from './reportPhotosDb';
 
 // Same real, small nutrient set app/(tabs)/index.tsx (Home) and
 // app/(tabs)/trends.tsx both already use, duplicated here rather than
@@ -83,7 +85,18 @@ export type ReportTableSection = {
   empty: string;
 };
 
-export type ReportSection = ReportListSection | ReportTableSection;
+/** Photos at the report size (1.0.53.7). The PDF shows each one with its
+ *  caption; the plain-text view says how many there are, since a text
+ *  message cannot carry them. Built in lib/reportPhotosDb.ts. */
+export type ReportPhotoSection = {
+  kind: 'photos';
+  heading: string;
+  note?: string;
+  rows: { caption: string; dataUri: string }[];
+  empty: string;
+};
+
+export type ReportSection = ReportListSection | ReportTableSection | ReportPhotoSection;
 
 export type ReportDocument = {
   title: string;
@@ -407,7 +420,12 @@ async function kindSections(kind: ReportKind, days: number): Promise<ReportSecti
     case 'overview':
       break;
     case 'r-doctor':
-      parts.push(insights('i-appointment', 'Appointments'), trends('bloodPressure', 'Blood pressure', days), trends('doses', 'Doses', days));
+      parts.push(
+        insights('i-appointment', 'Appointments'),
+        trends('bloodPressure', 'Blood pressure', days),
+        trends('doses', 'Doses', days),
+        symptomPhotoSection(start, end).then((section) => [section]),
+      );
       break;
     case 'r-nutrition':
       parts.push(trends('hydration', 'Hydration', days), trends('planned', 'Planned and eaten', days), trends('reactions', 'After-meal reactions', days));
@@ -455,6 +473,7 @@ async function kindSections(kind: ReportKind, days: number): Promise<ReportSecti
           return gardenYieldSections(await getHarvestYieldSummary(start, end, system));
         })(),
         insights('i-garden', 'On hand now'),
+        plantingPhotoSection(start, end).then((section) => [section]),
       );
       break;
   }
@@ -479,6 +498,8 @@ export function renderReportText(doc: ReportDocument): string {
     if (section.note) lines.push(section.note);
     if (section.rows.length === 0) {
       lines.push(section.empty);
+    } else if (section.kind === 'photos') {
+      lines.push(reportPhotoTextLine(section.rows.length));
     } else if (section.kind === 'list') {
       for (const row of section.rows) lines.push(`- ${row}`);
     } else {

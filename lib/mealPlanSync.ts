@@ -195,6 +195,9 @@ export type PartnerMealPlanNamed = {
    * its three meals looks like a partner who skipped lunch.
    */
   unknown: number;
+  /** Every dish this phone could name, once each, for the photos their
+   *  phone sends beside the plan (components/PeerDishPhotos.tsx). */
+  dishes: { id: string; name: string }[];
 };
 
 /**
@@ -207,7 +210,7 @@ export type PartnerMealPlanNamed = {
 export async function getPartnerMealPlanNamed(connectionId: string): Promise<PartnerMealPlanNamed> {
   const plan = await getPartnerMealPlan(connectionId);
   const ids = [...new Set(plan.days.flatMap((day) => day.slots.flatMap((slot) => slot.recipeIds)))];
-  if (ids.length === 0) return { days: [], sentAt: plan.sentAt, unknown: 0 };
+  if (ids.length === 0) return { days: [], sentAt: plan.sentAt, unknown: 0, dishes: [] };
 
   const db = await getDatabase();
   const placeholders = ids.map(() => '?').join(', ');
@@ -232,7 +235,11 @@ export async function getPartnerMealPlanNamed(connectionId: string): Promise<Par
     }
     if (slots.length > 0) days.push({ date: day.date, slots });
   }
-  return { days, sentAt: plan.sentAt, unknown };
+  const dishes = ids.flatMap((id) => {
+    const name = names.get(id);
+    return name ? [{ id, name }] : [];
+  });
+  return { days, sentAt: plan.sentAt, unknown, dishes };
 }
 
 /** Drops a partner's plan. Called when the connection itself goes. */

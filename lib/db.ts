@@ -6331,6 +6331,7 @@ async function runDatabaseInitialization() {
         -- list of diagnoses is not, and defaulting it on would be this app
         -- deciding something it has no business deciding.
         share_conditions INTEGER NOT NULL DEFAULT 0,
+        share_photos INTEGER NOT NULL DEFAULT 0,
         --
         -- CONDITION CODES ONLY, decided directly. The names of what they
         -- track, so meals can be planned around both people at once. Never a
@@ -7407,6 +7408,59 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_media_owner ON media(owner_kind, owner_id);
 
+      -- Photo Series, 2026-09-26 (1.0.53.7): the same thing photographed from
+      -- the same spot day after day, read back as a flipbook or a GIF
+      -- (lib/photoSeries.ts, lib/photoSeriesDb.ts). The photos themselves
+      -- are ordinary rows in media under the same owner; this row only says
+      -- a series is running and when to remind. ended_on keeps a finished
+      -- series readable rather than deleting it.
+      CREATE TABLE IF NOT EXISTS photo_series (
+        id TEXT PRIMARY KEY,
+        owner_kind TEXT NOT NULL,
+        owner_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        reminder_on INTEGER NOT NULL DEFAULT 1,
+        reminder_time TEXT NOT NULL DEFAULT '08:00',
+        started_on TEXT NOT NULL,
+        ended_on TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_photo_series_owner ON photo_series(owner_kind, owner_id);
+
+      -- Photos between two people, 2026-09-26 (1.0.53.7; lib/peerPhotos.ts,
+      -- lib/peerPhotosDb.ts). peer_photo_out is what this phone has sent to
+      -- each person and what came back as arrived or asked for;
+      -- peer_photos is what they sent here, with the files under
+      -- peer-media. Both stay on the device that holds the files
+      -- (DEVICE_LOCAL_TABLES in lib/snapshotSync.ts), since a row without
+      -- its file would only be a broken picture on the other device.
+      CREATE TABLE IF NOT EXISTS peer_photo_out (
+        connection_id TEXT NOT NULL,
+        photo_id TEXT NOT NULL,
+        sent_at TEXT,
+        acked_at TEXT,
+        requested_at TEXT,
+        full_sent_at TEXT,
+        full_acked_at TEXT,
+        PRIMARY KEY (connection_id, photo_id)
+      );
+      CREATE TABLE IF NOT EXISTS peer_photos (
+        connection_id TEXT NOT NULL,
+        photo_id TEXT NOT NULL,
+        recipe_id TEXT NOT NULL,
+        taken_on TEXT NOT NULL,
+        caption TEXT,
+        thumb_file TEXT,
+        full_file TEXT,
+        requested_at TEXT,
+        received_at TEXT NOT NULL,
+        ack_pending INTEGER NOT NULL DEFAULT 0,
+        full_ack_pending INTEGER NOT NULL DEFAULT 0,
+        PRIMARY KEY (connection_id, photo_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_peer_photos_recipe ON peer_photos(connection_id, recipe_id);
+
       -- Tell Claude, 2026-09-22: a note about a piece of this app, made
       -- from inside the app, for building the app and nothing else. The
       -- whole feature sits behind a switch in Profile that starts off, so
@@ -8064,6 +8118,13 @@ async function runDatabaseInitialization() {
         if (!connectionColumns.some((entry) => entry.name === column)) {
           await db.execAsync(`ALTER TABLE connections ADD COLUMN ${column} INTEGER NOT NULL DEFAULT 0;`);
         }
+      }
+      // share_photos, 1.0.53.7. A link that already plans meals together
+      // starts with photos on, the same default a new one gets
+      // (SHARE_SCOPES in lib/partners.ts), and a recipe link stays off.
+      if (!connectionColumns.some((entry) => entry.name === 'share_photos')) {
+        await db.execAsync('ALTER TABLE connections ADD COLUMN share_photos INTEGER NOT NULL DEFAULT 0;');
+        await db.execAsync("UPDATE connections SET share_photos = 1 WHERE role IN ('partner', 'child', 'caregiver');");
       }
     }
 
@@ -20556,6 +20617,8 @@ export async function listCheckins(
 export async function deleteCheckin(id: string) {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM wellbeing_checkins WHERE id = ?', id);
+  // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
+  await (await import('./mediaDb')).removePhotosOf('symptom', id);
 }
 
 // --- Hands-on therapy sessions ---------------------------------------------
@@ -21940,6 +22003,8 @@ export async function deleteGardenPlot(id: string): Promise<boolean> {
   const db = await getDatabase();
   if (await gardenPlotHasRecords(id)) return false;
   await db.runAsync('DELETE FROM garden_plots WHERE id = ?', id);
+  // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
+  await (await import('./mediaDb')).removePhotosOf('garden_area', id);
   return true;
 }
 
@@ -22104,6 +22169,8 @@ export async function updateGardenPlanting(
 export async function deleteGardenPlanting(id: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM garden_plantings WHERE id = ?', id);
+  // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
+  await (await import('./mediaDb')).removePhotosOf('planting', id);
 }
 
 export type GardenHarvest = {
@@ -22229,6 +22296,8 @@ export async function recordHarvestUsage(harvestId: string, amountUsed: number):
 export async function deleteGardenHarvest(id: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM garden_harvests WHERE id = ?', id);
+  // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
+  await (await import('./mediaDb')).removePhotosOf('harvest', id);
 }
 
 // A real, basic Scheduler tie-in -- creates a genuine schedule_items row

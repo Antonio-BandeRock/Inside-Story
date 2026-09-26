@@ -42,6 +42,7 @@ import {
 } from '../lib/whereIsIt';
 import { listPlaceRecords } from '../lib/whereIsItDb';
 import { confirmKitchenItemLocation, setKitchenItemLocation } from '../lib/kitchenDb';
+import { RecordPhotos } from '../components/RecordPhotos';
 
 // Where the answer came from, so a result carries its source at a glance: a
 // garden bed reads differently from a cupboard, and a sentence somebody spoke
@@ -100,6 +101,16 @@ export default function WhereIsItScreen() {
   const chips = suggestPlaces(records);
   const nothingToSay = describeNoResults(query, records.length);
 
+  // A photo of where something was left is often the quickest answer, and
+  // it is the same photo the record shows wherever else it is read: a
+  // kitchen row is an item, a planting a planting, a note a capture note.
+  function photoOwnerFor(record: PlaceRecord): { ownerKind: string; ownerId: string } {
+    const rowId = record.id.slice(record.id.indexOf(':') + 1);
+    if (record.kind === 'kitchen') return { ownerKind: 'item', ownerId: rowId };
+    if (record.kind === 'garden') return { ownerKind: 'planting', ownerId: rowId };
+    return { ownerKind: 'capture_note', ownerId: rowId };
+  }
+
   function renderHit(record: PlaceRecord) {
     const confidence = placeConfidence(record.placedOn, today);
     const warning = stalePrompt(confidence);
@@ -118,6 +129,7 @@ export default function WhereIsItScreen() {
           {record.detail ? <Text style={styles.hitMeta}>{record.detail}</Text> : null}
         </View>
         {warning ? <Text style={styles.hitWarning}>{warning}</Text> : null}
+        <RecordPhotos {...photoOwnerFor(record)} tabColor={tint} title={record.what} />
         {record.editable && !moving ? (
           <View style={styles.hitActionRow}>
             <TouchableOpacity style={styles.hitAction} onPress={() => void confirmStillThere(record)}>

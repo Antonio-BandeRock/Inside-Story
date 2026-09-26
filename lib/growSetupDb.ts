@@ -257,6 +257,8 @@ export async function deleteGrowEquipment(id: string): Promise<boolean> {
   if (!row) return true;
   if (row.purchaseEntryId || row.retiredAt) return false;
   await db.runAsync('DELETE FROM garden_equipment WHERE id = ?', id);
+  // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
+  await (await import('./mediaDb')).removePhotosOf('equipment', id);
   return true;
 }
 

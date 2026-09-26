@@ -86,4 +86,6 @@ export async function setGardenCountdownDone(id: string, done: boolean): Promise
 export async function deleteGardenCountdown(id: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM garden_countdowns WHERE id = ?', id);
+  // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
+  await (await import('./mediaDb')).removePhotosOf('countdown', `garden_${id}`);
 }

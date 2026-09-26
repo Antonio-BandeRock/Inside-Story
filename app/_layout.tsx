@@ -640,6 +640,11 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
+                {/* The app's camera, 2026-09-26. Full screen, its own
+                    controls drawn over the view, so the header is off; the
+                    screen turns it on only for its permission and desktop
+                    messages. Reached from any photo strip. */}
+                <Stack.Screen name="photo-camera" options={{ headerShown: false }} />
                 {/* Your Story, 2026-09-24. The whole paper, section by
                     section, beside Capture and Where Is It because it
                     belongs to no tab: its job is to say where each tab

@@ -27,7 +27,9 @@ import { listConnections } from './connections';
 import { getUserConditions } from './db';
 import { buildSyncPayload } from './partnerSync';
 import { getMealPlanForSync } from './mealPlanSync';
-import { applySyncFileText, PARTNER_SYNC_FILE_KIND } from './partnerTransfer';
+import { applySyncFileText, PARTNER_SYNC_FILE_KIND, planRecipeIdsOf } from './partnerTransfer';
+import { PEER_PHOTO_BUDGET_DIRECT } from './peerPhotos';
+import { peerPhotoPartFor } from './peerPhotosDb';
 import { talksAutomatically } from './peerRelationships';
 import { readPeerTables } from './peerSyncDevice';
 import { REFERENCE_DB_VERSION } from './referenceDbVersion';
@@ -149,6 +151,10 @@ export async function sendViaOneDrive(): Promise<{
       fromFingerprint: myFingerprint,
       sentAt: new Date().toISOString(),
       shared: await readPeerTables({ role: partner.role, grants: partner.grants }),
+      photos: await peerPhotoPartFor(partner, planRecipeIdsOf(myPlan), {
+        budget: PEER_PHOTO_BUDGET_DIRECT,
+        allowFull: true,
+      }),
     });
 
     let sealed: string;

@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useInfoAlert } from './InfoAlert';
 import { PhoneOnlyNotice } from './PhoneOnlyNotice';
 import { TabBand, makeTabBandStyles } from './TabBand';
+import { RecordPhotos } from './RecordPhotos';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -457,6 +458,7 @@ export function MovementSection({ tabColor }: Props) {
                     <Text style={styles.rowMeta}>
                       {formatDay(workout.startedAt)} at {formatTime(workout.startedAt)}, {workout.value ?? 0} min{title && title !== typeName ? `, ${typeName.toLowerCase()}` : ''}
                     </Text>
+                    <RecordPhotos ownerKind="workout" ownerId={String(workout.id)} tabColor={tabColor} title={title || typeName} />
                   </View>
                 </View>
               );

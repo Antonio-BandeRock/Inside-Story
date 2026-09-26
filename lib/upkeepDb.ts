@@ -137,6 +137,8 @@ export async function setUpkeepActive(id: string, active: boolean): Promise<void
 export async function deleteUpkeepItem(id: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM upkeep_items WHERE id = ?', id);
+  // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
+  await (await import('./mediaDb')).removePhotosOf('upkeep', id);
 }
 
 type UpkeepRow = {
