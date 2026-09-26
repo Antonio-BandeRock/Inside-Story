@@ -66,6 +66,8 @@ const NAMED = [
   'lib/trendsMore.ts',
   'lib/insightsMore.ts',
   'lib/reportKinds.ts',
+  'lib/reminderActions.ts',
+  'lib/reminderNotifications.ts',
 ];
 
 function targets() {

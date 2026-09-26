@@ -84,6 +84,10 @@ export type DatedReminderSource = {
   dueOn: string;
   tab: DatedReminderTab;
   lens: DatedReminderLens;
+  /** False when the notification cannot carry a button that answers it:
+   *  upkeep that expires, since renewing it needs the new date (C1,
+   *  lib/reminderActions.ts). Absent means it can. */
+  markable?: boolean;
 };
 
 /**
@@ -148,6 +152,7 @@ export async function listDatedReminderSources(today: string): Promise<DatedRemi
       dueOn: standing.dueOn,
       tab: 'life',
       lens: 'upkeep',
+      markable: item.cadence !== 'expires',
     });
   }
 

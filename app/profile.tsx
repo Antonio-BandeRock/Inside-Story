@@ -83,6 +83,8 @@ import {
   setQuietHours,
   setReminderKindEnabled,
   type ReminderKindKey,
+  checkinTimeOf,
+  setCheckinTime,
 } from '../lib/reminderPreferences';
 import { DEFAULT_QUIET_HOURS, quietTimeOptions, SNOOZE_MINUTES, type QuietHours } from '../lib/quietHours';
 import {
@@ -806,6 +808,11 @@ export default function ProfileScreen() {
   // reminder already queued for 3 AM moves as soon as the window is set.
   function saveQuietHours(quiet: QuietHours | null) {
     void setQuietHours(quiet).then(() => syncReminderNotifications());
+  }
+
+  // The daily check-in's time (C1, 2026-09-26), reconciled the same way.
+  function saveCheckinTime(time: string) {
+    void setCheckinTime(time).then(() => syncReminderNotifications());
   }
 
   // Home Screen section toggles, 2026-08-21, direct request: "make it
@@ -3601,6 +3608,20 @@ export default function ProfileScreen() {
                 {REMINDER_KIND_LABELS[key]}: {REMINDER_KIND_CAPTIONS[key]}
               </Text>
             ))}
+            {isReminderKindEnabled(reminderPrefs, 'checkin') ? (
+              <View style={styles.dateRow}>
+                <PickerField label="Ask how you are at">
+                  <PopoverSelect
+                    options={QUIET_TIME_OPTIONS}
+                    selected={checkinTimeOf(reminderPrefs)}
+                    minWidth={110}
+                    tabColor={colors.menuIconMuted}
+                    groundSurface
+                    onSelect={saveCheckinTime}
+                  />
+                </PickerField>
+              </View>
+            ) : null}
             <View style={styles.pillRow}>
               <TouchableOpacity
                 style={[styles.pill, isNudgeUntilDoneEnabled(reminderPrefs) && styles.pillActive]}
@@ -3666,6 +3687,14 @@ export default function ProfileScreen() {
               always arrive on time, because moving either one could matter more than the sleep. Every
               reminder also has a Snooze {SNOOZE_MINUTES} min button, which briefly opens the app so it
               works even when the app was closed.
+            </Text>
+            <Text style={styles.helpText}>
+              Buttons on the reminder: a dose has Taken, a drink Drank it, a planned meal Ate it, a garden
+              task or something you noted down Done, upkeep Done today and a compost pile Turned it. Each
+              records the same thing as answering it where it is kept, then opens that place so you can
+              see it. Upkeep that expires, bills, work benefits, appointments, counters and routines keep
+              Snooze only, because a button cannot ask for a new expiry date and nothing here records a
+              bill as paid.
             </Text>
             <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/app-status')}>
               <Text style={styles.checkinButtonText}>A Reminder Did Not Come</Text>

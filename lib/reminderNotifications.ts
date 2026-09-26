@@ -1,7 +1,22 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import { listReminderCandidates, type ReminderCandidate } from './db';
+import { getCheckinReminderInputs } from './checkinReminderDb';
+import { addCompostEvent, listCompostPilesToTurn } from './compostDb';
+import { listReminderCandidates, setScheduleItemStatus, type ReminderCandidate } from './db';
 import {
+  AFTER_MEAL_MINUTES,
+  ALL_REMINDER_CATEGORY_KEYS,
+  CATEGORY_ACTIONS,
+  categoryKeyFor,
+  localDay,
+  planAfterMealNudge,
+  planDailyCheckins,
+  planReminderAction,
+  REMINDER_CATEGORY_IDS,
+  reminderActionTitle,
+} from './reminderActions';
+import {
+  checkinTimeOf,
   getReminderPreferences,
   isNudgeUntilDoneEnabled,
   isReminderKindEnabled,
@@ -23,6 +38,7 @@ import { describeReminderDays, nextReminderTimes, type Routine } from './routine
 import { listRoutineReminders } from './routinesDb';
 import { formatTime12 } from './timeOfDay';
 import { quietDecision, SNOOZE_MINUTES } from './quietHours';
+import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
 
 // Local reminders: the scheduled doses in Schedules > Meds, the visits in
 // Schedules > Appointments, the meals and drinks on the schedule, the work
@@ -114,7 +130,11 @@ const SNOOZE_PREFIX = 'inside-story-snooze:';
 // moment, because a button that does not do so does nothing at all while
 // the app is closed (expo-notifications documents this), and a snooze that
 // silently fails is worse than no snooze.
-const REMINDER_CATEGORY = 'inside-story-reminder';
+//
+// Since C1 (2026-09-26) each kind has a set of buttons of its own, beside
+// Snooze, defined in lib/reminderActions.ts. The Snooze-only set keeps
+// the identifier the single category always had.
+const REMINDER_CATEGORY = REMINDER_CATEGORY_IDS.plain;
 const SNOOZE_ACTION = 'snooze';
 export const LOOKAHEAD_DAYS = 7;
 // iOS caps pending local notifications at 64; keeping under that on both
@@ -163,7 +183,9 @@ export type ReminderKind = ReminderKindKey;
 const NUDGEABLE_TIMED_KINDS: ReminderKind[] = ['dose', 'meal', 'hydration', 'garden', 'reminder', 'routine'];
 
 type ScheduleLens = 'meds' | 'appointments' | 'todaysMeals' | 'hydration';
-type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine';
+type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine' | 'signals';
+// The two check-in reminders land on Signals (C1).
+type SignalsReminderLens = 'generalNote' | 'flares';
 // 'plotsAndPlantings' is what a 1.0.42.13 payload says for a counter; it
 // opens the Days Until lens too, which has held every counter since
 // 1.0.42.14.
@@ -179,7 +201,7 @@ type ReminderPayload = {
   /** Which tab a tap opens. Absent on anything queued before 1.0.39.8, and
    *  read back as 'schedule', which is the only thing it could have been. */
   tab?: ReminderTab;
-  lens: ScheduleLens | GardenReminderLens | DatedReminderLens | 'reconcile' | 'walk';
+  lens: ScheduleLens | GardenReminderLens | DatedReminderLens | SignalsReminderLens | 'reconcile' | 'walk';
 };
 
 type PlannedNotification = {
@@ -188,7 +210,14 @@ type PlannedNotification = {
   body: string;
   fireAt: Date;
   payload: ReminderPayload;
+  /** False only for upkeep that expires, which gets Snooze alone. */
+  markable?: boolean;
 };
+
+// Which set of buttons a planned reminder carries.
+function categoryIdFor(planned: PlannedNotification): string {
+  return REMINDER_CATEGORY_IDS[categoryKeyFor(planned.payload.kind, planned.markable ?? true)];
+}
 
 export type ReminderSyncResult = {
   permission: 'granted' | 'denied' | 'unavailable';
@@ -461,6 +490,7 @@ function buildDatedPlanned(
       tab: source.tab,
       lens: source.lens,
     },
+    markable: source.markable,
   };
 }
 
@@ -490,6 +520,44 @@ function buildRoutinePlanned(routine: Routine, fireAt: Date, now: Date): Planned
       fireAt: fireAt.toISOString(),
       tab: 'routine',
       lens: 'walk',
+    },
+  };
+}
+
+// --- The two check-in reminders (C1, 2026-09-26) ---------------------------
+//
+// The only reminders that come from no record: the person asked for a
+// question, once a day or after eating. Both open Signals, and neither
+// button writes anything, since how somebody feels is theirs to put into
+// words. The wording asks and never suggests an answer.
+function buildDailyCheckinPlanned(fireAt: Date, now: Date): PlannedNotification {
+  return {
+    identifier: `${IDENTIFIER_PREFIX}checkin:${localDateString(fireAt)}`,
+    title: 'How are you today?',
+    body: `How are you opens a note in Signals, and Log a flare opens Flares. Based on your check-ins as of ${describeFreshness(now, fireAt)}.`,
+    fireAt,
+    payload: {
+      kind: 'checkin',
+      scheduleItemId: localDateString(fireAt),
+      fireAt: fireAt.toISOString(),
+      tab: 'signals',
+      lens: 'generalNote',
+    },
+  };
+}
+
+function buildAfterMealPlanned(meal: { id: string; name: string }, fireAt: Date, now: Date): PlannedNotification {
+  return {
+    identifier: `${IDENTIFIER_PREFIX}afterMeal:${meal.id}`,
+    title: `How are you after ${meal.name}?`,
+    body: `About ${AFTER_MEAL_MINUTES / 60} hours since you ate. How are you opens a note in Signals, and Log a flare opens Flares. Based on your meals as of ${describeFreshness(now, fireAt)}.`,
+    fireAt,
+    payload: {
+      kind: 'afterMeal',
+      scheduleItemId: meal.id,
+      fireAt: fireAt.toISOString(),
+      tab: 'signals',
+      lens: 'generalNote',
     },
   };
 }
@@ -550,7 +618,15 @@ function channelFor(kind: ReminderKind): string {
   if (kind === 'bill' || kind === 'upkeep' || kind === 'benefit' || kind === 'countdown' || kind === 'compost') {
     return ANDROID_DATED_CHANNEL_ID;
   }
-  if (kind === 'meal' || kind === 'hydration' || kind === 'garden' || kind === 'reminder' || kind === 'routine')
+  if (
+    kind === 'meal' ||
+    kind === 'hydration' ||
+    kind === 'garden' ||
+    kind === 'reminder' ||
+    kind === 'routine' ||
+    kind === 'checkin' ||
+    kind === 'afterMeal'
+  )
     return ANDROID_ROUTINE_CHANNEL_ID;
   return ANDROID_CHANNEL_ID;
 }
@@ -563,14 +639,21 @@ function isSnoozed(identifier: string): boolean {
   return identifier.startsWith(SNOOZE_PREFIX);
 }
 
-async function ensureCategory(): Promise<void> {
-  await Notifications.setNotificationCategoryAsync(REMINDER_CATEGORY, [
-    {
-      identifier: SNOOZE_ACTION,
-      buttonTitle: `Snooze ${SNOOZE_MINUTES} min`,
-      options: { opensAppToForeground: true },
-    },
-  ]);
+// Every set of buttons, registered on each reconcile, which costs nothing
+// and means a set changed in an update reaches the phone without a step.
+async function ensureCategories(): Promise<void> {
+  await Promise.all(
+    ALL_REMINDER_CATEGORY_KEYS.map((key) =>
+      Notifications.setNotificationCategoryAsync(
+        REMINDER_CATEGORY_IDS[key],
+        CATEGORY_ACTIONS[key].map((action) => ({
+          identifier: action,
+          buttonTitle: reminderActionTitle(action, SNOOZE_MINUTES),
+          options: { opensAppToForeground: true },
+        })),
+      ),
+    ),
+  );
 }
 
 async function cancelAllOurs(): Promise<number> {
@@ -609,17 +692,19 @@ async function runSync(): Promise<ReminderSyncResult> {
     return { permission: 'denied', pending: 0 };
   }
   await ensureAndroidChannels();
-  await ensureCategory();
+  await ensureCategories();
 
   const now = new Date();
   const today = localDateString(now);
   const horizon = new Date(now);
   horizon.setDate(horizon.getDate() + LOOKAHEAD_DAYS);
-  const [candidates, datedSources, routines, preferences] = await Promise.all([
+  const since = localDateTimeString(new Date(now.getTime() - AFTER_MEAL_MINUTES * 60_000));
+  const [candidates, datedSources, routines, preferences, checkinInputs] = await Promise.all([
     listReminderCandidates(localDateTimeString(now), localDateString(horizon)),
     listDatedReminderSources(today),
     listRoutineReminders(),
     getReminderPreferences(),
+    getCheckinReminderInputs(since),
   ]);
   const nudging = isNudgeUntilDoneEnabled(preferences);
 
@@ -650,6 +735,25 @@ async function runSync(): Promise<ReminderSyncResult> {
           for (const nudge of buildNudges(planned, now)) followUps.set(nudge.identifier, nudge);
         }
       });
+    }
+  }
+
+  // The daily check-in: the next one is a first-time reminder, the rest of
+  // the week queues behind, the same as a routine. The after-meal question
+  // is a follow-up, so quiet hours drop it rather than hold it to the
+  // morning, when a question about last night's dinner would make no sense.
+  if (isReminderKindEnabled(preferences, 'checkin')) {
+    const checkedInToday = !!checkinInputs.lastCheckinAt && checkinInputs.lastCheckinAt.slice(0, 10) === localDay(now);
+    planDailyCheckins(checkinTimeOf(preferences), now, LOOKAHEAD_DAYS - 1, checkedInToday).forEach((fireAt, index) => {
+      const planned = buildDailyCheckinPlanned(fireAt, now);
+      (index === 0 ? first : followUps).set(planned.identifier, planned);
+    });
+  }
+  if (isReminderKindEnabled(preferences, 'afterMeal')) {
+    const nudge = planAfterMealNudge(checkinInputs.recentMeals, checkinInputs.lastCheckinAt, now);
+    if (nudge) {
+      const planned = buildAfterMealPlanned(nudge.meal, nudge.fireAt, now);
+      followUps.set(planned.identifier, planned);
     }
   }
 
@@ -703,14 +807,14 @@ async function runSync(): Promise<ReminderSyncResult> {
     const data = request.content.data as Partial<ReminderPayload> | undefined;
     // Same moment and same wording means the pending one is already right;
     // anything else (moved time, edited title, dropped row) is replaced.
-    // The category check replaces, once, every reminder queued before the
-    // Snooze button existed, so each one gets the button.
+    // The category check replaces, once, every reminder queued before its
+    // buttons existed (Snooze in Phase A, the rest in C1), so each gets them.
     if (
       want &&
       data?.fireAt === want.payload.fireAt &&
       request.content.title === want.title &&
       request.content.body === want.body &&
-      request.content.categoryIdentifier === REMINDER_CATEGORY
+      request.content.categoryIdentifier === categoryIdFor(want)
     ) {
       unchanged.add(request.identifier);
       continue;
@@ -729,7 +833,7 @@ async function runSync(): Promise<ReminderSyncResult> {
           body: planned.body,
           data: planned.payload,
           sound: true,
-          categoryIdentifier: REMINDER_CATEGORY,
+          categoryIdentifier: categoryIdFor(planned),
         },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -777,6 +881,7 @@ export type ReminderTapTarget =
   | { pathname: '/garden'; params: { openGardenLens: GardenReminderLens } }
   | { pathname: '/life'; params: { openLifeLens: DatedReminderLens } }
   | { pathname: '/routine'; params: { id: string } }
+  | { pathname: '/log'; params: { openSignalsLens: SignalsReminderLens } }
   | { pathname: '/reconcile' };
 
 const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'todaysMeals', 'hydration'];
@@ -799,6 +904,9 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
   const data = request.content.data as Partial<ReminderPayload> | undefined;
 
   if (data?.tab === 'reconcile') return { pathname: '/reconcile' };
+  if (data?.tab === 'signals') {
+    return { pathname: '/log', params: { openSignalsLens: data.lens === 'flares' ? 'flares' : 'generalNote' } };
+  }
   // A routine opens the walk itself rather than the list it was built in,
   // which is the whole point of giving it a time. An id that has since been
   // deleted lands on Life > Routines instead of a blank screen, which
@@ -839,7 +947,7 @@ async function snoozeReminder(response: Notifications.NotificationResponse): Pro
       body: request.content.body ?? '',
       data: { ...data, fireAt: fireAt.toISOString() },
       sound: true,
-      categoryIdentifier: REMINDER_CATEGORY,
+      categoryIdentifier: request.content.categoryIdentifier ?? REMINDER_CATEGORY,
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -863,14 +971,55 @@ function handleResponse(
   const key = `${request.identifier}|${response.notification.date}|${response.actionIdentifier}`;
   if (answered.has(key)) return;
   answered.add(key);
+  const data = request.content.data as Partial<ReminderPayload> | undefined;
   if (response.actionIdentifier === SNOOZE_ACTION) {
     if (isOurs(request.identifier) || isSnoozed(request.identifier)) {
       snoozeReminder(response).catch((error) => console.error('[reminderNotifications] snooze failed', error));
     }
     return;
   }
+  const plan = data?.kind ? planReminderAction(data.kind, response.actionIdentifier) : null;
+  if (plan && (isOurs(request.identifier) || isSnoozed(request.identifier))) {
+    void Notifications.dismissNotificationAsync(request.identifier).catch(() => undefined);
+    if (plan.write === null) {
+      navigate({ pathname: '/log', params: { openSignalsLens: plan.lands } });
+      return;
+    }
+    const target = resolveReminderTap(response);
+    recordAnswer(plan, data?.scheduleItemId ?? '')
+      .catch((error) => console.error('[reminderNotifications] answer failed', error))
+      .finally(() => {
+        void syncReminderNotifications();
+        if (target) navigate(target);
+      });
+    return;
+  }
   const target = resolveReminderTap(response);
   if (target) navigate(target);
+}
+
+// The same record the app writes when the thing is answered where it lives:
+// the schedule status Reconciliation writes, a doing in Upkeep, a turn on
+// the pile. Upkeep and compost check first whether today is already
+// recorded, so a second press from a copy still on screen adds nothing.
+async function recordAnswer(plan: NonNullable<ReturnType<typeof planReminderAction>>, id: string): Promise<void> {
+  if (!id) return;
+  const today = localDateString(new Date());
+  if (plan.write === 'scheduleStatus') {
+    await setScheduleItemStatus(id, plan.status);
+    return;
+  }
+  if (plan.write === 'upkeepDone') {
+    const item = (await listUpkeepItems()).find((candidate) => candidate.id === id);
+    if (!item || item.lastDoneOn === today) return;
+    await markUpkeepDone(id, today);
+    return;
+  }
+  if (plan.write === 'compostTurned') {
+    const pile = (await listCompostPilesToTurn()).find((candidate) => candidate.pile.id === id);
+    if (pile?.lastTurnedOn === today) return;
+    await addCompostEvent({ pileId: id, occurredOn: today, kind: 'turned' });
+  }
 }
 
 // Cold start from a tapped reminder plus the already-running case, same

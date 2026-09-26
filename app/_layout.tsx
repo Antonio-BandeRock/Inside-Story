@@ -148,7 +148,10 @@ export default function RootLayout() {
     if (!dbReady) return;
     void syncReminderNotifications();
     const subscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') void syncReminderNotifications();
+      // On leaving too (C1, 2026-09-26): a meal logged just before the app
+      // goes to the background is what the after-meal question is about,
+      // and waiting for the next time the app opens would miss it.
+      if (state === 'active' || state === 'background') void syncReminderNotifications();
     });
     return () => subscription.remove();
   }, [dbReady]);
