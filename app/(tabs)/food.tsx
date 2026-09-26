@@ -29,6 +29,7 @@ import { FoodItemsView, type FoodItemsListParams } from '../../components/FoodIt
 import { countSystemRecipes, SystemRecipesView } from '../../components/SystemRecipesView';
 import { MySafeFoodsView } from '../../components/MySafeFoodsView';
 import { MyWholeFoodsView } from '../../components/MyWholeFoodsView';
+import { RecipeImportView } from '../../components/RecipeImportView';
 import { FoodProductDetailView } from '../../components/FoodProductDetailView';
 import { ScanProductView } from '../../components/ScanProductView';
 import { PhoneOnlyNotice } from '../../components/PhoneOnlyNotice';
@@ -105,6 +106,10 @@ type FoodLens =
   // harvested, this list should just be empty." See
   // components/MyWholeFoodsView.tsx.
   | 'myWholeFoods'
+  // A recipe from a web link or a pasted list, reviewed line by line and
+  // then opened in a builder, which scores it before it is saved (G1,
+  // 1.0.53.12). See components/RecipeImportView.tsx.
+  | 'importRecipe'
   // Everything built in one of the builders below, saved or favorited,
   // in one place grouped by the builder that made it, 2026-09-18. It
   // took over from the "Saved & Favorites" submenu, which was a menu of
@@ -163,6 +168,8 @@ const FOOD_LENS_COPY: Record<FoodLens, string> = {
     'The foods you say are safe for you, the ones you have not worked out yet, and the ones you say are not. Three marks on every row: plus for safe, a question mark for undecided, a minus for not for you. Search a food, browse a whole category at a time, or work through whatever is in your schedule. Each row says what a food trial found and what this app makes of the food for the conditions you track. What you mark comes ahead of what the app works out, so Safe Foods in Insights and your generated meal plan both follow it.',
   myWholeFoods:
     'What you have on hand from your garden. Anything you harvest and enter in the Harvest Log on the Garden tab shows up here, is offered first under From Your Harvest in every Food tool, and is drawn down as you cook with it. Money Not Spent adds up what those harvests would have cost at prices you have recorded paying, and counts the rest without pricing them.',
+  importRecipe:
+    'Bring in a recipe from a web page, or paste its ingredient list. Each line is matched to a food, and anything the app is unsure of waits for you to pick a food or leave the line out. Then choose a builder: it opens with the recipe loaded, scores every ingredient for the conditions you track, and saving it there puts it in My Recipes.',
   myRecipes:
     'Everything you have built in one of the Food tools and saved, and everything you have marked a favorite, grouped by the tool that made it. Open one to see its ingredients, nutrients and condition scores, or to build on it again.',
   systemRecipes:
@@ -223,6 +230,7 @@ const FOOD_LENS_FULL_NAMES: Record<FoodLens, string> = {
   myFoodProduct: 'Food Product',
   mySafeFoods: 'My Safe\nFoods',
   myWholeFoods: 'My Whole\nFoods',
+  importRecipe: 'Import a\nRecipe',
   myRecipes: 'My\nRecipes',
   systemRecipes: 'System\nRecipes',
   findMeal: 'Log or\nSchedule a Meal',
@@ -298,6 +306,12 @@ const FOOD_LENSES: LensOption<FoodLens>[] = [
     label: 'Scan a Product',
     icon: 'barcode-outline',
     help: [{ heading: 'Scan a Product', body: FOOD_LENS_COPY.scanProduct }],
+  },
+  {
+    key: 'importRecipe',
+    label: 'Import a Recipe',
+    icon: 'link-outline',
+    help: [{ heading: 'Import a Recipe', body: FOOD_LENS_COPY.importRecipe }],
   },
   {
     key: 'mealBuilder',
@@ -1405,6 +1419,11 @@ export default function FoodScreen() {
             />
           ) : lens === 'myWholeFoods' ? (
             <MyWholeFoodsView onClose={() => setRevealed(false)} onChanged={loadMyFoodsCounts} />
+          ) : lens === 'importRecipe' ? (
+            <RecipeImportView
+              onClose={() => setRevealed(false)}
+              onOpenBuilder={(params) => router.push({ pathname: '/food', params })}
+            />
           ) : lens === 'mealBuilder' ? (
             // MealBuilder owns its own layout entirely, same reasoning as
             // every other builder below -- but never sits behind a

@@ -213,6 +213,7 @@ const AREAS: readonly Area[] = [
   },
   { one: 'connection', many: 'connections', count: ['connections'], quiet: [] },
   { one: 'shared recipe', many: 'shared recipes', count: ['shared_recipes'], quiet: [] },
+  { one: 'imported recipe', many: 'imported recipes', count: ['recipe_imports'], quiet: [] },
   { one: 'garden area', many: 'garden areas', count: ['garden_plots'], quiet: ['garden_spaces'] },
   { one: 'planting', many: 'plantings', count: ['garden_plantings'], quiet: ['garden_task_links'] },
   // harvest_uses is quiet, 2026-09-23: marking a picking onto a plate is

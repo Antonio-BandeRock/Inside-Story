@@ -322,6 +322,7 @@ export const TOUR_LENS_NAMES: Record<string, Record<string, string>> = {
   '/food': {
     findMeal: 'Log or Schedule',
     scanProduct: 'Scan a Product',
+    importRecipe: 'Import a Recipe',
     mealBuilder: 'Meal',
     sideBuilder: 'Sides',
     saladBuilder: 'Salads & Bowls',
@@ -465,6 +466,7 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     dessertBuilder: 'Something sweet to finish.',
     fermentationBuilder: 'Yogurt, sauerkraut, kombucha and the rest, each batch followed from the first day to the jar and drawn down as you use it.',
     systemRecipes: 'Hundreds of home-cooked recipes, sorted to your conditions and eating style.',
+    importRecipe: 'A recipe from a web page or a pasted list, each line matched to a food and scored in the builder you choose.',
   },
   '/garden': {
     myZone: 'Your growing zone, looked up from where you live, with crop guidance for that climate.',
@@ -756,7 +758,7 @@ export const TOUR_TABS: TourTabDef[] = [
         ],
       },
       { title: 'Ferment', lenses: ['fermentationBuilder'] },
-      { title: 'Recipes', lenses: ['systemRecipes'] },
+      { title: 'Recipes', lenses: ['systemRecipes', 'importRecipe'] },
     ],
     steps: [
       {
