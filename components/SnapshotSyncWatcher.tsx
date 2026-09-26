@@ -63,6 +63,7 @@ import * as Updates from 'expo-updates';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, Platform, type AppStateStatus } from 'react-native';
 import { addDatabaseWriteListener, getLastDatabaseWriteAt } from '../lib/databaseActivity';
+import { syncPhotos } from '../lib/mediaSyncDevice';
 import {
   CHECK_INTERVAL_MS,
   CHECK_QUIET_MS,
@@ -200,6 +201,13 @@ export function SnapshotSyncWatcher() {
       if (outcome.status === 'merge' && allowMerge) {
         if (source === 'timer' && declinedRef.current === outcome.record.latest.savedAt) return;
         await mergeRef.current(outcome.record);
+        return;
+      }
+      // Photo files ride beside the snapshot (X1, lib/mediaSyncDevice.ts).
+      // Not awaited, so a slow pass never holds up the next save or check;
+      // a pass already running is joined rather than doubled.
+      if (outcome.status !== 'skipped' || outcome.reason !== 'off') {
+        void syncPhotos({ afterSave: outcome.status === 'saved' });
       }
     },
     [tellOnce],

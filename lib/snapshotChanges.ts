@@ -87,6 +87,7 @@ const APP_META_NOT_WORTH_SAYING: readonly string[] = [
 
 const AREAS: readonly Area[] = [
   { one: 'meal', many: 'meals', count: ['meals'], quiet: ['meal_items', 'meal_components', 'meal_photo_drafts'] },
+  { one: 'photo', many: 'photos', count: ['media'], quiet: [] },
   {
     one: 'day in your meal plan',
     many: 'days in your meal plan',

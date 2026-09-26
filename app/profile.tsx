@@ -27,6 +27,8 @@ import type { DriveItemRef } from '../lib/oneDriveGraph';
 import { downloadText, listFiles, uploadText } from '../lib/oneDriveGraph';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { describeSyncStatus, EMPTY_SYNC_STATE, type SnapshotRecord, type SnapshotSyncState } from '../lib/snapshotSync';
+import { photoSyncSentence } from '../lib/media';
+import { getPhotoSyncStatus } from '../lib/mediaSyncDevice';
 import {
   checkPasswordAgainstFolder,
   disableSnapshotSync,
@@ -4762,6 +4764,10 @@ export default function ProfileScreen() {
               <View style={styles.concernRow}>
                 <Text style={styles.subLabel}>Keep this device in step with your {otherDeviceKind}</Text>
                 <Text style={styles.derivedText}>{describeSyncStatus(syncState, otherDeviceKind)}</Text>
+                {/* Photos ride beside the snapshot, each encrypted (X1). */}
+                <Text style={styles.derivedText}>
+                  {photoSyncSentence(getPhotoSyncStatus(), syncState.enabled, otherDeviceKind)}
+                </Text>
                 {syncState.enabled ? (
                   <>
                     <TouchableOpacity style={styles.checkinButton} disabled={syncBusy} onPress={handleSyncNow}>

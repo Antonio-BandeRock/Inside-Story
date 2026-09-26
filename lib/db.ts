@@ -7386,6 +7386,27 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_custom_tracker_entries_tracker ON custom_tracker_entries(tracker_id, logged_at);
 
+      -- One photo layer (X1, 2026-09-26): every photo, whatever it is of,
+      -- named by an owner kind and an owner id, with the file under
+      -- Paths.document/media and an encrypted copy in the Backups folder
+      -- (lib/media.ts, lib/mediaDb.ts, lib/mediaSyncDevice.ts). file_name
+      -- is a bare name, never a path, since the folder differs per device.
+      -- Travels between one person's devices; never between people, since
+      -- lib/peerRelationships.ts does not name it.
+      CREATE TABLE IF NOT EXISTS media (
+        id TEXT PRIMARY KEY,
+        owner_kind TEXT NOT NULL,
+        owner_id TEXT NOT NULL,
+        file_name TEXT NOT NULL,
+        taken_on TEXT NOT NULL,
+        caption TEXT,
+        width INTEGER,
+        height INTEGER,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_media_owner ON media(owner_kind, owner_id);
+
       -- Tell Claude, 2026-09-22: a note about a piece of this app, made
       -- from inside the app, for building the app and nothing else. The
       -- whole feature sits behind a switch in Profile that starts off, so

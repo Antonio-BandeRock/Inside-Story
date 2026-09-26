@@ -71,6 +71,7 @@ const NAMED = [
   'lib/dailyScales.ts',
   'lib/patternOutcome.ts',
   'lib/customTrackers.ts',
+  'lib/media.ts',
 ];
 
 function targets() {

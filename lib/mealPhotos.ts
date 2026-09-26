@@ -127,6 +127,21 @@ async function compressToLimit(
   return { uri: manipulated.uri, width: manipulated.width, height: manipulated.height, fileSizeBytes: manipulatedSize };
 }
 
+/**
+ * The same shrinking, for the shared photo layer (lib/mediaDb.ts, X1),
+ * which keeps its files in a folder of its own and sets its own limits.
+ * Answers the shrunk copy in the cache, or null when it could not be made
+ * small enough. The caller moves it where it belongs.
+ */
+export async function shrinkPhotoFile(
+  sourceUri: string,
+  maxDimension: number,
+  maxFileSizeBytes: number,
+): Promise<{ uri: string; width: number; height: number; fileSizeBytes: number } | null> {
+  const [{ File }, ImageManipulator] = await Promise.all([import('expo-file-system'), import('expo-image-manipulator')]);
+  return compressToLimit(ImageManipulator, File, sourceUri, maxDimension, maxFileSizeBytes);
+}
+
 // Opens the camera or the photo library, validates and compresses whatever
 // is picked, and saves a real, persistent full-quality copy under
 // meal-photos/. `previousUri`, when passed, is deleted after the new photo

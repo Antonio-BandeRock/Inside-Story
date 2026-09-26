@@ -189,8 +189,23 @@ export function forgetDerivedKeys(): void {
   keyCache.clear();
 }
 
-export async function encryptBackupPayload(plaintextJson: string, password: string): Promise<EncryptedBackupWire> {
-  const salt = await Crypto.getRandomBytesAsync(SALT_LENGTH);
+/**
+ * A fresh salt for a caller that encrypts many small files under one
+ * password (the photo copies, lib/mediaSyncDevice.ts). Reusing one salt for
+ * a run means one key derivation for the run rather than one per photo,
+ * which at up to a minute each on a phone would be the whole feature. The
+ * nonce stays fresh per file, which is what secretbox needs.
+ */
+export async function newBackupSalt(): Promise<Uint8Array> {
+  return Crypto.getRandomBytesAsync(SALT_LENGTH);
+}
+
+export async function encryptBackupPayload(
+  plaintextJson: string,
+  password: string,
+  reuseSalt?: Uint8Array,
+): Promise<EncryptedBackupWire> {
+  const salt = reuseSalt ?? (await Crypto.getRandomBytesAsync(SALT_LENGTH));
   const nonce = await Crypto.getRandomBytesAsync(nacl.secretbox.nonceLength);
   const key = await deriveKeyCached(password, salt);
   const ciphertext = nacl.secretbox(utf8Bytes(plaintextJson), nonce, key);

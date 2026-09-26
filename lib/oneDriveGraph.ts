@@ -328,13 +328,22 @@ export async function moveFile(
 
 export async function listFileNames(folder: DriveItemRef): Promise<GraphResult<string[]>> {
   if (isDesktopApp()) return disk.listFileNames(folder);
-  const result = await graphFetch(
-    '/drives/' + folder.driveId + '/items/' + folder.itemId + '/children?$top=200&$select=id,name,file',
-  );
-  if (!result.ok) return result;
-  const names = ((result.value as { value?: GraphChild[] }).value ?? [])
-    .filter((child) => Boolean(child.file) && typeof child.name === 'string')
-    .map((child) => child.name as string);
+  // Every page, not the first 200: the photo folder (lib/mediaSyncDevice.ts)
+  // can hold thousands, and a name missing from the list would be uploaded
+  // again. Graph hands back the next page as a full address.
+  const names: string[] = [];
+  let path: string | null =
+    '/drives/' + folder.driveId + '/items/' + folder.itemId + '/children?$top=200&$select=id,name,file';
+  while (path) {
+    const result = await graphFetch(path);
+    if (!result.ok) return result;
+    const page = result.value as { value?: GraphChild[]; '@odata.nextLink'?: string };
+    for (const child of page.value ?? []) {
+      if (child.file && typeof child.name === 'string') names.push(child.name);
+    }
+    const next = page['@odata.nextLink'];
+    path = typeof next === 'string' && next.startsWith(GRAPH) ? next.slice(GRAPH.length) : null;
+  }
   return { ok: true, value: names };
 }
 
