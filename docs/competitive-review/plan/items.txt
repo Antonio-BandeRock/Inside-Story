@@ -1,0 +1,236 @@
+# id|phase|ship|size|tabs|competitors|title|how
+## Medication logistics
+A1|1|OTA|M|Schedules,Life,Signals|CareClinic, Structured, Todoist|Weekly, weekday and every-N-days repeats|Extend RepeatType in lib/db.ts with weekly (chosen weekdays) and every_n_days; update the 60-day series generator, RepeatPicker in app/(tabs)/schedule.tsx and lib/reminderSchedule.ts. One piece of work serves meds (weekly methotrexate, biologics every 2 or 4 weeks, monthly vitamin D, B12), meals, appointments, upkeep and Exercise.
+A2|3|OTA|M|Schedules|CareClinic|Tapering doses|A taper step list on treatments (amount per date range), read by the series generator and the dose reminder text. Prednisone tapers in RA, IBD and lupus flares. Needs A1.
+A3|2|OTA|S-M|Life,Schedules,Signals,Insights|Medisafe, MyTherapy, CareClinic, Guava|Pills on hand and refill reminder|supply_on_hand, supply_unit and refill_lead_days on treatments, drawn down when a dose is marked taken on Meds, a refill kind in lib/reminderSources.ts, "about 6 days left" in MyMedsSection.tsx.
+A4|3|OTA|M|Schedules|MyTherapy|Injection site rotation|dose_sites table, a body-site picker on the dose row, next-site suggestion from pure lib/injectionSites.ts with a test script.
+A5|2|OTA|S|Life|Medisafe|Photo of each pill|A photo field on treatments through the shared photo layer (X1), so two white tablets can be told apart.
+A6|2|OTA|S|Life|MyTherapy|Pharmacy and prescriber contact with tap to call|Two optional contacts on treatments, or a link to a Life > Emergency contact; Linking opens the dialer. Picks from phone contacts once O1 ships in R1.
+A7|3|OTA|M|Schedules|Medisafe|Travel: keep home time or shift to local|A per-treatment switch read by lib/reminderSchedule.ts when the phone's time zone changes.
+A8|2|OTA|S|Life|Medisafe|Interaction check the moment a med is added|The My Meds save handler runs evaluateInteractionRules for the new treatment and shows any new warning in the sheet that already reports food supply.
+A9|0|DB|S-M|Insights|Drugs.com|A third severity level, major|Add major to interaction_rules.severity and InteractionWarning; regrade existing rules against their citations. The rules live in the LIVE foods_reference.db, so this waits for your yes.
+A10|2|OTA|S|Life,Insights|Drugs.com, Medisafe|Drug-to-drug check through Drugs.com|A "Check this list on Drugs.com" button that opens the checker in the browser (the app sends nothing), plus one line saying the app's rules cover food and supplement timing.
+A11|0|DEC|L|Insights|Drugs.com, Medisafe|Drug-to-drug data inside the app|NLM retired its free interaction API in January 2024; First Databank, Medi-Span and DrugBank are licensed and priced for companies. A cost decision before any code.
+A12|2|OTA|S|Trends,Reports|Medisafe, MyTherapy|Doses taken, said in words|"Taken on 24 of the 28 days a dose was due, 4 not marked" on Trends and in the doctor report. No percentage, no praise.
+A13|2|OTA|S|Reports|Drugs.com|A clinician line on each interaction|The mechanism field rides in the doctor report in clinician wording.
+A14|5|WK|M|Insights,Life,Food|Drugs.com|Recalls matched to My Meds and scanned foods|External data item 27: the Worker pre-fetches FDA recall feeds as one bundle and the phone matches names locally, so the med list never leaves it.
+A15|7|DEC|L|Life|Drugs.com|Pill identifier|Needs a licensed imprint and image database. Listed so nothing is dropped; a cost decision.
+A16|3|OTA|L|Life,Schedules,Insights|Medisafe, CareClinic|Caregiver or partner sees a missed dose|Turn on meds, schedule and symptoms for the onTheirBehalf holding in lib/peerRelationships.ts, merge rules in lib/peerMerge.ts, the consent and attestation steps from the Caregiver tier, then a local notification on the other phone after a merge. Timely delivery needs the relay (M1).
+A17|2|OTA|S|Life|Medisafe|Put the summary into the phone's Medical ID|A guided screen in EmergencySection.tsx showing each field to copy and opening the phone setting. An app cannot write it directly.
+A18|2|OTA|S|Life|Medisafe|Printable wallet card|lib/emergency.ts text laid out as a card through expo-print.
+A19|2|OTA|S|Home,Life|Apple Health|Emergency details on the lock screen|An opt-in ongoing notification with the lines the person picks. The widget version rides in R1 and R2.
+## The day as one picture
+B1|1|OTA|M|Home,Schedules,Life,Signals|Tiimo, Todoist, Structured, mySymptoms|One Today timeline|Pure lib/dayTimeline.ts extending getDayMealAndDoseTimeline with routines, upkeep due, appointments, dated reminders, Days Until, check-ins, flares and sleep, overdue first, a "now" line. A Home card and a Schedules lens, read-only; app/timeline.tsx reads the same builder.
+B2|2|OTA|S-M|Home,Schedules|Structured|Phone calendar events on the timeline|Read today's and tomorrow's events live through lib/deviceCalendar.ts without copying them in. The desktop says phone only.
+B3|2|OTA|S-M|Home,Life|Tiimo|"Next in 25 minutes" and a running countdown|A line on the timeline, plus an ongoing notification with a chronometer for the current routine or item.
+B4|2|OTA|S-M|Life,Schedules|Tiimo, Routinery|Minutes on routine steps and scheduled items|Optional minutes, a routine total ("about 25 minutes"), and whether the day's timed items fit.
+B5|3|OTA|S-M|Life|Tiimo|Shrinking ring timer on a routine step|Drawn with react-native-svg, with an alert when it ends.
+B6|2|OTA|S|Life|Routinery|Read the next step aloud|expo-speech is already in the build; a switch per routine.
+B7|2|OTA|S|Home|Structured|"How full is today"|One sentence counting the day's meals, doses, routines, appointments and upkeep. Keeping Up wording rules.
+B8|2|OTA|S|Schedules,Life|Structured|Move what is left to tomorrow|Non-meal items move; a meal gets a new occurrence and the old one stays Skipped, so the record stays honest.
+B9|2|OTA|S|Home,Signals|Welltory|Sleep, steps and workouts filled in from Health Connect|Rows lib/healthSync.ts already imports shown on the Home check-in and the timeline.
+## Capture, reminders and the second audience
+C1|1|OTA|S|Schedules,Signals,Life,Home|Due, Waterllama, Medisafe, Oura, Bearable|Buttons on the notification itself|expo-notifications categories beside the existing Snooze: Taken, Done, + glass, Log a flare, How are you. Needs an iPhone check once R2 exists.
+C2|2|OTA|S-M|Life|Due|Keep reminding me until I mark it|An interval per reminder, repeats scheduled in lib/reminderSchedule.ts, cancelled when the mark or record appears. Extends NUDGES_WHILE_OVERDUE to routines, checks and free reminders.
+C3|2|OTA|S|Life,Home|Due|A plain one-off reminder|"Move the laundry in 40 minutes": quick_reminders or a capture destination, preset times.
+C4|2|OTA|S-M|Life,Home|Todoist, Due|Plain-language dates|chrono-node (pure JS, ships over the air) in lib/captureNotes.ts and the Upkeep form; offers a date, never assumes one.
+C5|2|OTA|S-M|Life,Home|Structured|Put a capture note on a day|Turns a note into an upkeep item, a dated reminder or a Days Until counter.
+C6|2|OTA|S|Life,Home|AnyList|Capture note to the grocery list, and a Home quick-add|A grocery destination in lib/captureNotes.ts and a Home row registered in lib/homeSections.ts.
+C7|2|OTA|S|Life|Goblin.tools|Capture note to a routine or several checks|Split a note's lines into routine_steps or Did I Do It checks.
+C8|3|OTA|M|Life,Home|Tiimo|Sorting help for a brain dump|Rule-based suggestions (dates, buy, call, place words) in lib/captureNotes.ts. On the phone only.
+C9|3|OTA|M|Home,Life|Structured|Plan by sentence|A rule parser for times and verbs behind the existing voice screen.
+C10|3|OTA|M|Life|Todoist|A to-do list with dates and repeats|A tasks table (or done_checks with a due date), a band on Work and a personal one on Life, reminders through lib/reminderSources.ts, repeats through A1.
+C11|4|R1|M|Life,Home,Food|Todoist, Samsung Food, Plan to Eat|Share into Inside Story from any app|A SEND intent filter for text, links and images. A link to a recipe goes to the importer (G1); anything else lands in Capture.
+C12|4|R1|S-M|Home|Todoist|App icon shortcuts and a quick settings tile|expo-quick-actions plus a tile config plugin: Capture, Did I take it, Where is it.
+C13|2|OTA|S-M|Life|Routinery, Goblin.tools, Sweepy|Starter lists to copy|Routines and hard starts (taxes, moving, a doctor visit, a room) and upkeep for a kitchen or bathroom; offered, never auto-added.
+C14|7|OPT|L|Life|Goblin.tools, Tiimo|AI breaks a task into steps|Needs a language model off the phone: explicit opt-in per use, text only, no health content, through the Worker.
+C15|2|OTA|S-M|Home|Finch|Pick a few things for today|A "today I want to" list backed by Did I Do It marks; Keeping Up forbidden-words sweep.
+C16|2|OTA|S|Home|Finch|Welcome-back line after a gap|One sentence and one easy action when the last record is days old. No blame.
+C17|0|DEC|L|Home,all tabs|Finch|Something that grows from the person's records|Open item 29. Waits on distinct things versus repetitions, then fills the registry for Home, Trends, Reports and Life. Static, no animation.
+C18|2|OTA|S|Home|Noom|One clear next thing on Home|The first Your Story item not done, one line, one button. The start of Simple View.
+C19|2|OTA|S-M|Home|Noom|"What this means for you" after the interview|Each answer mapped to what it switched on, shown before the tour.
+C20|3|OTA|M|Life,Home|Noom|One read a day, in order for the person|A picker over the reading corpus by condition and healing stage, remembered so it moves forward, shown as the first Something to Read card.
+C21|5|WK|S|none|Noom|Try-before-install page|A page on inside-story-site describing the app by audience. Collects nothing.
+C22|3|OTA|M|Home|Apple Health|Ask a question of your records|Rule-based routing to Pattern Finder, Trends and search. A model behind it is item Z3.
+## Check-ins and signals
+D1|1|OTA|S|Home,Signals,Trends|Bearable, Visible, Daylio, Tiimo, mySymptoms|Mood, energy and stress on a 1 to 5 scale|Columns on wellbeing_checkins (or daily_scales), on the Home feeling check-in, charted on Trends, usable as a Pattern Finder outcome.
+D2|1|OTA|M|Signals,Trends|Exist, Cronometer, Bearable|Trackers the person names|custom_trackers and custom_tracker_entries (scale, count, duration, measurement), an open list, charted and fed to F1.
+D3|2|OTA|S-M|Signals|Bearable|The person's own symptom tags|An open list merged into lib/checkinTags.ts through sortByLabel; removal retires.
+D4|2|OTA|S|Signals|Bearable|Severity per symptom|severity on checkin_tags.
+D5|2|OTA|S|Signals|CareClinic|Finer severity|An optional 0 to 10 beside the four named steps, with a mapping for older rows on Trends.
+D6|2|OTA|S-M|Home,Signals|Flaredown|My daily list, "none today" included|Chosen tags pinned to the Home check-in, rated 0 to 4. Zeros are stored, which gives Pattern Finder its good days.
+D7|2|OTA|S|Home,Signals|Visible|Morning check-in|A reminder, a compact form, last night's sleep and resting heart rate and HRV beside the usual range. No budget, no score.
+D8|3|OTA|M|Home|Bearable|One-flow daily check-in|Check-in, feeling and flare forms stepped through as one sequence ending on a summary.
+D9|2|OTA|S|Signals|Bearable, Tiimo|Check-in reminders|A reminder kind with a Profile switch and a time of day.
+D10|3|OTA|M|Signals,Trends|Cara Care|Bowel log with the Bristol scale|bowel_movements (append-only, local-day rule), pictured types 1 to 7, urgency, blood, pain; a Trends band; a Pattern Finder outcome.
+D11|3|OTA|M|Signals,Trends|Guava|Body map|A tappable SVG outline front and back, checkin_body_regions, and a Trends band of regions.
+D12|3|OTA|S-M|Signals|Guava, Cara Care, Bearable|Photos of a symptom over time|checkin_photos through X1; kept out of anything that travels between people unless named in the allowlist.
+D13|3|OTA|M|Signals|CareClinic|Standard questionnaires|PHQ-9 and GAD-7 (free to use), fatigue and pain scales after a licence check each, in the assessment framework, shown as each scale's published bands with talk-to-your-clinician wording. Clinical-claims audit.
+D14|2|OTA|S|Signals|CareClinic|Journal prompts|A short prompt list above General Note.
+D15|4|R1|M|Signals|Cara Care|Relaxation and gut-directed audio|expo-audio and a player screen. The content has to be licensed or recorded, which is the larger job.
+D16|3|OTA|M-L|Trends,Home|Visible|Pacing view as a record|Exercise, steps, therapy sessions and overload tags against the person's typical day. Never a limit set by the app.
+## Cycle
+E1|2|OTA|S-M|Signals|Clue, Guava, Oura|Log period days by hand|cycle_days with source hand or device, so Health Connect and hand entries share one table. The only route on iPhone until R2. Never travels unless named in the allowlist.
+E2|2|OTA|S|Trends|Clue, Oura|Cycle day beside flares|A context line in lib/patternContext.ts, never the explanation. Open item 25.
+E3|3|OTA|S-M|Trends|Clue|Trends > Cycle|Symptoms by cycle day, a builder in lib/trendsMore.ts.
+E4|3|OTA|M|Trends|Oura|Cycle shading on any chart|Shaded columns behind TrendLineChart.
+E5|2|OTA|S|Signals|Clue|Next period from the person's average|Said as an average of past cycles, never for contraception.
+E6|2|DOC|S|Signals,Life|Clue|Perimenopause|Tags (hot flushes, night sweats) and a Health Literacy entry.
+## Patterns and Trends
+F1|1|OTA|M-L|Trends,Signals|Bearable, Exist, Welltory|Pattern Finder for any factor|Candidates from check-in tags, sleep, doses taken or skipped, steps, hydration, weather, cycle and D2 trackers, each turned into moments lib/patternBasis.ts already compares. "Shows up before", never "causes"; new generators added to NAMED in audit_clinical_claims.js.
+F2|3|OTA|M|Trends|Welltory|Body readings as outcomes|"On days after X, resting heart rate was in its usual range N of M times." Needs F1.
+F3|2|OTA|S-M|Trends|mySymptoms|Typical delay from food to flare|Median hours with the count behind it on each candidate.
+F4|2|OTA|S-M|Trends|Cara Care|Best days beside worst days|Foods on the lowest-symptom days next to the highest, with counts.
+F5|3|OTA|M|Signals|Bearable, Exist|Experiments beyond food|subject_kind on food_trials: a bedtime, a supplement, a walk.
+F6|3|OTA|M|Signals|Cara Care|An elimination series|Queues the next trial when one ends; keeps the one-run limit sentence.
+F7|3|OTA|M|Signals|Monash FODMAP|Stepped reintroduction|Small, medium, large, then a washout, each step read on its own.
+F8|3|OTA|S|Signals|Levels|Glucose as an experiment measure|After F10.
+F9|1|OTA|S-M|Trends|Guava, Welltory, Oura, Bearable|Body Signals lens|Heart rate, resting heart rate, HRV, glucose, blood oxygen and skin temperature, which Health Connect already reads and the app already has permission for. No rebuild. Your usual range, no score.
+F10|3|OTA|M|Insights,Trends|Levels, Cronometer|Glucose around each meal|Pure lib/mealGlucose.ts: rise and time back to the pre-meal level, on Signals Today and a Trends history. "Rose by", never "spiked because of".
+F11|2|OTA|S|Trends|Oura|Your usual as a shaded band|Two y values on TrendLineChart.
+F12|2|OTA|S|Home,Trends|Oura, Apple Health|Outside your usual range, and silent otherwise|A Home line and a Trends line for nights or days outside the usual range. Describes, never predicts.
+F13|2|OTA|M|Home,Trends|Exist, Bearable|Your week|Pure lib/weeklySummary.ts, a Home card and a local notification on a chosen day. Blank weeks say not logged.
+F14|2|OTA|S|Trends|Exist, Daylio|Averages by weekday and by month|A helper beside lib/yourUsual.ts, with the number of days behind each.
+F15|3|OTA|M|Trends,Signals|Daylio|A year in squares|components/CalendarHeatStrip.tsx; an unlogged day is an empty outline, never the lowest colour. Then a small add per lens.
+F16|3|OTA|M|Trends,Food,Insights|Cronometer|Compare any two series|Nutrient, weight, lab, steps, sleep, symptom severity on one date axis, each on its own scale, with a caption that moving together is not causing.
+F17|2|OTA|S-M|Trends|Oura, Daylio|Six months and a year|Weekly or monthly averages past about 90 points, gaps kept; check the SQL speed on a year.
+F18|3|OTA|S|Trends|Oura|Tags as marks under a chart|After F15 or D2.
+F19|2|OTA|S-M|Trends,Reports|Guava|Since your last appointment|A band on Appointments and Care and a section in the doctor report.
+F20|3|OTA|S-M|Trends|Oura|Tags against the next night's sleep and heart rate|With counts and the usual range.
+F21|2|OTA|S|Insights|Cronometer|Different targets on different weekdays|A weekday column on personal nutrient targets.
+F22|5|WK|M|Signals,Trends|Flaredown|Weather beside symptoms|daily_weather from the Worker bundle with a coarsened location (item 27), listed beside flares in lib/patternContext.ts. A typed city ships over the air; automatic location needs expo-location in R1.
+## Food, scanning and Insights
+G1|1|OTA|L|Food|Cronometer, Plan to Eat, AnyList, Samsung Food, Paprika|Import a recipe from a web link|lib/recipeImport.ts reads the schema.org Recipe block, then an ingredient matcher maps each line to reference foods, unmatched lines shown to pick, and the recipe runs through the same scoring before it can appear anywhere.
+G2|3|OTA|M|Food|Samsung Food|Recipe from a cookbook photo|ML Kit OCR is already in the build; the lines go to G1's matcher.
+G3|4|R1|L|Food|Paprika|Mark up any web page as a recipe|react-native-webview, for sites with no structured data.
+G4|2|OTA|S-M|Food,Schedules|Samsung Food, Paprika|Cook mode with step timers|One step at a time, big text, "Start 20 min timer" from pure lib/stepTimers.ts. Keeping the screen awake needs expo-keep-awake in R1.
+G5|2|OTA|S-M|Food,Schedules|Paprika, Eat This Much|Scale a recipe and household servings|"Make it for N" before loading the builder; a serving count on a scheduled meal multiplies the grocery lines.
+G6|2|OTA|S-M|Life|Paprika, AnyList|Grocery list by store section|Reference category as the aisle, stores and aisles as an open list the person orders.
+G7|2|OTA|S|Life,Food|OurGroceries|Scan a barcode onto the grocery list|From the scan result, and for non-food Kitchen items.
+G8|2|OTA|S|Life|MyFitnessPal, Eat This Much|Send the list to a store app as text|The share sheet. A delivery API is item Z6.
+G9|3|OTA|M|Food|MyFitnessPal|Log a restaurant or takeaway meal|source restaurant with an estimate flag; a stand-in recipe or ticked ingredients. A chain menu database is Z7.
+G10|2|OTA|S|Food,Insights|Cronometer|Richest foods for a nutrient from inside a builder|Nutrient Ranking linked from the ingredient picker.
+G11|2|OTA|S|Food|Cronometer|Where each food's numbers come from|The national source as a caption.
+G12|2|OTA|S-M|Insights|Cronometer|Foods that would close a short nutrient|Nutrient Ranking filtered through Safe Foods scoring, preferring foods already in the person's history.
+G13|3|OTA|M|Insights|Cronometer|Calcium, iron and zinc absorption estimate|Oxalate and phytate already in the DB; cited coefficients; labelled an estimate with its tier.
+G14|2|OTA|S|Insights,Trends|ZOE|Distinct plants this week|lib/eatingVariety.ts, "counted" not "good", a blank week a gap.
+G15|2|OTA|S-M|Food|ZOE|One word for each food, for this person|"Fits all your conditions" or "one caution", never a number; detail one tap away.
+G16|2|OTA|S-M|Food,Insights|Yuka, ZOE|Processing level and additives from a scan|Open Food Facts already returns nova_group and additives_tags; store, show, and link each additive to its reading entry.
+G17|2|OTA|S|Food|Yuka|One line at the top of a scan|"Worth a second look for 2 of your conditions: sodium, carrageenan", counted by severity.
+G18|3|OTA|M-L|Food,Insights|Fig|Every ingredient checked, with a named reason|lib/ingredientFlags.ts: additives, FODMAP ingredients, histamine liberators, gluten grains, per-diet lists and an uncertain class. Allergen-aware wording (item 26). Citations are the work.
+G19|3|OTA|M|Food,Profile|Fig|More restrictions to choose|Histamine, salicylate, sulfite, alpha-gal, nightshade, lectin, each mapped to DB properties or G18.
+G20|2|OTA|S-M|Food,Insights|Fig|Who in the household it suits|A line per family member on a scan or recipe, and a "for whom" switch on Food Lookup.
+G21|2|OTA|S|Food|Yuka|Scan with no signal|Queue the barcode and look it up once back online.
+G22|3|OTA|M|Food,Insights|Yuka|A home recipe or whole food in place of a packaged one|From the scan result, recipes and reference foods in the same category that score clean.
+G23|0|DB|L|Food|Monash FODMAP|Amount-aware cautions|A threshold per serving on sub-criteria. Needs new columns in the live DB, so waits on the unified database's Phase 5, and on published per-serving figures (Monash data cannot be copied).
+G24|4|R1|L|Food|Cal AI|Photo gives a first guess at ingredients, on the phone|ML Kit image labelling: broad items only, confirmed by the person, never saved unconfirmed. The cloud version is Z1.
+G25|2|OTA|S-M|Home,Food|Cal AI|"Log your usual lunch?"|From meal history and usual times, as a Home line or a notification button.
+G26|2|OTA|S-M|Food|Heali|One line across all conditions for a person's own recipe|The recipe condition computation exposed for saved recipes.
+G27|3|OTA|M|Food|Heali|Menu scan, limited|OCR finds ingredient words and runs condition matching. A model version is Z3.
+G28|3|OTA|M|Insights,Signals,Reports|Levels, Guava, Guava Reports|Labs without typing|A photo of the sheet through the ML Kit OCR already in the build (no rebuild), a pasted table or CSV, and a whole-panel form; every value confirmed before saving.
+G29|7|DEC|L|Signals,Reports|Guava, Apple Health|Portal records (FHIR)|US only, an app registration per health system, or Health Connect medical records. A decision on scope first.
+G30|3|OTA|M|Signals|ZOE|Microbiome test as a typed record|A lab-style record for a test the person bought.
+G31|2|OTA|S|Home|Cronometer|Choose which nutrients the gauges show|A PopoverSelect list stored in app_meta.
+G32|3|OTA|M|Home|Cronometer|Today grouped by body system or by condition|A fold inside Fuel Gauges; says what is counted, never "too low".
+G33|2|OTA|S|Home|Cronometer|Hours since the last meal|An optional window stored in Profile.
+G34|2|OTA|S|Schedules|Waterllama|One tap for a glass|Quick buttons on Hydration and a caffeine line for the day.
+G35|2|OTA|S|Schedules|Waterllama|Hydration reminders stop at the target|Skip the rest of the day's reminders once the total is reached.
+G36|3|OTA|M|Schedules|Waterllama|Hydration per drink and a goal that moves|A cited hydration index per drink (Rule Engine steps 1 to 3), activity from Health Connect now, heat once F22 exists.
+G37|3|OTA|M|Schedules|Eat This Much|Optional calorie and macro band in the generator|Offered, never default; careful for IBD and celiac where under-eating is the risk.
+G38|3|OTA|M|Schedules|Eat This Much|A budget ceiling from the person's recorded prices|Only where prices exist; never guessed.
+## Meal planning
+H1|2|OTA|S-M|Schedules|Eat This Much|The generator prefers what the kitchen holds|A score bonus for recipes kitchenCoverageFor mostly covers.
+H2|2|OTA|S-M|Life,Schedules|Paprika, Sortly|Use-by dates|use_by on kitchen_items, a reminder kind, a "use soon" band, and a generator bonus.
+H3|3|OTA|M|Schedules|Eat This Much|Leftovers and batch cooking|"Makes N, eat again at" links later slots to the same meal; ties to open item 18.
+H4|2|OTA|S-M|Schedules|Eat This Much|Swap one meal|Reruns one slot against what the day still needs.
+H5|2|OTA|S|Schedules|Plan to Eat|Move a meal to another day|A day picker on one occurrence.
+H6|3|OTA|M|Schedules|Plan to Eat|Save a week and reuse it|saved_plans by day offset.
+H7|2|OTA|S|Schedules|Plan to Eat|Notes on the calendar|An item_type of note in the week strip.
+H8|2|OTA|S|Schedules|Paprika|Month view|A month grid from the same dot data.
+H9|3|OTA|M-L|Schedules|Plan to Eat|Shared household meal calendar|The schedule area for meals only in the peer allowlist.
+H10|2|OTA|S|Schedules|Eat This Much|This week's plan as a notification|In place of an email, which would need a server.
+H11|3|OTA|M|Schedules|CareClinic|Build the Exercise lens|Uses A1 repeats and Health Connect workouts.
+## Garden
+I1|3|OTA|M|Garden|Planta|Care cadence per crop|A cited lib/cropCare.ts offering a repeating task series.
+I2|2|OTA|S|Garden|Planta|Rain forecast on a watering task|From the forecast Home already fetches.
+I3|2|OTA|S-M|Garden|Planta|Light meter|expo-sensors LightSensor, already in the build, saved as a reading. Android only.
+I4|2|OTA|S-M|Garden|Seedtime|Last and first frost dates|From the Open-Meteo history the zone lookup already pulls.
+I5|3|OTA|M-L|Garden|Seedtime, From Seed to Spoon|Sowing calendar and expected dates|A cited lib/sowingWindows.ts (weeks from frost, days to sprout and to harvest) filling expected dates and two Days Until counters.
+I6|2|OTA|S|Garden|Seedtime|Succession sowing|"Every N days, K times" writes several plantings and counters.
+I7|3|OTA|M|Garden|Seedtime|Companion planting|lib/companionPairs.ts with evidence tiers; a caption, never a block.
+I8|3|OTA|L|Garden|Seedtime, GrowVeg|Bed layout drawn to scale|Width and length on areas, grid position on plantings, an SVG editor.
+I9|3|OTA|M|Garden|Seedtime|Seed inventory|garden_seeds with packet date; a planting draws down a packet.
+I10|2|OTA|S-M|Garden|GrowVeg|Crop rotation note|lib/cropFamilies.ts keyed on food_id (not a live DB column), read against the same area's last three years.
+I11|3|DOC|M|Garden|GrowVeg|Pests and beneficial insects|A Horticulture subgroup, following the reading pattern rules.
+I12|2|OTA|S|Garden|GrowVeg|This month in the garden|A monthly reminder once I4 and I5 exist, with a Profile switch.
+I13|3|OTA|M|Garden|Gardenize|Photos on plantings, areas, harvests and piles|garden_photos through X1.
+I14|2|OTA|S-M|Garden|Gardenize|What was done to each planting|garden_planting_events, append-only, event kinds an open list.
+I15|2|OTA|S|Garden,Reports|Gardenize|Garden CSV|Plantings and harvests.
+I16|3|OTA|M|Garden|From Seed to Spoon|What to grow for my conditions|Crops for the person's climate ranked by the condition scoring Food Lookup already uses.
+I17|2|OTA|S|Garden|From Seed to Spoon|Seed packet photo and typed variety|A barcode lookup would be a Worker job (Z8).
+I18|2|OTA|S|Garden,Trends|AC Infinity|VPD from temperature and humidity readings|Derived in lib/growingConditions.ts; no verdict words.
+I19|2|OTA|S-M|Garden|AC Infinity|Import a controller's history file|garden_readings with source device.
+I20|3|OTA|M|Garden|Ecowitt|Read an Ecowitt gateway on the home network|Polling by IP (zeroconf and cleartext LAN already in the build) while the app is open.
+I21|2|OTA|S|Garden|Ecowitt|Rain from the station|Feeds the Rain total. After I20.
+I22|4|R1|M-L|Garden|Ecowitt|Receive the gateway's pushes|A small HTTP listener native module. Polling covers it until then.
+I23|7|OPT|L|Garden|AC Infinity|Live AC Infinity readings|Only through an undocumented cloud API; opt-in, stated, fragile.
+I24|5|WK|M|Garden|PictureThis, Planta|What plant is this|Pl@ntNet through the Worker so the key stays off the phone; the photo leaves only on an explicit opt-in each time.
+I25|7|OPT|L|Garden|PictureThis|What is wrong with this plant|A paid diagnosis service or a vision model, opt-in per use. Cost decision.
+I26|3|DOC|M|Garden|PictureThis|A symptom guide in Horticulture|"Yellow lower leaves on tomatoes: what it can be", cited, nothing leaves the phone.
+## Money, upkeep and places
+J1|3|OTA|M|Life|YNAB, Monarch|Import a bank export|CSV, OFX or QFX into finance_entries with a duplicate check; the file never leaves the device.
+J2|2|OTA|S|Life|Monarch|Spot repeating charges|Offer to make them bills. After J1.
+J3|2|OTA|S|Life|Monarch|Category rules|finance_rules applied on import.
+J4|2|OTA|S|Life|Monarch|Receipt photo on an entry|Through X1.
+J5|3|OTA|M|Life|YNAB|Give every dollar a job|A view over finance_budgets.
+J6|2|OTA|S|Life|Sweepy|Upkeep by room or area|An open list with counts and dates, never a score.
+J7|2|OTA|S|Life|Sweepy|"I have 20 minutes"|Optional minutes on upkeep and a filter.
+J8|3|OTA|M|Life|Sweepy|Shared chores|upkeep in the peer allowlist.
+J9|2|OTA|S-M|Life|Sortly|Photo on an item or a place|Through X1.
+J10|3|OTA|M|Life|Sortly|Places inside places|A places table with a parent, as an open list; Where did I put it walks the path.
+J11|3|OTA|M|Life|Sortly|QR labels for boxes|Pure JS QR, printed through expo-print, scanned with the camera already there. The label carries an id only.
+J12|2|OTA|S|Life|AnyList|Check the shared folder more often|A shorter check interval. Instant needs M1.
+## Reports
+K1|2|OTA|S|Reports|Guava, Bearable, Visible|Six months, a year, any range, since the last visit|buildReport already takes any number of days.
+K2|2|OTA|S-M|Reports|Guava|At a glance front page|Top symptoms by days, doses as words, latest weight and blood pressure, labs outside the lab's printed range.
+K3|1|OTA|M|Reports|Bearable, Visible, CareClinic|Charts in the PDF|Inline SVG from lib/reportCharts.ts; gaps as gaps, bars or dots.
+K4|3|OTA|M|Reports,Insights|Guava|Visit prep questions|visit_questions tied to an appointment, reorder and tick off, in the person's words.
+K5|2|OTA|S|Reports|Bearable, mySymptoms, Gardenize|CSV export|Table sections through lib/nativeSharing.ts.
+K6|2|OTA|S-M|Reports|mySymptoms|What I have noticed|Pattern Finder candidates with denominators and experiment results, each a hypothesis from one person's records.
+K7|2|OTA|S|Reports|Guava|Report history|What was made, when and for whom.
+K8|2|OTA|S|Reports|Visible|Heart rate and HRV in reports|Health Connect already reads both with permission; no rebuild.
+K9|2|OTA|S|Reports|mySymptoms|Day-by-day food and symptom diary|A section in the nutritionist report.
+K10|2|OTA|S-M|Reports|Cronometer|Choose the sections|Tick which sections a report carries.
+K11|2|OTA|S|Reports|Cronometer|Print from the phone|expo-print printAsync.
+## Shared foundations
+X1|1|OTA|M|all|Gardenize, Sortly, Monarch, Guava, Medisafe|One photo layer|A media table (owner kind, owner id, file, taken_on), shrink on save, stored under the app folder, copied into the Backups folder and restored beside the encrypted snapshot, never in the plaintext record, shown on desktop from the synced copy. Serves A5, D12, I13, J4, J9.
+## Phones, widgets and devices
+L1|6|R2|L|Home,Trends,Signals,Insights|Bearable, Guava, Welltory, Oura, Levels, Apple Health|Apple Health on iPhone|A HealthKit module behind the lib/healthConnect.ts interface, so every reader stays the same.
+L2|4|R1|L|Home,Life,Schedules|Tiimo, AnyList, Todoist, Waterllama, Medisafe, Cronometer|Android home screen widgets|react-native-android-widget: next thing, next dose, Capture, grocery list, Fuel Gauges, current routine step, one-tap glass. A "hide health details on widgets" switch, since a locked phone shows them.
+L3|6|R2|L|Home,Life|Tiimo, Medisafe|iPhone widgets and Live Activity|WidgetKit through a config plugin, same content and switch.
+L4|4|R1|S|Trends,Signals|Oura|Breathing rate and body temperature|Two more Health Connect permissions.
+## Talking to people
+O1|4|R1|S-M|Life|(your question)|Phone contacts inside the app|expo-contacts: pick a contact for Emergency, a prescriber, a pharmacy, the family roster or a caregiver invite. Read on the phone, nothing copied out.
+O2|4|R1|S|Life|(your question)|Text or call from inside the app|expo-sms opens the phone's texting app with the message filled in; calling already works through Linking.
+O3|5|RL|L|Life|(your question)|Messages between Inside Story users|End to end encrypted with the keys in lib/deviceIdentity.ts and the connections roster; the relay (M1) carries sealed bytes it cannot read. Caregiver, partner and family notes, a missed-dose alert, a shared list change.
+O4|7|OPT|M|Life|(your question)|Capture from other apps' notifications|A notification listener. Google Play treats it as sensitive, Android 15 hides its setting for sideloaded apps; opt-in only.
+O5|7|DEC|XL|Life|(your question)|Inside Story as the default texting app|Android only, Play policy likely refuses it, the person loses RCS, and it cannot exist on iPhone or desktop. Kept on the list; not recommended.
+## Servers and relay
+M1|5|RL|L|all|Medisafe, AnyList, CareClinic|Content-blind push relay|The Worker plus FCM, carrying a wake-up and sealed bytes only. Unlocks A16 on time, J12 instantly, and O3. Remote push setup rides in R1.
+## Asked of you: these meet a standing rule or need a company server
+Z1|7|OPT|L|Food,Insights|Cal AI, Cronometer|Photo sent to a vision model for ingredients|Open item 21. Opt-in each time, through the Worker, nothing stored, the person confirms every line.
+Z2|7|DEC|M|Trends,Signals|Welltory, Oura|A readiness, stress or energy score|Breaks the Phase A rule that a score never stands in for a clinician. Only if you change that rule.
+Z3|7|OPT|L|Home,Insights|Heali, Apple Health|AI chat and a model behind "ask your records"|Opt-in, answering only from the cited reading corpus with its evidence tier shown.
+Z4|7|DEC|M|Schedules,Signals|MyTherapy, Waterllama|Streaks, challenges and characters|Ruled out by the Keeping Up rules. Listed because the competitors lead with them.
+Z5|7|SRV|L|Signals|Flaredown|How others with my condition are doing|Needs a server holding pooled health data.
+Z6|7|SRV|M|Life|MyFitnessPal, Eat This Much|Grocery delivery (Instacart, AmazonFresh)|A partner key and a server; the list goes to a company. G8 covers most of it.
+Z7|7|WK|L|Food|MyFitnessPal|Chain restaurant menus|A keyed lookup through the Worker. Licensing the data is the cost.
+Z8|7|WK|L|Garden|From Seed to Spoon|Seed packet barcode to variety|A keyed lookup; open data rarely resolves seeds.
+Z9|7|SRV|S|Life|OurGroceries|Add by Alexa or Google Assistant|A skill needs a company server.
+Z10|7|SRV|L|Life|YNAB, Monarch|Linked bank accounts|Plaid or GoCardless tokens held on a server. J1 covers most of it.
+Z11|7|SRV|L|Reports,Schedules|Guava, mySymptoms, Healthie, CareClinic|A clinician dashboard or live link|Health data on a server. The PDF and CSV cover the visit.
+Z12|7|DEC|M|Food,Insights|Fig|Store and restaurant guides|Pulls against home cooking over commercial products.
+Z13|7|DEC|L|Signals|Visible, Welltory|Heart rate from the camera|Frame processing and validation; out of proportion.
+Z14|7|DEC|L|Signals|Visible|A buzz from a worn sensor when overdoing it|Continuous background Bluetooth; heavy on battery.
+Z15|7|DEC|S|none|Structured, MyTherapy, Paprika, Welltory, Bearable|A lifetime price and a hardship price|Store billing decisions for the tier table.
+Z16|7|WK|L|Food,Insights|Yuka|Scanning fully offline|A country subset of Open Food Facts is still large; the Worker cache plus G21 covers most of it.
