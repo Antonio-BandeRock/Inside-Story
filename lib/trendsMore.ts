@@ -51,6 +51,16 @@ export function localHour(stamp: string): number | null {
   return match ? Number(match[1]) : null;
 }
 
+// The local clock time of a stamp as HH:MM, or null when it carries none.
+export function localClock(stamp: string): string | null {
+  if (ZONED.test(stamp)) {
+    const at = new Date(stamp);
+    return Number.isNaN(at.getTime()) ? null : `${pad(at.getHours())}:${pad(at.getMinutes())}`;
+  }
+  const match = /T(\d\d:\d\d)/.exec(stamp);
+  return match ? match[1] : null;
+}
+
 type DayPart = 'Morning' | 'Afternoon' | 'Evening' | 'Night';
 const DAY_PARTS: DayPart[] = ['Morning', 'Afternoon', 'Evening', 'Night'];
 
@@ -932,3 +942,160 @@ export function buildPlannedView(input: PlannedInputs): ReadingView {
   };
 }
 
+
+// ---------------------------------------------------------------------------
+// 10. Body Signals (F9, 1.0.53.8)
+// ---------------------------------------------------------------------------
+//
+// What a watch, ring or meter wrote to Health Connect and lib/healthSync.ts
+// brought across: heart rate, resting heart rate, heart rate variability,
+// blood oxygen, glucose and skin temperature. Each signal is a band with
+// its latest reading beside the person's usual range, then a week by week
+// average. No signal is scored, and none is compared with a population
+// figure: usual is what this person's readings have been, and a number to
+// aim for is a clinician's.
+
+export type BodySignalKey = 'restingHeartRate' | 'heartRate' | 'hrv' | 'spo2' | 'glucose' | 'skinTemperature';
+
+export type BodySignalReading = {
+  signal: BodySignalKey;
+  // The local day the reading belongs to, and when it was taken.
+  date: string;
+  at: string;
+  value: number;
+  // Heart rate's daily low and high, and glucose in mg/dL.
+  low?: number | null;
+  high?: number | null;
+  mgdl?: number | null;
+};
+
+export type BodySignalsInputs = {
+  range: DayRange;
+  // Every reading held, oldest first, so the usual range can draw on the
+  // readings before the range as well as within it.
+  readings: BodySignalReading[];
+};
+
+type SignalShape = {
+  title: string;
+  icon: ReadingBand['icon'];
+  unitWord: string;
+  format: (value: number) => string;
+  about: string;
+  // Whether a reading's time of day is worth saying (one-a-day figures are not).
+  timed: boolean;
+};
+
+export const BODY_SIGNAL_ORDER: BodySignalKey[] = ['restingHeartRate', 'heartRate', 'hrv', 'spo2', 'glucose', 'skinTemperature'];
+
+function signedCelsius(value: number): string {
+  const rounded = Math.round(value * 100) / 100;
+  return `${rounded > 0 ? '+' : ''}${rounded} °C`;
+}
+
+const BODY_SIGNALS: Record<BodySignalKey, SignalShape> = {
+  restingHeartRate: {
+    title: 'Resting heart rate',
+    icon: 'heart-outline',
+    unitWord: 'reading',
+    format: (v) => `${Math.round(v)} bpm`,
+    about: 'One figure a day, worked out by the watch or ring while you were still.',
+    timed: false,
+  },
+  heartRate: {
+    title: 'Heart rate through the day',
+    icon: 'pulse-outline',
+    unitWord: 'day',
+    format: (v) => `${Math.round(v)} bpm`,
+    about: "Each day's average of every sample the watch took, with that day's lowest and highest.",
+    timed: false,
+  },
+  hrv: {
+    title: 'Heart rate variability',
+    icon: 'analytics-outline',
+    unitWord: 'reading',
+    format: (v) => `${Math.round(v)} ms`,
+    about: 'RMSSD in milliseconds, as the device reported it. Devices measure it differently, so compare yours with yours rather than with somebody else.',
+    timed: true,
+  },
+  spo2: {
+    title: 'Blood oxygen',
+    icon: 'water-outline',
+    unitWord: 'reading',
+    format: (v) => `${Math.round(v * 10) / 10}%`,
+    about: 'As the watch or oximeter read it. A wrist reading can differ from one taken at the fingertip.',
+    timed: true,
+  },
+  glucose: {
+    title: 'Glucose',
+    icon: 'speedometer-outline',
+    unitWord: 'reading',
+    format: (v) => `${Math.round(v * 10) / 10} mmol/L (${Math.round(v * 18.016)} mg/dL)`,
+    about: 'Each reading from a meter or sensor, with its time. A sensor reads the fluid under the skin, which trails a finger-prick reading by several minutes.',
+    timed: true,
+  },
+  skinTemperature: {
+    title: 'Skin temperature',
+    icon: 'thermometer-outline',
+    unitWord: 'night',
+    format: signedCelsius,
+    about: "Each night's change from the device's baseline for you, not a body temperature.",
+    timed: false,
+  },
+};
+
+export function buildBodySignalsView(input: BodySignalsInputs): ReadingView {
+  const inRange = input.readings.filter((r) => r.date >= input.range.start && r.date <= input.range.end);
+  if (inRange.length === 0) {
+    return emptyView(
+      input.readings.length === 0
+        ? 'No body signals yet. They come from a watch, ring or meter through Health Connect, turned on in Life > Movement.'
+        : 'No body signals in this range. Pick a longer one to see earlier readings.',
+    );
+  }
+  const bands: ReadingBand[] = [];
+  for (const key of BODY_SIGNAL_ORDER) {
+    const shape = BODY_SIGNALS[key];
+    const all = input.readings.filter((r) => r.signal === key);
+    const these = inRange.filter((r) => r.signal === key);
+    if (these.length === 0) continue;
+    const latest = these[these.length - 1];
+    const upTo = all.filter((r) => r.at <= latest.at);
+    const clock = shape.timed ? localClock(latest.at) : null;
+    const latestLine =
+      key === 'heartRate' && latest.low != null && latest.high != null
+        ? `${shortDate(latest.date)}: average ${shape.format(latest.value)}, lowest ${Math.round(latest.low)}, highest ${Math.round(latest.high)}.`
+        : `Latest: ${shape.format(latest.value)} on ${shortDate(latest.date)}${clock ? ` at ${formatTime12(clock)}` : ''}.`;
+    const weeks = buildWeeks(input.range.start, input.range.end, these.map((r) => r.date));
+    const rows = weekRows(
+      weeks,
+      (week) => average(these.filter((r) => inWeek(r.date, week)).map((r) => r.value)),
+      (value, week) => `${shape.format(value)}, ${these.filter((r) => inWeek(r.date, week)).length}×`,
+      'nothing read',
+    );
+    bands.push({
+      id: key,
+      title: shape.title,
+      icon: shape.icon,
+      count: these.length,
+      lines: withGapNote(
+        [latestLine, usualSentence(upTo.map((r) => r.value), shape.format), 'Each bar is the week\'s average, with how many readings went into it.'],
+        rows,
+      ),
+      rows: rows.map((row) => (row.value === null ? row : { ...row, value: round1(row.value) })),
+      notes: [shape.about],
+    });
+  }
+  const missing = BODY_SIGNAL_ORDER.filter((key) => !inRange.some((r) => r.signal === key)).map((key) => BODY_SIGNALS[key].title);
+  bands.push({
+    id: 'about',
+    title: 'Where these come from',
+    icon: 'information-circle-outline',
+    lines: [
+      'Everything here was written to Health Connect by a watch, ring or meter, and read across when Life > Movement opened. Nothing here is entered by hand.',
+      ...(missing.length > 0 ? [`Nothing in this range for: ${missing.join(', ')}. Either no device records it, or Health Connect access for it is off.`] : []),
+    ],
+    notes: ['Your usual range is what your readings have been, never what they should be. The numbers that matter for you are the ones your clinician gives you.'],
+  });
+  return { hasAnything: true, empty: '', bands };
+}

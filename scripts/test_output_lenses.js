@@ -135,6 +135,18 @@ bp.sort((a, b) => a.loggedAt.localeCompare(b.loggedAt));
 run('bloodPressure', T.buildBloodPressureView, { range, readings: bp }, true);
 run('bloodPressure empty', T.buildBloodPressureView, { range, readings: [] }, false);
 
+const signals = [];
+for (let n = 0; n < 12; n++) {
+  const date = n < 6 ? '2026-07-0' + (n + 1) : days[n % days.length];
+  signals.push({ signal: 'restingHeartRate', date, at: date + 'T00:00:00', value: 58 + (n % 5) });
+  signals.push({ signal: 'heartRate', date, at: date + 'T00:00:00', value: 72 + n, low: 55, high: 130 });
+  signals.push({ signal: 'glucose', date, at: at(date, 7), value: 5.2 + n / 20, mgdl: 94 + n });
+  signals.push({ signal: 'skinTemperature', date, at: date + 'T00:00:00', value: (n % 3) / 10 - 0.1 });
+}
+signals.sort((a, b) => a.at.localeCompare(b.at));
+run('bodySignals', T.buildBodySignalsView, { range, readings: signals }, true);
+run('bodySignals empty', T.buildBodySignalsView, { range, readings: [] }, false);
+
 const doseStatuses = ['taken', 'skipped', 'planned', 'taken'];
 run('doses', T.buildDosesView, {
   range,

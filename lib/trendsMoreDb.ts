@@ -8,6 +8,7 @@ import { listNocturiaNights } from './nocturiaDb';
 import { getNutrientTrendSeriesForRange, getSleepTrendPoints } from './trendAnalysis';
 import {
   buildBloodPressureView,
+  buildBodySignalsView,
   buildCareView,
   buildDosesView,
   buildFermentsView,
@@ -17,6 +18,8 @@ import {
   buildReactionsView,
   buildWorkView,
   localDay,
+  type BodySignalKey,
+  type BodySignalReading,
   type DayRange,
 } from './trendsMore';
 import type { ReadingView } from './readingBands';
@@ -31,7 +34,8 @@ export type TrendsMoreLens =
   | 'reactions'
   | 'nights'
   | 'ferments'
-  | 'planned';
+  | 'planned'
+  | 'bodySignals';
 
 export const DOSE_ITEM_TYPES = ['supplement', 'prescription', 'otc'];
 
@@ -169,6 +173,59 @@ export async function listPlannedMeals(range: DayRange): Promise<{ scheduledFor:
   );
 }
 
+// Health Connect's record types, as healthSync.ts stores them, to the
+// signal each one is read as on Trends > Body Signals.
+const BODY_SIGNAL_RECORD_TYPES: Record<string, BodySignalKey> = {
+  resting_heart_rate: 'restingHeartRate',
+  heart_rate: 'heartRate',
+  hrv: 'hrv',
+  spo2: 'spo2',
+  glucose: 'glucose',
+  skin_temperature: 'skinTemperature',
+};
+
+function readMinMax(detailJson: string | null): { low: number | null; high: number | null } {
+  if (!detailJson) return { low: null, high: null };
+  try {
+    const detail = JSON.parse(detailJson) as { min?: unknown; max?: unknown };
+    return {
+      low: typeof detail.min === 'number' ? detail.min : null,
+      high: typeof detail.max === 'number' ? detail.max : null,
+    };
+  } catch {
+    return { low: null, high: null };
+  }
+}
+
+export async function listBodySignalReadings(): Promise<BodySignalReading[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{
+    recordType: string;
+    localDate: string;
+    startedAt: string;
+    value: number | null;
+    value2: number | null;
+    detailJson: string | null;
+  }>(
+    `SELECT record_type AS recordType, local_date AS localDate, started_at AS startedAt,
+            value, value2, detail_json AS detailJson
+     FROM health_records
+     WHERE record_type IN (${Object.keys(BODY_SIGNAL_RECORD_TYPES).map(() => '?').join(', ')})
+     ORDER BY started_at ASC`,
+    ...Object.keys(BODY_SIGNAL_RECORD_TYPES),
+  );
+  const readings: BodySignalReading[] = [];
+  for (const row of rows) {
+    const signal = BODY_SIGNAL_RECORD_TYPES[row.recordType];
+    if (!signal || typeof row.value !== 'number' || !Number.isFinite(row.value)) continue;
+    const reading: BodySignalReading = { signal, date: row.localDate, at: row.startedAt, value: row.value };
+    if (signal === 'heartRate') Object.assign(reading, readMinMax(row.detailJson));
+    if (signal === 'glucose') reading.mgdl = row.value2;
+    readings.push(reading);
+  }
+  return readings;
+}
+
 export async function loadTrendsMoreView(lens: TrendsMoreLens, days: number): Promise<ReadingView> {
   const today = todayString();
   const range = rangeForDays(days, today);
@@ -212,5 +269,7 @@ export async function loadTrendsMoreView(lens: TrendsMoreLens, days: number): Pr
     }
     case 'planned':
       return buildPlannedView({ range, today, planned: await listPlannedMeals(range) });
+    case 'bodySignals':
+      return buildBodySignalsView({ range, readings: await listBodySignalReadings() });
   }
 }

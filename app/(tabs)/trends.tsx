@@ -162,6 +162,7 @@ type TrendsLens =
 const MORE_LENSES: Record<TrendsMoreLens, { loadingLine: string; missingItem?: YourStoryItemKey }> = {
   hydration: { loadingLine: 'Reading what you drank…', missingItem: 'water' },
   bloodPressure: { loadingLine: 'Reading your blood pressure…' },
+  bodySignals: { loadingLine: 'Reading your body signals…' },
   doses: { loadingLine: 'Reading your doses…', missingItem: 'meds' },
   care: { loadingLine: 'Reading your appointments…' },
   work: { loadingLine: 'Reading your work weeks…', missingItem: 'workCheckin' },
@@ -514,6 +515,25 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       {
         heading: "The numbers to aim for",
         body: "Those come from whoever looks after your blood pressure. This lens only shows what you wrote down.",
+      },
+    ],
+  },
+  {
+    key: 'bodySignals',
+    label: "Body Signals",
+    icon: 'watch-outline',
+    help: [
+      {
+        heading: "Body Signals",
+        body: "Resting heart rate, heart rate, heart rate variability, blood oxygen, glucose and skin temperature, as your watch, ring or meter wrote them to Health Connect. Each has its latest reading, your usual range and a figure for every week.",
+      },
+      {
+        heading: "Getting them here",
+        body: "They come in when Life > Movement opens, once Health Connect is allowed there. Only the signals your devices record appear, and a week with no readings shows as a gap rather than as none.",
+      },
+      {
+        heading: "No score",
+        body: "Your usual range is the middle of your earlier readings, which is what they have been, never what they should be. What any of these figures should be for you is a question for whoever looks after your health.",
       },
     ],
   },
