@@ -214,7 +214,7 @@ O1|4|R1|S-M|Life|(your question)|Phone contacts inside the app|expo-contacts: pi
 O2|4|R1|S|Life|(your question)|Text or call from inside the app|expo-sms opens the phone's texting app with the message filled in; calling already works through Linking.
 O3|5|RL|L|Life|(your question)|Messages between Inside Story users|End to end encrypted with the keys in lib/deviceIdentity.ts and the connections roster; the relay (M1) carries sealed bytes it cannot read. Caregiver, partner and family notes, a missed-dose alert, a shared list change.
 O4|7|OPT|M|Life|(your question)|Capture from other apps' notifications|A notification listener. Google Play treats it as sensitive, Android 15 hides its setting for sideloaded apps; opt-in only.
-O5|7|DEC|XL|Life|(your question)|Inside Story as the default texting app|Android only, Play policy likely refuses it, the person loses RCS, and it cannot exist on iPhone or desktop. Kept on the list; not recommended.
+O5|7|DEC|XL|Life|(your question)|Inside Story as the default texting app|Android only, Play policy likely refuses it, the person loses RCS, and it cannot exist on iPhone or desktop. Ruled out by the owner on 2026-09-26; kept on the list only as the record of that decision. O1, O2, C11 and O3 are the route instead.
 ## Servers and relay
 M1|5|RL|L|all|Medisafe, AnyList, CareClinic|Content-blind push relay|The Worker plus FCM, carrying a wake-up and sealed bytes only. Unlocks A16 on time, J12 instantly, and O3. Remote push setup rides in R1.
 ## Asked of you: these meet a standing rule or need a company server

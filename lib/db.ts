@@ -8,6 +8,7 @@ import { supplementBasis, supplementCoversDate, type SupplementWindow } from './
 import { isAlcoholicFood } from './alcoholAdvisory';
 import { isCoffeeFood } from './coffeeAdvisory';
 import { isJuiceFood } from './juiceAdvisory';
+import { occurrencesOf, weekdaysFromColumn, weekdaysToColumn, type RepeatConfig, type RepeatEndType, type RepeatType } from './repeatRule';
 import {
   isNeuroProfileKey,
   normalizeNeuroProfileKeys,
@@ -8543,6 +8544,21 @@ async function runDatabaseInitialization() {
         await db.execAsync(`ALTER TABLE schedule_items ADD COLUMN ${column} INTEGER;`);
       }
     }
+    // Weekly, every-few-days and monthly repeats, 2026-09-26 (A1 of the
+    // competitive build plan; see lib/repeatRule.ts). repeat_start is the
+    // date the series was set up for, which a fortnightly or monthly series
+    // counts from however often its window is topped up; repeat_weekdays is
+    // "1,4" for Monday and Thursday; repeat_interval is how many days,
+    // weeks or months apart. All three null on a daily series set up before
+    // this, which reads exactly as it always did.
+    for (const column of ['repeat_start', 'repeat_weekdays']) {
+      if (!scheduleItemColumns.some((existing) => existing.name === column)) {
+        await db.execAsync(`ALTER TABLE schedule_items ADD COLUMN ${column} TEXT;`);
+      }
+    }
+    if (!scheduleItemColumns.some((existing) => existing.name === 'repeat_interval')) {
+      await db.execAsync(`ALTER TABLE schedule_items ADD COLUMN repeat_interval INTEGER;`);
+    }
 
     // Deliberately eaten outside a declared fasting/eating window, 2026-08-29.
     // Direct request, after the window turned out to be a hard block with no
@@ -15202,24 +15218,11 @@ export async function listMealsForDate(date: string) {
 // reading from actual logged meals, not from this table: a planned meal
 // hasn't been eaten yet, so it has no nutrients/6 Dimensions/prep implications
 // until it's logged.
-// Daily-only for now -- the user's own request described "repeat
-// indefinitely, or a set amount of times or number of times" without
-// mentioning specific weekday patterns, so weekly/custom-day recurrence is
-// deliberately out of scope for this pass.
-export type RepeatType = 'none' | 'daily';
-export type RepeatEndType = 'indefinite' | 'count' | 'until_date';
-
-// How a schedule item repeats going forward. type: 'none' means a single
-// one-off occurrence (every other field irrelevant). type: 'daily' requires
-// endType; endType: 'count' requires count (total occurrences in the
-// series, including the first); endType: 'until_date' requires until (a
-// 'YYYY-MM-DD' date, inclusive of the last occurrence).
-export type RepeatConfig = {
-  type: RepeatType;
-  endType?: RepeatEndType;
-  count?: number;
-  until?: string;
-};
+// How a schedule item repeats: every day, every few days, chosen weekdays
+// every N weeks, or monthly, each ending never, after a count, or on a
+// date. Daily was the only pattern until 2026-09-26; the types and every
+// date a pattern lands on live in lib/repeatRule.ts.
+export type { RepeatType, RepeatEndType, RepeatConfig } from './repeatRule';
 
 export type ScheduleItemRecord = {
   id: string;
@@ -15247,6 +15250,11 @@ export type ScheduleItemRecord = {
   repeatUntil: string | null;
   repeatGroupId: string | null;
   repeatIndex: number | null;
+  // The pattern's details (see the repeat_start migration). Null on a
+  // one-off item and on a daily series set up before 2026-09-26.
+  repeatInterval: number | null;
+  repeatWeekdays: string | null;
+  repeatStart: string | null;
   // True only when the person was shown their declared eating window,
   // chose to schedule the meal anyway, and that exception was recorded --
   // see the outside_eating_window migration. False for anything inside
@@ -15286,6 +15294,7 @@ const SCHEDULE_ITEM_COLUMNS = `
   source_favorite_id AS sourceFavoriteId, source_meal_id AS sourceMealId,
   COALESCE(repeat_type, 'none') AS repeatType, repeat_end_type AS repeatEndType, repeat_count AS repeatCount,
   repeat_until AS repeatUntil, repeat_group_id AS repeatGroupId, repeat_index AS repeatIndex,
+  repeat_interval AS repeatInterval, repeat_weekdays AS repeatWeekdays, repeat_start AS repeatStart,
   appointment_type AS appointmentType, location, provider_name AS providerName,
   linked_device_calendar_event_id AS linkedDeviceCalendarEventId,
   COALESCE(outside_eating_window, 0) = 1 AS outsideEatingWindow,
@@ -15321,30 +15330,6 @@ function nowLocalDateTimeString(): string {
   const now = new Date();
   const pad = (value: number) => String(value).padStart(2, '0');
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
-}
-
-// Every calendar date (YYYY-MM-DD) an occurrence should exist for, starting
-// at firstDate, respecting the series' own end rule and never generating
-// past windowEnd -- the first date is always included regardless of
-// windowEnd, since that's the occurrence the person explicitly asked for.
-function buildOccurrenceDates(firstDate: string, repeat: RepeatConfig, windowEnd: string): string[] {
-  const dates = [firstDate];
-  if (repeat.type !== 'daily') {
-    return dates;
-  }
-
-  let cursor = firstDate;
-  for (let index = 1; repeat.endType !== 'count' || index < (repeat.count ?? 1); index++) {
-    cursor = addDaysToDateString(cursor, 1);
-    if (repeat.endType === 'until_date' && repeat.until && cursor > repeat.until) {
-      break;
-    }
-    if (cursor > windowEnd) {
-      break;
-    }
-    dates.push(cursor);
-  }
-  return dates;
 }
 
 // Inserts every occurrence of a (possibly repeating) series in one go, all
@@ -15397,11 +15382,18 @@ async function insertScheduleSeries(input: {
   const now = new Date().toISOString();
   const [firstDate, firstTime] = input.scheduledFor.split('T');
   const windowEnd = addDaysToDateString(todayDateStringLocal(), SCHEDULE_ROLLING_WINDOW_DAYS);
-  const occurrenceDates = buildOccurrenceDates(firstDate, input.repeat, windowEnd);
-  const repeatGroupId = input.repeat.type === 'none' ? null : `repeat_${Date.now()}`;
+  // Every date the pattern lands on inside the rolling window. A weekly
+  // series set up on a Wednesday for Mondays starts on the next Monday, so
+  // the first row is not always firstDate.
+  const occurrences = occurrencesOf(firstDate, input.repeat, { through: windowEnd });
+  if (occurrences.length === 0) {
+    throw new Error('This repeat pattern never lands on a day.');
+  }
+  const repeats = input.repeat.type !== 'none';
+  const repeatGroupId = repeats ? `repeat_${Date.now()}` : null;
 
   let firstId = '';
-  for (const [index, occurrenceDate] of occurrenceDates.entries()) {
+  for (const [index, { date: occurrenceDate, index: position }] of occurrences.entries()) {
     const id = `schedule_item_${Date.now()}_${index}`;
     if (index === 0) {
       firstId = id;
@@ -15411,9 +15403,10 @@ async function insertScheduleSeries(input: {
         INSERT INTO schedule_items
           (id, scheduled_for, item_type, meal_type, title, status, notes, source_favorite_id, source_meal_id,
            linked_treatment_id, repeat_type, repeat_end_type, repeat_count, repeat_until, repeat_group_id, repeat_index,
+           repeat_interval, repeat_weekdays, repeat_start,
            appointment_type, location, provider_name, linked_device_calendar_event_id,
            outside_eating_window, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, 'planned', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, 'planned', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       id,
       `${occurrenceDate}T${firstTime}`,
@@ -15425,11 +15418,14 @@ async function insertScheduleSeries(input: {
       input.sourceMealId ?? null,
       input.linkedTreatmentId ?? null,
       input.repeat.type,
-      input.repeat.type === 'none' ? null : (input.repeat.endType ?? 'indefinite'),
-      input.repeat.type === 'none' ? null : (input.repeat.count ?? null),
-      input.repeat.type === 'none' ? null : (input.repeat.until ?? null),
+      repeats ? (input.repeat.endType ?? 'indefinite') : null,
+      repeats ? (input.repeat.count ?? null) : null,
+      repeats ? (input.repeat.until ?? null) : null,
       repeatGroupId,
-      input.repeat.type === 'none' ? null : index + 1,
+      repeats ? position : null,
+      repeats && input.repeat.type !== 'daily' ? (input.repeat.interval ?? 1) : null,
+      input.repeat.type === 'weekly' ? weekdaysToColumn(input.repeat.weekdays) : null,
+      repeats ? firstDate : null,
       input.appointmentType ?? null,
       input.location ?? null,
       input.providerName ?? null,
@@ -15461,9 +15457,14 @@ export async function ensureScheduleSeriesGenerated(): Promise<void> {
     source_favorite_id: string | null;
     source_meal_id: string | null;
     linked_treatment_id: string | null;
+    repeat_type: string;
     repeat_end_type: string | null;
     repeat_count: number | null;
     repeat_until: string | null;
+    repeat_interval: number | null;
+    repeat_weekdays: string | null;
+    repeat_start: string | null;
+    first_scheduled_for: string;
     latest_scheduled_for: string;
     latest_index: number | null;
     occurrence_count: number;
@@ -15478,14 +15479,19 @@ export async function ensureScheduleSeriesGenerated(): Promise<void> {
         source_favorite_id,
         source_meal_id,
         linked_treatment_id,
+        repeat_type,
         repeat_end_type,
         repeat_count,
         repeat_until,
+        repeat_interval,
+        repeat_weekdays,
+        repeat_start,
+        MIN(scheduled_for) AS first_scheduled_for,
         MAX(scheduled_for) AS latest_scheduled_for,
         MAX(repeat_index) AS latest_index,
         COUNT(*) AS occurrence_count
       FROM schedule_items
-      WHERE repeat_type = 'daily' AND repeat_group_id IS NOT NULL
+      WHERE repeat_type IS NOT NULL AND repeat_type <> 'none' AND repeat_group_id IS NOT NULL
       GROUP BY repeat_group_id
     `,
   );
@@ -15506,31 +15512,30 @@ export async function ensureScheduleSeriesGenerated(): Promise<void> {
       continue;
     }
 
-    const endType = (group.repeat_end_type as RepeatEndType | null) ?? 'indefinite';
-    // buildOccurrenceDates treats its firstDate as occurrence 1 of a fresh
-    // count, so for a count-limited series it's given only however many
-    // occurrences actually remain (+1, since the leading date it always
-    // includes is latestDate itself, which already exists and gets sliced
-    // off below) rather than the series' original total count.
-    const remainingCount = endType === 'count' ? Math.max(0, (group.repeat_count ?? 0) - group.occurrence_count) : undefined;
-    const topUpRepeat: RepeatConfig = {
-      type: 'daily',
-      endType,
-      count: remainingCount !== undefined ? remainingCount + 1 : undefined,
+    // The series continues from the date it was set up for (repeat_start),
+    // so a fortnight or a month keeps its rhythm however often the window
+    // is topped up; a daily series from before that column counts from its
+    // earliest row, which for every day is the same thing. Positions come
+    // from the pattern, so a count-limited series stops at its count.
+    const rule: RepeatConfig = {
+      type: group.repeat_type as RepeatConfig['type'],
+      endType: (group.repeat_end_type as RepeatEndType | null) ?? 'indefinite',
+      count: group.repeat_count ?? undefined,
       until: group.repeat_until ?? undefined,
+      interval: group.repeat_interval ?? undefined,
+      weekdays: weekdaysFromColumn(group.repeat_weekdays),
     };
-    const remainingDates = buildOccurrenceDates(latestDate, topUpRepeat, windowEnd).slice(1);
-    const startIndex = (group.latest_index ?? group.occurrence_count) + 1;
+    const anchor = group.repeat_start ?? group.first_scheduled_for.slice(0, 10);
+    const remaining = occurrencesOf(anchor, rule, { after: latestDate, through: windowEnd });
 
-    for (const [offset, occurrenceDate] of remainingDates.entries()) {
-      const index = startIndex + offset;
+    for (const { date: occurrenceDate, index } of remaining) {
       await db.runAsync(
         `
           INSERT INTO schedule_items
             (id, scheduled_for, item_type, meal_type, title, status, notes, source_favorite_id, source_meal_id,
              linked_treatment_id, repeat_type, repeat_end_type, repeat_count, repeat_until, repeat_group_id, repeat_index,
-             created_at, updated_at)
-          VALUES (?, ?, ?, ?, ?, 'planned', ?, ?, ?, ?, 'daily', ?, ?, ?, ?, ?, ?, ?)
+             repeat_interval, repeat_weekdays, repeat_start, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, 'planned', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
         `schedule_item_${Date.now()}_${group.repeat_group_id}_${index}`,
         `${occurrenceDate}T${latestTime}`,
@@ -15541,11 +15546,15 @@ export async function ensureScheduleSeriesGenerated(): Promise<void> {
         group.source_favorite_id,
         group.source_meal_id,
         group.linked_treatment_id,
+        group.repeat_type,
         group.repeat_end_type,
         group.repeat_count,
         group.repeat_until,
         group.repeat_group_id,
         index,
+        group.repeat_interval,
+        group.repeat_weekdays,
+        anchor,
         now,
         now,
       );

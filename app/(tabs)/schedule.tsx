@@ -112,6 +112,7 @@ import { listUpkeepItems, markUpkeepDone } from '../../lib/upkeepDb';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { describeStatus } from '../../lib/reconciliation';
 import { modalAnimationType } from '../../lib/visualPreferences';
+import { describeRepeat, describeRepeatPattern, validateRepeatRule, weekdayOf, weekdaysFromColumn } from '../../lib/repeatRule';
 import { useWalkMark } from '../../components/WalkMark';
 
 // Every text box on this page belongs to this one page's own tab, so
@@ -150,7 +151,7 @@ type Lens =
 // than re-worded three times.
 const REPEATING_SCHEDULES_HELP: HelpSection = {
   heading: 'Repeating schedules',
-  body: 'Can repeat daily: indefinitely, a set number of times, or until a date you choose. Entries are generated about 60 days ahead and topped up automatically, so editing, skipping, or removing one day never touches any other.',
+  body: 'Can repeat every day, on chosen days of the week (every week or every few weeks), every few days, or once a month on the same date: indefinitely, a set number of times, or until a date you choose. Entries are generated about 60 days ahead and topped up automatically, so editing, skipping, or removing one day never touches any other.',
 };
 
 const LENSES: LensOption<Lens>[] = [
@@ -441,7 +442,7 @@ const SCHEDULE_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Repeating schedules',
-    body: 'Meal, drink, supplement, and prescription reminders can repeat daily: indefinitely, a set number of times, or until a date you choose. Entries are generated about 60 days ahead and topped up automatically, so editing, skipping, or removing one day never touches any other.',
+    body: 'Meal, drink, supplement, and prescription reminders can repeat every day, on chosen days of the week (every week, or every 2 or more weeks for something like a fortnightly injection), every few days, or once a month on the same date (the last day of a shorter month when that date does not exist). Each one runs indefinitely, a set number of times, or until a date you choose. Entries are generated about 60 days ahead and topped up automatically, so editing, skipping, or removing one day never touches any other.',
   },
 ];
 
@@ -456,14 +457,7 @@ function capitalize(text: string): string {
 }
 
 function validateRepeat(repeat: RepeatConfig): string | null {
-  if (repeat.type !== 'daily') return null;
-  if (repeat.endType === 'count' && (!repeat.count || repeat.count < 1)) {
-    return 'Enter how many times this should repeat.';
-  }
-  if (repeat.endType === 'until_date' && (!repeat.until || !/^\d{4}-\d{2}-\d{2}$/.test(repeat.until))) {
-    return 'Enter a valid end date (YYYY-MM-DD).';
-  }
-  return null;
+  return validateRepeatRule(repeat);
 }
 
 function usualTimeForMealType(profile: UserProfile | null, mealType: string): string | null {
@@ -543,29 +537,102 @@ const BLANK_FORM: FormState = {
 // Recurrence is decided once, at creation time -- editing an existing
 // occurrence only ever touches that one row (see updateScheduledMeal), so
 // this picker is only shown while scheduling a brand-new item, never while
-// editing one that already exists. "Just once" vs "Every day", and if
-// "Every day", how it should eventually stop: never, after a fixed number
-// of times, or on a specific date.
-function RepeatPicker({ repeat, onChange }: { repeat: RepeatConfig; onChange: (repeat: RepeatConfig) => void }) {
+// editing one that already exists. Five patterns (A1 of the competitive
+// build plan, 2026-09-26; the dates each lands on are worked out in
+// lib/repeatRule.ts), then how it should eventually stop: never, after a
+// fixed number of times, or on a specific date. startDate is the day the
+// series is being set up for, which seeds the weekday chosen first and
+// names the day of the month.
+const REPEAT_PATTERNS: { type: RepeatConfig['type']; label: string }[] = [
+  { type: 'none', label: 'Just once' },
+  { type: 'daily', label: 'Every day' },
+  { type: 'weekly', label: 'Days of the week' },
+  { type: 'every_n_days', label: 'Every few days' },
+  { type: 'monthly', label: 'Every month' },
+];
+
+const WEEKDAY_CHIPS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function RepeatPicker({
+  repeat,
+  onChange,
+  startDate,
+}: {
+  repeat: RepeatConfig;
+  onChange: (repeat: RepeatConfig) => void;
+  startDate?: string;
+}) {
+  const anchor = startDate && /^\d{4}-\d{2}-\d{2}$/.test(startDate) ? startDate : todayDateString();
+
+  function choosePattern(type: RepeatConfig['type']) {
+    if (type === 'none') {
+      onChange({ type: 'none' });
+      return;
+    }
+    const kept = { endType: repeat.endType ?? 'indefinite', count: repeat.count, until: repeat.until } as const;
+    if (type === 'weekly') {
+      onChange({ type, ...kept, interval: 1, weekdays: repeat.weekdays?.length ? repeat.weekdays : [weekdayOf(anchor)] });
+    } else if (type === 'every_n_days') {
+      onChange({ type, ...kept, interval: repeat.type === 'every_n_days' ? repeat.interval : 2 });
+    } else if (type === 'monthly') {
+      onChange({ type, ...kept, interval: 1 });
+    } else {
+      onChange({ type, ...kept });
+    }
+  }
+
+  function toggleWeekday(day: number) {
+    const current = repeat.weekdays ?? [];
+    const next = current.includes(day) ? current.filter((value) => value !== day) : [...current, day].sort((a, b) => a - b);
+    onChange({ ...repeat, weekdays: next });
+  }
+
+  const intervalLabel =
+    repeat.type === 'every_n_days' ? 'How many days apart' : repeat.type === 'weekly' ? 'How many weeks apart' : 'How many months apart';
+  const summaryError = repeat.type === 'none' ? null : validateRepeatRule(repeat);
+
   return (
     <>
       <Text style={styles.label}>Repeat</Text>
       <View style={styles.pillRow}>
-        <TouchableOpacity
-          style={[styles.pill, repeat.type === 'none' && styles.pillActive]}
-          onPress={() => onChange({ type: 'none' })}
-        >
-          <Text style={[styles.pillText, repeat.type === 'none' && styles.pillTextActive]}>Just once</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.pill, repeat.type === 'daily' && styles.pillActive]}
-          onPress={() => onChange({ type: 'daily', endType: repeat.endType ?? 'indefinite', count: repeat.count, until: repeat.until })}
-        >
-          <Text style={[styles.pillText, repeat.type === 'daily' && styles.pillTextActive]}>Every day</Text>
-        </TouchableOpacity>
+        {REPEAT_PATTERNS.map((pattern) => (
+          <TouchableOpacity
+            key={pattern.type}
+            style={[styles.pill, repeat.type === pattern.type && styles.pillActive]}
+            onPress={() => choosePattern(pattern.type)}
+          >
+            <Text style={[styles.pillText, repeat.type === pattern.type && styles.pillTextActive]}>{pattern.label}</Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
-      {repeat.type === 'daily' ? (
+      {repeat.type === 'weekly' ? (
+        <View style={[styles.pillRow, { marginTop: 8 }]}>
+          {WEEKDAY_CHIPS.map((name, day) => {
+            const chosen = (repeat.weekdays ?? []).includes(day);
+            return (
+              <TouchableOpacity key={name} style={[styles.pillSmall, chosen && styles.pillActive]} onPress={() => toggleWeekday(day)}>
+                <Text style={[styles.pillTextSmall, chosen && styles.pillTextActive]}>{name}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      ) : null}
+
+      {repeat.type === 'weekly' || repeat.type === 'every_n_days' || repeat.type === 'monthly' ? (
+        <>
+          <Text style={[styles.label, { marginTop: 8 }]}>{intervalLabel}</Text>
+          <AppTextInput
+            style={[styles.input, styles.timeInput]}
+            placeholder={repeat.type === 'every_n_days' ? 'e.g. 3' : '1'}
+            keyboardType="number-pad"
+            value={repeat.interval ? String(repeat.interval) : ''}
+            onChangeText={(text) => onChange({ ...repeat, interval: Number(text) || undefined })}
+          />
+        </>
+      ) : null}
+
+      {repeat.type !== 'none' ? (
         <>
           <View style={[styles.pillRow, { marginTop: 8 }]}>
             {(['indefinite', 'count', 'until_date'] as const).map((option) => (
@@ -598,13 +665,30 @@ function RepeatPicker({ repeat, onChange }: { repeat: RepeatConfig; onChange: (r
             />
           ) : null}
           <Text style={styles.helperText}>
-            Generates entries about 60 days ahead at a time, topped up automatically as time passes. Editing or
+            {summaryError ?? `${describeRepeat(repeat, anchor)}.`}
+            {repeat.type === 'monthly' && !summaryError ? ' A shorter month lands on its last day.' : ''}
+            {' '}Generates entries about 60 days ahead at a time, topped up automatically as time passes. Editing or
             skipping one day never affects any other.
           </Text>
         </>
       ) : null}
     </>
   );
+}
+
+// The caption for one row of a repeating series: its pattern in a few
+// words, read back from the row's own columns.
+function repeatCaption(item: ScheduleItemRecord): string {
+  if (!item.repeatGroupId) return '';
+  const pattern = describeRepeatPattern(
+    {
+      type: item.repeatType,
+      interval: item.repeatInterval ?? undefined,
+      weekdays: weekdaysFromColumn(item.repeatWeekdays),
+    },
+    item.repeatStart ?? item.scheduledFor.slice(0, 10),
+  );
+  return ` · ${pattern}`;
 }
 
 // Real week-strip navigation, 2026-08-18 -- direct request: "a way to
@@ -1443,7 +1527,11 @@ function MealsLens() {
                 ) : null}
 
                 {!form.editingId ? (
-                  <RepeatPicker repeat={form.repeat} onChange={(repeat) => setForm((current) => ({ ...current, repeat }))} />
+                  <RepeatPicker
+                    repeat={form.repeat}
+                    startDate={form.date}
+                    onChange={(repeat) => setForm((current) => ({ ...current, repeat }))}
+                  />
                 ) : null}
 
                 <View style={styles.formActions}>
@@ -1478,7 +1566,7 @@ function MealsLens() {
                           {capitalize(item.mealType ?? '')}
                           {item.sourceFavoriteId ? ' · Favorite' : item.sourceMealId ? ' · Template' : ''}
                           {statusSuffix(item.status)}
-                          {item.repeatGroupId ? ' · Repeats' : ''}
+                          {repeatCaption(item)}
                           {item.linkedDeviceCalendarEventId ? ' · On phone calendar' : ''}
                           {/* Marked, not hidden or warned about again: the
                               person already made this call deliberately, so
@@ -1634,7 +1722,7 @@ function HydrationRowView({
           <Text style={styles.rowMeta}>
             {row.kind === 'logged-direct'
               ? 'Logged from Meals'
-              : `${capitalize(row.item.status)}${row.item.sourceFavoriteId ? ' · Favorite' : row.item.sourceMealId ? ' · Template' : ''}${row.item.repeatGroupId ? ' · Repeats' : ''}`}
+              : `${capitalize(row.item.status)}${row.item.sourceFavoriteId ? ' · Favorite' : row.item.sourceMealId ? ' · Template' : ''}${repeatCaption(row.item)}`}
           </Text>
         </View>
       </View>
@@ -3458,7 +3546,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
                         <Text style={styles.doseRowTime}>{formatTime12(dose.scheduledFor.split('T')[1] ?? '')}</Text>
                         <Text style={styles.doseRowStatus}>
                           {describeStatus(dose.status) ?? 'Planned'}
-                          {dose.repeatGroupId ? ' · Repeats' : ''}
+                          {repeatCaption(dose)}
                         </Text>
                         {renderDoseActions(dose)}
                       </View>
@@ -3522,7 +3610,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
                         <Text style={styles.rowTitle}>{treatmentById.get(dose.linkedTreatmentId ?? '')?.name ?? dose.title}</Text>
                         <Text style={styles.rowMeta}>
                           {describeStatus(dose.status) ?? 'Planned'}
-                          {dose.repeatGroupId ? ' · Repeats' : ''}
+                          {repeatCaption(dose)}
                         </Text>
                       </View>
                     </View>

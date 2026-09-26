@@ -22,13 +22,13 @@ Written 2026-09-25. Work starts 2026-09-26, first thing. Page: https://claude.ai
    9. **G1** recipe import from a link (`lib/recipeImport.ts` plus the ingredient matcher; scoring before it appears anywhere).
 4. Then Phase 2 in any order that suits, then Phase 3. Gather R1 once C11, G4, L2 and O1 have their JS halves ready.
 
-## The default texting app question (answered 2026-09-25)
+## The default texting app question (answered 2026-09-25, ruled out by the owner 2026-09-26)
 
 Possible on Android only, not recommended. Local-first is not the blocker (SMS goes through the carrier). What is: Google Play grants SMS and Call Log permissions only to apps whose core purpose is messaging (Permissions Declaration review, likely refused, and a refusal can hold every update); the person loses RCS since there is no third-party RCS API; MMS, groups, blocking and delivery reports would all be built from scratch in Kotlin; impossible on iPhone and desktop. Instead: contacts (O1), prefilled texting and calling (O2), share into Capture from any app (C11), and end-to-end encrypted messages between Inside Story users over the existing tweetnacl keys and a content-blind relay (O3, M1). The default-SMS item stays as O5, Phase 7.
 
 ## Rebuild map
 
-**R1, one Android build (both phones reinstall once):** share target SEND for text, links, images (C11); expo-quick-actions plus a quick settings tile (C12); react-native-android-widget with next thing, next dose, Capture, grocery, Fuel Gauges, routine step, one-tap glass, and a hide-health-details switch (L2); Health Connect RespiratoryRate and BodyTemperature permissions (L4); expo-keep-awake (G4); expo-audio (D15); expo-location, coarsened (F22, G36); expo-contacts and expo-sms (O1, O2); FCM remote push (M1); react-native-webview (G3); ML Kit image labelling (G24); a small HTTP listener for Ecowitt pushes (I22). Only on the owner's yes: notification listener (O4), default SMS module (O5).
+**R1, one Android build (both phones reinstall once):** share target SEND for text, links, images (C11); expo-quick-actions plus a quick settings tile (C12); react-native-android-widget with next thing, next dose, Capture, grocery, Fuel Gauges, routine step, one-tap glass, and a hide-health-details switch (L2); Health Connect RespiratoryRate and BodyTemperature permissions (L4); expo-keep-awake (G4); expo-audio (D15); expo-location, coarsened (F22, G36); expo-contacts and expo-sms (O1, O2); FCM remote push (M1); react-native-webview (G3); ML Kit image labelling (G24); a small HTTP listener for Ecowitt pushes (I22). Only on the owner's yes: notification listener (O4). The default SMS module (O5) was ruled out by the owner on 2026-09-26.
 
 **R2, iPhone:** HealthKit behind the `lib/healthConnect.ts` interface (L1); WidgetKit and Live Activity through @bacons/apple-targets (L3, B3); APNs for the relay; check notification actions (C1). Needs the $99 a year Apple developer account.
 
@@ -50,7 +50,7 @@ Possible on Android only, not recommended. Local-first is not the blocker (SMS g
 - **Live database:** A9 (major severity in interaction_rules), G23 (per-serving FODMAP thresholds, better in unified Phase 5). Crop family stays out of the DB (`lib/cropFamilies.ts`, I10).
 - **Money and licences:** A11 drug-drug data (NLM's free API retired January 2024), A15 pill identifier, D13 questionnaire licences beyond PHQ-9 and GAD-7, D15 audio content, I25 plant diagnosis, Z7 chain menus, the Apple developer account.
 - **Bends a standing rule:** Z2 scores, Z4 streaks and characters, Z12 store guides, Z1 Z3 C14 anything leaving the phone.
-- **Product:** C17 distinct things or repetitions (item 29), Z15 lifetime and hardship prices, the Free-tier line for a way in without a condition (item 28), G29 FHIR scope, O5 default SMS, servers Z5 Z6 Z9 Z10 Z11.
+- **Product:** C17 distinct things or repetitions (item 29), Z15 lifetime and hardship prices, the Free-tier line for a way in without a condition (item 28), G29 FHIR scope, servers Z5 Z6 Z9 Z10 Z11.
 
 ## Rules every item is built under
 
@@ -1087,7 +1087,7 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 ### O5. Inside Story as the default texting app
 - **Ships by:** Owner decision first · **Size:** XL · **Tabs:** Life
 - **Answers:** (your question) · **Theme:** Talking to people
-- **How:** Android only, Play policy likely refuses it, the person loses RCS, and it cannot exist on iPhone or desktop. Kept on the list; not recommended.
+- **How:** Android only, Play policy likely refuses it, the person loses RCS, and it cannot exist on iPhone or desktop. Ruled out by the owner on 2026-09-26; kept on the list only as the record of that decision. O1, O2, C11 and O3 are the route instead.
 
 ### Z1. Photo sent to a vision model for ingredients
 - **Ships by:** Explicit opt-in only · **Size:** L · **Tabs:** Food,Insights
