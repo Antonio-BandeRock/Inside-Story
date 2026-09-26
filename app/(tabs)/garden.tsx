@@ -14,6 +14,8 @@ import { MyItemsHub, type MyItemsCategory } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { CompostLens } from '../../components/CompostLens';
+import { CROP_GUIDE_HELP, CropGuideSection } from '../../components/CropGuideSection';
+import { findCropGuide } from '../../lib/cropGuides';
 import { GrowingConditionsLens } from '../../components/GrowingConditionsLens';
 import { GrowingCostsLens } from '../../components/GrowingCostsLens';
 import { AppTextInput } from '../../components/AppTextInput';
@@ -240,8 +242,9 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Horticulture',
-        body: 'Cited guidance on growing fresh food at home: the USDA Plant Hardiness Zone Map and what it does and does not tell you, crop guidance for each of four climate bands from cold and short-season through tropical, what a container can and cannot grow, and how a home garden fits with the pollinator and soil research in Earth Matters on the Life tab. Each subject is one band. Open it to see its entries, and open an entry to read it in place. My Zone, on this same menu, points at the band that matches your zone.',
+        body: 'How to grow each crop and how to read a plant’s leaves come first, then cited guidance on growing fresh food at home: the USDA Plant Hardiness Zone Map and what it does and does not tell you, crop guidance for each of four climate bands from cold and short-season through tropical, what a container can and cannot grow, and how a home garden fits with the pollinator and soil research in Earth Matters on the Life tab. Each subject is one band. Open it to see its entries, and open an entry to read it in place. My Zone, on this same menu, points at the band that matches your zone.',
       },
+      CROP_GUIDE_HELP,
       DIGEST_READING_HELP,
     ],
   },
@@ -338,6 +341,8 @@ export default function GardenScreen() {
   const [lens, setLens] = useState<GardenLens>('myZone');
   // An entry the Compost lens asked to read on Horticulture, 2026-09-20.
   const [readEntryId, setReadEntryId] = useState<string | undefined>(undefined);
+  // A crop guide a planting's How to grow link asked to open, 2026-09-26.
+  const [readCropKey, setReadCropKey] = useState<string | null>(null);
   const activeLensLabel = GARDEN_LENS_FULL_NAMES[lens];
   const [revealed, setRevealed] = useState(false);
   // Lifted out of MyItemsHub itself, 2026-08-16 -- same reasoning as Food's
@@ -426,7 +431,13 @@ export default function GardenScreen() {
           {lens === 'myZone' ? (
             <MyZoneLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'plotsAndPlantings' ? (
-            <PlotsAndPlantingsLens scrollBottomPadding={scrollBottomPadding} />
+            <PlotsAndPlantingsLens
+              scrollBottomPadding={scrollBottomPadding}
+              onHowToGrow={(cropKey) => {
+                setReadCropKey(cropKey);
+                setLens('horticulture');
+              }}
+            />
           ) : lens === 'daysUntil' ? (
             <DaysUntilLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'harvestLog' ? (
@@ -446,7 +457,7 @@ export default function GardenScreen() {
           ) : lens === 'growingCosts' ? (
             <GrowingCostsLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'horticulture' ? (
-            <HorticultureLens scrollBottomPadding={scrollBottomPadding} openEntryId={openEntryId ?? readEntryId} />
+            <HorticultureLens scrollBottomPadding={scrollBottomPadding} openEntryId={openEntryId ?? readEntryId} openCropKey={readCropKey} />
           ) : null}
         </GatedTabContent>
       </SwipeableTabScreen>
@@ -637,13 +648,30 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
 // lens keeps its own ScrollView like the four tracking lenses, and hands
 // the reading component the scroll so an entry opened from a link is
 // brought into view.
-function HorticultureLens({ scrollBottomPadding, openEntryId }: { scrollBottomPadding: number; openEntryId?: string }) {
+function HorticultureLens({
+  scrollBottomPadding,
+  openEntryId,
+  openCropKey,
+}: {
+  scrollBottomPadding: number;
+  openEntryId?: string;
+  openCropKey?: string | null;
+}) {
   const scrollRef = useRef<ScrollView>(null);
+  // The crop guides sit above the reading, so their anchors measure from
+  // the guide section and add where that section starts in the scroll.
+  const guidesTop = useRef(0);
   const scrollTo = useCallback((y: number) => {
     scrollRef.current?.scrollTo({ y, animated: true });
   }, []);
+  const scrollToGuide = useCallback((y: number) => {
+    scrollRef.current?.scrollTo({ y: guidesTop.current + y, animated: true });
+  }, []);
   return (
     <ScrollView ref={scrollRef} contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
+      <View onLayout={(event) => { guidesTop.current = event.nativeEvent.layout.y; }}>
+        <CropGuideSection tabColor={TAB_COLOR} openCropKey={openCropKey} scrollToY={scrollToGuide} />
+      </View>
       <DigestCategoryLens categoryKey="homeGardening" tabColor={TAB_COLOR} openEntryId={openEntryId} scrollToY={scrollTo} />
     </ScrollView>
   );
@@ -653,7 +681,14 @@ function HorticultureLens({ scrollBottomPadding, openEntryId }: { scrollBottomPa
 // Plots & Plantings
 // ---------------------------------------------------------------------------
 
-function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
+function PlotsAndPlantingsLens({
+  scrollBottomPadding,
+  onHowToGrow,
+}: {
+  scrollBottomPadding: number;
+  // Opens a planting's crop guide on Horticulture (components/CropGuideSection.tsx).
+  onHowToGrow?: (cropKey: string) => void;
+}) {
   // The outline on a button a Your Story walk line names (components/WalkMark.ts).
   const walkMark = useWalkMark();
   const [plots, setPlots] = useState<GardenPlot[]>([]);
@@ -966,6 +1001,7 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                   plantings.map((planting) => {
                     const harvests = plotFacts[plot.id]?.harvestsByPlanting[planting.id] ?? 0;
                     const plantingTitle = planting.varietyNote ? `${planting.foodName} (${planting.varietyNote})` : planting.foodName;
+                    const guide = findCropGuide(planting.foodName);
                     return (
                       <View key={planting.id}>
                       <View style={styles.plantingRow}>
@@ -986,6 +1022,11 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                           </TouchableOpacity>
                         ) : null}
                       </View>
+                      {guide && onHowToGrow ? (
+                        <TouchableOpacity onPress={() => onHowToGrow(guide.key)} style={styles.howToGrowLink}>
+                          <Text style={styles.linkText}>How to grow {guide.name.toLowerCase()}</Text>
+                        </TouchableOpacity>
+                      ) : null}
                       <RecordPhotos ownerKind="planting" ownerId={planting.id} tabColor={TAB_COLOR} title={plantingTitle}>
                         <PhotoSeriesBand ownerKind="planting" ownerId={planting.id} title={plantingTitle} tabColor={TAB_COLOR} />
                       </RecordPhotos>
@@ -1757,6 +1798,7 @@ const styles = StyleSheet.create({
   errorText: { color: colors.danger },
   secondaryButton: { borderWidth: 1, borderRadius: 8, paddingVertical: 10, alignItems: 'center' },
   secondaryButtonText: { fontWeight: '400' },
+  howToGrowLink: { alignSelf: 'flex-start', paddingVertical: 4 },
   linkText: { ...typography.body, color: colors.primary,
 
     ...textShadow,
