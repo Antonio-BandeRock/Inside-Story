@@ -61,11 +61,14 @@ import { upkeepCategoryLabel, upkeepStanding } from './upkeep';
 import { listBenefits } from './workDb';
 import { benefitStanding, formatBenefitAmount } from './workBenefits';
 import type { DatedReminderKind } from './reminderSchedule';
+import { listAllActiveTreatments } from './db';
+import { listSupplyReadings } from './medDetailsDb';
+import { describeRefillDue } from './medSupply';
 
 /** Where a tapped reminder lands, each a lens that already takes a deep
  *  link (openLifeLens in app/(tabs)/life.tsx, openGardenLens in
  *  app/(tabs)/garden.tsx). */
-export type DatedReminderLens = 'finances' | 'upkeep' | 'work' | 'daysUntil' | 'compost';
+export type DatedReminderLens = 'finances' | 'upkeep' | 'work' | 'daysUntil' | 'compost' | 'myMeds';
 /** A garden counter and a compost pile land on Garden when tapped;
  *  everything else on Life. */
 export type DatedReminderTab = 'life' | 'garden';
@@ -109,6 +112,7 @@ export async function listDatedReminderSources(today: string): Promise<DatedRemi
     listRunningCountdowns(),
     listCompostPilesToTurn(),
   ]);
+  const [activeTreatments, supplies] = await Promise.all([listAllActiveTreatments(), listSupplyReadings(today)]);
 
   const sources: DatedReminderSource[] = [];
 
@@ -229,6 +233,26 @@ export async function listDatedReminderSources(today: string): Promise<DatedRemi
       dueOn,
       tab: 'garden',
       lens: 'compost',
+    });
+  }
+
+  // A med running low (A3, Phase 2). Only a med still being tracked and
+  // counted, with a pace on the schedule or in its marks: a count with
+  // nothing to divide it by has no day to name, and a day guessed at would
+  // be worse than none. Saving a fresh count moves the day on. Not
+  // markable, since answering it takes the new count.
+  for (const treatment of activeTreatments) {
+    const reading = supplies.get(treatment.id);
+    if (!reading?.remindOn) continue;
+    sources.push({
+      kind: 'refill',
+      sourceId: treatment.id,
+      title: treatment.name,
+      detail: describeRefillDue(treatment.name, reading),
+      dueOn: reading.remindOn,
+      tab: 'life',
+      lens: 'myMeds',
+      markable: false,
     });
   }
 

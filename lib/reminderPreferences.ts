@@ -34,6 +34,7 @@ export type ReminderKindKey =
   | 'benefit'
   | 'countdown'
   | 'compost'
+  | 'refill'
   | 'photoSeries'
   | 'reminder';
 
@@ -75,6 +76,9 @@ export const ALL_REMINDER_KIND_KEYS: ReminderKindKey[] = [
   // it, and worked out from the pile rather than booked by hand, which is
   // what the Compost lens used to ask for.
   'compost',
+  // Phase 2 (A3). A med whose counted supply runs low, the lead the person
+  // picked before the day it runs out. Dated like the ones above it.
+  'refill',
   // 1.0.53.7. A Photo Series asking for today's photo, at the time it was
   // given, skipped on a day the photo is already in. Timed like a routine,
   // but a record of something, so it sits after the dated kinds.
@@ -101,6 +105,7 @@ export const REMINDER_KIND_LABELS: Record<ReminderKindKey, string> = {
   benefit: 'Work benefits',
   countdown: 'Days Until counters',
   compost: 'Turning the compost',
+  refill: 'Running low on a med',
   photoSeries: 'Photo series',
   reminder: 'Things you noted down',
 };
@@ -128,6 +133,8 @@ export const REMINDER_KIND_CAPTIONS: Record<ReminderKindKey, string> = {
     'A Days Until counter, in the Garden or about anything else, on the day it lands. Marking it done or removing it clears the reminder.',
   compost:
     'A compost pile due a turn, on the day and then every few days until you record one. Only piles still being added to.',
+  refill:
+    'A med or supplement on Life > My Meds whose counted supply is running low, a week ahead unless you picked another lead, then every few days until you save a fresh count.',
   photoSeries:
     "A Photo Series asking for today's photo, at the time set on the series. Tapping it opens the camera with the last photo faintly over the view. Skipped on a day the photo is already in.",
   reminder:
@@ -173,6 +180,9 @@ const DEFAULT_REMINDER_KIND_ENABLED: Record<ReminderKindKey, boolean> = {
   // adding to it, and a pile left unturned is the single thing most likely
   // to go wrong with it.
   compost: true,
+  // On. Only a med somebody counted has a day at all, and running out of a
+  // prescription is the one thing on this list that can hurt.
+  refill: true,
   // On. A series exists only because somebody started one to take a photo
   // a day, and the reminder can be switched off on the series itself.
   photoSeries: true,

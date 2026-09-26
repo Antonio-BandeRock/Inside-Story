@@ -310,7 +310,7 @@ export type DoseInputs = {
   doses: { scheduledFor: string; title: string; status: string }[];
 };
 
-type DoseMark = 'taken' | 'skipped' | 'unmarked';
+export type DoseMark = 'taken' | 'skipped' | 'unmarked';
 
 function doseMark(status: string): DoseMark {
   if (status === 'logged' || status === 'partial' || status === 'replaced') return 'taken';
@@ -326,6 +326,33 @@ function describeMarks(marks: DoseMark[]): string {
     counts.get('unmarked') ? `${counts.get('unmarked')} unmarked` : null,
   ].filter(Boolean);
   return parts.join(', ') || 'none';
+}
+
+/** A12: the same marks counted by day rather than by dose, since a day
+ *  with two of its three doses marked reads differently from a day with
+ *  none. A count of days and nothing more: no share, no verdict. */
+export function describeDoseDays(doses: { date: string; mark: DoseMark }[]): string {
+  const byDay = new Map<string, DoseMark[]>();
+  for (const dose of doses) byDay.set(dose.date, [...(byDay.get(dose.date) ?? []), dose.mark]);
+  if (byDay.size === 0) return 'No doses were due.';
+  let all = 0;
+  let some = 0;
+  let skipped = 0;
+  let none = 0;
+  for (const marks of byDay.values()) {
+    const taken = marks.filter((m) => m === 'taken').length;
+    if (taken === marks.length) all += 1;
+    else if (taken > 0) some += 1;
+    else if (marks.every((m) => m === 'skipped')) skipped += 1;
+    else none += 1;
+  }
+  const parts = [
+    all ? `every dose marked taken on ${plural(all, 'day')}` : null,
+    some ? `some marked taken on ${plural(some, 'day')}` : null,
+    skipped ? `marked skipped on ${plural(skipped, 'day')}` : null,
+    none ? `nothing marked taken on ${plural(none, 'day')}` : null,
+  ].filter(Boolean);
+  return `Due on ${plural(byDay.size, 'day')}: ${parts.join(', ')}.`;
 }
 
 export function buildDosesView(input: DoseInputs): ReadingView {
@@ -351,7 +378,13 @@ export function buildDosesView(input: DoseInputs): ReadingView {
       title: 'By week',
       icon: 'calendar-outline',
       count: doses.length,
-      lines: withGapNote([`${plural(doses.length, 'scheduled dose')} up to today: ${describeMarks(doses.map((d) => d.mark))}. The bar is how many were marked taken.`], rows),
+      lines: withGapNote(
+        [
+          `${plural(doses.length, 'scheduled dose')} up to today: ${describeMarks(doses.map((d) => d.mark))}. The bar is how many were marked taken.`,
+          describeDoseDays(doses),
+        ],
+        rows,
+      ),
       rows,
     },
   ];
@@ -376,8 +409,8 @@ export function buildDosesView(input: DoseInputs): ReadingView {
     rows: parts,
   });
 
-  const byTitle = new Map<string, DoseMark[]>();
-  for (const dose of doses) byTitle.set(dose.title, [...(byTitle.get(dose.title) ?? []), dose.mark]);
+  const byTitle = new Map<string, { date: string; mark: DoseMark }[]>();
+  for (const dose of doses) byTitle.set(dose.title, [...(byTitle.get(dose.title) ?? []), { date: dose.date, mark: dose.mark }]);
   bands.push({
     id: 'byItem',
     title: 'By med or supplement',
@@ -386,7 +419,11 @@ export function buildDosesView(input: DoseInputs): ReadingView {
     lines: [],
     items: [...byTitle.entries()]
       .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([title, marks]) => ({ key: title, title, caption: describeMarks(marks) })),
+      .map(([title, marks]) => ({
+        key: title,
+        title,
+        caption: `${describeMarks(marks.map((m) => m.mark))}. ${describeDoseDays(marks)}`,
+      })),
     notes: [
       'These are marks on the schedule and nothing more. They say nothing about whether a dose is right; anything about the dose itself is for your prescriber.',
     ],

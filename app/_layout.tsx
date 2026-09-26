@@ -25,6 +25,7 @@ import { colors } from '../constants/colors';
 import { useHomeDataReady } from '../hooks/useHomeDataReady';
 import { getReferenceDatabase, initializeDatabase, settlePastScheduledMeals } from '../lib/db';
 import { handleIncomingIsFile } from '../lib/isFileLinking';
+import { refreshLockScreenNotice } from '../lib/emergencyLockScreen';
 import { listenForReminderTaps, syncReminderNotifications } from '../lib/reminderNotifications';
 
 // Kept visible until the header's own branding font finishes loading (see
@@ -147,11 +148,15 @@ export default function RootLayout() {
   useEffect(() => {
     if (!dbReady) return;
     void syncReminderNotifications();
+    // The emergency lines on the lock screen (A19) go back up after a phone
+    // restart took them down, and pick up anything changed on the record.
+    void refreshLockScreenNotice();
     const subscription = AppState.addEventListener('change', (state) => {
       // On leaving too (C1, 2026-09-26): a meal logged just before the app
       // goes to the background is what the after-meal question is about,
       // and waiting for the next time the app opens would miss it.
       if (state === 'active' || state === 'background') void syncReminderNotifications();
+      if (state === 'active') void refreshLockScreenNotice();
     });
     return () => subscription.remove();
   }, [dbReady]);

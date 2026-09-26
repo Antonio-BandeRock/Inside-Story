@@ -240,6 +240,10 @@ export const CHECK_QUIET_MS = 15 * 1000;
 //                        reason to fold it shut on the computer, and
 //                        while it travelled, every tap on either device
 //                        had the other one merge and reload its window.
+//   emergency_lock_screen Whether this phone shows the emergency lines on
+//                        its lock screen, and which. Turning it on for the
+//                        phone in a pocket is no reason to show it on a
+//                        tablet left on a table (A19).
 //
 // Kept out of the snapshot as it is built, and put back after a load,
 // both: the first stops this device's bookkeeping being published to the
@@ -262,6 +266,7 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'backup_last_check',
   'backup_last_saved',
   'peer_photos_wifi_only',
+  'emergency_lock_screen',
   CHANGE_BASELINE_META_KEY,
 ];
 

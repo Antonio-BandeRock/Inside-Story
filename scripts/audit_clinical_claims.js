@@ -76,6 +76,8 @@ const NAMED = [
   'lib/photoSeries.ts',
   'lib/peerPhotos.ts',
   'lib/reportPhotos.ts',
+  'lib/medSupply.ts',
+  'lib/emergencyOutside.ts',
 ];
 
 function targets() {

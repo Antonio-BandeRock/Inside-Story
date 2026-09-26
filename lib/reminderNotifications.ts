@@ -685,7 +685,7 @@ async function ensureAndroidChannels(): Promise<void> {
 }
 
 function channelFor(kind: ReminderKind): string {
-  if (kind === 'bill' || kind === 'upkeep' || kind === 'benefit' || kind === 'countdown' || kind === 'compost') {
+  if (kind === 'bill' || kind === 'upkeep' || kind === 'benefit' || kind === 'countdown' || kind === 'compost' || kind === 'refill') {
     return ANDROID_DATED_CHANNEL_ID;
   }
   if (
@@ -977,7 +977,7 @@ const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'todaysMeals', 
 // The dated lenses that live on Life. 'compost' is a dated lens too and is
 // deliberately not here: it is on Garden, and this list is the fallback for
 // the Life branch below.
-const DATED_LENSES: DatedReminderLens[] = ['finances', 'upkeep', 'work', 'daysUntil'];
+const DATED_LENSES: DatedReminderLens[] = ['finances', 'upkeep', 'work', 'daysUntil', 'myMeds'];
 
 // Where a tapped reminder should land: the lens the thing lives in. Null for
 // any notification this module did not create.

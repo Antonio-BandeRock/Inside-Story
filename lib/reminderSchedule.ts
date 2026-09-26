@@ -36,7 +36,12 @@ export const REMINDER_HOUR = 9;
 // out the day a pile is next due a turn from when it was last turned, and
 // until now that day existed only on the Compost lens, where somebody had
 // to go and look at it.
-export type DatedReminderKind = 'bill' | 'upkeep' | 'benefit' | 'countdown' | 'compost';
+// A sixth joined in Phase 2 (A3): a med whose counted supply is running
+// low. The day is worked out from the count, the doses marked taken since
+// and the pace on the schedule (lib/medSupply.ts), less the lead the person
+// picked, so it is already the day to ask for more and carries no lead of
+// its own here.
+export type DatedReminderKind = 'bill' | 'upkeep' | 'benefit' | 'countdown' | 'compost' | 'refill';
 
 export const ALL_DATED_REMINDER_KINDS: DatedReminderKind[] = [
   'bill',
@@ -44,6 +49,7 @@ export const ALL_DATED_REMINDER_KINDS: DatedReminderKind[] = [
   'benefit',
   'countdown',
   'compost',
+  'refill',
 ];
 
 /**
@@ -77,6 +83,7 @@ export const LEAD_DAYS: Record<DatedReminderKind, number[]> = {
   benefit: [30, 7],
   countdown: [0],
   compost: [0],
+  refill: [0],
 };
 
 /**
@@ -98,7 +105,9 @@ export const LEAD_DAYS: Record<DatedReminderKind, number[]> = {
  * counting on screen so the person can see how far past the mark the plant
  * is running, and that is a thing to look at, not a thing left undone.
  */
-export const NUDGES_WHILE_OVERDUE: DatedReminderKind[] = ['upkeep', 'compost'];
+// A refill nudges too: saving a fresh count after picking up more moves its
+// day on, which is the doing it waits for.
+export const NUDGES_WHILE_OVERDUE: DatedReminderKind[] = ['upkeep', 'compost', 'refill'];
 
 /** An overdue nudge gives up after two weeks. Something ignored for a
  *  fortnight is a decision, not a thing that was forgotten, and a daily
@@ -261,6 +270,7 @@ export const DATED_KIND_PREFIX: Record<DatedReminderKind, string | null> = {
   benefit: 'Work benefit',
   countdown: 'Days Until',
   compost: 'Compost',
+  refill: 'Refill',
 };
 
 /**
@@ -277,5 +287,6 @@ export function describeDatedDue(kind: DatedReminderKind, lead: number): string 
   // late: nothing is spoiled by a turn that happens on the eighteenth day
   // instead of the fourteenth.
   if (kind === 'compost') return lead < 0 ? `Ready to turn ${when}` : `Turn it ${when}`;
+  if (kind === 'refill') return lead < 0 ? `Ask for more, the day was ${when}` : `Ask for more ${when}`;
   return lead < 0 ? `Was due ${when}` : `Due ${when}`;
 }

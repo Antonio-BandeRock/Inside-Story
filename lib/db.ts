@@ -8039,6 +8039,28 @@ async function runDatabaseInitialization() {
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       );
+
+      -- A3 and A6, Phase 2: what is on hand of a med and who fills and
+      -- prescribes it. One row per treatment, kept apart from treatments so
+      -- the three list functions and their forms stay as they are. What is
+      -- left is never stored: it is worked out from the count and the doses
+      -- marked taken since, so un-marking a dose puts it back (lib/medSupply.ts).
+      -- supply_counted_at is the local "YYYY-MM-DDTHH:mm" the count was saved,
+      -- the same shape as schedule_items.scheduled_for so the two compare.
+      CREATE TABLE IF NOT EXISTS treatment_details (
+        treatment_id TEXT PRIMARY KEY,
+        supply_on_hand REAL,
+        supply_unit TEXT,
+        supply_per_dose REAL NOT NULL DEFAULT 1,
+        supply_counted_at TEXT,
+        refill_lead_days INTEGER NOT NULL DEFAULT 7,
+        pharmacy_name TEXT,
+        pharmacy_phone TEXT,
+        prescriber_name TEXT,
+        prescriber_phone TEXT,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (treatment_id) REFERENCES treatments(id) ON DELETE CASCADE
+      );
     `);
 
     // Finances' due-rule column, 2026-09-05. finance_recurring shipped in
@@ -18606,7 +18628,9 @@ export async function updateSupplementTreatment(
 // way.
 export async function deleteTreatment(treatmentId: string) {
   const db = await getDatabase();
+  await db.runAsync('DELETE FROM treatment_details WHERE treatment_id = ?', treatmentId);
   await db.runAsync('DELETE FROM treatments WHERE id = ?', treatmentId);
+  await (await import('./mediaDb')).removePhotosOf('treatment', treatmentId);
 }
 
 // Prescriptions share the same treatments table as supplements

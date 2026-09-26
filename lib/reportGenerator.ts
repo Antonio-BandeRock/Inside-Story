@@ -40,6 +40,7 @@ import { getCostSummary } from './costOfEatingDb';
 import { getHarvestYieldSummary } from './harvestYieldDb';
 import { reportPhotoTextLine } from './reportPhotos';
 import { plantingPhotoSection, symptomPhotoSection } from './reportPhotosDb';
+import { evaluateInteractionRules } from './interactionRules';
 
 // Same real, small nutrient set app/(tabs)/index.tsx (Home) and
 // app/(tabs)/trends.tsx both already use, duplicated here rather than
@@ -462,6 +463,33 @@ async function readingSections(heading: string, read: () => Promise<ReadingView>
   }
 }
 
+// A13: the interaction rules that touch this person's active meds, each
+// with how it works where that has been written, so a prescriber reading
+// the report sees the reasoning and the source rather than a bare caution.
+async function interactionSection(): Promise<ReportSection[]> {
+  try {
+    const evaluation = await evaluateInteractionRules(isoDate(new Date()));
+    const rows = [
+      ...evaluation.warnings.map((w) => [w.title, w.message, w.mechanism ?? '', w.citation]),
+      ...evaluation.referenceOnly.map((r) => [r.title, r.guidance, r.mechanism ?? '', r.citation]),
+    ];
+    return [
+      {
+        kind: 'table',
+        heading: 'Interaction notes for these meds',
+        note:
+          'Timing and combination notes from the cited rules in this app, for the meds and supplements marked active. ' +
+          'How it works is left blank where that has not been written up. These are not a drug to drug check.',
+        columns: ['Note', 'What it says', 'How it works', 'Source'],
+        rows,
+        empty: 'None of the rules in this app touch the meds marked active.',
+      },
+    ];
+  } catch {
+    return [{ kind: 'list', heading: 'Interaction notes for these meds', rows: [], empty: 'Could not be read for this report.' }];
+  }
+}
+
 function trends(lens: TrendsMoreLens, heading: string, days: number): Promise<ReportSection[]> {
   return readingSections(heading, () => loadTrendsMoreView(lens, days));
 }
@@ -482,6 +510,7 @@ async function kindSections(kind: ReportKind, days: number): Promise<ReportSecti
         insights('i-appointment', 'Appointments'),
         trends('bloodPressure', 'Blood pressure', days),
         trends('doses', 'Doses', days),
+        interactionSection(),
         symptomPhotoSection(start, end).then((section) => [section]),
       );
       break;

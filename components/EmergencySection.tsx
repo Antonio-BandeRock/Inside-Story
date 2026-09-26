@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, Platform, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
@@ -32,6 +32,22 @@ import {
   upsertEmergencyContact,
 } from '../lib/emergencyDb';
 import { useWalkMark } from './WalkMark';
+import {
+  LOCK_SCREEN_PARTS,
+  LOCK_SCREEN_WARNING,
+  buildWalletCardHtml,
+  medicalIdEntries,
+  medicalIdWhere,
+  type LockScreenPart,
+} from '../lib/emergencyOutside';
+import {
+  askLockScreenPermission,
+  getLockScreenParts,
+  lockScreenSupported,
+  refreshLockScreenNotice,
+  setLockScreenParts,
+} from '../lib/emergencyLockScreen';
+import { exportHtmlAsPdf } from '../lib/reportPdf';
 
 // Emergency & Essentials: what someone else needs to know when you cannot tell
 // them. Life's fifth area, 2026-09-05.
@@ -125,6 +141,9 @@ export function EmergencySection({ tabColor }: Props) {
   const [editing, setEditing] = useState<Partial<EmergencyProfile> | null>(null);
   const [contactForm, setContactForm] = useState<ContactForm | null>(null);
   const [showCard, setShowCard] = useState(false);
+  const [lockParts, setLockParts] = useState<LockScreenPart[]>([]);
+  const [lockPicking, setLockPicking] = useState<LockScreenPart[] | null>(null);
+  const [printing, setPrinting] = useState(false);
   const [confirm, setConfirm] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
@@ -133,11 +152,14 @@ export function EmergencySection({ tabColor }: Props) {
 
   const load = useCallback(() => {
     setLoading(true);
-    Promise.all([getEmergencyProfile(), listEmergencyContacts(), gatherFromApp()])
-      .then(([p, c, a]) => {
+    Promise.all([getEmergencyProfile(), listEmergencyContacts(), gatherFromApp(), getLockScreenParts()])
+      .then(([p, c, a, parts]) => {
         setProfile(p);
         setContacts(c);
         setFromApp(a);
+        setLockParts(parts);
+        // Whatever was just saved reaches the lock screen too (A19).
+        if (parts.length > 0) void refreshLockScreenNotice();
       })
       .catch((error) => showInfoAlert('Could not load', error instanceof Error ? error.message : String(error)))
       .finally(() => setLoading(false));
@@ -165,6 +187,46 @@ export function EmergencySection({ tabColor }: Props) {
         : '',
     [profile, fromApp, contacts],
   );
+
+  const medicalId = useMemo(
+    () => (profile && fromApp ? medicalIdEntries({ profile, fromApp, contacts, today: todayLocal() }) : []),
+    [profile, fromApp, contacts],
+  );
+
+  function openPhoneSettings() {
+    const fallback = () => Linking.openSettings().catch(() => undefined);
+    if (Platform.OS === 'android') {
+      Linking.sendIntent('android.settings.SETTINGS').catch(fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  async function printWalletCard() {
+    if (!profile || !fromApp) return;
+    setPrinting(true);
+    try {
+      const html = buildWalletCardHtml({ profile, fromApp, contacts, today: todayLocal() });
+      const result = await exportHtmlAsPdf(html, `inside-story-emergency-card-${todayLocal()}`, 'Share the wallet card');
+      if (result.status === 'failed') showInfoAlert('Could not make the card', result.message);
+      else if (result.status === 'savedOnly') showInfoAlert('Card made', 'This device has nothing to share it with, so it was kept in the app.');
+    } finally {
+      setPrinting(false);
+    }
+  }
+
+  async function saveLockScreen(parts: LockScreenPart[]) {
+    if (parts.length > 0 && !(await askLockScreenPermission())) {
+      showInfoAlert(
+        'Notifications are off',
+        "The lines go on the lock screen as a notification, and this phone has notifications from Inside Story turned off. Turn them on in the phone's settings and try again.",
+      );
+      return;
+    }
+    await setLockScreenParts(parts);
+    setLockParts(parts);
+    setLockPicking(null);
+  }
 
   async function saveProfile() {
     if (!editing) return;
@@ -478,6 +540,106 @@ export function EmergencySection({ tabColor }: Props) {
           your phone is locked and you are not able to unlock it.
         </Text>
       </TabBand>
+
+      <TabBand folds={folds} color={tabColor} id="life:emergency:medical-id" title="Your phone's Medical ID" icon="medkit-outline">
+        <Text style={styles.helperText}>
+          Your phone has a screen for this that anyone can open from the lock screen, and this app
+          cannot fill it in for you. Here is what goes in each of its fields, laid out under the
+          names the phone uses. Press and hold a line to copy it, then paste it across.
+        </Text>
+        <Text style={styles.helperText}>
+          {medicalIdWhere(Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : 'other')}
+        </Text>
+        {medicalId.length === 0 ? (
+          <Text style={styles.helperText}>Nothing to copy yet. Fill in the bands above first.</Text>
+        ) : (
+          medicalId.map((entry) => (
+            <View key={entry.field} style={styles.row}>
+              <View style={styles.rowMain}>
+                <Text style={styles.rowTitle}>{entry.field}</Text>
+                <Text style={styles.rowMeta} selectable>{entry.value}</Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => Share.share({ message: entry.value }).catch(() => undefined)}
+                accessibilityLabel={`Share the ${entry.field} line`}
+              >
+                <Text style={styles.actionText}>Share</Text>
+              </TouchableOpacity>
+            </View>
+          ))
+        )}
+        {Platform.OS !== 'web' ? (
+          <View style={styles.rowActions}>
+            <TouchableOpacity onPress={openPhoneSettings}>
+              <Text style={styles.actionText}>Open the phone&apos;s settings</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+      </TabBand>
+
+      <TabBand folds={folds} color={tabColor} id="life:emergency:wallet-card" title="A card for your wallet" icon="medkit-outline">
+        <Text style={styles.helperText}>
+          The same card, printed at the width of a bank card with a front and a back, to cut out and
+          fold. Drug allergies and who to call go on the front. A long list makes the card longer
+          rather than leaving anything off, and the date it was confirmed is printed on it.
+        </Text>
+        <TouchableOpacity style={styles.primaryButton} onPress={printWalletCard} disabled={printing}>
+          <Text style={styles.primaryButtonText}>{printing ? 'Making the card…' : 'Make the wallet card'}</Text>
+        </TouchableOpacity>
+      </TabBand>
+
+      {lockScreenSupported() ? (
+        <TabBand folds={folds} color={tabColor} id="life:emergency:lock-screen" title="On the lock screen" icon="medkit-outline">
+          <Text style={styles.helperText}>
+            {lockParts.length > 0
+              ? `Showing on this phone's lock screen: ${LOCK_SCREEN_PARTS.filter((p) => lockParts.includes(p.key)).map((p) => p.label.toLowerCase()).join(', ')}.`
+              : "Off. Turned on, the lines you pick sit on this phone's lock screen as a notification that cannot be swiped away."}
+          </Text>
+          <Text style={styles.helperText}>{LOCK_SCREEN_WARNING}</Text>
+          {lockPicking ? (
+            <View>
+              {LOCK_SCREEN_PARTS.map((part) => {
+                const on = lockPicking.includes(part.key);
+                return (
+                  <TouchableOpacity
+                    key={part.key}
+                    style={styles.checkRow}
+                    onPress={() =>
+                      setLockPicking(on ? lockPicking.filter((k) => k !== part.key) : [...lockPicking, part.key])
+                    }
+                  >
+                    <View style={[styles.checkBox, on ? styles.checkBoxOn : null]}>
+                      {on ? <Text style={styles.checkMark}>✓</Text> : null}
+                    </View>
+                    <Text style={styles.checkLabel}>{part.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+              <View style={styles.rowActions}>
+                <TouchableOpacity style={styles.secondaryButton} onPress={() => setLockPicking(null)}>
+                  <Text style={styles.secondaryButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.primaryButton} onPress={() => saveLockScreen(lockPicking)}>
+                  <Text style={styles.primaryButtonText}>
+                    {lockPicking.length > 0 ? 'Show these on the lock screen' : 'Turn it off'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.rowActions}>
+              <TouchableOpacity onPress={() => setLockPicking([...lockParts])}>
+                <Text style={styles.actionText}>{lockParts.length > 0 ? 'Change what shows' : 'Choose what shows'}</Text>
+              </TouchableOpacity>
+              {lockParts.length > 0 ? (
+                <TouchableOpacity onPress={() => saveLockScreen([])}>
+                  <Text style={styles.actionText}>Turn it off</Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          )}
+        </TabBand>
+      ) : null}
 
       <TabBand folds={folds} color={tabColor} id="life:emergency:why-the-order-is-what-it-is" title="Why the order is what it is" icon="medkit-outline">
         {ESSENTIALS_IN_ORDER.map((entry, index) => (

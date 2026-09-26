@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from './AppTextInput';
 import { VoiceInputButton } from './VoiceInputButton';
 import { useConfirmSheet } from './ConfirmSheet';
@@ -11,6 +11,7 @@ import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeS
 import { TabBand } from './TabBand';
 import { PopoverSelect } from './PopoverSelect';
 import { WhyExplainer } from './WhyExplainer';
+import { MedDetailsPanel } from './MedDetailsPanel';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { useBandFolds } from '../hooks/useBandFolds';
@@ -40,6 +41,8 @@ import {
   type TreatmentRecord,
 } from '../lib/db';
 import { evaluateInteractionRules, type InteractionWarning, type ReferenceOnlyRule } from '../lib/interactionRules';
+import { listSupplyReadings, listTreatmentDetails, type TreatmentDetails } from '../lib/medDetailsDb';
+import type { SupplyReading } from '../lib/medSupply';
 import type { NutrientGapEntry } from '../lib/nutrientAnalysis';
 import { useWalkMark } from '../components/WalkMark';
 
@@ -175,6 +178,8 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
   const [ingredientsByTreatment, setIngredientsByTreatment] = useState<Record<string, TreatmentNutrientRecord[]>>({});
   const [interactionWarnings, setInteractionWarnings] = useState<InteractionWarning[]>([]);
   const [referenceOnlyRules, setReferenceOnlyRules] = useState<ReferenceOnlyRule[]>([]);
+  const [detailsByTreatment, setDetailsByTreatment] = useState<Map<string, TreatmentDetails>>(new Map());
+  const [supplyByTreatment, setSupplyByTreatment] = useState<Map<string, SupplyReading>>(new Map());
   const [nutrients, setNutrients] = useState<TrackedNutrient[]>([]);
   const [commonMedications, setCommonMedications] = useState<CommonMedication[]>([]);
   const [foodEntries, setFoodEntries] = useState<NutrientGapEntry[]>([]);
@@ -204,10 +209,14 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
           listCommonMedications(),
           getDailyNutrientAnalysis(todayDateString()),
           evaluateInteractionRules(todayDateString()),
+          listTreatmentDetails(),
+          listSupplyReadings(),
         ]),
       )
-      .then(async ([loadedTreatments, loadedNutrients, loadedMeds, dailyAnalysis, evaluation]) => {
+      .then(async ([loadedTreatments, loadedNutrients, loadedMeds, dailyAnalysis, evaluation, details, supply]) => {
         setTreatments(loadedTreatments);
+        setDetailsByTreatment(details);
+        setSupplyByTreatment(supply);
         if (focusTreatmentId && loadedTreatments.some((treatment) => treatment.id === focusTreatmentId)) {
           setExpandedId(focusTreatmentId);
         }
@@ -340,6 +349,35 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
     }));
   }
 
+  // A8: adding a med says at once what the interaction rules now have to
+  // say about it, rather than leaving it to be noticed in the bands below.
+  // Rules already showing before the save are not repeated.
+  async function knownRuleIds(): Promise<Set<string>> {
+    try {
+      const evaluation = await evaluateInteractionRules(todayDateString());
+      return new Set([...evaluation.warnings.map((w) => w.ruleId), ...evaluation.referenceOnly.map((r) => r.ruleId)]);
+    } catch {
+      return new Set();
+    }
+  }
+
+  async function announceNewRules(before: Set<string>, name: string) {
+    try {
+      const evaluation = await evaluateInteractionRules(todayDateString());
+      const lines = [
+        ...evaluation.warnings.filter((w) => !before.has(w.ruleId)).map((w) => `${w.title}: ${w.message}`),
+        ...evaluation.referenceOnly.filter((r) => !before.has(r.ruleId)).map((r) => `${r.title}: ${r.guidance}`),
+      ];
+      if (lines.length === 0) return;
+      showInfoAlert(
+        `Worth knowing about ${name.trim()}`,
+        `${lines.join('\n\n')}\n\nThese are timing and combination notes from the rules in this app. Your prescriber and pharmacist know your whole picture; ask them before changing how you take anything.`,
+      );
+    } catch {
+      // The bands below still show every rule on the next load.
+    }
+  }
+
   async function handleSaveSupplement() {
     if (!supplementForm.name.trim()) {
       showInfoAlert('Almost there', "Enter the supplement's name.");
@@ -367,6 +405,7 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
       unit: row.unit,
     }));
 
+    const before = supplementForm.editingId ? null : await knownRuleIds();
     try {
       if (supplementForm.editingId) {
         await updateSupplementTreatment(supplementForm.editingId, {
@@ -387,6 +426,7 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
       }
       closeAddForm();
       load();
+      if (before) announceNewRules(before, supplementForm.name);
     } catch (error) {
       showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
     }
@@ -416,6 +456,7 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
       frequency: medForm.frequency || undefined,
       notes: medForm.notes || undefined,
     };
+    const before = medForm.editingId ? null : await knownRuleIds();
     try {
       if (medForm.editingId) {
         if (medForm.category === 'prescription') {
@@ -430,6 +471,7 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
       }
       closeAddForm();
       load();
+      if (before) announceNewRules(before, medForm.name);
     } catch (error) {
       showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
     }
@@ -536,6 +578,9 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
                         .join(', ') || 'No dose details entered'}
                   {treatment.active ? '' : ' · Not tracking'}
                 </Text>
+                {supplyByTreatment.get(treatment.id)?.short ? (
+                  <Text style={styles.rowMeta}>{supplyByTreatment.get(treatment.id)?.short}</Text>
+                ) : null}
                 {ingredients.length > 0 ? (
                   <Text style={styles.rowMeta}>
                     {ingredients
@@ -611,6 +656,15 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
                           Not matched to this app&apos;s researched medication list; entered manually.
                         </Text>
                       )}
+                  <MedDetailsPanel
+                    treatmentId={treatment.id}
+                    treatmentName={treatment.name}
+                    details={detailsByTreatment.get(treatment.id)}
+                    reading={supplyByTreatment.get(treatment.id)}
+                    tabColor={tabColor}
+                    onSaved={load}
+                    onProblem={showInfoAlert}
+                  />
                 </View>
               ) : null}
             </View>
@@ -944,6 +998,33 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
             </TabBand>
           ) : null}
 
+          {treatments.some((treatment) => treatment.treatmentType !== 'supplement') ? (
+            <TabBand
+              folds={folds}
+              color={tabColor}
+              id="life:myMeds:drug-checker"
+              title="Drug to drug checks"
+              icon="git-compare-outline"
+            >
+            <View style={styles.table}>
+              <Text style={styles.interactionMessage}>
+                The rules in this app cover timing between meds, supplements and food, and only the pairs written
+                into them. A public checker covers far more drug pairs; you type the names in there yourself, and nothing from
+                this app is sent.
+              </Text>
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={() => Linking.openURL('https://www.drugs.com/drug_interactions.html').catch(() => undefined)}
+              >
+                <Text style={styles.secondaryButtonText}>Open the Drugs.com interaction checker</Text>
+              </TouchableOpacity>
+              <Text style={styles.interactionCitation}>
+                Your pharmacist can run the same check against everything they fill for you.
+              </Text>
+            </View>
+            </TabBand>
+          ) : null}
+
           {treatments.length === 0 ? (
             <View style={styles.bandBox}><Text style={styles.emptyText}>Nothing here yet. Add a prescription, OTC drug, or supplement above, then tap Schedule it to set its times in Schedules.</Text></View>
           ) : (
@@ -1043,7 +1124,7 @@ function makeStyles(tabColor: string) {
 
       textShadowColor: 'transparent',
 
-      textShadowRadius: 0,
+      textShadowRadius: 0,
     },
     row: {
       borderRadius: 10,

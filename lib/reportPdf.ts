@@ -27,14 +27,20 @@ function fileStamp(doc: ReportDocument): string {
 }
 
 export async function exportReportAsPdf(doc: ReportDocument): Promise<ReportPdfResult> {
+  return exportHtmlAsPdf(renderReportHtml(doc), fileStamp(doc), 'Share report');
+}
+
+/** Any page of HTML to a PDF under a readable name, handed to the share
+ *  sheet. The report uses it, and so does the emergency wallet card (A18). */
+export async function exportHtmlAsPdf(html: string, fileBase: string, dialogTitle: string): Promise<ReportPdfResult> {
   let uri: string;
   try {
     const Print = await import('expo-print');
-    const printed = await Print.printToFileAsync({ html: renderReportHtml(doc), base64: false });
+    const printed = await Print.printToFileAsync({ html, base64: false });
     uri = printed.uri;
   } catch (error) {
-    console.error('[reportPdf] Failed to render the report to a PDF', error);
-    return { status: 'failed', message: 'The PDF could not be put together on this phone.' };
+    console.error('[reportPdf] Failed to render the page to a PDF', error);
+    return { status: 'failed', message: 'The PDF could not be put together on this device.' };
   }
 
   // expo-print names the file with a random id. Move it under a readable
@@ -44,7 +50,7 @@ export async function exportReportAsPdf(doc: ReportDocument): Promise<ReportPdfR
     const { Directory, File, Paths } = await import('expo-file-system');
     const dir = new Directory(Paths.cache, 'reports');
     if (!dir.exists) dir.create({ intermediates: true });
-    const target = new File(dir, `${fileStamp(doc)}.pdf`);
+    const target = new File(dir, `${fileBase}.pdf`);
     if (target.exists) target.delete();
     new File(uri).move(target);
     uri = target.uri;
@@ -57,7 +63,7 @@ export async function exportReportAsPdf(doc: ReportDocument): Promise<ReportPdfR
   const shared = await shareFileIfAvailable(uri, {
     mimeType: 'application/pdf',
     UTI: 'com.adobe.pdf',
-    dialogTitle: 'Share report',
+    dialogTitle,
   });
   return shared ? { status: 'shared', uri } : { status: 'savedOnly', uri };
 }
