@@ -212,6 +212,9 @@ export type RoutineStep = {
   /** The check this step also answers, when it is one worth being able to
    *  look up later. Null for a step that is only ever part of the walk. */
   checkId: string | null;
+  /** How long it takes, when somebody knows (B4). Null for a step nobody
+   *  has timed, which counts for nothing in a total rather than a guess. */
+  minutes: number | null;
 };
 
 export type Routine = {
@@ -230,6 +233,8 @@ export type Routine = {
   /** Which days it speaks on, 0 for Sunday. Empty means every day. */
   reminderDays: number[];
   reminderOn: boolean;
+  /** Read each step aloud while it is walked (B6). */
+  speakSteps: boolean;
   steps: RoutineStep[];
 };
 

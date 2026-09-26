@@ -21,6 +21,7 @@ import { DayTimeline } from '../../components/DayTimeline';
 import { DaysUntilSection } from '../../components/DaysUntilSection';
 import { DailyScalesPicker } from '../../components/DailyScalesPicker';
 import { DayArc } from '../../components/DayArc';
+import { HealthConnectFilledIn } from '../../components/HealthConnectFilledIn';
 import { EDGE_SHADOW_HEIGHT, EdgeShadow } from '../../components/EdgeShadow';
 import { EnergyOrb } from '../../components/EnergyOrb';
 import { FlipCard } from '../../components/FlipCard';
@@ -2474,6 +2475,7 @@ export default function HomeScreen() {
             <Text style={[styles.feelingStartButtonText, { color: tabColorFor('/log') }]}>Log how you feel today</Text>
           </TouchableOpacity>
         )}
+        {feelingPickerOpen ? null : <HealthConnectFilledIn />}
       </>,
     );
   }

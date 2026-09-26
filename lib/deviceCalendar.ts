@@ -51,6 +51,50 @@ export async function getWritableCalendarId(): Promise<string | null> {
   return writable?.id ?? null;
 }
 
+/**
+ * Every event in the range, all-day ones included, for the day timeline
+ * (B2). Read live each time and never copied into this app's tables, so
+ * an event moved or deleted in the calendar is moved or gone here too.
+ */
+export async function listDeviceEventsForTimeline(
+  startDate: Date,
+  endDate: Date,
+): Promise<(DeviceCalendarEvent & { allDay: boolean })[]> {
+  const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+  if (calendars.length === 0) {
+    return [];
+  }
+  const calendarTitleById = new Map(calendars.map((calendar) => [calendar.id, calendar.title]));
+  const events = await Calendar.getEventsAsync(
+    calendars.map((calendar) => calendar.id),
+    startDate,
+    endDate,
+  );
+  return events.map((event) => {
+    const start = new Date(event.startDate);
+    // An all-day event's date is the date written on it. Android hands it
+    // back as midnight UTC, so it is read in UTC; iOS hands back local
+    // midnight, so it is read locally.
+    const allDayDate =
+      Platform.OS === 'android' ? start.toISOString().slice(0, 10) : localDate(start);
+    return {
+      id: event.id,
+      title: event.title || 'Untitled event',
+      startDate: event.allDay ? allDayDate : start.toISOString(),
+      endDate: new Date(event.endDate).toISOString(),
+      allDay: Boolean(event.allDay),
+      location: event.location || null,
+      notes: event.notes || null,
+      calendarTitle: calendarTitleById.get(event.calendarId) ?? 'Calendar',
+    };
+  });
+}
+
+function localDate(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
 export async function listUpcomingDeviceEvents(startDate: Date, endDate: Date): Promise<DeviceCalendarEvent[]> {
   const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
   if (calendars.length === 0) {

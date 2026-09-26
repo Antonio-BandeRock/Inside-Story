@@ -37,6 +37,7 @@ import {
   type Routine,
   type RoutineOccasion,
 } from '../lib/routines';
+import { describeRoutineLength } from '../lib/dayTimeline';
 import {
   addRoutineStep,
   createDoneCheck,
@@ -51,6 +52,7 @@ import {
   moveRoutine,
   saveStepOrder,
   setRoutineReminder,
+  setRoutineSpeakSteps,
   updateRoutine,
   updateRoutineOccasion,
   updateRoutineStep,
@@ -99,6 +101,7 @@ type RoutineForm = {
   /** 'HH:mm', or null for a routine nothing speaks about. */
   reminderTime: string | null;
   reminderDays: number[];
+  speakSteps: boolean;
 };
 type OccasionForm = { id: string | null; name: string; hourFrom: number | null; hourTo: number | null };
 type StepForm = {
@@ -107,6 +110,8 @@ type StepForm = {
   text: string;
   detail: string;
   checkId: string | null;
+  /** Typed digits, kept as text until saved. */
+  minutes: string;
 };
 type CheckForm = { name: string; cadence: CheckCadence };
 
@@ -236,6 +241,7 @@ export function RoutinesSection({ tabColor }: Props) {
     // so the notification is on the phone before this screen has redrawn.
     if (id) {
       await setRoutineReminder(id, form.reminderTime, form.reminderDays, form.reminderTime !== null);
+      await setRoutineSpeakSteps(id, form.speakSteps);
       void syncReminderNotifications();
     }
     setForm(null);
@@ -292,8 +298,10 @@ export function RoutinesSection({ tabColor }: Props) {
       return;
     }
     const checkId = stepForm.checkId === NO_CHECK ? null : stepForm.checkId;
-    if (stepForm.id) await updateRoutineStep(stepForm.id, stepForm.text, stepForm.detail, checkId);
-    else await addRoutineStep(stepForm.routineId, stepForm.text, stepForm.detail, checkId);
+    const typed = stepForm.minutes.trim();
+    const minutes = typed.length > 0 ? Number(typed) : null;
+    if (stepForm.id) await updateRoutineStep(stepForm.id, stepForm.text, stepForm.detail, checkId, minutes);
+    else await addRoutineStep(stepForm.routineId, stepForm.text, stepForm.detail, checkId, minutes);
     setStepForm(null);
     setCheckForm(null);
     load();
@@ -363,7 +371,7 @@ export function RoutinesSection({ tabColor }: Props) {
             style={[styles.primaryButton, walkMark('routines.add')]}
             onPress={() => {
               setOccasionForm(null);
-              setForm({ id: null, name: '', occasion: fits ?? 'other', reminderTime: null, reminderDays: [] });
+              setForm({ id: null, name: '', occasion: fits ?? 'other', reminderTime: null, reminderDays: [], speakSteps: false });
             }}
           >
             <Text style={styles.primaryButtonText}>+ Add a routine</Text>
@@ -550,6 +558,22 @@ export function RoutinesSection({ tabColor }: Props) {
             </Text>
           )}
 
+          <Text style={styles.label}>While walking it</Text>
+          <View style={styles.dayRow}>
+            <TouchableOpacity
+              style={[styles.dayPill, form.speakSteps ? styles.dayPillOn : null]}
+              onPress={() => setForm({ ...form, speakSteps: !form.speakSteps })}
+            >
+              <Text style={[styles.dayPillText, form.speakSteps ? styles.dayPillTextOn : null]}>
+                {form.speakSteps ? 'Read each step aloud: on' : 'Read each step aloud: off'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.helperText}>
+            With this on, the phone says each step as it comes up, so your eyes can stay on what your hands are
+            doing. It speaks in the phone&apos;s voice, and only while the walk is open.
+          </Text>
+
           <View style={styles.formActions}>
             <TouchableOpacity style={styles.primaryButton} onPress={saveRoutine}>
               <Text style={styles.primaryButtonText}>Save</Text>
@@ -587,6 +611,9 @@ export function RoutinesSection({ tabColor }: Props) {
             {describeRoutineReminder(routine) ? (
               <Text style={styles.rowMeta}>{describeRoutineReminder(routine)}</Text>
             ) : null}
+            {describeRoutineLength(routine.steps) ? (
+              <Text style={styles.rowMeta}>{describeRoutineLength(routine.steps)}.</Text>
+            ) : null}
 
             {routine.steps.length > 0 ? (
               <TouchableOpacity
@@ -612,6 +639,7 @@ export function RoutinesSection({ tabColor }: Props) {
                     occasion: routine.occasion,
                     reminderTime: routine.reminderTime,
                     reminderDays: routine.reminderDays,
+                    speakSteps: routine.speakSteps,
                   });
                 }}
               >
@@ -645,6 +673,11 @@ export function RoutinesSection({ tabColor }: Props) {
                           {index + 1}. {step.text}
                         </Text>
                         {step.detail ? <Text style={styles.rowMeta}>{step.detail}</Text> : null}
+                        {step.minutes ? (
+                          <Text style={styles.rowMeta}>
+                            {step.minutes === 1 ? 'About 1 minute' : `About ${step.minutes} minutes`}
+                          </Text>
+                        ) : null}
                         {attached ? <Text style={styles.rowMeta}>Check off here: {attached}</Text> : null}
                         <View style={styles.rowActions}>
                           {index > 0 ? (
@@ -666,6 +699,7 @@ export function RoutinesSection({ tabColor }: Props) {
                                 text: step.text,
                                 detail: step.detail ?? '',
                                 checkId: step.checkId ?? NO_CHECK,
+                                minutes: step.minutes ? String(step.minutes) : '',
                               });
                             }}
                           >
@@ -704,6 +738,21 @@ export function RoutinesSection({ tabColor }: Props) {
                       placeholderTextColor={colors.textMuted}
                       maxLength={MAX_STEP_DETAIL}
                     />
+
+                    <Text style={styles.label}>Minutes it takes (optional)</Text>
+                    <AppTextInput
+                      style={styles.input}
+                      value={stepForm.minutes}
+                      onChangeText={(minutes) => setStepForm({ ...stepForm, minutes: minutes.replace(/[^0-9]/g, '') })}
+                      placeholder="5"
+                      placeholderTextColor={colors.textMuted}
+                      keyboardType="number-pad"
+                      maxLength={3}
+                    />
+                    <Text style={styles.helperText}>
+                      Give the steps minutes and the routine shows about how long it takes, and the day timeline
+                      draws it as a block of time rather than a moment.
+                    </Text>
 
                     <Text style={styles.label}>Something to check off here</Text>
                     <PopoverSelect
@@ -780,7 +829,7 @@ export function RoutinesSection({ tabColor }: Props) {
                     style={[styles.primaryButton, walkMark('routines.addStep')]}
                     onPress={() => {
                       setCheckForm(null);
-                      setStepForm({ routineId: routine.id, id: null, text: '', detail: '', checkId: NO_CHECK });
+                      setStepForm({ routineId: routine.id, id: null, text: '', detail: '', checkId: NO_CHECK, minutes: '' });
                     }}
                   >
                     <Text style={styles.primaryButtonText}>+ Add a step</Text>

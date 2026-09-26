@@ -267,6 +267,7 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'backup_last_saved',
   'peer_photos_wifi_only',
   'emergency_lock_screen',
+  'timeline_device_calendar',
   CHANGE_BASELINE_META_KEY,
 ];
 

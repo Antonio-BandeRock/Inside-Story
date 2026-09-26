@@ -18,17 +18,27 @@
 //
 // Read-only: a tap on a card goes to where that thing is kept, which is
 // where it is marked done, skipped or changed.
+//
+// Phase 2 (B2, B3, B4, B7, B8): above the strip, one line on what is on
+// now or next, one on how full today is, and one on whether what is left
+// fits; below it, the phone calendar switch (read live, never copied in)
+// and "Move what is left today to tomorrow", which asks first and says
+// what stays. Both of those sit on the full timeline only, not the Home
+// card.
 
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter, type Href } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
+import { StyleSheet, Switch, Text, TouchableOpacity, View, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import {
   clockLabel,
+  describeDayFit,
+  describeHowFull,
+  describeNext,
   describeOverdue,
   initialScrollX,
   layoutTimeline,
@@ -39,7 +49,18 @@ import {
   type TimelineKind,
   type TimelineRoute,
 } from '../lib/dayTimeline';
-import { loadDayTimeline } from '../lib/dayTimelineDb';
+import {
+  getTimelineCalendarOn,
+  loadDayTimeline,
+  setTimelineCalendarOn,
+  timelineCalendarSupported,
+} from '../lib/dayTimelineDb';
+import { phoneOnlyNotice } from '../lib/desktop/phoneOnly';
+import { isDesktopApp } from '../lib/desktop/bridge';
+import { requestCalendarPermission } from '../lib/deviceCalendar';
+import { describeMovePlan } from '../lib/moveToTomorrow';
+import { applyMovePlan, loadMovePlan } from '../lib/moveToTomorrowDb';
+import { useConfirmSheet } from './ConfirmSheet';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -55,6 +76,9 @@ const KIND_ICONS: Record<TimelineKind, IconName> = {
   sleep: 'moon-outline',
   due: 'receipt-outline',
   countdown: 'hourglass-outline',
+  calendar: 'calendar-number-outline',
+  workout: 'barbell-outline',
+  steps: 'footsteps-outline',
 };
 
 const KIND_COLORS: Record<TimelineKind, string> = {
@@ -69,6 +93,9 @@ const KIND_COLORS: Record<TimelineKind, string> = {
   sleep: colors.tabTrends,
   due: colors.tabLife,
   countdown: colors.tabLife,
+  calendar: colors.tabSchedules,
+  workout: colors.tabLife,
+  steps: colors.tabTrends,
 };
 
 const COMPACT_OVERDUE_LIMIT = 3;
@@ -90,12 +117,39 @@ export function DayTimeline({ tabColor, compact = false }: { tabColor: string; c
   // Set false on every arrival, so the strip opens on Now each time rather
   // than wherever it was left.
   const centered = useRef(false);
+  const [calendarOn, setCalendarOn] = useState(false);
+  const [moveNote, setMoveNote] = useState<string | null>(null);
+  const [confirm, confirmElement] = useConfirmSheet();
 
   const refresh = useCallback(async () => {
     const at = Date.now();
     setNow(at);
     setView(await loadDayTimeline(at));
+    setCalendarOn(await getTimelineCalendarOn());
   }, []);
+
+  async function toggleCalendar(next: boolean) {
+    if (next && !(await requestCalendarPermission())) {
+      setMoveNote('The phone did not allow reading its calendar, so nothing from it is shown. That can be changed in the phone\'s settings for Inside Story.');
+      return;
+    }
+    await setTimelineCalendarOn(next);
+    await refresh();
+  }
+
+  async function moveRest() {
+    const plan = await loadMovePlan();
+    const words = describeMovePlan(plan);
+    if (!words) {
+      setMoveNote('Nothing left today can move: what is still ahead is a dose or an appointment, or there is nothing still ahead.');
+      return;
+    }
+    const ok = await confirm({ title: 'Move what is left to tomorrow?', message: words, confirmLabel: 'Move them' });
+    if (!ok) return;
+    const placed = await applyMovePlan(plan);
+    setMoveNote(placed === 1 ? '1 thing is now on tomorrow.' : `${placed} things are now on tomorrow.`);
+    await refresh();
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -139,6 +193,9 @@ export function DayTimeline({ tabColor, compact = false }: { tabColor: string; c
   const overdueHidden = view.overdue.length - overdueShown.length;
   const stripHeight = HEADER_HEIGHT + Math.max(1, layout.lanes) * (laneHeight + LANE_GAP) + 4;
   const nothing = view.items.length === 0 && view.overdue.length === 0;
+  const nextLine = describeNext(view, now);
+  const fitLine = compact ? null : describeDayFit(view, now);
+  const summary = [nextLine, describeHowFull(view, now), fitLine].filter(Boolean) as string[];
 
   function renderRow(item: DayTimelineItem, when: string) {
     const tint = KIND_COLORS[item.kind];
@@ -156,6 +213,13 @@ export function DayTimeline({ tabColor, compact = false }: { tabColor: string; c
 
   return (
     <View style={styles.wrap}>
+      <View style={styles.summary}>
+        {summary.map((line) => (
+          <Text key={line} style={styles.summaryText}>
+            {line}
+          </Text>
+        ))}
+      </View>
       {view.overdue.length > 0 ? (
         <View style={styles.group}>
           <Text style={styles.groupHeading}>{describeOverdue(view.overdue.length)}</Text>
@@ -259,13 +323,43 @@ export function DayTimeline({ tabColor, compact = false }: { tabColor: string; c
         <TouchableOpacity onPress={() => router.push('/timeline')}>
           <Text style={styles.link}>Open the full timeline</Text>
         </TouchableOpacity>
-      ) : null}
+      ) : (
+        <View style={styles.group}>
+          <TouchableOpacity style={styles.row} onPress={() => void moveRest()}>
+            <Ionicons name="arrow-redo-outline" size={16} color={tabColor} />
+            <View style={styles.rowText}>
+              <Text style={styles.rowTitle}>Move what is left today to tomorrow</Text>
+              <Text style={styles.caption}>Asks first, and says what stays where it is.</Text>
+            </View>
+          </TouchableOpacity>
+          {timelineCalendarSupported() ? (
+            <View style={styles.row}>
+              <Ionicons name="calendar-number-outline" size={16} color={tabColor} />
+              <View style={styles.rowText}>
+                <Text style={styles.rowTitle}>Show my phone&apos;s calendar here</Text>
+                <Text style={styles.caption}>Read from the phone each time, never copied into the app.</Text>
+              </View>
+              <Switch value={calendarOn} onValueChange={(next) => void toggleCalendar(next)} />
+            </View>
+          ) : isDesktopApp() ? (
+            <View style={styles.row}>
+              <Ionicons name="phone-portrait-outline" size={16} color={colors.textMuted} />
+              <Text style={[styles.caption, styles.rowText]}>{phoneOnlyNotice('phoneCalendar').message}</Text>
+            </View>
+          ) : null}
+          {moveNote ? <Text style={[styles.caption, styles.note]}>{moveNote}</Text> : null}
+        </View>
+      )}
+      {confirmElement}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: { gap: 12 },
+  summary: { gap: 4 },
+  summaryText: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  note: { backgroundColor: colors.surfaceMuted, borderRadius: 10, padding: 8 },
   group: { gap: 6 },
   groupHeading: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   row: {

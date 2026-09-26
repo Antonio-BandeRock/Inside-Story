@@ -324,6 +324,7 @@ type RoutineRow = {
   reminderTime: string | null;
   reminderDays: string | null;
   reminderOn: number;
+  speakSteps: number | null;
 };
 
 type StepRow = {
@@ -333,6 +334,7 @@ type StepRow = {
   detail: string | null;
   position: number;
   checkId: string | null;
+  minutes: number | null;
 };
 
 function toStep(row: StepRow): RoutineStep {
@@ -343,6 +345,7 @@ function toStep(row: StepRow): RoutineStep {
     detail: row.detail,
     position: row.position,
     checkId: row.checkId,
+    minutes: row.minutes !== null && row.minutes > 0 ? row.minutes : null,
   };
 }
 
@@ -365,15 +368,17 @@ function toRoutine(row: RoutineRow, steps: RoutineStep[]): Routine {
     // for it to fire at. Resolved here rather than at each of the four
     // places that read it.
     reminderOn: row.reminderOn !== 0 && cleanReminderTime(row.reminderTime) !== null,
+    speakSteps: (row.speakSteps ?? 0) !== 0,
     steps,
   };
 }
 
 const ROUTINE_COLUMNS = `id, name, occasion, active, position,
      last_completed_at AS lastCompletedAt,
-     reminder_time AS reminderTime, reminder_days AS reminderDays, reminder_on AS reminderOn`;
+     reminder_time AS reminderTime, reminder_days AS reminderDays, reminder_on AS reminderOn,
+     speak_steps AS speakSteps`;
 
-const STEP_COLUMNS = `id, routine_id AS routineId, text, detail, position, check_id AS checkId`;
+const STEP_COLUMNS = `id, routine_id AS routineId, text, detail, position, check_id AS checkId, minutes`;
 
 /** Every routine with its steps already attached. Two queries rather than a
  *  join, because the steps come back in their own order and stitching them
@@ -521,11 +526,25 @@ export async function moveRoutine(id: string, direction: -1 | 1): Promise<void> 
 
 // --------------------------------------------------------------------- steps
 
+/** Whether each step is read aloud while the routine is walked (B6). */
+export async function setRoutineSpeakSteps(id: string, on: boolean): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(`UPDATE routines SET speak_steps = ? WHERE id = ?`, on ? 1 : 0, id);
+}
+
+/** Whole minutes from 1 to 600, or null for anything else. */
+export function cleanStepMinutes(value: number | null | undefined): number | null {
+  if (value === null || value === undefined || !Number.isFinite(value)) return null;
+  const whole = Math.round(value);
+  return whole >= 1 && whole <= 600 ? whole : null;
+}
+
 export async function addRoutineStep(
   routineId: string,
   text: string,
   detail: string | null,
   checkId: string | null,
+  minutes: number | null = null,
 ): Promise<string | null> {
   if (!isRoutineTextUsable(text)) return null;
   const db = await getDatabase();
@@ -536,14 +555,15 @@ export async function addRoutineStep(
   );
   const cleanedDetail = detail ? trimTo(detail, MAX_STEP_DETAIL) : '';
   await db.runAsync(
-    `INSERT INTO routine_steps (id, routine_id, text, detail, position, check_id, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO routine_steps (id, routine_id, text, detail, position, check_id, minutes, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     id,
     routineId,
     trimTo(text, MAX_STEP_TEXT),
     cleanedDetail.length > 0 ? cleanedDetail : null,
     next?.next ?? 0,
     checkId,
+    cleanStepMinutes(minutes),
     new Date().toISOString(),
   );
   return id;
@@ -554,15 +574,17 @@ export async function updateRoutineStep(
   text: string,
   detail: string | null,
   checkId: string | null,
+  minutes: number | null = null,
 ): Promise<boolean> {
   if (!isRoutineTextUsable(text)) return false;
   const db = await getDatabase();
   const cleanedDetail = detail ? trimTo(detail, MAX_STEP_DETAIL) : '';
   await db.runAsync(
-    `UPDATE routine_steps SET text = ?, detail = ?, check_id = ? WHERE id = ?`,
+    `UPDATE routine_steps SET text = ?, detail = ?, check_id = ?, minutes = ? WHERE id = ?`,
     trimTo(text, MAX_STEP_TEXT),
     cleanedDetail.length > 0 ? cleanedDetail : null,
     checkId,
+    cleanStepMinutes(minutes),
     id,
   );
   return true;

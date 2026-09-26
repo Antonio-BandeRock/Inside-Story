@@ -1,7 +1,11 @@
 // Checks the one Today timeline in lib/dayTimeline.ts: what goes on it,
 // which things count as past their time, where a routine's reminder lands,
 // how a night's sleep spans, how cards pack into rows, and that the strip
-// opens with Now in the middle.
+// opens with Now in the middle. Since Phase 2 also the phone calendar,
+// workouts and steps on the strip (B2, B9), the Now and Next line (B3),
+// minutes and whether the day fits (B4), how full today is (B7), what
+// moves to tomorrow (B8, lib/moveToTomorrow.ts) and the routine walk
+// notification's words (lib/routineWalkNotice.ts).
 //
 // Pure, so it runs here rather than needing a phone. Exits non-zero on any
 // failure.
@@ -14,15 +18,16 @@ const fs = require('fs');
 const path = require('path');
 const ts = require('typescript');
 
-function load(relPath) {
+function load(relPath, stubs = {}) {
   const source = fs.readFileSync(path.join(__dirname, '..', relPath), 'utf8');
   const { outputText } = ts.transpileModule(source, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
     fileName: path.basename(relPath),
   });
   const module = { exports: {} };
-  new Function('exports', 'module', 'require', outputText)(module.exports, module, () => {
-    throw new Error('lib/dayTimeline.ts must stay free of runtime imports');
+  new Function('exports', 'module', 'require', outputText)(module.exports, module, (name) => {
+    if (name in stubs) return stubs[name];
+    throw new Error(`${relPath} must stay free of runtime imports (${name})`);
   });
   return module.exports;
 }
@@ -35,6 +40,12 @@ const {
   clockLabel,
   describeDuration,
   describeOverdue,
+  describeNext,
+  describeHowFull,
+  describeDayFit,
+  describeRoutineLength,
+  describeFilledIn,
+  routineTotalMinutes,
   statusLabel,
   localDayOf,
   TIMELINE_CARD_WIDTH,
@@ -210,13 +221,124 @@ check('overdue none', describeOverdue(0), null);
 check('planned carries no word', statusLabel('planned'), null);
 check('a DST day still has its own date', localDayOf(new Date(2026, 10, 1, 12).getTime()), '2026-11-01');
 
+// ---- Phase 2: B2 to B9 ----
+
+{
+  const view = buildDayTimeline({
+    ...empty,
+    schedule: [
+      row('lunch', '2026-09-26T14:00', { status: 'logged' }),
+      row('walk', '2026-09-26T15:00', { itemType: 'reminder', title: 'Walk the dog' }),
+      row('dinner', '2026-09-26T18:00'),
+      row('dose', '2026-09-26T21:00', { itemType: 'supplement', treatmentName: 'Magnesium', title: 'Dose' }),
+    ],
+    scheduleMinutes: { 'schedule:walk': 30, walk: 30 },
+    calendar: [
+      { id: 'c1', title: 'Dentist', startDate: local(2026, 9, 26, 14, 15), endDate: local(2026, 9, 26, 14, 45), allDay: false, location: null, calendarTitle: 'Home' },
+      { id: 'c2', title: 'Market day', startDate: '2026-09-26', endDate: '2026-09-27', allDay: true, location: null, calendarTitle: 'Home' },
+    ],
+    workouts: [{ id: 'w1', startedAt: local(2026, 9, 26, 7), endedAt: local(2026, 9, 26, 7, 35), name: 'Walking', minutes: 35 }],
+    steps: [{ date: '2026-09-26', steps: 8432 }],
+  });
+  const find = (kind) => view.items.filter((item) => item.kind === kind);
+  check('a timed calendar event is on the strip', find('calendar').some((item) => item.title === 'Dentist'), true);
+  check('an all-day calendar event is in any time today', view.anyTime.some((item) => item.title === 'Market day'), true);
+  check('a workout is a record', find('workout')[0]?.status, 'record');
+  check('steps read with a thousands comma', find('steps')[0]?.title, '8,432 steps');
+  check('steps are not in any time today', view.anyTime.some((item) => item.kind === 'steps'), false);
+
+  const next = describeNext(view, now);
+  check('the calendar event on now is named', next, 'Now: Dentist, until 2:45pm. Next: Walk the dog in 30 minutes, at 3pm.');
+  const later = describeNext(view, new Date(2026, 8, 26, 14, 50).getTime());
+  check('next within the hour says the minutes', later, 'Next: Walk the dog in 10 minutes, at 3pm.');
+
+  const full = describeHowFull(view, now);
+  check('how full names the meals', full.includes('2 meals'), true);
+  check('how full says how many are still ahead', /still ahead\.$/.test(full), true);
+  check('how full never counts records', full.includes('step'), false);
+
+  const fit = describeDayFit(view, now);
+  check('fit counts what is still ahead', fit?.startsWith('Still ahead today: 3 timed things'), true);
+  check('fit says how many have minutes', fit?.includes('1 with minutes set'), true);
+}
+
+check('an empty day says so', describeHowFull(buildDayTimeline(empty), now), 'Nothing is on today yet.');
+check('nothing ahead has no fit line', describeDayFit(buildDayTimeline(empty), now), null);
+check('nothing timed has no next line', describeNext(buildDayTimeline(empty), now), null);
+
+{
+  const steps = [{ minutes: 10 }, { minutes: 15 }, { minutes: null }, { minutes: null }];
+  check('routine total adds what is known', routineTotalMinutes(steps), 25);
+  check('routine total is null with nothing known', routineTotalMinutes([{ minutes: null }]), null);
+  check('routine length names what is not counted', describeRoutineLength(steps), 'About 25 minutes, not counting 2 steps with no minutes set');
+  check('routine length with nothing known', describeRoutineLength([{ minutes: null }]), null);
+}
+
+check(
+  'filled in from Health Connect',
+  describeFilledIn({ sleepMinutes: 430, steps: 8432, workouts: [{ name: 'Walking', minutes: 35 }] }),
+  'Filled in from Health Connect: slept 7 h 10 min, 8,432 steps and walking, 35 min.',
+);
+check('nothing filled in says nothing', describeFilledIn({ sleepMinutes: null, steps: null, workouts: [] }), null);
+
+// B8: what moves to tomorrow.
+{
+  const { planMoveToTomorrow, describeMovePlan, sameTimeTomorrow } = load('lib/moveToTomorrow.ts');
+  const cand = (id, itemType, scheduledFor, status = 'planned') => ({ id, itemType, title: id, status, scheduledFor });
+  const plan = planMoveToTomorrow(
+    [
+      cand('breakfast', 'meal', '2026-09-26T08:00'),
+      cand('dinner', 'meal', '2026-09-26T18:00'),
+      cand('eaten', 'meal', '2026-09-26T19:00', 'logged'),
+      cand('call', 'reminder', '2026-09-26T16:00'),
+      cand('water', 'garden', '2026-09-26T17:30'),
+      cand('mag', 'supplement', '2026-09-26T21:00'),
+      cand('gp', 'appointment', '2026-09-26T16:30'),
+      cand('monday', 'reminder', '2026-09-28T09:00'),
+    ],
+    now,
+  );
+  check('a meal already past its time is not moved', plan.replan.some((entry) => entry.id === 'breakfast'), false);
+  check('a meal still ahead is replanned for tomorrow', plan.replan, [{ id: 'dinner', scheduledFor: '2026-09-27T18:00', title: 'dinner' }]);
+  check('a logged meal stays', plan.replan.some((entry) => entry.id === 'eaten'), false);
+  check('reminders and garden tasks move', plan.move.map((entry) => entry.id), ['call', 'water']);
+  check('a dose and an appointment stay', plan.stay.map((entry) => entry.kind), ['dose', 'appointment']);
+  check('another day is left alone', [...plan.move, ...plan.replan].some((entry) => entry.id === 'monday'), false);
+  check('same time tomorrow across a month end', sameTimeTomorrow('2026-09-30T07:15'), '2026-10-01T07:15');
+  const words = describeMovePlan(plan);
+  check('the plan says the meal stays skipped', words.includes('stays in the record as skipped'), true);
+  check('the plan names what stays', words.includes('1 dose and 1 appointment stay where they are'), true);
+  check('nothing to move says nothing', describeMovePlan({ move: [], replan: [], stay: [] }), null);
+}
+
+// B3: the routine walk notification's words.
+{
+  const { routineWalkNotice } = load('lib/routineWalkNotice.ts', {
+    'expo-notifications': {},
+    'react-native': { Platform: { OS: 'android' } },
+    './desktop/bridge': { isDesktopApp: () => false },
+  });
+  const notice = routineWalkNotice({
+    routineName: 'Morning',
+    position: 1,
+    total: 6,
+    stepText: 'Take the levothyroxine with water',
+    stepMinutes: 5,
+    stepStartedAt: new Date(2026, 8, 26, 7, 5),
+  });
+  check('notice title', notice.title, 'Morning: step 2 of 6');
+  check('notice body', notice.body, 'Take the levothyroxine with water. Up since 7:05 am, about 5 minutes.');
+}
+
 // No sentence this module writes may use a dash in place of punctuation, or
 // a word that scolds.
-const source = fs.readFileSync(path.join(__dirname, '..', 'lib/dayTimeline.ts'), 'utf8');
-check('no em or en dashes in lib/dayTimeline.ts', /[–—]/.test(source), false);
-const strings = (source.match(/'[^'\n]*'|`[^`\n]*`/g) || []).join(' ').toLowerCase();
-for (const word of ['missed', 'failed', 'forgot', 'behind', 'well done', 'great job']) {
-  check(`no "${word}" in any string`, strings.includes(word), false);
+for (const file of ['lib/dayTimeline.ts', 'lib/moveToTomorrow.ts', 'lib/routineWalkNotice.ts']) {
+  const source = fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
+  check(`no em or en dashes in ${file}`, /[–—]/.test(source), false);
+  const strings = (source.match(/'[^'\n]*'|`[^`\n]*`/g) || []).join(' ').toLowerCase();
+  for (const word of ['missed', 'failed', 'forgot', 'behind', 'well done', 'great job', 'overwhelm', 'too much', 'too busy']) {
+    check(`no "${word}" in any string of ${file}`, strings.includes(word), false);
+  }
 }
 
 if (failures > 0) {

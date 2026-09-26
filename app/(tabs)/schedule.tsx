@@ -3839,8 +3839,15 @@ type AppointmentFormState = {
   location: string;
   providerName: string;
   notes: string;
+  /** Whole minutes as typed, '' when not said (B4). */
+  minutes: string;
   importingDeviceEventId: string | null;
 };
+
+function appointmentMinutes(text: string): number | null {
+  const value = Number(text.trim());
+  return Number.isInteger(value) && value >= 1 && value <= 1440 ? value : null;
+}
 
 function blankAppointmentForm(): AppointmentFormState {
   return {
@@ -3852,6 +3859,7 @@ function blankAppointmentForm(): AppointmentFormState {
     location: '',
     providerName: '',
     notes: '',
+    minutes: '',
     importingDeviceEventId: null,
   };
 }
@@ -3931,6 +3939,7 @@ function AppointmentsLens() {
       location: item.location ?? '',
       providerName: item.providerName ?? '',
       notes: item.notes ?? '',
+      minutes: item.durationMinutes ? String(item.durationMinutes) : '',
       importingDeviceEventId: null,
     });
     setShowForm(true);
@@ -3968,6 +3977,7 @@ function AppointmentsLens() {
           location: form.location,
           providerName: form.providerName,
           notes: form.notes,
+          durationMinutes: appointmentMinutes(form.minutes),
         });
       } else {
         await scheduleAppointment({
@@ -3978,6 +3988,7 @@ function AppointmentsLens() {
           providerName: form.providerName || undefined,
           notes: form.notes || undefined,
           linkedDeviceCalendarEventId: form.importingDeviceEventId ?? undefined,
+          durationMinutes: appointmentMinutes(form.minutes),
         });
       }
       closeForm();
@@ -4106,6 +4117,10 @@ function AppointmentsLens() {
       location: event.location ?? '',
       providerName: '',
       notes: event.notes ?? '',
+      minutes: (() => {
+        const span = Math.round((Date.parse(event.endDate) - Date.parse(event.startDate)) / 60000);
+        return span >= 1 && span <= 1440 ? String(span) : '';
+      })(),
       importingDeviceEventId: event.id,
     });
     setShowImportPicker(false);
@@ -4268,6 +4283,18 @@ function AppointmentsLens() {
                 value={form.providerName}
                 onChangeText={(text) => setForm((current) => ({ ...current, providerName: text }))}
               />
+
+              <Text style={styles.label}>Minutes it takes (optional)</Text>
+              <AppTextInput
+                style={styles.input}
+                placeholder="e.g. 45"
+                keyboardType="number-pad"
+                value={form.minutes}
+                onChangeText={(text) => setForm((current) => ({ ...current, minutes: text.replace(/[^0-9]/g, '') }))}
+              />
+              <Text style={styles.helperText}>
+                With this set, the timeline draws the appointment across its length and counts it when saying whether the day fits.
+              </Text>
 
               <View style={styles.labelRow}>
                 <Text style={styles.label}>Notes (optional)</Text>

@@ -31,7 +31,8 @@ export type PhoneOnlyFeature =
   | 'readPrice'
   | 'healthConnect'
   | 'wifiSync'
-  | 'scanPairingCode';
+  | 'scanPairingCode'
+  | 'phoneCalendar';
 
 export const PHONE_ONLY_TITLE = 'This needs the app on your phone';
 
@@ -55,6 +56,8 @@ const MESSAGES: Record<PhoneOnlyFeature, string> = {
     'Sync over Wi-Fi runs between two phones in the same place. This computer cannot join it. Use Inside Story on your phone.',
   scanPairingCode:
     "Reading the code on the other person's phone uses the camera. On this computer, show your code for them to scan, or send a link instead. On your phone, point the camera at their code.",
+  phoneCalendar:
+    "Events from your phone's calendar are read on the phone as the timeline is drawn, and never copied into the app, so this computer has none to show. Turn them on from the timeline on your phone.",
 };
 
 export const PHONE_ONLY_FEATURES: readonly PhoneOnlyFeature[] = Object.keys(MESSAGES) as PhoneOnlyFeature[];

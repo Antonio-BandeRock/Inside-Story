@@ -26,7 +26,14 @@
 // then answers the door has taken their pill, and deserves to be told so at
 // eleven o'clock. The one thing that stays unwritten on an abandoned walk is
 // the claim that the whole routine was done.
+//
+// Phase 2 (B3, B4, B6): a step with minutes says about how long it takes
+// and the walk says the routine's total; a routine set to read its steps
+// aloud says each one as it comes up; and on Android a notification that
+// cannot be swiped away says which step is up and since when, taken down
+// when the walk finishes or this screen closes.
 import { Ionicons } from '@expo/vector-icons';
+import * as Speech from 'expo-speech';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -53,6 +60,8 @@ import {
   startRoutineRun,
   undoLastCheckMark,
 } from '../lib/routinesDb';
+import { describeRoutineLength } from '../lib/dayTimeline';
+import { clearRoutineWalkNotice, routineWalkNotice, showRoutineWalkNotice } from '../lib/routineWalkNotice';
 
 export default function RoutineWalkScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
@@ -120,6 +129,46 @@ export default function RoutineWalkScreen() {
     return checks.find((entry) => entry.id === step.checkId)?.name ?? null;
   }, [checks, step]);
   const tickedAt = step ? ticked[step.id] ?? null : null;
+  const routineLength = useMemo(() => describeRoutineLength(steps), [steps]);
+
+  // Each time a new step comes up: say it aloud when the routine asks for
+  // that, and move the notification on to it. Keyed on the step's id so a
+  // tick on the same step does not repeat it.
+  const stepId = step?.id ?? null;
+  useEffect(() => {
+    if (!routine || !step || finished) return;
+    if (routine.speakSteps) {
+      Speech.stop();
+      Speech.speak(step.detail ? `${step.text}. ${step.detail}` : step.text);
+    }
+    void showRoutineWalkNotice(
+      routineWalkNotice({
+        routineName: routine.name,
+        position: index,
+        total: steps.length,
+        stepText: step.text,
+        stepMinutes: step.minutes,
+        stepStartedAt: new Date(),
+      }),
+    );
+    // step and routine are read through stepId and routine.id on purpose.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stepId, routine?.id, finished]);
+
+  useEffect(() => {
+    if (finished) {
+      Speech.stop();
+      void clearRoutineWalkNotice();
+    }
+  }, [finished]);
+
+  useEffect(
+    () => () => {
+      Speech.stop();
+      void clearRoutineWalkNotice();
+    },
+    [],
+  );
 
   // What the finished card lists: what was actually written during this
   // walk, in the order the steps come, and nothing more.
@@ -242,7 +291,11 @@ export default function RoutineWalkScreen() {
         {!loading && routine && steps.length > 0 && !finished && step ? (
           <>
             <View style={styles.progressCard}>
-              <Text style={styles.progressText}>{routineProgressLabel(index, steps.length)}</Text>
+              <Text style={styles.progressText}>
+                {routineLength
+                  ? `${routineProgressLabel(index, steps.length)}. ${routineLength}.`
+                  : routineProgressLabel(index, steps.length)}
+              </Text>
               <View style={styles.pipRow}>
                 {steps.map((entry, position) => (
                   <View
@@ -261,6 +314,11 @@ export default function RoutineWalkScreen() {
             <View style={styles.stepCard}>
               <Text style={styles.stepText}>{step.text}</Text>
               {step.detail ? <Text style={styles.stepDetail}>{step.detail}</Text> : null}
+              {step.minutes ? (
+                <Text style={styles.stepDetail}>
+                  {step.minutes === 1 ? 'About 1 minute' : `About ${step.minutes} minutes`}
+                </Text>
+              ) : null}
               {checkName ? (
                 <TouchableOpacity
                   style={[styles.tickRow, tickedAt ? styles.tickRowOn : null]}

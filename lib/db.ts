@@ -8259,6 +8259,16 @@ async function runDatabaseInitialization() {
       if (!routineColumns.some((column) => column.name === 'reminder_on')) {
         await db.execAsync('ALTER TABLE routines ADD COLUMN reminder_on INTEGER NOT NULL DEFAULT 0;');
       }
+      // Reading each step aloud while it is walked (B6), off unless asked for.
+      if (!routineColumns.some((column) => column.name === 'speak_steps')) {
+        await db.execAsync('ALTER TABLE routines ADD COLUMN speak_steps INTEGER NOT NULL DEFAULT 0;');
+      }
+    }
+    // How long a step takes, when somebody knows (B4). Nullable: a step
+    // nobody has timed has no length, not a length of nothing.
+    const routineStepColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(routine_steps)');
+    if (routineStepColumns.length > 0 && !routineStepColumns.some((column) => column.name === 'minutes')) {
+      await db.execAsync('ALTER TABLE routine_steps ADD COLUMN minutes INTEGER;');
     }
 
     // garden_spaces.retired_at, 1.0.42.9. The table shipped a version
@@ -8724,6 +8734,12 @@ async function runDatabaseInitialization() {
     // 'meal' filtered to mealType='beverage'), meal_type is which kind
     // of meal this specific one is. Only meaningful when item_type='meal'.
     const scheduleItemColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(schedule_items)');
+    // How long a scheduled thing takes, when somebody says (B4), so the day
+    // timeline can draw it as a span and say whether the day's timed things
+    // overlap. Nullable, and nothing is guessed for a row without it.
+    if (!scheduleItemColumns.some((column) => column.name === 'duration_minutes')) {
+      await db.execAsync('ALTER TABLE schedule_items ADD COLUMN duration_minutes INTEGER;');
+    }
     const hasMealTypeColumn = scheduleItemColumns.some((column) => column.name === 'meal_type');
 
     if (!hasMealTypeColumn) {
@@ -15495,6 +15511,9 @@ export type ScheduleItemRecord = {
   appointmentType: string | null;
   location: string | null;
   providerName: string | null;
+  // How long it takes, when somebody said (B4). Null otherwise, and never
+  // guessed.
+  durationMinutes: number | null;
   // NOT appointment-only, despite living in this same block -- 2026-08-18,
   // meals can link to a real phone-calendar event too (see the Meals
   // lens' own "Add to calendar" action in schedule.tsx). Null on any real
@@ -15522,6 +15541,7 @@ const SCHEDULE_ITEM_COLUMNS = `
   COALESCE(outside_eating_window, 0) = 1 AS outsideEatingWindow,
   COALESCE(settled_automatically, 0) = 1 AS settledAutomatically,
   rotation_selections_json AS rotationSelectionsJson,
+  duration_minutes AS durationMinutes,
   created_at AS createdAt, updated_at AS updatedAt
 `;
 
@@ -16484,8 +16504,9 @@ export async function scheduleAppointment(input: {
   providerName?: string;
   notes?: string;
   linkedDeviceCalendarEventId?: string;
+  durationMinutes?: number | null;
 }): Promise<string> {
-  return insertScheduleSeries({
+  const id = await insertScheduleSeries({
     itemType: 'appointment',
     mealType: null,
     title: input.title,
@@ -16497,6 +16518,11 @@ export async function scheduleAppointment(input: {
     linkedDeviceCalendarEventId: input.linkedDeviceCalendarEventId ?? null,
     repeat: { type: 'none' },
   });
+  if (input.durationMinutes) {
+    const db = await getDatabase();
+    await db.runAsync('UPDATE schedule_items SET duration_minutes = ? WHERE id = ?', input.durationMinutes, id);
+  }
+  return id;
 }
 
 export async function listScheduledAppointmentsForDate(date: string) {
@@ -16531,7 +16557,15 @@ export async function listUpcomingAppointments(fromDate: string, toDate: string)
 
 export async function updateAppointment(
   id: string,
-  input: { title: string; scheduledFor: string; appointmentType?: string; location?: string; providerName?: string; notes?: string },
+  input: {
+    title: string;
+    scheduledFor: string;
+    appointmentType?: string;
+    location?: string;
+    providerName?: string;
+    notes?: string;
+    durationMinutes?: number | null;
+  },
 ) {
   const db = await getDatabase();
   const now = new Date().toISOString();
@@ -16539,7 +16573,8 @@ export async function updateAppointment(
   await db.runAsync(
     `
       UPDATE schedule_items
-      SET title = ?, scheduled_for = ?, appointment_type = ?, location = ?, provider_name = ?, notes = ?, updated_at = ?
+      SET title = ?, scheduled_for = ?, appointment_type = ?, location = ?, provider_name = ?, notes = ?,
+          duration_minutes = ?, updated_at = ?
       WHERE id = ?
     `,
     input.title.trim(),
@@ -16548,6 +16583,7 @@ export async function updateAppointment(
     input.location?.trim() || null,
     input.providerName?.trim() || null,
     input.notes?.trim() || null,
+    input.durationMinutes ?? null,
     now,
     id,
   );
