@@ -64,6 +64,15 @@ Direct statement: "I think the app is also about how we humans live with nature.
 
 The first named consequence is **bees and beekeeping, all of it**, which has to come into the app. Direct correction, 2026-09-26: "It is also the hive log. Everything, not just some things about bees." That is a complete hive log in Garden (colonies, queens, inspections, mite counts and treatments, feeding, harvests, swarms, losses, equipment, costs, and native and stingless bee boxes, on the existing area, equipment, readings and yield patterns) and complete reading on every kind of bee and every part of keeping them, with bee-centred beekeeping set beside conventional practice, each described fairly. The full scope is the Project Tracker row [Bees and beekeeping](https://app.notion.com/p/3e753652f272816bac9ae60e053c4d6d). The owner intends to keep bees. Not designed or built yet.
 
+### What the app gives back in the end: a life's Inside Story (2026-09-26)
+
+Direct statement: "I've often thought about how cool it would be if people had a way to leave something behind about them that humanity would carry forward so that everyone's individual life would carry meaning through their lived life and what it looked like through their own eyes, through their own experiences. This is, in my mind, sort of the culmination of what this app gives back in the end." So the stated end point is a person's life, told through their own eyes from what they recorded over years, that they can leave to the people they choose and, if they wish, to archives built to last. It is where Your Story ends up, and its first edition already has a section called The Inside Story. Not built, and most of what it rests on (the Diary, "If something happens to me", the family tiers, years of sync) is not built either; the full account is the Decision row [A life's Inside Story](https://app.notion.com/p/3e753652f2728158b2a1dd56d6ac4a7f). Rules that bind everything built before it:
+
+1. **The words are the person's.** The app gathers, lays out and prompts, and never writes the story in its own voice.
+2. **It outlives the app.** A printed book or PDF plus an open-format archive readable with nothing installed, so choose export formats with that in mind from now on.
+3. **Private until chosen.** Composing a legacy is a separate, deliberate act of picking what goes in; no record, and above all no diary entry, becomes part of it quietly. Other people named in an entry are shown before it is included.
+4. **No company server holds it**, and giving anything to the public is said plainly to be permanent before the last step. Donating health data to research is a separate choice, never bundled in.
+
 ### International scope
 
 Not US-centric. Three distinct components:
