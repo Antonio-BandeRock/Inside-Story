@@ -360,6 +360,12 @@ export const TOUR_LENS_NAMES: Record<string, Record<string, string>> = {
     healingStage: 'Healing Stage',
     labs: 'Labs',
     myMeds: 'My Meds & Interactions',
+    'i-today': 'Your Day',
+    'i-signals': 'Signals Today',
+    'i-appointment': 'Before Your Appointment',
+    'i-money': 'Money This Month',
+    'i-kitchen': 'What the Kitchen Holds',
+    'i-garden': 'From the Garden',
   },
   '/trends': {
     nutrients: 'Nutrients',
@@ -377,6 +383,25 @@ export const TOUR_LENS_NAMES: Record<string, Record<string, string>> = {
     harvest: 'Garden Yield',
     conditions: 'Growing Conditions',
     patterns: 'Pattern Finder',
+    hydration: 'Hydration',
+    bloodPressure: 'Blood Pressure',
+    doses: 'Doses Over Time',
+    care: 'Appointments & Care',
+    work: 'Work',
+    reactions: 'Reactions & New Foods',
+    nights: 'Nights',
+    ferments: 'Ferments',
+    planned: 'Planned and Eaten',
+  },
+  '/reports': {
+    overview: 'Overview',
+    'r-doctor': 'For Your Doctor',
+    'r-nutrition': 'For a Nutritionist',
+    'r-trainer': 'For a Trainer',
+    'r-care': 'For a Caregiver',
+    'r-month': 'Looking Back',
+    'r-medical-costs': 'Medical Costs',
+    'r-garden': 'Garden Record',
   },
 };
 
@@ -462,6 +487,12 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     healingStage: 'Foods sorted for the stage you said you are at, for each condition that has stages.',
     labs: 'Your lab results with their dates, to read beside everything else.',
     myMeds: 'Your medicines and supplements beside your foods, with the timing that keeps them apart and rules of your making.',
+    'i-today': 'Today in one place: meals and doses in clock order, what is due, and anything left open from yesterday.',
+    'i-signals': 'How you said you feel today, set beside what you ate and took around it.',
+    'i-appointment': 'Your next appointment, and what changed since the last one with the same provider.',
+    'i-money': 'This month so far: spending, what is still to come, budgets and where the insurance plan stands.',
+    'i-kitchen': 'What is on hand, and which of your recipes it already covers.',
+    'i-garden': 'What the garden has ready or on hand, and the nutrients it put in your meals this week.',
   },
   '/trends': {
     nutrients: 'Each nutrient week by week, with food and supplements shown apart.',
@@ -479,6 +510,25 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     harvest: 'What the garden grew, by crop and by season.',
     conditions: 'Garden readings over time, area by area.',
     patterns: 'Foods that tend to come before a flare, each set beside how often they turn up anyway.',
+    hydration: 'What you drank, day by day, against your target.',
+    bloodPressure: 'Blood pressure readings over time, beside the range yours usually fall in.',
+    doses: 'Doses as scheduled and as marked, week by week.',
+    care: 'Appointments kept, moved and coming up, over time.',
+    work: 'How the work weeks went, from your check-ins.',
+    reactions: 'After-meal reactions and new foods tried, over time.',
+    nights: 'Nights up and how you slept, week by week.',
+    ferments: 'Ferments started, finished and eaten, over time.',
+    planned: 'Meals you planned beside meals you ate.',
+  },
+  '/reports': {
+    overview: 'Everything you logged over the range, in one report.',
+    'r-doctor': 'Symptoms, blood pressure, doses, medicines, labs and what changed since the last visit.',
+    'r-nutrition': 'Nutrients, hydration, planned and eaten meals, and reactions after meals.',
+    'r-trainer': 'Movement, sleep, weight, blood pressure and hydration, with health details left out.',
+    'r-care': 'What is on today, doses, appointments, conditions and medicines.',
+    'r-month': 'How the range went across every part of life you record, including what it cost.',
+    'r-medical-costs': 'Medical bills, where the insurance plan stands, and what the conditions cost.',
+    'r-garden': 'Harvests, how long each grow took, compost and what was shared.',
   },
 };
 
@@ -783,9 +833,10 @@ export const TOUR_TABS: TourTabDef[] = [
       'To point out a medicine and a food that are best kept apart, with the reason and the source.',
     ],
     groups: [
-      { title: 'What you ate today', lenses: ['nutrients', 'sixDs', 'hydration', 'advisories', 'portions'] },
+      { title: 'Today', lenses: ['i-today', 'i-signals', 'nutrients', 'sixDs', 'hydration', 'advisories', 'portions'] },
       { title: 'Any food', lenses: ['foodLookup', 'nutrientRanking', 'cookingImpact', 'prep', 'safeFoods'] },
       { title: 'Your health', lenses: ['healingStage', 'labs', 'myMeds'] },
+      { title: 'Around your life', lenses: ['i-appointment', 'i-money', 'i-kitchen', 'i-garden'] },
     ],
     steps: [
       {
@@ -827,10 +878,10 @@ export const TOUR_TABS: TourTabDef[] = [
       'To say what it is comparing against, and never to say one thing made another happen.',
     ],
     groups: [
-      { title: 'Eating', lenses: ['nutrients', 'sixDs', 'variety', 'eatingWindow', 'groceries'] },
-      { title: 'Your body', lenses: ['symptoms', 'weight', 'movement', 'labs', 'therapyResponse'] },
-      { title: 'Daily living', lenses: ['keepingUp', 'cost'] },
-      { title: 'Garden', lenses: ['harvest', 'conditions'] },
+      { title: 'Eating', lenses: ['nutrients', 'sixDs', 'variety', 'eatingWindow', 'groceries', 'hydration', 'planned', 'reactions'] },
+      { title: 'Your body', lenses: ['symptoms', 'weight', 'bloodPressure', 'movement', 'nights', 'labs', 'therapyResponse', 'doses'] },
+      { title: 'Daily living', lenses: ['keepingUp', 'care', 'work', 'cost'] },
+      { title: 'Garden and kitchen', lenses: ['harvest', 'conditions', 'ferments'] },
       { title: 'Looking for patterns', lenses: ['patterns'] },
     ],
     steps: [
@@ -867,13 +918,17 @@ export const TOUR_TABS: TourTabDef[] = [
     title: 'Reports',
     question: 'What is Reports for?',
     answer:
-      'Reports turns your records into one document to take to an appointment, so you walk in with the facts rather than trying to remember them. It covers your conditions, medicines, nutrients, symptoms, movement, sleep, weight, blood pressure, labs and notes over the last week, month or three months, each figure saying where it came from. It is made on this device and shared as a PDF only when you choose.',
+      'Reports turns your records into a document to hand to somebody, so you walk in with the facts rather than trying to remember them. The Overview holds everything; the other reports are each put together for one reader, a doctor, a nutritionist, a trainer or a caregiver, or one subject, a look back, medical costs or the garden, over the last week, month or three months, each figure saying where it came from. It is made on this device and shared as a PDF only when you choose.',
     relyOn: [
       'To remember the weeks between appointments for you.',
       'To say where every figure came from, so nothing in it is a guess.',
       'To stay on this device until you decide to share it.',
     ],
-    groups: [{ title: 'Overview', line: 'Choose 7, 30 or 90 days, read it on screen, and save or share it as a PDF.', lenses: [] }],
+    groups: [
+      { title: 'Everything', line: 'Choose 7, 30 or 90 days, read it on screen, and save or share it as a PDF.', lenses: ['overview'] },
+      { title: 'For one reader', lenses: ['r-doctor', 'r-nutrition', 'r-trainer', 'r-care'] },
+      { title: 'On one subject', lenses: ['r-month', 'r-medical-costs', 'r-garden'] },
+    ],
     steps: [
       {
         doThis: 'Make a report a few days before your next appointment.',
@@ -903,6 +958,7 @@ const LENS_PARAMS: Partial<Record<TourPath, string>> = {
   '/garden': 'openGardenLens',
   '/insights': 'openInsightsLens',
   '/trends': 'openTrendsLens',
+  '/reports': 'openReportsLens',
 };
 
 // Where a lens named in the tour opens.

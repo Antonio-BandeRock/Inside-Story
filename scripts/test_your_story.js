@@ -644,6 +644,12 @@ const back = load('lib/storyReturn.ts');
     for (const group of def.groups) {
       for (const key of group.lenses) {
         check(!!interview.TOUR_LENS_NAMES[def.path] && !!interview.TOUR_LENS_NAMES[def.path][key], `${def.path}/${key} has a name`);
+        // Reports builds its lenses from lib/reportKinds.ts, so a tour key is
+        // checked there rather than in the tab file (1.0.52.7).
+        if (def.path === '/reports') {
+          const kinds = fs.readFileSync(path.join(__dirname, '..', 'lib', 'reportKinds.ts'), 'utf8');
+          check(kinds.includes(`key: '${key}'`), `tour: lib/reportKinds.ts has a report ${key}`);
+        }
         if (!tab) continue;
         const file = tab[1];
         tabSource[file] = tabSource[file] || fs.readFileSync(path.join(__dirname, '..', 'app', '(tabs)', file), 'utf8');

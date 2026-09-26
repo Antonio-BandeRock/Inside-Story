@@ -18,23 +18,23 @@ import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { buildReport, renderReportText, type ReportDocument } from '../../lib/reportGenerator';
+import { REPORT_KINDS, type ReportKind } from '../../lib/reportKinds';
 import { exportReportAsPdf } from '../../lib/reportPdf';
 import { markYourStorySeen } from '../../lib/yourStoryDb';
 
 const TAB_COLOR = colors.tabReports;
 const band = makeTabBandStyles(TAB_COLOR);
 
-// One real lens -- a report is one document, not several different views
-// the way Trends' own five lenses genuinely are. Kept as a real LensOption
-// array anyway (rather than skipping LensHub entirely) so the corner
-// button/Info tile still behave the same, consistent way every other tab
-// already does.
-type ReportsLens = 'overview';
+// Eight reports since 1.0.52.7: the Overview plus the seven marked Build on
+// the inputs-to-outputs map, each a different reader's view over the same
+// records. What each one holds is defined in lib/reportKinds.ts; this
+// screen only picks one and shows it.
+type ReportsLens = ReportKind;
 
 const REPORTS_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this page does',
-    body: "Pulls together everything logged over a date range: nutrient intake, condition score flags, symptoms/flares, active meds and supplements, and your most recent lab results, into one plain, readable summary. Built for handing to a doctor, nutritionist, or trainer, or just for your records.",
+    body: 'Pulls what was logged over a date range into one plain, readable report. The Overview holds everything; the other reports are each put together for one reader (a doctor, a nutritionist, a trainer, a caregiver) or one subject (a look back over the range, medical costs, the garden), and leave out what that reader does not need.',
   },
   {
     heading: 'Privacy',
@@ -50,9 +50,12 @@ const REPORTS_HELP_SECTIONS: HelpSection[] = [
   },
 ];
 
-const REPORTS_LENSES: LensOption<ReportsLens>[] = [
-  { key: 'overview', label: 'Overview', icon: 'document-text-outline', help: REPORTS_HELP_SECTIONS },
-];
+const REPORTS_LENSES: LensOption<ReportsLens>[] = REPORT_KINDS.map((def) => ({
+  key: def.key,
+  label: def.label,
+  icon: def.icon as LensOption<ReportsLens>['icon'],
+  help: [{ heading: 'What this report holds', body: def.help }, ...REPORTS_HELP_SECTIONS.slice(1)],
+}));
 
 const DAY_RANGE_OPTIONS = [
   { value: 7, label: '7d' },
@@ -71,7 +74,9 @@ export default function ReportsScreen() {
   // same way Food and Garden already take a lens name. Without it a tap
   // from Home landed on this page’s resting picker, which is one more
   // tap than the card exists to save.
-  const { openReportDays } = useLocalSearchParams<{ openReportDays?: string }>();
+  // Your Story's tour names a report by its key (1.0.52.7), the way it
+  // names a Trends or Insights lens.
+  const { openReportDays, openReportsLens } = useLocalSearchParams<{ openReportDays?: string; openReportsLens?: string }>();
   // Lifted out of MyItemsHub itself, 2026-08-16 -- same reasoning as
   // Food's own identical addition (app/(tabs)/food.tsx): lets LensHub's
   // new "My Reports" top-left tile (see its extraTile prop below) open
@@ -81,14 +86,18 @@ export default function ReportsScreen() {
   const [myReportsOpen, setMyReportsOpen] = useState(false);
   useFocusEffect(
     useCallback(() => {
+      const requestedLens = REPORT_KINDS.find((def) => def.key === openReportsLens);
+      if (requestedLens) setLens(requestedLens.key);
       if (openReportDays === '7' || openReportDays === '30' || openReportDays === '90') {
         setDays(Number(openReportDays) as 7 | 30 | 90);
+      }
+      if (requestedLens || openReportDays === '7' || openReportDays === '30' || openReportDays === '90') {
         setRevealed(true);
         return;
       }
       setRevealed(false);
       return () => setRevealed(false);
-    }, [openReportDays]),
+    }, [openReportDays, openReportsLens]),
   );
   const autoOpenLensHub = useAutoOpenLensHubSignal();
   const activeLensLabel = REPORTS_LENSES.find((option) => option.key === lens)?.label;
@@ -103,10 +112,10 @@ export default function ReportsScreen() {
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const reportText = report ? renderReportText(report) : null;
 
-  const load = useCallback((forDays: 7 | 30 | 90) => {
+  const load = useCallback((forDays: 7 | 30 | 90, forLens: ReportsLens) => {
     setLoading(true);
     setLoadError(null);
-    buildReport(forDays)
+    buildReport(forDays, forLens)
       .then((doc) => {
         setReport(doc);
       })
@@ -121,7 +130,7 @@ export default function ReportsScreen() {
       .finally(() => setLoading(false));
   }, []);
 
-  useFocusEffect(useCallback(() => { if (revealed) load(days); }, [revealed, days, load]));
+  useFocusEffect(useCallback(() => { if (revealed) load(days, lens); }, [revealed, days, lens, load]));
 
   async function handleShareText() {
     if (!reportText) return;
@@ -176,10 +185,7 @@ export default function ReportsScreen() {
                 <TouchableOpacity
                   key={option.value}
                   style={[styles.pill, days === option.value && styles.pillActive]}
-                  onPress={() => {
-                    setDays(option.value);
-                    load(option.value);
-                  }}
+                  onPress={() => setDays(option.value)}
                 >
                   <Text style={[styles.pillText, days === option.value && styles.pillTextActive]}>{option.label}</Text>
                 </TouchableOpacity>

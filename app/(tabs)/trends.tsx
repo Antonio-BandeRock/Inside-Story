@@ -111,6 +111,10 @@ import { getCostSummary, getEarliestMoneyDate } from '../../lib/costOfEatingDb';
 import { summarizePlateShare, type PlateShareBand, type PlateValueBand } from '../../lib/plateSource';
 import { getPlateUses, getPlateValueBand } from '../../lib/plateSourceDb';
 import { CORE_NUTRIENT_CODES } from './index';
+import { ReadingBandsView } from '../../components/ReadingBandsView';
+import type { ReadingView } from '../../lib/readingBands';
+import type { YourStoryItemKey } from '../../lib/yourStory';
+import { loadTrendsMoreView, type TrendsMoreLens } from '../../lib/trendsMoreDb';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -135,7 +139,27 @@ type TrendsLens =
   | 'conditions'
   | 'cost'
   | 'patterns'
-  | 'therapyResponse';
+  | 'therapyResponse'
+  | TrendsMoreLens;
+
+// The nine lenses built from the inputs-to-outputs map (1.0.52.7) all read
+// through one loader into one ReadingView, so each needs only its line
+// here rather than a state and a render branch of its own.
+const MORE_LENSES: Record<TrendsMoreLens, { loadingLine: string; missingItem?: YourStoryItemKey }> = {
+  hydration: { loadingLine: 'Reading what you drank…', missingItem: 'water' },
+  bloodPressure: { loadingLine: 'Reading your blood pressure…' },
+  doses: { loadingLine: 'Reading your doses…', missingItem: 'meds' },
+  care: { loadingLine: 'Reading your appointments…' },
+  work: { loadingLine: 'Reading your work weeks…', missingItem: 'workCheckin' },
+  reactions: { loadingLine: 'Reading reactions and food tests…', missingItem: 'checkin' },
+  nights: { loadingLine: 'Reading your nights…' },
+  ferments: { loadingLine: 'Reading your ferments…' },
+  planned: { loadingLine: 'Reading what was planned and eaten…', missingItem: 'meal' },
+};
+
+function isMoreLens(lens: TrendsLens): lens is TrendsMoreLens {
+  return lens in MORE_LENSES;
+}
 
 // Shared across all three lenses' own Info content below -- the same
 // caveat applies regardless of which chart you're looking at. Reworded
@@ -450,6 +474,133 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
     ],
   },
   {
+    key: 'hydration',
+    label: "Hydration",
+    icon: 'water-outline',
+    help: [
+      {
+        heading: "Hydration",
+        body: "Every drink you log as a meal, counted by week, by kind and by time of day, beside how much of the day's water target your logged food and drink reached.",
+      },
+      {
+        heading: "Reading it",
+        body: "Nothing here says one thing led to another. It sets what you logged side by side, and a week with nothing logged shows as a gap rather than as none.",
+      },
+    ],
+  },
+  {
+    key: 'bloodPressure',
+    label: "Blood Pressure",
+    icon: 'heart-outline',
+    help: [
+      {
+        heading: "Blood Pressure",
+        body: "Every reading you have entered on Signals, the latest first, then by week and by time of day. Your usual range is the middle of your earlier readings, which is what they have been, never what they should be.",
+      },
+      {
+        heading: "The numbers to aim for",
+        body: "Those come from whoever looks after your blood pressure. This lens only shows what you wrote down.",
+      },
+    ],
+  },
+  {
+    key: 'doses',
+    label: "Doses Over Time",
+    icon: 'medkit-outline',
+    help: [
+      {
+        heading: "Doses Over Time",
+        body: "Every dose on your schedule, by week, by time of day and by item, counted as marked taken, marked skipped, or not marked. A dose nobody marked is not counted as missed.",
+      },
+      {
+        heading: "Not advice",
+        body: "Nothing here suggests changing a dose or when you take it. That is a conversation with your prescriber.",
+      },
+    ],
+  },
+  {
+    key: 'care',
+    label: "Appointments & Care",
+    icon: 'calendar-outline',
+    help: [
+      {
+        heading: "Appointments & Care",
+        body: "Every appointment on your schedule, grouped by kind and by who you saw, with how long it has usually been between visits, and what is coming up next.",
+      },
+    ],
+  },
+  {
+    key: 'work',
+    label: "Work",
+    icon: 'briefcase-outline',
+    help: [
+      {
+        heading: "Work",
+        body: "Your weekly work check-ins over time, with the sleep and flares logged in the same weeks set beside them.",
+      },
+      {
+        heading: "Reading it",
+        body: "Nothing here says one thing led to another. It sets what you logged side by side, and a week with nothing logged shows as a gap rather than as none.",
+      },
+    ],
+  },
+  {
+    key: 'reactions',
+    label: "Reactions & New Foods",
+    icon: 'alert-circle-outline',
+    help: [
+      {
+        heading: "Reactions & New Foods",
+        body: "Every food test you have run and how it stands, then the reactions you logged after meals, by week and one by one.",
+      },
+      {
+        heading: "Reading it",
+        body: "Nothing here says one thing led to another. It sets what you logged side by side, and a week with nothing logged shows as a gap rather than as none.",
+      },
+    ],
+  },
+  {
+    key: 'nights',
+    label: "Nights",
+    icon: 'moon-outline',
+    help: [
+      {
+        heading: "Nights",
+        body: "How many times you got up in the night, from Signals > Nocturia, by week, beside whether you logged a drink from six in the evening on, and the usual time you first woke.",
+      },
+      {
+        heading: "Reading it",
+        body: "Nothing here says one thing led to another. It sets what you logged side by side, and a week with nothing logged shows as a gap rather than as none.",
+      },
+    ],
+  },
+  {
+    key: 'ferments',
+    label: "Ferments",
+    icon: 'flask-outline',
+    help: [
+      {
+        heading: "Ferments",
+        body: "Batches you started, what is still going, and how much of what you made has been drunk, with each unit kept on its own line.",
+      },
+    ],
+  },
+  {
+    key: 'planned',
+    label: "Planned and Eaten",
+    icon: 'clipboard-outline',
+    help: [
+      {
+        heading: "Planned and Eaten",
+        body: "Every meal on your schedule and how it went: eaten as planned, partly, something else instead, skipped, or not marked. A meal nobody marked is not counted as skipped.",
+      },
+      {
+        heading: "Reading it",
+        body: "This is a record of how plans and days lined up, never a grade on either.",
+      },
+    ],
+  },
+  {
     key: 'patterns',
     label: 'Pattern Finder',
     icon: 'search-outline',
@@ -695,6 +846,7 @@ export default function TrendsScreen() {
   useRegisterScreenHelp('Trends', TRENDS_HELP_SECTIONS, '/trends');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const folds = useBandFolds();
+  const [moreView, setMoreView] = useState<ReadingView | null>(null);
   const autoOpenLensHub = useAutoOpenLensHubSignal();
   const [lens, setLens] = useState<TrendsLens>('nutrients');
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -885,7 +1037,12 @@ export default function TrendsScreen() {
   // three every time the range or lens changes.
   const load = useCallback(() => {
     setLoading(true);
-    if (lens === 'nutrients') {
+    if (isMoreLens(lens)) {
+      loadTrendsMoreView(lens, days)
+        .then(setMoreView)
+        .catch(() => setMoreView(null))
+        .finally(() => setLoading(false));
+    } else if (lens === 'nutrients') {
       Promise.all([
         getNutrientTrendSeriesForRange(selectedNutrient, resolvedRange.startDate, resolvedRange.endDate),
         getNutrientTrendSeriesForRange('fiber_total', resolvedRange.startDate, resolvedRange.endDate),
@@ -1760,6 +1917,16 @@ export default function TrendsScreen() {
                   </TabBand>
                 </>
               )
+            ) : isMoreLens(lens) ? (
+              <ReadingBandsView
+                view={moreView}
+                loading={loading}
+                loadingLine={MORE_LENSES[lens].loadingLine}
+                folds={folds}
+                color={TAB_COLOR}
+                idPrefix={`trends:${lens}`}
+                missingItem={MORE_LENSES[lens].missingItem}
+              />
             ) : lens === 'keepingUp' ? (
               loading ? (
                 <View style={band.boxMuted}>

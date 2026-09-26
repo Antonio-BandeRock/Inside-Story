@@ -7339,6 +7339,22 @@ async function runDatabaseInitialization() {
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- Nights, 1.0.52.7: how many times somebody got up in the night,
+      -- written down the next morning. Signals > Nocturia is where it goes
+      -- in and Trends > Nights reads it beside the evening's drinks.
+      -- night_of is the date the night began, so waking at 3am on the 5th
+      -- belongs to the night of the 4th. first_wake is optional, 'HH:mm'.
+      CREATE TABLE IF NOT EXISTS nocturia_nights (
+        id TEXT PRIMARY KEY,
+        night_of TEXT NOT NULL,
+        times INTEGER NOT NULL,
+        first_wake TEXT,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_nocturia_nights_night_of ON nocturia_nights(night_of);
+
       -- Tell Claude, 2026-09-22: a note about a piece of this app, made
       -- from inside the app, for building the app and nothing else. The
       -- whole feature sits behind a switch in Profile that starts off, so

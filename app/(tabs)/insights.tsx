@@ -126,6 +126,11 @@ import {
 } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
+import { useBandFolds } from '../../hooks/useBandFolds';
+import { ReadingBandsView } from '../../components/ReadingBandsView';
+import { loadInsightsMoreView, type InsightsMoreLens } from '../../lib/insightsMoreDb';
+import type { ReadingView } from '../../lib/readingBands';
+import type { YourStoryItemKey } from '../../lib/yourStory';
 import { modalAnimationType } from '../../lib/visualPreferences';
 
 // 'YYYY-MM-DD' in LOCAL time -- same reasoning as the rest of the app
@@ -183,7 +188,24 @@ type Lens =
   | 'labs'
   | 'myMeds'
   | 'advisories'
-  | 'portions';
+  | 'portions'
+  | InsightsMoreLens;
+
+// The six lenses built from the inputs-to-outputs map (1.0.52.7) all read
+// through one loader into one ReadingView (lib/insightsMoreDb.ts), the
+// same way Trends' nine do, so each needs only its line here.
+const MORE_LENSES: Record<InsightsMoreLens, { loadingLine: string; missingItem?: YourStoryItemKey }> = {
+  'i-today': { loadingLine: 'Reading today…', missingItem: 'meal' },
+  'i-signals': { loadingLine: 'Reading today’s check-ins…', missingItem: 'checkin' },
+  'i-appointment': { loadingLine: 'Gathering what changed since the last visit…' },
+  'i-money': { loadingLine: 'Reading this month’s money…', missingItem: 'spending' },
+  'i-kitchen': { loadingLine: 'Reading what is on hand…', missingItem: 'kitchen' },
+  'i-garden': { loadingLine: 'Reading the garden…', missingItem: 'harvest' },
+};
+
+function isMoreLens(lens: Lens): lens is InsightsMoreLens {
+  return lens in MORE_LENSES;
+}
 
 // Shared across all three lenses' own Info content below -- the
 // drill-down navigator (ScopeHub) is the one mechanic all three have in
@@ -279,6 +301,30 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: "What isn't covered",
         body: "This is scoped to the 3 advisories that already exist. A per-food additive-detection system (naming which specific additives are in a given food) would need reference data this app doesn't have yet, so it isn't guessed at here.",
+      },
+    ],
+  },
+  {
+    key: 'i-today',
+    label: 'Your Day',
+    icon: 'today-outline',
+    group: 'Today',
+    help: [
+      {
+        heading: 'Your Day',
+        body: 'Everything on today in one place: meals and doses by the clock, routines and checks, upkeep that is due, appointments this week, Days Until counters landing soon, and anything planned for yesterday that was never marked. It reads what Schedules and Life already hold and changes nothing; marking and editing stay where each thing lives.',
+      },
+    ],
+  },
+  {
+    key: 'i-signals',
+    label: 'Signals Today',
+    icon: 'pulse-outline',
+    group: 'Today',
+    help: [
+      {
+        heading: 'Signals Today',
+        body: "Today's check-ins, flares and blood pressure readings set on one clock beside the meals and doses around them, so you can see what came before what. Sitting near each other on the clock does not mean one caused the other, and this lens never says it did.",
       },
     ],
   },
@@ -411,6 +457,54 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: 'What this is not',
         body: 'This is a maintenance estimate, not a prescribed target, a diagnosis, or a weight-loss plan. Set your sex, birth date, height, weight, and activity level in Profile to see it. Nothing here is guessed on your behalf.',
+      },
+    ],
+  },
+  {
+    key: 'i-appointment',
+    label: 'Before Your Appointment',
+    icon: 'calendar-outline',
+    group: 'Around Your Life',
+    help: [
+      {
+        heading: 'Before Your Appointment',
+        body: 'Your next appointment, and what changed since the last visit with the same provider: new lab results, flares, medicines and supplements started, ended or edited, and any health questions you noted in Capture. With no earlier visit on record it looks back 90 days. It gathers; it does not decide what to raise.',
+      },
+    ],
+  },
+  {
+    key: 'i-money',
+    label: 'Money This Month',
+    icon: 'wallet-outline',
+    group: 'Around Your Life',
+    help: [
+      {
+        heading: 'Money This Month',
+        body: 'This month so far from Life > Finances: what came in and went out, each budget against what is spent and already committed, medical bills and where your insurance plan stands, and what food, supplements and prescriptions have cost. Only money recorded against a day is counted, so nothing is guessed from a recurring rule.',
+      },
+    ],
+  },
+  {
+    key: 'i-kitchen',
+    label: 'What the Kitchen Holds',
+    icon: 'basket-outline',
+    group: 'Around Your Life',
+    help: [
+      {
+        heading: 'What the Kitchen Holds',
+        body: 'What Life > Kitchen has on hand by category, what is running low or has been there over a month, and which of your saved recipes the kitchen covers in full or in part right now. It reads the kitchen and never draws anything down.',
+      },
+    ],
+  },
+  {
+    key: 'i-garden',
+    label: 'From the Garden',
+    icon: 'leaf-outline',
+    group: 'Around Your Life',
+    help: [
+      {
+        heading: 'From the Garden',
+        body: 'Plantings ready or coming ready in the next three weeks, harvests still on hand, and what the garden supplied to your meals this week, with the share of a week of your nutrient targets it covered. A use whose amount cannot be turned into a weight is listed and left out of the share rather than guessed at.',
       },
     ],
   },
@@ -596,6 +690,32 @@ export default function InsightsScreen() {
   // See LensExplainer above for why this is one shared boolean rather
   // than one per lens.
   const [lensExplainerExpanded, setLensExplainerExpanded] = useState(true);
+  const folds = useBandFolds();
+  const [moreView, setMoreView] = useState<ReadingView | null>(null);
+  const [moreLoading, setMoreLoading] = useState(false);
+  // Reloads on focus and on switching into one of these lenses, the same
+  // way the day-scoped lenses below do, since every one reads today.
+  useFocusEffect(
+    useCallback(() => {
+      if (!isMoreLens(lens)) return;
+      let cancelled = false;
+      setMoreLoading(true);
+      setMoreView(null);
+      loadInsightsMoreView(lens)
+        .then((view) => {
+          if (!cancelled) setMoreView(view);
+        })
+        .catch(() => {
+          if (!cancelled) setMoreView(null);
+        })
+        .finally(() => {
+          if (!cancelled) setMoreLoading(false);
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, [lens]),
+  );
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -1202,6 +1322,18 @@ export default function InsightsScreen() {
                 loading={portionsLoading}
                 tabColor={TAB_COLOR}
               />
+            ) : isMoreLens(lens) ? (
+              <View style={styles.bandColumn}>
+                <ReadingBandsView
+                  view={moreView}
+                  loading={moreLoading}
+                  loadingLine={MORE_LENSES[lens].loadingLine}
+                  folds={folds}
+                  color={TAB_COLOR}
+                  idPrefix={`insights:${lens}`}
+                  missingItem={MORE_LENSES[lens].missingItem}
+                />
+              </View>
             ) : loading ? (
               <LensLoadingCard />
             ) : errorMessage ? (
@@ -1246,6 +1378,7 @@ export default function InsightsScreen() {
           doesn't make sense to offer a drill-down into content that isn't
           risen/showing yet. */}
       {!revealed ||
+      isMoreLens(lens) ||
       lens === 'foodLookup' ||
       lens === 'nutrientRanking' ||
       lens === 'cookingImpact' ||

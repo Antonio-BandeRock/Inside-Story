@@ -224,6 +224,7 @@ const AREAS: readonly Area[] = [
   // Both kinds of counter read as one thing here, 2026-09-22: somebody who
   // started three of them does not care which tab each was born on.
   { one: 'Days Until counter', many: 'Days Until counters', count: ['garden_countdowns', 'countdowns'], quiet: [] },
+  { one: 'night logged', many: 'nights logged', count: ['nocturia_nights'], quiet: [] },
   {
     one: 'piece of grow setup',
     many: 'pieces of grow setup',

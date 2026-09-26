@@ -7,6 +7,7 @@ import {
   listCheckins,
   listLabResults,
   listPersonalRules,
+  getStoredMeasurementSystem,
   type LabResultRecord,
 } from './db';
 import { getCheckinTagDefinition } from './checkinTags';
@@ -19,6 +20,23 @@ import {
 import { APP_VERSION } from '../constants/version';
 import { REFERENCE_DB_VERSION } from './referenceDbVersion';
 import { reportVersionLine } from './reportVersion';
+import {
+  costSections,
+  eatingCostSection,
+  gardenYieldSections,
+  insuranceSection,
+  medicalBillsSection,
+  REPORT_KIND_BY_KEY,
+  sectionsFromReading,
+  type ReportKind,
+} from './reportKinds';
+import type { ReadingView } from './readingBands';
+import { loadTrendsMoreView, type TrendsMoreLens } from './trendsMoreDb';
+import { loadInsightsMoreView, type InsightsMoreLens } from './insightsMoreDb';
+import { getActiveInsurancePlan, listMedicalBills } from './financeHealthDb';
+import { describePlanStanding, planStanding } from './financeHealth';
+import { getCostSummary } from './costOfEatingDb';
+import { getHarvestYieldSummary } from './harvestYieldDb';
 
 // Same real, small nutrient set app/(tabs)/index.tsx (Home) and
 // app/(tabs)/trends.tsx both already use, duplicated here rather than
@@ -110,42 +128,54 @@ function plural(count: number, singular: string, pluralWord = `${singular}s`): s
   return `${count} ${count === 1 ? singular : pluralWord}`;
 }
 
-export async function buildReport(days: number): Promise<ReportDocument> {
+// Which report is being built (1.0.52.7). The Overview carries every core
+// section; each narrower report names the core sections its reader needs
+// in lib/reportKinds.ts, and the ones it leaves out are never gathered, so
+// the Trainer report does not wait on a nutrient pass it will not show.
+export async function buildReport(days: number, kind: ReportKind = 'overview'): Promise<ReportDocument> {
+  const def = REPORT_KIND_BY_KEY[kind];
+  const want = new Set(def.core);
   const sections: ReportSection[] = [];
   const rangeStart = rangeStartDate(days);
 
-  // Tracked conditions
-  const [userConditionCodes, allConditions] = await Promise.all([getUserConditions(), listAllConditions()]);
-  const conditionNames = userConditionCodes
-    .map((code) => allConditions.find((c) => c.code === code)?.name ?? code)
-    .sort((a, b) => a.localeCompare(b));
-  sections.push({
-    kind: 'list',
-    heading: 'Tracked conditions',
-    rows: conditionNames,
-    empty: 'None selected in Profile.',
-  });
+  // Tracked conditions. The codes are read whenever the flags section is
+  // wanted too, since that section is scoped to them.
+  const userConditionCodes = want.has('conditions') || want.has('flags') ? await getUserConditions() : [];
+  if (want.has('conditions')) {
+    const allConditions = await listAllConditions();
+    const conditionNames = userConditionCodes
+      .map((code) => allConditions.find((c) => c.code === code)?.name ?? code)
+      .sort((a, b) => a.localeCompare(b));
+    sections.push({
+      kind: 'list',
+      heading: 'Tracked conditions',
+      rows: conditionNames,
+      empty: 'None selected in Profile.',
+    });
+  }
 
   // Nutrient highlights: the same per-nutrient series Trends' Nutrients
   // lens computes, averaged across the range rather than plotted point by
   // point. All nine come from one pass over the logged ingredients
   // (2026-09-14): nine separate passes took minutes on a phone.
-  const nutrientRows: string[][] = [];
-  const nutrientSeries = await getNutrientTrendSeriesForCodes(CORE_NUTRIENT_CODES, rangeStart, isoDate(new Date()));
-  for (const code of CORE_NUTRIENT_CODES) {
-    const series = nutrientSeries.get(code);
-    if (!series || series.points.length === 0 || !series.displayName) continue;
-    const avg = series.points.reduce((sum, point) => sum + point.value, 0) / series.points.length;
-    nutrientRows.push([series.displayName, `${Math.round(avg)}%`, String(series.points.length)]);
+  if (want.has('nutrients')) {
+    const nutrientRows: string[][] = [];
+    const nutrientSeries = await getNutrientTrendSeriesForCodes(CORE_NUTRIENT_CODES, rangeStart, isoDate(new Date()));
+    for (const code of CORE_NUTRIENT_CODES) {
+      const series = nutrientSeries.get(code);
+      if (!series || series.points.length === 0 || !series.displayName) continue;
+      const avg = series.points.reduce((sum, point) => sum + point.value, 0) / series.points.length;
+      nutrientRows.push([series.displayName, `${Math.round(avg)}%`, String(series.points.length)]);
+    }
+    sections.push({
+      kind: 'table',
+      heading: 'Nutrient intake',
+      note: 'Average percent of the daily target, over the days with a logged meal. Days with nothing logged are left out rather than counted as zero.',
+      columns: ['Nutrient', 'Average of target', 'Days logged'],
+      rows: nutrientRows,
+      empty: 'No meals logged in this range yet.',
+    });
   }
-  sections.push({
-    kind: 'table',
-    heading: 'Nutrient intake',
-    note: 'Average percent of the daily target, over the days with a logged meal. Days with nothing logged are left out rather than counted as zero.',
-    columns: ['Nutrient', 'Average of target', 'Days logged'],
-    rows: nutrientRows,
-    empty: 'No meals logged in this range yet.',
-  });
 
   // Condition-scoped flag summary -- reuses the exact same real daily
   // series the Trends Condition Scores lens already computes, and the
@@ -155,62 +185,68 @@ export async function buildReport(days: number): Promise<ReportDocument> {
   // relevance; now it's scoped to what's actually relevant to the
   // conditions named directly above it, so the two sections agree with
   // each other.
-  const sixDsSeries = await getSixDimensionsFlagTrendSeries(days, userConditionCodes);
-  const totalFlaggedItemDays = sixDsSeries.reduce((sum, point) => sum + point.value, 0);
-  sections.push({
-    kind: 'list',
-    heading: 'Condition score flags',
-    note: 'Logged foods whose scored properties matter for the conditions above. A flag is a property worth knowing about, not a verdict on the food.',
-    rows:
-      sixDsSeries.length > 0
-        ? [`${plural(totalFlaggedItemDays, 'flagged item')} logged across ${plural(sixDsSeries.length, 'day')} with meals.`]
-        : [],
-    empty: 'No meals logged in this range yet.',
-  });
+  if (want.has('flags')) {
+    const sixDsSeries = await getSixDimensionsFlagTrendSeries(days, userConditionCodes);
+    const totalFlaggedItemDays = sixDsSeries.reduce((sum, point) => sum + point.value, 0);
+    sections.push({
+      kind: 'list',
+      heading: 'Condition score flags',
+      note: 'Logged foods whose scored properties matter for the conditions above. A flag is a property worth knowing about, not a verdict on the food.',
+      rows:
+        sixDsSeries.length > 0
+          ? [`${plural(totalFlaggedItemDays, 'flagged item')} logged across ${plural(sixDsSeries.length, 'day')} with meals.`]
+          : [],
+      empty: 'No meals logged in this range yet.',
+    });
+  }
 
   // Symptom/flare log -- real, chronological, everything actually logged
   // in the window, not just a count the way the 6-DFF section above is.
-  const [flares, reactions] = await Promise.all([
-    listCheckins({ checkinType: 'flare', limit: 200 }),
-    listCheckins({ checkinType: 'post_meal', limit: 200 }),
-  ]);
-  const symptomEntries = [...flares, ...reactions]
-    .filter((entry) => entry.loggedAt.slice(0, 10) >= rangeStart)
-    .sort((a, b) => a.loggedAt.localeCompare(b.loggedAt));
-  sections.push({
-    kind: 'table',
-    heading: 'Symptoms and flares',
-    note: 'Every flare and after-meal reaction logged in the range, in order. Severity is as the person rated it at the time.',
-    columns: ['When', 'Kind', 'Severity', 'Food', 'Tags', 'Notes'],
-    rows: symptomEntries.map((entry) => [
-      entry.loggedAt.slice(0, 16).replace('T', ' '),
-      entry.checkinType === 'flare' ? 'Flare' : 'Reaction',
-      severityLabel(entry.severity),
-      entry.foodName ?? '',
-      entry.tags.map((code) => getCheckinTagDefinition(code)?.label ?? code).join(', '),
-      entry.notes ?? '',
-    ]),
-    empty: 'None logged in this range.',
-  });
+  if (want.has('symptoms')) {
+    const [flares, reactions] = await Promise.all([
+      listCheckins({ checkinType: 'flare', limit: 200 }),
+      listCheckins({ checkinType: 'post_meal', limit: 200 }),
+    ]);
+    const symptomEntries = [...flares, ...reactions]
+      .filter((entry) => entry.loggedAt.slice(0, 10) >= rangeStart)
+      .sort((a, b) => a.loggedAt.localeCompare(b.loggedAt));
+    sections.push({
+      kind: 'table',
+      heading: 'Symptoms and flares',
+      note: 'Every flare and after-meal reaction logged in the range, in order. Severity is as the person rated it at the time.',
+      columns: ['When', 'Kind', 'Severity', 'Food', 'Tags', 'Notes'],
+      rows: symptomEntries.map((entry) => [
+        entry.loggedAt.slice(0, 16).replace('T', ' '),
+        entry.checkinType === 'flare' ? 'Flare' : 'Reaction',
+        severityLabel(entry.severity),
+        entry.foodName ?? '',
+        entry.tags.map((code) => getCheckinTagDefinition(code)?.label ?? code).join(', '),
+        entry.notes ?? '',
+      ]),
+      empty: 'None logged in this range.',
+    });
+  }
 
   // Active meds/supplements/prescriptions -- reuses the exact real
   // registry My Meds & Interactions already reads (listAllActiveTreatments,
   // 2026-08-08), so this section can never drift from what's actually
   // marked active there.
-  const treatments = await listAllActiveTreatments();
-  sections.push({
-    kind: 'table',
-    heading: 'Active medications and supplements',
-    note: 'Everything currently marked active in Life > My Meds. Not scoped to the date range.',
-    columns: ['Name', 'Dose', 'How often', 'Type'],
-    rows: treatments.map((treatment) => [
-      treatment.name,
-      treatment.doseAmount != null ? `${treatment.doseAmount}${treatment.doseUnit ?? ''}` : '',
-      treatment.frequency ?? '',
-      treatment.treatmentType,
-    ]),
-    empty: 'None currently marked active.',
-  });
+  if (want.has('meds')) {
+    const treatments = await listAllActiveTreatments();
+    sections.push({
+      kind: 'table',
+      heading: 'Active medications and supplements',
+      note: 'Everything currently marked active in Life > My Meds. Not scoped to the date range.',
+      columns: ['Name', 'Dose', 'How often', 'Type'],
+      rows: treatments.map((treatment) => [
+        treatment.name,
+        treatment.doseAmount != null ? `${treatment.doseAmount}${treatment.doseUnit ?? ''}` : '',
+        treatment.frequency ?? '',
+        treatment.treatmentType,
+      ]),
+      empty: 'None currently marked active.',
+    });
+  }
 
   // Movement, 2026-09-14: what the phone's health store brought in by way
   // of Life > Movement, summarised the way Trends > Movement captions it.
@@ -218,60 +254,64 @@ export async function buildReport(days: number): Promise<ReportDocument> {
   // first; the rest of the store stays in the app. Weight and blood
   // pressure follow in a separate section since they are readings, not a
   // range average.
-  const [stepPoints, sleepPoints] = await Promise.all([getStepTrendPoints(days), getSleepTrendPoints(days)]);
-  const movementRows: string[] = [];
-  if (stepPoints.length > 0) {
-    const average = stepPoints.reduce((sum, point) => sum + point.value, 0) / stepPoints.length;
-    movementRows.push(`Steps: ${Math.round(average).toLocaleString()} a day, averaged over ${plural(stepPoints.length, 'recorded day')}.`);
+  if (want.has('movement')) {
+    const [stepPoints, sleepPoints] = await Promise.all([getStepTrendPoints(days), getSleepTrendPoints(days)]);
+    const movementRows: string[] = [];
+    if (stepPoints.length > 0) {
+      const average = stepPoints.reduce((sum, point) => sum + point.value, 0) / stepPoints.length;
+      movementRows.push(`Steps: ${Math.round(average).toLocaleString()} a day, averaged over ${plural(stepPoints.length, 'recorded day')}.`);
+    }
+    if (sleepPoints.length > 0) {
+      const average = sleepPoints.reduce((sum, point) => sum + point.value, 0) / sleepPoints.length;
+      movementRows.push(`Sleep: ${average.toFixed(1)} hours a night, averaged over ${plural(sleepPoints.length, 'recorded night')}.`);
+    }
+    sections.push({
+      kind: 'list',
+      heading: 'Movement and sleep',
+      note: "From the phone's health store, where connected. Days the phone did not record are left out rather than counted as zero.",
+      rows: movementRows,
+      empty: "Nothing from the phone's health store in this range. Life > Movement connects it.",
+    });
   }
-  if (sleepPoints.length > 0) {
-    const average = sleepPoints.reduce((sum, point) => sum + point.value, 0) / sleepPoints.length;
-    movementRows.push(`Sleep: ${average.toFixed(1)} hours a night, averaged over ${plural(sleepPoints.length, 'recorded night')}.`);
-  }
-  sections.push({
-    kind: 'list',
-    heading: 'Movement and sleep',
-    note: "From the phone's health store, where connected. Days the phone did not record are left out rather than counted as zero.",
-    rows: movementRows,
-    empty: "Nothing from the phone's health store in this range. Life > Movement connects it.",
-  });
 
   // Weight and blood pressure: the most recent reading of each, whether
   // typed in or brought in from the phone, plus the earliest in the range
   // for weight so a change over the window is visible without a chart.
-  const measurements = await listBodyMeasurements(undefined, 400);
-  const latestOf = (type: string) => measurements.find((row) => row.measurementType === type) ?? null;
-  const bodyRows: string[][] = [];
-  const weight = latestOf('weight');
-  if (weight) {
-    const inRange = measurements
-      .filter((row) => row.measurementType === 'weight' && row.loggedAt.slice(0, 10) >= rangeStart)
-      .sort((a, b) => a.loggedAt.localeCompare(b.loggedAt));
-    const earliest = inRange[0];
-    const change =
-      earliest && earliest.id !== weight.id && earliest.unit === weight.unit
-        ? `${weight.value - earliest.value >= 0 ? '+' : ''}${(weight.value - earliest.value).toFixed(1)} ${weight.unit} since ${earliest.loggedAt.slice(0, 10)}`
-        : '';
-    bodyRows.push(['Weight', `${weight.value} ${weight.unit}`, weight.loggedAt.slice(0, 10), change]);
+  if (want.has('body')) {
+    const measurements = await listBodyMeasurements(undefined, 400);
+    const latestOf = (type: string) => measurements.find((row) => row.measurementType === type) ?? null;
+    const bodyRows: string[][] = [];
+    const weight = latestOf('weight');
+    if (weight) {
+      const inRange = measurements
+        .filter((row) => row.measurementType === 'weight' && row.loggedAt.slice(0, 10) >= rangeStart)
+        .sort((a, b) => a.loggedAt.localeCompare(b.loggedAt));
+      const earliest = inRange[0];
+      const change =
+        earliest && earliest.id !== weight.id && earliest.unit === weight.unit
+          ? `${weight.value - earliest.value >= 0 ? '+' : ''}${(weight.value - earliest.value).toFixed(1)} ${weight.unit} since ${earliest.loggedAt.slice(0, 10)}`
+          : '';
+      bodyRows.push(['Weight', `${weight.value} ${weight.unit}`, weight.loggedAt.slice(0, 10), change]);
+    }
+    const systolic = latestOf('blood_pressure_systolic');
+    const diastolic = latestOf('blood_pressure_diastolic');
+    if (systolic && diastolic) {
+      bodyRows.push([
+        'Blood pressure',
+        `${Math.round(systolic.value)}/${Math.round(diastolic.value)} ${systolic.unit}`,
+        systolic.loggedAt.slice(0, 10),
+        '',
+      ]);
+    }
+    sections.push({
+      kind: 'table',
+      heading: 'Weight and blood pressure',
+      note: 'The most recent reading of each, typed in or brought in from the phone. Not scoped to the date range.',
+      columns: ['Measure', 'Reading', 'Date', 'Change in range'],
+      rows: bodyRows,
+      empty: 'None logged yet.',
+    });
   }
-  const systolic = latestOf('blood_pressure_systolic');
-  const diastolic = latestOf('blood_pressure_diastolic');
-  if (systolic && diastolic) {
-    bodyRows.push([
-      'Blood pressure',
-      `${Math.round(systolic.value)}/${Math.round(diastolic.value)} ${systolic.unit}`,
-      systolic.loggedAt.slice(0, 10),
-      '',
-    ]);
-  }
-  sections.push({
-    kind: 'table',
-    heading: 'Weight and blood pressure',
-    note: 'The most recent reading of each, typed in or brought in from the phone. Not scoped to the date range.',
-    columns: ['Measure', 'Reading', 'Date', 'Change in range'],
-    rows: bodyRows,
-    empty: 'None logged yet.',
-  });
 
   // The person's own rules -- the personal half of the interaction rules
   // engine, 2026-08-18. Kept in a clearly separate, clearly labeled
@@ -283,56 +323,142 @@ export async function buildReport(days: number): Promise<ReportDocument> {
   // included -- a paused one isn't currently something the person is
   // acting on. Each line states plainly whether it came from the person
   // or their own doctor, never presented as verified medical fact.
-  const activePersonalRules = (await listPersonalRules(true)).filter((rule) => rule.active);
-  sections.push({
-    kind: 'list',
-    heading: 'Personal notes and rules',
-    note: 'Self-reported. These are observations the person has made or instructions a clinician has given them, written in their words. None of it is from cited research, and none of it has been verified by this app.',
-    rows: activePersonalRules.map(
-      (rule) => `${rule.description} (${rule.source === 'doctor' ? 'an instruction from a clinician' : "the person's observation"})`,
-    ),
-    empty: 'None saved.',
-  });
+  if (want.has('rules')) {
+    const activePersonalRules = (await listPersonalRules(true)).filter((rule) => rule.active);
+    sections.push({
+      kind: 'list',
+      heading: 'Personal notes and rules',
+      note: 'Self-reported. These are observations the person has made or instructions a clinician has given them, written in their words. None of it is from cited research, and none of it has been verified by this app.',
+      rows: activePersonalRules.map(
+        (rule) => `${rule.description} (${rule.source === 'doctor' ? 'an instruction from a clinician' : "the person's observation"})`,
+      ),
+      empty: 'None saved.',
+    });
+  }
 
   // Recent labs -- most recent result per test, matching Insights' own
   // Labs lens precedent, deliberately not scoped to the date range: a
   // lab drawn 4 months ago is still the real, current, relevant value for
   // a report handed to a doctor, unlike daily nutrient/symptom logging.
-  const [labResults, labTests] = await Promise.all([listLabResults(undefined, 100), getLabTests()]);
-  const testNames = new Map(labTests.map((test) => [test.code, test.displayName]));
-  const mostRecentByTest = new Map<string, LabResultRecord>();
-  for (const result of labResults) {
-    if (!mostRecentByTest.has(result.testCode)) mostRecentByTest.set(result.testCode, result);
+  if (want.has('labs')) {
+    const [labResults, labTests] = await Promise.all([listLabResults(undefined, 100), getLabTests()]);
+    const testNames = new Map(labTests.map((test) => [test.code, test.displayName]));
+    const mostRecentByTest = new Map<string, LabResultRecord>();
+    for (const result of labResults) {
+      if (!mostRecentByTest.has(result.testCode)) mostRecentByTest.set(result.testCode, result);
+    }
+    const recentLabs = [...mostRecentByTest.values()].sort((a, b) => b.testedAt.localeCompare(a.testedAt));
+    sections.push({
+      kind: 'table',
+      heading: 'Most recent lab results',
+      note: "The latest result for each test, whenever it was drawn. The range shown is the one the person's lab reported, not a general reference range.",
+      columns: ['Test', 'Result', 'Lab range', 'Tested', 'Lab'],
+      rows: recentLabs.map((result) => [
+        testNames.get(result.testCode) ?? result.testCode,
+        `${result.value} ${result.unit}`,
+        result.labRangeLow != null && result.labRangeHigh != null ? `${result.labRangeLow} to ${result.labRangeHigh}` : '',
+        result.testedAt.slice(0, 10),
+        result.labName ?? '',
+      ]),
+      empty: 'None logged yet.',
+    });
   }
-  const recentLabs = [...mostRecentByTest.values()].sort((a, b) => b.testedAt.localeCompare(a.testedAt));
-  sections.push({
-    kind: 'table',
-    heading: 'Most recent lab results',
-    note: "The latest result for each test, whenever it was drawn. The range shown is the one the person's lab reported, not a general reference range.",
-    columns: ['Test', 'Result', 'Lab range', 'Tested', 'Lab'],
-    rows: recentLabs.map((result) => [
-      testNames.get(result.testCode) ?? result.testCode,
-      `${result.value} ${result.unit}`,
-      result.labRangeLow != null && result.labRangeHigh != null ? `${result.labRangeLow} to ${result.labRangeHigh}` : '',
-      result.testedAt.slice(0, 10),
-      result.labName ?? '',
-    ]),
-    empty: 'None logged yet.',
-  });
+
+  sections.push(...(await kindSections(kind, days)));
 
   return {
-    title: 'Inside Story: Health Summary',
+    title: def.title,
     rangeLabel: formatDateRange(days),
     days,
     generatedAt: new Date().toISOString(),
-    preface: [
-      'A plain summary of what was logged in the app during this window, as the person entered it.',
-      'It is not a diagnosis. Every figure here is self-reported or read from the phone, and the sections say which.',
-    ],
+    preface: def.preface,
     sections,
     footer: `Generated on the phone by Inside Story ${APP_VERSION}. Nothing in this report left the phone until the person chose to share it.`,
     versionLine: reportVersionLine(APP_VERSION, REFERENCE_DB_VERSION),
   };
+}
+
+// The sections each narrower report adds after its core ones. A Trends or
+// Insights lens is read through its loader and turned into sections by
+// sectionsFromReading, so the report says what the lens says. Each lens is
+// read separately and a failure reads as a section saying so, since one
+// unreadable lens should not cost somebody the whole report.
+async function readingSections(heading: string, read: () => Promise<ReadingView>): Promise<ReportSection[]> {
+  try {
+    return sectionsFromReading(heading, await read());
+  } catch {
+    return [{ kind: 'list', heading, rows: [], empty: 'Could not be read for this report.' }];
+  }
+}
+
+function trends(lens: TrendsMoreLens, heading: string, days: number): Promise<ReportSection[]> {
+  return readingSections(heading, () => loadTrendsMoreView(lens, days));
+}
+
+function insights(lens: InsightsMoreLens, heading: string): Promise<ReportSection[]> {
+  return readingSections(heading, () => loadInsightsMoreView(lens));
+}
+
+async function kindSections(kind: ReportKind, days: number): Promise<ReportSection[]> {
+  const start = rangeStartDate(days);
+  const end = isoDate(new Date());
+  const parts: Promise<ReportSection[]>[] = [];
+  switch (kind) {
+    case 'overview':
+      break;
+    case 'r-doctor':
+      parts.push(insights('i-appointment', 'Appointments'), trends('bloodPressure', 'Blood pressure', days), trends('doses', 'Doses', days));
+      break;
+    case 'r-nutrition':
+      parts.push(trends('hydration', 'Hydration', days), trends('planned', 'Planned and eaten', days), trends('reactions', 'After-meal reactions', days));
+      break;
+    case 'r-trainer':
+      parts.push(
+        trends('bloodPressure', 'Blood pressure', days),
+        trends('hydration', 'Hydration', days),
+        trends('nights', 'Nights', days),
+        trends('work', 'Work', days),
+      );
+      break;
+    case 'r-month':
+      parts.push(
+        trends('planned', 'Planned and eaten', days),
+        trends('doses', 'Doses', days),
+        trends('care', 'Appointments and care', days),
+        trends('work', 'Work', days),
+        trends('reactions', 'After-meal reactions', days),
+        trends('nights', 'Nights', days),
+        trends('ferments', 'Ferments', days),
+        getCostSummary(start, end)
+          .then((cost) => [eatingCostSection(cost)])
+          .catch(() => [eatingCostSection(null)]),
+      );
+      break;
+    case 'r-care':
+      parts.push(insights('i-today', 'Today'), trends('doses', 'Doses', days), trends('care', 'Appointments and care', days));
+      break;
+    case 'r-medical-costs':
+      parts.push(
+        (async () => {
+          const [bills, plan] = await Promise.all([listMedicalBills(1000), getActiveInsurancePlan()]);
+          return [medicalBillsSection(bills, start, end), insuranceSection(plan ? describePlanStanding(planStanding(plan, bills)) : null)];
+        })(),
+        getCostSummary(start, end)
+          .then(costSections)
+          .catch(() => costSections(null)),
+      );
+      break;
+    case 'r-garden':
+      parts.push(
+        (async () => {
+          const system = (await getStoredMeasurementSystem()) === 'imperial' ? 'imperial' : 'metric';
+          return gardenYieldSections(await getHarvestYieldSummary(start, end, system));
+        })(),
+        insights('i-garden', 'On hand now'),
+      );
+      break;
+  }
+  return (await Promise.all(parts)).flat();
 }
 
 // The plain-text view: what the Reports tab shows on screen and what the
@@ -376,6 +502,6 @@ export function renderReportText(doc: ReportDocument): string {
   return lines.join('\n');
 }
 
-export async function generateReport(days: number): Promise<string> {
-  return renderReportText(await buildReport(days));
+export async function generateReport(days: number, kind: ReportKind = 'overview'): Promise<string> {
+  return renderReportText(await buildReport(days, kind));
 }

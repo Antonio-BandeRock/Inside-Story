@@ -62,6 +62,9 @@ const NAMED = [
   'lib/keepingUp.ts',
   'lib/growingConditions.ts',
   'lib/yourStory.ts',
+  'lib/trendsMore.ts',
+  'lib/insightsMore.ts',
+  'lib/reportKinds.ts',
 ];
 
 function targets() {

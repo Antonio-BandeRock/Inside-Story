@@ -57,6 +57,7 @@ import {
   type TrialDesign,
 } from '../../lib/foodExperiment';
 import { readExperimentResult } from '../../lib/foodExperimentDb';
+import { deleteNocturiaNight, listNocturiaNights, saveNocturiaNight, type NocturiaNight } from '../../lib/nocturiaDb';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -76,9 +77,9 @@ const TAB_COLOR = colors.tabBioCompass;
 // below; this only changes how they're reached, not what they log).
 // 'other' itself is gone -- it had no content of its own beyond those
 // three sections, so nothing is left for it to hold once they're pulled
-// out. Nocturia added the same day as a new lens -- genuinely new
-// territory, no logging schema exists for it yet (see NocturiaLens's own
-// comment).
+// out. Nocturia added the same day as a new lens; since 1.0.52.7 its
+// nights are kept in nocturia_nights (lib/nocturiaDb.ts) and read on
+// Trends > Nights.
 type Lens = 'flares' | 'foodReactions' | 'newFoods' | 'exercise' | 'bloodPressure' | 'therapies' | 'generalNote' | 'nocturia';
 
 // Shared caveat, appended to every lens's help -- same pattern as
@@ -191,7 +192,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Nocturia',
-        body: 'Not built yet. Waking at night to urinate is a trackable symptom worth logging, added as a placeholder here, 2026-07-28, until logging (how many times, what time) gets designed and built.',
+        body: 'How many times you got up in the night to urinate, written down the next morning, with the time you first woke if you remember it. Trends > Nights reads these beside what you drank in the evening before each one.',
       },
       LOG_PERSONAL_NOTES_HELP,
     ],
@@ -1876,20 +1877,129 @@ function GeneralNoteLens() {
   );
 }
 
-// Genuinely new territory, 2026-07-28 -- no logging schema exists yet for
-// how many times someone woke up, what time, etc. Same honest "not built
-// yet" placeholder pattern already used elsewhere for planned-but-unbuilt
-// features (Food's own builder stubs, Schedule's ComingSoonLens), rather
-// than guessing at a data shape no one's actually decided on yet.
+// Nights, 1.0.52.7 (was a "not built yet" placeholder from 2026-07-28).
+// Built once Trends > Nights was marked Build on the inputs-to-outputs
+// map, since that lens had nothing to read without it. A night is dated
+// by the evening it began, so the default is last night, and logging the
+// same night again replaces it (lib/nocturiaDb.ts).
 function NocturiaLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const [nights, setNights] = useState<NocturiaNight[]>([]);
+  const [formOpen, setFormOpen] = useState(false);
+  const [times, setTimes] = useState('');
+  const [firstWake, setFirstWake] = useState<TimeOfDayInput>({ hour: '', minute: '', ampm: 'AM' });
+  const [notes, setNotes] = useState('');
+  const [dateChoice, setDateChoice] = useState<DateChoice>('yesterday');
+  const [customDate, setCustomDate] = useState('');
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+
+  const load = useCallback(() => {
+    listNocturiaNights(30).then(setNights);
+  }, []);
+
+  useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  function resetForm() {
+    setTimes('');
+    setFirstWake({ hour: '', minute: '', ampm: 'AM' });
+    setNotes('');
+    setDateChoice('yesterday');
+    setCustomDate('');
+  }
+
+  async function handleSave() {
+    const count = Number(times);
+    if (!Number.isInteger(count) || count < 0 || count > 20) {
+      showInfoAlert('Almost there', 'Enter how many times you got up, as a whole number. Zero is a fine answer.');
+      return;
+    }
+    const nightOf = resolveDateChoice(dateChoice, customDate);
+    if (!nightOf) {
+      showInfoAlert('Almost there', 'Enter a valid date.');
+      return;
+    }
+    const wake = firstWake.hour.trim() ? buildTime24(firstWake.hour, firstWake.minute || '00', firstWake.ampm) : null;
+    await saveNocturiaNight({ nightOf, times: count, firstWake: wake, notes });
+    setFormOpen(false);
+    resetForm();
+    load();
+  }
+
+  async function handleDelete(id: string) {
+    await deleteNocturiaNight(id);
+    load();
+  }
+
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
-      <View style={styles.panelStandalone}>
-        <Text style={styles.emptyText}>
-          Not built yet. Waking at night to urinate is a trackable symptom worth logging; this will get full
-          logging (how many times, what time) built out.
-        </Text>
+      {infoAlertElement}
+      <View style={styles.sectionColumn}>
+        {!formOpen ? (
+          <TouchableOpacity style={styles.addButton} onPress={() => setFormOpen(true)}>
+            <Text style={styles.addButtonText}>+ Log a night</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.formCard}>
+            <Text style={styles.label}>Times you got up</Text>
+            <View style={styles.timeRow}>
+              <AppTextInput
+                style={[styles.input, styles.timeInput]}
+                placeholder="2"
+                keyboardType="number-pad"
+                maxLength={2}
+                value={times}
+                onChangeText={setTimes}
+              />
+            </View>
+            <Text style={styles.label}>First time you woke (optional)</Text>
+            <TimePicker value={firstWake} onChange={setFirstWake} />
+            <Text style={styles.label}>The night that began on</Text>
+            <DateChoicePicker value={dateChoice} onChange={setDateChoice} customDate={customDate} onCustomDateChange={setCustomDate} />
+            <Text style={styles.label}>Notes (optional)</Text>
+            <AppTextInput style={styles.input} placeholder="Anything worth remembering" value={notes} onChangeText={setNotes} />
+            <View style={styles.formActions}>
+              <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
+                <Text style={styles.secondaryButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.primaryButton} onPress={handleSave}>
+                <Text style={styles.primaryButtonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {nights.length === 0 ? (
+          <View style={styles.panelStandalone}>
+            <Text style={styles.emptyText}>No nights logged yet.</Text>
+          </View>
+        ) : (
+          <View style={styles.table}>
+            {nights.map((night) => {
+              const [year, month, day] = night.nightOf.split('-').map(Number);
+              const detail = [
+                night.firstWake ? `first woke ${formatTime12(night.firstWake)}` : null,
+                night.notes,
+              ].filter(Boolean).join(' · ');
+              return (
+                <View key={night.id} style={styles.row}>
+                  <View style={styles.rowTextCol}>
+                    <Text style={styles.rowTitle}>
+                      {night.times === 1 ? 'Up once' : night.times === 0 ? 'Slept through' : `Up ${night.times} times`}
+                    </Text>
+                    <Text style={styles.rowMeta}>
+                      {`Night of ${dateLabelFromParts(year, month, day)}${detail ? ` · ${detail}` : ''}`}
+                    </Text>
+                  </View>
+                  <View style={styles.rowActions}>
+                    <TouchableOpacity onPress={() => handleDelete(night.id)}>
+                      <Text style={styles.actionTextRemove}>Remove</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
       </View>
     </ScrollView>
   );
