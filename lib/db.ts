@@ -18,6 +18,7 @@ import { analyzeNutrientIntake, NutrientGapEntry, sumFoodNutrientTotals } from '
 import { ACTIVITY_LEVELS, ActivityLevel } from './energyNeeds';
 import { isFlaggedTier, tierSeverity } from './sixDimensionsReference';
 import { isInRemoval, type TrialDesign } from './foodExperiment';
+import { localDayOf } from './dailyScales';
 import { buildPerConditionSummaries, type ConditionDimensionSummary } from './conditionDimensions';
 import { convertToGrams, MASS_UNITS, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
 import {
@@ -8697,6 +8698,16 @@ async function runDatabaseInitialization() {
     // check-in that isn't part of a trial.
     if (!wellbeingCheckinColumns.some((column) => column.name === 'food_trial_id')) {
       await db.execAsync('ALTER TABLE wellbeing_checkins ADD COLUMN food_trial_id TEXT;');
+    }
+
+    // mood, energy, stress (D1, 2026-09-26): three optional 1 to 5 answers
+    // on a check-in, asked on Home's Today's Check-In and Signals > General
+    // Note (lib/dailyScales.ts). Null means not answered, never a middle
+    // value, so a day nobody rated draws as a gap on Trends.
+    for (const scaleColumn of ['mood', 'energy', 'stress']) {
+      if (!wellbeingCheckinColumns.some((column) => column.name === scaleColumn)) {
+        await db.execAsync(`ALTER TABLE wellbeing_checkins ADD COLUMN ${scaleColumn} INTEGER;`);
+      }
     }
 
     // shared_from_name -- 2026-08-15, the real "who sent this to me"
@@ -20362,6 +20373,10 @@ export type WellbeingCheckin = {
   // wellbeing_checkins' own ALTER TABLE comment (runDatabaseInitialization)
   // for why this rides on the existing table rather than a new one.
   foodTrialId: string | null;
+  // 1 to 5, or null when not answered (D1, lib/dailyScales.ts).
+  mood: number | null;
+  energy: number | null;
+  stress: number | null;
   tags: string[];
   createdAt: string;
 };
@@ -20379,6 +20394,9 @@ export async function recordCheckin(input: {
   relatedMealId?: string;
   relatedExerciseId?: string;
   foodTrialId?: string;
+  mood?: number | null;
+  energy?: number | null;
+  stress?: number | null;
   tags?: string[];
 }) {
   const db = await getDatabase();
@@ -20388,8 +20406,8 @@ export async function recordCheckin(input: {
   await db.runAsync(
     `
       INSERT INTO wellbeing_checkins
-        (id, logged_at, checkin_type, valence, severity, notes, food_name, related_meal_id, related_exercise_id, food_trial_id, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (id, logged_at, checkin_type, valence, severity, notes, food_name, related_meal_id, related_exercise_id, food_trial_id, mood, energy, stress, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.loggedAt,
@@ -20401,6 +20419,9 @@ export async function recordCheckin(input: {
     input.relatedMealId ?? null,
     input.relatedExerciseId ?? null,
     input.foodTrialId ?? null,
+    input.mood ?? null,
+    input.energy ?? null,
+    input.stress ?? null,
     now,
     now,
   );
@@ -20469,7 +20490,7 @@ export async function listCheckins(
     `
       SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
              related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,
-             created_at AS createdAt
+             mood, energy, stress, created_at AS createdAt
       FROM wellbeing_checkins
       ${whereClause}
       ORDER BY logged_at DESC
@@ -20669,19 +20690,19 @@ export async function getTherapyResponseInputs(days: number): Promise<{
 // todayDateString()).
 export async function getCheckinForDate(date: string, checkinType: CheckinType): Promise<WellbeingCheckin | null> {
   const db = await getDatabase();
-  const row = await db.getFirstAsync<Omit<WellbeingCheckin, 'tags'>>(
+  const row = await db.getAllAsync<Omit<WellbeingCheckin, 'tags'>>(
     `
       SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
              related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,
-             created_at AS createdAt
+             mood, energy, stress, created_at AS createdAt
       FROM wellbeing_checkins
-      WHERE checkin_type = ? AND logged_at LIKE ?
+      WHERE checkin_type = ? AND logged_at >= ? AND logged_at < ?
       ORDER BY logged_at DESC
-      LIMIT 1
     `,
     checkinType,
-    `${date}%`,
-  );
+    addDaysToLocalDate(date, -1),
+    addDaysToLocalDate(date, 2),
+  ).then((rows) => rows.find((candidate) => localDayOf(candidate.loggedAt) === date) ?? null);
   if (!row) return null;
   const [withTags] = await attachCheckinTags(db, [row]);
   return withTags;

@@ -10,6 +10,8 @@ import {
   type PatternComparison,
 } from './patternBasis';
 import { contextLines, type TreatmentDates } from './patternContext';
+import { OUTCOME_WORDS, scaleOutcomeEvents, type PatternOutcome } from './patternOutcome';
+import { localStampOf } from './dailyScales';
 import { getSleepTrendPoints } from './trendAnalysis';
 import { isFlaggedTier } from './sixDimensionsReference';
 import { listWorkCheckins } from './workDb';
@@ -104,6 +106,8 @@ export type CategoryPatternCandidate = {
 // refusal live in lib/workMeaning.ts, which is testable without a database;
 // this file only assembles the inputs.
 export type PatternFinderResult = {
+  /** What was counted: flares and reactions, or a kind of day (D1). */
+  outcome: PatternOutcome;
   // The real denominator for "logged before N of your M flares" -- every
   // symptom check-in actually considered, whether or not it produced any
   // candidate on its own.
@@ -178,20 +182,31 @@ export async function findFoodPatterns(
   days: number,
   windowHours: PatternWindowHours,
   trackedConditions: { code: string; name: string }[],
+  outcome: PatternOutcome = 'flares',
 ): Promise<PatternFinderResult> {
   const rangeStart = dateStringDaysAgo(days - 1);
+  const words = OUTCOME_WORDS[outcome];
 
   // Flares and reactions are the two real checkin types Trends' own
   // Symptoms & Flares lens already charts (getCheckinSeverityTrendSeries)
   // -- the same real symptom population, reused here rather than a
   // separately-decided one.
-  const [flares, reactions] = await Promise.all([
-    listCheckins({ checkinType: 'flare', limit: 200 }),
-    listCheckins({ checkinType: 'post_meal', limit: 200 }),
-  ]);
-  const symptomCheckins = [...flares, ...reactions].filter(
-    (checkin) => checkin.severity != null && checkin.loggedAt.slice(0, 10) >= rangeStart,
-  );
+  //
+  // D1, 2026-09-26: or, when asked, the days somebody rated their mood or
+  // energy 1 or 2, or their stress 4 or 5, one per day at the time of that
+  // answer (lib/patternOutcome.ts). Everything below counts whichever
+  // population this is; only the words change.
+  const symptomCheckins =
+    outcome === 'flares'
+      ? await Promise.all([
+          listCheckins({ checkinType: 'flare', limit: 200 }),
+          listCheckins({ checkinType: 'post_meal', limit: 200 }),
+        ]).then(([flares, reactions]) =>
+          [...flares, ...reactions].filter(
+            (checkin) => checkin.severity != null && checkin.loggedAt.slice(0, 10) >= rangeStart,
+          ),
+        )
+      : scaleOutcomeEvents(await listCheckins({ checkinType: 'general', limit: 1000 }), outcome, rangeStart, localStampOf);
 
   // Phase B, 2026-09-24: every meal in the range is read once, and both the
   // flare windows and the ordinary stretches they are compared against are
@@ -323,6 +338,7 @@ export async function findFoodPatterns(
     flares: symptomCheckins.length,
     flaresWithMeals,
     windowHours,
+    words,
   });
 
   // Work strain. The symptom population is the same one every candidate above
@@ -333,7 +349,10 @@ export async function findFoodPatterns(
   // symptoms, because a week someone answered and had no flare in is a real
   // data point. A week with no work answer contributes nothing, since an
   // unanswered week is unknown rather than easy.
-  const workCheckins = (await listWorkCheckins()).filter((checkin) => checkin.weekOf >= weekOf(rangeStart));
+  // Weekly work answers and weekly steps are compared against flares only;
+  // for a kind of day, both are left out rather than half reworded.
+  const weeklyApplies = outcome === 'flares';
+  const workCheckins = weeklyApplies ? (await listWorkCheckins()).filter((checkin) => checkin.weekOf >= weekOf(rangeStart)) : [];
   const symptomsByWeek = new Map<string, number>();
   for (const checkin of workCheckins) symptomsByWeek.set(checkin.weekOf, 0);
   for (const checkin of symptomCheckins) {
@@ -350,7 +369,7 @@ export async function findFoodPatterns(
   // Movement, the same way: the weeks the phone recorded enough days of
   // steps for, each beside the flares logged in it. A week the phone has no
   // steps for is unknown rather than still, so it contributes nothing.
-  const stepDays = (await getStepCountTrend(days)).filter((row) => row.date >= rangeStart);
+  const stepDays = weeklyApplies ? (await getStepCountTrend(days)).filter((row) => row.date >= rangeStart) : [];
   const movementWeeks = weeksFromDailySteps(stepDays);
   const symptomsByMovementWeek = new Map<string, number>();
   for (const week of movementWeeks) symptomsByMovementWeek.set(week.weekOf, 0);
@@ -362,6 +381,7 @@ export async function findFoodPatterns(
   const movement = compareMovementAgainstSymptoms({ weeks: movementWeeks, symptomsByWeek: symptomsByMovementWeek });
 
   return {
+    outcome,
     totalSymptomInstances: symptomCheckins.length,
     basis: {
       flares: symptomCheckins.length,
@@ -374,9 +394,9 @@ export async function findFoodPatterns(
     foodCandidates,
     dimensionCandidates,
     categoryCandidates,
-    workStrainComparisons: isStrainRefusal(strain) ? [] : strain.comparisons,
-    workStrainRefusal: isStrainRefusal(strain) ? strain : null,
-    movementComparison: isMovementRefusal(movement) ? null : movement,
-    movementRefusal: isMovementRefusal(movement) ? movement : null,
+    workStrainComparisons: !weeklyApplies || isStrainRefusal(strain) ? [] : strain.comparisons,
+    workStrainRefusal: weeklyApplies && isStrainRefusal(strain) ? strain : null,
+    movementComparison: !weeklyApplies || isMovementRefusal(movement) ? null : movement,
+    movementRefusal: weeklyApplies && isMovementRefusal(movement) ? movement : null,
   };
 }

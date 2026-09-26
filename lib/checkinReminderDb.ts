@@ -2,6 +2,7 @@
 // itself is in lib/reminderActions.ts, which has no database in it.
 
 import { getDatabase } from './db';
+import { localStampOf } from './dailyScales';
 import type { LoggedMealForNudge } from './reminderActions';
 
 export type CheckinReminderInputs = {
@@ -27,5 +28,7 @@ export async function getCheckinReminderInputs(since: string): Promise<CheckinRe
     ),
     db.getFirstAsync<{ at: string | null }>('SELECT MAX(logged_at) AS at FROM wellbeing_checkins'),
   ]);
-  return { recentMeals: meals, lastCheckinAt: last?.at ?? null };
+  // Home wrote UTC stamps before 1.0.53.4; localStampOf reads one back as
+  // local time so it compares with the meals.
+  return { recentMeals: meals, lastCheckinAt: last?.at ? localStampOf(last.at) : null };
 }

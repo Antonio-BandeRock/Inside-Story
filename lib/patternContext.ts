@@ -17,6 +17,11 @@ export const TREATMENT_CHANGE_DAYS = 7;
 export type SleepNight = { date: string; hours: number };
 export type TreatmentDates = { name: string; startDate: string | null; endDate: string | null };
 
+// What the dates are dates of (lib/patternOutcome.ts). Flares unless
+// Pattern Finder was asked about low mood, low energy or high stress days.
+export type ContextWords = { short: string; shortMany: string };
+const FLARE_WORDS: ContextWords = { short: 'flare', shortMany: 'flares' };
+
 function addDays(date: string, offset: number): string {
   const [y, m, d] = date.split('-').map(Number);
   const moved = new Date(y, m - 1, d + offset);
@@ -34,16 +39,16 @@ function average(values: number[]): number {
 
 // Sleep is dated by the morning it ended, so the night before a flare on a
 // given day is the sleep dated that same day.
-export function sleepLine(flareDates: string[], nights: SleepNight[]): string | null {
+export function sleepLine(flareDates: string[], nights: SleepNight[], words: ContextWords = FLARE_WORDS): string | null {
   const flareDays = new Set(flareDates);
   const before = nights.filter((night) => flareDays.has(night.date)).map((night) => night.hours);
   const others = nights.filter((night) => !flareDays.has(night.date)).map((night) => night.hours);
   if (before.length < MIN_FLARE_NIGHTS || others.length < MIN_OTHER_NIGHTS) return null;
-  return `Sleep the night before a flare averaged ${oneDecimal(average(before))} hours across ${before.length} nights, against ${oneDecimal(average(others))} hours across ${others.length} other nights.`;
+  return `Sleep the night before a ${words.short} averaged ${oneDecimal(average(before))} hours across ${before.length} nights, against ${oneDecimal(average(others))} hours across ${others.length} other nights.`;
 }
 
 // A treatment started or stopped in the week before one or more flares.
-export function treatmentLines(flareDates: string[], treatments: TreatmentDates[]): string[] {
+export function treatmentLines(flareDates: string[], treatments: TreatmentDates[], words: ContextWords = FLARE_WORDS): string[] {
   const lines: string[] = [];
   const within = (changed: string) =>
     flareDates.filter((flare) => changed <= flare && changed >= addDays(flare, -TREATMENT_CHANGE_DAYS)).length;
@@ -56,7 +61,7 @@ export function treatmentLines(flareDates: string[], treatments: TreatmentDates[
       const count = within(date);
       if (count === 0) continue;
       lines.push(
-        `${verb} ${treatment.name} on ${date}, within a week before ${count === 1 ? '1 flare' : `${count} flares`}.`,
+        `${verb} ${treatment.name} on ${date}, within a week before ${count === 1 ? `1 ${words.short}` : `${count} ${words.shortMany}`}.`,
       );
     }
   }
@@ -72,6 +77,10 @@ export function unloggedLine(flares: number, flaresWithMeals: number, windowHour
 export const CONTEXT_CAVEAT =
   'These happened around the same flares as the foods above. The app cannot separate any of them from food, so none of them is shown as the explanation.';
 
+export function contextCaveat(words: ContextWords = FLARE_WORDS): string {
+  return `These happened around the same ${words.shortMany} as the foods above. The app cannot separate any of them from food, so none of them is shown as the explanation.`;
+}
+
 export function contextLines(input: {
   flareDates: string[];
   nights: SleepNight[];
@@ -79,12 +88,13 @@ export function contextLines(input: {
   flares: number;
   flaresWithMeals: number;
   windowHours: number;
+  words?: ContextWords;
 }): string[] {
   const lines: string[] = [];
   const unlogged = unloggedLine(input.flares, input.flaresWithMeals, input.windowHours);
   if (unlogged) lines.push(unlogged);
-  const sleep = sleepLine(input.flareDates, input.nights);
+  const sleep = sleepLine(input.flareDates, input.nights, input.words);
   if (sleep) lines.push(sleep);
-  lines.push(...treatmentLines(input.flareDates, input.treatments));
+  lines.push(...treatmentLines(input.flareDates, input.treatments, input.words));
   return lines;
 }

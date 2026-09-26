@@ -13,6 +13,7 @@ import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
+import { DailyScalesPicker } from '../../components/DailyScalesPicker';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { TherapySessionsSection } from '../../components/TherapySessionsSection';
@@ -20,6 +21,7 @@ import { textShadow, typography } from '../../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../../components/HomeSectionBand';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { getCheckinTagsByCategory, type CheckinTagDefinition } from '../../lib/checkinTags';
+import { EMPTY_DAILY_SCALES, describeScales, hasAnyScale, localStamp, localStampOf, type DailyScaleValues } from '../../lib/dailyScales';
 import { appendDictatedText, parseVoiceCommands } from '../../lib/voiceCommandParsing';
 import {
   createFoodTrial,
@@ -271,7 +273,9 @@ function formatEntryDate(value: string): string {
 }
 
 function formatEntryDateTime(value: string): string {
-  const [datePart, timePart] = value.split('T');
+  // localStampOf reads an older UTC stamp (Home's check-in before 1.0.53.4)
+  // back as local time; a plain local stamp passes through.
+  const [datePart, timePart] = localStampOf(value).split('T');
   const [year, month, day] = datePart.split('-').map(Number);
   return `${dateLabelFromParts(year, month, day)}, ${formatTime12(timePart ?? '00:00')}`;
 }
@@ -1016,7 +1020,7 @@ function NewFoodsLens({
   // tap, a real but minimal wellbeing_checkins row, no escalation needed.
   async function handleTodayNothingToReport(trial: FoodTrialRecord) {
     await recordCheckin({
-      loggedAt: new Date().toISOString(),
+      loggedAt: localStamp(new Date()),
       checkinType: 'food_trial_daily',
       valence: 'neutral',
       foodName: trial.foodName,
@@ -1723,6 +1727,8 @@ function GeneralNoteSection() {
   const [notesList, setNotesList] = useState<WellbeingCheckin[]>([]);
   const [formOpen, setFormOpen] = useState(false);
   const [notes, setNotes] = useState('');
+  // Mood, energy and stress (D1, 2026-09-26), each optional.
+  const [scales, setScales] = useState<DailyScaleValues>(EMPTY_DAILY_SCALES);
   const [dateChoice, setDateChoice] = useState<DateChoice>('today');
   const [customDate, setCustomDate] = useState('');
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -1735,13 +1741,14 @@ function GeneralNoteSection() {
 
   function resetForm() {
     setNotes('');
+    setScales(EMPTY_DAILY_SCALES);
     setDateChoice('today');
     setCustomDate('');
   }
 
   async function handleSave() {
-    if (!notes.trim()) {
-      showInfoAlert('Almost there', 'Write a quick note first.');
+    if (!notes.trim() && !hasAnyScale(scales)) {
+      showInfoAlert('Almost there', 'Write a quick note or pick a number for mood, energy or stress first.');
       return;
     }
     const date = resolveDateChoice(dateChoice, customDate);
@@ -1749,7 +1756,7 @@ function GeneralNoteSection() {
       showInfoAlert('Almost there', 'Enter a valid date.');
       return;
     }
-    await recordCheckin({ loggedAt: `${date}T${nowTimeString24()}`, checkinType: 'general', valence: 'neutral', notes });
+    await recordCheckin({ loggedAt: `${date}T${nowTimeString24()}`, checkinType: 'general', valence: 'neutral', notes: notes.trim() || undefined, ...scales });
     setFormOpen(false);
     resetForm();
     load();
@@ -1791,6 +1798,8 @@ function GeneralNoteSection() {
             value={notes}
             onChangeText={setNotes}
           />
+          <Text style={styles.label}>Mood, energy and stress (each optional)</Text>
+          <DailyScalesPicker values={scales} onChange={setScales} accent={TAB_COLOR} />
           <Text style={styles.label}>When?</Text>
           <DateChoicePicker value={dateChoice} onChange={setDateChoice} customDate={customDate} onCustomDateChange={setCustomDate} />
           <View style={styles.formActions}>
@@ -1813,7 +1822,8 @@ function GeneralNoteSection() {
           {notesList.map((entry) => (
             <View key={entry.id} style={styles.row}>
               <View style={styles.rowTextCol}>
-                <Text style={styles.rowTitle}>{entry.notes}</Text>
+                <Text style={styles.rowTitle}>{entry.notes || describeScales(entry) || 'How you were'}</Text>
+                {entry.notes && describeScales(entry) ? <Text style={styles.rowMeta}>{describeScales(entry)}</Text> : null}
                 <Text style={styles.rowMeta}>{formatEntryDateTime(entry.loggedAt)}</Text>
               </View>
               <View style={styles.rowActions}>

@@ -13,6 +13,7 @@ import {
   type EatingWindowDayCount,
 } from './db';
 import { analyzeNutrientIntake, type NutrientStatus } from './nutrientAnalysis';
+import { dailyScaleSeries, type DailyScaleKey, type DailyScalePoint } from './dailyScales';
 
 // The "chart it over time" layer Trends needs. Rebuilt 2026-08-15 -- the
 // original version of this file called lib/db.ts's single-date
@@ -368,4 +369,19 @@ export async function getCheckinSeverityTrendSeries(checkinTypes: CheckinType[],
 
   points.sort((a, b) => a.date.localeCompare(b.date));
   return points;
+}
+
+// Mood, energy and stress (D1, 2026-09-26): one point per day per scale,
+// only on days somebody answered, so a day with no answer is a gap on the
+// chart rather than a zero. Every scale comes off the same general
+// check-ins, read once. The limit is generous because somebody who
+// answers twice a day for a year still fits.
+export async function getDailyScaleSeries(days: number): Promise<Record<DailyScaleKey, DailyScalePoint[]>> {
+  const rangeStart = dateStringDaysAgo(days - 1);
+  const checkins = await listCheckins({ checkinType: 'general', limit: 1000 });
+  return {
+    mood: dailyScaleSeries(checkins, 'mood', rangeStart),
+    energy: dailyScaleSeries(checkins, 'energy', rangeStart),
+    stress: dailyScaleSeries(checkins, 'stress', rangeStart),
+  };
 }

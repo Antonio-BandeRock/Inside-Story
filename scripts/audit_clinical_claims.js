@@ -68,6 +68,8 @@ const NAMED = [
   'lib/reportKinds.ts',
   'lib/reminderActions.ts',
   'lib/reminderNotifications.ts',
+  'lib/dailyScales.ts',
+  'lib/patternOutcome.ts',
 ];
 
 function targets() {

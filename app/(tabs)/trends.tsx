@@ -68,7 +68,9 @@ import {
 } from '../../lib/patternFinder';
 import { markPendingFoodTrialReturn } from '../../lib/pendingFoodTrialReturn';
 import { basisSentence, comparisonSentence, thresholdSentence } from '../../lib/patternBasis';
-import { CONTEXT_CAVEAT } from '../../lib/patternContext';
+import { contextCaveat } from '../../lib/patternContext';
+import { OUTCOME_WORDS, PATTERN_OUTCOMES, emptyOutcomeSentence, outcomeCountsSentence, type PatternOutcome } from '../../lib/patternOutcome';
+import { DAILY_SCALES, answeredSentence, scaleWord, type DailyScaleKey, type DailyScalePoint } from '../../lib/dailyScales';
 import { usualSentence } from '../../lib/yourUsual';
 import {
   keywordFromFoodName,
@@ -80,6 +82,7 @@ import {
 import {
   dateStringOffsetFrom,
   getCheckinSeverityTrendSeries,
+  getDailyScaleSeries,
   getNutrientTrendSeriesForRange,
   getSixDimensionsFlagTrendSeriesForRange,
   getEatingWindowTrend,
@@ -937,6 +940,7 @@ export default function TrendsScreen() {
   const [nutrientSeries, setNutrientSeries] = useState<NutrientTrendSeries | null>(null);
   const [sixDsSeries, setSixDsSeries] = useState<TrendPoint[] | null>(null);
   const [symptomsSeries, setSymptomsSeries] = useState<CheckinSeverityPoint[] | null>(null);
+  const [scaleSeries, setScaleSeries] = useState<Record<DailyScaleKey, DailyScalePoint[]> | null>(null);
   const [eatingWindowTrend, setEatingWindowTrend] = useState<EatingWindowTrend | null>(null);
   // Null whenever fasting is off or either window time is unset -- which
   // is a genuinely different thing from "no exceptions", and the render
@@ -954,6 +958,10 @@ export default function TrendsScreen() {
   const [selectedGroceryFood, setSelectedGroceryFood] = useState<string | null>(null);
   const [groceryPrices, setGroceryPrices] = useState<GroceryPricePoint[] | null>(null);
   const [patternWindow, setPatternWindow] = useState<PatternWindowHours>(24);
+  // What Pattern Finder counts (D1, 2026-09-26): flares and reactions, or
+  // the days mood or energy was rated 1 or 2, or stress 4 or 5.
+  const [patternOutcome, setPatternOutcome] = useState<PatternOutcome>('flares');
+  const outcomeWords = OUTCOME_WORDS[patternOutcome];
   const [patternResult, setPatternResult] = useState<PatternFinderResult | null>(null);
   const [therapyResponse, setTherapyResponse] = useState<TherapyResponseResult | null>(null);
   const [startingTrialKey, setStartingTrialKey] = useState<string | null>(null);
@@ -1140,8 +1148,9 @@ export default function TrendsScreen() {
         setLoading(false);
       });
     } else if (lens === 'symptoms') {
-      getCheckinSeverityTrendSeries(['flare', 'post_meal'], days).then((points) => {
+      Promise.all([getCheckinSeverityTrendSeries(['flare', 'post_meal'], days), getDailyScaleSeries(days)]).then(([points, scales]) => {
         setSymptomsSeries(points);
+        setScaleSeries(scales);
         setLoading(false);
       });
     } else if (lens === 'eatingWindow') {
@@ -1168,7 +1177,7 @@ export default function TrendsScreen() {
       // 2026-08-26 -- condition-scoped, same trackedConditions list every
       // other lens on this screen now uses; dimension candidates only
       // ever surface a concern relevant to one of these.
-      findFoodPatterns(days, patternWindow, personalizationProfile?.trackedConditions ?? []).then((result) => {
+      findFoodPatterns(days, patternWindow, personalizationProfile?.trackedConditions ?? [], patternOutcome).then((result) => {
         setPatternResult(result);
         setLoading(false);
       });
@@ -1206,7 +1215,7 @@ export default function TrendsScreen() {
         setLoading(false);
       });
     }
-  }, [lens, days, harvestMonths, conditionMonths, pickedMeasurement, costMonths, measurementSystem, resolvedRange, selectedNutrient, selectedTestCode, selectedGroceryFood, patternWindow, personalizationProfile]);
+  }, [lens, days, harvestMonths, conditionMonths, pickedMeasurement, costMonths, measurementSystem, resolvedRange, selectedNutrient, selectedTestCode, selectedGroceryFood, patternWindow, patternOutcome, personalizationProfile]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
@@ -1266,6 +1275,7 @@ export default function TrendsScreen() {
       keyword: identity?.baseName ?? keywordFromFoodName(candidate.foodName),
       occurrenceCount: candidate.occurrenceCount,
       totalSymptomInstances: patternResult?.totalSymptomInstances ?? 0,
+      words: outcomeWords,
     });
     setRuleDraft({ key, proposal, description: proposal.description });
   }
@@ -2454,6 +2464,7 @@ export default function TrendsScreen() {
                   <Text style={styles.loadingText}>Loading…</Text>
                 </View>
               ) : (
+                <>
                 <View style={[band.box, styles.chartCard]}>
                   <TrendLineChart
                     points={(symptomsSeries ?? []).map((point) => ({
@@ -2477,6 +2488,31 @@ export default function TrendsScreen() {
                     </View>
                   </View>
                 </View>
+                {DAILY_SCALES.map((scale) => {
+                  const points = scaleSeries?.[scale.key] ?? [];
+                  return (
+                    <TabBand
+                      key={scale.key}
+                      folds={folds}
+                      color={TAB_COLOR}
+                      id={`trends:symptoms:${scale.key}`}
+                      title={scale.label}
+                      icon={scale.key === 'mood' ? 'happy-outline' : scale.key === 'energy' ? 'flash-outline' : 'pulse-outline'}
+                    >
+                      <View style={styles.chartCard}>
+                        <TrendLineChart
+                          points={points}
+                          yMin={1}
+                          yMax={5}
+                          valueFormatter={(value) => `${Math.round(value)}, ${scaleWord(scale.key, Math.round(value))}`}
+                          emptyMessage={`No ${scale.label.toLowerCase()} answers in this range. Answer it on Home's Today's Check-In or in Signals > General Note.`}
+                        />
+                        {points.length > 0 ? <Text style={styles.caption}>{answeredSentence(points, days)}</Text> : null}
+                      </View>
+                    </TabBand>
+                  );
+                })}
+                </>
               )
             ) : lens === 'eatingWindow' ? (
               loading ? (
@@ -2847,9 +2883,24 @@ export default function TrendsScreen() {
                 <View style={band.boxMuted}>
                   <Text style={styles.disclaimerText}>
                     {
-                      "This shows what you actually ate before each flare or reaction you've logged, and what shows up more than once. It's a count from your data, not a diagnosis, and not proof anything here actually causes anything. Something worth a second look deserves a trial, not just a spot on this list."
+                      `This shows what you actually ate before each ${outcomeWords.one} you've logged, and what shows up more than once. It's a count from your data, not a diagnosis, and not proof anything here actually causes anything. Something worth a second look deserves a trial, not just a spot on this list.`
                     }
                   </Text>
+                </View>
+
+                <View style={[band.inset, styles.pillRow]}>
+                  {PATTERN_OUTCOMES.map((option) => (
+                    <TouchableOpacity
+                      key={option.key}
+                      style={[styles.pill, patternOutcome === option.key && styles.pillActive]}
+                      onPress={() => setPatternOutcome(option.key)}
+                    >
+                      <Text style={[styles.pillText, patternOutcome === option.key && styles.pillTextActive]}>{option.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                <View style={band.boxMuted}>
+                  <Text style={styles.patternRowCaption}>{outcomeCountsSentence(patternOutcome)}</Text>
                 </View>
 
                 <View style={[band.inset, styles.pillRow]}>
@@ -2871,7 +2922,7 @@ export default function TrendsScreen() {
                 ) : !patternResult || patternResult.totalSymptomInstances === 0 ? (
                   <View style={band.boxMuted}>
                     <Text style={styles.loadingText}>
-                      {"Log a flare or food reaction in Signals first; there's nothing to look for a pattern in yet."}
+                      {emptyOutcomeSentence(patternOutcome)}
                     </Text>
                     <YourStoryMissingLine itemKey="patterns" />
                   </View>
@@ -2880,14 +2931,14 @@ export default function TrendsScreen() {
                   patternResult.categoryCandidates.length === 0 ? (
                   <View style={band.boxMuted}>
                     <Text style={styles.loadingText}>
-                      {basisSentence(patternResult.basis)}
+                      {basisSentence(patternResult.basis, outcomeWords)}
                       {' Nothing showed up before 2 or more of them in this window. That is a result too; try a longer window, or keep logging.'}
                     </Text>
                   </View>
                 ) : (
                   <>
                     <View style={band.boxMuted}>
-                      <Text style={styles.patternRowCaption}>{basisSentence(patternResult.basis)}</Text>
+                      <Text style={styles.patternRowCaption}>{basisSentence(patternResult.basis, outcomeWords)}</Text>
                       <Text style={styles.patternRowCaption}>{thresholdSentence()}</Text>
                     </View>
                     {patternResult.foodCandidates.length > 0 ? (
@@ -2956,6 +3007,7 @@ export default function TrendsScreen() {
                                         conditionName: candidate.conditionName,
                                         occurrenceCount: candidate.occurrenceCount,
                                         totalSymptomInstances: patternResult.totalSymptomInstances,
+                                        words: outcomeWords,
                                       }),
                                     )
                                   }
@@ -3003,6 +3055,7 @@ export default function TrendsScreen() {
                                         category: candidate.category,
                                         occurrenceCount: candidate.occurrenceCount,
                                         totalSymptomInstances: patternResult.totalSymptomInstances,
+                                        words: outcomeWords,
                                       }),
                                     )
                                   }
@@ -3022,13 +3075,13 @@ export default function TrendsScreen() {
                 )}
 
                 {!loading && patternResult && patternResult.context.length > 0 ? (
-                  <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:around-flares'} title={'Other things around the same flares'} icon="git-compare-outline">
+                  <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:around-flares'} title={`Other things around the same ${outcomeWords.shortMany}`} icon="git-compare-outline">
                     {patternResult.context.map((line) => (
                       <Text key={line} style={styles.patternRowCaption}>
                         {line}
                       </Text>
                     ))}
-                    <Text style={styles.patternRowCaption}>{CONTEXT_CAVEAT}</Text>
+                    <Text style={styles.patternRowCaption}>{contextCaveat(outcomeWords)}</Text>
                   </TabBand>
                 ) : null}
 

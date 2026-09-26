@@ -51,9 +51,18 @@ export type PatternRuleProposal = {
   checkNote: string;
 };
 
-function flareCount(occurrences: number, total: number): string {
-  const flares = total === 1 ? 'logged flare or reaction' : 'logged flares or reactions';
-  return `${occurrences} of my ${total} ${flares}`;
+// What was counted (lib/patternOutcome.ts). Flares and reactions unless
+// Pattern Finder was asked about low mood, low energy or high stress days.
+export type RuleCountWords = { owner: 'my' | 'the'; logged: string; loggedMany: string };
+
+const FLARE_COUNT_WORDS: RuleCountWords = {
+  owner: 'my',
+  logged: 'logged flare or reaction',
+  loggedMany: 'logged flares or reactions',
+};
+
+function flareCount(occurrences: number, total: number, words: RuleCountWords = FLARE_COUNT_WORDS): string {
+  return `${occurrences} of ${words.owner} ${total} ${total === 1 ? words.logged : words.loggedMany}`;
 }
 
 // A reference-database name carries its preparation after a comma
@@ -73,12 +82,14 @@ export function proposeFoodPatternRule(input: {
   keyword: string;
   occurrenceCount: number;
   totalSymptomInstances: number;
+  words?: RuleCountWords;
 }): PatternRuleProposal {
   const keyword = input.keyword.trim() || keywordFromFoodName(input.foodName);
   return {
     description: `${input.foodName} was in what I ate before ${flareCount(
       input.occurrenceCount,
       input.totalSymptomInstances,
+      input.words,
     )}.`,
     linkType: 'food',
     linkValue: keyword,
@@ -93,11 +104,13 @@ export function proposeDimensionPatternRule(input: {
   conditionName: string;
   occurrenceCount: number;
   totalSymptomInstances: number;
+  words?: RuleCountWords;
 }): PatternRuleProposal {
   return {
     description: `${input.subCriterion} (${input.tier}) showed up in what I ate before ${flareCount(
       input.occurrenceCount,
       input.totalSymptomInstances,
+      input.words,
     )}. It matters for ${input.conditionName}.`,
     linkType: 'none',
     linkValue: null,
@@ -110,11 +123,13 @@ export function proposeCategoryPatternRule(input: {
   category: string;
   occurrenceCount: number;
   totalSymptomInstances: number;
+  words?: RuleCountWords;
 }): PatternRuleProposal {
   return {
     description: `Something from ${input.category} was in what I ate before ${flareCount(
       input.occurrenceCount,
       input.totalSymptomInstances,
+      input.words,
     )}.`,
     linkType: 'none',
     linkValue: null,

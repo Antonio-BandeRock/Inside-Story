@@ -19,6 +19,7 @@ import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DayTimeline } from '../../components/DayTimeline';
 import { DaysUntilSection } from '../../components/DaysUntilSection';
+import { DailyScalesPicker } from '../../components/DailyScalesPicker';
 import { DayArc } from '../../components/DayArc';
 import { EDGE_SHADOW_HEIGHT, EdgeShadow } from '../../components/EdgeShadow';
 import { EnergyOrb } from '../../components/EnergyOrb';
@@ -54,6 +55,7 @@ import { TAB_ROUTES } from '../../constants/tabs';
 import { APP_VERSION } from '../../constants/version';
 import { textShadow, typography } from '../../constants/typography';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/checkinTags';
+import { EMPTY_DAILY_SCALES, describeScales, hasAnyScale, localStamp, type DailyScaleValues } from '../../lib/dailyScales';
 import { getMoonPhase, getUpcomingSeasonalMarker } from '../../lib/celestialEvents';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
 import { isTestDataPresent } from '../../lib/testData';
@@ -1186,6 +1188,8 @@ export default function HomeScreen() {
   // what's already there.
   const [feelingPickerOpen, setFeelingPickerOpen] = useState(false);
   const [selectedFeelingTags, setSelectedFeelingTags] = useState<string[]>([]);
+  // Mood, energy and stress (D1, 2026-09-26), seeded the same way.
+  const [feelingScales, setFeelingScales] = useState<DailyScaleValues>(EMPTY_DAILY_SCALES);
   const [feelingSaving, setFeelingSaving] = useState(false);
   const [firstName, setFirstName] = useState<string | null>(null);
   // undefined = not fetched yet, null = fetched but no logged days this
@@ -1847,6 +1851,8 @@ export default function HomeScreen() {
     // add/remove a tag -- not just create one from nothing -- keeps
     // whatever's already there instead of starting blank.
     setSelectedFeelingTags(data?.feelingCheckin?.tags ?? []);
+    const saved = data?.feelingCheckin;
+    setFeelingScales(saved ? { mood: saved.mood, energy: saved.energy, stress: saved.stress } : EMPTY_DAILY_SCALES);
     setFeelingPickerOpen(true);
   }
 
@@ -1878,11 +1884,14 @@ export default function HomeScreen() {
   async function saveFeelingCheckin() {
     setFeelingSaving(true);
     try {
+      // Local time, like every Signals form (1.0.53.4). This wrote UTC
+      // before, which put an evening answer west of Greenwich on tomorrow.
       await recordCheckin({
-        loggedAt: new Date().toISOString(),
+        loggedAt: localStamp(new Date()),
         checkinType: 'general',
         valence: derivedValenceFor(selectedFeelingTags),
         tags: selectedFeelingTags,
+        ...feelingScales,
       });
       setFeelingPickerOpen(false);
       await load();
@@ -2402,6 +2411,7 @@ export default function HomeScreen() {
             <Text style={[styles.feelingPrompt, { color: tabColorFor('/log') }]}>
               How are you feeling today? Pick everything that applies.
             </Text>
+            <DailyScalesPicker values={feelingScales} onChange={setFeelingScales} accent={tabColorFor('/log')} />
             {getCheckinTagsByCategory().map((group) => (
               <View key={group.category} style={styles.feelingCategoryBlock}>
                 <Text style={styles.feelingCategoryLabel}>{group.label}</Text>
@@ -2432,10 +2442,10 @@ export default function HomeScreen() {
                 style={[
                   styles.feelingSaveButton,
                   { backgroundColor: tabColorFor('/log') },
-                  selectedFeelingTags.length === 0 && styles.feelingSaveButtonDisabled,
+                  selectedFeelingTags.length === 0 && !hasAnyScale(feelingScales) && styles.feelingSaveButtonDisabled,
                 ]}
                 onPress={saveFeelingCheckin}
-                disabled={selectedFeelingTags.length === 0 || feelingSaving}
+                disabled={(selectedFeelingTags.length === 0 && !hasAnyScale(feelingScales)) || feelingSaving}
               >
                 <Text style={styles.feelingSaveButtonText}>{feelingSaving ? 'Saving…' : 'Save'}</Text>
               </TouchableOpacity>
@@ -2446,8 +2456,13 @@ export default function HomeScreen() {
             <Text style={[styles.feelingLoggedText, { color: tabColorFor('/log') }]}>
               {data.feelingCheckin.tags.length > 0
                 ? data.feelingCheckin.tags.map((code) => getCheckinTagDefinition(code)?.label ?? code).join(', ')
-                : 'Logged for today, no specific tags'}
+                : hasAnyScale(data.feelingCheckin)
+                  ? 'Logged for today'
+                  : 'Logged for today, no specific tags'}
             </Text>
+            {describeScales(data.feelingCheckin) ? (
+              <Text style={styles.feelingChangeLink}>{describeScales(data.feelingCheckin)}</Text>
+            ) : null}
             <Text style={styles.feelingChangeLink}>Tap to update</Text>
           </TouchableOpacity>
         ) : (

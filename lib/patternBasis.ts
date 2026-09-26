@@ -137,10 +137,15 @@ export type PatternBasis = {
 
 // The line under the window pills that says what every count below it was
 // counted against.
-export function basisSentence(basis: PatternBasis): string {
+// `words` names what was counted (lib/patternOutcome.ts); it defaults to
+// flares and reactions, which is what Pattern Finder counted before D1.
+export function basisSentence(
+  basis: PatternBasis,
+  words: { one: string; many: string } = { one: 'flare or reaction', many: 'flares and reactions' },
+): string {
   const without = basis.flares - basis.flaresWithMeals;
   const parts = [
-    `Based on ${plural(basis.flares, 'flare or reaction', 'flares and reactions')}, ${basis.flaresWithMeals} of them with meals logged in the ${basis.windowHours} hours before.`,
+    `Based on ${plural(basis.flares, words.one, words.many)}, ${basis.flaresWithMeals} of them with meals logged in the ${basis.windowHours} hours before.`,
   ];
   if (without > 0) {
     parts.push(
