@@ -652,7 +652,24 @@ const back = load('lib/storyReturn.ts');
     }
     for (const step of def.steps) {
       if (step.item) check(!!story.ITEM_BY_KEY[step.item], `tour step names an item that exists: ${step.item}`);
+      check(!!step.why && step.why.length > 20, `tour step says why it comes where it does: ${step.doThis}`);
     }
+    // 1.0.52.6: every tab says what it can be counted on for, and every lens
+    // it has is in the tour with a line saying what that lens does for you.
+    check(def.relyOn.length >= 2, `${def.title} says what it can be counted on for`);
+    const listed = def.groups.flatMap((group) => group.lenses);
+    for (const key of Object.keys(interview.TOUR_LENS_NAMES[def.path] || {})) {
+      check(listed.includes(key), `tour: ${def.title} lists its lens ${key}`);
+    }
+    for (const key of listed) check(!!interview.lensLine(def.path, key), `tour: ${def.path}/${key} has a line`);
+  }
+  same(
+    Object.keys(interview.TOUR_LENS_LINES).sort(),
+    Object.keys(interview.TOUR_LENS_NAMES).sort(),
+    'every tab with lens names has lens lines',
+  );
+  for (const [where, lines] of Object.entries(interview.TOUR_LENS_LINES)) {
+    for (const key of Object.keys(lines)) check(!!interview.TOUR_LENS_NAMES[where][key], `lens line ${where}/${key} is for a named lens`);
   }
   const dietsSource = fs.readFileSync(path.join(__dirname, '..', 'lib', 'digest', 'popularDiets.ts'), 'utf8');
   for (const style of interview.EATING_STYLES) check(dietsSource.includes(`'${style.readId}'`), `eating style ${style.tag} reads ${style.readId}`);
@@ -660,11 +677,12 @@ const back = load('lib/storyReturn.ts');
   for (const def of interview.INTERVIEW_QUESTIONS) written.push(def.question.replace('{condition}', 'IBS'), def.why);
   for (const style of interview.EATING_STYLES) written.push(style.line);
   for (const def of interview.TOUR_TABS) {
-    written.push(def.title, def.question, def.answer);
-    for (const group of def.groups) written.push(group.title, group.line);
-    for (const step of def.steps) written.push(step.doThis);
+    written.push(def.title, def.question, def.answer, ...def.relyOn);
+    for (const group of def.groups) written.push(group.title, group.line || '');
+    for (const step of def.steps) written.push(step.doThis, step.why);
   }
   for (const names of Object.values(interview.TOUR_LENS_NAMES)) written.push(...Object.values(names));
+  for (const lines of Object.values(interview.TOUR_LENS_LINES)) written.push(...Object.values(lines));
   written.push(
     interview.NONE_OF_THESE_LABEL, interview.DONE_LABEL, interview.NOT_SURE_LABEL, interview.NO_ALLERGIES_LABEL,
     interview.NO_STYLE_LABEL, interview.ALL_TABS_LABEL, interview.NOT_NOW_LABEL, interview.TAKE_NOTHING_LABEL,
@@ -672,7 +690,8 @@ const back = load('lib/storyReturn.ts');
     interview.READ_MORE_LABEL, interview.CHANGE_LABEL, interview.NEURO_PROFILE_NOTE, interview.OPEN_PROFILE_LABEL,
     interview.INTERVIEW_HEADING, interview.INTERVIEW_LEAD, interview.INTERVIEW_ANSWERED_HEADING,
     interview.INTERVIEW_FINISHED_LINE, interview.TOUR_HEADING, interview.TOUR_LEAD, interview.TOUR_START_LABEL,
-    interview.TOUR_GETTING_STARTED, interview.TOUR_OPEN_LABEL('Life'),
+    interview.TOUR_GETTING_STARTED, interview.TOUR_OPEN_LABEL('Life'), interview.TOUR_RELY_HEADING,
+    interview.TOUR_GETTING_STARTED_LEAD, interview.TOUR_FIRST_LABEL,
   );
   for (const q of withCondition.questions) if (q.summary) written.push(q.summary);
 }

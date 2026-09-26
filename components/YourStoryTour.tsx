@@ -4,10 +4,17 @@
 // can start to drill into the key aspects of how to get started with each
 // tab, explaining as it goes in as short but informative way as possible."
 //
+// 1.0.52.6, direct instruction: "What does the Life tab actually do for you?
+// How does it help you take control of your Life? What things can the user
+// rely on it to be and do for them? ... lead them to the fastest route for
+// making use of it, explaining what should be done first in order to make
+// this tab useful."
+//
 // One fold per tab, the tab chosen to start from first and open. Opened, a
-// tab says what it is for as a whole, then its lenses in named groups (each
-// lens name opens that lens), then a few ways to get started, each ticked
-// once its record exists.
+// tab says what it does for you, what you can count on it for, then every
+// lens in named groups as a compact row (its name opens it, one muted line
+// says what it is for), then the fastest way in: steps in order, each with
+// why it comes where it does, the first one not yet done marked.
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -16,12 +23,16 @@ import { TAB_ROUTES } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
 import type { StoryDestination } from '../lib/yourStory';
 import {
+  TOUR_FIRST_LABEL,
   TOUR_GETTING_STARTED,
+  TOUR_GETTING_STARTED_LEAD,
   TOUR_HEADING,
   TOUR_LEAD,
   TOUR_OPEN_LABEL,
+  TOUR_RELY_HEADING,
   TOUR_START_LABEL,
   lensDestination,
+  lensLine,
   lensName,
   type TourTabView,
 } from '../lib/yourStoryInterview';
@@ -76,34 +87,46 @@ export function YourStoryTour({ tour, go }: Props) {
             {isOpen ? (
               <View style={styles.inside}>
                 <Text style={styles.body}>{tab.def.answer}</Text>
+                <View style={styles.group}>
+                  <Text style={styles.groupTitle}>{TOUR_RELY_HEADING}</Text>
+                  {tab.def.relyOn.map((line) => (
+                    <View key={line} style={styles.relyRow}>
+                      <Text style={[styles.bullet, { color: tint }]}>{'•'}</Text>
+                      <Text style={styles.relyText}>{line}</Text>
+                    </View>
+                  ))}
+                </View>
                 {tab.def.groups.map((group) => (
                   <View key={group.title} style={styles.group}>
                     <Text style={styles.groupTitle}>{group.title}</Text>
-                    <Text style={styles.caption}>{group.line}</Text>
-                    {group.lenses.length > 0 ? (
-                      <View style={styles.lenses}>
-                        {group.lenses.map((key) => {
-                          const destination = routable(lensDestination(tab.def.path, key));
-                          return (
-                            <TouchableOpacity
-                              key={key}
-                              style={[styles.lens, { borderColor: tint }]}
-                              onPress={() => destination && go(destination)}
-                              accessibilityRole="button"
-                            >
-                              <Text style={styles.lensText}>{lensName(tab.def.path, key)}</Text>
-                            </TouchableOpacity>
-                          );
-                        })}
-                      </View>
-                    ) : null}
+                    {group.line ? <Text style={styles.caption}>{group.line}</Text> : null}
+                    {group.lenses.map((key) => {
+                      const destination = routable(lensDestination(tab.def.path, key));
+                      const line = lensLine(tab.def.path, key);
+                      return (
+                        <TouchableOpacity
+                          key={key}
+                          style={[styles.lensRow, { borderLeftColor: tint }]}
+                          onPress={() => destination && go(destination)}
+                          accessibilityRole="button"
+                        >
+                          <View style={styles.lensText}>
+                            <Text style={styles.lensName}>{lensName(tab.def.path, key)}</Text>
+                            {line ? <Text style={styles.caption}>{line}</Text> : null}
+                          </View>
+                          <Ionicons name="chevron-forward" size={15} color={colors.primary} style={textShadow} />
+                        </TouchableOpacity>
+                      );
+                    })}
                   </View>
                 ))}
                 {tab.steps.length > 0 ? (
                   <View style={styles.group}>
                     <Text style={styles.groupTitle}>{TOUR_GETTING_STARTED}</Text>
+                    <Text style={styles.caption}>{TOUR_GETTING_STARTED_LEAD}</Text>
                     {tab.steps.map((step) => {
                       const destination = routable(step.destination);
+                      const first = step === tab.steps.find((entry) => !entry.done);
                       return (
                         <View key={step.def.doThis} style={styles.stepRow}>
                           <Ionicons
@@ -112,7 +135,11 @@ export function YourStoryTour({ tour, go }: Props) {
                             color={step.done ? colors.primary : colors.textMuted}
                             style={[textShadow, styles.stepIcon]}
                           />
-                          <Text style={step.done ? styles.stepDone : styles.stepText}>{step.def.doThis}</Text>
+                          <View style={styles.stepBody}>
+                            {first ? <Text style={[styles.firstLabel, { color: tint }]}>{TOUR_FIRST_LABEL}</Text> : null}
+                            <Text style={step.done ? styles.stepDone : styles.stepText}>{step.def.doThis}</Text>
+                            <Text style={styles.caption}>{step.def.why}</Text>
+                          </View>
                           {destination ? (
                             <TouchableOpacity style={styles.link} onPress={() => go(destination)} accessibilityRole="button">
                               <Text style={styles.linkText}>{step.done ? 'Open' : 'Go there'}</Text>
@@ -166,13 +193,26 @@ const styles = StyleSheet.create({
   inside: { gap: 12, backgroundColor: colors.surface },
   group: { gap: 4, backgroundColor: colors.surface },
   groupTitle: { ...typography.label, color: colors.textPrimary, ...textShadow },
-  lenses: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 2, backgroundColor: colors.surface },
-  lens: { borderWidth: 1, borderRadius: 14, paddingHorizontal: 10, paddingVertical: 4, backgroundColor: colors.surface },
-  lensText: { ...typography.caption, color: colors.textPrimary, ...textShadow },
+  relyRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 6, backgroundColor: colors.surface },
+  bullet: { ...typography.body, ...textShadow },
+  relyText: { ...typography.body, color: colors.textSecondary, ...textShadow, flex: 1 },
+  lensRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderLeftWidth: 2,
+    paddingLeft: 8,
+    paddingVertical: 4,
+    backgroundColor: colors.surface,
+  },
+  lensText: { flex: 1, gap: 1, backgroundColor: colors.surface },
+  lensName: { ...typography.label, color: colors.primary, ...textShadow },
+  stepBody: { flex: 1, minWidth: 160, gap: 1, backgroundColor: colors.surface },
+  firstLabel: { ...typography.caption, ...textShadow },
   stepRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, flexWrap: 'wrap', backgroundColor: colors.surface },
   stepIcon: { marginTop: 2 },
-  stepText: { ...typography.body, color: colors.textPrimary, ...textShadow, flex: 1, minWidth: 160 },
-  stepDone: { ...typography.body, color: colors.textSecondary, ...textShadow, flex: 1, minWidth: 160 },
+  stepText: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  stepDone: { ...typography.body, color: colors.textSecondary, ...textShadow },
   link: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 2 },
   linkText: { ...typography.caption, color: colors.primary, ...textShadow },
 });
