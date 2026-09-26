@@ -1,7 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
 import { AppTextInput } from '../../components/AppTextInput';
 import { ConditionsSection } from '../../components/ConditionsSection';
@@ -883,6 +883,13 @@ export default function LifeScreen() {
 
   const activeLensLabel = LIFE_LENSES.find((option) => option.key === lens)?.label;
 
+  // A finance category reads "Group: Category", far past PopoverSelect's
+  // 160 dp default, so its menu takes the screen width less the popover's
+  // margins, up to a width the longest label fits (reported from the phone,
+  // 1.0.52.8).
+  const { width: windowWidth } = useWindowDimensions();
+  const categoryMenuWidth = Math.min(windowWidth - 24, 340);
+
   const categoryOptions = useMemo(() => {
     if (recurringForm?.direction === 'income' || entryForm?.direction === 'income') {
       return financeCategoriesFor('income').map((c) => ({ label: c.label, value: c.code }));
@@ -1291,6 +1298,7 @@ export default function LifeScreen() {
           selected={form.category}
           onSelect={(value) => setRecurringForm({ ...form, category: value })}
           tabColor={TAB_COLOR}
+          width={categoryMenuWidth}
           searchable
         />
 
@@ -1554,6 +1562,7 @@ export default function LifeScreen() {
               selected={entryForm.category}
               onSelect={(value) => setEntryForm({ ...entryForm, category: value })}
               tabColor={TAB_COLOR}
+              width={categoryMenuWidth}
               searchable
             />
 
@@ -1711,6 +1720,7 @@ export default function LifeScreen() {
                 selected={budgetForm.category}
                 onSelect={(value) => setBudgetForm({ ...budgetForm, category: value })}
                 tabColor={TAB_COLOR}
+                width={categoryMenuWidth}
                 searchable
               />
               <Text style={styles.label}>Limit each month</Text>
