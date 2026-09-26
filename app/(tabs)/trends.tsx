@@ -69,6 +69,7 @@ import {
 import { markPendingFoodTrialReturn } from '../../lib/pendingFoodTrialReturn';
 import { basisSentence, comparisonSentence, thresholdSentence } from '../../lib/patternBasis';
 import { contextCaveat } from '../../lib/patternContext';
+import { FACTOR_BAND_EMPTY_LINE, FACTOR_CAVEAT, factorComparisonSentence } from '../../lib/patternFactors';
 import { OUTCOME_WORDS, PATTERN_OUTCOMES, emptyOutcomeSentence, outcomeCountsSentence, type PatternOutcome } from '../../lib/patternOutcome';
 import { DAILY_SCALES, answeredSentence, scaleWord, type DailyScaleKey, type DailyScalePoint } from '../../lib/dailyScales';
 import { usualSentence } from '../../lib/yourUsual';
@@ -673,6 +674,10 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       {
         heading: 'Test this',
         body: 'A food that shows up here can be tested as an experiment in Signals: leave it out for a set number of days, then bring it back, and see what was logged before, without it and after. One run on one person can still be chance, and it says so.',
+      },
+      {
+        heading: 'Before them, besides food',
+        body: "The same count for everything else the app records: check-in tags, sleep, doses marked skipped, steps, water and each tracker you made. A number only counts when it sat outside your usual range, and each one is counted only against the flares that had it recorded before them. Steps and water are whole days, so they count at the 24 and 48 hour windows. Weather and a menstrual cycle are not recorded in the app yet.",
       },
     ],
   },
@@ -3173,6 +3178,40 @@ export default function TrendsScreen() {
                       </Text>
                     ))}
                     <Text style={styles.patternRowCaption}>{contextCaveat(outcomeWords)}</Text>
+                  </TabBand>
+                ) : null}
+
+                {!loading && patternResult && patternResult.totalSymptomInstances > 0 ? (
+                  <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:factors'} title={'Before them, besides food'} icon="layers-outline">
+                    {patternResult.factorFamilies.length === 0 ? (
+                      <Text style={styles.patternRowCaption}>{FACTOR_BAND_EMPTY_LINE}</Text>
+                    ) : null}
+                    {patternResult.factorFamilies.map((family) => (
+                      <View key={family.family}>
+                        <Text style={styles.patternRowTitle}>{family.title}</Text>
+                        {family.candidates.map((candidate) => (
+                          <View key={candidate.key} style={styles.patternRow}>
+                            <View style={styles.patternRowText}>
+                              <Text style={styles.patternRowTitle}>{candidate.label}</Text>
+                              <Text style={styles.patternRowCaption}>
+                                {factorComparisonSentence(candidate.comparison, patternResult.basis.windowHours, candidate.noun)}
+                              </Text>
+                            </View>
+                          </View>
+                        ))}
+                        {family.lines.map((line) => (
+                          <Text key={line} style={styles.patternRowCaption}>
+                            {line}
+                          </Text>
+                        ))}
+                      </View>
+                    ))}
+                    {patternResult.factorNotes.map((line) => (
+                      <Text key={line} style={styles.patternRowCaption}>
+                        {line}
+                      </Text>
+                    ))}
+                    <Text style={styles.patternRowCaption}>{FACTOR_CAVEAT}</Text>
                   </TabBand>
                 ) : null}
 

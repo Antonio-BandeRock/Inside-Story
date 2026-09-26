@@ -12,7 +12,28 @@ import {
 import { contextLines, type TreatmentDates } from './patternContext';
 import { OUTCOME_WORDS, scaleOutcomeEvents, type PatternOutcome } from './patternOutcome';
 import { localStampOf } from './dailyScales';
-import { getSleepTrendPoints } from './trendAnalysis';
+import { getNutrientTrendSeriesForRange, getSleepTrendPoints } from './trendAnalysis';
+import { getCheckinTagDefinition } from './checkinTags';
+import { listScheduledDoses, rangeForDays } from './trendsMoreDb';
+import { localClock, localDay } from './trendsMore';
+import { trackerDailySeries } from './customTrackers';
+import { listCustomTrackers, listTrackerEntriesSince } from './customTrackersDb';
+import {
+  assembleFactorFamilies,
+  dayEndAt,
+  doseMoments,
+  findFactorCandidates,
+  NOT_RECORDED_LINE,
+  sleepAt,
+  tagMoments,
+  trackerMoments,
+  usualRangeMoments,
+  DAY_TOTAL_MIN_HOURS,
+  type FactorFamilyResult,
+  type FactorGroup,
+  type FactorMoment,
+  type TrackerDay,
+} from './patternFactors';
 import { isFlaggedTier } from './sixDimensionsReference';
 import { listWorkCheckins } from './workDb';
 import {
@@ -128,7 +149,145 @@ export type PatternFinderResult = {
    *  movementRefusal names which piece is missing. */
   movementComparison: MovementComparison | null;
   movementRefusal: MovementRefusal | null;
+  /** F1: everything besides food, each family counted against the outcomes
+   *  that had it recorded before them (lib/patternFactors.ts). */
+  factorFamilies: FactorFamilyResult[];
+  /** Lines about the factors as a whole, such as what is not recorded yet. */
+  factorNotes: string[];
 };
+
+// F1, 2026-09-26. Reads everything besides food that the app records and
+// turns it into moments for lib/patternFactors.ts, which does the counting
+// and holds every sentence.
+async function findFactorFamilies(input: {
+  days: number;
+  rangeStart: string;
+  today: string;
+  now: Date;
+  windowHours: PatternWindowHours;
+  outcomeEnds: (Date | null)[];
+  words: { one: string; many: string };
+  sleepPoints: { date: string; value: number }[];
+}): Promise<FactorFamilyResult[]> {
+  const { days, rangeStart, today, now, windowHours } = input;
+  const reachBack = dateStringDaysAgo(days + 1);
+  const dayTotals = windowHours >= DAY_TOTAL_MIN_HOURS;
+  const [checkins, doses, stepRows, water, trackers, trackerEntries] = await Promise.all([
+    listCheckins({ limit: 2000 }),
+    listScheduledDoses(rangeForDays(days + 2, today)),
+    getStepCountTrend(days + 2),
+    dayTotals ? getNutrientTrendSeriesForRange('water', reachBack, today) : Promise.resolve(null),
+    listCustomTrackers(),
+    listTrackerEntriesSince(reachBack),
+  ]);
+
+  const moments: FactorMoment[] = [];
+  const groups: FactorGroup[] = [];
+  const labels = new Map<string, string>();
+
+  const tagged = tagMoments(
+    checkins
+      .map((checkin) => ({ at: localStampOf(checkin.loggedAt), tags: checkin.tags }))
+      .filter((checkin) => checkin.at.slice(0, 10) >= reachBack),
+  );
+  if (tagged.length > 0) {
+    moments.push(...tagged);
+    groups.push({ group: 'tags', family: 'tags', noun: 'a check-in tag', dayTotal: false, usualShort: null });
+    for (const moment of tagged) {
+      for (const key of moment.keys) {
+        const code = key.slice(4);
+        labels.set(key, getCheckinTagDefinition(code)?.label ?? code);
+      }
+    }
+  }
+
+  const nights = input.sleepPoints.filter((point) => point.date >= reachBack);
+  if (nights.length > 0) {
+    const made = usualRangeMoments(nights, 'sleep', 'sleep', sleepAt);
+    moments.push(...made.moments);
+    groups.push({ group: 'sleep', family: 'sleep', noun: 'sleep', dayTotal: false, usualShort: made.usualShort });
+    labels.set('sleep:below', 'Nights shorter than your usual range');
+    labels.set('sleep:above', 'Nights longer than your usual range');
+  }
+
+  const marked = doseMoments(
+    doses.map((dose) => ({ ...dose, scheduledFor: `${localDay(dose.scheduledFor)}T${localClock(dose.scheduledFor) ?? '00:00'}` })),
+  );
+  if (marked.length > 0) {
+    moments.push(...marked);
+    groups.push({ group: 'doses', family: 'doses', noun: 'a dose marked taken or skipped', dayTotal: false, usualShort: null });
+    for (const moment of marked) for (const key of moment.keys) labels.set(key, `${key.slice(5)} skipped`);
+  }
+
+  // Today is left out of every day total, since today's figure is not whole.
+  const steps = stepRows
+    .filter((row) => row.date >= reachBack && row.date < today)
+    .map((row) => ({ date: row.date, value: row.stepCount }));
+  if (steps.length > 0) {
+    const made = usualRangeMoments(steps, 'steps', 'steps', dayEndAt);
+    moments.push(...made.moments);
+    groups.push({ group: 'steps', family: 'steps', noun: 'a day of steps', dayTotal: true, usualShort: made.usualShort });
+    labels.set('steps:below', 'Days with fewer steps than your usual range');
+    labels.set('steps:above', 'Days with more steps than your usual range');
+  }
+
+  // Water is only read when it can be counted, since reading it means
+  // working out every meal's nutrients across the range. Below 24 hours the
+  // family still shows, saying when it is counted.
+  const waterDays = (water?.points ?? [])
+    .filter((point) => point.date < today)
+    .map((point) => ({ date: point.date, value: point.value }));
+  if (waterDays.length > 0 || !dayTotals) {
+    const made = usualRangeMoments(waterDays, 'water', 'water', dayEndAt);
+    moments.push(...made.moments);
+    groups.push({ group: 'water', family: 'water', noun: 'a day of water', dayTotal: true, usualShort: made.usualShort });
+    labels.set('water:below', 'Days with less water than your usual range');
+    labels.set('water:above', 'Days with more water than your usual range');
+  }
+
+  const trackerDays: TrackerDay[] = [];
+  for (const tracker of trackers) {
+    const entries = trackerEntries.filter((entry) => entry.trackerId === tracker.id);
+    if (entries.length === 0) continue;
+    const lastAt = new Map<string, string>();
+    for (const entry of entries) {
+      const day = entry.loggedAt.slice(0, 10);
+      if ((lastAt.get(day) ?? '') < entry.loggedAt) lastAt.set(day, entry.loggedAt);
+    }
+    for (const point of trackerDailySeries(tracker.kind, entries, reachBack)) {
+      trackerDays.push({
+        trackerId: tracker.id,
+        date: point.date,
+        value: point.value,
+        lastAt: lastAt.get(point.date) ?? dayEndAt(point.date),
+      });
+    }
+  }
+  const trackerMade = trackerMoments(trackerDays);
+  moments.push(...trackerMade.moments);
+  for (const tracker of trackers) {
+    if (!trackerDays.some((day) => day.trackerId === tracker.id)) continue;
+    groups.push({
+      group: `tr:${tracker.id}`,
+      family: 'trackers',
+      noun: tracker.name,
+      dayTotal: false,
+      usualShort: trackerMade.usualShort.get(tracker.id) ?? null,
+    });
+    labels.set(`tr:${tracker.id}:below`, `${tracker.name}: below your usual range`);
+    labels.set(`tr:${tracker.id}:above`, `${tracker.name}: above your usual range`);
+  }
+
+  const counted = findFactorCandidates({
+    moments,
+    groups,
+    outcomeEnds: input.outcomeEnds,
+    usualEnds: usualWindowEnds(rangeStart, today, now),
+    windowHours,
+    label: (key) => labels.get(key) ?? key,
+  });
+  return assembleFactorFamilies(groups, counted, input.outcomeEnds.length, windowHours, input.words);
+}
 
 // Same 'YYYY-MM-DD' local-time convention already duplicated across this
 // app's own screens (see trendAnalysis.ts's own identical comment) --
@@ -380,6 +539,23 @@ export async function findFoodPatterns(
   }
   const movement = compareMovementAgainstSymptoms({ weeks: movementWeeks, symptomsByWeek: symptomsByMovementWeek });
 
+  const factorFamilies =
+    symptomCheckins.length === 0
+      ? []
+      : await findFactorFamilies({
+          days,
+          rangeStart,
+          today,
+          now,
+          windowHours,
+          outcomeEnds: symptomCheckins.map((checkin) => {
+            const end = new Date(checkin.loggedAt);
+            return Number.isNaN(end.getTime()) ? null : end;
+          }),
+          words: { one: words.one, many: words.many },
+          sleepPoints,
+        });
+
   return {
     outcome,
     totalSymptomInstances: symptomCheckins.length,
@@ -398,5 +574,7 @@ export async function findFoodPatterns(
     workStrainRefusal: weeklyApplies && isStrainRefusal(strain) ? strain : null,
     movementComparison: !weeklyApplies || isMovementRefusal(movement) ? null : movement,
     movementRefusal: weeklyApplies && isMovementRefusal(movement) ? movement : null,
+    factorFamilies,
+    factorNotes: [NOT_RECORDED_LINE],
   };
 }

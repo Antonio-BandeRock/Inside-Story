@@ -48,6 +48,7 @@ const NAMED = [
   'lib/patternRules.ts',
   'lib/patternBasis.ts',
   'lib/patternContext.ts',
+  'lib/patternFactors.ts',
   'lib/foodExperiment.ts',
   'lib/yourUsual.ts',
   'lib/trendAnalysis.ts',

@@ -513,7 +513,7 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     cost: 'What life costs by the month, from what you recorded.',
     harvest: 'What the garden grew, by crop and by season.',
     conditions: 'Garden readings over time, area by area.',
-    patterns: 'Foods that tend to come before a flare, each set beside how often they turn up anyway.',
+    patterns: 'Foods, sleep, tags, doses, steps, water and your trackers that tend to come before a flare, each set beside how often they turn up anyway.',
     hydration: 'What you drank, day by day, against your target.',
     bloodPressure: 'Blood pressure readings over time, beside the range yours usually fall in.',
     bodySignals: 'Heart rate, HRV, blood oxygen, glucose and skin temperature from your watch or meter, beside your usual range.',
