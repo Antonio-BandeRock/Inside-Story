@@ -70,6 +70,7 @@ const NAMED = [
   'lib/reminderNotifications.ts',
   'lib/dailyScales.ts',
   'lib/patternOutcome.ts',
+  'lib/customTrackers.ts',
 ];
 
 function targets() {

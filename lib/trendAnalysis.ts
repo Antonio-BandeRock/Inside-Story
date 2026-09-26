@@ -14,6 +14,8 @@ import {
 } from './db';
 import { analyzeNutrientIntake, type NutrientStatus } from './nutrientAnalysis';
 import { dailyScaleSeries, type DailyScaleKey, type DailyScalePoint } from './dailyScales';
+import { trackerDailySeries, type CustomTracker, type TrackerPoint } from './customTrackers';
+import { listCustomTrackers, listTrackerEntriesSince } from './customTrackersDb';
 
 // The "chart it over time" layer Trends needs. Rebuilt 2026-08-15 -- the
 // original version of this file called lib/db.ts's single-date
@@ -376,6 +378,21 @@ export async function getCheckinSeverityTrendSeries(checkinTypes: CheckinType[],
 // chart rather than a zero. Every scale comes off the same general
 // check-ins, read once. The limit is generous because somebody who
 // answers twice a day for a year still fits.
+// Trackers the person names (D2, 2026-09-26): one series per tracker,
+// a point only on days something was logged. A tracker still in use is
+// listed even with nothing in the range, so its empty chart says so; a
+// retired one is listed only when the range holds entries from it.
+export async function getCustomTrackerSeries(days: number): Promise<{ tracker: CustomTracker; points: TrackerPoint[] }[]> {
+  const rangeStart = dateStringDaysAgo(days - 1);
+  const [trackers, entries] = await Promise.all([listCustomTrackers(), listTrackerEntriesSince(rangeStart)]);
+  return trackers
+    .map((tracker) => ({
+      tracker,
+      points: trackerDailySeries(tracker.kind, entries.filter((entry) => entry.trackerId === tracker.id), rangeStart),
+    }))
+    .filter(({ tracker, points }) => !tracker.retiredAt || points.length > 0);
+}
+
 export async function getDailyScaleSeries(days: number): Promise<Record<DailyScaleKey, DailyScalePoint[]>> {
   const rangeStart = dateStringDaysAgo(days - 1);
   const checkins = await listCheckins({ checkinType: 'general', limit: 1000 });

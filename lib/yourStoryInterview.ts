@@ -315,6 +315,7 @@ export const TOUR_LENS_NAMES: Record<string, Record<string, string>> = {
     exercise: 'Exercise',
     bloodPressure: 'Blood Pressure',
     nocturia: 'Nocturia',
+    trackers: 'My Trackers',
     therapies: 'Hands-On Therapies',
     generalNote: 'General Note',
   },
@@ -390,6 +391,7 @@ export const TOUR_LENS_NAMES: Record<string, Record<string, string>> = {
     work: 'Work',
     reactions: 'Reactions & New Foods',
     nights: 'Nights',
+    trackers: 'My Trackers',
     ferments: 'Ferments',
     planned: 'Planned and Eaten',
   },
@@ -442,6 +444,7 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     exercise: 'Movement you did, for how long and how hard.',
     bloodPressure: 'Blood pressure and pulse readings, with the time of day.',
     nocturia: 'Nights you woke to pass water, and how many times.',
+    trackers: 'Anything else you want to follow, named by you and logged whenever you like.',
     therapies: 'Massage, physiotherapy, acupuncture and other hands-on sessions, and how you felt after.',
     generalNote: 'Anything else about your day worth writing down.',
   },
@@ -517,6 +520,7 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     work: 'How the work weeks went, from your check-ins.',
     reactions: 'After-meal reactions and new foods tried, over time.',
     nights: 'Nights up and how you slept, week by week.',
+    trackers: 'A chart for each tracker you named, a blank day left as a gap.',
     ferments: 'Ferments started, finished and eaten, over time.',
     planned: 'Meals you planned beside meals you ate.',
   },
@@ -689,6 +693,7 @@ export const TOUR_TABS: TourTabDef[] = [
       { title: 'How you feel', lenses: ['flares', 'foodReactions', 'newFoods'] },
       { title: 'Your body', lenses: ['exercise', 'bloodPressure', 'nocturia'] },
       { title: 'What you tried', lenses: ['therapies', 'generalNote'] },
+      { title: 'What you name', lenses: ['trackers'] },
     ],
     steps: [
       {
@@ -882,6 +887,7 @@ export const TOUR_TABS: TourTabDef[] = [
       { title: 'Your body', lenses: ['symptoms', 'weight', 'bloodPressure', 'movement', 'nights', 'labs', 'therapyResponse', 'doses'] },
       { title: 'Daily living', lenses: ['keepingUp', 'care', 'work', 'cost'] },
       { title: 'Garden and kitchen', lenses: ['harvest', 'conditions', 'ferments'] },
+      { title: 'What you name', lenses: ['trackers'] },
       { title: 'Looking for patterns', lenses: ['patterns'] },
     ],
     steps: [

@@ -60,6 +60,30 @@ import {
 } from '../../lib/foodExperiment';
 import { readExperimentResult } from '../../lib/foodExperimentDb';
 import { deleteNocturiaNight, listNocturiaNights, saveNocturiaNight, type NocturiaNight } from '../../lib/nocturiaDb';
+import {
+  TRACKER_KINDS,
+  TRACKERS_EMPTY_LINE,
+  activeTrackers,
+  formatTrackerValue,
+  parseTrackerValue,
+  pastTrackers,
+  trackerKindLabel,
+  trackerNameProblem,
+  trackerRemovalSentence,
+  type CustomTracker,
+  type TrackerEntry,
+  type TrackerKind,
+} from '../../lib/customTrackers';
+import {
+  addTrackerEntry,
+  createCustomTracker,
+  deleteTrackerEntry,
+  listCustomTrackers,
+  listTrackerEntries,
+  removeCustomTracker,
+  restoreCustomTracker,
+  updateCustomTracker,
+} from '../../lib/customTrackersDb';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -82,7 +106,7 @@ const TAB_COLOR = colors.tabBioCompass;
 // out. Nocturia added the same day as a new lens; since 1.0.52.7 its
 // nights are kept in nocturia_nights (lib/nocturiaDb.ts) and read on
 // Trends > Nights.
-type Lens = 'flares' | 'foodReactions' | 'newFoods' | 'exercise' | 'bloodPressure' | 'therapies' | 'generalNote' | 'nocturia';
+type Lens = 'flares' | 'foodReactions' | 'newFoods' | 'exercise' | 'bloodPressure' | 'therapies' | 'generalNote' | 'nocturia' | 'trackers';
 
 // Shared caveat, appended to every lens's help -- same pattern as
 // DRILLING_DOWN_HELP (insights.tsx), REPEATING_SCHEDULES_HELP (schedule.tsx),
@@ -195,6 +219,22 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: 'Nocturia',
         body: 'How many times you got up in the night to urinate, written down the next morning, with the time you first woke if you remember it. Trends > Nights reads these beside what you drank in the evening before each one.',
+      },
+      LOG_PERSONAL_NOTES_HELP,
+    ],
+  },
+  {
+    key: 'trackers',
+    label: 'My Trackers',
+    icon: 'options-outline',
+    help: [
+      {
+        heading: 'My Trackers',
+        body: 'Anything this app does not ask about, named by you: brain fog, hot flushes, cups of coffee, minutes outside, a morning temperature. Pick what kind of number it is (a scale of 1 to 5, a count, a length of time, or a measurement in a unit you choose), then log it whenever you like. Trends > My Trackers draws each one as a chart, and a day with nothing logged shows as a gap rather than a zero.',
+      },
+      {
+        heading: 'Removing a tracker',
+        body: 'A tracker with nothing logged is deleted. One with entries moves to Past trackers, where what you logged stays readable on Trends and you can bring it back to keep adding to it.',
       },
       LOG_PERSONAL_NOTES_HELP,
     ],
@@ -2015,6 +2055,388 @@ function NocturiaLens() {
   );
 }
 
+// My Trackers (D2, 2026-09-26): something this app never thought to ask
+// about, named by the person and logged here; Trends > My Trackers charts
+// it. The list is open, the house rule for every list: add your own,
+// rename, and remove, where removing a tracker with anything logged moves
+// it to Past trackers rather than deleting what was logged
+// (lib/customTrackers.ts, lib/customTrackersDb.ts).
+function MyTrackersLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const [trackers, setTrackers] = useState<CustomTracker[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [entries, setEntries] = useState<TrackerEntry[]>([]);
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+
+  // Making or renaming a tracker.
+  const [trackerForm, setTrackerForm] = useState<'closed' | 'new' | 'rename'>('closed');
+  const [trackerName, setTrackerName] = useState('');
+  const [trackerKind, setTrackerKind] = useState<TrackerKind>('scale');
+  const [trackerUnit, setTrackerUnit] = useState('');
+  const [confirmRemove, setConfirmRemove] = useState(false);
+
+  // Logging an entry.
+  const [entryOpen, setEntryOpen] = useState(false);
+  const [valueText, setValueText] = useState('');
+  const [hoursText, setHoursText] = useState('');
+  const [minutesText, setMinutesText] = useState('');
+  const [entryNotes, setEntryNotes] = useState('');
+  const [dateChoice, setDateChoice] = useState<DateChoice>('today');
+  const [customDate, setCustomDate] = useState('');
+  const [time, setTime] = useState<TimeOfDayInput>(() => splitTime24(nowTimeString24()));
+
+  const active = activeTrackers(trackers);
+  const past = pastTrackers(trackers);
+  const selected = active.find((tracker) => tracker.id === selectedId) ?? active[0] ?? null;
+
+  const load = useCallback(() => {
+    listCustomTrackers().then(setTrackers);
+  }, []);
+
+  useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  useEffect(() => {
+    if (!selected) {
+      setEntries([]);
+      return;
+    }
+    listTrackerEntries(selected.id, 30).then(setEntries);
+  }, [selected?.id, selected?.entryCount]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function resetEntryForm() {
+    setValueText('');
+    setHoursText('');
+    setMinutesText('');
+    setEntryNotes('');
+    setDateChoice('today');
+    setCustomDate('');
+    setTime(splitTime24(nowTimeString24()));
+  }
+
+  function openNewTracker() {
+    setTrackerName('');
+    setTrackerKind('scale');
+    setTrackerUnit('');
+    setConfirmRemove(false);
+    setTrackerForm('new');
+  }
+
+  function openRename(tracker: CustomTracker) {
+    setTrackerName(tracker.name);
+    setTrackerUnit(tracker.unit ?? '');
+    setConfirmRemove(false);
+    setTrackerForm('rename');
+  }
+
+  async function handleSaveTracker() {
+    const exceptId = trackerForm === 'rename' ? selected?.id : undefined;
+    const problem = trackerNameProblem(trackerName, trackers, exceptId);
+    if (problem) {
+      showInfoAlert('Almost there', problem);
+      return;
+    }
+    if (trackerForm === 'rename' && selected) {
+      await updateCustomTracker(selected.id, {
+        name: trackerName,
+        unit: selected.entryCount === 0 ? trackerUnit : undefined,
+      });
+    } else {
+      const id = await createCustomTracker({ name: trackerName, kind: trackerKind, unit: trackerUnit });
+      setSelectedId(id);
+    }
+    setTrackerForm('closed');
+    load();
+  }
+
+  async function handleRemoveTracker() {
+    if (!selected) return;
+    await removeCustomTracker(selected.id);
+    setConfirmRemove(false);
+    setTrackerForm('closed');
+    setSelectedId(null);
+    load();
+  }
+
+  async function handleRestore(tracker: CustomTracker) {
+    await restoreCustomTracker(tracker.id);
+    setSelectedId(tracker.id);
+    load();
+  }
+
+  async function handleSaveEntry() {
+    if (!selected) return;
+    const parsed = parseTrackerValue(selected.kind, { text: valueText, hours: hoursText, minutes: minutesText });
+    if ('problem' in parsed) {
+      showInfoAlert('Almost there', parsed.problem);
+      return;
+    }
+    const loggedAt = resolveDateTime(dateChoice, customDate, time);
+    if (!loggedAt) {
+      showInfoAlert('Almost there', 'Enter a valid date and time.');
+      return;
+    }
+    await addTrackerEntry({ trackerId: selected.id, value: parsed.value, loggedAt, notes: entryNotes });
+    setEntryOpen(false);
+    resetEntryForm();
+    load();
+  }
+
+  async function handleDeleteEntry(id: string) {
+    await deleteTrackerEntry(id);
+    load();
+  }
+
+  const kindTakesUnit = TRACKER_KINDS.find((kind) => kind.key === (trackerForm === 'rename' ? selected?.kind : trackerKind))?.takesUnit ?? false;
+
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
+      <View style={styles.sectionColumn}>
+        {trackerForm === 'closed' ? (
+          <TouchableOpacity style={styles.addButton} onPress={openNewTracker}>
+            <Text style={styles.addButtonText}>+ Add a tracker of your own</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.formCard}>
+            <Text style={styles.label}>{trackerForm === 'rename' ? 'Name' : 'What do you want to track?'}</Text>
+            <AppTextInput
+              style={styles.input}
+              placeholder="Brain fog, cups of coffee, minutes outside"
+              value={trackerName}
+              onChangeText={setTrackerName}
+              maxLength={60}
+            />
+            {trackerForm === 'new' ? (
+              <>
+                <Text style={styles.label}>What kind of number is it?</Text>
+                <View style={styles.pillRow}>
+                  {TRACKER_KINDS.map((kind) => (
+                    <TouchableOpacity
+                      key={kind.key}
+                      style={[styles.pill, trackerKind === kind.key && styles.pillActive]}
+                      onPress={() => setTrackerKind(kind.key)}
+                    >
+                      <Text style={[styles.pillText, trackerKind === kind.key && styles.pillTextActive]}>{kind.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                <Text style={styles.helperText}>
+                  {`${TRACKER_KINDS.find((kind) => kind.key === trackerKind)?.line ?? ''} The kind stays as it is once the tracker is made, so what you log keeps its meaning.`}
+                </Text>
+              </>
+            ) : selected ? (
+              <Text style={styles.helperText}>{`${trackerKindLabel(selected.kind)}. The kind stays as it is, so what you logged keeps its meaning.`}</Text>
+            ) : null}
+            {kindTakesUnit && (trackerForm === 'new' || (selected && selected.entryCount === 0)) ? (
+              <>
+                <Text style={styles.label}>{trackerKind === 'measurement' || selected?.kind === 'measurement' ? 'Unit' : 'Unit (optional)'}</Text>
+                <AppTextInput
+                  style={styles.input}
+                  placeholder={trackerKind === 'measurement' || selected?.kind === 'measurement' ? '°C, kg, mg/dL' : 'cups, times, glasses'}
+                  value={trackerUnit}
+                  onChangeText={setTrackerUnit}
+                  maxLength={20}
+                />
+              </>
+            ) : trackerForm === 'rename' && selected?.unit ? (
+              <Text style={styles.helperText}>{`In ${selected.unit}. The unit stays as it is once something is logged in it.`}</Text>
+            ) : null}
+            {trackerForm === 'rename' && selected ? (
+              confirmRemove ? (
+                <View style={styles.panelStandalone}>
+                  <Text style={styles.helperText}>{trackerRemovalSentence(selected)}</Text>
+                  <View style={styles.formActions}>
+                    <TouchableOpacity style={styles.secondaryButton} onPress={() => setConfirmRemove(false)}>
+                      <Text style={styles.secondaryButtonText}>Keep it</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.primaryButton} onPress={handleRemoveTracker}>
+                      <Text style={styles.primaryButtonText}>Remove</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ) : (
+                <TouchableOpacity onPress={() => setConfirmRemove(true)}>
+                  <Text style={styles.actionTextRemove}>Remove this tracker</Text>
+                </TouchableOpacity>
+              )
+            ) : null}
+            <View style={styles.formActions}>
+              <TouchableOpacity style={styles.secondaryButton} onPress={() => setTrackerForm('closed')}>
+                <Text style={styles.secondaryButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.primaryButton} onPress={handleSaveTracker}>
+                <Text style={styles.primaryButtonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {active.length === 0 ? (
+          <View style={styles.panelStandalone}>
+            <Text style={styles.emptyText}>{TRACKERS_EMPTY_LINE}</Text>
+          </View>
+        ) : (
+          <View style={styles.panelStandalone}>
+            <View style={styles.pillRow}>
+              {active.map((tracker) => (
+                <TouchableOpacity
+                  key={tracker.id}
+                  style={[styles.pill, selected?.id === tracker.id && styles.pillActive]}
+                  onPress={() => {
+                    setSelectedId(tracker.id);
+                    setEntryOpen(false);
+                    setTrackerForm('closed');
+                    resetEntryForm();
+                  }}
+                >
+                  <Text style={[styles.pillText, selected?.id === tracker.id && styles.pillTextActive]}>{tracker.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {selected ? (
+          <>
+            {!entryOpen ? (
+              <TouchableOpacity style={styles.addButton} onPress={() => setEntryOpen(true)}>
+                <Text style={styles.addButtonText}>{`+ Log ${selected.name}`}</Text>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.formCard}>
+                {selected.kind === 'scale' ? (
+                  <>
+                    <Text style={styles.label}>{selected.name}</Text>
+                    <View style={styles.pillRow}>
+                      {[1, 2, 3, 4, 5].map((value) => (
+                        <TouchableOpacity
+                          key={value}
+                          style={[styles.pill, valueText === String(value) && styles.pillActive]}
+                          onPress={() => setValueText(valueText === String(value) ? '' : String(value))}
+                          accessibilityLabel={`${selected.name} ${value} of 5`}
+                        >
+                          <Text style={[styles.pillText, valueText === String(value) && styles.pillTextActive]}>{String(value)}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                    <Text style={styles.helperText}>1 is the least, 5 the most.</Text>
+                  </>
+                ) : selected.kind === 'duration' ? (
+                  <>
+                    <Text style={styles.label}>How long</Text>
+                    <View style={styles.timeRow}>
+                      <AppTextInput
+                        style={[styles.input, styles.timeInput]}
+                        placeholder="h"
+                        keyboardType="number-pad"
+                        maxLength={2}
+                        value={hoursText}
+                        onChangeText={setHoursText}
+                      />
+                      <Text style={styles.timeSeparator}>h</Text>
+                      <AppTextInput
+                        style={[styles.input, styles.timeInput]}
+                        placeholder="min"
+                        keyboardType="number-pad"
+                        maxLength={2}
+                        value={minutesText}
+                        onChangeText={setMinutesText}
+                      />
+                      <Text style={styles.timeSeparator}>min</Text>
+                    </View>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.label}>{selected.unit ? `${selected.name}, in ${selected.unit}` : selected.name}</Text>
+                    <AppTextInput
+                      style={styles.input}
+                      placeholder={selected.kind === 'count' ? '3' : '36.6'}
+                      keyboardType={selected.kind === 'count' ? 'number-pad' : 'decimal-pad'}
+                      value={valueText}
+                      onChangeText={setValueText}
+                    />
+                  </>
+                )}
+                <Text style={styles.label}>When?</Text>
+                <DateChoicePicker value={dateChoice} onChange={setDateChoice} customDate={customDate} onCustomDateChange={setCustomDate} />
+                <TimePicker value={time} onChange={setTime} />
+                <Text style={styles.label}>Notes (optional)</Text>
+                <AppTextInput style={styles.input} placeholder="Anything worth remembering" value={entryNotes} onChangeText={setEntryNotes} />
+                <View style={styles.formActions}>
+                  <TouchableOpacity style={styles.secondaryButton} onPress={() => { setEntryOpen(false); resetEntryForm(); }}>
+                    <Text style={styles.secondaryButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.primaryButton} onPress={handleSaveEntry}>
+                    <Text style={styles.primaryButtonText}>Save</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {entries.length === 0 ? (
+              <View style={styles.panelStandalone}>
+                <Text style={styles.emptyText}>{`Nothing logged for ${selected.name} yet.`}</Text>
+              </View>
+            ) : (
+              <View style={styles.table}>
+                {entries.map((entry) => (
+                  <View key={entry.id} style={styles.row}>
+                    <View style={styles.rowTextCol}>
+                      <Text style={styles.rowTitle}>{formatTrackerValue(selected, entry.value)}</Text>
+                      <Text style={styles.rowMeta}>
+                        {`${formatEntryDateTime(entry.loggedAt)}${entry.notes ? ` · ${entry.notes}` : ''}`}
+                      </Text>
+                    </View>
+                    <View style={styles.rowActions}>
+                      <TouchableOpacity onPress={() => handleDeleteEntry(entry.id)}>
+                        <Text style={styles.actionTextRemove}>Remove</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {trackerForm === 'closed' ? (
+              <View style={styles.panelStandalone}>
+                <TouchableOpacity onPress={() => openRename(selected)}>
+                  <Text style={styles.actionText}>{`Rename or remove ${selected.name}`}</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+          </>
+        ) : null}
+
+        {past.length > 0 ? (
+          <View style={styles.table}>
+            <View style={styles.row}>
+              <View style={styles.rowTextCol}>
+                <Text style={styles.rowTitle}>Past trackers</Text>
+                <Text style={styles.rowMeta}>{'What you logged stays on Trends > My Trackers.'}</Text>
+              </View>
+            </View>
+            {past.map((tracker) => (
+              <View key={tracker.id} style={styles.row}>
+                <View style={styles.rowTextCol}>
+                  <Text style={styles.rowTitle}>{tracker.name}</Text>
+                  <Text style={styles.rowMeta}>
+                    {`${trackerKindLabel(tracker.kind)} · ${tracker.entryCount === 1 ? '1 entry' : `${tracker.entryCount} entries`}`}
+                  </Text>
+                </View>
+                <View style={styles.rowActions}>
+                  <TouchableOpacity onPress={() => handleRestore(tracker)}>
+                    <Text style={styles.actionTextPrimary}>Bring back</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : null}
+      </View>
+    </ScrollView>
+  );
+}
+
 export default function LogScreen() {
   useRegisterScreenHelp('Signals', LOG_HELP_SECTIONS, '/log');
   // trialFoodId/trialSource/trialBaseName/trialCategory/trialSubcategory/
@@ -2108,8 +2530,10 @@ export default function LogScreen() {
             <TherapiesLens />
           ) : lens === 'generalNote' ? (
             <GeneralNoteLens />
-          ) : (
+          ) : lens === 'nocturia' ? (
             <NocturiaLens />
+          ) : (
+            <MyTrackersLens />
           )}
         </GatedTabContent>
       </SwipeableTabScreen>

@@ -7357,6 +7357,35 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_nocturia_nights_night_of ON nocturia_nights(night_of);
 
+      -- Trackers the person names (D2, 2026-09-26): something this app never
+      -- thought to ask about, named by the person, with a kind that never
+      -- changes once made (scale, count, duration or measurement; see
+      -- lib/customTrackers.ts). unit is what a count or a measurement is in.
+      -- A tracker with entries is retired (retired_at) rather than deleted,
+      -- so its entries stay readable. An entry's logged_at is a LOCAL stamp,
+      -- 'YYYY-MM-DDTHH:mm', so its day is its first ten characters. A
+      -- duration is stored in minutes. No foreign key, the house pattern:
+      -- lib/customTrackersDb.ts refuses to delete a tracker with entries.
+      CREATE TABLE IF NOT EXISTS custom_trackers (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        unit TEXT,
+        retired_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS custom_tracker_entries (
+        id TEXT PRIMARY KEY,
+        tracker_id TEXT NOT NULL,
+        value REAL NOT NULL,
+        logged_at TEXT NOT NULL,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_custom_tracker_entries_tracker ON custom_tracker_entries(tracker_id, logged_at);
+
       -- Tell Claude, 2026-09-22: a note about a piece of this app, made
       -- from inside the app, for building the app and nothing else. The
       -- whole feature sits behind a switch in Profile that starts off, so

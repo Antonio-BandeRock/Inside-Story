@@ -82,6 +82,7 @@ import {
 import {
   dateStringOffsetFrom,
   getCheckinSeverityTrendSeries,
+  getCustomTrackerSeries,
   getDailyScaleSeries,
   getNutrientTrendSeriesForRange,
   getSixDimensionsFlagTrendSeriesForRange,
@@ -95,6 +96,15 @@ import {
   type NutrientTrendSeries,
   type TrendPoint,
 } from '../../lib/trendAnalysis';
+import {
+  TRENDS_TRACKERS_EMPTY_LINE,
+  formatTrackerValue,
+  trackerChartBounds,
+  trackerKindLabel,
+  trackerSummarySentence,
+  type CustomTracker,
+  type TrackerPoint,
+} from '../../lib/customTrackers';
 import {
   describeRepeat,
   METHOD_NOT_SAID,
@@ -143,6 +153,7 @@ type TrendsLens =
   | 'cost'
   | 'patterns'
   | 'therapyResponse'
+  | 'trackers'
   | TrendsMoreLens;
 
 // The nine lenses built from the inputs-to-outputs map (1.0.52.7) all read
@@ -578,6 +589,21 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
     ],
   },
   {
+    key: 'trackers',
+    label: 'My Trackers',
+    icon: 'options-outline',
+    help: [
+      {
+        heading: 'My Trackers',
+        body: 'One chart for each tracker you named on Signals > My Trackers. A count or a length of time adds up over the day; a scale or a measurement is the day averaged when you logged more than once.',
+      },
+      {
+        heading: 'Reading it',
+        body: 'A day with nothing logged shows as a gap rather than a zero, and a past tracker still shows here when it has entries in the range. Nothing here says whether a number is good or bad, or what led to it.',
+      },
+    ],
+  },
+  {
     key: 'ferments',
     label: "Ferments",
     icon: 'flask-outline',
@@ -941,6 +967,7 @@ export default function TrendsScreen() {
   const [sixDsSeries, setSixDsSeries] = useState<TrendPoint[] | null>(null);
   const [symptomsSeries, setSymptomsSeries] = useState<CheckinSeverityPoint[] | null>(null);
   const [scaleSeries, setScaleSeries] = useState<Record<DailyScaleKey, DailyScalePoint[]> | null>(null);
+  const [trackerSeries, setTrackerSeries] = useState<{ tracker: CustomTracker; points: TrackerPoint[] }[] | null>(null);
   const [eatingWindowTrend, setEatingWindowTrend] = useState<EatingWindowTrend | null>(null);
   // Null whenever fasting is off or either window time is unset -- which
   // is a genuinely different thing from "no exceptions", and the render
@@ -1145,6 +1172,11 @@ export default function TrendsScreen() {
       const conditionCodes = personalizationProfile?.trackedConditions.map((condition) => condition.code) ?? [];
       getSixDimensionsFlagTrendSeriesForRange(resolvedRange.startDate, resolvedRange.endDate, conditionCodes).then((points) => {
         setSixDsSeries(points);
+        setLoading(false);
+      });
+    } else if (lens === 'trackers') {
+      getCustomTrackerSeries(days).then((series) => {
+        setTrackerSeries(series);
         setLoading(false);
       });
     } else if (lens === 'symptoms') {
@@ -2456,6 +2488,45 @@ export default function TrendsScreen() {
                       </>
                     ) : null}
                   </TabBand>
+                </>
+              )
+            ) : lens === 'trackers' ? (
+              loading ? (
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>Loading…</Text>
+                </View>
+              ) : !trackerSeries || trackerSeries.length === 0 ? (
+                <View style={band.boxMuted}>
+                  <Text style={styles.loadingText}>{TRENDS_TRACKERS_EMPTY_LINE}</Text>
+                </View>
+              ) : (
+                <>
+                  {trackerSeries.map(({ tracker, points }) => {
+                    const bounds = trackerChartBounds(tracker.kind, points);
+                    return (
+                      <TabBand
+                        key={tracker.id}
+                        folds={folds}
+                        color={TAB_COLOR}
+                        id={`trends:trackers:${tracker.id}`}
+                        title={tracker.retiredAt ? `${tracker.name} (past tracker)` : tracker.name}
+                        icon="options-outline"
+                      >
+                        <View style={styles.chartCard}>
+                          <TrendLineChart
+                            points={points}
+                            yMin={bounds.yMin}
+                            yMax={bounds.yMax}
+                            valueFormatter={(value) => formatTrackerValue(tracker, value)}
+                            emptyMessage={`Nothing logged for ${tracker.name} in this range. Log it on Signals > My Trackers.`}
+                          />
+                          <Text style={styles.caption}>
+                            {`${trackerKindLabel(tracker.kind)}${tracker.unit ? `, in ${tracker.unit}` : ''}. ${trackerSummarySentence(tracker, points, days)}`}
+                          </Text>
+                        </View>
+                      </TabBand>
+                    );
+                  })}
                 </>
               )
             ) : lens === 'symptoms' ? (
