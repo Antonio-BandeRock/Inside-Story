@@ -43,7 +43,9 @@ import {
   type StoryDestination,
   type YourStoryView,
 } from '../lib/yourStory';
-import { bringYourStoryItemBack, loadYourStoryWithGuides, setYourStoryItemAside } from '../lib/yourStoryDb';
+import { bringYourStoryItemBack, setYourStoryItemAside } from '../lib/yourStoryDb';
+import { loadYourStoryEverything } from '../lib/yourStoryInterviewDb';
+import type { InterviewView } from '../lib/yourStoryInterview';
 import { currentGuideKey, guideCardLine, openGuideLabel, type GuideView } from '../lib/yourStoryGuides';
 import {
   BEFORE_ANYTHING_CAPTION,
@@ -63,19 +65,22 @@ import { markStoryReturn } from '../lib/storyReturn';
 import { BeatPicker } from './BeatPicker';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
 import { useInfoAlert } from './InfoAlert';
+import { YourStoryInterview } from './YourStoryInterview';
 
 // Loads Your Story whenever the screen holding it comes into focus, which is
 // how an item done on another tab is already ticked on the way back.
-export function useYourStory(): [YourStoryView | null, () => Promise<void>, GuideView[]] {
+export function useYourStory(): [YourStoryView | null, () => Promise<void>, GuideView[], InterviewView | null] {
   const [view, setView] = useState<YourStoryView | null>(null);
   const [guides, setGuides] = useState<GuideView[]>([]);
+  const [interview, setInterview] = useState<InterviewView | null>(null);
   const live = useRef(true);
   const reload = useCallback(async () => {
     try {
-      const next = await loadYourStoryWithGuides();
+      const next = await loadYourStoryEverything();
       if (live.current) {
         setView(next.view);
         setGuides(next.guides);
+        setInterview(next.interview);
       }
     } catch (error) {
       console.warn('loadYourStory failed', error);
@@ -90,7 +95,7 @@ export function useYourStory(): [YourStoryView | null, () => Promise<void>, Guid
       };
     }, [reload]),
   );
-  return [view, reload, guides];
+  return [view, reload, guides, interview];
 }
 
 // Where a Your Story destination leads, shared by the paper and the guides.
@@ -133,13 +138,17 @@ type Props = {
   // The guides for the parts of life chosen; the card uses them to say
   // which guide the next thing belongs to.
   guides?: GuideView[];
+  // The interview (lib/yourStoryInterview.ts). While a question is open the
+  // card asks it; once none is, the card lists the tabs, the one chosen to
+  // start from marked Start here.
+  interview?: InterviewView | null;
   onChanged: () => void;
   // Home passes this, since a card on Home and Home's quick-log form open in
   // place there. Anywhere else those go back to Home, which opens them.
   onHomeDestination?: (destination: Extract<StoryDestination, { kind: 'home' | 'quickLog' }>) => void;
 };
 
-export function YourStorySection({ mode, view, guides, onChanged, onHomeDestination }: Props) {
+export function YourStorySection({ mode, view, guides, interview, onChanged, onHomeDestination }: Props) {
   const router = useRouter();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   // Which item has its part-of-life chooser open in place.
@@ -267,7 +276,7 @@ export function YourStorySection({ mode, view, guides, onChanged, onHomeDestinat
 
   // BY TAB (1.0.52.3). Every tab, in the order worth taking them, each
   // saying what it gives back and the one thing it needs first.
-  const tabGuide = buildTabGuide(view);
+  const tabGuide = buildTabGuide(view, interview?.startPath ?? null);
 
   function renderTab(tab: TabGuideView) {
     const route = TAB_ROUTES.find((entry) => entry.path === tab.def.path);
@@ -366,7 +375,11 @@ export function YourStorySection({ mode, view, guides, onChanged, onHomeDestinat
   if (mode === 'card') {
     return (
       <View style={styles.cardBody}>
-        {renderTabGuide()}
+        {interview && !interview.finished ? (
+          <YourStoryInterview mode="card" interview={interview} onChanged={onChanged} go={goElsewhere} />
+        ) : (
+          renderTabGuide()
+        )}
         {!tabGuide.before.some((item) => item.def.key === 'beats') ? renderFollowing(styles.followingRow) : null}
         {guideKey ? (
           <View style={styles.guideRow}>

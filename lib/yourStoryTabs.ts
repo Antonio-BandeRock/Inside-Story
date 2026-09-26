@@ -225,7 +225,10 @@ function tabApplies(def: TabGuideDef, beats: readonly BeatKey[]): boolean {
   return def.beats.length === 0 || def.beats.some((beat) => beats.includes(beat));
 }
 
-export function buildTabGuide(view: YourStoryView): TabGuide {
+// startPath is the tab somebody told the interview they want to start from
+// (lib/yourStoryInterview.ts). Given, that tab is where to start whatever
+// else is open, since it is their answer rather than the app's guess.
+export function buildTabGuide(view: YourStoryView, startPath?: string | null): TabGuide {
   const beats = view.beats;
   const items = view.allItems;
   const applies = (key: YourStoryItemKey) => itemApplies(items[key].def, beats);
@@ -295,7 +298,8 @@ export function buildTabGuide(view: YourStoryView): TabGuide {
 
   // Nothing before every tab left to do, so the first tab with something to
   // do is where to start.
-  const startHere = before.length === 0 ? tabs.find((tab) => tab.status === 'first') ?? null : null;
+  const chosenStart = startPath ? tabs.find((tab) => tab.def.path === startPath) ?? null : null;
+  const startHere = chosenStart ?? (before.length === 0 ? tabs.find((tab) => tab.status === 'first') ?? null : null);
   if (startHere) startHere.startHere = true;
   return { before, tabs, startHere };
 }

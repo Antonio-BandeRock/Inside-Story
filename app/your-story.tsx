@@ -8,6 +8,11 @@
 // reach (the worry that started this: "if it disappears from that list...
 // it might not be easy to remember how to get back there again").
 //
+// Since 1.0.52.5 it opens as an interview (components/YourStoryInterview.tsx):
+// the app asks what it needs one question at a time, then says what each tab
+// is for as a whole (components/YourStoryTour.tsx), the tab chosen to start
+// from first. The guides and the paper follow.
+//
 // Since 1.0.51.7 the page opens with a guide for each part of life chosen
 // (components/YourStoryGuides.tsx), and ?guide=<key> opens that guide and
 // scrolls to it, which is how the Home card points into the one you are in.
@@ -19,12 +24,14 @@ import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import { YourStoryGuides } from '../components/YourStoryGuides';
+import { YourStoryInterview } from '../components/YourStoryInterview';
 import { YourStorySection, useStoryGo, useYourStory } from '../components/YourStorySection';
+import { YourStoryTour } from '../components/YourStoryTour';
 import { currentGuideKey, isGuideKey, type GuideKey } from '../lib/yourStoryGuides';
 
 export default function YourStoryScreen() {
   const scrollPadding = useFloatingButtonScrollPadding();
-  const [view, reload, guides] = useYourStory();
+  const [view, reload, guides, interview] = useYourStory();
   const { guide } = useLocalSearchParams<{ guide?: string }>();
   const asked: GuideKey | null = isGuideKey(guide) ? guide : null;
   const scrollRef = useRef<ScrollView>(null);
@@ -50,12 +57,13 @@ export default function YourStoryScreen() {
         <View style={styles.leadBox}>
           <Text style={styles.heading}>{view?.heading ?? 'Your Story'}</Text>
           <Text style={styles.lead}>
-            Start from any tab. Each one says what it gives you and, when it needs something from another tab first,
-            what that is and where. Below them are the guides, one for each part of your life, and then your paper
-            section by section. Every line takes you straight there.
+            The app asks what it needs first, then shows what each tab is for and how to get started with it. Below
+            those are the guides, one for each part of your life, and then your paper section by section. Every line
+            takes you straight there.
           </Text>
         </View>
-        <YourStorySection mode="tabs" view={view} onChanged={() => void reload()} />
+        <YourStoryInterview mode="page" interview={interview} onChanged={() => void reload()} go={go} />
+        {interview ? <YourStoryTour tour={interview.tour} go={go} /> : null}
         {ready ? (
           <YourStoryGuides
             guides={guides}

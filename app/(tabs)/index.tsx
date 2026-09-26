@@ -29,6 +29,7 @@ import { useInfoAlert } from '../../components/InfoAlert';
 import { YourStorySection, useYourStory } from '../../components/YourStorySection';
 import { nextLine, type StoryDestination } from '../../lib/yourStory';
 import { buildTabGuide, tabGuideLine } from '../../lib/yourStoryTabs';
+import { interviewLine } from '../../lib/yourStoryInterview';
 import { ProgressRing } from '../../components/ProgressRing';
 
 import { useBackgroundBottomInset } from '../../components/ScreenBackground';
@@ -1156,7 +1157,7 @@ export default function HomeScreen() {
   // Your Story's view, read on focus by the hook and again whenever Home's
   // own data reloads (below), so a meal or a check-in logged right here
   // ticks its item without leaving the page.
-  const [yourStory, reloadYourStory, yourStoryGuides] = useYourStory();
+  const [yourStory, reloadYourStory, yourStoryGuides, yourStoryInterview] = useYourStory();
   // Quick-log phase 4. Two sheets rather than one: picking where a photo comes
   // from, and deciding what an already-taken one actually was.
   const [photoSourceSheetOpen, setPhotoSourceSheetOpen] = useState(false);
@@ -3435,6 +3436,7 @@ export default function HomeScreen() {
           mode="card"
           view={yourStory}
           guides={yourStoryGuides}
+          interview={yourStoryInterview}
           onChanged={() => void reloadYourStory()}
           onHomeDestination={goToHomeDestination}
         />
@@ -3442,7 +3444,10 @@ export default function HomeScreen() {
       {
         icon: 'book-outline',
         color: colors.primary,
-        foldedCaption: yourStory ? tabGuideLine(buildTabGuide(yourStory), nextLine(yourStory)) : undefined,
+        foldedCaption: yourStory
+          ? (yourStoryInterview ? interviewLine(yourStoryInterview) : null) ??
+            tabGuideLine(buildTabGuide(yourStory, yourStoryInterview?.startPath ?? null), nextLine(yourStory))
+          : undefined,
       },
     );
   }

@@ -576,6 +576,106 @@ const back = load('lib/storyReturn.ts');
   same(walk.getWalkMark(), 'upkeep.add', 'the mark store holds a mark');
   walk.setWalkMark(null);
 }
+// The interview (lib/yourStoryInterview.ts): the app asks what it needs,
+// then says what each tab is for as a whole (1.0.52.5).
+{
+  const interview = load('lib/yourStoryInterview.ts', { './yourStory': story });
+  const interviewFacts = (storyView, overrides) => ({
+    story: storyView,
+    conditionChoices: ['hashimotos', 'ibs'],
+    conditions: [],
+    conditionNames: { hashimotos: "Hashimoto's", ibs: 'IBS' },
+    stagedConditions: [],
+    stages: {},
+    neuro: [],
+    neuroLabels: { adhd: 'ADHD' },
+    diets: [],
+    allergies: [],
+    answers: {},
+    records: {},
+    ...overrides,
+  });
+  const first = interview.buildInterview(interviewFacts(fresh));
+  same(first.next.key, 'conditions', 'the interview opens on conditions');
+  same(first.finished, false, 'and is not finished');
+  check(interview.interviewLine(first).startsWith(interview.NEXT_QUESTION_LABEL), 'the folded line asks the next question');
+  same(first.startPath, null, 'no tab chosen to start from yet');
+  same(first.tour.length, interview.TOUR_TABS.length, 'every tab is in the tour');
+
+  const noneAnswered = interview.buildInterview(
+    interviewFacts(fresh, { answers: { conditions: { on: '2026-09-25', answer: 'none' }, neuro: { on: '2026-09-25', answer: 'none' } } }),
+  );
+  same(noneAnswered.next.key, 'beats', 'answering none moves on to the parts of life');
+
+  const withCondition = interview.buildInterview(
+    interviewFacts(fresh, {
+      conditions: ['hashimotos'],
+      stagedConditions: [{ code: 'hashimotos', label: "Hashimoto's", stageLabels: { triage: 'Triage' } }],
+    }),
+  );
+  check(withCondition.questions.find((q) => q.key === 'conditions').answered, 'a chosen condition answers the question');
+  check(withCondition.questions.some((q) => q.key === 'stage:hashimotos'), 'a staged condition asks where you are with it');
+  check(withCondition.questions.find((q) => q.key === 'stage:hashimotos').question.includes("Hashimoto's"), 'naming the condition');
+  const notSure = interview.buildInterview(
+    interviewFacts(fresh, {
+      conditions: ['hashimotos'],
+      stagedConditions: [{ code: 'hashimotos', label: "Hashimoto's", stageLabels: { triage: 'Triage' } }],
+      answers: { 'stage:hashimotos': { on: '2026-09-25', answer: 'notSure' } },
+    }),
+  );
+  check(notSure.questions.find((q) => q.key === 'stage:hashimotos').answered, 'not sure yet answers the stage question');
+
+  const startLife = interview.buildInterview(interviewFacts(fresh, { answers: { startTab: { on: '2026-09-25', answer: '/life' } } }));
+  same(startLife.startPath, '/life', 'a chosen start tab is carried');
+  same(startLife.tour[0].def.path, '/life', 'and leads the tour');
+  check(startLife.tour[0].chosen, 'marked as chosen');
+  const startAll = interview.buildInterview(interviewFacts(fresh, { answers: { startTab: { on: '2026-09-25', answer: 'all' } } }));
+  same(startAll.startPath, null, 'all of them leaves no single start');
+  check(startAll.questions.find((q) => q.key === 'startTab').answered, 'and still answers the question');
+
+  // A chosen start tab is where the by-tab guide says to start.
+  same(tabs.buildTabGuide(everything, '/garden').startHere.def.path, '/garden', 'the tab guide starts where the person said');
+  same(tabs.buildTabGuide(everything, null).startHere.def.path, '/life', 'and falls back to its own order otherwise');
+
+  // Every tour tab is a tab, every lens a key that tab knows.
+  same(interview.TOUR_TABS.map((def) => def.path).sort(), ['/'].concat(tabPaths).sort(), 'the tour covers every tab');
+  for (const def of interview.TOUR_TABS) {
+    const tab = TAB_FILES[def.path];
+    for (const group of def.groups) {
+      for (const key of group.lenses) {
+        check(!!interview.TOUR_LENS_NAMES[def.path] && !!interview.TOUR_LENS_NAMES[def.path][key], `${def.path}/${key} has a name`);
+        if (!tab) continue;
+        const file = tab[1];
+        tabSource[file] = tabSource[file] || fs.readFileSync(path.join(__dirname, '..', 'app', '(tabs)', file), 'utf8');
+        check(tabSource[file].includes(`'${key}'`), `tour: ${file} has a lens ${key}`);
+      }
+    }
+    for (const step of def.steps) {
+      if (step.item) check(!!story.ITEM_BY_KEY[step.item], `tour step names an item that exists: ${step.item}`);
+    }
+  }
+  const dietsSource = fs.readFileSync(path.join(__dirname, '..', 'lib', 'digest', 'popularDiets.ts'), 'utf8');
+  for (const style of interview.EATING_STYLES) check(dietsSource.includes(`'${style.readId}'`), `eating style ${style.tag} reads ${style.readId}`);
+
+  for (const def of interview.INTERVIEW_QUESTIONS) written.push(def.question.replace('{condition}', 'IBS'), def.why);
+  for (const style of interview.EATING_STYLES) written.push(style.line);
+  for (const def of interview.TOUR_TABS) {
+    written.push(def.title, def.question, def.answer);
+    for (const group of def.groups) written.push(group.title, group.line);
+    for (const step of def.steps) written.push(step.doThis);
+  }
+  for (const names of Object.values(interview.TOUR_LENS_NAMES)) written.push(...Object.values(names));
+  written.push(
+    interview.NONE_OF_THESE_LABEL, interview.DONE_LABEL, interview.NOT_SURE_LABEL, interview.NO_ALLERGIES_LABEL,
+    interview.NO_STYLE_LABEL, interview.ALL_TABS_LABEL, interview.NOT_NOW_LABEL, interview.TAKE_NOTHING_LABEL,
+    interview.ADD_MEDS_LABEL, interview.LEAVE_OUT_LABEL, interview.SET_UP_BACKUP_LABEL, interview.PLAN_THIS_WAY_LABEL,
+    interview.READ_MORE_LABEL, interview.CHANGE_LABEL, interview.NEURO_PROFILE_NOTE, interview.OPEN_PROFILE_LABEL,
+    interview.INTERVIEW_HEADING, interview.INTERVIEW_LEAD, interview.INTERVIEW_ANSWERED_HEADING,
+    interview.INTERVIEW_FINISHED_LINE, interview.TOUR_HEADING, interview.TOUR_LEAD, interview.TOUR_START_LABEL,
+    interview.TOUR_GETTING_STARTED, interview.TOUR_OPEN_LABEL('Life'),
+  );
+  for (const q of withCondition.questions) if (q.summary) written.push(q.summary);
+}
 // it what the screen calls it. Nothing else may say healing. "Step by step"
 // is the name of a way of writing the guides and "+ Add a step" a button on
 // Routines; neither counts anybody's steps.

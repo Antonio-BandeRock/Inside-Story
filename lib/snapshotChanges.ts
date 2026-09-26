@@ -181,6 +181,7 @@ const AREAS: readonly Area[] = [
       'user_neuro_profile',
       'user_beats',
       'your_story_items',
+      'your_story_answers',
     ],
   },
   { one: 'family member', many: 'family members', count: ['family_members'], quiet: ['family_member_conditions'] },

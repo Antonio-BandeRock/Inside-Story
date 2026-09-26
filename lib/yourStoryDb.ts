@@ -200,7 +200,7 @@ const GUIDE_RECORD_SQL: Record<GuideRecordKey, string[]> = {
   familyInMealPlan: ['SELECT MIN(created_at) AS at FROM family_members WHERE include_in_meal_plan = 1'],
 };
 
-async function lookForGuideRecords(db: Db): Promise<GuideRecords> {
+export async function lookForGuideRecords(db: Db): Promise<GuideRecords> {
   const records: GuideRecords = {};
   for (const key of Object.keys(GUIDE_RECORD_SQL) as GuideRecordKey[]) {
     const days: (string | null)[] = [];

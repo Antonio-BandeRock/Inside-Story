@@ -6154,6 +6154,17 @@ async function runDatabaseInitialization() {
         set_aside_on TEXT
       );
 
+      -- Your Story's interview (lib/yourStoryInterview.ts, 1.0.52.5): an
+      -- answer that leaves no record of its own anywhere else, such as
+      -- "none of these", "not sure yet" or the tab somebody chose to start
+      -- from. A question answered by a record (a condition chosen, a stage
+      -- set) needs no row here.
+      CREATE TABLE IF NOT EXISTS your_story_answers (
+        question_key TEXT PRIMARY KEY,
+        answered_on TEXT NOT NULL,
+        answer TEXT
+      );
+
       -- The person's own personal interaction rules, 2026-08-18 -- the
       -- second half of the interaction rules engine named in this app's
       -- own Architecture section from the start ("lets the individual
