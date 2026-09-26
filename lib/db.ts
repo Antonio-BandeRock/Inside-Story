@@ -294,6 +294,59 @@ export async function saveBuilderFavorite(itemType: BuilderFavoriteItemType, pay
 // sorts) reflects real reuse, not just creation time.
 export async function getBuilderFavorite(id: string): Promise<(BuilderFavoritePayload & { id: string }) | null> {
   const db = await getDatabase();
+  // A recipe imported from a web link (G1) opens in a builder through the
+  // same door a favorite does, so all eleven builders prefill it with no
+  // change of their own. Only matched lines come across; each keeps the line
+  // the recipe wrote as its note. Nothing is written to favorites here: the
+  // builder's save does that, after it has scored every ingredient.
+  if (id.startsWith('recipe_import_')) {
+    const imported = await db.getFirstAsync<{
+      title: string;
+      servings: number | null;
+      serving_size_amount: number | null;
+      serving_size_unit: string | null;
+      instructions_json: string;
+      lines_json: string;
+    }>(
+      'SELECT title, servings, serving_size_amount, serving_size_unit, instructions_json, lines_json FROM recipe_imports WHERE id = ?',
+      id,
+    );
+    if (!imported) return null;
+    await db.runAsync('UPDATE recipe_imports SET opened_at = ?, updated_at = ? WHERE id = ?', new Date().toISOString(), new Date().toISOString(), id);
+    type StoredLine = {
+      original: string;
+      isHeader: boolean;
+      leftOut: boolean;
+      builderQuantity?: number | null;
+      builderUnit?: string | null;
+      cutPrep: string;
+      match: { foodId: number; source: string; foodName: string; category: string } | null;
+    };
+    const lines = JSON.parse(imported.lines_json) as StoredLine[];
+    const ingredients: BuilderFavoriteIngredient[] = lines
+      .filter((line) => !line.isHeader && !line.leftOut && line.match && line.builderQuantity && line.builderUnit)
+      .map((line) => ({
+        foodId: line.match!.foodId,
+        source: line.match!.source,
+        foodName: line.match!.foodName,
+        category: line.match!.category,
+        quantity: line.builderQuantity!,
+        unit: line.builderUnit!,
+        cutPrep: line.cutPrep || 'N/A',
+        cookingMethod: 'N/A',
+        prepNote: line.original,
+      }));
+    const instructions = JSON.parse(imported.instructions_json) as string[];
+    return {
+      id,
+      name: imported.title,
+      servings: imported.servings && imported.servings > 0 ? imported.servings : 1,
+      servingSizeAmount: imported.serving_size_amount && imported.serving_size_amount > 0 ? imported.serving_size_amount : 1,
+      servingSizeUnit: imported.serving_size_unit || 'piece',
+      ingredients,
+      instructions: instructions.length > 0 ? instructions : undefined,
+    };
+  }
   const row = await db.getFirstAsync<{ payload_json: string }>('SELECT payload_json FROM favorites WHERE id = ?', id);
   if (!row) return null;
 
@@ -7960,6 +8013,31 @@ async function runDatabaseInitialization() {
         -- The carried tables as they stood after the last merge, as JSON.
         tables_json TEXT NOT NULL,
         agreed_at TEXT NOT NULL
+      );
+
+      -- G1, 1.0.53.12: a recipe brought in from a web link, held while each
+      -- ingredient line is matched to a food or left out. Nothing here is a
+      -- recipe the app scores or plans with: opening it in a builder is what
+      -- scores it, and the builder's save is what makes it a recipe. Kept
+      -- afterwards as the record of where the recipe came from.
+      CREATE TABLE IF NOT EXISTS recipe_imports (
+        id TEXT PRIMARY KEY,
+        source_url TEXT,
+        source_site TEXT,
+        title TEXT NOT NULL,
+        author TEXT,
+        yield_text TEXT,
+        servings REAL,
+        serving_size_amount REAL,
+        serving_size_unit TEXT,
+        instructions_json TEXT NOT NULL DEFAULT '[]',
+        -- One entry per line: the original text, the parsed amount, and what
+        -- the person settled on (a food, or left out, or nothing yet).
+        lines_json TEXT NOT NULL DEFAULT '[]',
+        builder_type TEXT,
+        opened_at TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
       );
     `);
 

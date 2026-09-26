@@ -169,6 +169,12 @@ export type DesktopCloudFolderBridge = {
   moveFile(fromFolder: string, fileName: string, intoFolder: string): Promise<void>;
 };
 
+/** Reading a web page from the main process, where no CORS rule applies. */
+export type DesktopWebBridge = {
+  /** Rejects with an Error carrying a sentence when the page cannot be read. */
+  fetchPage(url: string): Promise<{ text: string; finalUrl: string }>;
+};
+
 export type DesktopPaths = {
   /** file:// URI of the app's Documents folder, with a trailing slash. */
   document: string;
@@ -188,6 +194,8 @@ export type DesktopBridge = {
   notifications: DesktopNotificationsBridge;
   zoom: DesktopZoomBridge;
   cloudFolder: DesktopCloudFolderBridge;
+  /** Missing on an installer built before 1.0.53.12. */
+  web?: DesktopWebBridge;
 };
 
 declare global {

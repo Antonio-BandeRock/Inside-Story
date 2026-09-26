@@ -21,7 +21,7 @@
 // instead of web-build/, for working on the desktop build live
 // (`INSIDE_STORY_DESKTOP=1 npx expo start --web` in the project root).
 
-const { app, BrowserWindow, ipcMain, protocol, screen, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, net, protocol, screen, shell } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -187,6 +187,38 @@ function registerIpc() {
   ipcMain.handle('notifications:cancel', (_event, identifier) => notifications.cancel(identifier));
   ipcMain.handle('notifications:listScheduled', () => notifications.listScheduled());
   ipcMain.handle('notifications:lastResponse', () => notifications.getLastResponse());
+
+  // A recipe page for Food > Import a Recipe (G1, 1.0.53.12). The page's
+  // own fetch cannot read another site from app://, so the main process
+  // reads it: http and https only, 15 seconds, 5 MB at most, text only.
+  ipcMain.handle('web:fetchPage', (_event, url) => fetchPage(url));
+}
+
+const PAGE_LIMIT_BYTES = 5 * 1024 * 1024;
+
+async function fetchPage(url) {
+  if (typeof url !== 'string' || !/^https?:\/\//i.test(url.trim())) {
+    throw new Error('Only a web address starting with http or https can be read.');
+  }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  try {
+    const response = await net.fetch(url.trim(), {
+      signal: controller.signal,
+      redirect: 'follow',
+      headers: { Accept: 'text/html,application/xhtml+xml', 'User-Agent': `InsideStory/${app.getVersion()} (recipe import)` },
+    });
+    if (!response.ok) throw new Error(`The site answered ${response.status}.`);
+    const length = Number(response.headers.get('content-length') || 0);
+    if (length > PAGE_LIMIT_BYTES) throw new Error('The page is larger than 5 MB.');
+    const text = await response.text();
+    return { text: text.slice(0, PAGE_LIMIT_BYTES), finalUrl: response.url || url.trim() };
+  } catch (error) {
+    if (error && error.name === 'AbortError') throw new Error('The site took longer than 15 seconds to answer.');
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 let mainWindow = null;

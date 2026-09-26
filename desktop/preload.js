@@ -89,6 +89,9 @@ contextBridge.exposeInMainWorld('insideStoryDesktop', {
       };
     },
   },
+  web: {
+    fetchPage: (url) => ipcRenderer.invoke('web:fetchPage', url),
+  },
   notifications: {
     schedule: (request) => ipcRenderer.invoke('notifications:schedule', request),
     cancel: (identifier) => ipcRenderer.invoke('notifications:cancel', identifier),
