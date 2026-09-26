@@ -53,6 +53,17 @@ Gut and microbiome healing is an explicit goal, not a side effect. The app is me
 
 The user's reframing: people are overwhelmed and confused about food and can't put the pieces together themselves. The app's job is to remove that cognitive burden entirely, doing the correlation and discovery work *for* the person so daily eating becomes following clear, pre-solved rules. The complexity lives inside the app; what the person experiences is ease. **This makes discovery and trend-finding something the app does on the user's behalf, not a task handed to them.**
 
+### Living with nature, not against it (standing principle, 2026-09-26)
+
+Direct statement: "I think the app is also about how we humans live with nature. Working with it and not against by thinking we know better than nature." This was already true in the build before it was written down: gut healing as tending an ecosystem, soil fed by compost and cover crops rather than turned and dosed, no-dig beds, the Three Sisters, the symbiosis entry in Horticulture, and food first with a supplement only for the gap. It now governs choices everywhere:
+
+1. **When the app describes two ways of doing something, the one that works with a living system comes first and gets the fuller treatment**: the gut, soil, a garden, a hive, a body's rhythms. The other way is still described fairly, never mocked.
+2. **The principle never outranks evidence tiering.** Where nature's way is losing (untreated varroa mites killing colonies, a condition that needs its medication), the app says so plainly. Working with nature includes being honest about where it needs help, and nothing here ever becomes advice to refuse a treatment.
+3. **What a person keeps alive is recorded as a relationship over time, not an output to maximise.** A harvest is what was given, a colony or a soil is tracked for how it is doing, and no screen scores a living thing for productivity.
+4. **Native and local come before imported** when both are within reach: local seed, adapted queens, native pollinators, a region's own traditional practices.
+
+The first named consequence is **beekeeping**, which has to come into the app: a hive record in Garden (hives, inspections, harvests, costs, on the existing area, equipment, readings and yield patterns) and reading on Life and Horticulture that sets bee-centred beekeeping beside conventional practice honestly, covers solitary native bees as the gentlest way in, and covers Mexico's stingless *Melipona* bees and meliponiculture. The owner intends to keep bees. Not designed or built yet.
+
 ### International scope
 
 Not US-centric. Three distinct components:
