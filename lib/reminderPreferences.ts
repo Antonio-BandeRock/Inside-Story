@@ -25,6 +25,8 @@ export type ReminderKindKey =
   | 'appointment'
   | 'meal'
   | 'hydration'
+  | 'checkin'
+  | 'afterMeal'
   | 'garden'
   | 'routine'
   | 'bill'
@@ -49,6 +51,12 @@ export const ALL_REMINDER_KIND_KEYS: ReminderKindKey[] = [
   'appointment',
   'meal',
   'hydration',
+  // C1 of the competitive build plan (2026-09-26). The two reminders that
+  // come from no record at all: a question once a day at a time the person
+  // picks, and one about two hours after a meal they logged. Both carry How
+  // are you and Log a flare buttons, and both start off.
+  'checkin',
+  'afterMeal',
   'garden',
   // 1.0.39.22. The one kind that comes from nothing on a schedule at all:
   // a routine speaks on the days and at the time it was given, and the
@@ -79,6 +87,8 @@ export const REMINDER_KIND_LABELS: Record<ReminderKindKey, string> = {
   appointment: 'Appointments',
   meal: 'Meals',
   hydration: 'Water & drinks',
+  checkin: 'How are you today',
+  afterMeal: 'After a meal',
   garden: 'Garden tasks',
   routine: 'Routines',
   bill: 'Bills',
@@ -95,6 +105,10 @@ export const REMINDER_KIND_CAPTIONS: Record<ReminderKindKey, string> = {
   meal: 'Each meal you have scheduled, at the time you planned it for.',
   hydration:
     'Every drink on your Hydration schedule. A day the Meal Plan has filled a water gap for can hold six of these, so this one starts off.',
+  checkin:
+    'Once a day at the time you pick below, a question with How are you and Log a flare buttons. Skipped on a day you have already checked in.',
+  afterMeal:
+    'About two hours after a meal you logged, the same two buttons. Only the latest meal asks, a drink on its own asks nothing, and nothing comes once you have checked in since eating.',
   garden: 'Anything planned in Garden > Upcoming Tasks, at the time it is set for.',
   routine:
     'A routine from Life > Routines, at the time and on the days you gave it. Tapping it opens the walk at the first step.',
@@ -131,6 +145,11 @@ const DEFAULT_REMINDER_KIND_ENABLED: Record<ReminderKindKey, boolean> = {
   appointment: true,
   meal: true,
   hydration: false,
+  // Off, both of them. Neither comes from anything the person scheduled,
+  // so switching one on is the request, and an unasked question every
+  // evening is how an app's notifications get turned off altogether.
+  checkin: false,
+  afterMeal: false,
   garden: true,
   // On. A routine reminder exists only because somebody went into that
   // routine and typed a time into it, which is as clear a request to be
@@ -159,6 +178,10 @@ const DEFAULT_REMINDER_KIND_ENABLED: Record<ReminderKindKey, boolean> = {
 // app gets its notifications switched off completely.
 const DEFAULT_NUDGE_UNTIL_DONE = false;
 
+// When the daily check-in asks, as 'HH:mm'. Evening, so the question is
+// about a day that has mostly happened.
+export const DEFAULT_CHECKIN_TIME = '20:00';
+
 export type ReminderPreferences = {
   // Whether a reminder comes back until the thing is marked done, rather
   // than firing once and being gone. Undefined means the default above.
@@ -169,6 +192,8 @@ export type ReminderPreferences = {
   // Quiet hours (Phase A, 2026-09-24): null or missing means off. See
   // lib/quietHours.ts for what they hold back and what they never do.
   quietHours?: QuietHours | null;
+  // The daily check-in's time, 'HH:mm'. Undefined means DEFAULT_CHECKIN_TIME.
+  checkinTime?: string;
   // Only what the person has actually changed. A key missing here means
   // "whatever DEFAULT_REMINDER_KIND_ENABLED says," so a kind added later
   // picks up its own default without needing a migration, and so changing a
@@ -193,6 +218,14 @@ function notifyListeners() {
 
 export function isReminderKindEnabled(prefs: ReminderPreferences, key: ReminderKindKey): boolean {
   return prefs.enabledKinds[key] ?? DEFAULT_REMINDER_KIND_ENABLED[key];
+}
+
+function isValidTime(value: unknown): value is string {
+  return typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value);
+}
+
+export function checkinTimeOf(prefs: ReminderPreferences): string {
+  return isValidTime(prefs.checkinTime) ? prefs.checkinTime : DEFAULT_CHECKIN_TIME;
 }
 
 export function isNudgeUntilDoneEnabled(prefs: ReminderPreferences): boolean {
@@ -225,6 +258,7 @@ export async function getReminderPreferences(): Promise<ReminderPreferences> {
           enabledKinds: { ...(parsed.enabledKinds ?? {}) },
           nudgeUntilDone: typeof parsed.nudgeUntilDone === 'boolean' ? parsed.nudgeUntilDone : undefined,
           quietHours: isValidQuietHours(parsed.quietHours) ? parsed.quietHours : null,
+          checkinTime: isValidTime(parsed.checkinTime) ? parsed.checkinTime : undefined,
         };
       } catch {
         // A blob that will not parse falls back to defaults rather than
@@ -265,6 +299,12 @@ export async function setNudgeUntilDone(enabled: boolean): Promise<ReminderPrefe
 export async function setQuietHours(quietHours: QuietHours | null): Promise<ReminderPreferences> {
   const current = await getReminderPreferences();
   return persist({ ...current, quietHours: isValidQuietHours(quietHours) ? quietHours : null });
+}
+
+// The daily check-in's time. Reconciled by the caller, like the rest.
+export async function setCheckinTime(time: string): Promise<ReminderPreferences> {
+  const current = await getReminderPreferences();
+  return persist({ ...current, checkinTime: isValidTime(time) ? time : undefined });
 }
 
 async function persist(merged: ReminderPreferences): Promise<ReminderPreferences> {
