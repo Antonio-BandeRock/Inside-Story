@@ -11,6 +11,7 @@ import {
   type LabResultRecord,
 } from './db';
 import { getCheckinTagDefinition } from './checkinTags';
+import { chartCaption, type ReportChart } from './reportCharts';
 import {
   getNutrientTrendSeriesForCodes,
   getSixDimensionsFlagTrendSeries,
@@ -65,9 +66,15 @@ const CORE_NUTRIENT_CODES = ['iodine', 'selenium', 'zinc', 'iron', 'vitamin_d', 
 // Movement), matching this app's standing "computation stays in lib/,
 // don't re-derive it twice" discipline.
 
+/** A chart drawn under a section's rows in the PDF (K3, 1.0.53.11), from
+ *  the same figures the rows summarise. lib/reportCharts.ts draws it and
+ *  writes its caption, which is all the plain-text view carries. */
+export type ReportSectionChart = { title: string; chart: ReportChart };
+
 export type ReportListSection = {
   kind: 'list';
   heading: string;
+  charts?: ReportSectionChart[];
   /** Shown under the heading, before the rows. For a section whose
    *  contents need framing before anyone reads them. */
   note?: string;
@@ -79,6 +86,7 @@ export type ReportListSection = {
 export type ReportTableSection = {
   kind: 'table';
   heading: string;
+  charts?: ReportSectionChart[];
   note?: string;
   columns: string[];
   rows: string[][];
@@ -150,6 +158,7 @@ export async function buildReport(days: number, kind: ReportKind = 'overview'): 
   const want = new Set(def.core);
   const sections: ReportSection[] = [];
   const rangeStart = rangeStartDate(days);
+  const rangeEnd = isoDate(new Date());
 
   // Tracked conditions. The codes are read whenever the flags section is
   // wanted too, since that section is scoped to them.
@@ -204,6 +213,12 @@ export async function buildReport(days: number, kind: ReportKind = 'overview'): 
     sections.push({
       kind: 'list',
       heading: 'Condition score flags',
+      charts: [
+        {
+          title: 'Flagged items a day',
+          chart: { style: 'bars', startDate: rangeStart, endDate: rangeEnd, points: sixDsSeries, unit: 'items', decimals: 0, slotNoun: 'day' },
+        },
+      ],
       note: 'Logged foods whose scored properties matter for the conditions above. A flag is a property worth knowing about, not a verdict on the food.',
       rows:
         sixDsSeries.length > 0
@@ -223,9 +238,28 @@ export async function buildReport(days: number, kind: ReportKind = 'overview'): 
     const symptomEntries = [...flares, ...reactions]
       .filter((entry) => entry.loggedAt.slice(0, 10) >= rangeStart)
       .sort((a, b) => a.loggedAt.localeCompare(b.loggedAt));
+    const perDay = new Map<string, number>();
+    for (const entry of symptomEntries) {
+      const day = entry.loggedAt.slice(0, 10);
+      perDay.set(day, (perDay.get(day) ?? 0) + 1);
+    }
     sections.push({
       kind: 'table',
       heading: 'Symptoms and flares',
+      charts: [
+        {
+          title: 'Flares and reactions logged a day',
+          chart: {
+            style: 'bars',
+            startDate: rangeStart,
+            endDate: rangeEnd,
+            points: [...perDay.entries()].map(([date, value]) => ({ date, value })),
+            unit: 'logged',
+            decimals: 0,
+            slotNoun: 'day',
+          },
+        },
+      ],
       note: 'Every flare and after-meal reaction logged in the range, in order. Severity is as the person rated it at the time.',
       columns: ['When', 'Kind', 'Severity', 'Food', 'Tags', 'Notes'],
       rows: symptomEntries.map((entry) => [
@@ -281,6 +315,16 @@ export async function buildReport(days: number, kind: ReportKind = 'overview'): 
     sections.push({
       kind: 'list',
       heading: 'Movement and sleep',
+      charts: [
+        {
+          title: 'Steps a day',
+          chart: { style: 'bars', startDate: rangeStart, endDate: rangeEnd, points: stepPoints, unit: 'steps', decimals: 0, slotNoun: 'day' },
+        },
+        {
+          title: 'Hours of sleep a night',
+          chart: { style: 'bars', startDate: rangeStart, endDate: rangeEnd, points: sleepPoints, unit: 'hours', decimals: 1, slotNoun: 'night' },
+        },
+      ].filter((entry) => entry.chart.points.length > 0) as ReportSectionChart[],
       note: "From the phone's health store, where connected. Days the phone did not record are left out rather than counted as zero.",
       rows: movementRows,
       empty: "Nothing from the phone's health store in this range. Life > Movement connects it.",
@@ -316,9 +360,23 @@ export async function buildReport(days: number, kind: ReportKind = 'overview'): 
         '',
       ]);
     }
+    const weightCharts: ReportSectionChart[] = [];
+    if (weight) {
+      const readings = measurements
+        .filter((row) => row.measurementType === 'weight' && row.unit === weight.unit && row.loggedAt.slice(0, 10) >= rangeStart)
+        .sort((a, b) => a.loggedAt.localeCompare(b.loggedAt))
+        .map((row) => ({ date: row.loggedAt.slice(0, 10), value: row.value }));
+      if (readings.length > 1) {
+        weightCharts.push({
+          title: `Weight in this range, last reading of each day (${weight.unit})`,
+          chart: { style: 'dots', startDate: rangeStart, endDate: rangeEnd, points: readings, unit: weight.unit, decimals: 1, slotNoun: 'day' },
+        });
+      }
+    }
     sections.push({
       kind: 'table',
       heading: 'Weight and blood pressure',
+      charts: weightCharts,
       note: 'The most recent reading of each, typed in or brought in from the phone. Not scoped to the date range.',
       columns: ['Measure', 'Reading', 'Date', 'Change in range'],
       rows: bodyRows,
@@ -514,6 +572,9 @@ export function renderReportText(doc: ReportDocument): string {
         const [first, ...rest] = parts;
         lines.push(rest.length > 0 ? `- ${first}: ${rest.join(', ')}` : `- ${first}`);
       }
+    }
+    if (section.kind !== 'photos') {
+      for (const { title, chart } of section.charts ?? []) lines.push(`${title}, drawn in the PDF: ${chartCaption(chart)}`);
     }
     lines.push('');
   }

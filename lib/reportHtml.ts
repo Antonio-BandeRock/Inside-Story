@@ -6,12 +6,15 @@
 // Kept to what a WebView prints reliably: one system font stack, tables
 // with plain borders, no web fonts, no scripts. The one kind of image is a
 // photo section (1.0.53.7), each photo embedded as a data address at the
-// report size, two to a row, never split across a page. Page breaks
+// report size, two to a row, never split across a page. A section can
+// also carry charts (K3, 1.0.53.11), inline SVG from lib/reportCharts.ts,
+// each kept whole on one page with its caption under it. Page breaks
 // are discouraged inside a table row and after a heading so a section
 // title never ends up alone at the foot of a page. Letter size is
 // expo-print's default and is left alone; the layout is fluid enough for
 // A4 too.
 
+import { chartCaption, renderChartSvg } from './reportCharts';
 import type { ReportDocument, ReportSection } from './reportGenerator';
 
 const INK = '#1f2a2e';
@@ -80,6 +83,10 @@ const CSS = `
   figure { margin: 0; width: calc(50% - 5px); page-break-inside: avoid; }
   figure img { width: 100%; max-height: 300px; object-fit: contain; border: 1px solid ${LINE}; border-radius: 4px; background: ${ZEBRA}; }
   figcaption { font-size: 9pt; color: ${MUTED}; margin-top: 2px; }
+  .chart { margin: 10px 0 0; page-break-inside: avoid; }
+  .chart-title { font-size: 9.5pt; font-weight: 600; color: ${MUTED}; margin: 0 0 2px; }
+  .chart svg { display: block; width: 100%; height: auto; }
+  .chart-caption { font-size: 9pt; color: ${MUTED}; margin: 2px 0 0; }
   footer { margin-top: 22px; padding-top: 8px; border-top: 1px solid ${LINE}; font-size: 9pt; color: ${MUTED}; }
 `;
 
@@ -121,6 +128,15 @@ function renderSection(section: ReportSection): string {
       parts.push('</tr>');
     }
     parts.push('</tbody></table>');
+  }
+  if (section.kind !== 'photos') {
+    for (const { title, chart } of section.charts ?? []) {
+      const svg = renderChartSvg(chart);
+      if (!svg) continue;
+      parts.push(
+        `<div class="chart"><p class="chart-title">${escapeHtml(title)}</p>${svg}<p class="chart-caption">${escapeHtml(chartCaption(chart))}</p></div>`,
+      );
+    }
   }
   parts.push('</section>');
   return parts.join('');
