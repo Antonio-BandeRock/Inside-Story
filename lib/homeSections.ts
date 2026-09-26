@@ -77,6 +77,7 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   daysUntil: '/garden',
   logHarvest: '/garden',
   yourDay: '/schedule',
+  dayTimeline: '/schedule',
   todaysReminders: '/schedule',
   symptomCheckinReminder: '/log',
   todaysCheckin: '/log',

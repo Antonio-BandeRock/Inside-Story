@@ -267,8 +267,9 @@ export function ScreenHeader() {
         {/* 2026-08-21, Phase 0 of the header growth vine/Timeline plan:
             the title itself becomes the door into the Timeline -- direct
             request: "they should need to tap their (name of person)'s
-            Inside Story and it unfolds before them." Routes to a stub
-            screen for now (Phase 6 builds the real thing); the words stop
+            Inside Story and it unfolds before them." Since 2026-09-26
+            (B1 of the competitive build plan) it opens the day
+            timeline, app/timeline.tsx; the words stop
             being passive branding and become a literal door in, with zero
             new navigation to learn since this text is already on every
             screen. */}

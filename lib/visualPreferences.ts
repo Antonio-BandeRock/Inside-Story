@@ -287,6 +287,8 @@ export type HomeSectionKey =
   // no shortcut at all.
   | 'groceryList'
   | 'yourDay'
+  // The one Today timeline, B1 of the competitive build plan (2026-09-26).
+  | 'dayTimeline'
   // 2026-09-16, direct report after a day of dose reminders arrived and were
   // glanced at: "there is no quick access on the Home screen for reminders
   // for the day to see what they say." Your Day above is meals only (see
@@ -385,6 +387,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   // rather than further down: the grouping pulled it up anyway, and a
   // default order that needs regrouping to read correctly is a trap.
   'yourDay',
+  'dayTimeline',
   'todaysReminders',
   'mealsLoggedToday',
   // Signals.
@@ -454,6 +457,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   logAgain: 'Log a Meal',
   groceryList: 'Grocery List',
   yourDay: 'Your Day',
+  dayTimeline: 'Timeline',
   todaysReminders: "Today's Reminders",
   mealsLoggedToday: 'Meals Logged Today',
   worthALook: 'Worth a Look',

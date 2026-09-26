@@ -17,6 +17,7 @@ import {
 import { AppTextInput } from '../../components/AppTextInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
+import { DayTimeline } from '../../components/DayTimeline';
 import { DaysUntilSection } from '../../components/DaysUntilSection';
 import { DayArc } from '../../components/DayArc';
 import { EDGE_SHADOW_HEIGHT, EdgeShadow } from '../../components/EdgeShadow';
@@ -736,6 +737,12 @@ const HOME_LENS_DESTINATIONS: Partial<
     href: { pathname: '/food', params: { openFoodLens: 'scanProduct' } } as Href,
   },
   yourDay: { label: 'Your Day', icon: 'calendar', color: colors.tabSchedules, href: '/schedule' as Href },
+  dayTimeline: {
+    label: 'Timeline',
+    icon: 'git-commit',
+    color: colors.tabSchedules,
+    href: { pathname: '/schedule', params: { openScheduleLens: 'timeline' } } as Href,
+  },
   todaysReminders: {
     label: "Today's Reminders",
     icon: 'alarm',
@@ -881,6 +888,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'logAgain',
   'scanProduct',
   'yourDay',
+  'dayTimeline',
   'todaysReminders',
   'symptomCheckinReminder',
   'todaysCheckin',
@@ -3335,6 +3343,21 @@ export default function HomeScreen() {
   // nothing but a name, a number of days and the day it started. The
   // section reads its counters on focus, so the Home load carries nothing
   // for it, and Life > Days Until is where both kinds read together.
+  // The one Today timeline, B1 of the competitive build plan (2026-09-26).
+  // The same strip as Schedules > Timeline and /timeline, opening with Now
+  // in the middle and sliding freely either way. It reads on focus, so the
+  // Home load carries nothing for it.
+  function renderDayTimeline() {
+    if (!isHomeSectionVisible(visualPrefs, 'dayTimeline')) return null;
+    return renderBand(
+      'dayTimeline',
+      'Timeline',
+      <View style={styles.bandBody}>
+        <DayTimeline compact tabColor={colors.tabSchedules} />
+      </View>,
+    );
+  }
+
   function renderCountdowns() {
     if (!isHomeSectionVisible(visualPrefs, 'countdowns')) return null;
     return renderBand(
@@ -3692,6 +3715,8 @@ export default function HomeScreen() {
         return renderDoneChecks();
       case 'countdowns':
         return renderCountdowns();
+      case 'dayTimeline':
+        return renderDayTimeline();
       default:
         return null;
     }

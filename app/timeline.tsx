@@ -1,50 +1,40 @@
-import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { Stack } from 'expo-router';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { DayTimeline } from '../components/DayTimeline';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import { colors } from '../constants/colors';
-import { textShadow } from '../constants/typography';
+import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
+import { textShadow, typography } from '../constants/typography';
 
-// A deliberate stub, Phase 0 of the header growth vine/Timeline plan
-// (2026-08-21, see the Notion App Development Log and the "Header Vine,
-// Timeline & Life" phased build plan). ScreenHeader's own title is now a
-// real tappable route into this screen, but the Timeline itself (the
-// horizontal scrub strip, marker-and-card interaction, semantic zoom) is
-// Phase 6, not built here. This exists so Phase 0's tap target has
-// somewhere honest to land, an explicit "not yet" rather than a dead link
-// or a silent no-op.
+// The whole Today timeline (B1 of the competitive build plan, 2026-09-26):
+// the same builder and the same strip as the Home card and Schedules >
+// Timeline, with nothing held back. This route used to hold a placeholder
+// for the 2026-08-21 header growth plan's timeline; that idea is now the
+// reward design in CLAUDE.md's open item 29, and this screen is what the
+// header's title opens.
 export default function TimelineScreen() {
+  const scrollPadding = useFloatingButtonScrollPadding();
   return (
-    <View style={styles.container}>
-      <Ionicons name="leaf-outline" size={40} color={colors.textMuted} />
-      <Text style={styles.title}>Your Inside Story</Text>
-      <Text style={styles.body}>
-        This is where your timeline will live, everything you achieve and work through, in one place
-        you can look back on. It isn&apos;t built yet, this screen is just holding its spot.
-      </Text>
-    </View>
+    <>
+      <Stack.Screen options={{ title: 'Timeline' }} />
+      <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        <View style={styles.box}>
+          <Text style={styles.lead}>
+            Everything on the days around today, on one clock: meals and doses, appointments, routines, check-ins and
+            sleep, bills, upkeep and counters. Slide it to go back or ahead. A tap opens the place each one is kept.
+          </Text>
+        </View>
+        <View style={styles.box}>
+          <DayTimeline tabColor={colors.tabSchedules} />
+        </View>
+      </ScrollView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 32,
-    gap: 12,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '400',
-    color: colors.textPrimary,
-    textAlign: 'center',
-    ...textShadow,
-  },
-  body: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: colors.textMuted,
-    textAlign: 'center',
-    ...textShadow,
-  },
+  screen: { flex: 1, backgroundColor: colors.background },
+  content: { gap: HOME_BAND_GAP },
+  box: { ...homeBandStyle, borderColor: colors.tabSchedules, padding: HOME_BAND_CONTENT_PADDING },
+  lead: { ...typography.body, color: colors.textSecondary, ...textShadow },
 });

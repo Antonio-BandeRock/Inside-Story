@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Linking, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
+import { DayTimeline } from '../../components/DayTimeline';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
 import { useConfirmSheet } from '../../components/ConfirmSheet';
@@ -144,6 +145,7 @@ type Lens =
   | 'meds'
   | 'appointments'
   | 'upkeep'
+  | 'timeline'
   | 'exercise';
 
 // A repeat picker exists on Meals, Supplements' own reminder times, and
@@ -361,6 +363,21 @@ const LENSES: LensOption<Lens>[] = [
     ],
   },
   {
+    key: 'timeline',
+    label: 'Timeline',
+    icon: 'git-commit-outline',
+    help: [
+      {
+        heading: 'The days around today, on one clock',
+        body: 'Meals and doses, appointments, routines, check-ins, flares and sleep, bills, upkeep and Days Until counters, laid out by time from three days back to three days ahead. It opens with Now in the middle; slide it either way to go back or ahead.',
+      },
+      {
+        heading: 'Read here, kept elsewhere',
+        body: 'Nothing is entered or marked on the timeline. A tap on any card opens the place that thing is kept, so marking a dose, finishing a routine or paying a bill happens where it always has. Anything past its time and not marked yet is gathered at the top.',
+      },
+    ],
+  },
+  {
     key: 'exercise',
     label: 'Exercise',
     icon: 'barbell-outline',
@@ -369,7 +386,7 @@ const LENSES: LensOption<Lens>[] = [
 ];
 
 const COMING_SOON_COPY: Record<
-  Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments' | 'upkeep'>,
+  Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments' | 'upkeep' | 'timeline'>,
   string
 > = {
   exercise: 'Schedule planned workouts and activity. Not built yet.',
@@ -4372,6 +4389,19 @@ function AppointmentsLens() {
 // interval) is changed in Life, one tap away.
 type UpkeepBucket = { key: string; title: string; icon: ComponentProps<typeof Ionicons>['name']; rows: UpkeepStanding[] };
 
+// B1 of the competitive build plan: the one Today timeline, the same strip
+// the Home card and the /timeline page draw. Read-only.
+function TimelineLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      <View style={styles.bandBox}>
+        <DayTimeline tabColor={TAB_COLOR} />
+      </View>
+    </ScrollView>
+  );
+}
+
 function UpkeepLens() {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -4491,7 +4521,7 @@ function UpkeepLens() {
 function ComingSoonLens({
   lens,
 }: {
-  lens: Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments' | 'upkeep'>;
+  lens: Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments' | 'upkeep' | 'timeline'>;
 }) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
@@ -4611,6 +4641,8 @@ export default function ScheduleScreen() {
             <AppointmentsLens />
           ) : lens === 'upkeep' ? (
             <UpkeepLens />
+          ) : lens === 'timeline' ? (
+            <TimelineLens />
           ) : (
             <ComingSoonLens lens={lens} />
           )}
