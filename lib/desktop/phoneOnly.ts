@@ -33,6 +33,7 @@ export type PhoneOnlyFeature =
   | 'wifiSync'
   | 'scanPairingCode'
   | 'scanMedicineCode'
+  | 'scanHouseholdCode'
   | 'phoneCalendar';
 
 export const PHONE_ONLY_TITLE = 'This needs the app on your phone';
@@ -59,6 +60,8 @@ const MESSAGES: Record<PhoneOnlyFeature, string> = {
     "Reading the code on the other person's phone uses the camera. On this computer, show your code for them to scan, or send a link instead. On your phone, point the camera at their code.",
   scanMedicineCode:
     "Scanning the barcode on a medicine box uses the phone's camera. On this computer, type the code printed on the box or the pharmacy label, or search by the medicine's name.",
+  scanHouseholdCode:
+    "Scanning a product's barcode uses the phone's camera. On this computer, type the numbers printed under the barcode, or add the thing to the list by its name.",
   phoneCalendar:
     "Events from your phone's calendar are read on the phone as the timeline is drawn, and never copied into the app, so this computer has none to show. Turn them on from the timeline on your phone.",
 };

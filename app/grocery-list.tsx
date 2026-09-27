@@ -928,6 +928,14 @@ export default function GroceryListScreen() {
             <Text style={styles.secondaryButtonText}>Scan a Product</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            style={styles.secondaryButton}
+            activeOpacity={0.85}
+            onPress={() => list && router.push(`/scan-to-list?listId=${encodeURIComponent(list.id)}`)}
+          >
+            <Ionicons name="barcode-outline" size={18} color={colors.textSecondary} />
+            <Text style={styles.secondaryButtonText}>Scan a Household Thing</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             style={[styles.secondaryButton, busy && styles.disabled]}
             activeOpacity={0.85}
             onPress={() => setConfirmDeleteOpen(true)}

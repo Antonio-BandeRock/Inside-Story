@@ -122,7 +122,9 @@ const AREAS: readonly Area[] = [
     one: 'grocery list item',
     many: 'grocery list items',
     count: ['grocery_list_items'],
-    quiet: ['grocery_lists'],
+    // household_barcodes is quiet (G7): a remembered name arrives with the
+    // list line it was scanned for, and is not a second thing added.
+    quiet: ['grocery_lists', 'household_barcodes'],
   },
   { one: 'kitchen item', many: 'kitchen items', count: ['kitchen_items'], quiet: [] },
   { one: 'scheduled item', many: 'scheduled items', count: ['schedule_items'], quiet: [] },

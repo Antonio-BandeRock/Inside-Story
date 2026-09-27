@@ -10,6 +10,8 @@
 // scanner. Pure: no database, no fetch and no React, so
 // scripts/test_scan_to_list.js can check it directly.
 
+import { compareLabels } from './choiceOrder';
+
 export type HouseholdLookupSource = 'OpenProductsFacts' | 'OpenBeautyFacts';
 
 export type HouseholdProduct = {
@@ -84,6 +86,22 @@ export function describeHouseholdSource(source: HouseholdProduct['source']): str
     case 'Remembered':
       return 'You have scanned this one before, so this is the name you gave it.';
     default:
-      return 'Not in either product database yet. Type what it is and this phone remembers it for next time.';
+      return 'Not in either product database yet. Type what it is and this device remembers it for next time.';
   }
+}
+
+/** Said when what was typed or read is not a product barcode. */
+export const NOT_A_BARCODE =
+  'That is not a product barcode. Type the 8 to 14 numbers printed under the lines, or put the thing on the list by its name.';
+
+/** Said when neither product database could be reached. */
+export const HOUSEHOLD_OFFLINE =
+  'The product databases could not be reached just now, so nothing was looked up. Type what it is and this device remembers it for next time.';
+
+/** The groups a household thing can be filed under on the list, the person's own included. */
+export function householdGroupChoices(builtIn: readonly string[], current: string | null): string[] {
+  const choices = [...builtIn];
+  const own = current?.trim();
+  if (own && !choices.some((label) => label.toLowerCase() === own.toLowerCase())) choices.push(own);
+  return choices.sort(compareLabels);
 }

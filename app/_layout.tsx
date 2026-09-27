@@ -600,6 +600,17 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
+                {/* G7, 2026-09-27: a household thing scanned onto the grocery
+                    list, from the list itself and Life > Kitchen. */}
+                <Stack.Screen
+                  name="scan-to-list"
+                  options={{
+                    headerShown: true,
+                    title: 'Scan onto the List',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
                 {/* 2026-08-16, the real barcode-scanning feature -- reached from
                     Food's own "My Foods" hub. Themed the same as every other
                     Stack screen. */}

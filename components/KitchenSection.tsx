@@ -17,6 +17,7 @@
 // has been claimed. A bottle "added today" and one "added 3 months ago" are
 // different kinds of fact, and only one of them is worth acting on.
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -367,6 +368,18 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
           <Ionicons name={addOpen ? 'close' : 'add'} size={16} color={colors.textOnButton} />
           <Text style={styles.primaryButtonText}>{addOpen ? 'Cancel' : 'Add Something'}</Text>
         </TouchableOpacity>
+        {/* G7, 2026-09-27: running low on something with a barcode goes
+            straight onto the grocery list from here. */}
+        {kind === 'non_food' ? (
+          <TouchableOpacity
+            style={[styles.secondaryButton, styles.scanButton]}
+            activeOpacity={0.85}
+            onPress={() => router.push('/scan-to-list')}
+          >
+            <Ionicons name="barcode-outline" size={16} color={colors.textSecondary} />
+            <Text style={styles.secondaryButtonText}>Scan One onto the Grocery List</Text>
+          </TouchableOpacity>
+        ) : null}
 
         {addOpen ? (
           <View style={styles.addBlock}>
@@ -958,4 +971,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
   },
   secondaryButtonText: { ...typography.caption, ...textShadow, color: colors.textSecondary },
+  scanButton: { alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6 },
 });

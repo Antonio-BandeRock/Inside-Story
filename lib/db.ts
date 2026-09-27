@@ -8535,6 +8535,23 @@ async function runDatabaseInitialization() {
       }
     }
 
+    // G7 of the competitive build plan (2026-09-27): a household thing scanned
+    // onto the grocery list. The name the person settled on is kept against
+    // the barcode, so the second scan of the same bottle needs no lookup. It
+    // is written only when somebody puts a scanned thing on a list, never on
+    // a read, so it cannot set the sync going by itself.
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS household_barcodes (
+        barcode TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        brand TEXT,
+        item_group TEXT NOT NULL,
+        unit TEXT NOT NULL DEFAULT '',
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+    `);
+
     // 2026-08-30, direct on-device report: "when I had the app create a 6 week
     // meal plan schedule, it seems to have made all of them a favorite
     // automatically. If that is the case, it definitely should not do that."

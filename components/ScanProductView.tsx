@@ -48,6 +48,8 @@ import {
   type UserProfile,
 } from '../lib/db';
 import { addGroceryListItem, updateGroceryItemPurchase } from '../lib/groceryDb';
+import { describeAddedToList } from '../lib/scanToList';
+import { putScannedFoodOnList } from '../lib/scanToListDb';
 import {
   inferMealTypeForTime,
   QUICK_LOG_MEAL_TYPES,
@@ -260,6 +262,8 @@ export function ScanProductView({
   const [fodmapReportText, setFodmapReportText] = useState('');
   const [computingReport, setComputingReport] = useState(false);
   const [savedProductId, setSavedProductId] = useState<number | null>(null);
+  // G7, 2026-09-27: what was said once a saved scan went onto the list.
+  const [onListNote, setOnListNote] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [priceText, setPriceText] = useState('');
   const [capturingPrice, setCapturingPrice] = useState(false);
@@ -378,6 +382,7 @@ export function ScanProductView({
 
   function resetForNewScan() {
     scanLockRef.current = false;
+    setOnListNote(null);
     setBarcode(null);
     setExistingProductId(null);
     setLookedUp(null);
@@ -933,6 +938,18 @@ export function ScanProductView({
       return;
     }
     setStatus('saved');
+  }
+
+  // G7, 2026-09-27: a scan made outside any list can still go on one, the
+  // list being shopped or a new one when none is open.
+  async function handlePutOnList() {
+    try {
+      const result = await putScannedFoodOnList(name, savedProductId ?? existingProductId);
+      setOnListNote(describeAddedToList(name, result.listName, result.started));
+    } catch (error) {
+      console.error('[ScanProductScreen] Putting a scan on the grocery list failed', error);
+      setOnListNote('That did not go on the list. Try again in a moment.');
+    }
   }
 
   // --- Render ---------------------------------------------------------
@@ -1625,6 +1642,14 @@ export function ScanProductView({
         <Ionicons name="checkmark-circle-outline" size={40} color={colors.accent} />
         <Text style={styles.title}>Saved</Text>
         <Text style={styles.text}>{name} is in your My Processed Foods, ready to add from any builder&apos;s own ingredient search.</Text>
+        {onListNote ? (
+          <Text style={styles.text}>{onListNote}</Text>
+        ) : (
+          <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={handlePutOnList}>
+            <Ionicons name="cart-outline" size={18} color={colors.background} />
+            <Text style={styles.primaryButtonText}>Put It on My Grocery List</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={resetForNewScan}>
           <Text style={styles.primaryButtonText}>Scan Another</Text>
         </TouchableOpacity>
