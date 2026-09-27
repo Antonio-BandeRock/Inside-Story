@@ -26,6 +26,7 @@ export type ReminderKindKey =
   | 'meal'
   | 'hydration'
   | 'checkin'
+  | 'morning'
   | 'afterMeal'
   | 'garden'
   | 'routine'
@@ -59,6 +60,10 @@ export const ALL_REMINDER_KIND_KEYS: ReminderKindKey[] = [
   // picks, and one about two hours after a meal they logged. Both carry How
   // are you and Log a flare buttons, and both start off.
   'checkin',
+  // D7 (Phase 2). The morning check-in: a question about last night at a
+  // time the person picks, opening the card on Home. Starts off, like the
+  // other two that come from no record.
+  'morning',
   'afterMeal',
   'garden',
   // 1.0.39.22. The one kind that comes from nothing on a schedule at all:
@@ -102,6 +107,7 @@ export const REMINDER_KIND_LABELS: Record<ReminderKindKey, string> = {
   meal: 'Meals',
   hydration: 'Water & drinks',
   checkin: 'How are you today',
+  morning: 'Morning check-in',
   afterMeal: 'After a meal',
   garden: 'Garden tasks',
   routine: 'Routines',
@@ -124,6 +130,8 @@ export const REMINDER_KIND_CAPTIONS: Record<ReminderKindKey, string> = {
     'Every drink on your Hydration schedule. A day the Meal Plan has filled a water gap for can hold six of these, so this one starts off.',
   checkin:
     'Once a day at the time you pick below, a question with How are you and Log a flare buttons. Skipped on a day you have already checked in.',
+  morning:
+    "Once a morning at the time you pick below, a question about last night's sleep. Tapping it opens the Morning Check-In on Home. Skipped on a morning you have already answered.",
   afterMeal:
     'About two hours after a meal you logged, the same two buttons. Only the latest meal asks, a drink on its own asks nothing, and nothing comes once you have checked in since eating.',
   garden: 'Anything planned in Garden > Upcoming Tasks, at the time it is set for.',
@@ -172,6 +180,7 @@ const DEFAULT_REMINDER_KIND_ENABLED: Record<ReminderKindKey, boolean> = {
   // so switching one on is the request, and an unasked question every
   // evening is how an app's notifications get turned off altogether.
   checkin: false,
+  morning: false,
   afterMeal: false,
   garden: true,
   // On. A routine reminder exists only because somebody went into that
@@ -214,6 +223,10 @@ const DEFAULT_NUDGE_UNTIL_DONE = false;
 // about a day that has mostly happened.
 export const DEFAULT_CHECKIN_TIME = '20:00';
 
+// When the morning check-in asks (D7). Early enough to catch somebody
+// before the day takes over, late enough that a watch has finished the night.
+export const DEFAULT_MORNING_TIME = '07:30';
+
 export type ReminderPreferences = {
   // Whether a reminder comes back until the thing is marked done, rather
   // than firing once and being gone. Undefined means the default above.
@@ -226,6 +239,8 @@ export type ReminderPreferences = {
   quietHours?: QuietHours | null;
   // The daily check-in's time, 'HH:mm'. Undefined means DEFAULT_CHECKIN_TIME.
   checkinTime?: string;
+  // The morning check-in's time, 'HH:mm'. Undefined means DEFAULT_MORNING_TIME.
+  morningTime?: string;
   // Only what the person has actually changed. A key missing here means
   // "whatever DEFAULT_REMINDER_KIND_ENABLED says," so a kind added later
   // picks up its own default without needing a migration, and so changing a
@@ -260,6 +275,10 @@ export function checkinTimeOf(prefs: ReminderPreferences): string {
   return isValidTime(prefs.checkinTime) ? prefs.checkinTime : DEFAULT_CHECKIN_TIME;
 }
 
+export function morningTimeOf(prefs: ReminderPreferences): string {
+  return isValidTime(prefs.morningTime) ? prefs.morningTime : DEFAULT_MORNING_TIME;
+}
+
 export function isNudgeUntilDoneEnabled(prefs: ReminderPreferences): boolean {
   return prefs.nudgeUntilDone ?? DEFAULT_NUDGE_UNTIL_DONE;
 }
@@ -291,6 +310,7 @@ export async function getReminderPreferences(): Promise<ReminderPreferences> {
           nudgeUntilDone: typeof parsed.nudgeUntilDone === 'boolean' ? parsed.nudgeUntilDone : undefined,
           quietHours: isValidQuietHours(parsed.quietHours) ? parsed.quietHours : null,
           checkinTime: isValidTime(parsed.checkinTime) ? parsed.checkinTime : undefined,
+          morningTime: isValidTime(parsed.morningTime) ? parsed.morningTime : undefined,
         };
       } catch {
         // A blob that will not parse falls back to defaults rather than
@@ -337,6 +357,12 @@ export async function setQuietHours(quietHours: QuietHours | null): Promise<Remi
 export async function setCheckinTime(time: string): Promise<ReminderPreferences> {
   const current = await getReminderPreferences();
   return persist({ ...current, checkinTime: isValidTime(time) ? time : undefined });
+}
+
+// The morning check-in's time (D7). Reconciled by the caller, like the rest.
+export async function setMorningTime(time: string): Promise<ReminderPreferences> {
+  const current = await getReminderPreferences();
+  return persist({ ...current, morningTime: isValidTime(time) ? time : undefined });
 }
 
 async function persist(merged: ReminderPreferences): Promise<ReminderPreferences> {

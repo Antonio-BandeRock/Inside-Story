@@ -60,6 +60,7 @@ import { APP_VERSION } from '../../constants/version';
 import { textShadow, typography } from '../../constants/typography';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/checkinTags';
 import { DailyList } from '../../components/DailyList';
+import { MorningCheckin } from '../../components/MorningCheckin';
 import { dailyRatingLabel, mergeDailyRatings, noneTodaySentence, ratingsFromSaved } from '../../lib/dailyList';
 import { getDailyList, saveDailyList } from '../../lib/dailyListDb';
 import { EMPTY_DAILY_SCALES, describeScales, hasAnyScale, localStamp, type DailyScaleValues } from '../../lib/dailyScales';
@@ -764,6 +765,7 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.tabBioCompass,
     href: '/assessment' as Href,
   },
+  morningCheckin: { label: 'Morning Check-In', icon: 'sunny', color: colors.tabBioCompass, href: '/log' as Href },
   todaysCheckin: { label: "Today's Check-In", icon: 'checkmark-circle', color: colors.tabBioCompass, href: '/log' as Href },
   howYoureFeeling: { label: "How You're Feeling", icon: 'heart', color: colors.tabBioCompass, href: '/log' as Href },
   logFlare: { label: 'Log a Flare', icon: 'flame', color: colors.tabBioCompass, href: '/log' as Href },
@@ -914,6 +916,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'dayTimeline',
   'todaysReminders',
   'symptomCheckinReminder',
+  'morningCheckin',
   'todaysCheckin',
   'howYoureFeeling',
   'logFlare',
@@ -3479,6 +3482,19 @@ export default function HomeScreen() {
     );
   }
 
+  // D7: the morning check-in. The card loads its own readings and answer
+  // on focus, so Home only places it.
+  function renderMorningCheckin() {
+    if (!isHomeSectionVisible(visualPrefs, 'morningCheckin')) return null;
+    return renderBand(
+      'morningCheckin',
+      'Morning Check-In',
+      <View style={styles.bandBody}>
+        <MorningCheckin tabColor={tabColorFor('/log')} />
+      </View>,
+    );
+  }
+
   function renderCountdowns() {
     if (!isHomeSectionVisible(visualPrefs, 'countdowns')) return null;
     return renderBand(
@@ -3805,6 +3821,8 @@ export default function HomeScreen() {
         return renderLowStimulation();
       case 'symptomCheckinReminder':
         return renderSymptomCheckinReminder();
+      case 'morningCheckin':
+        return renderMorningCheckin();
       case 'todaysCheckin':
         return renderTodaysCheckin();
       case 'logAgain':

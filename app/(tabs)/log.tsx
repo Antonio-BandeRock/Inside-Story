@@ -1,4 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
+import { JOURNAL_PROMPTS, withPrompt } from '../../lib/journalPrompts';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -2061,6 +2062,17 @@ function GeneralNoteSection() {
               }}
               size={16}
             />
+          </View>
+          {/* D14 (2026-09-26): questions to start from, for a day when the
+              blank box is the hard part. A tap adds the question as a line
+              of the note (lib/journalPrompts.ts). */}
+          <Text style={styles.helperText}>Something to start from, if it helps:</Text>
+          <View style={styles.pillRow}>
+            {JOURNAL_PROMPTS.map((prompt) => (
+              <TouchableOpacity key={prompt} style={styles.pillSmall} onPress={() => setNotes((current) => withPrompt(current, prompt))}>
+                <Text style={styles.pillTextSmall}>{prompt}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
           <AppTextInput
             style={[styles.input, styles.multilineInput]}

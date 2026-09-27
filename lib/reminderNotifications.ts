@@ -23,6 +23,7 @@ import {
 } from './reminderActions';
 import {
   checkinTimeOf,
+  morningTimeOf,
   getReminderPreferences,
   isNudgeUntilDoneEnabled,
   isReminderKindEnabled,
@@ -203,7 +204,7 @@ export type ReminderKind = ReminderKindKey;
 const NUDGEABLE_TIMED_KINDS: ReminderKind[] = ['dose', 'meal', 'hydration', 'garden', 'reminder', 'routine', 'check'];
 
 type ScheduleLens = 'meds' | 'appointments' | 'todaysMeals' | 'hydration';
-type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine' | 'signals' | 'camera';
+type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine' | 'signals' | 'camera' | 'home';
 // The two check-in reminders land on Signals (C1).
 type SignalsReminderLens = 'generalNote' | 'flares';
 // 'plotsAndPlantings' is what a 1.0.42.13 payload says for a counter; it
@@ -223,7 +224,7 @@ type ReminderPayload = {
   /** Which tab a tap opens. Absent on anything queued before 1.0.39.8, and
    *  read back as 'schedule', which is the only thing it could have been. */
   tab?: ReminderTab;
-  lens: ScheduleLens | GardenReminderLens | LifeReminderLens | SignalsReminderLens | 'reconcile' | 'walk' | 'guide';
+  lens: ScheduleLens | GardenReminderLens | LifeReminderLens | SignalsReminderLens | 'reconcile' | 'walk' | 'guide' | 'morningCheckin';
   /** A Photo Series only: what the photo is of and its name, so a tap opens
    *  the camera on that owner without reading the database first. */
   ownerKind?: string;
@@ -613,6 +614,24 @@ function buildDailyCheckinPlanned(fireAt: Date, now: Date): PlannedNotification 
   };
 }
 
+// The morning check-in (D7). No buttons: its answer is two choices and a
+// note, which is a form rather than a reply, so a tap opens the card on Home.
+function buildMorningPlanned(fireAt: Date, now: Date): PlannedNotification {
+  return {
+    identifier: `${IDENTIFIER_PREFIX}morning:${localDateString(fireAt)}`,
+    title: 'How did you sleep?',
+    body: `The morning check-in you asked for, with last night's readings beside your usual range. Check-ins as of ${describeFreshness(now, fireAt)}.`,
+    fireAt,
+    payload: {
+      kind: 'morning',
+      scheduleItemId: localDateString(fireAt),
+      fireAt: fireAt.toISOString(),
+      tab: 'home',
+      lens: 'morningCheckin',
+    },
+  };
+}
+
 // A Photo Series asking for today's photo. The identifier carries the day,
 // so a photo taken today drops today's from the next reconcile while the
 // rest of the week stays queued.
@@ -747,6 +766,7 @@ function channelFor(kind: ReminderKind): string {
     kind === 'routine' ||
     kind === 'check' ||
     kind === 'checkin' ||
+    kind === 'morning' ||
     kind === 'afterMeal' ||
     kind === 'photoSeries'
   )
@@ -925,6 +945,15 @@ async function runSync(): Promise<ReminderSyncResult> {
       });
     }
   }
+  // The morning check-in (D7), planned the same way, skipped this morning
+  // once it has been answered.
+  if (isReminderKindEnabled(preferences, 'morning')) {
+    const answeredToday = !!checkinInputs.lastMorningAt && checkinInputs.lastMorningAt.slice(0, 10) === localDay(now);
+    planDailyCheckins(morningTimeOf(preferences), now, LOOKAHEAD_DAYS - 1, answeredToday).forEach((fireAt, index) => {
+      const planned = buildMorningPlanned(fireAt, now);
+      (index === 0 ? first : followUps).set(planned.identifier, planned);
+    });
+  }
   if (isReminderKindEnabled(preferences, 'afterMeal')) {
     const nudge = planAfterMealNudge(checkinInputs.recentMeals, checkinInputs.lastCheckinAt, now);
     if (nudge) {
@@ -1059,6 +1088,7 @@ export type ReminderTapTarget =
   | { pathname: '/routine'; params: { id: string } }
   | { pathname: '/log'; params: { openSignalsLens: SignalsReminderLens } }
   | { pathname: '/reconcile' }
+  | { pathname: '/' }
   | { pathname: '/photo-camera'; params: { ownerKind: string; ownerId: string; guide: '1'; title: string } };
 
 const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'todaysMeals', 'hydration'];
@@ -1081,6 +1111,8 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
   const data = request.content.data as Partial<ReminderPayload> | undefined;
 
   if (data?.tab === 'reconcile') return { pathname: '/reconcile' };
+  // The morning check-in (D7) is a card on Home.
+  if (data?.tab === 'home') return { pathname: '/' };
   // A Photo Series opens the camera on the thing with the last photo over
   // the view. A payload missing its owner lands on Garden instead, since
   // the camera cannot keep a photo of nothing.

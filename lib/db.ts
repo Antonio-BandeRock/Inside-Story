@@ -9002,6 +9002,12 @@ async function runDatabaseInitialization() {
     if (!wellbeingCheckinColumns.some((column) => column.name === 'severity_ten')) {
       await db.execAsync('ALTER TABLE wellbeing_checkins ADD COLUMN severity_ten INTEGER;');
     }
+    // sleep_quality (D7, 2026-09-26): how somebody slept, 1 to 5, on the
+    // morning check-in's row (checkin_type 'sleep', lib/morningCheckinDb.ts).
+    // Null on every other kind of check-in.
+    if (!wellbeingCheckinColumns.some((column) => column.name === 'sleep_quality')) {
+      await db.execAsync('ALTER TABLE wellbeing_checkins ADD COLUMN sleep_quality INTEGER;');
+    }
     // checkin_tags.severity (D4, 2026-09-26): how bad each symptom was, one
     // of the same four steps, null when only the check-in as a whole was
     // rated.

@@ -8,8 +8,12 @@ import type { LoggedMealForNudge } from './reminderActions';
 export type CheckinReminderInputs = {
   /** Meals eaten from `since` on, as local 'YYYY-MM-DDTHH:mm'. */
   recentMeals: LoggedMealForNudge[];
-  /** The latest check-in of any kind, local 'YYYY-MM-DDTHH:mm', or null. */
+  /** The latest check-in of any kind but the morning one, local
+   *  'YYYY-MM-DDTHH:mm', or null. A morning answer about last night is not
+   *  an answer to how the day went, so it leaves the evening question alone. */
   lastCheckinAt: string | null;
+  /** The latest morning check-in (D7), local 'YYYY-MM-DDTHH:mm', or null. */
+  lastMorningAt: string | null;
 };
 
 // meals.eaten_at and wellbeing_checkins.logged_at are both local wall-clock
@@ -17,7 +21,7 @@ export type CheckinReminderInputs = {
 // arithmetic.
 export async function getCheckinReminderInputs(since: string): Promise<CheckinReminderInputs> {
   const db = await getDatabase();
-  const [meals, last] = await Promise.all([
+  const [meals, last, morning] = await Promise.all([
     db.getAllAsync<LoggedMealForNudge>(
       `SELECT id, name, meal_type AS mealType, eaten_at AS eatenAt
          FROM meals
@@ -26,9 +30,14 @@ export async function getCheckinReminderInputs(since: string): Promise<CheckinRe
         LIMIT 20`,
       since,
     ),
-    db.getFirstAsync<{ at: string | null }>('SELECT MAX(logged_at) AS at FROM wellbeing_checkins'),
+    db.getFirstAsync<{ at: string | null }>("SELECT MAX(logged_at) AS at FROM wellbeing_checkins WHERE checkin_type <> 'sleep'"),
+    db.getFirstAsync<{ at: string | null }>("SELECT MAX(logged_at) AS at FROM wellbeing_checkins WHERE checkin_type = 'sleep'"),
   ]);
   // Home wrote UTC stamps before 1.0.53.4; localStampOf reads one back as
   // local time so it compares with the meals.
-  return { recentMeals: meals, lastCheckinAt: last?.at ? localStampOf(last.at) : null };
+  return {
+    recentMeals: meals,
+    lastCheckinAt: last?.at ? localStampOf(last.at) : null,
+    lastMorningAt: morning?.at ? localStampOf(morning.at) : null,
+  };
 }

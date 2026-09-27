@@ -47,6 +47,7 @@ const NAMED = [
   'lib/keepReminding.ts',
   'lib/patternFinder.ts',
   'lib/dailyList.ts',
+  'lib/morningCheckin.ts',
   'lib/patternRules.ts',
   'lib/patternBasis.ts',
   'lib/patternContext.ts',

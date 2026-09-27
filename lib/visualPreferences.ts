@@ -273,6 +273,9 @@ export type HomeSectionKey =
   // reminder: it is always on Home, and says "due" when it is. The key
   // keeps its old name because saved preferences already carry it.
   | 'symptomCheckinReminder'
+  // D7 of the competitive build plan (2026-09-26): last night's readings
+  // beside the usual range, how somebody slept and their energy.
+  | 'morningCheckin'
   | 'todaysCheckin'
   // Quick-log, 2026-08-30 -- see Home's own renderLogAgain for why this sits
   // high in the default order: it exists to get a meal logged in seconds, and
@@ -402,6 +405,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'mealsLoggedToday',
   // Signals.
   'symptomCheckinReminder',
+  'morningCheckin',
   'todaysCheckin',
   'howYoureFeeling',
   'logFlare',
@@ -465,6 +469,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   today: 'Today',
   lowStimulation: 'Low Stimulation',
   symptomCheckinReminder: 'Symptom Check-In',
+  morningCheckin: 'Morning Check-In',
   todaysCheckin: "Today's Check-In",
   logAgain: 'Log a Meal',
   groceryList: 'Grocery List',

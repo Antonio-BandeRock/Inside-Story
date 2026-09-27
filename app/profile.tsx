@@ -90,6 +90,8 @@ import {
   type ReminderKindKey,
   checkinTimeOf,
   setCheckinTime,
+  morningTimeOf,
+  setMorningTime,
 } from '../lib/reminderPreferences';
 import { DEFAULT_QUIET_HOURS, quietTimeOptions, SNOOZE_MINUTES, type QuietHours } from '../lib/quietHours';
 import {
@@ -818,6 +820,11 @@ export default function ProfileScreen() {
   // The daily check-in's time (C1, 2026-09-26), reconciled the same way.
   function saveCheckinTime(time: string) {
     void setCheckinTime(time).then(() => syncReminderNotifications());
+  }
+
+  // The morning check-in's time (D7), reconciled the same way.
+  function saveMorningTime(time: string) {
+    void setMorningTime(time).then(() => syncReminderNotifications());
   }
 
   // Home Screen section toggles, 2026-08-21, direct request: "make it
@@ -3631,6 +3638,20 @@ export default function ProfileScreen() {
                     tabColor={colors.menuIconMuted}
                     groundSurface
                     onSelect={saveCheckinTime}
+                  />
+                </PickerField>
+              </View>
+            ) : null}
+            {isReminderKindEnabled(reminderPrefs, 'morning') ? (
+              <View style={styles.dateRow}>
+                <PickerField label="Ask about last night at">
+                  <PopoverSelect
+                    options={QUIET_TIME_OPTIONS}
+                    selected={morningTimeOf(reminderPrefs)}
+                    minWidth={110}
+                    tabColor={colors.menuIconMuted}
+                    groundSurface
+                    onSelect={saveMorningTime}
                   />
                 </PickerField>
               </View>
