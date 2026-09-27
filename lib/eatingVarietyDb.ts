@@ -35,10 +35,12 @@ import {
   describeVarietyThisWeek,
   suggestNearThings,
   summarizeDistinctFoods,
+  summarizeDistinctPlants,
 } from './eatingVariety';
 import type {
   FoodTrialInput,
   PackagedKind,
+  PlantsResult,
   SafeFoodInput,
   VarietyFoodRecord,
   VarietyInputs,
@@ -232,6 +234,16 @@ export type VarietyHomeSummary = {
   nearThing: string | null;
   distinctThisWeek: number | null;
 };
+
+// Insights > Nutrients: distinct plants in the last seven days, with the
+// three weeks before it to set beside it (G14). Read only when that lens
+// opens.
+export async function getPlantsThisWeek(today: string): Promise<PlantsResult> {
+  const startDate = addDays(today, -(HOME_RANGE_DAYS - 1));
+  const inputs = await getEatingVarietyInputs(startDate, today);
+  const weeks = buildWeeks(inputs.startDate, inputs.endDate, inputs.loggedDates);
+  return summarizeDistinctPlants(inputs, weeks);
+}
 
 export async function getVarietyHomeSummary(today: string): Promise<VarietyHomeSummary> {
   const startDate = addDays(today, -(HOME_RANGE_DAYS - 1));

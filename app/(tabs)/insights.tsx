@@ -111,6 +111,8 @@ import {
   type AbsorptionItem,
   type AbsorptionNutrient,
 } from '../../lib/mineralAbsorption';
+import { describePlantsThisWeek, describePlantsUncounted, type PlantsResult } from '../../lib/eatingVariety';
+import { getPlantsThisWeek } from '../../lib/eatingVarietyDb';
 import { richFoodKey, richFoodLabel } from '../../lib/nutrientRichPicks';
 import { ageFromBirthDate } from '../../lib/profile';
 import {
@@ -766,6 +768,7 @@ export default function InsightsScreen() {
   // What today would add up to if every still-planned meal is eaten, plus
   // the names of those meals, 2026-09-12 (see NutrientsTable's own comment).
   const [projectedToday, setProjectedToday] = useState<ProjectedToday | null>(null);
+  const [plantsThisWeek, setPlantsThisWeek] = useState<PlantsResult | null>(null);
   const [dimensionsBreakdown, setDimensionsBreakdown] = useState<DailySixDimensionsBreakdown | null>(null);
 
   // Shared across all three lenses -- drilling into "Breakfast" while
@@ -1164,9 +1167,11 @@ export default function InsightsScreen() {
         // never counted twice against what it added when it was eaten.
         lens === 'nutrients' ? getProjectedNutrientTotalsByDateRange(date, date) : null,
         lens === 'nutrients' ? listScheduledMealsForDate(date) : null,
+        lens === 'nutrients' ? getPlantsThisWeek(date).catch(() => null) : null,
       ])
-        .then(([nutrients, breakdown, projected, scheduled]) => {
+        .then(([nutrients, breakdown, projected, scheduled, plants]) => {
           if (cancelled) return;
+          setPlantsThisWeek(plants);
           setNutrientBreakdown(nutrients);
           setDimensionsBreakdown(breakdown);
           if (projected && scheduled) {
@@ -1368,7 +1373,7 @@ export default function InsightsScreen() {
               !nutrientBreakdown || nutrientBreakdown.meals.length === 0 ? (
                 <Text style={[styles.emptyText, styles.panelStandalone]}>Save a meal to see this.</Text>
               ) : (
-                <NutrientsTable breakdown={nutrientBreakdown} scope={scope} projected={projectedToday} />
+                <NutrientsTable breakdown={nutrientBreakdown} scope={scope} projected={projectedToday} plants={plantsThisWeek} />
               )
             ) : lens === 'hydration' ? (
               !nutrientBreakdown || nutrientBreakdown.meals.length === 0 ? (
@@ -1751,12 +1756,16 @@ export function NutrientsTable({
   breakdown,
   scope,
   projected = null,
+  plants = null,
 }: {
   breakdown: DailyNutrientBreakdown;
   scope: Scope;
   projected?: ProjectedToday | null;
+  /** Distinct plants in the last seven days (G14), day scope only. */
+  plants?: PlantsResult | null;
 }) {
   const [mealsOpen, setMealsOpen] = useState(true);
+  const [plantsOpen, setPlantsOpen] = useState(false);
   const [tableOpen, setTableOpen] = useState(true);
   const isDayScope = scope.level === 'day';
   const scopeTotals = resolveScopeNutrientTotals(breakdown, scope);
@@ -1955,6 +1964,30 @@ export function NutrientsTable({
               meal still planned for today, judged by the same target. Nothing is guessed for a meal that is not
               on the schedule.
             </Text>
+          </View>
+        </HomeSectionBand>
+      ) : null}
+
+      {isDayScope && plants ? (
+        <HomeSectionBand
+          title="Different Plants This Week"
+          icon="nutrition-outline"
+          color={TAB_COLOR}
+          expanded={plantsOpen}
+          onToggle={() => setPlantsOpen((open) => !open)}
+        >
+          <View style={styles.bandBody}>
+            <Text style={styles.bandText}>{describePlantsThisWeek(plants)}</Text>
+            {plants.latestNames.length > 0 ? (
+              <>
+                <Text style={styles.bandLabel}>Counted</Text>
+                <Text style={styles.bandText}>{plants.latestNames.join(', ')}</Text>
+              </>
+            ) : null}
+            {describePlantsUncounted(plants.uncounted) ? (
+              <Text style={styles.bandCaption}>{describePlantsUncounted(plants.uncounted)}</Text>
+            ) : null}
+            <Text style={styles.bandCaption}>{plants.method} Trends, What You Eat, has it week by week.</Text>
           </View>
         </HomeSectionBand>
       ) : null}

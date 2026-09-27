@@ -585,12 +585,197 @@ export function summarizeSafeList(
 }
 
 // ---------------------------------------------------------------------------
+// Distinct plants, week by week (G14, 2026-09-27)
+// ---------------------------------------------------------------------------
+
+// How many different plants were eaten in a week, the measure ZOE and the
+// American Gut Project made familiar. This counts and says what it counted.
+// It sets no target and never calls a count good or bad, and a week with
+// nothing logged is a gap rather than a week of no plants, the same rule as
+// every band above.
+//
+// A plant is anything in a plant category of the reference database:
+// fruit, vegetables, legumes, grains, nuts and seeds, herbs and spices,
+// sprouts, mushrooms and seaweed. Mushrooms are fungi and are counted here
+// the way the plant-count studies count them, which the method line says.
+// Baked goods, pasta, sauces and packaged foods are left out even where a
+// plant went into them, since the app cannot tell which plants did.
+
+export const PLANT_CATEGORIES = ['Fruit', 'Veg', 'Legume', 'Grain', 'NutSeed', 'Herbs', 'Mushroom', 'Algae', 'Sprouts'] as const;
+
+export function isPlantCategory(category: string | null): boolean {
+  return category != null && (PLANT_CATEGORIES as readonly string[]).includes(category);
+}
+
+// Words that describe a form or a preparation rather than which plant it
+// is. A name segment starting with one ends the plant's name, so "Apples,
+// raw, with skin" and "Apples, frozen" are the same plant.
+const FORM_WORDS = new Set([
+  'raw', 'cooked', 'boiled', 'steamed', 'roasted', 'baked', 'fried', 'stir-fried', 'grilled', 'microwaved', 'blanched',
+  'frozen', 'canned', 'dried', 'dehydrated', 'fresh', 'drained', 'undrained', 'prepared', 'unprepared', 'with', 'without',
+  'whole', 'chopped', 'sliced', 'diced', 'shredded', 'mashed', 'puree', 'pureed', 'ripe', 'unripe', 'peeled', 'unpeeled',
+  'from', 'in', 'all', 'plain', 'organic', 'mature', 'immature', 'solids', 'flesh', 'pulp', 'ground', 'toasted', 'soaked',
+  'sprouted', 'unsalted', 'salted', 'no', 'not', 'regular', 'commercial', 'home', 'homemade', 'enriched', 'unenriched',
+  'uncooked', 'dry', 'hulled', 'unhulled', 'shelled', 'kernels', 'flour', 'meal', 'braised', 'stewed', 'sauteed', 'sautéed',
+]);
+
+function singular(word: string): string {
+  if (word.length <= 3) return word;
+  if (word.endsWith('ies')) return `${word.slice(0, -3)}y`;
+  if (word.endsWith('oes')) return word.slice(0, -2);
+  if (word.endsWith('ss') || word.endsWith('us') || word.endsWith('is')) return word;
+  if (word.endsWith('s')) return word.slice(0, -1);
+  return word;
+}
+
+function singularPhrase(phrase: string): string {
+  const words = phrase.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return '';
+  words[words.length - 1] = singular(words[words.length - 1]);
+  return words.join(' ');
+}
+
+/**
+ * Which plant a food name is, as a key and a name to show: the first part
+ * of the name, plus the second where it names a kind ("Beans, black")
+ * rather than a form ("Apples, raw"). Forms of one plant count once.
+ */
+export function plantIdentity(foodName: string): { key: string; label: string } {
+  const segments = foodName
+    .split(',')
+    .map((segment) => segment.trim())
+    .filter(Boolean);
+  if (segments.length === 0) return { key: '', label: '' };
+  // A name with no commas ("Curly kale raw") ends at its first form word.
+  const firstWords = segments[0].split(/\s+/);
+  const cut = firstWords.findIndex((word, index) => index > 0 && FORM_WORDS.has(word.toLowerCase()));
+  const parts = [cut > 0 ? firstWords.slice(0, cut).join(' ') : segments[0]];
+  const second = segments[1];
+  if (second) {
+    const firstWord = second.toLowerCase().split(/\s+/)[0] ?? '';
+    if (!FORM_WORDS.has(firstWord) && !/\d/.test(second)) parts.push(second);
+  }
+  const key = parts.map((part) => singularPhrase(part.toLowerCase())).join(', ');
+  return { key, label: parts.join(', ') };
+}
+
+export type PlantsResult = {
+  weeks: WeekCount[];
+  latest: number | null;
+  /** Averaged over complete, logged weeks before the latest, as band 1 does. */
+  earlierAverage: number | null;
+  earlierWeeksCounted: number;
+  distinctAcrossRange: number;
+  weeksWithoutLogging: number;
+  /** The plants counted in the most recent week, in the order first eaten. */
+  latestNames: string[];
+  /** Entries in the range with no category, so neither a plant nor not one. */
+  uncounted: number;
+  headline: string;
+  gapNote: string | null;
+  method: string;
+};
+
+export const PLANTS_METHOD =
+  'Counted by name, so raw, cooked and frozen forms of one plant count once and different kinds count apart. Fruit, vegetables, legumes, grains, nuts, seeds, herbs, spices, sprouts, mushrooms and seaweed count. Bread, pasta, sauces and packaged foods do not, since the app cannot tell which plants went into them.';
+
+function plantsInRecords(records: VarietyFoodRecord[]): Map<string, string> {
+  const found = new Map<string, string>();
+  for (const record of records) {
+    if (!isPlantCategory(record.category)) continue;
+    const { key, label } = plantIdentity(record.foodName);
+    if (key && !found.has(key)) found.set(key, label);
+  }
+  return found;
+}
+
+export function summarizeDistinctPlants(inputs: VarietyInputs, weeks: VarietyWeek[], nameLimit = 40): PlantsResult {
+  const weekPlants = weeks.map((week) => plantsInRecords(recordsInWeek(inputs.records, week)));
+  const weekCounts: WeekCount[] = weeks.map((week, index) => ({
+    weekStart: week.weekStart,
+    weekEnd: week.weekEnd,
+    label: describeWeek(week),
+    partial: week.partial,
+    hasLogging: week.hasLogging,
+    value: week.hasLogging ? weekPlants[index].size : null,
+  }));
+
+  const distinctAcrossRange = plantsInRecords(inputs.records).size;
+  const weeksWithoutLogging = weekCounts.filter((week) => !week.hasLogging).length;
+  const uncounted = inputs.records.filter((record) => record.category == null).length;
+
+  const latestIndex = weekCounts.length - 1;
+  const latest = latestIndex >= 0 ? weekCounts[latestIndex].value : null;
+  const latestNames = latest != null ? Array.from(weekPlants[latestIndex].values()).slice(0, nameLimit) : [];
+
+  const earlier = weekCounts
+    .slice(0, Math.max(latestIndex, 0))
+    .filter((week) => week.hasLogging && !week.partial && week.value != null);
+  const earlierAverage =
+    earlier.length > 0 ? Math.round(earlier.reduce((sum, week) => sum + (week.value ?? 0), 0) / earlier.length) : null;
+
+  const plants = (count: number) => `${count} different ${plural(count, 'plant', 'plants')}`;
+  let headline: string;
+  if (latest == null) {
+    headline =
+      inputs.records.length > 0
+        ? `Nothing logged in the most recent week. Across the whole range, ${plants(distinctAcrossRange)} counted.`
+        : 'Nothing logged in this range yet, so there is nothing to count.';
+  } else if (earlierAverage == null) {
+    headline = `${plants(latest)} counted in the most recent week. There are not enough earlier full weeks yet to set it beside.`;
+  } else {
+    const earlierPhrase = earlier.length === 1 ? 'the week before it' : `the ${earlier.length} weeks before it`;
+    headline =
+      latest === earlierAverage
+        ? `${plants(latest)} counted in the most recent week, the same as the average over ${earlierPhrase}.`
+        : `${plants(latest)} counted in the most recent week, and an average of ${earlierAverage} over ${earlierPhrase}.`;
+  }
+
+  const gapNote =
+    weeksWithoutLogging > 0
+      ? `${weeksWithoutLogging} ${plural(weeksWithoutLogging, 'week has', 'weeks have')} nothing logged and ${plural(weeksWithoutLogging, 'is', 'are')} left as a gap rather than counted as no plants.`
+      : null;
+
+  return {
+    weeks: weekCounts,
+    latest,
+    earlierAverage,
+    earlierWeeksCounted: earlier.length,
+    distinctAcrossRange,
+    weeksWithoutLogging,
+    latestNames,
+    uncounted,
+    headline,
+    gapNote,
+    method: PLANTS_METHOD,
+  };
+}
+
+/** Said when some entries could not be matched to a food, so could not be counted either way. */
+export function describePlantsUncounted(uncounted: number): string | null {
+  if (uncounted <= 0) return null;
+  return uncounted === 1
+    ? '1 entry is not matched to a food, so it could not be counted as a plant or not.'
+    : `${uncounted} entries are not matched to a food, so they could not be counted as plants or not.`;
+}
+
+/** One line for Insights: this week's count, or why there is none. */
+export function describePlantsThisWeek(result: PlantsResult): string {
+  if (result.latest == null) return 'No meals logged in the last seven days, so there is nothing to count this week.';
+  const base = `${result.latest} different ${plural(result.latest, 'plant', 'plants')} counted in the last seven days`;
+  if (result.earlierAverage == null) return `${base}.`;
+  const before = result.earlierWeeksCounted === 1 ? 'The week before' : `The ${result.earlierWeeksCounted} weeks before`;
+  return `${base}. ${before} averaged ${result.earlierAverage}.`;
+}
+
+// ---------------------------------------------------------------------------
 // The whole lens in one call
 // ---------------------------------------------------------------------------
 
 export type EatingVarietySummary = {
   weeks: VarietyWeek[];
   distinct: DistinctFoodsResult;
+  plants: PlantsResult;
   nearThings: string[];
   nearThingsNote: string | null;
   rotation: RotationResult;
@@ -612,6 +797,7 @@ export function summarizeEatingVariety(
   return {
     weeks,
     distinct,
+    plants: summarizeDistinctPlants(inputs, weeks),
     nearThings,
     nearThingsNote: describeNearThings(nearThings),
     rotation: summarizeRotation(inputs),

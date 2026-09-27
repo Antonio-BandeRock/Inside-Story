@@ -408,7 +408,7 @@ checkTrue(
 // The whole lens, and the Home line.
 // ---------------------------------------------------------------------------
 const summary = summarizeEatingVariety(inputs, safeFoods, trials);
-check('every band is present', Object.keys(summary).length, 10);
+check('every band is present', Object.keys(summary).length, 11); // plants joined in G14
 check('the weeks are shared by every band', summary.weeks.length, 3);
 check('the distinct band is filled', summary.distinct.latest, 2);
 check('near things are filled', summary.nearThings.length, 3);

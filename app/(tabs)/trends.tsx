@@ -119,6 +119,7 @@ import {
   type TrackerPoint,
 } from '../../lib/customTrackers';
 import {
+  describePlantsUncounted,
   describeRepeat,
   METHOD_NOT_SAID,
   shortDate,
@@ -1893,6 +1894,32 @@ export default function TrendsScreen() {
                     {varietySummary.nearThingsNote ? (
                       <Text style={styles.patternRowCaption}>{varietySummary.nearThingsNote}</Text>
                     ) : null}
+                  </TabBand>
+
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:variety:plants"
+                    title="How many different plants"
+                    icon="nutrition-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{varietySummary.plants.headline}</Text>
+                    {renderWeekRows(varietySummary.plants.weeks)}
+                    {varietySummary.plants.gapNote ? (
+                      <Text style={styles.patternRowCaption}>{varietySummary.plants.gapNote}</Text>
+                    ) : null}
+                    {varietySummary.plants.latestNames.length > 0 ? (
+                      <Text style={styles.patternRowCaption}>
+                        {`Counted in the most recent week: ${varietySummary.plants.latestNames.join(', ')}.`}
+                      </Text>
+                    ) : null}
+                    <Text style={styles.patternRowCaption}>
+                      {`${varietySummary.plants.distinctAcrossRange} different plants across the whole range.`}
+                    </Text>
+                    {describePlantsUncounted(varietySummary.plants.uncounted) ? (
+                      <Text style={styles.patternRowCaption}>{describePlantsUncounted(varietySummary.plants.uncounted)}</Text>
+                    ) : null}
+                    <Text style={styles.patternRowCaption}>{varietySummary.plants.method}</Text>
                   </TabBand>
 
                   <TabBand
