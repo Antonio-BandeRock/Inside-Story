@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react';
 import { type LayoutChangeEvent, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
+import Svg, { Circle, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
 import { colors } from '../constants/colors';
 import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING } from './HomeSectionBand';
 import { textShadow, typography } from '../constants/typography';
@@ -47,6 +47,8 @@ export function TrendLineChart({
   secondaryPoints,
   secondaryLabel,
   secondaryFillColor = colors.statusYellowOnSurface,
+  usualBand,
+  usualBandLabel,
 }: {
   points: TrendLineChartPoint[];
   yMin: number;
@@ -75,6 +77,12 @@ export function TrendLineChart({
   // which line they tapped.
   secondaryLabel?: string;
   secondaryFillColor?: string;
+  // F11, 2026-09-26: the person's usual range (lib/yourUsual.ts) as a
+  // shaded band behind the line, with its two edges as the chart's own
+  // values. Clamped to the chart, so a band wider than the plotted range
+  // fills to the edge rather than running off it.
+  usualBand?: { low: number; high: number } | null;
+  usualBandLabel?: string;
 }) {
   // The chart fills whatever it is placed in, 2026-09-19. It used to take
   // the window width minus a 20 dp page inset, which was wider than the
@@ -155,6 +163,8 @@ export function TrendLineChart({
     : null;
   const selectedSecondary = secondaryByDate.get(selectedPoint.date);
   const referenceY = referenceLine != null ? valueToY(referenceLine) : null;
+  const usualTopY = usualBand ? valueToY(usualBand.high) : null;
+  const usualBottomY = usualBand ? valueToY(usualBand.low) : null;
 
   return (
     <View style={styles.container} onLayout={onLayout}>
@@ -179,6 +189,22 @@ export function TrendLineChart({
         <SvgText x={0} y={BASE_Y + 4} fontSize={11} fill={colors.textMuted}>
           {valueFormatter(yMin)}
         </SvgText>
+
+        {usualTopY != null && usualBottomY != null ? (
+          <Rect
+            x={Y_AXIS_LABEL_WIDTH + NODE_RADIUS}
+            y={usualTopY}
+            width={plotWidth}
+            height={Math.max(1, usualBottomY - usualTopY)}
+            fill={lineColor}
+            fillOpacity={0.12}
+          />
+        ) : null}
+        {usualTopY != null && usualBandLabel ? (
+          <SvgText x={plotRightEdge - 4} y={Math.max(TOP_Y + 8, usualTopY + 12)} fontSize={10} fill={colors.textMuted} textAnchor="end">
+            {usualBandLabel}
+          </SvgText>
+        ) : null}
 
         {referenceY != null ? (
           <Line

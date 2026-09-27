@@ -39,6 +39,15 @@ export function usualRange(earlier: number[]): UsualRange | null {
   };
 }
 
+// F11 (2026-09-26): the same range drawn as a shaded band behind a chart,
+// worked out from every reading but the latest, exactly as the caption
+// below the chart does, so the band and the sentence never disagree.
+export function usualBandFor(values: number[]): UsualRange | null {
+  return values.length === 0 ? null : usualRange(values.slice(0, -1));
+}
+
+export const USUAL_BAND_LABEL = 'Your usual';
+
 export type UsualPlace = 'below' | 'within' | 'above';
 
 export function placeInUsual(latest: number, range: UsualRange): UsualPlace {

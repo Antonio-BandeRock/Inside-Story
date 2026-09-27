@@ -125,6 +125,8 @@ import { getCaptureInboxCounts } from '../../lib/captureNotesDb';
 import { getVarietyHomeSummary, type VarietyHomeSummary } from '../../lib/eatingVarietyDb';
 import type { KeepingUpHomeSummary } from '../../lib/keepingUp';
 import { getKeepingUpHomeSummary } from '../../lib/keepingUpDb';
+import { OUTSIDE_USUAL_CAPTION, outsideUsualLines, type OutsideUsualLine } from '../../lib/outsideUsual';
+import { getOutsideUsualInputs } from '../../lib/outsideUsualDb';
 import type { GardenYieldHomeSummary } from '../../lib/harvestYield';
 import { getGardenYieldHomeSummary } from '../../lib/harvestYieldDb';
 import { describeWhereIsItRow } from '../../lib/whereIsIt';
@@ -547,6 +549,9 @@ type DashboardData = {
   // caption, worked out in lib/keepingUp.ts. Home draws what it is
   // handed, including the wording for having nothing set up yet.
   keepingUp: KeepingUpHomeSummary;
+  // F12, 2026-09-26: only the readings that sat outside the usual range.
+  // Usually none, and then the card is not drawn at all.
+  outsideUsual: OutsideUsualLine[];
   // What the garden gave this calendar month, 2026-09-23. A weight or a
   // count, what it came to at prices this person has recorded paying, and
   // nothing when the garden is out of season. Worked out in
@@ -798,6 +803,12 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.tabTrends,
     href: { pathname: '/trends', params: { openTrendsLens: 'keepingUp' } } as Href,
   },
+  outsideUsual: {
+    label: 'Outside Your Usual',
+    icon: 'swap-vertical',
+    color: colors.tabTrends,
+    href: { pathname: '/trends', params: { openTrendsLens: 'movement' } } as Href,
+  },
   gardenYield: {
     label: 'Garden Yield',
     icon: 'basket',
@@ -928,6 +939,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'weekTrend',
   'varietyThisWeek',
   'keepingUp',
+  'outsideUsual',
   'gardenYield',
   'makeReport',
   'gardenTasks',
@@ -1285,6 +1297,7 @@ export default function HomeScreen() {
   function homeSectionHasContent(key: HomeSectionKey) {
     if (key === 'sharedFolderSetup') return sharedFolderReady === false;
     if (key === 'weekTrend') return Boolean(weekTrend);
+    if (key === 'outsideUsual') return (data?.outsideUsual.length ?? 0) > 0;
     return true;
   }
 
@@ -1305,7 +1318,7 @@ export default function HomeScreen() {
     // homeSectionHasContent is rebuilt every render and reads exactly the
     // two values listed here, so those are the dependencies that matter.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [visualPrefs, sharedFolderReady, weekTrend],
+    [visualPrefs, sharedFolderReady, weekTrend, data],
   );
 
   const userConditionCodesRef = useRef(userConditionCodes);
@@ -1516,6 +1529,9 @@ export default function HomeScreen() {
       // is about what the garden is giving now; the months behind it are
       // the lens's job.
       getGardenYieldHomeSummary(date),
+      // F12, 2026-09-26. The Morning Check-In's readings plus steps; the
+      // lines are worked out here so an empty list means no card.
+      getOutsideUsualInputs(),
     ]).then(
       ([
         todaysMeals,
@@ -1541,6 +1557,7 @@ export default function HomeScreen() {
         variety,
         keepingUp,
         gardenYield,
+        outsideUsualInputs,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1599,6 +1616,7 @@ export default function HomeScreen() {
           variety,
           keepingUp,
           gardenYield,
+          outsideUsual: outsideUsualLines(outsideUsualInputs),
           reconcileCounts: { open: openToAnswer, assumed: assumedToConfirm },
           routines: routinesHome.routines,
           doneChecks: routinesHome.checks,
@@ -2987,6 +3005,29 @@ export default function HomeScreen() {
     );
   }
 
+  // F12, 2026-09-26: a reading outside the person's usual range, said as
+  // where it sat and nothing more. Silent on every other day, so a morning
+  // with nothing unusual has no card at all rather than one saying so.
+  function renderOutsideUsual() {
+    if (!homeSectionHasContent('outsideUsual') || !isHomeSectionVisible(visualPrefs, 'outsideUsual')) return null;
+    if (!data) return null;
+    return renderBand(
+      'outsideUsual',
+      'Outside Your Usual',
+      <TouchableOpacity
+        onPress={() => router.push({ pathname: '/trends', params: { openTrendsLens: 'movement' } })}
+        activeOpacity={0.75}
+      >
+        {data.outsideUsual.map((line) => (
+          <Text key={line.key} style={[styles.trendDelta, { color: tabColorFor('/trends') }]}>
+            {line.sentence}
+          </Text>
+        ))}
+        <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>{OUTSIDE_USUAL_CAPTION}</Text>
+      </TouchableOpacity>,
+    );
+  }
+
   // The fourth thing Trends knows, 2026-09-23, and the one that comes out
   // of the ground. The weight leads where there is one, since that is what
   // a garden is measured in, and a crop somebody counts rather than weighs
@@ -3823,6 +3864,8 @@ export default function HomeScreen() {
         return renderSymptomCheckinReminder();
       case 'morningCheckin':
         return renderMorningCheckin();
+      case 'outsideUsual':
+        return renderOutsideUsual();
       case 'todaysCheckin':
         return renderTodaysCheckin();
       case 'logAgain':

@@ -72,7 +72,8 @@ import { contextCaveat } from '../../lib/patternContext';
 import { FACTOR_BAND_EMPTY_LINE, FACTOR_CAVEAT, factorComparisonSentence } from '../../lib/patternFactors';
 import { OUTCOME_WORDS, PATTERN_OUTCOMES, emptyOutcomeSentence, outcomeCountsSentence, type PatternOutcome } from '../../lib/patternOutcome';
 import { DAILY_SCALES, answeredSentence, scaleWord, type DailyScaleKey, type DailyScalePoint } from '../../lib/dailyScales';
-import { usualSentence } from '../../lib/yourUsual';
+import { USUAL_BAND_LABEL, usualBandFor, usualSentence } from '../../lib/yourUsual';
+import { formatSteps, recentOutside, recentOutsideSentence } from '../../lib/outsideUsual';
 import { BEST_WORST_CAVEAT, NOTHING_LEANS, bestWorstRefusal, bestWorstSummary, foodDaysSentence } from '../../lib/bestWorstDays';
 import {
   keywordFromFoodName,
@@ -2683,6 +2684,8 @@ export default function TrendsScreen() {
                         yMax={yMax}
                         valueFormatter={(value) => `${value.toFixed(1)} ${measurementSystem === 'imperial' ? 'lb' : 'kg'}`}
                         emptyMessage="Log a weight reading on Profile to see it trend here."
+                        usualBand={usualBandFor(displayPoints.map((point) => point.value))}
+                        usualBandLabel={USUAL_BAND_LABEL}
                       />
                       {latest ? (
                         <Text style={styles.caption}>
@@ -2714,6 +2717,9 @@ export default function TrendsScreen() {
                   const sleepRange = paddedTrendRange(sleep.map((point) => point.value));
                   const stepsAverage = steps.length > 0 ? steps.reduce((sum, point) => sum + point.value, 0) / steps.length : null;
                   const sleepAverage = sleep.length > 0 ? sleep.reduce((sum, point) => sum + point.value, 0) / sleep.length : null;
+                  // F12: only said when some of the last week sat outside.
+                  const stepsOutside = recentOutsideSentence(recentOutside(steps.map((point) => point.value)), 'days');
+                  const sleepOutside = recentOutsideSentence(recentOutside(sleep.map((point) => point.value)), 'nights');
                   return (
                     <>
                       <TabBand folds={folds} color={TAB_COLOR} id={'trends:movement:steps-per-day'} title={'Steps per day'} icon="walk-outline">
@@ -2723,6 +2729,8 @@ export default function TrendsScreen() {
                           yMin={Math.max(0, stepsRange.yMin)}
                           yMax={stepsRange.yMax}
                           valueFormatter={(value) => `${Math.round(value).toLocaleString()} steps`}
+                          usualBand={usualBandFor(steps.map((point) => point.value))}
+                          usualBandLabel={USUAL_BAND_LABEL}
                           emptyMessage="Nothing recorded in this range. Connect the phone's health store under Life > Movement, or check that step syncing is on in its health app."
                         />
                         {stepsAverage !== null ? (
@@ -2734,10 +2742,11 @@ export default function TrendsScreen() {
                           <Text style={styles.caption}>
                             {usualSentence(
                               steps.map((point) => point.value),
-                              (value) => `${Math.round(value).toLocaleString()} steps`,
+                              formatSteps,
                             )}
                           </Text>
                         ) : null}
+                        {stepsOutside ? <Text style={styles.caption}>{stepsOutside}</Text> : null}
                         </View>
                       </TabBand>
                       <TabBand folds={folds} color={TAB_COLOR} id={'trends:movement:hours-slept'} title={'Hours slept'} icon="moon-outline">
@@ -2747,6 +2756,8 @@ export default function TrendsScreen() {
                           yMin={Math.max(0, sleepRange.yMin)}
                           yMax={sleepRange.yMax}
                           valueFormatter={(value) => `${value.toFixed(1)} h`}
+                          usualBand={usualBandFor(sleep.map((point) => point.value))}
+                          usualBandLabel={USUAL_BAND_LABEL}
                           emptyMessage="No sleep sessions in this range. Sleep needs a watch, ring or sleep app that writes to Health Connect; without one there is nothing to read."
                         />
                         {sleepAverage !== null ? (
@@ -2762,6 +2773,7 @@ export default function TrendsScreen() {
                             )}
                           </Text>
                         ) : null}
+                        {sleepOutside ? <Text style={styles.caption}>{sleepOutside}</Text> : null}
                         </View>
                       </TabBand>
                     </>
@@ -2958,6 +2970,8 @@ export default function TrendsScreen() {
                           referenceLineLabel={referenceLine != null ? 'Typical range midpoint' : undefined}
                           valueFormatter={(value) => `${value} ${latest?.unit ?? test?.rangeUnit ?? ''}`.trim()}
                           emptyMessage="Log a result for this test on Insights' own Labs lens to see it trend here."
+                          usualBand={latest ? usualBandFor((labSeries ?? []).filter((row) => row.unit === latest.unit).map((row) => row.value)) : null}
+                          usualBandLabel={USUAL_BAND_LABEL}
                         />
                         {latest ? (
                           <Text style={styles.caption}>

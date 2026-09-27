@@ -276,6 +276,9 @@ export type HomeSectionKey =
   // D7 of the competitive build plan (2026-09-26): last night's readings
   // beside the usual range, how somebody slept and their energy.
   | 'morningCheckin'
+  // F12 of the competitive build plan (2026-09-26): a reading outside the
+  // usual range, and nothing at all on any other day.
+  | 'outsideUsual'
   | 'todaysCheckin'
   // Quick-log, 2026-08-30 -- see Home's own renderLogAgain for why this sits
   // high in the default order: it exists to get a meal logged in seconds, and
@@ -418,6 +421,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'weekTrend',
   'varietyThisWeek',
   'keepingUp',
+  'outsideUsual',
   'gardenYield',
   // Reports.
   'makeReport',
@@ -470,6 +474,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   lowStimulation: 'Low Stimulation',
   symptomCheckinReminder: 'Symptom Check-In',
   morningCheckin: 'Morning Check-In',
+  outsideUsual: 'Outside Your Usual',
   todaysCheckin: "Today's Check-In",
   logAgain: 'Log a Meal',
   groceryList: 'Grocery List',
