@@ -19,7 +19,10 @@ import {
   type CropGroup,
   type CropGuide,
 } from '../lib/cropGuides';
+import { CROP_PROBLEMS } from '../lib/cropProblems';
 import {
+  LIVING_SOIL_GUIDE,
+  LIVING_SOIL_SOURCES,
   NUTRIENT_LOOK_ALIKES,
   PLANT_NUTRIENTS,
   SOIL_GUIDE_SOURCES,
@@ -27,6 +30,7 @@ import {
   type GuideSource,
   type PlantNutrient,
   type PlantNutrientKey,
+  WHERE_TO_ASK,
 } from '../lib/plantNutrients';
 
 // How to grow each crop, and how to read a plant's leaves, on the
@@ -45,10 +49,17 @@ import {
 // browser, and a crop's disorder names its nutrient as a link that opens
 // that nutrient's account here.
 //
-// The data is lib/cropGuides.ts and lib/plantNutrients.ts; a planting on
+// Each crop carries the three problems it is known for, each put right
+// from the soil first (lib/cropProblems.ts), and two more bands say how
+// living soil and Korean Natural Farming work and where to ask a person
+// for help. 2026-09-26: "we are trying to promote not using chemicals to
+// grow their crops and instead make live soil through composting and
+// other methods such as Korean Natural Farming."
+//
+// The data is lib/cropGuides.ts, lib/cropProblems.ts and lib/plantNutrients.ts; a planting on
 // Plots & Plantings opens its crop here through openCropKey.
 
-type Band = 'crops' | 'leaves' | null;
+type Band = 'crops' | 'leaves' | 'soil' | 'help' | null;
 
 const GROUP_ORDER: CropGroup[] = ['vegetables', 'herbs', 'fruit', 'warm'];
 
@@ -56,8 +67,8 @@ const CROP_ANCHOR = (key: string) => `crop:${key}`;
 const NUTRIENT_ANCHOR = (key: PlantNutrientKey) => `nutrient:${key}`;
 
 export const CROP_GUIDE_HELP = {
-  heading: 'How to Grow Each Crop and Reading a Plant’s Leaves',
-  body: 'The two bands at the top of this lens. How to Grow Each Crop covers vegetables, herbs, fruit and warm-climate and tropical crops: the sun and soil each one wants, the soil pH it grows best in, how hungry it is, how to sow and space it, when it is ready, how to water it, and the shortages and disorders it is known for. Reading a Plant’s Leaves starts from where the trouble shows, the older leaves or the newest ones, since that alone halves the list, and gives for each nutrient what it looks like, what causes it, the fix that works with the soil and the conventional fix. Figures are the ranges the advisory services commonly give; the page linked under each guide has the detail for your climate, and PubMed has the research. A planting on Plots & Plantings with a guide shows a How to grow link that opens it here.',
+  heading: 'Growing Crops with Living Soil',
+  body: 'The four bands at the top of this lens. How to Grow Each Crop covers vegetables, herbs, fruit and warm-climate and tropical crops: the sun and soil each one wants, the soil pH it grows best in, how hungry it is, how to sow and space it, when it is ready, how to water it, and three problems that crop is known for, each with what it looks like, why it happens and how to put it right by feeding the soil rather than the plant. Reading a Plant’s Leaves starts from where the trouble shows, the older leaves or the newest ones, since that alone halves the list. Living Soil explains compost, no-dig, cover crops and Korean Natural Farming, and says plainly how strong the evidence for each is. Where to Ask for Help lists people who answer gardening questions for free. Figures are the ranges the advisory services commonly give; the page linked under each guide has the detail for your climate, and PubMed has the research. A planting on Plots & Plantings with a guide shows a How to grow link that opens it here.',
 };
 
 export function CropGuideSection({
@@ -178,26 +189,36 @@ export function CropGuideSection({
                 {fact('Ready', guide.ready)}
                 {fact('Water', guide.water)}
                 {fact('Growing it well', guide.grow)}
-                {guide.watchFor.length > 0 ? (
-                  <View style={styles.fact}>
-                    <Text style={styles.detailLabel}>Watch for</Text>
-                    {guide.watchFor.map((item) => (
-                      <View key={item.label} style={styles.watchItem}>
+                <View style={styles.fact}>
+                  <Text style={styles.detailLabel}>Three problems to know</Text>
+                  {(CROP_PROBLEMS[guide.key] ?? []).map((problem) => (
+                    <View key={problem.label} style={styles.watchItem}>
+                      <Text style={styles.watchLabel}>{problem.label}</Text>
+                      <Text style={styles.detailText}>{problem.looks}</Text>
+                      <Text style={styles.detailText}>
+                        <Text style={styles.watchLabel}>Why. </Text>
+                        {problem.why}
+                      </Text>
+                      <Text style={styles.detailText}>
+                        <Text style={styles.watchLabel}>Put it right. </Text>
+                        {problem.fix}
+                      </Text>
+                      {problem.insteadOf ? (
                         <Text style={styles.detailText}>
-                          <Text style={styles.watchLabel}>{item.label}. </Text>
-                          {item.note}
+                          <Text style={styles.watchLabel}>Why not the bag or bottle. </Text>
+                          {problem.insteadOf}
                         </Text>
-                        {item.nutrient ? (
-                          <TouchableOpacity onPress={() => openNutrient(item.nutrient!)} activeOpacity={0.7}>
-                            <Text style={styles.inlineLink}>
-                              What {PLANT_NUTRIENTS.find((n) => n.key === item.nutrient)?.name.toLowerCase()} shortage looks like
-                            </Text>
-                          </TouchableOpacity>
-                        ) : null}
-                      </View>
-                    ))}
-                  </View>
-                ) : null}
+                      ) : null}
+                      {problem.nutrient ? (
+                        <TouchableOpacity onPress={() => openNutrient(problem.nutrient!)} activeOpacity={0.7}>
+                          <Text style={styles.inlineLink}>
+                            What {PLANT_NUTRIENTS.find((n) => n.key === problem.nutrient)?.name.toLowerCase()} shortage looks like
+                          </Text>
+                        </TouchableOpacity>
+                      ) : null}
+                    </View>
+                  ))}
+                </View>
                 {renderSources(cropSources(guide))}
               </View>
             ) : null}
@@ -230,7 +251,7 @@ export function CropGuideSection({
                 {fact('What it looks like', nutrient.looks)}
                 {fact('Why it happens', nutrient.causes)}
                 {fact('Working with the soil', nutrient.withTheSoil)}
-                {fact('The conventional fix', nutrient.conventional)}
+                {fact('Why not the bag or bottle', nutrient.whyNotChemical)}
                 {fact('Before you treat', nutrient.caution)}
                 {renderSources(nutrient.sources)}
               </View>
@@ -269,7 +290,7 @@ export function CropGuideSection({
         contentStyle={styles.bandBody}
       >
         <Text style={styles.topicDescription}>
-          Sun, soil, pH, sowing, spacing, water and what each crop is known to run short of, with the advisory page and the research behind it. Figures are typical ranges; the linked page has the detail for your climate. In a hot climate, cool-season crops go in during the coolest months.
+          Sun, soil, pH, sowing, spacing, water and three problems each crop is known for, each put right from the soil first, with the advisory page, an organic growing guide and the research behind it. Figures are typical ranges; the linked page has the detail for your climate. In a hot climate, cool-season crops go in during the coolest months.
         </Text>
         <EntrySearchInput placeholder="Find a crop..." style={styles.searchField} tabColor={tabColor} onDebouncedChange={setQuery} />
         {matches ? (
@@ -319,6 +340,54 @@ export function CropGuideSection({
             {renderSources(SOIL_GUIDE_SOURCES)}
           </View>
         ))}
+      </HomeSectionBand>
+
+      <HomeSectionBand
+        kind="fold"
+        title="Living Soil: Compost and Korean Natural Farming"
+        icon="earth-outline"
+        color={tabColor}
+        expanded={openBand === 'soil'}
+        onToggle={() => toggleBand('soil')}
+        contentStyle={styles.bandBody}
+      >
+        <Text style={styles.topicDescription}>
+          Feed the soil and the soil feeds the plant. How compost, no-dig beds, cover crops, liquid feeds and Korean Natural Farming work, why this app leans away from synthetic fertiliser and sprays, and how strong the evidence is for each.
+        </Text>
+        <View style={styles.detailBody}>
+          {LIVING_SOIL_GUIDE.map((item) => (
+            <View key={item.heading} style={styles.fact}>
+              <Text style={styles.detailLabel}>{item.heading}</Text>
+              <Text style={styles.detailText}>{item.body}</Text>
+            </View>
+          ))}
+          {renderSources(LIVING_SOIL_SOURCES)}
+        </View>
+      </HomeSectionBand>
+
+      <HomeSectionBand
+        kind="fold"
+        title={`Where to Ask for Help (${WHERE_TO_ASK.length})`}
+        icon="help-buoy-outline"
+        color={tabColor}
+        expanded={openBand === 'help'}
+        onToggle={() => toggleBand('help')}
+        contentStyle={styles.bandBody}
+      >
+        <Text style={styles.topicDescription}>
+          People and organisations who answer gardening questions, most of them for free. A clear photo of the whole plant and a close one of the problem gets the best answer.
+        </Text>
+        <View style={styles.detailBody}>
+          {WHERE_TO_ASK.map((place) => (
+            <View key={place.url} style={styles.fact}>
+              <TouchableOpacity onPress={() => Linking.openURL(place.url)} activeOpacity={0.7} style={styles.sourceRow}>
+                <Ionicons name="open-outline" size={14} color={tabColor} />
+                <Text style={styles.sourceText}>{place.heading}</Text>
+              </TouchableOpacity>
+              <Text style={styles.detailText}>{place.body}</Text>
+            </View>
+          ))}
+        </View>
       </HomeSectionBand>
     </View>
   );

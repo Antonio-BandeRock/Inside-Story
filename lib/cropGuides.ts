@@ -1,6 +1,7 @@
 // How to grow each crop: the soil it wants, how to sow and space it, when
-// it is ready, and the shortages and disorders it is known for, with every
-// guide pointing out to the advisory service it stands on and to PubMed.
+// it is ready, and the three problems it is known for (lib/cropProblems.ts),
+// with every guide pointing out to the advisory service it stands on, to
+// an organic growing guide, and to PubMed.
 //
 // 2026-09-26, direct request: "In the Garden tab, there needs to be
 // information about how to grow each thing, what type of soil it likes,
@@ -24,9 +25,18 @@
 // tomatoes, fruit" and "Tomato" both open the tomato guide. Longest alias
 // wins, so "Squash, zucchini" is a courgette before it is a squash.
 //
+// The crop problems, and the sources after a guide, lean on living soil
+// rather than a bag or bottle (2026-09-26, direct statement: "we are trying
+// to promote not using chemicals to grow their crops and instead make live
+// soil through composting and other methods such as Korean Natural
+// Farming, with chemical be persuaded against"). The persuasion stays
+// truthful: where something is only practitioner experience, as most of
+// Korean Natural Farming is, lib/plantNutrients.ts says so.
+//
 // Pure data and two lookups, no React, checked without a phone.
 
-import { pubmedSearchUrl, type GuideSource, type PlantNutrientKey } from './plantNutrients';
+import { CROP_ORGANIC_SOURCES } from './cropProblems';
+import { GO_COMPOST, GO_MULCH, GO_NO_DIG, KNF_IMO, pubmedSearchUrl, type GuideSource } from './plantNutrients';
 
 export type CropGroup = 'vegetables' | 'herbs' | 'fruit' | 'warm';
 
@@ -35,15 +45,6 @@ export const CROP_GROUP_LABELS: Record<CropGroup, string> = {
   herbs: 'Herbs',
   fruit: 'Fruit',
   warm: 'Warm Climate and Tropical',
-};
-
-export type CropWatchFor = {
-  // The nutrient behind it, when there is one, so the row can open that
-  // nutrient's whole account. A disorder with no nutrient (clubroot,
-  // bolting) leaves it out.
-  nutrient?: PlantNutrientKey;
-  label: string;
-  note: string;
 };
 
 export type CropGuide = {
@@ -64,7 +65,6 @@ export type CropGuide = {
   ready: string;
   water: string;
   grow: string;
-  watchFor: CropWatchFor[];
   sources: GuideSource[];
 };
 
@@ -78,63 +78,6 @@ const edis = (id: string, label: string): GuideSource => ({
 });
 const FLORIDA_VEG = edis('VH021', 'Florida Vegetable Gardening Guide');
 const TROPICAL_FRUIT = edis('MG373', 'Tropical and subtropical fruit crops');
-
-// The shared disorders, written once so the same thing is said the same
-// way on every crop that has it.
-const BLOSSOM_END_ROT: CropWatchFor = {
-  nutrient: 'Ca',
-  label: 'Blossom-end rot',
-  note: 'A sunken dark patch at the flower end of the fruit. Calcium that did not reach the fruit because watering was uneven; steady deep watering and mulch fix it, extra calcium usually does not.',
-};
-const MG_FROM_POTASH: CropWatchFor = {
-  nutrient: 'Mg',
-  label: 'Yellowing between the veins of older leaves',
-  note: 'Magnesium shortage, often brought on by heavy high-potash feeding. Ease off the potash and water Epsom salts onto the soil.',
-};
-const CLUBROOT: CropWatchFor = {
-  label: 'Clubroot',
-  note: 'Swollen, distorted roots and plants that wilt on warm days. A soil-borne disease that thrives in acid, wet soil and persists for many years; liming to about pH 7 and good drainage hold it back, and it is not a nutrient shortage.',
-};
-const BRASSICA_BORON: CropWatchFor = {
-  nutrient: 'B',
-  label: 'Hollow or cracked stems',
-  note: 'Boron shortage, worst on light soils after dry spells or over-liming.',
-};
-const WHIPTAIL: CropWatchFor = {
-  nutrient: 'Mo',
-  label: 'Whiptail',
-  note: 'New leaves narrowed to little more than the midrib. Molybdenum locked away by acid soil; lime to around pH 6.5.',
-};
-const TIPBURN: CropWatchFor = {
-  nutrient: 'Ca',
-  label: 'Tipburn',
-  note: 'Browned edges on the inner leaves. Calcium not reaching fast-growing leaves in heat or uneven watering; keep the soil evenly moist.',
-};
-const IRON_ON_ALKALINE: CropWatchFor = {
-  nutrient: 'Fe',
-  label: 'Yellow young leaves with green veins',
-  note: 'Iron locked away by an alkaline or chalky soil, or hard tap water. Lower the pH, grow it in a container of ericaceous compost, or water with rainwater; chelated iron treats the symptom.',
-};
-const PALE_OLD_LEAVES: CropWatchFor = {
-  nutrient: 'N',
-  label: 'Pale old leaves, slow growth',
-  note: 'Nitrogen shortage. Compost, a nettle or comfrey feed, or a general fertiliser.',
-};
-const POTASH_SCORCH: CropWatchFor = {
-  nutrient: 'K',
-  label: 'Brown, crisp leaf edges',
-  note: 'Potassium shortage, common on light soils. Comfrey feed, or sulphate of potash.',
-};
-const ZINC_LITTLE_LEAF: CropWatchFor = {
-  nutrient: 'Zn',
-  label: 'Small bunched new leaves',
-  note: 'Zinc shortage, usual on alkaline or limestone soils. A zinc foliar spray after a soil test.',
-};
-const MN_ALKALINE: CropWatchFor = {
-  nutrient: 'Mn',
-  label: 'Speckled yellow young leaves',
-  note: 'Manganese locked away by alkaline or over-limed soil.',
-};
 
 export const CROP_GUIDES: CropGuide[] = [
   // ---------------------------------------------------------------- Vegetables
@@ -154,13 +97,7 @@ export const CROP_GUIDES: CropGuide[] = [
     spacing: '45 to 60 cm apart; bush kinds need more room than cordons.',
     ready: 'About 60 to 85 days from planting out, depending on kind.',
     water: 'Deeply and evenly, at the soil rather than on the leaves. Uneven watering causes split fruit and blossom-end rot.',
-    grow: 'Stake or cage cordon kinds and pinch out the side shoots that form where a leaf meets the stem. Mulch once the soil is warm. Change to a high-potash feed when the first fruits set. Basil and marigolds grown alongside draw in the pollinators and predators that keep pests down.',
-    watchFor: [
-      BLOSSOM_END_ROT,
-      MG_FROM_POTASH,
-      { nutrient: 'K', label: 'Blotchy ripening', note: 'Hard green or yellow patches on ripe fruit. Potassium shortage, or fruit overheated in strong sun.' },
-      { nutrient: 'P', label: 'Purple seedlings', note: 'Usually cold soil rather than a shortage; they green up as it warms.' },
-    ],
+    grow: 'Stake or cage cordon kinds and pinch out the side shoots that form where a leaf meets the stem. Mulch once the soil is warm. Once the first fruits set, water on comfrey liquid every week or two. Basil and marigolds grown alongside draw in the pollinators and predators that keep pests down.',
     sources: [rhs('vegetables', 'tomatoes', 'Tomatoes'), FLORIDA_VEG],
   },
   {
@@ -180,7 +117,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 60 to 90 days from planting out for green fruit, longer for fully coloured.',
     water: 'Evenly. Dry spells drop flowers and cause blossom-end rot.',
     grow: 'Stake tall kinds. Too much nitrogen gives leaves and few fruit. Hot kinds grow as short-lived perennials in frost-free climates.',
-    watchFor: [BLOSSOM_END_ROT, MG_FROM_POTASH],
     sources: [rhs('vegetables', 'peppers', 'Peppers'), FLORIDA_VEG],
   },
   {
@@ -200,7 +136,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 70 to 85 days from planting out, while the skin is still glossy.',
     water: 'Evenly and generously.',
     grow: 'Stake the plants. In a short season, limit each plant to five or six fruits so they ripen.',
-    watchFor: [MG_FROM_POTASH, POTASH_SCORCH],
     sources: [rhs('vegetables', 'aubergines', 'Aubergines'), FLORIDA_VEG],
   },
   {
@@ -220,11 +155,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Earlies about 10 to 12 weeks after planting, maincrop 15 to 20 weeks.',
     water: 'Steadily once tubers are forming, which is around flowering.',
     grow: 'Draw soil up around the stems as they grow (earthing up) so no tuber sees light; green potatoes are toxic. Do not lime before potatoes. Rotate beds to keep blight and pests from building up.',
-    watchFor: [
-      { label: 'Common scab', note: 'Rough corky patches on the skin. Worse in dry, alkaline or freshly limed soil; water through tuber formation and do not lime. Not a nutrient shortage.' },
-      MG_FROM_POTASH,
-      POTASH_SCORCH,
-    ],
     sources: [rhs('vegetables', 'potatoes', 'Potatoes'), edis('HS183', 'Potato production')],
   },
   {
@@ -244,7 +174,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Loose-leaf in about 30 days, hearting kinds in 60 to 80.',
     water: 'Little and often; dry soil makes lettuce bitter and quick to run to seed.',
     grow: 'Heat and long days make it bolt (run to seed). In hot climates it is a cool-season crop.',
-    watchFor: [TIPBURN, PALE_OLD_LEAVES],
     sources: [rhs('vegetables', 'lettuce', 'Lettuce'), FLORIDA_VEG],
   },
   {
@@ -264,7 +193,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 40 to 50 days.',
     water: 'Keep evenly moist.',
     grow: 'In hot weather, Malabar spinach or chard are easier leafy greens.',
-    watchFor: [PALE_OLD_LEAVES, MN_ALKALINE],
     sources: [rhs('vegetables', 'spinach', 'Spinach')],
   },
   {
@@ -284,7 +212,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 50 to 60 days, then picked leaf by leaf for months.',
     water: 'Keep evenly moist.',
     grow: 'Takes heat far better than spinach. Pick outer leaves and let the centre keep growing.',
-    watchFor: [MN_ALKALINE, { nutrient: 'B', label: 'Cracked stalks', note: 'Boron shortage on light soils.' }],
     sources: [rhs('vegetables', 'chard', 'Chard')],
   },
   {
@@ -304,7 +231,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 55 to 75 days, then picked for months.',
     water: 'Keep moist, especially when young.',
     grow: 'The hardiest brassica; frost sweetens the leaves. Net against cabbage white caterpillars and pigeons.',
-    watchFor: [CLUBROOT, MG_FROM_POTASH, BRASSICA_BORON],
     sources: [rhs('vegetables', 'kale', 'Kale')],
   },
   {
@@ -324,7 +250,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 70 to 120 days depending on kind.',
     water: 'Keep evenly moist; a heavy watering after drought splits heads.',
     grow: 'Plant firmly and deeply. Net against caterpillars and birds. Rotate brassicas to a new bed each year.',
-    watchFor: [CLUBROOT, TIPBURN, WHIPTAIL, BRASSICA_BORON],
     sources: [rhs('vegetables', 'cabbages', 'Cabbages')],
   },
   {
@@ -344,7 +269,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Calabrese in about 60 to 90 days; cut before the flower buds open.',
     water: 'Keep moist; dry spells make heads small and early.',
     grow: 'Cutting the main head brings on side shoots for weeks.',
-    watchFor: [BRASSICA_BORON, WHIPTAIL, CLUBROOT],
     sources: [rhs('vegetables', 'broccoli', 'Broccoli')],
   },
   {
@@ -364,7 +288,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 60 to 100 days from planting out.',
     water: 'Steady moisture throughout.',
     grow: 'The most demanding brassica. Fold leaves over a forming head to keep it white in sun.',
-    watchFor: [WHIPTAIL, BRASSICA_BORON, CLUBROOT],
     sources: [rhs('vegetables', 'cauliflower', 'Cauliflowers')],
   },
   {
@@ -384,7 +307,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'From about 90 days, picked from the bottom up through autumn and winter.',
     water: 'Keep moist through summer.',
     grow: 'Stake tall plants in windy gardens. Too much nitrogen also gives open sprouts.',
-    watchFor: [BRASSICA_BORON, MG_FROM_POTASH, WHIPTAIL],
     sources: [rhs('vegetables', 'brussels-sprouts', 'Brussels sprouts')],
   },
   {
@@ -404,7 +326,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 45 to 60 days, when the swollen stem is the size of a tennis ball.',
     water: 'Steady moisture keeps it tender.',
     grow: 'Faster and more heat-tolerant than most brassicas.',
-    watchFor: [BRASSICA_BORON, CLUBROOT],
     sources: [rhs('vegetables', 'kohl-rabi', 'Kohl rabi')],
   },
   {
@@ -424,7 +345,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 30 to 45 days.',
     water: 'Keep moist; dry soil makes it bolt.',
     grow: 'Cut whole heads, or pick leaves young.',
-    watchFor: [TIPBURN, BRASSICA_BORON],
     sources: [rhs('vegetables', 'pak-choi', 'Pak choi')],
   },
   {
@@ -444,7 +364,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 21 to 40 days.',
     water: 'Keep moist; heat and dry soil make it hot and quick to flower.',
     grow: 'The flowers are edible and loved by bees.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('vegetables', 'rocket', 'Rocket')],
   },
   {
@@ -464,10 +383,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 70 to 80 days, earlier for baby carrots.',
     water: 'Evenly; heavy watering after drought splits roots.',
     grow: 'Carrot fly finds carrots by scent, so thin in the evening and cover with fine mesh, or grow them among onions or in a raised bed. Grow in deep containers on heavy clay.',
-    watchFor: [
-      { label: 'Forked roots', note: 'Stones, compacted soil or fresh manure. Not a nutrient shortage.' },
-      { nutrient: 'Ca', label: 'Cavity spot', note: 'Small sunken lesions on the root, linked with soil conditions and calcium; rotate and avoid waterlogging.' },
-    ],
     sources: [rhs('vegetables', 'carrots', 'Carrots')],
   },
   {
@@ -487,10 +402,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 55 to 70 days; the leaves are edible too.',
     water: 'Evenly; dry spells make roots woody.',
     grow: 'Pull when golf-ball to tennis-ball size for tender roots.',
-    watchFor: [
-      { nutrient: 'B', label: 'Black patches inside the root', note: 'Boron shortage (heart rot), on light or over-limed soils.' },
-      MN_ALKALINE,
-    ],
     sources: [rhs('vegetables', 'beetroot', 'Beetroot')],
   },
   {
@@ -510,7 +421,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 25 to 30 days for summer radishes.',
     water: 'Keep moist; heat and dry soil make them hot, pithy and quick to bolt.',
     grow: 'Useful sown alongside slow carrots and parsnips to mark the row.',
-    watchFor: [BRASSICA_BORON],
     sources: [rhs('vegetables', 'radishes', 'Radishes')],
   },
   {
@@ -530,10 +440,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 40 to 60 days; the tops are edible greens.',
     water: 'Keep moist.',
     grow: 'Pull young for tenderness.',
-    watchFor: [
-      { nutrient: 'B', label: 'Brown heart', note: 'Brown, watery flesh inside the root. Boron shortage on light soils.' },
-      CLUBROOT,
-    ],
     sources: [rhs('vegetables', 'turnips', 'Turnips')],
   },
   {
@@ -553,7 +459,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 120 days or more; frost sweetens them.',
     water: 'Steady moisture.',
     grow: 'The sap can blister skin in sunlight, so wear gloves handling the leaves.',
-    watchFor: [{ label: 'Canker', note: 'Orange-brown rot on the shoulder of the root. A disease worse in acid, damaged or fresh-manured soil; resistant kinds help. Not a nutrient shortage.' }],
     sources: [rhs('vegetables', 'parsnips', 'Parsnips')],
   },
   {
@@ -573,7 +478,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 90 to 150 days; ready when the tops yellow and fall over.',
     water: 'Only in dry spells, and stop once bulbs swell.',
     grow: 'Weed carefully; onions cannot compete. Too much nitrogen late in the season delays bulbing and spoils storage.',
-    watchFor: [{ label: 'White rot and downy mildew', note: 'Diseases, not shortages; rotate onions to a new bed each year.' }],
     sources: [rhs('vegetables', 'onions', 'Onions'), FLORIDA_VEG],
   },
   {
@@ -593,7 +497,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Midsummer, when the leaves yellow; each set becomes a cluster.',
     water: 'Only in long dry spells.',
     grow: 'Keep weeded, and dry the clusters in the sun before storing.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('vegetables', 'shallots', 'Shallots')],
   },
   {
@@ -613,7 +516,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'The following summer, when the lower leaves yellow.',
     water: 'In dry spells in spring, then stop as leaves yellow.',
     grow: 'Snap off the flower stalks of hardneck kinds (the scapes are good to eat). Dry bulbs well before storing.',
-    watchFor: [{ label: 'Rust', note: 'Orange spots on the leaves. A fungus, worse in humid weather and crowded or high-nitrogen plantings.' }],
     sources: [rhs('vegetables', 'garlic', 'Garlic')],
   },
   {
@@ -633,7 +535,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 120 to 150 days, and hardy enough to stand through winter.',
     water: 'Keep moist.',
     grow: 'Draw soil up the stems for longer white shanks.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('vegetables', 'leeks', 'Leeks')],
   },
   {
@@ -653,10 +554,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 60 to 70 days.',
     water: 'Once flowering starts, water well; that is when pods form.',
     grow: 'Bacteria in the root nodules fix nitrogen from the air, so after harvest cut the plants at soil level and leave the roots in for the next crop.',
-    watchFor: [
-      { nutrient: 'Mn', label: 'Marsh spot', note: 'A brown patch inside the seed. Manganese shortage on alkaline soil.' },
-      { nutrient: 'Mo', label: 'Pale plants with few nodules', note: 'Molybdenum locked away in acid soil, which the nitrogen-fixing bacteria need.' },
-    ],
     sources: [rhs('vegetables', 'peas', 'Peas')],
   },
   {
@@ -676,7 +573,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 50 to 65 days; pick often and young to keep them coming.',
     water: 'Well once flowering.',
     grow: 'Like peas, they fix nitrogen from the air. The same plant gives fresh pods, or dried beans if left to ripen.',
-    watchFor: [MN_ALKALINE, ZINC_LITTLE_LEAF],
     sources: [rhs('vegetables', 'french-beans', 'French beans'), FLORIDA_VEG],
   },
   {
@@ -696,7 +592,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 70 to 90 days.',
     water: 'Generously in dry weather; dry roots and hot nights make flowers drop without setting.',
     grow: 'The red flowers bring in bumblebees. Pick every few days.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('vegetables', 'runner-beans', 'Runner beans')],
   },
   {
@@ -716,7 +611,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 80 to 100 days from a spring sowing.',
     water: 'At flowering in dry spells.',
     grow: 'Pinch out the tips once the first pods set, which removes the blackfly that cluster there. People with G6PD deficiency should not eat them.',
-    watchFor: [{ label: 'Chocolate spot', note: 'Brown spots on the leaves. A fungus, worse in damp, crowded plantings; space them well.' }, MN_ALKALINE],
     sources: [rhs('vegetables', 'broad-beans', 'Broad beans')],
   },
   {
@@ -736,7 +630,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 50 to 70 days.',
     water: 'Steadily; stress makes the fruit bitter.',
     grow: 'Pick often and young. Outdoor kinds need bees to pollinate; all-female greenhouse kinds do not and go bitter if pollinated.',
-    watchFor: [MG_FROM_POTASH, POTASH_SCORCH, PALE_OLD_LEAVES],
     sources: [rhs('vegetables', 'cucumbers', 'Cucumbers'), FLORIDA_VEG],
   },
   {
@@ -756,7 +649,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 45 to 55 days; pick at 10 to 15 cm.',
     water: 'Generously at the base.',
     grow: 'Small fruits that shrivel from the tip were not pollinated; there are more bees later in the season, or move pollen from a male flower by hand.',
-    watchFor: [BLOSSOM_END_ROT, MG_FROM_POTASH, { label: 'Powdery mildew', note: 'White dust on the leaves late in the season. A fungus encouraged by dry roots; water the soil, not the leaves.' }],
     sources: [rhs('vegetables', 'courgettes', 'Courgettes'), FLORIDA_VEG],
   },
   {
@@ -776,7 +668,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 85 to 120 days; the stalk dries and the skin hardens so a fingernail cannot dent it.',
     water: 'Deeply at the base until fruits swell.',
     grow: 'Cure in the sun for a week or two after cutting for long storage. The Three Sisters (corn, beans and squash together) is the traditional way of growing them.',
-    watchFor: [BLOSSOM_END_ROT, MG_FROM_POTASH],
     sources: [rhs('vegetables', 'squash', 'Squash'), rhs('vegetables', 'pumpkins', 'Pumpkins'), FLORIDA_VEG],
   },
   {
@@ -796,12 +687,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 70 to 100 days; ready when the tassels at the cob tip turn brown and a pressed kernel shows milky juice.',
     water: 'Well at tasselling and while cobs fill.',
     grow: 'Keep sweet kinds apart from popcorn or field corn, which spoil their sweetness if they cross.',
-    watchFor: [
-      { nutrient: 'N', label: 'Yellow V down the midrib of lower leaves', note: 'Nitrogen shortage, the classic corn symptom.' },
-      { nutrient: 'P', label: 'Purple leaves on young plants', note: 'Usually cold soil; phosphorus shortage if it lasts.' },
-      { nutrient: 'Zn', label: 'Pale stripes either side of the midrib', note: 'Zinc shortage on alkaline soils.' },
-      POTASH_SCORCH,
-    ],
     sources: [rhs('vegetables', 'sweetcorn', 'Sweetcorn'), FLORIDA_VEG],
   },
   {
@@ -821,11 +706,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 100 to 130 days.',
     water: 'Constantly moist; dry spells make stringy, bitter stems.',
     grow: 'Planting in a block shades the stems and keeps them pale and tender.',
-    watchFor: [
-      { nutrient: 'B', label: 'Stems cracked across', note: 'Boron shortage.' },
-      { nutrient: 'Ca', label: 'Blackheart', note: 'The heart leaves brown and rot. Calcium not reaching them; steady watering.' },
-      MG_FROM_POTASH,
-    ],
     sources: [rhs('vegetables', 'celery', 'Celery')],
   },
   {
@@ -845,7 +725,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Cut nothing the first two years, lightly in the third, then for six to eight weeks each spring.',
     water: 'In dry spells while establishing.',
     grow: 'Let the ferny growth stand after harvest to feed the crowns, and mulch with compost each spring.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('vegetables', 'asparagus', 'Asparagus')],
   },
   {
@@ -865,7 +744,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Pull no stalks the first year, a few the second, then until early summer each year.',
     water: 'In dry spells.',
     grow: 'The leaves are poisonous (oxalic acid); eat only the stalks and compost the leaves. Needs a winter chill, so it struggles in the tropics.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('vegetables', 'rhubarb', 'Rhubarb')],
   },
   {
@@ -885,7 +763,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'From the second summer, cut before the scales open.',
     water: 'In dry spells.',
     grow: 'Unpicked heads open into purple thistle flowers bees love. Replace plants every three or four years.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('vegetables', 'globe-artichokes', 'Globe artichokes')],
   },
   {
@@ -905,7 +782,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'From autumn, once the stems die back.',
     water: 'Rarely needed.',
     grow: 'Any tuber left in the ground regrows, so give them a bed of their own. Tall stems make a summer windbreak.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('vegetables', 'jerusalem-artichokes', 'Jerusalem artichokes')],
   },
 
@@ -927,7 +803,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Pick from about 30 days.',
     water: 'In the morning, at the base; wet evenings encourage rot.',
     grow: 'Pinch out the tips to make bushy plants and stop it flowering. A perennial in frost-free climates.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('herbs', 'basil', 'Basil')],
   },
   {
@@ -947,7 +822,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 70 to 90 days from sowing.',
     water: 'Keep moist.',
     grow: 'A biennial: it runs to seed in its second year, when the flowers feed hoverflies.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('herbs', 'parsley', 'Parsley')],
   },
   {
@@ -967,7 +841,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Leaves from about 30 days, seed from about 90.',
     water: 'Keep moist; dry soil makes it bolt.',
     grow: 'Heat and long days bring on flowering fast, so in hot climates it is a cool-season crop. The seeds are the spice coriander.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('herbs', 'coriander', 'Coriander')],
   },
   {
@@ -987,7 +860,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Pick from spring to autumn.',
     water: 'Keep moist.',
     grow: 'Spreads fast by underground runners, so grow it in a pot, sunk in the ground if you like.',
-    watchFor: [{ label: 'Mint rust', note: 'Orange pustules on distorted shoots. A fungus; cut affected stems to the ground and move the mint.' }],
     sources: [rhs('herbs', 'mint', 'Mint')],
   },
   {
@@ -1007,7 +879,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Pick all year once established.',
     water: 'Little once established.',
     grow: 'A Mediterranean shrub; rich feeding gives soft, weakly flavoured growth. Trim after flowering.',
-    watchFor: [{ label: 'Root rot', note: 'Sudden browning and death in waterlogged soil. Drainage, not feeding.' }],
     sources: [rhs('herbs', 'rosemary', 'Rosemary')],
   },
   {
@@ -1027,7 +898,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Pick all year.',
     water: 'Rarely.',
     grow: 'Trim after flowering to stop it turning woody. Bees work the flowers constantly.',
-    watchFor: [{ label: 'Rot in wet soil', note: 'Drainage, not feeding.' }],
     sources: [rhs('herbs', 'thyme', 'Thyme')],
   },
   {
@@ -1047,7 +917,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Pick from early summer; flavour peaks just before flowering.',
     water: 'Rarely.',
     grow: 'Leave some to flower for the bees and butterflies.',
-    watchFor: [{ label: 'Rot in wet soil', note: 'Drainage, not feeding.' }],
     sources: [rhs('herbs', 'oregano', 'Oregano')],
   },
   {
@@ -1067,7 +936,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Pick all year.',
     water: 'Rarely once established.',
     grow: 'Prune lightly in spring and replace woody plants every few years.',
-    watchFor: [{ label: 'Rot in wet soil', note: 'Drainage, not feeding.' }],
     sources: [rhs('herbs', 'sage', 'Sage')],
   },
   {
@@ -1087,7 +955,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Leaves from about 40 days.',
     water: 'Keep moist; dry soil makes it bolt.',
     grow: 'Flowers draw in hoverflies and parasitic wasps that eat aphids. Keep it away from fennel, which it crosses with.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('herbs', 'dill', 'Dill')],
   },
   {
@@ -1107,7 +974,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Cut from about 60 days, back to 5 cm each time.',
     water: 'Keep moist.',
     grow: 'Lift and divide clumps every few years. The flowers are edible.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('herbs', 'chives', 'Chives')],
   },
   {
@@ -1127,7 +993,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Pick from early summer.',
     water: 'Little.',
     grow: 'Divide every few years to keep it vigorous.',
-    watchFor: [{ label: 'Rot in wet soil', note: 'Drainage, not feeding.' }],
     sources: [rhs('herbs', 'tarragon', 'Tarragon')],
   },
   {
@@ -1147,7 +1012,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Pick from early summer.',
     water: 'In dry spells.',
     grow: 'Seeds itself freely; cut back after flowering to stop it spreading. Melissa means honeybee, for good reason.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('herbs', 'lemon-balm', 'Lemon balm')],
   },
 
@@ -1169,7 +1033,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'The first summer after planting.',
     water: 'Regularly while fruit swells, at the base.',
     grow: 'Straw under the fruit keeps it clean. Replace plants every three or four years with rooted runners, on a fresh bed.',
-    watchFor: [IRON_ON_ALKALINE, MG_FROM_POTASH, POTASH_SCORCH],
     sources: [rhs('fruit', 'strawberries', 'Strawberries')],
   },
   {
@@ -1189,7 +1052,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Summer kinds the second summer, autumn kinds the first autumn.',
     water: 'In dry spells, especially as fruit swells.',
     grow: 'Mulch thickly; the roots are shallow. Summer kinds fruit on last year’s canes, autumn kinds on this year’s.',
-    watchFor: [IRON_ON_ALKALINE, MN_ALKALINE, POTASH_SCORCH],
     sources: [rhs('fruit', 'raspberries', 'Raspberries')],
   },
   {
@@ -1209,7 +1071,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Late summer, from the second year.',
     water: 'In dry spells.',
     grow: 'Fruit comes on last year’s canes; cut them out after fruiting and tie in the new ones.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('fruit', 'blackberries', 'Blackberries')],
   },
   {
@@ -1228,8 +1089,7 @@ export const CROP_GUIDES: CropGuide[] = [
     spacing: '1.5 metres apart.',
     ready: 'Midsummer onward, from the second or third year.',
     water: 'With rainwater; hard tap water raises the pH over time.',
-    grow: 'Mulch with pine needles or composted bark. Feed with an ericaceous feed, never lime.',
-    watchFor: [IRON_ON_ALKALINE, PALE_OLD_LEAVES],
+    grow: 'Mulch with pine needles or composted bark. Feed with leafmould, pine-needle mulch and rainwater, never lime.',
     sources: [rhs('fruit', 'blueberries', 'Blueberries')],
   },
   {
@@ -1249,7 +1109,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Early to midsummer, from the second year.',
     water: 'In dry spells.',
     grow: 'Prune to an open goblet shape for air and easy picking.',
-    watchFor: [POTASH_SCORCH, { label: 'Gooseberry sawfly', note: 'Leaves stripped by green caterpillars in weeks. A pest; check under leaves from spring.' }],
     sources: [rhs('fruit', 'gooseberries', 'Gooseberries')],
   },
   {
@@ -1269,7 +1128,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Midsummer.',
     water: 'In dry spells.',
     grow: 'Fruits on young wood, so cut out a third of the oldest stems each winter.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('fruit', 'blackcurrants', 'Blackcurrants')],
   },
   {
@@ -1289,7 +1147,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Midsummer.',
     water: 'In dry spells.',
     grow: 'Can be trained flat against a wall. Net against birds.',
-    watchFor: [POTASH_SCORCH],
     sources: [rhs('fruit', 'redcurrants', 'Redcurrants')],
   },
   {
@@ -1309,11 +1166,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Late summer to autumn by kind, from about the third year.',
     water: 'Young trees in dry spells.',
     grow: 'Thin crowded fruitlets in early summer for larger fruit and to even out biennial bearing. Needs a winter chill, so choose low-chill kinds in warm climates.',
-    watchFor: [
-      { nutrient: 'Ca', label: 'Bitter pit', note: 'Small brown sunken spots in the fruit. Calcium not reaching it; even watering, and calcium sprays in bad years.' },
-      MG_FROM_POTASH,
-      POTASH_SCORCH,
-    ],
     sources: [rhs('fruit', 'apples', 'Apples')],
   },
   {
@@ -1333,7 +1185,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Pick while still firm and ripen indoors.',
     water: 'In dry spells.',
     grow: 'Frost at flowering is the usual reason for no crop.',
-    watchFor: [IRON_ON_ALKALINE, { nutrient: 'B', label: 'Blossom that withers, pitted fruit', note: 'Boron shortage.' }],
     sources: [rhs('fruit', 'pears', 'Pears')],
   },
   {
@@ -1353,7 +1204,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Late summer.',
     water: 'In dry spells.',
     grow: 'Prune only in summer, which limits silver leaf disease entering the cuts.',
-    watchFor: [POTASH_SCORCH, MG_FROM_POTASH],
     sources: [rhs('fruit', 'plums', 'Plums')],
   },
   {
@@ -1373,7 +1223,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Early to midsummer.',
     water: 'Evenly as fruit swells; rain on ripe fruit splits it.',
     grow: 'Net against birds. Prune in summer, like plums.',
-    watchFor: [POTASH_SCORCH],
     sources: [rhs('fruit', 'cherries', 'Cherries')],
   },
   {
@@ -1393,7 +1242,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Midsummer.',
     water: 'Well as fruit swells.',
     grow: 'Flowers very early, so hand-pollinate with a soft brush when few insects are about.',
-    watchFor: [POTASH_SCORCH, IRON_ON_ALKALINE],
     sources: [rhs('fruit', 'apricots', 'Apricots')],
   },
   {
@@ -1413,7 +1261,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Late summer; ripe when soft and drooping.',
     water: 'Regularly as fruit swells, especially in pots.',
     grow: 'The sap irritates skin in sunlight. In the tropics figs fruit through much of the year.',
-    watchFor: [POTASH_SCORCH, { label: 'Root-knot nematodes', note: 'Stunted trees in sandy soils. Thick mulch helps.' }],
     sources: [rhs('fruit', 'figs', 'Figs'), edis('MG214', 'Fig growing in the Florida home landscape')],
   },
   {
@@ -1433,7 +1280,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Late summer to autumn, from the third year.',
     water: 'Young vines in dry spells.',
     grow: 'Prune hard in winter; grapes fruit on the current season’s shoots.',
-    watchFor: [MG_FROM_POTASH, POTASH_SCORCH],
     sources: [rhs('fruit', 'grapes', 'Grapes')],
   },
   {
@@ -1453,7 +1299,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Autumn, from about the fourth year.',
     water: 'Generously in summer.',
     grow: 'A very vigorous climber; prune in winter and summer.',
-    watchFor: [IRON_ON_ALKALINE],
     sources: [rhs('fruit', 'kiwi', 'Kiwi')],
   },
   {
@@ -1473,7 +1318,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 80 to 100 days; ripe melons smell sweet and the stalk cracks away.',
     water: 'Generously until fruits are full size, then less, for sweetness.',
     grow: 'Limit each plant to a few fruits in short seasons. Watermelon (Citrullus lanatus) is grown the same way with more room and heat.',
-    watchFor: [MG_FROM_POTASH, { nutrient: 'B', label: 'Cracked, misshapen fruit', note: 'Boron shortage.' }],
     sources: [rhs('fruit', 'melons', 'Melons'), FLORIDA_VEG],
   },
   {
@@ -1492,8 +1336,7 @@ export const CROP_GUIDES: CropGuide[] = [
     spacing: '4 to 6 metres in the ground.',
     ready: 'Fruit takes 6 to 12 months to ripen on the tree.',
     water: 'Deeply, then let the top dry; waterlogging rots roots.',
-    grow: 'Feed through the growing season with a citrus feed. Citrus show shortages of magnesium, iron, zinc and manganese more readily than most plants.',
-    watchFor: [MG_FROM_POTASH, IRON_ON_ALKALINE, ZINC_LITTLE_LEAF, MN_ALKALINE],
+    grow: 'Feed through the growing season with compost, a mulch of leaves and a monthly liquid feed of comfrey or fish amino acid. Citrus show shortages of magnesium, iron, zinc and manganese more readily than most plants.',
     sources: [rhs('fruit', 'citrus', 'Citrus'), edis('HS132', 'Citrus culture in the home landscape')],
   },
 
@@ -1515,7 +1358,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Several flushes of fruit a year in warm climates.',
     water: 'Deeply and regularly; never waterlogged.',
     grow: 'The most frost-tender common citrus. Prune out thorny shoots from below the graft.',
-    watchFor: [MG_FROM_POTASH, IRON_ON_ALKALINE, ZINC_LITTLE_LEAF],
     sources: [edis('HS402', 'Lemon growing in the home landscape'), edis('HS132', 'Citrus culture in the home landscape')],
   },
   {
@@ -1535,7 +1377,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Fruit through much of the year in the tropics.',
     water: 'Regularly in dry seasons.',
     grow: 'Key (Mexican) limes are the most cold-sensitive; Persian (Tahiti) limes are seedless and larger. On limestone soils they show iron and zinc shortage readily.',
-    watchFor: [IRON_ON_ALKALINE, ZINC_LITTLE_LEAF, MN_ALKALINE],
     sources: [edis('CH092', 'Key lime growing in the home landscape'), edis('HS132', 'Citrus culture in the home landscape')],
   },
   {
@@ -1555,7 +1396,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Grafted trees from about the third or fourth year; fruit ripens 100 to 150 days after flowering.',
     water: 'Young trees regularly; mature trees flower best after a dry, cooler spell.',
     grow: 'Rain at flowering brings anthracnose, the black spotting on flowers and fruit, so dry-season flowering kinds suit humid coasts. Prune after harvest to keep the tree low.',
-    watchFor: [ZINC_LITTLE_LEAF, IRON_ON_ALKALINE, MN_ALKALINE],
     sources: [edis('MG216', 'Mango growing in the Florida home landscape'), TROPICAL_FRUIT],
   },
   {
@@ -1575,7 +1415,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 9 to 15 months from planting to a bunch; cut it when the fruits fill out and lose their angles.',
     water: 'Large amounts; the leaves are mostly water.',
     grow: 'Each stem fruits once. After harvest cut it down, chop it as mulch around the base, and keep one or two suckers to follow. Heavy feeders of potassium above all.',
-    watchFor: [POTASH_SCORCH, MG_FROM_POTASH, PALE_OLD_LEAVES],
     sources: [edis('MG040', 'Banana growing in the Florida home landscape'), TROPICAL_FRUIT],
   },
   {
@@ -1595,10 +1434,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 6 to 11 months from planting.',
     water: 'Regularly, never waterlogged.',
     grow: 'Plants are male, female or bisexual; bisexual plants fruit on their own, and a female needs a male nearby. Short-lived, so replant every few years.',
-    watchFor: [
-      { nutrient: 'B', label: 'Lumpy, misshapen fruit', note: 'Boron shortage, well documented in papaya.' },
-      PALE_OLD_LEAVES,
-    ],
     sources: [edis('MG054', 'Papaya growing in the Florida home landscape'), TROPICAL_FRUIT],
   },
   {
@@ -1618,7 +1453,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Grafted trees from about the third or fourth year. Fruit ripens only after picking.',
     water: 'Deeply and regularly, letting the surface dry between.',
     grow: 'Leave fallen leaves as mulch under the tree; they suppress root rot. Flower types A and B shed pollen at different times, so one of each sets more fruit.',
-    watchFor: [IRON_ON_ALKALINE, ZINC_LITTLE_LEAF, { label: 'Root rot', note: 'Small pale leaves and dieback in wet soil. Phytophthora, a water mould; drainage is the fix.' }],
     sources: [edis('MG213', 'Avocado growing in the Florida home landscape'), TROPICAL_FRUIT],
   },
   {
@@ -1638,7 +1472,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 18 to 24 months to fruit.',
     water: 'Moderately; the leaf bases hold water.',
     grow: 'Grows well in pots. After fruiting, suckers give the next crop.',
-    watchFor: [IRON_ON_ALKALINE, PALE_OLD_LEAVES],
     sources: [edis('MG055', 'Pineapple growing in the Florida home landscape'), TROPICAL_FRUIT],
   },
   {
@@ -1658,7 +1491,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'From the second or third year; ripe fruit softens and smells strongly.',
     water: 'Regularly while fruiting.',
     grow: 'Tough and quick. Can seed itself widely and become weedy in some tropical places.',
-    watchFor: [ZINC_LITTLE_LEAF, MN_ALKALINE],
     sources: [edis('MG045', 'Guava growing in the Florida home landscape'), TROPICAL_FRUIT],
   },
   {
@@ -1678,7 +1510,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 5 to 7 months after flowering.',
     water: 'Drought-tolerant, but steady watering stops fruit splitting.',
     grow: 'A shrub or small tree; prune suckers from the base.',
-    watchFor: [{ label: 'Split fruit', note: 'Heavy water after a dry spell. Steady watering, not feeding.' }],
     sources: [edis('MG056', 'Pomegranate growing in the Florida home landscape'), TROPICAL_FRUIT],
   },
   {
@@ -1698,7 +1529,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'From about the fourth or fifth year.',
     water: 'Regularly, but a dry, cool spell before flowering sets the crop.',
     grow: 'Irregular bearers without that cool, dry winter. Shows iron and zinc shortage on alkaline soils.',
-    watchFor: [IRON_ON_ALKALINE, ZINC_LITTLE_LEAF],
     sources: [edis('MG051', 'Lychee growing in the Florida home landscape'), TROPICAL_FRUIT],
   },
   {
@@ -1718,7 +1548,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'From about the third to fifth year.',
     water: 'Regularly, less before flowering.',
     grow: 'Like lychee, flowers best after a cool, dry spell.',
-    watchFor: [IRON_ON_ALKALINE, ZINC_LITTLE_LEAF],
     sources: [edis('MG049', 'Longan growing in the Florida home landscape'), TROPICAL_FRUIT],
   },
   {
@@ -1738,7 +1567,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Late winter to spring, from about the third year.',
     water: 'In dry spells while fruiting.',
     grow: 'Flowers in autumn and winter, feeding bees when little else does.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [edis('MG050', 'Loquat growing in the Florida home landscape'), TROPICAL_FRUIT],
   },
   {
@@ -1758,7 +1586,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'From about the third to fifth year; pick mature and ripen off the tree.',
     water: 'Drought-tolerant once established.',
     grow: 'Slow-growing and long-lived. The sap is chicle, the original chewing gum.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [edis('MG057', 'Sapodilla growing in the Florida home landscape'), TROPICAL_FRUIT],
   },
   {
@@ -1778,7 +1605,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'From about the third year; ripe when the segments separate and yellow between.',
     water: 'Drought-tolerant; water as fruit sets.',
     grow: 'Small beetles pollinate it, so fruit set improves with a little hand pollination in dry climates.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [edis('MG330', 'Sugar apple growing in the Florida home landscape'), TROPICAL_FRUIT],
   },
   {
@@ -1798,7 +1624,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'From about the third or fourth year for grafted trees.',
     water: 'Regularly while young.',
     grow: 'Fruit can weigh over 20 kg and grows straight from the trunk. Prune to keep the tree low enough to reach.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [edis('MG370', 'Jackfruit growing in the Florida home landscape'), TROPICAL_FRUIT],
   },
   {
@@ -1818,7 +1643,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'From about 12 to 18 months; ripe fruit drops.',
     water: 'Regularly; drought drops fruit.',
     grow: 'Yellow kinds mostly need carpenter bees or hand pollination to set fruit, purple kinds set their own. Vines are short-lived, so replant every few years.',
-    watchFor: [POTASH_SCORCH, PALE_OLD_LEAVES],
     sources: [edis('HS1406', 'Passion fruit growing in the home landscape'), TROPICAL_FRUIT],
   },
   {
@@ -1838,7 +1662,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 90 to 120 days.',
     water: 'Regularly until established, then less.',
     grow: 'The young leaves are a leafy green in their own right. Cure dug roots somewhere warm for a week for sweetness and storage.',
-    watchFor: [POTASH_SCORCH, { nutrient: 'B', label: 'Cracked, misshapen roots', note: 'Boron shortage on light soils.' }],
     sources: [rhs('vegetables', 'sweet-potatoes', 'Sweet potatoes'), FLORIDA_VEG],
   },
   {
@@ -1858,7 +1681,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 50 to 65 days; pick pods at 5 to 10 cm every day or two.',
     water: 'Deeply in dry spells.',
     grow: 'Pods left on turn woody and stop new ones. The flowers bring bees in.',
-    watchFor: [PALE_OLD_LEAVES, POTASH_SCORCH, { label: 'Root-knot nematodes', note: 'Stunted plants with knotted roots, common in warm sandy soils. Rotate, and add plenty of organic matter.' }],
     sources: [rhs('vegetables', 'okra', 'Okra'), FLORIDA_VEG],
   },
   {
@@ -1878,7 +1700,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 8 to 12 months.',
     water: 'Drought-tolerant once established.',
     grow: 'The roots contain compounds that release cyanide, so they are always peeled and cooked, never eaten raw. Too much nitrogen gives leaves rather than roots.',
-    watchFor: [POTASH_SCORCH],
     sources: [FLORIDA_VEG],
   },
   {
@@ -1898,7 +1719,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'From about 4 months; pick young and tender.',
     water: 'Regularly.',
     grow: 'A vigorous perennial vine in frost-free places; the shoots and root are edible too.',
-    watchFor: [PALE_OLD_LEAVES, MG_FROM_POTASH],
     sources: [FLORIDA_VEG],
   },
   {
@@ -1918,7 +1738,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'About 9 to 12 months.',
     water: 'Plenty.',
     grow: 'The corms and leaves hold calcium oxalate crystals that irritate the mouth and throat raw, so they are always cooked.',
-    watchFor: [PALE_OLD_LEAVES, POTASH_SCORCH],
     sources: [FLORIDA_VEG],
   },
   {
@@ -1938,7 +1757,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Pick the red calyces about 10 days after the flowers open.',
     water: 'Regularly while young.',
     grow: 'The calyces make agua de jamaica; the young leaves are eaten as a sour green.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [FLORIDA_VEG],
   },
   {
@@ -1958,7 +1776,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Pick from about 70 days.',
     water: 'Keep moist.',
     grow: 'A heat-loving climbing green for when true spinach bolts.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [FLORIDA_VEG],
   },
   {
@@ -1978,7 +1795,6 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Green pods from about 4 to 5 months.',
     water: 'Drought-tolerant.',
     grow: 'A short-lived shrub that fixes nitrogen, so it doubles as living fertiliser, a windbreak and chop-and-drop mulch.',
-    watchFor: [{ nutrient: 'Mo', label: 'Pale plants with few nodules', note: 'Molybdenum locked away in very acid soil.' }],
     sources: [FLORIDA_VEG],
   },
   {
@@ -1998,19 +1814,40 @@ export const CROP_GUIDES: CropGuide[] = [
     ready: 'Cut stalks from about 4 months.',
     water: 'Regularly.',
     grow: 'Frost-tender; in cold climates, keep in a pot under cover for winter. Divide large clumps.',
-    watchFor: [PALE_OLD_LEAVES],
     sources: [rhs('herbs', 'lemongrass', 'Lemongrass')],
   },
 ];
 
-export function cropPubmedUrl(guide: CropGuide): string {
-  const species = guide.latin.split(',')[0].replace(/\(.*?\)/g, '').replace(/\bspp\.|\bsubsp\..*$|\bagg\./g, '').trim();
-  return pubmedSearchUrl(`${species} nutrient deficiency`);
+function cropSpecies(guide: CropGuide): string {
+  return guide.latin.split(',')[0].replace(/\(.*?\)/g, '').replace(/\bspp\.|\bsubsp\..*$|\bagg\./g, '').trim();
 }
 
-// Every source a guide shows: its advisory services, then PubMed.
+export function cropPubmedUrl(guide: CropGuide): string {
+  return pubmedSearchUrl(`${cropSpecies(guide)} nutrient deficiency`);
+}
+
+// The living-soil page that suits each group best: no-dig beds for
+// vegetables, compost for herbs, a deep mulch under fruit, and indigenous
+// microorganisms for warm climates, where Korean Natural Farming is most
+// practised.
+const GROUP_LIVING_SOIL: Record<CropGroup, GuideSource> = {
+  vegetables: GO_NO_DIG,
+  herbs: GO_COMPOST,
+  fruit: GO_MULCH,
+  warm: KNF_IMO,
+};
+
+// Every source a guide shows: its advisory services, the organic growing
+// guides for the crop, the living-soil page for its group, then two
+// PubMed searches, one on shortages and one on compost and organic growing.
 export function cropSources(guide: CropGuide): GuideSource[] {
-  return [...guide.sources, { label: 'PubMed: the research on this crop', url: cropPubmedUrl(guide) }];
+  return [
+    ...guide.sources,
+    ...(CROP_ORGANIC_SOURCES[guide.key] ?? []),
+    GROUP_LIVING_SOIL[guide.group],
+    { label: 'PubMed: research on shortages in this crop', url: cropPubmedUrl(guide) },
+    { label: 'PubMed: research on growing this crop with compost', url: pubmedSearchUrl(`${cropSpecies(guide)} compost organic`) },
+  ];
 }
 
 function normalize(text: string): string {

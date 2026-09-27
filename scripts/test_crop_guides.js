@@ -45,7 +45,13 @@ function loadModule(relPath, deps = {}) {
 }
 
 const N = loadModule('lib/plantNutrients.ts');
-const G = loadModule('lib/cropGuides.ts', { './plantNutrients': N });
+const P = loadModule('lib/cropProblems.ts', { './plantNutrients': N });
+const G = loadModule('lib/cropGuides.ts', { './plantNutrients': N, './cropProblems': P });
+
+// Words that belong only in insteadOf and whyNotChemical, where the app
+// says why to skip them, never in the fix or in how to grow a crop.
+const CHEMICAL = /chelat|general fertili[sz]er|Growmore|ammonium|urea|superphosphate|NPK|fungicide|pesticide|Epsom|sulphate of/i;
+const PUBMED = 'https://pubmed.ncbi.nlm.nih.gov/?term=';
 
 let failures = 0;
 let checks = 0;
@@ -71,10 +77,16 @@ for (const guide of G.CROP_GUIDES) {
   ok(`${guide.key} feeding labelled`, !!G.FEEDING_LABELS[guide.feeding]);
   ok(`${guide.key} season labelled`, !!G.SEASON_LABELS[guide.season]);
   const all = G.cropSources(guide);
-  ok(`${guide.key} ends with PubMed`, all[all.length - 1].url.startsWith('https://pubmed.ncbi.nlm.nih.gov/?term='));
+  ok(`${guide.key} ends with PubMed`, all[all.length - 1].url.startsWith(PUBMED));
   for (const source of all) ok(`${guide.key} source https: ${source.url}`, source.url.startsWith('https://') && source.label.trim().length > 0);
+  const outside = all.filter((source) => !source.url.startsWith(PUBMED));
+  ok(`${guide.key} has at least 3 sources besides PubMed (${outside.length})`, outside.length >= 3);
+  ok(`${guide.key} has 2 PubMed searches`, all.length - outside.length === 2);
+  ok(`${guide.key} has a page about this crop`, guide.sources.length + (P.CROP_ORGANIC_SOURCES[guide.key] ?? []).length >= 2);
+  ok(`${guide.key} listed in CROP_ORGANIC_SOURCES`, Array.isArray(P.CROP_ORGANIC_SOURCES[guide.key]));
+  for (const field of ['sun', 'soil', 'sow', 'water', 'grow']) ok(`${guide.key}.${field} names no chemical`, !CHEMICAL.test(guide[field]));
 }
-const NUTRIENT_TEXT = ['key', 'name', 'showsOn', 'role', 'looks', 'causes', 'withTheSoil', 'conventional', 'caution'];
+const NUTRIENT_TEXT = ['key', 'name', 'showsOn', 'role', 'looks', 'causes', 'withTheSoil', 'whyNotChemical', 'caution'];
 for (const nutrient of N.PLANT_NUTRIENTS) {
   for (const field of NUTRIENT_TEXT) ok(`${nutrient.key}.${field} filled`, typeof nutrient[field] === 'string' && nutrient[field].trim().length > 0);
   ok(`${nutrient.key} showsOn`, nutrient.showsOn === 'older' || nutrient.showsOn === 'newer');
@@ -100,13 +112,30 @@ for (const guide of G.CROP_GUIDES) {
   }
 }
 
-// 3. Watch-for nutrients exist.
+// 3. Three problems per crop, each at the same depth, specific to the crop,
+// and put right from the soil rather than a bag or bottle.
+const seenLooks = new Map();
+const seenFix = new Map();
+check('problems for every crop and no other', Object.keys(P.CROP_PROBLEMS).sort(), cropKeys.slice().sort());
 for (const guide of G.CROP_GUIDES) {
-  for (const item of guide.watchFor) {
-    ok(`${guide.key} watchFor "${item.label}" filled`, item.label.trim() && item.note.trim());
-    if (item.nutrient) ok(`${guide.key} watchFor ${item.nutrient} exists`, !!N.findPlantNutrient(item.nutrient));
+  const problems = P.CROP_PROBLEMS[guide.key] ?? [];
+  check(`${guide.key} has 3 problems`, problems.length, 3);
+  for (const problem of problems) {
+    const where = `${guide.key} "${problem.label}"`;
+    for (const field of ['label', 'looks', 'why', 'fix']) ok(`${where}.${field} filled`, typeof problem[field] === 'string' && problem[field].trim());
+    ok(`${where} looks at least 70 characters`, problem.looks.length >= 70);
+    ok(`${where} why at least 80 characters`, problem.why.length >= 80);
+    ok(`${where} fix at least 140 characters`, problem.fix.length >= 140);
+    for (const field of ['looks', 'why', 'fix']) ok(`${where}.${field} names no chemical`, !CHEMICAL.test(problem[field]));
+    if (problem.nutrient) ok(`${where} nutrient ${problem.nutrient} exists`, !!N.findPlantNutrient(problem.nutrient));
+    if (seenLooks.has(problem.looks)) ok(`${where} looks repeats ${seenLooks.get(problem.looks)}`, false);
+    if (seenFix.has(problem.fix)) ok(`${where} fix repeats ${seenFix.get(problem.fix)}`, false);
+    seenLooks.set(problem.looks, where);
+    seenFix.set(problem.fix, where);
   }
 }
+ok('living soil guide says how strong the evidence is', N.LIVING_SOIL_GUIDE.some((item) => /evidence/i.test(item.heading)));
+ok('where to ask has places', N.WHERE_TO_ASK.length >= 5);
 
 // 4. Matching a planting's food name.
 const cases = [
@@ -142,10 +171,10 @@ check('formatPh', G.formatPh([6, 6.8]), 'pH 6.0 to 6.8');
 const texts = [];
 for (const guide of G.CROP_GUIDES) {
   texts.push([guide.key, guide.sun], [guide.key, guide.soil], [guide.key, guide.sow], [guide.key, guide.spacing], [guide.key, guide.ready], [guide.key, guide.water], [guide.key, guide.grow]);
-  for (const item of guide.watchFor) texts.push([guide.key, item.label], [guide.key, item.note]);
+  for (const p of P.CROP_PROBLEMS[guide.key] ?? []) for (const f of ['label', 'looks', 'why', 'fix', 'insteadOf']) if (p[f]) texts.push([guide.key, p[f]]);
 }
 for (const n of N.PLANT_NUTRIENTS) for (const f of NUTRIENT_TEXT.slice(3)) texts.push([n.key, n[f]]);
-for (const item of [...N.NUTRIENT_LOOK_ALIKES, ...N.SOIL_PH_GUIDE]) texts.push([item.heading, item.heading], [item.heading, item.body]);
+for (const item of [...N.NUTRIENT_LOOK_ALIKES, ...N.SOIL_PH_GUIDE, ...N.LIVING_SOIL_GUIDE, ...N.WHERE_TO_ASK]) texts.push([item.heading, item.heading], [item.heading, item.body]);
 for (const [where, text] of texts) {
   ok(`${where}: no em or en dash in "${text.slice(0, 40)}"`, !/[–—]| -- /.test(text));
   ok(`${where}: no filler word in "${text.slice(0, 40)}"`, !/\b(real|genuine|genuinely)\b/i.test(text));
@@ -156,12 +185,20 @@ async function checkLinks() {
   for (const guide of G.CROP_GUIDES) for (const s of G.cropSources(guide)) urls.add(s.url);
   for (const n of N.PLANT_NUTRIENTS) for (const s of n.sources) urls.add(s.url);
   for (const s of N.SOIL_GUIDE_SOURCES) urls.add(s.url);
-  const list = [...urls].filter((u) => !u.startsWith('https://pubmed.ncbi.nlm.nih.gov/?term='));
+  for (const s of N.LIVING_SOIL_SOURCES) urls.add(s.url);
+  for (const place of N.WHERE_TO_ASK) urls.add(place.url);
+  const list = [...urls].filter((u) => !u.startsWith(PUBMED));
   for (let i = 0; i < list.length; i += 8) {
     await Promise.all(list.slice(i, i + 8).map(async (url) => {
       try {
         const res = await fetch(url, { redirect: 'follow', headers: { 'User-Agent': 'Mozilla/5.0' } });
         ok(`${url} answers 200 (got ${res.status})`, res.status === 200);
+        // Garden Organic answers a missing guide with 200 and its landing
+        // page, so a guide link is checked for the landing page title.
+        if (res.status === 200 && url.includes('gardenorganic.org.uk/') && !url.endsWith('.org.uk/')) {
+          const title = ((await res.text()).match(/<title>([^<]*)<\/title>/i) || [])[1] || '';
+          ok(`${url} is not the Garden Organic landing page (${title.trim()})`, !/^Discover organic growing/i.test(title.trim()));
+        }
       } catch (error) {
         ok(`${url} answers (${error.message})`, false);
       }
