@@ -23,6 +23,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View
 import * as ImagePicker from 'expo-image-picker';
 import { AppActionSheet } from '../components/AppActionSheet';
 import { AppTextInput } from '../components/AppTextInput';
+import { PopoverSelect } from '../components/PopoverSelect';
 import { useInfoAlert } from '../components/InfoAlert';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -34,8 +35,15 @@ import { recognizeTextFromImage } from '../lib/ocr';
 import { detectMeasurementSystemFromLocale } from '../lib/measurement';
 import { getStoredMeasurementSystem, getUpcomingShoppingList, type ShoppingListSection } from '../lib/db';
 import { addKitchenItemFromPurchase } from '../lib/kitchenDb';
+import { arrangeByAisle, type GroceryStoreLayout } from '../lib/groceryAisles';
 import {
   addGroceryListItem,
+  addGroceryStore,
+  ADDED_BY_HAND_CATEGORY,
+  getGroceryStoreByName,
+  getGroceryStoreLayoutByName,
+  listGroceryStores,
+  type GroceryStoreRecord,
   createGroceryListFromSchedule,
   deleteGroceryList,
   deleteGroceryListItem,
@@ -73,6 +81,10 @@ import {
 } from '../lib/groceryList';
 
 const DEFAULT_DAYS = 3;
+
+// The store picker's two entries that are not stores (G6).
+const NO_STORE = '__no_store__';
+const ADD_STORE = '__add_store__';
 
 function roundForPreview(value: number): string {
   const rounded = Math.round(value * 10) / 10;
@@ -127,6 +139,12 @@ export default function GroceryListScreen() {
   const [daysAhead, setDaysAhead] = useState(DEFAULT_DAYS);
   const [peopleCount, setPeopleCount] = useState(1);
   const [storeName, setStoreName] = useState('');
+  // G6, 2026-09-26: the stores the person has named, and the layout of the
+  // one this list names, so the lines read in that store's walking order.
+  const [stores, setStores] = useState<GroceryStoreRecord[]>([]);
+  const [storeLayout, setStoreLayout] = useState<GroceryStoreLayout | null>(null);
+  const [addingStore, setAddingStore] = useState(false);
+  const [newStoreName, setNewStoreName] = useState('');
   // What the chosen window needs, before anything is built. This was the
   // Schedules tab's own Shopping List lens until 2026-09-13 ("Schedules
   // needs to be about the actual schedules for each category or topic");
@@ -210,6 +228,8 @@ export default function GroceryListScreen() {
       // isn't showing me the correct unit either way."
       setMeasurementSystem((await getStoredMeasurementSystem()) ?? detectMeasurementSystemFromLocale());
       setHistory(past);
+      setStores(await listGroceryStores());
+      setStoreLayout(target ? await getGroceryStoreLayoutByName(target.storeName) : null);
       if (target) {
         setList(target);
         const listItems = await getGroceryListItems(target.id);
@@ -252,14 +272,94 @@ export default function GroceryListScreen() {
     return Array.from(names);
   }, [items]);
 
-  const sections = useMemo(() => {
-    const grouped = new Map<string, GroceryListItemRecord[]>();
-    for (const item of items) {
-      if (!grouped.has(item.category)) grouped.set(item.category, []);
-      grouped.get(item.category)!.push(item);
+  // By category as before, or in the walking order of the store this list
+  // names once that store has aisles (G6). lib/groceryAisles.ts.
+  const sections = useMemo(() => arrangeByAisle(items, storeLayout, ADDED_BY_HAND_CATEGORY), [items, storeLayout]);
+
+  const storeOptions = useMemo(() => {
+    const options = [{ label: 'No store', value: NO_STORE }, ...stores.map((store) => ({ label: store.name, value: store.name }))];
+    const current = storeName.trim();
+    if (current && !stores.some((store) => store.name.toLowerCase() === current.toLowerCase())) {
+      options.push({ label: current, value: current });
     }
-    return Array.from(grouped.entries()).map(([category, categoryItems]) => ({ category, items: categoryItems }));
-  }, [items]);
+    options.push({ label: 'Add a store of your own', value: ADD_STORE });
+    return options;
+  }, [stores, storeName]);
+
+  // Picking a store while a list is open writes it to the list at once and
+  // reorders the lines, since the point is to read the list in that store.
+  async function chooseStore(value: string) {
+    if (value === ADD_STORE) {
+      setAddingStore(true);
+      return;
+    }
+    const name = value === NO_STORE ? '' : value;
+    setAddingStore(false);
+    await applyStore(name);
+  }
+
+  async function applyStore(name: string) {
+    setStoreName(name);
+    setStoreLayout(await getGroceryStoreLayoutByName(name));
+    if (mode === 'list' && list) {
+      await updateGroceryListDetails(list.id, { storeName: name });
+      setList(await getGroceryList(list.id));
+    }
+  }
+
+  async function handleAddStore() {
+    const name = newStoreName.trim();
+    if (!name) return;
+    try {
+      await addGroceryStore(name);
+      setStores(await listGroceryStores());
+      setNewStoreName('');
+      setAddingStore(false);
+      await applyStore(name);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  async function openStoreLayout() {
+    const store = await getGroceryStoreByName(storeName);
+    router.push(store ? `/grocery-stores?storeId=${encodeURIComponent(store.id)}` : '/grocery-stores');
+  }
+
+  function renderStorePicker(caption: string) {
+    return (
+      <View style={styles.card}>
+        <Text style={styles.sectionLabel}>Which store? (optional)</Text>
+        <PopoverSelect
+          selected={addingStore ? ADD_STORE : storeName.trim() || NO_STORE}
+          options={storeOptions}
+          onSelect={(value) => void chooseStore(value)}
+          placeholder="No store"
+          width={240}
+          tabColor={colors.tabLife}
+        />
+        {addingStore ? (
+          <View style={styles.addAmountRow}>
+            <AppTextInput
+              style={[styles.input, styles.unitInput]}
+              value={newStoreName}
+              onChangeText={setNewStoreName}
+              placeholder="Store name"
+              placeholderTextColor={colors.textMuted}
+            />
+            <TouchableOpacity style={[styles.secondaryButton, styles.storeAddButton]} activeOpacity={0.85} onPress={handleAddStore}>
+              <Text style={styles.secondaryButtonText}>Add</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+        <Text style={styles.muted}>{caption}</Text>
+        <TouchableOpacity style={styles.linkRow} activeOpacity={0.85} onPress={() => void openStoreLayout()}>
+          <Ionicons name="storefront-outline" size={18} color={colors.textSecondary} />
+          <Text style={styles.linkText}>{storeLayout ? 'Change this store\'s aisles' : 'Lay out a store by its aisles'}</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   async function refreshItems(currentListId: string) {
     setItems(await getGroceryListItems(currentListId));
@@ -730,17 +830,11 @@ export default function GroceryListScreen() {
             <Text style={styles.muted}>Recipes here are written for one person, so this multiplies every amount.</Text>
           </View>
 
-          <View style={styles.card}>
-            <Text style={styles.sectionLabel}>Which store? (optional)</Text>
-            <AppTextInput
-              style={styles.input}
-              value={storeName}
-              onChangeText={setStoreName}
-              placeholder="Where you are shopping"
-              placeholderTextColor={colors.textMuted}
-            />
-            <Text style={styles.muted}>Saved with the list, so prices can later be compared between stores.</Text>
-          </View>
+          {renderStorePicker(
+            storeLayout
+              ? 'Saved with the list, and the list reads in this store\'s aisle order.'
+              : 'Saved with the list, so prices can later be compared between stores.',
+          )}
 
           <TouchableOpacity style={[styles.inset, styles.primaryButton, busy && styles.disabled]} activeOpacity={0.85} onPress={handleBuild} disabled={busy}>
             <Ionicons name="cart-outline" size={18} color={colors.textOnButton} />
@@ -813,6 +907,12 @@ export default function GroceryListScreen() {
           </View>
         ) : null}
 
+        {renderStorePicker(
+          storeLayout
+            ? 'The lines below are in this store\'s aisle order.'
+            : 'The lines below are by category. Lay the store out by its aisles and they follow its order.',
+        )}
+
         <View style={styles.buttonRow}>
           <TouchableOpacity
             style={[styles.secondaryButton, busy && styles.disabled]}
@@ -851,8 +951,9 @@ export default function GroceryListScreen() {
         ) : null}
 
         {sections.map((section) => (
-          <View key={section.category} style={styles.card}>
-            <Text style={styles.sectionLabel}>{section.category}</Text>
+          <View key={section.key} style={styles.card}>
+            <Text style={styles.sectionLabel}>{section.title}</Text>
+            {section.caption ? <Text style={styles.muted}>{section.caption}</Text> : null}
             {section.items.map((item) => {
               const lineTotal = groceryLineTotal(item);
               const expanded = expandedId === item.id;
@@ -1310,4 +1411,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary, ...textShadow },
+  storeAddButton: { flex: 0, minWidth: 80 },
+  linkRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6, alignSelf: 'flex-start' },
+  linkText: { ...typography.body, color: colors.textSecondary, textDecorationLine: 'underline', ...textShadow },
 });

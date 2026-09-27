@@ -716,6 +716,17 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
+                {/* A store's aisles in walking order (G6, 2026-09-26),
+                    reached from the grocery list's store picker. */}
+                <Stack.Screen
+                  name="grocery-stores"
+                  options={{
+                    headerShown: true,
+                    title: 'Stores and Aisles',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
                 {/* scan-product and food-product-detail were Stack screens
                     here from 2026-08-16 to 2026-09-13; they are Food's own
                     lenses now (components/ScanProductView.tsx and

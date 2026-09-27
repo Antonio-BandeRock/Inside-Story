@@ -33,6 +33,14 @@ import {
   type KitchenStockEntry,
   type PurchaseForm,
 } from './groceryList';
+import {
+  categoryKey,
+  placeableCategories,
+  planAisleRemoval,
+  storeKey,
+  type GroceryAisle,
+  type GroceryStoreLayout,
+} from './groceryAisles';
 
 const PURCHASE_FORMS: PurchaseForm[] = ['count', 'weight', 'volume'];
 
@@ -1041,4 +1049,200 @@ export async function rebuildGroceryListFromSchedule(listId: string): Promise<Gr
   // dropped, since a line disappearing from under someone is worth saying.
   const removed = previous.size;
   return { carriedOver, added, removed, keptByHand: byHand.length };
+}
+
+// ---------------------------------------------------------------------------
+// Stores and their aisles (G6, 2026-09-26). See the grocery_stores CREATE
+// TABLE comment in lib/db.ts, and lib/groceryAisles.ts for the arranging.
+
+export type GroceryStoreRecord = { id: string; name: string; retiredAt: string | null };
+
+export async function listGroceryStores(includeRetired: boolean = false): Promise<GroceryStoreRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<GroceryStoreRecord>(
+    `SELECT id, name, retired_at AS retiredAt FROM grocery_stores
+      ${includeRetired ? '' : 'WHERE retired_at IS NULL'}
+      ORDER BY name COLLATE NOCASE`,
+  );
+}
+
+async function findStoreByName(name: string): Promise<GroceryStoreRecord | null> {
+  const db = await getDatabase();
+  return (
+    (await db.getFirstAsync<GroceryStoreRecord>(
+      'SELECT id, name, retired_at AS retiredAt FROM grocery_stores WHERE LOWER(TRIM(name)) = ? LIMIT 1',
+      storeKey(name),
+    )) ?? null
+  );
+}
+
+/** Adds a store, or brings back the one already carrying that name. */
+export async function addGroceryStore(name: string): Promise<string> {
+  const clean = name.trim().replace(/\s+/g, ' ');
+  if (!clean) throw new Error('A store needs a name.');
+  const db = await getDatabase();
+  const existing = await findStoreByName(clean);
+  if (existing) {
+    if (existing.retiredAt) await db.runAsync('UPDATE grocery_stores SET retired_at = NULL WHERE id = ?', existing.id);
+    return existing.id;
+  }
+  const id = `grocery_store_${Date.now()}`;
+  await db.runAsync('INSERT INTO grocery_stores (id, name) VALUES (?, ?)', id, clean);
+  return id;
+}
+
+/** Renames a store and every list that named it, so its prices still compare. */
+export async function renameGroceryStore(id: string, name: string): Promise<void> {
+  const clean = name.trim().replace(/\s+/g, ' ');
+  if (!clean) throw new Error('A store needs a name.');
+  const db = await getDatabase();
+  const current = await db.getFirstAsync<{ name: string }>('SELECT name FROM grocery_stores WHERE id = ?', id);
+  if (!current) return;
+  const clash = await findStoreByName(clean);
+  if (clash && clash.id !== id) throw new Error(`There is already a store called ${clash.name}.`);
+  await db.runAsync('UPDATE grocery_stores SET name = ? WHERE id = ?', clean, id);
+  await db.runAsync(
+    'UPDATE grocery_lists SET store_name = ? WHERE LOWER(TRIM(store_name)) = ?',
+    clean,
+    storeKey(current.name),
+  );
+}
+
+/**
+ * A store with lists behind it is retired: it leaves the picker, and those
+ * lists keep its name. A store nothing names is deleted along with its
+ * aisles and placements, which were only ever its layout.
+ */
+export async function removeGroceryStore(id: string): Promise<'retired' | 'deleted'> {
+  const db = await getDatabase();
+  const store = await db.getFirstAsync<{ name: string }>('SELECT name FROM grocery_stores WHERE id = ?', id);
+  if (!store) return 'deleted';
+  const used = await db.getFirstAsync<{ n: number }>(
+    'SELECT COUNT(*) AS n FROM grocery_lists WHERE LOWER(TRIM(store_name)) = ?',
+    storeKey(store.name),
+  );
+  if ((used?.n ?? 0) > 0) {
+    await db.runAsync("UPDATE grocery_stores SET retired_at = datetime('now') WHERE id = ?", id);
+    return 'retired';
+  }
+  await db.runAsync('DELETE FROM grocery_store_placements WHERE store_id = ?', id);
+  await db.runAsync('DELETE FROM grocery_store_aisles WHERE store_id = ?', id);
+  await db.runAsync('DELETE FROM grocery_stores WHERE id = ?', id);
+  return 'deleted';
+}
+
+export async function getGroceryStoreLayout(storeId: string): Promise<GroceryStoreLayout> {
+  const db = await getDatabase();
+  const aisles = await db.getAllAsync<GroceryAisle>(
+    'SELECT id, name, position FROM grocery_store_aisles WHERE store_id = ? ORDER BY position, name COLLATE NOCASE',
+    storeId,
+  );
+  const rows = await db.getAllAsync<{ category: string; aisleId: string }>(
+    'SELECT category, aisle_id AS aisleId FROM grocery_store_placements WHERE store_id = ?',
+    storeId,
+  );
+  const placements: Record<string, string> = {};
+  for (const row of rows) placements[row.category] = row.aisleId;
+  return { aisles, placements };
+}
+
+/** The store a list names, or null when it names none this device knows. */
+export async function getGroceryStoreByName(name: string | null | undefined): Promise<GroceryStoreRecord | null> {
+  if (!name || !name.trim()) return null;
+  return findStoreByName(name);
+}
+
+/** The layout of the store a list names, or null when it names none or one never arranged. */
+export async function getGroceryStoreLayoutByName(name: string | null | undefined): Promise<GroceryStoreLayout | null> {
+  const store = await getGroceryStoreByName(name);
+  if (!store) return null;
+  const layout = await getGroceryStoreLayout(store.id);
+  return layout.aisles.length > 0 ? layout : null;
+}
+
+export async function addGroceryAisle(storeId: string, name: string): Promise<string> {
+  const clean = name.trim().replace(/\s+/g, ' ');
+  if (!clean) throw new Error('An aisle needs a name.');
+  const db = await getDatabase();
+  const last = await db.getFirstAsync<{ p: number | null }>(
+    'SELECT MAX(position) AS p FROM grocery_store_aisles WHERE store_id = ?',
+    storeId,
+  );
+  const id = `grocery_aisle_${Date.now()}`;
+  await db.runAsync(
+    'INSERT INTO grocery_store_aisles (id, store_id, name, position) VALUES (?, ?, ?, ?)',
+    id,
+    storeId,
+    clean,
+    (last?.p ?? -1) + 1,
+  );
+  return id;
+}
+
+export async function renameGroceryAisle(aisleId: string, name: string): Promise<void> {
+  const clean = name.trim().replace(/\s+/g, ' ');
+  if (!clean) throw new Error('An aisle needs a name.');
+  const db = await getDatabase();
+  await db.runAsync('UPDATE grocery_store_aisles SET name = ? WHERE id = ?', clean, aisleId);
+}
+
+export async function saveGroceryAisleOrder(aisles: GroceryAisle[]): Promise<void> {
+  const db = await getDatabase();
+  for (const aisle of aisles) {
+    await db.runAsync('UPDATE grocery_store_aisles SET position = ? WHERE id = ?', aisle.position, aisle.id);
+  }
+}
+
+/** Removes an aisle, first moving what it holds as planAisleRemoval says. */
+export async function removeGroceryAisle(storeId: string, aisleId: string, replacementId: string | null): Promise<void> {
+  const db = await getDatabase();
+  const layout = await getGroceryStoreLayout(storeId);
+  const plan = planAisleRemoval(layout, aisleId, replacementId);
+  for (const category of plan.move) {
+    await db.runAsync(
+      'UPDATE grocery_store_placements SET aisle_id = ? WHERE store_id = ? AND category = ?',
+      replacementId,
+      storeId,
+      category,
+    );
+  }
+  for (const category of plan.release) {
+    await db.runAsync('DELETE FROM grocery_store_placements WHERE store_id = ? AND category = ?', storeId, category);
+  }
+  await db.runAsync('DELETE FROM grocery_store_aisles WHERE id = ?', aisleId);
+}
+
+/** Puts a category in an aisle of a store, or back under its own heading with null. */
+export async function placeGroceryCategory(storeId: string, category: string, aisleId: string | null): Promise<void> {
+  const db = await getDatabase();
+  const existing = await db.getAllAsync<{ category: string }>(
+    'SELECT category FROM grocery_store_placements WHERE store_id = ?',
+    storeId,
+  );
+  for (const row of existing) {
+    if (categoryKey(row.category) === categoryKey(category)) {
+      await db.runAsync('DELETE FROM grocery_store_placements WHERE store_id = ? AND category = ?', storeId, row.category);
+    }
+  }
+  if (aisleId) {
+    await db.runAsync(
+      'INSERT INTO grocery_store_placements (store_id, category, aisle_id) VALUES (?, ?, ?)',
+      storeId,
+      category.trim(),
+      aisleId,
+    );
+  }
+}
+
+/** Every category a grocery line has carried, for placing in aisles. */
+export async function listSeenGroceryCategories(): Promise<string[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ category: string }>(
+    "SELECT DISTINCT category FROM grocery_list_items WHERE category IS NOT NULL AND TRIM(category) <> ''",
+  );
+  return placeableCategories(
+    rows.map((row) => row.category),
+    null,
+    ADDED_BY_HAND_CATEGORY,
+  );
 }

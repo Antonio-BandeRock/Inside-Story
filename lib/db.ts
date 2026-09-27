@@ -8418,6 +8418,55 @@ async function runDatabaseInitialization() {
       }
     }
 
+    // G6 of the competitive build plan (2026-09-26): the grocery list in the
+    // order one store is laid out. A store is an open list; a list still
+    // records its store by name in grocery_lists.store_name, so a store with
+    // lists behind it is retired rather than deleted and those lists keep
+    // their name. Aisles belong to a store and carry no history of their
+    // own, and grocery_store_placements says which aisle of a store holds a
+    // reference category. Seeded once per start from the names past lists
+    // already carry, so a store somebody typed before this existed is there.
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS grocery_stores (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        retired_at TEXT
+      );
+      CREATE TABLE IF NOT EXISTS grocery_store_aisles (
+        id TEXT PRIMARY KEY,
+        store_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        position INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS grocery_store_placements (
+        store_id TEXT NOT NULL,
+        category TEXT NOT NULL,
+        aisle_id TEXT NOT NULL,
+        PRIMARY KEY (store_id, category)
+      );
+      CREATE INDEX IF NOT EXISTS idx_grocery_store_aisles_store ON grocery_store_aisles(store_id);
+    `);
+    {
+      const typed = await db.getAllAsync<{ name: string }>(
+        `SELECT DISTINCT TRIM(store_name) AS name FROM grocery_lists
+          WHERE store_name IS NOT NULL AND TRIM(store_name) <> ''
+            AND LOWER(TRIM(store_name)) NOT IN (SELECT LOWER(TRIM(name)) FROM grocery_stores)`,
+      );
+      const seen = new Set<string>();
+      for (const row of typed) {
+        const key = row.name.toLowerCase();
+        if (seen.has(key)) continue;
+        seen.add(key);
+        await db.runAsync(
+          'INSERT INTO grocery_stores (id, name) VALUES (?, ?)',
+          `grocery_store_${Date.now()}_${seen.size}`,
+          row.name,
+        );
+      }
+    }
+
     // 2026-08-30, direct on-device report: "when I had the app create a 6 week
     // meal plan schedule, it seems to have made all of them a favorite
     // automatically. If that is the case, it definitely should not do that."

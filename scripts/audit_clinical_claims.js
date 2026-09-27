@@ -96,6 +96,7 @@ const NAMED = [
   'lib/emergencyOutside.ts',
   'lib/stepTimers.ts',
   'lib/makeItFor.ts',
+  'lib/groceryAisles.ts',
 ];
 
 function targets() {
