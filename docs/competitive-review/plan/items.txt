@@ -109,7 +109,7 @@ G4|2|OTA|S-M|Food,Schedules|Samsung Food, Paprika|Cook mode with step timers|One
 G5|2|OTA|S-M|Food,Schedules|Paprika, Eat This Much|Scale a recipe and household servings|"Make it for N" before loading the builder; a serving count on a scheduled meal multiplies the grocery lines.
 G6|2|OTA|S-M|Life|Paprika, AnyList|Grocery list by store section|Reference category as the aisle, stores and aisles as an open list the person orders.
 G7|2|OTA|S|Life,Food|OurGroceries|Scan a barcode onto the grocery list|From the scan result, and for non-food Kitchen items.
-G8|2|OTA|S|Life|MyFitnessPal, Eat This Much|Send the list to a store app as text|The share sheet. A delivery API is item Z6.
+G8|2|OTA|S|Life|MyFitnessPal, Eat This Much|Send the list as text to someone without the app|The share sheet on a phone, Save As on a computer. Only lines still to pick up. A delivery API is item Z6.
 G9|3|OTA|M|Food|MyFitnessPal|Log a restaurant or takeaway meal|source restaurant with an estimate flag; a stand-in recipe or ticked ingredients. A chain menu database is Z7.
 G10|2|OTA|S|Food,Insights|Cronometer|Richest foods for a nutrient from inside a builder|Nutrient Ranking linked from the ingredient picker.
 G11|2|OTA|S|Food|Cronometer|Where each food's numbers come from|The national source as a caption.

@@ -278,10 +278,10 @@
 - **Answers:** OurGroceries · **Theme:** Food, scanning and Insights
 - **How:** From the scan result, and for non-food Kitchen items.
 
-### G8. Send the list to a store app as text
+### G8. Send the list as text to someone without the app
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life
 - **Answers:** MyFitnessPal, Eat This Much · **Theme:** Food, scanning and Insights
-- **How:** The share sheet. A delivery API is item Z6.
+- **How:** The share sheet on a phone, Save As on a computer. Only lines still to pick up. A delivery API is item Z6.
 
 ### G10. Richest foods for a nutrient from inside a builder
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Food,Insights

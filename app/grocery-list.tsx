@@ -19,7 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { AppActionSheet } from '../components/AppActionSheet';
 import { AppTextInput } from '../components/AppTextInput';
@@ -36,6 +36,9 @@ import { detectMeasurementSystemFromLocale } from '../lib/measurement';
 import { getStoredMeasurementSystem, getUpcomingShoppingList, type ShoppingListSection } from '../lib/db';
 import { addKitchenItemFromPurchase } from '../lib/kitchenDb';
 import { arrangeByAisle, type GroceryStoreLayout } from '../lib/groceryAisles';
+import { groceryListAsText, groceryListFileName, NOTHING_LEFT_TO_SEND } from '../lib/groceryListText';
+import { isDesktopApp } from '../lib/desktop/bridge';
+import { shareFileIfAvailable } from '../lib/nativeSharing';
 import {
   addGroceryListItem,
   addGroceryStore,
@@ -687,6 +690,34 @@ export default function GroceryListScreen() {
     router.push(`/price-compare?${params.toString()}`);
   }
 
+  // G8, 2026-09-27: what is left to pick up, as words, for somebody without
+  // the app. A phone opens its share sheet; a computer has none, so the text
+  // is saved as a file where the person chooses.
+  async function handleSendAsText() {
+    if (!list) return;
+    const text = groceryListAsText(list.name, list.storeName, sections);
+    if (!text) {
+      showInfoAlert('Nothing to Send', NOTHING_LEFT_TO_SEND);
+      return;
+    }
+    try {
+      if (isDesktopApp()) {
+        const { Directory, File, Paths } = await import('expo-file-system');
+        const dir = new Directory(Paths.cache, 'grocery-lists');
+        if (!dir.exists) dir.create({ intermediates: true });
+        const file = new File(dir, groceryListFileName(list.name));
+        file.write(text);
+        await shareFileIfAvailable(file.uri, { mimeType: 'text/plain', dialogTitle: 'Save the list as text' });
+        return;
+      }
+      await Share.share({ message: text });
+    } catch (error) {
+      // A dismissed share sheet throws on some Android versions; nothing was sent
+      // and nothing needs saying.
+      console.error('[grocery-list] Send as text did not finish', error);
+    }
+  }
+
   function handleScanNewItem() {
     if (!list) return;
     router.navigate(`/food?openFoodLens=scanProduct&groceryListId=${encodeURIComponent(list.id)}`);
@@ -934,6 +965,10 @@ export default function GroceryListScreen() {
           >
             <Ionicons name="barcode-outline" size={18} color={colors.textSecondary} />
             <Text style={styles.secondaryButtonText}>Scan a Household Thing</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={handleSendAsText}>
+            <Ionicons name="chatbox-ellipses-outline" size={18} color={colors.textSecondary} />
+            <Text style={styles.secondaryButtonText}>Send as Text</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.secondaryButton, busy && styles.disabled]}
