@@ -302,6 +302,8 @@ export const DEVICE_LOCAL_TABLES: readonly string[] = [
   'peer_photo_out',
   'peer_photos',
   'daily_nutrient_totals_cache',
+  // A lookup this device could not make (G21); the other device has its own signal.
+  'pending_barcode_scans',
 ];
 
 /**

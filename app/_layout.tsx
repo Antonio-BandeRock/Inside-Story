@@ -16,6 +16,7 @@ import { GardenPlateOfferHost } from '../components/GardenPlateOfferHost';
 import { StartupFailureScreen } from '../components/StartupFailureScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
 import { SnapshotSyncWatcher } from '../components/SnapshotSyncWatcher';
+import { PendingScanWatcher } from '../components/PendingScanWatcher';
 import { StoryReturnHost } from '../components/StoryReturnHost';
 import { StoryWalkHost } from '../components/StoryWalkHost';
 import { TellClaudeHost } from '../components/TellClaudeHost';
@@ -780,6 +781,8 @@ export default function RootLayout() {
                   raises, mounted only once the database is ready, since
                   dbReady is true for everything rendered here. */}
               <SnapshotSyncWatcher />
+              {/* Barcodes scanned with no signal (G21), looked up once there is one. */}
+              <PendingScanWatcher />
               {/* Tell Claude (1.0.49.8): the button and the sheet a note is
                   typed into. Renders nothing at all while the Profile switch
                   is off, which is every install but this one. Before

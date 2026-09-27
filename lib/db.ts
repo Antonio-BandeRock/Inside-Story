@@ -8672,6 +8672,22 @@ async function runDatabaseInitialization() {
       );
     `);
 
+    // G21 (2026-09-27): a barcode scanned with no signal waits here and is
+    // looked up once the lookup services answer (lib/pendingScans.ts). A row
+    // leaves when the person opens it or clears it.
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS pending_barcode_scans (
+        barcode TEXT PRIMARY KEY,
+        scanned_at TEXT NOT NULL,
+        tries INTEGER NOT NULL DEFAULT 0,
+        last_tried_at TEXT,
+        outcome TEXT NOT NULL DEFAULT 'waiting',
+        found_name TEXT,
+        found_brand TEXT,
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+    `);
+
     // 2026-08-30, direct on-device report: "when I had the app create a 6 week
     // meal plan schedule, it seems to have made all of them a favorite
     // automatically. If that is the case, it definitely should not do that."

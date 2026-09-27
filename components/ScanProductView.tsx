@@ -37,6 +37,16 @@ import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { useRouter } from 'expo-router';
 import { lookupProductByBarcode, type LookedUpProduct } from '../lib/barcodeLookup';
+import {
+  QUEUED_TITLE,
+  orderPendingScans,
+  pendingScanCaption,
+  pendingScansHeading,
+  pendingScanTitle,
+  queuedMessage,
+  type PendingScan,
+} from '../lib/pendingScans';
+import { clearPendingScan, getPendingScans, queuePendingScan, subscribePendingScans } from '../lib/pendingScansDb';
 import { routeForDigestEntry } from '../lib/digestNavigation';
 import { getPersonalizationProfile, type TrackedConditionRef } from '../lib/foodPersonalization';
 import type { FoodRestrictionKey } from '../lib/foodRestrictions';
@@ -109,6 +119,7 @@ type ScanStatus =
   | 'photo-tone'
   | 'photo-review'
   | 'saved'
+  | 'queued'
   | 'error';
 
 // 'ingredients' | 'price' -- which real photo step a photo action is for,
@@ -357,6 +368,26 @@ export function ScanProductView({
   const [foodAllergies, setFoodAllergies] = useState<string[]>([]);
   const [foodRestrictions, setFoodRestrictions] = useState<FoodRestrictionKey[]>([]);
 
+  // Barcodes scanned with no signal (G21), shown above the camera. Read
+  // here, looked up by components/PendingScanWatcher.tsx.
+  const [pendingScans, setPendingScans] = useState<PendingScan[]>([]);
+  useEffect(() => {
+    let alive = true;
+    const load = () => {
+      getPendingScans()
+        .then((scans) => {
+          if (alive) setPendingScans(orderPendingScans(scans));
+        })
+        .catch((error) => console.warn('[ScanProductScreen] Failed to read waiting scans', error));
+    };
+    load();
+    const unsubscribe = subscribePendingScans(load);
+    return () => {
+      alive = false;
+      unsubscribe();
+    };
+  }, []);
+
   useEffect(() => {
     if (!permission) return;
     if (!permission.granted && permission.canAskAgain) {
@@ -549,6 +580,7 @@ export function ScanProductView({
         setIngredientsText(existing.ingredientsText ?? '');
         setSavedProductId(existing.id);
         setStatus('ingredients');
+        void clearPendingScan(scanned);
         const storedTags = parseStoredAdditiveTags(existing.additivesJson);
         if (storedTags != null || existing.novaGroup != null) {
           setProcessing({ novaGroup: parseNovaGroup(existing.novaGroup), additiveTags: storedTags ?? [] });
@@ -566,7 +598,19 @@ export function ScanProductView({
         }
         return;
       }
-      const result2 = await lookupProductByBarcode(scanned);
+      let result2: LookedUpProduct | null;
+      try {
+        result2 = await lookupProductByBarcode(scanned);
+      } catch (error) {
+        // No answer from the lookup (G21): keep the barcode and look it up
+        // once there is a signal, rather than asking for it to be scanned
+        // again later.
+        console.warn('[ScanProductScreen] Lookup had no answer, kept for later', error);
+        await queuePendingScan(scanned);
+        setStatus('queued');
+        return;
+      }
+      void clearPendingScan(scanned);
       if (!result2) {
         setStatus('not-found');
         return;
@@ -1076,8 +1120,43 @@ export function ScanProductView({
   }
 
   if (status === 'scanning') {
+    const now = new Date();
     return (
       <View style={styles.screen}>
+        {pendingScans.length > 0 ? (
+          <View style={styles.pendingPanel}>
+            <Text style={styles.pendingHeading}>{pendingScansHeading(pendingScans)}</Text>
+            <ScrollView style={styles.pendingList} nestedScrollEnabled>
+              {pendingScans.map((scan) => (
+                <View key={scan.barcode} style={styles.pendingRow}>
+                  <Text style={styles.pendingTitle}>{pendingScanTitle(scan)}</Text>
+                  <Text style={styles.pendingCaption}>{pendingScanCaption(scan, now)}</Text>
+                  <View style={styles.pendingActions}>
+                    {scan.outcome !== 'not_found' ? (
+                      <TouchableOpacity
+                        style={styles.pendingButton}
+                        activeOpacity={0.85}
+                        onPress={() => {
+                          scanLockRef.current = false;
+                          void handleBarcodeScanned({ data: scan.barcode } as BarcodeScanningResult);
+                        }}
+                      >
+                        <Text style={styles.pendingButtonText}>{scan.outcome === 'found' ? 'Open' : 'Try Now'}</Text>
+                      </TouchableOpacity>
+                    ) : null}
+                    <TouchableOpacity
+                      style={styles.pendingButton}
+                      activeOpacity={0.85}
+                      onPress={() => void clearPendingScan(scan.barcode)}
+                    >
+                      <Text style={styles.pendingButtonText}>Clear</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        ) : null}
         <CameraView
           style={styles.camera}
           facing="back"
@@ -1379,6 +1458,24 @@ export function ScanProductView({
             This barcode isn&apos;t in Open Food Facts or USDA FoodData Central yet. You can still log this food manually
             from any builder&apos;s own ingredient search.
           </Text>
+          <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={resetForNewScan}>
+            <Text style={styles.primaryButtonText}>Scan Another</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={onDone}>
+            <Text style={styles.secondaryButtonText}>Done</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  if (status === 'queued') {
+    return (
+      <View style={styles.screen}>
+        <View style={styles.centerBody}>
+          <Ionicons name="cloud-offline-outline" size={40} color={colors.textMuted} />
+          <Text style={styles.title}>{QUEUED_TITLE}</Text>
+          <Text style={styles.text}>{queuedMessage(barcode ?? '')}</Text>
           <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={resetForNewScan}>
             <Text style={styles.primaryButtonText}>Scan Another</Text>
           </TouchableOpacity>
@@ -1860,6 +1957,16 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   camera: { flex: 1 },
+  // Barcodes scanned with no signal (G21), above the camera.
+  pendingPanel: { ...homeBandStyle, borderColor: colors.tabFood, padding: HOME_BAND_CONTENT_PADDING, gap: 8, marginBottom: HOME_BAND_GAP },
+  pendingList: { maxHeight: 240 },
+  pendingHeading: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
+  pendingRow: { paddingVertical: 8, gap: 4, borderTopWidth: 1, borderTopColor: colors.border },
+  pendingTitle: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  pendingCaption: { ...typography.caption, color: colors.textSecondary, ...textShadow },
+  pendingActions: { flexDirection: 'row', gap: 8, marginTop: 4 },
+  pendingButton: { borderWidth: 1, borderColor: colors.border, borderRadius: 8, paddingVertical: 6, paddingHorizontal: 14, backgroundColor: colors.surfaceMuted },
+  pendingButtonText: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   scanOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
   scanFrame: { width: 260, height: 160, borderWidth: 3, borderColor: colors.accent, borderRadius: 16 },
   scanHint: {
