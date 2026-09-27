@@ -56,6 +56,7 @@ import {
   getMySafeFoodCalls,
   getPrimaryNutrientAmountsBulk,
   getUserNutrientTargets,
+  getUserNutrientWeekdayTargets,
   getUserProfile,
   type DietaryReferenceIntake,
   type IngredientResolutionCaches,
@@ -74,6 +75,7 @@ import {
   type RecipeDietTag,
 } from './digest';
 import { SIDE_DISH_RECIPE_IDS } from './recipeDishRole';
+import { addDays, overridesForDate, weekdayTargetNotes, type WeekdayTargetOverride } from './weekdayTargets';
 
 // A recipe entry that's actually usable by this generator: not a
 // ProblemFoodEntry, carries a real RecipeCard, and has both real fields
@@ -939,6 +941,11 @@ export type DailyMealPlanResult = {
   // carb ceiling, and so on) -- surfaced directly rather than silently
   // returning a plan that quietly falls short of what was asked for.
   warnings: string[];
+  // The calendar date this day was planned for, when the caller gave one,
+  // and one sentence per nutrient whose weekday figure on Profile >
+  // Nutrient Targets was used in place of the every-day one (F21).
+  date?: string;
+  weekdayNotes?: string[];
 };
 
 // 2026-08-26, direct report: "more hydration will have been scheduled
@@ -1164,6 +1171,12 @@ type CandidatePools = {
   // rows, keyed for the repeated per-candidate lookups scoring needs.
   driRows: DietaryReferenceIntake[];
   driByCode: Map<string, DietaryReferenceIntake>;
+  // The same rows before any personal figure is applied, with the every-day
+  // and weekday figures kept apart, so a day planned for a known date can
+  // apply that weekday's figures instead (F21).
+  baseDriByCode: Map<string, DietaryReferenceIntake>;
+  everyDayOverrides: UserNutrientTargetOverride[];
+  weekdayOverrides: WeekdayTargetOverride[];
   // 2026-08-26 -- true whenever Profile is missing sex and/or birth date,
   // the same real completeness check every other DRI-consuming function
   // in lib/db.ts already exposes as its own profileComplete flag (see
@@ -1446,11 +1459,12 @@ async function buildCandidatePools(conditionCodes: string[], dietPreferences: Re
   const bulkNutrients = await getPrimaryNutrientAmountsBulk(Array.from(distinctFoodPairs.values()));
   for (const [key, nutrients] of bulkNutrients) sharedCaches.nutrient.set(key, nutrients);
 
-  const [loadedCandidates, driRows, profile, nutrientTargetOverrides] = await Promise.all([
+  const [loadedCandidates, driRows, profile, nutrientTargetOverrides, weekdayOverrides] = await Promise.all([
     mapWithLimit(uniqueEntryList, DB_FANOUT_LIMIT, (entry) => loadCandidate(entry, sharedCaches, sweetenedRecipeIds, ruleMatchesByRecipeId)),
     getDietaryReferenceIntakesForCurrentUser(),
     getUserProfile(),
     getUserNutrientTargets(),
+    getUserNutrientWeekdayTargets(),
   ]);
   const candidateById = new Map<string, LoadedCandidate>();
   uniqueEntryList.forEach((entry, index) => {
@@ -1467,7 +1481,8 @@ async function buildCandidatePools(conditionCodes: string[], dietPreferences: Re
   const sideCandidates = poolFrom(sidePoolEntries);
   const saladCandidates = poolFrom(saladPoolEntries);
   const beverageCandidates = poolFrom(beveragePoolEntries);
-  const driByCode = applyNutrientTargetOverrides(buildConservativeDriByCode(driRows), nutrientTargetOverrides);
+  const baseDriByCode = buildConservativeDriByCode(driRows);
+  const driByCode = applyNutrientTargetOverrides(baseDriByCode, nutrientTargetOverrides);
   const profileIncomplete = profile.sex == null || profile.birthDate == null;
   return {
     breakfastCandidates,
@@ -1478,6 +1493,9 @@ async function buildCandidatePools(conditionCodes: string[], dietPreferences: Re
     beverageCandidates,
     driRows,
     driByCode,
+    baseDriByCode,
+    everyDayOverrides: nutrientTargetOverrides,
+    weekdayOverrides,
     profileIncomplete,
     myUnsureFoodsByRecipeId,
     myAvoidSetAsideFoods,
@@ -1562,6 +1580,7 @@ async function generateOneDay(
   carbLevel: CarbLevel,
   limitAddedSugar: boolean,
   rotation?: { state: RotationState; daysRemainingInWeekIncludingToday: number },
+  date?: string,
 ): Promise<DailyMealPlanResult> {
   const carbCeiling = carbCeilingForLevel(carbLevel);
   const warnings: string[] = [];
@@ -1570,7 +1589,13 @@ async function generateOneDay(
       'Your Profile is missing a sex and/or birth date, so the nutrient targets below use the most conservative DRI value available rather than one built specifically for you. Add both in Profile for a more accurately personalized plan.',
     );
   }
-  const { breakfastCandidates, lunchMainCandidates, dinnerMainCandidates, sideCandidates, saladCandidates, beverageCandidates, driByCode } = pools;
+  const { breakfastCandidates, lunchMainCandidates, dinnerMainCandidates, sideCandidates, saladCandidates, beverageCandidates } = pools;
+  // A day planned for a known date uses that weekday's figures where
+  // Profile > Nutrient Targets has any (F21); otherwise the every-day ones.
+  const usesWeekday = date != null && pools.weekdayOverrides.length > 0;
+  const driByCode = usesWeekday
+    ? applyNutrientTargetOverrides(pools.baseDriByCode, overridesForDate(pools.everyDayOverrides, pools.weekdayOverrides, date))
+    : pools.driByCode;
   // Built once here, from driByCode's own values (already deduped to one
   // conservative, override-applied row per nutrient -- see
   // buildConservativeDriByCode/applyNutrientTargetOverrides), and reused
@@ -1860,6 +1885,7 @@ async function generateOneDay(
     totalCarbGrams,
     carbCeiling,
     warnings,
+    ...(date != null ? { date, weekdayNotes: weekdayTargetNotes(pools.weekdayOverrides, date) } : {}),
   };
 }
 
@@ -1883,10 +1909,12 @@ export async function generateDailyMealPlan(options: {
   // Optional and defaulted to false so every pre-existing caller keeps
   // behaving exactly as before.
   limitAddedSugar?: boolean;
+  // The calendar date the day is for, so a weekday figure can apply (F21).
+  date?: string;
 }): Promise<DailyMealPlanResult> {
   return retryOnceOnReleasedObject(async () => {
     const pools = await buildCandidatePools(options.conditionCodes, options.dietPreferences);
-    return generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false);
+    return generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false, undefined, options.date);
   });
 }
 
@@ -1915,6 +1943,8 @@ export async function generateMealPlanDays(options: {
   carbLevel: CarbLevel;
   days: number;
   limitAddedSugar?: boolean;
+  // The date of the first day; day N is this date plus N - 1 (F21).
+  startDate?: string;
 }): Promise<DailyMealPlanResult[]> {
   const days = Math.max(1, Math.min(42, Math.round(options.days)));
   return retryOnceOnReleasedObject(async () => {
@@ -1928,7 +1958,7 @@ export async function generateMealPlanDays(options: {
       const result = await generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false, {
         state: rotationState,
         daysRemainingInWeekIncludingToday,
-      });
+      }, options.startDate ? addDays(options.startDate, dayIndex) : undefined);
       results.push(result);
     }
     return results;

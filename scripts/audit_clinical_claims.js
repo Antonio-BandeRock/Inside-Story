@@ -58,6 +58,7 @@ const NAMED = [
   'lib/periodAverages.ts',
   'lib/longRange.ts',
   'lib/sinceLastVisit.ts',
+  'lib/weekdayTargets.ts',
   'lib/patternFactors.ts',
   'lib/foodExperiment.ts',
   'lib/yourUsual.ts',

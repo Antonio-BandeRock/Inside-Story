@@ -46,6 +46,7 @@ import type { RecipeDepthResult } from './recipeDepth';
 // functions below build exactly these, which is what lets the Schedules
 // screen hand them straight to buildDayTimeline.
 import type { TimelineDose, TimelineMeal } from './doseMealTiming';
+import type { WeekdayTargetOverride } from './weekdayTargets';
 import { customTagFromRow, setCustomCheckinTags, type CheckinTagDefinition, type CustomCheckinTagRow } from './checkinTags';
 
 // Exported as of 2026-08-19 -- lib/visualPreferences.ts's own
@@ -6118,6 +6119,22 @@ async function runDatabaseInitialization() {
         target_amount REAL,
         limit_amount REAL,
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      -- A different figure on chosen days of the week, F21 of the
+      -- competitive build plan (2026-09-26). A row here replaces the
+      -- every-day row above for one nutrient on one weekday (0 is Sunday,
+      -- JavaScript's numbering), side by side, and a side left null falls
+      -- back to the every-day row. Both sides null deletes the row. A new
+      -- table rather than a column on user_nutrient_targets, since that
+      -- table's key is the nutrient alone and SQLite cannot change a key.
+      CREATE TABLE IF NOT EXISTS user_nutrient_weekday_targets (
+        nutrient_code TEXT NOT NULL,
+        weekday INTEGER NOT NULL,
+        target_amount REAL,
+        limit_amount REAL,
+        updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+        PRIMARY KEY (nutrient_code, weekday)
       );
 
       -- The person's own real, individually-declared food allergies,
@@ -18470,6 +18487,43 @@ export async function setUserNutrientTargetOverride(nutrientCode: string, target
      VALUES (?, ?, ?, datetime('now'))
      ON CONFLICT(nutrient_code) DO UPDATE SET target_amount = excluded.target_amount, limit_amount = excluded.limit_amount, updated_at = excluded.updated_at`,
     nutrientCode,
+    targetAmount,
+    limitAmount,
+  );
+}
+
+// Weekday figures for the same targets (user_nutrient_weekday_targets,
+// F21). lib/weekdayTargets.ts decides which one holds on a date.
+export async function getUserNutrientWeekdayTargets(): Promise<WeekdayTargetOverride[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ nutrient_code: string; weekday: number; target_amount: number | null; limit_amount: number | null }>(
+    'SELECT nutrient_code, weekday, target_amount, limit_amount FROM user_nutrient_weekday_targets ORDER BY nutrient_code, weekday',
+  );
+  return rows.map((row) => ({
+    nutrientCode: row.nutrient_code,
+    weekday: row.weekday,
+    targetAmount: row.target_amount,
+    limitAmount: row.limit_amount,
+  }));
+}
+
+export async function setUserNutrientWeekdayTarget(
+  nutrientCode: string,
+  weekday: number,
+  targetAmount: number | null,
+  limitAmount: number | null,
+): Promise<void> {
+  const db = await getDatabase();
+  if (targetAmount == null && limitAmount == null) {
+    await db.runAsync('DELETE FROM user_nutrient_weekday_targets WHERE nutrient_code = ? AND weekday = ?', nutrientCode, weekday);
+    return;
+  }
+  await db.runAsync(
+    `INSERT INTO user_nutrient_weekday_targets (nutrient_code, weekday, target_amount, limit_amount, updated_at)
+     VALUES (?, ?, ?, ?, datetime('now'))
+     ON CONFLICT(nutrient_code, weekday) DO UPDATE SET target_amount = excluded.target_amount, limit_amount = excluded.limit_amount, updated_at = excluded.updated_at`,
+    nutrientCode,
+    weekday,
     targetAmount,
     limitAmount,
   );

@@ -13,6 +13,7 @@ import { GenericBackground } from '../components/GenericBackground';
 import { HelpButton, type HelpSection } from '../components/HelpButton';
 import { ActiveRingCircle } from '../components/ActiveRingCircle';
 import { PopoverSelect } from '../components/PopoverSelect';
+import { NUTRIENT_TARGET_FIELDS, WEEKDAY_NAMES, WEEKDAY_ORDER, weekdayValuesFor, type NutrientTargetField, type WeekdayTargetOverride } from '../lib/weekdayTargets';
 import { usePasswordPrompt } from '../components/PasswordPrompt';
 import { useBusyOverlay } from '../components/BusyOverlay';
 import { useConfirmSheet } from '../components/ConfirmSheet';
@@ -154,6 +155,7 @@ import {
   getStoredMeasurementSystem,
   getUserConditions,
   getUserNutrientTargets,
+  getUserNutrientWeekdayTargets,
   getUserProfile,
   listAllConditions,
   listBodyMeasurements,
@@ -173,6 +175,7 @@ import {
   setStoredMeasurementSystem,
   setUserConditionSelected,
   setUserNutrientTargetOverride,
+  setUserNutrientWeekdayTarget,
   realignPlannedMealTimes,
   setUserProfile,
   SymptomAssessmentRecord,
@@ -347,11 +350,9 @@ const CHECKIN_REMINDER_OPTIONS: { value: number; label: string }[] = [
   { value: 180, label: 'Every 6 months' },
   { value: 365, label: 'Once a year' },
 ];
-const NUTRIENT_TARGET_FIELDS: { nutrientCode: string; label: string; unit: string; isCeiling: boolean }[] = [
-  { nutrientCode: 'protein', label: 'Protein', unit: 'g', isCeiling: false },
-  { nutrientCode: 'fiber_total', label: 'Fiber', unit: 'g', isCeiling: false },
-  { nutrientCode: 'sodium', label: 'Sodium', unit: 'mg', isCeiling: true },
-];
+// NUTRIENT_TARGET_FIELDS moved to lib/weekdayTargets.ts (F21), where the
+// meal plan generator reads the same list for its weekday notes.
+const WEEKDAY_PICK_OPTIONS = WEEKDAY_ORDER.map((weekday) => ({ value: String(weekday), label: WEEKDAY_NAMES[weekday] }));
 
 // Kept in the same order the cards actually render in, 2026-09-04. Nothing
 // here depends on that order (this list only seeds the all-collapsed Set
@@ -779,6 +780,24 @@ export default function ProfileScreen() {
   const [nutrientTargets, setNutrientTargets] = useState<UserNutrientTargetOverride[]>([]);
   const [nutrientDriRows, setNutrientDriRows] = useState<DietaryReferenceIntake[]>([]);
   const [nutrientTargetInputs, setNutrientTargetInputs] = useState<Record<string, string>>({});
+  // A different figure on chosen weekdays (user_nutrient_weekday_targets,
+  // F21), with the weekday picked and the number typed for each field.
+  const [weekdayTargets, setWeekdayTargets] = useState<WeekdayTargetOverride[]>([]);
+  const [weekdayPicks, setWeekdayPicks] = useState<Record<string, string>>({});
+  const [weekdayInputs, setWeekdayInputs] = useState<Record<string, string>>({});
+  useEffect(() => {
+    let cancelled = false;
+    getUserNutrientWeekdayTargets()
+      .then((rows) => {
+        if (!cancelled) setWeekdayTargets(rows);
+      })
+      .catch(() => {
+        // Nothing set is the ordinary state; the card then shows none.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   // Live, app-wide (lib/visualPreferences.ts): reading it via the same
   // hook every consumer uses means this screen's pills always reflect
   // whatever's really stored, and every edit here reaches the shared
@@ -1619,7 +1638,27 @@ export default function ProfileScreen() {
   // non-numeric or non-positive entry is treated the same way rather
   // than silently accepted, so a mistyped field can't quietly zero out a
   // real nutrient target.
-  async function saveNutrientTargetOverride(field: (typeof NUTRIENT_TARGET_FIELDS)[number]) {
+  // One weekday's figure for one field. The other side of the row is kept,
+  // and a blank or unusable number removes this side, the same contract
+  // as the every-day field above.
+  async function saveWeekdayTarget(field: NutrientTargetField, weekday: number, raw: string) {
+    const parsed = raw.trim() === '' ? null : Number(raw.trim());
+    const value = parsed != null && Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    const existing = weekdayTargets.find((row) => row.nutrientCode === field.nutrientCode && row.weekday === weekday);
+    const targetAmount = field.isCeiling ? existing?.targetAmount ?? null : value;
+    const limitAmount = field.isCeiling ? value : existing?.limitAmount ?? null;
+    await setUserNutrientWeekdayTarget(field.nutrientCode, weekday, targetAmount, limitAmount);
+    setWeekdayTargets((current) => {
+      const withoutThis = current.filter((row) => !(row.nutrientCode === field.nutrientCode && row.weekday === weekday));
+      return targetAmount == null && limitAmount == null
+        ? withoutThis
+        : [...withoutThis, { nutrientCode: field.nutrientCode, weekday, targetAmount, limitAmount }];
+    });
+    setWeekdayInputs((current) => ({ ...current, [field.nutrientCode]: '' }));
+    flashSaved();
+  }
+
+  async function saveNutrientTargetOverride(field: NutrientTargetField) {
     const raw = (nutrientTargetInputs[field.nutrientCode] ?? '').trim();
     const parsed = raw === '' ? null : Number(raw);
     const value = parsed != null && Number.isFinite(parsed) && parsed > 0 ? parsed : null;
@@ -4101,7 +4140,9 @@ export default function ProfileScreen() {
               Every nutrient the Daily Meal Plan generator tracks already defaults to a published DRI figure
               for your age and sex. Set a custom number below only if you need more of one (protein,
               fiber) or a stricter ceiling on one (sodium) than the general population. Leave a field blank to go
-              back to your default at any time.
+              back to your default at any time. Under each one you can also give a different number for
+              chosen days of the week, such as more protein on a day you train; the Daily Meal Plan uses it on
+              those days only.
             </Text>
             {NUTRIENT_TARGET_FIELDS.map((field) => {
               const matchingRows = nutrientDriRows.filter((row) => row.nutrientCode === field.nutrientCode);
@@ -4116,7 +4157,8 @@ export default function ProfileScreen() {
               const overrideValue = field.isCeiling ? override?.limitAmount : override?.targetAmount;
               const inputValue = nutrientTargetInputs[field.nutrientCode] ?? (overrideValue != null ? String(overrideValue) : '');
               return (
-                <View key={field.nutrientCode} style={[styles.dateRow, { marginTop: 12 }]}>
+                <View key={field.nutrientCode}>
+                <View style={[styles.dateRow, { marginTop: 12 }]}>
                   <View style={{ flex: 1 }}>
                     <Text style={styles.helpText}>
                       {field.label} ({field.isCeiling ? 'ceiling' : 'floor'}), your default: {defaultLabel}
@@ -4135,6 +4177,46 @@ export default function ProfileScreen() {
                   >
                     <Text style={styles.addAllergyButtonText}>Save</Text>
                   </TouchableOpacity>
+                </View>
+                {weekdayValuesFor(weekdayTargets, field.nutrientCode, field.isCeiling).map((entry) => (
+                  <View key={entry.weekday} style={[styles.dateRow, { marginTop: 6 }]}>
+                    <Text style={[styles.helpText, { flex: 1 }]}>
+                      {entry.name}: {entry.value}
+                      {field.unit}
+                    </Text>
+                    <TouchableOpacity style={styles.addAllergyButton} onPress={() => saveWeekdayTarget(field, entry.weekday, '')}>
+                      <Text style={styles.addAllergyButtonText}>Remove</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+                <View style={[styles.dateRow, { marginTop: 6 }]}>
+                  <PopoverSelect
+                    options={WEEKDAY_PICK_OPTIONS}
+                    selected={weekdayPicks[field.nutrientCode] ?? null}
+                    placeholder="A weekday"
+                    minWidth={120}
+                    tabColor={colors.menuIconMuted}
+                    groundSurface
+                    onSelect={(value) => setWeekdayPicks((current) => ({ ...current, [field.nutrientCode]: value }))}
+                  />
+                  <AppTextInput
+                    style={[styles.input, styles.nameInput, { flex: 1, marginHorizontal: 8 }]}
+                    placeholder={field.unit}
+                    keyboardType="numeric"
+                    value={weekdayInputs[field.nutrientCode] ?? ''}
+                    onChangeText={(text) => setWeekdayInputs((current) => ({ ...current, [field.nutrientCode]: text }))}
+                  />
+                  <TouchableOpacity
+                    style={styles.addAllergyButton}
+                    onPress={() => {
+                      const picked = weekdayPicks[field.nutrientCode];
+                      if (picked == null) return;
+                      void saveWeekdayTarget(field, Number(picked), weekdayInputs[field.nutrientCode] ?? '');
+                    }}
+                  >
+                    <Text style={styles.addAllergyButtonText}>Save for that day</Text>
+                  </TouchableOpacity>
+                </View>
                 </View>
               );
             })}

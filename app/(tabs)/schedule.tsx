@@ -24,6 +24,7 @@ import {
   getDietPreferences,
   getUpcomingScheduleCountsByType,
   getUserConditions,
+  getUserNutrientWeekdayTargets,
   getUserProfile,
   hasStandingHydrationRoutine,
   linkScheduleItemToDeviceCalendarEvent,
@@ -116,6 +117,7 @@ import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { describeStatus } from '../../lib/reconciliation';
 import { modalAnimationType } from '../../lib/visualPreferences';
 import { describeRepeat, describeRepeatPattern, validateRepeatRule, weekdayOf, weekdaysFromColumn } from '../../lib/repeatRule';
+import { WEEKDAY_NAMES, sameWeekday, weekdayOf as targetWeekdayOf } from '../../lib/weekdayTargets';
 import { useWalkMark } from '../../components/WalkMark';
 
 // Every text box on this page belongs to this one page's own tab, so
@@ -1966,6 +1968,11 @@ function DailyPlanFullReport({
           ⚠ {warning}
         </Text>
       ))}
+      {(day.weekdayNotes ?? []).map((note, index) => (
+        <Text key={`weekday-${index}`} style={styles.helperText}>
+          {note}
+        </Text>
+      ))}
     </>
   );
 
@@ -2173,6 +2180,12 @@ function DailyMealPlanLens() {
   const [plans, setPlans] = useState<DailyMealPlanResult[]>([]);
   const [scheduleDate, setScheduleDate] = useState(todayDateString());
   const [scheduling, setScheduling] = useState(false);
+  // The date the plan on screen was built from, and whether Profile >
+  // Nutrient Targets holds any weekday figures (F21). With weekday figures,
+  // day 1 was planned for that date's weekday, so putting the plan on the
+  // calendar from a different weekday asks for a new plan first.
+  const [generatedStart, setGeneratedStart] = useState<string | null>(null);
+  const [hasWeekdayTargets, setHasWeekdayTargets] = useState(false);
   // 2026-08-26, direct request: "Each week per day needs to be available
   // for viewing so they can go through their whole week and swap things
   // out if they need to." Multi-day plans used to show only a condensed
@@ -2192,11 +2205,12 @@ function DailyMealPlanLens() {
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
-      Promise.all([getUserConditions(), getDietPreferences()])
-        .then(([codes, tags]) => {
+      Promise.all([getUserConditions(), getDietPreferences(), getUserNutrientWeekdayTargets()])
+        .then(([codes, tags, weekdayTargets]) => {
           if (cancelled) return;
           setConditionCodes(codes);
           setDietPreferences(tags as RecipeDietTag[]);
+          setHasWeekdayTargets(weekdayTargets.length > 0);
         })
         .catch(() => {
           // Best-effort only -- a failure here just means generation runs
@@ -2236,13 +2250,17 @@ function DailyMealPlanLens() {
         myConditionCodes: conditionCodes,
         today: new Date().toISOString().slice(0, 10),
       });
+      const startDate = isValidDateString(scheduleDate) ? scheduleDate : todayDateString();
       const results = await generateMealPlanDays({
         conditionCodes: scope.conditionCodes,
         dietPreferences,
         carbLevel,
         days: daysToGenerate,
         limitAddedSugar,
+        startDate,
       });
+      setGeneratedStart(startDate);
+      setScheduleDate(startDate);
       setPlanningScope(scope);
       setPlans(results);
     } catch (error) {
@@ -2275,6 +2293,7 @@ function DailyMealPlanLens() {
         dietPreferences,
         carbLevel,
         limitAddedSugar,
+        date: generatedStart ? addDaysToLocalDate(generatedStart, index) : undefined,
       });
       setPlans((current) => current.map((day, i) => (i === index ? result : day)));
     } catch (error) {
@@ -2288,6 +2307,13 @@ function DailyMealPlanLens() {
     if (plans.length === 0) return;
     if (!isValidDateString(scheduleDate)) {
       showInfoAlert('Almost there', 'Enter a valid date (YYYY-MM-DD).');
+      return;
+    }
+    if (hasWeekdayTargets && generatedStart && !sameWeekday(scheduleDate, generatedStart)) {
+      showInfoAlert(
+        'Plan again for this date',
+        `This plan was made starting on a ${WEEKDAY_NAMES[targetWeekdayOf(generatedStart)]}, using your weekday nutrient targets for each day. ${scheduleDate} is a ${WEEKDAY_NAMES[targetWeekdayOf(scheduleDate)]}, so tap Generate again and the days will follow the new dates.`,
+      );
       return;
     }
     const mealPlanDays = plans.map((result, index) => dailyMealPlanToMealPlanDay(result, index + 1)).filter((day): day is NonNullable<typeof day> => day !== null);
@@ -2445,7 +2471,7 @@ function DailyMealPlanLens() {
             <View key={index} style={styles.bandOut}>
               <HomeSectionBand
                 kind="fold"
-                title={`Day ${index + 1}`}
+                title={day.date ? `Day ${index + 1}, ${WEEKDAY_NAMES[targetWeekdayOf(day.date)]}` : `Day ${index + 1}`}
                 icon="calendar-outline"
                 renderIcon={() => <View style={[styles.dailyPlanHealthDot, { backgroundColor: healthRatingDotColor(day.healthRating) }]} />}
                 color={TAB_COLOR}
@@ -2470,6 +2496,11 @@ function DailyMealPlanLens() {
         <View style={styles.formCard}>
           <Text style={styles.label}>Add to your schedule</Text>
           <Text style={styles.helperText}>{plans.length === 1 ? 'Starting on this date.' : `All ${plans.length} days, starting on this date.`}</Text>
+          {hasWeekdayTargets && generatedStart ? (
+            <Text style={styles.helperText}>
+              Planned from {generatedStart}, a {WEEKDAY_NAMES[targetWeekdayOf(generatedStart)]}, with your weekday nutrient targets. Another start date on the same weekday keeps them lined up.
+            </Text>
+          ) : null}
           <AppTextInput style={styles.input} placeholder="YYYY-MM-DD" value={scheduleDate} onChangeText={setScheduleDate} />
           <TouchableOpacity
             style={[styles.primaryButton, { marginTop: 12 }, scheduling && styles.primaryButtonDisabled]}
