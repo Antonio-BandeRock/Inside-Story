@@ -3485,6 +3485,38 @@ export async function getMealsBeforeByFoodName(): Promise<Map<string, number>> {
   return byName;
 }
 
+// Oxalate Level tier and category per food, for the absorption estimate
+// on Insights > Nutrients (G13). Read only when a calcium, iron or zinc row
+// is opened, through the foods primary key and the food_scores
+// (food_id, source) index, in chunks under SQLite's variable limit.
+export async function getAbsorptionFoodFacts(
+  foodKeys: string[],
+): Promise<Map<string, { category: string | null; oxalateTier: string | null }>> {
+  const result = new Map<string, { category: string | null; oxalateTier: string | null }>();
+  const pairs: { key: string; foodId: number; source: string }[] = [];
+  for (const key of new Set(foodKeys)) {
+    const [idText, source] = key.split('|');
+    const foodId = Number(idText);
+    if (source && !Number.isNaN(foodId)) pairs.push({ key, foodId, source });
+  }
+  if (pairs.length === 0) return result;
+  const db = await getDatabase();
+  for (let start = 0; start < pairs.length; start += 400) {
+    const chunk = pairs.slice(start, start + 400);
+    const rows = await db.getAllAsync<{ foodId: number; source: string; category: string | null; tier: string | null }>(
+      `SELECT f.food_id AS foodId, f.source, f.category, s.tier
+       FROM foods f
+       LEFT JOIN food_scores s ON s.food_id = f.food_id AND s.source = f.source AND s.sub_criterion_id = 21
+       WHERE ${chunk.map(() => '(f.food_id = ? AND f.source = ?)').join(' OR ')}`,
+      ...chunk.flatMap((pair) => [pair.foodId, pair.source]),
+    );
+    for (const row of rows) {
+      result.set(`${row.foodId}|${row.source}`, { category: row.category, oxalateTier: row.tier });
+    }
+  }
+  return result;
+}
+
 // The reverse of rankFoodsByNutrient -- 2026-08-14, direct request in the
 // same message as the prep-state filter above: "the user should be able
 // to select any specific food to see how it ranks in other nutrients,
@@ -19715,6 +19747,10 @@ export type DailyNutrientScopeTotals = Record<string, number>;
 export type DailyNutrientItemBreakdown = {
   foodName: string;
   totals: DailyNutrientScopeTotals;
+  // Set by getDailyNutrientBreakdown only, for the absorption estimate
+  // (G13): the "<food_id>|<source>" key and the grams this person ate.
+  foodKey?: string;
+  grams?: number;
 };
 
 export type DailyNutrientSideBreakdown = {
@@ -19869,7 +19905,7 @@ export async function getDailyNutrientBreakdown(date: string): Promise<DailyNutr
         sideOrder.push(sideKey);
       }
       const side = sidesByKey.get(sideKey)!;
-      side.items.push({ foodName: item.foodName, totals: itemTotals });
+      side.items.push({ foodName: item.foodName, totals: itemTotals, foodKey: `${foodId}|${source}`, grams: gramsConsumedByThisPerson });
       addInto(side.totals, itemTotals);
       addInto(mealTotals, itemTotals);
       addInto(dayTotals, itemTotals);

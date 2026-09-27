@@ -8,6 +8,7 @@ import { formatTime12 } from '../../lib/timeOfDay';
 import {
   classifyPrepStateGroup,
   getMealsBeforeByFoodName,
+  getAbsorptionFoodFacts,
   getPersonalizedSafeFoodIds,
   classifyProteinSource,
   createPersonalRule,
@@ -100,6 +101,16 @@ import {
   type GapFood,
   type NutrientShortfall,
 } from '../../lib/nutrientGapFoods';
+import {
+  absorptionHeadline,
+  absorptionNotes,
+  absorptionTierLine,
+  estimateAbsorption,
+  isAbsorptionNutrient,
+  type AbsorptionEstimate,
+  type AbsorptionItem,
+  type AbsorptionNutrient,
+} from '../../lib/mineralAbsorption';
 import { richFoodKey, richFoodLabel } from '../../lib/nutrientRichPicks';
 import { ageFromBirthDate } from '../../lib/profile';
 import {
@@ -1680,6 +1691,62 @@ function NutrientGapFoods({ entry, shortfall }: { entry: NutrientGapEntry; short
   );
 }
 
+// About how much of the day's calcium, iron or zinc from food the body
+// takes up (G13, 2026-09-27; the methods and their sources are in
+// lib/mineralAbsorption.ts). Mounted only while its row is open, and reads
+// the oxalate tier and category of that day's foods only then.
+function MineralAbsorption({ breakdown, nutrient, unit }: { breakdown: DailyNutrientBreakdown; nutrient: AbsorptionNutrient; unit: string }) {
+  const [estimate, setEstimate] = useState<AbsorptionEstimate | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    setEstimate(null);
+    setFailed(false);
+    const eaten: { mealId: string; foodKey: string; grams: number; totals: Record<string, number> }[] = [];
+    for (const meal of breakdown.meals) {
+      for (const side of meal.sides) {
+        for (const item of side.items) {
+          if (item.foodKey) eaten.push({ mealId: meal.mealId, foodKey: item.foodKey, grams: item.grams ?? 0, totals: item.totals });
+        }
+      }
+    }
+    getAbsorptionFoodFacts(eaten.map((item) => item.foodKey))
+      .then((facts) => {
+        if (cancelled) return;
+        const items: AbsorptionItem[] = eaten.map((item) => ({
+          mealId: item.mealId,
+          grams: item.grams,
+          totals: item.totals,
+          category: facts.get(item.foodKey)?.category ?? null,
+          oxalateTier: facts.get(item.foodKey)?.oxalateTier ?? null,
+        }));
+        setEstimate(estimateAbsorption(nutrient, items));
+      })
+      .catch(() => {
+        if (!cancelled) setFailed(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [breakdown, nutrient]);
+
+  const format = (value: number) => formatAmount(value, unit);
+  if (failed) return <Text style={styles.detailText}>The absorption estimate could not be worked out just now.</Text>;
+  if (estimate == null) return <ActivityIndicator size="small" color={TAB_COLOR} />;
+  return (
+    <View style={styles.gapFoodsBlock}>
+      <Text style={styles.sourceSplitText}>{absorptionHeadline(estimate, format)}</Text>
+      {estimate.eaten > 0
+        ? [...estimate.method, absorptionTierLine(estimate.tier), ...absorptionNotes(breakdown.supplementTotals[nutrient] ?? 0, format)].map((line) => (
+            <Text key={line} style={styles.gapFoodCaption}>
+              {line}
+            </Text>
+          ))
+        : null}
+    </View>
+  );
+}
+
 export function NutrientsTable({
   breakdown,
   scope,
@@ -1833,6 +1900,9 @@ export function NutrientsTable({
               {rowExpanded ? (
                 <View style={styles.detailBlock}>
                   {split ? <Text style={styles.sourceSplitText}>{split.sentence}</Text> : null}
+                  {rowExpanded && isDayScope && isAbsorptionNutrient(entry.nutrientCode) ? (
+                    <MineralAbsorption breakdown={breakdown} nutrient={entry.nutrientCode} unit={entry.unit} />
+                  ) : null}
                   {shortfall ? <NutrientGapFoods entry={entry} shortfall={shortfall} /> : null}
                   {contributors.length === 0 ? (
                     <Text style={styles.detailText}>Nothing logged here actually contributed to this.</Text>
