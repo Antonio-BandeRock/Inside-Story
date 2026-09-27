@@ -20724,6 +20724,10 @@ export type WellbeingCheckin = {
   tags: string[];
   // D4: how bad each symptom was, by tag code; absent when not rated.
   tagSeverity: Record<string, number>;
+  // D6: symptoms on the daily list rated None today. Stored as a tag row
+  // with severity 0 and kept out of `tags`, so everything that reads tags as
+  // "this was present" stays right.
+  noneToday: string[];
   createdAt: string;
 };
 
@@ -20792,7 +20796,7 @@ export async function recordCheckin(input: {
 
 async function attachCheckinTags(
   db: SQLite.SQLiteDatabase,
-  checkins: Omit<WellbeingCheckin, 'tags' | 'tagSeverity'>[],
+  checkins: Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday'>[],
 ): Promise<WellbeingCheckin[]> {
   if (checkins.length === 0) return [];
 
@@ -20804,7 +20808,12 @@ async function attachCheckinTags(
 
   const tagsByCheckin = new Map<string, string[]>();
   const severityByCheckin = new Map<string, Record<string, number>>();
+  const noneByCheckin = new Map<string, string[]>();
   for (const row of tagRows) {
+    if (row.severity === 0) {
+      noneByCheckin.set(row.checkin_id, [...(noneByCheckin.get(row.checkin_id) ?? []), row.tag_code]);
+      continue;
+    }
     const existing = tagsByCheckin.get(row.checkin_id) ?? [];
     existing.push(row.tag_code);
     tagsByCheckin.set(row.checkin_id, existing);
@@ -20819,6 +20828,7 @@ async function attachCheckinTags(
     ...checkin,
     tags: tagsByCheckin.get(checkin.id) ?? [],
     tagSeverity: severityByCheckin.get(checkin.id) ?? {},
+    noneToday: noneByCheckin.get(checkin.id) ?? [],
   }));
 }
 
@@ -20848,7 +20858,7 @@ export async function listCheckins(
   const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
   const limit = filters.limit ?? 50;
 
-  const rows = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity'>>(
+  const rows = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday'>>(
     `
       SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
              related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,
@@ -21063,7 +21073,7 @@ export async function getTherapyResponseInputs(days: number): Promise<{
 // todayDateString()).
 export async function getCheckinForDate(date: string, checkinType: CheckinType): Promise<WellbeingCheckin | null> {
   const db = await getDatabase();
-  const row = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity'>>(
+  const row = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday'>>(
     `
       SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
              related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,

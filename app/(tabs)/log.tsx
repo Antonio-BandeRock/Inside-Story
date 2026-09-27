@@ -797,6 +797,9 @@ function CheckinRow({ entry, onDelete }: { entry: WellbeingCheckin; onDelete: (i
               .join(', ')}
           </Text>
         ) : null}
+        {entry.noneToday.length > 0 ? (
+          <Text style={styles.rowMeta}>{`None today: ${entry.noneToday.map(tagLabel).join(', ')}`}</Text>
+        ) : null}
         {entry.notes ? <Text style={styles.rowMeta}>{entry.notes}</Text> : null}
         {/* A rash, a swelling or a reaction looks different by tomorrow, and a
             photo from the day is what a doctor asks for. The doctor report

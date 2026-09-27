@@ -89,7 +89,7 @@ async function listCheckinsAround(today: string): Promise<SignalCheckin[]> {
   if (rows.length === 0) return [];
   const tags = await db.getAllAsync<{ checkinId: string; tagCode: string }>(
     `SELECT checkin_id AS checkinId, tag_code AS tagCode FROM checkin_tags
-     WHERE checkin_id IN (${rows.map(() => '?').join(', ')})`,
+     WHERE (severity IS NULL OR severity > 0) AND checkin_id IN (${rows.map(() => '?').join(', ')})`,
     ...rows.map((row) => row.id),
   );
   return rows.map((row) => ({

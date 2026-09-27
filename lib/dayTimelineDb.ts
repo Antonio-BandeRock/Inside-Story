@@ -174,7 +174,7 @@ export async function loadDayTimeline(now: number = Date.now()): Promise<DayTime
       ? []
       : await db.getAllAsync<{ checkinId: string; tagCode: string }>(
           `SELECT checkin_id AS checkinId, tag_code AS tagCode FROM checkin_tags
-            WHERE checkin_id IN (${checkinRows.map(() => '?').join(', ')})`,
+            WHERE (severity IS NULL OR severity > 0) AND checkin_id IN (${checkinRows.map(() => '?').join(', ')})`,
           ...checkinRows.map((row) => row.id),
         );
   const checkins: TimelineCheckinInput[] = checkinRows.map((row) => ({

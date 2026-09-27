@@ -46,6 +46,7 @@ const NAMED = [
   'lib/interactionRules.ts',
   'lib/keepReminding.ts',
   'lib/patternFinder.ts',
+  'lib/dailyList.ts',
   'lib/patternRules.ts',
   'lib/patternBasis.ts',
   'lib/patternContext.ts',

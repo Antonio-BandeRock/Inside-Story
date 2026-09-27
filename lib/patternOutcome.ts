@@ -8,7 +8,10 @@
 // every sentence Pattern Finder writes names what was actually counted
 // rather than calling a low-mood day a flare.
 
-export type PatternOutcome = 'flares' | 'lowMood' | 'lowEnergy' | 'highStress';
+// D6 adds a fifth: days something on the daily list was rated Moderate or
+// worse (lib/dailyList.ts).
+export type PatternOutcome = 'flares' | 'lowMood' | 'lowEnergy' | 'highStress' | 'listSymptoms';
+export type ScaleOutcome = 'lowMood' | 'lowEnergy' | 'highStress';
 
 export type OutcomeWords = {
   /** "flare or reaction", counted: "Based on 1 flare or reaction". */
@@ -30,6 +33,7 @@ export const PATTERN_OUTCOMES: { key: PatternOutcome; label: string }[] = [
   { key: 'lowMood', label: 'Low mood days' },
   { key: 'lowEnergy', label: 'Low energy days' },
   { key: 'highStress', label: 'High stress days' },
+  { key: 'listSymptoms', label: 'Daily list days' },
 ];
 
 export const OUTCOME_WORDS: Record<PatternOutcome, OutcomeWords> = {
@@ -69,11 +73,20 @@ export const OUTCOME_WORDS: Record<PatternOutcome, OutcomeWords> = {
     logged: 'day I rated my stress 4 or 5',
     loggedMany: 'days I rated my stress 4 or 5',
   },
+  listSymptoms: {
+    one: 'daily list day',
+    many: 'daily list days',
+    short: 'daily list day',
+    shortMany: 'daily list days',
+    owner: 'the',
+    logged: 'day I rated something on my daily list Moderate or worse',
+    loggedMany: 'days I rated something on my daily list Moderate or worse',
+  },
 };
 
 // Which answer counts. The two ends of each scale, and nothing in the
 // middle, so a 3 is never read as a bad day.
-const SCALE_OF: Record<Exclude<PatternOutcome, 'flares'>, { key: 'mood' | 'energy' | 'stress'; counts: (value: number) => boolean }> = {
+const SCALE_OF: Record<ScaleOutcome, { key: 'mood' | 'energy' | 'stress'; counts: (value: number) => boolean }> = {
   lowMood: { key: 'mood', counts: (value) => value <= 2 },
   lowEnergy: { key: 'energy', counts: (value) => value <= 2 },
   highStress: { key: 'stress', counts: (value) => value >= 4 },
@@ -89,11 +102,16 @@ export function outcomeCountsSentence(outcome: PatternOutcome): string {
       return 'Counting each day you rated your energy 1 or 2, once per day, at the time of that answer.';
     case 'highStress':
       return 'Counting each day you rated your stress 4 or 5, once per day, at the time of that answer.';
+    case 'listSymptoms':
+      return 'Counting each day you rated something on your daily list Moderate or worse, once per day, at the time of that answer.';
   }
 }
 
 export function emptyOutcomeSentence(outcome: PatternOutcome): string {
   if (outcome === 'flares') return "Log a flare or food reaction in Signals first; there's nothing to look for a pattern in yet.";
+  if (outcome === 'listSymptoms') {
+    return "No day in this range has anything on your daily list rated Moderate or worse. The daily list is at the top of Home's Today's Check-In once you add a symptom to it.";
+  }
   const scale = SCALE_OF[outcome].key;
   const which = outcome === 'highStress' ? '4 or 5' : '1 or 2';
   return `No day in this range has a ${scale} answer of ${which}. Answer mood, energy and stress on Home's Today's Check-In or in Signals > General Note, and days that fit will show up here.`;
@@ -112,7 +130,7 @@ export type OutcomeCheckin = {
 // than imported so this file keeps no runtime imports.
 export function scaleOutcomeEvents<T extends OutcomeCheckin>(
   checkins: T[],
-  outcome: Exclude<PatternOutcome, 'flares'>,
+  outcome: ScaleOutcome,
   rangeStart: string,
   localStampOf: (loggedAt: string) => string,
 ): (T & { loggedAt: string })[] {

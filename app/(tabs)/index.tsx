@@ -59,6 +59,9 @@ import { TAB_ROUTES } from '../../constants/tabs';
 import { APP_VERSION } from '../../constants/version';
 import { textShadow, typography } from '../../constants/typography';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/checkinTags';
+import { DailyList } from '../../components/DailyList';
+import { dailyRatingLabel, mergeDailyRatings, noneTodaySentence, ratingsFromSaved } from '../../lib/dailyList';
+import { getDailyList, saveDailyList } from '../../lib/dailyListDb';
 import { EMPTY_DAILY_SCALES, describeScales, hasAnyScale, localStamp, type DailyScaleValues } from '../../lib/dailyScales';
 import { getMoonPhase, getUpcomingSeasonalMarker } from '../../lib/celestialEvents';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
@@ -1213,6 +1216,9 @@ export default function HomeScreen() {
   // Mood, energy and stress (D1, 2026-09-26), seeded the same way.
   const [feelingScales, setFeelingScales] = useState<DailyScaleValues>(EMPTY_DAILY_SCALES);
   const [feelingSaving, setFeelingSaving] = useState(false);
+  // D6: the daily list and today's ratings for it (lib/dailyList.ts).
+  const [dailyList, setDailyList] = useState<string[]>([]);
+  const [dailyRatings, setDailyRatings] = useState<Record<string, number>>({});
   const [firstName, setFirstName] = useState<string | null>(null);
   // undefined = not fetched yet, null = fetched but no logged days this
   // week (nothing worth showing), object = real comparison.
@@ -1872,8 +1878,16 @@ export default function HomeScreen() {
     // Seeds from today's already-saved entry (if any) so reopening this to
     // add/remove a tag -- not just create one from nothing -- keeps
     // whatever's already there instead of starting blank.
-    setSelectedFeelingTags(data?.feelingCheckin?.tags ?? []);
     const saved = data?.feelingCheckin;
+    // D6: anything on the daily list that was rated opens as a rating, and
+    // stays out of the chips below so it is said once.
+    void getDailyList().then((list) => {
+      const ratings = ratingsFromSaved(list, saved ?? null);
+      setDailyList(list);
+      setDailyRatings(ratings);
+      setSelectedFeelingTags((saved?.tags ?? []).filter((code) => ratings[code] === undefined));
+    });
+    setSelectedFeelingTags(saved?.tags ?? []);
     setFeelingScales(saved ? { mood: saved.mood, energy: saved.energy, stress: saved.stress } : EMPTY_DAILY_SCALES);
     setFeelingPickerOpen(true);
   }
@@ -1903,16 +1917,40 @@ export default function HomeScreen() {
     return 'neutral';
   }
 
+  function rateDaily(code: string, value: number | undefined) {
+    setDailyRatings((current) => {
+      const next = { ...current };
+      if (value === undefined) delete next[code];
+      else next[code] = value;
+      return next;
+    });
+  }
+
+  function changeDailyList(list: string[]) {
+    setDailyList(list);
+    void saveDailyList(list);
+  }
+
   async function saveFeelingCheckin() {
     setFeelingSaving(true);
     try {
+      // D6: the daily list's ratings join the picked tags, a None today as
+      // severity 0. A picked tag keeps whatever severity it was saved with.
+      const savedSeverity = data?.feelingCheckin?.tagSeverity ?? {};
+      const merged = mergeDailyRatings(
+        selectedFeelingTags,
+        Object.fromEntries(selectedFeelingTags.filter((code) => savedSeverity[code] !== undefined).map((code) => [code, savedSeverity[code]])),
+        dailyList,
+        dailyRatings,
+      );
       // Local time, like every Signals form (1.0.53.4). This wrote UTC
       // before, which put an evening answer west of Greenwich on tomorrow.
       await recordCheckin({
         loggedAt: localStamp(new Date()),
         checkinType: 'general',
-        valence: derivedValenceFor(selectedFeelingTags),
-        tags: selectedFeelingTags,
+        valence: derivedValenceFor(merged.tags.filter((code) => merged.tagSeverity[code] !== 0)),
+        tags: merged.tags,
+        tagSeverity: merged.tagSeverity,
         ...feelingScales,
       });
       setFeelingPickerOpen(false);
@@ -2424,6 +2462,8 @@ export default function HomeScreen() {
   // as its own separate question.
   function renderTodaysCheckin() {
     if (!isHomeSectionVisible(visualPrefs, 'todaysCheckin')) return null;
+    const feelingHasAnswer =
+      selectedFeelingTags.length > 0 || hasAnyScale(feelingScales) || dailyList.some((code) => dailyRatings[code] !== undefined);
     return renderBand(
       'todaysCheckin',
       "Today's Check-In",
@@ -2433,6 +2473,13 @@ export default function HomeScreen() {
             <Text style={[styles.feelingPrompt, { color: tabColorFor('/log') }]}>
               How are you feeling today? Pick everything that applies.
             </Text>
+            <DailyList
+              list={dailyList}
+              ratings={dailyRatings}
+              onRate={rateDaily}
+              onListChange={changeDailyList}
+              accent={tabColorFor('/log')}
+            />
             <DailyScalesPicker values={feelingScales} onChange={setFeelingScales} accent={tabColorFor('/log')} />
             {getCheckinTagsByCategory().map((group) => (
               <View key={group.category} style={styles.feelingCategoryBlock}>
@@ -2464,10 +2511,10 @@ export default function HomeScreen() {
                 style={[
                   styles.feelingSaveButton,
                   { backgroundColor: tabColorFor('/log') },
-                  selectedFeelingTags.length === 0 && !hasAnyScale(feelingScales) && styles.feelingSaveButtonDisabled,
+                  !feelingHasAnswer && styles.feelingSaveButtonDisabled,
                 ]}
                 onPress={saveFeelingCheckin}
-                disabled={(selectedFeelingTags.length === 0 && !hasAnyScale(feelingScales)) || feelingSaving}
+                disabled={!feelingHasAnswer || feelingSaving}
               >
                 <Text style={styles.feelingSaveButtonText}>{feelingSaving ? 'Saving…' : 'Save'}</Text>
               </TouchableOpacity>
@@ -2477,11 +2524,22 @@ export default function HomeScreen() {
           <TouchableOpacity onPress={openFeelingPicker} activeOpacity={0.75}>
             <Text style={[styles.feelingLoggedText, { color: tabColorFor('/log') }]}>
               {data.feelingCheckin.tags.length > 0
-                ? data.feelingCheckin.tags.map((code) => getCheckinTagDefinition(code)?.label ?? code).join(', ')
-                : hasAnyScale(data.feelingCheckin)
+                ? data.feelingCheckin.tags
+                    .map((code) => {
+                      const label = getCheckinTagDefinition(code)?.label ?? code;
+                      const rated = data.feelingCheckin?.tagSeverity[code];
+                      return rated !== undefined ? `${label} (${dailyRatingLabel(rated)})` : label;
+                    })
+                    .join(', ')
+                : hasAnyScale(data.feelingCheckin) || data.feelingCheckin.noneToday.length > 0
                   ? 'Logged for today'
                   : 'Logged for today, no specific tags'}
             </Text>
+            {noneTodaySentence(data.feelingCheckin.noneToday.map((code) => getCheckinTagDefinition(code)?.label ?? code)) ? (
+              <Text style={styles.feelingChangeLink}>
+                {noneTodaySentence(data.feelingCheckin.noneToday.map((code) => getCheckinTagDefinition(code)?.label ?? code))}
+              </Text>
+            ) : null}
             {describeScales(data.feelingCheckin) ? (
               <Text style={styles.feelingChangeLink}>{describeScales(data.feelingCheckin)}</Text>
             ) : null}

@@ -44,6 +44,11 @@ export type PatternComparison = {
   usualWindows: number;
   usualShare: number | null;
   verdict: 'more' | 'same' | 'unknown';
+  /** D6: how many days with everything on the daily list rated None today
+   *  had this key in the same window before them, and how many such days
+   *  had meals logged before them. Absent when there are none. */
+  goodCount?: number;
+  goodDays?: number;
 };
 
 function pad(n: number): string {
@@ -91,7 +96,9 @@ export function compareWindows(
   key: string,
   flareWindows: (Set<string> | null)[],
   usualWindows: (Set<string> | null)[],
+  goodWindows: (Set<string> | null)[] = [],
 ): PatternComparison {
+  const good = goodWindows.filter((window): window is Set<string> => window !== null);
   const withMeals = flareWindows.filter((window): window is Set<string> => window !== null);
   const usual = usualWindows.filter((window): window is Set<string> => window !== null);
   const beforeCount = withMeals.filter((window) => window.has(key)).length;
@@ -110,6 +117,7 @@ export function compareWindows(
     usualWindows: usual.length,
     usualShare,
     verdict,
+    ...(good.length > 0 ? { goodCount: good.filter((window) => window.has(key)).length, goodDays: good.length } : {}),
   };
 }
 
@@ -160,8 +168,22 @@ export function thresholdSentence(): string {
   return `Anything eaten before ${MIN_PATTERN_OCCURRENCES} or more of them shows here. Two can be chance, so a short count is a reason to keep watching, not a finding.`;
 }
 
+// D6: the line about days with nothing on the daily list. A count, never a
+// verdict, since a handful of good days is too few to compare shares with.
+export function goodDaySentence(comparison: PatternComparison): string | null {
+  if (!comparison.goodDays) return null;
+  const days = comparison.goodDays === 1 ? '1 day' : `${comparison.goodDays} days`;
+  return `It was also eaten before ${comparison.goodCount ?? 0} of the ${days} you rated everything on your daily list None today (days with meals logged before them).`;
+}
+
 // One caption per candidate, under "Logged before N of your M ...".
 export function comparisonSentence(comparison: PatternComparison, windowHours: number): string {
+  const main = comparisonMainSentence(comparison, windowHours);
+  const good = goodDaySentence(comparison);
+  return good ? `${main} ${good}` : main;
+}
+
+function comparisonMainSentence(comparison: PatternComparison, windowHours: number): string {
   const before = `${comparison.beforeCount} of the ${comparison.flaresWithMeals} with meals logged before them (${percent(comparison.beforeShare)})`;
   if (comparison.usualShare === null) {
     return `Eaten before ${before}. There are no other stretches with meals logged to compare it with yet.`;

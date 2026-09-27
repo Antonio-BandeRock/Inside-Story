@@ -11,6 +11,7 @@ import {
 } from './patternBasis';
 import { contextLines, type TreatmentDates } from './patternContext';
 import { OUTCOME_WORDS, scaleOutcomeEvents, type PatternOutcome } from './patternOutcome';
+import { listOutcomeEvents, noneTodayDays } from './dailyList';
 import { localStampOf } from './dailyScales';
 import { getNutrientTrendSeriesForRange, getSleepTrendPoints } from './trendAnalysis';
 import { getCheckinTagDefinition } from './checkinTags';
@@ -355,6 +356,7 @@ export async function findFoodPatterns(
   // energy 1 or 2, or their stress 4 or 5, one per day at the time of that
   // answer (lib/patternOutcome.ts). Everything below counts whichever
   // population this is; only the words change.
+  const generalCheckins = await listCheckins({ checkinType: 'general', limit: 1000 });
   const symptomCheckins =
     outcome === 'flares'
       ? await Promise.all([
@@ -365,7 +367,13 @@ export async function findFoodPatterns(
             (checkin) => checkin.severity != null && checkin.loggedAt.slice(0, 10) >= rangeStart,
           ),
         )
-      : scaleOutcomeEvents(await listCheckins({ checkinType: 'general', limit: 1000 }), outcome, rangeStart, localStampOf);
+      : outcome === 'listSymptoms'
+        ? listOutcomeEvents(generalCheckins, rangeStart, localStampOf)
+        : scaleOutcomeEvents(generalCheckins, outcome, rangeStart, localStampOf);
+
+  // D6: the days everything on the daily list was rated None today. Each
+  // candidate also says how often it came before one of these, as a count.
+  const goodDayStamps = noneTodayDays(generalCheckins, rangeStart, localStampOf);
 
   // Phase B, 2026-09-24: every meal in the range is read once, and both the
   // flare windows and the ordinary stretches they are compared against are
@@ -450,6 +458,10 @@ export async function findFoodPatterns(
   });
   const usualWindows = usualWindowEnds(rangeStart, today, now).map((end) => keysInWindow(meals, end, windowHours));
   const flaresWithMeals = flareWindows.filter((window) => window !== null).length;
+  const goodWindows = goodDayStamps.map((stamp) => {
+    const end = new Date(stamp);
+    return Number.isNaN(end.getTime()) ? null : keysInWindow(meals, end, windowHours);
+  });
 
   const beforeCounts = new Map<string, number>();
   for (const window of flareWindows) {
@@ -457,7 +469,7 @@ export async function findFoodPatterns(
   }
   const counted = [...beforeCounts.entries()]
     .filter(([, count]) => count >= MIN_PATTERN_OCCURRENCES)
-    .map(([key, count]) => ({ key, count, comparison: compareWindows(key, flareWindows, usualWindows) }));
+    .map(([key, count]) => ({ key, count, comparison: compareWindows(key, flareWindows, usualWindows, goodWindows) }));
   const byStanding = (a: { count: number; comparison: PatternComparison }, b: { count: number; comparison: PatternComparison }) =>
     verdictRank(a.comparison.verdict) - verdictRank(b.comparison.verdict) || b.count - a.count;
 
