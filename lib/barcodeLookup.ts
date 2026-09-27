@@ -33,6 +33,8 @@
 //   real product, Cheerios, returned zero hits; the same search with the
 //   real 14-digit padded value returned exactly one, correct hit).
 
+import { householdProductFromResponse, type HouseholdLookupSource, type HouseholdProduct } from './scanToList';
+
 const OPEN_FOOD_FACTS_BASE = 'https://world.openfoodfacts.org/api/v2/product';
 // A free api.data.gov key takes under a minute to register and removes
 // DEMO_KEY's own real, low rate limit -- worth doing before real, everyday
@@ -197,4 +199,29 @@ export async function lookupProductByBarcode(barcode: string): Promise<LookedUpP
   const offResult = await lookupOpenFoodFacts(trimmed);
   if (offResult) return offResult;
   return lookupUsdaFdc(trimmed);
+}
+
+// Household products (G7, 2026-09-26). Open Food Facts has two sister
+// databases on the same API: Open Products Facts for cleaning, paper and
+// the rest of the house, and Open Beauty Facts for personal care. Checked
+// live the day this was written: a miss answers `status: 0` with an HTTP
+// 200 rather than a 404, so the body is read either way. Products first,
+// since most of what a household list runs out of is there. Only the
+// barcode is sent.
+const HOUSEHOLD_SOURCES: { base: string; source: HouseholdLookupSource }[] = [
+  { base: 'https://world.openproductsfacts.org/api/v2/product', source: 'OpenProductsFacts' },
+  { base: 'https://world.openbeautyfacts.org/api/v2/product', source: 'OpenBeautyFacts' },
+];
+
+export async function lookupHouseholdProductByBarcode(barcode: string): Promise<HouseholdProduct | null> {
+  const trimmed = barcode.trim();
+  if (!trimmed) return null;
+  for (const { base, source } of HOUSEHOLD_SOURCES) {
+    const response = await fetch(`${base}/${encodeURIComponent(trimmed)}.json?fields=product_name,brands`);
+    if (response.status === 404) continue;
+    if (!response.ok) throw new Error(`${source} lookup failed with status ${response.status}`);
+    const found = householdProductFromResponse(await response.json(), trimmed, source);
+    if (found) return found;
+  }
+  return null;
 }
