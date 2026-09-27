@@ -38,6 +38,8 @@ import { textShadow, typography } from '../constants/typography';
 import { useRouter } from 'expo-router';
 import { lookupProductByBarcode, type LookedUpProduct } from '../lib/barcodeLookup';
 import { routeForDigestEntry } from '../lib/digestNavigation';
+import { getTrackedConditionsWithNames, type TrackedConditionRef } from '../lib/foodPersonalization';
+import { scanSummaryLine } from '../lib/scanSummaryLine';
 import {
   additiveRowLabel,
   describeAdditiveCount,
@@ -54,7 +56,6 @@ import {
   deleteMeal,
   getFoodNutrients,
   getScannedProductByBarcode,
-  getUserConditions,
   getUserProfile,
   recordScannedProductPrice,
   saveScannedProduct,
@@ -341,6 +342,9 @@ export function ScanProductView({
   // comment in lib/scannedProductFlags.ts for why this stays a single
   // fetch rather than one query per ingredient row.
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
+  // G17: the names behind those codes, so the line at the top of the
+  // report can name a single condition rather than count it.
+  const [trackedConditions, setTrackedConditions] = useState<TrackedConditionRef[]>([]);
 
   useEffect(() => {
     if (!permission) return;
@@ -350,7 +354,10 @@ export function ScanProductView({
   }, [permission, requestPermission]);
 
   useEffect(() => {
-    getUserConditions().then(setSelectedConditions);
+    getTrackedConditionsWithNames().then((conditions) => {
+      setTrackedConditions(conditions);
+      setSelectedConditions(conditions.map((condition) => condition.code));
+    });
     // Only ever read for the meal-type guess below. A profile with no usual
     // meal times set still works: inferMealTypeForTime falls back to plain
     // clock thresholds rather than refusing to answer.
@@ -802,8 +809,16 @@ export function ScanProductView({
   const fodmapMatches = useMemo(() => findFodmapIngredients(fodmapReportText), [fodmapReportText]);
   const showFodmap = showsFodmapCard(selectedConditions) && fodmapReportText.trim().length > 0;
 
+  const summaryLine = scanSummaryLine({
+    hasIngredients: fodmapReportText.trim().length > 0,
+    additiveFlags,
+    conditionFlags,
+    fodmapMatched: showFodmap && fodmapMatches.length > 0,
+    conditionName: (code) => trackedConditions.find((condition) => condition.code === code)?.name ?? code.replace(/_/g, ' '),
+  });
+
   function handleReadAloud() {
-    const parts: string[] = [`${name}${brand ? `, by ${brand}` : ''}.`];
+    const parts: string[] = [`${name}${brand ? `, by ${brand}` : ''}.`, summaryLine.text];
     const allFlags = [
       ...additiveFlags.map((flag) => `${flag.label}, a ${flag.severity === 'red' ? 'red' : flag.severity === 'yellow' ? 'yellow' : 'informational'} flag.`),
       ...conditionFlags.map((flag) => `${flag.label}, worth noting for your ${flag.conditionCode.replace(/_/g, ' ')}.`),
@@ -1465,6 +1480,19 @@ export function ScanProductView({
         <View style={styles.panel}>
         <Text style={styles.title}>{name}</Text>
         {brand ? <Text style={styles.text}>{brand}</Text> : null}
+
+        <View
+          style={[
+            styles.flagRow,
+            summaryLine.tone === 'red'
+              ? { backgroundColor: colors.statusRedBg, borderColor: colors.danger }
+              : summaryLine.tone === 'yellow'
+                ? { backgroundColor: colors.statusYellowBg, borderColor: colors.statusYellow }
+                : { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
+        >
+          <Text style={styles.flagLabel}>{summaryLine.text}</Text>
+        </View>
 
         {nutrientSummary.length > 0 ? (
           <View style={styles.card}>
