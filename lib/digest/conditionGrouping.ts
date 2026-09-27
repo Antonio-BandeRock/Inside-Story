@@ -129,7 +129,7 @@ const DIGEST_READING_ORDER: string[][] = [
     'lipodystrophy-fat-necessity',
   ],
   // Health Literacy, Sex Hormones: the cycle before its ending; testosterone's job before its decline.
-  ['estrogen-progesterone-cycle', 'estrogen-progesterone-perimenopause', 'testosterone-overview-function', 'testosterone-age-decline-real-data'],
+  ['estrogen-progesterone-cycle', 'estrogen-progesterone-perimenopause', 'estrogen-perimenopause-cycles-and-hot-flushes', 'testosterone-overview-function', 'testosterone-age-decline-real-data'],
   // Health Literacy, How Your Body Works: within each shelf, the system before the finding about it.
   ['body-brain-nervous-system', 'body-brain-processed-meat-dementia-uk-biobank', 'body-eyes-vision'],
   ['body-bones-teeth-skeleton', 'body-muscular-system', 'body-skin-integumentary', 'body-hair-growth-cycle'],

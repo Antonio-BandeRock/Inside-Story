@@ -213,7 +213,21 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
       { source: 'Steroid Hormone Secretion Over the Course of the Perimenopause: Findings From the Swiss Perimenopause Study', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8712488/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['advocacy-sex-hormones-menopause', 'estrogen-progesterone-cycle'],
+    relatedIds: ['advocacy-sex-hormones-menopause', 'estrogen-progesterone-cycle', 'estrogen-perimenopause-cycles-and-hot-flushes'],
+  },
+  {
+    id: 'estrogen-perimenopause-cycles-and-hot-flushes',
+    category: 'basicHealth',
+    title: 'Perimenopause Shows First in Cycle Lengths, and Hot Flushes Last a Median of 7.4 Years',
+    teaser: 'Cycles that start differing by a week or more mark the early transition, 60 days without a period marks the late one, and hot flushes often run for years rather than months.',
+    summary:
+      "The STRAW+10 staging workshop, the reference most clinicians use, dates the early menopausal transition from cycles whose lengths start to differ by 7 days or more from one cycle to the next, persistently, and the late transition from a stretch of 60 days or more with no period. Blood tests move around too much in these years to settle it, which is why a record of period days is often more use than a single hormone result. Hot flushes and night sweats are the symptoms most people know. In the Study of Women's Health Across the Nation (SWAN), which followed over 1,400 women who reported frequent hot flushes or night sweats, those symptoms lasted a median of 7.4 years in total, and longer for women whose symptoms began earlier in the transition, so they are commonly a matter of years. Logging period days in Signals > Cycle, and hot flushes or night sweats as tags on a check-in, gives the record a clinician will ask about. Treatment choices, including hormone therapy, are for that conversation.",
+    citations: [
+      { source: 'Executive summary of the Stages of Reproductive Aging Workshop + 10: addressing the unfinished agenda of staging reproductive aging (Harlow et al., 2012), PMID 22344196', url: 'https://pubmed.ncbi.nlm.nih.gov/22344196/' },
+      { source: 'Duration of Menopausal Vasomotor Symptoms Over the Menopause Transition (Avis et al., JAMA Internal Medicine, 2015), PMID 25686030', url: 'https://pubmed.ncbi.nlm.nih.gov/25686030/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['estrogen-progesterone-perimenopause', 'estrogen-progesterone-cycle', 'advocacy-sex-hormones-menopause'],
   },
   {
     id: 'testosterone-overview-function',

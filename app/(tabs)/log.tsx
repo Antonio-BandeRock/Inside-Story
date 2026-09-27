@@ -72,6 +72,16 @@ import {
 } from '../../lib/foodExperiment';
 import { readExperimentResult } from '../../lib/foodExperimentDb';
 import { deleteNocturiaNight, listNocturiaNights, saveNocturiaNight, type NocturiaNight } from '../../lib/nocturiaDb';
+import { deleteCycleDay, listAllCycleDays, listCycleDays, saveCycleDay, type CycleDayRow } from '../../lib/cycleDb';
+import {
+  FLOW_WORDS,
+  NOT_FOR_CONTRACEPTION,
+  TOO_FEW_CYCLES,
+  flowWord,
+  nextPeriodSentence,
+  periodsFrom,
+  periodsSentence,
+} from '../../lib/cycle';
 import {
   TRACKER_KINDS,
   TRACKERS_EMPTY_LINE,
@@ -118,7 +128,7 @@ const TAB_COLOR = colors.tabBioCompass;
 // out. Nocturia added the same day as a new lens; since 1.0.52.7 its
 // nights are kept in nocturia_nights (lib/nocturiaDb.ts) and read on
 // Trends > Nights.
-type Lens = 'flares' | 'foodReactions' | 'newFoods' | 'exercise' | 'bloodPressure' | 'therapies' | 'generalNote' | 'nocturia' | 'trackers';
+type Lens = 'flares' | 'foodReactions' | 'newFoods' | 'exercise' | 'bloodPressure' | 'therapies' | 'generalNote' | 'nocturia' | 'cycle' | 'trackers';
 
 // Shared caveat, appended to every lens's help -- same pattern as
 // DRILLING_DOWN_HELP (insights.tsx), REPEATING_SCHEDULES_HELP (schedule.tsx),
@@ -231,6 +241,18 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: 'Nocturia',
         body: 'How many times you got up in the night to urinate, written down the next morning, with the time you first woke if you remember it. Trends > Nights reads these beside what you drank in the evening before each one.',
+      },
+      LOG_PERSONAL_NOTES_HELP,
+    ],
+  },
+  {
+    key: 'cycle',
+    label: 'Cycle',
+    icon: 'water-outline',
+    help: [
+      {
+        heading: 'Cycle',
+        body: 'Period days logged by hand, with how heavy each day was if you want to say. Once two cycles are logged, start to start, this lens gives their average and the date it reaches. That is an average of past cycles, which vary, and never a way to judge when pregnancy can or cannot happen. Pattern Finder on Trends shows the cycle day at each flare beside the foods, as something that happened alongside rather than an explanation. Period days stay on your record and are never sent to anybody else, including a partner or caregiver you share with.',
       },
       LOG_PERSONAL_NOTES_HELP,
     ],
@@ -2298,6 +2320,136 @@ function NocturiaLens() {
   );
 }
 
+// Cycle (E1 and E5, 2026-09-26): period days by hand, one row a day
+// (logging the same day again replaces it), and the average of past cycles
+// with the date it reaches. Pattern Finder reads the period starts for
+// cycle day beside flares (E2). See lib/cycle.ts for every sentence.
+function CycleLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const [days, setDays] = useState<CycleDayRow[]>([]);
+  const [average, setAverage] = useState<string | null>(null);
+  const [summary, setSummary] = useState('');
+  const [formOpen, setFormOpen] = useState(false);
+  const [flow, setFlow] = useState<number | null>(null);
+  const [notes, setNotes] = useState('');
+  const [dateChoice, setDateChoice] = useState<DateChoice>('today');
+  const [customDate, setCustomDate] = useState('');
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+
+  const load = useCallback(() => {
+    Promise.all([listCycleDays(90), listAllCycleDays()]).then(([recent, all]) => {
+      const periods = periodsFrom(all);
+      setDays(recent);
+      setAverage(nextPeriodSentence(periods, localStamp(new Date()).slice(0, 10)));
+      setSummary(periodsSentence(periods));
+    });
+  }, []);
+
+  useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  function resetForm() {
+    setFlow(null);
+    setNotes('');
+    setDateChoice('today');
+    setCustomDate('');
+  }
+
+  async function handleSave() {
+    const day = resolveDateChoice(dateChoice, customDate);
+    if (!day) {
+      showInfoAlert('Almost there', 'Enter a valid date.');
+      return;
+    }
+    await saveCycleDay({ day, flow, notes });
+    setFormOpen(false);
+    resetForm();
+    load();
+  }
+
+  async function handleDelete(id: string) {
+    await deleteCycleDay(id);
+    load();
+  }
+
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
+      <View style={styles.sectionColumn}>
+        <View style={styles.panelStandalone}>
+          <Text style={styles.rowTitle}>{average ?? TOO_FEW_CYCLES}</Text>
+          <Text style={styles.rowMeta}>{summary}</Text>
+          {average ? <Text style={styles.rowMeta}>{NOT_FOR_CONTRACEPTION}</Text> : null}
+        </View>
+
+        {!formOpen ? (
+          <TouchableOpacity style={styles.addButton} onPress={() => setFormOpen(true)}>
+            <Text style={styles.addButtonText}>+ Log a period day</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.formCard}>
+            <Text style={styles.label}>How heavy (optional)</Text>
+            <View style={styles.pillRow}>
+              {FLOW_WORDS.map((word, index) => {
+                const active = flow === index + 1;
+                return (
+                  <TouchableOpacity
+                    key={word}
+                    style={[styles.pillSmall, active && styles.pillActive]}
+                    onPress={() => setFlow(active ? null : index + 1)}
+                  >
+                    <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{word}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <Text style={styles.helperText}>Spotting on its own is kept, and does not count as the start of a period.</Text>
+            <Text style={styles.label}>The day</Text>
+            <DateChoicePicker value={dateChoice} onChange={setDateChoice} customDate={customDate} onCustomDateChange={setCustomDate} />
+            <Text style={styles.label}>Notes (optional)</Text>
+            <AppTextInput style={styles.input} placeholder="Anything worth remembering" value={notes} onChangeText={setNotes} />
+            <View style={styles.formActions}>
+              <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
+                <Text style={styles.secondaryButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.primaryButton} onPress={handleSave}>
+                <Text style={styles.primaryButtonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {days.length === 0 ? (
+          <View style={styles.panelStandalone}>
+            <Text style={styles.emptyText}>No period days logged yet.</Text>
+          </View>
+        ) : (
+          <View style={styles.table}>
+            {days.map((row) => {
+              const [year, month, day] = row.day.split('-').map(Number);
+              const detail = [row.source === 'device' ? 'from a device' : null, row.notes].filter(Boolean).join(' · ');
+              return (
+                <View key={row.id} style={styles.row}>
+                  <View style={styles.rowTextCol}>
+                    <Text style={styles.rowTitle}>{flowWord(row.flow)}</Text>
+                    <Text style={styles.rowMeta}>
+                      {`${dateLabelFromParts(year, month, day)}${detail ? ` · ${detail}` : ''}`}
+                    </Text>
+                  </View>
+                  <View style={styles.rowActions}>
+                    <TouchableOpacity onPress={() => handleDelete(row.id)}>
+                      <Text style={styles.actionTextRemove}>Remove</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
+      </View>
+    </ScrollView>
+  );
+}
+
 // My Trackers (D2, 2026-09-26): something this app never thought to ask
 // about, named by the person and logged here; Trends > My Trackers charts
 // it. The list is open, the house rule for every list: add your own,
@@ -2775,6 +2927,8 @@ export default function LogScreen() {
             <GeneralNoteLens />
           ) : lens === 'nocturia' ? (
             <NocturiaLens />
+          ) : lens === 'cycle' ? (
+            <CycleLens />
           ) : (
             <MyTrackersLens />
           )}

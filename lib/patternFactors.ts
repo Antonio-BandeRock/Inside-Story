@@ -277,7 +277,9 @@ export function familyLines(
 export const FACTOR_CAVEAT =
   'Each count is only against the ones that had that kind of thing recorded before them. Usual means the middle of your days in this range, not what they should be. None of these is shown as the explanation, and the app cannot separate any of them from food or from each other.';
 
-export const NOT_RECORDED_LINE = 'Weather and a menstrual cycle are not recorded in the app yet, so neither can be counted here.';
+// Cycle day moved out of this line in E2 (2026-09-26): once period days are
+// logged in Signals > Cycle it shows among the context lines above.
+export const NOT_RECORDED_LINE = 'Weather is not recorded in the app yet, so it cannot be counted here.';
 
 export const FACTOR_BAND_EMPTY_LINE =
   'Nothing besides food has been recorded in this range yet: no check-in tags, sleep, marked doses, steps, water or tracker entries.';

@@ -13,6 +13,11 @@
 export const MIN_FLARE_NIGHTS = 2;
 export const MIN_OTHER_NIGHTS = 3;
 export const TREATMENT_CHANGE_DAYS = 7;
+// Cycle day is only given when a period started this recently before the
+// flare, the same reach lib/cycle.ts uses (CYCLE_DAY_REACH).
+export const CYCLE_DAY_REACH = 60;
+export const MIN_FLARES_WITH_CYCLE_DAY = 2;
+export const CYCLE_DAYS_LISTED = 12;
 
 export type SleepNight = { date: string; hours: number };
 export type TreatmentDates = { name: string; startDate: string | null; endDate: string | null };
@@ -35,6 +40,35 @@ function oneDecimal(n: number): string {
 
 function average(values: number[]): number {
   return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+function daysApart(from: string, to: string): number {
+  const [fy, fm, fd] = from.split('-').map(Number);
+  const [ty, tm, td] = to.split('-').map(Number);
+  return Math.round((new Date(ty, tm - 1, td).getTime() - new Date(fy, fm - 1, fd).getTime()) / 86400000);
+}
+
+// Cycle day at each flare (E2), counted from the latest period start logged
+// in Signals > Cycle, day 1 being the start. Listed, never read as a
+// pattern: a flare on day 2 and another on day 26 are both just said.
+export function cycleLine(flareDates: string[], periodStarts: string[], words: ContextWords = FLARE_WORDS): string | null {
+  if (periodStarts.length === 0) return null;
+  const days: number[] = [];
+  for (const flare of flareDates) {
+    let latest: string | null = null;
+    for (const start of periodStarts) if (start <= flare && (latest === null || start > latest)) latest = start;
+    if (latest === null) continue;
+    const day = daysApart(latest, flare) + 1;
+    if (day <= CYCLE_DAY_REACH) days.push(day);
+  }
+  if (days.length < MIN_FLARES_WITH_CYCLE_DAY) return null;
+  const sorted = [...days].sort((a, b) => a - b);
+  const shown = sorted.slice(0, CYCLE_DAYS_LISTED).map((day) => `day ${day}`);
+  const more = sorted.length - shown.length;
+  const list = more > 0
+    ? `${shown.join(', ')} and ${more} more`
+    : shown.length === 1 ? shown[0] : `${shown.slice(0, -1).join(', ')} and ${shown[shown.length - 1]}`;
+  return `Cycle day at each ${words.short} with a period start logged in the ${CYCLE_DAY_REACH} days before: ${list} (${days.length} of ${flareDates.length} ${words.shortMany}).`;
 }
 
 // Sleep is dated by the morning it ended, so the night before a flare on a
@@ -89,6 +123,7 @@ export function contextLines(input: {
   flaresWithMeals: number;
   windowHours: number;
   words?: ContextWords;
+  periodStarts?: string[];
 }): string[] {
   const lines: string[] = [];
   const unlogged = unloggedLine(input.flares, input.flaresWithMeals, input.windowHours);
@@ -96,5 +131,7 @@ export function contextLines(input: {
   const sleep = sleepLine(input.flareDates, input.nights, input.words);
   if (sleep) lines.push(sleep);
   lines.push(...treatmentLines(input.flareDates, input.treatments, input.words));
+  const cycle = cycleLine(input.flareDates, input.periodStarts ?? [], input.words);
+  if (cycle) lines.push(cycle);
   return lines;
 }

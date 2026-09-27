@@ -109,6 +109,7 @@ export const CHECKIN_TAGS: CheckinTagDefinition[] = [
   { code: 'trouble_falling_asleep', label: 'Trouble falling asleep', category: 'sleep', usualValence: 'negative' },
   { code: 'woke_frequently', label: 'Woke up frequently', category: 'sleep', usualValence: 'negative' },
   { code: 'groggy', label: 'Groggy on waking', category: 'sleep', usualValence: 'negative' },
+  { code: 'night_sweats', label: 'Night sweats', category: 'sleep', usualValence: 'negative' },
   { code: 'slept_well', label: 'Slept well', category: 'sleep', usualValence: 'positive' },
 
   // Skin
@@ -122,6 +123,7 @@ export const CHECKIN_TAGS: CheckinTagDefinition[] = [
   { code: 'muscle_soreness', label: 'Muscle soreness', category: 'pain_physical', usualValence: 'negative' },
   { code: 'heart_palpitations', label: 'Heart palpitations', category: 'pain_physical', usualValence: 'negative' },
   { code: 'temperature_sensitivity', label: 'Cold/heat sensitivity', category: 'pain_physical', usualValence: 'negative' },
+  { code: 'hot_flushes', label: 'Hot flushes', category: 'pain_physical', usualValence: 'negative' },
   { code: 'swelling', label: 'Swelling', category: 'pain_physical', usualValence: 'negative' },
   { code: 'felt_good_physically', label: 'Felt good physically', category: 'pain_physical', usualValence: 'positive' },
 

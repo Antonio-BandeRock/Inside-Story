@@ -10,6 +10,7 @@ import {
   type PatternComparison,
 } from './patternBasis';
 import { contextLines, type TreatmentDates } from './patternContext';
+import { listPeriodStarts } from './cycleDb';
 import { OUTCOME_WORDS, scaleOutcomeEvents, type PatternOutcome } from './patternOutcome';
 import { listOutcomeEvents, noneTodayDays } from './dailyList';
 import { localStampOf } from './dailyScales';
@@ -501,7 +502,11 @@ export async function findFoodPatterns(
 
   // Other things on record around the same flares (lib/patternContext.ts).
   const flareDates = symptomCheckins.map((checkin) => checkin.loggedAt.slice(0, 10));
-  const [sleepPoints, treatmentDates] = await Promise.all([getSleepTrendPoints(days + 1), listTreatmentDates()]);
+  const [sleepPoints, treatmentDates, periodStarts] = await Promise.all([
+    getSleepTrendPoints(days + 1),
+    listTreatmentDates(),
+    listPeriodStarts(),
+  ]);
   const context = contextLines({
     flareDates,
     nights: sleepPoints.filter((point) => point.date >= rangeStart).map((point) => ({ date: point.date, hours: point.value })),
@@ -510,6 +515,7 @@ export async function findFoodPatterns(
     flaresWithMeals,
     windowHours,
     words,
+    periodStarts,
   });
 
   // Work strain. The symptom population is the same one every candidate above

@@ -7412,6 +7412,23 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_nocturia_nights_night_of ON nocturia_nights(night_of);
 
+      -- Period days (E1, 2026-09-26): one row a day per source, written by
+      -- hand in Signals > Cycle ('hand') or brought in from a watch or
+      -- phone ('device'), so both share one record. flow is 1 spotting,
+      -- 2 light, 3 medium, 4 heavy, or null when no amount was given. Read
+      -- by lib/cycle.ts for periods and the average, and by Pattern Finder
+      -- for cycle day beside flares. Not on the between-people allowlist.
+      CREATE TABLE IF NOT EXISTS cycle_days (
+        id TEXT PRIMARY KEY,
+        day TEXT NOT NULL,
+        flow INTEGER,
+        source TEXT NOT NULL DEFAULT 'hand',
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_cycle_days_day_source ON cycle_days(day, source);
+
       -- Trackers the person names (D2, 2026-09-26): something this app never
       -- thought to ask about, named by the person, with a kind that never
       -- changes once made (scale, count, duration or measurement; see
