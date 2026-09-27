@@ -62,6 +62,11 @@ import { useWalkMark } from '../components/WalkMark';
 import { RecordPhotos } from '../components/RecordPhotos';
 import { PHOTO_CAPTURE_TEXT } from '../lib/captureNotes';
 import { openPhotoCamera } from '../lib/photoCamera';
+import { KeepRemindingPicker } from '../components/KeepRemindingPicker';
+import { scheduleReminder } from '../lib/db';
+import { describeQuickReminderSet, quickReminderOptions, type QuickReminderOption } from '../lib/quickReminder';
+import { syncReminderNotifications } from '../lib/reminderNotifications';
+import type { KeepReminding } from '../lib/keepReminding';
 
 // A destination wears the colour and icon of the tab it hands off to, rather
 // than a palette invented here, so "In the garden" reads as Garden before the
@@ -106,6 +111,11 @@ export default function CaptureScreen() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState('');
   const [showDone, setShowDone] = useState(false);
+  // C3: the row of times under the box, and how often a reminder made from
+  // it comes back (C2). Kept for the visit, so three reminders in a row
+  // share one choice.
+  const [keepReminding, setKeepReminding] = useState<KeepReminding>(null);
+  const [lastSet, setLastSet] = useState<string | null>(null);
   // Whether the last thing typed came from the microphone, so the saved note
   // records how it arrived. Reset on every manual keystroke.
   const spokenRef = useRef(false);
@@ -150,6 +160,21 @@ export default function CaptureScreen() {
     setDraft('');
     spokenRef.current = false;
     await refresh();
+  }
+
+  // A plain one-off reminder (C3). The words go straight to a reminder rather
+  // than into the inbox, since a time was picked and there is nothing left
+  // to sort.
+  async function remindAt(option: QuickReminderOption) {
+    const text = cleanCaptureText(draft);
+    if (!isCaptureTextUsable(text) || saving) return;
+    setSaving(true);
+    await scheduleReminder({ title: text, scheduledFor: option.scheduledFor, keepRemindingMinutes: keepReminding });
+    setSaving(false);
+    setDraft('');
+    spokenRef.current = false;
+    setLastSet(`${text}. ${describeQuickReminderSet(option.scheduledFor, new Date())}`);
+    void syncReminderNotifications();
   }
 
   async function sortNote(note: CaptureNote, key: CaptureDestinationKey | null) {
@@ -356,6 +381,28 @@ export default function CaptureScreen() {
             <Ionicons name="camera-outline" size={18} color={colors.accent} />
             <Text style={styles.photoButtonText}>Take a photo</Text>
           </TouchableOpacity>
+          <Text style={styles.remindLabel}>Or have the phone say it later</Text>
+          <View style={styles.remindRow}>
+            {quickReminderOptions(new Date()).map((option) => (
+              <TouchableOpacity
+                key={option.key}
+                style={[styles.remindPill, !isCaptureTextUsable(draft) ? styles.saveButtonOff : null]}
+                onPress={() => void remindAt(option)}
+                disabled={!isCaptureTextUsable(draft) || saving}
+              >
+                <Ionicons name="alarm-outline" size={14} color={colors.accent} />
+                <Text style={styles.remindPillText}>{option.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <KeepRemindingPicker
+            value={keepReminding}
+            onChange={setKeepReminding}
+            tabColor={colors.tabLife}
+            labelStyle={styles.remindLabel}
+            helperStyle={styles.privacyNote}
+          />
+          {lastSet ? <Text style={styles.remindSet}>{lastSet}</Text> : null}
           <Text style={styles.privacyNote}>
             Speech is turned into words by your phone, and the note stays on it. See Profile for what your phone does
             with dictation.
@@ -483,6 +530,21 @@ const styles = StyleSheet.create({
   photoButtonText: { ...typography.bodyEmphasis, color: colors.accent, textShadowColor: 'transparent', textShadowRadius: 0 },
   saveButtonText: { ...typography.bodyEmphasis, color: colors.background },
   privacyNote: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  remindLabel: { ...typography.label, color: colors.menuLabelMuted, ...textShadow },
+  remindRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  remindPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.accent,
+    backgroundColor: colors.surface,
+  },
+  remindPillText: { ...typography.caption, color: colors.accent, textShadowColor: 'transparent', textShadowRadius: 0 },
+  remindSet: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   emptyCard: {
     ...homeBandStyle,
     borderColor: colors.tabLife,

@@ -61,6 +61,7 @@ import {
   undoLastCheckMark,
 } from '../lib/routinesDb';
 import { describeRoutineLength } from '../lib/dayTimeline';
+import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { clearRoutineWalkNotice, routineWalkNotice, showRoutineWalkNotice } from '../lib/routineWalkNotice';
 
 export default function RoutineWalkScreen() {
@@ -209,6 +210,7 @@ export default function RoutineWalkScreen() {
     const checkId = step.checkId;
     if (ticked[stepId]) {
       await undoLastCheckMark(checkId);
+      void syncReminderNotifications();
       setTicked((current) => {
         const next = { ...current };
         delete next[stepId];
@@ -218,6 +220,7 @@ export default function RoutineWalkScreen() {
     }
     const markedAt = new Date().toISOString();
     await markDoneCheck(checkId, 'routine', routine.id, markedAt);
+    void syncReminderNotifications();
     setTicked((current) => ({ ...current, [stepId]: markedAt }));
     setSkipped((current) => current.filter((id) => id !== stepId));
   }
@@ -231,6 +234,7 @@ export default function RoutineWalkScreen() {
       // about one act, and the later one is what the person means now.
       if (checkId && ticked[stepId]) {
         await undoLastCheckMark(checkId);
+        void syncReminderNotifications();
         setTicked((current) => {
           const next = { ...current };
           delete next[stepId];
@@ -242,6 +246,7 @@ export default function RoutineWalkScreen() {
       // Done counts as the tick, for anyone who never taps the row itself.
       const markedAt = new Date().toISOString();
       await markDoneCheck(checkId, 'routine', routine.id, markedAt);
+      void syncReminderNotifications();
       setTicked((current) => ({ ...current, [stepId]: markedAt }));
     }
     const nextSkipped = skipThisOne && !skipped.includes(stepId) ? [...skipped, stepId] : skipped;

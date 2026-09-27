@@ -122,6 +122,7 @@ export function categoryKeyFor(kind: string, markable = true): ReminderCategoryK
       return 'meal';
     case 'garden':
     case 'reminder':
+    case 'check':
       return 'task';
     case 'upkeep':
       return markable ? 'upkeep' : 'plain';
@@ -146,6 +147,7 @@ export const ACTION_TEXT_INPUT: Partial<Record<ReminderActionId, { submitButtonT
 
 export type ReminderActionPlan =
   | { write: 'scheduleStatus'; status: 'logged' | 'completed' }
+  | { write: 'checkMarked' }
   | { write: 'upkeepDone' }
   | { write: 'compostTurned' }
   | { write: 'checkinNote' }
@@ -164,6 +166,7 @@ export function planReminderAction(kind: string, action: string): ReminderAction
   if (action === 'drank' && kind === 'hydration') return { write: 'scheduleStatus', status: 'logged' };
   if (action === 'ate' && kind === 'meal') return { write: 'scheduleStatus', status: 'logged' };
   if (action === 'done' && (kind === 'garden' || kind === 'reminder')) return { write: 'scheduleStatus', status: 'completed' };
+  if (action === 'done' && kind === 'check') return { write: 'checkMarked' };
   if (action === 'doneToday' && kind === 'upkeep') return { write: 'upkeepDone' };
   if (action === 'turned' && kind === 'compost') return { write: 'compostTurned' };
   return null;
@@ -185,7 +188,9 @@ export function answerLine(kind: string, markable = true): string | null {
     case 'meal':
       return "Ate it marks it eaten on Today's Meals.";
     case 'task':
-      return kind === 'garden' ? 'Done marks it done in Upcoming Tasks.' : 'Done marks it done.';
+      if (kind === 'garden') return 'Done marks it done in Upcoming Tasks.';
+      if (kind === 'check') return 'Done marks it on Did I Do It.';
+      return 'Done marks it done.';
     case 'upkeep':
       return 'Done today records it in Upkeep.';
     case 'compost':
@@ -219,6 +224,8 @@ export function answeredConfirmation(
       if (kind === 'hydration') return { title: `Recorded: ${what}`, body: `Marked on Hydration at ${at}.` };
       if (kind === 'meal') return { title: `Recorded: ${what}`, body: `Marked eaten on Today's Meals at ${at}.` };
       return { title: `Done: ${what}`, body: `Marked done at ${at}.` };
+    case 'checkMarked':
+      return { title: `Done: ${what}`, body: `Marked on Did I Do It at ${at}.` };
     case 'upkeepDone':
       return { title: `Done: ${what}`, body: 'Recorded in Upkeep for today.' };
     case 'compostTurned':

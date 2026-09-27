@@ -5,6 +5,7 @@
 // they can be checked without one, and the reading and writing here.
 
 import { getDatabase } from './db';
+import { cleanKeepReminding } from './keepReminding';
 import {
   ALL_CHECK_CADENCES,
   cleanReminderTime,
@@ -45,6 +46,10 @@ type CheckRow = {
   position: number;
   lastMarkedAt: string | null;
   lastMarkedVia: string | null;
+  reminderTime: string | null;
+  reminderDays: string | null;
+  reminderOn: number | null;
+  keepReminding: number | null;
 };
 
 function toCheck(row: CheckRow): DoneCheck {
@@ -59,11 +64,18 @@ function toCheck(row: CheckRow): DoneCheck {
     position: row.position,
     lastMarkedAt: row.lastMarkedAt,
     lastMarkedVia: row.lastMarkedVia === 'routine' ? 'routine' : row.lastMarkedVia === 'tap' ? 'tap' : null,
+    reminderTime: cleanReminderTime(row.reminderTime),
+    reminderDays: parseReminderDays(row.reminderDays),
+    // On with no time is off, the same as a routine.
+    reminderOn: (row.reminderOn ?? 0) !== 0 && cleanReminderTime(row.reminderTime) !== null,
+    keepReminding: cleanKeepReminding(row.keepReminding),
   };
 }
 
 const CHECK_COLUMNS = `id, name, cadence, active, position,
-     last_marked_at AS lastMarkedAt, last_marked_via AS lastMarkedVia`;
+     last_marked_at AS lastMarkedAt, last_marked_via AS lastMarkedVia,
+     reminder_time AS reminderTime, reminder_days AS reminderDays, reminder_on AS reminderOn,
+     keep_reminding_minutes AS keepReminding`;
 
 export async function getDoneChecks(includeInactive = false): Promise<DoneCheck[]> {
   const db = await getDatabase();
@@ -110,6 +122,37 @@ export async function updateDoneCheck(id: string, name: string, cadence: CheckCa
     id,
   );
   return true;
+}
+
+/** When a check speaks (C2). Written whole, so clearing the time clears
+ *  the row as well as the form. */
+export async function setDoneCheckReminder(
+  id: string,
+  time: string | null,
+  days: number[],
+  keepReminding: number | null,
+): Promise<void> {
+  const db = await getDatabase();
+  const cleaned = cleanReminderTime(time);
+  await db.runAsync(
+    `UPDATE done_checks SET reminder_time = ?, reminder_days = ?, reminder_on = ?, keep_reminding_minutes = ? WHERE id = ?`,
+    cleaned,
+    serializeReminderDays(days),
+    cleaned ? 1 : 0,
+    cleanKeepReminding(keepReminding),
+    id,
+  );
+}
+
+/** Every active check with a time to speak at, for the reminder reconcile. */
+export async function listCheckReminders(): Promise<DoneCheck[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<CheckRow>(
+    `SELECT ${CHECK_COLUMNS} FROM done_checks
+      WHERE active = 1 AND reminder_on = 1 AND reminder_time IS NOT NULL
+      ORDER BY position ASC, name ASC`,
+  );
+  return rows.map(toCheck).filter((check) => check.reminderOn);
 }
 
 /** Retired rather than deleted, so a step still pointing at it keeps its
@@ -325,6 +368,7 @@ type RoutineRow = {
   reminderDays: string | null;
   reminderOn: number;
   speakSteps: number | null;
+  keepReminding: number | null;
 };
 
 type StepRow = {
@@ -369,6 +413,7 @@ function toRoutine(row: RoutineRow, steps: RoutineStep[]): Routine {
     // places that read it.
     reminderOn: row.reminderOn !== 0 && cleanReminderTime(row.reminderTime) !== null,
     speakSteps: (row.speakSteps ?? 0) !== 0,
+    keepReminding: cleanKeepReminding(row.keepReminding),
     steps,
   };
 }
@@ -376,7 +421,7 @@ function toRoutine(row: RoutineRow, steps: RoutineStep[]): Routine {
 const ROUTINE_COLUMNS = `id, name, occasion, active, position,
      last_completed_at AS lastCompletedAt,
      reminder_time AS reminderTime, reminder_days AS reminderDays, reminder_on AS reminderOn,
-     speak_steps AS speakSteps`;
+     speak_steps AS speakSteps, keep_reminding_minutes AS keepReminding`;
 
 const STEP_COLUMNS = `id, routine_id AS routineId, text, detail, position, check_id AS checkId, minutes`;
 
@@ -460,14 +505,16 @@ export async function setRoutineReminder(
   time: string | null,
   days: number[],
   on: boolean,
+  keepReminding: number | null = null,
 ): Promise<void> {
   const db = await getDatabase();
   const cleaned = cleanReminderTime(time);
   await db.runAsync(
-    `UPDATE routines SET reminder_time = ?, reminder_days = ?, reminder_on = ? WHERE id = ?`,
+    `UPDATE routines SET reminder_time = ?, reminder_days = ?, reminder_on = ?, keep_reminding_minutes = ? WHERE id = ?`,
     cleaned,
     serializeReminderDays(days),
     cleaned && on ? 1 : 0,
+    cleanKeepReminding(keepReminding),
     id,
   );
 }

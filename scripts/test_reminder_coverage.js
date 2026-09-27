@@ -152,13 +152,14 @@ check(
   3,
 );
 
-// Two kinds repeat, and both for the same reason: the doing is recorded, so
+// Three kinds repeat, all for the same reason: the doing is recorded, so
 // the app can tell when to stop. Marking an upkeep item done moves its next
 // date and recording a turn on a pile moves the next turn. A bill has no
 // per-occurrence paid record, a benefit is drawn down gradually, and a
 // counter past its day keeps counting on screen by design, so none of those
 // three can say when they have been answered.
-check('upkeep and compost are the kinds that nudge', NUDGES_WHILE_OVERDUE, ['upkeep', 'compost']);
+// A refill (1.0.53.13) joins them: recording the refill moves the date.
+check('upkeep, compost and refill are the kinds that nudge', NUDGES_WHILE_OVERDUE, ['upkeep', 'compost', 'refill']);
 check(
   'a bill still does not nudge with nudging on',
   datedReminderDays('bill', '2026-09-10', '2026-09-16', true).map((d) => d.on),

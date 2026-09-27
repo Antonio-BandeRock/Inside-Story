@@ -6,6 +6,7 @@ import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
+import { KeepRemindingPicker } from './KeepRemindingPicker';
 import { VoiceInputButton } from './VoiceInputButton';
 import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
@@ -15,6 +16,11 @@ import {
   CHECK_CADENCES,
   checkCadenceLabel,
   checkStanding,
+  describeReminderDays,
+  formatHour,
+  formatReminderClock,
+  REMINDER_DAY_NAMES,
+  toggleReminderDay,
   describeCheckRoutine,
   describeChecksSummary,
   groupChecksByRoutine,
@@ -32,9 +38,11 @@ import {
   getRoutines,
   markDoneCheck,
   moveDoneCheck,
+  setDoneCheckReminder,
   undoLastCheckMark,
   updateDoneCheck,
 } from '../lib/routinesDb';
+import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { useWalkMark } from './WalkMark';
 import { RecordPhotos } from './RecordPhotos';
 
@@ -45,8 +53,11 @@ import { RecordPhotos } from './RecordPhotos';
 // standing on the stairs at eleven in the morning trying to remember whether
 // they took the pill, and a clever name would be one more thing to translate.
 //
-// WHAT THIS IS NOT. It is not a reminder, because nothing here goes off, and
-// it is not a to-do list, because nothing here is asking to be done. It holds
+// WHAT THIS IS NOT. It is not a to-do list, because nothing here is asking
+// to be done. Until C2 (2026-09-26) nothing here went off either; now a
+// check can be given a time and days, and then it speaks on those days until
+// it is marked in its period and is quiet the rest of the time. One given no
+// time still never says anything. It holds
 // exactly one fact per line: whether a thing has happened, and when. That is
 // the whole feature, and the value is entirely in being able to look, so that
 // the answer costs a glance instead of a walk back upstairs or a second
@@ -76,7 +87,52 @@ type Props = { tabColor: string };
 
 const CADENCE_OPTIONS = CHECK_CADENCES.map((entry) => ({ label: entry.label, value: entry.key }));
 
-type CheckForm = { id: string | null; name: string; cadence: CheckCadence };
+type CheckForm = {
+  id: string | null;
+  name: string;
+  cadence: CheckCadence;
+  /** C2: 'HH:mm', or null for a check that never speaks. */
+  reminderTime: string | null;
+  reminderDays: number[];
+  keepReminding: number | null;
+};
+
+const NO_TIME = 'off';
+const TIME_HOUR_OPTIONS = [
+  { label: 'No reminder', value: NO_TIME },
+  ...Array.from({ length: 24 }, (unused, hour) => ({ label: formatHour(hour), value: String(hour) })),
+];
+const TIME_MINUTE_OPTIONS = Array.from({ length: 12 }, (unused, index) => ({
+  label: `:${String(index * 5).padStart(2, '0')}`,
+  value: String(index * 5),
+}));
+
+function hourValue(time: string | null): string {
+  return time ? String(Number(time.split(':')[0])) : NO_TIME;
+}
+
+function minuteValue(time: string | null): string {
+  return time ? String(Number(time.split(':')[1])) : '0';
+}
+
+function buildTime(hour: number, minute: number): string {
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+}
+
+function emptyForm(): CheckForm {
+  return { id: null, name: '', cadence: 'daily', reminderTime: null, reminderDays: [], keepReminding: null };
+}
+
+function formFor(check: DoneCheck): CheckForm {
+  return {
+    id: check.id,
+    name: check.name,
+    cadence: check.cadence,
+    reminderTime: check.reminderTime,
+    reminderDays: check.reminderDays,
+    keepReminding: check.keepReminding,
+  };
+}
 
 export function DidIDoItSection({ tabColor }: Props) {
   // The outline on a button a Your Story walk line names (components/WalkMark.ts).
@@ -135,8 +191,15 @@ export function DidIDoItSection({ tabColor }: Props) {
       showInfoAlert('Almost there', 'Give it the name you would say out loud, like "Took my morning pill".');
       return;
     }
-    if (form.id) await updateDoneCheck(form.id, form.name, form.cadence);
-    else await createDoneCheck(form.name, form.cadence);
+    let id = form.id;
+    if (id) await updateDoneCheck(id, form.name, form.cadence);
+    else id = await createDoneCheck(form.name, form.cadence);
+    // 'anytime' has no period to be due in, so it never speaks.
+    if (id) {
+      const time = form.cadence === 'anytime' ? null : form.reminderTime;
+      await setDoneCheckReminder(id, time, form.reminderDays, form.keepReminding);
+      void syncReminderNotifications();
+    }
     setForm(null);
     load();
   }
@@ -178,14 +241,14 @@ export function DidIDoItSection({ tabColor }: Props) {
         <Text style={styles.cardTitle}>Did I Do It</Text>
         <Text style={styles.bodyText}>
           What you ticked off, and when. Most of these get ticked while you walk a routine, at the step that
-          does them, so they are listed under the routine they belong to. Nothing here goes off and nothing
-          here is asking to be done. The answer is just here when you need it.
+          does them, so they are listed under the routine they belong to. Nothing here is asking to be done,
+          and nothing goes off unless you give it a time. The answer is just here when you need it.
         </Text>
         {summaryLine ? <Text style={styles.rowMeta}>{summaryLine}</Text> : null}
         {!form ? (
           <TouchableOpacity
             style={[styles.primaryButton, walkMark('didIDoIt.add')]}
-            onPress={() => setForm({ id: null, name: '', cadence: 'daily' })}
+            onPress={() => setForm(emptyForm())}
           >
             <Text style={styles.primaryButtonText}>+ Add something to check</Text>
           </TouchableOpacity>
@@ -229,6 +292,70 @@ export function DidIDoItSection({ tabColor }: Props) {
               : 'A week runs Monday to Sunday, and a month is the calendar month. Nothing is ever marked late on your behalf.'}
           </Text>
 
+          {form.cadence !== 'anytime' ? (
+            <>
+              <Text style={styles.label}>A reminder to do it</Text>
+              <View style={styles.clockRow}>
+                <PopoverSelect
+                  options={TIME_HOUR_OPTIONS}
+                  selected={hourValue(form.reminderTime)}
+                  onSelect={(value) =>
+                    setForm({
+                      ...form,
+                      reminderTime: value === NO_TIME ? null : buildTime(Number(value), Number(minuteValue(form.reminderTime))),
+                    })
+                  }
+                  tabColor={tabColor}
+                />
+                {form.reminderTime ? (
+                  <PopoverSelect
+                    options={TIME_MINUTE_OPTIONS}
+                    selected={minuteValue(form.reminderTime)}
+                    minWidth={64}
+                    onSelect={(value) =>
+                      setForm({ ...form, reminderTime: buildTime(Number(hourValue(form.reminderTime)), Number(value)) })
+                    }
+                    tabColor={tabColor}
+                  />
+                ) : null}
+              </View>
+              {form.reminderTime ? (
+                <>
+                  <Text style={styles.label}>On these days</Text>
+                  <View style={styles.dayRow}>
+                    {REMINDER_DAY_NAMES.map((name, day) => {
+                      const on = form.reminderDays.length === 0 || form.reminderDays.includes(day);
+                      return (
+                        <TouchableOpacity
+                          key={name}
+                          style={[styles.dayPill, on ? styles.dayPillOn : null]}
+                          onPress={() => setForm({ ...form, reminderDays: toggleReminderDay(form.reminderDays, day) })}
+                        >
+                          <Text style={[styles.dayPillText, on ? styles.dayPillTextOn : null]}>{name}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                  <Text style={styles.helperText}>
+                    {`At ${formatReminderClock(form.reminderTime)}, ${describeReminderDays(form.reminderDays)}. Done on the reminder marks it here. Once it is marked for the ${form.cadence === 'daily' ? 'day' : form.cadence === 'weekly' ? 'week' : 'month'}, it stays quiet until the next one.`}
+                  </Text>
+                  <KeepRemindingPicker
+                    value={form.keepReminding}
+                    onChange={(keepReminding) => setForm({ ...form, keepReminding })}
+                    tabColor={tabColor}
+                    labelStyle={styles.label}
+                    helperStyle={styles.helperText}
+                  />
+                </>
+              ) : (
+                <Text style={styles.helperText}>
+                  Leave this at No reminder for a check you only want to look up. Give it a time and the phone
+                  asks on the days you pick.
+                </Text>
+              )}
+            </>
+          ) : null}
+
           <View style={styles.formActions}>
             <TouchableOpacity style={styles.primaryButton} onPress={saveCheck}>
               <Text style={styles.primaryButtonText}>Save</Text>
@@ -270,7 +397,7 @@ export function DidIDoItSection({ tabColor }: Props) {
                 {check.active ? (
                   <TouchableOpacity
                     style={styles.primaryButton}
-                    onPress={async () => { await markDoneCheck(check.id, 'tap'); load(); }}
+                    onPress={async () => { await markDoneCheck(check.id, 'tap'); load(); void syncReminderNotifications(); }}
                   >
                     <Text style={styles.primaryButtonText}>
                       {done ? 'Did it again just now' : 'Yes, just did it'}
@@ -280,12 +407,12 @@ export function DidIDoItSection({ tabColor }: Props) {
 
                 <View style={styles.rowActions}>
                   {check.lastMarkedAt ? (
-                    <TouchableOpacity onPress={async () => { await undoLastCheckMark(check.id); load(); }}>
+                    <TouchableOpacity onPress={async () => { await undoLastCheckMark(check.id); load(); void syncReminderNotifications(); }}>
                       <Text style={styles.actionText}>That was a mistake</Text>
                     </TouchableOpacity>
                   ) : null}
                   <TouchableOpacity
-                    onPress={() => setForm({ id: check.id, name: check.name, cadence: check.cadence })}
+                    onPress={() => setForm(formFor(check))}
                   >
                     <Text style={styles.actionText}>Change</Text>
                   </TouchableOpacity>
@@ -358,6 +485,15 @@ function makeStyles(tabColor: string) {
     helperText: { ...typography.caption, color: colors.textMuted, marginTop: 6, marginBottom: 4, ...textShadow },
 
     label: { ...typography.label, color: colors.menuLabelMuted, marginTop: 12, marginBottom: 4, ...textShadow },
+    clockRow: { flexDirection: 'row', gap: 10, alignItems: 'center', flexWrap: 'wrap' },
+    dayRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+    dayPill: {
+      backgroundColor: colors.surfaceMuted, borderRadius: 10, borderWidth: 1, borderColor: colors.border,
+      paddingVertical: 8, paddingHorizontal: 10,
+    },
+    dayPillOn: { backgroundColor: tabColor, borderColor: tabColor },
+    dayPillText: { ...typography.caption, color: colors.textMuted, ...textShadow },
+    dayPillTextOn: { color: colors.textOnButton, textShadowColor: 'transparent', textShadowRadius: 0 },
     labelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 },
     input: {
       backgroundColor: colors.surfaceMuted, borderRadius: 10, borderWidth: 1, borderColor: colors.border,

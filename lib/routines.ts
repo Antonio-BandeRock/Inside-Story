@@ -233,6 +233,8 @@ export type Routine = {
   /** Which days it speaks on, 0 for Sunday. Empty means every day. */
   reminderDays: number[];
   reminderOn: boolean;
+  /** lib/keepReminding.ts: null follows Profile, 0 once, N every N minutes. */
+  keepReminding: number | null;
   /** Read each step aloud while it is walked (B6). */
   speakSteps: boolean;
   steps: RoutineStep[];
@@ -278,6 +280,13 @@ export type DoneCheck = {
   position: number;
   lastMarkedAt: string | null;
   lastMarkedVia: CheckMarkVia | null;
+  /** A check that speaks (C2): 'HH:mm', or null for one that never does. */
+  reminderTime: string | null;
+  /** 0 is Sunday. Empty means every day. */
+  reminderDays: number[];
+  reminderOn: boolean;
+  /** lib/keepReminding.ts: null follows Profile, 0 once, N every N minutes. */
+  keepReminding: number | null;
 };
 
 // -------------------------------------------------------------------- text

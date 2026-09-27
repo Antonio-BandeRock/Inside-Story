@@ -32,7 +32,6 @@ import {
   datedReminderDays,
   DATED_KIND_PREFIX,
   describeDatedDue,
-  NUDGE_FOLLOW_UP_MINUTES,
   REMINDER_HOUR,
 } from './reminderSchedule';
 import {
@@ -40,8 +39,15 @@ import {
   type DatedReminderLens,
   type DatedReminderSource,
 } from './reminderSources';
-import { describeReminderDays, nextReminderTimes, type Routine } from './routines';
-import { listRoutineReminders } from './routinesDb';
+import {
+  checkReminderTimes,
+  followUpMinutes,
+  KEEP_REMINDING_LOOKBACK_MINUTES,
+  outstandingSince,
+  type KeepReminding,
+} from './keepReminding';
+import { describeReminderDays, nextReminderTimes, routineDoneToday, type DoneCheck, type Routine } from './routines';
+import { listCheckReminders, listRoutineReminders, markDoneCheck } from './routinesDb';
 import { formatTime12 } from './timeOfDay';
 import { quietDecision, SNOOZE_MINUTES } from './quietHours';
 import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
@@ -191,7 +197,10 @@ export type ReminderKind = ReminderKindKey;
 // itself without anybody tapping anything: finishing the walk stamps
 // last_completed_at, and nextReminderTimes drops the rest of today the
 // moment that happens, so the next reconcile cancels the follow-ups.
-const NUDGEABLE_TIMED_KINDS: ReminderKind[] = ['dose', 'meal', 'hydration', 'garden', 'reminder', 'routine'];
+// 'check' (C2) for the same reason as 'routine': marking it moves the
+// check's last mark into this period, and checkReminderTimes then has no
+// moment left today to hang a follow-up from.
+const NUDGEABLE_TIMED_KINDS: ReminderKind[] = ['dose', 'meal', 'hydration', 'garden', 'reminder', 'routine', 'check'];
 
 type ScheduleLens = 'meds' | 'appointments' | 'todaysMeals' | 'hydration';
 type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine' | 'signals' | 'camera';
@@ -201,6 +210,8 @@ type SignalsReminderLens = 'generalNote' | 'flares';
 // opens the Days Until lens too, which has held every counter since
 // 1.0.42.14.
 type GardenReminderLens = 'upcomingTasks' | 'plotsAndPlantings' | 'daysUntil' | 'compost';
+// A Did I Do It check (C2) lands on its lens on Life, beside the dated ones.
+type LifeReminderLens = DatedReminderLens | 'didIDoIt';
 
 type ReminderPayload = {
   kind: ReminderKind;
@@ -212,7 +223,7 @@ type ReminderPayload = {
   /** Which tab a tap opens. Absent on anything queued before 1.0.39.8, and
    *  read back as 'schedule', which is the only thing it could have been. */
   tab?: ReminderTab;
-  lens: ScheduleLens | GardenReminderLens | DatedReminderLens | SignalsReminderLens | 'reconcile' | 'walk' | 'guide';
+  lens: ScheduleLens | GardenReminderLens | LifeReminderLens | SignalsReminderLens | 'reconcile' | 'walk' | 'guide';
   /** A Photo Series only: what the photo is of and its name, so a tap opens
    *  the camera on that owner without reading the database first. */
   ownerKind?: string;
@@ -387,7 +398,9 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
     };
   }
 
-  if (scheduledFor.getTime() <= now.getTime()) return null;
+  // Gone by, but recent enough that its follow-ups still matter (C2): the
+  // caller keeps it out of the first-time reminders and builds only those.
+  if (scheduledFor.getTime() <= now.getTime() - KEEP_REMINDING_LOOKBACK_MINUTES * 60_000) return null;
 
   if (candidate.itemType === 'reminder') {
     // A thought somebody wrote down and later gave a day to. Its title is
@@ -558,6 +571,26 @@ function buildRoutinePlanned(routine: Routine, fireAt: Date, now: Date): Planned
   };
 }
 
+// A Did I Do It check with a time (C2). Same shape as a routine: the name
+// they gave it is the title, one per speaking day, and the day is in the
+// identifier so the week's copies coexist.
+function buildCheckPlanned(check: DoneCheck, fireAt: Date, now: Date): PlannedNotification {
+  return {
+    identifier: `${IDENTIFIER_PREFIX}check:${check.id}:${localDateString(fireAt)}`,
+    title: check.name,
+    body: `${answerLine('check')} Did I Do It as of ${describeFreshness(now, fireAt)}.`,
+    fireAt,
+    payload: {
+      kind: 'check',
+      scheduleItemId: check.id,
+      fireAt: fireAt.toISOString(),
+      tab: 'life',
+      lens: 'didIDoIt',
+      subject: check.name,
+    },
+  };
+}
+
 // --- The two check-in reminders (C1, 2026-09-26) ---------------------------
 //
 // The only reminders that come from no record: the person asked for a
@@ -628,10 +661,19 @@ function buildAfterMealPlanned(meal: { id: string; name: string }, fireAt: Date,
 // Same title on purpose: this is one reminder coming back, not a new thing
 // to read. The body is what changes, because by now the useful information
 // is that it is still sitting there.
-function buildNudges(planned: PlannedNotification, now: Date): PlannedNotification[] {
+//
+// How often is the thing's own choice since C2 (lib/keepReminding.ts): null
+// follows the Profile switch, 0 is once only, a number is every so many
+// minutes whatever the switch says.
+function buildNudges(
+  planned: PlannedNotification,
+  now: Date,
+  choice: KeepReminding,
+  switchOn: boolean,
+): PlannedNotification[] {
   if (!NUDGEABLE_TIMED_KINDS.includes(planned.payload.kind)) return [];
   const nudges: PlannedNotification[] = [];
-  NUDGE_FOLLOW_UP_MINUTES.forEach((minutes, index) => {
+  followUpMinutes(choice, switchOn).forEach((minutes, index) => {
     const fireAt = new Date(planned.fireAt.getTime() + minutes * 60_000);
     if (fireAt.getTime() <= now.getTime()) return;
     nudges.push({
@@ -684,6 +726,15 @@ async function ensureAndroidChannels(): Promise<void> {
   });
 }
 
+// Today's moment for a routine that speaks today, whether or not it has
+// gone by. Null on a day it does not speak.
+function todaysRoutineMoment(routine: Routine, now: Date): Date | null {
+  if (!routine.reminderTime) return null;
+  if (routine.reminderDays.length > 0 && !routine.reminderDays.includes(now.getDay())) return null;
+  const [hour, minute] = routine.reminderTime.split(':').map(Number);
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, 0, 0);
+}
+
 function channelFor(kind: ReminderKind): string {
   if (kind === 'bill' || kind === 'upkeep' || kind === 'benefit' || kind === 'countdown' || kind === 'compost' || kind === 'refill') {
     return ANDROID_DATED_CHANNEL_ID;
@@ -694,6 +745,7 @@ function channelFor(kind: ReminderKind): string {
     kind === 'garden' ||
     kind === 'reminder' ||
     kind === 'routine' ||
+    kind === 'check' ||
     kind === 'checkin' ||
     kind === 'afterMeal' ||
     kind === 'photoSeries'
@@ -775,10 +827,16 @@ async function runSync(): Promise<ReminderSyncResult> {
   const horizon = new Date(now);
   horizon.setDate(horizon.getDate() + LOOKAHEAD_DAYS);
   const since = localDateTimeString(new Date(now.getTime() - AFTER_MEAL_MINUTES * 60_000));
-  const [candidates, datedSources, routines, preferences, checkinInputs, seriesInputs] = await Promise.all([
-    listReminderCandidates(localDateTimeString(now), localDateString(horizon)),
+  // Looking back as far as a follow-up can trail its first reminder (C2), so
+  // a dose or a reminder whose time has gone by but is still unmarked keeps
+  // its follow-ups at the next reconcile rather than losing them. Anything
+  // behind now gets follow-ups only, never a second first reminder.
+  const lookback = new Date(now.getTime() - KEEP_REMINDING_LOOKBACK_MINUTES * 60_000);
+  const [candidates, datedSources, routines, checks, preferences, checkinInputs, seriesInputs] = await Promise.all([
+    listReminderCandidates(localDateTimeString(lookback), localDateString(horizon)),
     listDatedReminderSources(today),
     listRoutineReminders(),
+    listCheckReminders(),
     getReminderPreferences(),
     getCheckinReminderInputs(since),
     listSeriesReminderInputs(localDay(now)),
@@ -792,9 +850,9 @@ async function runSync(): Promise<ReminderSyncResult> {
     if (!isReminderKindEnabled(preferences, reminderKindFor(candidate))) continue;
     const planned = buildPlanned(candidate, now);
     if (!planned) continue;
-    first.set(planned.identifier, planned);
-    if (nudging) {
-      for (const nudge of buildNudges(planned, now)) followUps.set(nudge.identifier, nudge);
+    if (planned.fireAt.getTime() > now.getTime()) first.set(planned.identifier, planned);
+    for (const nudge of buildNudges(planned, now, candidate.keepRemindingMinutes ?? null, nudging)) {
+      followUps.set(nudge.identifier, nudge);
     }
   }
 
@@ -808,10 +866,40 @@ async function runSync(): Promise<ReminderSyncResult> {
       times.forEach((fireAt, index) => {
         const planned = buildRoutinePlanned(routine, fireAt, now);
         (index === 0 ? first : followUps).set(planned.identifier, planned);
-        if (nudging && index === 0) {
-          for (const nudge of buildNudges(planned, now)) followUps.set(nudge.identifier, nudge);
+        if (index === 0) {
+          for (const nudge of buildNudges(planned, now, routine.keepReminding, nudging)) followUps.set(nudge.identifier, nudge);
         }
       });
+      // Today's, already gone by and not walked yet: its follow-ups only.
+      const earlier = outstandingSince(todaysRoutineMoment(routine, now), now);
+      if (earlier && !routineDoneToday(routine, now)) {
+        const planned = buildRoutinePlanned(routine, earlier, now);
+        for (const nudge of buildNudges(planned, now, routine.keepReminding, nudging)) followUps.set(nudge.identifier, nudge);
+      }
+    }
+  }
+
+  // A Did I Do It check with a time (C2). Today's moment may already have
+  // gone by, in which case it only carries follow-ups; the next one still
+  // ahead is a first-time reminder and the rest of the week queues behind.
+  if (isReminderKindEnabled(preferences, 'check')) {
+    for (const check of checks) {
+      const reminder = { time: check.reminderTime, days: check.reminderDays, on: check.reminderOn };
+      let firstAhead = true;
+      for (const fireAt of checkReminderTimes(check, reminder, now, LOOKAHEAD_DAYS)) {
+        const planned = buildCheckPlanned(check, fireAt, now);
+        if (fireAt.getTime() <= now.getTime()) {
+          if (outstandingSince(fireAt, now)) {
+            for (const nudge of buildNudges(planned, now, check.keepReminding, nudging)) followUps.set(nudge.identifier, nudge);
+          }
+          continue;
+        }
+        (firstAhead ? first : followUps).set(planned.identifier, planned);
+        if (firstAhead) {
+          for (const nudge of buildNudges(planned, now, check.keepReminding, nudging)) followUps.set(nudge.identifier, nudge);
+        }
+        firstAhead = false;
+      }
     }
   }
 
@@ -967,7 +1055,7 @@ export async function listQueuedReminders(): Promise<QueuedReminder[]> {
 export type ReminderTapTarget =
   | { pathname: '/schedule'; params: { openScheduleLens: ScheduleLens } }
   | { pathname: '/garden'; params: { openGardenLens: GardenReminderLens } }
-  | { pathname: '/life'; params: { openLifeLens: DatedReminderLens } }
+  | { pathname: '/life'; params: { openLifeLens: LifeReminderLens } }
   | { pathname: '/routine'; params: { id: string } }
   | { pathname: '/log'; params: { openSignalsLens: SignalsReminderLens } }
   | { pathname: '/reconcile' }
@@ -977,7 +1065,7 @@ const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'todaysMeals', 
 // The dated lenses that live on Life. 'compost' is a dated lens too and is
 // deliberately not here: it is on Garden, and this list is the fallback for
 // the Life branch below.
-const DATED_LENSES: DatedReminderLens[] = ['finances', 'upkeep', 'work', 'daysUntil', 'myMeds'];
+const DATED_LENSES: LifeReminderLens[] = ['finances', 'upkeep', 'work', 'daysUntil', 'myMeds', 'didIDoIt'];
 
 // Where a tapped reminder should land: the lens the thing lives in. Null for
 // any notification this module did not create.
@@ -1151,6 +1239,14 @@ async function recordAnswer(plan: ReminderActionPlan, id: string, words: string,
   if (!id) return;
   if (plan.write === 'scheduleStatus') {
     await setScheduleItemStatus(id, plan.status);
+    return;
+  }
+  if (plan.write === 'checkMarked') {
+    // Pressed twice, or pressed after a routine already ticked it: the
+    // second press writes nothing, since the period is already answered.
+    const check = (await listCheckReminders()).find((candidate) => candidate.id === id);
+    if (check && checkReminderTimes(check, { time: check.reminderTime, days: [], on: true }, now, 0).length === 0) return;
+    await markDoneCheck(id, 'tap');
     return;
   }
   if (plan.write === 'upkeepDone') {

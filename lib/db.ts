@@ -8263,6 +8263,30 @@ async function runDatabaseInitialization() {
       if (!routineColumns.some((column) => column.name === 'speak_steps')) {
         await db.execAsync('ALTER TABLE routines ADD COLUMN speak_steps INTEGER NOT NULL DEFAULT 0;');
       }
+      // Keep reminding me until I mark it (C2). Null follows the Profile
+      // switch, 0 is once only, and a number is the minutes between repeats
+      // (lib/keepReminding.ts).
+      if (!routineColumns.some((column) => column.name === 'keep_reminding_minutes')) {
+        await db.execAsync('ALTER TABLE routines ADD COLUMN keep_reminding_minutes INTEGER;');
+      }
+    }
+    // A Did I Do It check that speaks (C2): a time and days the way a
+    // routine has them, off until somebody gives it a time, and the same
+    // keep-reminding choice.
+    const checkColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(done_checks)');
+    if (checkColumns.length > 0) {
+      if (!checkColumns.some((column) => column.name === 'reminder_time')) {
+        await db.execAsync('ALTER TABLE done_checks ADD COLUMN reminder_time TEXT;');
+      }
+      if (!checkColumns.some((column) => column.name === 'reminder_days')) {
+        await db.execAsync('ALTER TABLE done_checks ADD COLUMN reminder_days TEXT;');
+      }
+      if (!checkColumns.some((column) => column.name === 'reminder_on')) {
+        await db.execAsync('ALTER TABLE done_checks ADD COLUMN reminder_on INTEGER NOT NULL DEFAULT 0;');
+      }
+      if (!checkColumns.some((column) => column.name === 'keep_reminding_minutes')) {
+        await db.execAsync('ALTER TABLE done_checks ADD COLUMN keep_reminding_minutes INTEGER;');
+      }
     }
     // How long a step takes, when somebody knows (B4). Nullable: a step
     // nobody has timed has no length, not a length of nothing.
@@ -8739,6 +8763,12 @@ async function runDatabaseInitialization() {
     // overlap. Nullable, and nothing is guessed for a row without it.
     if (!scheduleItemColumns.some((column) => column.name === 'duration_minutes')) {
       await db.execAsync('ALTER TABLE schedule_items ADD COLUMN duration_minutes INTEGER;');
+    }
+    // Keep reminding me until I mark it (C2), for a reminder somebody set.
+    // Named for what it does rather than repeat_*, which on this table
+    // already means a series of rows.
+    if (!scheduleItemColumns.some((column) => column.name === 'keep_reminding_minutes')) {
+      await db.execAsync('ALTER TABLE schedule_items ADD COLUMN keep_reminding_minutes INTEGER;');
     }
     const hasMealTypeColumn = scheduleItemColumns.some((column) => column.name === 'meal_type');
 
@@ -16367,6 +16397,9 @@ export type ReminderCandidate = {
   // treatment_nutrients comment on the table). Whichever pair is null is
   // simply left out of the notification text.
   doseAmount: number | null;
+  // How often this one comes back until it is marked (C2, lib/keepReminding.ts).
+  // Only a reminder somebody set carries one; null everywhere else.
+  keepRemindingMinutes: number | null;
   doseUnit: string | null;
   unitsPerDay: number | null;
   servingUnitLabel: string | null;
@@ -16380,7 +16413,8 @@ export async function listReminderCandidates(fromLocalDateTime: string, toDate: 
         s.meal_type AS mealType,
         s.location, s.provider_name AS providerName,
         t.dose_amount AS doseAmount, t.dose_unit AS doseUnit,
-        t.units_per_day AS unitsPerDay, t.serving_unit_label AS servingUnitLabel
+        t.units_per_day AS unitsPerDay, t.serving_unit_label AS servingUnitLabel,
+        s.keep_reminding_minutes AS keepRemindingMinutes
       FROM schedule_items s
       LEFT JOIN treatments t ON t.id = s.linked_treatment_id
       WHERE s.status = 'planned'
@@ -16898,8 +16932,10 @@ export async function scheduleReminder(input: {
   scheduledFor: string;
   notes?: string;
   repeat?: RepeatConfig;
+  /** C2: null follows the Profile switch, 0 once only, N every N minutes. */
+  keepRemindingMinutes?: number | null;
 }): Promise<string> {
-  return insertScheduleSeries({
+  const id = await insertScheduleSeries({
     itemType: 'reminder',
     mealType: null,
     title: input.title,
@@ -16907,6 +16943,15 @@ export async function scheduleReminder(input: {
     notes: input.notes,
     repeat: input.repeat ?? { type: 'none' },
   });
+  if (input.keepRemindingMinutes !== undefined && input.keepRemindingMinutes !== null) {
+    const db = await getDatabase();
+    await db.runAsync(
+      'UPDATE schedule_items SET keep_reminding_minutes = ? WHERE id = ?',
+      input.keepRemindingMinutes,
+      id,
+    );
+  }
+  return id;
 }
 
 const MEASUREMENT_SYSTEM_KEY = 'measurement_system';

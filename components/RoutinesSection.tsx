@@ -6,6 +6,7 @@ import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
+import { KeepRemindingPicker } from './KeepRemindingPicker';
 import { VoiceInputButton } from './VoiceInputButton';
 import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
@@ -102,6 +103,8 @@ type RoutineForm = {
   reminderTime: string | null;
   reminderDays: number[];
   speakSteps: boolean;
+  /** C2: null follows Profile, 0 once only, N every N minutes. */
+  keepReminding: number | null;
 };
 type OccasionForm = { id: string | null; name: string; hourFrom: number | null; hourTo: number | null };
 type StepForm = {
@@ -240,7 +243,7 @@ export function RoutinesSection({ tabColor }: Props) {
     // it clears the row as well as the form, and reconciled straight after,
     // so the notification is on the phone before this screen has redrawn.
     if (id) {
-      await setRoutineReminder(id, form.reminderTime, form.reminderDays, form.reminderTime !== null);
+      await setRoutineReminder(id, form.reminderTime, form.reminderDays, form.reminderTime !== null, form.keepReminding);
       await setRoutineSpeakSteps(id, form.speakSteps);
       void syncReminderNotifications();
     }
@@ -371,7 +374,7 @@ export function RoutinesSection({ tabColor }: Props) {
             style={[styles.primaryButton, walkMark('routines.add')]}
             onPress={() => {
               setOccasionForm(null);
-              setForm({ id: null, name: '', occasion: fits ?? 'other', reminderTime: null, reminderDays: [], speakSteps: false });
+              setForm({ id: null, name: '', occasion: fits ?? 'other', reminderTime: null, reminderDays: [], speakSteps: false, keepReminding: null });
             }}
           >
             <Text style={styles.primaryButtonText}>+ Add a routine</Text>
@@ -550,6 +553,13 @@ export function RoutinesSection({ tabColor }: Props) {
               <Text style={styles.helperText}>
                 {`At ${formatReminderClock(form.reminderTime)}, ${describeReminderDays(form.reminderDays)}. Tapping it opens the walk at the first step. It never walks anything by itself, and a day you have already finished it stays quiet.`}
               </Text>
+              <KeepRemindingPicker
+                value={form.keepReminding}
+                onChange={(keepReminding) => setForm({ ...form, keepReminding })}
+                tabColor={tabColor}
+                labelStyle={styles.label}
+                helperStyle={styles.helperText}
+              />
             </>
           ) : (
             <Text style={styles.helperText}>
@@ -640,6 +650,7 @@ export function RoutinesSection({ tabColor }: Props) {
                     reminderTime: routine.reminderTime,
                     reminderDays: routine.reminderDays,
                     speakSteps: routine.speakSteps,
+                    keepReminding: routine.keepReminding,
                   });
                 }}
               >

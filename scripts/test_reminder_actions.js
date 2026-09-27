@@ -72,6 +72,7 @@ const expected = {
   benefit: 'plain',
   countdown: 'plain',
   routine: 'plain',
+  check: 'task',
 };
 for (const [kind, key] of Object.entries(expected)) check(`${kind} -> ${key}`, categoryKeyFor(kind) === key);
 check('upkeep that expires gets Snooze only', categoryKeyFor('upkeep', false) === 'plain');
@@ -87,6 +88,7 @@ check('Taken on a bill does nothing', planReminderAction('bill', 'taken') === nu
 check('Turned it on a dose does nothing', planReminderAction('dose', 'turned') === null);
 check('a plain tap does nothing', planReminderAction('dose', 'expo.modules.notifications.actions.DEFAULT') === null);
 check('dose writes logged', planReminderAction('dose', 'taken').status === 'logged');
+check('a Did I Do It check writes its mark (C2)', planReminderAction('check', 'done').write === 'checkMarked');
 check('garden writes completed', planReminderAction('garden', 'done').status === 'completed');
 check('Add a note writes a check-in note', planReminderAction('checkin', 'howAreYou').write === 'checkinNote');
 check('Log a flare writes a flare', planReminderAction('afterMeal', 'logFlare').write === 'flare');
@@ -94,7 +96,7 @@ check('both check-in buttons take words', !!ACTION_TEXT_INPUT.howAreYou && !!ACT
 check('Taken does not take words', !ACTION_TEXT_INPUT.taken);
 
 // Each reminder says what its buttons record; a plain one has none to say.
-for (const kind of ['dose', 'hydration', 'meal', 'garden', 'reminder', 'upkeep', 'compost', 'checkin', 'afterMeal']) {
+for (const kind of ['dose', 'hydration', 'meal', 'garden', 'reminder', 'check', 'upkeep', 'compost', 'checkin', 'afterMeal']) {
   check(`${kind} says what its buttons do`, typeof answerLine(kind) === 'string' && answerLine(kind).length > 0);
 }
 check('a bill says nothing about buttons', answerLine('bill') === null);
@@ -107,6 +109,7 @@ function confirm(plan, kind, words) {
   if (result) said.push(result.title, result.body);
   return result;
 }
+check('a check confirms where it went', confirm(planReminderAction('check', 'done'), 'check', false).body.includes('Did I Do It'));
 check('a dose confirms where it went', confirm(planReminderAction('dose', 'taken'), 'dose', false).body.includes('Meds'));
 check('a snooze says when it returns', confirm('snooze', 'dose', false).body.includes('15 minutes'));
 check('a note with no words says nothing', confirm(planReminderAction('checkin', 'howAreYou'), 'checkin', false) === null);
