@@ -712,7 +712,7 @@ export default function LifeScreen() {
   const walkMark = useWalkMark();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const folds = useBandFolds();
-  const { openLifeLens, focusTreatmentId, openEntryId } = useLocalSearchParams<{ openLifeLens?: string; focusTreatmentId?: string; openEntryId?: string }>();
+  const { openLifeLens, focusTreatmentId, openEntryId, upkeepName } = useLocalSearchParams<{ openLifeLens?: string; focusTreatmentId?: string; openEntryId?: string; upkeepName?: string }>();
   // Conditions asks to scroll to a band it just opened from a link; its y
   // is relative to its own wrapper, so the wrapper's place in this scroll
   // is added on the way through.
@@ -1943,7 +1943,7 @@ export default function LifeScreen() {
 
             {lens === 'work' ? <WorkSection tabColor={TAB_COLOR} /> : null}
 
-            {lens === 'upkeep' ? <UpkeepSection tabColor={TAB_COLOR} /> : null}
+            {lens === 'upkeep' ? <UpkeepSection tabColor={TAB_COLOR} prefillName={upkeepName ?? null} /> : null}
             {lens === 'emergency' ? <EmergencySection tabColor={TAB_COLOR} /> : null}
             {lens === 'myMeds' ? <MyMedsSection tabColor={TAB_COLOR} focusTreatmentId={focusTreatmentId} /> : null}
             {lens === 'movement' ? <MovementSection tabColor={TAB_COLOR} /> : null}

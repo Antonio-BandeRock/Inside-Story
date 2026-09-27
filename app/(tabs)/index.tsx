@@ -18,6 +18,7 @@ import { AppTextInput } from '../../components/AppTextInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DayTimeline } from '../../components/DayTimeline';
+import { GroceryQuickAdd } from '../../components/GroceryQuickAdd';
 import { DaysUntilSection } from '../../components/DaysUntilSection';
 import { DailyScalesPicker } from '../../components/DailyScalesPicker';
 import { DayArc } from '../../components/DayArc';
@@ -823,6 +824,7 @@ const HOME_LENS_DESTINATIONS: Partial<
     href: { pathname: '/garden', params: { openGardenLens: 'harvestLog' } } as Href,
   },
   groceryList: { label: 'Grocery List', icon: 'cart', color: colors.tabLife, href: '/grocery-list' as Href },
+  groceryQuickAdd: { label: 'Add to the Grocery List', icon: 'add-circle', color: colors.tabLife, href: '/grocery-list' as Href },
   routines: {
     label: 'Routines',
     icon: 'footsteps',
@@ -911,6 +913,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'daysUntil',
   'logHarvest',
   'groceryList',
+  'groceryQuickAdd',
   'routines',
   'doneChecks',
   'countdowns',
@@ -3375,6 +3378,19 @@ export default function HomeScreen() {
     );
   }
 
+  // C6: add things to the list from here, typed or spoken, split the way a
+  // Capture note is.
+  function renderGroceryQuickAdd() {
+    if (!isHomeSectionVisible(visualPrefs, 'groceryQuickAdd')) return null;
+    return renderBand(
+      'groceryQuickAdd',
+      'Add to the Grocery List',
+      <View style={styles.bandBody}>
+        <GroceryQuickAdd tabColor={tabColorFor('/life')} onOpenList={() => router.push('/grocery-list')} />
+      </View>,
+    );
+  }
+
   function renderCountdowns() {
     if (!isHomeSectionVisible(visualPrefs, 'countdowns')) return null;
     return renderBand(
@@ -3732,6 +3748,8 @@ export default function HomeScreen() {
         return renderDoneChecks();
       case 'countdowns':
         return renderCountdowns();
+      case 'groceryQuickAdd':
+        return renderGroceryQuickAdd();
       case 'dayTimeline':
         return renderDayTimeline();
       default:

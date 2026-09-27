@@ -228,3 +228,64 @@ export function describeInbox(counts: CaptureInboxCounts): string {
   if (counts.sorted > 0) parts.push(`${counts.sorted} sorted, not done`);
   return `${parts.join(', ')}.`;
 }
+
+// Splitting one note into several things (C6 and C7 of the competitive build
+// plan, Phase 2, 2026-09-26). "Morning: pills, water the plants, feed the
+// cat" is one thought holding three steps, and "eggs, milk and bread" is one
+// thought holding three things to buy. The pieces are shown with a way to
+// take any of them out before anything is made, so a wrong split is seen
+// first. Newlines are already gone by the time a note is stored
+// (cleanCaptureText), so the split reads commas, semicolons, slashes, "then"
+// and "and".
+
+export type CaptureSplit = {
+  /** The words before a colon, when there is one: "Morning" in
+   *  "Morning: pills, water". Offered as the routine's name. */
+  heading: string | null;
+  items: string[];
+};
+
+const MAX_SPLIT_ITEMS = 20;
+
+// splitAtAnd off keeps "salt and pepper" as one thing; the screen offers
+// the switch beside the preview.
+export function splitCaptureNote(raw: string, splitAtAnd = true): CaptureSplit {
+  const text = cleanCaptureText(raw);
+  let heading: string | null = null;
+  let body = text;
+  const colon = text.indexOf(':');
+  // A colon inside a time ("at 3:30") is not a heading.
+  if (colon > 0 && !/\d$/.test(text.slice(0, colon)) && colon < text.length - 1) {
+    heading = text.slice(0, colon).trim() || null;
+    body = text.slice(colon + 1);
+  }
+  const items = body
+    .split(splitAtAnd ? /\s*[,;/]\s*|\s+(?:and then|then|and|&)\s+/i : /\s*[,;/]\s*|\s+(?:and then|then)\s+/i)
+    .map((piece) => piece.replace(/^(?:and|then)\s+/i, '').replace(/[.!]+$/, '').trim())
+    .filter((piece) => piece.length > 0)
+    .slice(0, MAX_SPLIT_ITEMS);
+  return { heading, items };
+}
+
+// The words people put in front of a shopping list that are not things to
+// buy, taken off the first piece only: "buy eggs, milk" is eggs and milk.
+const SHOPPING_LEAD = /^(?:(?:we|i)\s+need\s+(?:to\s+(?:buy|get)\s+)?|need\s+(?:to\s+(?:buy|get)\s+)?|buy\s+|get\s+|pick\s+up\s+|grab\s+|out\s+of\s+|more\s+)/i;
+
+/** A note read as things to buy, one per piece, with a leading "buy" or "we
+ *  need" taken off and the first letter capitalised the way the grocery list
+ *  shows food names. */
+export function groceryItemsFromNote(raw: string, splitAtAnd = true): string[] {
+  const { items } = splitCaptureNote(raw, splitAtAnd);
+  const seen = new Set<string>();
+  const out: string[] = [];
+  items.forEach((item, index) => {
+    const cleaned = (index === 0 ? item.replace(SHOPPING_LEAD, '') : item).replace(/^(?:some|more)\s+/i, '').trim();
+    if (cleaned.length < 2) return;
+    const name = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+    const key = name.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(name);
+  });
+  return out;
+}

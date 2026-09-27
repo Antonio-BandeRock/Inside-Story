@@ -301,6 +301,35 @@ export async function createGroceryListFromSchedule(input: {
   return id;
 }
 
+// A list with nothing on it, for things added by hand (C6, 2026-09-26: a
+// capture note or the Home quick-add, when no list is being shopped). Unlike
+// createGroceryListFromSchedule it pulls nothing in from the schedule, since
+// somebody adding milk did not ask for tomorrow's meals to arrive with it.
+export async function createHandGroceryList(): Promise<string> {
+  const db = await getDatabase();
+  const startDate = new Date().toISOString().slice(0, 10);
+  const id = `grocery_list_${Date.now()}`;
+  await db.runAsync(
+    `INSERT INTO grocery_lists (id, name, start_date, days_ahead, people_count, store_name, status)
+     VALUES (?, ?, ?, 1, 1, NULL, 'active')`,
+    id,
+    defaultGroceryListName(startDate),
+    startDate,
+  );
+  return id;
+}
+
+/** Adds each name to the list being shopped, starting one when there is
+ *  none, and says how many went on. */
+export async function addNamesToActiveGroceryList(names: string[]): Promise<number> {
+  const clean = names.map((name) => name.trim()).filter((name) => name.length > 0);
+  if (clean.length === 0) return 0;
+  const active = await getActiveGroceryList();
+  const listId = active ? active.id : await createHandGroceryList();
+  for (const foodName of clean) await addGroceryListItem(listId, { foodName });
+  return clean.length;
+}
+
 export async function getGroceryList(id: string): Promise<GroceryListRecord | null> {
   const db = await getDatabase();
   const row = await db.getFirstAsync<GroceryListRow>(
@@ -427,7 +456,9 @@ export async function addGroceryListItem(
   },
 ): Promise<string> {
   const db = await getDatabase();
-  const id = `grocery_item_${Date.now()}`;
+  // The random tail lets several be added in one go (C6: a capture note of
+  // five things) without two landing on the same millisecond's id.
+  const id = `grocery_item_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const maxRow = await db.getFirstAsync<{ maxOrder: number | null }>(
     'SELECT MAX(sort_order) AS maxOrder FROM grocery_list_items WHERE list_id = ?',
     listId,

@@ -64,6 +64,7 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   logAgain: '/food',
   scanProduct: '/food',
   groceryList: '/life',
+  groceryQuickAdd: '/life',
   // Free-form Days Until counters, 2026-09-22. The garden's own card is
   // 'daysUntil' below and stays in the Garden group; a counter that is
   // about anything else belongs with the rest of daily living.

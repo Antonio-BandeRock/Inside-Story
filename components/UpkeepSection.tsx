@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
@@ -34,6 +34,7 @@ import {
 import { parsePriceInput } from '../lib/groceryList';
 import { useWalkMark } from './WalkMark';
 import { RecordPhotos } from './RecordPhotos';
+import { describePlainDate, readPlainDateField, readPlainDates, type Lean } from '../lib/plainDate';
 
 // Upkeep: things that need doing again, and things that run out.
 //
@@ -48,7 +49,11 @@ import { RecordPhotos } from './RecordPhotos';
 // dropping the third would let a clean-looking screen hide the item nobody has
 // finished setting up.
 
-type Props = { tabColor: string };
+type Props = {
+  tabColor: string;
+  /** C5: words from a capture note, opening the form with them as the name. */
+  prefillName?: string | null;
+};
 
 const CATEGORY_OPTIONS = UPKEEP_CATEGORIES.map((entry) => ({ label: entry.label, value: entry.code }));
 const CADENCE_OPTIONS = [
@@ -88,7 +93,7 @@ function blankForm(): ItemForm {
   };
 }
 
-export function UpkeepSection({ tabColor }: Props) {
+export function UpkeepSection({ tabColor, prefillName }: Props) {
   // The outline on a button a Your Story walk line names (components/WalkMark.ts).
   const walkMark = useWalkMark();
   const router = useRouter();
@@ -102,6 +107,53 @@ export function UpkeepSection({ tabColor }: Props) {
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
   const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
   const folds = useBandFolds();
+
+  // A capture note turned into an upkeep item (C5) arrives as words for the
+  // name. Everything else is left for the person, since a note carries no
+  // cadence; a date in the words is offered beside the date box below.
+  useEffect(() => {
+    if (prefillName && prefillName.trim()) setForm({ ...blankForm(), name: prefillName.trim() });
+  }, [prefillName]);
+
+  // C4: a date box takes words too. What the words read as is shown with a
+  // Use it button and never put in the box by itself.
+  function renderDateOffer(value: string, lean: Lean, onUse: (date: string) => void) {
+    const now = new Date();
+    const found = readPlainDateField(value, now, lean);
+    if (!found) return null;
+    return (
+      <View style={styles.inlineRow}>
+        <Text style={styles.helperText}>{`Reads as ${describePlainDate({ ...found, time: null }, now)}.`}</Text>
+        <TouchableOpacity style={styles.pillSmall} onPress={() => onUse(found.date)}>
+          <Text style={styles.pillTextSmall}>Use it</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  // A date said in the name ("Passport runs out 3 March 2031"), offered for
+  // the date box that is still empty.
+  function renderNameDateOffer(currentForm: ItemForm) {
+    const expires = currentForm.cadence === 'expires';
+    if ((expires ? currentForm.expiresOn : currentForm.lastDoneOn).trim()) return null;
+    const now = new Date();
+    const found = readPlainDates(currentForm.name, now, expires ? 'future' : 'past')[0];
+    if (!found || !found.matched) return null;
+    const label = describePlainDate({ ...found, time: null }, now);
+    return (
+      <View style={styles.inlineRow}>
+        <Text style={styles.helperText}>
+          {expires ? `The name mentions ${label}. Runs out then?` : `The name mentions ${label}. Last done then?`}
+        </Text>
+        <TouchableOpacity
+          style={styles.pillSmall}
+          onPress={() => setForm(expires ? { ...currentForm, expiresOn: found.date } : { ...currentForm, lastDoneOn: found.date })}
+        >
+          <Text style={styles.pillTextSmall}>Use it</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   const load = useCallback(() => {
     setLoading(true);
@@ -134,7 +186,7 @@ export function UpkeepSection({ tabColor }: Props) {
     }
     const dateOk = (value: string) => !value.trim() || /^\d{4}-\d{2}-\d{2}$/.test(value.trim());
     if (!dateOk(form.lastDoneOn) || !dateOk(form.expiresOn)) {
-      showInfoAlert('Almost there', 'Enter dates as YYYY-MM-DD, or leave one blank if you do not know it.');
+      showInfoAlert('Almost there', 'Enter dates as YYYY-MM-DD, or tap Use it under a date written in words. Leave one blank if you do not know it.');
       return;
     }
     if (form.cadence === 'expires' && !form.expiresOn.trim()) {
@@ -261,7 +313,7 @@ export function UpkeepSection({ tabColor }: Props) {
               <View style={styles.inlineRow}>
                 <AppTextInput
                   style={[styles.input, styles.shortInput]}
-                  placeholder="YYYY-MM-DD"
+                  placeholder="YYYY-MM-DD or in words"
                   value={form.lastDoneOn}
                   onChangeText={(t) => setForm({ ...form, lastDoneOn: t })}
                 />
@@ -269,6 +321,8 @@ export function UpkeepSection({ tabColor }: Props) {
                   <Text style={styles.pillTextSmall}>Today</Text>
                 </TouchableOpacity>
               </View>
+              {renderDateOffer(form.lastDoneOn, 'past', (date) => setForm({ ...form, lastDoneOn: date }))}
+              {renderNameDateOffer(form)}
               <Text style={styles.helperText}>
                 Without this there is no next date, and the app will say so rather than counting from today and inventing
                 a schedule nobody set.
@@ -279,10 +333,12 @@ export function UpkeepSection({ tabColor }: Props) {
               <Text style={styles.label}>Runs out on</Text>
               <AppTextInput
                 style={[styles.input, styles.shortInput]}
-                placeholder="YYYY-MM-DD"
+                placeholder="YYYY-MM-DD or in words"
                 value={form.expiresOn}
                 onChangeText={(t) => setForm({ ...form, expiresOn: t })}
               />
+              {renderDateOffer(form.expiresOn, 'future', (date) => setForm({ ...form, expiresOn: date }))}
+              {renderNameDateOffer(form)}
 
               <TouchableOpacity
                 style={styles.checkRow}

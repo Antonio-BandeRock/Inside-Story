@@ -351,7 +351,10 @@ export type HomeSectionKey =
   // Free-form Days Until counters, 2026-09-22. The Garden group's card
   // ('daysUntil') keeps the garden ones; this is the card for everything
   // else somebody is counting the days to.
-  | 'countdowns';
+  | 'countdowns'
+  // C6, 2026-09-26: a box on Home that puts things on the grocery list
+  // without opening it.
+  | 'groceryQuickAdd';
 
 // The default order, 2026-09-12: grouped by the tab each section is a
 // window into (see lib/homeSections.ts), in the same order TabHub's own
@@ -413,6 +416,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'logHarvest',
   // Life.
   'groceryList',
+  'groceryQuickAdd',
   'routines',
   'doneChecks',
   'countdowns',
@@ -479,6 +483,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   routines: 'Routines',
   doneChecks: 'Did I Do It',
   countdowns: 'Days Until',
+  groceryQuickAdd: 'Add to the Grocery List',
 };
 
 export type VisualPreferences = {

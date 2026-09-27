@@ -67,6 +67,8 @@ import { scheduleReminder } from '../lib/db';
 import { describeQuickReminderSet, quickReminderOptions, type QuickReminderOption } from '../lib/quickReminder';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import type { KeepReminding } from '../lib/keepReminding';
+import { CaptureTurnInto, type CaptureTurnResult } from '../components/CaptureTurnInto';
+import { describePlainDate, plainDateToLocalDateTime, readPlainDates } from '../lib/plainDate';
 
 // A destination wears the colour and icon of the tab it hands off to, rather
 // than a palette invented here, so "In the garden" reads as Garden before the
@@ -116,6 +118,10 @@ export default function CaptureScreen() {
   // share one choice.
   const [keepReminding, setKeepReminding] = useState<KeepReminding>(null);
   const [lastSet, setLastSet] = useState<string | null>(null);
+  // C5 to C7: the note whose Turn it into panel is open, one at a time like
+  // the destination pills, and what the last one made.
+  const [turningId, setTurningId] = useState<string | null>(null);
+  const [turned, setTurned] = useState<CaptureTurnResult | null>(null);
   // Whether the last thing typed came from the microphone, so the saved note
   // records how it arrived. Reset on every manual keystroke.
   const spokenRef = useRef(false);
@@ -179,6 +185,7 @@ export default function CaptureScreen() {
 
   async function sortNote(note: CaptureNote, key: CaptureDestinationKey | null) {
     setSortingId(null);
+    setTurningId(null);
     await setCaptureNoteDestination(note.id, key);
     await refresh();
   }
@@ -267,10 +274,26 @@ export default function CaptureScreen() {
           {note.status !== 'done' ? (
             <TouchableOpacity
               style={styles.noteAction}
-              onPress={() => setSortingId(sortingId === note.id ? null : note.id)}
+              onPress={() => {
+                setTurningId(null);
+                setSortingId(sortingId === note.id ? null : note.id);
+              }}
             >
               <Ionicons name="file-tray-outline" size={15} color={colors.accent} />
               <Text style={styles.noteActionText}>{destination ? 'Move it' : 'Where does it go?'}</Text>
+            </TouchableOpacity>
+          ) : null}
+          {note.status !== 'done' ? (
+            <TouchableOpacity
+              style={styles.noteAction}
+              onPress={() => {
+                setSortingId(null);
+                setTurned(null);
+                setTurningId(turningId === note.id ? null : note.id);
+              }}
+            >
+              <Ionicons name="color-wand-outline" size={15} color={colors.accent} />
+              <Text style={styles.noteActionText}>Turn it into…</Text>
             </TouchableOpacity>
           ) : null}
           {destination?.open ? (
@@ -319,9 +342,36 @@ export default function CaptureScreen() {
             })}
           </View>
         ) : null}
+        {turningId === note.id && note.status !== 'done' ? (
+          <CaptureTurnInto
+            note={note}
+            onChanged={() => void refresh()}
+            onFinished={(result) => {
+              setTurningId(null);
+              setTurned(result);
+            }}
+          />
+        ) : null}
       </View>
     );
   }
+
+  // C4: a day the words in the box mention, offered ahead of the fixed times.
+  // A day with no time named is offered at nine in the morning, and the pill
+  // says so.
+  const spokenDates = readPlainDates(draft, now, 'future')
+    .filter((found) => found.matched || found.time)
+    .map((found) => {
+      const withTime = { ...found, time: found.time ?? '09:00' };
+      return {
+        key: `said-${withTime.date}-${withTime.time}`,
+        label: describePlainDate(withTime, now),
+        scheduledFor: plainDateToLocalDateTime(withTime),
+      };
+    })
+    // Only a moment still ahead: "today" at nine is offered at ten in the
+    // morning only if nine has not gone by.
+    .filter((option) => new Date(option.scheduledFor).getTime() > now.getTime());
 
   return (
     <View style={styles.screen}>
@@ -383,7 +433,7 @@ export default function CaptureScreen() {
           </TouchableOpacity>
           <Text style={styles.remindLabel}>Or have the phone say it later</Text>
           <View style={styles.remindRow}>
-            {quickReminderOptions(new Date()).map((option) => (
+            {[...spokenDates, ...quickReminderOptions(new Date())].map((option) => (
               <TouchableOpacity
                 key={option.key}
                 style={[styles.remindPill, !isCaptureTextUsable(draft) ? styles.saveButtonOff : null]}
@@ -408,6 +458,24 @@ export default function CaptureScreen() {
             with dictation.
           </Text>
         </View>
+
+        {turned ? (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyText}>{turned.message}</Text>
+            <View style={styles.noteActionRow}>
+              {turned.open ? (
+                <TouchableOpacity style={styles.noteAction} onPress={() => router.push(turned.open!.href)}>
+                  <Ionicons name="open-outline" size={15} color={colors.accent} />
+                  <Text style={styles.noteActionText}>{turned.open.label}</Text>
+                </TouchableOpacity>
+              ) : null}
+              <TouchableOpacity style={styles.noteAction} onPress={() => setTurned(null)}>
+                <Ionicons name="close" size={15} color={colors.textMuted} />
+                <Text style={[styles.noteActionText, { color: colors.textMuted }]}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : null}
 
         {loading ? (
           <View style={styles.emptyCard}>
