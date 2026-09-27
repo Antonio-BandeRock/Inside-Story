@@ -2948,22 +2948,29 @@ export async function getFoodNutrients(foodId: number, source: string) {
     isSupplemented: number;
   }>(
     `
-      WITH primary_food AS (
+      -- MATERIALIZED and CROSS JOIN fix the order SQLite works in, 2026-09-27:
+      -- left to choose, it walked all 835,000 food_nutrients rows through
+      -- the nutrient index for every food, about six seconds a call, and
+      -- since every database call waits its turn, the whole app stalled
+      -- behind it on the phone and the desktop alike. Starting from the
+      -- one food, then its siblings, then their nutrients, it reads a few
+      -- hundred rows and returns the same result.
+      WITH primary_food AS MATERIALIZED (
         SELECT category, base_name, prep_method FROM foods WHERE food_id = ? AND source = ?
       ),
       -- Other rows for the same real food (by the app's existing
       -- category + base_name + prep_method equivalence key), excluding
       -- the requested row itself.
-      siblings AS (
+      siblings AS MATERIALIZED (
         SELECT f.food_id, f.source
-        FROM foods f
-        CROSS JOIN primary_food pf
+        FROM primary_food pf
+        CROSS JOIN foods f
         WHERE f.category = pf.category
           AND f.base_name = pf.base_name
           AND COALESCE(f.prep_method, '') = COALESCE(pf.prep_method, '')
           AND NOT (f.food_id = ? AND f.source = ?)
       ),
-      primary_nutrients AS (
+      primary_nutrients AS MATERIALIZED (
         SELECT nutrient_code, amount_per_100g
         FROM food_nutrients
         WHERE food_id = ? AND source = ?
@@ -2975,8 +2982,8 @@ export async function getFoodNutrients(foodId: number, source: string) {
       -- would go.
       fallback_source AS (
         SELECT fn.nutrient_code, MIN(fn.source) AS source
-        FROM food_nutrients fn
-        JOIN siblings s ON s.food_id = fn.food_id AND s.source = fn.source
+        FROM siblings s
+        CROSS JOIN food_nutrients fn ON s.food_id = fn.food_id AND s.source = fn.source
         WHERE fn.nutrient_code NOT IN (SELECT nutrient_code FROM primary_nutrients)
         GROUP BY fn.nutrient_code
       ),
@@ -2999,8 +3006,8 @@ export async function getFoodNutrients(foodId: number, source: string) {
             fn.amount_per_100g,
             fn.source,
             ROW_NUMBER() OVER (PARTITION BY fn.nutrient_code ORDER BY fn.food_id) AS rn
-          FROM food_nutrients fn
-          JOIN siblings s ON s.food_id = fn.food_id AND s.source = fn.source
+          FROM siblings s
+          CROSS JOIN food_nutrients fn ON s.food_id = fn.food_id AND s.source = fn.source
           JOIN fallback_source fs ON fs.nutrient_code = fn.nutrient_code AND fs.source = fn.source
         )
         WHERE rn = 1
