@@ -48,6 +48,7 @@
 // Pure, with no React and no database, so scripts/test_ingredient_flags.js
 // checks it without a phone.
 import { findFodmapIngredients, FODMAP_LABEL_CONDITIONS } from './fodmapLabel';
+import { restrictionHitsInText, type FoodRestrictionKey } from './foodRestrictions';
 import type { RecipeDietTag } from './digest/types';
 
 export type IngredientReasonKind =
@@ -58,6 +59,7 @@ export type IngredientReasonKind =
   | 'condition'
   | 'fodmap'
   | 'histamine'
+  | 'restriction'
   | 'additive'
   | 'unclear';
 
@@ -90,6 +92,8 @@ export type IngredientCheckSettings = {
   conditions: string[];
   dietTags: RecipeDietTag[];
   allergies: string[];
+  /** G19: Profile > Food Restrictions (lib/foodRestrictions.ts). */
+  restrictions?: FoodRestrictionKey[];
   /** lib/scannedProductFlags.ts flagAdditivesInIngredients, or a stand-in. */
   additiveFlagsFor?: (text: string) => { severity: 'red' | 'yellow' | 'info'; label: string; matchedText: string; detail: string; digestEntryId?: string }[];
   /** lib/scannedProductFlags.ts flagConditionConcernsForConditions, already bound to the person's conditions. */
@@ -567,14 +571,32 @@ function checkOne(item: SplitIngredient, settings: IngredientCheckSettings): Ing
     });
   }
 
+  // G19: the restrictions set in Profile. Histamine is held by the two
+  // histamine reasons below, which turn to the person's own when it is set,
+  // so it is not said twice.
+  const restrictions = settings.restrictions ?? [];
+  const holdsHistamine = restrictions.includes('histamine');
+  for (const hit of restrictionHitsInText(text, restrictions.filter((key) => key !== 'histamine'))) {
+    add(`restriction:${hit.key}`, {
+      kind: 'restriction',
+      label: hit.strength === 'maybe' ? `Sometimes on your ${hit.label} list` : `On your ${hit.label} list`,
+      matched: hit.matched,
+      why: hit.why,
+      tone: 'yours',
+      readingId: hit.readingId,
+    });
+  }
+
   const highHistamine = findAny(text, HIGH_HISTAMINE_TERMS);
   if (highHistamine) {
     add('histamine:high', {
       kind: 'histamine',
       label: 'Higher in histamine',
       matched: highHistamine,
-      why: 'Fermented, aged, cured and some fish and vegetable foods carry more histamine than fresh ones (Maintz and Novak 2007). This matters to people who react to histamine and to nobody else.',
-      tone: 'note',
+      why: holdsHistamine
+        ? 'Fermented, aged, cured and some fish and vegetable foods carry more histamine than fresh ones (Maintz and Novak 2007). You set Low histamine in Profile.'
+        : 'Fermented, aged, cured and some fish and vegetable foods carry more histamine than fresh ones (Maintz and Novak 2007). This matters to people who react to histamine and to nobody else.',
+      tone: holdsHistamine ? 'yours' : 'note',
       readingId: 'problem-high-histamine',
     });
   }
@@ -585,7 +607,7 @@ function checkOne(item: SplitIngredient, settings: IngredientCheckSettings): Ing
       label: 'On low-histamine lists as a histamine liberator',
       matched: liberator,
       why: 'Low-histamine lists name this as a food that may release histamine in the body. A 2021 review (Sanchez-Perez, Nutrients) found little measured evidence behind that list, so this is a weak reason.',
-      tone: 'note',
+      tone: holdsHistamine ? 'yours' : 'note',
       readingId: 'glossary-dao-histamine',
     });
   }
@@ -666,13 +688,17 @@ export function describeReason(reason: IngredientReason): string {
 }
 
 export const INGREDIENT_CHECK_CAPTION =
-  'Allergen-aware, not allergy-safe. This matches the words on the label against named lists: major allergens, gluten grains, your diet preferences, FODMAP groups, histamine, additives and ingredients whose source a label need not name. A word can be missed, a label can leave a source unnamed, and a recipe can change, so the package is the last word for anything you react to.';
+  'Allergen-aware, not allergy-safe. This matches the words on the label against named lists: major allergens, gluten grains, your diet preferences and food restrictions, FODMAP groups, histamine, additives and ingredients whose source a label need not name. A word can be missed, a label can leave a source unnamed, and a recipe can change, so the package is the last word for anything you react to.';
 
 export const INGREDIENT_CHECK_SOURCES: string[] = [
   'Major allergens: FALCPA 2004 and the FASTER Act 2021 (US); Regulation (EU) 1169/2011, Annex II.',
   'Gluten grains: 21 CFR 101.91; flour with no grain named, 21 CFR 137.105; oats, Thompson, N Engl J Med 2004.',
   'FODMAP groups: Gibson and Shepherd, J Gastroenterol Hepatol 2010.',
   'Histamine: Maintz and Novak, Am J Clin Nutr 2007; Comas-Baste et al., Biomolecules 2020; Sanchez-Perez et al., Nutrients 2021.',
+  'Alpha-gal: Commins et al., J Allergy Clin Immunol 2009; Platts-Mills et al., J Allergy Clin Immunol Pract 2020.',
+  'Sulfites: 21 CFR 101.100(a)(4); Vally and Misso, Gastroenterol Hepatol Bed Bench 2012.',
+  'Salicylates: Swain et al., J Am Diet Assoc 1985.',
+  'Nightshades: Konijeti et al., Inflamm Bowel Dis 2017. Lectins: FDA Bad Bug Book, 2012.',
   'Flavours and spices: 21 CFR 101.22.',
 ];
 

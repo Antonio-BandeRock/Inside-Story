@@ -30,6 +30,8 @@
 
 import {
   getDietPreferences,
+  getFoodRestrictions,
+  getFoodScores,
   getUserConditions,
   listAllConditions,
   listFoodAllergies,
@@ -37,6 +39,7 @@ import {
 } from './db';
 import { computeDietTags, computeRecipeDepth, type RecipeDepthResult } from './recipeDepth';
 import { recipeMatchesDietPreference, type RecipeDietTag } from './digest/types';
+import { knownRestrictions, LECTIN_SUB_CRITERION, restrictionHitsForFood, type FoodRestrictionKey, type RestrictionHit } from './foodRestrictions';
 
 export type TrackedConditionRef = { code: string; name: string };
 
@@ -60,15 +63,23 @@ export type PersonalizationProfile = {
   trackedConditions: TrackedConditionRef[];
   dietPreferences: RecipeDietTag[];
   foodAllergies: string[];
+  /** G19: Profile > Food Restrictions. */
+  foodRestrictions: FoodRestrictionKey[];
 };
 
 export async function getPersonalizationProfile(): Promise<PersonalizationProfile> {
-  const [trackedConditions, dietPreferences, foodAllergies] = await Promise.all([
+  const [trackedConditions, dietPreferences, foodAllergies, foodRestrictions] = await Promise.all([
     getTrackedConditionsWithNames(),
     getDietPreferences(),
     listFoodAllergies(),
+    getFoodRestrictions(),
   ]);
-  return { trackedConditions, dietPreferences: dietPreferences as RecipeDietTag[], foodAllergies };
+  return {
+    trackedConditions,
+    dietPreferences: dietPreferences as RecipeDietTag[],
+    foodAllergies,
+    foodRestrictions: knownRestrictions(foodRestrictions),
+  };
 }
 
 function toSingleIngredient(foodId: number, source: string, category: string, baseName: string): MealIngredientInput {
@@ -109,6 +120,8 @@ export type PersonalFoodEvaluation = {
   dietTags: RecipeDietTag[];
   dietViolations: RecipeDietTag[];
   allergyMatch: string | null;
+  /** G19: the restrictions this food falls on, with the word or score that put it there. */
+  restrictionHits: RestrictionHit[];
 };
 
 export async function evaluateFoodForPerson(
@@ -118,7 +131,14 @@ export async function evaluateFoodForPerson(
   const ingredient = toSingleIngredient(food.foodId, food.source, food.category, food.baseName);
   const depth = await computeRecipeDepth([ingredient], profile.trackedConditions);
   const dietViolations = profile.dietPreferences.filter((preference) => !recipeMatchesDietPreference(depth.dietTags, preference));
+  const restrictions = profile.foodRestrictions ?? [];
+  let lectinTier: string | null = null;
+  if (restrictions.includes('lectin')) {
+    const scores = await getFoodScores(food.foodId, food.source);
+    lectinTier = scores.find((score) => score.subCriterion === LECTIN_SUB_CRITERION)?.tier ?? null;
+  }
   return {
+    restrictionHits: restrictionHitsForFood({ baseName: food.baseName, category: food.category, lectinTier }, restrictions),
     safeForConditions: depth.safeForConditions,
     conditionCautions: depth.conditionCautions,
     dimensionBreakdown: depth.dimensionBreakdown,

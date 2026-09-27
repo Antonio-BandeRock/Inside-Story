@@ -31,6 +31,7 @@ export function LabelCheckView({ tabColor, profile, onOpenReading }: Props) {
       conditions,
       dietTags: profile?.dietPreferences ?? [],
       allergies: profile?.foodAllergies ?? [],
+      restrictions: profile?.foodRestrictions ?? [],
       additiveFlagsFor: flagAdditivesInIngredients,
       conditionFlagsFor: (text) => flagConditionConcernsForConditions(text, conditions),
       conditionName: (code) => profile?.trackedConditions.find((condition) => condition.code === code)?.name ?? code.replace(/_/g, ' '),
@@ -53,7 +54,7 @@ export function LabelCheckView({ tabColor, profile, onOpenReading }: Props) {
           <VoiceInputButton onResult={setLabelText} />
         </View>
         <Text style={styles.hint}>
-          Checked against your allergies, diet preferences and conditions from Profile, plus lists that apply to anybody.
+          Checked against your allergies, diet preferences, food restrictions and conditions from Profile, plus lists that apply to anybody.
         </Text>
       </View>
       {rows.length > 0 ? (

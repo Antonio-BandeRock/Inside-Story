@@ -39,6 +39,7 @@ import { useRouter } from 'expo-router';
 import { lookupProductByBarcode, type LookedUpProduct } from '../lib/barcodeLookup';
 import { routeForDigestEntry } from '../lib/digestNavigation';
 import { getPersonalizationProfile, type TrackedConditionRef } from '../lib/foodPersonalization';
+import type { FoodRestrictionKey } from '../lib/foodRestrictions';
 import { checkIngredients } from '../lib/ingredientFlags';
 import type { RecipeDietTag } from '../lib/digest/types';
 import { IngredientCheckList } from './IngredientCheckList';
@@ -352,6 +353,7 @@ export function ScanProductView({
   // reads, loaded with the conditions.
   const [dietTags, setDietTags] = useState<RecipeDietTag[]>([]);
   const [foodAllergies, setFoodAllergies] = useState<string[]>([]);
+  const [foodRestrictions, setFoodRestrictions] = useState<FoodRestrictionKey[]>([]);
 
   useEffect(() => {
     if (!permission) return;
@@ -366,6 +368,7 @@ export function ScanProductView({
       setSelectedConditions(profile.trackedConditions.map((condition) => condition.code));
       setDietTags(profile.dietPreferences);
       setFoodAllergies(profile.foodAllergies);
+      setFoodRestrictions(profile.foodRestrictions);
     });
     // Only ever read for the meal-type guess below. A profile with no usual
     // meal times set still works: inferMealTypeForTime falls back to plain
@@ -824,11 +827,12 @@ export function ScanProductView({
         conditions: selectedConditions,
         dietTags,
         allergies: foodAllergies,
+        restrictions: foodRestrictions,
         additiveFlagsFor: flagAdditivesInIngredients,
         conditionFlagsFor: (text) => flagConditionConcernsForConditions(text, selectedConditions),
         conditionName: (code) => trackedConditions.find((condition) => condition.code === code)?.name ?? code.replace(/_/g, ' '),
       }),
-    [fodmapReportText, selectedConditions, dietTags, foodAllergies, trackedConditions],
+    [fodmapReportText, selectedConditions, dietTags, foodAllergies, foodRestrictions, trackedConditions],
   );
 
   const summaryLine = scanSummaryLine({

@@ -19,6 +19,8 @@ export type FoodOneWordInput = {
   conditionCautions: Record<string, { severity: 'yellow' | 'red'; note: string }>;
   dietViolations: string[];
   allergyMatch: string | null;
+  /** G19: restrictions from Profile this food falls on. An allergy one stops. */
+  restrictionHits?: { label: string; weight: 'allergy' | 'intolerance' | 'elimination'; strength: 'list' | 'maybe' | 'score' }[];
 };
 
 export type FoodOneWord = { phrase: string; tone: FoodOneWordTone };
@@ -39,6 +41,9 @@ function joinParts(parts: string[]): string {
 
 export function foodOneWord(input: FoodOneWordInput): FoodOneWord {
   if (input.allergyMatch) return { phrase: 'Contains one of your allergies', tone: 'stop' };
+  const restrictionHits = input.restrictionHits ?? [];
+  const allergyRestriction = restrictionHits.find((hit) => hit.weight === 'allergy' && hit.strength !== 'maybe');
+  if (allergyRestriction) return { phrase: `On your ${allergyRestriction.label} list`, tone: 'stop' };
 
   // A condition that is neither safe nor cautioned matched an absolute
   // exclusion in lib/recipeDepth.ts, the same case verdictFor labels
@@ -54,6 +59,8 @@ export function foodOneWord(input: FoodOneWordInput): FoodOneWord {
   else if (notSuited.length > 1) parts.push(`Not suited to ${countWord(notSuited.length).toLowerCase()} of your conditions`);
   if (cautions.length > 0) parts.push(`${countWord(cautions.length)} caution${cautions.length === 1 ? '' : 's'}`);
   if (input.dietViolations.length > 0) parts.push('Outside your eating style');
+  if (restrictionHits.length === 1) parts.push(`On your ${restrictionHits[0].label} list`);
+  else if (restrictionHits.length > 1) parts.push(`On ${countWord(restrictionHits.length).toLowerCase()} of your restriction lists`);
 
   if (parts.length > 0) {
     return { phrase: joinParts(parts), tone: notSuited.length > 0 || anyRed ? 'stop' : 'caution' };

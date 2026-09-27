@@ -17,8 +17,12 @@ function transpile(file, requireFn) {
 const fodmap = transpile('lib/fodmapLabel.ts', () => {
   throw new Error('fodmapLabel.ts must import nothing');
 });
+const restrictions = transpile('lib/foodRestrictions.ts', () => {
+  throw new Error('foodRestrictions.ts must import nothing');
+});
 const flags = transpile('lib/ingredientFlags.ts', (name) => {
   if (name === './fodmapLabel') return fodmap;
+  if (name === './foodRestrictions') return restrictions;
   throw new Error(`ingredientFlags.ts imported ${name}`);
 });
 
@@ -140,7 +144,8 @@ const texts = [
   flags.describeIngredientCheckSpoken(everything),
   ...everything.flatMap((r) => r.reasons.flatMap((reason) => [reason.label, reason.why])),
 ];
-for (const text of texts) ok(`wording: ${text}`, !FORBIDDEN.test(text));
+// The FDA's Bad Bug Book is a title, not a verdict.
+for (const text of texts) ok(`wording: ${text}`, !FORBIDDEN.test(text.replace('Bad Bug Book', '')));
 ok('caption says allergen-aware', /^Allergen-aware, not allergy-safe\./.test(flags.INGREDIENT_CHECK_CAPTION));
 ok('caption dashes', !/[–—]| -- /.test(flags.INGREDIENT_CHECK_CAPTION));
 

@@ -6223,6 +6223,16 @@ async function runDatabaseInitialization() {
         selected_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- G19, 2026-09-27: the food restrictions a person holds themselves to
+      -- beside allergies and diets (low histamine, low salicylate, no
+      -- sulfites, alpha-gal, no nightshades, low lectin). restriction_key is
+      -- a FoodRestrictionKey from lib/foodRestrictions.ts, the vocabulary
+      -- living in app code the way diet_tag's does. Absence means not held.
+      CREATE TABLE IF NOT EXISTS food_restrictions (
+        restriction_key TEXT PRIMARY KEY,
+        selected_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       -- 2026-08-26, direct request following the Daily Meal Plan bug-fix
       -- pass: "they might need more of something than the normal person
       -- would need... adjust the amount of protein, or the amount of
@@ -18706,6 +18716,26 @@ export async function getDietPreferences(): Promise<string[]> {
     'SELECT diet_tag FROM diet_preferences ORDER BY selected_at',
   );
   return rows.map((row) => row.diet_tag);
+}
+
+// The food restrictions the person holds (G19), see food_restrictions'
+// schema comment. Keys this app no longer knows are dropped by
+// knownRestrictions in lib/foodRestrictions.ts, never here.
+export async function getFoodRestrictions(): Promise<string[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ restriction_key: string }>(
+    'SELECT restriction_key FROM food_restrictions ORDER BY selected_at',
+  );
+  return rows.map((row) => row.restriction_key);
+}
+
+export async function setFoodRestrictionSelected(key: string, selected: boolean): Promise<void> {
+  const db = await getDatabase();
+  if (selected) {
+    await db.runAsync('INSERT OR IGNORE INTO food_restrictions (restriction_key) VALUES (?)', key);
+  } else {
+    await db.runAsync('DELETE FROM food_restrictions WHERE restriction_key = ?', key);
+  }
 }
 
 export async function setDietPreferenceSelected(dietTag: string, selected: boolean): Promise<void> {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { SectionList, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { useRouter } from 'expo-router';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors } from '../constants/colors';
 import { NAVIGATION_HAND, useFooterBandHeight } from '../constants/floatingButton';
@@ -52,6 +53,8 @@ import {
 import { getStageDeprioritizedNames } from '../lib/foodStageReordering';
 import { verdictFor } from './RecipeDepthReport';
 import { foodOneWord } from '../lib/foodOneWord';
+import { describeRestrictionHit } from '../lib/foodRestrictions';
+import { routeForDigestEntry } from '../lib/digestNavigation';
 import { analyzeNutrientIntake, formatAmount } from '../lib/nutrientAnalysis';
 import { useActiveField } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -762,6 +765,7 @@ export function FoodLookup({
   // G15: the card leads with one phrase; the rows behind it open on a tap
   // and close again whenever a different food is looked up.
   const [personalDetailOpen, setPersonalDetailOpen] = useState(false);
+  const router = useRouter();
   useEffect(() => {
     if (!personalize || resolvedFoodId === null || !resolvedSource) {
       setPersonalEvaluation(null);
@@ -1946,6 +1950,7 @@ export function FoodLookup({
           <Text style={[styles.emptyText, styles.panelStandalone]}>Checking against your profile…</Text>
         ) : personalEvaluation.allergyMatch ||
           personalEvaluation.dietViolations.length > 0 ||
+          personalEvaluation.restrictionHits.length > 0 ||
           personalize.trackedConditions.length > 0 ? (
           <View style={[styles.personalCard, { borderColor: tabColor }]}>
             {(() => {
@@ -1955,6 +1960,7 @@ export function FoodLookup({
                 conditionCautions: personalEvaluation.conditionCautions,
                 dietViolations: personalEvaluation.dietViolations,
                 allergyMatch: personalEvaluation.allergyMatch,
+                restrictionHits: personalEvaluation.restrictionHits,
               });
               const toneColor =
                 oneWord.tone === 'fits' ? colors.statusGood : oneWord.tone === 'caution' ? colors.statusYellowStandalone : colors.danger;
@@ -1988,6 +1994,23 @@ export function FoodLookup({
                 </Text>
               </View>
             ) : null}
+            {(personalDetailOpen ? personalEvaluation.restrictionHits : []).map((hit) => {
+              const stop = hit.weight === 'allergy' && hit.strength !== 'maybe';
+              return (
+                <TouchableOpacity
+                  key={`restriction-${hit.key}`}
+                  style={[styles.personalWarningRow, { backgroundColor: stop ? colors.statusRedBg : colors.statusYellowBg }]}
+                  disabled={!hit.readingId}
+                  onPress={() => (hit.readingId ? router.push(routeForDigestEntry(hit.readingId)) : undefined)}
+                  accessibilityRole={hit.readingId ? 'button' : 'text'}
+                >
+                  <Text style={[styles.personalWarningText, { color: stop ? colors.danger : colors.statusYellowStandalone }]}>
+                    {describeRestrictionHit(hit)}. {hit.why}
+                    {hit.readingId ? ' Tap to read more.' : ''}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
             {(personalDetailOpen ? personalize.trackedConditions : []).map((condition) => {
               const verdict = verdictFor(condition.code, personalEvaluation.safeForConditions, personalEvaluation.conditionCautions);
               const caution = personalEvaluation.conditionCautions[condition.code];

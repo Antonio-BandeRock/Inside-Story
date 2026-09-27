@@ -151,6 +151,7 @@ import {
   getCuriousAboutConditions,
   getDietaryReferenceIntakesForCurrentUser,
   getDietPreferences,
+  getFoodRestrictions,
   getFoodTrialsForCondition,
   getStoredMeasurementSystem,
   getUserConditions,
@@ -172,6 +173,7 @@ import {
   setConditionStage,
   setCuriousAboutConditionSelected,
   setDietPreferenceSelected,
+  setFoodRestrictionSelected,
   setStoredMeasurementSystem,
   setUserConditionSelected,
   setUserNutrientTargetOverride,
@@ -184,6 +186,7 @@ import {
 
 } from '../lib/db';
 import { RECIPE_DIET_TAGS, type RecipeDietTag } from '../lib/digest/types';
+import { FOOD_RESTRICTIONS, FOOD_RESTRICTIONS_HELP, knownRestrictions, type FoodRestrictionKey } from '../lib/foodRestrictions';
 import { getConditionFoodConcerns, type ConditionFoodConcern } from '../lib/conditionFoodConcerns';
 import { ageFromBirthDate } from '../lib/profile';
 import {
@@ -370,6 +373,7 @@ const ALL_CARD_SECTION_KEYS = [
   'reminders',
   // How You Eat
   'diet-preferences',
+  'food-restrictions',
   'meal-schedule',
   'meal-plan',
   'nutrient-targets',
@@ -770,6 +774,20 @@ export default function ProfileScreen() {
   // picker, so a person's own stated preference lines up directly against
   // real, existing data rather than a second, disconnected list.
   const [dietPreferences, setDietPreferences] = useState<RecipeDietTag[]>([]);
+  // G19, 2026-09-27: Food Restrictions, beside Diet Preferences. Read by
+  // Food Lookup, the scan report and Check a Label (lib/foodRestrictions.ts).
+  const [foodRestrictions, setFoodRestrictions] = useState<FoodRestrictionKey[]>([]);
+  useEffect(() => {
+    let isMounted = true;
+    getFoodRestrictions()
+      .then((keys) => {
+        if (isMounted) setFoodRestrictions(knownRestrictions(keys));
+      })
+      .catch((error) => console.error('[Profile] Failed to load food restrictions', error));
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   // Nutrient Targets, 2026-08-26, direct follow-up to the Daily Meal Plan
   // bug-fix pass: "you should complete the adjustable personal protein/
   // fiber/sodium targets with its own small settings feature." Backed by
@@ -1628,6 +1646,13 @@ export default function ProfileScreen() {
   // See dietPreferences' own comment near this screen's state
   // declarations. Same toggle-and-persist shape as
   // toggleCuriousAboutCondition just above.
+  async function toggleFoodRestriction(key: FoodRestrictionKey) {
+    const nowSelected = !foodRestrictions.includes(key);
+    setFoodRestrictions((current) => knownRestrictions(nowSelected ? [...current, key] : current.filter((k) => k !== key)));
+    await setFoodRestrictionSelected(key, nowSelected);
+    flashSaved();
+  }
+
   async function toggleDietPreference(tag: RecipeDietTag) {
     const nowSelected = !dietPreferences.includes(tag);
     setDietPreferences((current) => (nowSelected ? [...current, tag] : current.filter((t) => t !== tag)));
@@ -3859,6 +3884,43 @@ export default function ProfileScreen() {
                 );
               })}
             </View>
+          </View>
+        ) : null}
+      </View>
+
+      {/* Food Restrictions, G19, 2026-09-27: six ways of eating a person can
+          hold themselves to beside allergies and diets. Marks and explains
+          in Food Lookup, the scan report and Check a Label; hides nothing.
+          Each chosen one shows its caption, which carries its evidence. */}
+      <View style={styles.card}>
+        {renderCardHeader('food-restrictions', 'Food Restrictions')}
+        {!collapsedSections.has('food-restrictions') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>{FOOD_RESTRICTIONS_HELP}</Text>
+            <View style={styles.conditionGrid}>
+              {FOOD_RESTRICTIONS.map((restriction) => {
+                const active = foodRestrictions.includes(restriction.key);
+                return (
+                  <View key={restriction.key} style={styles.conditionGridItem}>
+                    <TouchableOpacity
+                      style={[styles.pill, styles.conditionPill, active && styles.pillActive]}
+                      onPress={() => toggleFoodRestriction(restriction.key)}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: active }}
+                    >
+                      <Text style={[styles.pillText, styles.conditionPillText, active && styles.pillTextActive]}>
+                        {restriction.label}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                );
+              })}
+            </View>
+            {FOOD_RESTRICTIONS.filter((restriction) => foodRestrictions.includes(restriction.key)).map((restriction) => (
+              <Text key={restriction.key} style={styles.helpText}>
+                {restriction.label}: {restriction.caption} Evidence: {restriction.evidence.charAt(0).toLowerCase() + restriction.evidence.slice(1)}.
+              </Text>
+            ))}
           </View>
         ) : null}
       </View>
