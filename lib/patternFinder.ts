@@ -1,15 +1,20 @@
 import { getConditionScoresForFoodsBulk, getDatabase, getMealItemsInWindow, getStepCountTrend, listCheckins } from './db';
 import {
   compareWindows,
+  hoursBeforeEnd,
   keysInWindow,
+  medianDelay,
   MIN_PATTERN_OCCURRENCES,
   usualWindowEnds,
   verdictRank,
   type MealMoment,
   type PatternBasis,
   type PatternComparison,
+  type PatternDelay,
 } from './patternBasis';
 import { contextLines, type TreatmentDates } from './patternContext';
+import { bestWorstDays, type BestWorstResult } from './bestWorstDays';
+import { severityOnTen } from './severityScale';
 import { listPeriodStarts } from './cycleDb';
 import { OUTCOME_WORDS, scaleOutcomeEvents, type PatternOutcome } from './patternOutcome';
 import { listOutcomeEvents, noneTodayDays } from './dailyList';
@@ -85,6 +90,8 @@ export type FoodPatternCandidate = {
   category: string | null;
   occurrenceCount: number;
   comparison: PatternComparison;
+  /** F3: median hours from the last eating to the flare. */
+  delay?: PatternDelay | null;
 };
 
 // 2026-08-26, rebuilt to be condition-scoped -- see this file's own
@@ -106,6 +113,7 @@ export type DimensionPatternCandidate = {
   tier: string;
   occurrenceCount: number;
   comparison: PatternComparison;
+  delay?: PatternDelay | null;
 };
 
 export type CategoryPatternCandidate = {
@@ -113,6 +121,7 @@ export type CategoryPatternCandidate = {
   category: string;
   occurrenceCount: number;
   comparison: PatternComparison;
+  delay?: PatternDelay | null;
 };
 
 // Work strain, added 2026-09-05, and deliberately NOT a candidate array
@@ -156,6 +165,9 @@ export type PatternFinderResult = {
   factorFamilies: FactorFamilyResult[];
   /** Lines about the factors as a whole, such as what is not recorded yet. */
   factorNotes: string[];
+  /** F4: foods on the worst days beside the best, flares only, with each
+   *  food key's name. Null for the kinds of day (D1). */
+  bestWorst: { result: BestWorstResult; names: Record<string, string> } | null;
 };
 
 // F1, 2026-09-26. Reads everything besides food that the app records and
@@ -458,6 +470,18 @@ export async function findFoodPatterns(
     return Number.isNaN(end.getTime()) ? null : keysInWindow(meals, end, windowHours);
   });
   const usualWindows = usualWindowEnds(rangeStart, today, now).map((end) => keysInWindow(meals, end, windowHours));
+  // F3: the gap from the last eating of each key to each flare.
+  const delaysByKey = new Map<string, number[]>();
+  for (const checkin of symptomCheckins) {
+    const end = new Date(checkin.loggedAt);
+    if (Number.isNaN(end.getTime())) continue;
+    for (const [key, hours] of hoursBeforeEnd(meals, end, windowHours) ?? []) {
+      const list = delaysByKey.get(key) ?? [];
+      list.push(hours);
+      delaysByKey.set(key, list);
+    }
+  }
+  const delayOf = (key: string) => medianDelay(delaysByKey.get(key) ?? []);
   const flaresWithMeals = flareWindows.filter((window) => window !== null).length;
   const goodWindows = goodDayStamps.map((stamp) => {
     const end = new Date(stamp);
@@ -487,17 +511,18 @@ export async function findFoodPatterns(
         category: info.category,
         occurrenceCount: entry.count,
         comparison: entry.comparison,
+        delay: delayOf(entry.key),
       };
     });
 
   const dimensionCandidates: DimensionPatternCandidate[] = counted
     .filter((entry) => entry.key.startsWith('d:'))
-    .map((entry) => ({ kind: 'dimension' as const, ...dimensionInfo.get(entry.key)!, occurrenceCount: entry.count, comparison: entry.comparison }))
+    .map((entry) => ({ kind: 'dimension' as const, ...dimensionInfo.get(entry.key)!, occurrenceCount: entry.count, comparison: entry.comparison, delay: delayOf(entry.key) }))
     .sort((a, b) => byStanding({ count: a.occurrenceCount, comparison: a.comparison }, { count: b.occurrenceCount, comparison: b.comparison }) || a.subCriterion.localeCompare(b.subCriterion));
 
   const categoryCandidates: CategoryPatternCandidate[] = counted
     .filter((entry) => entry.key.startsWith('c:'))
-    .map((entry) => ({ kind: 'category' as const, category: entry.key.slice(2), occurrenceCount: entry.count, comparison: entry.comparison }))
+    .map((entry) => ({ kind: 'category' as const, category: entry.key.slice(2), occurrenceCount: entry.count, comparison: entry.comparison, delay: delayOf(entry.key) }))
     .sort((a, b) => byStanding({ count: a.occurrenceCount, comparison: a.comparison }, { count: b.occurrenceCount, comparison: b.comparison }) || a.category.localeCompare(b.category));
 
   // Other things on record around the same flares (lib/patternContext.ts).
@@ -557,6 +582,31 @@ export async function findFoodPatterns(
   }
   const movement = compareMovementAgainstSymptoms({ weeks: movementWeeks, symptomsByWeek: symptomsByMovementWeek });
 
+  // F4: whole days rather than windows, food keys only.
+  let bestWorst: PatternFinderResult['bestWorst'] = null;
+  if (outcome === 'flares') {
+    const dayMeals = new Map<string, string[]>();
+    for (const item of items) {
+      const day = item.eatenAt.slice(0, 10);
+      if (day < rangeStart || !item.foodId) continue;
+      const [foodIdStr, source] = item.foodId.split('|');
+      if (!Number.isFinite(Number(foodIdStr)) || !source) continue;
+      const list = dayMeals.get(day) ?? [];
+      list.push(`${Number(foodIdStr)}|${source}`);
+      dayMeals.set(day, list);
+    }
+    const result = bestWorstDays(
+      [...dayMeals].map(([day, foods]) => ({ day, foods })),
+      symptomCheckins.map((checkin) => ({
+        day: checkin.loggedAt.slice(0, 10),
+        onTen: severityOnTen(checkin.severity, checkin.severityTen),
+      })),
+    );
+    const names: Record<string, string> = {};
+    for (const entry of [...result.onWorst, ...result.onBest]) names[entry.key] = foodInfo.get(entry.key)?.foodName ?? entry.key;
+    bestWorst = { result, names };
+  }
+
   const factorFamilies =
     symptomCheckins.length === 0
       ? []
@@ -594,5 +644,6 @@ export async function findFoodPatterns(
     movementRefusal: weeklyApplies && isMovementRefusal(movement) ? movement : null,
     factorFamilies,
     factorNotes: [NOT_RECORDED_LINE],
+    bestWorst,
   };
 }

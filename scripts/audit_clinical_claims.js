@@ -52,6 +52,7 @@ const NAMED = [
   'lib/patternBasis.ts',
   'lib/patternContext.ts',
   'lib/cycle.ts',
+  'lib/bestWorstDays.ts',
   'lib/patternFactors.ts',
   'lib/foodExperiment.ts',
   'lib/yourUsual.ts',

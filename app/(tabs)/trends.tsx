@@ -67,12 +67,13 @@ import {
   type PatternWindowHours,
 } from '../../lib/patternFinder';
 import { markPendingFoodTrialReturn } from '../../lib/pendingFoodTrialReturn';
-import { basisSentence, comparisonSentence, thresholdSentence } from '../../lib/patternBasis';
+import { basisSentence, comparisonSentence, delaySentence, thresholdSentence } from '../../lib/patternBasis';
 import { contextCaveat } from '../../lib/patternContext';
 import { FACTOR_BAND_EMPTY_LINE, FACTOR_CAVEAT, factorComparisonSentence } from '../../lib/patternFactors';
 import { OUTCOME_WORDS, PATTERN_OUTCOMES, emptyOutcomeSentence, outcomeCountsSentence, type PatternOutcome } from '../../lib/patternOutcome';
 import { DAILY_SCALES, answeredSentence, scaleWord, type DailyScaleKey, type DailyScalePoint } from '../../lib/dailyScales';
 import { usualSentence } from '../../lib/yourUsual';
+import { BEST_WORST_CAVEAT, NOTHING_LEANS, bestWorstRefusal, bestWorstSummary, foodDaysSentence } from '../../lib/bestWorstDays';
 import {
   keywordFromFoodName,
   proposeCategoryPatternRule,
@@ -3053,6 +3054,7 @@ export default function TrendsScreen() {
                                   <Text style={styles.patternRowTitle}>{candidate.foodName}</Text>
                                   <Text style={styles.patternRowCaption}>
                                     {comparisonSentence(candidate.comparison, patternResult.basis.windowHours)}
+                                    {candidate.delay ? ` ${delaySentence(candidate.delay, outcomeWords)}` : ''}
                                   </Text>
                                 </View>
                                 <View style={styles.patternRowActions}>
@@ -3096,6 +3098,7 @@ export default function TrendsScreen() {
                                   <Text style={styles.patternRowCaption}>
                                     Relevant to {candidate.conditionName}.{' '}
                                     {comparisonSentence(candidate.comparison, patternResult.basis.windowHours)}
+                                    {candidate.delay ? ` ${delaySentence(candidate.delay, outcomeWords)}` : ''}
                                   </Text>
                                 </View>
                                 <TouchableOpacity
@@ -3146,6 +3149,7 @@ export default function TrendsScreen() {
                                   <Text style={styles.patternRowTitle}>{candidate.category}</Text>
                                   <Text style={styles.patternRowCaption}>
                                     {comparisonSentence(candidate.comparison, patternResult.basis.windowHours)}
+                                    {candidate.delay ? ` ${delaySentence(candidate.delay, outcomeWords)}` : ''}
                                   </Text>
                                 </View>
                                 <TouchableOpacity
@@ -3183,6 +3187,40 @@ export default function TrendsScreen() {
                       </Text>
                     ))}
                     <Text style={styles.patternRowCaption}>{contextCaveat(outcomeWords)}</Text>
+                  </TabBand>
+                ) : null}
+
+                {!loading && patternResult?.bestWorst ? (
+                  <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:best-worst'} title={'Worst days beside best days'} icon="swap-vertical-outline">
+                    <Text style={styles.patternRowCaption}>{bestWorstSummary(patternResult.bestWorst.result)}</Text>
+                    {bestWorstRefusal(patternResult.bestWorst.result) ? (
+                      <Text style={styles.patternRowCaption}>{bestWorstRefusal(patternResult.bestWorst.result)}</Text>
+                    ) : (
+                      <>
+                        {patternResult.bestWorst.result.onWorst.length + patternResult.bestWorst.result.onBest.length === 0 ? (
+                          <Text style={styles.patternRowCaption}>{NOTHING_LEANS}</Text>
+                        ) : null}
+                        {[
+                          { title: 'More often on worst days', rows: patternResult.bestWorst.result.onWorst },
+                          { title: 'More often on best days', rows: patternResult.bestWorst.result.onBest },
+                        ]
+                          .filter((group) => group.rows.length > 0)
+                          .map((group) => (
+                            <View key={group.title}>
+                              <Text style={styles.patternRowTitle}>{group.title}</Text>
+                              {group.rows.map((entry) => (
+                                <View key={entry.key} style={styles.patternRow}>
+                                  <View style={styles.patternRowText}>
+                                    <Text style={styles.patternRowTitle}>{patternResult.bestWorst!.names[entry.key]}</Text>
+                                    <Text style={styles.patternRowCaption}>{foodDaysSentence(entry, patternResult.bestWorst!.result)}</Text>
+                                  </View>
+                                </View>
+                              ))}
+                            </View>
+                          ))}
+                      </>
+                    )}
+                    <Text style={styles.patternRowCaption}>{BEST_WORST_CAVEAT}</Text>
                   </TabBand>
                 ) : null}
 

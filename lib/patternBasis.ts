@@ -92,6 +92,48 @@ export function keysInWindow(sortedMeals: MealMoment[], end: Date, hours: number
   return found ? keys : null;
 }
 
+// F3, typical delay (2026-09-26): for each key eaten in the `hours` before
+// `end`, the hours from the LAST time it was eaten to `end`. The last time
+// rather than the first, since the nearest eating is the one somebody
+// would think of. Null when nothing was logged in the window.
+export function hoursBeforeEnd(sortedMeals: MealMoment[], end: Date, hours: number): Map<string, number> | null {
+  const endKey = toLocalMinute(end);
+  const startKey = toLocalMinute(new Date(end.getTime() - hours * 60 * 60 * 1000));
+  let found = false;
+  const delays = new Map<string, number>();
+  for (const meal of sortedMeals) {
+    if (meal.eatenAt < startKey) continue;
+    if (meal.eatenAt > endKey) break;
+    found = true;
+    const [datePart, timePart = '00:00'] = meal.eatenAt.split('T');
+    const [y, m, d] = datePart.split('-').map(Number);
+    const [h, mi] = timePart.split(':').map(Number);
+    const gap = Math.max(0, (end.getTime() - new Date(y, m - 1, d, h || 0, mi || 0).getTime()) / 3600000);
+    // Meals are sorted oldest first, so a later eating overwrites an earlier one.
+    for (const key of meal.keys) delays.set(key, gap);
+  }
+  return found ? delays : null;
+}
+
+export type PatternDelay = { medianHours: number; count: number };
+
+export function medianDelay(delays: number[]): PatternDelay | null {
+  if (delays.length < MIN_PATTERN_OCCURRENCES) return null;
+  const sorted = [...delays].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  const median = sorted.length % 2 === 1 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+  return { medianHours: median, count: sorted.length };
+}
+
+// The middle value of the gaps, so half the times came sooner and half
+// later. Said with how many it was worked from, and never as how long a
+// food takes to do anything.
+export function delaySentence(delay: PatternDelay, words: { shortMany: string }): string {
+  const hours = Math.round(delay.medianHours);
+  const gap = delay.medianHours < 1 ? 'under an hour' : `${hours} ${hours === 1 ? 'hour' : 'hours'}`;
+  return `Last eaten a median of ${gap} before, across the ${delay.count} ${words.shortMany} it came before.`;
+}
+
 export function compareWindows(
   key: string,
   flareWindows: (Set<string> | null)[],
