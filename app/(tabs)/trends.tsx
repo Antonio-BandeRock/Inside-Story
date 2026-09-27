@@ -73,6 +73,15 @@ import { FACTOR_BAND_EMPTY_LINE, FACTOR_CAVEAT, factorComparisonSentence } from 
 import { OUTCOME_WORDS, PATTERN_OUTCOMES, emptyOutcomeSentence, outcomeCountsSentence, type PatternOutcome } from '../../lib/patternOutcome';
 import { DAILY_SCALES, answeredSentence, scaleWord, type DailyScaleKey, type DailyScalePoint } from '../../lib/dailyScales';
 import { USUAL_BAND_LABEL, usualBandFor, usualSentence } from '../../lib/yourUsual';
+import {
+  averagesByMonth,
+  averagesByWeekday,
+  PERIOD_AVERAGES_CAPTION,
+  periodValueText,
+  showsMonths,
+  showsWeekdays,
+  type PeriodAverage,
+} from '../../lib/periodAverages';
 import { formatSteps, recentOutside, recentOutsideSentence } from '../../lib/outsideUsual';
 import { BEST_WORST_CAVEAT, NOTHING_LEANS, bestWorstRefusal, bestWorstSummary, foodDaysSentence } from '../../lib/bestWorstDays';
 import {
@@ -883,6 +892,54 @@ function renderPeriodRows(rows: PeriodRow[]) {
         </View>
       ))}
     </View>
+  );
+}
+
+// F14, 2026-09-26: averages by weekday and by month under a chart, each
+// with its day count. Drawn only once there is enough to split: fourteen
+// days for weekdays, readings in two months for months. The bar is sized
+// against the highest average, and a weekday or month with nothing says
+// not recorded with no bar at all.
+function renderAverageRows(rows: PeriodAverage[], format: (value: number) => string, unit: { one: string; many: string }) {
+  const highest = Math.max(1, ...rows.map((row) => row.average ?? 0));
+  return (
+    <View style={styles.averageRows}>
+      {rows.map((row) => (
+        <View key={row.key} style={styles.shareRow}>
+          <Text style={styles.shareLabel} numberOfLines={1}>
+            {row.label}
+          </Text>
+          <View style={styles.shareTrack}>
+            {row.average === null || row.average <= 0 ? null : (
+              <View
+                style={[
+                  styles.shareBar,
+                  { width: `${Math.max(2, Math.round((row.average / highest) * 100))}%`, backgroundColor: TAB_COLOR },
+                ]}
+              />
+            )}
+          </View>
+          <Text style={styles.averageValue} numberOfLines={1}>
+            {periodValueText(row, format, unit)}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function renderPeriodAverages(points: { date: string; value: number }[], format: (value: number) => string, unit: { one: string; many: string }) {
+  const weekdays = showsWeekdays(points);
+  const months = showsMonths(points);
+  if (!weekdays && !months) return null;
+  return (
+    <>
+      {weekdays ? <Text style={styles.averageHeading}>By day of the week</Text> : null}
+      {weekdays ? renderAverageRows(averagesByWeekday(points), format, unit) : null}
+      {months ? <Text style={styles.averageHeading}>By month</Text> : null}
+      {months ? renderAverageRows(averagesByMonth(points), format, unit) : null}
+      <Text style={styles.caption}>{PERIOD_AVERAGES_CAPTION}</Text>
+    </>
   );
 }
 
@@ -2611,6 +2668,7 @@ export default function TrendsScreen() {
                           emptyMessage={`No ${scale.label.toLowerCase()} answers in this range. Answer it on Home's Today's Check-In or in Signals > General Note.`}
                         />
                         {points.length > 0 ? <Text style={styles.caption}>{answeredSentence(points, days)}</Text> : null}
+                        {renderPeriodAverages(points, (value) => value.toFixed(1), { one: 'day', many: 'days' })}
                       </View>
                     </TabBand>
                   );
@@ -2747,6 +2805,7 @@ export default function TrendsScreen() {
                           </Text>
                         ) : null}
                         {stepsOutside ? <Text style={styles.caption}>{stepsOutside}</Text> : null}
+                        {renderPeriodAverages(steps, (value) => Math.round(value).toLocaleString(), { one: 'day', many: 'days' })}
                         </View>
                       </TabBand>
                       <TabBand folds={folds} color={TAB_COLOR} id={'trends:movement:hours-slept'} title={'Hours slept'} icon="moon-outline">
@@ -2774,6 +2833,7 @@ export default function TrendsScreen() {
                           </Text>
                         ) : null}
                         {sleepOutside ? <Text style={styles.caption}>{sleepOutside}</Text> : null}
+                        {renderPeriodAverages(sleep, (value) => `${value.toFixed(1)} h`, { one: 'night', many: 'nights' })}
                         </View>
                       </TabBand>
                     </>
@@ -3441,6 +3501,10 @@ const styles = StyleSheet.create({
   },
   patternRowText: { flex: 1 },
   weekRows: { gap: 6, marginTop: 8 },
+  // F14: inside a centred chart card, so the rows stretch themselves.
+  averageRows: { gap: 6, marginTop: 4, alignSelf: 'stretch' },
+  averageHeading: { ...typography.caption, color: colors.textMuted, marginTop: 12, alignSelf: 'stretch', ...textShadow },
+  averageValue: { ...typography.caption, color: colors.textMuted, width: 120, textAlign: 'right', ...textShadow },
   shareRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 },
   shareLabel: { ...typography.caption, color: colors.textMuted, width: 92, ...textShadow },
   shareTrack: { flex: 1, height: 10, borderRadius: 5, backgroundColor: colors.surfaceMuted, overflow: 'hidden' },
