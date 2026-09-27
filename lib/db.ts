@@ -447,7 +447,16 @@ export async function saveMealFavorite(payload: {
 // references) with nothing here for Meal Builder to resume from. Real,
 // not-yet-shipped software with no installed users to migrate, so this is
 // a clean, honest "can't resume this one" rather than a data migration.
-export async function getMealFavorite(id: string): Promise<(MealFavoriteComponentsPayload & { id: string }) | null> {
+//
+// Reading a favorite marks it used only when a person picked it (markUsed).
+// Most callers read one to lay out a schedule, a shopping list or a report,
+// and stamping last_used_at there wrote a row every time a screen opened,
+// which a second device then merged back as a clash every half minute: the
+// 1.0.54.3 lag.
+export async function getMealFavorite(
+  id: string,
+  options: { markUsed?: boolean } = {},
+): Promise<(MealFavoriteComponentsPayload & { id: string }) | null> {
   const db = await getDatabase();
   const row = await db.getFirstAsync<{ payload_json: string }>('SELECT payload_json FROM favorites WHERE id = ?', id);
   if (!row) return null;
@@ -455,8 +464,9 @@ export async function getMealFavorite(id: string): Promise<(MealFavoriteComponen
   const parsed = JSON.parse(row.payload_json) as Partial<MealFavoriteComponentsPayload>;
   if (!Array.isArray(parsed.components)) return null;
 
-  const now = new Date().toISOString();
-  await db.runAsync('UPDATE favorites SET last_used_at = ? WHERE id = ?', now, id);
+  if (options.markUsed) {
+    await db.runAsync('UPDATE favorites SET last_used_at = ? WHERE id = ?', new Date().toISOString(), id);
+  }
 
   return {
     id,
@@ -3584,25 +3594,21 @@ async function getSafeFoodIds(): Promise<Set<string>> {
   if (!safeFoodIdsCache) {
     safeFoodIdsCache = (async () => {
       const db = await getReferenceDatabase();
-      const rows = await db.getAllAsync<{ foodId: number; source: string; tier: string; subCriterion: string }>(
+      const flaggedTiers = await getFlaggedTiers();
+      const rows = await db.getAllAsync<{ foodId: number; source: string }>(
         `
-          SELECT fs.food_id AS foodId, fs.source AS source, fs.tier AS tier, sc.sub_criterion AS subCriterion
+          SELECT food_id AS foodId, source FROM food_scores
+          EXCEPT
+          SELECT fs.food_id, fs.source
           FROM food_scores fs
           JOIN sub_criteria sc ON sc.id = fs.sub_criterion_id
+          WHERE fs.tier IN (${flaggedTiers.map(() => '?').join(', ')})
+            AND sc.sub_criterion NOT IN (${[...NEAR_UNIVERSAL_SUB_CRITERIA].map(() => '?').join(', ')})
         `,
+        ...flaggedTiers,
+        ...NEAR_UNIVERSAL_SUB_CRITERIA,
       );
-      const flagged = new Set<string>();
-      const allKeys = new Set<string>();
-      for (const row of rows) {
-        const key = `${row.foodId}|${row.source}`;
-        allKeys.add(key);
-        if (!NEAR_UNIVERSAL_SUB_CRITERIA.has(row.subCriterion) && isFlaggedTier(row.tier)) flagged.add(key);
-      }
-      const safe = new Set<string>();
-      for (const key of allKeys) {
-        if (!flagged.has(key)) safe.add(key);
-      }
-      return safe;
+      return new Set(rows.map((row) => `${row.foodId}|${row.source}`));
     })();
   }
   return safeFoodIdsCache;
@@ -3642,22 +3648,23 @@ type ScoreRowWithSubCriterion = {
   subCriterionId: number;
   homeConditionCode: string;
 };
-let allScoreRowsWithSubCriteriaCache: Promise<ScoreRowWithSubCriterion[]> | null = null;
-async function getAllScoreRowsWithSubCriteria(): Promise<ScoreRowWithSubCriterion[]> {
-  if (!allScoreRowsWithSubCriteriaCache) {
-    allScoreRowsWithSubCriteriaCache = (async () => {
+// 1.0.54.3: the whole-table fetch described above is gone. It pulled all
+// 617,000 food_scores rows across to JavaScript the first time any screen
+// needed one food's scores, which held the database for most of a second
+// at startup and stalled everything queued behind it. Each caller now asks
+// SQLite for only the rows it needs; isFlaggedTier still decides what is
+// flagged, applied once to the fifty-odd distinct tier values rather than
+// to every row.
+let flaggedTiersCache: Promise<string[]> | null = null;
+async function getFlaggedTiers(): Promise<string[]> {
+  if (!flaggedTiersCache) {
+    flaggedTiersCache = (async () => {
       const db = await getReferenceDatabase();
-      return db.getAllAsync<ScoreRowWithSubCriterion>(
-        `
-          SELECT fs.food_id AS foodId, fs.source AS source, fs.tier AS tier, sc.dimension AS dimension,
-                 sc.sub_criterion AS subCriterion, sc.id AS subCriterionId, sc.home_condition_code AS homeConditionCode
-          FROM food_scores fs
-          JOIN sub_criteria sc ON sc.id = fs.sub_criterion_id
-        `,
-      );
+      const rows = await db.getAllAsync<{ tier: string }>('SELECT DISTINCT tier FROM food_scores WHERE tier IS NOT NULL');
+      return rows.map((row) => row.tier).filter((tier) => isFlaggedTier(tier));
     })();
   }
-  return allScoreRowsWithSubCriteriaCache;
+  return flaggedTiersCache;
 }
 
 // dimensionLabel/relevanceNote/citation added 2026-08-26, so
@@ -3699,18 +3706,24 @@ async function getFlaggedFoodIdsForCondition(conditionCode: string): Promise<Set
   let cached = flaggedFoodIdsByConditionCache.get(conditionCode);
   if (!cached) {
     cached = (async () => {
-      const [allRows, relevanceRows] = await Promise.all([getAllScoreRowsWithSubCriteria(), getSubCriterionRelevanceRows()]);
-      const relevantSubCriterionIds = new Set(
-        relevanceRows.filter((row) => row.conditionCode === conditionCode).map((row) => row.subCriterionId),
+      const db = await getReferenceDatabase();
+      const flaggedTiers = await getFlaggedTiers();
+      const rows = await db.getAllAsync<{ foodId: number; source: string }>(
+        `
+          SELECT DISTINCT fs.food_id AS foodId, fs.source AS source
+          FROM sub_criteria sc
+          JOIN food_scores fs ON fs.sub_criterion_id = sc.id
+          WHERE (sc.home_condition_code = ?
+                 OR sc.id IN (SELECT sub_criterion_id FROM sub_criterion_condition_relevance WHERE condition_code = ?))
+            AND sc.sub_criterion NOT IN (${[...NEAR_UNIVERSAL_SUB_CRITERIA].map(() => '?').join(', ')})
+            AND fs.tier IN (${flaggedTiers.map(() => '?').join(', ')})
+        `,
+        conditionCode,
+        conditionCode,
+        ...NEAR_UNIVERSAL_SUB_CRITERIA,
+        ...flaggedTiers,
       );
-      const flagged = new Set<string>();
-      for (const row of allRows) {
-        if (row.homeConditionCode !== conditionCode && !relevantSubCriterionIds.has(row.subCriterionId)) continue;
-        if (NEAR_UNIVERSAL_SUB_CRITERIA.has(row.subCriterion)) continue;
-        if (!isFlaggedTier(row.tier)) continue;
-        flagged.add(`${row.foodId}|${row.source}`);
-      }
-      return flagged;
+      return new Set(rows.map((row) => `${row.foodId}|${row.source}`));
     })();
     flaggedFoodIdsByConditionCache.set(conditionCode, cached);
   }
@@ -3725,6 +3738,33 @@ async function getFlaggedFoodIdsForCondition(conditionCode: string): Promise<Set
 // tracks, without a query per food per condition. Reuses the exact same
 // cached full-table fetch getFlaggedFoodIdsForCondition already
 // established, so this can't reopen the freeze risk documented there.
+// The score rows for just these foods, in the table's order so every list
+// built from them reads as it did when the whole table was fetched. Asked
+// by food_id in chunks, which the (food_id, source) index answers
+// directly; the source is matched afterwards by the caller.
+async function getScoreRowsForFoods(foodPairs: { foodId: number; source: string }[]): Promise<ScoreRowWithSubCriterion[]> {
+  const db = await getReferenceDatabase();
+  const foodIds = [...new Set(foodPairs.map((pair) => pair.foodId))];
+  const rows: (ScoreRowWithSubCriterion & { rowOrder: number })[] = [];
+  for (let start = 0; start < foodIds.length; start += 500) {
+    const chunk = foodIds.slice(start, start + 500);
+    rows.push(
+      ...(await db.getAllAsync<ScoreRowWithSubCriterion & { rowOrder: number }>(
+        `
+          SELECT fs.rowid AS rowOrder, fs.food_id AS foodId, fs.source AS source, fs.tier AS tier, sc.dimension AS dimension,
+                 sc.sub_criterion AS subCriterion, sc.id AS subCriterionId, sc.home_condition_code AS homeConditionCode
+          FROM food_scores fs
+          JOIN sub_criteria sc ON sc.id = fs.sub_criterion_id
+          WHERE fs.food_id IN (${chunk.map(() => '?').join(', ')})
+        `,
+        ...chunk,
+      )),
+    );
+  }
+  rows.sort((a, b) => a.rowOrder - b.rowOrder);
+  return rows;
+}
+
 export async function getConditionScoresForFoodsBulk(
   foodPairs: { foodId: number; source: string }[],
   conditionCodes: string[],
@@ -3733,7 +3773,7 @@ export async function getConditionScoresForFoodsBulk(
   if (foodPairs.length === 0 || conditionCodes.length === 0) return result;
 
   const wantedFoodKeys = new Set(foodPairs.map((pair) => `${pair.foodId}|${pair.source}`));
-  const [allRows, relevanceRows] = await Promise.all([getAllScoreRowsWithSubCriteria(), getSubCriterionRelevanceRows()]);
+  const [allRows, relevanceRows] = await Promise.all([getScoreRowsForFoods(foodPairs), getSubCriterionRelevanceRows()]);
 
   // subCriterionId -> conditionCode -> that pair's own relevance row --
   // the same lookup getFoodScoresForCondition's own LEFT JOIN resolves one

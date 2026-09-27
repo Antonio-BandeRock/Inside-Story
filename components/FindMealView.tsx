@@ -516,7 +516,7 @@ export function FindMealView({
       }
       return result.id;
     }
-    const favorite = await getMealFavorite(selected.id);
+    const favorite = await getMealFavorite(selected.id, { markUsed: true });
     if (!favorite) {
       showInfoAlert('That did not log', 'That favorite could not be opened. It may have been deleted.');
       return null;

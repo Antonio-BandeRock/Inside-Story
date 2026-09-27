@@ -616,15 +616,22 @@ export function mergeSnapshot(record: SnapshotRecord): Promise<MergeOutcome> {
       return problem('The two copies could not be brought together on this device.');
     }
 
-    const restart = fingerprintText(JSON.stringify(merged.tables)) !== fingerprintText(JSON.stringify(here));
+    // Only the tables the merge changed are written back. Rewriting all of
+    // them emptied and refilled some 5,000 rows to carry three, and held
+    // the database for seconds while it did (1.0.54.3).
+    const changedTables: Tables = {};
+    for (const [tableName, rows] of Object.entries(merged.tables)) {
+      if (JSON.stringify(rows) !== JSON.stringify(here[tableName] ?? [])) changedTables[tableName] = rows;
+    }
+    const restart = Object.keys(changedTables).length > 0;
     if (restart) {
       try {
         await withDatabaseWriteTrackingSuspended(async () => {
           const mine = await readDeviceLocalRows();
           await restoreFromBackupEnvelope({
             ...built,
-            tableNames: Object.keys(merged.tables),
-            tables: merged.tables,
+            tableNames: Object.keys(changedTables),
+            tables: changedTables,
           });
           await putBackDeviceLocalRows(mine);
         });

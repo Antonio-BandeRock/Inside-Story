@@ -470,7 +470,7 @@ export default function VoiceLogScreen() {
         await resolveReplacedMeal(result.id);
         offerGardenUse(result.id);
       } else {
-        const favorite = await getMealFavorite(mealProposal.id);
+        const favorite = await getMealFavorite(mealProposal.id, { markUsed: true });
         if (!favorite) {
           setPhase('review');
           showInfoAlert('That did not log', 'That favorite could not be opened. It may have been deleted.');

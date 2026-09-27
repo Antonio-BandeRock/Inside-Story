@@ -686,7 +686,7 @@ export function MealBuilder({
     if (!favoriteId) return;
     let isCurrent = true;
     (async () => {
-      const favorite = await getMealFavorite(favoriteId);
+      const favorite = await getMealFavorite(favoriteId, { markUsed: true });
       if (!favorite || !isCurrent) return;
       const resolved: SelectedComponent[] = [];
       for (const component of favorite.components) {
