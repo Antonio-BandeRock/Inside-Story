@@ -92,6 +92,9 @@ import {
   setCheckinTime,
   morningTimeOf,
   setMorningTime,
+  weekDayOf,
+  weekTimeOf,
+  setWeekSchedule,
 } from '../lib/reminderPreferences';
 import { DEFAULT_QUIET_HOURS, quietTimeOptions, SNOOZE_MINUTES, type QuietHours } from '../lib/quietHours';
 import {
@@ -553,6 +556,11 @@ function toIsoDate(year: number, month: number, day: number): string {
 // function returning JSX.
 // Half-hour steps for the quiet hours pickers, built once.
 const QUIET_TIME_OPTIONS = quietTimeOptions();
+// Your week's day (F13), in the week's order rather than alphabetical,
+// since a weekday is a sequence rather than a list of names.
+const WEEK_DAY_OPTIONS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map(
+  (label, index) => ({ label, value: String(index) }),
+);
 
 function PickerField({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -825,6 +833,15 @@ export default function ProfileScreen() {
   // The morning check-in's time (D7), reconciled the same way.
   function saveMorningTime(time: string) {
     void setMorningTime(time).then(() => syncReminderNotifications());
+  }
+
+  // Your week's day and time (F13), reconciled the same way.
+  function saveWeekDay(day: string) {
+    void setWeekSchedule(Number(day), weekTimeOf(reminderPrefs)).then(() => syncReminderNotifications());
+  }
+
+  function saveWeekTime(time: string) {
+    void setWeekSchedule(weekDayOf(reminderPrefs), time).then(() => syncReminderNotifications());
   }
 
   // Home Screen section toggles, 2026-08-21, direct request: "make it
@@ -3652,6 +3669,30 @@ export default function ProfileScreen() {
                     tabColor={colors.menuIconMuted}
                     groundSurface
                     onSelect={saveMorningTime}
+                  />
+                </PickerField>
+              </View>
+            ) : null}
+            {isReminderKindEnabled(reminderPrefs, 'week') ? (
+              <View style={styles.dateRow}>
+                <PickerField label="Your week on">
+                  <PopoverSelect
+                    options={WEEK_DAY_OPTIONS}
+                    selected={String(weekDayOf(reminderPrefs))}
+                    minWidth={130}
+                    tabColor={colors.menuIconMuted}
+                    groundSurface
+                    onSelect={saveWeekDay}
+                  />
+                </PickerField>
+                <PickerField label="At">
+                  <PopoverSelect
+                    options={QUIET_TIME_OPTIONS}
+                    selected={weekTimeOf(reminderPrefs)}
+                    minWidth={110}
+                    tabColor={colors.menuIconMuted}
+                    groundSurface
+                    onSelect={saveWeekTime}
                   />
                 </PickerField>
               </View>

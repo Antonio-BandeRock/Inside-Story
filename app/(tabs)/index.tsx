@@ -127,6 +127,8 @@ import type { KeepingUpHomeSummary } from '../../lib/keepingUp';
 import { getKeepingUpHomeSummary } from '../../lib/keepingUpDb';
 import { OUTSIDE_USUAL_CAPTION, outsideUsualLines, type OutsideUsualLine } from '../../lib/outsideUsual';
 import { getOutsideUsualInputs } from '../../lib/outsideUsualDb';
+import { buildYourWeek, nothingLoggedSentence, YOUR_WEEK_CAPTION, type YourWeek } from '../../lib/weeklySummary';
+import { getYourWeekInputs } from '../../lib/weeklySummaryDb';
 import type { GardenYieldHomeSummary } from '../../lib/harvestYield';
 import { getGardenYieldHomeSummary } from '../../lib/harvestYieldDb';
 import { describeWhereIsItRow } from '../../lib/whereIsIt';
@@ -552,6 +554,8 @@ type DashboardData = {
   // F12, 2026-09-26: only the readings that sat outside the usual range.
   // Usually none, and then the card is not drawn at all.
   outsideUsual: OutsideUsualLine[];
+  // F13, 2026-09-26: the last seven days beside the seven before.
+  yourWeek: YourWeek;
   // What the garden gave this calendar month, 2026-09-23. A weight or a
   // count, what it came to at prices this person has recorded paying, and
   // nothing when the garden is out of season. Worked out in
@@ -809,6 +813,12 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.tabTrends,
     href: { pathname: '/trends', params: { openTrendsLens: 'movement' } } as Href,
   },
+  yourWeek: {
+    label: 'Your Week',
+    icon: 'calendar-number',
+    color: colors.tabTrends,
+    href: '/trends' as Href,
+  },
   gardenYield: {
     label: 'Garden Yield',
     icon: 'basket',
@@ -940,6 +950,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'varietyThisWeek',
   'keepingUp',
   'outsideUsual',
+  'yourWeek',
   'gardenYield',
   'makeReport',
   'gardenTasks',
@@ -1532,6 +1543,8 @@ export default function HomeScreen() {
       // F12, 2026-09-26. The Morning Check-In's readings plus steps; the
       // lines are worked out here so an empty list means no card.
       getOutsideUsualInputs(),
+      // F13, 2026-09-26. Fourteen days of records, set side by side here.
+      getYourWeekInputs(),
     ]).then(
       ([
         todaysMeals,
@@ -1558,6 +1571,7 @@ export default function HomeScreen() {
         keepingUp,
         gardenYield,
         outsideUsualInputs,
+        yourWeekInputs,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1617,6 +1631,7 @@ export default function HomeScreen() {
           keepingUp,
           gardenYield,
           outsideUsual: outsideUsualLines(outsideUsualInputs),
+          yourWeek: buildYourWeek(yourWeekInputs),
           reconcileCounts: { open: openToAnswer, assumed: assumedToConfirm },
           routines: routinesHome.routines,
           doneChecks: routinesHome.checks,
@@ -3028,6 +3043,32 @@ export default function HomeScreen() {
     );
   }
 
+  // F13, 2026-09-26: the seven days that ended yesterday beside the seven
+  // before, as numbers and nothing more. A week with nothing logged says
+  // so rather than reading as a week of zeros.
+  function renderYourWeek() {
+    if (!isHomeSectionVisible(visualPrefs, 'yourWeek')) return null;
+    if (!data) return null;
+    const week = data.yourWeek;
+    return renderBand(
+      'yourWeek',
+      'Your Week',
+      <View>
+        <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>{week.heading}</Text>
+        {week.nothingLogged ? (
+          <Text style={[styles.trendDelta, { color: tabColorFor('/trends') }]}>{nothingLoggedSentence(week)}</Text>
+        ) : (
+          week.lines.map((line) => (
+            <Text key={line.key} style={[styles.trendDelta, { color: tabColorFor('/trends') }]}>
+              {line.sentence}
+            </Text>
+          ))
+        )}
+        <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>{YOUR_WEEK_CAPTION}</Text>
+      </View>,
+    );
+  }
+
   // The fourth thing Trends knows, 2026-09-23, and the one that comes out
   // of the ground. The weight leads where there is one, since that is what
   // a garden is measured in, and a crop somebody counts rather than weighs
@@ -3866,6 +3907,8 @@ export default function HomeScreen() {
         return renderMorningCheckin();
       case 'outsideUsual':
         return renderOutsideUsual();
+      case 'yourWeek':
+        return renderYourWeek();
       case 'todaysCheckin':
         return renderTodaysCheckin();
       case 'logAgain':

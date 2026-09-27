@@ -24,6 +24,8 @@ import {
 import {
   checkinTimeOf,
   morningTimeOf,
+  weekDayOf,
+  weekTimeOf,
   getReminderPreferences,
   isNudgeUntilDoneEnabled,
   isReminderKindEnabled,
@@ -52,6 +54,7 @@ import { listCheckReminders, listRoutineReminders, markDoneCheck } from './routi
 import { formatTime12 } from './timeOfDay';
 import { quietDecision, SNOOZE_MINUTES } from './quietHours';
 import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
+import { YOUR_WEEK_NOTIFICATION_BODY, YOUR_WEEK_NOTIFICATION_TITLE } from './weeklySummary';
 
 // Local reminders: the scheduled doses in Schedules > Meds, the visits in
 // Schedules > Appointments, the meals and drinks on the schedule, the work
@@ -224,7 +227,7 @@ type ReminderPayload = {
   /** Which tab a tap opens. Absent on anything queued before 1.0.39.8, and
    *  read back as 'schedule', which is the only thing it could have been. */
   tab?: ReminderTab;
-  lens: ScheduleLens | GardenReminderLens | LifeReminderLens | SignalsReminderLens | 'reconcile' | 'walk' | 'guide' | 'morningCheckin';
+  lens: ScheduleLens | GardenReminderLens | LifeReminderLens | SignalsReminderLens | 'reconcile' | 'walk' | 'guide' | 'morningCheckin' | 'yourWeek';
   /** A Photo Series only: what the photo is of and its name, so a tap opens
    *  the camera on that owner without reading the database first. */
   ownerKind?: string;
@@ -632,6 +635,24 @@ function buildMorningPlanned(fireAt: Date, now: Date): PlannedNotification {
   };
 }
 
+// Your week (F13). Word that the summary is on Home and nothing about what
+// it holds, since a notification can be read on a locked screen.
+function buildWeekPlanned(fireAt: Date): PlannedNotification {
+  return {
+    identifier: `${IDENTIFIER_PREFIX}week:${localDateString(fireAt)}`,
+    title: YOUR_WEEK_NOTIFICATION_TITLE,
+    body: YOUR_WEEK_NOTIFICATION_BODY,
+    fireAt,
+    payload: {
+      kind: 'week',
+      scheduleItemId: localDateString(fireAt),
+      fireAt: fireAt.toISOString(),
+      tab: 'home',
+      lens: 'yourWeek',
+    },
+  };
+}
+
 // A Photo Series asking for today's photo. The identifier carries the day,
 // so a photo taken today drops today's from the next reconcile while the
 // rest of the week stays queued.
@@ -767,6 +788,7 @@ function channelFor(kind: ReminderKind): string {
     kind === 'check' ||
     kind === 'checkin' ||
     kind === 'morning' ||
+    kind === 'week' ||
     kind === 'afterMeal' ||
     kind === 'photoSeries'
   )
@@ -954,6 +976,18 @@ async function runSync(): Promise<ReminderSyncResult> {
       (index === 0 ? first : followUps).set(planned.identifier, planned);
     });
   }
+  // Your week (F13): the lookahead is a week, so at most one of these is
+  // queued at a time, on the weekday the person picked.
+  if (isReminderKindEnabled(preferences, 'week')) {
+    const weekDay = weekDayOf(preferences);
+    planDailyCheckins(weekTimeOf(preferences), now, LOOKAHEAD_DAYS, false)
+      .filter((fireAt) => fireAt.getDay() === weekDay)
+      .slice(0, 1)
+      .forEach((fireAt) => {
+        const planned = buildWeekPlanned(fireAt);
+        first.set(planned.identifier, planned);
+      });
+  }
   if (isReminderKindEnabled(preferences, 'afterMeal')) {
     const nudge = planAfterMealNudge(checkinInputs.recentMeals, checkinInputs.lastCheckinAt, now);
     if (nudge) {
@@ -1111,7 +1145,7 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
   const data = request.content.data as Partial<ReminderPayload> | undefined;
 
   if (data?.tab === 'reconcile') return { pathname: '/reconcile' };
-  // The morning check-in (D7) is a card on Home.
+  // The morning check-in (D7) and Your week (F13) are cards on Home.
   if (data?.tab === 'home') return { pathname: '/' };
   // A Photo Series opens the camera on the thing with the last photo over
   // the view. A payload missing its owner lands on Garden instead, since
