@@ -1,3 +1,4 @@
+import { severityOnTen } from './severityScale';
 import {
   getBodyMeasurementTrend,
   getNutrientTotalsByDateRange,
@@ -341,6 +342,12 @@ export function paddedTrendRange(values: number[]): { yMin: number; yMax: number
 export type CheckinSeverityPoint = {
   date: string;
   severity: number;
+  /** The same moment on 0 to 10 (D5): the number when one was given,
+   *  otherwise the middle of the named step's range, so an older entry
+   *  logged with a word sits where that word sits. */
+  onTen: number;
+  /** True when the person gave the number rather than only the word. */
+  tenGiven: boolean;
   checkinType: CheckinType;
   label: string;
 };
@@ -363,6 +370,8 @@ export async function getCheckinSeverityTrendSeries(checkinTypes: CheckinType[],
       points.push({
         date,
         severity: entry.severity,
+        onTen: severityOnTen(entry.severity, entry.severityTen) ?? 0,
+        tenGiven: entry.severityTen != null,
         checkinType: entry.checkinType,
         label: entry.foodName ?? (entry.checkinType === 'flare' ? 'Flare' : 'Reaction'),
       });

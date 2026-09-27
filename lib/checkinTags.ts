@@ -12,6 +12,8 @@
 // using the app, and it's just as valuable a correlation input as a
 // symptom is.
 
+import { sortByLabel } from './choiceOrder';
+
 export type CheckinTagCategory =
   | 'digestive'
   | 'energy'
@@ -47,6 +49,12 @@ export type CheckinTagDefinition = {
   // actual source of truth since context can flip a tag's meaning (e.g.
   // "wired" after coffee vs. "wired" as an anxiety symptom).
   usualValence: 'positive' | 'negative';
+  // D3, 2026-09-26: a symptom the person named (custom_checkin_tags). Its
+  // code is 'custom:' plus the row id, so it can never collide with a
+  // built-in code. A retired one still names its old check-ins but is no
+  // longer offered.
+  custom?: boolean;
+  retired?: boolean;
 };
 
 export const CHECKIN_TAG_CATEGORIES: Record<CheckinTagCategory, string> = {
@@ -140,14 +148,54 @@ export const CHECKIN_TAGS: CheckinTagDefinition[] = [
   { code: 'felt_regulated', label: 'Felt settled and regulated', category: 'sensory_regulation', usualValence: 'positive' },
 ];
 
+// The person's own symptoms (D3, 2026-09-26), held here once loaded so
+// every reader that turns a code into a label (the Signals rows, the day
+// timeline, Pattern Finder, the reports) names them without a query of its
+// own. lib/db.ts fills it when the database opens and
+// lib/customCheckinTagsDb.ts after every change.
+let customTags: CheckinTagDefinition[] = [];
+
+export const CUSTOM_TAG_PREFIX = 'custom:';
+
+export type CustomCheckinTagRow = {
+  id: string;
+  label: string;
+  category: string;
+  usual_valence: string;
+  retired_at: string | null;
+};
+
+export function customTagFromRow(row: CustomCheckinTagRow): CheckinTagDefinition {
+  const category = (row.category in CHECKIN_TAG_CATEGORIES ? row.category : 'pain_physical') as CheckinTagCategory;
+  return {
+    code: CUSTOM_TAG_PREFIX + row.id,
+    label: row.label,
+    category,
+    usualValence: row.usual_valence === 'positive' ? 'positive' : 'negative',
+    custom: true,
+    retired: row.retired_at !== null,
+  };
+}
+
+export function setCustomCheckinTags(tags: CheckinTagDefinition[]): void {
+  customTags = tags;
+}
+
+export function getCustomCheckinTags(): CheckinTagDefinition[] {
+  return customTags;
+}
+
+// Each group reads alphabetically, the person's symptoms merged among the
+// built-in ones (sortByLabel, the rule for every chooser list of names).
 export function getCheckinTagsByCategory(): { category: CheckinTagCategory; label: string; tags: CheckinTagDefinition[] }[] {
+  const offered = [...CHECKIN_TAGS, ...customTags.filter((tag) => !tag.retired)];
   return (Object.keys(CHECKIN_TAG_CATEGORIES) as CheckinTagCategory[]).map((category) => ({
     category,
     label: CHECKIN_TAG_CATEGORIES[category],
-    tags: CHECKIN_TAGS.filter((tag) => tag.category === category),
+    tags: sortByLabel(offered.filter((tag) => tag.category === category)),
   }));
 }
 
 export function getCheckinTagDefinition(code: string): CheckinTagDefinition | undefined {
-  return CHECKIN_TAGS.find((tag) => tag.code === code);
+  return CHECKIN_TAGS.find((tag) => tag.code === code) ?? customTags.find((tag) => tag.code === code);
 }

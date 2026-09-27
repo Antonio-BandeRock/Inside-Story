@@ -46,6 +46,7 @@ import type { RecipeDepthResult } from './recipeDepth';
 // functions below build exactly these, which is what lets the Schedules
 // screen hand them straight to buildDayTimeline.
 import type { TimelineDose, TimelineMeal } from './doseMealTiming';
+import { customTagFromRow, setCustomCheckinTags, type CheckinTagDefinition, type CustomCheckinTagRow } from './checkinTags';
 
 // Exported as of 2026-08-19 -- lib/visualPreferences.ts's own
 // getGroundThemeSync() needs to open this exact same file (by name, via
@@ -8076,6 +8077,20 @@ async function runDatabaseInitialization() {
         created_at TEXT NOT NULL
       );
       CREATE INDEX IF NOT EXISTS idx_today_picks_day ON today_picks(day);
+
+      -- D3, Phase 2: symptoms the person names, offered beside the built-in
+      -- tags in lib/checkinTags.ts under the code 'custom:' || id. Removing
+      -- one that a check-in used sets retired_at, so the old check-in still
+      -- names it; one nothing used is deleted.
+      CREATE TABLE IF NOT EXISTS custom_checkin_tags (
+        id TEXT PRIMARY KEY,
+        label TEXT NOT NULL,
+        category TEXT NOT NULL,
+        usual_valence TEXT NOT NULL DEFAULT 'negative',
+        retired_at TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
     `);
 
     // Finances' due-rule column, 2026-09-05. finance_recurring shipped in
@@ -8982,6 +8997,21 @@ async function runDatabaseInitialization() {
       }
     }
 
+    // severity_ten (D5, 2026-09-26): an optional 0 to 10 beside the four
+    // named steps in severity, which it also sets (lib/severityScale.ts).
+    if (!wellbeingCheckinColumns.some((column) => column.name === 'severity_ten')) {
+      await db.execAsync('ALTER TABLE wellbeing_checkins ADD COLUMN severity_ten INTEGER;');
+    }
+    // checkin_tags.severity (D4, 2026-09-26): how bad each symptom was, one
+    // of the same four steps, null when only the check-in as a whole was
+    // rated.
+    {
+      const tagColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(checkin_tags)');
+      if (!tagColumns.some((column) => column.name === 'severity')) {
+        await db.execAsync('ALTER TABLE checkin_tags ADD COLUMN severity INTEGER;');
+      }
+    }
+
     // shared_from_name -- 2026-08-15, the real "who sent this to me"
     // footnote a shared item carries once imported through the new
     // sharing feature (see importSharedItem below). Nullable, TEXT, added
@@ -9078,6 +9108,9 @@ async function runDatabaseInitialization() {
         }
       }
     }
+    // The person's symptom names, loaded once so every label lookup finds
+    // them (D3). lib/customCheckinTagsDb.ts reloads after each change.
+    setCustomCheckinTags(await readCustomCheckinTags(db));
   } catch (error) {
     databasePromise = null;
     initializeDatabasePromise = null;
@@ -20686,7 +20719,11 @@ export type WellbeingCheckin = {
   mood: number | null;
   energy: number | null;
   stress: number | null;
+  // D5: the optional 0 to 10, null when only a named step was picked.
+  severityTen: number | null;
   tags: string[];
+  // D4: how bad each symptom was, by tag code; absent when not rated.
+  tagSeverity: Record<string, number>;
   createdAt: string;
 };
 
@@ -20707,6 +20744,10 @@ export async function recordCheckin(input: {
   energy?: number | null;
   stress?: number | null;
   tags?: string[];
+  /** D4: how bad each tagged symptom was, 1 to 4, by tag code. */
+  tagSeverity?: Record<string, number>;
+  /** D5: the optional 0 to 10. */
+  severityTen?: number | null;
 }) {
   const db = await getDatabase();
   const id = `checkin_${Date.now()}`;
@@ -20715,14 +20756,15 @@ export async function recordCheckin(input: {
   await db.runAsync(
     `
       INSERT INTO wellbeing_checkins
-        (id, logged_at, checkin_type, valence, severity, notes, food_name, related_meal_id, related_exercise_id, food_trial_id, mood, energy, stress, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (id, logged_at, checkin_type, valence, severity, severity_ten, notes, food_name, related_meal_id, related_exercise_id, food_trial_id, mood, energy, stress, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.loggedAt,
     input.checkinType,
     input.valence,
     input.severity ?? null,
+    input.severityTen ?? null,
     input.notes?.trim() || null,
     input.foodName?.trim() || null,
     input.relatedMealId ?? null,
@@ -20737,10 +20779,11 @@ export async function recordCheckin(input: {
 
   for (const [index, tagCode] of (input.tags ?? []).entries()) {
     await db.runAsync(
-      'INSERT INTO checkin_tags (id, checkin_id, tag_code) VALUES (?, ?, ?)',
+      'INSERT INTO checkin_tags (id, checkin_id, tag_code, severity) VALUES (?, ?, ?, ?)',
       `checkin_tag_${Date.now()}_${index}`,
       id,
       tagCode,
+      input.tagSeverity?.[tagCode] ?? null,
     );
   }
 
@@ -20749,24 +20792,34 @@ export async function recordCheckin(input: {
 
 async function attachCheckinTags(
   db: SQLite.SQLiteDatabase,
-  checkins: Omit<WellbeingCheckin, 'tags'>[],
+  checkins: Omit<WellbeingCheckin, 'tags' | 'tagSeverity'>[],
 ): Promise<WellbeingCheckin[]> {
   if (checkins.length === 0) return [];
 
   const placeholders = checkins.map(() => '?').join(', ');
-  const tagRows = await db.getAllAsync<{ checkin_id: string; tag_code: string }>(
-    `SELECT checkin_id, tag_code FROM checkin_tags WHERE checkin_id IN (${placeholders})`,
+  const tagRows = await db.getAllAsync<{ checkin_id: string; tag_code: string; severity: number | null }>(
+    `SELECT checkin_id, tag_code, severity FROM checkin_tags WHERE checkin_id IN (${placeholders})`,
     ...checkins.map((checkin) => checkin.id),
   );
 
   const tagsByCheckin = new Map<string, string[]>();
+  const severityByCheckin = new Map<string, Record<string, number>>();
   for (const row of tagRows) {
     const existing = tagsByCheckin.get(row.checkin_id) ?? [];
     existing.push(row.tag_code);
     tagsByCheckin.set(row.checkin_id, existing);
+    if (row.severity !== null) {
+      const severities = severityByCheckin.get(row.checkin_id) ?? {};
+      severities[row.tag_code] = row.severity;
+      severityByCheckin.set(row.checkin_id, severities);
+    }
   }
 
-  return checkins.map((checkin) => ({ ...checkin, tags: tagsByCheckin.get(checkin.id) ?? [] }));
+  return checkins.map((checkin) => ({
+    ...checkin,
+    tags: tagsByCheckin.get(checkin.id) ?? [],
+    tagSeverity: severityByCheckin.get(checkin.id) ?? {},
+  }));
 }
 
 export async function listCheckins(
@@ -20795,11 +20848,11 @@ export async function listCheckins(
   const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
   const limit = filters.limit ?? 50;
 
-  const rows = await db.getAllAsync<Omit<WellbeingCheckin, 'tags'>>(
+  const rows = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity'>>(
     `
       SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
              related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,
-             mood, energy, stress, created_at AS createdAt
+             mood, energy, stress, severity_ten AS severityTen, created_at AS createdAt
       FROM wellbeing_checkins
       ${whereClause}
       ORDER BY logged_at DESC
@@ -20810,6 +20863,15 @@ export async function listCheckins(
   );
 
   return attachCheckinTags(db, rows);
+}
+
+/** Every symptom the person named, retired ones included so old check-ins
+ *  keep their names (D3). Also used by lib/customCheckinTagsDb.ts. */
+export async function readCustomCheckinTags(db: SQLite.SQLiteDatabase): Promise<CheckinTagDefinition[]> {
+  const rows = await db.getAllAsync<CustomCheckinTagRow>(
+    'SELECT id, label, category, usual_valence, retired_at FROM custom_checkin_tags',
+  );
+  return rows.map(customTagFromRow);
 }
 
 export async function deleteCheckin(id: string) {
@@ -21001,11 +21063,11 @@ export async function getTherapyResponseInputs(days: number): Promise<{
 // todayDateString()).
 export async function getCheckinForDate(date: string, checkinType: CheckinType): Promise<WellbeingCheckin | null> {
   const db = await getDatabase();
-  const row = await db.getAllAsync<Omit<WellbeingCheckin, 'tags'>>(
+  const row = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity'>>(
     `
       SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
              related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,
-             mood, energy, stress, created_at AS createdAt
+             mood, energy, stress, severity_ten AS severityTen, created_at AS createdAt
       FROM wellbeing_checkins
       WHERE checkin_type = ? AND logged_at >= ? AND logged_at < ?
       ORDER BY logged_at DESC

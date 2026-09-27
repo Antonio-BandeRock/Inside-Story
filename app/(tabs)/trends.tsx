@@ -2565,12 +2565,12 @@ export default function TrendsScreen() {
                   <TrendLineChart
                     points={(symptomsSeries ?? []).map((point) => ({
                       date: point.date,
-                      value: point.severity,
+                      value: point.onTen,
                       color: checkinColor(point.checkinType),
                     }))}
-                    yMin={1}
-                    yMax={4}
-                    valueFormatter={(value) => SEVERITY_LABELS[Math.round(value)] ?? String(Math.round(value))}
+                    yMin={0}
+                    yMax={10}
+                    valueFormatter={(value) => `${Math.round(value)} of 10`}
                     emptyMessage="Log a flare or food reaction in Signals to see a severity trend here."
                   />
                   <View style={styles.legendRow}>
@@ -2583,6 +2583,11 @@ export default function TrendsScreen() {
                       <Text style={styles.legendText}>Food Reaction</Text>
                     </View>
                   </View>
+                  {(symptomsSeries ?? []).some((point) => !point.tenGiven) ? (
+                    <Text style={styles.caption}>
+                      {'Drawn on 0 to 10. An entry logged with a word and no number sits at the middle of that word: Mild 1.5, Moderate 4.5, Severe 7, Very severe 9.5.'}
+                    </Text>
+                  ) : null}
                 </View>
                 {DAILY_SCALES.map((scale) => {
                   const points = scaleSeries?.[scale.key] ?? [];
@@ -3298,7 +3303,6 @@ export default function TrendsScreen() {
 // SeverityPicker (SEVERITY_OPTIONS) -- reused here rather than a second,
 // independently-worded scale, so a Y-axis label on the Symptoms chart says
 // the same thing the person actually tapped when logging it.
-const SEVERITY_LABELS: Record<number, string> = { 1: 'Mild', 2: 'Moderate', 3: 'Severe', 4: 'Very severe' };
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },

@@ -21,7 +21,17 @@ import { textShadow, typography } from '../../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../../components/HomeSectionBand';
 import { RecordPhotos } from '../../components/RecordPhotos';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
-import { getCheckinTagsByCategory, type CheckinTagDefinition } from '../../lib/checkinTags';
+import {
+  CHECKIN_TAG_CATEGORIES,
+  getCheckinTagDefinition,
+  getCheckinTagsByCategory,
+  getCustomCheckinTags,
+  type CheckinTagCategory,
+} from '../../lib/checkinTags';
+import { addCustomCheckinTag, removeCustomCheckinTag, renameCustomCheckinTag } from '../../lib/customCheckinTagsDb';
+import { SEVERITY_STEPS, describeSeverity, stepFromTen } from '../../lib/severityScale';
+import { PopoverSelect } from '../../components/PopoverSelect';
+import { sortByLabel } from '../../lib/choiceOrder';
 import { EMPTY_DAILY_SCALES, describeScales, hasAnyScale, localStamp, localStampOf, type DailyScaleValues } from '../../lib/dailyScales';
 import { appendDictatedText, parseVoiceCommands } from '../../lib/voiceCommandParsing';
 import {
@@ -411,12 +421,58 @@ function TimePicker({ value, onChange }: { value: TimeOfDayInput; onChange: (val
   );
 }
 
-const SEVERITY_OPTIONS = [
-  { value: 1, label: 'Mild' },
-  { value: 2, label: 'Moderate' },
-  { value: 3, label: 'Severe' },
-  { value: 4, label: 'Very severe' },
-];
+const SEVERITY_OPTIONS = SEVERITY_STEPS;
+
+// The finer grain a check-in can carry beside its named step (D5), and how
+// bad each symptom was (D4). Held together because every form that logs a
+// check-in carries both, and both are optional.
+type SeverityDetail = {
+  ten: number | null;
+  setTen: (value: number | null) => void;
+  perTag: Record<string, number>;
+  setPerTag: (update: (current: Record<string, number>) => Record<string, number>) => void;
+  reset: () => void;
+};
+
+function useSeverityDetail(): SeverityDetail {
+  const [ten, setTen] = useState<number | null>(null);
+  const [perTag, setPerTag] = useState<Record<string, number>>({});
+  return {
+    ten,
+    setTen,
+    perTag,
+    setPerTag,
+    reset: () => {
+      setTen(null);
+      setPerTag({});
+    },
+  };
+}
+
+/** What a save sends for the detail: only the tags still selected. */
+function detailForSave(detail: SeverityDetail, tags: string[]): { severityTen: number | null; tagSeverity: Record<string, number> } {
+  const tagSeverity: Record<string, number> = {};
+  for (const code of tags) if (detail.perTag[code] !== undefined) tagSeverity[code] = detail.perTag[code];
+  return { severityTen: detail.ten, tagSeverity };
+}
+
+const TEN_SCALE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+function SeverityTenPicker({ value, onChange }: { value: number | null; onChange: (value: number | null) => void }) {
+  return (
+    <View style={styles.pillRow}>
+      {TEN_SCALE.map((n) => (
+        <TouchableOpacity
+          key={n}
+          style={[styles.pillSmall, value === n && styles.pillActive]}
+          onPress={() => onChange(value === n ? null : n)}
+        >
+          <Text style={[styles.pillTextSmall, value === n && styles.pillTextActive]}>{n}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+}
 
 function SeverityPicker({ value, onChange }: { value: number | null; onChange: (value: number) => void }) {
   return (
@@ -438,19 +494,110 @@ function SeverityPicker({ value, onChange }: { value: number | null; onChange: (
 // reaction is inherently a "something's wrong" report, so tags like "slept
 // well" or "good energy" (also in lib/checkinTags.ts, for other check-in
 // types this app doesn't build a UI for yet) would just be noise.
-const NEGATIVE_TAG_GROUPS = getCheckinTagsByCategory()
-  .map((group) => ({ ...group, tags: group.tags.filter((tag) => tag.usualValence === 'negative') }))
-  .filter((group) => group.tags.length > 0);
-
-function tagLabel(code: string): string {
-  const allTags: CheckinTagDefinition[] = NEGATIVE_TAG_GROUPS.flatMap((group) => group.tags);
-  return allTags.find((tag) => tag.code === code)?.label ?? code;
+// Read on every render rather than once at load, since the person's own
+// symptoms (D3) can be added while the form is open.
+function negativeTagGroups() {
+  return getCheckinTagsByCategory()
+    .map((group) => ({ ...group, tags: group.tags.filter((tag) => tag.usualValence === 'negative') }))
+    .filter((group) => group.tags.length > 0);
 }
 
-function TagPicker({ selected, onToggle }: { selected: string[]; onToggle: (code: string) => void }) {
+function tagLabel(code: string): string {
+  return getCheckinTagDefinition(code)?.label ?? code;
+}
+
+const CATEGORY_CHOICES = sortByLabel(
+  (Object.keys(CHECKIN_TAG_CATEGORIES) as CheckinTagCategory[]).map((key) => ({ value: key, label: CHECKIN_TAG_CATEGORIES[key] })),
+);
+
+// D3: name a symptom the list does not have, and rename or remove the ones
+// named before. Removing one that a check-in used keeps it on that check-in
+// and stops offering it; removing one nothing used deletes it.
+function OwnSymptoms({ onAdded }: { onAdded: (code: string) => void }) {
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState<CheckinTagCategory>('pain_physical');
+  const [renaming, setRenaming] = useState<string | null>(null);
+  const [, setVersion] = useState(0);
+  const own = sortByLabel(getCustomCheckinTags().filter((tag) => !tag.retired));
+
+  async function save() {
+    if (!name.trim()) return;
+    if (renaming) {
+      await renameCustomCheckinTag(renaming, name);
+      setRenaming(null);
+    } else {
+      const code = await addCustomCheckinTag(name, category);
+      if (code) onAdded(code);
+    }
+    setName('');
+    setVersion((v) => v + 1);
+  }
+
+  return (
+    <View style={styles.tagGroup}>
+      <Text style={styles.tagGroupLabel}>{renaming ? 'Rename this symptom' : 'Add a symptom of your own'}</Text>
+      <AppTextInput style={styles.input} placeholder="e.g. Ringing in the ears" value={name} onChangeText={setName} />
+      {renaming ? null : (
+        <PopoverSelect
+          options={CATEGORY_CHOICES}
+          selected={category}
+          onSelect={(value) => setCategory(value as CheckinTagCategory)}
+          tabColor={TAB_COLOR}
+          placeholder="Which group"
+        />
+      )}
+      <View style={styles.pillRow}>
+        <TouchableOpacity style={styles.pillSmall} onPress={() => void save()}>
+          <Text style={styles.pillTextSmall}>{renaming ? 'Save name' : 'Add'}</Text>
+        </TouchableOpacity>
+        {renaming ? (
+          <TouchableOpacity
+            style={styles.pillSmall}
+            onPress={() => {
+              setRenaming(null);
+              setName('');
+            }}
+          >
+            <Text style={styles.pillTextSmall}>Cancel</Text>
+          </TouchableOpacity>
+        ) : null}
+      </View>
+      {own.map((tag) => (
+        <View key={tag.code} style={styles.ownSymptomRow}>
+          <Text style={styles.ownSymptomName}>{tag.label}</Text>
+          <TouchableOpacity
+            onPress={() => {
+              setRenaming(tag.code);
+              setName(tag.label);
+            }}
+          >
+            <Text style={styles.ownSymptomAction}>Rename</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              void removeCustomCheckinTag(tag.code).then(() => setVersion((v) => v + 1));
+            }}
+          >
+            <Text style={styles.actionTextRemove}>Remove</Text>
+          </TouchableOpacity>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function TagPicker({
+  selected,
+  onToggle,
+  detail,
+}: {
+  selected: string[];
+  onToggle: (code: string) => void;
+  detail?: SeverityDetail;
+}) {
   return (
     <View>
-      {NEGATIVE_TAG_GROUPS.map((group) => (
+      {negativeTagGroups().map((group) => (
         <View key={group.category} style={styles.tagGroup}>
           <Text style={styles.tagGroupLabel}>{group.label}</Text>
           <View style={styles.pillRow}>
@@ -468,6 +615,38 @@ function TagPicker({ selected, onToggle }: { selected: string[]; onToggle: (code
           </View>
         </View>
       ))}
+      {detail && selected.length > 0 ? (
+        <View style={styles.tagGroup}>
+          <Text style={styles.tagGroupLabel}>How bad was each one? (optional)</Text>
+          {selected.map((code) => (
+            <View key={code} style={styles.perTagRow}>
+              <Text style={styles.perTagName}>{tagLabel(code)}</Text>
+              <View style={styles.pillRow}>
+                {SEVERITY_STEPS.map((step) => {
+                  const active = detail.perTag[code] === step.value;
+                  return (
+                    <TouchableOpacity
+                      key={step.value}
+                      style={[styles.pillSmall, active && styles.pillActive]}
+                      onPress={() =>
+                        detail.setPerTag((current) => {
+                          const next = { ...current };
+                          if (active) delete next[code];
+                          else next[code] = step.value;
+                          return next;
+                        })
+                      }
+                    >
+                      <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{step.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          ))}
+        </View>
+      ) : null}
+      <OwnSymptoms onAdded={(code) => onToggle(code)} />
     </View>
   );
 }
@@ -492,7 +671,9 @@ function CheckinForm({
   onCancel,
   onSave,
   saveLabel,
+  detail,
 }: {
+  detail?: SeverityDetail;
   foodNameField?: { value: string; onChange: (text: string) => void };
   severity: number | null;
   onSeverityChange: (value: number) => void;
@@ -536,9 +717,28 @@ function CheckinForm({
       <Text style={styles.label}>About what time?</Text>
       <TimePicker value={time} onChange={onTimeChange} />
       <Text style={styles.label}>How severe?</Text>
-      <SeverityPicker value={severity} onChange={onSeverityChange} />
+      <SeverityPicker
+        value={severity}
+        onChange={(value) => {
+          onSeverityChange(value);
+          // A number from another step no longer fits the word picked.
+          if (detail && detail.ten !== null && stepFromTen(detail.ten) !== value) detail.setTen(null);
+        }}
+      />
+      {detail ? (
+        <>
+          <Text style={styles.label}>Or on a scale of 0 to 10 (optional)</Text>
+          <SeverityTenPicker
+            value={detail.ten}
+            onChange={(value) => {
+              detail.setTen(value);
+              if (value !== null) onSeverityChange(stepFromTen(value));
+            }}
+          />
+        </>
+      ) : null}
       <Text style={styles.label}>What symptoms? (optional)</Text>
-      <TagPicker selected={tags} onToggle={onToggleTag} />
+      <TagPicker selected={tags} onToggle={onToggleTag} detail={detail} />
       {/* 2026-08-16 -- same real dictation wiring as GeneralNoteSection's
           own Note field: only the FINAL transcript is parsed and
           appended, never a partial mid-sentence result. onNotesChange
@@ -576,7 +776,7 @@ function CheckinForm({
 }
 
 function CheckinRow({ entry, onDelete }: { entry: WellbeingCheckin; onDelete: (id: string) => void }) {
-  const severityLabel = SEVERITY_OPTIONS.find((option) => option.value === entry.severity)?.label;
+  const severityLabel = describeSeverity(entry.severity, entry.severityTen) ?? undefined;
   return (
     <View style={styles.row}>
       <View style={styles.rowTextCol}>
@@ -588,7 +788,14 @@ function CheckinRow({ entry, onDelete }: { entry: WellbeingCheckin; onDelete: (i
           {entry.foodName && severityLabel ? ` · ${severityLabel}` : ''}
         </Text>
         {entry.tags.length > 0 ? (
-          <Text style={styles.rowMeta}>{entry.tags.map((code) => tagLabel(code)).join(', ')}</Text>
+          <Text style={styles.rowMeta}>
+            {entry.tags
+              .map((code) => {
+                const each = SEVERITY_STEPS.find((step) => step.value === entry.tagSeverity[code])?.label;
+                return each ? `${tagLabel(code)} (${each.toLowerCase()})` : tagLabel(code);
+              })
+              .join(', ')}
+          </Text>
         ) : null}
         {entry.notes ? <Text style={styles.rowMeta}>{entry.notes}</Text> : null}
         {/* A rash, a swelling or a reaction looks different by tomorrow, and a
@@ -621,6 +828,7 @@ function FlaresLens() {
   const [severity, setSeverity] = useState<number | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
+  const detail = useSeverityDetail();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   const load = useCallback(() => {
@@ -640,6 +848,7 @@ function FlaresLens() {
     setSeverity(null);
     setTags([]);
     setNotes('');
+    detail.reset();
   }
 
   function toggleTag(code: string) {
@@ -656,7 +865,7 @@ function FlaresLens() {
       showInfoAlert('Almost there', 'Select how severe this flare felt.');
       return;
     }
-    await recordCheckin({ loggedAt, checkinType: 'flare', valence: 'negative', severity, notes, tags });
+    await recordCheckin({ loggedAt, checkinType: 'flare', valence: 'negative', severity, notes, tags, ...detailForSave(detail, tags) });
     setFormOpen(false);
     resetForm();
     load();
@@ -676,6 +885,7 @@ function FlaresLens() {
         </TouchableOpacity>
       ) : (
         <CheckinForm
+          detail={detail}
           severity={severity}
           onSeverityChange={setSeverity}
           tags={tags}
@@ -725,6 +935,7 @@ function FoodReactionsLens() {
   const [severity, setSeverity] = useState<number | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
+  const detail = useSeverityDetail();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   const load = useCallback(() => {
@@ -745,6 +956,7 @@ function FoodReactionsLens() {
     setSeverity(null);
     setTags([]);
     setNotes('');
+    detail.reset();
   }
 
   function toggleTag(code: string) {
@@ -773,6 +985,7 @@ function FoodReactionsLens() {
       notes,
       foodName,
       tags,
+      ...detailForSave(detail, tags),
     });
     setFormOpen(false);
     resetForm();
@@ -794,6 +1007,7 @@ function FoodReactionsLens() {
       ) : (
         <CheckinForm
           foodNameField={{ value: foodName, onChange: setFoodName }}
+          detail={detail}
           severity={severity}
           onSeverityChange={setSeverity}
           tags={tags}
@@ -884,6 +1098,7 @@ function NewFoodsLens({
   // pattern already used throughout this file.
   const [escalatingTrialId, setEscalatingTrialId] = useState<string | null>(null);
   const [escalateSeverity, setEscalateSeverity] = useState<number | null>(null);
+  const escalateDetail = useSeverityDetail();
   const [escalateTags, setEscalateTags] = useState<string[]>([]);
   const [escalateNotes, setEscalateNotes] = useState('');
   const [escalateDateChoice, setEscalateDateChoice] = useState<DateChoice>('today');
@@ -1082,6 +1297,7 @@ function NewFoodsLens({
   function handleTodaySomethingFeltOff(trial: FoodTrialRecord) {
     setEscalatingTrialId(trial.id);
     setEscalateSeverity(null);
+    escalateDetail.reset();
     setEscalateTags([]);
     setEscalateNotes('');
     setEscalateDateChoice('today');
@@ -1112,6 +1328,7 @@ function NewFoodsLens({
       foodName: trial.foodName,
       foodTrialId: trial.id,
       tags: escalateTags,
+      ...detailForSave(escalateDetail, escalateTags),
     });
     setEscalatingTrialId(null);
     load();
@@ -1438,6 +1655,7 @@ function NewFoodsLens({
                 ) : null}
                 {isEscalating ? (
                   <CheckinForm
+                    detail={escalateDetail}
                     severity={escalateSeverity}
                     onSeverityChange={setEscalateSeverity}
                     tags={escalateTags}
@@ -2745,6 +2963,11 @@ const styles = StyleSheet.create({
 
   },
   tagGroup: { marginBottom: 8 },
+  perTagRow: { marginTop: 6 },
+  perTagName: { ...typography.caption, ...textShadow, color: TAB_COLOR, marginBottom: 4 },
+  ownSymptomRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 6 },
+  ownSymptomName: { ...typography.body, ...textShadow, color: TAB_COLOR, flex: 1 },
+  ownSymptomAction: { ...typography.captionEmphasis, ...textShadow, color: TAB_COLOR },
   tagGroupLabel: { ...typography.eyebrow, color: TAB_COLOR, marginBottom: 4,
 
     ...textShadow,
