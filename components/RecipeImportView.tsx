@@ -29,6 +29,7 @@ import {
   type RecipeImportRecord,
 } from '../lib/recipeImportDb';
 import { AppTextInput } from './AppTextInput';
+import { CookModeButton } from './CookMode';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 
@@ -524,6 +525,7 @@ export function RecipeImportView({
                     {step}
                   </Text>
                 ))}
+                <CookModeButton steps={record.instructions} title={record.title} tabColor={colors.tabFood} />
               </View>
             ) : null}
           </HomeSectionBand>

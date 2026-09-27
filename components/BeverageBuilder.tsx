@@ -1494,6 +1494,7 @@ export function BeverageBuilder({
     return (
       <StepsEditor
         steps={steps}
+        cookTitle={beverageName}
         onChange={setSteps}
         tabColor={tabColor}
         label={labelled ? 'Steps (optional)' : ''}

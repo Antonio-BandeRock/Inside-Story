@@ -1450,6 +1450,7 @@ export function SideBuilder({
     return (
       <StepsEditor
         steps={steps}
+        cookTitle={dishName}
         onChange={setSteps}
         tabColor={tabColor}
         label={labelled ? 'Steps (optional)' : ''}

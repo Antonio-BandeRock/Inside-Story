@@ -1353,6 +1353,7 @@ export function HandheldsBuilder({
     return (
       <StepsEditor
         steps={steps}
+        cookTitle={handheldName}
         onChange={setSteps}
         tabColor={tabColor}
         label={labelled ? 'Steps (optional)' : ''}

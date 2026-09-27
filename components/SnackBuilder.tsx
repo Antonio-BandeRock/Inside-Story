@@ -1299,6 +1299,7 @@ export function SnackBuilder({
     return (
       <StepsEditor
         steps={steps}
+        cookTitle={snackName}
         onChange={setSteps}
         tabColor={tabColor}
         label={labelled ? 'Steps (optional)' : ''}

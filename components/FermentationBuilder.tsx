@@ -1721,6 +1721,7 @@ export function FermentationBuilder({
     return (
       <StepsEditor
         steps={steps}
+        cookTitle={fermentationName}
         onChange={setSteps}
         tabColor={tabColor}
         label={labelled ? 'Steps (optional)' : ''}

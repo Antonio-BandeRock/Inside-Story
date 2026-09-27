@@ -214,7 +214,7 @@ export function FoodItemsView({
                   <Text style={styles.sharedRecipeTitle}>{entry.title}</Text>
                   {entry.summary ? <Text style={styles.sharedRecipeSummary}>{entry.summary}</Text> : null}
                   {entry.recipeCard ? (
-                    <RecipeDetailCard card={entry.recipeCard} tabColor={colors.tabFood} tabTextColor={colors.tabFood} />
+                    <RecipeDetailCard card={entry.recipeCard} recipeTitle={entry.title} tabColor={colors.tabFood} tabTextColor={colors.tabFood} />
                   ) : null}
                   <DynamicEntryActions
                     entry={entry}
@@ -641,7 +641,7 @@ function MyRecipeDetail({
       {entry ? (
         <>
           {entry.recipeCard ? (
-            <RecipeDetailCard card={entry.recipeCard} tabColor={colors.tabFood} tabTextColor={colors.tabFood} />
+            <RecipeDetailCard card={entry.recipeCard} recipeTitle={entry.title} tabColor={colors.tabFood} tabTextColor={colors.tabFood} />
           ) : null}
           <EntryPhotoSection entry={entry} tabColor={colors.tabFood} />
           {entry.dynamicAction ? (

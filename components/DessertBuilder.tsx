@@ -1362,6 +1362,7 @@ export function DessertBuilder({
     return (
       <StepsEditor
         steps={steps}
+        cookTitle={dessertName}
         onChange={setSteps}
         tabColor={tabColor}
         label={labelled ? 'Steps (optional)' : ''}

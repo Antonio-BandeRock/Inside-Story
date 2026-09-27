@@ -1349,6 +1349,7 @@ export function SaucesBuilder({
     return (
       <StepsEditor
         steps={steps}
+        cookTitle={sauceName}
         onChange={setSteps}
         tabColor={tabColor}
         label={labelled ? 'Steps (optional)' : ''}

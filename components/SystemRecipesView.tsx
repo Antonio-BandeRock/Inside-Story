@@ -539,7 +539,7 @@ function SystemRecipeRow({
             </RecipeBuildRow>
           ) : null}
           {entry.recipeCard ? (
-            <RecipeDetailCard card={entry.recipeCard} tabColor={TAB_COLOR} tabTextColor={TAB_COLOR} />
+            <RecipeDetailCard card={entry.recipeCard} recipeTitle={entry.title} tabColor={TAB_COLOR} tabTextColor={TAB_COLOR} />
           ) : null}
           <EntryPhotoSection entry={entry} tabColor={TAB_COLOR} />
         </View>

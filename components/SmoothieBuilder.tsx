@@ -1366,6 +1366,7 @@ export function SmoothieBuilder({
     return (
       <StepsEditor
         steps={steps}
+        cookTitle={smoothieName}
         onChange={setSteps}
         tabColor={tabColor}
         label={labelled ? 'Steps (optional)' : ''}

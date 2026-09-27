@@ -1375,6 +1375,7 @@ export function SaladBuilder({
     return (
       <StepsEditor
         steps={steps}
+        cookTitle={saladName}
         onChange={setSteps}
         tabColor={tabColor}
         label={labelled ? 'Steps (optional)' : ''}

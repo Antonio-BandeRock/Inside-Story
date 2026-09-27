@@ -1367,6 +1367,7 @@ export function SoupBuilder({
     return (
       <StepsEditor
         steps={steps}
+        cookTitle={soupName}
         onChange={setSteps}
         tabColor={tabColor}
         label={labelled ? 'Steps (optional)' : ''}

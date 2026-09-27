@@ -1283,6 +1283,7 @@ export function BakedGoodsBuilder({
     return (
       <StepsEditor
         steps={steps}
+        cookTitle={bakedGoodName}
         onChange={setSteps}
         tabColor={tabColor}
         label={labelled ? 'Steps (optional)' : ''}

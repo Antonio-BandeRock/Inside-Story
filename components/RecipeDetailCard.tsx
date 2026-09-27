@@ -19,6 +19,7 @@
 import { useMemo, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { CookModeButton } from './CookMode';
 import { useInfoAlert } from './InfoAlert';
 import { useConditionScope } from '../hooks/useConditionScope';
 import { colors } from '../constants/colors';
@@ -190,8 +191,11 @@ export function RecipeDetailCard({
   activeConditionCaution,
   activeConditionSeverity,
   activeConditionCode,
+  recipeTitle,
 }: {
   card: RecipeCard;
+  // The dish's name, for cook mode's heading and its timer notifications.
+  recipeTitle?: string;
   tabColor: string;
   // The shade used wherever tabColor would paint text rather than a fill,
   // border or icon. The Digest's purple is too dark to read as text and
@@ -280,6 +284,7 @@ export function RecipeDetailCard({
               {index + 1}. {step}
             </Text>
           ))}
+          <CookModeButton steps={card.instructions} title={recipeTitle} tabColor={tabColor} />
         </>
       ) : null}
 

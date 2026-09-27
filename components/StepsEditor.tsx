@@ -8,6 +8,7 @@ import { appendDictatedText, parseVoiceCommands } from '../lib/voiceCommandParsi
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
 import { useConfirmSheet } from './ConfirmSheet';
+import { CookModeButton } from './CookMode';
 import { useInfoAlert } from './InfoAlert';
 import { VoiceInputButton } from './VoiceInputButton';
 
@@ -48,6 +49,7 @@ export function StepsEditor({
   completeLabel,
   placeholder,
   scrollViewRef,
+  cookTitle,
 }: {
   steps: string[];
   onChange: (next: string[]) => void;
@@ -65,6 +67,9 @@ export function StepsEditor({
   // the scrollable area" the way a real keyboard gets from
   // KeyboardAvoidingView).
   scrollViewRef?: React.RefObject<ScrollView | null>;
+  // The dish's name, for cook mode's heading and its timer notifications
+  // (G4, 2026-09-26). Cook mode is offered whenever there are steps.
+  cookTitle?: string | null;
 }) {
   const activeField = useActiveField();
   const { forceClear } = useActiveInputControls();
@@ -183,6 +188,8 @@ export function StepsEditor({
           </View>
         ))
       )}
+
+      {steps.length > 0 && !composing ? <CookModeButton steps={steps} title={cookTitle} tabColor={tabColor} /> : null}
 
       {composing ? (
         <View style={styles.stepComposer}>

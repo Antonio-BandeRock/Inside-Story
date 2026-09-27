@@ -94,6 +94,7 @@ const NAMED = [
   'lib/reportPhotos.ts',
   'lib/medSupply.ts',
   'lib/emergencyOutside.ts',
+  'lib/stepTimers.ts',
 ];
 
 function targets() {

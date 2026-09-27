@@ -372,6 +372,7 @@ export function DigestEntryBody({
       {entry.recipeCard ? (
         <RecipeDetailCard
           card={entry.recipeCard}
+          recipeTitle={entry.title}
           tabColor={tabColor}
           tabTextColor={tabTextColor}
           activeConditionCaution={resolveActiveConditionCaution(entry, activeConditionCode, activeStageCode)}
