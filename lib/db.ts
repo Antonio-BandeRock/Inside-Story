@@ -50,6 +50,7 @@ import type { RecipeDepthResult } from './recipeDepth';
 import type { TimelineDose, TimelineMeal } from './doseMealTiming';
 import type { WeekdayTargetOverride } from './weekdayTargets';
 import { customTagFromRow, setCustomCheckinTags, type CheckinTagDefinition, type CustomCheckinTagRow } from './checkinTags';
+import { gapFoodNameKey } from './nutrientGapFoods';
 
 // Exported as of 2026-08-19 -- lib/visualPreferences.ts's own
 // getGroundThemeSync() needs to open this exact same file (by name, via
@@ -3445,6 +3446,43 @@ export async function rankFoodsByNutrient(
     ...(categoryClause && categories ? categories : []),
     limit,
   );
+}
+
+// How many logged meals held each food before, keyed by category, name and
+// preparation (gapFoodNameKey in lib/nutrientGapFoods.ts), which is how
+// rankFoodsByNutrient folds the same food from several national tables into
+// one row. Matching on that rather than on food id means lentils logged from
+// the Canadian table still count when the ranking picked the USDA row (G12,
+// 2026-09-27). Read only when a short nutrient's row is opened in Insights.
+export async function getMealsBeforeByFoodName(): Promise<Map<string, number>> {
+  const db = await getDatabase();
+  // Answered from idx_meal_items_food_meal alone, never the table itself.
+  const eaten = await db.getAllAsync<{ foodKey: string; meals: number }>(
+    `SELECT food_id AS foodKey, COUNT(DISTINCT meal_id) AS meals
+     FROM meal_items
+     WHERE food_id IS NOT NULL
+     GROUP BY food_id`,
+  );
+  const byName = new Map<string, number>();
+  if (eaten.length === 0) return byName;
+  const mealsByKey = new Map(eaten.map((row) => [row.foodKey, row.meals]));
+  const ids = Array.from(new Set(eaten.map((row) => Number(row.foodKey.split('|')[0])).filter((id) => Number.isFinite(id))));
+  const reference = await getReferenceDatabase();
+  for (let start = 0; start < ids.length; start += 500) {
+    const chunk = ids.slice(start, start + 500);
+    const rows = await reference.getAllAsync<{ foodId: number; source: string; category: string; baseName: string | null; prepMethod: string | null }>(
+      `SELECT food_id AS foodId, source, category, base_name AS baseName, prep_method AS prepMethod
+       FROM foods WHERE food_id IN (${chunk.map(() => '?').join(',')})`,
+      ...chunk,
+    );
+    for (const row of rows) {
+      const meals = mealsByKey.get(`${row.foodId}|${row.source}`);
+      if (!meals || !row.baseName) continue;
+      const key = gapFoodNameKey(row.category, row.baseName, row.prepMethod);
+      byName.set(key, (byName.get(key) ?? 0) + meals);
+    }
+  }
+  return byName;
 }
 
 // The reverse of rankFoodsByNutrient -- 2026-08-14, direct request in the
@@ -7997,6 +8035,8 @@ async function runDatabaseInitialization() {
       -- indexed on (food_id, source) -- checked directly, ruled out -- so
       -- this was the one real remaining gap.
       CREATE INDEX IF NOT EXISTS idx_meal_items_meal ON meal_items(meal_id);
+      -- G12, 2026-09-27: getMealsBeforeByFoodName reads this alone.
+      CREATE INDEX IF NOT EXISTS idx_meal_items_food_meal ON meal_items(food_id, meal_id);
       CREATE INDEX IF NOT EXISTS idx_wellbeing_checkins_logged_at ON wellbeing_checkins(logged_at);
       CREATE INDEX IF NOT EXISTS idx_checkin_tags_checkin ON checkin_tags(checkin_id);
       CREATE INDEX IF NOT EXISTS idx_exercise_logs_logged_at ON exercise_logs(logged_at);

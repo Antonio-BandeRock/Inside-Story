@@ -7,6 +7,8 @@ import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from '../..
 import { formatTime12 } from '../../lib/timeOfDay';
 import {
   classifyPrepStateGroup,
+  getMealsBeforeByFoodName,
+  getPersonalizedSafeFoodIds,
   classifyProteinSource,
   createPersonalRule,
   deletePersonalRule,
@@ -87,6 +89,18 @@ import {
   type NutrientGapEntry,
   type StatusSeverity,
 } from '../../lib/nutrientAnalysis';
+import {
+  GAP_FOOD_FETCH,
+  describeGapFoods,
+  gapFoodCaption,
+  gapFoodNameKey,
+  gapFoodsHeading,
+  nutrientShortfall,
+  pickGapFoods,
+  type GapFood,
+  type NutrientShortfall,
+} from '../../lib/nutrientGapFoods';
+import { richFoodKey, richFoodLabel } from '../../lib/nutrientRichPicks';
 import { ageFromBirthDate } from '../../lib/profile';
 import {
   NUTRIENT_STATUS_LABELS,
@@ -1605,6 +1619,67 @@ const SHORT_STATUS_LABELS: Record<string, string> = {
 // At meal/side/item scope (ScopeHub) the RDA and End of Day columns are
 // meaningless, so the table keeps its older Amount and % of Day shape
 // inside the same band.
+// Foods that would close a short nutrient (G12, 2026-09-27; the rules are in
+// lib/nutrientGapFoods.ts). Mounted only while its row is open, so nothing
+// here is read until somebody asks.
+function NutrientGapFoods({ entry, shortfall }: { entry: NutrientGapEntry; shortfall: NutrientShortfall }) {
+  const [result, setResult] = useState<{ foods: GapFood[]; notes: string[] } | null>(null);
+  // The two numbers, not the object, so a re-render of the table does not
+  // read everything again.
+  const { missing, afterPlanned } = shortfall;
+  useEffect(() => {
+    let cancelled = false;
+    setResult(null);
+    getPersonalizationProfile()
+      .then((profile) =>
+        Promise.all([
+          rankFoodsByNutrient(entry.nutrientCode, GAP_FOOD_FETCH),
+          getPersonalizedSafeFoodIds(profile.trackedConditions.map((condition) => condition.code)),
+          getMealsBeforeByFoodName(),
+        ]).then(([ranked, safeIds, mealsBefore]) => {
+          if (cancelled) return;
+          const picked = pickGapFoods(ranked, { missing, afterPlanned }, {
+            isSafe: (food) => safeIds.has(`${food.foodId}|${food.source}`),
+            fits: (food) =>
+              foodMatchesDietPreferences(food.category, food.baseName, profile.dietPreferences) &&
+              !foodMatchesAllergy(food.baseName, profile.foodAllergies),
+            mealsBefore: (food) => mealsBefore.get(gapFoodNameKey(food.category, food.baseName, food.prepMethod)) ?? 0,
+          });
+          setResult({ foods: picked.foods, notes: describeGapFoods(picked.foods.length, picked.leftOutUnsafe, picked.leftOutDiet) });
+        }),
+      )
+      .catch(() => {
+        if (!cancelled) setResult({ foods: [], notes: ['The foods for this could not be read just now.'] });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [entry.nutrientCode, missing, afterPlanned]);
+
+  return (
+    <View style={styles.gapFoodsBlock}>
+      <Text style={styles.sourceSplitText}>{gapFoodsHeading(entry.displayName, entry.unit, shortfall)}</Text>
+      {result == null ? (
+        <ActivityIndicator size="small" color={TAB_COLOR} />
+      ) : (
+        <>
+          {result.foods.map((item) => (
+            <View key={richFoodKey(item.food)} style={styles.gapFoodRow}>
+              <Text style={styles.detailFoodTier}>{richFoodLabel(item.food, entry.unit)}</Text>
+              <Text style={styles.gapFoodCaption}>{gapFoodCaption(item)}</Text>
+            </View>
+          ))}
+          {result.notes.map((note) => (
+            <Text key={note} style={styles.detailText}>
+              {note}
+            </Text>
+          ))}
+        </>
+      )}
+    </View>
+  );
+}
+
 export function NutrientsTable({
   breakdown,
   scope,
@@ -1701,6 +1776,10 @@ export function NutrientsTable({
           // component). So the bar is drawn only where there is a division
           // to draw.
           const split = nutrientSourceSplit(entry);
+          // G12: a short nutrient's opened row lists foods that would close
+          // it. Day scope only, since a meal or a side is not meant to meet
+          // a whole day's target.
+          const shortfall = rowExpanded && isDayScope ? nutrientShortfall(entry, projectedByCode.get(entry.nutrientCode)) : null;
           return (
             <View key={`${entry.nutrientCode}_${index}`}>
               <TouchableOpacity
@@ -1754,6 +1833,7 @@ export function NutrientsTable({
               {rowExpanded ? (
                 <View style={styles.detailBlock}>
                   {split ? <Text style={styles.sourceSplitText}>{split.sentence}</Text> : null}
+                  {shortfall ? <NutrientGapFoods entry={entry} shortfall={shortfall} /> : null}
                   {contributors.length === 0 ? (
                     <Text style={styles.detailText}>Nothing logged here actually contributed to this.</Text>
                   ) : (
@@ -4404,6 +4484,18 @@ const styles = StyleSheet.create({
     paddingLeft: 4,
     paddingRight: 4,
     paddingBottom: 8,
+  },
+  gapFoodsBlock: {
+    marginBottom: 8,
+  },
+  gapFoodRow: {
+    paddingVertical: 3,
+  },
+  gapFoodCaption: {
+    ...typography.caption,
+    color: TAB_COLOR,
+    lineHeight: 17,
+    ...textShadow,
   },
   detailFoodRow: {
     flexDirection: 'row',
