@@ -21,6 +21,8 @@ export type FoodOneWordInput = {
   allergyMatch: string | null;
   /** G19: restrictions from Profile this food falls on. An allergy one stops. */
   restrictionHits?: { label: string; weight: 'allergy' | 'intolerance' | 'elimination'; strength: 'list' | 'maybe' | 'score' }[];
+  /** G20: whose lists these are, as a possessive ("Sam's"). Defaults to "your". */
+  owner?: string;
 };
 
 export type FoodOneWord = { phrase: string; tone: FoodOneWordTone };
@@ -40,10 +42,11 @@ function joinParts(parts: string[]): string {
 }
 
 export function foodOneWord(input: FoodOneWordInput): FoodOneWord {
-  if (input.allergyMatch) return { phrase: 'Contains one of your allergies', tone: 'stop' };
+  const owner = input.owner ?? 'your';
+  if (input.allergyMatch) return { phrase: `Contains one of ${owner} allergies`, tone: 'stop' };
   const restrictionHits = input.restrictionHits ?? [];
   const allergyRestriction = restrictionHits.find((hit) => hit.weight === 'allergy' && hit.strength !== 'maybe');
-  if (allergyRestriction) return { phrase: `On your ${allergyRestriction.label} list`, tone: 'stop' };
+  if (allergyRestriction) return { phrase: `On ${owner} ${allergyRestriction.label} list`, tone: 'stop' };
 
   // A condition that is neither safe nor cautioned matched an absolute
   // exclusion in lib/recipeDepth.ts, the same case verdictFor labels
@@ -56,16 +59,16 @@ export function foodOneWord(input: FoodOneWordInput): FoodOneWord {
 
   const parts: string[] = [];
   if (notSuited.length === 1) parts.push(`Not suited to ${notSuited[0].name}`);
-  else if (notSuited.length > 1) parts.push(`Not suited to ${countWord(notSuited.length).toLowerCase()} of your conditions`);
+  else if (notSuited.length > 1) parts.push(`Not suited to ${countWord(notSuited.length).toLowerCase()} of ${owner} conditions`);
   if (cautions.length > 0) parts.push(`${countWord(cautions.length)} caution${cautions.length === 1 ? '' : 's'}`);
-  if (input.dietViolations.length > 0) parts.push('Outside your eating style');
-  if (restrictionHits.length === 1) parts.push(`On your ${restrictionHits[0].label} list`);
-  else if (restrictionHits.length > 1) parts.push(`On ${countWord(restrictionHits.length).toLowerCase()} of your restriction lists`);
+  if (input.dietViolations.length > 0) parts.push(`Outside ${owner} eating style`);
+  if (restrictionHits.length === 1) parts.push(`On ${owner} ${restrictionHits[0].label} list`);
+  else if (restrictionHits.length > 1) parts.push(`On ${countWord(restrictionHits.length).toLowerCase()} of ${owner} restriction lists`);
 
   if (parts.length > 0) {
     return { phrase: joinParts(parts), tone: notSuited.length > 0 || anyRed ? 'stop' : 'caution' };
   }
-  if (input.trackedConditions.length > 1) return { phrase: 'Fits all your conditions', tone: 'fits' };
+  if (input.trackedConditions.length > 1) return { phrase: `Fits all ${owner} conditions`, tone: 'fits' };
   if (input.trackedConditions.length === 1) return { phrase: `Fits ${input.trackedConditions[0].name}`, tone: 'fits' };
-  return { phrase: 'Fits your eating style', tone: 'fits' };
+  return { phrase: `Fits ${owner} eating style`, tone: 'fits' };
 }

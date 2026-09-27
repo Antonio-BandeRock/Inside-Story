@@ -6206,6 +6206,20 @@ async function runDatabaseInitialization() {
         PRIMARY KEY (member_id, condition_code)
       );
 
+      -- G20, 2026-09-27: what a family member eats around, beside their
+      -- conditions, so a scan, a recipe and Food Lookup can say who in the
+      -- household a food suits. kind is 'allergy' (free text, matched the
+      -- way Profile's allergies are), 'diet' (a RecipeDietTag) or
+      -- 'restriction' (a FoodRestrictionKey). Same rule as the conditions
+      -- above: none of it reaches the person's own scoring or advisories.
+      CREATE TABLE IF NOT EXISTS family_member_food (
+        member_id TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        value TEXT NOT NULL,
+        selected_at TEXT NOT NULL DEFAULT (datetime('now')),
+        PRIMARY KEY (member_id, kind, value)
+      );
+
       -- 2026-08-24, direct request: "the type of diet a person is trying
       -- to follow or is interested in trying should be in the Profile."
       -- One row per diet a person is following or curious about; diet_tag
@@ -18630,8 +18644,36 @@ export type FamilyMember = {
   relationship: string;
   includeInMealPlan: boolean;
   conditionCodes: string[];
+  /** G20: free-text allergies, eating styles (RecipeDietTag) and food restrictions (FoodRestrictionKey). */
+  allergies: string[];
+  dietTags: string[];
+  restrictions: string[];
   createdAt: string;
 };
+
+type FamilyMemberFood = { allergies: string[]; dietTags: string[]; restrictions: string[] };
+
+const FAMILY_FOOD_KINDS: [keyof FamilyMemberFood, string][] = [
+  ['allergies', 'allergy'],
+  ['dietTags', 'diet'],
+  ['restrictions', 'restriction'],
+];
+
+async function writeFamilyMemberFood(id: string, food: Partial<FamilyMemberFood>): Promise<void> {
+  const db = await getDatabase();
+  for (const [field, kind] of FAMILY_FOOD_KINDS) {
+    const values = food[field];
+    if (!values) continue;
+    await db.runAsync('DELETE FROM family_member_food WHERE member_id = ? AND kind = ?', id, kind);
+    const seen = new Set<string>();
+    for (const raw of values) {
+      const value = raw.trim();
+      if (!value || seen.has(value.toLowerCase())) continue;
+      seen.add(value.toLowerCase());
+      await db.runAsync('INSERT OR IGNORE INTO family_member_food (member_id, kind, value) VALUES (?, ?, ?)', id, kind, value);
+    }
+  }
+}
 
 export async function getFamilyMembers(): Promise<FamilyMember[]> {
   const db = await getDatabase();
@@ -18650,12 +18692,25 @@ export async function getFamilyMembers(): Promise<FamilyMember[]> {
     if (!byMember.has(row.member_id)) byMember.set(row.member_id, []);
     byMember.get(row.member_id)!.push(row.condition_code);
   }
+  const foodRows = await db.getAllAsync<{ member_id: string; kind: string; value: string }>(
+    'SELECT member_id, kind, value FROM family_member_food ORDER BY selected_at, value',
+  );
+  const foodByMember = new Map<string, FamilyMemberFood>();
+  for (const row of foodRows) {
+    const field = FAMILY_FOOD_KINDS.find(([, kind]) => kind === row.kind)?.[0];
+    if (!field) continue;
+    if (!foodByMember.has(row.member_id)) foodByMember.set(row.member_id, { allergies: [], dietTags: [], restrictions: [] });
+    foodByMember.get(row.member_id)![field].push(row.value);
+  }
   return rows.map((row) => ({
     id: row.id,
     name: row.name,
     relationship: row.relationship,
     includeInMealPlan: row.include_in_meal_plan === 1,
     conditionCodes: byMember.get(row.id) ?? [],
+    allergies: foodByMember.get(row.id)?.allergies ?? [],
+    dietTags: foodByMember.get(row.id)?.dietTags ?? [],
+    restrictions: foodByMember.get(row.id)?.restrictions ?? [],
     createdAt: row.created_at,
   }));
 }
@@ -18665,6 +18720,9 @@ export async function addFamilyMember(input: {
   relationship: string;
   conditionCodes: string[];
   includeInMealPlan?: boolean;
+  allergies?: string[];
+  dietTags?: string[];
+  restrictions?: string[];
 }): Promise<string> {
   const db = await getDatabase();
   const id = `family_${Date.now()}`;
@@ -18678,12 +18736,21 @@ export async function addFamilyMember(input: {
   for (const code of new Set(input.conditionCodes)) {
     await db.runAsync('INSERT OR IGNORE INTO family_member_conditions (member_id, condition_code) VALUES (?, ?)', id, code);
   }
+  await writeFamilyMemberFood(id, input);
   return id;
 }
 
 export async function updateFamilyMember(
   id: string,
-  input: { name: string; relationship: string; conditionCodes: string[]; includeInMealPlan: boolean },
+  input: {
+    name: string;
+    relationship: string;
+    conditionCodes: string[];
+    includeInMealPlan: boolean;
+    allergies?: string[];
+    dietTags?: string[];
+    restrictions?: string[];
+  },
 ): Promise<void> {
   const db = await getDatabase();
   await db.runAsync(
@@ -18697,11 +18764,13 @@ export async function updateFamilyMember(
   for (const code of new Set(input.conditionCodes)) {
     await db.runAsync('INSERT OR IGNORE INTO family_member_conditions (member_id, condition_code) VALUES (?, ?)', id, code);
   }
+  await writeFamilyMemberFood(id, input);
 }
 
 export async function deleteFamilyMember(id: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM family_member_conditions WHERE member_id = ?', id);
+  await db.runAsync('DELETE FROM family_member_food WHERE member_id = ?', id);
   await db.runAsync('DELETE FROM family_members WHERE id = ?', id);
 }
 

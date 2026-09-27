@@ -5,12 +5,14 @@
 import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { AppTextInput } from './AppTextInput';
+import { HouseholdFitBand, useHouseholdPeople } from './HouseholdFitBand';
 import { IngredientCheckList } from './IngredientCheckList';
 import { makeTabBandStyles } from './TabBand';
 import { VoiceInputButton } from './VoiceInputButton';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import type { PersonalizationProfile } from '../lib/foodPersonalization';
+import { labelFitFor, YOU_ID } from '../lib/householdFit';
 import { checkIngredients } from '../lib/ingredientFlags';
 import { flagAdditivesInIngredients, flagConditionConcernsForConditions } from '../lib/scannedProductFlags';
 
@@ -38,6 +40,20 @@ export function LabelCheckView({ tabColor, profile, onOpenReading }: Props) {
     });
   }, [labelText, profile]);
 
+  // G20: a line per person in the household. The person's own line reads
+  // the profile this lens was handed, so it matches the list below.
+  const household = useHouseholdPeople();
+  const householdLines = useMemo(() => {
+    if (!labelText.trim()) return [];
+    return household.map((person) =>
+      labelFitFor(
+        person.id === YOU_ID && profile ? { ...person, profile } : person,
+        labelText,
+        (codes) => (text) => flagConditionConcernsForConditions(text, codes),
+      ),
+    );
+  }, [household, labelText, profile]);
+
   return (
     <View style={band.column}>
       <View style={[band.box, styles.inputBox]}>
@@ -57,6 +73,11 @@ export function LabelCheckView({ tabColor, profile, onOpenReading }: Props) {
           Checked against your allergies, diet preferences, food restrictions and conditions from Profile, plus lists that apply to anybody.
         </Text>
       </View>
+      {householdLines.length > 1 ? (
+        <View style={band.box}>
+          <HouseholdFitBand lines={householdLines} tabColor={tabColor} />
+        </View>
+      ) : null}
       {rows.length > 0 ? (
         <View style={band.box}>
           <IngredientCheckList rows={rows} onOpenReading={onOpenReading} />

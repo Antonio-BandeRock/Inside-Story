@@ -30,6 +30,7 @@
 
 import {
   getDietPreferences,
+  getFamilyMembers,
   getFoodRestrictions,
   getFoodScores,
   getUserConditions,
@@ -38,7 +39,8 @@ import {
   type MealIngredientInput,
 } from './db';
 import { computeDietTags, computeRecipeDepth, type RecipeDepthResult } from './recipeDepth';
-import { recipeMatchesDietPreference, type RecipeDietTag } from './digest/types';
+import { RECIPE_DIET_TAGS, recipeMatchesDietPreference, type RecipeDietTag } from './digest/types';
+import { YOU_ID, type HouseholdPerson } from './householdFit';
 import { knownRestrictions, LECTIN_SUB_CRITERION, restrictionHitsForFood, type FoodRestrictionKey, type RestrictionHit } from './foodRestrictions';
 
 export type TrackedConditionRef = { code: string; name: string };
@@ -146,4 +148,33 @@ export async function evaluateFoodForPerson(
     dietViolations,
     allergyMatch: foodMatchesAllergy(food.baseName, profile.foodAllergies),
   };
+}
+
+// G20, 2026-09-27: the person, then everyone on the Family roster in Life >
+// Conditions, each with a profile of the same shape as the person's so the
+// same checks run for all of them (lib/householdFit.ts). A member's lists
+// come from family_member_conditions and family_member_food, and nothing
+// here feeds the person's own scoring or advisories.
+export async function getHouseholdPeople(you?: PersonalizationProfile): Promise<HouseholdPerson[]> {
+  const [ownProfile, members, allConditions] = await Promise.all([
+    you ? Promise.resolve(you) : getPersonalizationProfile(),
+    getFamilyMembers(),
+    listAllConditions(),
+  ]);
+  const nameOf = new Map(allConditions.map((condition) => [condition.code, condition.name]));
+  const people: HouseholdPerson[] = [{ id: YOU_ID, name: 'You', isYou: true, profile: ownProfile }];
+  for (const member of members) {
+    people.push({
+      id: member.id,
+      name: member.name,
+      isYou: false,
+      profile: {
+        trackedConditions: member.conditionCodes.map((code) => ({ code, name: nameOf.get(code) ?? code.replace(/_/g, ' ') })),
+        dietPreferences: member.dietTags.filter((tag): tag is RecipeDietTag => (RECIPE_DIET_TAGS as readonly string[]).includes(tag)),
+        foodAllergies: member.allergies,
+        foodRestrictions: knownRestrictions(member.restrictions),
+      },
+    });
+  }
+  return people;
 }

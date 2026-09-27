@@ -43,6 +43,8 @@ import type { FoodRestrictionKey } from '../lib/foodRestrictions';
 import { checkIngredients } from '../lib/ingredientFlags';
 import type { RecipeDietTag } from '../lib/digest/types';
 import { IngredientCheckList } from './IngredientCheckList';
+import { HouseholdFitBand, useHouseholdPeople } from './HouseholdFitBand';
+import { labelFitFor } from '../lib/householdFit';
 import { scanSummaryLine } from '../lib/scanSummaryLine';
 import {
   additiveRowLabel,
@@ -835,6 +837,18 @@ export function ScanProductView({
     [fodmapReportText, selectedConditions, dietTags, foodAllergies, foodRestrictions, trackedConditions],
   );
 
+  // G20: a line per person in the household, checked against the same label.
+  const household = useHouseholdPeople();
+  const householdLines = useMemo(
+    () =>
+      fodmapReportText.trim()
+        ? household.map((person) =>
+            labelFitFor(person, fodmapReportText, (codes) => (text) => flagConditionConcernsForConditions(text, codes)),
+          )
+        : [],
+    [household, fodmapReportText],
+  );
+
   const summaryLine = scanSummaryLine({
     hasIngredients: fodmapReportText.trim().length > 0,
     additiveFlags,
@@ -1519,6 +1533,8 @@ export function ScanProductView({
         >
           <Text style={styles.flagLabel}>{summaryLine.text}</Text>
         </View>
+
+        <HouseholdFitBand lines={householdLines} tabColor={colors.buttonColor} />
 
         {nutrientSummary.length > 0 ? (
           <View style={styles.card}>

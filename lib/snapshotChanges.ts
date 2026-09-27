@@ -188,7 +188,7 @@ const AREAS: readonly Area[] = [
       'your_story_answers',
     ],
   },
-  { one: 'family member', many: 'family members', count: ['family_members'], quiet: ['family_member_conditions'] },
+  { one: 'family member', many: 'family members', count: ['family_members'], quiet: ['family_member_conditions', 'family_member_food'] },
   {
     one: 'emergency detail',
     many: 'emergency details',

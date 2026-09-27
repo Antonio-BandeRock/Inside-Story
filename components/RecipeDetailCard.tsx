@@ -20,6 +20,7 @@ import { useMemo, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CookModeButton } from './CookMode';
+import { HouseholdFitBand, useHouseholdPeople } from './HouseholdFitBand';
 import { useInfoAlert } from './InfoAlert';
 import { useConditionScope } from '../hooks/useConditionScope';
 import { colors } from '../constants/colors';
@@ -33,6 +34,7 @@ import {
   type RecipeDietTag,
 } from '../lib/digest/types';
 import { clampMakeFor, makeForCaption, makeForLabel, MAX_MAKE_FOR, setPendingMakeFor } from '../lib/makeItFor';
+import { recipeFitFor } from '../lib/householdFit';
 import { getPhotoForTarget } from '../lib/mealPhotos';
 import { shareFileIfAvailable } from '../lib/nativeSharing';
 import { encodeShareLinkFromCuratedRecipe, writeIsFileForCuratedRecipe } from '../lib/sharing';
@@ -245,6 +247,9 @@ export function RecipeDetailCard({
   // profile has been read there is nothing honest to scope by, so the
   // unscoped list stands rather than flashing and then shrinking.
   const conditionScope = useConditionScope();
+  // G20: a line per person in the household, shown once there is a family member.
+  const household = useHouseholdPeople();
+  const householdLines = useMemo(() => household.map((person) => recipeFitFor(person, card)), [household, card]);
   const profileScoped = !activeConditionCode && conditionScope.ready;
   const scopedNotes = profileScoped
     ? scopeConditionNotes(card.conditionNotes, conditionScope.own, conditionScope.curious)
@@ -266,6 +271,8 @@ export function RecipeDetailCard({
           <Text style={styles.recipeNutritionText}>{activeConditionCaution}</Text>
         </View>
       ) : null}
+
+      <HouseholdFitBand lines={householdLines} tabColor={tabColor} />
 
       <Text style={styles.detailLabel}>Makes</Text>
       <Text style={styles.detailText}>{card.yield}</Text>

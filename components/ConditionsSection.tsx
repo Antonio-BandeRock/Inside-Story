@@ -41,6 +41,8 @@ import {
   type RecipeDietTag,
 } from '../lib/digest';
 import { groupConditionEntries } from '../lib/digest/conditionGrouping';
+import { RECIPE_DIET_TAGS } from '../lib/digest/types';
+import { FOOD_RESTRICTIONS, knownRestrictions, type FoodRestrictionKey } from '../lib/foodRestrictions';
 import { routeForDigestEntry } from '../lib/digestNavigation';
 import { useWalkMark } from './WalkMark';
 
@@ -90,10 +92,35 @@ type FamilyForm = {
   relationship: string;
   conditionCodes: string[];
   includeInMealPlan: boolean;
+  // G20: what they eat around, so a scan, a recipe and Food Lookup can
+  // say who in the household a food suits (lib/householdFit.ts).
+  allergiesText: string;
+  dietTags: RecipeDietTag[];
+  restrictions: FoodRestrictionKey[];
 };
 
 function blankFamilyForm(): FamilyForm {
-  return { id: null, name: '', relationship: 'Child', conditionCodes: [], includeInMealPlan: true };
+  return {
+    id: null,
+    name: '',
+    relationship: 'Child',
+    conditionCodes: [],
+    includeInMealPlan: true,
+    allergiesText: '',
+    dietTags: [],
+    restrictions: [],
+  };
+}
+
+function splitAllergies(text: string): string[] {
+  return text
+    .split(/[,;\n]/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+function toggled<T>(list: T[], value: T): T[] {
+  return list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
 }
 
 /** The Digest category behind a condition code, or null for a code with no page yet. */
@@ -357,6 +384,9 @@ export function ConditionsSection({
           relationship: familyForm.relationship,
           conditionCodes: familyForm.conditionCodes,
           includeInMealPlan: familyForm.includeInMealPlan,
+          allergies: splitAllergies(familyForm.allergiesText),
+          dietTags: familyForm.dietTags,
+          restrictions: familyForm.restrictions,
         });
       } else {
         await addFamilyMember({
@@ -364,6 +394,9 @@ export function ConditionsSection({
           relationship: familyForm.relationship,
           conditionCodes: familyForm.conditionCodes,
           includeInMealPlan: familyForm.includeInMealPlan,
+          allergies: splitAllergies(familyForm.allergiesText),
+          dietTags: familyForm.dietTags,
+          restrictions: familyForm.restrictions,
         });
       }
       setFamilyForm(null);
@@ -569,6 +602,13 @@ export function ConditionsSection({
                 .map((code) => allConditions.find((condition) => condition.code === code)?.name ?? code)
                 .sort((a, b) => a.localeCompare(b));
               const shared = member.conditionCodes.filter((code) => ownCodes.includes(code)).length;
+              const foodParts = [
+                member.allergies.length ? `Allergies: ${member.allergies.join(', ')}.` : '',
+                member.dietTags.length ? `Eats: ${member.dietTags.join(', ')}.` : '',
+                member.restrictions.length
+                  ? `Restrictions: ${FOOD_RESTRICTIONS.filter((r) => member.restrictions.includes(r.key)).map((r) => r.label).join(', ')}.`
+                  : '',
+              ].filter(Boolean);
               return (
                 <View key={member.id} style={styles.memberRow}>
                   <View style={styles.memberMain}>
@@ -581,6 +621,7 @@ export function ConditionsSection({
                       {shared > 0 ? ` ${shared === 1 ? 'One is' : `${shared} are`} also yours, shown above.` : ''}
                       {member.includeInMealPlan ? '' : ' Not planned around.'}
                     </Text>
+                    {foodParts.length > 0 ? <Text style={styles.memberMeta}>{foodParts.join(' ')}</Text> : null}
                   </View>
                   <View style={styles.memberActions}>
                     <TouchableOpacity
@@ -591,6 +632,11 @@ export function ConditionsSection({
                           relationship: member.relationship || 'Other',
                           conditionCodes: member.conditionCodes,
                           includeInMealPlan: member.includeInMealPlan,
+                          allergiesText: member.allergies.join(', '),
+                          dietTags: member.dietTags.filter((tag): tag is RecipeDietTag =>
+                            (RECIPE_DIET_TAGS as string[]).includes(tag),
+                          ),
+                          restrictions: knownRestrictions(member.restrictions),
                         })
                       }
                     >
@@ -665,6 +711,50 @@ export function ConditionsSection({
               <Text style={styles.helperText}>
                 When this is on, a generated meal plan is checked against their conditions as well as yours, and
                 the plan says so. Turn it off for someone who eats elsewhere.
+              </Text>
+              <Text style={styles.label}>Food allergies</Text>
+              <AppTextInput
+                style={styles.input}
+                value={familyForm.allergiesText}
+                onChangeText={(text) => setFamilyForm({ ...familyForm, allergiesText: text })}
+                placeholder="peanut, shrimp"
+                placeholderTextColor={colors.textMuted}
+              />
+              <Text style={styles.label}>Eating style</Text>
+              <View style={styles.conditionGrid}>
+                {RECIPE_DIET_TAGS.map((tag) => {
+                  const active = familyForm.dietTags.includes(tag);
+                  return (
+                    <TouchableOpacity
+                      key={tag}
+                      style={[styles.pill, active && styles.pillActive]}
+                      onPress={() => setFamilyForm({ ...familyForm, dietTags: toggled(familyForm.dietTags, tag) })}
+                    >
+                      <Text style={[styles.pillText, active && styles.pillTextActive]}>{tag}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              <Text style={styles.label}>Food restrictions</Text>
+              <View style={styles.conditionGrid}>
+                {FOOD_RESTRICTIONS.map((restriction) => {
+                  const active = familyForm.restrictions.includes(restriction.key);
+                  return (
+                    <TouchableOpacity
+                      key={restriction.key}
+                      style={[styles.pill, active && styles.pillActive]}
+                      onPress={() =>
+                        setFamilyForm({ ...familyForm, restrictions: knownRestrictions(toggled(familyForm.restrictions, restriction.key)) })
+                      }
+                    >
+                      <Text style={[styles.pillText, active && styles.pillTextActive]}>{restriction.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              <Text style={styles.helperText}>
+                A scan, a recipe and Food Lookup show a line for each person, checked against these. None of it
+                touches your scores or advisories.
               </Text>
               <View style={styles.formActions}>
                 <TouchableOpacity style={styles.primaryButton} onPress={saveFamilyMember}>
