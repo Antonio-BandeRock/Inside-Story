@@ -90,6 +90,18 @@ import {
   type PlateSwapRole,
 } from '../../lib/dailyMealPlan';
 import {
+  BASE_DIET_CHOICES,
+  DIET_EXTRA_CHOICES,
+  EATING_STYLE_CHOICES,
+  baseChoiceLabel,
+  describeDifferenceFromProfile,
+  describePlanDiet,
+  planDietTags,
+  splitDietPreferences,
+  toggleTag,
+  type PlanDiet,
+} from '../../lib/mealPlanDiet';
+import {
   createDeviceCalendarEvent,
   deleteDeviceCalendarEvent,
   hasCalendarPermission,
@@ -2380,7 +2392,21 @@ function DailyMealPlanLens() {
   const [limitAddedSugar, setLimitAddedSugar] = useState(false);
   const [daysToGenerate, setDaysToGenerate] = useState(1);
   const [conditionCodes, setConditionCodes] = useState<string[]>([]);
-  const [dietPreferences, setDietPreferences] = useState<RecipeDietTag[]>([]);
+  // The eating style this plan is built around, asked on the form and
+  // started from Profile > Diet Preferences. A change here holds for the
+  // plan being made and is never written back to Profile.
+  const EMPTY_DIET: PlanDiet = { base: null, styles: [], extras: [] };
+  const [planDiet, setPlanDiet] = useState<PlanDiet>(EMPTY_DIET);
+  const [profileDiet, setProfileDiet] = useState<PlanDiet>(EMPTY_DIET);
+  const dietTouchedRef = useRef(false);
+  const dietPreferences: RecipeDietTag[] = planDietTags(planDiet);
+  // The diet the plan on screen was built with, so a regenerated day or a
+  // plate swap keeps to it even if the form has been changed since.
+  const [plannedDiet, setPlannedDiet] = useState<PlanDiet | null>(null);
+  function changeDiet(next: PlanDiet) {
+    dietTouchedRef.current = true;
+    setPlanDiet(next);
+  }
   const [generating, setGenerating] = useState(false);
   // Who the plan on screen was actually built for. Held rather than recomputed,
   // so the screen describes the plan it is showing rather than the current state
@@ -2418,7 +2444,10 @@ function DailyMealPlanLens() {
         .then(([codes, tags, weekdayTargets]) => {
           if (cancelled) return;
           setConditionCodes(codes);
-          setDietPreferences(tags as RecipeDietTag[]);
+          const fromProfile = splitDietPreferences(tags);
+          setProfileDiet(fromProfile);
+          // Profile fills the form until the person answers it here.
+          if (!dietTouchedRef.current) setPlanDiet(fromProfile);
           setHasWeekdayTargets(weekdayTargets.length > 0);
         })
         .catch(() => {
@@ -2454,11 +2483,12 @@ function DailyMealPlanLens() {
   function swapperFor(index: number): PlateSwapper | undefined {
     if (!planningScope) return undefined;
     const scope = planningScope;
+    const diet = plannedDiet ? planDietTags(plannedDiet) : dietPreferences;
     return {
       load: () => {
-        const key = JSON.stringify([scope.conditionCodes, dietPreferences]);
+        const key = JSON.stringify([scope.conditionCodes, diet]);
         if (!swapPoolsRef.current || swapPoolsRef.current.key !== key) {
-          const pools = loadPlateSwapPools(scope.conditionCodes, dietPreferences);
+          const pools = loadPlateSwapPools(scope.conditionCodes, diet);
           swapPoolsRef.current = { key, pools };
           pools.catch(() => {
             if (swapPoolsRef.current?.pools === pools) swapPoolsRef.current = null;
@@ -2494,6 +2524,7 @@ function DailyMealPlanLens() {
       setGeneratedStart(startDate);
       setScheduleDate(startDate);
       setPlanningScope(scope);
+      setPlannedDiet(planDiet);
       setPlans(results);
     } catch (error) {
       showInfoAlert('Could not generate a plan', error instanceof Error ? error.message : String(error));
@@ -2522,7 +2553,7 @@ function DailyMealPlanLens() {
       });
       const result = await generateDailyMealPlan({
         conditionCodes: scope.conditionCodes,
-        dietPreferences,
+        dietPreferences: plannedDiet ? planDietTags(plannedDiet) : dietPreferences,
         carbLevel,
         limitAddedSugar,
         date: generatedStart ? addDaysToLocalDate(generatedStart, index) : undefined,
@@ -2599,7 +2630,62 @@ function DailyMealPlanLens() {
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       {infoAlertElement}
       <View style={styles.formCard}>
-        <Text style={styles.label}>How many days</Text>
+        <Text style={styles.label}>What you eat</Text>
+        <Text style={styles.helperText}>{BASE_DIET_CHOICES.find((choice) => choice.tag === planDiet.base)?.caption}</Text>
+        <PopoverSelect
+          selected={baseChoiceLabel(planDiet.base)}
+          options={BASE_DIET_CHOICES.map((choice) => choice.label)}
+          onSelect={(value) => changeDiet({ ...planDiet, base: BASE_DIET_CHOICES.find((choice) => choice.label === value)?.tag ?? null })}
+          placeholder="What you eat"
+          tabColor={TAB_COLOR}
+          width={220}
+        />
+        <Text style={[styles.label, { marginTop: 12 }]}>Eating style</Text>
+        <Text style={styles.helperText}>
+          Every meal is built from recipes that fit the style. Pick one, more than one if you follow both, or none.
+        </Text>
+        <View style={styles.pillRow}>
+          {EATING_STYLE_CHOICES.map((choice) => {
+            const active = planDiet.styles.includes(choice.tag);
+            return (
+              <TouchableOpacity
+                key={choice.tag}
+                style={[styles.pill, active && styles.pillActive]}
+                onPress={() => changeDiet({ ...planDiet, styles: toggleTag(planDiet.styles, choice.tag) })}
+                onLongPress={() => showInfoAlert(choice.label, choice.caption)}
+              >
+                <Text style={[styles.pillText, active && styles.pillTextActive]}>{choice.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        {planDiet.styles.length > 0 ? (
+          <Text style={styles.helperText}>
+            {EATING_STYLE_CHOICES.filter((choice) => planDiet.styles.includes(choice.tag))
+              .map((choice) => `${choice.label}: ${choice.caption}`)
+              .join(' ')}
+          </Text>
+        ) : null}
+        <Text style={[styles.label, { marginTop: 12 }]}>Also</Text>
+        <View style={styles.pillRow}>
+          {DIET_EXTRA_CHOICES.map((choice) => {
+            const active = planDiet.extras.includes(choice.tag);
+            return (
+              <TouchableOpacity
+                key={choice.tag}
+                style={[styles.pill, active && styles.pillActive]}
+                onPress={() => changeDiet({ ...planDiet, extras: toggleTag(planDiet.extras, choice.tag) })}
+                onLongPress={() => showInfoAlert(choice.label, choice.caption)}
+              >
+                <Text style={[styles.pillText, active && styles.pillTextActive]}>{choice.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        {describeDifferenceFromProfile(planDiet, profileDiet) ? (
+          <Text style={styles.helperText}>{describeDifferenceFromProfile(planDiet, profileDiet)}</Text>
+        ) : null}
+        <Text style={[styles.label, { marginTop: 12 }]}>How many days</Text>
         <Text style={styles.helperText}>
           More than 1 day gets day-to-day variety and weekly frequency targets (fish, red meat) woven in, not independent random picks each day.
         </Text>
@@ -2647,6 +2733,7 @@ function DailyMealPlanLens() {
         {planningScope && plans.length > 0 ? (
           <View style={styles.planScopeBox}>
             <Text style={styles.planScopeText}>{describePlanningScope(planningScope)}</Text>
+            {plannedDiet ? <Text style={styles.planScopeText}>{describePlanDiet(plannedDiet)}</Text> : null}
           </View>
         ) : null}
       </View>

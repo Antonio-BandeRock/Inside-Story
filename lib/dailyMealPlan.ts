@@ -1750,7 +1750,7 @@ async function generateOneDay(
       addPick(chosen.nutrientTotals);
       recordIfRotating(chosen);
       if (usedSweetenedFallback) {
-        warnings.push('No sugar-free breakfast option matched your declared condition(s) and diet preference(s), so this pick carries an optional sweetener you can simply leave out.');
+        warnings.push('No sugar-free breakfast option matched your declared condition(s) and the eating style chosen for this plan, so this pick carries an optional sweetener you can simply leave out.');
       }
       if (withinBudget.length === 0 && carbCeiling !== null) {
         warnings.push(`No breakfast option stayed under the ${carbCeiling}g daily carb ceiling on its own; the closest option was used instead.`);
@@ -1762,7 +1762,7 @@ async function generateOneDay(
       // breakfast recipes is red-flagged for Hashimoto's specifically
       // (soy, mainly tofu and soy milk) -- a real gap in the recipe
       // library, not a filtering bug, for that one exact combination.
-      warnings.push('No breakfast recipe in this app\'s current recipe library complies with both your declared condition(s) and diet preference(s) at once. This is a gap in the recipe library itself, not a setting to adjust: a compliant recipe needs to be added.');
+      warnings.push('No breakfast recipe in this app\'s current recipe library complies with both your declared condition(s) and the eating style chosen for this plan at once. This is a gap in the recipe library, and choosing a different eating style above is the one way around it for now.');
     }
   }
 
@@ -1863,10 +1863,10 @@ async function generateOneDay(
   }
 
   const lunch = await pickMealWithOptionalSide(lunchMainCandidates, undefined, true);
-  if (lunch.length === 0) warnings.push('No lunch recipe currently complies with both the declared condition(s) and diet preference(s).');
+  if (lunch.length === 0) warnings.push('No lunch recipe currently complies with both the declared condition(s) and the eating style chosen for this plan.');
 
   const dinner = await pickMealWithOptionalSide(dinnerMainCandidates, lunch[0]?.entry.linkedCuratedRecipeId, true);
-  if (dinner.length === 0) warnings.push('No dinner recipe currently complies with both the declared condition(s) and diet preference(s).');
+  if (dinner.length === 0) warnings.push('No dinner recipe currently complies with both the declared condition(s) and the eating style chosen for this plan.');
 
   // 2026-09-27, direct request: "along with the other rules it is using to
   // build the meal plan, it also tries to give them as close to the RDA for
