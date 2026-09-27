@@ -589,6 +589,17 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
+                {/* A11, 2026-09-26: a medicine's label from openFDA, word for
+                    word, reached from a med on Life > My Meds. */}
+                <Stack.Screen
+                  name="medicine-label"
+                  options={{
+                    headerShown: true,
+                    title: 'Medicine Label',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
                 {/* 2026-08-16, the real barcode-scanning feature -- reached from
                     Food's own "My Foods" hub. Themed the same as every other
                     Stack screen. */}

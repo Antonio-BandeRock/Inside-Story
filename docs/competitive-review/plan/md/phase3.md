@@ -13,11 +13,6 @@
 - **Answers:** Medisafe · **Theme:** Medication logistics
 - **How:** A per-treatment switch read by lib/reminderSchedule.ts when the phone's time zone changes.
 
-### A11. Drug-to-drug data inside the app
-- **Ships by:** Live database, needs owner yes · **Size:** L · **Tabs:** Insights
-- **Answers:** Drugs.com, Medisafe · **Theme:** Medication logistics
-- **How:** Decided 2026-09-26: built from what manufacturers publish on their labels (the drug interactions section of each label, through openFDA and DailyMed, licensing to be confirmed first), best effort across common Western prescriptions, plus an import from a label's link the way recipes are imported. The licensed databases are not used.
-
 ### A16. Caregiver or partner sees a missed dose
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Life,Schedules,Insights
 - **Answers:** Medisafe, CareClinic · **Theme:** Medication logistics

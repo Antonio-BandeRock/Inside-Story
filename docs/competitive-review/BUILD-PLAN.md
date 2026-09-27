@@ -9,7 +9,7 @@ Written 2026-09-25. Work starts 2026-09-26, first thing. Page: https://claude.ai
 ## Start here on 2026-09-26
 
 1. Session start as usual: read `inside-story-notes.jsonl` in the Backups folder; `node scripts/bump_version.js` (a new day, so DAY goes up and UPDATE resets to 1).
-2. The four Phase 0 questions (A9, A11, C17, G23) were answered on 2026-09-26: major severity goes into the live database (A9, Phase 2), drug interactions come from manufacturer labels with an import from a link (A11, Phase 3), the word for what grows is progress and a design document comes first (C17, Phase 3), and amount-aware FODMAP cautions are built from USDA FoodData Central and cited papers after unified Phase 5 (G23, Phase 3), with a presence-only FODMAP caution on scanned labels shipped at once (G23b).
+2. The four Phase 0 questions (A9, A11, C17, G23) were answered on 2026-09-26: major severity goes into the live database (A9, Phase 2), A11 was then reshaped: no drug-to-drug rule library, the manufacturer label shown word for word after a scan, a typed code or a name (A11, shipped 1.0.53.36, with A11b to follow), the word for what grows is progress and a design document comes first (C17, Phase 3), and amount-aware FODMAP cautions are built from USDA FoodData Central and cited papers after unified Phase 5 (G23, Phase 3), with a presence-only FODMAP caution on scanned labels shipped at once (G23b).
 3. Phase 1 in this order, each its own request, commit, OTA update and desktop installer:
    1. **A1** weekly and every-N-days repeats (RepeatType in `lib/db.ts`, the series generator around line 15447, RepeatPicker, `lib/reminderSchedule.ts`). Unblocks A2, C10, H11.
    2. **B1** one Today timeline (`lib/dayTimeline.ts` extending `getDayMealAndDoseTimeline`). Unblocks B2, B3, B7, B8, the widgets.
@@ -48,7 +48,7 @@ Possible on Android only, not recommended. Local-first is not the blocker (SMS g
 ## What waits on the owner
 
 - **Live database:** A9 approved 2026-09-26; G23 (per-serving FODMAP thresholds, sources decided, waits on unified Phase 5). Crop family stays out of the DB (`lib/cropFamilies.ts`, I10).
-- **Money and licences:** A11 decided 2026-09-26 (manufacturer labels, no licensed database), A15 pill identifier, D13 questionnaire licences beyond PHQ-9 and GAD-7, D15 audio content, I25 plant diagnosis, Z7 chain menus, the Apple developer account.
+- **Money and licences:** A11 reshaped 2026-09-26 (the FDA label word for word, no rule library, no licensed database; a lawyer review before store release), A15 pill identifier, D13 questionnaire licences beyond PHQ-9 and GAD-7, D15 audio content, I25 plant diagnosis, Z7 chain menus, the Apple developer account.
 - **Bends a standing rule:** Z2 scores, Z4 streaks and characters, Z12 store guides, Z1 Z3 C14 anything leaving the phone.
 - **Product:** C17 decided 2026-09-26 (progress, design document first; distinct things or repetitions settles inside it), Z15 lifetime and hardship prices, the Free-tier line for a way in without a condition (item 28), G29 FHIR scope, servers Z5 Z6 Z9 Z10 Z11.
 
@@ -113,7 +113,7 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Answers:** Gardenize, Sortly, Monarch, Guava, Medisafe · **Theme:** Shared foundations
 - **How:** A media table (owner kind, owner id, file, taken_on), shrink on save, stored under the app folder, copied into the Backups folder and restored beside the encrypted snapshot, never in the plaintext record, shown on desktop from the synced copy. Serves A5, D12, I13, J4, J9.
 
-## Phase 2. Quick wins over the air (105 items)
+## Phase 2. Quick wins over the air (107 items)
 
 ### A3. Pills on hand and refill reminder
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life,Schedules,Signals,Insights
@@ -144,6 +144,16 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life,Insights
 - **Answers:** Drugs.com, Medisafe · **Theme:** Medication logistics
 - **How:** A "Check this list on Drugs.com" button that opens the checker in the browser (the app sends nothing), plus one line saying the app's rules cover food and supplement timing.
+
+### A11. Scan your medicine, see its label
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life
+- **Answers:** Drugs.com, Medisafe · **Theme:** Medication logistics
+- **How:** Reshaped 2026-09-26 by direct instruction, and shipped the same day (1.0.53.36): the drug-to-drug rule library was dropped for liability. The person scans the NDC barcode on a box or bottle (UPC-A or GS1 DataMatrix), types the code, or searches by name, and the manufacturer's FDA label is shown word for word from openFDA, dated, with its version, maker and a DailyMed link, and a note that a pharmacist can check medicines together. Every screen says what was sent (only the code or the name) and when it was retrieved; a search that finds nothing says so and never shows something else in its place, and nothing opens until the person picks. A label can be kept with a med in My Meds and checked for a newer version (app/medicine-label.tsx, lib/medicineLabel.ts, lib/medicineLabelLookup.ts, lib/medicineLabelDb.ts, scripts/test_medicine_label.js). The app never interprets a label. A lawyer review is advised before store release.
+
+### A11b. The label sentence behind each drug rule
+- **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life,Insights
+- **Answers:** Drugs.com · **Theme:** Medication logistics
+- **How:** Each of the 44 curated interaction rules that names a prescription drug carries the exact sentence from that drug's FDA label it rests on, with the label's set id and version, shown on the rule card and opening the label screen from A11. Follow-up to A11, not started.
 
 ### A12. Doses taken, said in words
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Trends,Reports
@@ -640,7 +650,7 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Answers:** Cronometer · **Theme:** Reports
 - **How:** expo-print printAsync.
 
-## Phase 3. Larger builds over the air (64 items)
+## Phase 3. Larger builds over the air (63 items)
 
 ### A2. Tapering doses
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
@@ -656,11 +666,6 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
 - **Answers:** Medisafe · **Theme:** Medication logistics
 - **How:** A per-treatment switch read by lib/reminderSchedule.ts when the phone's time zone changes.
-
-### A11. Drug-to-drug data inside the app
-- **Ships by:** Live database, needs owner yes · **Size:** L · **Tabs:** Insights
-- **Answers:** Drugs.com, Medisafe · **Theme:** Medication logistics
-- **How:** Decided 2026-09-26: built from what manufacturers publish on their labels (the drug interactions section of each label, through openFDA and DailyMed, licensing to be confirmed first), best effort across common Western prescriptions, plus an import from a label's link the way recipes are imported. The licensed databases are not used.
 
 ### A16. Caregiver or partner sees a missed dose
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Life,Schedules,Insights

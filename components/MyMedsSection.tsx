@@ -16,6 +16,7 @@ import { MedDetailsPanel } from './MedDetailsPanel';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { useBandFolds } from '../hooks/useBandFolds';
+import { getTreatmentIdsWithLabels } from '../lib/medicineLabelDb';
 import {
   createOtcTreatment,
   createPrescriptionTreatment,
@@ -182,6 +183,7 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
   const [referenceOnlyRules, setReferenceOnlyRules] = useState<ReferenceOnlyRule[]>([]);
   const [detailsByTreatment, setDetailsByTreatment] = useState<Map<string, TreatmentDetails>>(new Map());
   const [supplyByTreatment, setSupplyByTreatment] = useState<Map<string, SupplyReading>>(new Map());
+  const [labelIds, setLabelIds] = useState<Set<string>>(new Set());
   const [nutrients, setNutrients] = useState<TrackedNutrient[]>([]);
   const [commonMedications, setCommonMedications] = useState<CommonMedication[]>([]);
   const [foodEntries, setFoodEntries] = useState<NutrientGapEntry[]>([]);
@@ -213,10 +215,12 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
           evaluateInteractionRules(todayDateString()),
           listTreatmentDetails(),
           listSupplyReadings(),
+          getTreatmentIdsWithLabels(),
         ]),
       )
-      .then(async ([loadedTreatments, loadedNutrients, loadedMeds, dailyAnalysis, evaluation, details, supply]) => {
+      .then(async ([loadedTreatments, loadedNutrients, loadedMeds, dailyAnalysis, evaluation, details, supply, withLabels]) => {
         setTreatments(loadedTreatments);
+        setLabelIds(withLabels);
         setDetailsByTreatment(details);
         setSupplyByTreatment(supply);
         if (focusTreatmentId && loadedTreatments.some((treatment) => treatment.id === focusTreatmentId)) {
@@ -658,6 +662,19 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
                           Not matched to this app&apos;s researched medication list; entered manually.
                         </Text>
                       )}
+                  {treatment.treatmentType !== 'supplement' ? (
+                    // A11: the manufacturer's label from openFDA, word for word,
+                    // on its own screen. Supplements carry no FDA drug label.
+                    <TouchableOpacity
+                      onPress={() =>
+                        router.push({ pathname: '/medicine-label', params: { treatmentId: treatment.id, treatmentName: treatment.name } })
+                      }
+                    >
+                      <Text style={styles.actionTextPrimary}>
+                        {labelIds.has(treatment.id) ? 'Read its kept label' : 'Find its label (openFDA)'}
+                      </Text>
+                    </TouchableOpacity>
+                  ) : null}
                   <MedDetailsPanel
                     treatmentId={treatment.id}
                     treatmentName={treatment.name}
@@ -697,6 +714,9 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
               </TouchableOpacity>
               <TouchableOpacity style={[styles.addButton, walkMark('myMeds.add')]} onPress={openAddSupplement}>
                 <Text style={styles.addButtonText}>+ Supplement</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.addButton} onPress={() => router.push('/medicine-label')}>
+                <Text style={styles.addButtonText}>Look up a label</Text>
               </TouchableOpacity>
             </View>
           ) : addMode === 'supplement' ? (

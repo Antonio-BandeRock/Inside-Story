@@ -64,12 +64,12 @@ nav.toc a{color:var(--accent)}
 <h1>Everything the competitors do, and how Inside Story gets there</h1>
 <p class="lead">Every gap the nine tab reviews named, merged where two tabs asked for the same thing, then ordered so each phase stands on the one before. Nothing from the review is left out: items that break a standing rule or need a server are listed in Phase 7 with the reason, waiting on your yes.</p>
 <div class="stats">
-<span class="stat"><b>221</b>items</span>
-<span class="stat"><b>175</b>ship over the air</span>
+<span class="stat"><b>222</b>items</span>
+<span class="stat"><b>177</b>ship over the air</span>
 <span class="stat"><b>11</b>in the Android rebuild</span>
 <span class="stat"><b>2</b>in the iPhone build</span>
 <span class="stat"><b>9</b>on the Worker</span>
-<span class="stat"><b>24</b>wait on your decision</span>
+<span class="stat"><b>23</b>wait on your decision</span>
 </div>
 </header>
 
@@ -150,7 +150,7 @@ nav.toc a{color:var(--accent)}
 <li>Crop family stays out of the DB: lib/cropFamilies.ts keyed on food_id instead (I10)</li>
 </ul></div>
 <div class="card"><h3>Money and licences</h3><ul>
-<li><b>A11</b> Drug-to-drug data inside the app; <b>A15</b> Pill identifier</li>
+<li><b>A11</b> Scan your medicine, see its label; <b>A15</b> Pill identifier</li>
 <li>Questionnaire licences beyond PHQ-9 and GAD-7 (D13) and relaxation audio content (D15)</li>
 <li><b>I25</b> What is wrong with this plant; <b>Z7</b> Chain restaurant menus</li>
 <li>Apple developer account for R2</li>
@@ -271,7 +271,7 @@ nav.toc a{color:var(--accent)}
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p2">
-<h2>Phase 2. Quick wins over the air <span class="count">105</span></h2>
+<h2>Phase 2. Quick wins over the air <span class="count">107</span></h2>
 <p class="lead">Small and medium items that each close a named competitor gap with no rebuild. Most take an hour to a day each.</p>
 <div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
 <tbody><tr data-tabs="Life|Schedules|Signals|Insights" data-text="pills on hand and refill reminder supply_on_hand, supply_unit and refill_lead_days on treatments, drawn down when a dose is marked taken on meds, a refill kind in lib/remindersources.ts, "about 6 days left" in mymedssection.tsx. medisafe, mytherapy, careclinic, guava">
@@ -315,6 +315,20 @@ nav.toc a{color:var(--accent)}
 <td class="tabs">Life<br>Insights</td>
 <td><span class="ship ota">Over the air</span></td>
 <td class="size">S</td>
+</tr>
+<tr data-tabs="Life" data-text="scan your medicine, see its label reshaped 2026-09-26 by direct instruction, and shipped the same day (1.0.53.36): the drug-to-drug rule library was dropped for liability. the person scans the ndc barcode on a box or bottle (upc-a or gs1 datamatrix), types the code, or searches by name, and the manufacturer's fda label is shown word for word from openfda, dated, with its version, maker and a dailymed link, and a note that a pharmacist can check medicines together. every screen says what was sent (only the code or the name) and when it was retrieved; a search that finds nothing says so and never shows something else in its place, and nothing opens until the person picks. a label can be kept with a med in my meds and checked for a newer version (app/medicine-label.tsx, lib/medicinelabel.ts, lib/medicinelabellookup.ts, lib/medicinelabeldb.ts, scripts/test_medicine_label.js). the app never interprets a label. a lawyer review is advised before store release. drugs.com, medisafe">
+<td class="id">A11</td>
+<td><div class="t">Scan your medicine, see its label</div><div class="how">Reshaped 2026-09-26 by direct instruction, and shipped the same day (1.0.53.36): the drug-to-drug rule library was dropped for liability. The person scans the NDC barcode on a box or bottle (UPC-A or GS1 DataMatrix), types the code, or searches by name, and the manufacturer's FDA label is shown word for word from openFDA, dated, with its version, maker and a DailyMed link, and a note that a pharmacist can check medicines together. Every screen says what was sent (only the code or the name) and when it was retrieved; a search that finds nothing says so and never shows something else in its place, and nothing opens until the person picks. A label can be kept with a med in My Meds and checked for a newer version (app/medicine-label.tsx, lib/medicineLabel.ts, lib/medicineLabelLookup.ts, lib/medicineLabelDb.ts, scripts/test_medicine_label.js). The app never interprets a label. A lawyer review is advised before store release.</div><div class="meta">Medication logistics · answers Drugs.com, Medisafe</div></td>
+<td class="tabs">Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Life|Insights" data-text="the label sentence behind each drug rule each of the 44 curated interaction rules that names a prescription drug carries the exact sentence from that drug's fda label it rests on, with the label's set id and version, shown on the rule card and opening the label screen from a11. follow-up to a11, not started. drugs.com">
+<td class="id">A11b</td>
+<td><div class="t">The label sentence behind each drug rule</div><div class="how">Each of the 44 curated interaction rules that names a prescription drug carries the exact sentence from that drug's FDA label it rests on, with the label's set id and version, shown on the rule card and opening the label screen from A11. Follow-up to A11, not started.</div><div class="meta">Medication logistics · answers Drugs.com</div></td>
+<td class="tabs">Life<br>Insights</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S-M</td>
 </tr>
 <tr data-tabs="Trends|Reports" data-text="doses taken, said in words "taken on 24 of the 28 days a dose was due, 4 not marked" on trends and in the doctor report. no percentage, no praise. medisafe, mytherapy">
 <td class="id">A12</td>
@@ -1011,7 +1025,7 @@ nav.toc a{color:var(--accent)}
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p3">
-<h2>Phase 3. Larger builds over the air <span class="count">64</span></h2>
+<h2>Phase 3. Larger builds over the air <span class="count">63</span></h2>
 <p class="lead">Bigger pieces of JS work: new tables with their own screens, drawn editors, experiments, the caregiver holding, garden planning, bank import.</p>
 <div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
 <tbody><tr data-tabs="Schedules" data-text="tapering doses a taper step list on treatments (amount per date range), read by the series generator and the dose reminder text. prednisone tapers in ra, ibd and lupus flares. needs a1. careclinic">
@@ -1034,13 +1048,6 @@ nav.toc a{color:var(--accent)}
 <td class="tabs">Schedules</td>
 <td><span class="ship ota">Over the air</span></td>
 <td class="size">M</td>
-</tr>
-<tr data-tabs="Insights" data-text="drug-to-drug data inside the app decided 2026-09-26: built from what manufacturers publish on their labels (the drug interactions section of each label, through openfda and dailymed, licensing to be confirmed first), best effort across common western prescriptions, plus an import from a label's link the way recipes are imported. the licensed databases are not used. drugs.com, medisafe">
-<td class="id">A11</td>
-<td><div class="t">Drug-to-drug data inside the app</div><div class="how">Decided 2026-09-26: built from what manufacturers publish on their labels (the drug interactions section of each label, through openFDA and DailyMed, licensing to be confirmed first), best effort across common Western prescriptions, plus an import from a label's link the way recipes are imported. The licensed databases are not used.</div><div class="meta">Medication logistics · answers Drugs.com, Medisafe</div></td>
-<td class="tabs">Insights</td>
-<td><span class="ship ask">Live DB, your yes</span></td>
-<td class="size">L</td>
 </tr>
 <tr data-tabs="Life|Schedules|Insights" data-text="caregiver or partner sees a missed dose turn on meds, schedule and symptoms for the ontheirbehalf holding in lib/peerrelationships.ts, merge rules in lib/peermerge.ts, the consent and attestation steps from the caregiver tier, then a local notification on the other phone after a merge. timely delivery needs the relay (m1). medisafe, careclinic">
 <td class="id">A16</td>

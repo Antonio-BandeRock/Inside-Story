@@ -8114,6 +8114,26 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_today_picks_day ON today_picks(day);
 
+      -- A11, Phase 2: the manufacturer's label for a med, kept as it was
+      -- retrieved from openFDA so it reads the same offline and never changes
+      -- by itself. One row per treatment. how_found says whether a code or a
+      -- name found it and what_was_sent is the exact code or name that left
+      -- the device, so the screen can say both. No foreign key: deleteTreatment
+      -- removes the row itself, the way it removes the treatment's photos.
+      CREATE TABLE IF NOT EXISTS medicine_labels (
+        treatment_id TEXT PRIMARY KEY,
+        set_id TEXT NOT NULL,
+        version TEXT NOT NULL,
+        effective_date TEXT,
+        title TEXT NOT NULL,
+        maker TEXT,
+        how_found TEXT NOT NULL,
+        what_was_sent TEXT NOT NULL,
+        document_json TEXT NOT NULL,
+        retrieved_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
       -- D3, Phase 2: symptoms the person names, offered beside the built-in
       -- tags in lib/checkinTags.ts under the code 'custom:' || id. Removing
       -- one that a check-in used sets retired_at, so the old check-in still
@@ -18924,6 +18944,7 @@ export async function updateSupplementTreatment(
 export async function deleteTreatment(treatmentId: string) {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM treatment_details WHERE treatment_id = ?', treatmentId);
+  await db.runAsync('DELETE FROM medicine_labels WHERE treatment_id = ?', treatmentId);
   await db.runAsync('DELETE FROM treatments WHERE id = ?', treatmentId);
   await (await import('./mediaDb')).removePhotosOf('treatment', treatmentId);
 }
