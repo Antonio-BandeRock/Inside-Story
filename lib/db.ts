@@ -8387,6 +8387,12 @@ async function runDatabaseInitialization() {
       // old row still reads correctly as one device against another.
       ['sync_change_log', 'person_name'],
       ['sync_change_log', 'person_role'],
+      // G16, 2026-09-27: how processed a scanned product is (Open Food
+      // Facts' NOVA group, 1 to 4, kept as text) and its additive tags as
+      // a JSON array. Both stay null for a product scanned before this or
+      // looked up somewhere that carries neither.
+      ['scanned_products', 'nova_group'],
+      ['scanned_products', 'additives_json'],
     ] as const) {
       const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
       if (columns.length > 0 && !columns.some((entry) => entry.name === column)) {
@@ -23384,11 +23390,13 @@ export type ScannedProductRecord = {
   ingredientsText: string | null;
   photoUri: string | null;
   scannedAt: string;
+  novaGroup: string | null;
+  additivesJson: string | null;
 };
 
 const SCANNED_PRODUCT_COLUMNS = `
   id, barcode, name, brand, lookup_source AS lookupSource, ingredients_text AS ingredientsText,
-  photo_uri AS photoUri, scanned_at AS scannedAt
+  photo_uri AS photoUri, scanned_at AS scannedAt, nova_group AS novaGroup, additives_json AS additivesJson
 `;
 
 // A real, checked-first lookup before ever hitting the network -- scanning
@@ -23452,14 +23460,16 @@ export async function saveScannedProduct(input: {
   ingredientsText?: string | null;
   photoUri?: string | null;
   nutrients: { code: string; amountPer100g: number }[];
+  novaGroup?: number | null;
+  additiveTags?: string[] | null;
 }): Promise<number> {
   const db = await getDatabase();
   await db.execAsync('BEGIN TRANSACTION');
   try {
     const result = await db.runAsync(
       `
-        INSERT INTO scanned_products (barcode, name, brand, lookup_source, ingredients_text, photo_uri)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO scanned_products (barcode, name, brand, lookup_source, ingredients_text, photo_uri, nova_group, additives_json)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
       `,
       input.barcode,
       input.name,
@@ -23467,6 +23477,8 @@ export async function saveScannedProduct(input: {
       input.lookupSource,
       input.ingredientsText ?? null,
       input.photoUri ?? null,
+      input.novaGroup != null ? String(input.novaGroup) : null,
+      input.additiveTags ? JSON.stringify(input.additiveTags) : null,
     );
     const id = result.lastInsertRowId;
     for (const nutrient of input.nutrients) {
@@ -23514,6 +23526,19 @@ export async function updateScannedProduct(
   }
   if (fields.length === 0) return;
   await db.runAsync(`UPDATE scanned_products SET ${fields.join(', ')} WHERE id = ?`, ...params, id);
+}
+
+// G16: the processing data for a product saved before Open Food Facts'
+// NOVA group and additive tags were kept, filled in once when that product
+// is scanned again. Only ever called from a scan the person made.
+export async function setScannedProductProcessing(id: number, novaGroup: number | null, additiveTags: string[]): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(
+    'UPDATE scanned_products SET nova_group = ?, additives_json = ? WHERE id = ?',
+    novaGroup != null ? String(novaGroup) : null,
+    JSON.stringify(additiveTags),
+    id,
+  );
 }
 
 // Real cascade delete (scanned_product_nutrients, scanned_product_prices

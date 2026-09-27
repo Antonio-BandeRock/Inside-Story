@@ -35,7 +35,20 @@ import { VoiceInputButton } from './VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
+import { useRouter } from 'expo-router';
 import { lookupProductByBarcode, type LookedUpProduct } from '../lib/barcodeLookup';
+import { routeForDigestEntry } from '../lib/digestNavigation';
+import {
+  additiveRowLabel,
+  describeAdditiveCount,
+  describeAdditives,
+  NOVA_GROUPS,
+  novaReadingIds,
+  parseNovaGroup,
+  parseStoredAdditiveTags,
+  PROCESSING_SOURCE_CAPTION,
+  type NovaGroup,
+} from '../lib/productProcessing';
 import {
   createMeal,
   deleteMeal,
@@ -45,6 +58,7 @@ import {
   getUserProfile,
   recordScannedProductPrice,
   saveScannedProduct,
+  setScannedProductProcessing,
   type UserProfile,
 } from '../lib/db';
 import { addGroceryListItem, updateGroceryItemPurchase } from '../lib/groceryDb';
@@ -243,6 +257,10 @@ export function ScanProductView({
   const [barcode, setBarcode] = useState<string | null>(null);
   const [existingProductId, setExistingProductId] = useState<number | null>(null);
   const [lookedUp, setLookedUp] = useState<LookedUpProduct | null>(null);
+  // G16: how processed the product is and which additives it lists, from
+  // Open Food Facts. Null when nothing is known, which the report leaves out.
+  const [processing, setProcessing] = useState<{ novaGroup: NovaGroup | null; additiveTags: string[] } | null>(null);
+  const router = useRouter();
   const [name, setName] = useState('');
   const [brand, setBrand] = useState<string | null>(null);
   const [ingredientsText, setIngredientsText] = useState('');
@@ -386,6 +404,7 @@ export function ScanProductView({
     setBarcode(null);
     setExistingProductId(null);
     setLookedUp(null);
+    setProcessing(null);
     setName('');
     setBrand(null);
     setIngredientsText('');
@@ -509,6 +528,21 @@ export function ScanProductView({
         setIngredientsText(existing.ingredientsText ?? '');
         setSavedProductId(existing.id);
         setStatus('ingredients');
+        const storedTags = parseStoredAdditiveTags(existing.additivesJson);
+        if (storedTags != null || existing.novaGroup != null) {
+          setProcessing({ novaGroup: parseNovaGroup(existing.novaGroup), additiveTags: storedTags ?? [] });
+        } else if (existing.lookupSource === 'OpenFoodFacts') {
+          // Saved before G16 kept the processing data: fetch it once now,
+          // behind the ingredients screen, and store it on the product.
+          const productId = existing.id;
+          lookupProductByBarcode(scanned)
+            .then(async (fresh) => {
+              if (!fresh || fresh.lookupSource !== 'OpenFoodFacts') return;
+              await setScannedProductProcessing(productId, fresh.novaGroup, fresh.additiveTags);
+              setProcessing({ novaGroup: fresh.novaGroup, additiveTags: fresh.additiveTags });
+            })
+            .catch((error) => console.warn('[ScanProductScreen] Processing lookup failed', error));
+        }
         return;
       }
       const result2 = await lookupProductByBarcode(scanned);
@@ -517,6 +551,9 @@ export function ScanProductView({
         return;
       }
       setLookedUp(result2);
+      if (result2.novaGroup != null || result2.additiveTags.length > 0) {
+        setProcessing({ novaGroup: result2.novaGroup, additiveTags: result2.additiveTags });
+      }
       setName(result2.name);
       setBrand(result2.brand);
       setIngredientsText(result2.ingredientsText ?? '');
@@ -777,6 +814,8 @@ export function ScanProductView({
       parts.push(`${allFlags.length} thing${allFlags.length === 1 ? '' : 's'} to be aware of.`);
       parts.push(...allFlags);
     }
+    if (processing?.novaGroup != null) parts.push(`NOVA group ${processing.novaGroup}, ${NOVA_GROUPS[processing.novaGroup].label.toLowerCase()}.`);
+    if (processing) parts.push(describeAdditiveCount(describeAdditives(processing.additiveTags).length));
     if (showFodmap) parts.push(describeFodmapSpoken(fodmapMatches));
     Speech.speak(parts.join(' '));
   }
@@ -797,6 +836,8 @@ export function ScanProductView({
       ingredientsText: ingredientsText || null,
       photoUri: ingredientsPhotoUri,
       nutrients: lookedUp?.nutrients ?? [],
+      novaGroup: lookedUp?.novaGroup ?? null,
+      additiveTags: lookedUp?.lookupSource === 'OpenFoodFacts' ? lookedUp.additiveTags : null,
     });
     setSavedProductId(id);
     return id;
@@ -1454,8 +1495,12 @@ export function ScanProductView({
             : `${additiveFlags.length + conditionFlags.length} thing${additiveFlags.length + conditionFlags.length === 1 ? '' : 's'} to be aware of`}
         </Text>
         {additiveFlags.map((flag, index) => (
-          <View
+          <TouchableOpacity
             key={`additive-${index}`}
+            disabled={!flag.digestEntryId}
+            activeOpacity={0.85}
+            onPress={() => flag.digestEntryId && router.push(routeForDigestEntry(flag.digestEntryId))}
+            accessibilityRole={flag.digestEntryId ? 'link' : undefined}
             style={[
               styles.flagRow,
               flag.severity === 'red'
@@ -1467,7 +1512,8 @@ export function ScanProductView({
           >
             <Text style={styles.flagLabel}>{flag.label}</Text>
             <Text style={styles.flagDetail}>{flag.detail}</Text>
-          </View>
+            {flag.digestEntryId ? <Text style={styles.readingLink}>Read about it</Text> : null}
+          </TouchableOpacity>
         ))}
         {conditionFlags.map((flag, index) => (
           <View key={`condition-${index}`} style={[styles.flagRow, { backgroundColor: colors.statusYellowBg, borderColor: colors.statusYellow }]}>
@@ -1483,6 +1529,63 @@ export function ScanProductView({
               <Text key={match.group} style={styles.flagDetail}>{describeFodmapLine(match)}</Text>
             ))}
             <Text style={styles.flagDetail}>{describeFodmapCaption(fodmapMatches)}</Text>
+          </View>
+        ) : null}
+
+        {processing ? (
+          <View style={styles.card}>
+            <Text style={styles.sectionLabel}>How processed</Text>
+            {processing.novaGroup != null ? (
+              <TouchableOpacity
+                activeOpacity={0.85}
+                accessibilityRole="link"
+                onPress={() => router.push(routeForDigestEntry(novaReadingIds(processing.novaGroup as NovaGroup)[0]))}
+              >
+                <Text style={styles.flagLabel}>
+                  NOVA group {processing.novaGroup}: {NOVA_GROUPS[processing.novaGroup].label}
+                </Text>
+                <Text style={styles.flagDetail}>{NOVA_GROUPS[processing.novaGroup].caption}</Text>
+                <Text style={styles.readingLink}>What the NOVA groups are</Text>
+              </TouchableOpacity>
+            ) : (
+              <Text style={styles.flagDetail}>No NOVA group recorded for this product yet.</Text>
+            )}
+            {processing.novaGroup === 4 ? (
+              <TouchableOpacity
+                activeOpacity={0.85}
+                accessibilityRole="link"
+                onPress={() => router.push(routeForDigestEntry(novaReadingIds(4)[1]))}
+              >
+                <Text style={styles.readingLink}>What the research says about ultra-processed food</Text>
+              </TouchableOpacity>
+            ) : null}
+            {(() => {
+              const additives = describeAdditives(processing.additiveTags);
+              return (
+                <>
+                  <Text style={[styles.flagLabel, styles.processingGap]}>{describeAdditiveCount(additives.length)}</Text>
+                  {additives.map((additive) =>
+                    additive.readingId ? (
+                      <TouchableOpacity
+                        key={additive.code}
+                        style={styles.additiveRow}
+                        activeOpacity={0.85}
+                        accessibilityRole="link"
+                        onPress={() => router.push(routeForDigestEntry(additive.readingId as string))}
+                      >
+                        <Text style={styles.additiveText}>{additiveRowLabel(additive)}</Text>
+                        <Text style={styles.readingLink}>Read about it</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <View key={additive.code} style={styles.additiveRow}>
+                        <Text style={styles.additiveText}>{additiveRowLabel(additive)}</Text>
+                      </View>
+                    ),
+                  )}
+                </>
+              );
+            })()}
+            <Text style={[styles.flagDetail, styles.processingGap]}>{PROCESSING_SOURCE_CAPTION}</Text>
           </View>
         ) : null}
 
@@ -1810,6 +1913,10 @@ const styles = StyleSheet.create({
   flagRow: { padding: 12, borderRadius: 10, borderWidth: 1, gap: 4 },
   flagLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   flagDetail: { ...typography.caption, color: colors.textSecondary, ...textShadow },
+  readingLink: { ...typography.captionEmphasis, color: colors.accent, ...textShadow },
+  processingGap: { marginTop: 8 },
+  additiveRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingVertical: 4 },
+  additiveText: { ...typography.body, color: colors.textPrimary, flexShrink: 1, ...textShadow },
   textAreaRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
   textArea: {
     flex: 1,

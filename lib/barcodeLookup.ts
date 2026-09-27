@@ -33,6 +33,7 @@
 //   real product, Cheerios, returned zero hits; the same search with the
 //   real 14-digit padded value returned exactly one, correct hit).
 
+import { readOpenFoodFactsProcessing, type NovaGroup } from './productProcessing';
 import { householdProductFromResponse, type HouseholdLookupSource, type HouseholdProduct } from './scanToList';
 
 const OPEN_FOOD_FACTS_BASE = 'https://world.openfoodfacts.org/api/v2/product';
@@ -53,6 +54,10 @@ export type LookedUpProduct = {
   imageUrl: string | null;
   lookupSource: 'OpenFoodFacts' | 'USDA';
   nutrients: LookedUpNutrient[];
+  // G16: Open Food Facts' NOVA group and additive tags, read by
+  // lib/productProcessing.ts. USDA carries neither, so null and [].
+  novaGroup: NovaGroup | null;
+  additiveTags: string[];
 };
 
 // Every real OFF nutriments key this app can confidently map onto its own
@@ -131,6 +136,7 @@ async function lookupOpenFoodFacts(barcode: string): Promise<LookedUpProduct | n
       null,
     lookupSource: 'OpenFoodFacts',
     nutrients,
+    ...readOpenFoodFactsProcessing(product),
   };
 }
 
@@ -184,6 +190,8 @@ async function lookupUsdaFdc(barcode: string): Promise<LookedUpProduct | null> {
     imageUrl: null,
     lookupSource: 'USDA',
     nutrients,
+    novaGroup: null,
+    additiveTags: [],
   };
 }
 
