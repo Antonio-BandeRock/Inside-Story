@@ -650,7 +650,7 @@
 ### C17. Progress, made from the person's records
 - **Ships by:** Owner decision first · **Size:** L · **Tabs:** Home,all tabs
 - **Answers:** Finch · **Theme:** Capture, reminders and the second audience
-- **How:** Decided 2026-09-26: the word is progress. First a design document: what progress looks like, every way the app can track it, and how each tab screen receives additions and changes. Then the registry (lib/achievementCriteria.ts) is filled from it. Made of records, never awarded; no streaks, levels, points, percentages, praise or animation; nothing regresses; elapsed time counts.
+- **How:** Decided 2026-09-26: the word is progress. First a design document: what progress looks like, every way the app can track it, and how each tab screen receives additions and changes. Then the registry (lib/achievementCriteria.ts) is filled from it. Made of records, never awarded; no streaks, levels, points, percentages, praise or animation; nothing regresses; elapsed time counts. Design document written 2026-09-26 (docs/progress-design.md): five kinds (firsts, variety, weeks kept, ready to answer, kept alive), variety plus time with repetition counted once per week, a picture per tab and one Your Progress page; four owner decisions in its section 8 before building.
 
 ### C20. One read a day, in order for the person
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Home
