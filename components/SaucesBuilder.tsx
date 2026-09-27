@@ -557,7 +557,7 @@ export function SaucesBuilder({
   // dismissing the sheet without picking anything (its own built-in
   // backdrop dismiss, or the explicit Cancel row) can't accidentally leave
   // a stale non-null mode behind.
-  const [ingredientSourceMode, setIngredientSourceMode] = useState<'voice' | 'products' | 'category' | null>(null);
+  const [ingredientSourceMode, setIngredientSourceMode] = useState<'voice' | 'products' | 'category' | 'nutrient' | null>(null);
   const [sourceChooserVisible, setSourceChooserVisible] = useState(false);
   // Whether the collapsible sauce/ingredients card (point 2) is currently
   // expanded into its own full overlay -- see CollapsibleOverlayCard.tsx's
@@ -1821,6 +1821,7 @@ export function SaucesBuilder({
             { label: '🎤 Say a Food Name', onPress: () => setIngredientSourceMode('voice') },
             { label: 'My Food Products', onPress: () => setIngredientSourceMode('products') },
             { label: 'Whole Foods', onPress: () => setIngredientSourceMode('category') },
+            { label: 'Richest in a Nutrient', onPress: () => setIngredientSourceMode('nutrient') },
             { label: 'Cancel', onPress: () => {} },
           ]}
         />

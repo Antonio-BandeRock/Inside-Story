@@ -3409,9 +3409,14 @@ export async function rankFoodsByNutrient(
   nutrientCode: string,
   limit = 100,
   prepStateGroup: PrepStateGroup | null = null,
+  // Only foods in these categories, when given: a builder asking for the
+  // richest foods it can take (G10, 2026-09-27). null keeps every category,
+  // which is what Insights > Nutrient Ranking asks for.
+  categories: string[] | null = null,
 ): Promise<RankedFood[]> {
   const db = await getReferenceDatabase();
   const { sql: prepClause, params: prepParams } = prepStateGroupWhereClause(prepStateGroup);
+  const categoryClause = categories && categories.length > 0 ? `AND f.category IN (${categories.map(() => '?').join(',')})` : '';
   return db.getAllAsync<RankedFood>(
     `
       SELECT foodId, source, baseName, category, subcategory, prepMethod, amountPer100g
@@ -3425,8 +3430,11 @@ export async function rankFoodsByNutrient(
             ORDER BY fn.amount_per_100g DESC
           ) AS rn
         FROM food_nutrients fn
-        JOIN foods f ON f.food_id = fn.food_id AND f.source = fn.source
-        WHERE fn.nutrient_code = ? AND f.hidden = 0 AND fn.amount_per_100g > 0 AND ${prepClause}
+        -- CROSS JOIN keeps food_nutrients first, on its nutrient index. With a
+        -- category filter a plain JOIN let SQLite start from foods instead and
+        -- read every food: 1.2 s against 0.13 s for the same rows (G10).
+        CROSS JOIN foods f ON f.food_id = fn.food_id AND f.source = fn.source
+        WHERE fn.nutrient_code = ? AND f.hidden = 0 AND fn.amount_per_100g > 0 AND ${prepClause} ${categoryClause}
       )
       WHERE rn = 1
       ORDER BY amountPer100g DESC
@@ -3434,6 +3442,7 @@ export async function rankFoodsByNutrient(
     `,
     nutrientCode,
     ...prepParams,
+    ...(categoryClause && categories ? categories : []),
     limit,
   );
 }

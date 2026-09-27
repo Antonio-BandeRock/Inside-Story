@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { SectionList, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors } from '../constants/colors';
@@ -17,6 +17,8 @@ import {
   isFallbackSource,
   listAvailableHarvests,
   listScannedProducts,
+  listTrackedNutrients,
+  rankFoodsByNutrient,
   resolveFoodChoice,
   searchReferenceFoodNames,
   searchReferenceFoodNamesAcrossCategories,
@@ -26,9 +28,27 @@ import {
   type GardenHarvest,
   type GlobalFoodMatch,
   type ScannedProductRecord,
+  type TrackedNutrient,
 } from '../lib/db';
 import { buildFoodNameGroups } from '../lib/foodNameGrouping';
-import { evaluateFoodForPerson, type PersonalFoodEvaluation, type PersonalizationProfile } from '../lib/foodPersonalization';
+import {
+  evaluateFoodForPerson,
+  foodMatchesAllergy,
+  foodMatchesDietPreferences,
+  getPersonalizationProfile,
+  type PersonalFoodEvaluation,
+  type PersonalizationProfile,
+} from '../lib/foodPersonalization';
+import {
+  describeRichFoods,
+  nutrientChoiceRows,
+  pickRichFoods,
+  richFoodKey,
+  richFoodLabel,
+  richFoodsHeading,
+  RICH_FOOD_FETCH,
+  type RichFood,
+} from '../lib/nutrientRichPicks';
 import { getStageDeprioritizedNames } from '../lib/foodStageReordering';
 import { verdictFor } from './RecipeDepthReport';
 import { analyzeNutrientIntake, formatAmount } from '../lib/nutrientAnalysis';
@@ -625,7 +645,7 @@ export function FoodLookup({
   //                 Foods) -- a home-grown harvest is still a real whole
   //                 food, so it stays folded into this mode rather than
   //                 needing a fourth chooser button nobody asked for.
-  restrictToSource?: 'voice' | 'products' | 'category';
+  restrictToSource?: 'voice' | 'products' | 'category' | 'nutrient';
   // A real, finer-grained companion to allowedCategories -- 2026-08-13, for
   // Food's own new Beverage subtype picker (see food.tsx's own comment):
   // "Juices & Nectars" needs Bev restricted down to just its own Juice
@@ -849,6 +869,68 @@ export function FoodLookup({
     });
   }
 
+  // "Richest in a Nutrient" (G10, 2026-09-27): a builder's fourth way in.
+  // Pick a nutrient, see the foods this builder takes that are richest in it
+  // per 100 g, tap one. The ranked row already names one exact reference
+  // food, so the tap resolves straight through onFoodResolved the way a
+  // harvest or a scan does. Loads only in this mode, and reads only.
+  const [richNutrients, setRichNutrients] = useState<TrackedNutrient[]>([]);
+  const [richNutrientCode, setRichNutrientCode] = useState<string | null>(null);
+  const [richFoods, setRichFoods] = useState<RichFood[] | null>(null);
+  const [richLeftOut, setRichLeftOut] = useState(0);
+  useEffect(() => {
+    if (restrictToSource !== 'nutrient') return;
+    let cancelled = false;
+    listTrackedNutrients().then((rows) => {
+      if (!cancelled) setRichNutrients(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [restrictToSource]);
+  useEffect(() => {
+    if (restrictToSource !== 'nutrient' || !richNutrientCode) {
+      setRichFoods(null);
+      return;
+    }
+    let cancelled = false;
+    setRichFoods(null);
+    // allowedCategories is read once at mount, the same fixed restriction
+    // the Category step honours.
+    Promise.all([
+      rankFoodsByNutrient(richNutrientCode, RICH_FOOD_FETCH, null, allowedCategories ?? null),
+      getPersonalizationProfile(),
+    ]).then(([ranked, profile]) => {
+      if (cancelled) return;
+      const picked = pickRichFoods(
+        ranked,
+        (food) =>
+          foodMatchesDietPreferences(food.category, food.baseName, profile.dietPreferences) &&
+          !foodMatchesAllergy(food.baseName, profile.foodAllergies),
+      );
+      setRichFoods(picked.foods);
+      setRichLeftOut(picked.leftOut);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restrictToSource, richNutrientCode]);
+  const richNutrientRows = useMemo(() => nutrientChoiceRows(richNutrients), [richNutrients]);
+  const richNutrient = richNutrients.find((nutrient) => nutrient.code === richNutrientCode) ?? null;
+  function handlePickRichFood(key: string) {
+    const food = richFoods?.find((row) => richFoodKey(row) === key);
+    if (!food) return;
+    onFoodResolved?.({
+      category: food.category,
+      subcategory: food.subcategory,
+      baseName: food.baseName,
+      prepMethod: food.prepMethod,
+      foodId: food.foodId,
+      source: food.source,
+    });
+  }
+
   // "Say a food name," 2026-08-16 -- the real, direct answer to "add
   // broccoli without having to drill down into the groupings to find
   // where broccoli will be." null means no voice search is currently
@@ -977,6 +1059,14 @@ export function FoodLookup({
   // magic number that could quietly drift from the actual row.
   const GROUP_BACK_ROW_HEIGHT = SUMMARY_ROW_HEIGHT + SUMMARY_ROW_GAP;
   const groupSubListHeight = Math.max(150, categoryListHeight - GROUP_BACK_ROW_HEIGHT);
+  // The richest-foods list sits under the chosen nutrient's summary row, and
+  // under one caption line when some foods were left out.
+  const richCaption = richFoods ? describeRichFoods(richFoods.length, richLeftOut) : null;
+  const RICH_CAPTION_HEIGHT = 26;
+  const richFoodsListHeight = Math.max(
+    150,
+    categoryListHeight - GROUP_BACK_ROW_HEIGHT - (richCaption ? RICH_CAPTION_HEIGHT : 0),
+  );
   // Food's own list specifically -- also reserves AppKeyboard's full height
   // (see this block's own comment above for why).
   const foodListHeight = Math.max(
@@ -1554,6 +1644,56 @@ export function FoodLookup({
           ) : null}
         </View>
       ) : null}
+      {restrictToSource === 'nutrient' && category === '' ? (
+        richNutrient === null ? (
+          <InlineSelectList
+            options={richNutrientRows}
+            value=""
+            onChange={(code) => {
+              if (!code.startsWith('__heading__')) setRichNutrientCode(code);
+            }}
+            height={categoryListHeight}
+            tabColor={tabColor}
+            header="Richest in Which Nutrient?"
+            squareTop={squareTop}
+          />
+        ) : (
+          <View>
+            <TouchableOpacity
+              style={[styles.summaryRow, { borderColor: tabColor }, squareTop && styles.squareTop]}
+              onPress={() => setRichNutrientCode(null)}
+            >
+              <Text style={styles.summaryText} numberOfLines={1}>
+                {richNutrient.displayName}
+              </Text>
+              <Text style={[styles.summaryChange, { color: tabColor }]}>Change</Text>
+            </TouchableOpacity>
+            {richCaption ? (
+              <View style={[styles.richCaptionRow, { borderColor: tabColor }]}>
+                <Text style={styles.voiceFoodResultMeta} numberOfLines={1}>
+                  {richCaption}
+                </Text>
+              </View>
+            ) : null}
+            {richFoods === null ? (
+              <View style={[styles.voiceFoodSection, { borderColor: tabColor }]}>
+                <Text style={styles.voiceFoodStatus}>Finding the richest foods…</Text>
+              </View>
+            ) : richFoods.length > 0 ? (
+              <View style={styles.stackedField}>
+                <InlineSelectList
+                  options={richFoods.map((food) => ({ label: richFoodLabel(food, richNutrient.unit), value: richFoodKey(food) }))}
+                  value=""
+                  onChange={handlePickRichFood}
+                  height={richFoodsListHeight}
+                  tabColor={tabColor}
+                  header={richFoodsHeading(richNutrient.displayName)}
+                />
+              </View>
+            ) : null}
+          </View>
+        )
+      ) : null}
       {/* "From Your Harvest" -- see handlePickHarvest's own comment above.
           Only shown before Category is picked (a harvest pick bypasses
           Category/Type/Food/Prep entirely, so there's nothing left for this
@@ -2109,6 +2249,14 @@ const styles = StyleSheet.create({
   // above it -- matches SUMMARY_ROW_GAP above (was 3px/SUMMARY_ROW_GAP 3,
   // tightened together 2026-07-28).
   stackedField: { marginTop: 2 },
+  richCaptionRow: {
+    borderWidth: 2,
+    borderRadius: 10,
+    marginTop: 2,
+    backgroundColor: colors.surface,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
   // Category/Type's own "picked, collapsed" row -- replaces their
   // InlineSelectList once a value is chosen, same compact single-field
   // footprint a closed Dropdown used to have. Tap anywhere on it to bring
