@@ -164,6 +164,24 @@ check('effect none', B.describeSwapEffect({ current: false, nearer: 0, further: 
 check('left out none', B.describeLeftOut(0, 0), []);
 check('left out both', B.describeLeftOut(1, 2).length, 2);
 
+// 4. Everything kept when a person chooses (2026-09-27): over-limit dishes
+// stay, after the rest, each naming the limit it passes.
+check('limits passed', B.limitsPassed({ iron: 30, sodium: 2000 }, { iron: 50, sodium: 2400 }, targets), ['iron', 'sodium']);
+const everything = B.rankSwapOptions({ dayTotals: day, dayCarbs: 40, current, candidates, usedIds: new Set(['main']), targets, carbCeiling: 60, keepOverLimit: true });
+check('all kept, over-limit last', everything.options.map((o) => o.dish.id), ['slaw', 'lentil', 'greens', 'rice', 'pickle']);
+const byId = (id) => everything.options.find((o) => o.dish.id === id);
+check('nothing left out when kept', [everything.leftOutLimit, everything.leftOutCarbs], [0, 0]);
+check('pickle passes sodium', byId('pickle').passesLimits, ['sodium']);
+check('rice passes carbs', byId('rice').passesCarbs, true);
+const named = targets.map((t) => ({ ...t, displayName: t.nutrientCode === 'iron' ? 'Iron' : t.nutrientCode === 'sodium' ? 'Sodium' : 'Fiber' }));
+check('caution sodium', B.describeLimitsPassed(byId('pickle'), named), ['Takes Sodium past your ceiling for the day.']);
+check('caution carbs', B.describeLimitsPassed(byId('rice'), named), ['Takes the day past your carb target.']);
+check('caution iron', B.describeLimitsPassed({ passesLimits: ['iron'], passesCarbs: false }, named), ['Takes Iron past its upper limit for the day.']);
+check('no caution', B.describeLimitsPassed(everything.options[1], named), []);
+// Adding: nothing taken off, so the day plus the dish.
+const added = B.rankSwapOptions({ dayTotals: day, dayCarbs: 40, current: { id: '', totals: {}, carbGrams: 0 }, candidates, usedIds: new Set(['main', 'slaw']), targets, carbCeiling: 60, keepOverLimit: true });
+check('add lentil totals', added.options.find((o) => o.dish.id === 'lentil').totalsAfter, { iron: 10, fiber: 22, sodium: 1600 });
+
 const sentences = [
   B.describeSwapEffect({ current: true, nearer: 0, further: 0 }),
   B.describeSwapEffect({ current: false, nearer: 2, further: 1 }),
@@ -171,6 +189,7 @@ const sentences = [
   B.describeSwapEffect({ current: false, nearer: 0, further: 0 }),
   ...B.describeLeftOut(1, 1),
   ...B.describeLeftOut(3, 4),
+  ...B.describeLimitsPassed({ passesLimits: ['iron', 'sodium'], passesCarbs: true }, named),
 ];
 const FORBIDDEN = /\b(best|healthy|healthiest|should|superfood|boost|real|genuine|genuinely|cure|treat|deficiency)\b|[–—]| -- /i;
 for (const sentence of sentences) {

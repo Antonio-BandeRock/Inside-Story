@@ -74,7 +74,7 @@ import {
   type DigestEntry,
   type RecipeDietTag,
 } from './digest';
-import { describeLeftOut, describeSwapEffect, improveDay, rankSwapOptions, targetsMet } from './mealPlanBalance';
+import { describeLeftOut, describeLimitsPassed, describeSwapEffect, improveDay, rankSwapOptions, targetsMet } from './mealPlanBalance';
 import { SIDE_DISH_RECIPE_IDS } from './recipeDishRole';
 import { addDays, overridesForDate, weekdayTargetNotes, type WeekdayTargetOverride } from './weekdayTargets';
 
@@ -885,6 +885,10 @@ export type DailyMealPlanPick = {
   // high total back to whichever specific dish actually drove it,
   // instead of only naming the nutrient in the abstract.
   nutrientTotals: Record<string, number>;
+  // 2026-09-27: a dish the person put on the plate themselves, beside what
+  // the generator chose. Never traded by Change; it has Remove instead, and
+  // it is scheduled with the rest of the meal (MealPlanSlot.extras).
+  added?: boolean;
 };
 
 export type DailyMealPlanNutrientCoverage = {
@@ -1592,8 +1596,9 @@ function driByCodeForDate(pools: CandidatePools, date: string | undefined): Map<
     : pools.driByCode;
 }
 
-function carbCeilingWarning(totalCarbGrams: number, carbCeiling: number | null): string | null {
+function carbCeilingWarning(totalCarbGrams: number, carbCeiling: number | null, withAdded = false): string | null {
   if (carbCeiling === null || totalCarbGrams <= carbCeiling) return null;
+  if (withAdded) return `With the food you added, the day's total (${Math.round(totalCarbGrams)}g) is above your ${carbCeiling}g target.`;
   return `The day's total (${Math.round(totalCarbGrams)}g) came in above the ${carbCeiling}g target; not every meal slot had a low-enough-carb option available today.`;
 }
 
@@ -2087,13 +2092,16 @@ export function dailyMealPlanToMealPlanDay(result: DailyMealPlanResult, dayNumbe
   // the old "picks[0] is the main, picks[1] is the side" assumption no
   // longer holds once more than two roles are possible.
   function toSlot(picks: DailyMealPlanPick[]): MealPlanSlot {
-    const main = toRef(picks.find((p) => p.role === 'main'));
+    const planned = picks.filter((p) => !p.added);
+    const main = toRef(planned.find((p) => p.role === 'main'));
     if (!main) throw new Error('[dailyMealPlanToMealPlanDay] A meal slot with picks always includes a main.');
+    const extras = picks.filter((p) => p.added).map((p) => toRef(p)!);
     return {
       main,
-      side: toRef(picks.find((p) => p.role === 'side')),
-      salad: toRef(picks.find((p) => p.role === 'salad')),
-      beverage: toRef(picks.find((p) => p.role === 'beverage')),
+      side: toRef(planned.find((p) => p.role === 'side')),
+      salad: toRef(planned.find((p) => p.role === 'salad')),
+      beverage: toRef(planned.find((p) => p.role === 'beverage')),
+      ...(extras.length > 0 ? { extras } : {}),
     };
   }
 
@@ -2127,7 +2135,12 @@ export type PlateSwapChoice = {
   current: boolean;
   /** One sentence: what this dish does to the day against the targets. */
   effect: string;
+  /** One sentence per limit this dish takes the day past; empty when none. */
+  cautions: string[];
 };
+
+/** 'change' trades the planned dish in a role; 'add' puts one more dish beside the rest. */
+export type PlateSwapMode = 'change' | 'add';
 
 export async function loadPlateSwapPools(conditionCodes: string[], dietPreferences: RecipeDietTag[]): Promise<PlateSwapPools> {
   return retryOnceOnReleasedObject(async () => ({ pools: await buildCandidatePools(conditionCodes, dietPreferences), conditionCodes }));
@@ -2146,17 +2159,22 @@ function dayPicks(day: DailyMealPlanResult): DailyMealPlanPick[] {
 /**
  * Every dish that could stand in `role` on this meal, the one there now
  * first (or nothing, when the plate has none of that kind) and the rest
- * nearest the day's targets first. Dishes that would carry a nutrient past
- * its upper limit, or the day past the carb target, are left out and said.
+ * nearest the day's targets first. In 'add' mode nothing is taken off: each
+ * choice is one more dish beside the rest. Dishes that would carry a
+ * nutrient past its upper limit, or the day past the carb target, are still
+ * offered, after the others, each saying which limit it passes (2026-09-27,
+ * direct request: "the user should be able to add more food to their days
+ * ... even though it puts them over ... the app should warn the user").
  */
 export function plateSwapOptions(
   handle: PlateSwapPools,
   day: DailyMealPlanResult,
   meal: 'lunch' | 'dinner',
   role: PlateSwapRole,
+  mode: PlateSwapMode = 'change',
 ): { choices: PlateSwapChoice[]; notes: string[] } {
   const driRows = Array.from(driByCodeForDate(handle.pools, day.date).values());
-  const onPlate = day[meal].find((pick) => pick.role === role) ?? null;
+  const onPlate = mode === 'add' ? null : (day[meal].find((pick) => pick.role === role && !pick.added) ?? null);
   const pool = poolForRole(handle.pools, role);
   type Dish = { id: string; totals: Record<string, number>; carbGrams: number; entry: EligibleRecipeEntry | null };
   const current: Dish = onPlate
@@ -2172,6 +2190,7 @@ export function plateSwapOptions(
     usedIds,
     targets: driRows,
     carbCeiling: day.carbCeiling,
+    keepOverLimit: true,
   });
   const choices: PlateSwapChoice[] = [];
   for (const option of options) {
@@ -2182,6 +2201,7 @@ export function plateSwapOptions(
       nutrientTotals: option.dish.totals,
       current: option.current,
       effect: describeSwapEffect(option),
+      cautions: describeLimitsPassed(option, driRows),
     });
   }
   return { choices, notes: describeLeftOut(leftOutLimit, leftOutCarbs) };
@@ -2199,13 +2219,56 @@ export function applyPlateSwap(
   role: PlateSwapRole,
   choice: PlateSwapChoice,
 ): DailyMealPlanResult {
-  const driByCode = driByCodeForDate(handle.pools, day.date);
   const incoming: DailyMealPlanPick = { entry: choice.entry, role, carbGrams: choice.carbGrams, nutrientTotals: choice.nutrientTotals };
   const plate = [...day[meal]];
-  const index = plate.findIndex((pick) => pick.role === role);
+  const index = plate.findIndex((pick) => pick.role === role && !pick.added);
   if (index >= 0) plate[index] = incoming;
   else plate.push(incoming);
-  const next: DailyMealPlanResult = { ...day, [meal]: plate };
+  return recomputePlannedDay(handle, day, { ...day, [meal]: plate });
+}
+
+/** The day with `choice` put on `meal` beside everything already there. */
+export function applyPlateAdd(
+  handle: PlateSwapPools,
+  day: DailyMealPlanResult,
+  meal: 'lunch' | 'dinner',
+  role: PlateSwapRole,
+  choice: PlateSwapChoice,
+): DailyMealPlanResult {
+  const incoming: DailyMealPlanPick = { entry: choice.entry, role, carbGrams: choice.carbGrams, nutrientTotals: choice.nutrientTotals, added: true };
+  return recomputePlannedDay(handle, day, { ...day, [meal]: [...day[meal], incoming] });
+}
+
+/** The day with one dish the person added taken off `meal` again. */
+export function removeAddedPick(handle: PlateSwapPools, day: DailyMealPlanResult, meal: 'lunch' | 'dinner', recipeId: string): DailyMealPlanResult {
+  const plate = day[meal].filter((pick) => !(pick.added && pick.entry.linkedCuratedRecipeId === recipeId));
+  return recomputePlannedDay(handle, day, { ...day, [meal]: plate });
+}
+
+/**
+ * One line per nutrient the day now carries past its upper limit or its
+ * ceiling. Said in the day's warnings so a plate somebody filled past a
+ * limit shows it at the top, not only in a coloured figure further down.
+ */
+function limitWarnings(coverage: DailyMealPlanNutrientCoverage[]): string[] {
+  const lines: string[] = [];
+  for (const row of coverage) {
+    const limit = row.isCeiling ? (row.upperLimit ?? row.targetAmount) : row.upperLimit;
+    if (limit == null || limit <= 0 || row.amount <= limit) continue;
+    lines.push(
+      `${row.displayName} comes to ${Math.round(row.amount * 10) / 10}${row.unit} for the day, past ${row.isCeiling ? 'your ceiling of' : 'the upper limit of'} ${limit}${row.unit}.`,
+    );
+  }
+  return lines;
+}
+
+/**
+ * Totals, carbs, rating, coverage and the plate-dependent warnings worked
+ * again for `next`, the way the generator works them, with every warning
+ * the old plate produced taken out first.
+ */
+function recomputePlannedDay(handle: PlateSwapPools, day: DailyMealPlanResult, next: DailyMealPlanResult): DailyMealPlanResult {
+  const driByCode = driByCodeForDate(handle.pools, day.date);
   const allPicks = dayPicks(next);
 
   const nutrientTotals: Record<string, number> = {};
@@ -2220,10 +2283,13 @@ export function applyPlateSwap(
   const stale = new Set<string>(checkPairingRequirements(oldPicks, day.nutrientTotals, driByCode));
   const oldCarb = carbCeilingWarning(day.totalCarbGrams, day.carbCeiling);
   if (oldCarb) stale.add(oldCarb);
+  const oldCarbAdded = carbCeilingWarning(day.totalCarbGrams, day.carbCeiling, true);
+  if (oldCarbAdded) stale.add(oldCarbAdded);
   const oldUnsure = unsureFoodsWarning(handle.pools, oldPicks);
   if (oldUnsure) stale.add(oldUnsure);
+  for (const line of limitWarnings(day.nutrientCoverage)) stale.add(line);
   const warnings = day.warnings.filter((w) => !stale.has(w) && !w.startsWith('Internal check:'));
-  const carbWarning = carbCeilingWarning(totalCarbGrams, day.carbCeiling);
+  const carbWarning = carbCeilingWarning(totalCarbGrams, day.carbCeiling, allPicks.some((p) => p.added));
   if (carbWarning) warnings.push(carbWarning);
   const unsureWarning = unsureFoodsWarning(handle.pools, allPicks);
   if (unsureWarning) warnings.push(unsureWarning);
@@ -2232,12 +2298,14 @@ export function applyPlateSwap(
   const healthRating: 'green' | 'yellow' | 'red' | null =
     allPicks.length === 0 ? null : allPicks.every((p) => recipeSafeAcrossConditions(p.entry, handle.conditionCodes) === 'green') ? 'green' : 'yellow';
 
+  const nutrientCoverage = buildDayCoverage(allPicks, driByCode, nutrientTotals, warnings);
+  warnings.push(...limitWarnings(nutrientCoverage));
   return {
     ...next,
     nutrientTotals,
     totalCarbGrams,
     healthRating,
-    nutrientCoverage: buildDayCoverage(allPicks, driByCode, nutrientTotals, warnings),
+    nutrientCoverage,
     warnings,
   };
 }

@@ -14181,6 +14181,9 @@ export type MealPlanSlot = {
   sauce?: MealPlanComponentRef;
   beverage?: MealPlanComponentRef;
   dessert?: MealPlanComponentRef;
+  // 2026-09-27: dishes the person added to the plate beyond what the plan
+  // chose, scheduled after the rest so the day records what was eaten.
+  extras?: MealPlanComponentRef[];
 };
 
 export type MealPlanDay = {
@@ -14246,7 +14249,7 @@ async function scheduleMealPlanSlot(
   mealType: 'breakfast' | 'lunch' | 'dinner',
   scheduledFor: string,
 ): Promise<string> {
-  const refs = [slot.main, slot.side, slot.salad, slot.soup, slot.sauce, slot.beverage, slot.dessert].filter(
+  const refs = [slot.main, slot.side, slot.salad, slot.soup, slot.sauce, slot.beverage, slot.dessert, ...(slot.extras ?? [])].filter(
     (ref): ref is MealPlanComponentRef => ref !== undefined,
   );
   const components: MealFavoriteComponent[] = [];

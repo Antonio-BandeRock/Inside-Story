@@ -88,15 +88,21 @@ function limitFor(target: BalanceTarget): number | null {
   return limits.length > 0 ? Math.min(...limits) : null;
 }
 
-/** True when going from `before` to `after` carries any nutrient past a limit, or further past one. */
-export function breaksALimit(before: Record<string, number>, after: Record<string, number>, targets: BalanceTarget[]): boolean {
+/** The nutrients going from `before` to `after` carries past a limit, or further past one, in target order. */
+export function limitsPassed(before: Record<string, number>, after: Record<string, number>, targets: BalanceTarget[]): string[] {
+  const codes: string[] = [];
   for (const target of targets) {
     const limit = limitFor(target);
     if (limit == null) continue;
     const next = amountOf(after, target.nutrientCode);
-    if (next > limit && next > amountOf(before, target.nutrientCode) + 1e-9) return true;
+    if (next > limit && next > amountOf(before, target.nutrientCode) + 1e-9) codes.push(target.nutrientCode);
   }
-  return false;
+  return codes;
+}
+
+/** True when going from `before` to `after` carries any nutrient past a limit, or further past one. */
+export function breaksALimit(before: Record<string, number>, after: Record<string, number>, targets: BalanceTarget[]): boolean {
+  return limitsPassed(before, after, targets).length > 0;
 }
 
 /** True when a change takes the day's carbs past the ceiling, or further past it. */
@@ -127,6 +133,10 @@ export type SwapOption<T extends BalanceDish> = {
   /** Targets this dish leaves the day nearer to, and further from, than the current one. */
   nearer: number;
   further: number;
+  /** Nutrients this dish carries past a limit, kept only when the caller asks for every dish. */
+  passesLimits: string[];
+  /** True when this dish carries the day past the carb target, likewise. */
+  passesCarbs: boolean;
 };
 
 /** Counts the RDA and AI targets a change moves nearer and further. */
@@ -146,8 +156,12 @@ export function targetsMoved(before: Record<string, number>, after: Record<strin
 /**
  * Every dish that could stand where `current` stands, the current one first
  * and the rest nearest the targets first. A dish already elsewhere on the
- * day, or one that would break a limit or the carb ceiling, is left out and
- * counted.
+ * day is left out. A dish that would break a limit or the carb ceiling is
+ * left out and counted, unless `keepOverLimit` is set: then it is kept,
+ * after every dish within the limits, and says which limit it passes. The
+ * generator leaves them out; a person choosing for themselves sees them all
+ * with the warning (2026-09-27, direct request: add more food "even though
+ * it puts them over... the app should warn the user about it").
  */
 export function rankSwapOptions<T extends BalanceDish>(input: {
   dayTotals: Record<string, number>;
@@ -157,6 +171,7 @@ export function rankSwapOptions<T extends BalanceDish>(input: {
   usedIds: Set<string>;
   targets: BalanceTarget[];
   carbCeiling: number | null;
+  keepOverLimit?: boolean;
 }): { options: SwapOption<T>[]; leftOutLimit: number; leftOutCarbs: number } {
   const { dayTotals, dayCarbs, current, candidates, usedIds, targets, carbCeiling } = input;
   const without = tradeTotals(dayTotals, current.totals, null);
@@ -169,6 +184,8 @@ export function rankSwapOptions<T extends BalanceDish>(input: {
     shortfallAfter: shortfall(dayTotals, targets),
     nearer: 0,
     further: 0,
+    passesLimits: [],
+    passesCarbs: false,
   };
   let leftOutLimit = 0;
   let leftOutCarbs = 0;
@@ -179,13 +196,17 @@ export function rankSwapOptions<T extends BalanceDish>(input: {
     seen.add(dish.id);
     const totalsAfter = tradeTotals(without, null, dish.totals);
     const carbsAfter = carbsWithout + dish.carbGrams;
-    if (breaksALimit(dayTotals, totalsAfter, targets)) {
-      leftOutLimit++;
-      continue;
-    }
-    if (breaksCarbCeiling(dayCarbs, carbsAfter, carbCeiling)) {
-      leftOutCarbs++;
-      continue;
+    const passesLimits = limitsPassed(dayTotals, totalsAfter, targets);
+    const passesCarbs = breaksCarbCeiling(dayCarbs, carbsAfter, carbCeiling);
+    if (!input.keepOverLimit) {
+      if (passesLimits.length > 0) {
+        leftOutLimit++;
+        continue;
+      }
+      if (passesCarbs) {
+        leftOutCarbs++;
+        continue;
+      }
     }
     others.push({
       dish,
@@ -194,9 +215,12 @@ export function rankSwapOptions<T extends BalanceDish>(input: {
       carbsAfter,
       shortfallAfter: shortfall(totalsAfter, targets),
       ...targetsMoved(dayTotals, totalsAfter, targets),
+      passesLimits,
+      passesCarbs,
     });
   }
-  others.sort((a, b) => a.shortfallAfter - b.shortfallAfter || a.dish.id.localeCompare(b.dish.id));
+  const over = (option: SwapOption<T>) => (option.passesLimits.length > 0 || option.passesCarbs ? 1 : 0);
+  others.sort((a, b) => over(a) - over(b) || a.shortfallAfter - b.shortfallAfter || a.dish.id.localeCompare(b.dish.id));
   return { options: [currentOption, ...others], leftOutLimit, leftOutCarbs };
 }
 
@@ -266,6 +290,25 @@ export function describeSwapEffect(option: { current: boolean; nearer: number; f
   if (option.nearer > 0) return `The day ends nearer your targets on ${count(option.nearer)}.`;
   if (option.further > 0) return `The day ends further from your targets on ${count(option.further)}.`;
   return 'Leaves the day about where it is against your targets.';
+}
+
+/**
+ * The warning on a scroller card whose dish passes a limit, one sentence
+ * per limit, naming the nutrient. Nothing here says not to eat it: the day
+ * will show what was eaten, and a day left unrecorded tells the app nothing.
+ */
+export function describeLimitsPassed(
+  option: { passesLimits: string[]; passesCarbs: boolean },
+  targets: (BalanceTarget & { displayName?: string })[],
+): string[] {
+  const lines: string[] = [];
+  for (const code of option.passesLimits) {
+    const target = targets.find((t) => t.nutrientCode === code);
+    const name = target?.displayName ?? code;
+    lines.push(target?.valueType === 'CDRR' ? `Takes ${name} past your ceiling for the day.` : `Takes ${name} past its upper limit for the day.`);
+  }
+  if (option.passesCarbs) lines.push('Takes the day past your carb target.');
+  return lines;
 }
 
 /** How near the day sits to its targets, for the plan's report: how many RDA and AI targets are met. */
