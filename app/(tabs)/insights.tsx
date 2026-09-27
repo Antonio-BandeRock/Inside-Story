@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { LabelCheckView } from '../../components/LabelCheckView';
+import { routeForDigestEntry } from '../../lib/digestNavigation';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from '../../components/HomeSectionBand';
 import { formatTime12 } from '../../lib/timeOfDay';
@@ -208,6 +210,7 @@ type Lens =
   | 'sixDs'
   | 'prep'
   | 'foodLookup'
+  | 'labelCheck'
   | 'nutrientRanking'
   | 'cookingImpact'
   | 'safeFoods'
@@ -365,6 +368,22 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: 'Food Lookup',
         body: "Look up any food in this app's reference database: pick a category, then (if that category has one) a more specific type, then the food itself, to see its full nutrient, vitamin, and mineral breakdown per 100g. This is the same reference data every logged meal is scored against; it isn't tied to today's log or any drill-down scope, unlike the other three lenses here.",
+      },
+    ],
+  },
+  {
+    key: 'labelCheck',
+    label: 'Check a Label',
+    icon: 'list-outline',
+    group: 'Explore & Look Up',
+    help: [
+      {
+        heading: 'Check a Label',
+        body: 'Paste, type or say the ingredient list off any package, and every ingredient is checked one at a time: major allergens, gluten grains, your diet preferences, FODMAP groups, histamine, additives, concerns for the conditions you follow, and ingredients whose source a label need not name. Each reason names the list it came from and the word that matched. The same check runs on a scanned product in Food.',
+      },
+      {
+        heading: 'Allergen-aware, not allergy-safe',
+        body: 'This matches words against named lists. A word can be missed, a label can leave a source unnamed, and a recipe can change, so the package is the last word for anything you react to. Nothing you paste here is saved.',
       },
     ],
   },
@@ -664,6 +683,7 @@ export default function InsightsScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
   const { openInsightsLens } = useLocalSearchParams<{ openInsightsLens?: string }>();
   const [lens, setLens] = useState<Lens>('nutrients');
+  const router = useRouter();
   // Which lenses put the ScopeHub (the funnel) in the corner is decided in
   // this screen's own render below; the list here mirrors it exactly so
   // the clearance and the button agree. When it shows, the last line of
@@ -1288,7 +1308,15 @@ export default function InsightsScreen() {
                 expanded={lensExplainerExpanded}
                 onToggle={() => setLensExplainerExpanded((current) => !current)}
               />
-              {lens === 'cookingImpact' ? (
+              {lens === 'labelCheck' ? (
+              <View style={styles.bandColumn}>
+                <LabelCheckView
+                  tabColor={TAB_COLOR}
+                  profile={personalizationProfile}
+                  onOpenReading={(id) => router.push(routeForDigestEntry(id))}
+                />
+              </View>
+            ) : lens === 'cookingImpact' ? (
               // Also independent of today's log -- a pure, static reference
               // lookup (no DB round-trip at all), so this owns its own
               // local compound-selection state rather than anything lifted
@@ -1411,6 +1439,7 @@ export default function InsightsScreen() {
       {!revealed ||
       isMoreLens(lens) ||
       lens === 'foodLookup' ||
+      lens === 'labelCheck' ||
       lens === 'nutrientRanking' ||
       lens === 'cookingImpact' ||
       lens === 'safeFoods' ||

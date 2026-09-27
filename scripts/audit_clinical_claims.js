@@ -70,6 +70,7 @@ const NAMED = [
   'lib/foodOneWord.ts',
   'lib/productProcessing.ts',
   'lib/scanSummaryLine.ts',
+  'lib/ingredientFlags.ts',
   'lib/ruleSeverity.ts',
   'lib/medicineLabel.ts',
   'lib/dayTimeline.ts',

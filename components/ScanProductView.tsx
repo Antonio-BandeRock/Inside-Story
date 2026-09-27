@@ -38,7 +38,10 @@ import { textShadow, typography } from '../constants/typography';
 import { useRouter } from 'expo-router';
 import { lookupProductByBarcode, type LookedUpProduct } from '../lib/barcodeLookup';
 import { routeForDigestEntry } from '../lib/digestNavigation';
-import { getTrackedConditionsWithNames, type TrackedConditionRef } from '../lib/foodPersonalization';
+import { getPersonalizationProfile, type TrackedConditionRef } from '../lib/foodPersonalization';
+import { checkIngredients } from '../lib/ingredientFlags';
+import type { RecipeDietTag } from '../lib/digest/types';
+import { IngredientCheckList } from './IngredientCheckList';
 import { scanSummaryLine } from '../lib/scanSummaryLine';
 import {
   additiveRowLabel,
@@ -345,6 +348,10 @@ export function ScanProductView({
   // G17: the names behind those codes, so the line at the top of the
   // report can name a single condition rather than count it.
   const [trackedConditions, setTrackedConditions] = useState<TrackedConditionRef[]>([]);
+  // G18: the diet preferences and allergies the every-ingredient check
+  // reads, loaded with the conditions.
+  const [dietTags, setDietTags] = useState<RecipeDietTag[]>([]);
+  const [foodAllergies, setFoodAllergies] = useState<string[]>([]);
 
   useEffect(() => {
     if (!permission) return;
@@ -354,9 +361,11 @@ export function ScanProductView({
   }, [permission, requestPermission]);
 
   useEffect(() => {
-    getTrackedConditionsWithNames().then((conditions) => {
-      setTrackedConditions(conditions);
-      setSelectedConditions(conditions.map((condition) => condition.code));
+    getPersonalizationProfile().then((profile) => {
+      setTrackedConditions(profile.trackedConditions);
+      setSelectedConditions(profile.trackedConditions.map((condition) => condition.code));
+      setDietTags(profile.dietPreferences);
+      setFoodAllergies(profile.foodAllergies);
     });
     // Only ever read for the meal-type guess below. A profile with no usual
     // meal times set still works: inferMealTypeForTime falls back to plain
@@ -808,6 +817,19 @@ export function ScanProductView({
 
   const fodmapMatches = useMemo(() => findFodmapIngredients(fodmapReportText), [fodmapReportText]);
   const showFodmap = showsFodmapCard(selectedConditions) && fodmapReportText.trim().length > 0;
+
+  const checkedIngredients = useMemo(
+    () =>
+      checkIngredients(fodmapReportText, {
+        conditions: selectedConditions,
+        dietTags,
+        allergies: foodAllergies,
+        additiveFlagsFor: flagAdditivesInIngredients,
+        conditionFlagsFor: (text) => flagConditionConcernsForConditions(text, selectedConditions),
+        conditionName: (code) => trackedConditions.find((condition) => condition.code === code)?.name ?? code.replace(/_/g, ' '),
+      }),
+    [fodmapReportText, selectedConditions, dietTags, foodAllergies, trackedConditions],
+  );
 
   const summaryLine = scanSummaryLine({
     hasIngredients: fodmapReportText.trim().length > 0,
@@ -1557,6 +1579,13 @@ export function ScanProductView({
               <Text key={match.group} style={styles.flagDetail}>{describeFodmapLine(match)}</Text>
             ))}
             <Text style={styles.flagDetail}>{describeFodmapCaption(fodmapMatches)}</Text>
+          </View>
+        ) : null}
+
+        {checkedIngredients.length > 0 ? (
+          <View style={styles.card}>
+            <Text style={styles.sectionLabel}>Every Ingredient</Text>
+            <IngredientCheckList rows={checkedIngredients} onOpenReading={(id) => router.push(routeForDigestEntry(id))} />
           </View>
         ) : null}
 
