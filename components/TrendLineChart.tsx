@@ -4,6 +4,7 @@ import Svg, { Circle, Line, Path, Rect, Text as SvgText } from 'react-native-svg
 import { colors } from '../constants/colors';
 import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING } from './HomeSectionBand';
 import { textShadow, typography } from '../constants/typography';
+import { chartSeries, longRangeCaption, pointLabelPrefix } from '../lib/longRange';
 
 const HEIGHT = 140;
 const TOP_Y = 16;
@@ -21,10 +22,15 @@ const SVG_RIGHT_MARGIN = 10;
 
 const MONTH_ABBREVIATIONS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-function formatShortDate(dateString: string): string {
-  const [, monthStr, dayStr] = dateString.split('-');
+function formatShortDate(dateString: string, withYear = false): string {
+  const [yearStr, monthStr, dayStr] = dateString.split('-');
   const monthIndex = Number(monthStr) - 1;
-  return `${MONTH_ABBREVIATIONS[monthIndex] ?? monthStr} ${Number(dayStr)}`;
+  const short = `${MONTH_ABBREVIATIONS[monthIndex] ?? monthStr} ${Number(dayStr)}`;
+  return withYear ? `${short}, ${yearStr}` : short;
+}
+
+function daysBetween(a: string, b: string): number {
+  return Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86400000);
 }
 
 export type TrendLineChartPoint = { date: string; value: number; color?: string };
@@ -107,7 +113,15 @@ export function TrendLineChart({
   // could point at the wrong date once the caller hands this a genuinely
   // new points array (a different range/nutrient/lens) -- cheap since it's
   // just a string built from the raw, unsorted prop, not the sorted copy.
-  const pointsSignature = points.map((point) => `${point.date}:${point.value}`).join('|');
+  // F17, 2026-09-26: past about ninety days a dot per day is a smear, so
+  // the series is drawn as weekly (then monthly) averages, with the line
+  // broken where a week or month has nothing recorded rather than joined
+  // across it. A chart with a lower line keeps its days, since the two
+  // lines are compared date by date.
+  const series = secondaryPoints ? null : chartSeries(points);
+  const grouped = series && series.bucket !== 'day' ? series : null;
+  const drawn: TrendLineChartPoint[] = grouped ? grouped.points : points;
+  const pointsSignature = drawn.map((point) => `${point.date}:${point.value}`).join('|');
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [lastSignature, setLastSignature] = useState(pointsSignature);
   if (pointsSignature !== lastSignature) {
@@ -115,7 +129,7 @@ export function TrendLineChart({
     setSelectedIndex(null);
   }
 
-  if (points.length < 2) {
+  if (drawn.length < 2) {
     return (
       <View style={styles.emptyBox}>
         <Text style={styles.emptyText}>{emptyMessage}</Text>
@@ -123,7 +137,7 @@ export function TrendLineChart({
     );
   }
 
-  const sorted = [...points].sort((a, b) => a.date.localeCompare(b.date));
+  const sorted = [...drawn].sort((a, b) => a.date.localeCompare(b.date));
   const rangeStartMs = new Date(sorted[0].date).getTime();
   const rangeEndMs = new Date(sorted[sorted.length - 1].date).getTime();
   const dateSpan = Math.max(1, rangeEndMs - rangeStartMs);
@@ -141,7 +155,15 @@ export function TrendLineChart({
     return BASE_Y - t * (BASE_Y - TOP_Y);
   }
 
-  const pathD = sorted.map((point, index) => `${index === 0 ? 'M' : 'L'} ${dateToX(point.date)},${valueToY(point.value)}`).join(' ');
+  const breakGapDays = grouped?.breakGapDays ?? null;
+  const pathD = sorted
+    .map((point, index) => {
+      const joins = index > 0 && (breakGapDays === null || daysBetween(sorted[index - 1].date, point.date) <= breakGapDays);
+      return `${joins ? 'L' : 'M'} ${dateToX(point.date)},${valueToY(point.value)}`;
+    })
+    .join(' ');
+  const crossesYear = sorted[0].date.slice(0, 4) !== sorted[sorted.length - 1].date.slice(0, 4);
+  const caption = grouped ? longRangeCaption(grouped) : null;
   const plotRightEdge = Y_AXIS_LABEL_WIDTH + NODE_RADIUS + plotWidth;
 
   // The lower line, and the band between the two. The band is the upper
@@ -173,7 +195,8 @@ export function TrendLineChart({
           to the latest real point), placed above the chart so it reads as
           the headline figure, not a footnote. */}
       <Text style={styles.selectedValueText}>
-        {formatShortDate(selectedPoint.date)}: {valueFormatter(selectedPoint.value)}
+        {grouped ? pointLabelPrefix(grouped) : ''}
+        {formatShortDate(selectedPoint.date, crossesYear)}: {valueFormatter(selectedPoint.value)}
         {selectedSecondary != null && secondaryLabel
           ? ` (${valueFormatter(selectedSecondary)} ${secondaryLabel})`
           : ''}
@@ -254,9 +277,10 @@ export function TrendLineChart({
         ))}
       </Svg>
       <View style={[styles.labelRow, { paddingLeft: Y_AXIS_LABEL_WIDTH }]}>
-        <Text style={styles.labelText}>{formatShortDate(sorted[0].date)}</Text>
-        <Text style={styles.labelText}>{formatShortDate(sorted[sorted.length - 1].date)}</Text>
+        <Text style={styles.labelText}>{formatShortDate(sorted[0].date, crossesYear)}</Text>
+        <Text style={styles.labelText}>{formatShortDate(sorted[sorted.length - 1].date, crossesYear)}</Text>
       </View>
+      {caption ? <Text style={styles.captionText}>{caption}</Text> : null}
     </View>
   );
 }
@@ -268,6 +292,7 @@ const styles = StyleSheet.create({
   selectedValueText: { ...typography.sectionTitle, color: colors.textPrimary, fontSize: 18, marginBottom: 8, textAlign: 'center', ...textShadow },
   labelRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: 2 },
   labelText: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  captionText: { ...typography.caption, color: colors.textMuted, marginTop: 6, textAlign: 'center', ...textShadow },
   // No border of its own, 2026-07-27: every caller wraps it in a
   // surface already, so a second border here would nest one box inside
   // another.

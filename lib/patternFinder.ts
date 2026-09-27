@@ -369,12 +369,12 @@ export async function findFoodPatterns(
   // energy 1 or 2, or their stress 4 or 5, one per day at the time of that
   // answer (lib/patternOutcome.ts). Everything below counts whichever
   // population this is; only the words change.
-  const generalCheckins = await listCheckins({ checkinType: 'general', limit: 1000 });
+  const generalCheckins = await listCheckins({ checkinType: 'general', limit: Math.max(1000, days * 6) });
   const symptomCheckins =
     outcome === 'flares'
       ? await Promise.all([
-          listCheckins({ checkinType: 'flare', limit: 200 }),
-          listCheckins({ checkinType: 'post_meal', limit: 200 }),
+          listCheckins({ checkinType: 'flare', limit: Math.max(200, days * 4) }),
+          listCheckins({ checkinType: 'post_meal', limit: Math.max(200, days * 4) }),
         ]).then(([flares, reactions]) =>
           [...flares, ...reactions].filter(
             (checkin) => checkin.severity != null && checkin.loggedAt.slice(0, 10) >= rangeStart,

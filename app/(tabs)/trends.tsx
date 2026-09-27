@@ -702,6 +702,10 @@ const DAY_RANGE_OPTIONS = [
   { value: 7, label: 'Last 7d' },
   { value: 30, label: 'Last 30d' },
   { value: 90, label: 'Last 90d' },
+  // F17, 2026-09-26: six months and a year. Past about ninety days each
+  // chart draws weekly averages with gaps kept (lib/longRange.ts).
+  { value: 180, label: 'Last 6 mo' },
+  { value: 365, label: 'Last year' },
 ] as const;
 
 // The real, symmetric past/future picker for Nutrients and Condition Scores,
@@ -973,7 +977,7 @@ export default function TrendsScreen() {
   // keeps working exactly as before regardless.
   const [myTrendsOpen, setMyTrendsOpen] = useState(false);
   // Still used by the four lenses whose own picker didn't change.
-  const [days, setDays] = useState<7 | 30 | 90>(30);
+  const [days, setDays] = useState<(typeof DAY_RANGE_OPTIONS)[number]['value']>(30);
   // The new picker, Nutrients/Condition Scores only.
   const [dateRangeSelection, setDateRangeSelection] = useState<DateRangeSelection>({ kind: 'past', days: 30 });
   const [showCustomPicker, setShowCustomPicker] = useState(false);

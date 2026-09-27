@@ -56,6 +56,7 @@ const NAMED = [
   'lib/outsideUsual.ts',
   'lib/weeklySummary.ts',
   'lib/periodAverages.ts',
+  'lib/longRange.ts',
   'lib/patternFactors.ts',
   'lib/foodExperiment.ts',
   'lib/yourUsual.ts',
