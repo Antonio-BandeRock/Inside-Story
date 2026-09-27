@@ -38,6 +38,11 @@
 - **Answers:** Drugs.com · **Theme:** Medication logistics
 - **How:** Each of the 44 curated interaction rules that names a prescription drug carries the exact sentence from that drug's FDA label it rests on, with the label's set id and version, shown on the rule card and opening the label screen from A11. Follow-up to A11, not started.
 
+### A11c. Make my own rule from a label sentence
+- **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life,Schedules
+- **Answers:** (your question) · **Theme:** Medication logistics
+- **How:** On a label opened through A11, the person picks a sentence and the app opens the personal rule builder with that sentence filled in word for word, the label named with its set id, version and date, and the linked med chosen. The person decides the timing and whether to keep it; the rule is labelled as theirs, never as the app's. Nothing is suggested or reworded by the app. Added 2026-09-26 after the liability discussion.
+
 ### A12. Doses taken, said in words
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Trends,Reports
 - **Answers:** Medisafe, MyTherapy · **Theme:** Medication logistics
@@ -532,3 +537,13 @@
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
 - **Answers:** Cronometer · **Theme:** Reports
 - **How:** expo-print printAsync.
+
+### X2. A first-launch agreement screen
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** all
+- **Answers:** (your question) · **Theme:** Shared foundations
+- **How:** Before anything else on a first launch, one screen says in plain words what the app is and is not: general information and the person's own records, not medical advice, not a diagnosis, not a substitute for a doctor or pharmacist, allergen-aware and never allergy-safe, and a reminder to check with a doctor before making medical decisions (which Apple asks of health apps). The person agrees before going on; the date and the version of the wording they agreed to are kept, and a changed wording asks again. Links to the terms of use and privacy policy (X3). Readable again any time from Profile. Added 2026-09-26.
+
+### X3. Terms of use and privacy policy
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** all
+- **Answers:** (your question) · **Theme:** Shared foundations
+- **How:** Two plain-language pages on insidestoryapp.com (the Worker inside-story-site, docs/app-links), linked from X2, Profile and the store listings, and required by both stores. The privacy policy says what the local-first design means: health records stay on the device and the person's own cloud folder, no company server holds them, and exactly what the few lookups send (a barcode, a medicine code or name). Covers the FTC health breach rule, GDPR and Mexico's data protection law in outline. Written as drafts for a lawyer to review before store release, never presented as legal advice. Added 2026-09-26.
