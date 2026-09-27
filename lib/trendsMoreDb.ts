@@ -2,7 +2,7 @@
 // query here is a SELECT: Trends never writes. Windows reach a day past
 // the range at both ends so a UTC stamp that lands on a neighbouring local
 // day is still read, and the builders narrow to the range themselves.
-import { getDatabase } from './db';
+import { getDatabase, getLabTests, listLabResults } from './db';
 import { addDays } from './eatingVariety';
 import { listNocturiaNights } from './nocturiaDb';
 import { getNutrientTrendSeriesForRange, getSleepTrendPoints } from './trendAnalysis';
@@ -23,6 +23,7 @@ import {
   type DayRange,
 } from './trendsMore';
 import type { ReadingView } from './readingBands';
+import { buildSinceLastVisitBand, buildSinceLastVisitView, type SinceLastVisitInputs } from './sinceLastVisit';
 import { listWorkCheckins } from './workDb';
 
 export type TrendsMoreLens =
@@ -110,6 +111,46 @@ export async function listAllAppointments(): Promise<
             appointment_type AS appointmentType, status
      FROM schedule_items WHERE item_type = 'appointment' ORDER BY scheduled_for ASC`,
   );
+}
+
+// Every appointment, lab result, flare and med record, read once for F19's
+// Since your last appointment and for Before an Appointment on Insights.
+export async function loadVisitRecords(today: string): Promise<SinceLastVisitInputs> {
+  const db = await getDatabase();
+  const [appointments, labRows, labTests, flares, treatments] = await Promise.all([
+    listAllAppointments(),
+    listLabResults(undefined, 200),
+    getLabTests(),
+    db.getAllAsync<{ loggedAt: string; severity: number | null; notes: string | null }>(
+      `SELECT logged_at AS loggedAt, severity, notes FROM wellbeing_checkins WHERE checkin_type = 'flare' ORDER BY logged_at ASC`,
+    ),
+    db.getAllAsync<SinceLastVisitInputs['treatments'][number]>(
+      `SELECT name, treatment_type AS treatmentType, start_date AS startDate, end_date AS endDate,
+              updated_at AS updatedAt, dose_amount AS doseAmount, dose_unit AS doseUnit
+       FROM treatments ORDER BY name`,
+    ),
+  ]);
+  const names = new Map(labTests.map((test) => [test.code, test.displayName]));
+  return {
+    today,
+    appointments,
+    labs: labRows
+      .map((lab) => ({
+        displayName: names.get(lab.testCode) ?? lab.testCode,
+        value: lab.value,
+        unit: lab.unit,
+        low: lab.labRangeLow,
+        high: lab.labRangeHigh,
+        testedAt: lab.testedAt,
+      }))
+      .sort((a, b) => a.testedAt.localeCompare(b.testedAt)),
+    flares,
+    treatments,
+  };
+}
+
+export async function loadSinceLastVisitView(): Promise<ReadingView> {
+  return buildSinceLastVisitView(await loadVisitRecords(todayString()));
 }
 
 export async function listFlareDates(): Promise<string[]> {
@@ -242,7 +283,10 @@ export async function loadTrendsMoreView(lens: TrendsMoreLens, days: number): Pr
     case 'doses':
       return buildDosesView({ range, today, doses: await listScheduledDoses(range) });
     case 'care':
-      return buildCareView({ range, today, appointments: await listAllAppointments() });
+    {
+      const records = await loadVisitRecords(today);
+      return buildCareView({ range, today, appointments: records.appointments, sinceLast: buildSinceLastVisitBand(records) });
+    }
     case 'work': {
       const [checkins, sleep, flareDates] = await Promise.all([
         listWorkCheckins(260),

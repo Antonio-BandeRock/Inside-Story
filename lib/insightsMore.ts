@@ -29,6 +29,7 @@ import {
   type DoneCheck,
   type Routine,
 } from './routines';
+import { labLine, treatmentChanges } from './sinceLastVisit';
 import { formatTime12 } from './timeOfDay';
 import { localDay, localHour } from './trendsMore';
 import { describeUpkeepStanding, type UpkeepStanding } from './upkeep';
@@ -430,14 +431,6 @@ function providerKey(appointment: TodayAppointment): string {
   return (appointment.providerName || appointment.title).trim().toLowerCase();
 }
 
-function labLine(lab: AppointmentInputs['labs'][number]): string {
-  const unit = lab.unit ? ` ${lab.unit}` : '';
-  if (lab.high !== null && lab.value > lab.high) return `${lab.value}${unit}, above the range printed by the lab`;
-  if (lab.low !== null && lab.value < lab.low) return `${lab.value}${unit}, below the range printed by the lab`;
-  if (lab.low !== null || lab.high !== null) return `${lab.value}${unit}, inside the range printed by the lab`;
-  return `${lab.value}${unit}`;
-}
-
 export function buildAppointmentView(input: AppointmentInputs): ReadingView {
   const { today } = input;
   const upcoming = input.appointments
@@ -498,26 +491,7 @@ export function buildAppointmentView(input: AppointmentInputs): ReadingView {
     })),
   });
 
-  const changes: ReadingItem[] = [];
-  input.treatments.forEach((treatment, index) => {
-    const dose = treatment.doseAmount !== null ? `${treatment.doseAmount}${treatment.doseUnit ? ` ${treatment.doseUnit}` : ''}` : null;
-    if (treatment.startDate && treatment.startDate > since && treatment.startDate <= today) {
-      changes.push({ key: `start-${index}`, title: `Started ${treatment.name}`, caption: [shortDate(treatment.startDate), dose].filter(Boolean).join(' · ') });
-    }
-    if (treatment.endDate && treatment.endDate > since && treatment.endDate <= today) {
-      changes.push({ key: `end-${index}`, title: `Ended ${treatment.name}`, caption: shortDate(treatment.endDate) });
-    } else if (
-      treatment.updatedAt &&
-      localDay(treatment.updatedAt) > since &&
-      !(treatment.startDate && treatment.startDate > since)
-    ) {
-      changes.push({
-        key: `edit-${index}`,
-        title: `${treatment.name}, details edited`,
-        caption: [`on ${shortDate(localDay(treatment.updatedAt))}`, dose ? `now ${dose}` : null].filter(Boolean).join(' · '),
-      });
-    }
-  });
+  const changes: ReadingItem[] = treatmentChanges(input.treatments, since, today).map(({ key, title, caption }) => ({ key, title, caption }));
   bands.push({
     id: 'meds',
     title: 'Medicine and supplement changes',

@@ -32,7 +32,7 @@ import {
   type ReportKind,
 } from './reportKinds';
 import type { ReadingView } from './readingBands';
-import { loadTrendsMoreView, type TrendsMoreLens } from './trendsMoreDb';
+import { loadSinceLastVisitView, loadTrendsMoreView, type TrendsMoreLens } from './trendsMoreDb';
 import { loadInsightsMoreView, type InsightsMoreLens } from './insightsMoreDb';
 import { getActiveInsurancePlan, listMedicalBills } from './financeHealthDb';
 import { describePlanStanding, planStanding } from './financeHealth';
@@ -507,6 +507,7 @@ async function kindSections(kind: ReportKind, days: number): Promise<ReportSecti
       break;
     case 'r-doctor':
       parts.push(
+        readingSections('Since the last appointment', loadSinceLastVisitView),
         insights('i-appointment', 'Appointments'),
         trends('bloodPressure', 'Blood pressure', days),
         trends('doses', 'Doses', days),

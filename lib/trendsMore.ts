@@ -440,6 +440,9 @@ export type CareInputs = {
   today: string;
   // Every appointment, past and upcoming.
   appointments: { scheduledFor: string; title: string; providerName: string | null; appointmentType: string | null; status: string }[];
+  // F19: the Since your last appointment band from lib/sinceLastVisit.ts,
+  // built by the loader, shown first whatever range is picked.
+  sinceLast?: ReadingBand | null;
 };
 
 export function buildCareView(input: CareInputs): ReadingView {
@@ -451,7 +454,7 @@ export function buildCareView(input: CareInputs): ReadingView {
   }
   const past = all.filter((a) => a.date >= input.range.start && a.date <= input.range.end && a.date <= input.today && a.status !== 'skipped');
   const upcoming = all.filter((a) => a.date > input.today).slice(0, 8);
-  const bands: ReadingBand[] = [];
+  const bands: ReadingBand[] = input.sinceLast ? [input.sinceLast] : [];
 
   if (past.length > 0) {
     const kinds = topCounts(tally(past.map((a) => a.appointmentType?.trim() || 'Kind not said')), 10);

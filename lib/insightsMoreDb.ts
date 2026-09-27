@@ -10,8 +10,6 @@ import {
   getDayMealAndDoseTimeline,
   getDietaryReferenceIntakesForCurrentUser,
   getFoodNutrients,
-  getLabTests,
-  listLabResults,
 } from './db';
 import { buildDayTimeline } from './doseMealTiming';
 import { addDays } from './eatingVariety';
@@ -38,7 +36,7 @@ import { analyzeNutrientIntake } from './nutrientAnalysis';
 import { listOnHandHarvests } from './plateSourceDb';
 import type { ReadingView } from './readingBands';
 import { getDoneChecks, getRoutines } from './routinesDb';
-import { listAllAppointments, listBloodPressureReadings, DOSE_ITEM_TYPES } from './trendsMoreDb';
+import { listAllAppointments, listBloodPressureReadings, loadVisitRecords, DOSE_ITEM_TYPES } from './trendsMoreDb';
 import { convertToGrams, type MeasurementUnit } from './unitConversion';
 import { upkeepStanding } from './upkeep';
 import { listUpkeepItems } from './upkeepDb';
@@ -101,45 +99,9 @@ async function listCheckinsAround(today: string): Promise<SignalCheckin[]> {
 }
 
 async function loadAppointmentInputs(today: string) {
-  const db = await getDatabase();
-  const [appointments, labRows, labTests, flares, treatments, notes] = await Promise.all([
-    listAllAppointments(),
-    listLabResults(undefined, 200),
-    getLabTests(),
-    db.getAllAsync<{ loggedAt: string; severity: number | null; notes: string | null }>(
-      `SELECT logged_at AS loggedAt, severity, notes FROM wellbeing_checkins WHERE checkin_type = 'flare' ORDER BY logged_at ASC`,
-    ),
-    db.getAllAsync<{
-      name: string;
-      treatmentType: string;
-      startDate: string | null;
-      endDate: string | null;
-      updatedAt: string | null;
-      doseAmount: number | null;
-      doseUnit: string | null;
-    }>(
-      `SELECT name, treatment_type AS treatmentType, start_date AS startDate, end_date AS endDate,
-              updated_at AS updatedAt, dose_amount AS doseAmount, dose_unit AS doseUnit
-       FROM treatments ORDER BY name`,
-    ),
-    listCaptureNotes(365),
-  ]);
-  const names = new Map(labTests.map((test) => [test.code, test.displayName]));
+  const [records, notes] = await Promise.all([loadVisitRecords(today), listCaptureNotes(365)]);
   return {
-    today,
-    appointments,
-    labs: labRows
-      .map((lab) => ({
-        displayName: names.get(lab.testCode) ?? lab.testCode,
-        value: lab.value,
-        unit: lab.unit,
-        low: lab.labRangeLow,
-        high: lab.labRangeHigh,
-        testedAt: lab.testedAt,
-      }))
-      .sort((a, b) => a.testedAt.localeCompare(b.testedAt)),
-    flares,
-    treatments,
+    ...records,
     healthNotes: notes
       .filter((note) => note.destination === 'health')
       .map((note) => ({ text: note.text, createdAt: note.createdAt, status: note.status })),

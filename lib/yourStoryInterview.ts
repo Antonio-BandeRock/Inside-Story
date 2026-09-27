@@ -522,7 +522,7 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     bloodPressure: 'Blood pressure readings over time, beside the range yours usually fall in.',
     bodySignals: 'Heart rate, HRV, blood oxygen, glucose and skin temperature from your watch or meter, beside your usual range.',
     doses: 'Doses as scheduled and as marked, week by week.',
-    care: 'Appointments kept, moved and coming up, over time.',
+    care: 'What was recorded since the last appointment, then appointments kept, moved and coming up, over time.',
     work: 'How the work weeks went, from your check-ins.',
     reactions: 'After-meal reactions and new foods tried, over time.',
     nights: 'Nights up and how you slept, week by week.',

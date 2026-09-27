@@ -571,7 +571,7 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
     help: [
       {
         heading: "Appointments & Care",
-        body: "Every appointment on your schedule, grouped by kind and by who you saw, with how long it has usually been between visits, and what is coming up next.",
+        body: "What was recorded since your last appointment with anybody: flares, lab results and changes to medicines and supplements. Then every appointment on your schedule, grouped by kind and by who you saw, with how long it has usually been between visits, and what is coming up next.",
       },
     ],
   },

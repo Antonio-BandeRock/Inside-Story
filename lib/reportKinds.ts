@@ -61,7 +61,7 @@ export const REPORT_KINDS: ReportKindDef[] = [
       'What changed since the last visit, and the records a clinician usually asks for, as the person entered them.',
       SELF_REPORTED,
     ],
-    help: 'Built for an appointment: the next visit and what changed since the last one with the same provider, symptoms and flares, blood pressure, doses as scheduled and as marked with how many days each was due and marked, active meds and supplements with the interaction notes that touch them and how each works, weight, personal rules and the most recent labs. Food detail is left to the Nutritionist report.',
+    help: 'Built for an appointment: what was recorded since the last appointment with anybody, the next visit and what changed since the last one with the same provider, symptoms and flares, blood pressure, doses as scheduled and as marked with how many days each was due and marked, active meds and supplements with the interaction notes that touch them and how each works, weight, personal rules and the most recent labs. Food detail is left to the Nutritionist report.',
     core: ['conditions', 'symptoms', 'meds', 'body', 'rules', 'labs'],
   },
   {

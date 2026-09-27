@@ -51,6 +51,7 @@ function load(relPath) {
 const T = load('lib/trendsMore.ts');
 const I = load('lib/insightsMore.ts');
 const R = load('lib/reportKinds.ts');
+const S = load('lib/sinceLastVisit.ts');
 const { READING_FORBIDDEN_WORDS } = load('lib/readingBands.ts');
 
 let passed = 0;
@@ -165,6 +166,49 @@ run('care', T.buildCareView, {
   ],
 }, true);
 run('care empty', T.buildCareView, { range, today, appointments: [] }, false);
+
+// F19: Since your last appointment, counted from the last visit with anybody.
+const visitInputs = {
+  today,
+  appointments: [
+    { scheduledFor: at('2026-08-20', 9), title: 'Check-up', providerName: 'Dr. Lee', appointmentType: 'doctor', status: 'completed' },
+    { scheduledFor: at('2026-09-10', 9), title: 'Dietitian', providerName: 'Sam', appointmentType: null, status: 'completed' },
+    { scheduledFor: at('2026-09-15', 9), title: 'Skipped one', providerName: null, appointmentType: null, status: 'skipped' },
+    { scheduledFor: at('2026-09-24', 16), title: 'Later today', providerName: null, appointmentType: null, status: 'planned' },
+  ],
+  labs: [
+    { displayName: 'TSH', value: 5.1, unit: 'mIU/L', low: 0.4, high: 4.5, testedAt: '2026-09-01T08:00:00' },
+    { displayName: 'Ferritin', value: 40, unit: 'ng/mL', low: 30, high: 300, testedAt: '2026-09-12T08:00:00' },
+  ],
+  flares: [
+    { loggedAt: at('2026-09-05', 20), severity: 2, notes: null },
+    { loggedAt: at('2026-09-13', 20), severity: 3, notes: 'after a long day' },
+    { loggedAt: at('2026-09-13', 22), severity: null, notes: null },
+  ],
+  treatments: [
+    { name: 'Selenium', treatmentType: 'supplement', startDate: '2026-09-11', endDate: null, updatedAt: null, doseAmount: 200, doseUnit: 'mcg' },
+    { name: 'Iron', treatmentType: 'supplement', startDate: '2026-01-01', endDate: '2026-09-20', updatedAt: null, doseAmount: null, doseUnit: null },
+    { name: 'Levothyroxine', treatmentType: 'prescription', startDate: '2025-01-01', endDate: null, updatedAt: '2026-08-01T10:00:00Z', doseAmount: 50, doseUnit: 'mcg' },
+  ],
+};
+check(S.lastVisit(visitInputs.appointments, today).title === 'Dietitian', 'since last: a skipped visit and one later today are not counted from');
+const sinceBand = S.buildSinceLastVisitBand(visitInputs);
+check(sinceBand.lines[0].startsWith('Dietitian with Sam, on Sep 10, 14 days ago.'), 'since last: names the visit and how long ago: ' + sinceBand.lines[0]);
+check(sinceBand.lines[1] === '2 flares logged, on 1 day.', 'since last: flares after the visit only, with days: ' + sinceBand.lines[1]);
+check(sinceBand.lines[2] === '1 lab result recorded.', 'since last: labs after the visit only');
+check(sinceBand.lines[3] === '2 changes to medicines or supplements recorded.', 'since last: a start and an end, not an old edit: ' + sinceBand.lines[3]);
+check(sinceBand.items.map((i) => i.title).join('|') === 'Started Selenium|Lab: Ferritin|Flare, severe|Flare|Ended Iron', 'since last: oldest first: ' + sinceBand.items.map((i) => i.title).join('|'));
+check(sinceBand.notes.some((n) => n.includes('prescriber')), 'since last: prescriptions left to the prescriber');
+sweep('since last', sinceBand);
+check(S.buildSinceLastVisitBand({ ...visitInputs, appointments: [visitInputs.appointments[3]] }) === null, 'since last: no past visit, no band');
+const sinceEmpty = S.buildSinceLastVisitView({ ...visitInputs, appointments: [] });
+check(!sinceEmpty.hasAnything && sinceEmpty.empty.length > 10, 'since last: the report says there is nothing to count from');
+sweep('since last empty', sinceEmpty);
+const quiet = S.buildSinceLastVisitBand({ ...visitInputs, labs: [], flares: [], treatments: [] });
+check(quiet.lines.slice(1).join(' ') === 'No flares logged. No lab results recorded. No changes to medicines or supplements recorded.', 'since last: nothing recorded is said plainly');
+const careWith = T.buildCareView({ range, today, appointments: visitInputs.appointments, sinceLast: sinceBand });
+check(careWith.bands[0].id === 'sinceLastVisit', 'since last: first band on Appointments and Care');
+check(R.sectionsFromReading('Since the last appointment', S.buildSinceLastVisitView(visitInputs)).length === 1, 'since last: one report section');
 
 run('work', T.buildWorkView, {
   range,
