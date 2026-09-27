@@ -32,6 +32,7 @@ import {
   type RecipeCard,
   type RecipeDietTag,
 } from '../lib/digest/types';
+import { clampMakeFor, makeForCaption, makeForLabel, MAX_MAKE_FOR, setPendingMakeFor } from '../lib/makeItFor';
 import { getPhotoForTarget } from '../lib/mealPhotos';
 import { shareFileIfAvailable } from '../lib/nativeSharing';
 import { encodeShareLinkFromCuratedRecipe, writeIsFileForCuratedRecipe } from '../lib/sharing';
@@ -421,20 +422,28 @@ export function RecipeBuildRow({
   disabled,
   tabColor,
   children,
+  makeForRecipeId,
 }: {
   label: string;
   onPress: () => void;
   disabled?: boolean;
   tabColor: string;
   children?: React.ReactNode;
+  // G5: a curated recipe opening in a builder. Shows "Make it for N" above
+  // the button, and hands the count to the builder as it opens.
+  makeForRecipeId?: string;
 }) {
   const styles = useMemo(() => makeRecipeStyles(tabColor, tabColor), [tabColor]);
-  return (
+  const [makeFor, setMakeFor] = useState(1);
+  const buttonRow = (
     <View style={styles.recipeButtonRow}>
       <TouchableOpacity
         style={[styles.buildRecipeButton, styles.recipeButtonFlex, disabled ? styles.buildRecipeButtonDisabled : null]}
         activeOpacity={0.85}
-        onPress={onPress}
+        onPress={() => {
+          if (makeForRecipeId) setPendingMakeFor(makeForRecipeId, makeFor);
+          onPress();
+        }}
         disabled={disabled}
       >
         <Ionicons name="hammer-outline" size={18} color={colors.background} />
@@ -443,6 +452,35 @@ export function RecipeBuildRow({
       {children}
     </View>
   );
+  if (makeForRecipeId) {
+    const caption = makeForCaption(makeFor);
+    return (
+      <View style={styles.makeForWrap}>
+        <View style={styles.makeForRow}>
+          <TouchableOpacity
+            style={[styles.makeForStep, makeFor <= 1 ? styles.buildRecipeButtonDisabled : null]}
+            onPress={() => setMakeFor((value) => clampMakeFor(value - 1))}
+            disabled={makeFor <= 1}
+            accessibilityLabel="Make it for one fewer"
+          >
+            <Ionicons name="remove" size={18} color={tabColor} />
+          </TouchableOpacity>
+          <Text style={styles.makeForLabel}>{makeForLabel(makeFor)}</Text>
+          <TouchableOpacity
+            style={[styles.makeForStep, makeFor >= MAX_MAKE_FOR ? styles.buildRecipeButtonDisabled : null]}
+            onPress={() => setMakeFor((value) => clampMakeFor(value + 1))}
+            disabled={makeFor >= MAX_MAKE_FOR}
+            accessibilityLabel="Make it for one more"
+          >
+            <Ionicons name="add" size={18} color={tabColor} />
+          </TouchableOpacity>
+        </View>
+        {caption ? <Text style={styles.makeForCaption}>{caption}</Text> : null}
+        {buttonRow}
+      </View>
+    );
+  }
+  return buttonRow;
 }
 
 // Built per color pair rather than once at module load, because the two
@@ -504,6 +542,20 @@ function makeRecipeStyles(tabColor: string, tabTextColor: string) {
     buildRecipeButtonDisabled: { opacity: 0.5 },
     recipeButtonRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     recipeButtonFlex: { flex: 1, marginTop: 0 },
+    makeForWrap: { marginTop: 12 },
+    makeForRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    makeForStep: {
+      width: 36,
+      height: 36,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: tabColor,
+      backgroundColor: colors.background,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    makeForLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
+    makeForCaption: { ...typography.body, color: colors.textSecondary, marginTop: 6, ...textShadow },
     recipeShareButton: {
       width: 44,
       height: 44,

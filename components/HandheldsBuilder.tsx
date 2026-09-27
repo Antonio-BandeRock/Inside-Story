@@ -34,6 +34,7 @@ import {
   type HandheldIngredientInput,
   type MealIngredientInput,
 } from '../lib/db';
+import { takeMadeFor } from '../lib/makeItFor';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
 import { getConditionStagingModel, resolveDeclaredStage, type DeclaredConditionStage } from '../lib/conditionStages';
 import { markPendingFoodTrialReturn } from '../lib/pendingFoodTrialReturn';
@@ -776,7 +777,7 @@ export function HandheldsBuilder({
   async function handlePickCuratedRecipe(id: string) {
     setLoadingCuratedRecipeId(id);
     try {
-      const recipe = await getCuratedRecipe(id);
+      const recipe = takeMadeFor(await getCuratedRecipe(id), id);
       if (!recipe) return;
 
       const loaded: HandheldIngredient[] = [];

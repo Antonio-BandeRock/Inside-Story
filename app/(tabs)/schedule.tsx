@@ -52,6 +52,7 @@ import {
   unlinkScheduleItemFromDeviceCalendarEvent,
   updateAppointment,
   updateScheduledMeal,
+  setScheduledMealServings,
   type FavoriteRecord,
   type MealFavoritePayload,
   type MealIngredientInput,
@@ -63,6 +64,7 @@ import {
   type TreatmentRecord,
   type UserProfile,
 } from '../../lib/db';
+import { MEAL_SERVING_CHOICES, mealServingsLabel } from '../../lib/makeItFor';
 import type { RecipeDietTag } from '../../lib/digest';
 import { describePlanningScope, resolvePlanningScope, type PlanningScope } from '../../lib/partnerPlanning';
 import { getMealPlanningPartner } from '../../lib/connections';
@@ -541,6 +543,9 @@ type FormState = {
   // guard needed in handleSaveForm the way Appointments' own typed field
   // needs one.
   date: string;
+  // How many people this meal is made for (G5). Null follows the grocery
+  // list's number of people.
+  servings: number | null;
 };
 
 const BLANK_FORM: FormState = {
@@ -553,6 +558,7 @@ const BLANK_FORM: FormState = {
   time: { hour: '', minute: '', ampm: '' },
   repeat: { type: 'none' },
   date: '',
+  servings: null,
 };
 
 // Recurrence is decided once, at creation time -- editing an existing
@@ -978,6 +984,7 @@ function MealsLens() {
       // this lens only ever showed today's own items; a real, reachable
       // bug the moment a week view lets you edit a meal on a different day.
       date: item.scheduledFor.slice(0, 10),
+      servings: item.servings ?? null,
     });
     setShowForm(true);
   }
@@ -1074,8 +1081,9 @@ function MealsLens() {
           scheduledFor,
           outsideEatingWindow,
         });
+        await setScheduledMealServings(form.editingId, form.servings);
       } else {
-        await scheduleMeal({
+        const newId = await scheduleMeal({
           title: form.title,
           mealType: form.mealType,
           scheduledFor,
@@ -1084,6 +1092,7 @@ function MealsLens() {
           repeat: form.repeat,
           outsideEatingWindow,
         });
+        if (form.servings != null) await setScheduledMealServings(newId, form.servings, { wholeSeries: true });
       }
       closeForm();
       load();
@@ -1547,6 +1556,21 @@ function MealsLens() {
                   </Text>
                 ) : null}
 
+                <Text style={styles.label}>Buying for</Text>
+                <Text style={styles.helperText}>
+                  How many people the grocery list buys this meal for. Left as the grocery list, it follows the number of people set there.
+                </Text>
+                <PopoverSelect
+                  selected={MEAL_SERVING_CHOICES.find((choice) => choice.value === form.servings)?.label ?? MEAL_SERVING_CHOICES[0].label}
+                  options={MEAL_SERVING_CHOICES.map((choice) => choice.label)}
+                  onSelect={(label) =>
+                    setForm((current) => ({ ...current, servings: MEAL_SERVING_CHOICES.find((choice) => choice.label === label)?.value ?? null }))
+                  }
+                  placeholder="Buying for"
+                  tabColor={TAB_COLOR}
+                  width={240}
+                />
+
                 {!form.editingId ? (
                   <RepeatPicker
                     repeat={form.repeat}
@@ -1594,6 +1618,7 @@ function MealsLens() {
                               this is a plain factual label for their own
                               records and for trends, not a nag. */}
                           {item.outsideEatingWindow ? ' · Outside eating window' : ''}
+                          {mealServingsLabel(item.servings) ? ` · ${mealServingsLabel(item.servings)}` : ''}
                         </Text>
                       </View>
                     </View>
@@ -2942,6 +2967,7 @@ function HydrationLens() {
       // field is only ever here to satisfy FormState's own shape, never
       // actually read.
       date: todayDateString(),
+      servings: item.servings ?? null,
     });
     setShowForm(true);
   }

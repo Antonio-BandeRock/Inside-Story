@@ -278,7 +278,7 @@ export async function createGroceryListFromSchedule(input: {
     input.storeName?.trim() || null,
   );
 
-  const sections = await getUpcomingShoppingList(daysAhead);
+  const sections = await getUpcomingShoppingList(daysAhead, peopleCount);
   let sortOrder = 0;
   for (const section of sections) {
     for (const item of section.items) {
@@ -290,7 +290,8 @@ export async function createGroceryListFromSchedule(input: {
           id,
           section.category,
           item,
-          peopleCount,
+          // Already multiplied per meal by getUpcomingShoppingList (G5).
+          1,
           sortOrder,
         ),
       );
@@ -993,7 +994,7 @@ export async function rebuildGroceryListFromSchedule(listId: string): Promise<Gr
   const fromSchedule = existing.filter((item) => !item.addedManually);
   const previous = new Map(fromSchedule.map((item) => [item.foodName.trim().toLowerCase(), item]));
 
-  const sections = await getUpcomingShoppingList(list.daysAhead);
+  const sections = await getUpcomingShoppingList(list.daysAhead, list.peopleCount);
 
   // Cleared and rewritten rather than reconciled row by row: the whole point
   // is that the shape of the list may have changed, with two old lines now
@@ -1019,7 +1020,7 @@ export async function rebuildGroceryListFromSchedule(listId: string): Promise<Gr
           listId,
           section.category,
           item,
-          list.peopleCount,
+          1,
           sortOrder,
         ),
         prior?.checked ? 1 : 0,

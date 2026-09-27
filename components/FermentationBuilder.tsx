@@ -46,6 +46,7 @@ import {
   type AlcoholCalculatorOverride,
   type MealIngredientInput,
 } from '../lib/db';
+import { takeMadeFor } from '../lib/makeItFor';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
 import { getConditionStagingModel, resolveDeclaredStage, type DeclaredConditionStage } from '../lib/conditionStages';
 import { markPendingFoodTrialReturn } from '../lib/pendingFoodTrialReturn';
@@ -1123,7 +1124,8 @@ export function FermentationBuilder({
   async function handlePickCuratedRecipe(id: string) {
     setLoadingCuratedRecipeId(id);
     try {
-      const [recipe, strainIds] = await Promise.all([getCuratedRecipe(id), getCuratedRecipeStrainIds(id)]);
+      const [curated, strainIds] = await Promise.all([getCuratedRecipe(id), getCuratedRecipeStrainIds(id)]);
+      const recipe = takeMadeFor(curated, id);
       if (!recipe) return;
 
       const loaded: FermentationIngredient[] = [];

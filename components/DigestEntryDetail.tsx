@@ -357,6 +357,7 @@ export function DigestEntryBody({
         <RecipeBuildRow
           label="Build This Recipe"
           tabColor={tabColor}
+          makeForRecipeId={entry.linkedCuratedRecipeId}
           onPress={() => {
             const paramName = RECIPE_BUILDER_PARAM[entry.linkedBuilderType!];
             router.push({ pathname: '/food', params: { [paramName]: entry.linkedCuratedRecipeId! } });

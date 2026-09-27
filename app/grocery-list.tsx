@@ -270,7 +270,7 @@ export default function GroceryListScreen() {
       if (mode !== 'setup') return;
       let cancelled = false;
       setPreviewLoading(true);
-      getUpcomingShoppingList(daysAhead)
+      getUpcomingShoppingList(daysAhead, peopleCount)
         .then((sections) => {
           if (!cancelled) setPreview(sections);
         })
@@ -283,7 +283,7 @@ export default function GroceryListScreen() {
       return () => {
         cancelled = true;
       };
-    }, [mode, daysAhead]),
+    }, [mode, daysAhead, peopleCount]),
   );
 
   async function handleBuild() {
@@ -596,7 +596,8 @@ export default function GroceryListScreen() {
     showInfoAlert(
       'How many people',
       'Every recipe in this app is written for one person, so this is a plain multiplier: two people doubles every amount, four people quadruples it. ' +
-        'It changes what the list says to buy. It does not change anything about the meals themselves or how they are scored.',
+        'It changes what the list says to buy. It does not change anything about the meals themselves or how they are scored. ' +
+        'A planned meal given its number of people on Schedules counts for that many instead, so a dinner for six on a list for two comes out as six.',
     );
   }
 
@@ -697,7 +698,7 @@ export default function GroceryListScreen() {
                 </View>
               ))
             )}
-            <Text style={styles.muted}>For one person. The people count below multiplies every amount when the list is built.</Text>
+            <Text style={styles.muted}>For the number of people below. A meal on Schedules given a number of people counts for that many instead.</Text>
           </View>
 
           <View style={styles.card}>

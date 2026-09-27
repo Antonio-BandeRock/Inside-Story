@@ -4,6 +4,7 @@ import { REFERENCE_DB_VERSION } from './referenceDbVersion';
 import { attachWriteTracking } from './databaseActivity';
 import { ageFromBirthDate } from './profile';
 import { normalizeSupplementAmount } from './supplementUnits';
+import { mealServingFactor } from './makeItFor';
 import { supplementBasis, supplementCoversDate, type SupplementWindow } from './supplementWindow';
 import { isAlcoholicFood } from './alcoholAdvisory';
 import { isCoffeeFood } from './coffeeAdvisory';
@@ -8949,6 +8950,13 @@ async function runDatabaseInitialization() {
       await db.execAsync('ALTER TABLE schedule_items ADD COLUMN rotation_selections_json TEXT;');
     }
 
+    // How many people a planned meal is being made for (G5, 2026-09-26).
+    // Null means the meal follows the grocery list's number of people, which
+    // is how every meal worked before this column. See lib/makeItFor.ts.
+    if (!scheduleItemColumns.some((existing) => existing.name === 'servings')) {
+      await db.execAsync('ALTER TABLE schedule_items ADD COLUMN servings REAL;');
+    }
+
     // Free-text food/drink name for a check-in -- most reactions are to
     // something never formally logged as a meal (a bite at a party, a new
     // snack), so this can't just lean on related_meal_id alone.
@@ -14595,14 +14603,17 @@ export async function listScheduledFoodNames(daysAhead = 42): Promise<ScheduledF
 // daysAhead counts today as day 1 of the window, matching how "every 3 to 4
 // days" reads in normal speech (today plus the next 2-3, not today plus 4
 // more).
-export async function getUpcomingShoppingList(daysAhead: number = 4): Promise<ShoppingListSection[]> {
+// peopleCount is the grocery list's number of people. A planned meal given a
+// number of people (G5) is multiplied by that instead, never by both, so the
+// lines come back already multiplied.
+export async function getUpcomingShoppingList(daysAhead: number = 4, peopleCount: number = 1): Promise<ShoppingListSection[]> {
   const db = await getDatabase();
   const startDate = new Date().toISOString().slice(0, 10);
   const endDate = addDaysToLocalDate(startDate, Math.max(1, daysAhead) - 1);
 
-  const rows = await db.getAllAsync<{ source_favorite_id: string | null; source_meal_id: string | null; title: string }>(
+  const rows = await db.getAllAsync<{ source_favorite_id: string | null; source_meal_id: string | null; title: string; servings: number | null }>(
     `
-      SELECT source_favorite_id, source_meal_id, title FROM schedule_items
+      SELECT source_favorite_id, source_meal_id, title, servings FROM schedule_items
       WHERE item_type = 'meal' AND status = 'planned' AND substr(scheduled_for, 1, 10) BETWEEN ? AND ?
       ORDER BY scheduled_for
     `,
@@ -14612,11 +14623,13 @@ export async function getUpcomingShoppingList(daysAhead: number = 4): Promise<Sh
 
   const allEntries: RawShoppingEntry[] = [];
   for (const row of rows) {
-    if (row.source_favorite_id) {
-      allEntries.push(...(await shoppingListItemsForFavorite(row.source_favorite_id, row.title)));
-    } else if (row.source_meal_id) {
-      allEntries.push(...(await shoppingListItemsForMeal(row.source_meal_id, row.title)));
-    }
+    const entries = row.source_favorite_id
+      ? await shoppingListItemsForFavorite(row.source_favorite_id, row.title)
+      : row.source_meal_id
+        ? await shoppingListItemsForMeal(row.source_meal_id, row.title)
+        : [];
+    const factor = mealServingFactor(row.servings, peopleCount);
+    for (const entry of entries) allEntries.push(factor === 1 ? entry : { ...entry, quantity: entry.quantity * factor });
   }
 
   const purchasableNames = await resolvePurchasableNames(allEntries);
@@ -15643,6 +15656,9 @@ export type ScheduleItemRecord = {
   // "nothing rotated for this occurrence yet, use the favorite's own
   // defaults."
   rotationSelectionsJson: string | null;
+  // How many people a planned meal is made for (G5). Null follows the
+  // grocery list's number of people.
+  servings: number | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -15659,7 +15675,7 @@ const SCHEDULE_ITEM_COLUMNS = `
   COALESCE(outside_eating_window, 0) = 1 AS outsideEatingWindow,
   COALESCE(settled_automatically, 0) = 1 AS settledAutomatically,
   rotation_selections_json AS rotationSelectionsJson,
-  duration_minutes AS durationMinutes,
+  duration_minutes AS durationMinutes, servings,
   created_at AS createdAt, updated_at AS updatedAt
 `;
 
@@ -16787,6 +16803,29 @@ export async function updateScheduledMeal(
     now,
     id,
   );
+}
+
+// How many people a planned meal is made for (G5). Null goes back to
+// following the grocery list. wholeSeries is for a meal just scheduled, where
+// every occurrence it created takes the number; an edit touches one
+// occurrence only, the same as updateScheduledMeal.
+export async function setScheduledMealServings(id: string, servings: number | null, options: { wholeSeries?: boolean } = {}) {
+  const db = await getDatabase();
+  const value = servings != null && Number.isFinite(servings) && servings > 0 ? servings : null;
+  const now = new Date().toISOString();
+  if (options.wholeSeries) {
+    await db.runAsync(
+      `UPDATE schedule_items SET servings = ?, updated_at = ?
+       WHERE id = ? OR (repeat_group_id IS NOT NULL
+         AND repeat_group_id = (SELECT repeat_group_id FROM schedule_items WHERE id = ?))`,
+      value,
+      now,
+      id,
+      id,
+    );
+    return;
+  }
+  await db.runAsync('UPDATE schedule_items SET servings = ?, updated_at = ? WHERE id = ?', value, now, id);
 }
 
 export async function deleteScheduledMeal(id: string) {

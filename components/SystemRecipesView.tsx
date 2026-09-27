@@ -525,6 +525,7 @@ function SystemRecipeRow({
             <RecipeBuildRow
               label="Build This Recipe"
               tabColor={TAB_COLOR}
+              makeForRecipeId={entry.linkedCuratedRecipeId}
               onPress={() =>
                 onOpenBuilder({
                   [RECIPE_BUILDER_PARAM[entry.linkedBuilderType!]]: entry.linkedCuratedRecipeId!,
