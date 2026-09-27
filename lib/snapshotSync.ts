@@ -289,8 +289,20 @@ export function isDeviceLocalMetaKey(key: unknown): boolean {
  * peer_photo_out and peer_photos are photos between this device and
  * another person (lib/peerPhotosDb.ts). The files sit on this device only,
  * so the rows stay with them.
+ *
+ * daily_nutrient_totals_cache is totals each device works out from its own
+ * meal rows, checked against a signature of those rows before it is used,
+ * so a device rebuilds whatever it lacks. Sent over, it was rewritten on
+ * every arrival, the rewrite counted as a change, and the change was sent
+ * back: one of the two things keeping the phone and the computer busy
+ * answering each other (1.0.54.3).
  */
-export const DEVICE_LOCAL_TABLES: readonly string[] = ['sync_change_log', 'peer_photo_out', 'peer_photos'];
+export const DEVICE_LOCAL_TABLES: readonly string[] = [
+  'sync_change_log',
+  'peer_photo_out',
+  'peer_photos',
+  'daily_nutrient_totals_cache',
+];
 
 /**
  * The snapshot's tables with this device's bookkeeping taken out.
