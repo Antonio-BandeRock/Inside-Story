@@ -67,6 +67,7 @@ const NAMED = [
   'lib/doseMealTiming.ts',
   'lib/mineralAbsorption.ts',
   'lib/mealPlanBalance.ts',
+  'lib/foodOneWord.ts',
   'lib/ruleSeverity.ts',
   'lib/medicineLabel.ts',
   'lib/dayTimeline.ts',

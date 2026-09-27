@@ -51,6 +51,7 @@ import {
 } from '../lib/nutrientRichPicks';
 import { getStageDeprioritizedNames } from '../lib/foodStageReordering';
 import { verdictFor } from './RecipeDepthReport';
+import { foodOneWord } from '../lib/foodOneWord';
 import { analyzeNutrientIntake, formatAmount } from '../lib/nutrientAnalysis';
 import { useActiveField } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -758,12 +759,16 @@ export function FoodLookup({
   // above) is what actually drives this effect back to null too.
   const [personalEvaluation, setPersonalEvaluation] = useState<PersonalFoodEvaluation | null>(null);
   const [personalEvaluationLoading, setPersonalEvaluationLoading] = useState(false);
+  // G15: the card leads with one phrase; the rows behind it open on a tap
+  // and close again whenever a different food is looked up.
+  const [personalDetailOpen, setPersonalDetailOpen] = useState(false);
   useEffect(() => {
     if (!personalize || resolvedFoodId === null || !resolvedSource) {
       setPersonalEvaluation(null);
       return;
     }
     let cancelled = false;
+    setPersonalDetailOpen(false);
     setPersonalEvaluationLoading(true);
     evaluateFoodForPerson({ foodId: resolvedFoodId, source: resolvedSource, category, baseName }, personalize).then((result) => {
       if (cancelled) return;
@@ -1943,15 +1948,39 @@ export function FoodLookup({
           personalEvaluation.dietViolations.length > 0 ||
           personalize.trackedConditions.length > 0 ? (
           <View style={[styles.personalCard, { borderColor: tabColor }]}>
-            <Text style={[styles.personalCardLabel, { color: tabColor }]}>For You</Text>
-            {personalEvaluation.allergyMatch ? (
+            {(() => {
+              const oneWord = foodOneWord({
+                trackedConditions: personalize.trackedConditions,
+                safeForConditions: personalEvaluation.safeForConditions,
+                conditionCautions: personalEvaluation.conditionCautions,
+                dietViolations: personalEvaluation.dietViolations,
+                allergyMatch: personalEvaluation.allergyMatch,
+              });
+              const toneColor =
+                oneWord.tone === 'fits' ? colors.statusGood : oneWord.tone === 'caution' ? colors.statusYellowStandalone : colors.danger;
+              return (
+                <TouchableOpacity
+                  style={styles.personalSummaryRow}
+                  onPress={() => setPersonalDetailOpen((open) => !open)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`For you: ${oneWord.phrase}. ${personalDetailOpen ? 'Hide' : 'Show'} the reasons.`}
+                >
+                  <Text style={[styles.personalCardLabel, { color: tabColor }]}>For You</Text>
+                  <View style={[styles.personalVerdictPill, { backgroundColor: toneColor }]}>
+                    <Text style={styles.personalVerdictPillText}>{oneWord.phrase}</Text>
+                  </View>
+                  <Text style={[styles.personalDetailToggle, { color: tabColor }]}>{personalDetailOpen ? 'Hide why' : 'Why'}</Text>
+                </TouchableOpacity>
+              );
+            })()}
+            {personalDetailOpen && personalEvaluation.allergyMatch ? (
               <View style={[styles.personalWarningRow, { backgroundColor: colors.statusRedBg }]}>
                 <Text style={[styles.personalWarningText, { color: colors.danger }]}>
-                  Contains {personalEvaluation.allergyMatch} -- listed as one of your food allergies.
+                  Contains {personalEvaluation.allergyMatch}, which is on your food allergy list.
                 </Text>
               </View>
             ) : null}
-            {personalEvaluation.dietViolations.length > 0 ? (
+            {personalDetailOpen && personalEvaluation.dietViolations.length > 0 ? (
               <View style={[styles.personalWarningRow, { backgroundColor: colors.statusYellowBg }]}>
                 <Text style={[styles.personalWarningText, { color: colors.statusYellowStandalone }]}>
                   Doesn&apos;t fit your declared {personalEvaluation.dietViolations.join(', ')} preference
@@ -1959,7 +1988,7 @@ export function FoodLookup({
                 </Text>
               </View>
             ) : null}
-            {personalize.trackedConditions.map((condition) => {
+            {(personalDetailOpen ? personalize.trackedConditions : []).map((condition) => {
               const verdict = verdictFor(condition.code, personalEvaluation.safeForConditions, personalEvaluation.conditionCautions);
               const caution = personalEvaluation.conditionCautions[condition.code];
               return (
@@ -2341,6 +2370,19 @@ const styles = StyleSheet.create({
   },
   personalCardLabel: {
     ...typography.captionEmphasis,
+
+    ...textShadow,
+
+  },
+  personalSummaryRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 8,
+  },
+  personalDetailToggle: {
+    ...typography.captionEmphasis,
+    marginLeft: 'auto',
 
     ...textShadow,
 
