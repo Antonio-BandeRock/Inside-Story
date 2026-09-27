@@ -354,7 +354,12 @@ export type HomeSectionKey =
   | 'countdowns'
   // C6, 2026-09-26: a box on Home that puts things on the grocery list
   // without opening it.
-  | 'groceryQuickAdd';
+  | 'groceryQuickAdd'
+  // C15, 2026-09-26: a few Did I Do It checks picked for today.
+  | 'todayPicks'
+  // C16 and C18, 2026-09-26: one sentence and one button, the welcome-back
+  // line after a gap or the first Your Story item not done.
+  | 'nextThing';
 
 // The default order, 2026-09-12: grouped by the tab each section is a
 // window into (see lib/homeSections.ts), in the same order TabHub's own
@@ -365,6 +370,8 @@ export type HomeSectionKey =
 export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'weather',
   'sharedFolderSetup',
+  // One next thing, ahead of everything that asks more of a person.
+  'nextThing',
   // Your Story, ahead of Capture: before anything is set up it is the
   // most useful thing on the page, and once everything is it has folded to
   // one line that names nothing left to do.
@@ -419,6 +426,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'groceryQuickAdd',
   'routines',
   'doneChecks',
+  'todayPicks',
   'countdowns',
   // The Digest, last. 2026-09-16 put the groups "into the order they exist
   // in the TabHub menu", which ran the Digest ahead of Life while it was a
@@ -484,6 +492,8 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   doneChecks: 'Did I Do It',
   countdowns: 'Days Until',
   groceryQuickAdd: 'Add to the Grocery List',
+  todayPicks: 'Today I Want To',
+  nextThing: 'One Next Thing',
 };
 
 export type VisualPreferences = {

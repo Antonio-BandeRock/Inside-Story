@@ -7,6 +7,7 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { KeepRemindingPicker } from './KeepRemindingPicker';
+import { StarterLists } from './StarterLists';
 import { VoiceInputButton } from './VoiceInputButton';
 import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
@@ -379,6 +380,9 @@ export function RoutinesSection({ tabColor }: Props) {
           >
             <Text style={styles.primaryButtonText}>+ Add a routine</Text>
           </TouchableOpacity>
+        ) : null}
+        {!form ? (
+          <StarterLists kind="routine" tabColor={tabColor} heldNames={routines.map((routine) => routine.name)} onAdded={load} />
         ) : null}
       </View>
 

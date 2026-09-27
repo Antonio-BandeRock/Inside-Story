@@ -40,6 +40,7 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   // Your Story, 2026-09-24. Null because it spans every tab: its job is
   // to say where each one fits. A top-level row, like Capture.
   yourStory: null,
+  nextThing: null,
   // Home, since 1.0.39.10. 1.0.39.7 left Home with no group at all, by
   // moving its one member (Low Stimulation) under Profile where the
   // switch actually lives, and the comment written here at the time
@@ -65,6 +66,7 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   scanProduct: '/food',
   groceryList: '/life',
   groceryQuickAdd: '/life',
+  todayPicks: '/life',
   // Free-form Days Until counters, 2026-09-22. The garden's own card is
   // 'daysUntil' below and stays in the Garden group; a counter that is
   // about anything else belongs with the rest of daily living.

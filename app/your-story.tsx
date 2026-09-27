@@ -28,6 +28,7 @@ import { YourStoryInterview } from '../components/YourStoryInterview';
 import { YourStorySection, useStoryGo, useYourStory } from '../components/YourStorySection';
 import { YourStoryTour } from '../components/YourStoryTour';
 import { currentGuideKey, isGuideKey, type GuideKey } from '../lib/yourStoryGuides';
+import { SWITCHED_ON_HEADING, switchedOnFor } from '../lib/yourStoryInterview';
 
 export default function YourStoryScreen() {
   const scrollPadding = useFloatingButtonScrollPadding();
@@ -48,6 +49,8 @@ export default function YourStoryScreen() {
   );
 
   const ready = view && guides.length > 0;
+  // C19: what each answer turned on, read before the tour.
+  const switchedOn = interview ? switchedOnFor(interview) : [];
   const initiallyOpen = ready ? asked ?? currentGuideKey(view, guides) : null;
 
   return (
@@ -63,6 +66,16 @@ export default function YourStoryScreen() {
           </Text>
         </View>
         <YourStoryInterview mode="page" interview={interview} onChanged={() => void reload()} go={go} />
+        {switchedOn.length > 0 ? (
+          <View style={styles.leadBox}>
+            <Text style={styles.heading}>{SWITCHED_ON_HEADING}</Text>
+            {switchedOn.map((item) => (
+              <Text key={item.key} style={styles.lead}>
+                {item.line}
+              </Text>
+            ))}
+          </View>
+        ) : null}
         {interview ? <YourStoryTour tour={interview.tour} go={go} /> : null}
         {ready ? (
           <YourStoryGuides

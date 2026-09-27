@@ -19,6 +19,7 @@ import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DayTimeline } from '../../components/DayTimeline';
 import { GroceryQuickAdd } from '../../components/GroceryQuickAdd';
+import { TodayPicks } from '../../components/TodayPicks';
 import { DaysUntilSection } from '../../components/DaysUntilSection';
 import { DailyScalesPicker } from '../../components/DailyScalesPicker';
 import { DayArc } from '../../components/DayArc';
@@ -30,7 +31,8 @@ import type { HelpSection } from '../../components/HelpButton';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from '../../components/HomeSectionBand';
 import { AppActionSheet } from '../../components/AppActionSheet';
 import { useInfoAlert } from '../../components/InfoAlert';
-import { YourStorySection, useYourStory } from '../../components/YourStorySection';
+import { YourStorySection, useStoryGo, useYourStory } from '../../components/YourStorySection';
+import { NextThing } from '../../components/NextThing';
 import { nextLine, type StoryDestination } from '../../lib/yourStory';
 import { buildTabGuide, tabGuideLine } from '../../lib/yourStoryTabs';
 import { interviewLine } from '../../lib/yourStoryInterview';
@@ -837,6 +839,12 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.tabLife,
     href: { pathname: '/life', params: { openLifeLens: 'didIDoIt' } } as Href,
   },
+  todayPicks: {
+    label: 'Today I Want To',
+    icon: 'list',
+    color: colors.tabLife,
+    href: { pathname: '/life', params: { openLifeLens: 'didIDoIt' } } as Href,
+  },
   countdowns: {
     label: 'Days Until',
     icon: 'hourglass',
@@ -861,6 +869,12 @@ const HOME_LENS_DESTINATIONS: Partial<
   // scrolling to the card, since the card shows one section and the page
   // shows them all. A book rather than the newspaper, which is the Digest
   // cards' mark.
+  nextThing: {
+    label: 'One Next Thing',
+    icon: 'arrow-forward-circle-outline',
+    color: colors.primary,
+    href: '/your-story' as Href,
+  },
   yourStory: {
     label: 'Your Story',
     icon: 'book-outline',
@@ -887,6 +901,7 @@ const HOME_LENS_DESTINATIONS: Partial<
 // time someone reordered the literal above, so it is stated.
 const HOME_LENS_ORDER: HomeSectionKey[] = [
   'today',
+  'nextThing',
   'yourStory',
   'captureInbox',
   'whereIsIt',
@@ -916,6 +931,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'groceryQuickAdd',
   'routines',
   'doneChecks',
+  'todayPicks',
   'countdowns',
   'digestCards',
 ];
@@ -1172,6 +1188,8 @@ export default function HomeScreen() {
   // own data reloads (below), so a meal or a check-in logged right here
   // ticks its item without leaving the page.
   const [yourStory, reloadYourStory, yourStoryGuides, yourStoryInterview] = useYourStory();
+  // One Next Thing (C18) opens a Your Story item the way the card does.
+  const storyGo = useStoryGo('home', goToHomeDestination);
   // Quick-log phase 4. Two sheets rather than one: picking where a photo comes
   // from, and deciding what an already-taken one actually was.
   const [photoSourceSheetOpen, setPhotoSourceSheetOpen] = useState(false);
@@ -3391,6 +3409,18 @@ export default function HomeScreen() {
     );
   }
 
+  // C15: a few Did I Do It checks picked for today, marked from here.
+  function renderTodayPicks() {
+    if (!isHomeSectionVisible(visualPrefs, 'todayPicks')) return null;
+    return renderBand(
+      'todayPicks',
+      'Today I Want To',
+      <View style={styles.bandBody}>
+        <TodayPicks tabColor={tabColorFor('/life')} />
+      </View>,
+    );
+  }
+
   function renderCountdowns() {
     if (!isHomeSectionVisible(visualPrefs, 'countdowns')) return null;
     return renderBand(
@@ -3483,6 +3513,25 @@ export default function HomeScreen() {
   // is nothing left to set up. No badge and no count. Open, it lists every
   // tab with what it gives back and what it needs first (1.0.52.3,
   // lib/yourStoryTabs.ts).
+  // C16 and C18: one sentence, one button. See components/NextThing.tsx.
+  function renderNextThing() {
+    if (!isHomeSectionVisible(visualPrefs, 'nextThing')) return null;
+    return renderBand(
+      'nextThing',
+      'One Next Thing',
+      <View style={styles.bandBody}>
+        <NextThing
+          view={yourStory}
+          tabColor={colors.primary}
+          onGo={(destination) =>
+            destination.kind === 'beats' ? revealHomeSection('yourStory', true) : storyGo(destination)
+          }
+        />
+      </View>,
+      { icon: 'arrow-forward-circle-outline', color: colors.primary },
+    );
+  }
+
   function renderYourStory() {
     return renderBand(
       'yourStory',
@@ -3746,6 +3795,10 @@ export default function HomeScreen() {
         return renderRoutines();
       case 'doneChecks':
         return renderDoneChecks();
+      case 'nextThing':
+        return renderNextThing();
+      case 'todayPicks':
+        return renderTodayPicks();
       case 'countdowns':
         return renderCountdowns();
       case 'groceryQuickAdd':

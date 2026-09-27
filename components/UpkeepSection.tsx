@@ -6,6 +6,7 @@ import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
+import { StarterLists } from './StarterLists';
 import { VoiceInputButton } from './VoiceInputButton';
 import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
@@ -253,6 +254,9 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
           <TouchableOpacity style={[styles.primaryButton, walkMark('upkeep.add')]} onPress={() => setForm(blankForm())}>
             <Text style={styles.primaryButtonText}>+ Add something</Text>
           </TouchableOpacity>
+        ) : null}
+        {!form ? (
+          <StarterLists kind="upkeep" tabColor={tabColor} heldNames={items.map((item) => item.name)} onAdded={load} />
         ) : null}
         {/* The timeline of these dates is Schedules > Upkeep, 2026-09-13:
             items are defined here and read there, the same split as My

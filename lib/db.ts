@@ -8061,6 +8061,21 @@ async function runDatabaseInitialization() {
         updated_at TEXT NOT NULL,
         FOREIGN KEY (treatment_id) REFERENCES treatments(id) ON DELETE CASCADE
       );
+
+      -- C15, Phase 2: "Pick a few things for today". Each row says one Did I
+      -- Do It check was picked for one local day ('YYYY-MM-DD'). Whether it
+      -- happened is never stored here: it is read from done_check_marks, so
+      -- a mark made anywhere (Life, a routine, a reminder button) counts, and
+      -- the history stays in one place. The id is day plus check id, so the
+      -- same pick made on two devices merges into one row.
+      CREATE TABLE IF NOT EXISTS today_picks (
+        id TEXT PRIMARY KEY,
+        day TEXT NOT NULL,
+        check_id TEXT NOT NULL REFERENCES done_checks(id) ON DELETE CASCADE,
+        position INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_today_picks_day ON today_picks(day);
     `);
 
     // Finances' due-rule column, 2026-09-05. finance_recurring shipped in

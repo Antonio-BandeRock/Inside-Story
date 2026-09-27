@@ -1188,3 +1188,80 @@ export function buildInterview(facts: InterviewFacts): InterviewView {
 export function interviewLine(view: InterviewView): string | null {
   return view.next ? `${NEXT_QUESTION_LABEL} ${view.next.question}` : null;
 }
+
+// WHAT EACH ANSWER SWITCHED ON (C19 of the competitive build plan, Phase 2,
+// 2026-09-26). One line per answered question naming what it changed in the
+// app, shown on the Your Story page before the tour so nobody has to guess
+// what their answers did. A line says what the app now does, never what the
+// person should do, and nothing here is a count or a verdict.
+
+export const SWITCHED_ON_HEADING = 'What your answers switched on';
+
+export type SwitchedOnLine = { key: string; line: string };
+
+export function switchedOnFor(view: InterviewView): SwitchedOnLine[] {
+  const facts = view.facts;
+  const lines: SwitchedOnLine[] = [];
+  for (const question of view.questions) {
+    if (!question.answered) continue;
+    const line = switchedOnLine(question, facts);
+    if (line) lines.push({ key: question.key, line });
+  }
+  return lines;
+}
+
+function switchedOnLine(question: InterviewQuestionView, facts: InterviewFacts): string | null {
+  switch (question.def.kind) {
+    case 'conditions': {
+      const names = facts.conditions.map((code) => facts.conditionNames[code] ?? code);
+      return names.length > 0
+        ? `Food lookups, meal plans and the reading on Life now take ${listSentence(names)} into account.`
+        : 'No condition is chosen, so no food is scored against one. One can be added in Profile at any time.';
+    }
+    case 'neuro': {
+      const names = facts.neuro.map((key) => facts.neuroLabels[key] ?? key);
+      return names.length > 0
+        ? `${listSentence(names)} ${names.length === 1 ? 'is' : 'are'} listed in Profile. No food score changed, and the settings each one can turn on are there, one switch at a time.`
+        : null;
+    }
+    case 'beats':
+      return facts.story.beats.length > 0
+        ? `The guides and the rest of the questions follow ${beatListSentence(facts.story.beats)}. Nothing else in the app is hidden.`
+        : null;
+    case 'startTab': {
+      const title = tabTitle(facts.answers.startTab?.answer);
+      return title ? `${title} comes first in the tour below.` : 'The tour below runs through every tab in order.';
+    }
+    case 'meds': {
+      const settled = itemSettled(facts, 'meds');
+      if (settled === 'done') return 'Timing advice, the dose schedule and the nutrients a supplement adds now read from My Meds.';
+      if (settled === 'setAside') return 'With nothing in My Meds, no meal is timed against a dose.';
+      return null;
+    }
+    case 'stage': {
+      if (!question.condition) return null;
+      const stage = facts.stages[question.condition.code];
+      return stage
+        ? `For ${question.condition.label}, foods that suit ${question.summary ?? 'the stage you chose'} come first. Nothing is hidden or blocked.`
+        : `For ${question.condition.label}, no stage is chosen, so foods keep their usual order.`;
+    }
+    case 'eatingStyle':
+      return facts.diets.length > 0
+        ? `Meal plans and recipe suggestions keep to ${listSentence(facts.diets)}.`
+        : 'Meal plans draw on every way of eating.';
+    case 'allergies':
+      return facts.allergies.length > 0
+        ? `Food lookups and meal plans mark anything containing ${listSentence(facts.allergies)}. The marking depends on how foods are labelled, so it helps you check and is never a promise.`
+        : null;
+    case 'aboutYou': {
+      const settled = itemSettled(facts, 'aboutYou');
+      if (settled === 'done') return 'Nutrient targets use the recommended amounts for your age and sex.';
+      if (settled === 'setAside') return 'Nutrient targets use general adult figures.';
+      return null;
+    }
+    case 'backup':
+      return itemSettled(facts, 'backup') === 'done'
+        ? 'A copy of your records is kept in the folder you chose.'
+        : 'Nothing is backed up yet. Profile, under Backup & Restore, sets it up whenever you are ready.';
+  }
+}
