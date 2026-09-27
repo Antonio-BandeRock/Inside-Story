@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useMemo, useRef, useState, type ComponentProps, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Linking, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -79,8 +79,15 @@ import {
   LOW_CARB_MAX_GRAMS_PER_DAY,
   NO_CARB_MAX_GRAMS_PER_DAY,
   type CarbLevel,
+  applyPlateSwap,
+  dailyPlanTargetsMet,
+  loadPlateSwapPools,
+  plateSwapOptions,
   type DailyMealPlanPick,
   type DailyMealPlanResult,
+  type PlateSwapChoice,
+  type PlateSwapPools,
+  type PlateSwapRole,
 } from '../../lib/dailyMealPlan';
 import {
   createDeviceCalendarEvent,
@@ -1938,15 +1945,156 @@ const DAILY_PLAN_ROLE_LABELS: Partial<Record<DailyMealPlanPick['role'], string>>
   beverage: 'Beverage',
 };
 
-function DailyMealPlanPickRow({ pick }: { pick: DailyMealPlanPick }) {
+function DailyMealPlanPickRow({ pick, onChange }: { pick: DailyMealPlanPick; onChange?: () => void }) {
   const roleLabel = DAILY_PLAN_ROLE_LABELS[pick.role];
   return (
-    <View style={styles.dailyPlanPickRow}>
-      <Text style={styles.rowTitle}>
-        {roleLabel ? `${roleLabel}: ` : ''}
-        {pick.entry.title}
-      </Text>
-      <Text style={styles.helperText}>{Math.round(pick.carbGrams)}g carbohydrate</Text>
+    <View style={[styles.dailyPlanPickRow, onChange && styles.dailyPlanPickRowWithAction]}>
+      <View style={styles.dailyPlanPickText}>
+        <Text style={styles.rowTitle}>
+          {roleLabel ? `${roleLabel}: ` : ''}
+          {pick.entry.title}
+        </Text>
+        <Text style={styles.helperText}>{Math.round(pick.carbGrams)}g carbohydrate</Text>
+      </View>
+      {onChange ? (
+        <TouchableOpacity style={styles.pillSmall} activeOpacity={0.85} onPress={onChange}>
+          <Text style={styles.pillTextSmall}>Change</Text>
+        </TouchableOpacity>
+      ) : null}
+    </View>
+  );
+}
+
+// 2026-09-27, direct request: "the ability to easily replace one side on a
+// plate for one from another recipe. Kind of being on a horizontal scroller
+// they can move the sides through until it lands on one they would like to
+// change it to." The dish on the plate is the first card; the rest follow
+// nearest the day's nutrient targets first (lib/mealPlanBalance.ts). A card
+// that comes to rest at the left edge, or is tapped, is the one "Use this
+// one" puts on the plate. Nothing is saved until the plan is scheduled.
+type PlateSwapper = {
+  load: () => Promise<PlateSwapPools>;
+  apply: (next: DailyMealPlanResult) => void;
+};
+
+const SWAP_CARD_WIDTH = 220;
+const SWAP_CARD_GAP = 10;
+const SWAP_CARD_STEP = SWAP_CARD_WIDTH + SWAP_CARD_GAP;
+/** The scroller shows this many at most, nearest the targets first. */
+const SWAP_CARD_LIMIT = 40;
+
+const SWAP_ROLE_WORDS: Record<PlateSwapRole, string> = { side: 'side', salad: 'salad', beverage: 'drink' };
+
+function PlateSwapScroller({
+  day,
+  meal,
+  role,
+  swapper,
+  onClose,
+}: {
+  day: DailyMealPlanResult;
+  meal: 'lunch' | 'dinner';
+  role: PlateSwapRole;
+  swapper: PlateSwapper;
+  onClose: () => void;
+}) {
+  const [state, setState] = useState<{ handle: PlateSwapPools; choices: PlateSwapChoice[]; notes: string[] } | null>(null);
+  const [failed, setFailed] = useState<string | null>(null);
+  const [selected, setSelected] = useState(0);
+  const scrollRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    swapper
+      .load()
+      .then((handle) => {
+        if (cancelled) return;
+        const { choices, notes } = plateSwapOptions(handle, day, meal, role);
+        const shown = choices.slice(0, SWAP_CARD_LIMIT);
+        const more = choices.length > SWAP_CARD_LIMIT ? [`The ${SWAP_CARD_LIMIT} nearest your targets are shown, of ${choices.length}.`] : [];
+        setState({ handle, choices: shown, notes: [...notes, ...more] });
+      })
+      .catch((error) => {
+        if (!cancelled) setFailed(error instanceof Error ? error.message : String(error));
+      });
+    return () => {
+      cancelled = true;
+    };
+    // Loaded once per opening: a trade closes the scroller, so the day it
+    // was opened on is the day it works against.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function settle(x: number) {
+    if (!state) return;
+    setSelected(Math.max(0, Math.min(state.choices.length - 1, Math.round(x / SWAP_CARD_STEP))));
+  }
+
+  function pick(index: number) {
+    setSelected(index);
+    scrollRef.current?.scrollTo({ x: index * SWAP_CARD_STEP, animated: true });
+  }
+
+  const hasCurrent = day[meal].some((p) => p.role === role);
+  const chosen = state?.choices[selected];
+  const word = SWAP_ROLE_WORDS[role];
+
+  return (
+    <View style={styles.swapBox}>
+      <Text style={styles.label}>{hasCurrent ? `Choose a different ${word}` : `Choose a ${word}`}</Text>
+      {failed ? <Text style={styles.helperText}>Could not load the choices: {failed}</Text> : null}
+      {!state && !failed ? <Text style={styles.helperText}>Loading the choices...</Text> : null}
+      {state && state.choices.length === 0 ? <Text style={styles.helperText}>Nothing else fits this plate.</Text> : null}
+      {state && state.choices.length > 0 ? (
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          showsHorizontalScrollIndicator
+          snapToInterval={SWAP_CARD_STEP}
+          decelerationRate="fast"
+          scrollEventThrottle={16}
+          onScroll={(event) => settle(event.nativeEvent.contentOffset.x)}
+          onMomentumScrollEnd={(event) => settle(event.nativeEvent.contentOffset.x)}
+          contentContainerStyle={styles.swapRow}
+        >
+          {state.choices.map((choice, index) => (
+            <TouchableOpacity
+              key={choice.entry.linkedCuratedRecipeId}
+              activeOpacity={0.85}
+              onPress={() => pick(index)}
+              style={[styles.swapCard, index === selected && styles.swapCardSelected]}
+            >
+              <Text style={styles.rowTitle} numberOfLines={3}>
+                {choice.entry.title}
+              </Text>
+              <Text style={styles.helperText}>{Math.round(choice.carbGrams)}g carbohydrate</Text>
+              <Text style={styles.helperText}>{choice.effect}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      ) : null}
+      {state?.notes.map((note) => (
+        <Text key={note} style={styles.helperText}>
+          {note}
+        </Text>
+      ))}
+      <View style={styles.pillRow}>
+        {state && chosen && !chosen.current ? (
+          <TouchableOpacity
+            style={styles.primaryButton}
+            activeOpacity={0.85}
+            onPress={() => {
+              swapper.apply(applyPlateSwap(state.handle, day, meal, role, chosen));
+              onClose();
+            }}
+          >
+            <Text style={styles.primaryButtonText}>Use this one</Text>
+          </TouchableOpacity>
+        ) : null}
+        <TouchableOpacity style={styles.pill} activeOpacity={0.85} onPress={onClose}>
+          <Text style={styles.pillTextSmall}>{hasCurrent ? 'Keep what is there' : 'Close'}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -1969,12 +2117,17 @@ function DailyPlanFullReport({
   day,
   folds,
   foldId,
+  swapper,
 }: {
   day: DailyMealPlanResult;
   // Present for the top-level layout; absent when nested in a day band.
   folds?: ScheduleFolds;
   foldId?: string;
+  // Present when a side, salad or drink on this day can be changed.
+  swapper?: PlateSwapper;
 }) {
+  const [swapping, setSwapping] = useState<{ meal: 'lunch' | 'dinner'; role: PlateSwapRole } | null>(null);
+  const reached = dailyPlanTargetsMet(day);
   const ratingColors = healthRatingColors(day.healthRating);
   const nested = !folds || !foldId;
   const ratingWord = day.healthRating === 'green' ? 'Green' : day.healthRating === 'yellow' ? 'Yellow' : 'Incomplete';
@@ -1989,6 +2142,11 @@ function DailyPlanFullReport({
       <Text style={styles.helperText}>
         Total carbohydrate: {Math.round(day.totalCarbGrams)}g{day.carbCeiling ? ` (target: under ${day.carbCeiling}g)` : ''}
       </Text>
+      {reached.of > 0 ? (
+        <Text style={styles.helperText}>
+          Reaches {reached.met} of your {reached.of} nutrient targets from food.
+        </Text>
+      ) : null}
       {day.warnings.map((warning, index) => (
         <Text key={index} style={styles.helperText}>
           ⚠ {warning}
@@ -2002,6 +2160,39 @@ function DailyPlanFullReport({
     </>
   );
 
+  function plateRows(meal: 'lunch' | 'dinner') {
+    const plate = day[meal];
+    const open = swapping?.meal === meal ? swapping : null;
+    const close = () => setSwapping(null);
+    return (
+      <>
+        {plate.map((pick) => {
+          const role = pick.role === 'main' ? null : pick.role;
+          return (
+            <View key={pick.entry.id}>
+              <DailyMealPlanPickRow
+                pick={pick}
+                onChange={swapper && role && !swapping ? () => setSwapping({ meal, role }) : undefined}
+              />
+              {swapper && open && open.role === role ? (
+                <PlateSwapScroller day={day} meal={meal} role={open.role} swapper={swapper} onClose={close} />
+              ) : null}
+            </View>
+          );
+        })}
+        {swapper && !plate.some((pick) => pick.role === 'side') ? (
+          open?.role === 'side' ? (
+            <PlateSwapScroller day={day} meal={meal} role="side" swapper={swapper} onClose={close} />
+          ) : !swapping ? (
+            <TouchableOpacity style={[styles.pillSmall, styles.swapAddPill]} activeOpacity={0.85} onPress={() => setSwapping({ meal, role: 'side' })}>
+              <Text style={styles.pillTextSmall}>Add a side</Text>
+            </TouchableOpacity>
+          ) : null
+        ) : null}
+      </>
+    );
+  }
+
   const meals = (
     <>
       <View style={nested ? styles.dailyPlanSlot : styles.row}>
@@ -2010,19 +2201,11 @@ function DailyPlanFullReport({
       </View>
       <View style={nested ? styles.dailyPlanSlot : styles.row}>
         <Text style={styles.rowTitle}>Lunch</Text>
-        {day.lunch.length > 0 ? (
-          day.lunch.map((pick) => <DailyMealPlanPickRow key={pick.entry.id} pick={pick} />)
-        ) : (
-          <Text style={styles.helperText}>No compliant option found.</Text>
-        )}
+        {day.lunch.length > 0 ? plateRows('lunch') : <Text style={styles.helperText}>No compliant option found.</Text>}
       </View>
       <View style={nested ? styles.dailyPlanSlot : styles.row}>
         <Text style={styles.rowTitle}>Dinner</Text>
-        {day.dinner.length > 0 ? (
-          day.dinner.map((pick) => <DailyMealPlanPickRow key={pick.entry.id} pick={pick} />)
-        ) : (
-          <Text style={styles.helperText}>No compliant option found.</Text>
-        )}
+        {day.dinner.length > 0 ? plateRows('dinner') : <Text style={styles.helperText}>No compliant option found.</Text>}
       </View>
     </>
   );
@@ -2265,8 +2448,31 @@ function DailyMealPlanLens() {
     }, []),
   );
 
+  // The pools a plate swap chooses from, loaded the first time somebody
+  // opens a scroller and kept until the plan is made again.
+  const swapPoolsRef = useRef<{ key: string; pools: Promise<PlateSwapPools> } | null>(null);
+  function swapperFor(index: number): PlateSwapper | undefined {
+    if (!planningScope) return undefined;
+    const scope = planningScope;
+    return {
+      load: () => {
+        const key = JSON.stringify([scope.conditionCodes, dietPreferences]);
+        if (!swapPoolsRef.current || swapPoolsRef.current.key !== key) {
+          const pools = loadPlateSwapPools(scope.conditionCodes, dietPreferences);
+          swapPoolsRef.current = { key, pools };
+          pools.catch(() => {
+            if (swapPoolsRef.current?.pools === pools) swapPoolsRef.current = null;
+          });
+        }
+        return swapPoolsRef.current.pools;
+      },
+      apply: (next) => setPlans((current) => current.map((day, i) => (i === index ? next : day))),
+    };
+  }
+
   async function handleGenerate() {
     setGenerating(true);
+    swapPoolsRef.current = null;
     try {
       // Resolved here rather than taken from this screen's own state, because a
       // partner's conditions have to reach the generator or the whole point of
@@ -2482,7 +2688,7 @@ function DailyMealPlanLens() {
       ) : null}
 
       {singleDay ? (
-        <DailyPlanFullReport day={singleDay} folds={folds} foldId="schedule:dailyPlan" />
+        <DailyPlanFullReport day={singleDay} folds={folds} foldId="schedule:dailyPlan" swapper={swapperFor(0)} />
       ) : plans.length > 1 ? (
         // Multi-day: one band per day, opening into the exact same full
         // report the single-day case uses -- "Each week per day needs to
@@ -2504,7 +2710,7 @@ function DailyMealPlanLens() {
                 expanded={isExpanded}
                 onToggle={() => setExpandedDayIndex(isExpanded ? null : index)}
               >
-                <DailyPlanFullReport day={day} />
+                <DailyPlanFullReport day={day} swapper={swapperFor(index)} />
                 <TouchableOpacity
                   style={[styles.primaryButton, { marginTop: 8 }, isRegenerating && styles.primaryButtonDisabled]}
                   activeOpacity={0.85}
@@ -5077,6 +5283,19 @@ const styles = StyleSheet.create({
   mealPlanDayDateInput: { flex: 1 },
   // Daily Meal Plan lens, 2026-08-25.
   dailyPlanPickRow: { marginTop: 4, marginBottom: 4, gap: 1 },
+  dailyPlanPickRowWithAction: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  dailyPlanPickText: { flex: 1, gap: 1 },
+  swapAddPill: { alignSelf: 'flex-start', marginTop: 4 },
+  swapBox: { marginTop: 4, marginBottom: 8, gap: 6 },
+  swapRow: { gap: SWAP_CARD_GAP, paddingRight: SWAP_CARD_STEP },
+  swapCard: {
+    width: SWAP_CARD_WIDTH,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    padding: 10,
+  },
+  swapCardSelected: { borderColor: TAB_COLOR, borderWidth: 2, padding: 9 },
   dailyPlanSlot: { marginTop: 8, gap: 2 },
   // 2026-08-26 fix: a long "Mostly from: X (Y%), Z (W%)" contributor line
   // (added the same day) had nothing constraining its own width, so it

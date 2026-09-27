@@ -66,6 +66,7 @@ const NAMED = [
   'lib/therapyResponse.ts',
   'lib/doseMealTiming.ts',
   'lib/mineralAbsorption.ts',
+  'lib/mealPlanBalance.ts',
   'lib/ruleSeverity.ts',
   'lib/medicineLabel.ts',
   'lib/dayTimeline.ts',

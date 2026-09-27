@@ -74,6 +74,7 @@ import {
   type DigestEntry,
   type RecipeDietTag,
 } from './digest';
+import { describeLeftOut, describeSwapEffect, improveDay, rankSwapOptions, targetsMet } from './mealPlanBalance';
 import { SIDE_DISH_RECIPE_IDS } from './recipeDishRole';
 import { addDays, overridesForDate, weekdayTargetNotes, type WeekdayTargetOverride } from './weekdayTargets';
 
@@ -1055,6 +1056,18 @@ function recordUsage(state: RotationState, candidate: LoadedCandidate) {
   }
 }
 
+// The reverse of recordUsage, for a dish the improvement pass in
+// generateOneDay takes back off the plate.
+function unrecordUsage(state: RotationState, candidate: LoadedCandidate) {
+  const id = candidate.entry.linkedCuratedRecipeId;
+  const count = state.usageCount.get(id) ?? 0;
+  if (count > 0) state.usageCount.set(id, count - 1);
+  for (const ruleId of candidate.matchedRuleIds) {
+    const times = state.weekFrequency.get(ruleId) ?? 0;
+    if (times > 0) state.weekFrequency.set(ruleId, times - 1);
+  }
+}
+
 // Narrows a candidate pool by FREQUENCY_RULES before the ordinary
 // rotation/carb pick runs, scoped to whichever meal slot is calling it
 // (only ever lunch/dinner mains -- breakfast and sides are excluded on
@@ -1569,6 +1582,77 @@ function checkPairingRequirements(
   return warnings;
 }
 
+// The targets a day planned for a date is held to: that weekday's figures
+// from Profile > Nutrient Targets where there are any (F21), otherwise the
+// every-day ones.
+function driByCodeForDate(pools: CandidatePools, date: string | undefined): Map<string, DietaryReferenceIntake> {
+  const usesWeekday = date != null && pools.weekdayOverrides.length > 0;
+  return usesWeekday
+    ? applyNutrientTargetOverrides(pools.baseDriByCode, overridesForDate(pools.everyDayOverrides, pools.weekdayOverrides, date))
+    : pools.driByCode;
+}
+
+function carbCeilingWarning(totalCarbGrams: number, carbCeiling: number | null): string | null {
+  if (carbCeiling === null || totalCarbGrams <= carbCeiling) return null;
+  return `The day's total (${Math.round(totalCarbGrams)}g) came in above the ${carbCeiling}g target; not every meal slot had a low-enough-carb option available today.`;
+}
+
+// 2026-09-18: say where the person's own calls landed on this day.
+// A food they marked with a question mark is named rather than removed.
+function unsureFoodsWarning(pools: CandidatePools, allPicks: DailyMealPlanPick[]): string | null {
+  const unsureToday = new Set<string>();
+  for (const pick of allPicks) {
+    const names = pools.myUnsureFoodsByRecipeId.get(pick.entry.linkedCuratedRecipeId);
+    if (names) for (const name of names) unsureToday.add(name);
+  }
+  if (unsureToday.size === 0) return null;
+  const named = Array.from(unsureToday).sort((a, b) => a.localeCompare(b)).join(', ');
+  return `Today uses ${named}, which you marked with a question mark under My Safe Foods. Left in, since you have not ruled it out. A food trial is how you settle one.`;
+}
+
+function buildDayCoverage(
+  allPicks: DailyMealPlanPick[],
+  driByCode: Map<string, DietaryReferenceIntake>,
+  nutrientTotals: Record<string, number>,
+  warnings: string[],
+): DailyMealPlanNutrientCoverage[] {
+  return Array.from(driByCode.values())
+    // CDRR (sodium) included alongside the usual RDA/AI floors, 2026-08-26
+    // -- a real ceiling nutrient someone might have personally overridden
+    // (see applyNutrientTargetOverrides) needs to show up here too, not
+    // just when it happens to exceed its own upperLimit and gets caught
+    // by the UL guard during selection.
+    .filter((row) => row.valueType === 'RDA' || row.valueType === 'AI' || row.valueType === 'CDRR')
+    .map((row) => {
+      // The reported amount IS the sum of the per-dish breakdown, so a
+      // listed nutrient can never carry an amount its sources don't
+      // account for. nutrientTotals (the running accumulator selection
+      // scored against) is only cross-checked here; any drift between
+      // the two is a bug and gets surfaced as a warning rather than
+      // silently trusting either side.
+      const { total: amount, contributors } = computeContributors(row.nutrientCode, allPicks);
+      const accumulated = nutrientTotals[row.nutrientCode] ?? 0;
+      if (Math.abs(accumulated - amount) > 0.001) {
+        warnings.push(`Internal check: ${row.displayName} totals ${Math.round(accumulated * 10) / 10}${row.unit} during selection but its listed dishes account for ${Math.round(amount * 10) / 10}${row.unit}.`);
+      }
+      const percentOfTarget = row.amount > 0 ? Math.round((amount / row.amount) * 100) : null;
+      const percentOfUpperLimit = row.upperLimit != null && row.upperLimit > 0 ? Math.round((amount / row.upperLimit) * 100) : null;
+      const isCeiling = row.valueType === 'CDRR';
+      return {
+        nutrientCode: row.nutrientCode,
+        displayName: row.displayName,
+        unit: row.unit,
+        amount,
+        targetAmount: row.amount,
+        percentOfTarget,
+        upperLimit: row.upperLimit,
+        percentOfUpperLimit,
+        isCeiling,
+        topContributors: contributors,
+      };
+    });
+}
+
 // is undefined for a plain single-day request (every candidate stays
 // eligible, no frequency-rule narrowing, no cross-day memory -- the
 // exact original single-day behavior); a multi-day run passes real
@@ -1592,10 +1676,7 @@ async function generateOneDay(
   const { breakfastCandidates, lunchMainCandidates, dinnerMainCandidates, sideCandidates, saladCandidates, beverageCandidates } = pools;
   // A day planned for a known date uses that weekday's figures where
   // Profile > Nutrient Targets has any (F21); otherwise the every-day ones.
-  const usesWeekday = date != null && pools.weekdayOverrides.length > 0;
-  const driByCode = usesWeekday
-    ? applyNutrientTargetOverrides(pools.baseDriByCode, overridesForDate(pools.everyDayOverrides, pools.weekdayOverrides, date))
-    : pools.driByCode;
+  const driByCode = driByCodeForDate(pools, date);
   // Built once here, from driByCode's own values (already deduped to one
   // conservative, override-applied row per nutrient -- see
   // buildConservativeDriByCode/applyNutrientTargetOverrides), and reused
@@ -1770,6 +1851,9 @@ async function generateOneDay(
       picks.push({ entry: best.candidate.entry, role, carbGrams: best.candidate.carbGrams, nutrientTotals: best.candidate.nutrientTotals });
       totalCarbGrams += best.candidate.carbGrams;
       addPick(best.candidate.nutrientTotals);
+      // Counted since 2026-09-27 so the improvement pass below can keep a
+      // salad or drink from landing on every day of a long plan.
+      recordIfRotating(best.candidate);
       usedIds.add(best.candidate.entry.linkedCuratedRecipeId);
     }
     await considerBonusComponent('salad', saladCandidates);
@@ -1784,9 +1868,68 @@ async function generateOneDay(
   const dinner = await pickMealWithOptionalSide(dinnerMainCandidates, lunch[0]?.entry.linkedCuratedRecipeId, true);
   if (dinner.length === 0) warnings.push('No dinner recipe currently complies with both the declared condition(s) and diet preference(s).');
 
-  if (carbCeiling !== null && totalCarbGrams > carbCeiling) {
-    warnings.push(`The day's total (${Math.round(totalCarbGrams)}g) came in above the ${carbCeiling}g target; not every meal slot had a low-enough-carb option available today.`);
+  // 2026-09-27, direct request: "along with the other rules it is using to
+  // build the meal plan, it also tries to give them as close to the RDA for
+  // their nutrients as possible." Every rule above has had its say; this
+  // pass then trades a side, salad or drink for one from the same pool when
+  // that brings the whole day nearer its targets (lib/mealPlanBalance.ts).
+  // Mains are never traded, so frequency rules stand. In a multi-day run a
+  // dish may come in only while it has been used no more than once past
+  // the least-used dish of its kind, so rotation still deals the deck.
+  {
+    const poolByRole: Record<string, LoadedCandidate[]> = { side: sideCandidates, salad: saladCandidates, beverage: beverageCandidates };
+    const dishOf = (candidate: LoadedCandidate) => ({ id: candidate.entry.linkedCuratedRecipeId, totals: candidate.nutrientTotals, carbGrams: candidate.carbGrams, candidate });
+    const dishPools: Record<string, ReturnType<typeof dishOf>[]> = {};
+    for (const [role, pool] of Object.entries(poolByRole)) dishPools[role] = pool.map(dishOf);
+    const leastUsed: Record<string, number> = {};
+    if (rotation) {
+      for (const [role, pool] of Object.entries(poolByRole)) {
+        leastUsed[role] = pool.length === 0 ? 0 : Math.min(...pool.map((c) => rotation.state.usageCount.get(c.entry.linkedCuratedRecipeId) ?? 0));
+      }
+    }
+    const tradeable: { slot: string; role: string; dish: ReturnType<typeof dishOf> }[] = [];
+    for (const [mealName, picks] of [['lunch', lunch], ['dinner', dinner]] as const) {
+      picks.forEach((pick, index) => {
+        if (pick.role === 'main') return;
+        const candidate = poolByRole[pick.role]?.find((c) => c.entry.linkedCuratedRecipeId === pick.entry.linkedCuratedRecipeId);
+        if (candidate) tradeable.push({ slot: `${mealName}:${index}`, role: pick.role, dish: dishOf(candidate) });
+      });
+    }
+    if (tradeable.length > 0) {
+      const usedIds = new Set(
+        [breakfast, ...lunch, ...dinner].filter((p): p is DailyMealPlanPick => p !== null).map((p) => p.entry.linkedCuratedRecipeId),
+      );
+      const { trades } = improveDay({
+        dayTotals: nutrientTotals,
+        dayCarbs: totalCarbGrams,
+        picks: tradeable,
+        poolFor: (role) => dishPools[role] ?? [],
+        usedIds,
+        targets: driRows,
+        carbCeiling,
+        allowed: rotation
+          ? (dish, role) => (rotation.state.usageCount.get(dish.id) ?? 0) <= (leastUsed[role] ?? 0) + 1
+          : undefined,
+      });
+      for (const trade of trades) {
+        const [mealName, indexText] = trade.slot.split(':');
+        const picks = mealName === 'lunch' ? lunch : dinner;
+        const index = Number(indexText);
+        const incoming = trade.to.candidate;
+        picks[index] = { entry: incoming.entry, role: picks[index].role, carbGrams: incoming.carbGrams, nutrientTotals: incoming.nutrientTotals };
+        for (const [code, amount] of Object.entries(trade.from.totals)) nutrientTotals[code] = (nutrientTotals[code] ?? 0) - amount;
+        for (const [code, amount] of Object.entries(incoming.nutrientTotals)) nutrientTotals[code] = (nutrientTotals[code] ?? 0) + amount;
+        totalCarbGrams += incoming.carbGrams - trade.from.carbGrams;
+        if (rotation) {
+          unrecordUsage(rotation.state, trade.from.candidate);
+          recordUsage(rotation.state, incoming);
+        }
+      }
+    }
   }
+
+  const carbWarning = carbCeilingWarning(totalCarbGrams, carbCeiling);
+  if (carbWarning) warnings.push(carbWarning);
 
   // The day's own health rating: green only while every real pick is
   // clean for every declared condition, yellow the moment any pick
@@ -1804,17 +1947,8 @@ async function generateOneDay(
   // A food they marked with a question mark is named rather than removed,
   // and a slot that came up empty says whether it was their own
   // not-for-me list that emptied it, rather than leaving them to guess.
-  const unsureToday = new Set<string>();
-  for (const pick of allPicks) {
-    const names = pools.myUnsureFoodsByRecipeId.get(pick.entry.linkedCuratedRecipeId);
-    if (names) for (const name of names) unsureToday.add(name);
-  }
-  if (unsureToday.size > 0) {
-    const named = Array.from(unsureToday).sort((a, b) => a.localeCompare(b)).join(', ');
-    warnings.push(
-      `Today uses ${named}, which you marked with a question mark under My Safe Foods. Left in, since you have not ruled it out. A food trial is how you settle one.`,
-    );
-  }
+  const unsureWarning = unsureFoodsWarning(pools, allPicks);
+  if (unsureWarning) warnings.push(unsureWarning);
   if ((breakfast === null || lunch.length === 0 || dinner.length === 0) && pools.myAvoidSetAsideCount > 0) {
     const foods = pools.myAvoidSetAsideFoods;
     const namedFoods = foods.length === 1 ? foods[0] : `${foods.slice(0, -1).join(', ')} and ${foods[foods.length - 1]}`;
@@ -1839,41 +1973,7 @@ async function generateOneDay(
   // iron, and mapping it directly used to show that same nutrient twice
   // over, each with a different target, rather than the one conservative
   // figure this run's own scoring actually used throughout.
-  const nutrientCoverage: DailyMealPlanNutrientCoverage[] = Array.from(driByCode.values())
-    // CDRR (sodium) included alongside the usual RDA/AI floors, 2026-08-26
-    // -- a real ceiling nutrient someone might have personally overridden
-    // (see applyNutrientTargetOverrides) needs to show up here too, not
-    // just when it happens to exceed its own upperLimit and gets caught
-    // by the UL guard during selection.
-    .filter((row) => row.valueType === 'RDA' || row.valueType === 'AI' || row.valueType === 'CDRR')
-    .map((row) => {
-      // The reported amount IS the sum of the per-dish breakdown, so a
-      // listed nutrient can never carry an amount its sources don't
-      // account for. nutrientTotals (the running accumulator selection
-      // scored against) is only cross-checked here; any drift between
-      // the two is a bug and gets surfaced as a warning rather than
-      // silently trusting either side.
-      const { total: amount, contributors } = computeContributors(row.nutrientCode, allPicks);
-      const accumulated = nutrientTotals[row.nutrientCode] ?? 0;
-      if (Math.abs(accumulated - amount) > 0.001) {
-        warnings.push(`Internal check: ${row.displayName} totals ${Math.round(accumulated * 10) / 10}${row.unit} during selection but its listed dishes account for ${Math.round(amount * 10) / 10}${row.unit}.`);
-      }
-      const percentOfTarget = row.amount > 0 ? Math.round((amount / row.amount) * 100) : null;
-      const percentOfUpperLimit = row.upperLimit != null && row.upperLimit > 0 ? Math.round((amount / row.upperLimit) * 100) : null;
-      const isCeiling = row.valueType === 'CDRR';
-      return {
-        nutrientCode: row.nutrientCode,
-        displayName: row.displayName,
-        unit: row.unit,
-        amount,
-        targetAmount: row.amount,
-        percentOfTarget,
-        upperLimit: row.upperLimit,
-        percentOfUpperLimit,
-        isCeiling,
-        topContributors: contributors,
-      };
-    });
+  const nutrientCoverage = buildDayCoverage(allPicks, driByCode, nutrientTotals, warnings);
 
   return {
     breakfast,
@@ -2003,4 +2103,156 @@ export function dailyMealPlanToMealPlanDay(result: DailyMealPlanResult, dayNumbe
     lunch: toSlot(result.lunch),
     dinner: toSlot(result.dinner),
   };
+}
+
+// ---------------------------------------------------------------------
+// Trading one side on a plate for another (2026-09-27, direct request:
+// "with the ability to easily replace one side on a plate for one from
+// another recipe. Kind of being on a horizontal scroller they can move the
+// sides through until it lands on one they would like to change it to").
+// The Meal Plan lens loads the pools once, asks for the choices at one
+// place on one plate, and hands back the one picked. The plan lives in the
+// lens's state until it is scheduled, so a trade changes nothing saved.
+// ---------------------------------------------------------------------
+
+export type PlateSwapPools = { pools: CandidatePools; conditionCodes: string[] };
+
+export type PlateSwapRole = 'side' | 'salad' | 'beverage';
+
+export type PlateSwapChoice = {
+  entry: EligibleRecipeEntry;
+  carbGrams: number;
+  nutrientTotals: Record<string, number>;
+  /** True for the dish on the plate now, or for "none" on a plate without one. */
+  current: boolean;
+  /** One sentence: what this dish does to the day against the targets. */
+  effect: string;
+};
+
+export async function loadPlateSwapPools(conditionCodes: string[], dietPreferences: RecipeDietTag[]): Promise<PlateSwapPools> {
+  return retryOnceOnReleasedObject(async () => ({ pools: await buildCandidatePools(conditionCodes, dietPreferences), conditionCodes }));
+}
+
+function poolForRole(pools: CandidatePools, role: PlateSwapRole): LoadedCandidate[] {
+  if (role === 'side') return pools.sideCandidates;
+  if (role === 'salad') return pools.saladCandidates;
+  return pools.beverageCandidates;
+}
+
+function dayPicks(day: DailyMealPlanResult): DailyMealPlanPick[] {
+  return [day.breakfast, ...day.lunch, ...day.dinner].filter((p): p is DailyMealPlanPick => p !== null);
+}
+
+/**
+ * Every dish that could stand in `role` on this meal, the one there now
+ * first (or nothing, when the plate has none of that kind) and the rest
+ * nearest the day's targets first. Dishes that would carry a nutrient past
+ * its upper limit, or the day past the carb target, are left out and said.
+ */
+export function plateSwapOptions(
+  handle: PlateSwapPools,
+  day: DailyMealPlanResult,
+  meal: 'lunch' | 'dinner',
+  role: PlateSwapRole,
+): { choices: PlateSwapChoice[]; notes: string[] } {
+  const driRows = Array.from(driByCodeForDate(handle.pools, day.date).values());
+  const onPlate = day[meal].find((pick) => pick.role === role) ?? null;
+  const pool = poolForRole(handle.pools, role);
+  type Dish = { id: string; totals: Record<string, number>; carbGrams: number; entry: EligibleRecipeEntry | null };
+  const current: Dish = onPlate
+    ? { id: onPlate.entry.linkedCuratedRecipeId, totals: onPlate.nutrientTotals, carbGrams: onPlate.carbGrams, entry: onPlate.entry }
+    : { id: '', totals: {}, carbGrams: 0, entry: null };
+  const usedIds = new Set(dayPicks(day).map((pick) => pick.entry.linkedCuratedRecipeId));
+  if (onPlate) usedIds.delete(onPlate.entry.linkedCuratedRecipeId);
+  const { options, leftOutLimit, leftOutCarbs } = rankSwapOptions<Dish>({
+    dayTotals: day.nutrientTotals,
+    dayCarbs: day.totalCarbGrams,
+    current,
+    candidates: pool.map((c) => ({ id: c.entry.linkedCuratedRecipeId, totals: c.nutrientTotals, carbGrams: c.carbGrams, entry: c.entry })),
+    usedIds,
+    targets: driRows,
+    carbCeiling: day.carbCeiling,
+  });
+  const choices: PlateSwapChoice[] = [];
+  for (const option of options) {
+    if (!option.dish.entry) continue;
+    choices.push({
+      entry: option.dish.entry,
+      carbGrams: option.dish.carbGrams,
+      nutrientTotals: option.dish.totals,
+      current: option.current,
+      effect: describeSwapEffect(option),
+    });
+  }
+  return { choices, notes: describeLeftOut(leftOutLimit, leftOutCarbs) };
+}
+
+/**
+ * The day with `choice` standing in `role` on `meal`: totals, carbs,
+ * rating, coverage and the warnings that depend on the plate worked again
+ * the way the generator works them.
+ */
+export function applyPlateSwap(
+  handle: PlateSwapPools,
+  day: DailyMealPlanResult,
+  meal: 'lunch' | 'dinner',
+  role: PlateSwapRole,
+  choice: PlateSwapChoice,
+): DailyMealPlanResult {
+  const driByCode = driByCodeForDate(handle.pools, day.date);
+  const incoming: DailyMealPlanPick = { entry: choice.entry, role, carbGrams: choice.carbGrams, nutrientTotals: choice.nutrientTotals };
+  const plate = [...day[meal]];
+  const index = plate.findIndex((pick) => pick.role === role);
+  if (index >= 0) plate[index] = incoming;
+  else plate.push(incoming);
+  const next: DailyMealPlanResult = { ...day, [meal]: plate };
+  const allPicks = dayPicks(next);
+
+  const nutrientTotals: Record<string, number> = {};
+  let totalCarbGrams = 0;
+  for (const pick of allPicks) {
+    totalCarbGrams += pick.carbGrams;
+    for (const [code, amount] of Object.entries(pick.nutrientTotals)) nutrientTotals[code] = (nutrientTotals[code] ?? 0) + amount;
+  }
+
+  // Take out every warning the old plate produced, then add the new plate's.
+  const oldPicks = dayPicks(day);
+  const stale = new Set<string>(checkPairingRequirements(oldPicks, day.nutrientTotals, driByCode));
+  const oldCarb = carbCeilingWarning(day.totalCarbGrams, day.carbCeiling);
+  if (oldCarb) stale.add(oldCarb);
+  const oldUnsure = unsureFoodsWarning(handle.pools, oldPicks);
+  if (oldUnsure) stale.add(oldUnsure);
+  const warnings = day.warnings.filter((w) => !stale.has(w) && !w.startsWith('Internal check:'));
+  const carbWarning = carbCeilingWarning(totalCarbGrams, day.carbCeiling);
+  if (carbWarning) warnings.push(carbWarning);
+  const unsureWarning = unsureFoodsWarning(handle.pools, allPicks);
+  if (unsureWarning) warnings.push(unsureWarning);
+  warnings.push(...checkPairingRequirements(allPicks, nutrientTotals, driByCode));
+
+  const healthRating: 'green' | 'yellow' | 'red' | null =
+    allPicks.length === 0 ? null : allPicks.every((p) => recipeSafeAcrossConditions(p.entry, handle.conditionCodes) === 'green') ? 'green' : 'yellow';
+
+  return {
+    ...next,
+    nutrientTotals,
+    totalCarbGrams,
+    healthRating,
+    nutrientCoverage: buildDayCoverage(allPicks, driByCode, nutrientTotals, warnings),
+    warnings,
+  };
+}
+
+/** How many of the day's RDA and AI targets its plan meets, read from its coverage. */
+export function dailyPlanTargetsMet(day: DailyMealPlanResult): { met: number; of: number } {
+  return targetsMet(
+    day.nutrientTotals,
+    day.nutrientCoverage
+      .filter((row) => row.targetAmount != null)
+      .map((row) => ({
+        nutrientCode: row.nutrientCode,
+        valueType: row.isCeiling ? ('CDRR' as const) : ('RDA' as const),
+        amount: row.targetAmount ?? 0,
+        upperLimit: row.upperLimit,
+      })),
+  );
 }
