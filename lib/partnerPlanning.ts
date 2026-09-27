@@ -54,6 +54,13 @@ export type PlanningScope = {
    * planning are not here. Empty when there is no family on the roster.
    */
   family: FamilyPlanningMember[];
+  /**
+   * The conditions checked for you at the table (2026-09-27): yours, merged
+   * with a partner's where the merge allows it, without the family's. A
+   * family member's conditions shape the dishes they eat
+   * (lib/householdPlan.ts) rather than every dish for everybody.
+   */
+  tableCodes: string[];
 };
 
 /** Adds every family member's conditions to a code list, sorted and deduplicated. */
@@ -88,6 +95,7 @@ export async function resolvePlanningScope(input: {
       coversBoth: false,
       otherPartners: 0,
       family,
+      tableCodes: mine,
     };
   }
 
@@ -113,6 +121,7 @@ export async function resolvePlanningScope(input: {
     coversBoth: merge.refusal === null,
     otherPartners: others,
     family,
+    tableCodes: merge.codes,
   };
 }
 

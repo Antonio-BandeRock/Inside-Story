@@ -67,6 +67,8 @@ import {
 import { MEAL_SERVING_CHOICES, mealServingsLabel } from '../../lib/makeItFor';
 import type { RecipeDietTag } from '../../lib/digest';
 import { describePlanningScope, resolvePlanningScope, type PlanningScope } from '../../lib/partnerPlanning';
+import { resolveHouseholdEaters } from '../../lib/householdEaters';
+import { describeHousehold, joinNames, type PlanEater, type PlanMeal } from '../../lib/householdPlan';
 import { getMealPlanningPartner } from '../../lib/connections';
 import { getPartnerMealPlanNamed, type PartnerMealPlanNamed } from '../../lib/mealPlanSync';
 import { daysSinceSent } from '../../lib/partnerSync';
@@ -1986,7 +1988,10 @@ function DailyMealPlanPickRow({ pick, onChange, onRemove }: { pick: DailyMealPla
 // show each nutrient, what the day gives and how near the target it comes.
 // The ones short of their target come first, furthest short first, so the
 // gap is what is read first; the ceilings (sodium) follow on their own.
-function DailyPlanTargetList({ day }: { day: DailyMealPlanResult }) {
+// surface: the rating box it sits in, painted again here so the list carries
+// a surface of its own (audit_bare_text_on_background.js) without changing
+// how it looks.
+function DailyPlanTargetList({ day, surface }: { day: DailyMealPlanResult; surface: string }) {
   const floors = day.nutrientCoverage.filter((row) => !row.isCeiling && row.targetAmount != null && row.targetAmount > 0);
   const ceilings = day.nutrientCoverage.filter((row) => row.isCeiling && (row.upperLimit ?? row.targetAmount) != null);
   const percentOf = (row: (typeof floors)[number]) => (row.amount / (row.targetAmount as number)) * 100;
@@ -1997,7 +2002,7 @@ function DailyPlanTargetList({ day }: { day: DailyMealPlanResult }) {
   function line(row: DailyMealPlanNutrientCoverage, target: number, overLimit: boolean) {
     const percent = Math.round((row.amount / target) * 100);
     return (
-      <View key={row.nutrientCode} style={styles.targetLine}>
+      <View key={row.nutrientCode} style={[styles.targetLine, { backgroundColor: surface }]}>
         <View style={styles.targetLineText}>
           <Text style={[styles.helperText, styles.targetLineName]}>{row.displayName}</Text>
           <Text style={[styles.helperText, overLimit && { color: colors.danger }]}>
@@ -2235,7 +2240,7 @@ function DailyPlanFullReport({
           Reaches {reached.met} of your {reached.of} nutrient targets from food.
         </Text>
       ) : null}
-      {reached.of > 0 ? <DailyPlanTargetList day={day} /> : null}
+      {reached.of > 0 ? <DailyPlanTargetList day={day} surface={ratingColors.bg} /> : null}
       {day.warnings.map((warning, index) => (
         <Text key={index} style={styles.helperText}>
           ⚠ {warning}
@@ -2297,20 +2302,55 @@ function DailyPlanFullReport({
     );
   }
 
+  // Who a meal is made for, and the plates made for one person beside it.
+  // Nothing shows when the plan feeds you alone (lib/householdPlan.ts).
+  function householdRows(meal: PlanMeal) {
+    const household = day.household;
+    if (!household) return null;
+    const table = household.meals[meal];
+    const servings = table.servings === 1 ? '1 serving' : `${table.servings} servings`;
+    return (
+      <View>
+        <Text style={styles.helperText}>{`For ${joinNames(table.names)}, ${servings}.`}</Text>
+        {household.plates
+          .filter((plate) => plate.meal === meal)
+          .map((plate) => (
+            <View key={`${plate.forId}-${plate.pick.entry.id}`}>
+              <Text style={styles.label}>{plate.reason === 'own' ? `${plate.forName}'s plate` : `A side for ${plate.forName}`}</Text>
+              <DailyMealPlanPickRow pick={plate.pick} />
+              <Text style={styles.helperText}>{plate.note}</Text>
+            </View>
+          ))}
+      </View>
+    );
+  }
+
   const meals = (
     <>
       <View style={nested ? styles.dailyPlanSlot : styles.row}>
         <Text style={styles.rowTitle}>Breakfast</Text>
         {day.breakfast ? <DailyMealPlanPickRow pick={day.breakfast} /> : <Text style={styles.helperText}>No compliant option found.</Text>}
+        {householdRows('breakfast')}
       </View>
       <View style={nested ? styles.dailyPlanSlot : styles.row}>
         <Text style={styles.rowTitle}>Lunch</Text>
         {day.lunch.length > 0 ? plateRows('lunch') : <Text style={styles.helperText}>No compliant option found.</Text>}
+        {householdRows('lunch')}
       </View>
       <View style={nested ? styles.dailyPlanSlot : styles.row}>
         <Text style={styles.rowTitle}>Dinner</Text>
         {day.dinner.length > 0 ? plateRows('dinner') : <Text style={styles.helperText}>No compliant option found.</Text>}
+        {householdRows('dinner')}
       </View>
+      {day.household && day.household.notes.length > 0 ? (
+        <View style={nested ? styles.dailyPlanSlot : styles.row}>
+          {day.household.notes.map((note, index) => (
+            <Text key={`household-${index}`} style={styles.helperText}>
+              {note}
+            </Text>
+          ))}
+        </View>
+      ) : null}
     </>
   );
 
@@ -2504,6 +2544,8 @@ function DailyMealPlanLens() {
   // so the screen describes the plan it is showing rather than the current state
   // of a partner link that may have changed since it was generated.
   const [planningScope, setPlanningScope] = useState<PlanningScope | null>(null);
+  // Everybody the plan was made for (lib/householdEaters.ts), you included.
+  const [planHousehold, setPlanHousehold] = useState<PlanEater[] | null>(null);
   const [plans, setPlans] = useState<DailyMealPlanResult[]>([]);
   const [scheduleDate, setScheduleDate] = useState(todayDateString());
   const [scheduling, setScheduling] = useState(false);
@@ -2576,11 +2618,12 @@ function DailyMealPlanLens() {
     if (!planningScope) return undefined;
     const scope = planningScope;
     const diet = plannedDiet ? planDietTags(plannedDiet) : dietPreferences;
+    const household = planHousehold ?? undefined;
     return {
       load: () => {
-        const key = JSON.stringify([scope.conditionCodes, diet]);
+        const key = JSON.stringify([scope.conditionCodes, diet, household?.map((eater) => eater.id)]);
         if (!swapPoolsRef.current || swapPoolsRef.current.key !== key) {
-          const pools = loadPlateSwapPools(scope.conditionCodes, diet);
+          const pools = loadPlateSwapPools(scope.conditionCodes, diet, household);
           swapPoolsRef.current = { key, pools };
           pools.catch(() => {
             if (swapPoolsRef.current?.pools === pools) swapPoolsRef.current = null;
@@ -2605,6 +2648,9 @@ function DailyMealPlanLens() {
         today: new Date().toISOString().slice(0, 10),
       });
       const startDate = isValidDateString(scheduleDate) ? scheduleDate : todayDateString();
+      // Everybody at the table, each with their own lists. With nobody but
+      // you, the generator runs exactly as it always has.
+      const household = await resolveHouseholdEaters(scope, dietPreferences);
       const results = await generateMealPlanDays({
         conditionCodes: scope.conditionCodes,
         dietPreferences,
@@ -2612,10 +2658,12 @@ function DailyMealPlanLens() {
         days: daysToGenerate,
         limitAddedSugar,
         startDate,
+        household,
       });
       setGeneratedStart(startDate);
       setScheduleDate(startDate);
       setPlanningScope(scope);
+      setPlanHousehold(household);
       setPlannedDiet(planDiet);
       setPlans(results);
     } catch (error) {
@@ -2643,12 +2691,14 @@ function DailyMealPlanLens() {
         myConditionCodes: conditionCodes,
         today: new Date().toISOString().slice(0, 10),
       });
+      const diet = plannedDiet ? planDietTags(plannedDiet) : dietPreferences;
       const result = await generateDailyMealPlan({
         conditionCodes: scope.conditionCodes,
-        dietPreferences: plannedDiet ? planDietTags(plannedDiet) : dietPreferences,
+        dietPreferences: diet,
         carbLevel,
         limitAddedSugar,
         date: generatedStart ? addDaysToLocalDate(generatedStart, index) : undefined,
+        household: planHousehold ?? (await resolveHouseholdEaters(scope, diet)),
       });
       setPlans((current) => current.map((day, i) => (i === index ? result : day)));
     } catch (error) {
@@ -2825,6 +2875,9 @@ function DailyMealPlanLens() {
         {planningScope && plans.length > 0 ? (
           <View style={styles.planScopeBox}>
             <Text style={styles.planScopeText}>{describePlanningScope(planningScope)}</Text>
+            {planHousehold && describeHousehold(planHousehold) ? (
+              <Text style={styles.planScopeText}>{describeHousehold(planHousehold)}</Text>
+            ) : null}
             {plannedDiet ? <Text style={styles.planScopeText}>{describePlanDiet(plannedDiet)}</Text> : null}
           </View>
         ) : null}

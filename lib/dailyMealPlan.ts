@@ -76,6 +76,21 @@ import {
 } from './digest';
 import { describeLeftOut, describeLimitsPassed, describeSwapEffect, improveDay, rankSwapOptions, targetsMet } from './mealPlanBalance';
 import { SIDE_DISH_RECIPE_IDS } from './recipeDishRole';
+import {
+  PLAN_MEAL_LABELS,
+  PLAN_MEALS,
+  coverTable,
+  eaterFits,
+  eatersAt,
+  hardToChewWords,
+  isHomeFor,
+  joinNames,
+  portionFactor,
+  servingsFor,
+  shortestTarget,
+  type PlanEater,
+  type PlanMeal,
+} from './householdPlan';
 import { addDays, overridesForDate, weekdayTargetNotes, type WeekdayTargetOverride } from './weekdayTargets';
 
 // A recipe entry that's actually usable by this generator: not a
@@ -951,6 +966,28 @@ export type DailyMealPlanResult = {
   // Nutrient Targets was used in place of the every-day one (F21).
   date?: string;
   weekdayNotes?: string[];
+  // Who the day feeds, when anybody besides you is at the table
+  // (2026-09-27, lib/householdPlan.ts). Absent when the plan feeds you alone.
+  household?: HouseholdDay;
+};
+
+/** A plate made for one person: a main the shared dish missed, or a side for a nutrient their day comes up short on. */
+export type HouseholdPlate = {
+  meal: PlanMeal;
+  forId: string;
+  forName: string;
+  pick: DailyMealPlanPick;
+  reason: 'own' | 'gap';
+  note: string;
+  servings: number;
+};
+
+export type HouseholdDay = {
+  /** Who each shared meal is made for, 'you' first, and how many servings that is. */
+  meals: Record<PlanMeal, { names: string[]; servings: number }>;
+  /** Kept apart from lunch and dinner, and out of your nutrient totals. */
+  plates: HouseholdPlate[];
+  notes: string[];
 };
 
 // 2026-08-26, direct report: "more hydration will have been scheduled
@@ -2016,8 +2053,15 @@ export async function generateDailyMealPlan(options: {
   limitAddedSugar?: boolean;
   // The calendar date the day is for, so a weekday figure can apply (F21).
   date?: string;
+  // Everybody the plan feeds, you included (lib/householdEaters.ts).
+  household?: PlanEater[];
 }): Promise<DailyMealPlanResult> {
   return retryOnceOnReleasedObject(async () => {
+    const table = householdTable(options.household);
+    if (table) {
+      const pools = await buildCandidatePools([], []);
+      return generateHouseholdDay(pools, table, options.carbLevel, options.limitAddedSugar ?? false, undefined, options.date);
+    }
     const pools = await buildCandidatePools(options.conditionCodes, options.dietPreferences);
     return generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false, undefined, options.date);
   });
@@ -2050,20 +2094,24 @@ export async function generateMealPlanDays(options: {
   limitAddedSugar?: boolean;
   // The date of the first day; day N is this date plus N - 1 (F21).
   startDate?: string;
+  // Everybody the plan feeds, you included (lib/householdEaters.ts).
+  household?: PlanEater[];
 }): Promise<DailyMealPlanResult[]> {
   const days = Math.max(1, Math.min(42, Math.round(options.days)));
+  const table = householdTable(options.household);
   return retryOnceOnReleasedObject(async () => {
-    const pools = await buildCandidatePools(options.conditionCodes, options.dietPreferences);
+    const pools = table ? await buildCandidatePools([], []) : await buildCandidatePools(options.conditionCodes, options.dietPreferences);
     const rotationState = newRotationState();
     const results: DailyMealPlanResult[] = [];
     for (let dayIndex = 0; dayIndex < days; dayIndex++) {
       const dayOfWeek = dayIndex % 7;
       if (dayOfWeek === 0) rotationState.weekFrequency.clear();
       const daysRemainingInWeekIncludingToday = 7 - dayOfWeek;
-      const result = await generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false, {
-        state: rotationState,
-        daysRemainingInWeekIncludingToday,
-      }, options.startDate ? addDays(options.startDate, dayIndex) : undefined);
+      const rotation = { state: rotationState, daysRemainingInWeekIncludingToday };
+      const date = options.startDate ? addDays(options.startDate, dayIndex) : undefined;
+      const result = table
+        ? await generateHouseholdDay(pools, table, options.carbLevel, options.limitAddedSugar ?? false, rotation, date)
+        : await generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false, rotation, date);
       results.push(result);
     }
     return results;
@@ -2105,12 +2153,225 @@ export function dailyMealPlanToMealPlanDay(result: DailyMealPlanResult, dayNumbe
     };
   }
 
+  const household = result.household;
+  function withServings(slot: MealPlanSlot, meal: PlanMeal): MealPlanSlot {
+    return household ? { ...slot, servings: household.meals[meal].servings } : slot;
+  }
+  const plates = (household?.plates ?? []).map((plate) => ({
+    mealType: plate.meal,
+    slot: { main: toRef(plate.pick)!, forName: plate.forName, servings: plate.servings } as MealPlanSlot,
+  }));
+
   return {
     day: dayNumber,
-    breakfast: toSlot([result.breakfast]),
-    lunch: toSlot(result.lunch),
-    dinner: toSlot(result.dinner),
+    breakfast: withServings(toSlot([result.breakfast]), 'breakfast'),
+    lunch: withServings(toSlot(result.lunch), 'lunch'),
+    dinner: withServings(toSlot(result.dinner), 'dinner'),
+    ...(plates.length > 0 ? { plates } : {}),
   };
+}
+
+// ---------------------------------------------------------------------
+// Who the plan feeds (2026-09-27, lib/householdPlan.ts). With anybody
+// besides you at the table, the pools are loaded wide once and each meal
+// is narrowed to the people home for it: the shared dish fits as many of
+// them as it can, each person it misses gets a plate of their own, and a
+// person whose day here comes up short on a key nutrient gets one side
+// chosen for it. None of those plates count toward your nutrient totals,
+// since you are not the one eating them.
+// ---------------------------------------------------------------------
+
+type HouseholdTable = {
+  eaters: PlanEater[];
+  you: PlanEater;
+  fits: (eater: PlanEater, candidate: LoadedCandidate) => boolean;
+};
+
+function ingredientTextOf(entry: EligibleRecipeEntry): string {
+  return (entry.recipeCard?.ingredients ?? []).map((line) => line.text).join(', ');
+}
+
+/** Null when the plan feeds you alone, which keeps the one-person path exactly as it was. */
+function householdTable(eaters: PlanEater[] | undefined): HouseholdTable | null {
+  if (!eaters || !eaters.some((eater) => !eater.isYou)) return null;
+  const you = eaters.find((eater) => eater.isYou);
+  if (!you) return null;
+  const cache = new Map<string, boolean>();
+  const fits = (eater: PlanEater, candidate: LoadedCandidate): boolean => {
+    const key = `${eater.id}|${candidate.entry.linkedCuratedRecipeId}`;
+    let hit = cache.get(key);
+    if (hit === undefined) {
+      hit = eaterFits(
+        eater,
+        { dietTags: candidate.entry.recipeCard?.dietTags, ingredientText: ingredientTextOf(candidate.entry) },
+        (codes) => recipeSafeAcrossConditions(candidate.entry, codes) !== null,
+      );
+      cache.set(key, hit);
+    }
+    return hit;
+  };
+  return { eaters, you, fits };
+}
+
+/** The easy-to-chew dishes when somebody at the table eats soft food and any are left; the list as given otherwise. */
+function preferSoft(list: LoadedCandidate[], people: PlanEater[]): LoadedCandidate[] {
+  if (!people.some((eater) => eater.soft)) return list;
+  const soft = list.filter((candidate) => hardToChewWords(ingredientTextOf(candidate.entry)).length === 0);
+  return soft.length > 0 ? soft : list;
+}
+
+function lowerNutrientName(name: string): string {
+  return name.replace(/^([A-Z])(?=[a-z])/, (letter) => letter.toLowerCase());
+}
+
+async function generateHouseholdDay(
+  pools: CandidatePools,
+  table: HouseholdTable,
+  carbLevel: CarbLevel,
+  limitAddedSugar: boolean,
+  rotation: { state: RotationState; daysRemainingInWeekIncludingToday: number } | undefined,
+  date: string | undefined,
+): Promise<DailyMealPlanResult> {
+  const { eaters, you, fits } = table;
+  const mainPool: Record<PlanMeal, LoadedCandidate[]> = {
+    breakfast: pools.breakfastCandidates,
+    lunch: pools.lunchMainCandidates,
+    dinner: pools.dinnerMainCandidates,
+  };
+  const tables = {} as Record<PlanMeal, { covered: PlanEater[]; ownPlate: PlanEater[]; matching: LoadedCandidate[] }>;
+  for (const meal of PLAN_MEALS) {
+    const cover = coverTable(eatersAt(eaters, date, meal), mainPool[meal], fits);
+    tables[meal] = { ...cover, matching: preferSoft(cover.matching, cover.covered) };
+  }
+  // Sides, salads and drinks go on the shared lunch and dinner plates, so
+  // they fit everybody either of those dishes is made for.
+  const sharing = [...new Set([...tables.lunch.covered, ...tables.dinner.covered])];
+  const forSharing = (list: LoadedCandidate[]) => preferSoft(list.filter((c) => sharing.every((eater) => fits(eater, c))), sharing);
+  const tablePools: CandidatePools = {
+    ...pools,
+    breakfastCandidates: tables.breakfast.matching,
+    lunchMainCandidates: tables.lunch.matching,
+    dinnerMainCandidates: tables.dinner.matching,
+    sideCandidates: forSharing(pools.sideCandidates),
+    saladCandidates: forSharing(pools.saladCandidates),
+    beverageCandidates: forSharing(pools.beverageCandidates),
+  };
+  const result = await generateOneDay(tablePools, you.conditionCodes, carbLevel, limitAddedSugar, rotation, date);
+
+  const idOf = (candidate: LoadedCandidate) => candidate.entry.linkedCuratedRecipeId;
+  const usedIds = new Set(dayPicks(result).map((pick) => pick.entry.linkedCuratedRecipeId));
+  const mealPicks = (meal: PlanMeal): DailyMealPlanPick[] =>
+    meal === 'breakfast' ? (result.breakfast ? [result.breakfast] : []) : result[meal];
+  const toPick = (candidate: LoadedCandidate, role: DailyMealPlanPick['role']): DailyMealPlanPick => ({
+    entry: candidate.entry,
+    role,
+    carbGrams: candidate.carbGrams,
+    nutrientTotals: candidate.nutrientTotals,
+  });
+  // A dish not already on the day, the least used this run when rotating.
+  // Only the usage count moves: a plate for somebody else does not count
+  // toward your fish and red meat for the week.
+  const choose = (list: LoadedCandidate[]): LoadedCandidate | undefined => {
+    const open = list.filter((c) => !usedIds.has(idOf(c)));
+    const from = open.length > 0 ? open : list;
+    if (from.length === 0) return undefined;
+    if (!rotation) return pickRandom(from);
+    const least = Math.min(...from.map((c) => rotation.state.usageCount.get(idOf(c)) ?? 0));
+    return pickRandom(from.filter((c) => (rotation.state.usageCount.get(idOf(c)) ?? 0) === least));
+  };
+  const markUsed = (candidate: LoadedCandidate) => {
+    usedIds.add(idOf(candidate));
+    if (rotation) rotation.state.usageCount.set(idOf(candidate), (rotation.state.usageCount.get(idOf(candidate)) ?? 0) + 1);
+  };
+
+  const plates: HouseholdPlate[] = [];
+  const notes: string[] = [];
+  for (const meal of PLAN_MEALS) {
+    for (const eater of tables[meal].ownPlate) {
+      const chosen = choose(preferSoft(mainPool[meal].filter((c) => fits(eater, c)), [eater]));
+      if (!chosen) {
+        notes.push(`Nothing in the recipe library fits everything on ${eater.name}'s lists for ${meal}, so there is no plate for them at that meal.`);
+        continue;
+      }
+      markUsed(chosen);
+      plates.push({
+        meal,
+        forId: eater.id,
+        forName: eater.name,
+        pick: toPick(chosen, 'main'),
+        reason: 'own',
+        note: `The shared ${meal} dish does not fit everything on ${eater.name}'s lists, so this plate is made for them.`,
+        servings: portionFactor(eater.portion),
+      });
+    }
+  }
+
+  const bonusPool = [
+    ...pools.sideCandidates.map((c) => ({ c, role: 'side' as const })),
+    ...pools.saladCandidates.map((c) => ({ c, role: 'salad' as const })),
+    ...pools.beverageCandidates.map((c) => ({ c, role: 'beverage' as const })),
+  ];
+  for (const eater of eaters) {
+    if (eater.isYou) continue;
+    const home = PLAN_MEALS.filter((meal) => isHomeFor(eater, date, meal));
+    if (home.length === 0) continue;
+    const factor = portionFactor(eater.portion);
+    const totals: Record<string, number> = {};
+    for (const meal of home) {
+      const eaten = tables[meal].covered.includes(eater)
+        ? mealPicks(meal)
+        : plates.filter((plate) => plate.forId === eater.id && plate.meal === meal).map((plate) => plate.pick);
+      for (const pick of eaten) {
+        for (const [code, amount] of Object.entries(pick.nutrientTotals)) totals[code] = (totals[code] ?? 0) + amount * factor;
+      }
+    }
+    const gap = shortestTarget(eater, totals, home.length);
+    if (!gap) continue;
+    const code = gap.target.code;
+    const options = bonusPool
+      .filter(({ c }) => !usedIds.has(idOf(c)) && fits(eater, c) && (c.nutrientTotals[code] ?? 0) > 0)
+      .sort((a, b) => (b.c.nutrientTotals[code] ?? 0) - (a.c.nutrientTotals[code] ?? 0));
+    const softOnes = eater.soft ? options.filter(({ c }) => hardToChewWords(ingredientTextOf(c.entry)).length === 0) : options;
+    const best = (softOnes.length > 0 ? softOnes : options)[0];
+    if (!best) continue;
+    markUsed(best.c);
+    const meal: PlanMeal = home.includes('dinner') ? 'dinner' : home.includes('lunch') ? 'lunch' : 'breakfast';
+    const adds = Math.round((best.c.nutrientTotals[code] ?? 0) * factor * 10) / 10;
+    plates.push({
+      meal,
+      forId: eater.id,
+      forName: eater.name,
+      pick: toPick(best.c, best.role),
+      reason: 'gap',
+      note: `${eater.name}'s dishes here carry ${Math.round(gap.share * 100)}% of the ${lowerNutrientName(gap.target.name)} for the meals they eat here, and this adds ${adds} ${gap.target.unit}.`,
+      servings: factor,
+    });
+  }
+
+  for (const meal of PLAN_MEALS) {
+    const soft = tables[meal].covered.filter((eater) => eater.soft);
+    if (soft.length > 0) {
+      const words = [...new Set(mealPicks(meal).flatMap((pick) => hardToChewWords(ingredientTextOf(pick.entry))))];
+      if (words.length > 0) {
+        notes.push(`${PLAN_MEAL_LABELS[meal]} has ${joinNames(words)} in it; for ${joinNames(soft.map((eater) => eater.name))}, chop, mash or cook it softer.`);
+      }
+    }
+  }
+  for (const plate of plates) {
+    const eater = eaters.find((person) => person.id === plate.forId);
+    if (!eater?.soft) continue;
+    const words = hardToChewWords(ingredientTextOf(plate.pick.entry));
+    if (words.length > 0) notes.push(`${plate.pick.entry.title} for ${eater.name} has ${joinNames(words)} in it; chop, mash or cook it softer.`);
+  }
+
+  const meals = {} as HouseholdDay['meals'];
+  for (const meal of PLAN_MEALS) {
+    meals[meal] = {
+      names: tables[meal].covered.map((eater) => (eater.isYou ? 'you' : eater.name)),
+      servings: servingsFor(tables[meal].covered),
+    };
+  }
+  return { ...result, household: { meals, plates, notes } };
 }
 
 // ---------------------------------------------------------------------
@@ -2142,8 +2403,30 @@ export type PlateSwapChoice = {
 /** 'change' trades the planned dish in a role; 'add' puts one more dish beside the rest. */
 export type PlateSwapMode = 'change' | 'add';
 
-export async function loadPlateSwapPools(conditionCodes: string[], dietPreferences: RecipeDietTag[]): Promise<PlateSwapPools> {
-  return retryOnceOnReleasedObject(async () => ({ pools: await buildCandidatePools(conditionCodes, dietPreferences), conditionCodes }));
+export async function loadPlateSwapPools(
+  conditionCodes: string[],
+  dietPreferences: RecipeDietTag[],
+  household?: PlanEater[],
+): Promise<PlateSwapPools> {
+  const table = householdTable(household);
+  if (!table) {
+    return retryOnceOnReleasedObject(async () => ({ pools: await buildCandidatePools(conditionCodes, dietPreferences), conditionCodes }));
+  }
+  // With a household, a side traded onto a shared plate fits everybody the
+  // plan feeds, since which of them are home for that meal can change by day.
+  return retryOnceOnReleasedObject(async () => {
+    const pools = await buildCandidatePools([], []);
+    const forEveryone = (list: LoadedCandidate[]) => list.filter((c) => table.eaters.every((eater) => table.fits(eater, c)));
+    return {
+      pools: {
+        ...pools,
+        sideCandidates: forEveryone(pools.sideCandidates),
+        saladCandidates: forEveryone(pools.saladCandidates),
+        beverageCandidates: forEveryone(pools.beverageCandidates),
+      },
+      conditionCodes: table.you.conditionCodes,
+    };
+  });
 }
 
 function poolForRole(pools: CandidatePools, role: PlateSwapRole): LoadedCandidate[] {

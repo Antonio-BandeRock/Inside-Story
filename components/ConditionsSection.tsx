@@ -43,6 +43,14 @@ import {
 import { groupConditionEntries } from '../lib/digest/conditionGrouping';
 import { RECIPE_DIET_TAGS } from '../lib/digest/types';
 import { FOOD_RESTRICTIONS, knownRestrictions, type FoodRestrictionKey } from '../lib/foodRestrictions';
+import {
+  AGE_GROUP_CHOICES,
+  PLAN_MEAL_LABELS,
+  PLAN_MEALS,
+  PORTION_CHOICES,
+  type PlanMeal,
+  type PortionSize,
+} from '../lib/householdPlan';
 import { routeForDigestEntry } from '../lib/digestNavigation';
 import { useWalkMark } from './WalkMark';
 
@@ -97,7 +105,23 @@ type FamilyForm = {
   allergiesText: string;
   dietTags: RecipeDietTag[];
   restrictions: FoodRestrictionKey[];
+  // Who a meal plan feeds (2026-09-27, lib/householdPlan.ts).
+  portion: PortionSize;
+  softFood: boolean;
+  awayMeals: PlanMeal[];
+  livesFrom: string;
+  livesUntil: string;
+  ageGroup: string;
+  sex: string;
 };
+
+const PORTION_OPTIONS = PORTION_CHOICES.map((choice) => ({ label: choice.label, value: choice.key }));
+const AGE_GROUP_OPTIONS = [{ label: 'Not given', value: '' }, ...AGE_GROUP_CHOICES.map((choice) => ({ label: choice.label, value: choice.key }))];
+const SEX_OPTIONS = [
+  { label: 'Not given', value: '' },
+  { label: 'Female', value: 'female' },
+  { label: 'Male', value: 'male' },
+];
 
 function blankFamilyForm(): FamilyForm {
   return {
@@ -109,6 +133,25 @@ function blankFamilyForm(): FamilyForm {
     allergiesText: '',
     dietTags: [],
     restrictions: [],
+    portion: 'regular',
+    softFood: false,
+    awayMeals: [],
+    livesFrom: '',
+    livesUntil: '',
+    ageGroup: '',
+    sex: '',
+  };
+}
+
+function familyTableFields(form: FamilyForm) {
+  return {
+    portion: form.portion,
+    softFood: form.softFood,
+    awayMeals: form.awayMeals,
+    livesFrom: form.livesFrom.trim() || null,
+    livesUntil: form.livesUntil.trim() || null,
+    ageGroup: form.ageGroup || null,
+    sex: form.sex || null,
   };
 }
 
@@ -387,6 +430,7 @@ export function ConditionsSection({
           allergies: splitAllergies(familyForm.allergiesText),
           dietTags: familyForm.dietTags,
           restrictions: familyForm.restrictions,
+          ...familyTableFields(familyForm),
         });
       } else {
         await addFamilyMember({
@@ -397,6 +441,7 @@ export function ConditionsSection({
           allergies: splitAllergies(familyForm.allergiesText),
           dietTags: familyForm.dietTags,
           restrictions: familyForm.restrictions,
+          ...familyTableFields(familyForm),
         });
       }
       setFamilyForm(null);
@@ -609,6 +654,15 @@ export function ConditionsSection({
                   ? `Restrictions: ${FOOD_RESTRICTIONS.filter((r) => member.restrictions.includes(r.key)).map((r) => r.label).join(', ')}.`
                   : '',
               ].filter(Boolean);
+              const tableParts = [
+                member.portion === 'smaller' ? 'Smaller portion.' : member.portion === 'larger' ? 'Larger portion.' : '',
+                member.softFood ? 'Soft food.' : '',
+                member.awayMeals.length
+                  ? `Away for ${PLAN_MEALS.filter((meal) => member.awayMeals.includes(meal)).map((meal) => PLAN_MEAL_LABELS[meal].toLowerCase()).join(', ')}.`
+                  : '',
+                member.livesFrom ? `Here from ${member.livesFrom}.` : '',
+                member.livesUntil ? `Here until ${member.livesUntil}.` : '',
+              ].filter(Boolean);
               return (
                 <View key={member.id} style={styles.memberRow}>
                   <View style={styles.memberMain}>
@@ -622,6 +676,9 @@ export function ConditionsSection({
                       {member.includeInMealPlan ? '' : ' Not planned around.'}
                     </Text>
                     {foodParts.length > 0 ? <Text style={styles.memberMeta}>{foodParts.join(' ')}</Text> : null}
+                    {member.includeInMealPlan && tableParts.length > 0 ? (
+                      <Text style={styles.memberMeta}>{tableParts.join(' ')}</Text>
+                    ) : null}
                   </View>
                   <View style={styles.memberActions}>
                     <TouchableOpacity
@@ -637,6 +694,15 @@ export function ConditionsSection({
                             (RECIPE_DIET_TAGS as string[]).includes(tag),
                           ),
                           restrictions: knownRestrictions(member.restrictions),
+                          portion: PORTION_CHOICES.some((choice) => choice.key === member.portion)
+                            ? (member.portion as PortionSize)
+                            : 'regular',
+                          softFood: member.softFood,
+                          awayMeals: PLAN_MEALS.filter((meal) => member.awayMeals.includes(meal)),
+                          livesFrom: member.livesFrom ?? '',
+                          livesUntil: member.livesUntil ?? '',
+                          ageGroup: member.ageGroup ?? '',
+                          sex: member.sex ?? '',
                         })
                       }
                     >
@@ -712,6 +778,87 @@ export function ConditionsSection({
                 When this is on, a generated meal plan is checked against their conditions as well as yours, and
                 the plan says so. Turn it off for someone who eats elsewhere.
               </Text>
+              {familyForm.includeInMealPlan ? (
+                <>
+                  <Text style={styles.label}>How much they eat</Text>
+                  <PopoverSelect
+                    options={PORTION_OPTIONS}
+                    selected={familyForm.portion}
+                    onSelect={(value) => setFamilyForm({ ...familyForm, portion: value as PortionSize })}
+                    tabColor={tabColor}
+                  />
+                  <Text style={styles.label}>Meals they are usually away for</Text>
+                  <View style={styles.conditionGrid}>
+                    {PLAN_MEALS.map((meal) => {
+                      const active = familyForm.awayMeals.includes(meal);
+                      return (
+                        <TouchableOpacity
+                          key={meal}
+                          style={[styles.pill, active && styles.pillActive]}
+                          onPress={() =>
+                            setFamilyForm({
+                              ...familyForm,
+                              awayMeals: PLAN_MEALS.filter((m) => (m === meal ? !active : familyForm.awayMeals.includes(m))),
+                            })
+                          }
+                        >
+                          <Text style={[styles.pillText, active && styles.pillTextActive]}>{PLAN_MEAL_LABELS[meal]}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                  <TouchableOpacity
+                    style={styles.checkRow}
+                    onPress={() => setFamilyForm({ ...familyForm, softFood: !familyForm.softFood })}
+                  >
+                    <Ionicons
+                      name={familyForm.softFood ? 'checkbox' : 'square-outline'}
+                      size={20}
+                      color={familyForm.softFood ? tabColor : colors.textSecondary}
+                    />
+                    <Text style={styles.checkLabel}>Needs soft or easy-to-chew food</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.label}>Lives here from</Text>
+                  <AppTextInput
+                    style={styles.input}
+                    value={familyForm.livesFrom}
+                    onChangeText={(text) => setFamilyForm({ ...familyForm, livesFrom: text })}
+                    placeholder="YYYY-MM-DD"
+                    placeholderTextColor={colors.textMuted}
+                  />
+                  <Text style={styles.label}>Lives here until</Text>
+                  <AppTextInput
+                    style={styles.input}
+                    value={familyForm.livesUntil}
+                    onChangeText={(text) => setFamilyForm({ ...familyForm, livesUntil: text })}
+                    placeholder="YYYY-MM-DD"
+                    placeholderTextColor={colors.textMuted}
+                  />
+                  <Text style={styles.helperText}>
+                    Leave both empty for someone who lives here all the time. A parent moving in, or a child away
+                    at school, only joins the plan on the days between.
+                  </Text>
+                  <Text style={styles.label}>Age</Text>
+                  <PopoverSelect
+                    options={AGE_GROUP_OPTIONS}
+                    selected={familyForm.ageGroup}
+                    onSelect={(value) => setFamilyForm({ ...familyForm, ageGroup: value })}
+                    tabColor={tabColor}
+                  />
+                  <Text style={styles.label}>Sex, for daily amounts</Text>
+                  <PopoverSelect
+                    options={SEX_OPTIONS}
+                    selected={familyForm.sex}
+                    onSelect={(value) => setFamilyForm({ ...familyForm, sex: value })}
+                    tabColor={tabColor}
+                  />
+                  <Text style={styles.helperText}>
+                    Age and sex set the daily amounts of calcium, iron, vitamin D, protein, fiber and B12 their
+                    meals are compared with, so a side can be added where their day comes up short. Without them,
+                    adult amounts are used.
+                  </Text>
+                </>
+              ) : null}
               <Text style={styles.label}>Food allergies</Text>
               <AppTextInput
                 style={styles.input}
