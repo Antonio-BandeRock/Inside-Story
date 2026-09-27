@@ -65,6 +65,7 @@ const NAMED = [
   'lib/trendAnalysis.ts',
   'lib/therapyResponse.ts',
   'lib/doseMealTiming.ts',
+  'lib/ruleSeverity.ts',
   'lib/dayTimeline.ts',
   'lib/moveToTomorrow.ts',
   'lib/routineWalkNotice.ts',

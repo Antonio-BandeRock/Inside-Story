@@ -21,7 +21,7 @@
 ### A9. A third severity level, major
 - **Ships by:** Live database, needs owner yes · **Size:** S-M · **Tabs:** Insights
 - **Answers:** Drugs.com · **Theme:** Medication logistics
-- **How:** Decided 2026-09-26: yes, in the LIVE foods_reference.db. Add major to interaction_rules.severity and InteractionWarning, regrade existing rules against their citations, then run scripts/backup_reference_dbs.js.
+- **How:** Shipped 2026-09-26 (1.0.53.35): major, caution and note on every cited interaction rule in the live foods_reference.db, ten rules regraded to major against their citations (a label contraindication, a boxed warning, or a dose cut the label names), a tappable level on every rule card in My Meds, Schedules and Insights, major first, and the level in the report (lib/ruleSeverity.ts, components/RuleSeverityTag.tsx, scripts/test_rule_severity.js).
 
 ### A10. Drug-to-drug check through Drugs.com
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life,Insights

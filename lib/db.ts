@@ -1,6 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 import { File } from 'expo-file-system';
 import { REFERENCE_DB_VERSION } from './referenceDbVersion';
+import { toRuleSeverity, type RuleSeverity } from './ruleSeverity';
 import { attachWriteTracking } from './databaseActivity';
 import { ageFromBirthDate } from './profile';
 import { normalizeSupplementAmount } from './supplementUnits';
@@ -19303,7 +19304,7 @@ export type InteractionRuleRecord = {
   // applies at.
   minAge: number | null;
   maxAge: number | null;
-  severity: 'caution' | 'note';
+  severity: RuleSeverity;
   title: string;
   guidance: string;
   citation: string;
@@ -19350,7 +19351,7 @@ export async function listInteractionRules(): Promise<InteractionRuleRecord[]> {
     lookaheadDays: row.lookahead_days,
     minAge: row.min_age,
     maxAge: row.max_age,
-    severity: row.severity as InteractionRuleRecord['severity'],
+    severity: toRuleSeverity(row.severity),
     title: row.title,
     guidance: row.guidance,
     citation: row.citation,

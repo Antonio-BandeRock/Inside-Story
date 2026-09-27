@@ -115,6 +115,7 @@ import { PopoverSelect } from '../../components/PopoverSelect';
 import { ProgressRing } from '../../components/ProgressRing';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { WhyExplainer } from '../../components/WhyExplainer';
+import { RuleSeverityTag } from '../../components/RuleSeverityTag';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import {
   FLOATING_BUTTON_SIZE,
@@ -3740,6 +3741,7 @@ function MyMedsView({
           <Text style={[styles.rankGroupHeading, styles.groupHeadingChip, { color: tabColor }]}>Things to check</Text>
           {warnings.map((warning, index) => (
             <View key={`${warning.ruleId}_${index}`} style={[styles.formCard, styles.rankSpaced, { borderColor: tabColor }]}>
+              <RuleSeverityTag severity={warning.severity} onPress={showInfoAlert} />
               <Text style={[styles.rankFoodName, { color: tabColor }]}>{warning.title}</Text>
               <Text style={styles.myMedsMessage}>{warning.message}</Text>
               <Text style={styles.myMedsCitation}>{warning.citation}</Text>
@@ -3786,6 +3788,7 @@ function MyMedsView({
           <Text style={[styles.rankGroupHeading, styles.groupHeadingChip, { color: tabColor }]}>Worth knowing (reference only)</Text>
           {referenceOnly.map((rule) => (
             <View key={rule.ruleId} style={[styles.formCard, styles.rankSpaced, { borderColor: colors.border }]}>
+              <RuleSeverityTag severity={rule.severity} onPress={showInfoAlert} />
               <Text style={styles.rankFoodName}>{rule.title}</Text>
               <Text style={styles.myMedsMessage}>{rule.guidance}</Text>
               <Text style={styles.myMedsCitation}>{rule.citation}</Text>

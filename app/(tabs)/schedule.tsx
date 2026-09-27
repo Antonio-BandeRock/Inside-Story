@@ -108,6 +108,7 @@ import { PopoverSelect } from '../../components/PopoverSelect';
 import { RecordPhotos } from '../../components/RecordPhotos';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { WhyExplainer } from '../../components/WhyExplainer';
+import { RuleSeverityTag } from '../../components/RuleSeverityTag';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
@@ -3708,6 +3709,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
               <View style={styles.table}>
                 {interactionWarnings.map((warning, index) => (
                   <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
+                    <RuleSeverityTag severity={warning.severity} onPress={showInfoAlert} />
                     <Text style={styles.interactionTitle}>{warning.title}</Text>
                     <Text style={styles.interactionMessage}>{warning.message}</Text>
                     <Text style={styles.interactionCitation}>{warning.citation}</Text>
@@ -3729,6 +3731,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
               <View style={styles.table}>
                 {referenceOnlyRules.map((rule) => (
                   <View key={rule.ruleId} style={[styles.interactionCard, styles.interactionCardReference]}>
+                    <RuleSeverityTag severity={rule.severity} onPress={showInfoAlert} />
                     <Text style={styles.interactionTitle}>{rule.title}</Text>
                     <Text style={styles.interactionMessage}>{rule.guidance}</Text>
                     <Text style={styles.interactionCitation}>{rule.citation}</Text>
@@ -4390,6 +4393,7 @@ function AppointmentsLens() {
             <View style={styles.table}>
               {interactionWarnings.map((warning, index) => (
                 <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
+                  <RuleSeverityTag severity={warning.severity} onPress={showInfoAlert} />
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
                   <Text style={styles.interactionMessage}>{warning.message}</Text>
                   <Text style={styles.interactionCitation}>{warning.citation}</Text>

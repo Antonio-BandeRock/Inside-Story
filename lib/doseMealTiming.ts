@@ -1,5 +1,6 @@
 import { formatAmount } from './nutrientAnalysis';
 import { formatTime12 } from './timeOfDay';
+import type { RuleSeverity } from './ruleSeverity';
 
 // Where a dose lands in the day, next to what is being eaten around it.
 //
@@ -33,7 +34,7 @@ export type TimingRule = {
   subjectBKind: string | null;
   subjectB: string | null;
   minSeparationHours: number | null;
-  severity: 'caution' | 'note';
+  severity: RuleSeverity;
   title: string;
   guidance: string;
   citation: string;

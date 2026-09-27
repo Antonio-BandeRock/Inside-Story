@@ -152,4 +152,12 @@
 // every phone re-import the whole ~130MB bundled database on next launch,
 // which is slow over Metro and has stalled at 95% before. Run it over USB
 // with scripts/start-with-qr.js's adb-reverse step if it hangs.
-export const REFERENCE_DB_VERSION = "20260918210000";
+// BUMPED 2026-09-26 (1.0.53.35, A9). interaction_rules gained a third
+// severity, major, by direct instruction ("Yes, add the major level of
+// severity"). Ten rules were regraded to major against their citations:
+// a label contraindication, a boxed warning, or a dose cut the label
+// names. The title, guidance and mechanism text of the rules was cleared
+// of the words the writing rules keep out, and the triptan and SSRI rule
+// was rewritten to say what the later evidence found. A stale copy would
+// show every rule without its level, so phones need the new rows.
+export const REFERENCE_DB_VERSION = "20260926120000";

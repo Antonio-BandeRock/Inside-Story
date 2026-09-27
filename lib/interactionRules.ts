@@ -19,6 +19,7 @@ import {
   type TreatmentRecord,
 } from './db';
 import { ageFromBirthDate } from './profile';
+import { sortBySeverity, type RuleSeverity } from './ruleSeverity';
 
 const APPOINTMENT_LOOKAHEAD_WINDOW_DAYS = 60;
 
@@ -38,7 +39,7 @@ function addDaysToDateString(dateStr: string, days: number): string {
 // takes both).
 export type InteractionWarning = {
   ruleId: string;
-  severity: 'caution' | 'note';
+  severity: RuleSeverity;
   title: string;
   message: string;
   citation: string;
@@ -62,7 +63,7 @@ export type InteractionWarning = {
 // shows something that actually has to do with what they take.
 export type ReferenceOnlyRule = {
   ruleId: string;
-  severity: 'caution' | 'note';
+  severity: RuleSeverity;
   title: string;
   guidance: string;
   citation: string;
@@ -383,7 +384,7 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
     // about dose TIMES at all (e.g. metformin measurably lowering TSH
     // isn't fixed by spacing the two doses apart -- it's a real,
     // persistent pharmacological effect for as long as both are active).
-    // Fires once, at 'note' or 'caution' severity as the rule itself
+    // Fires once, at the major, caution or note severity the rule itself
     // specifies, whenever both named subjects are simultaneously active,
     // with no scheduled-dose-time dependency the way timing_separation
     // has.
@@ -456,5 +457,5 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
     }
   }
 
-  return { warnings, referenceOnly, personalRules };
+  return { warnings: sortBySeverity(warnings), referenceOnly: sortBySeverity(referenceOnly), personalRules };
 }

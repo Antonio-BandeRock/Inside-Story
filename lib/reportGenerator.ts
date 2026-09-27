@@ -1,3 +1,4 @@
+import { withSeverityPrefix } from './ruleSeverity';
 import {
   getLabTests,
   getUserConditions,
@@ -470,8 +471,8 @@ async function interactionSection(): Promise<ReportSection[]> {
   try {
     const evaluation = await evaluateInteractionRules(isoDate(new Date()));
     const rows = [
-      ...evaluation.warnings.map((w) => [w.title, w.message, w.mechanism ?? '', w.citation]),
-      ...evaluation.referenceOnly.map((r) => [r.title, r.guidance, r.mechanism ?? '', r.citation]),
+      ...evaluation.warnings.map((w) => [withSeverityPrefix(w.severity, w.title), w.message, w.mechanism ?? '', w.citation]),
+      ...evaluation.referenceOnly.map((r) => [withSeverityPrefix(r.severity, r.title), r.guidance, r.mechanism ?? '', r.citation]),
     ];
     return [
       {

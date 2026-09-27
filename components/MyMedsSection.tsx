@@ -11,6 +11,7 @@ import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeS
 import { TabBand } from './TabBand';
 import { PopoverSelect } from './PopoverSelect';
 import { WhyExplainer } from './WhyExplainer';
+import { RuleSeverityTag } from './RuleSeverityTag';
 import { MedDetailsPanel } from './MedDetailsPanel';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -41,6 +42,7 @@ import {
   type TreatmentRecord,
 } from '../lib/db';
 import { evaluateInteractionRules, type InteractionWarning, type ReferenceOnlyRule } from '../lib/interactionRules';
+import { withSeverityPrefix } from '../lib/ruleSeverity';
 import { listSupplyReadings, listTreatmentDetails, type TreatmentDetails } from '../lib/medDetailsDb';
 import type { SupplyReading } from '../lib/medSupply';
 import type { NutrientGapEntry } from '../lib/nutrientAnalysis';
@@ -365,8 +367,8 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
     try {
       const evaluation = await evaluateInteractionRules(todayDateString());
       const lines = [
-        ...evaluation.warnings.filter((w) => !before.has(w.ruleId)).map((w) => `${w.title}: ${w.message}`),
-        ...evaluation.referenceOnly.filter((r) => !before.has(r.ruleId)).map((r) => `${r.title}: ${r.guidance}`),
+        ...evaluation.warnings.filter((w) => !before.has(w.ruleId)).map((w) => `${withSeverityPrefix(w.severity, w.title)}: ${w.message}`),
+        ...evaluation.referenceOnly.filter((r) => !before.has(r.ruleId)).map((r) => `${withSeverityPrefix(r.severity, r.title)}: ${r.guidance}`),
       ];
       if (lines.length === 0) return;
       showInfoAlert(
@@ -966,6 +968,7 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
             <View style={styles.table}>
               {interactionWarnings.map((warning, index) => (
                 <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
+                  <RuleSeverityTag severity={warning.severity} onPress={showInfoAlert} />
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
                   <Text style={styles.interactionMessage}>{warning.message}</Text>
                   <Text style={styles.interactionCitation}>{warning.citation}</Text>
@@ -988,6 +991,7 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
             <View style={styles.table}>
               {referenceOnlyRules.map((rule) => (
                 <View key={rule.ruleId} style={[styles.interactionCard, styles.interactionCardReference]}>
+                  <RuleSeverityTag severity={rule.severity} onPress={showInfoAlert} />
                   <Text style={styles.interactionTitle}>{rule.title}</Text>
                   <Text style={styles.interactionMessage}>{rule.guidance}</Text>
                   <Text style={styles.interactionCitation}>{rule.citation}</Text>
