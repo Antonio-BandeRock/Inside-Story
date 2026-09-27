@@ -65,6 +65,13 @@ import {
   type ScannedProductConditionFlag,
   type ScannedProductFlag,
 } from '../lib/scannedProductFlags';
+import {
+  describeFodmapCaption,
+  describeFodmapLine,
+  describeFodmapSpoken,
+  findFodmapIngredients,
+  showsFodmapCard,
+} from '../lib/fodmapLabel';
 import { buildToneMatrix, computeContainRect, saveAdjustedIngredientsPhoto } from '../lib/toneAdjustment';
 
 type ScanStatus =
@@ -248,6 +255,9 @@ export function ScanProductView({
   const [nutrientSummary, setNutrientSummary] = useState<{ code: string; displayName: string; unit: string; amountPer100g: number }[]>([]);
   const [additiveFlags, setAdditiveFlags] = useState<ScannedProductFlag[]>([]);
   const [conditionFlags, setConditionFlags] = useState<ScannedProductConditionFlag[]>([]);
+  // Ingredients on the label that are known FODMAP sources, for someone
+  // tracking IBS or IBD. Presence only; lib/fodmapLabel.ts says why.
+  const [fodmapReportText, setFodmapReportText] = useState('');
   const [computingReport, setComputingReport] = useState(false);
   const [savedProductId, setSavedProductId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
@@ -380,6 +390,7 @@ export function ScanProductView({
     setNutrientSummary([]);
     setAdditiveFlags([]);
     setConditionFlags([]);
+    setFodmapReportText('');
     setSavedProductId(null);
     setLogPanelOpen(false);
     setLogAmountText('100');
@@ -435,6 +446,7 @@ export function ScanProductView({
         ]);
         setAdditiveFlags(additives);
         setConditionFlags(conditions);
+        setFodmapReportText(text);
         const resolvedId = savedProductId ?? existingProductId;
         if (resolvedId != null) {
           const nutrients = await getFoodNutrients(resolvedId, 'Scanned');
@@ -745,6 +757,9 @@ export function ScanProductView({
     await computeReport(ingredientsText);
   }
 
+  const fodmapMatches = useMemo(() => findFodmapIngredients(fodmapReportText), [fodmapReportText]);
+  const showFodmap = showsFodmapCard(selectedConditions) && fodmapReportText.trim().length > 0;
+
   function handleReadAloud() {
     const parts: string[] = [`${name}${brand ? `, by ${brand}` : ''}.`];
     const allFlags = [
@@ -757,6 +772,7 @@ export function ScanProductView({
       parts.push(`${allFlags.length} thing${allFlags.length === 1 ? '' : 's'} to be aware of.`);
       parts.push(...allFlags);
     }
+    if (showFodmap) parts.push(describeFodmapSpoken(fodmapMatches));
     Speech.speak(parts.join(' '));
   }
 
@@ -1442,6 +1458,16 @@ export function ScanProductView({
             <Text style={styles.flagDetail}>{flag.detail}</Text>
           </View>
         ))}
+
+        {showFodmap ? (
+          <View style={[styles.flagRow, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={styles.flagLabel}>FODMAP ingredients on this label</Text>
+            {fodmapMatches.map((match) => (
+              <Text key={match.group} style={styles.flagDetail}>{describeFodmapLine(match)}</Text>
+            ))}
+            <Text style={styles.flagDetail}>{describeFodmapCaption(fodmapMatches)}</Text>
+          </View>
+        ) : null}
 
         <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={handleReadAloud}>
           <Ionicons name="volume-high-outline" size={18} color={colors.textSecondary} />

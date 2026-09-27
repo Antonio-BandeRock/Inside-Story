@@ -13,6 +13,11 @@
 - **Answers:** Medisafe · **Theme:** Medication logistics
 - **How:** A per-treatment switch read by lib/reminderSchedule.ts when the phone's time zone changes.
 
+### A11. Drug-to-drug data inside the app
+- **Ships by:** Live database, needs owner yes · **Size:** L · **Tabs:** Insights
+- **Answers:** Drugs.com, Medisafe · **Theme:** Medication logistics
+- **How:** Decided 2026-09-26: built from what manufacturers publish on their labels (the drug interactions section of each label, through openFDA and DailyMed, licensing to be confirmed first), best effort across common Western prescriptions, plus an import from a label's link the way recipes are imported. The licensed databases are not used.
+
 ### A16. Caregiver or partner sees a missed dose
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Life,Schedules,Insights
 - **Answers:** Medisafe, CareClinic · **Theme:** Medication logistics
@@ -37,6 +42,11 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life
 - **Answers:** Todoist · **Theme:** Capture, reminders and the second audience
 - **How:** A tasks table (or done_checks with a due date), a band on Work and a personal one on Life, reminders through lib/reminderSources.ts, repeats through A1.
+
+### C17. Progress, made from the person's records
+- **Ships by:** Owner decision first · **Size:** L · **Tabs:** Home,all tabs
+- **Answers:** Finch · **Theme:** Capture, reminders and the second audience
+- **How:** Decided 2026-09-26: the word is progress. First a design document: what progress looks like, every way the app can track it, and how each tab screen receives additions and changes. Then the registry (lib/achievementCriteria.ts) is filled from it. Made of records, never awarded; no streaks, levels, points, percentages, praise or animation; nothing regresses; elapsed time counts.
 
 ### C20. One read a day, in order for the person
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Home
@@ -167,6 +177,11 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Food,Insights
 - **Answers:** Yuka · **Theme:** Food, scanning and Insights
 - **How:** From the scan result, recipes and reference foods in the same category that score clean.
+
+### G23. Amount-aware cautions
+- **Ships by:** Live database, needs owner yes · **Size:** L · **Tabs:** Food
+- **Answers:** Monash FODMAP · **Theme:** Food, scanning and Insights
+- **How:** Decided 2026-09-26: fructose, glucose and lactose from USDA FoodData Central (public domain, giving excess fructose and lactose), fructans, GOS and polyols from published measurement papers (Muir 2007 and 2009, Biesiekierski 2011, Yao 2014) entered by hand with citations, per-serving cutoffs from Varney et al. 2017 once verified. Monash, Edamam, Spoonacular and the unlicensed GitHub lists are not used. Needs new columns, so waits on the unified database's Phase 5.
 
 ### G27. Menu scan, limited
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Food

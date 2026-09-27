@@ -18,6 +18,11 @@
 - **Answers:** Medisafe · **Theme:** Medication logistics
 - **How:** The My Meds save handler runs evaluateInteractionRules for the new treatment and shows any new warning in the sheet that already reports food supply.
 
+### A9. A third severity level, major
+- **Ships by:** Live database, needs owner yes · **Size:** S-M · **Tabs:** Insights
+- **Answers:** Drugs.com · **Theme:** Medication logistics
+- **How:** Decided 2026-09-26: yes, in the LIVE foods_reference.db. Add major to interaction_rules.severity and InteractionWarning, regrade existing rules against their citations, then run scripts/backup_reference_dbs.js.
+
 ### A10. Drug-to-drug check through Drugs.com
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life,Insights
 - **Answers:** Drugs.com, Medisafe · **Theme:** Medication logistics
@@ -307,6 +312,11 @@
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Food
 - **Answers:** Yuka · **Theme:** Food, scanning and Insights
 - **How:** Queue the barcode and look it up once back online.
+
+### G23b. FODMAP ingredients named on a scanned label
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Food
+- **Answers:** Monash FODMAP · **Theme:** Food, scanning and Insights
+- **How:** Shipped 2026-09-26: for someone tracking IBS or IBD, the scan report names label ingredients that are known FODMAP sources, by group, presence only and never an amount (lib/fodmapLabel.ts, scripts/test_fodmap_label.js).
 
 ### G25. "Log your usual lunch?"
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Home,Food

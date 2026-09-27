@@ -9,7 +9,7 @@ Written 2026-09-25. Work starts 2026-09-26, first thing. Page: https://claude.ai
 ## Start here on 2026-09-26
 
 1. Session start as usual: read `inside-story-notes.jsonl` in the Backups folder; `node scripts/bump_version.js` (a new day, so DAY goes up and UPDATE resets to 1).
-2. Ask the owner the four Phase 0 questions (A9, A11, C17, G23). None of them blocks Phase 1, so start building while they are open.
+2. The four Phase 0 questions (A9, A11, C17, G23) were answered on 2026-09-26: major severity goes into the live database (A9, Phase 2), drug interactions come from manufacturer labels with an import from a link (A11, Phase 3), the word for what grows is progress and a design document comes first (C17, Phase 3), and amount-aware FODMAP cautions are built from USDA FoodData Central and cited papers after unified Phase 5 (G23, Phase 3), with a presence-only FODMAP caution on scanned labels shipped at once (G23b).
 3. Phase 1 in this order, each its own request, commit, OTA update and desktop installer:
    1. **A1** weekly and every-N-days repeats (RepeatType in `lib/db.ts`, the series generator around line 15447, RepeatPicker, `lib/reminderSchedule.ts`). Unblocks A2, C10, H11.
    2. **B1** one Today timeline (`lib/dayTimeline.ts` extending `getDayMealAndDoseTimeline`). Unblocks B2, B3, B7, B8, the widgets.
@@ -47,10 +47,10 @@ Possible on Android only, not recommended. Local-first is not the blocker (SMS g
 
 ## What waits on the owner
 
-- **Live database:** A9 (major severity in interaction_rules), G23 (per-serving FODMAP thresholds, better in unified Phase 5). Crop family stays out of the DB (`lib/cropFamilies.ts`, I10).
-- **Money and licences:** A11 drug-drug data (NLM's free API retired January 2024), A15 pill identifier, D13 questionnaire licences beyond PHQ-9 and GAD-7, D15 audio content, I25 plant diagnosis, Z7 chain menus, the Apple developer account.
+- **Live database:** A9 approved 2026-09-26; G23 (per-serving FODMAP thresholds, sources decided, waits on unified Phase 5). Crop family stays out of the DB (`lib/cropFamilies.ts`, I10).
+- **Money and licences:** A11 decided 2026-09-26 (manufacturer labels, no licensed database), A15 pill identifier, D13 questionnaire licences beyond PHQ-9 and GAD-7, D15 audio content, I25 plant diagnosis, Z7 chain menus, the Apple developer account.
 - **Bends a standing rule:** Z2 scores, Z4 streaks and characters, Z12 store guides, Z1 Z3 C14 anything leaving the phone.
-- **Product:** C17 distinct things or repetitions (item 29), Z15 lifetime and hardship prices, the Free-tier line for a way in without a condition (item 28), G29 FHIR scope, servers Z5 Z6 Z9 Z10 Z11.
+- **Product:** C17 decided 2026-09-26 (progress, design document first; distinct things or repetitions settles inside it), Z15 lifetime and hardship prices, the Free-tier line for a way in without a condition (item 28), G29 FHIR scope, servers Z5 Z6 Z9 Z10 Z11.
 
 ## Rules every item is built under
 
@@ -58,27 +58,8 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 
 # Every item
 
-## Phase 0. Decisions only the owner can make (4 items)
+## Phase 0. Decisions only the owner can make (0 items)
 
-### A9. A third severity level, major
-- **Ships by:** Live database, needs owner yes · **Size:** S-M · **Tabs:** Insights
-- **Answers:** Drugs.com · **Theme:** Medication logistics
-- **How:** Add major to interaction_rules.severity and InteractionWarning; regrade existing rules against their citations. The rules live in the LIVE foods_reference.db, so this waits for your yes.
-
-### A11. Drug-to-drug data inside the app
-- **Ships by:** Owner decision first · **Size:** L · **Tabs:** Insights
-- **Answers:** Drugs.com, Medisafe · **Theme:** Medication logistics
-- **How:** NLM retired its free interaction API in January 2024; First Databank, Medi-Span and DrugBank are licensed and priced for companies. A cost decision before any code.
-
-### C17. Something that grows from the person's records
-- **Ships by:** Owner decision first · **Size:** L · **Tabs:** Home,all tabs
-- **Answers:** Finch · **Theme:** Capture, reminders and the second audience
-- **How:** Open item 29. Waits on distinct things versus repetitions, then fills the registry for Home, Trends, Reports and Life. Static, no animation.
-
-### G23. Amount-aware cautions
-- **Ships by:** Live database, needs owner yes · **Size:** L · **Tabs:** Food
-- **Answers:** Monash FODMAP · **Theme:** Food, scanning and Insights
-- **How:** A threshold per serving on sub-criteria. Needs new columns in the live DB, so waits on the unified database's Phase 5, and on published per-serving figures (Monash data cannot be copied).
 
 ## Phase 1. Foundations (10 items)
 
@@ -132,7 +113,7 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Answers:** Gardenize, Sortly, Monarch, Guava, Medisafe · **Theme:** Shared foundations
 - **How:** A media table (owner kind, owner id, file, taken_on), shrink on save, stored under the app folder, copied into the Backups folder and restored beside the encrypted snapshot, never in the plaintext record, shown on desktop from the synced copy. Serves A5, D12, I13, J4, J9.
 
-## Phase 2. Quick wins over the air (103 items)
+## Phase 2. Quick wins over the air (105 items)
 
 ### A3. Pills on hand and refill reminder
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life,Schedules,Signals,Insights
@@ -153,6 +134,11 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life
 - **Answers:** Medisafe · **Theme:** Medication logistics
 - **How:** The My Meds save handler runs evaluateInteractionRules for the new treatment and shows any new warning in the sheet that already reports food supply.
+
+### A9. A third severity level, major
+- **Ships by:** Live database, needs owner yes · **Size:** S-M · **Tabs:** Insights
+- **Answers:** Drugs.com · **Theme:** Medication logistics
+- **How:** Decided 2026-09-26: yes, in the LIVE foods_reference.db. Add major to interaction_rules.severity and InteractionWarning, regrade existing rules against their citations, then run scripts/backup_reference_dbs.js.
 
 ### A10. Drug-to-drug check through Drugs.com
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life,Insights
@@ -444,6 +430,11 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Answers:** Yuka · **Theme:** Food, scanning and Insights
 - **How:** Queue the barcode and look it up once back online.
 
+### G23b. FODMAP ingredients named on a scanned label
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Food
+- **Answers:** Monash FODMAP · **Theme:** Food, scanning and Insights
+- **How:** Shipped 2026-09-26: for someone tracking IBS or IBD, the scan report names label ingredients that are known FODMAP sources, by group, presence only and never an amount (lib/fodmapLabel.ts, scripts/test_fodmap_label.js).
+
 ### G25. "Log your usual lunch?"
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Home,Food
 - **Answers:** Cal AI · **Theme:** Food, scanning and Insights
@@ -649,7 +640,7 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Answers:** Cronometer · **Theme:** Reports
 - **How:** expo-print printAsync.
 
-## Phase 3. Larger builds over the air (61 items)
+## Phase 3. Larger builds over the air (64 items)
 
 ### A2. Tapering doses
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
@@ -665,6 +656,11 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
 - **Answers:** Medisafe · **Theme:** Medication logistics
 - **How:** A per-treatment switch read by lib/reminderSchedule.ts when the phone's time zone changes.
+
+### A11. Drug-to-drug data inside the app
+- **Ships by:** Live database, needs owner yes · **Size:** L · **Tabs:** Insights
+- **Answers:** Drugs.com, Medisafe · **Theme:** Medication logistics
+- **How:** Decided 2026-09-26: built from what manufacturers publish on their labels (the drug interactions section of each label, through openFDA and DailyMed, licensing to be confirmed first), best effort across common Western prescriptions, plus an import from a label's link the way recipes are imported. The licensed databases are not used.
 
 ### A16. Caregiver or partner sees a missed dose
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Life,Schedules,Insights
@@ -690,6 +686,11 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life
 - **Answers:** Todoist · **Theme:** Capture, reminders and the second audience
 - **How:** A tasks table (or done_checks with a due date), a band on Work and a personal one on Life, reminders through lib/reminderSources.ts, repeats through A1.
+
+### C17. Progress, made from the person's records
+- **Ships by:** Owner decision first · **Size:** L · **Tabs:** Home,all tabs
+- **Answers:** Finch · **Theme:** Capture, reminders and the second audience
+- **How:** Decided 2026-09-26: the word is progress. First a design document: what progress looks like, every way the app can track it, and how each tab screen receives additions and changes. Then the registry (lib/achievementCriteria.ts) is filled from it. Made of records, never awarded; no streaks, levels, points, percentages, praise or animation; nothing regresses; elapsed time counts.
 
 ### C20. One read a day, in order for the person
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Home
@@ -820,6 +821,11 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Food,Insights
 - **Answers:** Yuka · **Theme:** Food, scanning and Insights
 - **How:** From the scan result, recipes and reference foods in the same category that score clean.
+
+### G23. Amount-aware cautions
+- **Ships by:** Live database, needs owner yes · **Size:** L · **Tabs:** Food
+- **Answers:** Monash FODMAP · **Theme:** Food, scanning and Insights
+- **How:** Decided 2026-09-26: fructose, glucose and lactose from USDA FoodData Central (public domain, giving excess fructose and lactose), fructans, GOS and polyols from published measurement papers (Muir 2007 and 2009, Biesiekierski 2011, Yao 2014) entered by hand with citations, per-serving cutoffs from Varney et al. 2017 once verified. Monash, Edamam, Spoonacular and the unlicensed GitHub lists are not used. Needs new columns, so waits on the unified database's Phase 5.
 
 ### G27. Menu scan, limited
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Food

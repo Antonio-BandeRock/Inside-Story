@@ -97,6 +97,8 @@ const NAMED = [
   'lib/stepTimers.ts',
   'lib/makeItFor.ts',
   'lib/groceryAisles.ts',
+  'lib/fodmapLabel.ts',
+  'lib/scanToList.ts',
 ];
 
 function targets() {
