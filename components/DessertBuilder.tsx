@@ -51,7 +51,7 @@ import { CollapsibleOverlayCard } from './CollapsibleOverlayCard';
 import { isAlcoholicFood } from '../lib/alcoholAdvisory';
 import { AlcoholCalculatorPanel } from './AlcoholCalculator';
 import { DimensionFlags } from './DimensionFlags';
-import { SourceFallbackNote } from './SourceFallbackNote';
+import { FoodSourceNote } from './FoodSourceNote';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useConfirmSheet } from './ConfirmSheet';
 import { describePrepMismatch } from '../lib/cookingMethodResolution';
@@ -2053,7 +2053,7 @@ export function DessertBuilder({
                     sub-criterion. */}
                 <DimensionFlags scores={pendingScores} onExplain={showInfoAlert} size={14} />
               </View>
-              <SourceFallbackNote source={pendingResolved.source} tabColor={tabColor} />
+              <FoodSourceNote source={pendingResolved.source} tabColor={tabColor} />
               {/* Healing Stage advisory -- 2026-08-09, informational, never
                   gating, same shape as every other advisory in this app.
                   See lib/healingStageAdvisory.ts's own top comment for the

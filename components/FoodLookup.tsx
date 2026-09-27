@@ -14,7 +14,6 @@ import {
   getReferenceCategories,
   getReferenceSubcategories,
   getStageFlagScoresForNames,
-  isFallbackSource,
   listAvailableHarvests,
   listScannedProducts,
   listTrackedNutrients,
@@ -31,6 +30,7 @@ import {
   type TrackedNutrient,
 } from '../lib/db';
 import { buildFoodNameGroups } from '../lib/foodNameGrouping';
+import { foodSourceCaption } from '../lib/foodSource';
 import {
   evaluateFoodForPerson,
   foodMatchesAllergy,
@@ -1920,19 +1920,12 @@ export function FoodLookup({
         </View>
       ) : null}
 
-      {/* Real source attribution, 2026-08-11 -- only shown once a food is
-          actually resolved (showNutrients=true path; the builder/
-          showNutrients=false path gets the same information via
-          onFoodResolved's own `source` field, already available on every
-          builder's own pendingResolved), and only when the resolution
-          genuinely fell back to a non-USDA source -- resolveFoodChoice
-          itself already prefers USDA whenever it can (lib/db.ts), so this
-          note appearing at all means USDA genuinely has no row for this
-          exact food + prep state, not that this app has an opinion either
-          way about which source is "better." */}
-      {resolvedSource && isFallbackSource(resolvedSource) ? (
+      {/* Where this food's numbers come from, on every resolved food since
+          G11 (2026-09-27); before that only a non-USDA food said anything.
+          The builders show the same caption through FoodSourceNote. */}
+      {resolvedSource ? (
         <View style={[styles.sourceFallbackNote, { borderColor: tabColor }]}>
-          <Text style={[styles.sourceFallbackText, styles.panelStandalone]}>Not in USDA: from {sourceLabel(resolvedSource)}</Text>
+          <Text style={[styles.sourceFallbackText, styles.panelStandalone]}>{foodSourceCaption(resolvedSource)}</Text>
         </View>
       ) : null}
 

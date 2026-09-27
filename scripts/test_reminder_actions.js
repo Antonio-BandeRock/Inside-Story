@@ -31,7 +31,6 @@ const {
   ALL_REMINDER_CATEGORY_KEYS,
   CATEGORY_ACTIONS,
   answerLine,
-  answeredConfirmation,
   REMINDER_CATEGORY_IDS,
   categoryKeyFor,
   planReminderAction,
@@ -102,25 +101,8 @@ for (const kind of ['dose', 'hydration', 'meal', 'garden', 'reminder', 'check', 
 check('a bill says nothing about buttons', answerLine('bill') === null);
 check('an upkeep that cannot be marked says nothing', answerLine('upkeep', false) === null);
 
-// What a press says afterwards.
+// The words a reminder carries, checked for praise, dashes and filler.
 const said = [];
-function confirm(plan, kind, words) {
-  const result = answeredConfirmation(plan, kind, 'Levothyroxine', '8:05 AM', 15, words);
-  if (result) said.push(result.title, result.body);
-  return result;
-}
-check('a check confirms where it went', confirm(planReminderAction('check', 'done'), 'check', false).body.includes('Did I Do It'));
-check('a dose confirms where it went', confirm(planReminderAction('dose', 'taken'), 'dose', false).body.includes('Meds'));
-check('a snooze says when it returns', confirm('snooze', 'dose', false).body.includes('15 minutes'));
-check('a note with no words says nothing', confirm(planReminderAction('checkin', 'howAreYou'), 'checkin', false) === null);
-check('a note with words is saved', confirm(planReminderAction('checkin', 'howAreYou'), 'checkin', true).title === 'Note saved');
-check('a flare with no words still logs', confirm(planReminderAction('afterMeal', 'logFlare'), 'afterMeal', false).title === 'Flare logged');
-confirm(planReminderAction('afterMeal', 'logFlare'), 'afterMeal', true);
-confirm(planReminderAction('upkeep', 'doneToday'), 'upkeep', false);
-confirm(planReminderAction('compost', 'turned'), 'compost', false);
-confirm(planReminderAction('garden', 'done'), 'garden', false);
-confirm(planReminderAction('hydration', 'drank'), 'hydration', false);
-confirm(planReminderAction('meal', 'ate'), 'meal', false);
 for (const [id, input] of Object.entries(ACTION_TEXT_INPUT)) said.push(input.placeholder, input.submitButtonTitle, id);
 for (const kind of ['dose', 'hydration', 'meal', 'garden', 'reminder', 'upkeep', 'compost', 'checkin']) said.push(answerLine(kind));
 const sentenceForbidden = /well done|good job|keep it up|great|you should|real|genuine|own|[—–]| -- /i;

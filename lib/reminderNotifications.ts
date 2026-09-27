@@ -9,7 +9,6 @@ import {
   ACTION_TEXT_INPUT,
   AFTER_MEAL_MINUTES,
   ALL_REMINDER_CATEGORY_KEYS,
-  answeredConfirmation,
   answerLine,
   CATEGORY_ACTIONS,
   categoryKeyFor,
@@ -142,12 +141,12 @@ const IDENTIFIER_PREFIX = 'inside-story-reminder:';
 // would take a snooze away on the next foreground. A tap on one still lands
 // where the original would have.
 const SNOOZE_PREFIX = 'inside-story-snooze:';
-// The quiet line that says what a press recorded (1.0.53.10). Its own
-// prefix, so no reconcile ever treats it as a reminder.
-const ANSWERED_PREFIX = 'inside-story-answered:';
+// The channel a line saying what a press recorded used to go out on
+// (1.0.53.10 to 1.0.54.6). Removed by direct instruction, 2026-09-27: the
+// person pressed the button, so a second notification saying so is one more
+// thing to clear. Kept only so the channel is taken out of a phone's
+// notification settings.
 const ANDROID_ANSWER_CHANNEL_ID = 'inside-story-answers';
-// Long enough to read, short enough not to become one more thing to clear.
-const ANSWERED_SHOWS_MS = 6_000;
 // The Snooze button (Phase A, 2026-09-24). Since 1.0.53.10 it no longer
 // brings the app forward, like every other button: see the header of
 // lib/reminderActions.ts for what that means while the app is closed.
@@ -754,16 +753,7 @@ async function ensureAndroidChannels(): Promise<void> {
     vibrationPattern: [0, 180],
     lightColor: '#244147',
   });
-  // LOW makes no sound and does not pop up: the line after a press is
-  // there to be glanced at, since the person just pressed the button.
-  await Notifications.setNotificationChannelAsync(ANDROID_ANSWER_CHANNEL_ID, {
-    name: 'What a button recorded',
-    description: 'A short line after you press a button on a reminder, saying what went in and where.',
-    importance: Notifications.AndroidImportance.LOW,
-    sound: null,
-    vibrationPattern: null,
-    lightColor: '#244147',
-  });
+  await Notifications.deleteNotificationChannelAsync(ANDROID_ANSWER_CHANNEL_ID).catch(() => undefined);
 }
 
 // Today's moment for a routine that speaks today, whether or not it has
@@ -1213,34 +1203,13 @@ async function snoozeReminder(response: Notifications.NotificationResponse): Pro
   await Notifications.dismissNotificationAsync(request.identifier).catch(() => undefined);
 }
 
-// What a button recorded, said once on the quiet channel and taken away
-// after a few seconds, so a press made without opening the app still says
-// what it did. Nothing depends on it arriving.
-async function showAnswered(confirmation: { title: string; body: string } | null): Promise<void> {
-  if (!confirmation) return;
-  const identifier = `${ANSWERED_PREFIX}${Date.now()}`;
-  await Notifications.scheduleNotificationAsync({
-    identifier,
-    content: { title: confirmation.title, body: confirmation.body, sound: false },
-    trigger: Platform.OS === 'android' ? { channelId: ANDROID_ANSWER_CHANNEL_ID } : null,
-  });
-  setTimeout(() => {
-    void Notifications.dismissNotificationAsync(identifier).catch(() => undefined);
-  }, ANSWERED_SHOWS_MS);
-}
-
-function nowTime(): string {
-  const now = new Date();
-  return formatTime12(`${pad(now.getHours())}:${pad(now.getMinutes())}`);
-}
-
 // A press is handled once even when the cold-start read and the listener
 // both report it, which they can on a launch the press itself caused.
 const answered = new Set<string>();
 
 // A button does its work where it is pressed and never opens the app
-// (1.0.53.10): the record is written, the reminder is taken off the screen,
-// and a short line says what was recorded and where. Only a tap on the
+// (1.0.53.10): the record is written and the reminder is taken off the
+// screen. Nothing else is shown, since the press itself is the confirmation. Only a tap on the
 // reminder itself opens the app, on the lens the thing lives in.
 function handleResponse(
   response: Notifications.NotificationResponse | null,
@@ -1253,12 +1222,10 @@ function handleResponse(
   answered.add(key);
   const ours = isOurs(request.identifier) || isSnoozed(request.identifier);
   const data = request.content.data as Partial<ReminderPayload> | undefined;
-  const what = data?.subject ?? request.content.title ?? 'Reminder';
   const kind = data?.kind ?? '';
   if (response.actionIdentifier === SNOOZE_ACTION) {
     if (!ours) return;
     snoozeReminder(response)
-      .then(() => showAnswered(answeredConfirmation('snooze', kind, what, nowTime(), SNOOZE_MINUTES, false)))
       .catch((error) => console.error('[reminderNotifications] snooze failed', error));
     return;
   }
@@ -1267,7 +1234,6 @@ function handleResponse(
     void Notifications.dismissNotificationAsync(request.identifier).catch(() => undefined);
     const words = (response.userText ?? '').trim();
     recordAnswer(plan, data?.scheduleItemId ?? '', words, kind)
-      .then(() => showAnswered(answeredConfirmation(plan, kind, what, nowTime(), SNOOZE_MINUTES, words.length > 0)))
       .catch((error) => console.error('[reminderNotifications] answer failed', error))
       .finally(() => {
         void syncReminderNotifications();

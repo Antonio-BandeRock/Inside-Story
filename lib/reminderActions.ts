@@ -11,9 +11,10 @@
 //
 // No button opens the app (1.0.53.10, direct instruction 2026-09-26: "it
 // should just do it rather than take the user to the app to do it there").
-// The press is recorded where the notification sits, the reminder goes
-// away, and a quiet line says what went in, worded by answeredConfirmation
-// below. Until 1.0.53.9 every button opened the app for a moment.
+// The press is recorded where the notification sits and the reminder goes
+// away. Until 1.0.53.9 every button opened the app for a moment. Nothing is
+// shown afterwards (direct instruction, 2026-09-27): the person pressed the
+// button, so a notification saying so is one more thing to clear.
 //
 // Android hands a press to the app's JavaScript whenever the app is still
 // running in the background, which is most of the time. When the phone has
@@ -199,47 +200,6 @@ export function answerLine(kind: string, markable = true): string | null {
       return 'Add a note or log a flare right here, in your words.';
     default:
       return null;
-  }
-}
-
-/**
- * The quiet line shown after a press, saying what went in and where. `what`
- * is the reminder's title; `at` is the time already worded ("7:04 AM").
- * Null when nothing was recorded, which is only a note sent with no words.
- */
-export function answeredConfirmation(
-  plan: ReminderActionPlan | 'snooze',
-  kind: string,
-  what: string,
-  at: string,
-  snoozeMinutes: number,
-  hasWords: boolean,
-): { title: string; body: string } | null {
-  if (plan === 'snooze') {
-    return { title: `Snoozed: ${what}`, body: `It comes back in ${snoozeMinutes} minutes.` };
-  }
-  switch (plan.write) {
-    case 'scheduleStatus':
-      if (kind === 'dose') return { title: `Recorded: ${what}`, body: `Marked taken on Meds at ${at}.` };
-      if (kind === 'hydration') return { title: `Recorded: ${what}`, body: `Marked on Hydration at ${at}.` };
-      if (kind === 'meal') return { title: `Recorded: ${what}`, body: `Marked eaten on Today's Meals at ${at}.` };
-      return { title: `Done: ${what}`, body: `Marked done at ${at}.` };
-    case 'checkMarked':
-      return { title: `Done: ${what}`, body: `Marked on Did I Do It at ${at}.` };
-    case 'upkeepDone':
-      return { title: `Done: ${what}`, body: 'Recorded in Upkeep for today.' };
-    case 'compostTurned':
-      return { title: `Turned: ${what}`, body: 'A turn is recorded for today.' };
-    case 'checkinNote':
-      if (!hasWords) return null;
-      return { title: 'Note saved', body: `Saved in Signals at ${at}.` };
-    case 'flare':
-      return {
-        title: 'Flare logged',
-        body: hasWords
-          ? `Saved in Signals at ${at}. How severe it was can be added there.`
-          : `Saved in Signals at ${at}, with no words. What it was and how severe can be added there.`,
-      };
   }
 }
 

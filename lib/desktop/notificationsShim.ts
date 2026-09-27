@@ -81,6 +81,8 @@ export async function setNotificationChannelAsync(_channelId: string, _channel: 
   return null;
 }
 
+export async function deleteNotificationChannelAsync(_channelId: string): Promise<void> {}
+
 function toTimestamp(date: Date | number): number {
   return typeof date === 'number' ? date : date.getTime();
 }

@@ -48,7 +48,7 @@ import { AppActionSheet } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { CollapsibleOverlayCard } from './CollapsibleOverlayCard';
 import { DimensionFlags } from './DimensionFlags';
-import { SourceFallbackNote } from './SourceFallbackNote';
+import { FoodSourceNote } from './FoodSourceNote';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useConfirmSheet } from './ConfirmSheet';
 import { describePrepMismatch } from '../lib/cookingMethodResolution';
@@ -2175,7 +2175,7 @@ export function SideBuilder({
                     sub-criterion. */}
                 <DimensionFlags scores={pendingScores} onExplain={showInfoAlert} size={14} />
               </View>
-              <SourceFallbackNote source={pendingResolved.source} tabColor={tabColor} />
+              <FoodSourceNote source={pendingResolved.source} tabColor={tabColor} />
               {/* Healing Stage advisory -- 2026-08-09, informational, never
                   gating, same tap-to-explain shape the alcohol/coffee/
                   juice advisories already use elsewhere. Only renders
