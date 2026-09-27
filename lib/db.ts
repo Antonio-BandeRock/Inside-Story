@@ -23493,7 +23493,26 @@ export async function getAchievedCriteriaKeys(): Promise<Set<string>> {
 // real first-achieved timestamp forever; re-detecting the same criterion
 // true on a later check (which will happen constantly, e.g. someone who's
 // already saved a Meal saves another one) must never overwrite that date.
-export async function recordAchievementCriterionMet(criterionKey: string): Promise<void> {
+// `at` is when the first such record happened (C17, 2026-09-27), so a first
+// carries its own date rather than the day somebody happened to look.
+export async function recordAchievementCriterionMet(criterionKey: string, at?: string): Promise<void> {
   const db = await getDatabase();
+  if (at) {
+    await db.runAsync(
+      'INSERT OR IGNORE INTO achievement_criteria_progress (criterion_key, achieved_at) VALUES (?, ?)',
+      criterionKey,
+      at,
+    );
+    return;
+  }
   await db.runAsync('INSERT OR IGNORE INTO achievement_criteria_progress (criterion_key) VALUES (?)', criterionKey);
+}
+
+// Every met criterion with the moment it was first met, for Your Progress.
+export async function getAchievedCriteriaDates(): Promise<Map<string, string>> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ criterion_key: string; achieved_at: string }>(
+    'SELECT criterion_key, achieved_at FROM achievement_criteria_progress',
+  );
+  return new Map(rows.map((row) => [row.criterion_key, row.achieved_at]));
 }

@@ -23,6 +23,7 @@ import {
   formatAccountMoney,
   isLiability,
   measuredChange,
+  measuredChangeWaitingLine,
   netWorth,
   rateKindFor,
   totalMonthlyInterest,
@@ -366,7 +367,8 @@ export function FinanceMoneySection({ tabColor }: Props) {
                 })()}
                 {!change && rateKindFor(account.kind) === 'market' ? (
                   <Text style={styles.listMeta}>
-                    Update this balance again in a month or so and the app can say what it actually did.
+                    {measuredChangeWaitingLine(balanceHistory[account.id] ?? []) ??
+                      'Update this balance again in a month or so and the app can say what it actually did.'}
                   </Text>
                 ) : null}
                 <View style={styles.listActions}>

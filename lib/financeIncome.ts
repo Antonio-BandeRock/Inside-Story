@@ -56,7 +56,7 @@ function monthKey(date: string): string {
   return date.slice(0, 7);
 }
 
-function monthsBetweenInclusive(from: string, to: string): number {
+export function monthsBetweenInclusive(from: string, to: string): number {
   const [fy, fm] = from.split('-').map(Number);
   const [ty, tm] = to.split('-').map(Number);
   if (!fy || !fm || !ty || !tm) return 1;
@@ -122,6 +122,14 @@ export type EstimateCheck = {
 /** Below this there is not enough history for the comparison to mean
  *  anything, and a stream that has paid out once is not a trend. */
 export const MIN_MONTHS_FOR_ESTIMATE_CHECK = 3;
+
+/** What checkEstimate is waiting for, said on the stream's row so an
+ *  estimate with too little behind it is not silent. Null once the check
+ *  can run, or when nothing has been recorded against the stream. */
+export function estimateWaitingLine(stats: IncomeStreamStats | null): string | null {
+  if (!stats || stats.spanMonths >= MIN_MONTHS_FOR_ESTIMATE_CHECK) return null;
+  return `Your estimate is set beside what came in once the payments recorded span ${MIN_MONTHS_FOR_ESTIMATE_CHECK} months. They span ${stats.spanMonths} so far.`;
+}
 
 export function checkEstimate(estimate: number, stats: IncomeStreamStats | null): EstimateCheck | null {
   if (!stats || estimate <= 0) return null;

@@ -203,6 +203,7 @@ import {
   isHomeGroupVisible,
   HOME_SECTIONS_ALWAYS_SHOWN,
   isHomeSectionVisible,
+  isProgressPictureShown,
   setLowStimulation,
   setVisualPreferences,
   SHARED_BACKGROUND_SCOPE_KEY,
@@ -212,6 +213,7 @@ import {
   type TabHubIconChoice,
 } from '../lib/visualPreferences';
 import { groupHomeSectionsForDisplay, homeGroupIdOf } from '../lib/homeSections';
+import { PICTURE_TABS } from '../lib/progressScene';
 import { homeGroupIdentity } from '../constants/homeGroups';
 import { useWalkMark } from '../components/WalkMark';
 import type { WalkMark } from '../lib/storyWalk';
@@ -441,6 +443,7 @@ const ALL_APPEARANCE_SUBSECTION_KEYS = [
   'tabHubIcon',
   'sharedBackground',
   'individualTabBackgrounds',
+  'progressPictures',
   'genericPalette',
   'groundColor',
   'textSpacing',
@@ -4589,6 +4592,49 @@ export default function ProfileScreen() {
                     )}
                   </View>
                 ))}
+              </>
+            ) : null}
+
+            {/* C17 (docs/progress-design.md): the picture each tab draws from
+                the person's records. On by default over Photo and Generic,
+                off over a photo the person added, off under Low Stimulation
+                (isProgressPictureShown). Every picture can also be looked at
+                on the Your Progress page, whatever is picked here. */}
+            {renderAppearanceSubsectionHeader('progressPictures', 'Pictures of your progress', false)}
+            {!collapsedAppearanceSubsections.has('progressPictures') ? (
+              <>
+                <Text style={styles.helpText}>
+                  A quiet picture on a tab&apos;s resting screen, drawn from what you have recorded there: jars on a
+                  pantry shelf for each kind of food you have eaten, the plants you are growing, a star for each day
+                  you checked in. It never moves and never takes a tap. It starts on over the built-in backgrounds and
+                  off over a photo you added, and Low Stimulation turns every one off.
+                </Text>
+                <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/progress')}>
+                  <Text style={styles.checkinButtonText}>See Your Progress</Text>
+                </TouchableOpacity>
+                {BACKGROUND_TAB_ROUTES.filter((route) => (PICTURE_TABS as readonly string[]).includes(String(route.path))).map((route) => {
+                  const key = String(route.path);
+                  const on = isProgressPictureShown(visualPrefs, key);
+                  return (
+                    <View key={key} style={styles.mealTimeRow}>
+                      <Text style={styles.mealTimeLabel}>{route.title}</Text>
+                      <View style={styles.pillRow}>
+                        {[true, false].map((value) => {
+                          const active = on === value && !visualPrefs.lowStimulation;
+                          return (
+                            <TouchableOpacity
+                              key={String(value)}
+                              style={[styles.pillSmall, active && styles.pillActive]}
+                              onPress={() => setVisualPreferences({ tabProgressPicture: { [key]: value } })}
+                            >
+                              <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </View>
+                    </View>
+                  );
+                })}
               </>
             ) : null}
 

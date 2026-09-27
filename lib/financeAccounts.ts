@@ -243,6 +243,19 @@ export const MIN_DAYS_FOR_MEASURED_CHANGE = 30;
  * short a span to annualize, and a starting balance of zero or less, which
  * has no ratio to grow by.
  */
+/** What measuredChange is waiting for, said on the account's row. Null
+ *  once it can be worked out, or when the first balance is not above zero,
+ *  which is a different reason and not a matter of waiting. */
+export function measuredChangeWaitingLine(points: BalancePoint[]): string | null {
+  const sorted = [...points].sort((a, b) => a.date.localeCompare(b.date));
+  if (sorted.length === 0 || sorted[0].balance <= 0) return null;
+  const days = sorted.length < 2 ? 0 : Math.round((Date.parse(`${sorted[sorted.length - 1].date}T00:00:00Z`) - Date.parse(`${sorted[0].date}T00:00:00Z`)) / 86400000);
+  if (!Number.isFinite(days) || days >= MIN_DAYS_FOR_MEASURED_CHANGE) return null;
+  return sorted.length < 2
+    ? `A measured change shows once a second balance is recorded, at least ${MIN_DAYS_FOR_MEASURED_CHANGE} days after the first.`
+    : `A measured change shows once the balances recorded span ${MIN_DAYS_FOR_MEASURED_CHANGE} days. They span ${days} ${days === 1 ? 'day' : 'days'} so far.`;
+}
+
 export function measuredChange(points: BalancePoint[]): MeasuredChange | null {
   if (points.length < 2) return null;
   const sorted = [...points].sort((a, b) => a.date.localeCompare(b.date));

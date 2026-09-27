@@ -84,6 +84,7 @@ import {
   buildIncomeMix,
   checkEstimate,
   describeEstimateCheck,
+  estimateWaitingLine,
   describeIncomeMix,
   describeIncomeStream,
   incomeStreamStats,
@@ -1213,7 +1214,7 @@ export default function LifeScreen() {
           {row.direction === 'income' && row.amountIsEstimate ? (() => {
             const stats = incomeStreamStats(receiptsByStream[row.id] ?? []);
             const estimate = checkEstimate(row.amount, stats);
-            const estimateText = describeEstimateCheck(estimate);
+            const estimateText = describeEstimateCheck(estimate) ?? estimateWaitingLine(stats);
             return (
               <>
                 <Text style={styles.listMeta}>{describeIncomeStream(stats)}</Text>

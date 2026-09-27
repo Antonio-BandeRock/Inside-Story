@@ -268,6 +268,8 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'peer_photos_wifi_only',
   'emergency_lock_screen',
   'timeline_device_calendar',
+  // Your Progress: what this device showed last time (lib/progressDb.ts).
+  'progress_last_seen',
   CHANGE_BASELINE_META_KEY,
 ];
 

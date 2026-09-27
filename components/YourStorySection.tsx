@@ -443,6 +443,15 @@ export function YourStorySection({ mode, view, guides, interview, onChanged, onH
           </View>
         );
       })}
+      {/* C17: Your Progress is what the records have built so far, tab by
+          tab, and is reached from here and from Profile > Appearance. */}
+      <View style={styles.sectionCard}>
+        <Text style={styles.body}>What your records have built so far, tab by tab, and what each part of the app needs before it can answer you.</Text>
+        <TouchableOpacity style={styles.action} onPress={() => router.push('/progress' as Href)} accessibilityRole="button">
+          <Text style={styles.actionText}>See Your Progress</Text>
+          <Ionicons name="arrow-forward" size={13} color={colors.primary} style={textShadow} />
+        </TouchableOpacity>
+      </View>
       {infoAlertElement}
     </View>
   );

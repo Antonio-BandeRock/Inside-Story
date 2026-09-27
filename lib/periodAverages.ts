@@ -91,6 +91,14 @@ export function averagesByMonth(points: DatedValue[]): PeriodAverage[] {
   return out;
 }
 
+/** What the day-of-the-week split is waiting for. Null once it shows, or
+ *  when there are no readings at all. */
+export function weekdaysWaitingLine(points: DatedValue[]): string | null {
+  const have = byDate(points).length;
+  if (have === 0 || have >= WEEKDAY_MIN_READINGS) return null;
+  return `The split by day of the week shows once there are ${WEEKDAY_MIN_READINGS} days of readings. There ${have === 1 ? 'is 1' : `are ${have}`} so far.`;
+}
+
 export function showsWeekdays(points: DatedValue[]): boolean {
   return byDate(points).length >= WEEKDAY_MIN_READINGS;
 }

@@ -80,6 +80,7 @@ import {
   periodValueText,
   showsMonths,
   showsWeekdays,
+  weekdaysWaitingLine,
   type PeriodAverage,
 } from '../../lib/periodAverages';
 import { formatSteps, recentOutside, recentOutsideSentence } from '../../lib/outsideUsual';
@@ -935,9 +936,11 @@ function renderAverageRows(rows: PeriodAverage[], format: (value: number) => str
 function renderPeriodAverages(points: { date: string; value: number }[], format: (value: number) => string, unit: { one: string; many: string }) {
   const weekdays = showsWeekdays(points);
   const months = showsMonths(points);
-  if (!weekdays && !months) return null;
+  const waiting = weekdaysWaitingLine(points);
+  if (!weekdays && !months) return waiting ? <Text style={styles.caption}>{waiting}</Text> : null;
   return (
     <>
+      {waiting ? <Text style={styles.caption}>{waiting}</Text> : null}
       {weekdays ? <Text style={styles.averageHeading}>By day of the week</Text> : null}
       {weekdays ? renderAverageRows(averagesByWeekday(points), format, unit) : null}
       {months ? <Text style={styles.averageHeading}>By month</Text> : null}

@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { TAB_ROUTES } from '../constants/tabs';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { resolveBackgroundStyle } from '../lib/visualPreferences';
+import { ProgressPicture } from './ProgressPicture';
 import { ScreenBackground, type BackgroundVariant } from './ScreenBackground';
 
 // 2026-07-26: replaces every non-Home tab's own distinct background always
@@ -65,6 +66,11 @@ import { ScreenBackground, type BackgroundVariant } from './ScreenBackground';
 // instruction: "should the user be able to replace the tab screen
 // backgrounds that will now carry their achievements in using the app with
 // nothing or a personal image they added themselves. I say yes."
+//
+// 2026-09-27 (C17): and the resting screen now carries that picture.
+// ProgressPicture draws the tab's progress scene over whichever resting
+// background applies, taking no touches, and decides for itself whether it
+// shows (lib/visualPreferences.ts, isProgressPictureShown).
 //
 // This component does NOT render the shared resting background itself --
 // that's a single, genuinely constant `<ScreenBackground variant="field"
@@ -129,8 +135,11 @@ export function GatedTabContent({
     <View style={styles.body}>
       {revealed ? (
         <ScreenBackground variant={variant} routeKey={routeKey}>{children}</ScreenBackground>
-      ) : restingIsShared ? null : (
-        <ScreenBackground variant={variant} routeKey={routeKey} />
+      ) : (
+        <>
+          {restingIsShared ? null : <ScreenBackground variant={variant} routeKey={routeKey} />}
+          <ProgressPicture routeKey={routeKey} />
+        </>
       )}
     </View>
   );

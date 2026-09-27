@@ -526,6 +526,12 @@ export type VisualPreferences = {
   // "selectively turn off the tab backgrounds instead of an all-or-nothing
   // rule" half of the request.
   tabBackgroundStyle: Partial<Record<string, BackgroundStyle>>;
+  // 2026-09-27 (C17): whether a tab's progress picture shows on its empty
+  // screen, keyed by TAB_ROUTES path. Absent means the default, which
+  // isProgressPictureShown works out from the background: on over the
+  // built-in photo and the generic art, off over a photo the person added
+  // and over no background at all. Low Stimulation turns every one off.
+  tabProgressPicture: Partial<Record<string, boolean>>;
   // 2026-08-09: the real, persistent local file URI for each scope's own
   // uploaded custom image (see lib/customBackgroundImage.ts, which does
   // the actual picking/validating/saving) -- keyed the same way as
@@ -714,6 +720,19 @@ export function resolveBackgroundStyle(prefs: VisualPreferences, routeKey?: stri
   return routeKey ? (prefs.tabBackgroundStyle[routeKey] ?? 'photo') : prefs.homeBackgroundStyle;
 }
 
+// Whether a tab's progress picture (C17, components/ProgressPicture.tsx)
+// draws on its empty screen. Low Stimulation always answers no; a choice
+// the person made for that tab comes next; otherwise it shows over the
+// built-in photo and the generic art, and not over a photo the person
+// added (which is theirs to look at) or over no background at all.
+export function isProgressPictureShown(prefs: VisualPreferences, routeKey: string): boolean {
+  if (prefs.lowStimulation) return false;
+  const chosen = prefs.tabProgressPicture[routeKey];
+  if (chosen !== undefined) return chosen;
+  const style = resolveBackgroundStyle(prefs, routeKey);
+  return style === 'photo' || style === 'generic';
+}
+
 // Whether motion that exists for polish rather than for meaning should be
 // skipped: the greeting's zoom, a card's flip, the growth marks arriving,
 // a modal fading in, a swiped tab flying off the edge. Dragging still
@@ -845,6 +864,7 @@ export function isHomeSectionExpanded(prefs: VisualPreferences, key: HomeSection
 const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   homeBackgroundStyle: 'generic',
   tabBackgroundStyle: {},
+  tabProgressPicture: {},
   customBackgroundImages: {},
   genericPalette: 'ocean',
   tabHubIcon: 'seedTall',
@@ -1119,6 +1139,7 @@ export async function getVisualPreferences(): Promise<VisualPreferences> {
           ...DEFAULT_VISUAL_PREFERENCES,
           ...parsed,
           tabBackgroundStyle: { ...(parsed.tabBackgroundStyle ?? {}) },
+          tabProgressPicture: { ...(parsed.tabProgressPicture ?? {}) },
           customBackgroundImages: { ...(parsed.customBackgroundImages ?? {}) },
           homeSectionVisibility: { ...(parsed.homeSectionVisibility ?? {}) },
           homeGroupVisibility: { ...(parsed.homeGroupVisibility ?? {}) },
@@ -1183,6 +1204,9 @@ export async function setVisualPreferences(update: Partial<VisualPreferences>): 
     tabBackgroundStyle: update.tabBackgroundStyle
       ? { ...current.tabBackgroundStyle, ...update.tabBackgroundStyle }
       : current.tabBackgroundStyle,
+    tabProgressPicture: update.tabProgressPicture
+      ? { ...current.tabProgressPicture, ...update.tabProgressPicture }
+      : current.tabProgressPicture,
     // Same reasoning -- saving/removing one scope's own custom image
     // shouldn't erase another scope's already-uploaded one.
     customBackgroundImages: update.customBackgroundImages
