@@ -63,7 +63,8 @@ const H = run('lib/harvestYield.ts', {
   './harvestTrade': T,
   './unitConversion': U,
 });
-const G = run('lib/growingConditions.ts', { './harvestYield': H });
+const LM = run('lib/lightMeter.ts', {});
+const G = run('lib/growingConditions.ts', { './harvestYield': H, './lightMeter': LM });
 
 const C = run('lib/choiceOrder.ts', {});
 const S = run('lib/growSetup.ts', { './choiceOrder': C, './harvestTrade': T });

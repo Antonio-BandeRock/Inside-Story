@@ -34,7 +34,8 @@ export type PhoneOnlyFeature =
   | 'scanPairingCode'
   | 'scanMedicineCode'
   | 'scanHouseholdCode'
-  | 'phoneCalendar';
+  | 'phoneCalendar'
+  | 'lightMeter';
 
 export const PHONE_ONLY_TITLE = 'This needs the app on your phone';
 
@@ -64,6 +65,8 @@ const MESSAGES: Record<PhoneOnlyFeature, string> = {
     "Scanning a product's barcode uses the phone's camera. On this computer, type the numbers printed under the barcode, or add the thing to the list by its name.",
   phoneCalendar:
     "Events from your phone's calendar are read on the phone as the timeline is drawn, and never copied into the app, so this computer has none to show. Turn them on from the timeline on your phone.",
+  lightMeter:
+    "Measuring the light uses the light sensor on an Android phone, and this computer has none. Type a figure from a light meter here, or measure it with Inside Story on your phone.",
 };
 
 export const PHONE_ONLY_FEATURES: readonly PhoneOnlyFeature[] = Object.keys(MESSAGES) as PhoneOnlyFeature[];

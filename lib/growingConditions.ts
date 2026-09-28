@@ -24,6 +24,7 @@
 //     plain date, so nothing here goes through a Date for a day.
 
 import { buildMonths, monthsBack, type PeriodRow, type YieldMonth } from './harvestYield';
+import { LIGHT_METER_DEVICE_NAME } from './lightMeter';
 
 export { buildMonths, monthsBack };
 export type { PeriodRow, YieldMonth };
@@ -261,7 +262,11 @@ export function buildMeasurementBand(input: MeasurementBandInput): MeasurementBa
 
   const measured = months.filter((month) => month.figure !== null);
   const blank = months.length - measured.length;
-  const anyFromDevice = input.readings.some((reading) => reading.source === 'device');
+  // A phone's light meter is pressed by a person (I3), so a blank month of
+  // those is nothing measured, the same as a meter read by hand.
+  const anyFromDevice = input.readings.some(
+    (reading) => reading.source === 'device' && reading.deviceName !== LIGHT_METER_DEVICE_NAME,
+  );
 
   const notes: string[] = [];
   if (blank > 0) {

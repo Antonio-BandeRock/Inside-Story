@@ -214,6 +214,11 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
         body:
           'What the conditions actually were where something grew. Soil moisture, soil and air temperature, humidity, pH, light, EC, rainfall, what you watered, CO2, or anything else you measure, which you can add to the list yourself. Record the figure, the unit it was read in, the day, and the area and planting it was about if it was about one. A figure read off a meter in your hand counts the same as one from a sensor, which is why this is worth keeping whether or not you ever wire anything up. Units are only ever turned into one another where the two mean the same quantity: Celsius and Fahrenheit do, and a moisture percentage and a tensiometer centibar do not, so those stay apart rather than being added together. One band per measurement holds its readings, newest first, and Trends > Growing Conditions draws one measurement month by month, says what you are measuring and how recently, and names the areas with nothing recorded against them.',
       },
+      {
+        heading: 'Measuring the Light With Your Phone',
+        body:
+          "On an Android phone, Measure the Light Here, or Measure With This Phone once Light is picked, reads the light sensor at the top edge of the screen for a few seconds and fills in the middle figure in lux, which is saved as coming from this phone. Hold the phone where the leaves are, screen facing the way the plant faces. A phone is not a calibrated meter, so compare readings from the same phone. Lux is light as an eye sees it, so a grow light and the sun can read the same and give a plant different amounts of the light it uses. iPhones do not let apps read their light sensor, and a computer has none, so on those the figure is typed in.",
+      },
     ],
   },
   // 2026-09-20, direct instruction: "The Garden harvest should also take
