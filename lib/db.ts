@@ -8789,6 +8789,12 @@ async function runDatabaseInitialization() {
       if (!groceryItemColumns.some((column) => column.name === 'kitchen_taken_quantity')) {
         await db.execAsync('ALTER TABLE grocery_list_items ADD COLUMN kitchen_taken_quantity REAL;');
       }
+      // H1, 2026-09-28: how much of a line the kitchen was holding when the
+      // list was built, so the list asks for only what the kitchen lacks.
+      // Null when never asked, 0 once somebody chose to buy it all instead.
+      if (!groceryItemColumns.some((column) => column.name === 'kitchen_held_quantity')) {
+        await db.execAsync('ALTER TABLE grocery_list_items ADD COLUMN kitchen_held_quantity REAL;');
+      }
     }
 
     // G6 of the competitive build plan (2026-09-26): the grocery list in the

@@ -4,11 +4,15 @@
 //   1. Logging a meal. The garden sheet already offered to take pickings off
 //      what is on hand; food in the kitchen (bought, traded, given, or a
 //      ferment) is now offered on the same sheet, as "From your kitchen".
-//   2. The meal plan generator. With the switch on, a main dish that uses
-//      something measured in the kitchen is chosen ahead of one that does
-//      not, the oldest stock first, and each food drives one pick only.
-//   3. A new grocery list. Once it is built, the lines the kitchen already
-//      covers are offered to be taken from the kitchen rather than bought.
+//   2. The meal plan generator. With the switch on, a breakfast or main dish
+//      the kitchen covers more of is chosen ahead of one it covers less of,
+//      then the oldest stock first. Since H1 (2026-09-28) this is by amount:
+//      each pick takes one serving's share off a copy of the kitchen, so the
+//      next day leans only on what would still be there.
+//   3. A new grocery list. Since H1 it is built around the kitchen: a line
+//      the kitchen holds is left off what to buy, and a line it partly holds
+//      is cut to the shortfall (lib/groceryList.ts, holdFromKitchen). Nothing
+//      is taken off at that point; logging the meal is when it is.
 //
 // Everything here decides; lib/onHandDb.ts reads and writes.
 //
@@ -27,6 +31,7 @@
 import {
   formatGroceryAmount,
   kitchenCoverageFor,
+  takeOutOfLedger,
   type KitchenDraw,
   type KitchenStockEntry,
 } from './groceryList';
@@ -120,39 +125,77 @@ export function describePantryAction(count: number): string {
 
 // --- 2. The meal plan generator ---------------------------------------------
 
+export type OnHandNeed = {
+  // Lower-cased base name, which is how the day line names it.
+  name: string;
+  // What one serving of the dish asks for, in the recipe's unit. Null when
+  // the recipe gives no amount, which still counts as using the food.
+  quantity: number | null;
+  unit: string;
+  // The measured stock it would come from, oldest first.
+  stock: KitchenStockEntry[];
+};
+
 export type OnHandDish = {
   // Lower-cased names of what the dish uses from the kitchen.
   names: string[];
   // Local date the oldest of that stock came in.
   oldest: string;
+  // Every ingredient the dish is bought for, so the share the kitchen covers
+  // can be worked out (H1, 2026-09-28).
+  ingredientCount: number;
+  needs: OnHandNeed[];
 };
 
 export type OnHandLean = {
   dishes: Map<string, OnHandDish>;
-  // Foods already given to an earlier pick this run, so one bag of lentils
-  // does not steer every lunch for six weeks.
+  // What is left in the kitchen as this run picks dishes, kept on copies so
+  // the map a screen holds is never drawn down by a preview. One bag of
+  // lentils cannot feed every lunch for six weeks.
+  ledger: Map<KitchenStockEntry, KitchenStockEntry>;
+  // Foods given to an earlier pick where the amounts could not be compared,
+  // so each of those leads one pick only.
   used: Set<string>;
   claims: { recipeId: string; title: string; names: string[] }[];
 };
 
-export type RecipeIngredientName = { recipeId: string; category: string; baseName: string };
+export type RecipeIngredientName = {
+  recipeId: string;
+  category: string;
+  baseName: string;
+  quantity?: number | null;
+  unit?: string | null;
+  // Servings the recipe makes; the amount per serving is what one pick needs.
+  servings?: number | null;
+};
 
 /**
  * For every curated recipe, which of its ingredients are measured in the
- * kitchen right now. `stockDate` returns the date the oldest measured stock
- * of that ingredient came in, or null when there is none.
+ * kitchen right now and how much of each one serving asks for. `stockFor`
+ * returns the stock for that ingredient; purchases and empty entries are
+ * left out here.
  */
 export function onHandByRecipe(
   rows: RecipeIngredientName[],
-  stockDate: (row: RecipeIngredientName) => string | null,
+  stockFor: (row: RecipeIngredientName) => KitchenStockEntry[],
 ): Map<string, OnHandDish> {
+  const counts = new Map<string, number>();
+  for (const row of rows) counts.set(row.recipeId, (counts.get(row.recipeId) ?? 0) + 1);
   const dishes = new Map<string, OnHandDish>();
   for (const row of rows) {
-    const date = stockDate(row);
-    if (!date) continue;
+    const stock = stockFor(row)
+      .filter((entry) => entry.source !== 'purchase' && entry.quantity > 0)
+      .sort((a, b) => a.date.localeCompare(b.date));
+    if (stock.length === 0) continue;
     const name = row.baseName.trim().toLowerCase();
-    const dish = dishes.get(row.recipeId) ?? { names: [], oldest: date };
-    if (!dish.names.includes(name)) dish.names.push(name);
+    const date = stock[0].date;
+    const dish = dishes.get(row.recipeId) ?? { names: [], oldest: date, ingredientCount: counts.get(row.recipeId) ?? 1, needs: [] };
+    if (!dish.names.includes(name)) {
+      dish.names.push(name);
+      const servings = row.servings && row.servings > 0 ? row.servings : 1;
+      const quantity = row.quantity != null && row.quantity > 0 && row.unit ? row.quantity / servings : null;
+      dish.needs.push({ name, quantity, unit: row.unit ?? '', stock });
+    }
     if (date < dish.oldest) dish.oldest = date;
     dishes.set(row.recipeId, dish);
   }
@@ -160,38 +203,76 @@ export function onHandByRecipe(
 }
 
 export function newOnHandLean(dishes: Map<string, OnHandDish>): OnHandLean {
-  return { dishes, used: new Set(), claims: [] };
+  const ledger = new Map<KitchenStockEntry, KitchenStockEntry>();
+  for (const dish of dishes.values()) {
+    for (const need of dish.needs) for (const entry of need.stock) if (!ledger.has(entry)) ledger.set(entry, { ...entry });
+  }
+  return { dishes, ledger, used: new Set(), claims: [] };
 }
 
-function unusedNames(lean: OnHandLean, recipeId: string): string[] {
-  return (lean.dishes.get(recipeId)?.names ?? []).filter((name) => !lean.used.has(name));
+type NeedShare = { need: OnHandNeed; share: number; draws: KitchenDraw[]; oldest: string | null; ledger: KitchenStockEntry[] };
+
+// How much of each on-hand ingredient the kitchen still covers for one
+// serving, from 0 to 1. Where the amounts cannot be compared (no amount in
+// the recipe, or grams against cups) the food counts whole until an earlier
+// pick has used it.
+function needShares(lean: OnHandLean, recipeId: string): NeedShare[] {
+  const dish = lean.dishes.get(recipeId);
+  if (!dish) return [];
+  return dish.needs.map((need) => {
+    const ledger = need.stock.map((entry) => lean.ledger.get(entry) ?? entry).filter((entry) => entry.quantity > 0);
+    const oldest = ledger.length > 0 ? ledger[0].date : null;
+    if (ledger.length === 0) return { need, share: 0, draws: [], oldest, ledger };
+    if (need.quantity != null) {
+      const coverage = kitchenCoverageFor(need.quantity, need.unit, ledger);
+      if (coverage.coveredQuantity != null) {
+        return { need, share: Math.min(1, coverage.coveredQuantity / need.quantity), draws: coverage.draws, oldest, ledger };
+      }
+    }
+    return { need, share: lean.used.has(need.name) ? 0 : 1, draws: [], oldest, ledger };
+  });
+}
+
+function scoreFor(lean: OnHandLean, recipeId: string): { bucket: number; amount: number; oldest: string } {
+  const dish = lean.dishes.get(recipeId);
+  const shares = needShares(lean, recipeId);
+  const amount = shares.reduce((sum, entry) => sum + entry.share, 0);
+  if (!dish || amount === 0) return { bucket: 0, amount: 0, oldest: '9999' };
+  const oldest = shares.reduce((min, entry) => (entry.share > 0 && entry.oldest && entry.oldest < min ? entry.oldest : min), '9999');
+  // Quarters of the dish the kitchen covers, so a dish mostly made from what
+  // is on hand leads one that only uses a pinch of it.
+  return { bucket: Math.ceil((amount / dish.ingredientCount) * 4 - 1e-9), amount: Math.round(amount * 100) / 100, oldest };
 }
 
 /**
- * Keeps the candidates that use the most of what is in the kitchen and not
- * yet given to another pick, then the ones whose stock is oldest. A pool
- * where nothing uses anything on hand is returned as it was.
+ * Keeps the candidates the kitchen covers the largest share of, then the ones
+ * using the most of it, then the ones whose stock is oldest. A pool where
+ * nothing uses anything on hand is returned as it was.
  */
 export function leanTowardOnHand<T>(pool: T[], idOf: (item: T) => string, lean: OnHandLean | undefined): T[] {
   if (!lean || lean.dishes.size === 0 || pool.length === 0) return pool;
-  const counted = pool.map((item) => ({ item, id: idOf(item), count: unusedNames(lean, idOf(item)).length }));
-  const best = Math.max(...counted.map((entry) => entry.count));
-  if (best === 0) return pool;
-  const top = counted.filter((entry) => entry.count === best);
-  const oldest = top.reduce((min, entry) => {
-    const date = lean.dishes.get(entry.id)?.oldest ?? '9999';
-    return date < min ? date : min;
-  }, '9999');
-  return top.filter((entry) => (lean.dishes.get(entry.id)?.oldest ?? '9999') === oldest).map((entry) => entry.item);
+  const scored = pool.map((item) => ({ item, score: scoreFor(lean, idOf(item)) }));
+  const bucket = Math.max(...scored.map((entry) => entry.score.bucket));
+  if (bucket === 0) return pool;
+  const inBucket = scored.filter((entry) => entry.score.bucket === bucket);
+  const amount = Math.max(...inBucket.map((entry) => entry.score.amount));
+  const most = inBucket.filter((entry) => entry.score.amount === amount);
+  const oldest = most.reduce((min, entry) => (entry.score.oldest < min ? entry.score.oldest : min), '9999');
+  return most.filter((entry) => entry.score.oldest === oldest).map((entry) => entry.item);
 }
 
-/** Records what a chosen dish takes from the kitchen, for the day's line. */
+/** Takes what a chosen dish uses off this run's copy of the kitchen, for the
+ *  next pick and for the day's line. The kitchen itself is untouched. */
 export function claimOnHand(lean: OnHandLean | undefined, recipeId: string, title: string): void {
   if (!lean) return;
-  const names = unusedNames(lean, recipeId);
-  if (names.length === 0) return;
-  for (const name of names) lean.used.add(name);
-  lean.claims.push({ recipeId, title, names });
+  const names: string[] = [];
+  for (const entry of needShares(lean, recipeId)) {
+    if (entry.share <= 0) continue;
+    names.push(entry.need.name);
+    if (entry.draws.length > 0) takeOutOfLedger(entry.ledger, entry.draws);
+    else lean.used.add(entry.need.name);
+  }
+  if (names.length > 0) lean.claims.push({ recipeId, title, names });
 }
 
 /** "Uses what is in your kitchen: Lentil soup (lentils, carrots)." */
@@ -202,7 +283,7 @@ export function onHandDayLine(uses: { title: string; names: string[] }[] | undef
 
 export const ON_HAND_SWITCH_LABEL = 'Use what is in the kitchen first';
 export const ON_HAND_SWITCH_HELP =
-  'Main dishes that use food measured in Life > Kitchen, from the garden or from a ferment are picked first, the oldest first, and each food leads one pick only. Nothing comes off the kitchen until a meal is logged.';
+  'Breakfasts and main dishes made mostly from food measured in Life > Kitchen, picked from the garden or from a ferment come first, the oldest first. Each pick uses up its share, so a later day only leans on what would still be there. Nothing comes off the kitchen until a meal is logged.';
 
 // --- 3. A new grocery list ---------------------------------------------------
 

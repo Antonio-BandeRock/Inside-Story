@@ -578,9 +578,9 @@ check(
 // ...and never across one. A litre of something is not 400 g of it without a
 // density this app does not have.
 check(
-  'a volume never counts against a weight',
-  kitchenCoverageFor(340, 'g', [garden(1, 'l', '2026-09-01')], TODAY).level,
-  'none',
+  'a volume never counts against a weight (it is named, and nothing is taken)',
+  (() => { const c = kitchenCoverageFor(340, 'g', [garden(1, 'l', '2026-09-01')], TODAY); return `${c.level} ${c.draws.length} ${c.coveredQuantity}`; })(),
+  'unmeasured 0 null',
 );
 
 // Two sources add up, and the note names both so it can be checked.
@@ -626,9 +626,9 @@ check(
   'covered',
 );
 check(
-  'and not a different one',
-  kitchenCoverageFor(3, 'each', [garden(4, 'clove', '2026-09-01')], TODAY).level,
-  'none',
+  'and not a different one (it is named, and nothing is taken)',
+  (() => { const c = kitchenCoverageFor(3, 'each', [garden(4, 'clove', '2026-09-01')], TODAY); return `${c.level} ${c.draws.length} ${c.coveredQuantity}`; })(),
+  'unmeasured 0 null',
 );
 
 // --------------------------------------------------------------------------

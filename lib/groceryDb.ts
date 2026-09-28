@@ -14,6 +14,7 @@
 import { consumeKitchenItem, listKitchenInventory, type KitchenItemKind } from './kitchenDb';
 import {
   getDatabase,
+  getReferenceDatabase,
   getUpcomingShoppingList,
   recordFermentationHarvestUsage,
   recordHarvestUsage,
@@ -26,8 +27,10 @@ import {
   defaultGroceryListName,
   describeApproximateCount,
   GROCERY_PRICE_UNITS,
+  holdFromKitchen,
   KITCHEN_PURCHASE_RECENT_DAYS,
   kitchenCoverageFor,
+  takeOutOfLedger,
   type GroceryPriceUnit,
   type KitchenCoverage,
   type KitchenStockEntry,
@@ -103,6 +106,15 @@ export type GroceryListItemRecord = {
   // Satisfied out of the kitchen rather than bought. See the column's own
   // comment in lib/db.ts for why this is separate from checked and from price.
   sourcedFromKitchen: boolean;
+  // H1, 2026-09-28. How much of this line, in its own unit, the kitchen was
+  // holding when the list was built, so it was left off (or the line cut to
+  // the shortfall) rather than bought. Nothing was drawn: the kitchen still
+  // has it until a meal uses it. Null when the kitchen was never asked, and 0
+  // once somebody chose to buy it all instead, so a Refresh does not hold it
+  // back again.
+  kitchenHeldQuantity: number | null;
+  // What "Use what I have" actually drew off the kitchen for this line.
+  kitchenTakenQuantity: number | null;
   addedManually: boolean;
   sortOrder: number;
 };
@@ -145,7 +157,8 @@ const GROCERY_ITEM_COLUMNS = `
   scanned_product_id AS scannedProductId, note, added_manually AS addedManually, sort_order AS sortOrder,
   extra_amounts_json AS extraAmountsJson, meal_names_json AS mealNamesJson,
   sold_as AS soldAs, approx_amount AS approxAmount, purchase_form AS purchaseForm, on_sale AS onSale,
-  sourced_from_kitchen AS sourcedFromKitchen, food_id AS foodId, kind
+  sourced_from_kitchen AS sourcedFromKitchen, food_id AS foodId, kind,
+  kitchen_held_quantity AS kitchenHeldQuantity, kitchen_taken_quantity AS kitchenTakenQuantity
 `;
 
 function toPriceUnit(value: string | null | undefined): GroceryPriceUnit | null {
@@ -287,27 +300,71 @@ export async function createGroceryListFromSchedule(input: {
   );
 
   const sections = await getUpcomingShoppingList(daysAhead, peopleCount);
+  // H1: each line asks for only what the kitchen cannot cover. See
+  // holdFromKitchen in lib/groceryList.ts; nothing is drawn here.
+  const stock = await loadKitchenStock(id);
+  const today = startDate;
   let sortOrder = 0;
   for (const section of sections) {
     for (const item of section.items) {
+      const netted = netAgainstKitchen(stock, section.category, item, today);
       await db.runAsync(
-        `INSERT INTO grocery_list_items (${SCHEDULE_LINE_COLUMNS})
-         VALUES (${SCHEDULE_LINE_PLACEHOLDERS})`,
+        `INSERT INTO grocery_list_items
+           (${SCHEDULE_LINE_COLUMNS}, checked, checked_at, sourced_from_kitchen, kitchen_held_quantity)
+         VALUES (${SCHEDULE_LINE_PLACEHOLDERS}, ?, ?, ?, ?)`,
         ...scheduleLineValues(
           `grocery_item_${Date.now()}_${sortOrder}`,
           id,
           section.category,
-          item,
+          netted.item,
           // Already multiplied per meal by getUpcomingShoppingList (G5).
           1,
           sortOrder,
         ),
+        netted.covered ? 1 : 0,
+        netted.covered ? new Date().toISOString() : null,
+        netted.covered ? 1 : 0,
+        netted.held,
       );
       sortOrder += 1;
     }
   }
 
   return id;
+}
+
+// Every stock entry a line can be matched to, at any of the three levels,
+// oldest first, each entry once. A harvest filed by its id and a bought bag
+// filed by its pair are both the same food to somebody deciding what to buy.
+export function stockForLine(
+  stock: Map<string, KitchenStockEntry[]>,
+  line: { foodId: string | null; category: string; foodName: string },
+): KitchenStockEntry[] {
+  const found: KitchenStockEntry[] = [];
+  const keys = [stockIdKey(line.foodId), stockPairKey(line.category, line.foodName), line.foodName.trim().toLowerCase()];
+  for (const key of keys) {
+    if (!key) continue;
+    for (const entry of stock.get(key) ?? []) {
+      if (!found.includes(entry)) found.push(entry);
+    }
+  }
+  return found.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+// One schedule line, cut to what the kitchen lacks. A line carrying amounts
+// in a second kind of unit is left whole, since the kitchen can only be
+// compared with one of them.
+function netAgainstKitchen(
+  stock: Map<string, KitchenStockEntry[]>,
+  category: string,
+  item: ShoppingListItem,
+  today: string,
+): { item: ShoppingListItem; covered: boolean; held: number | null } {
+  if (item.extraAmounts.length > 0) return { item, covered: false, held: null };
+  const hold = holdFromKitchen(item.quantity, item.unit, stockForLine(stock, { ...item, category }), today);
+  if (!hold) return { item, covered: false, held: null };
+  if (hold.level === 'covered') return { item, covered: true, held: hold.held };
+  return { item: { ...item, quantity: hold.toBuy }, covered: false, held: hold.held };
 }
 
 // A list with nothing on it, for things added by hand (C6, 2026-09-26: a
@@ -860,6 +917,38 @@ export const stockPairKey = (category: string, name: string) =>
 // fuzzy match here would tell someone they already have something they do
 // not.
 
+// The category and base_name of each reference row named "<food_id>|<source>",
+// the pair a recipe ingredient and a schedule-built grocery line are named by.
+// Ids that are not reference rows (a scan, a typed food) are left out.
+async function resolveReferencePairs(
+  foodIds: (string | null | undefined)[],
+): Promise<Map<string, { category: string; baseName: string }>> {
+  const wanted = new Map<string, { id: number; source: string }>();
+  for (const foodId of foodIds) {
+    if (!foodId || wanted.has(foodId)) continue;
+    const [idPart, source] = foodId.split('|');
+    const id = Number(idPart);
+    if (!source || source === 'Scanned' || Number.isNaN(id)) continue;
+    wanted.set(foodId, { id, source });
+  }
+  const pairs = new Map<string, { category: string; baseName: string }>();
+  if (wanted.size === 0) return pairs;
+  const ref = await getReferenceDatabase();
+  const values = Array.from(wanted.values());
+  for (let start = 0; start < values.length; start += 200) {
+    const chunk = values.slice(start, start + 200);
+    const rows = await ref.getAllAsync<{ foodId: number; source: string; category: string; baseName: string | null }>(
+      `SELECT food_id AS foodId, source, category, base_name AS baseName FROM foods
+       WHERE ${chunk.map(() => '(food_id = ? AND source = ?)').join(' OR ')}`,
+      ...chunk.flatMap((value) => [value.id, value.source]),
+    );
+    for (const row of rows) {
+      if (row.baseName) pairs.set(`${row.foodId}|${row.source}`, { category: row.category, baseName: row.baseName });
+    }
+  }
+  return pairs;
+}
+
 // Everything currently in the kitchen, keyed by lower-cased food name.
 export async function loadKitchenStock(excludeListId?: string): Promise<Map<string, KitchenStockEntry[]>> {
   const db = await getDatabase();
@@ -891,8 +980,26 @@ export async function loadKitchenStock(excludeListId?: string): Promise<Map<stri
 
   // Both of these already return only what still has something left
   // (quantity_remaining > 0), drawn down as it gets used.
-  for (const harvest of await listAvailableHarvests()) {
-    add([stockIdKey(String(harvest.foodId)), harvest.foodName], {
+  //
+  // H1, 2026-09-28: a picking is filed under the purchasable pair as well,
+  // the category and base_name its reference row carries, since that is the
+  // name a recipe ingredient and a grocery line use. Before this a picking of
+  // "Carrots, raw" was filed under that full name and under "id:1007" while
+  // the line for it read "Carrot" with a food id of "1007|USDA", so the
+  // kitchen held carrots from the garden and the list asked for them anyway.
+  const harvests = await listAvailableHarvests();
+  const kitchenItems = await listKitchenInventory();
+  const pairs = await resolveReferencePairs([
+    ...harvests.map((harvest) => `${harvest.foodId}|${harvest.source}`),
+    ...kitchenItems.filter((item) => item.source !== 'garden' && item.source !== 'fermentation').map((item) => item.foodId),
+  ]);
+  const pairKeys = (foodId: string | null | undefined) => {
+    const pair = foodId ? pairs.get(foodId) : undefined;
+    return pair ? [stockPairKey(pair.category, pair.baseName), pair.baseName] : [];
+  };
+  for (const harvest of harvests) {
+    const foodId = `${harvest.foodId}|${harvest.source}`;
+    add([stockIdKey(foodId), ...pairKeys(foodId), harvest.foodName], {
       id: harvest.id,
       source: 'garden',
       quantity: harvest.quantityRemaining,
@@ -913,11 +1020,11 @@ export async function loadKitchenStock(excludeListId?: string): Promise<Map<stri
   // Anything actually in the kitchen, which since 2026-09-05 includes what
   // ticking a grocery line put there. This is a measured amount, drawn down as
   // it gets used, so unlike a bare purchase date it can be subtracted.
-  for (const item of await listKitchenInventory()) {
+  for (const item of kitchenItems) {
     // Harvests are already gathered above, from their own tables. Bought,
     // traded, given and hand-entered food is all measured and drawn down.
     if (item.source === 'garden' || item.source === 'fermentation') continue;
-    add([stockIdKey(item.foodId), stockPairKey(item.category, item.foodName), item.foodName], {
+    add([stockIdKey(item.foodId), stockPairKey(item.category, item.foodName), ...pairKeys(item.foodId), item.foodName], {
       id: item.id,
       source: 'kitchen',
       quantity: item.quantityRemaining,
@@ -936,7 +1043,8 @@ export async function loadKitchenStock(excludeListId?: string): Promise<Map<stri
              COALESCE(i.checked_at, l.created_at) AS date
       FROM grocery_list_items i
       JOIN grocery_lists l ON l.id = i.list_id
-      WHERE i.checked = 1 AND i.list_id != ? AND COALESCE(i.checked_at, l.created_at) >= ?
+      WHERE i.checked = 1 AND i.sourced_from_kitchen = 0 AND i.list_id != ?
+        AND COALESCE(i.checked_at, l.created_at) >= ?
     `,
     // No list to exclude when this is read for something other than a grocery
     // list. A sentinel matches nothing rather than branching the SQL.
@@ -973,17 +1081,70 @@ export async function getKitchenCoverageForItems(
 ): Promise<Map<string, KitchenCoverage>> {
   const stock = await loadKitchenStock(listId);
   const today = new Date().toISOString().slice(0, 10);
+  // H1: what this list's lines are counting on the kitchen for is set aside
+  // first, so a line held back at build is not offered a second time and the
+  // shortfall of a cut line is compared with what is left over, not with
+  // stock another line is already counting on. One small read of just those
+  // lines, since a caller may pass only one line.
+  const holds = await (await getDatabase()).getAllAsync<{
+    foodId: string | null;
+    category: string;
+    foodName: string;
+    unit: string;
+    held: number;
+  }>(
+    `SELECT food_id AS foodId, category, food_name AS foodName, unit, kitchen_held_quantity AS held
+     FROM grocery_list_items
+     WHERE list_id = ? AND kitchen_held_quantity > 0 AND COALESCE(kitchen_taken_quantity, 0) = 0
+     ORDER BY sort_order`,
+    listId,
+  );
+  for (const hold of holds) {
+    const entries = stockForLine(stock, hold);
+    takeOutOfLedger(entries, kitchenCoverageFor(hold.held, hold.unit, entries, today).draws);
+  }
   const coverage = new Map<string, KitchenCoverage>();
   for (const item of items) {
-    const entries =
-      stock.get(stockIdKey(item.foodId) ?? ' ') ??
-      stock.get(stockPairKey(item.category, item.foodName)) ??
-      stock.get(item.foodName.trim().toLowerCase());
-    if (!entries || entries.length === 0) continue;
+    // Held whole: the line already says so, and there is nothing to buy.
+    if (item.sourcedFromKitchen && (item.kitchenHeldQuantity ?? 0) > 0) continue;
+    const entries = stockForLine(stock, item).filter((entry) => entry.source === 'purchase' || entry.quantity > 0);
+    if (entries.length === 0) continue;
     const result = kitchenCoverageFor(item.quantity, item.unit, entries, today);
     if (result.level !== 'none') coverage.set(item.id, result);
   }
   return coverage;
+}
+
+/**
+ * Buy it all instead: the kitchen stops holding anything for this line, which
+ * goes back to the whole amount the schedule asked for and is not held again
+ * on a Refresh (kitchen_held_quantity 0 rather than null).
+ */
+export async function releaseKitchenHold(itemId: string): Promise<void> {
+  const db = await getDatabase();
+  const item = await getGroceryListItem(itemId);
+  if (!item) throw new Error('That line is no longer on the list.');
+  const held = item.kitchenHeldQuantity ?? 0;
+  if (held <= 0) return;
+  if (item.sourcedFromKitchen) {
+    // Held whole: the quantity was never cut, so only the tick comes off.
+    await db.runAsync(
+      'UPDATE grocery_list_items SET checked = 0, checked_at = NULL, sourced_from_kitchen = 0, kitchen_held_quantity = 0 WHERE id = ?',
+      itemId,
+    );
+    return;
+  }
+  const quantity = item.quantity + held;
+  const form = (await resolvePurchaseForms()).get(`${item.category}|${item.foodName.toLowerCase()}`);
+  const approx = form
+    ? describeApproximateCount(quantity, item.unit, item.foodName, form.unitLabel, form.unitLabelPlural, form.gramsPerUnit)
+    : item.approxAmount;
+  await db.runAsync(
+    'UPDATE grocery_list_items SET quantity = ?, approx_amount = ?, kitchen_held_quantity = 0 WHERE id = ?',
+    quantity,
+    approx,
+    itemId,
+  );
 }
 
 /**
@@ -1051,20 +1212,59 @@ export async function rebuildGroceryListFromSchedule(listId: string): Promise<Gr
   // being one. Anything added by hand is untouched by this delete.
   await db.runAsync('DELETE FROM grocery_list_items WHERE list_id = ? AND added_manually = 0', listId);
 
+  // H1: the kitchen is read again, since it has changed since the list was
+  // built. Read after the delete, though what it excludes is this list's
+  // purchases either way.
+  const stock = await loadKitchenStock(listId);
+  const today = new Date().toISOString().slice(0, 10);
+
   let carriedOver = 0;
   let added = 0;
   let sortOrder = 0;
   for (const section of sections) {
-    for (const item of section.items) {
-      const key = item.foodName.trim().toLowerCase();
+    for (const scheduled of section.items) {
+      const key = scheduled.foodName.trim().toLowerCase();
       const prior = previous.get(key);
       if (prior) carriedOver += 1;
       else added += 1;
+
+      // Four ways a line comes back, decided per line:
+      //   bought        ticked and not from the kitchen: kept as it was.
+      //   taken         "Use what I have" already drew the kitchen, so the
+      //                 new amount has that taken off first.
+      //   buy it all    somebody released the kitchen's hold: never held again.
+      //   anything else held against the kitchen as it is now.
+      const bought = !!prior?.checked && !prior.sourcedFromKitchen;
+      const taken = prior?.kitchenTakenQuantity ?? 0;
+      const released = prior?.kitchenHeldQuantity === 0;
+      let item = scheduled;
+      let checked = bought;
+      let sourced = false;
+      let held: number | null = released ? 0 : null;
+      if (!bought && taken > 0) {
+        const remaining = Math.max(0, scheduled.quantity - taken);
+        if (remaining <= 0) {
+          checked = true;
+          sourced = true;
+        } else {
+          item = { ...scheduled, quantity: remaining };
+        }
+      }
+      if (!bought && !released && !checked) {
+        const netted = netAgainstKitchen(stock, section.category, item, today);
+        item = netted.item;
+        held = netted.held;
+        if (netted.covered) {
+          checked = true;
+          sourced = true;
+        }
+      }
+
       await db.runAsync(
         `INSERT INTO grocery_list_items
            (${SCHEDULE_LINE_COLUMNS}, checked, checked_at, price, price_unit, purchased_quantity,
-            scanned_product_id, note, on_sale)
-         VALUES (${SCHEDULE_LINE_PLACEHOLDERS}, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            scanned_product_id, note, on_sale, sourced_from_kitchen, kitchen_held_quantity, kitchen_taken_quantity)
+         VALUES (${SCHEDULE_LINE_PLACEHOLDERS}, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         ...scheduleLineValues(
           `grocery_item_${Date.now()}_${sortOrder}`,
           listId,
@@ -1073,14 +1273,17 @@ export async function rebuildGroceryListFromSchedule(listId: string): Promise<Gr
           1,
           sortOrder,
         ),
-        prior?.checked ? 1 : 0,
-        prior?.checkedAt ?? null,
+        checked ? 1 : 0,
+        checked ? (bought ? prior?.checkedAt ?? null : new Date().toISOString()) : null,
         prior?.price ?? null,
         prior?.priceUnit ?? null,
         prior?.purchasedQuantity ?? null,
         prior?.scannedProductId ?? null,
         prior?.note ?? null,
         prior?.onSale ? 1 : 0,
+        sourced ? 1 : 0,
+        held,
+        taken > 0 ? taken : null,
       );
       previous.delete(key);
       sortOrder += 1;

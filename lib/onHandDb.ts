@@ -2,7 +2,7 @@
 // matched to a meal just logged and to every curated recipe.
 
 import { getMeal, getMealItems, getDatabase, getReferenceDatabase } from './db';
-import { drawKitchenStock, loadKitchenStock, stockIdKey, stockPairKey } from './groceryDb';
+import { drawKitchenStock, loadKitchenStock, stockForLine } from './groceryDb';
 import { isNonPurchasableIngredient, type KitchenStockEntry } from './groceryList';
 import { buildPantryOffers, onHandByRecipe, type OnHandDish, type PantryOffer } from './onHand';
 
@@ -10,13 +10,11 @@ function oldestFirst(entries: KitchenStockEntry[]): KitchenStockEntry[] {
   return [...entries].sort((a, b) => a.date.localeCompare(b.date));
 }
 
+// Every stock entry filed under this food's id, its category and name, or
+// its name alone, so a harvest filed by reference id meets a meal item or a
+// recipe row that names the same food (H1, 2026-09-28).
 function lookup(stock: Map<string, KitchenStockEntry[]>, foodId: string | null, category: string, name: string): KitchenStockEntry[] {
-  return (
-    stock.get(stockIdKey(foodId) ?? ' ') ??
-    stock.get(stockPairKey(category, name)) ??
-    stock.get(name.trim().toLowerCase()) ??
-    []
-  );
+  return stockForLine(stock, { foodId, category, foodName: name });
 }
 
 /** Foods a grocery list in the last two weeks took from the kitchen for a
@@ -85,9 +83,10 @@ export async function keepPantryUses(offers: PantryOffer[]): Promise<void> {
 
 /**
  * For the meal plan generator: which curated recipes use something measured
- * in the kitchen right now, and how old that stock is. Garden pickings,
- * ferments and kitchen food all count; a purchase date with no amount does
- * not. An empty map when the kitchen holds nothing measured.
+ * in the kitchen right now, how much of it one serving asks for, and how old
+ * that stock is. Garden pickings, ferments and kitchen food all count; a
+ * purchase date with no amount does not. An empty map when the kitchen holds
+ * nothing measured.
  */
 export async function getOnHandDishes(): Promise<Map<string, OnHandDish>> {
   const stock = await loadKitchenStock();
@@ -98,16 +97,29 @@ export async function getOnHandDishes(): Promise<Map<string, OnHandDish>> {
   }
   if (measured.size === 0) return new Map();
   const ref = await getReferenceDatabase();
-  const rows = await ref.getAllAsync<{ recipe_id: string; category: string; base_name: string }>(
-    'SELECT recipe_id, category, base_name FROM curated_recipe_ingredients',
+  const rows = await ref.getAllAsync<{
+    recipe_id: string;
+    category: string;
+    base_name: string;
+    quantity: number | null;
+    unit: string | null;
+    servings: number | null;
+  }>(
+    `SELECT i.recipe_id, i.category, i.base_name, i.quantity, i.unit, r.servings
+     FROM curated_recipe_ingredients i
+     LEFT JOIN curated_recipes r ON r.id = i.recipe_id`,
   );
   return onHandByRecipe(
     rows
       .filter((row) => !isNonPurchasableIngredient(row.base_name))
-      .map((row) => ({ recipeId: row.recipe_id, category: row.category ?? '', baseName: row.base_name })),
-    (row) => {
-      const entries = lookup(measured, null, row.category, row.baseName);
-      return entries.length === 0 ? null : oldestFirst(entries)[0].date;
-    },
+      .map((row) => ({
+        recipeId: row.recipe_id,
+        category: row.category ?? '',
+        baseName: row.base_name,
+        quantity: row.quantity,
+        unit: row.unit,
+        servings: row.servings,
+      })),
+    (row) => oldestFirst(lookup(measured, null, row.category, row.baseName)),
   );
 }

@@ -537,13 +537,16 @@ export function kitchenCoverageFor(
     });
     const have = parts.join(' and ');
     const coveredBase = Math.min(totalBase, neededBase);
-    const coveredAmount = renderBucket(family, coveredBase, neededUnit);
+    // In the line's own unit, scaled rather than rendered, since renderBucket
+    // answers in g or ml and a line can be in ounces or cups (H1, 2026-09-28:
+    // before this a 2 cup line covered by 200 ml had 200 taken off it).
+    const coveredInLineUnit = (neededQuantity * coveredBase) / neededBase;
 
     if (totalBase >= neededBase) {
       return {
         level: 'covered',
         note: `Already in your kitchen: ${have}. That covers this line.`,
-        coveredQuantity: coveredAmount.quantity,
+        coveredQuantity: coveredInLineUnit,
         draws,
       };
     }
@@ -551,8 +554,25 @@ export function kitchenCoverageFor(
     return {
       level: 'some',
       note: `Already in your kitchen: ${have}. You still need about ${formatGroceryAmount(shortfall.quantity, shortfall.unit)}.`,
-      coveredQuantity: coveredAmount.quantity,
+      coveredQuantity: coveredInLineUnit,
       draws,
+    };
+  }
+
+  // H1, 2026-09-28: the kitchen holds this food, measured in a kind of unit
+  // the line cannot be compared with (grams held, cups needed). Said rather
+  // than left silent, and nothing is taken off the line, since converting
+  // across kinds would need a density this app does not have.
+  const otherKind = measured.filter((entry) => entry.quantity > 0 && familyFor(entry.unit) !== family);
+  if (otherKind.length > 0 && usable.length === 0) {
+    const held = otherKind
+      .map((entry) => `${formatGroceryAmount(entry.quantity, entry.unit)} ${describeSource(entry.source)}`)
+      .join(' and ');
+    return {
+      level: 'unmeasured',
+      note: `Your kitchen has ${held}, measured differently from this line. Worth checking before buying.`,
+      coveredQuantity: null,
+      draws: [],
     };
   }
 
@@ -569,6 +589,65 @@ export function kitchenCoverageFor(
   }
 
   return { level: 'none', note: null, coveredQuantity: null, draws: [] };
+}
+
+// --- Leaving what the kitchen holds off a new list (H1, 2026-09-28) --------
+//
+// Asked for directly: "the grocery list will only pull in the ingredients not
+// contained in the kitchen." A list built from the schedule now asks for only
+// what the kitchen cannot cover. Nothing is drawn from the kitchen here: the
+// food is still there until a meal that uses it is logged, which is when the
+// pantry and garden sheets offer to take it. The list only stops asking
+// anybody to buy it again.
+
+export type KitchenHold = {
+  // In the line's own unit: how much the kitchen is holding for this line.
+  held: number;
+  // What is still to buy, in the line's own unit. Zero when the kitchen
+  // covers the whole line.
+  toBuy: number;
+  level: 'covered' | 'some';
+};
+
+// Takes draws off a set of stock entries in place, so a second line looking at
+// the same food sees only what the first left. Entries are shared between
+// every key loadKitchenStock filed them under, so one deduction reaches them
+// all.
+export function takeOutOfLedger(entries: KitchenStockEntry[], draws: KitchenDraw[]): void {
+  for (const draw of draws) {
+    const entry = entries.find((candidate) => candidate.id === draw.id && candidate.source === draw.source);
+    if (entry) entry.quantity = Math.max(0, entry.quantity - draw.quantity);
+  }
+}
+
+// How much of a line the kitchen can hold, with the stock it holds taken out of
+// the ledger. Null when measured stock in a comparable unit covers none of it,
+// which includes a purchase date with no amount and a food held in grams for a
+// line in cups: those lines stay whole, with a note, and are bought.
+export function holdFromKitchen(
+  quantity: number,
+  unit: string,
+  entries: KitchenStockEntry[],
+  today: string = new Date().toISOString().slice(0, 10),
+): KitchenHold | null {
+  if (!(quantity > 0)) return null;
+  const coverage = kitchenCoverageFor(quantity, unit, entries, today);
+  if (coverage.draws.length === 0 || coverage.coveredQuantity == null) return null;
+  if (coverage.level !== 'covered' && coverage.level !== 'some') return null;
+  takeOutOfLedger(entries, coverage.draws);
+  if (coverage.level === 'covered') return { held: quantity, toBuy: 0, level: 'covered' };
+  const held = Math.min(quantity, coverage.coveredQuantity);
+  return { held, toBuy: Math.max(0, quantity - held), level: 'some' };
+}
+
+// The line that says what a new list left off or cut short, or null when the
+// kitchen changed nothing.
+export function describeKitchenHolds(covered: number, some: number): string | null {
+  if (covered === 0 && some === 0) return null;
+  const parts: string[] = [];
+  if (covered > 0) parts.push(`${covered} ${covered === 1 ? 'food' : 'foods'} left off because the kitchen holds ${covered === 1 ? 'it' : 'them'}`);
+  if (some > 0) parts.push(`${some} more cut to what is still to buy`);
+  return `Built around what is in your kitchen: ${parts.join(', and ')}. Nothing was taken out; logging a meal is when the kitchen is drawn down.`;
 }
 
 // --- How a store actually sells it ------------------------------------------

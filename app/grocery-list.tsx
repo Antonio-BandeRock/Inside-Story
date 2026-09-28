@@ -56,6 +56,7 @@ import {
   getGroceryList,
   getGroceryListItems,
   getKitchenCoverageForItems,
+  releaseKitchenHold,
   takeKitchenStockForLine,
   takeKitchenStockForList,
   repairTransposedGroceryLines,
@@ -82,6 +83,8 @@ import {
   purchaseSizeUnitFor,
   isEncouragedGroceryWindow,
   parsePriceInput,
+  describeKitchenHolds,
+  formatGroceryAmount,
   type GroceryPriceUnit,
   type KitchenCoverage,
 } from '../lib/groceryList';
@@ -279,6 +282,21 @@ export default function GroceryListScreen() {
     return Array.from(names);
   }, [items]);
 
+  // H1: lines the kitchen holds whole are ticked but were never bought, so
+  // the cart count leaves them out, and the header says what was held.
+  const heldWhole = useMemo(
+    () => items.filter((item) => item.sourcedFromKitchen && (item.kitchenHeldQuantity ?? 0) > 0).length,
+    [items],
+  );
+  const kitchenHoldLine = useMemo(
+    () =>
+      describeKitchenHolds(
+        heldWhole,
+        items.filter((item) => !item.sourcedFromKitchen && (item.kitchenHeldQuantity ?? 0) > 0).length,
+      ),
+    [items, heldWhole],
+  );
+
   // By category as before, or in the walking order of the store this list
   // names once that store has aisles (G6). lib/groceryAisles.ts.
   const sections = useMemo(() => arrangeByAisle(items, storeLayout, ADDED_BY_HAND_CATEGORY), [items, storeLayout]);
@@ -442,8 +460,9 @@ export default function GroceryListScreen() {
       setItems(listItems);
       setKitchen(coverage);
       setMode('list');
-      setBusy(false);
-      await offerKitchenForList(id, listItems, coverage);
+      // H1, 2026-09-28: no sheet offering to take from the kitchen after a
+      // build any more. The list is already built around what the kitchen
+      // holds (lib/groceryList.ts holdFromKitchen), and the header says how.
     } catch (error) {
       setErrorMessage(`Could not build the list: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
@@ -451,8 +470,28 @@ export default function GroceryListScreen() {
     }
   }
 
+  // Buy it all instead (H1): the kitchen stops holding anything for this line.
+  async function handleReleaseHold(item: GroceryListItemRecord) {
+    if (!list) return;
+    setBusy(true);
+    try {
+      await releaseKitchenHold(item.id);
+      await load();
+    } catch (error) {
+      setErrorMessage(`Could not change that line: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleToggleChecked(item: GroceryListItemRecord) {
     if (!list) return;
+    // A line the kitchen holds whole is ticked because there is nothing to
+    // buy. Unticking it means somebody wants to buy it after all.
+    if (item.checked && item.sourcedFromKitchen && (item.kitchenHeldQuantity ?? 0) > 0) {
+      await handleReleaseHold(item);
+      return;
+    }
     const nowChecked = !item.checked;
     // 2026-09-01, reported from a real shop: ticking something off never
     // asked what it cost, and being asked at the end of the trip is no use
@@ -958,7 +997,7 @@ export default function GroceryListScreen() {
           </Text>
           <View style={styles.labelRow}>
             <Text style={styles.progressText}>
-              {totals.checkedCount} of {totals.itemCount} in the cart
+              {totals.checkedCount - heldWhole} of {totals.itemCount - heldWhole} in the cart
               {totals.pricedCount > 0 ? ` · ${formatMoney(totals.pricedTotal)} so far` : ''}
             </Text>
             <TouchableOpacity onPress={explainTotal} accessibilityLabel="About the running total">
@@ -970,6 +1009,7 @@ export default function GroceryListScreen() {
               {totals.unresolvedPriceCount} {totals.unresolvedPriceCount === 1 ? 'line needs' : 'lines need'} a weight before the price can be counted.
             </Text>
           ) : null}
+          {kitchenHoldLine ? <Text style={styles.muted}>{kitchenHoldLine}</Text> : null}
           {coveredMeals.length > 0 ? (
             <Text style={styles.muted}>
               {`Covers ${coveredMeals.length} scheduled ${coveredMeals.length === 1 ? 'meal' : 'meals'}: ${coveredMeals.join(', ')}.`}
@@ -1093,10 +1133,31 @@ export default function GroceryListScreen() {
                       {item.kind === 'non_food' ? (
                         <Text style={[styles.rowMeta, styles.rowNonFood]}>Non-food item</Text>
                       ) : null}
-                      {item.sourcedFromKitchen ? (
+                      {item.sourcedFromKitchen && (item.kitchenHeldQuantity ?? 0) > 0 ? (
+                        <Text style={[styles.rowMeta, styles.rowKitchenCovered]}>
+                          Your kitchen holds this, so there is none to buy. It stays in the kitchen until a meal uses it.
+                        </Text>
+                      ) : item.sourcedFromKitchen ? (
                         <Text style={[styles.rowMeta, styles.rowKitchenCovered]}>
                           Taken from your kitchen, not bought.
                         </Text>
+                      ) : (item.kitchenHeldQuantity ?? 0) > 0 ? (
+                        <Text style={[styles.rowMeta, styles.rowKitchenNote]}>
+                          {`Your kitchen holds ${formatGroceryAmount(item.kitchenHeldQuantity ?? 0, item.unit)} of this, so the line is only what is still to buy.`}
+                        </Text>
+                      ) : null}
+                      {(item.kitchenHeldQuantity ?? 0) > 0 && list?.status !== 'completed' ? (
+                        <TouchableOpacity
+                          style={styles.useKitchenButton}
+                          activeOpacity={0.85}
+                          disabled={busy}
+                          onPress={() => void handleReleaseHold(item)}
+                        >
+                          <Ionicons name="cart-outline" size={14} color={colors.textOnButton} />
+                          <Text style={styles.useKitchenButtonText}>
+                            {item.sourcedFromKitchen ? 'Buy it instead' : 'Buy it all instead'}
+                          </Text>
+                        </TouchableOpacity>
                       ) : null}
                       {kitchenNote ? (
                         <Text
