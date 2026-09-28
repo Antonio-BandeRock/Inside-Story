@@ -169,6 +169,8 @@ export async function getEatingVarietyInputs(startDate: string, endDate: string)
       packaged: 'unknown',
       gutSupportive: false,
       fermented: looksFermented(foodName, item.cookingMethod ?? null),
+      mealId: item.mealId,
+      mealType: item.mealType ?? null,
       lookupKey,
     });
   }
@@ -187,6 +189,8 @@ export async function getEatingVarietyInputs(startDate: string, endDate: string)
       packaged: found ? packagedFromCategory(found.category) : 'unknown',
       gutSupportive: found?.gutSupportive ?? false,
       fermented: entry.fermented,
+      mealId: entry.mealId,
+      mealType: entry.mealType,
     };
   });
 

@@ -9,6 +9,7 @@ import { useInfoAlert } from '../../components/InfoAlert';
 import { YourStoryMissingLine } from '../../components/YourStoryMissingLine';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
+import { PopoverSelect } from '../../components/PopoverSelect';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { HOME_BAND_GAP } from '../../components/HomeSectionBand';
@@ -63,13 +64,63 @@ const DAY_RANGE_OPTIONS = [
   { value: 90, label: '90d' },
 ] as const;
 
+type DayRange = 7 | 30 | 90 | 'custom';
+
+// A custom range (2026-09-27) starts on a picked day and runs to today,
+// so a report can cover a week, a season or a year. Three years back is
+// as far as the picker reaches.
+const CUSTOM_YEAR_OPTIONS = Array.from({ length: 3 }, (_, i) => String(new Date().getFullYear() - 2 + i));
+const CUSTOM_MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => String(i + 1));
+const CUSTOM_DAY_OPTIONS = Array.from({ length: 31 }, (_, i) => String(i + 1));
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+function localDateString(date: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function daysAgoString(days: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  return localDateString(date);
+}
+
+// Days from the start through today, counting both ends.
+function daysThroughToday(start: string): number {
+  const [y, m, d] = start.split('-').map(Number);
+  const from = new Date(y, m - 1, d);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.max(1, Math.round((today.getTime() - from.getTime()) / 86400000) + 1);
+}
+
+// Moves one part of the date, keeps the day inside its month, and never
+// lets the start land after today.
+function changeStart(current: string, change: { year?: string; month?: string; day?: string }): string {
+  const [y, m, d] = current.split('-').map(Number);
+  const year = change.year ? Number(change.year) : y;
+  const month = change.month ? Number(change.month) : m;
+  const lastDay = new Date(year, month, 0).getDate();
+  const day = Math.min(change.day ? Number(change.day) : d, lastDay);
+  const next = localDateString(new Date(year, month - 1, day));
+  const today = localDateString(new Date());
+  return next > today ? today : next;
+}
+
+function describeStart(start: string): string {
+  const [y, m, d] = start.split('-').map(Number);
+  return `${MONTH_NAMES[m - 1]} ${d}, ${y}`;
+}
+
 export default function ReportsScreen() {
   useRegisterScreenHelp('Reports', REPORTS_HELP_SECTIONS, '/reports');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [lens, setLens] = useState<ReportsLens>('overview');
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
-  const [days, setDays] = useState<7 | 30 | 90>(30);
+  const [range, setRange] = useState<DayRange>(30);
+  const [customStart, setCustomStart] = useState<string>(() => daysAgoString(13));
+  const days = range === 'custom' ? daysThroughToday(customStart) : range;
   // Home's Make a Report card names the window it wants (1.0.39.7), the
   // same way Food and Garden already take a lens name. Without it a tap
   // from Home landed on this page’s resting picker, which is one more
@@ -89,7 +140,7 @@ export default function ReportsScreen() {
       const requestedLens = REPORT_KINDS.find((def) => def.key === openReportsLens);
       if (requestedLens) setLens(requestedLens.key);
       if (openReportDays === '7' || openReportDays === '30' || openReportDays === '90') {
-        setDays(Number(openReportDays) as 7 | 30 | 90);
+        setRange(Number(openReportDays) as 7 | 30 | 90);
       }
       if (requestedLens || openReportDays === '7' || openReportDays === '30' || openReportDays === '90') {
         setRevealed(true);
@@ -112,7 +163,7 @@ export default function ReportsScreen() {
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const reportText = report ? renderReportText(report) : null;
 
-  const load = useCallback((forDays: 7 | 30 | 90, forLens: ReportsLens) => {
+  const load = useCallback((forDays: number, forLens: ReportsLens) => {
     setLoading(true);
     setLoadError(null);
     buildReport(forDays, forLens)
@@ -184,13 +235,57 @@ export default function ReportsScreen() {
               {DAY_RANGE_OPTIONS.map((option) => (
                 <TouchableOpacity
                   key={option.value}
-                  style={[styles.pill, days === option.value && styles.pillActive]}
-                  onPress={() => setDays(option.value)}
+                  style={[styles.pill, range === option.value && styles.pillActive]}
+                  onPress={() => setRange(option.value)}
                 >
-                  <Text style={[styles.pillText, days === option.value && styles.pillTextActive]}>{option.label}</Text>
+                  <Text style={[styles.pillText, range === option.value && styles.pillTextActive]}>{option.label}</Text>
                 </TouchableOpacity>
               ))}
+              <TouchableOpacity style={[styles.pill, range === 'custom' && styles.pillActive]} onPress={() => setRange('custom')}>
+                <Text style={[styles.pillText, range === 'custom' && styles.pillTextActive]}>Custom</Text>
+              </TouchableOpacity>
             </View>
+
+            {range === 'custom' ? (
+              <View style={band.box}>
+                <Text style={styles.customLabel}>From</Text>
+                <View style={styles.dateRow}>
+                  <View style={styles.dateFieldGroup}>
+                    <Text style={styles.dateFieldLabel}>Year</Text>
+                    <PopoverSelect
+                      options={CUSTOM_YEAR_OPTIONS}
+                      selected={customStart.split('-')[0]}
+                      minWidth={72}
+                      tabColor={TAB_COLOR}
+                      onSelect={(value) => setCustomStart((current) => changeStart(current, { year: value }))}
+                    />
+                  </View>
+                  <View style={styles.dateFieldGroup}>
+                    <Text style={styles.dateFieldLabel}>Month</Text>
+                    <PopoverSelect
+                      options={CUSTOM_MONTH_OPTIONS}
+                      selected={String(Number(customStart.split('-')[1]))}
+                      minWidth={52}
+                      tabColor={TAB_COLOR}
+                      onSelect={(value) => setCustomStart((current) => changeStart(current, { month: value }))}
+                    />
+                  </View>
+                  <View style={styles.dateFieldGroup}>
+                    <Text style={styles.dateFieldLabel}>Day</Text>
+                    <PopoverSelect
+                      options={CUSTOM_DAY_OPTIONS}
+                      selected={String(Number(customStart.split('-')[2]))}
+                      minWidth={52}
+                      tabColor={TAB_COLOR}
+                      onSelect={(value) => setCustomStart((current) => changeStart(current, { day: value }))}
+                    />
+                  </View>
+                </View>
+                <Text style={styles.customCaption}>
+                  {describeStart(customStart)} through today, {days} {days === 1 ? 'day' : 'days'}.
+                </Text>
+              </View>
+            ) : null}
 
             {/* While meals are logged on fewer than seven days, most sections
                 below will say there is nothing in range; this names why and
@@ -253,7 +348,12 @@ const styles = StyleSheet.create({
   content: { paddingBottom: 32, gap: HOME_BAND_GAP },
   loadingText: { ...typography.body, color: colors.textSecondary, ...textShadow },
 
-  pillRow: { flexDirection: 'row', gap: 8 },
+  pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  customLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginBottom: 8, ...textShadow },
+  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  dateFieldGroup: { alignItems: 'flex-start' },
+  dateFieldLabel: { ...typography.eyebrow, color: colors.textSecondary, marginBottom: 4, ...textShadow },
+  customCaption: { ...typography.caption, color: colors.textSecondary, marginTop: 10, ...textShadow },
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   pillText: { ...typography.caption, color: colors.textPrimary, ...textShadow },

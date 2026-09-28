@@ -14021,6 +14021,43 @@ async function insertMealItems(db: SQLite.SQLiteDatabase, mealId: string, ingred
   }
 }
 
+// Adds foods to a meal already logged, after its last row, so a food picked
+// on Home for today's meal (lib/mealVarietyDb.ts) joins the copy that was
+// logged rather than making a second meal.
+export async function appendMealItems(mealId: string, ingredients: MealIngredientInput[]) {
+  if (ingredients.length === 0) return;
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  const row = await db.getFirstAsync<{ next: number | null }>('SELECT MAX(sort_order) + 1 AS next FROM meal_items WHERE meal_id = ?', mealId);
+  const start = row?.next ?? 0;
+  for (const [index, ingredient] of ingredients.entries()) {
+    await db.runAsync(
+      `
+        INSERT INTO meal_items
+          (id, meal_id, food_id, food_name, category, dish_name, side_name, dish_servings, your_share_percent, cooking_method, serving_size, serving_unit, quantity, sort_order, notes, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      `meal_item_${Date.now()}_a${index}`,
+      mealId,
+      ingredient.foodId ?? null,
+      ingredient.foodName,
+      ingredient.category ?? null,
+      ingredient.dishName?.trim() || null,
+      ingredient.sideName?.trim() || null,
+      ingredient.dishServings ?? 1,
+      ingredient.yourSharePercent ?? null,
+      ingredient.cookingMethod?.trim() || null,
+      ingredient.quantity,
+      ingredient.unit,
+      1,
+      start + index,
+      ingredient.notes?.trim() || null,
+      now,
+    );
+  }
+  await db.runAsync('UPDATE meals SET updated_at = ? WHERE id = ?', now, mealId);
+}
+
 export async function createMeal(input: {
   name: string;
   mealType: string;
@@ -15916,13 +15953,13 @@ export async function getMealItems(mealId: string) {
 // real meal if that ever matters.
 export async function getMealItemsInWindow(startLocal: string, endLocal: string) {
   const db = await getDatabase();
-  return db.getAllAsync<MealItemRecord & { eatenAt: string }>(
+  return db.getAllAsync<MealItemRecord & { eatenAt: string; mealType: string | null }>(
     `
       SELECT mi.id, mi.meal_id AS mealId, mi.food_id AS foodId, mi.food_name AS foodName, mi.category,
              mi.dish_name AS dishName, mi.side_name AS sideName, mi.dish_servings AS dishServings,
              mi.your_share_percent AS yourSharePercent, mi.cooking_method AS cookingMethod,
              mi.serving_size AS servingSize, mi.serving_unit AS servingUnit, mi.quantity,
-             mi.sort_order AS sortOrder, mi.notes, m.eaten_at AS eatenAt
+             mi.sort_order AS sortOrder, mi.notes, m.eaten_at AS eatenAt, m.meal_type AS mealType
       FROM meal_items mi
       JOIN meals m ON m.id = mi.meal_id
       WHERE m.eaten_at BETWEEN ? AND ?

@@ -12,6 +12,8 @@ import type { CostSummary } from './costOfEating';
 import { formatFinanceMoney } from './financeCore';
 import type { MedicalBill } from './financeHealth';
 import type { HarvestYieldSummary } from './harvestYield';
+import { describeRepeat } from './eatingVariety';
+import { MEAL_SOURCE_LABELS, describeMealRepeat, type MealVarietySummary } from './mealVariety';
 import type { ReadingView } from './readingBands';
 import type { ReportListSection, ReportSection, ReportTableSection } from './reportGenerator';
 
@@ -23,7 +25,8 @@ export type ReportKind =
   | 'r-month'
   | 'r-care'
   | 'r-medical-costs'
-  | 'r-garden';
+  | 'r-garden'
+  | 'r-variety';
 
 /** The sections the Overview has always carried, each one a named block so
  *  a narrower report can ask for the ones its reader needs and skip the
@@ -125,6 +128,18 @@ export const REPORT_KINDS: ReportKindDef[] = [
     title: 'Inside Story: Garden Record',
     preface: ['What the garden gave over the range, how long each crop took, compost made and used, and what was shared, from what was recorded.'],
     help: 'Harvests by crop and by area, how long each grow took against what was expected, compost, what was sold, traded or given, and what is ready or on hand now.',
+    core: [],
+  },
+  {
+    key: 'r-variety',
+    label: 'Eating Variety',
+    icon: 'color-palette-outline',
+    title: 'Inside Story: Eating Variety',
+    preface: [
+      'How varied eating was over the range, read from the meals that were logged: different foods and plants week by week, the meals and foods that came back most, the food groups that never turned up, where meals came from, and how many came from the plan.',
+      'A week with nothing logged is left as a gap, never counted as a week of eating nothing. A meal that comes back often is counted, not judged.',
+    ],
+    help: 'Different foods and different plants week by week, the meals and foods that came back most and how many days they took, food groups not logged at all, meals made at home, from a package or eaten out, meals from the plan against meals decided on the day, and foods that feed the gut.',
     core: [],
   },
 ];
@@ -304,4 +319,90 @@ export function gardenYieldSections(summary: HarvestYieldSummary): ReportSection
       empty: 'Nothing shared, sold or received in this range.',
     },
   ];
+}
+
+/** The whole Eating Variety report, one section per question it answers. */
+export function eatingVarietySections(summary: MealVarietySummary): ReportSection[] {
+  const { distinct, plants, repeats, rotation, groups, sources, planned, gut } = summary;
+  const weekNote = [distinct.headline, plants.headline, summary.weeksWithoutLogging > 0 ? plants.gapNote : null].filter(Boolean).join(' ');
+  return [
+    {
+      kind: 'table',
+      heading: 'Different foods and plants, week by week',
+      note: weekNote || undefined,
+      columns: ['Week', 'Days logged', 'Different foods', 'Different plants'],
+      rows: summary.weeks.map((week) => [
+        week.partial ? `${week.label} (part week)` : week.label,
+        String(week.daysLogged),
+        week.foods == null ? 'Not logged' : String(week.foods),
+        week.plants == null ? 'Not logged' : String(week.plants),
+      ]),
+      empty: 'Nothing logged in this range yet.',
+    },
+    {
+      kind: 'list',
+      heading: 'Meals that came back most',
+      note: repeats.headline,
+      rows: repeats.top.map((entry) => describeMealRepeat(entry, repeats.daysLogged)),
+      empty: repeats.totalMeals > 0 ? 'No meal name came back more than once in this range.' : 'No meals logged in this range yet.',
+    },
+    {
+      kind: 'list',
+      heading: 'Foods that came back most',
+      note: [rotation.headline, rotation.concentrationNote].filter(Boolean).join(' '),
+      rows: rotation.mostRepeated.map((food) => `${food.foodName}: ${describeRepeat(food)}`),
+      empty: 'Nothing logged in this range yet.',
+    },
+    {
+      kind: 'list',
+      heading: 'Food groups not logged',
+      note: groups.headline,
+      rows: groups.present.map((group) => `${group.label.charAt(0).toUpperCase()}${group.label.slice(1)}: ${group.entries} ${group.entries === 1 ? 'entry' : 'entries'}`),
+      empty: 'Nothing logged in this range yet.',
+    },
+    {
+      kind: 'table',
+      heading: 'Where meals came from',
+      note: sources.headline,
+      columns: ['Meal', MEAL_SOURCE_LABELS.home, MEAL_SOURCE_LABELS.packaged, MEAL_SOURCE_LABELS.out, MEAL_SOURCE_LABELS.unknown],
+      rows: sources.rows.map((row) => [row.label, String(row.counts.home), String(row.counts.packaged), String(row.counts.out), String(row.counts.unknown)]),
+      empty: 'No meals logged in this range yet.',
+    },
+    {
+      kind: 'list',
+      heading: 'From the plan or decided on the day',
+      note: planned.headline,
+      rows: planned.daysLine ? [planned.daysLine] : [],
+      empty: 'No meals logged in this range yet.',
+    },
+    {
+      kind: 'list',
+      heading: 'Foods that feed the gut',
+      note: gut.headline,
+      rows: gut.names,
+      empty: 'None logged in this range.',
+    },
+  ];
+}
+
+/** The shorter version carried by the Nutritionist and Looking Back reports. */
+export function eatingVarietyBrief(summary: MealVarietySummary | null): ReportListSection {
+  const rows = summary
+    ? [
+        summary.distinct.headline,
+        summary.plants.headline,
+        summary.repeats.totalMeals > 0 ? summary.repeats.headline : null,
+        summary.repeats.top[0] ? `Came back most: ${describeMealRepeat(summary.repeats.top[0], summary.repeats.daysLogged)}` : null,
+        summary.groups.missing.length > 0 && summary.hasAnything ? summary.groups.headline : null,
+        summary.sources.total > 0 ? summary.sources.headline : null,
+        summary.planned.daysLine,
+      ].filter((line): line is string => Boolean(line))
+    : [];
+  return {
+    kind: 'list',
+    heading: 'Eating variety',
+    note: summary && summary.weeksWithoutLogging > 0 ? (summary.plants.gapNote ?? undefined) : undefined,
+    rows: summary?.hasAnything ? rows : [],
+    empty: 'No meals logged in this range yet.',
+  };
 }

@@ -408,6 +408,7 @@ export const TOUR_LENS_NAMES: Record<string, Record<string, string>> = {
     'r-month': 'Looking Back',
     'r-medical-costs': 'Medical Costs',
     'r-garden': 'Garden Record',
+    'r-variety': 'Eating Variety',
   },
 };
 
@@ -541,6 +542,7 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     'r-month': 'How the range went across every part of life you record, including what it cost.',
     'r-medical-costs': 'Medical bills, where the insurance plan stands, and what the conditions cost.',
     'r-garden': 'Harvests, how long each grow took, compost and what was shared.',
+    'r-variety': 'Different foods and plants week by week, the meals that came back most, food groups not logged, and where meals came from.',
   },
 };
 
@@ -939,9 +941,9 @@ export const TOUR_TABS: TourTabDef[] = [
       'To stay on this device until you decide to share it.',
     ],
     groups: [
-      { title: 'Everything', line: 'Choose 7, 30 or 90 days, read it on screen, and save or share it as a PDF.', lenses: ['overview'] },
+      { title: 'Everything', line: 'Choose 7, 30 or 90 days or a start date you pick, read it on screen, and save or share it as a PDF.', lenses: ['overview'] },
       { title: 'For one reader', lenses: ['r-doctor', 'r-nutrition', 'r-trainer', 'r-care'] },
-      { title: 'On one subject', lenses: ['r-month', 'r-medical-costs', 'r-garden'] },
+      { title: 'On one subject', lenses: ['r-month', 'r-medical-costs', 'r-garden', 'r-variety'] },
     ],
     steps: [
       {

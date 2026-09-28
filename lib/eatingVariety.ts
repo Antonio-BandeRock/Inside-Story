@@ -37,6 +37,10 @@ export type VarietyFoodRecord = {
   // used in place of a keyword list somebody made up.
   gutSupportive: boolean;
   fermented: boolean;
+  // Which meal the entry came from, for the meal-level reading in
+  // lib/mealVariety.ts. Optional so older callers and tests need neither.
+  mealId?: string;
+  mealType?: string | null;
 };
 
 export type VarietyInputs = {

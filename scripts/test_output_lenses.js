@@ -364,7 +364,7 @@ run('i-garden empty', I.buildGardenView, { today, plantings: [], onHand: [], wee
 
 // Reports
 const CORE = ['conditions', 'nutrients', 'flags', 'symptoms', 'meds', 'movement', 'body', 'rules', 'labs'];
-check(R.REPORT_KINDS.length === 8, 'eight reports');
+check(R.REPORT_KINDS.length === 9, 'nine reports');
 check(R.REPORT_KINDS[0].key === 'overview', 'the Overview comes first');
 check(R.REPORT_KIND_BY_KEY.overview.core.length === CORE.length, 'the Overview carries every core section');
 for (const def of R.REPORT_KINDS) {

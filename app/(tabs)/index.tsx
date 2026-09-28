@@ -140,6 +140,8 @@ import {
 import { dismissUsualMeal, getUsualMealsCard, logUsualMeal } from '../../lib/usualMealDb';
 import { packedCaption, packedTitle, standingCaption, standingTitle, type MealPack, type TomorrowSlot } from '../../lib/mealPack';
 import { getTomorrowSlots, logPackedMeal, skipPackedMeal, undoPackedMeal } from '../../lib/mealPackDb';
+import { addedToMealSentence, homeChipCaption, type PlantNotLately } from '../../lib/mealVariety';
+import { appendPlantToMeal, getHomeVariety, type HomeVariety } from '../../lib/mealVarietyDb';
 import { PackPicker } from '../../components/PackPicker';
 import { offerGardenUse } from '../../lib/gardenPlateOffer';
 import type { GardenYieldHomeSummary } from '../../lib/harvestYield';
@@ -1252,10 +1254,20 @@ export default function HomeScreen() {
   const [capturingPhoto, setCapturingPhoto] = useState(false);
   // G25: what the usual-meal line just logged, held after the reload that
   // makes the offer itself go away, so the line can say so and offer Undo.
-  const [usualMealLogged, setUsualMealLogged] = useState<{ id: string; sentence: string; undoable: boolean; pack?: MealPack } | null>(
-    null,
-  );
+  const [usualMealLogged, setUsualMealLogged] = useState<{
+    id: string;
+    sentence: string;
+    undoable: boolean;
+    pack?: MealPack;
+    slot?: string;
+    added?: string[];
+  } | null>(null);
   const [usualMealBusy, setUsualMealBusy] = useState(false);
+  // Part 3 of the usual-meals work (2026-09-27): under a usual meal, how
+  // many plants that meal has held lately and the plants not eaten in four
+  // weeks, each one tap from being added. Read only while the card shows.
+  const [homeVariety, setHomeVariety] = useState<(HomeVariety & { slot: string }) | null>(null);
+  const [varietyExtras, setVarietyExtras] = useState<string[]>([]);
   const [bpSystolic, setBpSystolic] = useState('');
   const [bpDiastolic, setBpDiastolic] = useState('');
   const [bpBpm, setBpBpm] = useState('');
@@ -3255,6 +3267,40 @@ export default function HomeScreen() {
   // G25, 2026-09-27: "Log your usual lunch?" Near a usual meal time, the
   // meal this person logs most often in that slot, as one tap. Silent the
   // rest of the day, and once anything is logged or planned for the slot.
+  const usualMealSlot = data?.usualMeal?.slot ?? null;
+  useEffect(() => {
+    if (!usualMealSlot) return;
+    let cancelled = false;
+    getHomeVariety(todayDateString(), usualMealSlot)
+      .then((variety) => {
+        if (!cancelled) setHomeVariety({ ...variety, slot: usualMealSlot });
+      })
+      .catch((error) => console.error('[Home] Failed to read eating variety', error));
+    return () => {
+      cancelled = true;
+    };
+  }, [usualMealSlot]);
+
+  function toggleVarietyExtra(plant: PlantNotLately) {
+    setVarietyExtras((current) => (current.includes(plant.key) ? current.filter((key) => key !== plant.key) : [...current, plant.key]));
+  }
+
+  // After the meal is logged, a tap adds the plant to it straight away.
+  async function handleAddPlantToLogged(plant: PlantNotLately) {
+    const logged = usualMealLogged;
+    if (!logged || usualMealBusy) return;
+    setUsualMealBusy(true);
+    try {
+      await appendPlantToMeal(logged.id, plant);
+      setUsualMealLogged({ ...logged, added: [...(logged.added ?? []), plant.key] });
+    } catch (error) {
+      console.error('[Home] Failed to add the plant to the meal', error);
+      showInfoAlert('That did not add', 'Something went wrong adding it. Open the meal in Past Meals to add it there.');
+    } finally {
+      setUsualMealBusy(false);
+    }
+  }
+
   async function handleLogUsualMeal(meal: UsualMeal | null, pack?: MealPack) {
     if (usualMealBusy) return;
     setUsualMealBusy(true);
@@ -3267,11 +3313,18 @@ export default function HomeScreen() {
         showInfoAlert('That did not log', result.error);
         return;
       }
+      // Plants picked before logging go onto the meal just saved.
+      const slot = homeVariety?.slot;
+      const extras = (homeVariety?.plants ?? []).filter((plant) => varietyExtras.includes(plant.key));
+      for (const plant of extras) await appendPlantToMeal(result.id, plant);
+      setVarietyExtras([]);
       setUsualMealLogged({
         id: result.id,
         sentence: usualMealLoggedSentence(result.name, time),
         undoable: !result.touchedFoodTrials,
         pack,
+        slot,
+        added: extras.map((plant) => plant.key),
       });
       offerGardenUse(result.id);
       await load();
@@ -3367,6 +3420,65 @@ export default function HomeScreen() {
                 <Ionicons name="checkmark" size={18} color={foodColor} style={textShadow} />
                 <Text style={buttonText}>Done</Text>
               </TouchableOpacity>
+            </View>
+            {logged.slot && homeVariety && homeVariety.slot === logged.slot ? (
+              <>
+                {(logged.added ?? []).map((key) => {
+                  const plant = homeVariety.plants.find((entry) => entry.key === key);
+                  return plant ? (
+                    <Text key={key} style={styles.logAgainCaption}>
+                      {addedToMealSentence(plant.name, logged.slot ?? '')}
+                    </Text>
+                  ) : null;
+                })}
+                {homeVariety.plants.some((plant) => !(logged.added ?? []).includes(plant.key)) ? (
+                  <>
+                    <Text style={styles.logAgainCaption}>{homeChipCaption(logged.slot, true)}</Text>
+                    <View style={styles.usualMealActions}>
+                      {homeVariety.plants
+                        .filter((plant) => !(logged.added ?? []).includes(plant.key))
+                        .map((plant) => (
+                          <TouchableOpacity
+                            key={plant.key}
+                            style={[styles.varietyChip, { borderColor: foodColor }]}
+                            activeOpacity={0.8}
+                            onPress={() => void handleAddPlantToLogged(plant)}
+                            disabled={usualMealBusy}
+                          >
+                            <Ionicons name="add" size={16} color={foodColor} style={textShadow} />
+                            <Text style={buttonText}>{plant.name}</Text>
+                          </TouchableOpacity>
+                        ))}
+                    </View>
+                  </>
+                ) : null}
+              </>
+            ) : null}
+          </>
+        ) : null}
+
+        {card && homeVariety && homeVariety.slot === card.slot && homeVariety.line ? (
+          <Text style={styles.logAgainCaption}>{homeVariety.line}</Text>
+        ) : null}
+        {card && homeVariety && homeVariety.slot === card.slot && homeVariety.plants.length > 0 ? (
+          <>
+            <Text style={styles.logAgainCaption}>{homeChipCaption(card.slot, false)}</Text>
+            <View style={styles.usualMealActions}>
+              {homeVariety.plants.map((plant) => {
+                const picked = varietyExtras.includes(plant.key);
+                return (
+                  <TouchableOpacity
+                    key={plant.key}
+                    style={[styles.varietyChip, { borderColor: foodColor }, picked && { backgroundColor: foodColor }]}
+                    activeOpacity={0.8}
+                    onPress={() => toggleVarietyExtra(plant)}
+                    disabled={usualMealBusy}
+                  >
+                    {picked ? <Ionicons name="checkmark" size={16} color={colors.textOnPrimary} /> : <Ionicons name="add" size={16} color={foodColor} style={textShadow} />}
+                    <Text style={picked ? styles.varietyChipTextPicked : buttonText}>{plant.name}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </>
         ) : null}
@@ -4798,6 +4910,8 @@ const styles = StyleSheet.create({
   usualMealActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   usualMealButton: { flexGrow: 1 },
   usualMealGroup: { gap: 6 },
+  varietyChip: { flexDirection: 'row', alignItems: 'center', gap: 4, borderWidth: 1, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
+  varietyChipTextPicked: { ...typography.caption, color: colors.textOnPrimary, textShadowColor: 'transparent', textShadowRadius: 0 },
   // Negative margin so the tile row can scroll all the way to the card edges
   // instead of stopping short at its padding, with that same padding handed
   // to the content instead. Same negative-margin technique the page itself

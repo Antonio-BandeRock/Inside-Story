@@ -25,6 +25,8 @@ import { reportVersionLine } from './reportVersion';
 import {
   costSections,
   eatingCostSection,
+  eatingVarietyBrief,
+  eatingVarietySections,
   gardenYieldSections,
   insuranceSection,
   medicalBillsSection,
@@ -39,6 +41,7 @@ import { getActiveInsurancePlan, listMedicalBills } from './financeHealthDb';
 import { describePlanStanding, planStanding } from './financeHealth';
 import { getCostSummary } from './costOfEatingDb';
 import { getHarvestYieldSummary } from './harvestYieldDb';
+import { getMealVarietySummary } from './mealVarietyDb';
 import { reportPhotoTextLine } from './reportPhotos';
 import { plantingPhotoSection, symptomPhotoSection } from './reportPhotosDb';
 import { evaluateInteractionRules } from './interactionRules';
@@ -499,6 +502,12 @@ function insights(lens: InsightsMoreLens, heading: string): Promise<ReportSectio
   return readingSections(heading, () => loadInsightsMoreView(lens));
 }
 
+function varietyBrief(start: string, end: string): Promise<ReportSection[]> {
+  return getMealVarietySummary(start, end)
+    .then((summary) => [eatingVarietyBrief(summary)])
+    .catch(() => [eatingVarietyBrief(null)]);
+}
+
 async function kindSections(kind: ReportKind, days: number): Promise<ReportSection[]> {
   const start = rangeStartDate(days);
   const end = isoDate(new Date());
@@ -517,7 +526,12 @@ async function kindSections(kind: ReportKind, days: number): Promise<ReportSecti
       );
       break;
     case 'r-nutrition':
-      parts.push(trends('hydration', 'Hydration', days), trends('planned', 'Planned and eaten', days), trends('reactions', 'After-meal reactions', days));
+      parts.push(
+        trends('hydration', 'Hydration', days),
+        trends('planned', 'Planned and eaten', days),
+        varietyBrief(start, end),
+        trends('reactions', 'After-meal reactions', days),
+      );
       break;
     case 'r-trainer':
       parts.push(
@@ -536,6 +550,7 @@ async function kindSections(kind: ReportKind, days: number): Promise<ReportSecti
         trends('reactions', 'After-meal reactions', days),
         trends('nights', 'Nights', days),
         trends('ferments', 'Ferments', days),
+        varietyBrief(start, end),
         getCostSummary(start, end)
           .then((cost) => [eatingCostSection(cost)])
           .catch(() => [eatingCostSection(null)]),
@@ -553,6 +568,13 @@ async function kindSections(kind: ReportKind, days: number): Promise<ReportSecti
         getCostSummary(start, end)
           .then(costSections)
           .catch(() => costSections(null)),
+      );
+      break;
+    case 'r-variety':
+      parts.push(
+        getMealVarietySummary(start, end)
+          .then(eatingVarietySections)
+          .catch(() => [eatingVarietyBrief(null)]),
       );
       break;
     case 'r-garden':
