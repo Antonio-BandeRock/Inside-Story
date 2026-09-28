@@ -146,6 +146,17 @@ import { describeStatus } from '../../lib/reconciliation';
 import { modalAnimationType } from '../../lib/visualPreferences';
 import { describeRepeat, describeRepeatPattern, validateRepeatRule, weekdayOf, weekdaysFromColumn } from '../../lib/repeatRule';
 import { WEEKDAY_NAMES, sameWeekday, weekdayOf as targetWeekdayOf } from '../../lib/weekdayTargets';
+import {
+  OPEN_MEAL_CHOICES,
+  WEEKDAY_SHORT,
+  WORKDAYS,
+  describeOpenMeals,
+  openMealDayNote,
+  openMealsOn,
+  type OpenMeal,
+  type OpenMealRule,
+} from '../../lib/openMeals';
+import { getOpenMealRules, saveOpenMealRules } from '../../lib/usualMealDb';
 import { useWalkMark } from '../../components/WalkMark';
 
 // Every text box on this page belongs to this one page's own tab, so
@@ -2227,6 +2238,10 @@ function DailyPlanFullReport({
   const waterRow = day.nutrientCoverage.find((row) => row.nutrientCode === 'water');
   const remainingMl = waterRow && waterRow.targetAmount != null ? getDailyMealPlanWaterGapMl(day) : 0;
   const mealCount = (day.breakfast ? 1 : 0) + day.lunch.length + day.dinner.length;
+  // Meals left open on this day (lib/openMeals.ts): empty on purpose.
+  const openMeals = day.openMeals ?? [];
+  const isOpen = (meal: OpenMeal) => openMeals.includes(meal);
+  const openLine = <Text style={styles.helperText}>Left open for a meal you pack or eat out.</Text>;
 
   const ratingBlock = (
     <>
@@ -2246,6 +2261,14 @@ function DailyPlanFullReport({
           ⚠ {warning}
         </Text>
       ))}
+      {openMeals.length > 0 ? (
+        <Text style={styles.helperText}>
+          {openMealDayNote(
+            openMeals,
+            OPEN_MEAL_CHOICES.filter((meal) => !isOpen(meal)),
+          )}
+        </Text>
+      ) : null}
       {(day.weekdayNotes ?? []).map((note, index) => (
         <Text key={`weekday-${index}`} style={styles.helperText}>
           {note}
@@ -2306,7 +2329,7 @@ function DailyPlanFullReport({
   // Nothing shows when the plan feeds you alone (lib/householdPlan.ts).
   function householdRows(meal: PlanMeal) {
     const household = day.household;
-    if (!household) return null;
+    if (!household || isOpen(meal)) return null;
     const table = household.meals[meal];
     const servings = table.servings === 1 ? '1 serving' : `${table.servings} servings`;
     return (
@@ -2329,17 +2352,23 @@ function DailyPlanFullReport({
     <>
       <View style={nested ? styles.dailyPlanSlot : styles.row}>
         <Text style={styles.rowTitle}>Breakfast</Text>
-        {day.breakfast ? <DailyMealPlanPickRow pick={day.breakfast} /> : <Text style={styles.helperText}>No compliant option found.</Text>}
+        {day.breakfast ? (
+          <DailyMealPlanPickRow pick={day.breakfast} />
+        ) : isOpen('breakfast') ? (
+          openLine
+        ) : (
+          <Text style={styles.helperText}>No compliant option found.</Text>
+        )}
         {householdRows('breakfast')}
       </View>
       <View style={nested ? styles.dailyPlanSlot : styles.row}>
         <Text style={styles.rowTitle}>Lunch</Text>
-        {day.lunch.length > 0 ? plateRows('lunch') : <Text style={styles.helperText}>No compliant option found.</Text>}
+        {day.lunch.length > 0 ? plateRows('lunch') : isOpen('lunch') ? openLine : <Text style={styles.helperText}>No compliant option found.</Text>}
         {householdRows('lunch')}
       </View>
       <View style={nested ? styles.dailyPlanSlot : styles.row}>
         <Text style={styles.rowTitle}>Dinner</Text>
-        {day.dinner.length > 0 ? plateRows('dinner') : <Text style={styles.helperText}>No compliant option found.</Text>}
+        {day.dinner.length > 0 ? plateRows('dinner') : isOpen('dinner') ? openLine : <Text style={styles.helperText}>No compliant option found.</Text>}
         {householdRows('dinner')}
       </View>
       {day.household && day.household.notes.length > 0 ? (
@@ -2511,6 +2540,8 @@ function describePartnerPlanFreshness(sentAt: string | null): string {
   return `They sent this ${days} days ago.`;
 }
 
+const MEAL_TITLES: Record<OpenMeal, string> = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner' };
+
 function DailyMealPlanLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const folds = useBandFolds();
@@ -2555,6 +2586,16 @@ function DailyMealPlanLens() {
   // calendar from a different weekday asks for a new plan first.
   const [generatedStart, setGeneratedStart] = useState<string | null>(null);
   const [hasWeekdayTargets, setHasWeekdayTargets] = useState(false);
+  // A meal left open on some weekdays (lib/openMeals.ts), for somebody who
+  // packs a lunch the night before or eats out at work. Saved as soon as it
+  // is changed, since it holds for every plan rather than this one.
+  const [openRules, setOpenRules] = useState<OpenMealRule[]>([]);
+  // The rules the plan on screen was built with.
+  const [plannedOpenRules, setPlannedOpenRules] = useState<OpenMealRule[]>([]);
+  function changeOpenRules(next: OpenMealRule[]) {
+    setOpenRules(next);
+    saveOpenMealRules(next).catch((error) => console.error('[MealPlan] Failed to save the open meal', error));
+  }
   // 2026-08-26, direct request: "Each week per day needs to be available
   // for viewing so they can go through their whole week and swap things
   // out if they need to." Multi-day plans used to show only a condensed
@@ -2574,9 +2615,10 @@ function DailyMealPlanLens() {
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
-      Promise.all([getUserConditions(), getDietPreferences(), getUserNutrientWeekdayTargets()])
-        .then(([codes, tags, weekdayTargets]) => {
+      Promise.all([getUserConditions(), getDietPreferences(), getUserNutrientWeekdayTargets(), getOpenMealRules()])
+        .then(([codes, tags, weekdayTargets, rules]) => {
           if (cancelled) return;
+          setOpenRules(rules);
           setConditionCodes(codes);
           const fromProfile = splitDietPreferences(tags);
           setProfileDiet(fromProfile);
@@ -2659,8 +2701,10 @@ function DailyMealPlanLens() {
         limitAddedSugar,
         startDate,
         household,
+        openMeals: openRules,
       });
       setGeneratedStart(startDate);
+      setPlannedOpenRules(openRules);
       setScheduleDate(startDate);
       setPlanningScope(scope);
       setPlanHousehold(household);
@@ -2699,6 +2743,7 @@ function DailyMealPlanLens() {
         limitAddedSugar,
         date: generatedStart ? addDaysToLocalDate(generatedStart, index) : undefined,
         household: planHousehold ?? (await resolveHouseholdEaters(scope, diet)),
+        openMeals: plannedOpenRules,
       });
       setPlans((current) => current.map((day, i) => (i === index ? result : day)));
     } catch (error) {
@@ -2720,6 +2765,22 @@ function DailyMealPlanLens() {
         `This plan was made starting on a ${WEEKDAY_NAMES[targetWeekdayOf(generatedStart)]}, using your weekday nutrient targets for each day. ${scheduleDate} is a ${WEEKDAY_NAMES[targetWeekdayOf(scheduleDate)]}, so tap Generate again and the days will follow the new dates.`,
       );
       return;
+    }
+    // An open meal falls on the weekdays the plan was made for, so a plan
+    // moved to other dates would leave the wrong meals open.
+    if (generatedStart && plannedOpenRules.length > 0) {
+      const moved = plans.some(
+        (_, index) =>
+          openMealsOn(plannedOpenRules, addDaysToLocalDate(generatedStart, index)).join() !==
+          openMealsOn(plannedOpenRules, addDaysToLocalDate(scheduleDate, index)).join(),
+      );
+      if (moved) {
+        showInfoAlert(
+          'Plan again for this date',
+          `This plan leaves a meal open on some weekdays, and starting it on ${scheduleDate} would put the open meals on other days. Tap Generate again and they will follow the new dates.`,
+        );
+        return;
+      }
     }
     const mealPlanDays = plans.map((result, index) => dailyMealPlanToMealPlanDay(result, index + 1)).filter((day): day is NonNullable<typeof day> => day !== null);
     if (mealPlanDays.length === 0) {
@@ -2860,6 +2921,47 @@ function DailyMealPlanLens() {
         >
           <Text style={[styles.pillText, limitAddedSugar && styles.pillTextActive]}>{limitAddedSugar ? 'Limiting added sugar' : 'No limit'}</Text>
         </TouchableOpacity>
+        <Text style={[styles.label, { marginTop: 12 }]}>Leave a meal open</Text>
+        <Text style={styles.helperText}>
+          For a meal you pack the day before or eat out, such as lunch on work days. Nothing is planned for it, and Home offers your
+          usual meals for it instead.
+        </Text>
+        <PopoverSelect
+          selected={openRules.length > 0 ? MEAL_TITLES[openRules[0].meal] : 'None'}
+          options={['None', ...OPEN_MEAL_CHOICES.map((meal) => MEAL_TITLES[meal])]}
+          onSelect={(value) => {
+            const meal = OPEN_MEAL_CHOICES.find((choice) => MEAL_TITLES[choice] === value);
+            if (!meal) {
+              changeOpenRules([]);
+              return;
+            }
+            changeOpenRules([{ meal, weekdays: openRules[0]?.weekdays ?? [...WORKDAYS] }]);
+          }}
+          placeholder="Leave a meal open"
+          tabColor={TAB_COLOR}
+          width={220}
+        />
+        {openRules.length > 0 ? (
+          <View style={styles.pillRow}>
+            {[1, 2, 3, 4, 5, 6, 0].map((weekday) => {
+              const rule = openRules[0];
+              const active = rule.weekdays.includes(weekday);
+              return (
+                <TouchableOpacity
+                  key={weekday}
+                  style={[styles.pill, active && styles.pillActive]}
+                  onPress={() => {
+                    const weekdays = active ? rule.weekdays.filter((d) => d !== weekday) : [...rule.weekdays, weekday].sort((a, b) => a - b);
+                    changeOpenRules(weekdays.length > 0 ? [{ meal: rule.meal, weekdays }] : []);
+                  }}
+                >
+                  <Text style={[styles.pillText, active && styles.pillTextActive]}>{WEEKDAY_SHORT[weekday]}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        ) : null}
+        {describeOpenMeals(openRules) ? <Text style={styles.helperText}>{describeOpenMeals(openRules)}</Text> : null}
         <TouchableOpacity
           style={[styles.primaryButton, { marginTop: 12 }, generating && styles.primaryButtonDisabled]}
           activeOpacity={0.85}

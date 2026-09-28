@@ -131,12 +131,13 @@ import { buildYourWeek, nothingLoggedSentence, YOUR_WEEK_CAPTION, type YourWeek 
 import { getYourWeekInputs } from '../../lib/weeklySummaryDb';
 import {
   USUAL_MEAL_TRIAL_NOTE,
-  usualMealCaption,
   usualMealLoggedSentence,
-  usualMealTitle,
-  type UsualMealSuggestion,
+  usualMealsCardCaption,
+  usualMealsCardTitle,
+  type UsualMeal,
+  type UsualMealsCard,
 } from '../../lib/usualMeal';
-import { dismissUsualMeal, getUsualMealSuggestion, logUsualMeal } from '../../lib/usualMealDb';
+import { dismissUsualMeal, getUsualMealsCard, logUsualMeal } from '../../lib/usualMealDb';
 import { offerGardenUse } from '../../lib/gardenPlateOffer';
 import type { GardenYieldHomeSummary } from '../../lib/harvestYield';
 import { getGardenYieldHomeSummary } from '../../lib/harvestYieldDb';
@@ -567,7 +568,7 @@ type DashboardData = {
   yourWeek: YourWeek;
   // G25, 2026-09-27: the meal usually logged in the slot the clock is near,
   // or null, which is most of the day.
-  usualMeal: UsualMealSuggestion | null;
+  usualMeal: UsualMealsCard | null;
   // What the garden gave this calendar month, 2026-09-23. A weight or a
   // count, what it came to at prices this person has recorded paying, and
   // nothing when the garden is out of season. Worked out in
@@ -755,10 +756,10 @@ const HOME_LENS_DESTINATIONS: Partial<
   },
   // What you put in.
   usualMeal: {
-    label: 'Your Usual Meal',
+    label: 'Your Usual Meals',
     icon: 'repeat',
     color: colors.tabFood,
-    href: { pathname: '/food', params: { openFoodLens: 'findMeal' } } as Href,
+    href: '/usual-meals' as Href,
   },
   logAgain: {
     label: 'Log a Meal',
@@ -1572,7 +1573,7 @@ export default function HomeScreen() {
       // F13, 2026-09-26. Fourteen days of records, set side by side here.
       getYourWeekInputs(),
       // G25, 2026-09-27. Four weeks of meal names and times, one query.
-      getUsualMealSuggestion(date, nowTimeString24()),
+      getUsualMealsCard(date, nowTimeString24()),
     ]).then(
       ([
         todaysMeals,
@@ -3245,12 +3246,12 @@ export default function HomeScreen() {
   // G25, 2026-09-27: "Log your usual lunch?" Near a usual meal time, the
   // meal this person logs most often in that slot, as one tap. Silent the
   // rest of the day, and once anything is logged or planned for the slot.
-  async function handleLogUsualMeal(suggestion: UsualMealSuggestion) {
+  async function handleLogUsualMeal(meal: UsualMeal) {
     if (usualMealBusy) return;
     setUsualMealBusy(true);
     try {
       const time = nowTimeString24();
-      const result = await logUsualMeal(suggestion, `${todayDateString()}T${time}`);
+      const result = await logUsualMeal(meal, `${todayDateString()}T${time}`);
       if ('error' in result) {
         showInfoAlert('That did not log', result.error);
         return;
@@ -3284,9 +3285,9 @@ export default function HomeScreen() {
     }
   }
 
-  async function handleDismissUsualMeal(suggestion: UsualMealSuggestion) {
+  async function handleDismissUsualMeal(card: UsualMealsCard) {
     try {
-      await dismissUsualMeal(suggestion.dismissKey);
+      await dismissUsualMeal(card.dismissKey);
       await load();
     } catch (error) {
       console.error('[Home] Failed to put the usual meal away for today', error);
@@ -3301,7 +3302,7 @@ export default function HomeScreen() {
     if (logged) {
       return renderBand(
         'usualMeal',
-        'Your Usual Meal',
+        'Your Usual Meals',
         <View style={styles.bandBody}>
           <Text style={[styles.usualMealName, { color: foodColor }]}>{logged.sentence}</Text>
           {logged.undoable ? null : <Text style={styles.logAgainCaption}>{USUAL_MEAL_TRIAL_NOTE}</Text>}
@@ -3331,28 +3332,52 @@ export default function HomeScreen() {
       );
     }
     if (!suggestion) return null;
+    const card = suggestion;
+    const groups = [
+      { label: 'From home', meals: card.home, more: card.moreHome },
+      { label: 'Eaten out', meals: card.out, more: card.moreOut },
+    ].filter((g) => g.meals.length > 0);
     return renderBand(
       'usualMeal',
-      usualMealTitle(suggestion),
+      usualMealsCardTitle(card),
       <View style={styles.bandBody}>
-        <Text style={[styles.usualMealName, { color: foodColor }]}>{suggestion.name}</Text>
-        <Text style={styles.logAgainCaption}>{usualMealCaption(suggestion)}</Text>
+        <Text style={styles.logAgainCaption}>{usualMealsCardCaption(card)}</Text>
+        {groups.map((g) => (
+          <View key={g.label} style={styles.usualMealGroup}>
+            <Text style={styles.logAgainCaption}>{g.label}</Text>
+            <View style={styles.usualMealActions}>
+              {g.meals.map((meal) => (
+                <TouchableOpacity
+                  key={meal.id}
+                  style={[styles.logAgainSpeakButton, styles.usualMealButton, { borderColor: foodColor }]}
+                  activeOpacity={0.8}
+                  onPress={() => void handleLogUsualMeal(meal)}
+                  disabled={usualMealBusy}
+                >
+                  <Ionicons name={meal.kind === 'out' ? 'storefront-outline' : 'home-outline'} size={18} color={foodColor} style={textShadow} />
+                  <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>{meal.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {g.more > 0 ? <Text style={styles.logAgainCaption}>{`${g.more} more on your list.`}</Text> : null}
+          </View>
+        ))}
         <View style={styles.usualMealActions}>
           <TouchableOpacity
             style={[styles.logAgainSpeakButton, styles.usualMealButton, { borderColor: foodColor }]}
             activeOpacity={0.8}
-            onPress={() => void handleLogUsualMeal(suggestion)}
+            onPress={() => router.push({ pathname: '/usual-meals', params: { meal: card.slot } })}
             disabled={usualMealBusy}
           >
-            <Ionicons name="add-circle-outline" size={18} color={foodColor} style={textShadow} />
+            <Ionicons name="list-outline" size={18} color={foodColor} style={textShadow} />
             <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>
-              {usualMealBusy ? 'Logging…' : 'Log it now'}
+              {card.home.length + card.out.length === 0 ? 'Add usual meals' : 'Change the list'}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.logAgainSpeakButton, styles.usualMealButton, { borderColor: foodColor }]}
             activeOpacity={0.8}
-            onPress={() => void handleDismissUsualMeal(suggestion)}
+            onPress={() => void handleDismissUsualMeal(card)}
             disabled={usualMealBusy}
           >
             <Ionicons name="close-outline" size={18} color={foodColor} style={textShadow} />
@@ -4713,6 +4738,7 @@ const styles = StyleSheet.create({
   usualMealName: { ...typography.bodyEmphasis, ...textShadow },
   usualMealActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   usualMealButton: { flexGrow: 1 },
+  usualMealGroup: { gap: 6 },
   // Negative margin so the tile row can scroll all the way to the card edges
   // instead of stopping short at its padding, with that same padding handed
   // to the content instead. Same negative-margin technique the page itself

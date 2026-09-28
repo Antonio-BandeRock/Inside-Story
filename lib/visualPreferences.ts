@@ -486,7 +486,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   yourWeek: 'Your Week',
   todaysCheckin: "Today's Check-In",
   logAgain: 'Log a Meal',
-  usualMeal: 'Your Usual Meal',
+  usualMeal: 'Your Usual Meals',
   groceryList: 'Grocery List',
   yourDay: 'Your Day',
   dayTimeline: 'Timeline',

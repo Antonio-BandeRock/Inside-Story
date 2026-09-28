@@ -8688,6 +8688,28 @@ async function runDatabaseInitialization() {
       );
     `);
 
+    // 2026-09-27: Your usual meals, a short list per meal the person chooses
+    // (lib/usualMeal.ts, lib/usualMealDb.ts). kind is 'home' or 'out'; source
+    // is 'favorite', 'meal', 'typed' or 'leftovers'. Nothing refers to a row
+    // here, so removing one leaves every meal logged from it untouched.
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS usual_meals (
+        id TEXT PRIMARY KEY,
+        meal_type TEXT NOT NULL,
+        kind TEXT NOT NULL DEFAULT 'home',
+        source TEXT NOT NULL DEFAULT 'typed',
+        name TEXT NOT NULL,
+        favorite_id TEXT,
+        source_meal_id TEXT,
+        place TEXT,
+        foods_json TEXT NOT NULL DEFAULT '[]',
+        notes TEXT,
+        last_used_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+    `);
+
     // 2026-08-30, direct on-device report: "when I had the app create a 6 week
     // meal plan schedule, it seems to have made all of them a favorite
     // automatically. If that is the case, it definitely should not do that."
@@ -14258,9 +14280,11 @@ export type MealPlanSlot = {
 
 export type MealPlanDay = {
   day: number;
-  breakfast: MealPlanSlot;
-  lunch: MealPlanSlot;
-  dinner: MealPlanSlot;
+  // Null for a meal left open on the plan (lib/openMeals.ts): nothing is
+  // scheduled for it, and it is filled when the person packs or eats out.
+  breakfast: MealPlanSlot | null;
+  lunch: MealPlanSlot | null;
+  dinner: MealPlanSlot | null;
   /** Plates and sides made for one person in the household, scheduled beside their meal. */
   plates?: { mealType: 'breakfast' | 'lunch' | 'dinner'; slot: MealPlanSlot }[];
 };
@@ -14473,6 +14497,7 @@ export async function setUpMealPlan(
       ['lunch', planDay.lunch],
       ['dinner', planDay.dinner],
     ] as const) {
+      if (!slot) continue;
       const scheduledFor = `${date}T${mealTimes[mealType]}`;
       const existing = await db.getFirstAsync<{ id: string }>(
         `SELECT id FROM schedule_items WHERE item_type = 'meal' AND meal_type = ? AND substr(scheduled_for, 1, 10) = ? AND status = 'planned' LIMIT 1`,
@@ -14501,9 +14526,9 @@ export async function setUpMealPlan(
 // did for that one day, no separate code path to drift out of sync.
 export async function addMealPlanDayToSchedule(planDay: MealPlanDay, date: string): Promise<void> {
   const { times: mealTimes } = resolveMealPlanTimes(await getUserProfile());
-  await scheduleMealPlanSlot(planDay.breakfast, 'breakfast', `${date}T${mealTimes.breakfast}`);
-  await scheduleMealPlanSlot(planDay.lunch, 'lunch', `${date}T${mealTimes.lunch}`);
-  await scheduleMealPlanSlot(planDay.dinner, 'dinner', `${date}T${mealTimes.dinner}`);
+  if (planDay.breakfast) await scheduleMealPlanSlot(planDay.breakfast, 'breakfast', `${date}T${mealTimes.breakfast}`);
+  if (planDay.lunch) await scheduleMealPlanSlot(planDay.lunch, 'lunch', `${date}T${mealTimes.lunch}`);
+  if (planDay.dinner) await scheduleMealPlanSlot(planDay.dinner, 'dinner', `${date}T${mealTimes.dinner}`);
   for (const plate of planDay.plates ?? []) {
     await scheduleMealPlanSlot(plate.slot, plate.mealType, `${date}T${mealTimes[plate.mealType]}`);
   }

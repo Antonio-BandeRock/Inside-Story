@@ -1,34 +1,61 @@
-// "Log your usual lunch?" (G25 of the competitive build plan, 2026-09-27).
-// Most meals are a repeat, and a repeat at the time it is usually eaten is
-// the most predictable of all, so around breakfast, lunch or dinner Home
-// offers the one meal this person has logged most often in that slot, as a
-// single tap that copies it at the present time (relogMeal in lib/db.ts).
+// Your usual meals (2026-09-27, replacing the G25 guess of the same day).
 //
-// This half is pure: which slot the clock is in, whether anything counts as
-// usual, and every sentence. The database half is lib/usualMealDb.ts.
+// G25 first shipped as "Log your usual lunch?": Home counted the last four
+// weeks and offered whichever meal came up most. The owner's objection, in
+// their words: "The app is supposed to be helping people get more variety in
+// their diet," and a meal inferred from repetition quietly rewards eating
+// the same thing, while a person who packs a lunch or eats out at work is
+// not using the planner for that meal at all. So the list is now CHOSEN:
+// a short list per meal that the person fills from a starter list, from
+// their saved meals, from what they log (offered, never added on its own),
+// or by typing one. Meals eaten out are a second list beside the home one,
+// "in place of lunch they bring from home."
 //
-// Silent unless every one of these holds, since a wrong guess offered daily
-// would be worse than no offer:
-// - the clock is near a usual breakfast, lunch or dinner time (the person's
-//   own from Profile, or else the middle of the times they have logged it);
-// - nothing is logged in that slot today and nothing is planned for it
-//   (a planned meal is already the answer, and Schedules asks about it);
-// - one meal was logged in that slot at least USUAL_MIN_TIMES times over the
-//   last USUAL_LOOKBACK_DAYS days, and on at least a third of the days that
-//   slot was logged at all, so a rotation of five lunches offers none;
-// - "Not today" has not been pressed for this slot today.
-// Snacks are left out: a snack has no set time of day to be near.
+// Home offers the list near a usual meal time only when nothing is planned
+// or logged for that meal, and it never picks one for the person. A meal
+// left open on the plan (lib/openMeals.ts) is where the list matters most,
+// so an open meal with an empty list gets a line pointing at where to add.
+//
+// This half is pure: which slot the clock is in, the card, the suggestions
+// drawn from history, the starter lists, and every sentence. The database
+// half is lib/usualMealDb.ts.
+import type { OpenMeal } from './openMeals';
 
 export const USUAL_LOOKBACK_DAYS = 28;
-export const USUAL_MIN_TIMES = 3;
+// How many logged times make a meal worth offering as a suggestion. Twice is
+// enough to ask about, and asking is all it does.
+export const SUGGEST_MIN_TIMES = 2;
+export const SUGGEST_MAX = 5;
+// A short list is the point: past this, Home shows the ones used most lately.
+export const HOME_LIST_MAX = 4;
 
-export type UsualSlot = 'breakfast' | 'lunch' | 'dinner';
+export type UsualSlot = OpenMeal;
 export const USUAL_SLOTS: readonly UsualSlot[] = ['breakfast', 'lunch', 'dinner'];
+
+export type UsualMealKind = 'home' | 'out';
+export type UsualMealSource = 'favorite' | 'meal' | 'typed' | 'leftovers';
+
+export type UsualMeal = {
+  id: string;
+  mealType: UsualSlot;
+  kind: UsualMealKind;
+  source: UsualMealSource;
+  name: string;
+  favoriteId: string | null;
+  sourceMealId: string | null;
+  place: string | null;
+  foods: string[];
+  lastUsedAt: string | null;
+  createdAt: string;
+};
 
 // How close to a usual time the offer appears: from 45 minutes before it
 // until two and a half hours after, so a late lunch still gets asked about.
 const OPENS_BEFORE_MIN = 45;
 const CLOSES_AFTER_MIN = 150;
+// With no time set in Profile, this many logged times are needed before the
+// middle of them is taken as the usual time.
+const TIME_FROM_HISTORY_MIN = 3;
 
 export type UsualMealHistoryRow = {
   id: string;
@@ -36,31 +63,6 @@ export type UsualMealHistoryRow = {
   mealType: string;
   // "YYYY-MM-DDTHH:mm", local, as meals.eaten_at stores it.
   eatenAt: string;
-};
-
-export type UsualMealInputs = {
-  // Meals over the lookback window, today included.
-  history: UsualMealHistoryRow[];
-  // "YYYY-MM-DD" and "HH:mm", local.
-  today: string;
-  nowTime: string;
-  usualTimes: Record<UsualSlot, string | null>;
-  // Meal types of today's scheduled meals that were not skipped.
-  plannedToday: string[];
-  // The stored "Not today" key, or null.
-  dismissed: string | null;
-};
-
-export type UsualMealSuggestion = {
-  slot: UsualSlot;
-  // The latest meal carrying this name, which is what gets copied.
-  sourceMealId: string;
-  name: string;
-  times: number;
-  daysWithSlot: number;
-  // "HH:mm", the middle of the times this meal was logged in the slot.
-  usuallyAt: string;
-  dismissKey: string;
 };
 
 function minutesOf(time: string | null | undefined): number | null {
@@ -71,11 +73,6 @@ function minutesOf(time: string | null | undefined): number | null {
   const minutes = Number(match[2]);
   if (hours > 23 || minutes > 59) return null;
   return hours * 60 + minutes;
-}
-
-function timeOf(minutes: number): string {
-  const whole = Math.round(minutes);
-  return `${String(Math.floor(whole / 60)).padStart(2, '0')}:${String(whole % 60).padStart(2, '0')}`;
 }
 
 function median(values: number[]): number | null {
@@ -91,6 +88,10 @@ function dayOf(row: UsualMealHistoryRow): string {
 
 function clockOf(row: UsualMealHistoryRow): number | null {
   return minutesOf(row.eatenAt.slice(11, 16));
+}
+
+function nameKey(name: string): string {
+  return name.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
 export function dismissKeyFor(today: string, slot: UsualSlot): string {
@@ -119,7 +120,7 @@ export function usualTimeForSlot(
     .filter((row) => row.mealType === slot)
     .map(clockOf)
     .filter((value): value is number => value != null);
-  if (logged.length < USUAL_MIN_TIMES) return null;
+  if (logged.length < TIME_FROM_HISTORY_MIN) return null;
   return median(logged);
 }
 
@@ -138,7 +139,44 @@ export function slotNear(nowTime: string, usualTimes: Record<UsualSlot, string |
   return best?.slot ?? null;
 }
 
-export function usualMealSuggestion(inputs: UsualMealInputs): UsualMealSuggestion | null {
+// Most lately used first, then the newest added, so the list a person keeps
+// using stays on top without anything being counted.
+export function orderUsualMeals(meals: UsualMeal[]): UsualMeal[] {
+  return [...meals].sort((a, b) => {
+    const used = (b.lastUsedAt ?? '').localeCompare(a.lastUsedAt ?? '');
+    if (used !== 0) return used;
+    return b.createdAt.localeCompare(a.createdAt);
+  });
+}
+
+export type UsualMealsCardInputs = {
+  // Meals over the lookback window, today included.
+  history: UsualMealHistoryRow[];
+  // "YYYY-MM-DD" and "HH:mm", local.
+  today: string;
+  nowTime: string;
+  usualTimes: Record<UsualSlot, string | null>;
+  // Meal types of today's scheduled meals that were not skipped.
+  plannedToday: string[];
+  // The stored "Not today" key, or null.
+  dismissed: string | null;
+  usualMeals: UsualMeal[];
+  // Meals left open on the plan today (lib/openMeals.ts).
+  openToday: UsualSlot[];
+};
+
+export type UsualMealsCard = {
+  slot: UsualSlot;
+  open: boolean;
+  home: UsualMeal[];
+  out: UsualMeal[];
+  // How many more of each kind are kept than Home shows.
+  moreHome: number;
+  moreOut: number;
+  dismissKey: string;
+};
+
+export function usualMealsCard(inputs: UsualMealsCardInputs): UsualMealsCard | null {
   const { history, today } = inputs;
   const slot = slotNear(inputs.nowTime, inputs.usualTimes, history.filter((row) => dayOf(row) < today));
   if (!slot) return null;
@@ -147,48 +185,154 @@ export function usualMealSuggestion(inputs: UsualMealInputs): UsualMealSuggestio
   if (inputs.plannedToday.includes(slot)) return null;
   if (history.some((row) => row.mealType === slot && dayOf(row) === today)) return null;
 
-  const start = lookbackStart(today);
-  const earlier = history.filter((row) => row.mealType === slot && dayOf(row) < today && dayOf(row) >= start);
-  const daysWithSlot = new Set(earlier.map(dayOf)).size;
-  if (daysWithSlot === 0) return null;
-
-  // Counted once per day, so a lunch logged twice on one day is one lunch.
-  const byName = new Map<string, { days: Set<string>; latest: UsualMealHistoryRow; clocks: number[] }>();
-  for (const row of earlier) {
-    const key = row.name.trim().toLowerCase();
-    if (!key) continue;
-    const entry = byName.get(key) ?? { days: new Set<string>(), latest: row, clocks: [] };
-    entry.days.add(dayOf(row));
-    if (row.eatenAt > entry.latest.eatenAt) entry.latest = row;
-    const clock = clockOf(row);
-    if (clock != null) entry.clocks.push(clock);
-    byName.set(key, entry);
-  }
-
-  let top: { days: Set<string>; latest: UsualMealHistoryRow; clocks: number[] } | null = null;
-  for (const entry of byName.values()) {
-    if (
-      !top ||
-      entry.days.size > top.days.size ||
-      (entry.days.size === top.days.size && entry.latest.eatenAt > top.latest.eatenAt)
-    ) {
-      top = entry;
-    }
-  }
-  if (!top) return null;
-  const times = top.days.size;
-  if (times < USUAL_MIN_TIMES || times * 3 < daysWithSlot) return null;
-
-  const middle = median(top.clocks);
+  const open = inputs.openToday.includes(slot);
+  const mine = orderUsualMeals(inputs.usualMeals.filter((meal) => meal.mealType === slot));
+  if (mine.length === 0 && !open) return null;
+  const home = mine.filter((meal) => meal.kind === 'home');
+  const out = mine.filter((meal) => meal.kind === 'out');
   return {
     slot,
-    sourceMealId: top.latest.id,
-    name: top.latest.name,
-    times,
-    daysWithSlot,
-    usuallyAt: middle == null ? '' : timeOf(middle),
+    open,
+    home: home.slice(0, HOME_LIST_MAX),
+    out: out.slice(0, HOME_LIST_MAX),
+    moreHome: Math.max(0, home.length - HOME_LIST_MAX),
+    moreOut: Math.max(0, out.length - HOME_LIST_MAX),
     dismissKey,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Suggestions from what is logged. Offered on the list screen with an Add
+// button each; nothing here ever puts a meal on the list by itself.
+// ---------------------------------------------------------------------------
+
+export type UsualMealSuggestion = {
+  slot: UsualSlot;
+  name: string;
+  // The latest meal carrying this name, which is what gets copied.
+  sourceMealId: string;
+  days: number;
+};
+
+export function historySuggestions(
+  history: UsualMealHistoryRow[],
+  today: string,
+  usualMeals: UsualMeal[],
+): Record<UsualSlot, UsualMealSuggestion[]> {
+  const start = lookbackStart(today);
+  const result: Record<UsualSlot, UsualMealSuggestion[]> = { breakfast: [], lunch: [], dinner: [] };
+  for (const slot of USUAL_SLOTS) {
+    const kept = new Set(usualMeals.filter((meal) => meal.mealType === slot).map((meal) => nameKey(meal.name)));
+    const byName = new Map<string, { days: Set<string>; latest: UsualMealHistoryRow }>();
+    for (const row of history) {
+      if (row.mealType !== slot) continue;
+      const day = dayOf(row);
+      if (day >= today || day < start) continue;
+      const key = nameKey(row.name);
+      if (!key || kept.has(key)) continue;
+      const entry = byName.get(key) ?? { days: new Set<string>(), latest: row };
+      entry.days.add(day);
+      if (row.eatenAt > entry.latest.eatenAt) entry.latest = row;
+      byName.set(key, entry);
+    }
+    result[slot] = [...byName.values()]
+      .filter((entry) => entry.days.size >= SUGGEST_MIN_TIMES)
+      .sort((a, b) => b.days.size - a.days.size || b.latest.eatenAt.localeCompare(a.latest.eatenAt))
+      .slice(0, SUGGEST_MAX)
+      .map((entry) => ({ slot, name: entry.latest.name, sourceMealId: entry.latest.id, days: entry.days.size }));
+  }
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// Starter lists. Home meals lean on whole foods that pack and travel; eaten
+// out meals are the kinds of place people eat near work. Each is a name and
+// a few foods, which the person can change before it goes on their list.
+// ---------------------------------------------------------------------------
+
+export type StarterMeal = {
+  name: string;
+  foods: string[];
+  // 'leftovers' copies the latest dinner logged before the day it is used.
+  source?: 'leftovers';
+};
+
+export const LEFTOVERS_NAME = "Last night's leftovers";
+
+export const STARTER_USUAL_MEALS: Record<UsualSlot, Record<UsualMealKind, StarterMeal[]>> = {
+  breakfast: {
+    home: [
+      { name: LEFTOVERS_NAME, foods: [], source: 'leftovers' },
+      { name: 'Overnight oats', foods: ['Rolled oats', 'Milk or yogurt', 'Berries', 'Chia seeds'] },
+      { name: 'Eggs and greens', foods: ['Eggs', 'Spinach', 'Tomato'] },
+      { name: 'Yogurt, fruit and nuts', foods: ['Plain yogurt', 'Fruit', 'Walnuts'] },
+      { name: 'Porridge with fruit', foods: ['Oats', 'Banana', 'Cinnamon'] },
+      { name: 'Smoothie', foods: ['Frozen berries', 'Spinach', 'Yogurt'] },
+    ],
+    out: [
+      { name: 'Café eggs and toast', foods: ['Eggs', 'Toast'] },
+      { name: 'Breakfast burrito', foods: ['Tortilla', 'Eggs', 'Beans', 'Salsa'] },
+      { name: 'Coffee and a pastry', foods: ['Coffee', 'Pastry'] },
+      { name: 'Smoothie bar', foods: ['Fruit smoothie'] },
+      { name: 'Bagel', foods: ['Bagel', 'Cream cheese'] },
+    ],
+  },
+  lunch: {
+    home: [
+      { name: LEFTOVERS_NAME, foods: [], source: 'leftovers' },
+      { name: 'Salad with a protein', foods: ['Salad greens', 'Vegetables', 'Chicken, eggs or beans', 'Olive oil'] },
+      { name: 'Soup in a flask', foods: ['Vegetable soup'] },
+      { name: 'Grain bowl', foods: ['Rice or quinoa', 'Roasted vegetables', 'Chicken, fish or beans'] },
+      { name: 'Wrap', foods: ['Tortilla', 'Chicken or hummus', 'Salad vegetables'] },
+      { name: 'Bento box', foods: ['Rice', 'Fish or egg', 'Vegetables', 'Fruit'] },
+    ],
+    out: [
+      { name: 'Burrito bowl', foods: ['Rice', 'Beans', 'Chicken', 'Salsa'] },
+      { name: 'Salad bar', foods: ['Salad greens', 'Vegetables', 'Dressing'] },
+      { name: 'Sandwich', foods: ['Bread', 'Filling'] },
+      { name: 'Sushi', foods: ['Sushi rice', 'Fish', 'Seaweed'] },
+      { name: 'Pho', foods: ['Rice noodles', 'Beef broth', 'Beef', 'Herbs'] },
+      { name: 'Poke bowl', foods: ['Rice', 'Raw fish', 'Vegetables'] },
+      { name: 'Pizza', foods: ['Pizza'] },
+      { name: 'Burger', foods: ['Burger', 'Bun'] },
+    ],
+  },
+  dinner: {
+    home: [
+      { name: 'Stir fry', foods: ['Vegetables', 'Chicken, tofu or beef', 'Rice'] },
+      { name: 'Roast vegetables and a protein', foods: ['Root vegetables', 'Chicken or fish'] },
+      { name: 'Soup and bread', foods: ['Soup', 'Bread'] },
+      { name: 'Omelette and salad', foods: ['Eggs', 'Salad greens', 'Vegetables'] },
+      { name: 'Pasta with vegetables', foods: ['Pasta', 'Vegetables', 'Olive oil'] },
+    ],
+    out: [
+      { name: 'Curry', foods: ['Curry', 'Rice'] },
+      { name: 'Tacos', foods: ['Tortillas', 'Meat or beans', 'Salsa'] },
+      { name: 'Pasta', foods: ['Pasta', 'Sauce'] },
+      { name: 'Steak and vegetables', foods: ['Steak', 'Vegetables'] },
+      { name: 'Ramen', foods: ['Noodles', 'Broth', 'Egg'] },
+      { name: 'Pizza', foods: ['Pizza'] },
+    ],
+  },
+};
+
+// Starters not already on the person's list for that meal and kind.
+export function startersToOffer(slot: UsualSlot, kind: UsualMealKind, usualMeals: UsualMeal[]): StarterMeal[] {
+  const kept = new Set(usualMeals.filter((meal) => meal.mealType === slot && meal.kind === kind).map((meal) => nameKey(meal.name)));
+  return STARTER_USUAL_MEALS[slot][kind].filter((starter) => !kept.has(nameKey(starter.name)));
+}
+
+// Foods as typed in one box, split on commas or new lines.
+export function parseFoods(text: string): string[] {
+  const seen = new Set<string>();
+  const foods: string[] = [];
+  for (const piece of text.split(/[,\n]/)) {
+    const food = piece.trim().replace(/\s+/g, ' ');
+    if (!food || seen.has(food.toLowerCase())) continue;
+    seen.add(food.toLowerCase());
+    foods.push(food.slice(0, 60));
+  }
+  return foods.slice(0, 20);
 }
 
 // ---------------------------------------------------------------------------
@@ -196,27 +340,57 @@ export function usualMealSuggestion(inputs: UsualMealInputs): UsualMealSuggestio
 // ---------------------------------------------------------------------------
 
 export const USUAL_MEAL_META_KEY = 'usual_meal_dismissed';
+export const EATEN_OUT_NOTE = 'Eaten out.';
 
-export function usualMealTitle(suggestion: UsualMealSuggestion): string {
-  return `Log your usual ${suggestion.slot}?`;
+const MEAL_TITLE: Record<UsualSlot, string> = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner' };
+const MEAL_PLURAL: Record<UsualSlot, string> = { breakfast: 'breakfasts', lunch: 'lunches', dinner: 'dinners' };
+
+export function mealTitle(slot: UsualSlot): string {
+  return MEAL_TITLE[slot];
 }
 
-function clock12(time24: string): string {
+export function usualMealsCardTitle(card: UsualMealsCard): string {
+  return `Your usual ${MEAL_PLURAL[card.slot]}`;
+}
+
+export function usualMealsCardCaption(card: UsualMealsCard): string {
+  if (card.open && card.home.length === 0 && card.out.length === 0) {
+    return `${MEAL_TITLE[card.slot]} is left open on your plan today. Add a few usual ${MEAL_PLURAL[card.slot]}, from home or eaten out, and they will be here to log with one tap.`;
+  }
+  const why = card.open ? `${MEAL_TITLE[card.slot]} is left open on your plan today.` : `Nothing is planned or logged for ${card.slot} yet.`;
+  return `${why} Tap the one you had to log it now, or leave it and log something else.`;
+}
+
+export function eatenOutNote(place: string | null | undefined): string {
+  const at = place?.trim();
+  return at ? `${EATEN_OUT_NOTE} ${at}.` : EATEN_OUT_NOTE;
+}
+
+// One muted line under a meal on the list screen.
+export function usualMealDetail(meal: UsualMeal): string {
+  if (meal.source === 'leftovers') return 'Copies the latest dinner logged before that day.';
+  const parts: string[] = [];
+  if (meal.kind === 'out' && meal.place) parts.push(meal.place);
+  if (meal.source === 'favorite') parts.push('From your saved meals');
+  else if (meal.source === 'meal') parts.push('Copies a meal you logged');
+  else if (meal.foods.length > 0) parts.push(meal.foods.join(', '));
+  return parts.join('. ');
+}
+
+export const TYPED_FOODS_NOTE =
+  'Foods typed here are kept by name. Nutrients are counted only for foods picked from the food list, so a typed meal adds to your log and to your variety, not to your nutrient figures.';
+
+export function suggestionCaption(suggestion: UsualMealSuggestion): string {
+  return `Logged at ${suggestion.slot} on ${suggestion.days} days in the last four weeks.`;
+}
+
+export function clock12(time24: string): string {
   const minutes = minutesOf(time24);
   if (minutes == null) return '';
   const hours = Math.floor(minutes / 60);
   const suffix = hours >= 12 ? 'pm' : 'am';
   const hour12 = hours % 12 === 0 ? 12 : hours % 12;
   return `${hour12}:${String(minutes % 60).padStart(2, '0')}${suffix}`;
-}
-
-export function usualMealCaption(suggestion: UsualMealSuggestion): string {
-  const days = suggestion.daysWithSlot === 1 ? '1 day' : `${suggestion.daysWithSlot} days`;
-  const around = suggestion.usuallyAt ? `, usually around ${clock12(suggestion.usuallyAt)}` : '';
-  return (
-    `Logged at ${suggestion.slot} on ${suggestion.times} of the ${days} you logged a ${suggestion.slot} ` +
-    `in the last four weeks${around}. One tap logs the same meal now.`
-  );
 }
 
 export function usualMealLoggedSentence(name: string, time24: string): string {
@@ -226,3 +400,5 @@ export function usualMealLoggedSentence(name: string, time24: string): string {
 
 export const USUAL_MEAL_TRIAL_NOTE =
   'This started a food trial, so it cannot be undone from here. Past Meals can change or remove it.';
+
+export const NO_LEFTOVERS_ERROR = 'No dinner is logged before today, so there is nothing to copy as leftovers.';

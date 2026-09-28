@@ -668,6 +668,18 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
+                {/* Your usual meals, 2026-09-27. The short list per meal
+                    the person chose, from home and eaten out, which Home
+                    offers near a meal time. Reached from that Home card. */}
+                <Stack.Screen
+                  name="usual-meals"
+                  options={{
+                    headerShown: true,
+                    title: 'Your Usual Meals',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
                 {/* The app's camera, 2026-09-26. Full screen, its own
                     controls drawn over the view, so the header is off; the
                     screen turns it on only for its permission and desktop

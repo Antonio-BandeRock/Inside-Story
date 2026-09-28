@@ -76,6 +76,7 @@ import {
 } from './digest';
 import { describeLeftOut, describeLimitsPassed, describeSwapEffect, improveDay, rankSwapOptions, targetsMet } from './mealPlanBalance';
 import { SIDE_DISH_RECIPE_IDS } from './recipeDishRole';
+import { openMealsOn, type OpenMeal, type OpenMealRule } from './openMeals';
 import {
   PLAN_MEAL_LABELS,
   PLAN_MEALS,
@@ -969,6 +970,10 @@ export type DailyMealPlanResult = {
   // Who the day feeds, when anybody besides you is at the table
   // (2026-09-27, lib/householdPlan.ts). Absent when the plan feeds you alone.
   household?: HouseholdDay;
+  // Meals left open on this day (lib/openMeals.ts): nothing is planned for
+  // them, and they are empty above on purpose rather than for want of a
+  // recipe. Absent when every meal is planned.
+  openMeals?: OpenMeal[];
 };
 
 /** A plate made for one person: a main the shared dish missed, or a side for a nutrient their day comes up short on. */
@@ -1707,9 +1712,14 @@ async function generateOneDay(
   limitAddedSugar: boolean,
   rotation?: { state: RotationState; daysRemainingInWeekIncludingToday: number },
   date?: string,
+  openMeals: OpenMeal[] = [],
 ): Promise<DailyMealPlanResult> {
   const carbCeiling = carbCeilingForLevel(carbLevel);
   const warnings: string[] = [];
+  // 2026-09-27: a meal left open is skipped outright, so it takes nothing
+  // from rotation, frequency or the day's totals, and warns about nothing.
+  // The screen says so from `openMeals` on the result, never as a warning.
+  const open = new Set<OpenMeal>(openMeals);
   if (pools.profileIncomplete) {
     warnings.push(
       'Your Profile is missing a sex and/or birth date, so the nutrient targets below use the most conservative DRI value available rather than one built specifically for you. Add both in Profile for a more accurately personalized plan.',
@@ -1766,7 +1776,7 @@ async function generateOneDay(
   mealTotals = {};
   const noSugarBreakfastCandidates = breakfastCandidates.filter((c) => !c.hasSweetener);
   let breakfast: DailyMealPlanPick | null = null;
-  {
+  if (!open.has('breakfast')) {
     // 2026-08-26: fall back to a breakfast that DOES carry an added
     // sweetener rather than failing outright once every genuinely
     // sugar-free option has already been ruled out -- root-caused
@@ -1904,11 +1914,11 @@ async function generateOneDay(
     return picks;
   }
 
-  const lunch = await pickMealWithOptionalSide(lunchMainCandidates, undefined, true);
-  if (lunch.length === 0) warnings.push('No lunch recipe currently complies with both the declared condition(s) and the eating style chosen for this plan.');
+  const lunch = open.has('lunch') ? [] : await pickMealWithOptionalSide(lunchMainCandidates, undefined, true);
+  if (lunch.length === 0 && !open.has('lunch')) warnings.push('No lunch recipe currently complies with both the declared condition(s) and the eating style chosen for this plan.');
 
-  const dinner = await pickMealWithOptionalSide(dinnerMainCandidates, lunch[0]?.entry.linkedCuratedRecipeId, true);
-  if (dinner.length === 0) warnings.push('No dinner recipe currently complies with both the declared condition(s) and the eating style chosen for this plan.');
+  const dinner = open.has('dinner') ? [] : await pickMealWithOptionalSide(dinnerMainCandidates, lunch[0]?.entry.linkedCuratedRecipeId, true);
+  if (dinner.length === 0 && !open.has('dinner')) warnings.push('No dinner recipe currently complies with both the declared condition(s) and the eating style chosen for this plan.');
 
   // 2026-09-27, direct request: "along with the other rules it is using to
   // build the meal plan, it also tries to give them as close to the RDA for
@@ -1991,7 +2001,11 @@ async function generateOneDay(
   // not-for-me list that emptied it, rather than leaving them to guess.
   const unsureWarning = unsureFoodsWarning(pools, allPicks);
   if (unsureWarning) warnings.push(unsureWarning);
-  if ((breakfast === null || lunch.length === 0 || dinner.length === 0) && pools.myAvoidSetAsideCount > 0) {
+  const cameUpEmpty =
+    (breakfast === null && !open.has('breakfast')) ||
+    (lunch.length === 0 && !open.has('lunch')) ||
+    (dinner.length === 0 && !open.has('dinner'));
+  if (cameUpEmpty && pools.myAvoidSetAsideCount > 0) {
     const foods = pools.myAvoidSetAsideFoods;
     const namedFoods = foods.length === 1 ? foods[0] : `${foods.slice(0, -1).join(', ')} and ${foods[foods.length - 1]}`;
     const dishes = pools.myAvoidSetAsideCount === 1 ? 'One dish was' : `${pools.myAvoidSetAsideCount} dishes were`;
@@ -2028,6 +2042,7 @@ async function generateOneDay(
     carbCeiling,
     warnings,
     ...(date != null ? { date, weekdayNotes: weekdayTargetNotes(pools.weekdayOverrides, date) } : {}),
+    ...(open.size > 0 ? { openMeals: [...open] } : {}),
   };
 }
 
@@ -2055,15 +2070,18 @@ export async function generateDailyMealPlan(options: {
   date?: string;
   // Everybody the plan feeds, you included (lib/householdEaters.ts).
   household?: PlanEater[];
+  // Meals left open on some weekdays (lib/openMeals.ts); needs `date`.
+  openMeals?: OpenMealRule[];
 }): Promise<DailyMealPlanResult> {
+  const open = openMealsOn(options.openMeals ?? [], options.date);
   return retryOnceOnReleasedObject(async () => {
     const table = householdTable(options.household);
     if (table) {
       const pools = await buildCandidatePools([], []);
-      return generateHouseholdDay(pools, table, options.carbLevel, options.limitAddedSugar ?? false, undefined, options.date);
+      return generateHouseholdDay(pools, table, options.carbLevel, options.limitAddedSugar ?? false, undefined, options.date, open);
     }
     const pools = await buildCandidatePools(options.conditionCodes, options.dietPreferences);
-    return generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false, undefined, options.date);
+    return generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false, undefined, options.date, open);
   });
 }
 
@@ -2096,6 +2114,8 @@ export async function generateMealPlanDays(options: {
   startDate?: string;
   // Everybody the plan feeds, you included (lib/householdEaters.ts).
   household?: PlanEater[];
+  // Meals left open on some weekdays (lib/openMeals.ts); needs startDate.
+  openMeals?: OpenMealRule[];
 }): Promise<DailyMealPlanResult[]> {
   const days = Math.max(1, Math.min(42, Math.round(options.days)));
   const table = householdTable(options.household);
@@ -2109,9 +2129,10 @@ export async function generateMealPlanDays(options: {
       const daysRemainingInWeekIncludingToday = 7 - dayOfWeek;
       const rotation = { state: rotationState, daysRemainingInWeekIncludingToday };
       const date = options.startDate ? addDays(options.startDate, dayIndex) : undefined;
+      const open = openMealsOn(options.openMeals ?? [], date);
       const result = table
-        ? await generateHouseholdDay(pools, table, options.carbLevel, options.limitAddedSugar ?? false, rotation, date)
-        : await generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false, rotation, date);
+        ? await generateHouseholdDay(pools, table, options.carbLevel, options.limitAddedSugar ?? false, rotation, date, open)
+        : await generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false, rotation, date, open);
       results.push(result);
     }
     return results;
@@ -2128,7 +2149,12 @@ export async function generateMealPlanDays(options: {
 // main for lunch/dinner) -- the UI should check for this and explain
 // why, not silently attempt a broken schedule.
 export function dailyMealPlanToMealPlanDay(result: DailyMealPlanResult, dayNumber: number): MealPlanDay | null {
-  if (!result.breakfast || result.lunch.length === 0 || result.dinner.length === 0) return null;
+  // A meal left open (lib/openMeals.ts) goes to the schedule as nothing at
+  // all, so an empty one there is expected; any other empty meal is not.
+  const open = new Set<OpenMeal>(result.openMeals ?? []);
+  if (!open.has('breakfast') && !result.breakfast) return null;
+  if (!open.has('lunch') && result.lunch.length === 0) return null;
+  if (!open.has('dinner') && result.dinner.length === 0) return null;
 
   function toRef(pick: DailyMealPlanPick | undefined): MealPlanComponentRef | undefined {
     return pick ? { builderType: pick.entry.linkedBuilderType, curatedRecipeId: pick.entry.linkedCuratedRecipeId } : undefined;
@@ -2164,9 +2190,9 @@ export function dailyMealPlanToMealPlanDay(result: DailyMealPlanResult, dayNumbe
 
   return {
     day: dayNumber,
-    breakfast: withServings(toSlot([result.breakfast]), 'breakfast'),
-    lunch: withServings(toSlot(result.lunch), 'lunch'),
-    dinner: withServings(toSlot(result.dinner), 'dinner'),
+    breakfast: open.has('breakfast') || !result.breakfast ? null : withServings(toSlot([result.breakfast]), 'breakfast'),
+    lunch: open.has('lunch') ? null : withServings(toSlot(result.lunch), 'lunch'),
+    dinner: open.has('dinner') ? null : withServings(toSlot(result.dinner), 'dinner'),
     ...(plates.length > 0 ? { plates } : {}),
   };
 }
@@ -2231,8 +2257,12 @@ async function generateHouseholdDay(
   limitAddedSugar: boolean,
   rotation: { state: RotationState; daysRemainingInWeekIncludingToday: number } | undefined,
   date: string | undefined,
+  openMeals: OpenMeal[] = [],
 ): Promise<DailyMealPlanResult> {
   const { eaters, you, fits } = table;
+  // An open meal is open for the whole table: nobody gets a plate there,
+  // and it counts toward nobody's day.
+  const open = new Set<OpenMeal>(openMeals);
   const mainPool: Record<PlanMeal, LoadedCandidate[]> = {
     breakfast: pools.breakfastCandidates,
     lunch: pools.lunchMainCandidates,
@@ -2240,6 +2270,10 @@ async function generateHouseholdDay(
   };
   const tables = {} as Record<PlanMeal, { covered: PlanEater[]; ownPlate: PlanEater[]; matching: LoadedCandidate[] }>;
   for (const meal of PLAN_MEALS) {
+    if (open.has(meal)) {
+      tables[meal] = { covered: [], ownPlate: [], matching: [] };
+      continue;
+    }
     const cover = coverTable(eatersAt(eaters, date, meal), mainPool[meal], fits);
     tables[meal] = { ...cover, matching: preferSoft(cover.matching, cover.covered) };
   }
@@ -2256,7 +2290,7 @@ async function generateHouseholdDay(
     saladCandidates: forSharing(pools.saladCandidates),
     beverageCandidates: forSharing(pools.beverageCandidates),
   };
-  const result = await generateOneDay(tablePools, you.conditionCodes, carbLevel, limitAddedSugar, rotation, date);
+  const result = await generateOneDay(tablePools, you.conditionCodes, carbLevel, limitAddedSugar, rotation, date, openMeals);
 
   const idOf = (candidate: LoadedCandidate) => candidate.entry.linkedCuratedRecipeId;
   const usedIds = new Set(dayPicks(result).map((pick) => pick.entry.linkedCuratedRecipeId));
@@ -2313,7 +2347,7 @@ async function generateHouseholdDay(
   ];
   for (const eater of eaters) {
     if (eater.isYou) continue;
-    const home = PLAN_MEALS.filter((meal) => isHomeFor(eater, date, meal));
+    const home = PLAN_MEALS.filter((meal) => !open.has(meal) && isHomeFor(eater, date, meal));
     if (home.length === 0) continue;
     const factor = portionFactor(eater.portion);
     const totals: Record<string, number> = {};
