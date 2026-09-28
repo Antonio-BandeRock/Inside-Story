@@ -14,6 +14,8 @@ import { useInfoAlert } from '../../components/InfoAlert';
 import { FoodSafetyRow, useFoodSafetyMarks } from '../../components/FoodSafetyMarks';
 import {
   addDaysToLocalDate,
+  createMeal,
+  deleteMeal,
   applyRotationSelection,
   applyRotationSelectionsToIngredients,
   deleteScheduledMeal,
@@ -123,6 +125,16 @@ import { evaluateInteractionRules, type InteractionWarning, type ReferenceOnlyRu
 import { buildDayTimeline, timelineSummary, type TimelineEntry } from '../../lib/doseMealTiming';
 import { hasReminderPermission, requestReminderPermission, syncReminderNotifications } from '../../lib/reminderNotifications';
 import type { NutrientGapEntry } from '../../lib/nutrientAnalysis';
+import {
+  CAFFEINE_CAPTION,
+  QUICK_DRINKS,
+  QUICK_DRINKS_CAPTION,
+  caffeineLine,
+  caffeineToday,
+  loggedLine,
+  quickDrinkMeal,
+  type QuickDrink,
+} from '../../lib/quickDrinks';
 import { buildTime24, describeTimeInputProblem, formatTime12, splitTime24, type TimeOfDayInput } from '../../lib/timeOfDay';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
@@ -3444,6 +3456,12 @@ function HydrationLens() {
   const [items, setItems] = useState<ScheduleItemRecord[]>([]);
   const [loggedBeverages, setLoggedBeverages] = useState<MealRecord[]>([]);
   const [waterEntry, setWaterEntry] = useState<NutrientGapEntry | null>(null);
+  // One tap for a glass (G34): today's caffeine from the day's food totals,
+  // and the last drink a button logged, kept so a mistaken tap can be taken
+  // back from the same place.
+  const [caffeineMg, setCaffeineMg] = useState<number | null>(null);
+  const [lastQuick, setLastQuick] = useState<{ mealId: string; line: string } | null>(null);
+  const [quickBusy, setQuickBusy] = useState(false);
   const [favorites, setFavorites] = useState<FavoriteRecord[]>([]);
   const [templates, setTemplates] = useState<MealRecord[]>([]);
   const [loading, setLoading] = useState(false);
@@ -3472,6 +3490,7 @@ function HydrationLens() {
         setFavorites(loadedFavorites);
         setTemplates(loadedTemplates);
         setWaterEntry(analysis.entries.find((entry) => entry.nutrientCode === 'water') ?? null);
+        setCaffeineMg(caffeineToday(analysis.foodTotals));
       })
       .catch((error) => {
         setErrorMessage(`Could not load today's hydration: ${error instanceof Error ? error.message : String(error)}`);
@@ -3484,6 +3503,32 @@ function HydrationLens() {
       load();
     }, [load]),
   );
+
+  async function handleQuickDrink(drink: QuickDrink) {
+    if (quickBusy) return;
+    setQuickBusy(true);
+    try {
+      const now = new Date();
+      const created = await createMeal(quickDrinkMeal(drink, now));
+      setLastQuick({ mealId: created.id, line: loggedLine(drink, now) });
+      load();
+    } catch (error) {
+      showInfoAlert('Could not log it', error instanceof Error ? error.message : String(error));
+    } finally {
+      setQuickBusy(false);
+    }
+  }
+
+  async function handleUndoQuickDrink() {
+    if (!lastQuick) return;
+    try {
+      await deleteMeal(lastQuick.mealId);
+      setLastQuick(null);
+      load();
+    } catch (error) {
+      showInfoAlert('Could not take it back', error instanceof Error ? error.message : String(error));
+    }
+  }
 
   function openAddForm() {
     // 2026-08-26, direct follow-up: "probably could be on a repeating
@@ -3689,6 +3734,35 @@ function HydrationLens() {
               <Text style={styles.hydrationSummaryMeta}>{Math.round(waterEntry.percentOfTarget)}% of today&apos;s target</Text>
             </View>
           ) : null}
+
+          <View style={styles.bandBox}>
+            <Text style={styles.hydrationSummaryLabel}>One tap for a drink</Text>
+            <View style={[styles.pillRow, styles.quickDrinkRow]}>
+              {QUICK_DRINKS.map((drink) => (
+                <TouchableOpacity
+                  key={drink.key}
+                  style={[styles.pill, styles.quickDrinkPill]}
+                  onPress={() => void handleQuickDrink(drink)}
+                  disabled={quickBusy}
+                  accessibilityLabel={`Log ${drink.label}, ${drink.sizeLabel}, now`}
+                >
+                  <Text style={styles.pillTextSmall}>{drink.label}</Text>
+                  <Text style={styles.quickDrinkSize}>{drink.sizeLabel}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {lastQuick ? (
+              <View style={styles.quickDrinkLoggedRow}>
+                <Text style={styles.quickDrinkLogged}>{lastQuick.line}</Text>
+                <TouchableOpacity onPress={() => void handleUndoQuickDrink()} accessibilityLabel="Take back the drink just logged">
+                  <Text style={styles.quickDrinkUndo}>Take it back</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+            <Text style={styles.hydrationSummaryMeta}>{QUICK_DRINKS_CAPTION}</Text>
+            <Text style={styles.quickDrinkCaffeine}>{caffeineLine(caffeineMg)}</Text>
+            <Text style={styles.hydrationSummaryMeta}>{CAFFEINE_CAPTION}</Text>
+          </View>
 
           {!showForm ? (
             <TouchableOpacity style={[styles.addButton, walkMark('schedule.addDrink')]} onPress={openAddForm}>
@@ -5448,6 +5522,13 @@ const styles = StyleSheet.create({
   hydrationSummaryLabel: { ...typography.eyebrow, color: TAB_COLOR, ...textShadow },
   hydrationSummaryValue: { ...typography.screenTitle, color: TAB_COLOR, marginTop: 4, ...textShadow },
   hydrationSummaryMeta: { ...typography.caption, color: TAB_COLOR, marginTop: 2, ...textShadow },
+  quickDrinkRow: { marginTop: 8, marginBottom: 6 },
+  quickDrinkPill: { borderColor: TAB_COLOR, alignItems: 'center' },
+  quickDrinkSize: { ...typography.caption, color: TAB_COLOR, opacity: 0.8, ...textShadow },
+  quickDrinkLoggedRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginBottom: 4 },
+  quickDrinkLogged: { ...typography.bodyEmphasis, color: TAB_COLOR, ...textShadow },
+  quickDrinkUndo: { ...typography.bodyEmphasis, color: TAB_COLOR, textDecorationLine: 'underline', ...textShadow },
+  quickDrinkCaffeine: { ...typography.bodyEmphasis, color: TAB_COLOR, marginTop: 10, ...textShadow },
   // Colors below (through interactionCitation) are TAB_COLOR, not the
   // plain neutrals they used to be -- 2026-07-27, "every font inside a box
   // should match that box's own border color." Leaves selection-state

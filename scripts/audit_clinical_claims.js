@@ -113,6 +113,7 @@ const NAMED = [
   'lib/fodmapLabel.ts',
   'lib/scanToList.ts',
   'lib/sinceLastMeal.ts',
+  'lib/quickDrinks.ts',
 ];
 
 function targets() {

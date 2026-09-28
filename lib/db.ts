@@ -20025,6 +20025,10 @@ export type DailyNutrientAnalysisResult = {
   // will then include every applicable sex/age population rather than one
   // tailored row per nutrient (see getDietaryReferenceIntakesForProfile).
   profileComplete: boolean;
+  // The day's raw totals from food and drink alone, every nutrient code the
+  // reference data carries, including ones with no daily target (caffeine,
+  // read by Hydration's caffeine line, G34).
+  foodTotals?: Record<string, number>;
 };
 
 // The actual "wiring": combines every meal eaten on one date with active
@@ -20056,6 +20060,7 @@ export async function getDailyNutrientAnalysis(date: string): Promise<DailyNutri
     unresolvedItems: breakdown.unresolvedItems,
     supplementSkipped: breakdown.supplementSkipped,
     profileComplete: breakdown.profileComplete,
+    foodTotals: breakdown.dayTotals,
   };
 }
 
