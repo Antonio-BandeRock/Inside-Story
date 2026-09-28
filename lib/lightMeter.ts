@@ -144,12 +144,12 @@ export const LIGHT_SOURCES: readonly LightSource[] = [
   { code: 'sun', phrase: 'sunlight', label: 'Sunlight or daylight', luxPerPpfd: 54, help: 'Outdoors, in a greenhouse, or by a window with no lamp on.', lamp: false },
   { code: 'white_led', phrase: 'white LED light', label: 'White LED', luxPerPpfd: 67, help: 'White light from LEDs: a household bulb or a white grow panel. Warm and cool white differ by about a tenth.', lamp: true },
   { code: 'white_red_led', phrase: 'white LED light with extra red', label: 'White LED with extra red', luxPerPpfd: 55, help: 'A white grow panel with deep red diodes added, which looks pinkish. The ratio moves with how much red is added.', lamp: true },
-  { code: 'red_blue_led', phrase: 'red and blue LED light', label: 'Red and blue LED (purple light)', luxPerPpfd: null, help: "No general ratio exists for this light, since it gives off little of the green an eye weights most. Give this lamp's ratio below from the maker's figures, or take PPFD from the maker's chart or a quantum sensor.", lamp: true },
+  { code: 'red_blue_led', phrase: 'red and blue LED light', label: 'Red and blue LED (purple light)', luxPerPpfd: null, help: "No general ratio exists for this light, since it gives off little of the green an eye weights most. Give this lamp's spectrum or ratio below from its spec sheet, or take PPFD from the maker's chart or a quantum sensor.", lamp: true },
   { code: 'fluorescent', phrase: 'fluorescent light', label: 'Fluorescent (T5, tube or CFL)', luxPerPpfd: 74, help: 'Cool white tubes and compact bulbs.', lamp: true },
   { code: 'hps', phrase: 'high-pressure sodium light', label: 'High-pressure sodium (HPS)', luxPerPpfd: 82, help: 'The orange light of an HPS lamp.', lamp: true },
   { code: 'metal_halide', phrase: 'metal halide light', label: 'Metal halide or CMH', luxPerPpfd: 71, help: 'Metal halide and ceramic metal halide read close together.', lamp: true },
   { code: 'incandescent', phrase: 'incandescent or halogen light', label: 'Incandescent or halogen', luxPerPpfd: 50, help: 'An ordinary filament bulb.', lamp: true },
-  { code: 'other', phrase: 'this light', label: 'Another light (give its ratio)', luxPerPpfd: null, help: "Any light not on this list. Give this lamp's ratio below, from the maker's figures, and PPFD is worked out from it.", lamp: true },
+  { code: 'other', phrase: 'this light', label: 'Another light (give its ratio)', luxPerPpfd: null, help: "Any light not on this list. Give this lamp's spectrum or ratio below, from its spec sheet, and PPFD is worked out from it.", lamp: true },
 ];
 
 export function lightSource(code: string | null | undefined): LightSource | null {
@@ -171,12 +171,15 @@ export function lightSource(code: string | null | undefined): LightSource | null
 // box gets this lamp's ratio rather than the kind's, and a red and blue
 // panel, which has no general ratio, gets one.
 //
-// A ratio is kept only between 5 and 200. The published figures run from
-// about 50 to 82 for the lights above; a deep red or blue panel can go well
-// under that, and nothing a lamp gives off comes near either edge, so a
-// figure outside it is a typing slip rather than a lamp.
+// A ratio is kept only between 2 and 200. The published figures run from
+// about 50 to 82 for the lights above; a deep red or blue panel goes well
+// under that (a 660 nm red on its own is about 8, a 430 nm blue about 2, from
+// the spectrum arithmetic in lib/lightSpectrum.ts), and even green light at
+// the eye's peak is about 147, so a figure outside it is a typing slip rather
+// than a lamp. The floor was 5 until 1.0.55.23, which refused a deep red
+// panel's worked-out ratio.
 
-export const LAMP_RATIO_MIN = 5;
+export const LAMP_RATIO_MIN = 2;
 export const LAMP_RATIO_MAX = 200;
 
 /** A typed ratio as a number, or null when it is blank or out of range. */
@@ -248,13 +251,13 @@ export function describePpfd(lux: number, code: LightSourceCode | null, lampRati
   const ppfd = luxToPpfd(lux, code, lampRatio);
   if (ppfd === null) {
     return code === 'red_blue_led'
-      ? `${formatLux(lux)} was read. Red and blue light has no general ratio, so give this lamp's ratio below from the maker's figures, set the unit to lux to keep this figure, or take PPFD from a quantum sensor.`
-      : `${formatLux(lux)} was read. Give this lamp's ratio below and it is worked out as PPFD.`;
+      ? `${formatLux(lux)} was read. Red and blue light has no general ratio, so give this lamp's spectrum or ratio below, set the unit to lux to keep this figure, or take PPFD from a quantum sensor.`
+      : `${formatLux(lux)} was read. Give this lamp's spectrum or ratio below and it is worked out as PPFD.`;
   }
   if (lampRatio !== null) {
-    return `${formatLux(lux)} under ${source.phrase} is about ${ppfd} µmol/m²/s PPFD, at this lamp's ${lampRatio} lux to one µmol. As close as the maker's figures and the phone's sensor are.`;
+    return `${formatLux(lux)} under ${source.phrase} is about ${ppfd} µmol/m²/s PPFD, at this lamp's ${lampRatio} lux to one µmol. As close as the lamp's figures and the phone's sensor are.`;
   }
-  return `${formatLux(lux)} under ${source.phrase} is about ${ppfd} µmol/m²/s PPFD, at ${source.luxPerPpfd} lux to one µmol. An estimate, since the ratio is for that kind of light in general rather than this lamp; this lamp's ratio can be given below.`;
+  return `${formatLux(lux)} under ${source.phrase} is about ${ppfd} µmol/m²/s PPFD, at ${source.luxPerPpfd} lux to one µmol. An estimate, since the ratio is for that kind of light in general rather than this lamp; this lamp's spectrum or ratio can be given below.`;
 }
 
 export type DistanceUnit = 'cm' | 'in';

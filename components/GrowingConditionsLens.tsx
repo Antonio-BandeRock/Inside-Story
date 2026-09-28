@@ -55,6 +55,15 @@ import {
   type LightSampleSummary,
   type LightSourceCode,
 } from '../lib/lightMeter';
+import {
+  COLOUR_BANDS,
+  ratioFromColourShares,
+  ratioFromPeaks,
+  SPECTRUM_PEAKS_HOW,
+  SPECTRUM_SENSOR_LIMIT,
+  SPECTRUM_SHARES_HOW,
+  type PeakText,
+} from '../lib/lightSpectrum';
 import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
 import { GardenTermField } from './GardenTermField';
@@ -93,6 +102,12 @@ const NO_SOURCE = '__none__';
 // Android is the one place the light sensor can be read: an iPhone never
 // lets an app read it, and a computer (Windows or Mac) has none.
 const METER_ON_THIS_DEVICE = Platform.OS === 'android' && !isDesktopApp();
+const EMPTY_PEAKS: PeakText[] = [
+  { nm: '', share: '' },
+  { nm: '', share: '' },
+  { nm: '', share: '' },
+  { nm: '', share: '' },
+];
 
 function todayDateString(): string {
   const now = new Date();
@@ -140,7 +155,14 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
   // maker's lumens and PPF, and remembered per area and kind of light.
   const [lampRatioText, setLampRatioText] = useState('');
   const [savedRatios, setSavedRatios] = useState<Record<string, number>>({});
-  const [makerOpen, setMakerOpen] = useState(false);
+  // Which way of working out this lamp's ratio is open (1.0.55.23): its
+  // spectrum as colour shares, its diode peaks, or the maker's lumens and PPF.
+  const [ratioWay, setRatioWay] = useState<'shares' | 'peaks' | 'maker' | null>(null);
+  const [shareTexts, setShareTexts] = useState({ blue: '', green: '', red: '' });
+  const [peakTexts, setPeakTexts] = useState<PeakText[]>(EMPTY_PEAKS);
+  // A lux figure typed from any light meter, turned into PPFD the same way
+  // as the phone's (1.0.55.23), so an iPhone and the computer convert too.
+  const [typedLuxText, setTypedLuxText] = useState('');
   const [makerLumens, setMakerLumens] = useState('');
   const [makerPpf, setMakerPpf] = useState('');
   const listening = useRef<{ remove: () => void; timer: ReturnType<typeof setTimeout> } | null>(null);
@@ -239,10 +261,18 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
   useEffect(() => {
     const remembered = ratioKey ? savedRatios[ratioKey] : undefined;
     setLampRatioText(remembered !== undefined ? String(remembered) : '');
-    setMakerOpen(false);
+    setRatioWay(null);
   }, [ratioKey, savedRatios]);
   const lampRatio = lightSource(source)?.lamp ? parseLampRatio(lampRatioText) : null;
   const makerRatio = lampRatioFromMaker(makerLumens, makerPpf);
+  const sharesRatio = ratioFromColourShares(shareTexts);
+  const peaksRatio = ratioFromPeaks(peakTexts);
+  const typedLux = useMemo(() => {
+    const trimmed = typedLuxText.trim().replace(',', '.');
+    if (!trimmed) return null;
+    const value = Number(trimmed);
+    return Number.isFinite(value) && value >= 0 ? value : null;
+  }, [typedLuxText]);
 
   // The last unit light was recorded in, so the form opens on it rather
   // than on lux every time.
@@ -258,6 +288,14 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
     const figure = meterFigure(meterLux, draft.unit, source, lampRatio) ?? '';
     setDraft((current) => (current.value === figure ? current : { ...current, value: figure }));
   }, [fromPhone, meterLux, draft.unit, source, lampRatio]);
+
+  // A typed lux figure fills the form as PPFD while the unit is PPFD and
+  // the figure is not the phone's.
+  useEffect(() => {
+    if (fromPhone || typedLux === null || draft.unit !== 'PPFD') return;
+    const figure = meterFigure(typedLux, draft.unit, source, lampRatio) ?? '';
+    setDraft((current) => (current.value === figure ? current : { ...current, value: figure }));
+  }, [fromPhone, typedLux, draft.unit, source, lampRatio]);
 
   const areaOptions = useMemo(
     () => [
@@ -304,12 +342,48 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
       .sort((a, b) => b.rows[0].measuredOn.localeCompare(a.rows[0].measuredOn) || a.label.localeCompare(b.label));
   }, [readings, terms]);
 
+  // The ratio a spectrum form worked out, with Use This Ratio and Back.
+  function renderWorkedRatio(ratio: number | null, filled: boolean) {
+    const kept = ratio !== null && parseLampRatio(String(ratio)) !== null;
+    return (
+      <>
+        {ratio !== null ? (
+          <Text style={styles.bodyText}>
+            {kept
+              ? `${ratio} lux to one µmol.`
+              : `That spectrum gives about ${ratio} lux to one µmol, under the ${LAMP_RATIO_MIN} kept: so little of that light shows as lux that a quantum sensor is the way to read its PPFD.`}
+          </Text>
+        ) : filled ? (
+          <Text style={styles.bodyText}>
+            Each figure needs to be a number, and each peak between 400 and 700 nm.
+          </Text>
+        ) : null}
+        <View style={styles.actionRow}>
+          <TouchableOpacity
+            style={[styles.primaryButton, { backgroundColor: kept ? PRIMARY_BUTTON_BACKGROUND : colors.border }]}
+            disabled={!kept}
+            onPress={() => {
+              setLampRatioText(String(ratio));
+              setRatioWay(null);
+            }}
+          >
+            <Text style={styles.primaryButtonText}>Use This Ratio</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setRatioWay(null)}>
+            <Text style={styles.linkText}>Back</Text>
+          </TouchableOpacity>
+        </View>
+      </>
+    );
+  }
+
   async function handleSave() {
     const check = checkReading(draft);
     if (!check.ok) {
       setProblem(check.problem);
       return;
     }
+    const noteLux = fromPhone ? meterLux : draft.unit === 'PPFD' ? typedLux : null;
     await addGardenReading({
       plotId: draft.plotId,
       plantingId: draft.plantingId,
@@ -318,8 +392,8 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
       unit: draft.unit as string,
       measuredOn: draft.measuredOn,
       note:
-        fromPhone && meterLux !== null
-          ? [meterNote({ lux: meterLux, unit: draft.unit, source, distance, distanceUnit, lampRatio }), draft.note.trim()]
+        noteLux !== null
+          ? [meterNote({ lux: noteLux, unit: draft.unit, source, distance, distanceUnit, lampRatio }), draft.note.trim()]
               .filter(Boolean)
               .join(' ')
           : draft.note,
@@ -327,11 +401,12 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
         ? { source: 'device' as const, deviceName: LIGHT_METER_DEVICE_NAME }
         : {}),
     });
-    if (fromPhone && draft.unit === 'PPFD' && ratioKey && (lampRatio !== null || !lampRatioText.trim())) {
+    if (noteLux !== null && draft.unit === 'PPFD' && ratioKey && (lampRatio !== null || !lampRatioText.trim())) {
       await saveLampRatio(ratioKey, lampRatio);
     }
     setFromPhone(false);
     setMeterLux(null);
+    setTypedLuxText('');
     setMeter({ status: 'idle' });
     // The area, the measurement and the unit are kept, since the next reading
     // is usually the same meter in the same bed on another day.
@@ -429,8 +504,9 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                     ) : !METER_ON_THIS_DEVICE ? (
                       <Text style={styles.captionText}>{LIGHT_METER_IPHONE}</Text>
                     ) : (
+                      <Text style={styles.captionText}>{LIGHT_METER_HOW}</Text>
+                    )}
                       <>
-                        <Text style={styles.captionText}>{LIGHT_METER_HOW}</Text>
                         <View style={styles.fieldRow}>
                           <Text style={styles.fieldLabel}>Under</Text>
                           <PopoverSelect
@@ -460,6 +536,12 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                             <Text style={styles.captionText}>{LIGHT_METER_DISTANCE_HOW}</Text>
                           </>
                         ) : null}
+                        {lightSource(source)?.lamp && draft.unit === 'lux' ? (
+                          <Text style={styles.captionText}>
+                            Set the unit above to PPFD to turn lux into PPFD; this lamp&apos;s spectrum can then be given, and
+                            the ratio is worked out from it.
+                          </Text>
+                        ) : null}
                         {lightSource(source)?.lamp && draft.unit === 'PPFD' ? (
                           <>
                             <View style={styles.fieldRow}>
@@ -481,7 +563,7 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                                     ? `Left blank, the general figure for this kind of light is used: ${lightSource(source)?.luxPerPpfd}.`
                                     : 'This light has no general figure, so PPFD is worked out once this lamp\'s ratio is given.'}
                             </Text>
-                            {makerOpen ? (
+                            {ratioWay === 'maker' ? (
                               <View style={styles.formCard}>
                                 <Text style={styles.captionText}>{LAMP_RATIO_HOW}</Text>
                                 <View style={styles.fieldRow}>
@@ -517,20 +599,72 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                                     disabled={makerRatio === null}
                                     onPress={() => {
                                       setLampRatioText(String(makerRatio));
-                                      setMakerOpen(false);
+                                      setRatioWay(null);
                                     }}
                                   >
                                     <Text style={styles.primaryButtonText}>Use This Ratio</Text>
                                   </TouchableOpacity>
-                                  <TouchableOpacity onPress={() => setMakerOpen(false)}>
+                                  <TouchableOpacity onPress={() => setRatioWay(null)}>
                                     <Text style={styles.linkText}>Back</Text>
                                   </TouchableOpacity>
                                 </View>
                               </View>
+                            ) : ratioWay === 'shares' ? (
+                              <View style={styles.formCard}>
+                                <Text style={styles.captionText}>{SPECTRUM_SHARES_HOW}</Text>
+                                {COLOUR_BANDS.map((band) => (
+                                  <View key={band.key} style={styles.fieldRow}>
+                                    <Text style={styles.fieldLabel}>{band.label}</Text>
+                                    <AppTextInput
+                                      style={[styles.textInput, styles.shortInput]}
+                                      value={shareTexts[band.key]}
+                                      onChangeText={(text) => setShareTexts((current) => ({ ...current, [band.key]: text }))}
+                                      placeholder={band.key === 'blue' ? '20' : band.key === 'green' ? '45' : '35'}
+                                      keyboardType="numeric"
+                                    />
+                                  </View>
+                                ))}
+                                {renderWorkedRatio(sharesRatio, Object.values(shareTexts).some((text) => text.trim() !== ''))}
+                              </View>
+                            ) : ratioWay === 'peaks' ? (
+                              <View style={styles.formCard}>
+                                <Text style={styles.captionText}>{SPECTRUM_PEAKS_HOW}</Text>
+                                {peakTexts.map((row, index) => (
+                                  <View key={index} style={styles.fieldRow}>
+                                    <Text style={styles.fieldLabel}>Peak (nm)</Text>
+                                    <AppTextInput
+                                      style={[styles.textInput, styles.shortInput]}
+                                      value={row.nm}
+                                      onChangeText={(text) =>
+                                        setPeakTexts((current) => current.map((entry, at) => (at === index ? { ...entry, nm: text } : entry)))
+                                      }
+                                      placeholder={index === 0 ? '450' : index === 1 ? '660' : ''}
+                                      keyboardType="numeric"
+                                    />
+                                    <Text style={styles.fieldLabel}>share</Text>
+                                    <AppTextInput
+                                      style={[styles.textInput, styles.shortInput]}
+                                      value={row.share}
+                                      onChangeText={(text) =>
+                                        setPeakTexts((current) => current.map((entry, at) => (at === index ? { ...entry, share: text } : entry)))
+                                      }
+                                      placeholder={index === 0 ? '20' : index === 1 ? '80' : ''}
+                                      keyboardType="numeric"
+                                    />
+                                  </View>
+                                ))}
+                                {renderWorkedRatio(peaksRatio, peakTexts.some((row) => row.nm.trim() !== '' || row.share.trim() !== ''))}
+                              </View>
                             ) : (
                               <View style={styles.actionRow}>
-                                <TouchableOpacity onPress={() => setMakerOpen(true)}>
-                                  <Text style={styles.linkText}>Work It Out From the Maker&apos;s Figures</Text>
+                                <TouchableOpacity onPress={() => setRatioWay('shares')}>
+                                  <Text style={styles.linkText}>From Its Spectrum&apos;s Colour Shares</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setRatioWay('peaks')}>
+                                  <Text style={styles.linkText}>From Its Diode Peaks</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setRatioWay('maker')}>
+                                  <Text style={styles.linkText}>From the Maker&apos;s Lumens and PPF</Text>
                                 </TouchableOpacity>
                                 {lampRatioText.trim() ? (
                                   <TouchableOpacity onPress={() => setLampRatioText('')}>
@@ -539,8 +673,35 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                                 ) : null}
                               </View>
                             )}
+                            {source === 'red_blue_led' ? <Text style={styles.captionText}>{SPECTRUM_SENSOR_LIMIT}</Text> : null}
                           </>
                         ) : null}
+                        {draft.unit === 'PPFD' ? (
+                          <>
+                            <View style={styles.fieldRow}>
+                              <Text style={styles.fieldLabel}>
+                                {METER_ON_THIS_DEVICE ? 'Or lux from another meter' : 'Lux from a light meter'}
+                              </Text>
+                              <AppTextInput
+                                style={[styles.textInput, styles.shortInput]}
+                                value={typedLuxText}
+                                onChangeText={(text) => {
+                                  setTypedLuxText(text);
+                                  setFromPhone(false);
+                                }}
+                                placeholder="12000"
+                                keyboardType="numeric"
+                              />
+                            </View>
+                            <Text style={styles.captionText}>
+                              {typedLux !== null && !fromPhone
+                                ? describePpfd(typedLux, source, lampRatio)
+                                : 'Type the lux a light meter read and it is worked out as PPFD in the figure above, through the light it is under.'}
+                            </Text>
+                          </>
+                        ) : null}
+                        {METER_ON_THIS_DEVICE ? (
+                          <>
                         {meter.status === 'reading' ? (
                           <Text style={styles.bodyText}>
                             Reading{meter.live !== null ? `: ${meter.live.toLocaleString('en-US')} lux` : ''}
@@ -566,8 +727,9 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                           </TouchableOpacity>
                         </View>
                         <Text style={styles.captionText}>{LIGHT_METER_LIMITS}</Text>
+                          </>
+                        ) : null}
                       </>
-                    )}
                   </View>
                 ) : null}
                 {newUnit !== null ? (

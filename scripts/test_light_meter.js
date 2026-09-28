@@ -115,7 +115,8 @@ for (const sentence of [M.describePpfd(54000, 'sun'), M.describePpfd(5000, 'red_
 // This lamp's ratio (1.0.55.21).
 ok(M.parseLampRatio('') === null, 'blank ratio is none');
 ok(M.parseLampRatio('61,5') === 61.5, 'a comma decimal reads');
-ok(M.parseLampRatio('3') === null && M.parseLampRatio('500') === null, 'out of range is refused');
+ok(M.parseLampRatio('1') === null && M.parseLampRatio('500') === null, 'out of range is refused');
+ok(M.parseLampRatio('8.2') === 8.2, 'a deep red panel ratio is kept');
 ok(M.lampRatioFromMaker('52000', '850') === 61.2, 'lumens over PPF');
 ok(M.lampRatioFromMaker('180', '2.9') === 62.1, 'lm/W over umol/J');
 ok(M.lampRatioFromMaker('52000', '') === null, 'a missing figure gives nothing');
@@ -126,7 +127,7 @@ ok(M.luxToPpfd(3000, 'other') === null && M.luxToPpfd(3000, 'other', 60) === 50,
 ok(M.meterFigure(6120, 'PPFD', 'white_led', 61.2) === '100', 'the form figure follows the lamp ratio');
 ok(/this lamp's 61.2 lux/.test(M.describePpfd(6120, 'white_led', 61.2)), 'the line names the lamp ratio');
 ok(/can be given below/.test(M.describePpfd(6700, 'white_led')), 'the general line points to the field');
-ok(/Give this lamp's ratio/.test(M.describePpfd(3000, 'other')), 'another light asks for its ratio');
+ok(/Give this lamp's spectrum or ratio/.test(M.describePpfd(3000, 'other')), 'another light asks for its ratio');
 ok(M.meterNote({ lux: 6120, unit: 'PPFD', source: 'white_led', distance: '', distanceUnit: 'cm', lampRatio: 61.2 }) === "Worked out from 6,120 lux under white LED light, at this lamp's 61.2 lux to one µmol.", 'note keeps the lamp ratio');
 ok(M.lampRatioKey('a1', 'sun') === null && M.lampRatioKey(null, 'hps') === 'none:hps', 'the sun is never remembered, a lamp is');
 ok(M.ratioInUse('hps', null) === 82 && M.ratioInUse('hps', 70) === 70, 'ratio in use');
