@@ -56,7 +56,7 @@ import {
 } from './db';
 import { getConnectionByPublicKey } from './connections';
 import { getSharedFromName, listSharedRecipes, type ShareComponentPayload, type ShareMealPayload } from './sharing';
-import type { DigestEntry } from './digest/types';
+import type { DigestEntry, RecipeCheckIngredient } from './digest/types';
 
 const COMPONENT_TYPES: MealComponentType[] = [
   'side',
@@ -147,6 +147,17 @@ async function getTrackedConditions(): Promise<{ code: string; name: string }[]>
 
 // --- My Kitchen -------------------------------------------------------
 
+// G26: what the recipe card checks live against every household
+// condition (lib/recipeConditionLine.ts). Typed-in ingredients stay in,
+// without a foodId, so the card can say how many it could not check.
+function toCheckFrom(ingredients: MealIngredientInput[]): RecipeCheckIngredient[] {
+  return ingredients.map((ingredient) => ({
+    foodId: ingredient.foodId,
+    foodName: ingredient.foodName,
+    category: ingredient.category,
+  }));
+}
+
 async function buildMyKitchenEntryForOption(
   componentType: MealComponentType,
   option: MealComponentOption,
@@ -207,6 +218,7 @@ async function buildMyKitchenEntryForOption(
       dietTags: depthData?.dietTags,
       safeForConditions: depthData?.safeForConditions,
       conditionCautions: depthData?.conditionCautions,
+      checkFrom: toCheckFrom(ingredients),
     },
   };
 }
@@ -273,6 +285,7 @@ async function buildMyFavoritesComponentEntry(
       dietTags: depthData?.dietTags,
       safeForConditions: depthData?.safeForConditions,
       conditionCautions: depthData?.conditionCautions,
+      checkFrom: toCheckFrom(mealIngredients),
     },
   };
 }
@@ -330,6 +343,7 @@ async function buildMyFavoritesMealEntry(
         })),
       nutritionHighlights: highlights,
       conditionNotes,
+      checkFrom: toCheckFrom(allIngredients),
     },
   };
 }
@@ -487,6 +501,7 @@ async function buildSharedRecipeEntry(
       instructions: isMeal ? undefined : payload.builder.instructions,
       nutritionHighlights: highlights,
       conditionNotes,
+      checkFrom: toCheckFrom(ingredients),
     },
   };
 }

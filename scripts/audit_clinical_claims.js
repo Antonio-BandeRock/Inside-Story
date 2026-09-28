@@ -43,6 +43,7 @@ const ts = require('typescript');
 const ROOT = path.resolve(__dirname, '..');
 
 const NAMED = [
+  'lib/recipeConditionLine.ts',
   'lib/interactionRules.ts',
   'lib/keepReminding.ts',
   'lib/patternFinder.ts',

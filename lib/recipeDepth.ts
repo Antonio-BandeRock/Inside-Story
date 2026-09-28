@@ -215,6 +215,20 @@ async function computeConditionSafetyAndCautions(
   return { safeForConditions, conditionCautions, dimensionBreakdown };
 }
 
+// G26, 2026-09-27: the same condition check, run when a person's own
+// recipe opens, against every condition anyone in the household tracks.
+// Reads only; nothing is written back to the saved record.
+export async function computeConditionChecks(
+  ingredients: Pick<MealIngredientInput, 'foodId' | 'foodName' | 'category'>[],
+  conditions: { code: string; name: string }[],
+): Promise<Pick<RecipeDepthResult, 'safeForConditions' | 'conditionCautions'>> {
+  const { safeForConditions, conditionCautions } = await computeConditionSafetyAndCautions(
+    ingredients.map((ingredient) => ({ ...ingredient, quantity: 0, unit: '' })),
+    conditions,
+  );
+  return { safeForConditions, conditionCautions };
+}
+
 // ---------------------------------------------------------------------
 // Stage-specific advisory notes -- reuses the already-live, already-
 // shared per-ingredient dispatcher every Food builder's own live preview

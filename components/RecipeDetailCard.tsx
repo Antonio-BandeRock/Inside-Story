@@ -16,7 +16,7 @@
 // rather than read from a module constant. Two colors in, one recipe
 // card out, so neither tab can quietly grow a different-looking recipe
 // than the other.
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { CookModeButton } from './CookMode';
@@ -34,7 +34,17 @@ import {
   type RecipeDietTag,
 } from '../lib/digest/types';
 import { clampMakeFor, makeForCaption, makeForLabel, MAX_MAKE_FOR, setPendingMakeFor } from '../lib/makeItFor';
-import { recipeFitFor } from '../lib/householdFit';
+import { recipeFitFor, type HouseholdLine } from '../lib/householdFit';
+import {
+  checkableCounts,
+  conditionDetailFor,
+  conditionsForPeople,
+  OWN_RECIPE_LINE_CAPTION,
+  withLiveChecks,
+  withTypedNote,
+  type ConditionChecks,
+} from '../lib/recipeConditionLine';
+import { computeConditionChecks, computeDietTags } from '../lib/recipeDepth';
 import { getPhotoForTarget } from '../lib/mealPhotos';
 import { shareFileIfAvailable } from '../lib/nativeSharing';
 import { encodeShareLinkFromCuratedRecipe, writeIsFileForCuratedRecipe } from '../lib/sharing';
@@ -249,7 +259,48 @@ export function RecipeDetailCard({
   const conditionScope = useConditionScope();
   // G20: a line per person in the household, shown once there is a family member.
   const household = useHouseholdPeople();
-  const householdLines = useMemo(() => household.map((person) => recipeFitFor(person, card)), [household, card]);
+  // G26: a person's own recipe is checked when it opens, against every
+  // condition anyone in the household tracks, so the line covers all of
+  // them rather than only those tracked on the day it was saved. The
+  // stored result is not shown while the check runs. Reads only.
+  const checkFrom = card.checkFrom;
+  const [liveChecks, setLiveChecks] = useState<{ result: ConditionChecks | null } | null>(null);
+  useEffect(() => {
+    if (!checkFrom || household.length === 0) return;
+    let cancelled = false;
+    const conditions = conditionsForPeople(household);
+    const checkable = checkFrom.filter((ingredient) => ingredient.foodId);
+    const run: Promise<ConditionChecks | null> =
+      checkable.length === 0 ? Promise.resolve(null) : computeConditionChecks(checkable, conditions);
+    run
+      .then((result) => {
+        if (!cancelled) setLiveChecks({ result });
+      })
+      .catch((error) => {
+        console.error('[RecipeDetailCard] Failed to check the recipe against the household conditions', error);
+        if (!cancelled) setLiveChecks({ result: null });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [checkFrom, household]);
+  const checkedCard = useMemo(() => {
+    if (!checkFrom) return card;
+    if (!liveChecks) return null;
+    const dietTags = computeDietTags(checkFrom.map((ingredient) => ({ ...ingredient, quantity: 0, unit: '' })));
+    return withLiveChecks(card, checkFrom, liveChecks.result, dietTags);
+  }, [card, checkFrom, liveChecks]);
+  const typedCount = checkFrom ? checkableCounts(checkFrom).typed : 0;
+  const householdLines = useMemo(
+    () => (checkedCard ? household.map((person) => withTypedNote(recipeFitFor(person, checkedCard), typedCount)) : []),
+    [household, checkedCard, typedCount],
+  );
+  function explainHouseholdLine(line: HouseholdLine) {
+    const person = household.find((entry) => entry.id === line.personId);
+    if (!person || !checkedCard) return;
+    const detail = conditionDetailFor(person, line, checkedCard);
+    showInfoAlert(detail.title, detail.body);
+  }
   const profileScoped = !activeConditionCode && conditionScope.ready;
   const scopedNotes = profileScoped
     ? scopeConditionNotes(card.conditionNotes, conditionScope.own, conditionScope.curious)
@@ -272,7 +323,12 @@ export function RecipeDetailCard({
         </View>
       ) : null}
 
-      <HouseholdFitBand lines={householdLines} tabColor={tabColor} />
+      <HouseholdFitBand
+        lines={householdLines}
+        tabColor={tabColor}
+        single={checkFrom ? { heading: 'Across your lists', caption: OWN_RECIPE_LINE_CAPTION } : undefined}
+        onPressLine={checkFrom ? explainHouseholdLine : undefined}
+      />
 
       <Text style={styles.detailLabel}>Makes</Text>
       <Text style={styles.detailText}>{card.yield}</Text>

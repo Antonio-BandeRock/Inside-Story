@@ -315,6 +315,8 @@ export type DigestChart = {
 // not a new shape -- a recipe entry still carries a real title/teaser/
 // summary/citations/overallTier the same as every other DigestEntry, it
 // just has this real, structured detail on top.
+export type RecipeCheckIngredient = { foodId?: string; foodName: string; category: string };
+
 export type RecipeIngredientLine = {
   // Pre-formatted, human-readable, e.g. "2 cups broccoli florets, chopped"
   // -- deliberately not split into separate quantity/unit/name fields the
@@ -487,6 +489,13 @@ export type RecipeCard = {
   // labeled and colored groups in "Meals You Can Eat" now, not one
   // undifferentiated list.
   conditionCautions?: Record<string, { severity: 'yellow' | 'red'; note: string }>;
+  // G26, 2026-09-27: a person's own recipe keeps the ingredients it was
+  // made from, so the card can check them when it opens against every
+  // condition anyone in the household tracks (lib/recipeConditionLine.ts)
+  // rather than only the conditions tracked on the day it was saved. An
+  // ingredient typed in by name has no foodId and is counted as not
+  // checked. Curated recipes leave this undefined.
+  checkFrom?: RecipeCheckIngredient[];
   ingredients: RecipeIngredientLine[];
   // One real step per entry, numbered by the UI. Optional, 2026-08-15 --
   // My Kitchen/My Favorites (lib/digestDynamicEntries.ts) build a real
