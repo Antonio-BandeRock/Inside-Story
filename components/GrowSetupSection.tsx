@@ -46,6 +46,7 @@ import {
   type GrowEquipmentInput,
 } from '../lib/growSetupDb';
 import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 import { GardenTermField } from './GardenTermField';
 import { PopoverSelect } from './PopoverSelect';
 import { RecordPhotos } from './RecordPhotos';
@@ -480,7 +481,7 @@ export function GrowSetupSection({ plot, onChanged }: Props) {
                 />
               </View>
               <Text style={styles.captionText}>A filter that gets replaced, a nutrient subscription, a service plan. Electricity is not entered here; it comes from the bills under Growing Costs.</Text>
-              <AppTextInput style={styles.textInput} value={draft.notes} onChangeText={(notes) => setDraft({ ...draft, notes })} placeholder="Notes (optional)" multiline />
+              <NotesInput style={styles.textInput} value={draft.notes} onChangeText={(notes) => setDraft({ ...draft, notes })} placeholder="Notes (optional)" multiline />
             </>
           ) : null}
           {error ? <Text style={styles.errorText}>{error}</Text> : null}

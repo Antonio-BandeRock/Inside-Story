@@ -129,6 +129,7 @@ import {
 import { DimensionChart } from '../../components/DimensionChart';
 import type { ConditionDimensionSummary } from '../../lib/conditionDimensions';
 import { AppTextInput } from '../../components/AppTextInput';
+import { NotesInput } from '../../components/NotesInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useConfirmSheet } from '../../components/ConfirmSheet';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
@@ -4071,11 +4072,8 @@ function MyMedsView({
 
         {formOpen ? (
           <View style={[styles.formCard, styles.rankSpaced, { borderColor: tabColor }]}>
-            <View style={styles.labFieldLabelRow}>
-              <Text style={[styles.sectionLabel, { color: tabColor }]}>What did you notice, or what were you told?</Text>
-              <VoiceInputButton onResult={setFormDescription} color={tabColor} />
-            </View>
-            <AppTextInput
+            <Text style={[styles.sectionLabel, { color: tabColor }]}>What did you notice, or what were you told?</Text>
+            <NotesInput micColor={tabColor}
               style={[styles.labInput, { minHeight: 72, textAlignVertical: 'top' }]}
               value={formDescription}
               onChangeText={setFormDescription}

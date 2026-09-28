@@ -36,7 +36,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter, type Href } from 'expo-router';
 import { useCallback, useEffect, useState, type ComponentProps } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { AppTextInput } from '../components/AppTextInput';
+import { NotesInput } from '../components/NotesInput';
 import { useInfoAlert } from '../components/InfoAlert';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -304,7 +304,7 @@ export default function ReconcileScreen() {
       <View key={note.id} style={styles.itemCard}>
         {editing ? (
           <View style={styles.editRow}>
-            <AppTextInput
+            <NotesInput
               style={styles.editField}
               value={editingText}
               onChangeText={setEditingText}

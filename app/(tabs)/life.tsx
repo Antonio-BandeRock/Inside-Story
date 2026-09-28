@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
 import { AppTextInput } from '../../components/AppTextInput';
+import { NotesInput } from '../../components/NotesInput';
 import { ConditionsSection } from '../../components/ConditionsSection';
 import {
   DIGEST_READING_HELP,
@@ -1643,11 +1644,8 @@ export default function LifeScreen() {
               </>
             ) : null}
 
-            <View style={styles.labelRow}>
-              <Text style={styles.label}>Note (optional)</Text>
-              <VoiceInputButton onResult={(text) => setEntryForm({ ...entryForm, description: text })} color={TAB_COLOR} />
-            </View>
-            <AppTextInput
+            <Text style={styles.label}>Note (optional)</Text>
+            <NotesInput micColor={TAB_COLOR}
               style={styles.input}
               placeholder="e.g. lunch with Ana"
               value={entryForm.description}

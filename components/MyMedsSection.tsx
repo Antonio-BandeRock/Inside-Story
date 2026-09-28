@@ -3,6 +3,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 import { VoiceInputButton } from './VoiceInputButton';
 import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
@@ -819,14 +820,8 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
                 <Text style={styles.secondaryButtonText}>+ Add ingredient</Text>
               </TouchableOpacity>
 
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Notes (optional)</Text>
-                <VoiceInputButton
-                  onResult={(text) => setSupplementForm((current) => ({ ...current, notes: text }))}
-                  color={tabColor}
-                />
-              </View>
-              <AppTextInput
+              <Text style={styles.label}>Notes (optional)</Text>
+              <NotesInput micColor={tabColor}
                 style={styles.input}
                 placeholder="e.g. take with food"
                 value={supplementForm.notes}
@@ -954,11 +949,8 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
                 onChangeText={(text) => setMedForm((current) => ({ ...current, frequency: text }))}
               />
 
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Notes (optional)</Text>
-                <VoiceInputButton onResult={(text) => setMedForm((current) => ({ ...current, notes: text }))} color={tabColor} />
-              </View>
-              <AppTextInput
+              <Text style={styles.label}>Notes (optional)</Text>
+              <NotesInput micColor={tabColor}
                 style={styles.input}
                 placeholder="e.g. prescribed by Dr. …"
                 value={medForm.notes}

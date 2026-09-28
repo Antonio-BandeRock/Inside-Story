@@ -38,6 +38,7 @@ import {
 } from '../lib/gardenMoneyDb';
 import { formatTradeMoney } from '../lib/harvestTrade';
 import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 import { ElectricityBand } from './ElectricityBand';
 import { GardenSpaceField } from './GardenSpaceField';
 import { HOME_BAND_GAP } from './HomeSectionBand';
@@ -473,7 +474,7 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
         {adding ? (
           <>
             <Text style={styles.fieldLabel}>What was it?</Text>
-            <AppTextInput
+            <NotesInput
               style={styles.textInput}
               value={description}
               onChangeText={setDescription}

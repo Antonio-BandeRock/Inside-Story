@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Linking, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
+import { NotesInput } from '../../components/NotesInput';
 import { DayTimeline } from '../../components/DayTimeline';
 import { PeerDishPhotos } from '../../components/PeerDishPhotos';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
@@ -2483,7 +2484,7 @@ function CalendarNotesBand({
             {draft.id ? 'Changing a note' : 'A note'} on {dayPhrase}.
           </Text>
           <Text style={styles.label}>The note</Text>
-          <AppTextInput
+          <NotesInput
             style={styles.input}
             value={draft.text}
             onChangeText={(text) => setDraft({ ...draft, text })}
@@ -2875,7 +2876,7 @@ function HouseholdMealCalendarBand({
           <Text style={styles.label}>Who is cooking (optional)</Text>
           <AppTextInput style={styles.input} value={draft.cook} onChangeText={(cook) => setDraft({ ...draft, cook })} />
           <Text style={styles.label}>Note (optional)</Text>
-          <AppTextInput style={styles.input} value={draft.note} onChangeText={(note) => setDraft({ ...draft, note })} multiline />
+          <NotesInput style={styles.input} value={draft.note} onChangeText={(note) => setDraft({ ...draft, note })} multiline />
           <View style={styles.formActions}>
             <TouchableOpacity
               style={styles.secondaryButton}
@@ -6292,11 +6293,8 @@ function AppointmentsLens() {
                 With this set, the timeline draws the appointment across its length and counts it when saying whether the day fits.
               </Text>
 
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Notes (optional)</Text>
-                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, notes: text }))} color={TAB_COLOR} />
-              </View>
-              <AppTextInput
+              <Text style={styles.label}>Notes (optional)</Text>
+              <NotesInput micColor={TAB_COLOR}
                 style={styles.input}
                 placeholder="e.g. fasting required, bring insurance card"
                 value={form.notes}

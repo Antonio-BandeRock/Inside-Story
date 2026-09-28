@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { KeepRemindingPicker } from './KeepRemindingPicker';
@@ -745,7 +746,7 @@ export function RoutinesSection({ tabColor }: Props) {
                     />
 
                     <Text style={styles.label}>One more line, if it helps (optional)</Text>
-                    <AppTextInput
+                    <NotesInput
                       style={styles.input}
                       value={stepForm.detail}
                       onChangeText={(detail) => setStepForm({ ...stepForm, detail })}

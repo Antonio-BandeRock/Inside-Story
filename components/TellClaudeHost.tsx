@@ -61,6 +61,7 @@ import {
   type WordingTap,
 } from '../lib/wordingEdits';
 import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 import { PlainTextZone } from './EditableText';
 import { useKeyboardLift } from './KeyboardLift';
 
@@ -230,7 +231,7 @@ export function TellClaudeHost() {
                   ))}
                 </ScrollView>
                 <Text style={styles.caption}>{DEV_NOTE_CAPTIONS[kind]}</Text>
-                <AppTextInput
+                <NotesInput
                   style={styles.input}
                   value={body}
                   onChangeText={(text) => {

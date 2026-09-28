@@ -23,6 +23,7 @@ import { ActivityIndicator, ScrollView, Share, StyleSheet, Text, TouchableOpacit
 import * as ImagePicker from 'expo-image-picker';
 import { AppActionSheet } from '../components/AppActionSheet';
 import { AppTextInput } from '../components/AppTextInput';
+import { NotesInput } from '../components/NotesInput';
 import { PopoverSelect } from '../components/PopoverSelect';
 import { useInfoAlert } from '../components/InfoAlert';
 import { useConfirmSheet } from '../components/ConfirmSheet';
@@ -1315,7 +1316,7 @@ export default function GroceryListScreen() {
                       </TouchableOpacity>
 
                       <Text style={styles.editorLabel}>A note (optional)</Text>
-                      <AppTextInput
+                      <NotesInput
                         style={styles.input}
                         value={editor.noteText}
                         onChangeText={(text) => setEditor((current) => ({ ...current, noteText: text }))}

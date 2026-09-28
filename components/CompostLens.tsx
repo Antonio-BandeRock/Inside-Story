@@ -41,6 +41,7 @@ import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { sortByLabel } from '../lib/choiceOrder';
 import { listGardenCostGroups, type GardenCostGroup } from '../lib/gardenMoneyDb';
 import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 import { HOME_BAND_GAP } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 import { RecordPhotos } from './RecordPhotos';
@@ -631,7 +632,7 @@ function PileBand({
             ) : null}
 
             {action === 'note' || action === 'turned' || action === 'watered' ? (
-              <AppTextInput
+              <NotesInput
                 style={styles.textInput}
                 value={note}
                 onChangeText={setNote}

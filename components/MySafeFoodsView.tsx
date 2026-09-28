@@ -23,6 +23,7 @@ import {
 } from '../lib/db';
 import { getTrackedConditionsWithNames, type TrackedConditionRef } from '../lib/foodPersonalization';
 import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 import { FoodMarkButtons, foodAppLine, foodTrialLine } from './FoodSafetyMarks';
 import { categoryLabel } from './FoodLookup';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
@@ -353,7 +354,7 @@ export function MySafeFoodsView({ onClose, onChanged }: { onClose: () => void; o
               </View>
 
               <Text style={styles.label}>Why, if you want to remember it</Text>
-              <AppTextInput
+              <NotesInput
                 style={styles.input}
                 value={draft.note}
                 onChangeText={(text) => setDraft({ ...draft, note: text })}

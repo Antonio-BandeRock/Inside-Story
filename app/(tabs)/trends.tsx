@@ -6,8 +6,7 @@ import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import type { HelpSection } from '../../components/HelpButton';
 import { useInfoAlert } from '../../components/InfoAlert';
-import { AppTextInput } from '../../components/AppTextInput';
-import { VoiceInputButton } from '../../components/VoiceInputButton';
+import { NotesInput } from '../../components/NotesInput';
 import { YourStoryMissingLine } from '../../components/YourStoryMissingLine';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import {
@@ -1448,14 +1447,8 @@ export default function TrendsScreen() {
     return (
       <View style={[styles.ruleDraft, { borderColor: TAB_COLOR }]}>
         <Text style={styles.patternRowCaption}>{ruleDraft.proposal.checkNote}</Text>
-        <View style={styles.ruleDraftLabelRow}>
-          <Text style={[styles.ruleDraftLabel, { color: TAB_COLOR }]}>What should this remind you of?</Text>
-          <VoiceInputButton
-            onResult={(text) => setRuleDraft((current) => (current ? { ...current, description: text } : current))}
-            color={TAB_COLOR}
-          />
-        </View>
-        <AppTextInput
+        <Text style={[styles.ruleDraftLabel, { color: TAB_COLOR }]}>What should this remind you of?</Text>
+        <NotesInput micColor={TAB_COLOR}
           style={styles.ruleDraftInput}
           value={ruleDraft.description}
           onChangeText={(text) => setRuleDraft((current) => (current ? { ...current, description: text } : current))}

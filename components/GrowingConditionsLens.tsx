@@ -22,6 +22,7 @@ import {
 } from '../lib/growingConditionsDb';
 import { termLabel, type CustomGardenTerm } from '../lib/growSetup';
 import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 import { GardenTermField } from './GardenTermField';
 import { HOME_BAND_GAP } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
@@ -274,7 +275,7 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
               </TouchableOpacity>
             </View>
             <Text style={styles.fieldLabel}>Note</Text>
-            <AppTextInput
+            <NotesInput
               style={styles.textInput}
               value={draft.note}
               onChangeText={(note) => setDraft({ ...draft, note })}

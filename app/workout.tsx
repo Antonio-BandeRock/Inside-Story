@@ -24,6 +24,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, Vibration, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
+import { NotesInput } from '../components/NotesInput';
 import { useInfoAlert } from '../components/InfoAlert';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import { colors } from '../constants/colors';
@@ -673,7 +674,7 @@ export default function WorkoutPlayerScreen() {
               <>
                 <View style={styles.card}>
                   <Text style={styles.label}>A note about today (optional)</Text>
-                  <AppTextInput
+                  <NotesInput
                     style={[styles.noteInput]}
                     value={note}
                     onChangeText={setNote}

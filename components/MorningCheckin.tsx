@@ -20,7 +20,7 @@ import {
 } from '../lib/morningCheckin';
 import { getMorningCheckin, getMorningInputs, saveMorningCheckin, type MorningRecord } from '../lib/morningCheckinDb';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
-import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 
 const ENERGY = scaleOf('energy');
 
@@ -120,7 +120,7 @@ export function MorningCheckin({ tabColor }: Props) {
           {renderPills(SLEEP_QUALITY_WORDS, sleepQuality, setSleepQuality, false)}
           <Text style={styles.label}>{ENERGY.question}</Text>
           {renderPills(ENERGY.words, energy, setEnergy, true)}
-          <AppTextInput
+          <NotesInput
             style={styles.input}
             placeholder="Anything about the night (optional)"
             placeholderTextColor={colors.textMuted}

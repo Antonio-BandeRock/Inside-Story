@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { RecordPhotos } from './RecordPhotos';
@@ -412,17 +413,14 @@ export function WorkoutsSection({ tabColor }: Props) {
           </View>
         </View>
 
-        <View style={styles.labelRow}>
-          <Text style={styles.label}>How to do it, one step a line</Text>
-          <VoiceInputButton onResult={(text) => set({ steps: draft.steps ? `${draft.steps}\n${text}` : text })} />
-        </View>
-        <AppTextInput style={[styles.input, styles.multiline]} value={draft.steps} onChangeText={(steps) => set({ steps })} multiline placeholder={'Stand with your back to a wall\nSlide your arms up slowly'} placeholderTextColor={colors.textMuted} />
+        <Text style={styles.label}>How to do it, one step a line</Text>
+        <NotesInput join="line" style={[styles.input, styles.multiline]} value={draft.steps} onChangeText={(steps) => set({ steps })} multiline placeholder={'Stand with your back to a wall\nSlide your arms up slowly'} placeholderTextColor={colors.textMuted} />
 
         <Text style={styles.label}>Doing it safely, one point a line (optional)</Text>
-        <AppTextInput style={[styles.input, styles.multiline]} value={draft.safety} onChangeText={(safety) => set({ safety })} multiline placeholder="Keep your lower back against the wall" placeholderTextColor={colors.textMuted} />
+        <NotesInput join="line" style={[styles.input, styles.multiline]} value={draft.safety} onChangeText={(safety) => set({ safety })} multiline placeholder="Keep your lower back against the wall" placeholderTextColor={colors.textMuted} />
 
         <Text style={styles.label}>Common mistakes, one a line (optional)</Text>
-        <AppTextInput style={[styles.input, styles.multiline]} value={draft.mistakes} onChangeText={(mistakes) => set({ mistakes })} multiline placeholder="Shrugging the shoulders" placeholderTextColor={colors.textMuted} />
+        <NotesInput join="line" style={[styles.input, styles.multiline]} value={draft.mistakes} onChangeText={(mistakes) => set({ mistakes })} multiline placeholder="Shrugging the shoulders" placeholderTextColor={colors.textMuted} />
 
         <Text style={styles.label}>An easier version (optional)</Text>
         <AppTextInput style={styles.input} value={draft.easier} onChangeText={(easier) => set({ easier })} placeholderTextColor={colors.textMuted} placeholder="Smaller range" />
@@ -436,7 +434,7 @@ export function WorkoutsSection({ tabColor }: Props) {
         <Text style={styles.helperText}>Paste the address of a video that shows it being done. Photos can be added once it is saved.</Text>
 
         <Text style={styles.label}>Notes (optional)</Text>
-        <AppTextInput style={[styles.input, styles.multiline]} value={draft.notes} onChangeText={(notes) => set({ notes })} multiline placeholder="What my physio said" placeholderTextColor={colors.textMuted} />
+        <NotesInput style={[styles.input, styles.multiline]} value={draft.notes} onChangeText={(notes) => set({ notes })} multiline placeholder="What my physio said" placeholderTextColor={colors.textMuted} />
 
         <View style={styles.formActions}>
           <TouchableOpacity style={styles.primaryButton} onPress={saveExerciseForm}>
@@ -488,7 +486,7 @@ export function WorkoutsSection({ tabColor }: Props) {
         <Text style={styles.label}>Rest between sets, in seconds (optional)</Text>
         <AppTextInput style={styles.input} value={draft.restSeconds} onChangeText={(restSeconds) => set({ restSeconds: restSeconds.replace(/[^0-9]/g, '') })} keyboardType="number-pad" maxLength={4} placeholder="60" placeholderTextColor={colors.textMuted} />
         <Text style={styles.label}>A note for this workout (optional)</Text>
-        <AppTextInput style={styles.input} value={draft.note} onChangeText={(note) => set({ note })} placeholder="Slow on the way down" placeholderTextColor={colors.textMuted} maxLength={200} />
+        <NotesInput style={styles.input} value={draft.note} onChangeText={(note) => set({ note })} placeholder="Slow on the way down" placeholderTextColor={colors.textMuted} maxLength={200} />
         <View style={styles.formActions}>
           <TouchableOpacity style={styles.primaryButton} onPress={saveStepForm}>
             <Text style={styles.primaryButtonText}>Save</Text>
@@ -536,7 +534,7 @@ export function WorkoutsSection({ tabColor }: Props) {
           </View>
           <AppTextInput style={styles.input} value={workoutForm.name} onChangeText={(name) => setWorkoutForm({ ...workoutForm, name })} placeholder="Monday strength" placeholderTextColor={colors.textMuted} maxLength={60} />
           <Text style={styles.label}>A note (optional)</Text>
-          <AppTextInput style={styles.input} value={workoutForm.note} onChangeText={(note) => setWorkoutForm({ ...workoutForm, note })} placeholder="Warm up with a walk first" placeholderTextColor={colors.textMuted} maxLength={200} />
+          <NotesInput style={styles.input} value={workoutForm.note} onChangeText={(note) => setWorkoutForm({ ...workoutForm, note })} placeholder="Warm up with a walk first" placeholderTextColor={colors.textMuted} maxLength={200} />
           <Text style={styles.helperText}>Save it, then open it to add exercises from the list below or from your own.</Text>
           <View style={styles.formActions}>
             <TouchableOpacity style={styles.primaryButton} onPress={saveWorkoutForm}>

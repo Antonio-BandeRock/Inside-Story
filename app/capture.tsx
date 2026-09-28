@@ -29,7 +29,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { useCallback, useRef, useState, type ComponentProps } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { AppTextInput } from '../components/AppTextInput';
+import { NotesInput } from '../components/NotesInput';
 import { useInfoAlert } from '../components/InfoAlert';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { colors } from '../constants/colors';
@@ -233,7 +233,7 @@ export default function CaptureScreen() {
       <View key={note.id} style={styles.noteCard}>
         {editing ? (
           <View style={styles.editRow}>
-            <AppTextInput
+            <NotesInput
               style={styles.editField}
               value={editingText}
               onChangeText={setEditingText}
@@ -386,7 +386,7 @@ export default function CaptureScreen() {
 
         <View style={styles.captureCard}>
           <View style={styles.captureRow}>
-            <AppTextInput
+            <NotesInput
               style={[styles.captureField, walkMark('capture.box')]}
               value={draft}
               onChangeText={(text) => {

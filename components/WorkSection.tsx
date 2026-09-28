@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
@@ -613,11 +614,8 @@ export function WorkSection({ tabColor }: Props) {
                 </View>
               ))}
 
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Anything worth remembering (optional)</Text>
-                <VoiceInputButton onResult={(t) => setCheckinForm({ ...checkinForm, note: t })} color={tabColor} />
-              </View>
-              <AppTextInput
+              <Text style={styles.label}>Anything worth remembering (optional)</Text>
+              <NotesInput micColor={tabColor}
                 style={styles.input}
                 placeholder="e.g. covered for two people all week"
                 value={checkinForm.note}

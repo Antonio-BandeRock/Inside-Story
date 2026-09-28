@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
@@ -204,11 +205,8 @@ export function FinanceGoalsSection({ tabColor }: Props) {
             onChangeText={(t) => setGoalForm({ ...goalForm, name: t })}
           />
 
-          <View style={styles.labelRow}>
-            <Text style={styles.label}>Why it matters (optional)</Text>
-            <VoiceInputButton onResult={(t) => setGoalForm({ ...goalForm, reason: t })} color={tabColor} />
-          </View>
-          <AppTextInput
+          <Text style={styles.label}>Why it matters (optional)</Text>
+          <NotesInput micColor={tabColor}
             style={styles.input}
             placeholder="e.g. so the greens keep going through summer"
             value={goalForm.reason}

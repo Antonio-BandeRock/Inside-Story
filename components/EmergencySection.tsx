@@ -3,6 +3,7 @@ import { Linking, Platform, Share, StyleSheet, Text, TouchableOpacity, View } fr
 import { useFocusEffect } from '@react-navigation/native';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 import { useInfoAlert } from './InfoAlert';
 import { VoiceInputButton } from './VoiceInputButton';
 import { TabBand, makeTabBandStyles } from './TabBand';
@@ -423,7 +424,7 @@ export function EmergencySection({ tabColor }: Props) {
               onChangeText={(t) => setContactForm({ ...contactForm, phone: t })}
             />
             <Text style={styles.label}>Anything worth knowing</Text>
-            <AppTextInput
+            <NotesInput
               style={styles.input}
               placeholder="Works nights, try the landline first"
               value={contactForm.notes}
@@ -472,16 +473,13 @@ export function EmergencySection({ tabColor }: Props) {
               <Text style={styles.label}>{field.label}</Text>
               {field.hint ? <Text style={styles.helperText}>{field.hint}</Text> : null}
               {editing ? (
-                <View style={styles.inlineRow}>
-                  <AppTextInput
-                    style={[styles.input, { flex: 1 }, field.multiline ? styles.multilineInput : null]}
-                    placeholder={field.placeholder}
-                    multiline={field.multiline}
-                    value={value}
-                    onChangeText={(t) => setEditing({ ...draft, [field.key]: t })}
-                  />
-                  <VoiceInputButton onResult={(t) => setEditing({ ...draft, [field.key]: t })} />
-                </View>
+                <NotesInput
+                  style={[styles.input, field.multiline ? styles.multilineInput : null]}
+                  placeholder={field.placeholder}
+                  multiline={field.multiline}
+                  value={value}
+                  onChangeText={(t) => setEditing({ ...draft, [field.key]: t })}
+                />
               ) : (
                 <Text style={[styles.bodyText, !value ? styles.rowMeta : null]}>
                   {value || 'Nothing recorded.'}

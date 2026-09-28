@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
 import { useInfoAlert } from './InfoAlert';
 import { VoiceInputButton } from './VoiceInputButton';
@@ -362,7 +363,7 @@ export function TherapySessionsSection({ tabColor }: Props) {
                 <Text style={styles.label}>What they worked on (optional)</Text>
                 <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, bodyFocus: text }))} color={tabColor} />
               </View>
-              <AppTextInput
+              <NotesInput
                 style={styles.input}
                 placeholder="e.g. sacrum and lower back"
                 value={form.bodyFocus}
@@ -387,11 +388,8 @@ export function TherapySessionsSection({ tabColor }: Props) {
                 onChangeText={(text) => setForm((current) => ({ ...current, cost: text }))}
               />
 
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Notes (optional)</Text>
-                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, notes: text }))} color={tabColor} />
-              </View>
-              <AppTextInput
+              <Text style={styles.label}>Notes (optional)</Text>
+              <NotesInput micColor={tabColor}
                 style={styles.input}
                 placeholder="e.g. felt looser right after, sore that evening"
                 value={form.notes}

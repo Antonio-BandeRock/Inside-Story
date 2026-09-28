@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState, type ComponentProps, type ComponentType
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
@@ -436,7 +437,7 @@ export function ExerciseScheduleSection({ tabColor, RepeatRulePicker }: Props) {
           <RepeatRulePicker repeat={form.draft.repeat} onChange={(repeat) => patch({ repeat })} startDate={form.draft.startsOn} />
 
           <Text style={styles.label}>Note (optional)</Text>
-          <AppTextInput
+          <NotesInput
             style={styles.input}
             placeholder="e.g. before breakfast"
             value={form.draft.note}

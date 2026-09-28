@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
+import { NotesInput } from '../../components/NotesInput';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { FoodLookup, type ResolvedFoodSelection } from '../../components/FoodLookup';
@@ -762,24 +763,9 @@ function CheckinForm({
       ) : null}
       <Text style={styles.label}>What symptoms? (optional)</Text>
       <TagPicker selected={tags} onToggle={onToggleTag} detail={detail} />
-      {/* 2026-08-16 -- same real dictation wiring as GeneralNoteSection's
-          own Note field: only the FINAL transcript is parsed and
-          appended, never a partial mid-sentence result. onNotesChange
-          here is a plain prop, not a useState setter, so the current
-          notes prop is read directly rather than via a functional
-          update -- CheckinForm re-renders on every notes change anyway,
-          so this closure always sees the real current value. */}
-      <View style={styles.noteLabelRow}>
-        <Text style={styles.label}>Notes (optional)</Text>
-        <VoiceInputButton
-          onResult={(transcript, isFinal) => {
-            if (!isFinal) return;
-            onNotesChange(appendDictatedText(notes, parseVoiceCommands(transcript)));
-          }}
-          size={16}
-        />
-      </View>
-      <AppTextInput
+      {/* The mic is inside the field (NotesInput), and dictation adds to the notes. */}
+      <Text style={styles.label}>Notes (optional)</Text>
+      <NotesInput
         style={[styles.input, styles.multilineInput]}
         placeholder="Anything else worth remembering"
         multiline
@@ -2096,7 +2082,7 @@ function GeneralNoteSection() {
               </TouchableOpacity>
             ))}
           </View>
-          <AppTextInput
+          <NotesInput
             style={[styles.input, styles.multilineInput]}
             placeholder="e.g. Started a new dose of vitamin D today"
             multiline
@@ -2271,7 +2257,7 @@ function NocturiaLens() {
             <Text style={styles.label}>The night that began on</Text>
             <DateChoicePicker value={dateChoice} onChange={setDateChoice} customDate={customDate} onCustomDateChange={setCustomDate} />
             <Text style={styles.label}>Notes (optional)</Text>
-            <AppTextInput style={styles.input} placeholder="Anything worth remembering" value={notes} onChangeText={setNotes} />
+            <NotesInput style={styles.input} placeholder="Anything worth remembering" value={notes} onChangeText={setNotes} />
             <View style={styles.formActions}>
               <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
                 <Text style={styles.secondaryButtonText}>Cancel</Text>
@@ -2406,7 +2392,7 @@ function CycleLens() {
             <Text style={styles.label}>The day</Text>
             <DateChoicePicker value={dateChoice} onChange={setDateChoice} customDate={customDate} onCustomDateChange={setCustomDate} />
             <Text style={styles.label}>Notes (optional)</Text>
-            <AppTextInput style={styles.input} placeholder="Anything worth remembering" value={notes} onChangeText={setNotes} />
+            <NotesInput style={styles.input} placeholder="Anything worth remembering" value={notes} onChangeText={setNotes} />
             <View style={styles.formActions}>
               <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
                 <Text style={styles.secondaryButtonText}>Cancel</Text>
@@ -2756,7 +2742,7 @@ function MyTrackersLens() {
                 <DateChoicePicker value={dateChoice} onChange={setDateChoice} customDate={customDate} onCustomDateChange={setCustomDate} />
                 <TimePicker value={time} onChange={setTime} />
                 <Text style={styles.label}>Notes (optional)</Text>
-                <AppTextInput style={styles.input} placeholder="Anything worth remembering" value={entryNotes} onChangeText={setEntryNotes} />
+                <NotesInput style={styles.input} placeholder="Anything worth remembering" value={entryNotes} onChangeText={setEntryNotes} />
                 <View style={styles.formActions}>
                   <TouchableOpacity style={styles.secondaryButton} onPress={() => { setEntryOpen(false); resetEntryForm(); }}>
                     <Text style={styles.secondaryButtonText}>Cancel</Text>

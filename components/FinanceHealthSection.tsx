@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { AppTextInput } from './AppTextInput';
+import { NotesInput } from './NotesInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { VoiceInputButton } from './VoiceInputButton';
@@ -467,7 +468,7 @@ export function FinanceHealthSection({ tabColor }: Props) {
           </View>
 
           <Text style={styles.label}>What it was for</Text>
-          <AppTextInput style={styles.input} placeholder="e.g. thyroid panel" value={billForm.description}
+          <NotesInput style={styles.input} placeholder="e.g. thyroid panel" value={billForm.description}
             onChangeText={(t) => setBillForm({ ...billForm, description: t })} />
 
           <Text style={styles.label}>Which condition</Text>
