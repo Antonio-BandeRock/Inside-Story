@@ -235,6 +235,8 @@ import {
   type DishCost,
 } from '../../lib/mealPlanBudget';
 import { getCuratedDishCosts, getRecordedGroceryPrices } from '../../lib/mealPlanBudgetDb';
+import { ON_HAND_SWITCH_HELP, ON_HAND_SWITCH_LABEL, onHandDayLine, type OnHandDish } from '../../lib/onHand';
+import { getOnHandDishes } from '../../lib/onHandDb';
 import { standingMealsLine, withStandingMeals } from '../../lib/mealPack';
 import type { UsualMeal } from '../../lib/usualMeal';
 import { getOpenMealRules, listUsualMeals, saveOpenMealRules } from '../../lib/usualMealDb';
@@ -2759,6 +2761,14 @@ function DailyPlanFullReport({
   // Meals left open on this day (lib/openMeals.ts): empty on purpose.
   const openMeals = day.openMeals ?? [];
   const isOpen = (meal: OpenMeal) => openMeals.includes(meal);
+  // What the day's main dishes take from the kitchen, left out for any dish
+  // swapped away since the plan was made (lib/onHand.ts).
+  const pickedIds = new Set(
+    [day.breakfast, ...day.lunch, ...day.dinner]
+      .filter((pick): pick is NonNullable<typeof pick> => pick !== null)
+      .map((pick) => pick.entry.linkedCuratedRecipeId),
+  );
+  const onHandText = onHandDayLine(day.onHandUses?.filter((use) => pickedIds.has(use.recipeId)));
   const openLine = <Text style={styles.helperText}>Left open for a meal you pack or eat out.</Text>;
 
   const ratingBlock = (
@@ -2785,6 +2795,7 @@ function DailyPlanFullReport({
             </Text>
           ))
         : null}
+      {onHandText ? <Text style={styles.helperText}>{onHandText}</Text> : null}
       {reached.of > 0 ? (
         <Text style={styles.helperText}>
           Reaches {reached.met} of your {reached.of} nutrient targets from food.
@@ -3098,6 +3109,12 @@ function DailyMealPlanLens() {
   const [budgetCeiling, setBudgetCeiling] = useState<number | null>(null);
   const [dishCosts, setDishCosts] = useState<Map<string, DishCost> | null>(null);
   const budget = budgetCeiling != null && dishCosts && dishCosts.size > 0 ? { ceiling: budgetCeiling, costs: dishCosts } : undefined;
+  // Dishes using what is measured in the kitchen, loaded on focus. The
+  // switch is on unless turned off here, never saved, and offered only when
+  // some dish uses something on hand (lib/onHand.ts).
+  const [onHandOn, setOnHandOn] = useState(true);
+  const [onHandDishes, setOnHandDishes] = useState<Map<string, OnHandDish> | null>(null);
+  const onHand = onHandOn && onHandDishes && onHandDishes.size > 0 ? onHandDishes : undefined;
   const [daysToGenerate, setDaysToGenerate] = useState(1);
   const [conditionCodes, setConditionCodes] = useState<string[]>([]);
   // The eating style this plan is built around, asked on the form and
@@ -3186,6 +3203,11 @@ function DailyMealPlanLens() {
           if (!cancelled) setDishCosts(costs);
         })
         .catch((error) => console.error('[MealPlan] Failed to read recorded prices', error));
+      getOnHandDishes()
+        .then((dishes) => {
+          if (!cancelled) setOnHandDishes(dishes);
+        })
+        .catch((error) => console.error('[MealPlan] Failed to read what is in the kitchen', error));
       // On focus rather than once, because a plan arrives through a sync the
       // person runs on the Connections screen and then comes straight back
       // here to look at it.
@@ -3256,6 +3278,7 @@ function DailyMealPlanLens() {
         limitAddedSugar,
         energy,
         budget,
+        onHand,
         startDate,
         household,
         openMeals: withStandingMeals(openRules, usualMeals),
@@ -3300,6 +3323,7 @@ function DailyMealPlanLens() {
         limitAddedSugar,
         energy,
         budget,
+        onHand,
         date: generatedStart ? addDaysToLocalDate(generatedStart, index) : undefined,
         household: planHousehold ?? (await resolveHouseholdEaters(scope, diet)),
         openMeals: plannedOpenRules,
@@ -3499,6 +3523,18 @@ function DailyMealPlanLens() {
         >
           <Text style={[styles.pillText, energy.macros && styles.pillTextActive]}>{energy.macros ? 'Showing the split' : 'Off'}</Text>
         </TouchableOpacity>
+        {onHandDishes && onHandDishes.size > 0 ? (
+          <>
+            <Text style={[styles.label, { marginTop: 12 }]}>{ON_HAND_SWITCH_LABEL}</Text>
+            <Text style={styles.helperText}>{ON_HAND_SWITCH_HELP}</Text>
+            <TouchableOpacity
+              style={[styles.pill, onHandOn && styles.pillActive, { alignSelf: 'flex-start' }]}
+              onPress={() => setOnHandOn((current) => !current)}
+            >
+              <Text style={[styles.pillText, onHandOn && styles.pillTextActive]}>{onHandOn ? 'On' : 'Off'}</Text>
+            </TouchableOpacity>
+          </>
+        ) : null}
         <Text style={[styles.label, { marginTop: 12 }]}>Daily food budget (optional)</Text>
         {dishCosts && dishCosts.size > 0 ? (
           <>

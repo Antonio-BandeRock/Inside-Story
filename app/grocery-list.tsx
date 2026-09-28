@@ -25,6 +25,7 @@ import { AppActionSheet } from '../components/AppActionSheet';
 import { AppTextInput } from '../components/AppTextInput';
 import { PopoverSelect } from '../components/PopoverSelect';
 import { useInfoAlert } from '../components/InfoAlert';
+import { useConfirmSheet } from '../components/ConfirmSheet';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -35,6 +36,7 @@ import { recognizeTextFromImage } from '../lib/ocr';
 import { detectMeasurementSystemFromLocale } from '../lib/measurement';
 import { getStoredMeasurementSystem, getUpcomingShoppingList, type ShoppingListSection } from '../lib/db';
 import { addKitchenItemFromPurchase } from '../lib/kitchenDb';
+import { newListKitchenMessage, TAKE_ALL_FROM_KITCHEN_LABEL, tookFromKitchenMessage, type ListCoverageLine } from '../lib/onHand';
 import { arrangeByAisle, type GroceryStoreLayout } from '../lib/groceryAisles';
 import { groceryListAsText, groceryListFileName, NOTHING_LEFT_TO_SEND } from '../lib/groceryListText';
 import { isDesktopApp } from '../lib/desktop/bridge';
@@ -55,6 +57,7 @@ import {
   getGroceryListItems,
   getKitchenCoverageForItems,
   takeKitchenStockForLine,
+  takeKitchenStockForList,
   repairTransposedGroceryLines,
   listGroceryLists,
   rebuildGroceryListFromSchedule,
@@ -128,6 +131,7 @@ export default function GroceryListScreen() {
   const router = useRouter();
   const scrollPadding = useFloatingButtonScrollPadding();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [confirm, confirmElement] = useConfirmSheet();
   const { listId } = useLocalSearchParams<{ listId?: string }>();
 
   const [mode, setMode] = useState<Mode>('setup');
@@ -389,15 +393,57 @@ export default function GroceryListScreen() {
     }, [mode, daysAhead, peopleCount]),
   );
 
+  // Lines the kitchen covers, wholly or in part, that are not yet ticked or
+  // taken (2026-09-27, lib/onHand.ts).
+  function kitchenLines(listItems: GroceryListItemRecord[], coverage: Map<string, KitchenCoverage>): ListCoverageLine[] {
+    const lines: ListCoverageLine[] = [];
+    for (const item of listItems) {
+      if (item.checked || item.sourcedFromKitchen) continue;
+      const found = coverage.get(item.id);
+      if (!found || found.draws.length === 0) continue;
+      lines.push({ name: item.foodName, level: found.level === 'covered' ? 'covered' : 'some' });
+    }
+    return lines;
+  }
+
+  // Shows which lines the kitchen covers and takes them only on a yes, so
+  // nothing comes off the kitchen unseen.
+  async function offerKitchenForList(listId: string, listItems: GroceryListItemRecord[], coverage: Map<string, KitchenCoverage>) {
+    const lines = kitchenLines(listItems, coverage);
+    if (lines.length === 0) return;
+    const yes = await confirm({
+      title: 'Some of this is in your kitchen',
+      message: newListKitchenMessage(lines),
+      confirmLabel: 'Take It From the Kitchen',
+      cancelLabel: 'Buy It All',
+    });
+    if (!yes) return;
+    setBusy(true);
+    try {
+      const result = await takeKitchenStockForList(listId, listItems);
+      await load();
+      showInfoAlert('From your kitchen', tookFromKitchenMessage(result.covered, result.some));
+    } catch (error) {
+      setErrorMessage(`Could not use what you have: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleBuild() {
     setBusy(true);
     setErrorMessage('');
     try {
       const id = await createGroceryListFromSchedule({ daysAhead, peopleCount, storeName });
       const created = await getGroceryList(id);
+      const listItems = await getGroceryListItems(id);
+      const coverage = await getKitchenCoverageForItems(id, listItems);
       setList(created);
-      setItems(await getGroceryListItems(id));
+      setItems(listItems);
+      setKitchen(coverage);
       setMode('list');
+      setBusy(false);
+      await offerKitchenForList(id, listItems, coverage);
     } catch (error) {
       setErrorMessage(`Could not build the list: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
@@ -945,6 +991,17 @@ export default function GroceryListScreen() {
         )}
 
         <View style={styles.buttonRow}>
+          {list && kitchenLines(items, kitchen).length > 0 ? (
+            <TouchableOpacity
+              style={[styles.secondaryButton, busy && styles.disabled]}
+              activeOpacity={0.85}
+              onPress={() => void offerKitchenForList(list.id, items, kitchen)}
+              disabled={busy}
+            >
+              <Ionicons name="leaf-outline" size={18} color={colors.textSecondary} />
+              <Text style={styles.secondaryButtonText}>{TAKE_ALL_FROM_KITCHEN_LABEL}</Text>
+            </TouchableOpacity>
+          ) : null}
           <TouchableOpacity
             style={[styles.secondaryButton, busy && styles.disabled]}
             activeOpacity={0.85}
@@ -1276,6 +1333,7 @@ export default function GroceryListScreen() {
         ]}
       />
       {infoAlertElement}
+      {confirmElement}
     </View>
   );
 }

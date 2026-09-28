@@ -8636,6 +8636,12 @@ async function runDatabaseInitialization() {
       if (!groceryItemColumns.some((column) => column.name === 'on_sale')) {
         await db.execAsync('ALTER TABLE grocery_list_items ADD COLUMN on_sale INTEGER NOT NULL DEFAULT 0;');
       }
+      // 2026-09-27: how much of a line, in its own unit, was taken from the
+      // kitchen rather than bought, so logging a meal the line names does not
+      // offer to take the same food off the kitchen a second time.
+      if (!groceryItemColumns.some((column) => column.name === 'kitchen_taken_quantity')) {
+        await db.execAsync('ALTER TABLE grocery_list_items ADD COLUMN kitchen_taken_quantity REAL;');
+      }
     }
 
     // G6 of the competitive build plan (2026-09-26): the grocery list in the

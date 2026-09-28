@@ -15,6 +15,12 @@
 // a View this app draws at the root, and a native Modal is a separate window
 // that would cover it.
 //
+// Since 2026-09-27 the same sheet also offers food measured in Life > Kitchen
+// and ferments (lib/onHand.ts), titled for whichever of the two it holds. A
+// kitchen row the meal's units cannot be matched to is shown and cannot be
+// ticked; one already taken off for a grocery list naming this meal starts
+// unticked.
+//
 // Every row starts ticked and can be unticked. A tomato in the fridge and a
 // tomato from the shop look the same to the app, so the person settles it, and
 // nothing comes off a picking that fed nobody.
@@ -26,17 +32,21 @@ import { registerGardenPlateOpener } from '../lib/gardenPlateOffer';
 import { describePlateAction, describePlateOffer } from '../lib/plateSource';
 import type { PlateOffer } from '../lib/plateSource';
 import { getPlateOfferForMeal, keepPlateUses } from '../lib/plateSourceDb';
+import { describePantryAction, describePantryOffer, type PantryOffer } from '../lib/onHand';
+import { getPantryOffersForMeal, keepPantryUses } from '../lib/onHandDb';
 
 type Open = {
   mealId: string;
   mealName: string;
   usedOn: string;
   offers: PlateOffer[];
+  pantry: PantryOffer[];
 };
 
 export function GardenPlateOfferHost() {
   const [open, setOpen] = useState<Open | null>(null);
   const [chosen, setChosen] = useState<string[]>([]);
+  const [chosenPantry, setChosenPantry] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState<string | null>(null);
 
@@ -44,10 +54,13 @@ export function GardenPlateOfferHost() {
     // Nothing is awaited by the caller: the meal screen has already moved on,
     // and this comes up a moment later or not at all.
     getPlateOfferForMeal(mealId)
-      .then((found) => {
-        if (!found || found.offers.length === 0) return;
-        setOpen(found);
+      .then(async (found) => {
+        if (!found) return;
+        const pantry = await getPantryOffersForMeal(mealId, found.offers);
+        if (found.offers.length === 0 && pantry.length === 0) return;
+        setOpen({ ...found, pantry });
         setChosen(found.offers.map((offer) => offer.harvestId));
+        setChosenPantry(pantry.filter((offer) => offer.takeable && offer.ticked).map((offer) => offer.key));
         setSaving(false);
         setSaved(null);
       })
@@ -61,6 +74,14 @@ export function GardenPlateOfferHost() {
   if (!open) return null;
 
   const picked = open.offers.filter((offer) => chosen.includes(offer.harvestId));
+  const pickedPantry = open.pantry.filter((offer) => offer.takeable && chosenPantry.includes(offer.key));
+  const nothingPicked = picked.length === 0 && pickedPantry.length === 0;
+  const title =
+    open.offers.length > 0 && open.pantry.length > 0 ? 'From your garden and kitchen' : open.offers.length > 0 ? 'From your garden' : 'From your kitchen';
+
+  function togglePantry(key: string) {
+    setChosenPantry((current) => (current.includes(key) ? current.filter((k) => k !== key) : [...current, key]));
+  }
 
   function toggle(harvestId: string) {
     setChosen((current) =>
@@ -69,10 +90,11 @@ export function GardenPlateOfferHost() {
   }
 
   async function keep() {
-    if (!open || saving || picked.length === 0) return;
+    if (!open || saving || nothingPicked) return;
     setSaving(true);
     try {
-      await keepPlateUses(open.mealId, picked, open.usedOn);
+      if (picked.length > 0) await keepPlateUses(open.mealId, picked, open.usedOn);
+      if (pickedPantry.length > 0) await keepPantryUses(pickedPantry);
       setSaved('Written down.');
     } catch (error) {
       console.error('[gardenPlate] could not write that down', error);
@@ -86,7 +108,7 @@ export function GardenPlateOfferHost() {
     <View style={styles.backdrop}>
       <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(null)} />
       <View style={styles.card}>
-        <Text style={styles.title}>From your garden</Text>
+        <Text style={styles.title}>{title}</Text>
         <Text style={styles.where}>{open.mealName}</Text>
         {saved ? (
           <>
@@ -99,7 +121,8 @@ export function GardenPlateOfferHost() {
           </>
         ) : (
           <>
-            <Text style={styles.headline}>{describePlateOffer(open.offers)}</Text>
+            {open.offers.length > 0 ? <Text style={styles.headline}>{describePlateOffer(open.offers)}</Text> : null}
+            {open.pantry.length > 0 ? <Text style={styles.headline}>{describePantryOffer(open.pantry)}</Text> : null}
             <ScrollView style={styles.rows} contentContainerStyle={styles.rowsContent}>
               {open.offers.map((offer) => {
                 const on = chosen.includes(offer.harvestId);
@@ -116,20 +139,38 @@ export function GardenPlateOfferHost() {
                   </TouchableOpacity>
                 );
               })}
+              {open.pantry.map((offer) => {
+                const on = offer.takeable && chosenPantry.includes(offer.key);
+                return (
+                  <TouchableOpacity
+                    key={`pantry:${offer.key}`}
+                    style={[styles.row, on ? styles.rowOn : null]}
+                    onPress={() => togglePantry(offer.key)}
+                    disabled={!offer.takeable}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: on, disabled: !offer.takeable }}
+                  >
+                    <Text style={styles.rowName}>{offer.foodName}</Text>
+                    <Text style={styles.rowLine}>{offer.line}</Text>
+                  </TouchableOpacity>
+                );
+              })}
             </ScrollView>
             <Text style={styles.caption}>
-              {picked.length === 0
+              {nothingPicked
                 ? 'Nothing is ticked, so nothing gets written down and nothing comes off what is on hand.'
-                : describePlateAction(picked)}
+                : [picked.length > 0 ? describePlateAction(picked) : null, open.pantry.length > 0 ? describePantryAction(pickedPantry.length) : null]
+                    .filter(Boolean)
+                    .join(' ')}
             </Text>
             <View style={styles.buttonRow}>
               <TouchableOpacity style={styles.cancelButton} onPress={() => setOpen(null)} hitSlop={8}>
                 <Text style={styles.cancelButtonText}>Not this time</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.okButton, picked.length === 0 ? styles.okButtonOff : null]}
+                style={[styles.okButton, nothingPicked ? styles.okButtonOff : null]}
                 onPress={keep}
-                disabled={saving || picked.length === 0}
+                disabled={saving || nothingPicked}
                 hitSlop={8}
               >
                 <Text style={styles.okButtonText}>{saving ? 'Saving' : 'Keep'}</Text>

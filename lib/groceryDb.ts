@@ -11,7 +11,7 @@
 // The pure arithmetic (what a price means, what a line comes to) is in
 // lib/groceryList.ts, separately again, so it can be reasoned about and
 // tested with no database at all.
-import { listKitchenInventory, type KitchenItemKind } from './kitchenDb';
+import { consumeKitchenItem, listKitchenInventory, type KitchenItemKind } from './kitchenDb';
 import {
   getDatabase,
   getUpcomingShoppingList,
@@ -704,6 +704,19 @@ export async function getActiveGroceryListSummary(): Promise<GroceryListSummary 
 //                  by what was taken. It stays on the list, still needing the
 //                  remainder, which is the honest state: some of it still has
 //                  to be bought.
+// Takes each draw off the row it names: a garden picking, a ferment, or
+// something in Life > Kitchen (bought, traded, given or entered by hand).
+// Before 2026-09-27 the last of those was never drawn down, so a line
+// covered by the kitchen ticked off and the kitchen still held the food.
+export async function drawKitchenStock(draws: KitchenCoverage['draws']): Promise<void> {
+  for (const draw of draws) {
+    if (!draw.id || draw.quantity <= 0) continue;
+    if (draw.source === 'garden') await recordHarvestUsage(draw.id, draw.quantity);
+    else if (draw.source === 'fermentation') await recordFermentationHarvestUsage(draw.id, draw.quantity);
+    else if (draw.source === 'kitchen') await consumeKitchenItem(draw.id, draw.quantity);
+  }
+}
+
 export async function takeKitchenStockForLine(
   itemId: string,
   coverage: KitchenCoverage,
@@ -713,23 +726,28 @@ export async function takeKitchenStockForLine(
   if (!item) throw new Error('That line is no longer on the list.');
   if (coverage.draws.length === 0) return { drewDown: 0, fullyCovered: false };
 
-  for (const draw of coverage.draws) {
-    if (!draw.id || draw.quantity <= 0) continue;
-    if (draw.source === 'garden') await recordHarvestUsage(draw.id, draw.quantity);
-    else if (draw.source === 'fermentation') await recordFermentationHarvestUsage(draw.id, draw.quantity);
-  }
+  await drawKitchenStock(coverage.draws);
 
+  // What was taken is kept on the line, so logging a meal it names does not
+  // offer to take the same food off the kitchen again (lib/onHand.ts).
+  const taken = coverage.coveredQuantity ?? 0;
   const fullyCovered = coverage.level === 'covered';
   if (fullyCovered) {
     await db.runAsync(
-      "UPDATE grocery_list_items SET sourced_from_kitchen = 1, checked = 1, checked_at = datetime('now') WHERE id = ?",
+      "UPDATE grocery_list_items SET sourced_from_kitchen = 1, checked = 1, checked_at = datetime('now'), kitchen_taken_quantity = COALESCE(kitchen_taken_quantity, 0) + ? WHERE id = ?",
+      taken,
       itemId,
     );
   } else {
     // Only ever reduced, never below zero. coveredQuantity is already in the
     // line's own unit, which is what makes this subtraction valid.
-    const remaining = Math.max(0, item.quantity - (coverage.coveredQuantity ?? 0));
-    await db.runAsync('UPDATE grocery_list_items SET quantity = ? WHERE id = ?', remaining, itemId);
+    const remaining = Math.max(0, item.quantity - taken);
+    await db.runAsync(
+      'UPDATE grocery_list_items SET quantity = ?, kitchen_taken_quantity = COALESCE(kitchen_taken_quantity, 0) + ? WHERE id = ?',
+      remaining,
+      taken,
+      itemId,
+    );
   }
 
   return { drewDown: coverage.draws.length, fullyCovered };
@@ -896,8 +914,9 @@ export async function loadKitchenStock(excludeListId?: string): Promise<Map<stri
   // ticking a grocery line put there. This is a measured amount, drawn down as
   // it gets used, so unlike a bare purchase date it can be subtracted.
   for (const item of await listKitchenInventory()) {
-    // Harvests are already gathered above, from their own tables.
-    if (item.source !== 'manual' && item.source !== 'purchase') continue;
+    // Harvests are already gathered above, from their own tables. Bought,
+    // traded, given and hand-entered food is all measured and drawn down.
+    if (item.source === 'garden' || item.source === 'fermentation') continue;
     add([stockIdKey(item.foodId), stockPairKey(item.category, item.foodName), item.foodName], {
       id: item.id,
       source: 'kitchen',
@@ -965,6 +984,29 @@ export async function getKitchenCoverageForItems(
     if (result.level !== 'none') coverage.set(item.id, result);
   }
   return coverage;
+}
+
+/**
+ * Takes every line the kitchen covers, wholly or in part, off what is in the
+ * kitchen, one line at a time with the coverage read fresh each time, so
+ * two lines never both claim the same stock. Only ever run after the
+ * person has seen which lines and said yes.
+ */
+export async function takeKitchenStockForList(
+  listId: string,
+  items: GroceryListItemRecord[],
+): Promise<{ covered: number; some: number }> {
+  let covered = 0;
+  let some = 0;
+  for (const item of items) {
+    if (item.checked || item.kind !== 'food') continue;
+    const fresh = (await getKitchenCoverageForItems(listId, [item])).get(item.id);
+    if (!fresh || fresh.draws.length === 0) continue;
+    const result = await takeKitchenStockForLine(item.id, fresh);
+    if (result.fullyCovered) covered += 1;
+    else some += 1;
+  }
+  return { covered, some };
 }
 
 export type GroceryRebuildResult = {

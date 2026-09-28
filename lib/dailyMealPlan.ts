@@ -79,6 +79,7 @@ import { SIDE_DISH_RECIPE_IDS } from './recipeDishRole';
 import { openMealsOn, type OpenMeal, type OpenMealRule } from './openMeals';
 import { energySettingOn, leanTowardEnergy, mayLeanLighter, mealEnergyTarget, type EnergySetting } from './energyBand';
 import { leanTowardBudget, mealAllowance, type DishCost } from './mealPlanBudget';
+import { claimOnHand, leanTowardOnHand, newOnHandLean, type OnHandDish, type OnHandLean } from './onHand';
 import {
   PLAN_MEAL_LABELS,
   PLAN_MEALS,
@@ -990,6 +991,9 @@ export type DailyMealPlanResult = {
   // The daily food budget chosen for the plan (lib/mealPlanBudget.ts), so
   // its report reads it after a plate swap too. Absent when none was chosen.
   budgetCeiling?: number;
+  // What this day's main dishes take from the kitchen, when the on-hand
+  // switch was on (lib/onHand.ts). Absent when nothing did.
+  onHandUses?: { recipeId: string; title: string; names: string[] }[];
 };
 
 /** A plate made for one person: a main the shared dish missed, or a side for a nutrient their day comes up short on. */
@@ -1195,6 +1199,7 @@ function pickCandidate(
   nutrientContext?: NutrientContext,
   energyLean?: { target: number | null; allowLighter: boolean },
   budgetLean?: { allowance: number | null; costs: Map<string, DishCost> },
+  onHandLean?: OnHandLean,
 ): LoadedCandidate | undefined {
   if (candidates.length === 0) return undefined;
   let pool = rotation?.applyFrequency ? applyFrequencyRules(candidates, rotation.state, rotation.daysRemainingInWeekIncludingToday) : candidates;
@@ -1229,13 +1234,24 @@ function pickCandidate(
     pool = scored.slice(0, topCount).map((s) => s.candidate);
   }
 
+  // With the on-hand switch on, dishes using what is measured in the
+  // kitchen come first, oldest stock first, and each food leads one pick
+  // only (lib/onHand.ts). A pool where nothing uses anything on hand is
+  // left as it was.
+  if (onHandLean) pool = leanTowardOnHand(pool, (c) => c.entry.linkedCuratedRecipeId, onHandLean);
+
   // A chosen calorie range narrows to the half nearer what the meal has
   // left of it (lib/energyBand.ts), before the carb lean.
   if (energyLean) pool = leanTowardEnergy(pool, (c) => c.kcal, energyLean.target, energyLean.allowLighter);
-  return pickWithCarbBias(pool, carbCeiling);
+  const chosen = pickWithCarbBias(pool, carbCeiling);
+  if (chosen) claimOnHand(onHandLean, chosen.entry.linkedCuratedRecipeId, chosen.entry.title);
+  return chosen;
 }
 
 type CandidatePools = {
+  // Set only when the on-hand switch is on; one per run, so a food given to
+  // one pick is not chased again on a later day.
+  onHand?: OnHandLean;
   breakfastCandidates: LoadedCandidate[];
   lunchMainCandidates: LoadedCandidate[];
   dinnerMainCandidates: LoadedCandidate[];
@@ -1744,6 +1760,7 @@ async function generateOneDay(
 ): Promise<DailyMealPlanResult> {
   const carbCeiling = carbCeilingForLevel(carbLevel);
   const warnings: string[] = [];
+  const onHandClaimsBefore = pools.onHand?.claims.length ?? 0;
   // 2026-09-27: a meal left open is skipped outright, so it takes nothing
   // from rotation, frequency or the day's totals, and warns about nothing.
   // The screen says so from `openMeals` on the result, never as a warning.
@@ -1842,7 +1859,7 @@ async function generateOneDay(
     const usedSweetenedFallback = noSugarBreakfastCandidates.length === 0 && breakfastCandidates.length > 0;
     const withinBudget = carbCeiling === null ? candidatePool : candidatePool.filter((c) => c.carbGrams <= carbCeiling);
     const rotationArg = rotation ? { state: rotation.state, daysRemainingInWeekIncludingToday: rotation.daysRemainingInWeekIncludingToday, applyFrequency: false } : undefined;
-    const chosen = pickCandidate(withinBudget.length > 0 ? withinBudget : candidatePool, carbCeiling, rotationArg, currentNutrientContext(), energyLeanFor(['breakfast', 'lunch', 'dinner']), budgetLeanFor(['breakfast', 'lunch', 'dinner'], []));
+    const chosen = pickCandidate(withinBudget.length > 0 ? withinBudget : candidatePool, carbCeiling, rotationArg, currentNutrientContext(), energyLeanFor(['breakfast', 'lunch', 'dinner']), budgetLeanFor(['breakfast', 'lunch', 'dinner'], []), pools.onHand);
     if (chosen) {
       breakfast = { entry: chosen.entry, role: 'main', carbGrams: chosen.carbGrams, nutrientTotals: chosen.nutrientTotals };
       totalCarbGrams += chosen.carbGrams;
@@ -1905,7 +1922,7 @@ async function generateOneDay(
     }
     const withinBudget = remainingBudget === null ? eligible : eligible.filter((c) => c.carbGrams <= remainingBudget);
     const mainRotationArg = rotation ? { state: rotation.state, daysRemainingInWeekIncludingToday: rotation.daysRemainingInWeekIncludingToday, applyFrequency } : undefined;
-    const chosen = pickCandidate(withinBudget.length > 0 ? withinBudget : eligible, remainingBudget, mainRotationArg, currentNutrientContext(), energyLeanFor(mealsLeft), budgetLeanFor(mealsLeft, earlier));
+    const chosen = pickCandidate(withinBudget.length > 0 ? withinBudget : eligible, remainingBudget, mainRotationArg, currentNutrientContext(), energyLeanFor(mealsLeft), budgetLeanFor(mealsLeft, earlier), pools.onHand);
     if (!chosen) return [];
     const picks: DailyMealPlanPick[] = [{ entry: chosen.entry, role: 'main', carbGrams: chosen.carbGrams, nutrientTotals: chosen.nutrientTotals }];
     totalCarbGrams += chosen.carbGrams;
@@ -2092,6 +2109,7 @@ async function generateOneDay(
     ...(open.size > 0 ? { openMeals: [...open] } : {}),
     ...(energySettingOn(energy) ? { energy } : {}),
     ...(budget ? { budgetCeiling: budget.ceiling } : {}),
+    ...(pools.onHand && pools.onHand.claims.length > onHandClaimsBefore ? { onHandUses: pools.onHand.claims.slice(onHandClaimsBefore) } : {}),
   };
 }
 
@@ -2108,6 +2126,10 @@ async function retryOnceOnReleasedObject<T>(run: () => Promise<T>): Promise<T> {
     return run();
   }
 }
+function withOnHand(pools: CandidatePools, dishes: Map<string, OnHandDish> | undefined): CandidatePools {
+  return dishes && dishes.size > 0 ? { ...pools, onHand: newOnHandLean(dishes) } : pools;
+}
+
 export async function generateDailyMealPlan(options: {
   conditionCodes: string[];
   dietPreferences: RecipeDietTag[];
@@ -2125,15 +2147,17 @@ export async function generateDailyMealPlan(options: {
   energy?: EnergySetting;
   // An optional daily food budget (lib/mealPlanBudget.ts); off when absent.
   budget?: MealPlanBudget;
+  // Dishes using what is in the kitchen (lib/onHandDb.ts); off when absent.
+  onHand?: Map<string, OnHandDish>;
 }): Promise<DailyMealPlanResult> {
   const open = openMealsOn(options.openMeals ?? [], options.date);
   return retryOnceOnReleasedObject(async () => {
     const table = householdTable(options.household);
     if (table) {
-      const pools = await buildCandidatePools([], []);
+      const pools = withOnHand(await buildCandidatePools([], []), options.onHand);
       return generateHouseholdDay(pools, table, options.carbLevel, options.limitAddedSugar ?? false, undefined, options.date, open, options.energy ?? null, options.budget ?? null);
     }
-    const pools = await buildCandidatePools(options.conditionCodes, options.dietPreferences);
+    const pools = withOnHand(await buildCandidatePools(options.conditionCodes, options.dietPreferences), options.onHand);
     return generateOneDay(pools, options.conditionCodes, options.carbLevel, options.limitAddedSugar ?? false, undefined, options.date, open, options.energy ?? null, options.budget ?? null);
   });
 }
@@ -2173,11 +2197,13 @@ export async function generateMealPlanDays(options: {
   energy?: EnergySetting;
   // An optional daily food budget (lib/mealPlanBudget.ts); off when absent.
   budget?: MealPlanBudget;
+  // Dishes using what is in the kitchen (lib/onHandDb.ts); off when absent.
+  onHand?: Map<string, OnHandDish>;
 }): Promise<DailyMealPlanResult[]> {
   const days = Math.max(1, Math.min(42, Math.round(options.days)));
   const table = householdTable(options.household);
   return retryOnceOnReleasedObject(async () => {
-    const pools = table ? await buildCandidatePools([], []) : await buildCandidatePools(options.conditionCodes, options.dietPreferences);
+    const pools = withOnHand(table ? await buildCandidatePools([], []) : await buildCandidatePools(options.conditionCodes, options.dietPreferences), options.onHand);
     const rotationState = newRotationState();
     const results: DailyMealPlanResult[] = [];
     for (let dayIndex = 0; dayIndex < days; dayIndex++) {
