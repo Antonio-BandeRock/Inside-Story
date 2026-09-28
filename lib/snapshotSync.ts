@@ -273,6 +273,8 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   // The week's rain for watering tasks (lib/homeSky.ts): each device reads
   // its own, and a refetch is not a change to send.
   'garden_rain_forecast',
+  // Last and first frost dates (lib/homeSky.ts), worked out on each device.
+  'garden_frost_dates',
   CHANGE_BASELINE_META_KEY,
 ];
 

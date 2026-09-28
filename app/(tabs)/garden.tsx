@@ -43,6 +43,7 @@ import {
   deleteGardenPlot,
   gardenPlotHasRecords,
   getUserProfile,
+  getStoredMeasurementSystem,
   listGardenHarvests,
   listGardenPlantings,
   listGardenPlots,
@@ -73,7 +74,9 @@ import { useWalkMark } from '../../components/WalkMark';
 import { RecordPhotos } from '../../components/RecordPhotos';
 import { PhotoSeriesBand } from '../../components/PhotoSeriesBand';
 import { dateKey } from '../../lib/plainDate';
-import { getRainForecast, type RainForecastResult } from '../../lib/homeSky';
+import { getFrostDates, getRainForecast, type FrostDatesResult, type RainForecastResult } from '../../lib/homeSky';
+import { describeFrost, FROST_DATES_LIMITS, FROST_DATES_SOURCE, FROST_YEARS, thresholdLabel } from '../../lib/frostDates';
+import { detectMeasurementSystemFromLocale } from '../../lib/measurement';
 import { anyWateringSoon, rainNoteForTask } from '../../lib/rainForecast';
 
 // This page's own identity color -- see constants/colors.ts's own comment
@@ -134,7 +137,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'My Zone',
-        body: 'Look up your USDA Plant Hardiness Zone by country + ZIP/postal code. It works anywhere on Earth, not just the US: a US ZIP gets the official USDA zone directly, everywhere else gets an estimate from that location’s historical temperature data. Or set it directly if you already know it, here or in Profile; both write to the same one saved value. Once set, this shows cited crop guidance for your climate band from the Horticulture lens on this tab, and points you at the fuller entry to read there.',
+        body: 'Look up your USDA Plant Hardiness Zone by country + ZIP/postal code. It works anywhere on Earth, not just the US: a US ZIP gets the official USDA zone directly, everywhere else gets an estimate from that location’s historical temperature data. Or set it directly if you already know it, here or in Profile; both write to the same one saved value. Frost Dates gives the last frost of spring and the first after summer for the same place, from the lowest temperature of every day over the last 30 complete years: the date half the years had passed, the date 9 years out of 10 had passed, and the furthest any year went, for a frost (0°C, 32°F) and a hard freeze (-2°C, 28°F). They are for the air two metres up, so a low spot or a clear, still night can frost a plant a little earlier or later. Once set, this shows cited crop guidance for your climate band from the Horticulture lens on this tab, and points you at the fuller entry to read there.',
       },
     ],
   },
@@ -507,18 +510,30 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
   const [postalCode, setPostalCode] = useState('');
   const [lookupBusy, setLookupBusy] = useState(false);
   const [lookupResult, setLookupResult] = useState<GrowingZoneLookupResult | null>(null);
+  // Last and first frost dates for the saved place (I4, 1.0.55.19). null
+  // while they are being read.
+  const [frost, setFrost] = useState<FrostDatesResult | null>(null);
+  const [fahrenheit, setFahrenheit] = useState(false);
+
+  const loadFrost = useCallback(async () => {
+    setFrost(null);
+    setFrost(await getFrostDates());
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
       (async () => {
-        const profile = await getUserProfile();
+        const [profile, system] = await Promise.all([getUserProfile(), getStoredMeasurementSystem()]);
         if (!cancelled) {
           setZone(profile.growingZone);
           setCountry(profile.growingZoneCountry);
           setPostalCode(profile.growingZonePostalCode ?? '');
+          setFahrenheit((system ?? detectMeasurementSystemFromLocale()) === 'imperial');
           setLoading(false);
         }
+        const dates = await getFrostDates();
+        if (!cancelled) setFrost(dates);
       })();
       return () => {
         cancelled = true;
@@ -542,6 +557,7 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
     if (result.status === 'success') {
       setZone(result.zone);
       await setUserProfile({ growingZone: result.zone, growingZoneCountry: country, growingZonePostalCode: postalCode.trim() });
+      void loadFrost();
     }
     setLookupBusy(false);
   }
@@ -622,6 +638,49 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
           found. The USDA&apos;s own published map (usda.gov/plant-hardiness-zone) or a local agricultural extension office are
           both direct ways to double-check either result.
         </Text>
+      </View>
+
+      <View style={[band.box, styles.card]}>
+        <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Frost Dates</Text>
+        {frost === null ? (
+          <Text style={styles.cardBody}>Reading {FROST_YEARS} years of temperatures for this place.</Text>
+        ) : frost.status === 'no-location' ? (
+          <Text style={styles.cardBody}>
+            Find your zone above with a country and postal code, and the last frost of spring and the first after summer for
+            that place show here.
+          </Text>
+        ) : frost.status === 'error' ? (
+          <>
+            <Text style={[styles.cardBody, styles.errorText]}>{frost.message}</Text>
+            <TouchableOpacity onPress={() => void loadFrost()}>
+              <Text style={[styles.captionText, { color: TAB_COLOR }]}>Try Again</Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            {frost.dates.placeLabel ? <Text style={styles.captionText}>For {frost.dates.placeLabel}.</Text> : null}
+            {([
+              ['frost', frost.dates.frost],
+              ['hardFreeze', frost.dates.hardFreeze],
+            ] as const).map(([threshold, summary]) =>
+              summary ? (
+                <View key={threshold}>
+                  <Text style={styles.fieldLabel}>{thresholdLabel(threshold, fahrenheit)}</Text>
+                  {describeFrost(summary).map((line) => (
+                    <Text key={line} style={styles.bulletText}>
+                      {line}
+                    </Text>
+                  ))}
+                </View>
+              ) : null,
+            )}
+            {frost.dates.frost === null && frost.dates.hardFreeze === null ? (
+              <Text style={styles.cardBody}>The history for this place came back with too few days to work the dates out.</Text>
+            ) : null}
+            <Text style={styles.captionText}>{FROST_DATES_LIMITS}</Text>
+            <Text style={styles.captionText}>{FROST_DATES_SOURCE}</Text>
+          </>
+        )}
       </View>
 
       {zone && bandInfo ? (

@@ -63,6 +63,7 @@
 import { geocodePostalCode } from './gardenZoneLookup';
 import { getDatabase, getStoredMeasurementSystem, getUserProfile } from './db';
 import type { RainForecast, RainUnit } from './rainForecast';
+import { FROST_YEARS, summarizeFrost, type DailyMinimum, type FrostSummary } from './frostDates';
 
 const LOCATION_CACHE_KEY = 'home_sky_location';
 const WEATHER_CACHE_KEY = 'home_sky_weather';
@@ -457,6 +458,95 @@ export async function getRainForecast(): Promise<RainForecastResult> {
     };
     await writeAppMeta(RAIN_FORECAST_CACHE_KEY, { lat: location.lat, lon: location.lon, forecast } satisfies CachedRainForecast);
     return { status: 'ready', forecast };
+  } catch (error) {
+    const { reason, detail } = classifyFetchError(error);
+    return { status: 'error', message: failureMessage(reason, detail, null) };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Last and first frost dates (I4, 1.0.55.19)
+// ---------------------------------------------------------------------------
+//
+// Thirty complete years of each day's lowest temperature at the place saved
+// in My Zone, from the same Open-Meteo archive the zone estimate reads, cut
+// down to the two summaries lib/frostDates.ts makes. Only the summaries are
+// kept (the days themselves run to eleven thousand numbers), and they are
+// read again only when the place changes or another year has finished.
+// Device-local like the rain forecast: each device can work it out, and a
+// refetch is not a change to send.
+
+export const FROST_DATES_CACHE_KEY = 'garden_frost_dates';
+
+export type FrostDates = {
+  southern: boolean;
+  frost: FrostSummary | null;
+  hardFreeze: FrostSummary | null;
+  placeLabel: string | null;
+  fetchedAt: string;
+};
+
+type CachedFrostDates = { lat: number; lon: number; endYear: number; dates: FrostDates };
+
+export type FrostDatesResult =
+  | { status: 'no-location' }
+  | { status: 'error'; message: string }
+  | { status: 'ready'; dates: FrostDates };
+
+export async function getFrostDates(): Promise<FrostDatesResult> {
+  const location = await resolveHomeLocation();
+  if (!location) return { status: 'no-location' };
+  const endYear = new Date().getFullYear() - 1;
+  const cached = await readAppMeta<CachedFrostDates>(FROST_DATES_CACHE_KEY);
+  if (cached && cached.lat === location.lat && cached.lon === location.lon && cached.endYear === endYear) {
+    return { status: 'ready', dates: cached.dates };
+  }
+  // From the July before the first year, so a southern winter at the start
+  // of the range is whole.
+  const startYear = endYear - FROST_YEARS + 1;
+  const params = new URLSearchParams({
+    latitude: String(location.lat),
+    longitude: String(location.lon),
+    start_date: `${startYear - 1}-07-01`,
+    end_date: `${endYear}-12-31`,
+    daily: 'temperature_2m_min',
+    temperature_unit: 'celsius',
+    timezone: 'auto',
+  });
+  let response: Response;
+  try {
+    response = await fetch(`https://archive-api.open-meteo.com/v1/archive?${params.toString()}`);
+  } catch (error) {
+    const { reason, detail } = classifyFetchError(error);
+    return { status: 'error', message: failureMessage(reason, detail, null) };
+  }
+  if (!response.ok) {
+    return { status: 'error', message: failureMessage('service-error', `HTTP ${response.status}`, null) };
+  }
+  try {
+    const data = await response.json();
+    const times: unknown = data?.daily?.time;
+    const mins: unknown = data?.daily?.temperature_2m_min;
+    if (!Array.isArray(times) || !Array.isArray(mins)) {
+      return { status: 'error', message: failureMessage('unexpected', 'no daily history', null) };
+    }
+    const days: DailyMinimum[] = times.map((date, i) => ({
+      date: typeof date === 'string' ? date : '',
+      minC: typeof mins[i] === 'number' && Number.isFinite(mins[i]) ? (mins[i] as number) : null,
+    }));
+    // A northern season stands on the calendar year, so the half year
+    // fetched for the south is dropped for it.
+    const southern = location.lat < 0;
+    const inRange = southern ? days : days.filter((day) => day.date >= `${startYear}-01-01`);
+    const dates: FrostDates = {
+      southern,
+      frost: summarizeFrost(inRange, southern, 'frost'),
+      hardFreeze: summarizeFrost(inRange, southern, 'hardFreeze'),
+      placeLabel: location.placeLabel,
+      fetchedAt: new Date().toISOString(),
+    };
+    await writeAppMeta(FROST_DATES_CACHE_KEY, { lat: location.lat, lon: location.lon, endYear, dates } satisfies CachedFrostDates);
+    return { status: 'ready', dates };
   } catch (error) {
     const { reason, detail } = classifyFetchError(error);
     return { status: 'error', message: failureMessage(reason, detail, null) };

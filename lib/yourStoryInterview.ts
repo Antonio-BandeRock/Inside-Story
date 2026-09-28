@@ -476,7 +476,7 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     importRecipe: 'A recipe from a web page or a pasted list, each line matched to a food and scored in the builder you choose.',
   },
   '/garden': {
-    myZone: 'Your growing zone, looked up from where you live, with crop guidance for that climate.',
+    myZone: 'Your growing zone, looked up from where you live, with crop guidance for that climate and the last and first frost dates for that place.',
     plotsAndPlantings: 'Each place you grow and what is in it, from a raised bed to an indoor tent, with the equipment each one runs on.',
     upcomingTasks: 'What needs doing in the garden next.',
     daysUntil: 'Counters to a garden date, like germination, transplanting or the first harvest.',
