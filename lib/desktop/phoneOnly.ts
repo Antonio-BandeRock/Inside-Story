@@ -66,7 +66,7 @@ const MESSAGES: Record<PhoneOnlyFeature, string> = {
   phoneCalendar:
     "Events from your phone's calendar are read on the phone as the timeline is drawn, and never copied into the app, so this computer has none to show. Turn them on from the timeline on your phone.",
   lightMeter:
-    "Measuring the light uses the light sensor on an Android phone, and this computer has none. Type a figure from a light meter here, or measure it with Inside Story on your phone.",
+    "Measuring the light uses the light sensor on an Android phone. A computer, Windows or Mac, has none the app can read, and an iPhone does not let any app read its own. Type a figure from a light meter here, or measure it with Inside Story on an Android phone.",
 };
 
 export const PHONE_ONLY_FEATURES: readonly PhoneOnlyFeature[] = Object.keys(MESSAGES) as PhoneOnlyFeature[];

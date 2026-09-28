@@ -36,7 +36,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
@@ -63,6 +63,7 @@ import {
 import { describeRoutineLength } from '../lib/dayTimeline';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { clearRoutineWalkNotice, routineWalkNotice, showRoutineWalkNotice } from '../lib/routineWalkNotice';
+import { isDesktopApp } from '../lib/desktop/bridge';
 
 export default function RoutineWalkScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
@@ -391,6 +392,12 @@ export default function RoutineWalkScreen() {
                 {routineOccasionLabel(routine.occasion, occasions)}. Anything you check off is written down
                 the moment you tap it. The routine itself only counts as done once you reach the last step.
               </Text>
+              {Platform.OS === 'android' && !isDesktopApp() ? null : (
+                <Text style={styles.footText}>
+                  On an Android phone, a notification also keeps the step you are on in view while you walk it. An
+                  iPhone and the computer version, Windows or Mac, do not have it, so the step is shown here.
+                </Text>
+              )}
             </View>
           </>
         ) : null}

@@ -711,6 +711,14 @@ export default function WorkoutPlayerScreen() {
                       Sent, it goes over as one exercise session from start to finish, so other apps reading Health Connect see it too.
                     </Text>
                   </View>
+                ) : !isHealthConnectPlatform() ? (
+                  <View style={styles.card}>
+                    <Text style={styles.captionText}>
+                      On an Android phone a finished workout can also go to Health Connect for other apps to read. Apple
+                      Health on an iPhone is not connected yet, and the computer version, Windows or Mac, has neither, so
+                      it is kept here.
+                    </Text>
+                  </View>
                 ) : null}
                 <TouchableOpacity
                   style={[styles.primaryButton, totals.done === 0 || saving ? styles.minorButtonOff : null]}

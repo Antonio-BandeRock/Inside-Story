@@ -77,5 +77,40 @@ ok(/iPhone/.test(M.LIGHT_METER_UNAVAILABLE), 'the unavailable line names the iPh
 ok(/not a calibrated meter/.test(M.LIGHT_METER_LIMITS), 'the limits line says it is not calibrated');
 ok(M.LIGHT_METER_DEVICE_NAME === "this phone's light sensor", 'where a saved reading came from');
 
+// From lux to PPFD (1.0.55.18).
+ok(M.luxToPpfd(54000, 'sun') === 1000, 'full sun: 54,000 lux is 1,000 PPFD');
+ok(M.luxToPpfd(6700, 'white_led') === 100, 'white LED ratio 67');
+ok(M.luxToPpfd(8200, 'hps') === 100, 'HPS ratio 82');
+ok(M.luxToPpfd(7400, 'fluorescent') === 100, 'fluorescent ratio 74');
+ok(M.luxToPpfd(7100, 'metal_halide') === 100, 'metal halide ratio 71');
+ok(M.luxToPpfd(5000, 'incandescent') === 100, 'incandescent ratio 50');
+ok(M.luxToPpfd(100, 'sun') === 1.9, 'a small figure keeps one decimal');
+ok(M.luxToPpfd(5000, 'red_blue_led') === null, 'no ratio for red and blue light');
+ok(M.meterFigure(12345.6, 'lux', null) === '12346', 'lux stays lux, whatever the light');
+ok(M.meterFigure(54000, 'PPFD', 'sun') === '1000', 'PPFD is worked out, not left as lux');
+ok(M.meterFigure(54000, 'PPFD', null) === null, 'PPFD with no light picked leaves the figure empty');
+ok(M.meterFigure(54000, 'PPFD', 'red_blue_led') === null, 'PPFD under red and blue leaves the figure empty');
+ok(/about 1000 µmol/.test(M.describePpfd(54000, 'sun')), 'the PPFD line gives the figure');
+ok(/estimate/i.test(M.describePpfd(54000, 'sun')), 'the PPFD line says it is an estimate');
+ok(/cannot be turned into PPFD/.test(M.describePpfd(5000, 'red_blue_led')), 'red and blue says why');
+ok(/Pick the light/.test(M.describePpfd(5000, null)), 'no light asks for one');
+ok(M.meterNote({ lux: 5000, unit: 'lux', source: 'sun', distance: '40', distanceUnit: 'cm' }) === '', 'the sun has no lamp height and lux needs no working');
+ok(M.meterNote({ lux: 6700, unit: 'PPFD', source: 'white_led', distance: '45', distanceUnit: 'cm' }) === 'Worked out from 6,700 lux under white LED light, at 67 lux to one µmol. Lamp 45 cm above where it was read.', 'note keeps the working and the height');
+ok(M.meterNote({ lux: 6700, unit: 'lux', source: 'white_led', distance: '', distanceUnit: 'in' }) === '', 'no height typed, nothing said');
+ok(M.meterNote({ lux: 6700, unit: 'lux', source: 'hps', distance: '18', distanceUnit: 'in' }) === 'Lamp 18 in above where it was read.', 'inches follow the setting');
+ok(M.likelyLightSource('outdoor', []) === 'sun', 'outdoors is the sun');
+ok(M.likelyLightSource('greenhouse', []) === 'sun', 'a greenhouse is the sun');
+ok(M.likelyLightSource('indoor', []) === null, 'indoors with no light recorded asks');
+ok(M.likelyLightSource('indoor', [{ lightType: 'hps', spectrum: null }]) === 'hps', 'indoor HPS');
+ok(M.likelyLightSource('indoor', [{ lightType: 'led', spectrum: 'full' }]) === 'white_led', 'full spectrum LED is white');
+ok(M.likelyLightSource('indoor', [{ lightType: 'led', spectrum: 'bloom' }]) === null, 'a red-heavy LED is left to the person');
+ok(M.likelyLightSource(null, []) === null, 'no area, no guess');
+ok(M.LIGHT_SOURCES.every((s) => s.code === 'sun' ? !s.lamp : s.lamp), 'only the sun is not a lamp');
+ok(/iPhone/.test(M.LIGHT_METER_IPHONE), 'the iPhone line names the iPhone');
+for (const sentence of [M.describePpfd(54000, 'sun'), M.describePpfd(5000, 'red_blue_led'), M.describePpfd(5000, null), M.LIGHT_METER_DISTANCE_HOW, M.LIGHT_METER_IPHONE, ...M.LIGHT_SOURCES.map((s) => s.help)]) {
+  ok(!forbidden.test(sentence), `no verdict words: ${sentence}`);
+  ok(!/[–—]| -- /.test(sentence), `no dashes: ${sentence}`);
+}
+
 console.log(`${passed} of ${passed + failed} checks pass`);
 process.exit(failed === 0 ? 0 : 1);

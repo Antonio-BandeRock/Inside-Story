@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Linking, Platform, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { isDesktopApp } from '../lib/desktop/bridge';
 import { useFocusEffect } from '@react-navigation/native';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
@@ -636,7 +637,15 @@ export function EmergencySection({ tabColor }: Props) {
             </View>
           )}
         </TabBand>
-      ) : null}
+      ) : (
+        <TabBand folds={folds} color={tabColor} id="life:emergency:lock-screen" title="On the lock screen" icon="medkit-outline">
+          <Text style={styles.helperText}>
+            {Platform.OS === 'ios' && !isDesktopApp()
+              ? "On an Android phone, the lines you pick can sit on the lock screen as a notification that cannot be swiped away. An iPhone does not let an app keep one there, so on an iPhone the Medical ID above is what shows from the lock screen."
+              : 'On an Android phone, the lines you pick can sit on the lock screen as a notification that cannot be swiped away. The computer version, Windows or Mac, has no lock screen to put them on, so turn it on from Inside Story on an Android phone.'}
+          </Text>
+        </TabBand>
+      )}
 
       <TabBand folds={folds} color={tabColor} id="life:emergency:why-the-order-is-what-it-is" title="Why the order is what it is" icon="medkit-outline">
         {ESSENTIALS_IN_ORDER.map((entry, index) => (

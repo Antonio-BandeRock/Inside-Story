@@ -2,12 +2,12 @@ import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { LightSensor } from 'expo-sensors';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { sortByLabel } from '../lib/choiceOrder';
-import type { GardenPlanting, GardenPlot } from '../lib/db';
+import { getStoredMeasurementSystem, type GardenPlanting, type GardenPlot } from '../lib/db';
 import {
   checkReading,
   describeReading,
@@ -21,18 +21,31 @@ import {
   getConditionsSetup,
   listGardenReadings,
 } from '../lib/growingConditionsDb';
-import { termLabel, type CustomGardenTerm } from '../lib/growSetup';
+import { termLabel, type CustomGardenTerm, type GrowEquipment } from '../lib/growSetup';
+import { listAllGrowEquipmentInUse } from '../lib/growSetupDb';
+import { detectMeasurementSystemFromLocale } from '../lib/measurement';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { phoneOnlyNotice } from '../lib/desktop/phoneOnly';
 import {
   describeMeasurement,
+  describePpfd,
   LIGHT_METER_DEVICE_NAME,
+  LIGHT_METER_DISTANCE_HOW,
   LIGHT_METER_HOW,
   LIGHT_METER_INTERVAL_MS,
+  LIGHT_METER_IPHONE,
   LIGHT_METER_LIMITS,
   LIGHT_METER_LISTEN_MS,
   LIGHT_METER_UNAVAILABLE,
+  LIGHT_SOURCES,
+  lightSource,
+  likelyLightSource,
+  meterFigure,
+  meterNote,
   summarizeLightSamples,
+  type DistanceUnit,
+  type LightSampleSummary,
+  type LightSourceCode,
 } from '../lib/lightMeter';
 import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
@@ -68,6 +81,10 @@ const NO_PLOT = '__none__';
 const NO_PLANTING = '__none__';
 const ADD_UNIT = '__add_unit__';
 const SHOWN_AT_FIRST = 8;
+const NO_SOURCE = '__none__';
+// Android is the one place the light sensor can be read: an iPhone never
+// lets an app read it, and a computer (Windows or Mac) has none.
+const METER_ON_THIS_DEVICE = Platform.OS === 'android' && !isDesktopApp();
 
 function todayDateString(): string {
   const now = new Date();
@@ -80,7 +97,7 @@ function todayDateString(): string {
 type MeterState =
   | { status: 'idle' }
   | { status: 'reading'; live: number | null }
-  | { status: 'done'; line: string }
+  | { status: 'done'; summary: LightSampleSummary }
   | { status: 'unavailable'; line: string };
 
 function emptyDraft(): ReadingDraft {
@@ -103,6 +120,14 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
   // is saved as coming from this phone; typing over it makes it a hand
   // reading again.
   const [fromPhone, setFromPhone] = useState(false);
+  // What the phone last read, the light it was under and how far the lamp
+  // was (1.0.55.18). The form's figure follows the unit: lux as read, or
+  // PPFD worked out from it through that light's ratio.
+  const [meterLux, setMeterLux] = useState<number | null>(null);
+  const [pickedSource, setPickedSource] = useState<LightSourceCode | null>(null);
+  const [distance, setDistance] = useState('');
+  const [distanceUnit, setDistanceUnit] = useState<DistanceUnit>('cm');
+  const [lights, setLights] = useState<GrowEquipment[]>([]);
   const listening = useRef<{ remove: () => void; timer: ReturnType<typeof setTimeout> } | null>(null);
   const today = todayDateString();
 
@@ -142,15 +167,24 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
         setMeter({ status: 'unavailable', line: 'The light sensor sent nothing in those few seconds. Try again, or type a figure in.' });
         return;
       }
-      setDraft((current) => ({ ...current, measurement: 'light', unit: 'lux', value: String(summary.lux) }));
+      // The unit the form is set to is kept: the figure below follows it.
+      setDraft((current) => ({ ...current, measurement: 'light', unit: current.unit ?? 'lux' }));
+      setMeterLux(summary.lux);
       setFromPhone(true);
-      setMeter({ status: 'done', line: describeMeasurement(summary) });
+      setMeter({ status: 'done', summary });
     }, LIGHT_METER_LISTEN_MS);
     listening.current = { remove: () => subscription.remove(), timer };
   }, [stopListening]);
 
   const load = useCallback(async () => {
-    const [setup, rows] = await Promise.all([getConditionsSetup(), listGardenReadings()]);
+    const [setup, rows, equipment, system] = await Promise.all([
+      getConditionsSetup(),
+      listGardenReadings(),
+      listAllGrowEquipmentInUse(),
+      getStoredMeasurementSystem(),
+    ]);
+    setLights(equipment.filter((piece) => piece.kind === 'light'));
+    setDistanceUnit((system ?? detectMeasurementSystemFromLocale()) === 'imperial' ? 'in' : 'cm');
     setAreas(setup.areas);
     setPlantings(setup.plantings);
     setTerms(setup.terms);
@@ -162,6 +196,40 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
       void load();
     }, [load]),
   );
+
+  // The light the picked area is most likely under, used until the person
+  // picks one.
+  const suggestedSource = useMemo(() => {
+    const area = areas.find((candidate) => candidate.id === draft.plotId);
+    if (!area) return null;
+    return likelyLightSource(
+      area.locationType,
+      lights.filter((piece) => piece.plotId === area.id),
+    );
+  }, [areas, lights, draft.plotId]);
+  const source = pickedSource ?? suggestedSource;
+  const sourceOptions = useMemo(
+    () => [
+      { label: 'Pick the light it is under', value: NO_SOURCE },
+      ...sortByLabel(LIGHT_SOURCES.map((entry) => ({ label: entry.label, value: entry.code }))),
+    ],
+    [],
+  );
+
+  // The last unit light was recorded in, so the form opens on it rather
+  // than on lux every time.
+  const lastLightUnit = useMemo(
+    () => readings.find((reading) => reading.measurement === 'light')?.unit ?? 'lux',
+    [readings],
+  );
+
+  // While the figure is the phone's, it follows the unit and the light:
+  // switching lux to PPFD, or picking another light, works it out again.
+  useEffect(() => {
+    if (!fromPhone || meterLux === null) return;
+    const figure = meterFigure(meterLux, draft.unit, source) ?? '';
+    setDraft((current) => (current.value === figure ? current : { ...current, value: figure }));
+  }, [fromPhone, meterLux, draft.unit, source]);
 
   const areaOptions = useMemo(
     () => [
@@ -221,10 +289,18 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
       value: Number(draft.value.trim()),
       unit: draft.unit as string,
       measuredOn: draft.measuredOn,
-      note: draft.note,
-      ...(fromPhone && draft.unit === 'lux' ? { source: 'device' as const, deviceName: LIGHT_METER_DEVICE_NAME } : {}),
+      note:
+        fromPhone && meterLux !== null
+          ? [meterNote({ lux: meterLux, unit: draft.unit, source, distance, distanceUnit }), draft.note.trim()]
+              .filter(Boolean)
+              .join(' ')
+          : draft.note,
+      ...(fromPhone && (draft.unit === 'lux' || draft.unit === 'PPFD')
+        ? { source: 'device' as const, deviceName: LIGHT_METER_DEVICE_NAME }
+        : {}),
     });
     setFromPhone(false);
+    setMeterLux(null);
     setMeter({ status: 'idle' });
     // The area, the measurement and the unit are kept, since the next reading
     // is usually the same meter in the same bed on another day.
@@ -249,7 +325,10 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
               <PopoverSelect
                 options={areaOptions}
                 selected={draft.plotId ?? NO_PLOT}
-                onSelect={(value) => setDraft({ ...draft, plotId: value === NO_PLOT ? null : value, plantingId: null })}
+                onSelect={(value) => {
+                  setDraft({ ...draft, plotId: value === NO_PLOT ? null : value, plantingId: null });
+                  setPickedSource(null);
+                }}
                 tabColor={TAB_COLOR}
                 width={220}
               />
@@ -271,8 +350,9 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
               label="Measured"
               selected={draft.measurement}
               onSelect={(value) => {
-                setDraft({ ...draft, measurement: value, unit: value === 'light' ? 'lux' : null });
+                setDraft({ ...draft, measurement: value, unit: value === 'light' ? lastLightUnit : null });
                 setFromPhone(false);
+                setMeterLux(null);
                 setMeter({ status: 'idle' });
               }}
               terms={terms}
@@ -304,7 +384,7 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                       }
                       setNewUnit(null);
                       setDraft({ ...draft, unit: value });
-                      if (value !== 'lux') setFromPhone(false);
+                      if (value !== 'lux' && value !== 'PPFD') setFromPhone(false);
                     }}
                     tabColor={TAB_COLOR}
                     width={130}
@@ -315,14 +395,51 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                   <View style={styles.formCard}>
                     {isDesktopApp() ? (
                       <Text style={styles.captionText}>{phoneOnlyNotice('lightMeter').message}</Text>
+                    ) : !METER_ON_THIS_DEVICE ? (
+                      <Text style={styles.captionText}>{LIGHT_METER_IPHONE}</Text>
                     ) : (
                       <>
                         <Text style={styles.captionText}>{LIGHT_METER_HOW}</Text>
+                        <View style={styles.fieldRow}>
+                          <Text style={styles.fieldLabel}>Under</Text>
+                          <PopoverSelect
+                            options={sourceOptions}
+                            selected={source ?? NO_SOURCE}
+                            onSelect={(value) => setPickedSource(value === NO_SOURCE ? null : (value as LightSourceCode))}
+                            tabColor={TAB_COLOR}
+                            width={240}
+                          />
+                        </View>
+                        <Text style={styles.captionText}>
+                          {lightSource(source)?.help ??
+                            'The phone reads lux. The light it is under is what turns lux into PPFD, since each kind of light has a different ratio.'}
+                        </Text>
+                        {lightSource(source)?.lamp ? (
+                          <>
+                            <View style={styles.fieldRow}>
+                              <Text style={styles.fieldLabel}>Lamp above ({distanceUnit}, optional)</Text>
+                              <AppTextInput
+                                style={[styles.textInput, styles.shortInput]}
+                                value={distance}
+                                onChangeText={setDistance}
+                                placeholder={distanceUnit === 'cm' ? '45' : '18'}
+                                keyboardType="numeric"
+                              />
+                            </View>
+                            <Text style={styles.captionText}>{LIGHT_METER_DISTANCE_HOW}</Text>
+                          </>
+                        ) : null}
                         {meter.status === 'reading' ? (
                           <Text style={styles.bodyText}>
                             Reading{meter.live !== null ? `: ${meter.live.toLocaleString('en-US')} lux` : ''}
                           </Text>
-                        ) : meter.status === 'done' || meter.status === 'unavailable' ? (
+                        ) : meter.status === 'done' ? (
+                          <Text style={styles.bodyText}>
+                            {draft.unit === 'PPFD'
+                              ? describePpfd(meter.summary.lux, source)
+                              : describeMeasurement(meter.summary)}
+                          </Text>
+                        ) : meter.status === 'unavailable' ? (
                           <Text style={styles.bodyText}>{meter.line}</Text>
                         ) : null}
                         <View style={styles.actionRow}>
@@ -406,6 +523,7 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                   setNewUnit(null);
                   setMeter({ status: 'idle' });
                   setFromPhone(false);
+                  setMeterLux(null);
                 }}
               >
                 <Text style={styles.linkText}>Done</Text>
@@ -423,17 +541,17 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
               <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={() => setRecording(true)}>
                 <Text style={styles.primaryButtonText}>+ Record a Reading</Text>
               </TouchableOpacity>
-              {isDesktopApp() ? null : (
+              {METER_ON_THIS_DEVICE ? (
                 <TouchableOpacity
                   onPress={() => {
-                    setDraft({ ...draft, measurement: 'light', unit: 'lux', value: '' });
+                    setDraft({ ...draft, measurement: 'light', unit: lastLightUnit, value: '' });
                     setRecording(true);
                     void measureLight();
                   }}
                 >
                   <Text style={styles.linkText}>Measure the Light Here</Text>
                 </TouchableOpacity>
-              )}
+              ) : null}
             </View>
           </>
         )}
