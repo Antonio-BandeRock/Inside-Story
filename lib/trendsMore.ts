@@ -1,6 +1,7 @@
 // Nine Trends lenses that only read, 1.0.52.7: Hydration, Blood Pressure,
 // Doses Over Time, Appointments & Care, Work, Reactions & New Foods,
-// Nights, Ferments, and Planned and Eaten.
+// Nights, Ferments, and Planned and Eaten. Body Signals joined them in
+// 1.0.53.8 and Workouts in 1.0.55.14.
 //
 // Direct instruction, 2026-09-25, on the output lenses marked Build on the
 // inputs-to-outputs map: "Build all of them." Each builder here takes rows
@@ -1137,5 +1138,241 @@ export function buildBodySignalsView(input: BodySignalsInputs): ReadingView {
     ],
     notes: ['Your usual range is what your readings have been, never what they should be. The numbers that matter for you are the ones your clinician gives you.'],
   });
+  return { hasAnything: true, empty: '', bands };
+}
+
+// ---------------------------------------------------------------------------
+// 11. Workouts (1.0.55.14)
+// ---------------------------------------------------------------------------
+//
+// Everything logged as exercise (the quick log, Schedules > Exercise, and
+// each workout finished in the player, which writes an exercise entry of
+// its own), the days planned on Schedules > Exercise and how each went, and
+// every exercise in a finished workout set beside itself: what was done the
+// first time in the range and the latest time. A week with nothing logged
+// is a gap, a planned day nobody marked is never counted as missed, and
+// nothing here says a set was better or worse than another.
+
+export type WorkoutSetRecord = {
+  exerciseName: string;
+  status: string;
+  reps: number | null;
+  seconds: number | null;
+  weight: number | null;
+  weightUnit: string | null;
+  side: string | null;
+};
+
+export type WorkoutsInputs = {
+  range: DayRange;
+  today: string;
+  // exercise_logs rows; loggedAt is a local 'YYYY-MM-DDTHH:mm'.
+  logs: { loggedAt: string; exerciseType: string; minutes: number | null; intensity: string | null }[];
+  // Finished workouts from the player, with the sets as they were kept.
+  sessions: { workoutName: string; finishedAt: string; sets: WorkoutSetRecord[] }[];
+  // Each planned day of each plan, and its mark if one was made.
+  plannedDays: { date: string; title: string; mark: 'done' | 'skipped' | null }[];
+};
+
+const INTENSITY_WORDS: Record<string, string> = { light: 'Light', moderate: 'Moderate', vigorous: 'Vigorous' };
+
+function trimWeight(value: number): string {
+  return String(Math.round(value * 100) / 100);
+}
+
+// One exercise's done sets in one session, in words: "10, 10, 8 at 8 kg",
+// "30s, 30s", or "10 at 8 kg, 8 at 10 kg" when the weight changed.
+export function describeSets(sets: WorkoutSetRecord[]): string {
+  const done = sets.filter((set) => set.status === 'done');
+  if (done.length === 0) return 'nothing marked done';
+  const amount = (set: WorkoutSetRecord): string => {
+    const side = set.side ? ` ${set.side}` : '';
+    if (set.reps != null) return `${set.reps}${side}`;
+    if (set.seconds != null) return `${set.seconds}s${side}`;
+    return `done${side}`;
+  };
+  const weights = done.map((set) =>
+    set.weight != null ? `${trimWeight(set.weight)}${set.weightUnit ? ` ${set.weightUnit}` : ''}` : null,
+  );
+  if (weights.every((weight) => weight === weights[0])) {
+    const list = done.map(amount).join(', ');
+    return weights[0] ? `${list} at ${weights[0]}` : list;
+  }
+  return done.map((set, i) => (weights[i] ? `${amount(set)} at ${weights[i]}` : amount(set))).join(', ');
+}
+
+export function buildWorkoutsView(input: WorkoutsInputs): ReadingView {
+  const inRange = (date: string) => date >= input.range.start && date <= input.range.end;
+  const logs = input.logs
+    .map((log) => ({ ...log, date: localDay(log.loggedAt), name: log.exerciseType.trim() || 'Exercise' }))
+    .filter((log) => inRange(log.date));
+  const sessions = input.sessions
+    .map((session) => ({ ...session, date: localDay(session.finishedAt) }))
+    .filter((session) => inRange(session.date))
+    .sort((a, b) => (a.finishedAt < b.finishedAt ? -1 : 1));
+  const planned = input.plannedDays.filter((day) => inRange(day.date) && day.date <= input.today);
+  if (logs.length === 0 && sessions.length === 0 && planned.length === 0) {
+    return emptyView(
+      'No exercise in this range. Movement is logged from the quick log or Schedules > Exercise, a workout is built on Life > Workouts and done in its player, and a plan is made on Schedules > Exercise.',
+    );
+  }
+  const bands: ReadingBand[] = [];
+
+  if (logs.length > 0) {
+    const weeks = buildWeeks(input.range.start, input.range.end, logs.map((log) => log.date));
+    const minutesIn = (these: typeof logs) => these.reduce((sum, log) => sum + (log.minutes ?? 0), 0);
+    const inThisWeek = (week: VarietyWeek) => logs.filter((log) => inWeek(log.date, week));
+    const rows = weekRows(
+      weeks,
+      (week) => {
+        const these = inThisWeek(week);
+        return these.length === 0 ? null : minutesIn(these);
+      },
+      (_value, week) => {
+        const these = inThisWeek(week);
+        const minutes = minutesIn(these);
+        return minutes > 0 ? `${plural(these.length, 'time')}, ${minutes} min` : plural(these.length, 'time');
+      },
+      'nothing logged',
+    );
+    const days = new Set(logs.map((log) => log.date)).size;
+    const untimed = logs.filter((log) => log.minutes == null).length;
+    bands.push({
+      id: 'byWeek',
+      title: 'By week',
+      icon: 'calendar-outline',
+      count: logs.length,
+      lines: withGapNote(
+        [
+          `${plural(logs.length, 'entry', 'entries')} on ${plural(days, 'day')}, ${minutesIn(logs)} minutes in all. The bar is the week's minutes.`,
+          ...(untimed > 0
+            ? [`${plural(untimed, 'entry', 'entries')} had no minutes given, so they count as times but add no minutes.`]
+            : []),
+        ],
+        rows,
+      ),
+      rows,
+    });
+
+    const byName = new Map<string, typeof logs>();
+    for (const log of logs) byName.set(log.name, [...(byName.get(log.name) ?? []), log]);
+    bands.push({
+      id: 'whatYouDid',
+      title: 'What you did',
+      icon: 'barbell-outline',
+      count: byName.size,
+      lines: [],
+      items: [...byName.entries()]
+        .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]))
+        .map(([name, these]) => {
+          const minutes = minutesIn(these);
+          const last = these.reduce((latest, log) => (log.date > latest ? log.date : latest), these[0].date);
+          return {
+            key: name,
+            title: name,
+            caption: `${plural(these.length, 'time')}${minutes > 0 ? `, ${minutes} min in all` : ''}, last on ${shortDate(last)}`,
+          };
+        }),
+    });
+
+    const said = logs.filter((log) => log.intensity && INTENSITY_WORDS[log.intensity]);
+    if (said.length > 0) {
+      const counts = tally(said.map((log) => log.intensity as string));
+      bands.push({
+        id: 'intensity',
+        title: 'How hard it felt',
+        icon: 'speedometer-outline',
+        lines:
+          said.length < logs.length
+            ? [`${plural(logs.length - said.length, 'entry', 'entries')} had no answer for how hard it felt and are left out here.`]
+            : [],
+        rows: ['light', 'moderate', 'vigorous'].map((key) => ({
+          key,
+          label: INTENSITY_WORDS[key],
+          value: counts.get(key) ?? 0,
+          display: plural(counts.get(key) ?? 0, 'time'),
+        })),
+        notes: ['This is how each session felt when it was logged, in your words at the time.'],
+      });
+    }
+  }
+
+  if (planned.length > 0) {
+    const countMarks = (days: typeof planned) => ({
+      done: days.filter((day) => day.mark === 'done').length,
+      skipped: days.filter((day) => day.mark === 'skipped').length,
+      unmarked: days.filter((day) => day.mark === null).length,
+    });
+    const all = countMarks(planned);
+    const byTitle = new Map<string, typeof planned>();
+    for (const day of planned) byTitle.set(day.title, [...(byTitle.get(day.title) ?? []), day]);
+    bands.push({
+      id: 'planned',
+      title: 'Planned days',
+      icon: 'clipboard-outline',
+      count: planned.length,
+      lines: [`${plural(planned.length, 'planned day')} up to today, from Schedules > Exercise.`],
+      rows: [
+        { key: 'done', label: 'Done', value: all.done, display: plural(all.done, 'day') },
+        { key: 'skipped', label: 'Skipped', value: all.skipped, display: plural(all.skipped, 'day') },
+        { key: 'unmarked', label: 'Nothing marked', value: all.unmarked, display: plural(all.unmarked, 'day') },
+      ],
+      items: [...byTitle.entries()]
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([title, days]) => {
+          const these = countMarks(days);
+          return {
+            key: title,
+            title,
+            caption: `${these.done} done, ${these.skipped} skipped, ${these.unmarked} with nothing marked`,
+          };
+        }),
+      notes: ['A day with nothing marked is left as it is. It may have happened without being marked, so it is never counted as missed.'],
+    });
+  }
+
+  if (sessions.length > 0) {
+    const byExercise = new Map<string, { date: string; words: string }[]>();
+    for (const session of sessions) {
+      const perExercise = new Map<string, WorkoutSetRecord[]>();
+      for (const set of session.sets) {
+        const name = set.exerciseName.trim();
+        if (name) perExercise.set(name, [...(perExercise.get(name) ?? []), set]);
+      }
+      for (const [name, sets] of perExercise) {
+        if (!sets.some((set) => set.status === 'done')) continue;
+        byExercise.set(name, [...(byExercise.get(name) ?? []), { date: session.date, words: describeSets(sets) }]);
+      }
+    }
+    const workouts = topCounts(tally(sessions.map((session) => session.workoutName.trim() || 'Workout')), 99);
+    const named = workouts.slice(0, 5).map(([name, count]) => `${name} ${count}×`).join(', ');
+    const others = workouts.length > 5 ? `, and ${plural(workouts.length - 5, 'other')}` : '';
+    bands.push({
+      id: 'eachExercise',
+      title: 'Each exercise, first and latest',
+      icon: 'repeat-outline',
+      count: byExercise.size,
+      lines: [
+        `${plural(sessions.length, 'workout')} finished in the player: ${named}${others}.`,
+        'Each exercise shows the sets marked done the first time in this range and the latest time, so the two sit side by side.',
+      ],
+      items: [...byExercise.entries()]
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([name, seen]) => {
+          const first = seen[0];
+          const latest = seen[seen.length - 1];
+          return {
+            key: name,
+            title: name,
+            caption:
+              seen.length === 1
+                ? `Once, ${shortDate(first.date)}: ${first.words}`
+                : `${shortDate(first.date)}: ${first.words}. Latest, ${shortDate(latest.date)}: ${latest.words}. ${plural(seen.length, 'time')} in all.`,
+          };
+        }),
+      notes: ['Sets skipped or not reached are left out of each line. Nothing here calls one set better than another; the numbers are there to read as you like.'],
+    });
+  }
+
   return { hasAnything: true, empty: '', bands };
 }

@@ -263,6 +263,46 @@ run('planned', T.buildPlannedView, {
 }, true);
 run('planned empty', T.buildPlannedView, { range, today, planned: [] }, false);
 
+// Workouts (1.0.55.14): the week left blank is a gap, a planned day with
+// nothing marked is counted as nothing marked, a planned day after today
+// is left out, and an exercise reads first time beside latest.
+const set = (name, reps, weight, status = 'done') => ({
+  exerciseName: name, status, reps, seconds: null, weight, weightUnit: weight == null ? null : 'kg', side: null,
+});
+const workouts = run('workouts', T.buildWorkoutsView, {
+  range,
+  today,
+  logs: [
+    { loggedAt: '2026-08-28T07:30', exerciseType: 'Walk', minutes: 30, intensity: 'light' },
+    { loggedAt: '2026-09-01T18:00', exerciseType: 'Legs', minutes: 40, intensity: null },
+    { loggedAt: '2026-09-20T18:00', exerciseType: 'Legs', minutes: null, intensity: 'vigorous' },
+  ],
+  sessions: [
+    { workoutName: 'Legs', finishedAt: at('2026-09-01', 18), sets: [set('Squat', 10, 8), set('Squat', 8, 8), set('Squat', 6, 8, 'skipped')] },
+    { workoutName: 'Legs', finishedAt: at('2026-09-20', 18), sets: [set('Squat', 12, 10), set('Squat', 10, 12), set('Plank', null, null)] },
+  ],
+  plannedDays: [
+    { date: '2026-09-01', title: 'Legs', mark: 'done' },
+    { date: '2026-09-08', title: 'Legs', mark: null },
+    { date: '2026-09-15', title: 'Legs', mark: 'skipped' },
+    { date: '2026-09-30', title: 'Legs', mark: null },
+  ],
+}, true);
+if (workouts) {
+  const band = (id) => workouts.bands.find((b) => b.id === id);
+  check((band('byWeek').rows || []).some((row) => row.value === null && row.display === 'nothing logged'), 'workouts: a blank week is a gap');
+  const planned = band('planned');
+  check(planned && planned.count === 3, 'workouts: a planned day after today is left out');
+  check(planned && planned.rows.find((row) => row.key === 'unmarked').value === 1, 'workouts: an unmarked day is nothing marked, not missed');
+  const squat = band('eachExercise').items.find((item) => item.title === 'Squat');
+  check(squat && squat.caption === 'Sep 1: 10, 8 at 8 kg. Latest, Sep 20: 12 at 10 kg, 10 at 12 kg. 2 times in all.',
+    'workouts: first beside latest, skipped sets left out: ' + (squat && squat.caption));
+  const plank = band('eachExercise').items.find((item) => item.title === 'Plank');
+  check(plank && plank.caption === 'Once, Sep 20: done', 'workouts: a set with no count still reads: ' + (plank && plank.caption));
+  check(band('intensity').rows.find((row) => row.key === 'vigorous').value === 1, 'workouts: how hard it felt, as said');
+}
+run('workouts empty', T.buildWorkoutsView, { range, today, logs: [], sessions: [], plannedDays: [] }, false);
+
 // A week with nothing logged is a gap, never a zero.
 const hydration = T.buildHydrationView({
   range,

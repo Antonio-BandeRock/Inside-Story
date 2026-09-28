@@ -4,6 +4,8 @@
 // day is still read, and the builders narrow to the range themselves.
 import { getDatabase, getLabTests, listLabResults } from './db';
 import { addDays } from './eatingVariety';
+import { planDays } from './exercisePlan';
+import { listExercisePlans, listPlanMarks } from './exercisePlanDb';
 import { listNocturiaNights } from './nocturiaDb';
 import { getNutrientTrendSeriesForRange, getSleepTrendPoints } from './trendAnalysis';
 import {
@@ -17,14 +19,17 @@ import {
   buildPlannedView,
   buildReactionsView,
   buildWorkView,
+  buildWorkoutsView,
   localDay,
   type BodySignalKey,
   type BodySignalReading,
   type DayRange,
+  type WorkoutsInputs,
 } from './trendsMore';
 import type { ReadingView } from './readingBands';
 import { buildSinceLastVisitBand, buildSinceLastVisitView, type SinceLastVisitInputs } from './sinceLastVisit';
 import { listWorkCheckins } from './workDb';
+import { parseKeptSets } from './workoutSession';
 
 export type TrendsMoreLens =
   | 'hydration'
@@ -36,7 +41,8 @@ export type TrendsMoreLens =
   | 'nights'
   | 'ferments'
   | 'planned'
-  | 'bodySignals';
+  | 'bodySignals'
+  | 'workouts';
 
 export const DOSE_ITEM_TYPES = ['supplement', 'prescription', 'otc'];
 
@@ -214,6 +220,52 @@ export async function listPlannedMeals(range: DayRange): Promise<{ scheduledFor:
   );
 }
 
+// Trends > Workouts (1.0.55.14). exercise_logs.logged_at is a local
+// 'YYYY-MM-DDTHH:mm'; workout_sessions.finished_at is an ISO stamp, so its
+// window reaches a day past the range at both ends like every other one.
+// A workout's name comes from the workouts table, archived ones included,
+// so a plan for a workout since removed still reads by its name.
+export async function loadWorkoutsInputs(range: DayRange, today: string): Promise<WorkoutsInputs> {
+  const db = await getDatabase();
+  const from = addDays(range.start, -1);
+  const through = addDays(range.end, 2);
+  const [logs, sessionRows, workoutRows, plans, marks] = await Promise.all([
+    db.getAllAsync<{ loggedAt: string; exerciseType: string | null; minutes: number | null; intensity: string | null }>(
+      `SELECT logged_at AS loggedAt, exercise_type AS exerciseType, duration_minutes AS minutes, intensity
+       FROM exercise_logs WHERE logged_at >= ? AND logged_at < ? ORDER BY logged_at ASC`,
+      from,
+      through,
+    ),
+    db.getAllAsync<{ workoutName: string | null; finishedAt: string; setsJson: string | null }>(
+      `SELECT workout_name AS workoutName, finished_at AS finishedAt, sets_json AS setsJson
+       FROM workout_sessions WHERE finished_at >= ? AND finished_at < ? ORDER BY finished_at ASC`,
+      from,
+      through,
+    ),
+    db.getAllAsync<{ id: string; name: string }>(`SELECT id, name FROM workouts`),
+    listExercisePlans(),
+    listPlanMarks(range.start, range.end),
+  ]);
+  const names = new Map(workoutRows.map((row) => [row.id, row.name]));
+  const upTo = today < range.end ? today : range.end;
+  const plannedDays = upTo < range.start
+    ? []
+    : planDays(plans, marks, names, range.start, upTo).flatMap((day) =>
+        day.entries.map((entry) => ({ date: entry.date, title: entry.title, mark: entry.mark?.status ?? null })),
+      );
+  return {
+    range,
+    today,
+    logs: logs.map((log) => ({ ...log, exerciseType: log.exerciseType ?? '' })),
+    sessions: sessionRows.map((row) => ({
+      workoutName: row.workoutName ?? '',
+      finishedAt: row.finishedAt,
+      sets: parseKeptSets(row.setsJson),
+    })),
+    plannedDays,
+  };
+}
+
 // Health Connect's record types, as healthSync.ts stores them, to the
 // signal each one is read as on Trends > Body Signals.
 const BODY_SIGNAL_RECORD_TYPES: Record<string, BodySignalKey> = {
@@ -315,5 +367,7 @@ export async function loadTrendsMoreView(lens: TrendsMoreLens, days: number): Pr
       return buildPlannedView({ range, today, planned: await listPlannedMeals(range) });
     case 'bodySignals':
       return buildBodySignalsView({ range, readings: await listBodySignalReadings() });
+    case 'workouts':
+      return buildWorkoutsView(await loadWorkoutsInputs(range, today));
   }
 }

@@ -183,6 +183,7 @@ const MORE_LENSES: Record<TrendsMoreLens, { loadingLine: string; missingItem?: Y
   nights: { loadingLine: 'Reading your nights…' },
   ferments: { loadingLine: 'Reading your ferments…' },
   planned: { loadingLine: 'Reading what was planned and eaten…', missingItem: 'meal' },
+  workouts: { loadingLine: 'Reading your workouts…', missingItem: 'exercise' },
 };
 
 function isMoreLens(lens: TrendsLens): lens is TrendsMoreLens {
@@ -325,6 +326,27 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       {
         heading: 'Beside symptoms',
         body: 'Pattern Finder shows weeks with less movement beside weeks with more, and the symptoms logged in each, once there are enough weeks to compare. Nothing here says one caused the other.',
+      },
+    ],
+  },
+  // 1.0.55.14. Exercise as it was logged, the days planned on Schedules >
+  // Exercise, and each exercise in a finished workout, first and latest.
+  {
+    key: 'workouts',
+    label: 'Workouts',
+    icon: 'barbell-outline',
+    help: [
+      {
+        heading: 'Workouts',
+        body: 'Every exercise entry by week, what you did and how often, how hard it felt when you said, the days you planned on Schedules > Exercise and how each went, and every exercise from a workout finished in the player, the first time in the range beside the latest.',
+      },
+      {
+        heading: 'Gaps and unmarked days',
+        body: 'A week with nothing logged is a gap, never a zero. A planned day with nothing marked is left as it is, since it may have happened without being marked, and is never counted as missed.',
+      },
+      {
+        heading: 'Reading it',
+        body: 'The sets are shown side by side as they were done. Nothing here calls one better than another or counts days in a row.',
       },
     ],
   },
