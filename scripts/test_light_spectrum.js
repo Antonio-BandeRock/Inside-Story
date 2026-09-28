@@ -103,5 +103,24 @@ for (const sentence of [S.SPECTRUM_SHARES_HOW, S.SPECTRUM_PEAKS_HOW, S.SPECTRUM_
   check(`no verdict words: ${sentence}`, !/\b(must|should|ideal|optimal|too low|too high)\b/i.test(sentence));
 }
 
+// Where the spectrum is entered (1.0.55.25). In 1.0.55.23 the fields sat
+// behind three conditions (a lamp picked, the unit set to PPFD) and a link,
+// and could not be found. The section now stands under any light but the
+// sun, with no unit or lamp condition, and the colour shares open first.
+const lens = fs.readFileSync(path.join(__dirname, '..', 'components/GrowingConditionsLens.tsx'), 'utf8');
+check('the section shows under any light but the sun',
+  lens.includes("const spectrumShown = draft.measurement === 'light' && source !== 'sun';"));
+const cardAt = lens.indexOf('<View style={styles.spectrumCard}>');
+const gate = lens.slice(lens.lastIndexOf('{', cardAt), cardAt).replace(/\s+/g, ' ').trim();
+check('the section is gated by spectrumShown alone', gate === '{spectrumShown ? (');
+check('colour shares open first', lens.includes("useState<RatioWay>('shares')"));
+check('the colour fields are not behind a link', !lens.includes("From Its Spectrum&apos;s Colour Shares"));
+check('the worked ratio is used straight away', !lens.includes('Use This Ratio'));
+check('the formula is said on screen', lens.includes('683 × V(λ) × 119.627 ÷ λ'));
+// The figures the screen quotes are the ones the module uses.
+check('555 nm is 683 × 119.627 ÷ 555 lux per µmol', near(S.luxPerMicromoleAt(555), (683 * 119.627) / 555, 0.5));
+const redBlue = S.ratioFromPeaks([{ nm: '450', share: '20' }, { nm: '660', share: '80' }, { nm: '', share: '' }, { nm: '', share: '' }]);
+check('a 450 and 660 panel is above the 2 kept', redBlue !== null && redBlue >= 2 && redBlue < 20);
+
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);
