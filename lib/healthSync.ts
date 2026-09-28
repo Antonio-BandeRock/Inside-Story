@@ -33,6 +33,7 @@ import {
   type GrantedHealthAccess,
   type HealthSignalKey,
   localDateOf,
+  OWN_EXERCISE_PREFIX,
   readAllRecords,
   readDailyDistanceKm,
   readDailySteps,
@@ -385,7 +386,11 @@ async function syncMenstruation(fromIso: string, toIso: string): Promise<number>
 }
 
 async function syncExercise(fromIso: string, toIso: string): Promise<number> {
-  const records = await readAllRecords('ExerciseSession', fromIso, toIso);
+  // A workout this app sent over is already in exercise_logs; reading it
+  // back as a health record would count the same session twice.
+  const records = (await readAllRecords('ExerciseSession', fromIso, toIso)).filter(
+    (record) => !(record.metadata?.clientRecordId ?? '').startsWith(OWN_EXERCISE_PREFIX),
+  );
   const rows = records.map((record, index) =>
     recordRow(
       'exercise',

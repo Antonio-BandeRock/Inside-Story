@@ -31,6 +31,7 @@ export type ReminderKindKey =
   | 'afterMeal'
   | 'garden'
   | 'routine'
+  | 'exercise'
   | 'check'
   | 'bill'
   | 'upkeep'
@@ -74,6 +75,10 @@ export const ALL_REMINDER_KIND_KEYS: ReminderKindKey[] = [
   // a routine speaks on the days and at the time it was given, and the
   // notification opens the walk rather than marking anything done.
   'routine',
+  // H11 part 3. A day of a plan on Schedules > Exercise that was given a
+  // time. Beside routines because it is the same kind of thing: something
+  // the person chose to be told about, opening straight into doing it.
+  'exercise',
   // C2 (Phase 2). A Did I Do It check given a time, on the days it was
   // given, quiet in a period it is already marked in. Beside routines
   // because a check is the record a routine writes.
@@ -116,6 +121,7 @@ export const REMINDER_KIND_LABELS: Record<ReminderKindKey, string> = {
   afterMeal: 'After a meal',
   garden: 'Garden tasks',
   routine: 'Routines',
+  exercise: 'Planned exercise',
   check: 'Did I Do It checks',
   bill: 'Bills',
   upkeep: 'Upkeep & renewals',
@@ -144,6 +150,8 @@ export const REMINDER_KIND_CAPTIONS: Record<ReminderKindKey, string> = {
   garden: 'Anything planned in Garden > Upcoming Tasks, at the time it is set for.',
   routine:
     'A routine from Life > Routines, at the time and on the days you gave it. Tapping it opens the walk at the first step.',
+  exercise:
+    'A day of a plan on Schedules > Exercise that has a time. A workout opens in the player; an activity opens Schedules to mark it. Quiet on a day already marked.',
   check:
     'A check from Life > Did I Do It that you gave a time to, on the days you picked. Done marks it. Quiet once it is marked for the day, week or month.',
   bill:
@@ -195,6 +203,9 @@ const DEFAULT_REMINDER_KIND_ENABLED: Record<ReminderKindKey, boolean> = {
   // routine and typed a time into it, which is as clear a request to be
   // spoken to as this app ever gets.
   routine: true,
+  // On: a plan only speaks when somebody gave it a time and left its
+  // reminder switch on.
+  exercise: true,
   // On, for the same reason as a routine: a check only speaks because
   // somebody gave it a time.
   check: true,

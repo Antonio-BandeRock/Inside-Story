@@ -361,7 +361,7 @@ export async function saveWorkoutSession(input: {
   intensity: ExerciseIntensity;
   notes: string;
   note: string | null;
-}): Promise<string> {
+}): Promise<{ id: string; logId: string }> {
   const logId = await recordExercise({
     loggedAt: localStamp(new Date(input.startedAt)),
     exerciseType: input.workoutName,
@@ -387,7 +387,7 @@ export async function saveWorkoutSession(input: {
     now,
     now,
   );
-  return id;
+  return { id, logId };
 }
 
 /** The latest session of a workout, for "last time" on each exercise. */

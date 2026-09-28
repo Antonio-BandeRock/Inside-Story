@@ -52,6 +52,9 @@ import {
 } from './keepReminding';
 import { describeReminderDays, nextReminderTimes, routineDoneToday, type DoneCheck, type Routine } from './routines';
 import { listCheckReminders, listRoutineReminders, markDoneCheck } from './routinesDb';
+import { listExercisePlans, listPlanMarks } from './exercisePlanDb';
+import { listWorkouts } from './workoutsDb';
+import { planTitle, reminderBody, reminderMoments, reminderTitle, type ExercisePlan } from './exercisePlan';
 import { formatTime12 } from './timeOfDay';
 import { quietDecision, SNOOZE_MINUTES } from './quietHours';
 import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
@@ -207,8 +210,8 @@ export type ReminderKind = ReminderKindKey;
 // moment left today to hang a follow-up from.
 const NUDGEABLE_TIMED_KINDS: ReminderKind[] = ['dose', 'meal', 'hydration', 'garden', 'reminder', 'routine', 'check'];
 
-type ScheduleLens = 'meds' | 'appointments' | 'todaysMeals' | 'hydration';
-type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine' | 'signals' | 'camera' | 'home';
+type ScheduleLens = 'meds' | 'appointments' | 'todaysMeals' | 'hydration' | 'exercise';
+type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine' | 'signals' | 'camera' | 'home' | 'workout';
 // The two check-in reminders land on Signals (C1).
 type SignalsReminderLens = 'generalNote' | 'flares';
 // 'plotsAndPlantings' is what a 1.0.42.13 payload says for a counter; it
@@ -238,6 +241,10 @@ type ReminderPayload = {
    *  for Levothyroxine"), so the line after a press can name it. Absent on
    *  anything queued before 1.0.53.10, which falls back to the title. */
   subject?: string;
+  /** A planned workout (H11): the workout to open in the player and the
+   *  day of the plan it is for, so finishing it marks that day done. */
+  workoutId?: string;
+  onDate?: string;
 };
 
 type PlannedNotification = {
@@ -576,6 +583,29 @@ function buildRoutinePlanned(routine: Routine, fireAt: Date, now: Date): Planned
   };
 }
 
+// A planned exercise day with a time (H11 part 3). One per day in the
+// window, the day in the identifier so the week's copies coexist. A plan
+// built on a workout opens the player on it; a plain activity opens
+// Schedules > Exercise, where it is marked.
+function buildExercisePlanned(plan: ExercisePlan, title: string, date: string, fireAt: Date): PlannedNotification {
+  return {
+    identifier: `${IDENTIFIER_PREFIX}exercise:${plan.id}:${date}`,
+    title: reminderTitle(title),
+    body: reminderBody(plan),
+    fireAt,
+    payload: {
+      kind: 'exercise',
+      scheduleItemId: plan.id,
+      fireAt: fireAt.toISOString(),
+      tab: plan.workoutId ? 'workout' : 'schedule',
+      lens: 'exercise',
+      title,
+      subject: title,
+      ...(plan.workoutId ? { workoutId: plan.workoutId, onDate: date } : {}),
+    },
+  };
+}
+
 // A Did I Do It check with a time (C2). Same shape as a routine: the name
 // they gave it is the title, one per speaking day, and the day is in the
 // identifier so the week's copies coexist.
@@ -777,6 +807,7 @@ function channelFor(kind: ReminderKind): string {
     kind === 'garden' ||
     kind === 'reminder' ||
     kind === 'routine' ||
+    kind === 'exercise' ||
     kind === 'check' ||
     kind === 'checkin' ||
     kind === 'morning' ||
@@ -928,6 +959,25 @@ async function runSync(): Promise<ReminderSyncResult> {
         const planned = buildRoutinePlanned(routine, earlier, now);
         for (const nudge of buildNudges(planned, now, routine.keepReminding, nudging)) followUps.set(nudge.identifier, nudge);
       }
+    }
+  }
+
+  // Planned exercise (H11 part 3). The next day ahead is a first-time
+  // reminder and the rest of the week queues behind, the way routines do.
+  // A failed read leaves exercise out of this pass rather than failing the
+  // whole reconcile.
+  if (isReminderKindEnabled(preferences, 'exercise')) {
+    try {
+      const [plans, marks, workouts] = await Promise.all([listExercisePlans(), listPlanMarks(), listWorkouts()]);
+      const names = new Map(workouts.map((workout) => [workout.id, workout.name]));
+      for (const plan of plans) {
+        reminderMoments(plan, marks, now, LOOKAHEAD_DAYS).forEach((moment, index) => {
+          const planned = buildExercisePlanned(plan, planTitle(plan, names), moment.date, moment.fireAt);
+          (index === 0 ? first : followUps).set(planned.identifier, planned);
+        });
+      }
+    } catch (error) {
+      console.warn('[reminderNotifications] could not read planned exercise', error);
     }
   }
 
@@ -1130,12 +1180,13 @@ export type ReminderTapTarget =
   | { pathname: '/garden'; params: { openGardenLens: GardenReminderLens } }
   | { pathname: '/life'; params: { openLifeLens: LifeReminderLens } }
   | { pathname: '/routine'; params: { id: string } }
+  | { pathname: '/workout'; params: { id: string; planId: string; on: string } }
   | { pathname: '/log'; params: { openSignalsLens: SignalsReminderLens } }
   | { pathname: '/reconcile' }
   | { pathname: '/' }
   | { pathname: '/photo-camera'; params: { ownerKind: string; ownerId: string; guide: '1'; title: string } };
 
-const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'todaysMeals', 'hydration'];
+const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'todaysMeals', 'hydration', 'exercise'];
 // The dated lenses that live on Life. 'compost' is a dated lens too and is
 // deliberately not here: it is on Garden, and this list is the fallback for
 // the Life branch below.
@@ -1178,6 +1229,15 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
   // app/routine.tsx already does for an unknown id.
   if (data?.tab === 'routine' && typeof data.scheduleItemId === 'string' && data.scheduleItemId) {
     return { pathname: '/routine', params: { id: data.scheduleItemId } };
+  }
+  // A planned workout opens the player on it, carrying the plan and day so
+  // finishing it marks that day done. A workout since removed lands on
+  // Life > Workouts, which app/workout.tsx already does for an unknown id.
+  if (data?.tab === 'workout') {
+    if (typeof data.workoutId === 'string' && data.workoutId && typeof data.scheduleItemId === 'string' && typeof data.onDate === 'string') {
+      return { pathname: '/workout', params: { id: data.workoutId, planId: data.scheduleItemId, on: data.onDate } };
+    }
+    return { pathname: '/schedule', params: { openScheduleLens: 'exercise' } };
   }
   // A garden task lands on Upcoming Tasks, a Days Until counter on the Days
   // Until lens where every counter is, and a pile due a turn on Compost

@@ -164,6 +164,7 @@ const AREAS: readonly Area[] = [
   { one: 'measurement', many: 'measurements', count: ['body_measurements'], quiet: [] },
   { one: 'day of steps', many: 'days of steps', count: ['daily_step_counts'], quiet: [] },
   { one: 'exercise entry', many: 'exercise entries', count: ['exercise_logs'], quiet: ['workout_sessions'] },
+  { one: 'exercise plan', many: 'exercise plans', count: ['exercise_plans'], quiet: ['exercise_plan_marks'] },
   { one: 'therapy session', many: 'therapy sessions', count: ['therapy_sessions'], quiet: [] },
   { one: 'food trial', many: 'food trials', count: ['food_trials'], quiet: ['food_trial_task_links'] },
   {

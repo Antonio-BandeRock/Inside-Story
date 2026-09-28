@@ -152,6 +152,7 @@ function readPermissionsFor(signals: HealthSignal[]): Permission[] {
 const WRITE_PERMISSIONS: Permission[] = [
   { accessType: 'write', recordType: 'Hydration' },
   { accessType: 'write', recordType: 'Nutrition' },
+  { accessType: 'write', recordType: 'ExerciseSession' },
 ];
 
 export type GrantedHealthAccess = {
@@ -159,6 +160,7 @@ export type GrantedHealthAccess = {
   readable: Set<HealthSignalKey>;
   canWriteHydration: boolean;
   canWriteNutrition: boolean;
+  canWriteExercise: boolean;
 };
 
 function accessFromPermissions(granted: { accessType: string; recordType: string }[]): GrantedHealthAccess {
@@ -172,11 +174,12 @@ function accessFromPermissions(granted: { accessType: string; recordType: string
     readable,
     canWriteHydration: has('write', 'Hydration'),
     canWriteNutrition: has('write', 'Nutrition'),
+    canWriteExercise: has('write', 'ExerciseSession'),
   };
 }
 
 export function noHealthAccess(): GrantedHealthAccess {
-  return { readable: new Set(), canWriteHydration: false, canWriteNutrition: false };
+  return { readable: new Set(), canWriteHydration: false, canWriteNutrition: false, canWriteExercise: false };
 }
 
 export async function getGrantedHealthAccess(): Promise<GrantedHealthAccess> {
@@ -336,6 +339,44 @@ export async function writeDayHydration(date: string, milliliters: number): Prom
       ...dayWindow(date),
       volume: { value: Math.round(milliliters), unit: 'milliliters' },
       metadata: dayRecordMetadata('hydration', date),
+    };
+    const ids = await insertRecords([record]);
+    return ids.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+// A finished workout from app/workout.tsx, sent as one ExerciseSession so
+// the person's other fitness apps see it. clientRecordId carries the
+// session id, so a second send replaces rather than stacks, and starts with
+// OWN_EXERCISE_PREFIX so lib/healthSync.ts leaves it out when it reads
+// sessions back: the same workout is already in exercise_logs.
+export const OWN_EXERCISE_PREFIX = 'inside-story-exercise-';
+
+export async function writeExerciseSession(session: {
+  sessionId: string;
+  startTime: string;
+  endTime: string;
+  title: string;
+  exerciseType: number;
+  notes?: string | null;
+}): Promise<boolean> {
+  if (!(await ensureInitialized())) return false;
+  if (!(new Date(session.endTime).getTime() > new Date(session.startTime).getTime())) return false;
+  try {
+    const record: HealthConnectRecord = {
+      recordType: 'ExerciseSession',
+      startTime: session.startTime,
+      endTime: session.endTime,
+      exerciseType: session.exerciseType,
+      title: session.title,
+      ...(session.notes ? { notes: session.notes } : {}),
+      metadata: {
+        clientRecordId: `${OWN_EXERCISE_PREFIX}${session.sessionId}`,
+        clientRecordVersion: Date.now(),
+        recordingMethod: 3,
+      },
     };
     const ids = await insertRecords([record]);
     return ids.length > 0;

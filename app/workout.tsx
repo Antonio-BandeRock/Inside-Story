@@ -30,8 +30,11 @@ import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { getUserConditions } from '../lib/db';
+import { healthExerciseType } from '../lib/exercisePlan';
+import { markPlanDoneFromSession } from '../lib/exercisePlanDb';
+import { getGrantedHealthAccess, isHealthConnectPlatform, writeExerciseSession } from '../lib/healthConnect';
 import { formatSeconds, noteHeading, sessionNotesFor } from '../lib/exerciseLibrary';
-import { hasReminderPermission } from '../lib/reminderNotifications';
+import { hasReminderPermission, syncReminderNotifications } from '../lib/reminderNotifications';
 import {
   describeStep,
   describeWorkout,
@@ -104,8 +107,12 @@ function cancelRestNotice(identifier: string | null) {
 type Entry = { reps: number | null; seconds: number | null; weight: string };
 
 export default function WorkoutPlayerScreen() {
-  const params = useLocalSearchParams<{ id?: string }>();
+  const params = useLocalSearchParams<{ id?: string; planId?: string; on?: string }>();
   const workoutId = typeof params.id === 'string' ? params.id : null;
+  // Opened from a planned day on Schedules > Exercise or its reminder:
+  // saving marks that day done.
+  const planId = typeof params.planId === 'string' && params.planId ? params.planId : null;
+  const planDate = typeof params.on === 'string' && /^d{4}-d{2}-d{2}$/.test(params.on) ? params.on : null;
   const router = useRouter();
   const scrollPadding = useFloatingButtonScrollPadding();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -128,6 +135,9 @@ export default function WorkoutPlayerScreen() {
   const [now, setNow] = useState(() => Date.now());
   const [note, setNote] = useState('');
   const [saving, setSaving] = useState(false);
+  const [canSendHealth, setCanSendHealth] = useState(false);
+  const [sendHealth, setSendHealth] = useState(false);
+  const [healthOutcome, setHealthOutcome] = useState<'sent' | 'refused' | null>(null);
   const restNoticeRef = useRef<string | null>(null);
   const setTimerBuzzedRef = useRef(false);
 
@@ -157,6 +167,19 @@ export default function WorkoutPlayerScreen() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (!isHealthConnectPlatform()) return;
+    let live = true;
+    getGrantedHealthAccess()
+      .then((access) => {
+        if (live) setCanSendHealth(access.canWriteExercise);
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, []);
 
   const sets = useMemo(() => {
     if (!workout) return [];
@@ -354,7 +377,7 @@ export default function WorkoutPlayerScreen() {
     if (!workout || !startedAt || !finishedAt || saving) return;
     setSaving(true);
     try {
-      await saveWorkoutSession({
+      const saved = await saveWorkoutSession({
         workoutId: workout.id,
         workoutName: workout.name,
         startedAt,
@@ -365,6 +388,21 @@ export default function WorkoutPlayerScreen() {
         notes: logNotes(comparisons, note),
         note: note.trim() || null,
       });
+      if (planId && planDate) {
+        await markPlanDoneFromSession(planId, planDate, saved.id, saved.logId);
+        void syncReminderNotifications();
+      }
+      if (canSendHealth && sendHealth) {
+        const sent = await writeExerciseSession({
+          sessionId: saved.id,
+          startTime: startedAt,
+          endTime: finishedAt,
+          title: workout.name,
+          exerciseType: healthExerciseType(exercises.flatMap((exercise) => (exercise ? [exercise.category] : []))),
+          notes: note.trim() || null,
+        });
+        setHealthOutcome(sent ? 'sent' : 'refused');
+      }
       setPhase('saved');
     } catch (error) {
       showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
@@ -647,7 +685,32 @@ export default function WorkoutPlayerScreen() {
                   <Text style={styles.captionText}>
                     Saving adds one entry to your exercise log, named {workout.name}, which Movement and Trends read.
                   </Text>
+                  {planId && planDate ? (
+                    <Text style={styles.captionText}>It also marks the planned day done on Schedules {'>'} Exercise.</Text>
+                  ) : null}
                 </View>
+                {canSendHealth ? (
+                  <View style={styles.card}>
+                    <Text style={styles.label}>Health Connect</Text>
+                    <View style={styles.choiceRow}>
+                      {[
+                        { key: true, label: 'Send it there too' },
+                        { key: false, label: 'Keep it here' },
+                      ].map((option) => (
+                        <TouchableOpacity
+                          key={option.label}
+                          style={[styles.minorButton, sendHealth === option.key ? styles.choiceOn : null]}
+                          onPress={() => setSendHealth(option.key)}
+                        >
+                          <Text style={[styles.minorButtonText, sendHealth === option.key ? styles.choiceOnText : null]}>{option.label}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                    <Text style={styles.captionText}>
+                      Sent, it goes over as one exercise session from start to finish, so other apps reading Health Connect see it too.
+                    </Text>
+                  </View>
+                ) : null}
                 <TouchableOpacity
                   style={[styles.primaryButton, totals.done === 0 || saving ? styles.minorButtonOff : null]}
                   disabled={totals.done === 0 || saving}
@@ -663,9 +726,20 @@ export default function WorkoutPlayerScreen() {
                 </View>
               </>
             ) : (
-              <TouchableOpacity style={styles.primaryButton} onPress={() => router.back()}>
-                <Text style={styles.primaryButtonText}>Close</Text>
-              </TouchableOpacity>
+              <>
+                {healthOutcome ? (
+                  <View style={styles.card}>
+                    <Text style={styles.captionText}>
+                      {healthOutcome === 'sent'
+                        ? 'Sent to Health Connect as an exercise session.'
+                        : 'Health Connect did not take the session. It is saved here all the same.'}
+                    </Text>
+                  </View>
+                ) : null}
+                <TouchableOpacity style={styles.primaryButton} onPress={() => router.back()}>
+                  <Text style={styles.primaryButtonText}>Close</Text>
+                </TouchableOpacity>
+              </>
             )}
           </>
         ) : null}
@@ -789,6 +863,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   minorButtonOff: { opacity: 0.4 },
+  choiceRow: { flexDirection: 'row', gap: 10 },
+  choiceOn: { backgroundColor: colors.primary, borderColor: colors.primary },
+  choiceOnText: { color: colors.background },
   minorButtonText: { ...typography.body, color: colors.textSecondary },
   quietButton: {
     marginHorizontal: HOME_BAND_CONTENT_PADDING,

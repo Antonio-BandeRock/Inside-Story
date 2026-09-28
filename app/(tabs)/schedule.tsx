@@ -274,6 +274,7 @@ import { standingMealsLine, withStandingMeals } from '../../lib/mealPack';
 import type { UsualMeal } from '../../lib/usualMeal';
 import { getOpenMealRules, listUsualMeals, saveOpenMealRules } from '../../lib/usualMealDb';
 import { useWalkMark } from '../../components/WalkMark';
+import { ExerciseScheduleSection } from '../../components/ExerciseScheduleSection';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -540,16 +541,22 @@ const LENSES: LensOption<Lens>[] = [
     key: 'exercise',
     label: 'Exercise',
     icon: 'barbell-outline',
-    help: [{ heading: 'Exercise', body: 'Schedule planned workouts and activity. Not built yet.' }],
+    help: [
+      {
+        heading: 'Planned exercise',
+        body: 'Plan a workout from Life > Workouts, or any activity by name, on a day, at a time or any time that day, once or repeating. Each planned day can be started, marked done or marked skipped, and the last two weeks can still be marked late.',
+      },
+      {
+        heading: 'Reminders and Start',
+        body: 'A plan with a time can remind you. Tapping the reminder for a workout opens it in the workout player, and finishing there marks the day done. Marking an activity done here adds it to the exercise log, so Movement, Trends and Reports see it.',
+      },
+      {
+        heading: 'Nothing counted against you',
+        body: 'A day with nothing marked is left as it is. Nothing here counts days in a row or scores how often a plan is kept. Workouts themselves are built and changed on Life > Workouts.',
+      },
+    ],
   },
 ];
-
-const COMING_SOON_COPY: Record<
-  Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments' | 'upkeep' | 'timeline'>,
-  string
-> = {
-  exercise: 'Schedule planned workouts and activity. Not built yet.',
-};
 
 const SCHEDULE_HELP_SECTIONS: HelpSection[] = [
   {
@@ -561,8 +568,8 @@ const SCHEDULE_HELP_SECTIONS: HelpSection[] = [
     body: 'This page is for planning what you intend to do, before you do it. Meals still get logged on the Food tab, either through "Log now" here or by creating a meal there directly.',
   },
   {
-    heading: 'Six schedule types, five built so far',
-    body: 'Meals, Hydration, Supplements, Prescriptions, and Appointments are fully built. Exercise is still a placeholder.',
+    heading: 'Six schedule types',
+    body: 'Meals, Hydration, Supplements, Prescriptions, Appointments and Exercise each have a lens here.',
   },
   {
     heading: 'Hydration is Meals, filtered',
@@ -6182,18 +6189,16 @@ function UpkeepLens() {
   );
 }
 
-// A short, honest placeholder for the remaining schedule type not built
-// yet -- same "coming soon" pattern already used for the Trends/Reports
-// bottom tabs, one level deeper inside Schedule.
-function ComingSoonLens({
-  lens,
-}: {
-  lens: Exclude<Lens, 'meals' | 'todaysMeals' | 'pastMeals' | 'dailyMealPlan' | 'meds' | 'hydration' | 'appointments' | 'upkeep' | 'timeline'>;
-}) {
+// H11 part 3: planned exercise, from Life > Workouts or any activity. The
+// repeat picker is handed over as a component and drawn inside that
+// section's formCard, which is the surface its labels sit on.
+const EXERCISE_REPEAT_PICKER = RepeatPicker;
+
+function ExerciseLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
-      <View style={styles.bandBox}><Text style={styles.emptyText}>{COMING_SOON_COPY[lens]}</Text></View>
+      <ExerciseScheduleSection tabColor={TAB_COLOR} RepeatRulePicker={EXERCISE_REPEAT_PICKER} />
     </ScrollView>
   );
 }
@@ -6311,7 +6316,7 @@ export default function ScheduleScreen() {
           ) : lens === 'timeline' ? (
             <TimelineLens />
           ) : (
-            <ComingSoonLens lens={lens} />
+            <ExerciseLens />
           )}
         </GatedTabContent>
       </SwipeableTabScreen>

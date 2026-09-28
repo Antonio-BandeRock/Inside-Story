@@ -7713,6 +7713,46 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_workout_sessions_workout ON workout_sessions(workout_id, finished_at);
 
+      -- Planned exercise, H11 part 3 (Schedules > Exercise). A plan is one
+      -- workout from Life > Workouts or a plain activity by name, on a
+      -- start day, optionally at a time, repeating by the same rule every
+      -- other schedule uses (lib/repeatRule.ts). exercise_plan_marks holds
+      -- one row per day marked done or skipped, so a day with no row is
+      -- simply not marked, never read as missed. A plan with history is
+      -- archived rather than deleted. See lib/exercisePlan.ts.
+      CREATE TABLE IF NOT EXISTS exercise_plans (
+        id TEXT PRIMARY KEY,
+        workout_id TEXT,
+        activity TEXT,
+        starts_on TEXT NOT NULL,
+        at_time TEXT,
+        minutes INTEGER,
+        repeat_type TEXT NOT NULL DEFAULT 'none',
+        repeat_interval INTEGER,
+        repeat_weekdays TEXT,
+        repeat_end_type TEXT,
+        repeat_count INTEGER,
+        repeat_until TEXT,
+        remind INTEGER NOT NULL DEFAULT 1,
+        note TEXT,
+        archived_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS exercise_plan_marks (
+        id TEXT PRIMARY KEY,
+        plan_id TEXT NOT NULL,
+        on_date TEXT NOT NULL,
+        status TEXT NOT NULL,
+        workout_session_id TEXT,
+        exercise_log_id TEXT,
+        marked_at TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+        UNIQUE(plan_id, on_date)
+      );
+      CREATE INDEX IF NOT EXISTS idx_exercise_plan_marks_plan ON exercise_plan_marks(plan_id, on_date);
+
       -- Nights, 1.0.52.7: how many times somebody got up in the night,
       -- written down the next morning. Signals > Nocturia is where it goes
       -- in and Trends > Nights reads it beside the evening's drinks.

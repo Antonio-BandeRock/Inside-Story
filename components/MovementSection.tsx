@@ -261,7 +261,7 @@ export function MovementSection({ tabColor }: Props) {
     try {
       const granted = await requestHealthAccess();
       setAccess(granted);
-      if (granted.readable.size === 0 && !granted.canWriteHydration && !granted.canWriteNutrition) {
+      if (granted.readable.size === 0 && !granted.canWriteHydration && !granted.canWriteNutrition && !granted.canWriteExercise) {
         showInfoAlert('Nothing granted', 'Health Connect did not allow any of the signals. Open its settings to change that, then come back and connect again.');
         return;
       }
@@ -488,6 +488,11 @@ export function MovementSection({ tabColor }: Props) {
           ) : (
             <Text style={styles.rowMeta}>Write access for hydration and nutrition is not granted. Connect, or change it in Health Connect settings.</Text>
           )}
+          <Text style={styles.helperText}>
+            {access.canWriteExercise
+              ? 'A workout finished in Life > Workouts can go over as an exercise session. The workout player asks when you save it.'
+              : 'Write access for exercise sessions is not granted, so a finished workout stays here. Connect again to allow it.'}
+          </Text>
           {imperial ? <Text style={styles.footnote}>Volumes go over in millilitres, which is what Health Connect stores; other apps show them in their units.</Text> : null}
         </TabBand>
       ) : null}
