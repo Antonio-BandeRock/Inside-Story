@@ -126,7 +126,8 @@ export type LightSourceCode =
   | 'fluorescent'
   | 'hps'
   | 'metal_halide'
-  | 'incandescent';
+  | 'incandescent'
+  | 'other';
 
 export type LightSource = {
   code: LightSourceCode;
@@ -143,45 +144,117 @@ export const LIGHT_SOURCES: readonly LightSource[] = [
   { code: 'sun', phrase: 'sunlight', label: 'Sunlight or daylight', luxPerPpfd: 54, help: 'Outdoors, in a greenhouse, or by a window with no lamp on.', lamp: false },
   { code: 'white_led', phrase: 'white LED light', label: 'White LED', luxPerPpfd: 67, help: 'White light from LEDs: a household bulb or a white grow panel. Warm and cool white differ by about a tenth.', lamp: true },
   { code: 'white_red_led', phrase: 'white LED light with extra red', label: 'White LED with extra red', luxPerPpfd: 55, help: 'A white grow panel with deep red diodes added, which looks pinkish. The ratio moves with how much red is added.', lamp: true },
-  { code: 'red_blue_led', phrase: 'red and blue LED light', label: 'Red and blue LED (purple light)', luxPerPpfd: null, help: "Lux cannot be turned into PPFD under this light. The maker's PPFD chart or a quantum sensor gives the figure.", lamp: true },
+  { code: 'red_blue_led', phrase: 'red and blue LED light', label: 'Red and blue LED (purple light)', luxPerPpfd: null, help: "No general ratio exists for this light, since it gives off little of the green an eye weights most. Give this lamp's ratio below from the maker's figures, or take PPFD from the maker's chart or a quantum sensor.", lamp: true },
   { code: 'fluorescent', phrase: 'fluorescent light', label: 'Fluorescent (T5, tube or CFL)', luxPerPpfd: 74, help: 'Cool white tubes and compact bulbs.', lamp: true },
   { code: 'hps', phrase: 'high-pressure sodium light', label: 'High-pressure sodium (HPS)', luxPerPpfd: 82, help: 'The orange light of an HPS lamp.', lamp: true },
   { code: 'metal_halide', phrase: 'metal halide light', label: 'Metal halide or CMH', luxPerPpfd: 71, help: 'Metal halide and ceramic metal halide read close together.', lamp: true },
   { code: 'incandescent', phrase: 'incandescent or halogen light', label: 'Incandescent or halogen', luxPerPpfd: 50, help: 'An ordinary filament bulb.', lamp: true },
+  { code: 'other', phrase: 'this light', label: 'Another light (give its ratio)', luxPerPpfd: null, help: "Any light not on this list. Give this lamp's ratio below, from the maker's figures, and PPFD is worked out from it.", lamp: true },
 ];
 
 export function lightSource(code: string | null | undefined): LightSource | null {
   return LIGHT_SOURCES.find((source) => source.code === code) ?? null;
 }
 
-/** PPFD from lux under one kind of light, or null where no ratio exists. */
-export function luxToPpfd(lux: number, code: LightSourceCode): number | null {
-  const source = lightSource(code);
-  if (!source || source.luxPerPpfd === null || !Number.isFinite(lux) || lux < 0) return null;
-  const ppfd = lux / source.luxPerPpfd;
+// ---------------------------------------------------------------------------
+// This lamp's ratio (1.0.55.21)
+// ---------------------------------------------------------------------------
+//
+// The ratio above is for a kind of light in general. The one for a
+// particular lamp comes from its spectrum, and a grow light's maker has
+// already done that arithmetic: a spec sheet gives the lamp's lumens (light
+// as an eye weights it) and its PPF in µmol/s (the photons a leaf can use),
+// and both come off the same spectrum. Lumens over PPF is lux over PPFD,
+// because lux is lumens per square metre and PPFD is µmol/s per square
+// metre, the same area on both sides. Efficacy works too: lm/W over µmol/J,
+// since the watts cancel. So a person who types the two figures off the
+// box gets this lamp's ratio rather than the kind's, and a red and blue
+// panel, which has no general ratio, gets one.
+//
+// A ratio is kept only between 5 and 200. The published figures run from
+// about 50 to 82 for the lights above; a deep red or blue panel can go well
+// under that, and nothing a lamp gives off comes near either edge, so a
+// figure outside it is a typing slip rather than a lamp.
+
+export const LAMP_RATIO_MIN = 5;
+export const LAMP_RATIO_MAX = 200;
+
+/** A typed ratio as a number, or null when it is blank or out of range. */
+export function parseLampRatio(text: string): number | null {
+  const trimmed = text.trim().replace(',', '.');
+  if (!trimmed) return null;
+  const value = Number(trimmed);
+  if (!Number.isFinite(value) || value < LAMP_RATIO_MIN || value > LAMP_RATIO_MAX) return null;
+  return value;
+}
+
+/** Lumens over PPF (or lm/W over µmol/J), rounded to one decimal, or null
+ *  when either figure is missing or the result is out of range. */
+export function lampRatioFromMaker(lumensText: string, ppfText: string): number | null {
+  const lumens = Number(lumensText.trim().replace(',', '.'));
+  const ppf = Number(ppfText.trim().replace(',', '.'));
+  if (!lumensText.trim() || !ppfText.trim() || !Number.isFinite(lumens) || !Number.isFinite(ppf) || lumens <= 0 || ppf <= 0) {
+    return null;
+  }
+  const ratio = Math.round((lumens / ppf) * 10) / 10;
+  return ratio >= LAMP_RATIO_MIN && ratio <= LAMP_RATIO_MAX ? ratio : null;
+}
+
+/** The ratio in use: this lamp's when one is given, otherwise the kind's. */
+export function ratioInUse(code: LightSourceCode | null, lampRatio: number | null): number | null {
+  if (lampRatio !== null) return lampRatio;
+  return lightSource(code)?.luxPerPpfd ?? null;
+}
+
+/** Where a lamp's ratio is remembered: the area and the kind of light, so
+ *  the same panel over the same bed is not typed twice. */
+export function lampRatioKey(plotId: string | null, code: LightSourceCode | null): string | null {
+  if (!code || code === 'sun') return null;
+  return `${plotId ?? 'none'}:${code}`;
+}
+
+export const LAMP_RATIO_HOW =
+  "A grow light's spec sheet gives its lumens and its PPF in µmol/s, both measured off the same spectrum. Lumens divided by PPF is this lamp's ratio. Efficacy works the same way: lm/W divided by µmol/J.";
+
+/** PPFD from lux under one kind of light, or null where no ratio exists. A
+ *  lamp's own ratio, when given, is used in place of the kind's. */
+export function luxToPpfd(lux: number, code: LightSourceCode, lampRatio: number | null = null): number | null {
+  const ratio = ratioInUse(code, lampRatio);
+  if (ratio === null || !Number.isFinite(lux) || lux < 0) return null;
+  const ppfd = lux / ratio;
   return ppfd >= 10 ? Math.round(ppfd) : Math.round(ppfd * 10) / 10;
 }
 
 /** The figure the form is filled with, in the unit the form is set to, or
- *  null when PPFD cannot be worked out (no light picked, or red and blue). */
-export function meterFigure(lux: number, unit: string | null, code: LightSourceCode | null): string | null {
+ *  null when PPFD cannot be worked out (no light picked, or no ratio). */
+export function meterFigure(
+  lux: number,
+  unit: string | null,
+  code: LightSourceCode | null,
+  lampRatio: number | null = null,
+): string | null {
   if (unit === 'PPFD') {
     if (!code) return null;
-    const ppfd = luxToPpfd(lux, code);
+    const ppfd = luxToPpfd(lux, code, lampRatio);
     return ppfd === null ? null : String(ppfd);
   }
   return String(Math.round(lux));
 }
 
 /** The line under a measurement when the form is set to PPFD. */
-export function describePpfd(lux: number, code: LightSourceCode | null): string {
+export function describePpfd(lux: number, code: LightSourceCode | null, lampRatio: number | null = null): string {
   if (!code) return `${formatLux(lux)} was read. Pick the light it is under and it is worked out as PPFD.`;
   const source = lightSource(code) as LightSource;
-  const ppfd = luxToPpfd(lux, code);
+  const ppfd = luxToPpfd(lux, code, lampRatio);
   if (ppfd === null) {
-    return `${formatLux(lux)} was read, but lux cannot be turned into PPFD under red and blue light. Set the unit to lux to keep this figure, or take PPFD from the maker's chart or a quantum sensor.`;
+    return code === 'red_blue_led'
+      ? `${formatLux(lux)} was read. Red and blue light has no general ratio, so give this lamp's ratio below from the maker's figures, set the unit to lux to keep this figure, or take PPFD from a quantum sensor.`
+      : `${formatLux(lux)} was read. Give this lamp's ratio below and it is worked out as PPFD.`;
   }
-  return `${formatLux(lux)} under ${source.phrase} is about ${ppfd} µmol/m²/s PPFD, at ${source.luxPerPpfd} lux to one µmol. An estimate, since the ratio is for that kind of light in general rather than this lamp.`;
+  if (lampRatio !== null) {
+    return `${formatLux(lux)} under ${source.phrase} is about ${ppfd} µmol/m²/s PPFD, at this lamp's ${lampRatio} lux to one µmol. As close as the maker's figures and the phone's sensor are.`;
+  }
+  return `${formatLux(lux)} under ${source.phrase} is about ${ppfd} µmol/m²/s PPFD, at ${source.luxPerPpfd} lux to one µmol. An estimate, since the ratio is for that kind of light in general rather than this lamp; this lamp's ratio can be given below.`;
 }
 
 export type DistanceUnit = 'cm' | 'in';
@@ -194,11 +267,16 @@ export function meterNote(input: {
   source: LightSourceCode | null;
   distance: string;
   distanceUnit: DistanceUnit;
+  lampRatio?: number | null;
 }): string {
   const parts: string[] = [];
   const source = lightSource(input.source);
-  if (input.unit === 'PPFD' && source && source.luxPerPpfd !== null) {
-    parts.push(`Worked out from ${formatLux(input.lux)} under ${source.phrase}, at ${source.luxPerPpfd} lux to one µmol.`);
+  const lampRatio = input.lampRatio ?? null;
+  const ratio = ratioInUse(input.source, lampRatio);
+  if (input.unit === 'PPFD' && source && ratio !== null) {
+    parts.push(
+      `Worked out from ${formatLux(input.lux)} under ${source.phrase}, at ${lampRatio !== null ? "this lamp's " : ''}${ratio} lux to one µmol.`,
+    );
   }
   const trimmed = input.distance.trim().replace(',', '.');
   const distance = Number(trimmed);

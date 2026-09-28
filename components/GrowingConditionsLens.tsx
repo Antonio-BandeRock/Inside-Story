@@ -19,7 +19,9 @@ import {
   addGardenReading,
   deleteGardenReading,
   getConditionsSetup,
+  getLampRatios,
   listGardenReadings,
+  saveLampRatio,
 } from '../lib/growingConditionsDb';
 import { termLabel, type CustomGardenTerm, type GrowEquipment } from '../lib/growSetup';
 import { listAllGrowEquipmentInUse } from '../lib/growSetupDb';
@@ -29,6 +31,11 @@ import { phoneOnlyNotice } from '../lib/desktop/phoneOnly';
 import {
   describeMeasurement,
   describePpfd,
+  LAMP_RATIO_HOW,
+  LAMP_RATIO_MAX,
+  LAMP_RATIO_MIN,
+  lampRatioFromMaker,
+  lampRatioKey,
   LIGHT_METER_DEVICE_NAME,
   LIGHT_METER_DISTANCE_HOW,
   LIGHT_METER_HOW,
@@ -42,6 +49,7 @@ import {
   likelyLightSource,
   meterFigure,
   meterNote,
+  parseLampRatio,
   summarizeLightSamples,
   type DistanceUnit,
   type LightSampleSummary,
@@ -128,6 +136,13 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
   const [distance, setDistance] = useState('');
   const [distanceUnit, setDistanceUnit] = useState<DistanceUnit>('cm');
   const [lights, setLights] = useState<GrowEquipment[]>([]);
+  // This lamp's lux-to-PPFD ratio (1.0.55.21), typed or worked out from the
+  // maker's lumens and PPF, and remembered per area and kind of light.
+  const [lampRatioText, setLampRatioText] = useState('');
+  const [savedRatios, setSavedRatios] = useState<Record<string, number>>({});
+  const [makerOpen, setMakerOpen] = useState(false);
+  const [makerLumens, setMakerLumens] = useState('');
+  const [makerPpf, setMakerPpf] = useState('');
   const listening = useRef<{ remove: () => void; timer: ReturnType<typeof setTimeout> } | null>(null);
   const today = todayDateString();
 
@@ -177,12 +192,14 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
   }, [stopListening]);
 
   const load = useCallback(async () => {
-    const [setup, rows, equipment, system] = await Promise.all([
+    const [setup, rows, equipment, system, ratios] = await Promise.all([
       getConditionsSetup(),
       listGardenReadings(),
       listAllGrowEquipmentInUse(),
       getStoredMeasurementSystem(),
+      getLampRatios(),
     ]);
+    setSavedRatios(ratios);
     setLights(equipment.filter((piece) => piece.kind === 'light'));
     setDistanceUnit((system ?? detectMeasurementSystemFromLocale()) === 'imperial' ? 'in' : 'cm');
     setAreas(setup.areas);
@@ -216,6 +233,17 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
     [],
   );
 
+  // The ratio remembered for this area and light fills the field whenever
+  // either changes; a blank field means the kind's general figure is used.
+  const ratioKey = lampRatioKey(draft.plotId, source);
+  useEffect(() => {
+    const remembered = ratioKey ? savedRatios[ratioKey] : undefined;
+    setLampRatioText(remembered !== undefined ? String(remembered) : '');
+    setMakerOpen(false);
+  }, [ratioKey, savedRatios]);
+  const lampRatio = lightSource(source)?.lamp ? parseLampRatio(lampRatioText) : null;
+  const makerRatio = lampRatioFromMaker(makerLumens, makerPpf);
+
   // The last unit light was recorded in, so the form opens on it rather
   // than on lux every time.
   const lastLightUnit = useMemo(
@@ -227,9 +255,9 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
   // switching lux to PPFD, or picking another light, works it out again.
   useEffect(() => {
     if (!fromPhone || meterLux === null) return;
-    const figure = meterFigure(meterLux, draft.unit, source) ?? '';
+    const figure = meterFigure(meterLux, draft.unit, source, lampRatio) ?? '';
     setDraft((current) => (current.value === figure ? current : { ...current, value: figure }));
-  }, [fromPhone, meterLux, draft.unit, source]);
+  }, [fromPhone, meterLux, draft.unit, source, lampRatio]);
 
   const areaOptions = useMemo(
     () => [
@@ -291,7 +319,7 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
       measuredOn: draft.measuredOn,
       note:
         fromPhone && meterLux !== null
-          ? [meterNote({ lux: meterLux, unit: draft.unit, source, distance, distanceUnit }), draft.note.trim()]
+          ? [meterNote({ lux: meterLux, unit: draft.unit, source, distance, distanceUnit, lampRatio }), draft.note.trim()]
               .filter(Boolean)
               .join(' ')
           : draft.note,
@@ -299,6 +327,9 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
         ? { source: 'device' as const, deviceName: LIGHT_METER_DEVICE_NAME }
         : {}),
     });
+    if (fromPhone && draft.unit === 'PPFD' && ratioKey && (lampRatio !== null || !lampRatioText.trim())) {
+      await saveLampRatio(ratioKey, lampRatio);
+    }
     setFromPhone(false);
     setMeterLux(null);
     setMeter({ status: 'idle' });
@@ -429,6 +460,87 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                             <Text style={styles.captionText}>{LIGHT_METER_DISTANCE_HOW}</Text>
                           </>
                         ) : null}
+                        {lightSource(source)?.lamp && draft.unit === 'PPFD' ? (
+                          <>
+                            <View style={styles.fieldRow}>
+                              <Text style={styles.fieldLabel}>This lamp&apos;s ratio (lux to one µmol)</Text>
+                              <AppTextInput
+                                style={[styles.textInput, styles.shortInput]}
+                                value={lampRatioText}
+                                onChangeText={setLampRatioText}
+                                placeholder={String(lightSource(source)?.luxPerPpfd ?? 60)}
+                                keyboardType="numeric"
+                              />
+                            </View>
+                            <Text style={styles.captionText}>
+                              {lampRatioText.trim() && lampRatio === null
+                                ? `A ratio from ${LAMP_RATIO_MIN} to ${LAMP_RATIO_MAX} is kept, so check the figure.`
+                                : lampRatio !== null
+                                  ? 'This lamp\'s ratio is used, and it is remembered for this area and light when the reading is saved.'
+                                  : lightSource(source)?.luxPerPpfd
+                                    ? `Left blank, the general figure for this kind of light is used: ${lightSource(source)?.luxPerPpfd}.`
+                                    : 'This light has no general figure, so PPFD is worked out once this lamp\'s ratio is given.'}
+                            </Text>
+                            {makerOpen ? (
+                              <View style={styles.formCard}>
+                                <Text style={styles.captionText}>{LAMP_RATIO_HOW}</Text>
+                                <View style={styles.fieldRow}>
+                                  <Text style={styles.fieldLabel}>Lumens (or lm/W)</Text>
+                                  <AppTextInput
+                                    style={[styles.textInput, styles.shortInput]}
+                                    value={makerLumens}
+                                    onChangeText={setMakerLumens}
+                                    placeholder="52000"
+                                    keyboardType="numeric"
+                                  />
+                                </View>
+                                <View style={styles.fieldRow}>
+                                  <Text style={styles.fieldLabel}>PPF in µmol/s (or µmol/J)</Text>
+                                  <AppTextInput
+                                    style={[styles.textInput, styles.shortInput]}
+                                    value={makerPpf}
+                                    onChangeText={setMakerPpf}
+                                    placeholder="850"
+                                    keyboardType="numeric"
+                                  />
+                                </View>
+                                {makerRatio !== null ? (
+                                  <Text style={styles.bodyText}>{makerRatio} lux to one µmol.</Text>
+                                ) : makerLumens.trim() && makerPpf.trim() ? (
+                                  <Text style={styles.bodyText}>
+                                    Those two give a ratio outside {LAMP_RATIO_MIN} to {LAMP_RATIO_MAX}, so check both are from the same line of the sheet.
+                                  </Text>
+                                ) : null}
+                                <View style={styles.actionRow}>
+                                  <TouchableOpacity
+                                    style={[styles.primaryButton, { backgroundColor: makerRatio !== null ? PRIMARY_BUTTON_BACKGROUND : colors.border }]}
+                                    disabled={makerRatio === null}
+                                    onPress={() => {
+                                      setLampRatioText(String(makerRatio));
+                                      setMakerOpen(false);
+                                    }}
+                                  >
+                                    <Text style={styles.primaryButtonText}>Use This Ratio</Text>
+                                  </TouchableOpacity>
+                                  <TouchableOpacity onPress={() => setMakerOpen(false)}>
+                                    <Text style={styles.linkText}>Back</Text>
+                                  </TouchableOpacity>
+                                </View>
+                              </View>
+                            ) : (
+                              <View style={styles.actionRow}>
+                                <TouchableOpacity onPress={() => setMakerOpen(true)}>
+                                  <Text style={styles.linkText}>Work It Out From the Maker&apos;s Figures</Text>
+                                </TouchableOpacity>
+                                {lampRatioText.trim() ? (
+                                  <TouchableOpacity onPress={() => setLampRatioText('')}>
+                                    <Text style={styles.linkText}>Use the General Figure</Text>
+                                  </TouchableOpacity>
+                                ) : null}
+                              </View>
+                            )}
+                          </>
+                        ) : null}
                         {meter.status === 'reading' ? (
                           <Text style={styles.bodyText}>
                             Reading{meter.live !== null ? `: ${meter.live.toLocaleString('en-US')} lux` : ''}
@@ -436,7 +548,7 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                         ) : meter.status === 'done' ? (
                           <Text style={styles.bodyText}>
                             {draft.unit === 'PPFD'
-                              ? describePpfd(meter.summary.lux, source)
+                              ? describePpfd(meter.summary.lux, source, lampRatio)
                               : describeMeasurement(meter.summary)}
                           </Text>
                         ) : meter.status === 'unavailable' ? (

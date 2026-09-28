@@ -262,3 +262,38 @@ export async function getGrowingConditionsSummary(
 
   return { band, measurements, things, coverage, empty: false };
 }
+
+// This lamp's lux-to-PPFD ratio (1.0.55.21), remembered per area and kind of
+// light under one app_meta row so the same panel over the same bed is not
+// typed twice. It describes a lamp rather than this device, so it travels
+// with the rest of the record.
+const LAMP_RATIOS_KEY = 'garden_lamp_ratios';
+
+export async function getLampRatios(): Promise<Record<string, number>> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ value: string }>('SELECT value FROM app_meta WHERE key = ?', LAMP_RATIOS_KEY);
+  if (!row?.value) return {};
+  try {
+    const parsed = JSON.parse(row.value) as Record<string, unknown>;
+    const out: Record<string, number> = {};
+    for (const [key, value] of Object.entries(parsed)) if (typeof value === 'number') out[key] = value;
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+/** Remembers a lamp's ratio, or forgets it when ratio is null. */
+export async function saveLampRatio(key: string, ratio: number | null): Promise<void> {
+  const ratios = await getLampRatios();
+  if (ratio === null) delete ratios[key];
+  else ratios[key] = ratio;
+  const db = await getDatabase();
+  await db.runAsync(
+    `INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?)
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
+    LAMP_RATIOS_KEY,
+    JSON.stringify(ratios),
+    new Date().toISOString(),
+  );
+}

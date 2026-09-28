@@ -92,7 +92,7 @@ ok(M.meterFigure(54000, 'PPFD', null) === null, 'PPFD with no light picked leave
 ok(M.meterFigure(54000, 'PPFD', 'red_blue_led') === null, 'PPFD under red and blue leaves the figure empty');
 ok(/about 1000 µmol/.test(M.describePpfd(54000, 'sun')), 'the PPFD line gives the figure');
 ok(/estimate/i.test(M.describePpfd(54000, 'sun')), 'the PPFD line says it is an estimate');
-ok(/cannot be turned into PPFD/.test(M.describePpfd(5000, 'red_blue_led')), 'red and blue says why');
+ok(/no general ratio/.test(M.describePpfd(5000, 'red_blue_led')), 'red and blue says why');
 ok(/Pick the light/.test(M.describePpfd(5000, null)), 'no light asks for one');
 ok(M.meterNote({ lux: 5000, unit: 'lux', source: 'sun', distance: '40', distanceUnit: 'cm' }) === '', 'the sun has no lamp height and lux needs no working');
 ok(M.meterNote({ lux: 6700, unit: 'PPFD', source: 'white_led', distance: '45', distanceUnit: 'cm' }) === 'Worked out from 6,700 lux under white LED light, at 67 lux to one µmol. Lamp 45 cm above where it was read.', 'note keeps the working and the height');
@@ -108,6 +108,29 @@ ok(M.likelyLightSource(null, []) === null, 'no area, no guess');
 ok(M.LIGHT_SOURCES.every((s) => s.code === 'sun' ? !s.lamp : s.lamp), 'only the sun is not a lamp');
 ok(/iPhone/.test(M.LIGHT_METER_IPHONE), 'the iPhone line names the iPhone');
 for (const sentence of [M.describePpfd(54000, 'sun'), M.describePpfd(5000, 'red_blue_led'), M.describePpfd(5000, null), M.LIGHT_METER_DISTANCE_HOW, M.LIGHT_METER_IPHONE, ...M.LIGHT_SOURCES.map((s) => s.help)]) {
+  ok(!forbidden.test(sentence), `no verdict words: ${sentence}`);
+  ok(!/[–—]| -- /.test(sentence), `no dashes: ${sentence}`);
+}
+
+// This lamp's ratio (1.0.55.21).
+ok(M.parseLampRatio('') === null, 'blank ratio is none');
+ok(M.parseLampRatio('61,5') === 61.5, 'a comma decimal reads');
+ok(M.parseLampRatio('3') === null && M.parseLampRatio('500') === null, 'out of range is refused');
+ok(M.lampRatioFromMaker('52000', '850') === 61.2, 'lumens over PPF');
+ok(M.lampRatioFromMaker('180', '2.9') === 62.1, 'lm/W over umol/J');
+ok(M.lampRatioFromMaker('52000', '') === null, 'a missing figure gives nothing');
+ok(M.lampRatioFromMaker('52000', '8.5') === null, 'figures from different lines are refused');
+ok(M.luxToPpfd(6120, 'white_led', 61.2) === 100, 'a lamp ratio replaces the kind');
+ok(M.luxToPpfd(3000, 'red_blue_led', 30) === 100, 'red and blue converts once a lamp ratio is given');
+ok(M.luxToPpfd(3000, 'other') === null && M.luxToPpfd(3000, 'other', 60) === 50, 'another light needs its ratio');
+ok(M.meterFigure(6120, 'PPFD', 'white_led', 61.2) === '100', 'the form figure follows the lamp ratio');
+ok(/this lamp's 61.2 lux/.test(M.describePpfd(6120, 'white_led', 61.2)), 'the line names the lamp ratio');
+ok(/can be given below/.test(M.describePpfd(6700, 'white_led')), 'the general line points to the field');
+ok(/Give this lamp's ratio/.test(M.describePpfd(3000, 'other')), 'another light asks for its ratio');
+ok(M.meterNote({ lux: 6120, unit: 'PPFD', source: 'white_led', distance: '', distanceUnit: 'cm', lampRatio: 61.2 }) === "Worked out from 6,120 lux under white LED light, at this lamp's 61.2 lux to one µmol.", 'note keeps the lamp ratio');
+ok(M.lampRatioKey('a1', 'sun') === null && M.lampRatioKey(null, 'hps') === 'none:hps', 'the sun is never remembered, a lamp is');
+ok(M.ratioInUse('hps', null) === 82 && M.ratioInUse('hps', 70) === 70, 'ratio in use');
+for (const sentence of [M.LAMP_RATIO_HOW, M.describePpfd(6120, 'white_led', 61.2), M.describePpfd(3000, 'other'), M.describePpfd(3000, 'red_blue_led')]) {
   ok(!forbidden.test(sentence), `no verdict words: ${sentence}`);
   ok(!/[–—]| -- /.test(sentence), `no dashes: ${sentence}`);
 }
