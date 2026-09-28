@@ -39,6 +39,7 @@ export type ReminderKindKey =
   | 'countdown'
   | 'compost'
   | 'refill'
+  | 'useBy'
   | 'photoSeries'
   | 'reminder';
 
@@ -98,6 +99,9 @@ export const ALL_REMINDER_KIND_KEYS: ReminderKindKey[] = [
   // Phase 2 (A3). A med whose counted supply runs low, the lead the person
   // picked before the day it runs out. Dated like the ones above it.
   'refill',
+  // H2 (2026-09-28). Something in the kitchen with a use-by date, the day
+  // before and on the day. Dated like the ones above it.
+  'useBy',
   // 1.0.53.7. A Photo Series asking for today's photo, at the time it was
   // given, skipped on a day the photo is already in. Timed like a routine,
   // but a record of something, so it sits after the dated kinds.
@@ -129,6 +133,7 @@ export const REMINDER_KIND_LABELS: Record<ReminderKindKey, string> = {
   countdown: 'Days Until counters',
   compost: 'Turning the compost',
   refill: 'Running low on a med',
+  useBy: 'Use it before its date',
   photoSeries: 'Photo series',
   reminder: 'Things you noted down',
 };
@@ -166,6 +171,8 @@ export const REMINDER_KIND_CAPTIONS: Record<ReminderKindKey, string> = {
     'A compost pile due a turn, on the day and then every few days until you record one. Only piles still being added to.',
   refill:
     'A med or supplement on Life > My Meds whose counted supply is running low, a week ahead unless you picked another lead, then every few days until you save a fresh count.',
+  useBy:
+    'Something in Life > Kitchen with a use-by date you gave it, the day before and on the day. Marking it used or gone clears the reminder.',
   photoSeries:
     "A Photo Series asking for today's photo, at the time set on the series. Tapping it opens the camera with the last photo faintly over the view. Skipped on a day the photo is already in.",
   reminder:
@@ -222,6 +229,9 @@ const DEFAULT_REMINDER_KIND_ENABLED: Record<ReminderKindKey, boolean> = {
   // On. Only a med somebody counted has a day at all, and running out of a
   // prescription is the one thing on this list that can hurt.
   refill: true,
+  // On. A use-by date is only there because somebody typed one in to be
+  // told about it, and there are two of these per date at most.
+  useBy: true,
   // On. A series exists only because somebody started one to take a photo
   // a day, and the reminder can be switched off on the series itself.
   photoSeries: true,

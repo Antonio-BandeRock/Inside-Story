@@ -41,7 +41,9 @@ export const REMINDER_HOUR = 9;
 // and the pace on the schedule (lib/medSupply.ts), less the lead the person
 // picked, so it is already the day to ask for more and carries no lead of
 // its own here.
-export type DatedReminderKind = 'bill' | 'upkeep' | 'benefit' | 'countdown' | 'compost' | 'refill';
+// H2 (2026-09-28): useBy, something in the kitchen with a use-by date, the
+// day before and on the day.
+export type DatedReminderKind = 'bill' | 'upkeep' | 'benefit' | 'countdown' | 'compost' | 'refill' | 'useBy';
 
 export const ALL_DATED_REMINDER_KINDS: DatedReminderKind[] = [
   'bill',
@@ -50,6 +52,7 @@ export const ALL_DATED_REMINDER_KINDS: DatedReminderKind[] = [
   'countdown',
   'compost',
   'refill',
+  'useBy',
 ];
 
 /**
@@ -84,6 +87,11 @@ export const LEAD_DAYS: Record<DatedReminderKind, number[]> = {
   countdown: [0],
   compost: [0],
   refill: [0],
+  // The day before, so there is an evening to plan a meal around it, and the
+  // day itself. It does not keep coming back once the date has gone by: the
+  // app cannot tell whether it was eaten, and marking it used or gone in
+  // Life > Kitchen is where that is said.
+  useBy: [1, 0],
 };
 
 /**
@@ -271,6 +279,7 @@ export const DATED_KIND_PREFIX: Record<DatedReminderKind, string | null> = {
   countdown: 'Days Until',
   compost: 'Compost',
   refill: 'Refill',
+  useBy: 'Kitchen',
 };
 
 /**
@@ -288,5 +297,6 @@ export function describeDatedDue(kind: DatedReminderKind, lead: number): string 
   // instead of the fourteenth.
   if (kind === 'compost') return lead < 0 ? `Ready to turn ${when}` : `Turn it ${when}`;
   if (kind === 'refill') return lead < 0 ? `Ask for more, the day was ${when}` : `Ask for more ${when}`;
+  if (kind === 'useBy') return lead < 0 ? `Its use-by date was ${when}` : lead === 0 ? 'Use it today' : `Use it by ${when}`;
   return lead < 0 ? `Was due ${when}` : `Due ${when}`;
 }

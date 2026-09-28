@@ -779,7 +779,7 @@ async function ensureAndroidChannels(): Promise<void> {
   });
   await Notifications.setNotificationChannelAsync(ANDROID_DATED_CHANNEL_ID, {
     name: 'Dates coming up',
-    description: 'Bills, upkeep and renewals, work benefits about to reset, and Days Until counters landing.',
+    description: 'Bills, upkeep and renewals, work benefits about to reset, Days Until counters landing, and kitchen use-by dates.',
     importance: Notifications.AndroidImportance.DEFAULT,
     sound: 'default',
     vibrationPattern: [0, 180],
@@ -798,7 +798,15 @@ function todaysRoutineMoment(routine: Routine, now: Date): Date | null {
 }
 
 function channelFor(kind: ReminderKind): string {
-  if (kind === 'bill' || kind === 'upkeep' || kind === 'benefit' || kind === 'countdown' || kind === 'compost' || kind === 'refill') {
+  if (
+    kind === 'bill' ||
+    kind === 'upkeep' ||
+    kind === 'benefit' ||
+    kind === 'countdown' ||
+    kind === 'compost' ||
+    kind === 'refill' ||
+    kind === 'useBy'
+  ) {
     return ANDROID_DATED_CHANNEL_ID;
   }
   if (
@@ -1190,7 +1198,7 @@ const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'todaysMeals', 
 // The dated lenses that live on Life. 'compost' is a dated lens too and is
 // deliberately not here: it is on Garden, and this list is the fallback for
 // the Life branch below.
-const DATED_LENSES: LifeReminderLens[] = ['finances', 'upkeep', 'work', 'daysUntil', 'myMeds', 'didIDoIt'];
+const DATED_LENSES: LifeReminderLens[] = ['finances', 'upkeep', 'work', 'daysUntil', 'myMeds', 'didIDoIt', 'kitchen'];
 
 // Where a tapped reminder should land: the lens the thing lives in. Null for
 // any notification this module did not create.

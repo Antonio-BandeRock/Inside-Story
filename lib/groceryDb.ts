@@ -1005,6 +1005,7 @@ export async function loadKitchenStock(excludeListId?: string): Promise<Map<stri
       quantity: harvest.quantityRemaining,
       unit: harvest.unit,
       date: harvest.harvestedAt.slice(0, 10),
+      useBy: harvest.useBy ?? null,
     });
   }
   for (const harvest of await listAvailableFermentationHarvests()) {
@@ -1014,6 +1015,7 @@ export async function loadKitchenStock(excludeListId?: string): Promise<Map<stri
       quantity: harvest.quantityRemaining,
       unit: harvest.unit,
       date: harvest.readyAt.slice(0, 10),
+      useBy: harvest.useBy ?? null,
     });
   }
 
@@ -1030,6 +1032,7 @@ export async function loadKitchenStock(excludeListId?: string): Promise<Map<stri
       quantity: item.quantityRemaining,
       unit: item.unit,
       date: item.addedAt,
+      useBy: item.useBy,
     });
   }
 

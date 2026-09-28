@@ -33,6 +33,7 @@ import {
   recordFermentationHarvestUsage,
   recordHarvestUsage,
 } from './db';
+import { isUseByDate } from './useBy';
 import { cleanPlaceName, isPlaceNameUsable } from './whereIsIt';
 
 // 'trade' added 2026-09-05: food that arrived by swapping surplus harvest
@@ -73,6 +74,10 @@ export type KitchenInventoryItem = {
   // addedAt on purpose, since confirming where something is makes the ANSWER
   // current again without claiming the food itself is fresh.
   locationSetAt: string | null;
+  // The date to use it by, YYYY-MM-DD, or null where nobody gave one (H2,
+  // 2026-09-28). Carried by all three sources, since a picking and a ferment
+  // can have one as well as a bought item. See lib/useBy.ts.
+  useBy: string | null;
   // ISO date. What makes an unverifiable amount honest: the screen can say how
   // long this has been claimed rather than presenting it as current fact.
   addedAt: string;
@@ -91,13 +96,14 @@ type KitchenItemRow = {
   note: string | null;
   location: string | null;
   locationSetAt: string | null;
+  useBy: string | null;
   addedAt: string;
 };
 
 const COLUMNS = `
   id, category, food_name AS foodName, quantity, unit,
   quantity_remaining AS quantityRemaining, source, kind, food_id AS foodId, note,
-  location, location_set_at AS locationSetAt, added_at AS addedAt
+  location, location_set_at AS locationSetAt, use_by AS useBy, added_at AS addedAt
 `;
 
 // Everything on hand, newest first, across all three sources.
@@ -145,6 +151,7 @@ export async function listKitchenInventory(kind: KitchenItemKind = 'food'): Prom
       note: harvest.notes,
       location: null,
       locationSetAt: null,
+      useBy: harvest.useBy ?? null,
       addedAt: harvest.harvestedAt.slice(0, 10),
     });
   }
@@ -163,6 +170,7 @@ export async function listKitchenInventory(kind: KitchenItemKind = 'food'): Prom
       note: harvest.notes,
       location: null,
       locationSetAt: null,
+      useBy: harvest.useBy ?? null,
       addedAt: harvest.readyAt.slice(0, 10),
     });
   }
@@ -216,6 +224,8 @@ export async function addKitchenItem(input: {
   // kitchen go somewhere obvious, and demanding a place before an item can be
   // saved would cost more than the answer is worth.
   location?: string | null;
+  // Optional too (H2): YYYY-MM-DD, or null for no date.
+  useBy?: string | null;
 }): Promise<string> {
   const db = await getDatabase();
   const id = `kitchen_${Date.now()}`;
@@ -224,8 +234,8 @@ export async function addKitchenItem(input: {
   await db.runAsync(
     `INSERT INTO kitchen_items
        (id, category, food_name, quantity, unit, quantity_remaining, source, note, food_id, kind,
-        location, location_set_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        location, location_set_at, use_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     id,
     input.category?.trim() || '',
     input.foodName.trim(),
@@ -241,8 +251,27 @@ export async function addKitchenItem(input: {
     // Dated only when there is a place to date. An empty column with a
     // timestamp beside it would read as an answer somebody confirmed.
     isPlaceNameUsable(location) ? new Date().toISOString().slice(0, 10) : null,
+    isUseByDate(input.useBy) ? input.useBy : null,
   );
   return id;
+}
+
+// Writes a use-by date, or clears it with null, whichever of the three tables
+// the row lives in (H2). Unlike a place, a picking and a ferment can carry
+// one: the person knows how long a jar of sauerkraut or a bag of greens keeps
+// in their fridge, and the app does not.
+export async function setKitchenItemUseBy(id: string, useBy: string | null): Promise<void> {
+  const value = isUseByDate(useBy) ? useBy : null;
+  const db = await getDatabase();
+  if (id.startsWith('garden:')) {
+    await db.runAsync('UPDATE garden_harvests SET use_by = ? WHERE id = ?', value, id.slice('garden:'.length));
+    return;
+  }
+  if (id.startsWith('fermentation:')) {
+    await db.runAsync('UPDATE fermentation_harvests SET use_by = ? WHERE id = ?', value, id.slice('fermentation:'.length));
+    return;
+  }
+  await db.runAsync('UPDATE kitchen_items SET use_by = ? WHERE id = ?', value, id);
 }
 
 // Writes where something is, or clears it when the field is emptied.

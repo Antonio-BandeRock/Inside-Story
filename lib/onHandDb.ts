@@ -3,11 +3,12 @@
 
 import { getMeal, getMealItems, getDatabase, getReferenceDatabase } from './db';
 import { drawKitchenStock, loadKitchenStock, stockForLine } from './groceryDb';
-import { isNonPurchasableIngredient, type KitchenStockEntry } from './groceryList';
+import { isNonPurchasableIngredient, soonestFirstOrder, type KitchenStockEntry } from './groceryList';
 import { buildPantryOffers, onHandByRecipe, type OnHandDish, type PantryOffer } from './onHand';
 
+// Soonest use-by date first, then the oldest (H2, lib/groceryList.ts).
 function oldestFirst(entries: KitchenStockEntry[]): KitchenStockEntry[] {
-  return [...entries].sort((a, b) => a.date.localeCompare(b.date));
+  return soonestFirstOrder(entries);
 }
 
 // Every stock entry filed under this food's id, its category and name, or

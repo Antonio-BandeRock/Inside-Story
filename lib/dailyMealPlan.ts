@@ -79,7 +79,7 @@ import { SIDE_DISH_RECIPE_IDS } from './recipeDishRole';
 import { openMealsOn, type OpenMeal, type OpenMealRule } from './openMeals';
 import { energySettingOn, leanTowardEnergy, mayLeanLighter, mealEnergyTarget, type EnergySetting } from './energyBand';
 import { leanTowardBudget, mealAllowance, type DishCost } from './mealPlanBudget';
-import { claimOnHand, leanTowardOnHand, newOnHandLean, type OnHandDish, type OnHandLean } from './onHand';
+import { claimOnHand, leanTowardOnHand, newOnHandLean, type OnHandClaim, type OnHandDish, type OnHandLean } from './onHand';
 import {
   PLAN_MEAL_LABELS,
   PLAN_MEALS,
@@ -993,7 +993,7 @@ export type DailyMealPlanResult = {
   budgetCeiling?: number;
   // What this day's main dishes take from the kitchen, when the on-hand
   // switch was on (lib/onHand.ts). Absent when nothing did.
-  onHandUses?: { recipeId: string; title: string; names: string[] }[];
+  onHandUses?: OnHandClaim[];
 };
 
 /** A plate made for one person: a main the shared dish missed, or a side for a nutrient their day comes up short on. */

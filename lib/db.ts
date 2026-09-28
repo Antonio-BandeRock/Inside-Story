@@ -8749,6 +8749,18 @@ async function runDatabaseInitialization() {
       }
     }
 
+    // use_by, H2 (2026-09-28): the date on the packet, or the one the person
+    // gave a picking or a ferment, as YYYY-MM-DD. Null where nobody said,
+    // which most rows will be and which is read as no date rather than as
+    // keeps forever. On all three kitchen sources, so a harvest can carry one
+    // as well as a bought item.
+    for (const table of ['kitchen_items', 'garden_harvests', 'fermentation_harvests']) {
+      const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
+      if (columns.length > 0 && !columns.some((column) => column.name === 'use_by')) {
+        await db.execAsync(`ALTER TABLE ${table} ADD COLUMN use_by TEXT;`);
+      }
+    }
+
     // The Grocery List's own two later columns, 2026-09-01. The table shipped
     // in 1.0.32.1, so it can already exist on a device with neither of these:
     // same conditional pattern every other added column in this file uses.
@@ -23550,12 +23562,14 @@ export type GardenHarvest = {
   // 1 when kept as an on-hand home-grown food, 0 when the person said not
   // this one. Read with Number(onHand) === 1 like every other INTEGER flag.
   onHand: number;
+  // Use-by date, YYYY-MM-DD, or null where none was given (H2).
+  useBy: string | null;
 };
 
 const GARDEN_HARVEST_COLUMNS = `
   id, planting_id AS plantingId, plot_id AS plotId, food_id AS foodId, source, food_name AS foodName,
   harvested_at AS harvestedAt, quantity, unit, quantity_remaining AS quantityRemaining, notes, created_at AS createdAt,
-  on_hand AS onHand
+  on_hand AS onHand, use_by AS useBy
 `;
 
 // quantity_remaining always starts equal to quantity -- see the real,
@@ -24009,11 +24023,14 @@ export type FermentationHarvest = {
   quantityRemaining: number;
   notes: string | null;
   createdAt: string;
+  // Use-by date, YYYY-MM-DD, or null where none was given (H2).
+  useBy: string | null;
 };
 
 const FERMENTATION_HARVEST_COLUMNS = `
   id, fermentation_batch_id AS fermentationBatchId, fermentation_id AS fermentationId, drink_name AS drinkName,
-  ready_at AS readyAt, quantity, unit, quantity_remaining AS quantityRemaining, notes, created_at AS createdAt
+  ready_at AS readyAt, quantity, unit, quantity_remaining AS quantityRemaining, notes, created_at AS createdAt,
+  use_by AS useBy
 `;
 
 // quantity_remaining always starts equal to quantity, same

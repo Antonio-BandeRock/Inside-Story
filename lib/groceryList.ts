@@ -427,6 +427,10 @@ export type KitchenStockEntry = {
   unit: string;
   // ISO date (YYYY-MM-DD) the stock came in, for saying how long ago.
   date: string;
+  // The date to use it by, where one was given (H2, 2026-09-28). Stock past
+  // it is not counted on by a new grocery list or by the meal plan
+  // generator, and stock with one coming up is reached for first.
+  useBy?: string | null;
 };
 
 export type KitchenCoverageLevel = 'covered' | 'some' | 'unmeasured' | 'none';
@@ -613,6 +617,21 @@ export type KitchenHold = {
 // the same food sees only what the first left. Entries are shared between
 // every key loadKitchenStock filed them under, so one deduction reaches them
 // all.
+// The order stock is drawn in: anything with a use-by date first, soonest
+// date first, then everything else oldest first (H2). The same order the
+// Kitchen's Use Soon band reads in, so what the list holds and what a logged
+// meal takes off is the food with the least time left.
+export function soonestFirstOrder(entries: KitchenStockEntry[]): KitchenStockEntry[] {
+  return [...entries].sort((a, b) => {
+    const aDate = a.useBy ?? null;
+    const bDate = b.useBy ?? null;
+    if (aDate && bDate && aDate !== bDate) return aDate.localeCompare(bDate);
+    if (aDate && !bDate) return -1;
+    if (!aDate && bDate) return 1;
+    return a.date.localeCompare(b.date);
+  });
+}
+
 export function takeOutOfLedger(entries: KitchenStockEntry[], draws: KitchenDraw[]): void {
   for (const draw of draws) {
     const entry = entries.find((candidate) => candidate.id === draw.id && candidate.source === draw.source);
@@ -631,7 +650,10 @@ export function holdFromKitchen(
   today: string = new Date().toISOString().slice(0, 10),
 ): KitchenHold | null {
   if (!(quantity > 0)) return null;
-  const coverage = kitchenCoverageFor(quantity, unit, entries, today);
+  // Stock past its use-by date is not counted on (H2). It stays in the
+  // kitchen and on the ledger; the person decides what happens to it.
+  const current = soonestFirstOrder(entries.filter((entry) => !(entry.useBy && entry.useBy < today)));
+  const coverage = kitchenCoverageFor(quantity, unit, current, today);
   if (coverage.draws.length === 0 || coverage.coveredQuantity == null) return null;
   if (coverage.level !== 'covered' && coverage.level !== 'some') return null;
   takeOutOfLedger(entries, coverage.draws);

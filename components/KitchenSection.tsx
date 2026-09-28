@@ -43,8 +43,18 @@ import {
   markKitchenItemGone,
   consumeKitchenItem,
   setKitchenItemLocation,
+  setKitchenItemUseBy,
   type KitchenInventoryItem,
 } from '../lib/kitchenDb';
+import {
+  describeUseBy,
+  describeUseSoonCount,
+  isPastUseBy,
+  localToday,
+  parseUseByInput,
+  selectUseSoon,
+  choicesForUseBy,
+} from '../lib/useBy';
 import { describePlaceAge, placeConfidence, stalePrompt } from '../lib/whereIsIt';
 import { listUsedPlaces } from '../lib/whereIsItDb';
 import {
@@ -115,6 +125,11 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
   // Which row has its place open for editing, and what is being typed into it.
   const [placeEditId, setPlaceEditId] = useState<string | null>(null);
   const [placeDraft, setPlaceDraft] = useState('');
+  // A use-by date, H2 (2026-09-28). Optional, like the place: typed as a date
+  // or a number of days, or picked from the chips beside it.
+  const [newUseBy, setNewUseBy] = useState('');
+  const [useByEditId, setUseByEditId] = useState<string | null>(null);
+  const [useByDraft, setUseByDraft] = useState('');
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [confirmSheet, confirmSheetElement] = useConfirmSheet();
   const [disposition, setDisposition] = useState<DispositionForm | null>(null);
@@ -158,6 +173,11 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
   // Today as a plain date, for saying how old an answer is. Recomputed on each
   // render rather than held, so an app left open overnight still reads right.
   const today = new Date().toISOString().slice(0, 10);
+  // Use-by dates are the phone's calendar day, so an evening west of
+  // Greenwich still reads as today rather than tomorrow.
+  const useByToday = localToday();
+  const useSoon = useMemo(() => selectUseSoon(items, (item) => item.useBy, useByToday), [items, useByToday]);
+  const useSoonPast = useSoon.filter((item) => isPastUseBy(item.useBy, useByToday)).length;
 
   async function run(action: () => Promise<void>) {
     setBusy(true);
@@ -175,6 +195,11 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
       showInfoAlert('Not quite', 'Pick something from the list, then say how much.');
       return;
     }
+    const useBy = parseUseByInput(newUseBy, useByToday);
+    if (!useBy) {
+      showInfoAlert('Not quite', USE_BY_HELP);
+      return;
+    }
     await run(async () => {
       await addKitchenItem({
         foodName: picked.name,
@@ -183,13 +208,30 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
         category: picked.category,
         kind,
         location: newPlace,
+        useBy: useBy.date,
       });
       setPicked(null);
       setNewQuantity('');
       setPickerSearch('');
       setNewPlace('');
+      setNewUseBy('');
       setAddOpen(false);
       loadPlaces();
+    });
+  }
+
+  // Setting, changing or clearing a use-by date on any row, a harvest and a
+  // ferment included. Clearing it takes the reminder with it.
+  async function handleSaveUseBy(item: KitchenInventoryItem, text: string) {
+    const parsed = parseUseByInput(text, useByToday);
+    if (!parsed) {
+      showInfoAlert('Not quite', USE_BY_HELP);
+      return;
+    }
+    await run(async () => {
+      await setKitchenItemUseBy(item.id, parsed.date);
+      setUseByEditId(null);
+      setUseByDraft('');
     });
   }
 
@@ -447,6 +489,29 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
                     ))}
                   </View>
                 ) : null}
+
+                <Text style={styles.fieldLabel}>Use by? (you can leave this blank)</Text>
+                <AppTextInput
+                  style={styles.input}
+                  value={newUseBy}
+                  onChangeText={setNewUseBy}
+                  placeholder="2026-10-02, or a number of days"
+                />
+                <View style={styles.actionRow}>
+                  {choicesForUseBy(useByToday).map((choice) => {
+                    const on = newUseBy.trim() === choice.date;
+                    return (
+                      <TouchableOpacity
+                        key={choice.label}
+                        style={[styles.secondaryButton, on && { backgroundColor: tabColor, borderColor: tabColor }]}
+                        activeOpacity={0.85}
+                        onPress={() => setNewUseBy(on ? '' : choice.date)}
+                      >
+                        <Text style={on ? styles.smallButtonText : styles.secondaryButtonText}>{choice.label}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
               </>
             ) : (
               <>
@@ -488,6 +553,46 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
           </Text>
         </View>
       ) : (
+        <>
+        {useSoon.length > 0 ? (
+          <TabBand
+            folds={folds}
+            color={tabColor}
+            id={`life:kitchen:useSoon:${kind}`}
+            title="Use soon"
+            icon="time-outline"
+            count={useSoon.length}
+          >
+            <View style={band.rows}>
+              <View style={band.row}>
+                <Text style={styles.itemMeta}>{describeUseSoonCount(useSoon.length, useSoonPast)}</Text>
+              </View>
+              {useSoon.map((item) => {
+                const past = isPastUseBy(item.useBy, useByToday);
+                return (
+                  <TouchableOpacity
+                    key={`soon:${item.id}`}
+                    style={band.row}
+                    activeOpacity={0.85}
+                    onPress={() => {
+                      setExpandedId(item.id);
+                      setUseAmount('');
+                    }}
+                  >
+                    <Text style={styles.itemName}>{item.foodName}</Text>
+                    <Text style={past ? styles.placeWarning : styles.itemMeta}>
+                      {describeUseBy(item.useBy, useByToday)}
+                    </Text>
+                    <Text style={styles.itemMeta}>
+                      {formatGroceryAmount(item.quantityRemaining, item.unit)}
+                      {item.location ? ` · ${item.location}` : ''}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </TabBand>
+        ) : null}
         <TabBand folds={folds} color={tabColor} id={`life:kitchen:${kind}`} title={kind === 'food' ? 'What is in your kitchen' : 'What the house has'} icon="restaurant-outline" count={items.length}>
         <View style={band.rows}>
           {items.map((item) => {
@@ -514,6 +619,11 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
                     <Text style={styles.itemMeta}>
                       {item.location}
                       {item.locationSetAt ? ` · written down ${describePlaceAge(item.locationSetAt, today)}` : ''}
+                    </Text>
+                  ) : null}
+                  {item.useBy ? (
+                    <Text style={isPastUseBy(item.useBy, useByToday) ? styles.placeWarning : styles.itemMeta}>
+                      {describeUseBy(item.useBy, useByToday)}
                     </Text>
                   ) : null}
                   {item.note ? <Text style={styles.itemMeta}>{item.note}</Text> : null}
@@ -586,6 +696,65 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
                           </TouchableOpacity>
                         </View>
                       </>
+                    )}
+                    {useByEditId === item.id ? (
+                      <>
+                        <Text style={styles.fieldLabel}>Use by? (empty it to clear the date)</Text>
+                        <View style={styles.row}>
+                          <AppTextInput
+                            style={[styles.input, styles.rowGrow]}
+                            value={useByDraft}
+                            onChangeText={setUseByDraft}
+                            placeholder="2026-10-02, or a number of days"
+                          />
+                          <TouchableOpacity
+                            style={[styles.smallButton, { backgroundColor: tabColor }]}
+                            activeOpacity={0.85}
+                            disabled={busy}
+                            onPress={() => void handleSaveUseBy(item, useByDraft)}
+                          >
+                            <Text style={styles.smallButtonText}>Save</Text>
+                          </TouchableOpacity>
+                        </View>
+                        <View style={styles.actionRow}>
+                          {choicesForUseBy(useByToday).map((choice) => (
+                            <TouchableOpacity
+                              key={choice.label}
+                              style={styles.secondaryButton}
+                              activeOpacity={0.85}
+                              onPress={() => setUseByDraft(choice.date)}
+                            >
+                              <Text style={styles.secondaryButtonText}>{choice.label}</Text>
+                            </TouchableOpacity>
+                          ))}
+                        </View>
+                      </>
+                    ) : (
+                      <View style={styles.actionRow}>
+                        <TouchableOpacity
+                          style={styles.secondaryButton}
+                          activeOpacity={0.85}
+                          disabled={busy}
+                          onPress={() => {
+                            setUseByEditId(item.id);
+                            setUseByDraft(item.useBy ?? '');
+                          }}
+                        >
+                          <Text style={styles.secondaryButtonText}>
+                            {item.useBy ? 'Change the use-by date' : 'Give it a use-by date'}
+                          </Text>
+                        </TouchableOpacity>
+                        {item.useBy ? (
+                          <TouchableOpacity
+                            style={styles.secondaryButton}
+                            activeOpacity={0.85}
+                            disabled={busy}
+                            onPress={() => void handleSaveUseBy(item, '')}
+                          >
+                            <Text style={styles.secondaryButtonText}>Clear the date</Text>
+                          </TouchableOpacity>
+                        ) : null}
+                      </View>
                     )}
                     <Text style={styles.fieldLabel}>Used how much?</Text>
                     <View style={styles.row}>
@@ -860,10 +1029,13 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
           })}
         </View>
         </TabBand>
+        </>
       )}
     </View>
   );
 }
+
+const USE_BY_HELP = 'Type a date as year, month and day (2026-10-02), or a number of days from today, or pick one of the choices.';
 
 const styles = StyleSheet.create({
   card: { gap: 8 },

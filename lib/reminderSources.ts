@@ -64,11 +64,14 @@ import type { DatedReminderKind } from './reminderSchedule';
 import { listAllActiveTreatments } from './db';
 import { listSupplyReadings } from './medDetailsDb';
 import { describeRefillDue } from './medSupply';
+import { listKitchenInventory } from './kitchenDb';
+import { formatGroceryAmount } from './groceryList';
+import { isUseByDate } from './useBy';
 
 /** Where a tapped reminder lands, each a lens that already takes a deep
  *  link (openLifeLens in app/(tabs)/life.tsx, openGardenLens in
  *  app/(tabs)/garden.tsx). */
-export type DatedReminderLens = 'finances' | 'upkeep' | 'work' | 'daysUntil' | 'compost' | 'myMeds';
+export type DatedReminderLens = 'finances' | 'upkeep' | 'work' | 'daysUntil' | 'compost' | 'myMeds' | 'kitchen';
 /** A garden counter and a compost pile land on Garden when tapped;
  *  everything else on Life. */
 export type DatedReminderTab = 'life' | 'garden';
@@ -113,6 +116,7 @@ export async function listDatedReminderSources(today: string): Promise<DatedRemi
     listCompostPilesToTurn(),
   ]);
   const [activeTreatments, supplies] = await Promise.all([listAllActiveTreatments(), listSupplyReadings(today)]);
+  const [kitchenFood, kitchenOther] = await Promise.all([listKitchenInventory('food'), listKitchenInventory('non_food')]);
 
   const sources: DatedReminderSource[] = [];
 
@@ -252,6 +256,27 @@ export async function listDatedReminderSources(today: string): Promise<DatedRemi
       dueOn: reading.remindOn,
       tab: 'life',
       lens: 'myMeds',
+      markable: false,
+    });
+  }
+
+  // Something in the kitchen with a use-by date (H2, 2026-09-28). Only what
+  // still has some left, which is all listKitchenInventory returns, so
+  // marking a thing used up or gone takes its reminder with it. The detail
+  // is how much is left and where it was put, so the line says what to go
+  // and look for. Not markable: the answer is using it, which is recorded on
+  // the Kitchen.
+  for (const item of [...kitchenFood, ...kitchenOther]) {
+    if (!isUseByDate(item.useBy)) continue;
+    const left = `${formatGroceryAmount(item.quantityRemaining, item.unit)} left`;
+    sources.push({
+      kind: 'useBy',
+      sourceId: item.id,
+      title: item.foodName,
+      detail: item.location ? `${left}, ${item.location}` : left,
+      dueOn: item.useBy,
+      tab: 'life',
+      lens: 'kitchen',
       markable: false,
     });
   }

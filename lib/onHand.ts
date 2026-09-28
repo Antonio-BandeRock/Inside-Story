@@ -28,6 +28,7 @@
 //   - Stock already taken off for a grocery list that names this meal starts
 //     unticked, so the same food is not taken off twice.
 
+import { formatUseByDay, localToday, soonestUseBy, USE_BY_LEAN_DAYS } from './useBy';
 import {
   formatGroceryAmount,
   kitchenCoverageFor,
@@ -156,7 +157,18 @@ export type OnHandLean = {
   // Foods given to an earlier pick where the amounts could not be compared,
   // so each of those leads one pick only.
   used: Set<string>;
-  claims: { recipeId: string; title: string; names: string[] }[];
+  claims: OnHandClaim[];
+  // The day the plan is worked out on, for reading use-by dates (H2).
+  today: string;
+};
+
+export type OnHandClaim = {
+  recipeId: string;
+  title: string;
+  names: string[];
+  // What the pick uses that has a use-by date inside USE_BY_LEAN_DAYS, with
+  // that date, so the day line can say why it came first (H2).
+  dated?: { name: string; useBy: string }[];
 };
 
 export type RecipeIngredientName = {
@@ -178,17 +190,19 @@ export type RecipeIngredientName = {
 export function onHandByRecipe(
   rows: RecipeIngredientName[],
   stockFor: (row: RecipeIngredientName) => KitchenStockEntry[],
+  today: string = localToday(),
 ): Map<string, OnHandDish> {
   const counts = new Map<string, number>();
   for (const row of rows) counts.set(row.recipeId, (counts.get(row.recipeId) ?? 0) + 1);
   const dishes = new Map<string, OnHandDish>();
   for (const row of rows) {
     const stock = stockFor(row)
-      .filter((entry) => entry.source !== 'purchase' && entry.quantity > 0)
-      .sort((a, b) => a.date.localeCompare(b.date));
+      // Stock past its use-by date is not leaned on (H2); the order is the
+      // caller's, soonest use-by first and then the oldest.
+      .filter((entry) => entry.source !== 'purchase' && entry.quantity > 0 && !(entry.useBy && entry.useBy < today));
     if (stock.length === 0) continue;
     const name = row.baseName.trim().toLowerCase();
-    const date = stock[0].date;
+    const date = stock.reduce((min, entry) => (entry.date < min ? entry.date : min), stock[0].date);
     const dish = dishes.get(row.recipeId) ?? { names: [], oldest: date, ingredientCount: counts.get(row.recipeId) ?? 1, needs: [] };
     if (!dish.names.includes(name)) {
       dish.names.push(name);
@@ -202,12 +216,12 @@ export function onHandByRecipe(
   return dishes;
 }
 
-export function newOnHandLean(dishes: Map<string, OnHandDish>): OnHandLean {
+export function newOnHandLean(dishes: Map<string, OnHandDish>, today: string = localToday()): OnHandLean {
   const ledger = new Map<KitchenStockEntry, KitchenStockEntry>();
   for (const dish of dishes.values()) {
     for (const need of dish.needs) for (const entry of need.stock) if (!ledger.has(entry)) ledger.set(entry, { ...entry });
   }
-  return { dishes, ledger, used: new Set(), claims: [] };
+  return { dishes, ledger, used: new Set(), claims: [], today };
 }
 
 type NeedShare = { need: OnHandNeed; share: number; draws: KitchenDraw[]; oldest: string | null; ledger: KitchenStockEntry[] };
@@ -221,7 +235,7 @@ function needShares(lean: OnHandLean, recipeId: string): NeedShare[] {
   if (!dish) return [];
   return dish.needs.map((need) => {
     const ledger = need.stock.map((entry) => lean.ledger.get(entry) ?? entry).filter((entry) => entry.quantity > 0);
-    const oldest = ledger.length > 0 ? ledger[0].date : null;
+    const oldest = ledger.reduce<string | null>((min, entry) => (min == null || entry.date < min ? entry.date : min), null);
     if (ledger.length === 0) return { need, share: 0, draws: [], oldest, ledger };
     if (need.quantity != null) {
       const coverage = kitchenCoverageFor(need.quantity, need.unit, ledger);
@@ -233,25 +247,42 @@ function needShares(lean: OnHandLean, recipeId: string): NeedShare[] {
   });
 }
 
-function scoreFor(lean: OnHandLean, recipeId: string): { bucket: number; amount: number; oldest: string } {
+// The soonest use-by date inside USE_BY_LEAN_DAYS among the stock a share
+// would come from, or null.
+function shareUseBy(entry: NeedShare, today: string): string | null {
+  if (entry.share <= 0) return null;
+  return soonestUseBy(entry.ledger.map((stock) => stock.useBy), today, USE_BY_LEAN_DAYS);
+}
+
+function scoreFor(lean: OnHandLean, recipeId: string): { soon: string; bucket: number; amount: number; oldest: string } {
   const dish = lean.dishes.get(recipeId);
   const shares = needShares(lean, recipeId);
   const amount = shares.reduce((sum, entry) => sum + entry.share, 0);
-  if (!dish || amount === 0) return { bucket: 0, amount: 0, oldest: '9999' };
+  if (!dish || amount === 0) return { soon: '9999', bucket: 0, amount: 0, oldest: '9999' };
   const oldest = shares.reduce((min, entry) => (entry.share > 0 && entry.oldest && entry.oldest < min ? entry.oldest : min), '9999');
+  // A dish using something whose use-by date is coming up leads everything
+  // else, soonest date first (H2).
+  const soon = shares.reduce((min, entry) => {
+    const date = shareUseBy(entry, lean.today);
+    return date && date < min ? date : min;
+  }, '9999');
   // Quarters of the dish the kitchen covers, so a dish mostly made from what
   // is on hand leads one that only uses a pinch of it.
-  return { bucket: Math.ceil((amount / dish.ingredientCount) * 4 - 1e-9), amount: Math.round(amount * 100) / 100, oldest };
+  return { soon, bucket: Math.ceil((amount / dish.ingredientCount) * 4 - 1e-9), amount: Math.round(amount * 100) / 100, oldest };
 }
 
 /**
- * Keeps the candidates the kitchen covers the largest share of, then the ones
+ * Keeps the candidates using something with the soonest use-by date inside
+ * USE_BY_LEAN_DAYS, where any does (H2). Of those, the ones the kitchen
+ * covers the largest share of, then the ones
  * using the most of it, then the ones whose stock is oldest. A pool where
  * nothing uses anything on hand is returned as it was.
  */
 export function leanTowardOnHand<T>(pool: T[], idOf: (item: T) => string, lean: OnHandLean | undefined): T[] {
   if (!lean || lean.dishes.size === 0 || pool.length === 0) return pool;
-  const scored = pool.map((item) => ({ item, score: scoreFor(lean, idOf(item)) }));
+  const all = pool.map((item) => ({ item, score: scoreFor(lean, idOf(item)) }));
+  const soon = all.reduce((min, entry) => (entry.score.soon < min ? entry.score.soon : min), '9999');
+  const scored = soon === '9999' ? all : all.filter((entry) => entry.score.soon === soon);
   const bucket = Math.max(...scored.map((entry) => entry.score.bucket));
   if (bucket === 0) return pool;
   const inBucket = scored.filter((entry) => entry.score.bucket === bucket);
@@ -266,24 +297,31 @@ export function leanTowardOnHand<T>(pool: T[], idOf: (item: T) => string, lean: 
 export function claimOnHand(lean: OnHandLean | undefined, recipeId: string, title: string): void {
   if (!lean) return;
   const names: string[] = [];
+  const dated: { name: string; useBy: string }[] = [];
   for (const entry of needShares(lean, recipeId)) {
     if (entry.share <= 0) continue;
     names.push(entry.need.name);
+    const useBy = shareUseBy(entry, lean.today);
+    if (useBy) dated.push({ name: entry.need.name, useBy });
     if (entry.draws.length > 0) takeOutOfLedger(entry.ledger, entry.draws);
     else lean.used.add(entry.need.name);
   }
-  if (names.length > 0) lean.claims.push({ recipeId, title, names });
+  if (names.length > 0) lean.claims.push({ recipeId, title, names, ...(dated.length > 0 ? { dated } : {}) });
 }
 
 /** "Uses what is in your kitchen: Lentil soup (lentils, carrots)." */
-export function onHandDayLine(uses: { title: string; names: string[] }[] | undefined): string | null {
+export function onHandDayLine(uses: Omit<OnHandClaim, 'recipeId'>[] | undefined): string | null {
   if (!uses || uses.length === 0) return null;
-  return `Uses what is in your kitchen: ${uses.map((use) => `${use.title} (${use.names.join(', ')})`).join('; ')}.`;
+  const parts = uses.map((use) => {
+    const dated = (use.dated ?? []).map((entry) => `${entry.name} to use by ${formatUseByDay(entry.useBy)}`);
+    return `${use.title} (${use.names.join(', ')}${dated.length > 0 ? `; ${dated.join(', ')}` : ''})`;
+  });
+  return `Uses what is in your kitchen: ${parts.join('; ')}.`;
 }
 
 export const ON_HAND_SWITCH_LABEL = 'Use what is in the kitchen first';
 export const ON_HAND_SWITCH_HELP =
-  'Breakfasts and main dishes made mostly from food measured in Life > Kitchen, picked from the garden or from a ferment come first, the oldest first. Each pick uses up its share, so a later day only leans on what would still be there. Nothing comes off the kitchen until a meal is logged.';
+  'Breakfasts and main dishes using something with a use-by date in the next week come first, soonest date first. After those, dishes made mostly from food measured in Life > Kitchen, picked from the garden or from a ferment, the oldest first. Anything past its use-by date is not counted on. Each pick uses up its share, so a later day only leans on what would still be there. Nothing comes off the kitchen until a meal is logged.';
 
 // --- 3. A new grocery list ---------------------------------------------------
 
