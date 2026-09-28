@@ -7575,6 +7575,37 @@ async function runDatabaseInitialization() {
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- Saved weeks, H6 (2026-09-27): a week of meals kept under a name and
+      -- laid onto another week later. Each meal is held by its day within the
+      -- week (0 to 6) rather than a date. Nothing on the schedule points back
+      -- here, so removing a saved week touches no scheduled meal; a favorite
+      -- or dish removed later is checked when the week is used. See
+      -- lib/savedWeeks.ts and lib/savedWeeksDb.ts.
+      CREATE TABLE IF NOT EXISTS saved_weeks (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS saved_week_meals (
+        id TEXT PRIMARY KEY,
+        saved_week_id TEXT NOT NULL,
+        meal_key TEXT NOT NULL,
+        day_offset INTEGER NOT NULL,
+        time TEXT NOT NULL,
+        meal_type TEXT NOT NULL,
+        title TEXT NOT NULL,
+        source_favorite_id TEXT,
+        source_meal_id TEXT,
+        servings REAL,
+        rotation_selections_json TEXT,
+        notes TEXT,
+        leftover_of_key TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_saved_week_meals_week ON saved_week_meals(saved_week_id);
+
       -- Nights, 1.0.52.7: how many times somebody got up in the night,
       -- written down the next morning. Signals > Nocturia is where it goes
       -- in and Trends > Nights reads it beside the evening's drinks.

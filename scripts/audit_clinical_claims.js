@@ -119,6 +119,7 @@ const NAMED = [
   'lib/energyBand.ts',
   'lib/mealPlanBudget.ts',
   'lib/leftovers.ts',
+  'lib/savedWeeks.ts',
 ];
 
 function targets() {

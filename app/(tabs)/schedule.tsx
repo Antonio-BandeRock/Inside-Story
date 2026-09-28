@@ -94,6 +94,19 @@ import {
   removeCookMessage,
   saveLeftoversIntro,
 } from '../../lib/leftovers';
+import {
+  SAVE_WEEK_LABEL,
+  USE_SAVED_WEEK_LABEL,
+  defaultWeekName,
+  describeSavedWeek,
+  removeSavedWeekMessage,
+  savedWeekApplied,
+  savedWeekDays,
+  savedWeekMessage,
+  savedWeekPreview,
+  type SavedWeek,
+} from '../../lib/savedWeeks';
+import { applySavedWeek, listSavedWeeks, previewSavedWeek, removeSavedWeek, renameSavedWeek, saveWeekOfMeals } from '../../lib/savedWeeksDb';
 import type { RecipeDietTag } from '../../lib/digest';
 import { describePlanningScope, resolvePlanningScope, type PlanningScope } from '../../lib/partnerPlanning';
 import { resolveHouseholdEaters } from '../../lib/householdEaters';
@@ -1812,6 +1825,8 @@ function MealsLens() {
               </View>
             )}
             </ScheduleBand>
+
+            <SavedWeeksBand folds={folds} weekStart={weekStart} onChanged={load} confirm={confirmSheet} />
           </>
         )}
     </ScrollView>
@@ -2123,6 +2138,176 @@ function LeftoverSheet({ cook, profile, onClose }: { cook: LeftoverCook | null; 
         </View>
       </View>
     </Modal>
+  );
+}
+
+// H6: a week of meals kept under a name and laid onto another week later
+// (lib/savedWeeks.ts). Lives under the day on Schedules > Meals and works on
+// whichever week the strip above is showing.
+function SavedWeeksBand({
+  folds,
+  weekStart,
+  onChanged,
+  confirm,
+}: {
+  folds: ReturnType<typeof useBandFolds>;
+  weekStart: string;
+  onChanged: () => void;
+  confirm: ReturnType<typeof useConfirmSheet>[0];
+}) {
+  const [weeks, setWeeks] = useState<SavedWeek[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [name, setName] = useState('');
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameText, setRenameText] = useState('');
+  const [message, setMessage] = useState<{ text: string; problem: boolean } | null>(null);
+
+  const reload = useCallback(() => {
+    listSavedWeeks()
+      .then(setWeeks)
+      .catch((error) => console.error('[SavedWeeks] Failed to read saved weeks', error));
+  }, []);
+
+  useEffect(() => {
+    reload();
+    setMessage(null);
+  }, [reload, weekStart]);
+
+  async function handleSave() {
+    try {
+      const count = await saveWeekOfMeals(weekStart, name);
+      setMessage({ text: savedWeekMessage(name.trim(), count), problem: count === 0 });
+      if (count > 0) {
+        setSaving(false);
+        setName('');
+        reload();
+      }
+    } catch (error) {
+      setMessage({ text: error instanceof Error ? error.message : String(error), problem: true });
+    }
+  }
+
+  async function handleUse(week: SavedWeek) {
+    try {
+      const plan = await previewSavedWeek(week, weekStart, todayDateString());
+      const go = await confirm({
+        title: `${USE_SAVED_WEEK_LABEL}: ${week.name}`,
+        message: `${formatWeekRangeLabel(weekStart)}. ${savedWeekPreview(plan)}`,
+        confirmLabel: plan.create.length > 0 ? 'Add these meals' : 'OK',
+      });
+      if (!go || plan.create.length === 0) return;
+      const added = await applySavedWeek(plan);
+      setMessage({ text: savedWeekApplied(added), problem: false });
+      onChanged();
+    } catch (error) {
+      setMessage({ text: error instanceof Error ? error.message : String(error), problem: true });
+    }
+  }
+
+  async function handleRename(week: SavedWeek) {
+    try {
+      await renameSavedWeek(week.id, renameText);
+      setRenamingId(null);
+      reload();
+    } catch (error) {
+      setMessage({ text: error instanceof Error ? error.message : String(error), problem: true });
+    }
+  }
+
+  async function handleRemove(week: SavedWeek) {
+    const go = await confirm({ title: `Remove ${week.name}?`, message: removeSavedWeekMessage(week.name), confirmLabel: 'Remove', destructive: true });
+    if (!go) return;
+    try {
+      await removeSavedWeek(week.id);
+      reload();
+    } catch (error) {
+      setMessage({ text: error instanceof Error ? error.message : String(error), problem: true });
+    }
+  }
+
+  return (
+    <ScheduleBand folds={folds} id="schedule:meals:savedWeeks" title="Saved weeks" icon="albums-outline" count={weeks.length}>
+      <Text style={[styles.helperText, styles.panelStandalone]}>
+        Keep a week that worked and put it on any other week in one step. Use on this week adds to the week shown above.
+      </Text>
+      {saving ? (
+        <View style={styles.formCard}>
+          <Text style={styles.label}>Name for {formatWeekRangeLabel(weekStart)}</Text>
+          <AppTextInput style={styles.input} value={name} onChangeText={setName} placeholder={defaultWeekName(weekStart)} />
+          <View style={styles.formActions}>
+            <TouchableOpacity style={styles.secondaryButton} onPress={() => setSaving(false)}>
+              <Text style={styles.secondaryButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => void handleSave()}>
+              <Text style={styles.primaryButtonText}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => {
+            setName(defaultWeekName(weekStart));
+            setMessage(null);
+            setSaving(true);
+          }}
+        >
+          <Text style={styles.addButtonText}>{SAVE_WEEK_LABEL}</Text>
+        </TouchableOpacity>
+      )}
+      {message ? (
+        <Text style={[message.problem ? styles.errorText : styles.helperText, styles.panelStandalone]}>{message.text}</Text>
+      ) : null}
+      {weeks.length > 0 ? (
+        <View style={styles.table}>
+          {weeks.map((week) => (
+            <View key={week.id} style={styles.row}>
+              <View style={styles.rowMain}>
+                <View style={styles.rowTextCol}>
+                  {renamingId === week.id ? (
+                    <AppTextInput style={styles.input} value={renameText} onChangeText={setRenameText} />
+                  ) : (
+                    <Text style={styles.rowTitle}>{week.name}</Text>
+                  )}
+                  <Text style={styles.rowMeta}>
+                    {describeSavedWeek(week.meals)} · {savedWeekDays(week.meals, weekStart)}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.rowActions}>
+                {renamingId === week.id ? (
+                  <>
+                    <TouchableOpacity onPress={() => void handleRename(week)}>
+                      <Text style={styles.actionTextPrimary}>Save name</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setRenamingId(null)}>
+                      <Text style={styles.actionText}>Cancel</Text>
+                    </TouchableOpacity>
+                  </>
+                ) : (
+                  <>
+                    <TouchableOpacity onPress={() => void handleUse(week)}>
+                      <Text style={styles.actionTextPrimary}>{USE_SAVED_WEEK_LABEL}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setRenamingId(week.id);
+                        setRenameText(week.name);
+                      }}
+                    >
+                      <Text style={styles.actionText}>Rename</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => void handleRemove(week)}>
+                      <Text style={styles.actionTextRemove}>Remove</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+              </View>
+            </View>
+          ))}
+        </View>
+      ) : null}
+    </ScheduleBand>
   );
 }
 
