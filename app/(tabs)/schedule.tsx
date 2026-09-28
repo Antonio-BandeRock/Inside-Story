@@ -108,6 +108,23 @@ import {
   shiftDay,
 } from '../../lib/moveMeal';
 import {
+  ADD_NOTE_LABEL,
+  NOTES_INTRO,
+  NOTES_TITLE,
+  noNotesLine,
+  noteSavedMessage,
+  noteScheduledFor,
+  noteTextProblem,
+  noteTime,
+  noteTimeLabel,
+  notesByDate,
+  parseNoteTime,
+  removeNoteMessage,
+  weekStripKey,
+  type CalendarNote,
+} from '../../lib/calendarNotes';
+import { addCalendarNote, listCalendarNotes, removeCalendarNote, updateCalendarNote } from '../../lib/calendarNotesDb';
+import {
   SAVE_WEEK_LABEL,
   USE_SAVED_WEEK_LABEL,
   defaultWeekName,
@@ -1069,6 +1086,12 @@ function MealsLens() {
 
   const selectedItems = itemsByDate.get(selectedDate) ?? [];
 
+  // H7: notes on the calendar, fetched for the same week and grouped the
+  // same way, so the strip can ring a day that has one.
+  const [notes, setNotes] = useState<CalendarNote[]>([]);
+  const notesByDay = useMemo(() => notesByDate(notes), [notes]);
+  const stripKey = weekStripKey(notes.length > 0);
+
   const load = useCallback(() => {
     setLoading(true);
     const weekEnd = addDaysToDateStringLocal(weekStart, 6);
@@ -1088,10 +1111,12 @@ function MealsLens() {
           listFavorites(100, 'meal'),
           listMeals(100),
           hasCalendarPermission(),
+          listCalendarNotes(weekStart, weekEnd),
         ]),
       )
-      .then(([scheduled, loadedProfile, loadedFavorites, loadedTemplates, granted]) => {
+      .then(([scheduled, loadedProfile, loadedFavorites, loadedTemplates, granted, weekNotes]) => {
         setItems(scheduled);
+        setNotes(weekNotes);
         setProfile(loadedProfile);
         setFavorites(loadedFavorites);
         setTemplates(loadedTemplates);
@@ -1583,6 +1608,7 @@ function MealsLens() {
                   const isSelected = date === selectedDate;
                   const isToday = date === todayDateString();
                   const hasItems = itemsByDate.has(date);
+                  const hasNotes = notesByDay.has(date);
                   return (
                     <TouchableOpacity
                       key={date}
@@ -1595,16 +1621,22 @@ function MealsLens() {
                       <Text style={[styles.weekDayNumber, isSelected && styles.weekDayLabelSelected]}>
                         {formatDayNumber(date)}
                       </Text>
-                      <View
-                        style={[
-                          styles.weekDayDot,
-                          hasItems && (isSelected ? styles.weekDayDotActiveSelected : styles.weekDayDotActive),
-                        ]}
-                      />
+                      <View style={styles.weekDayMarks}>
+                        <View
+                          style={[
+                            styles.weekDayDot,
+                            hasItems && (isSelected ? styles.weekDayDotActiveSelected : styles.weekDayDotActive),
+                          ]}
+                        />
+                        {hasNotes ? (
+                          <View style={[styles.weekDayRing, isSelected && styles.weekDayRingSelected]} />
+                        ) : null}
+                      </View>
                     </TouchableOpacity>
                   );
                 })}
               </View>
+              {stripKey ? <Text style={styles.weekStripKey}>{stripKey}</Text> : null}
               {selectedDate !== todayDateString() ? (
                 <TouchableOpacity onPress={jumpToToday}>
                   <Text style={styles.weekTodayLink}>Jump back to today</Text>
@@ -1888,6 +1920,13 @@ function MealsLens() {
             )}
             </ScheduleBand>
 
+            <CalendarNotesBand
+              folds={folds}
+              date={selectedDate}
+              notes={notesByDay.get(selectedDate) ?? []}
+              onChanged={load}
+              confirm={confirmSheet}
+            />
             <SavedWeeksBand folds={folds} weekStart={weekStart} onChanged={load} confirm={confirmSheet} />
             <HouseholdMealCalendarBand folds={folds} weekStart={weekStart} onChanged={load} confirm={confirmSheet} />
           </>
@@ -2343,6 +2382,146 @@ function LeftoverSheet({ cook, profile, onClose }: { cook: LeftoverCook | null; 
         </View>
       </View>
     </Modal>
+  );
+}
+
+// H7: notes on the calendar (lib/calendarNotes.ts). A line of the person's
+// own on the day the strip has selected, with an optional time. A note is
+// never planned, so nothing reminds about it or asks whether it happened.
+function CalendarNotesBand({
+  folds,
+  date,
+  notes,
+  onChanged,
+  confirm,
+}: {
+  folds: ReturnType<typeof useBandFolds>;
+  date: string;
+  notes: CalendarNote[];
+  onChanged: () => void;
+  confirm: ReturnType<typeof useConfirmSheet>[0];
+}) {
+  const [draft, setDraft] = useState<{ id: string | null; text: string; time: string } | null>(null);
+  const [message, setMessage] = useState<{ text: string; problem: boolean } | null>(null);
+  const dayPhrase = describeRelativeDate(date);
+
+  // A form left open on one day does not carry over to the next.
+  useEffect(() => {
+    setDraft(null);
+    setMessage(null);
+  }, [date]);
+
+  async function handleSave() {
+    if (!draft) return;
+    const textProblem = noteTextProblem(draft.text);
+    const parsed = parseNoteTime(draft.time);
+    const problem = textProblem ?? parsed.problem;
+    if (problem) {
+      setMessage({ text: problem, problem: true });
+      return;
+    }
+    const scheduledFor = noteScheduledFor(date, parsed.time);
+    try {
+      if (draft.id) await updateCalendarNote(draft.id, scheduledFor, draft.text);
+      else await addCalendarNote(scheduledFor, draft.text);
+      setMessage({ text: noteSavedMessage(scheduledFor, dayPhrase, draft.id !== null), problem: false });
+      setDraft(null);
+      onChanged();
+    } catch (error) {
+      setMessage({ text: error instanceof Error ? error.message : String(error), problem: true });
+    }
+  }
+
+  async function handleRemove(note: CalendarNote) {
+    const go = await confirm({ title: 'Remove this note?', message: removeNoteMessage(note.text), confirmLabel: 'Remove', destructive: true });
+    if (!go) return;
+    try {
+      await removeCalendarNote(note.id);
+      setMessage(null);
+      onChanged();
+    } catch (error) {
+      setMessage({ text: error instanceof Error ? error.message : String(error), problem: true });
+    }
+  }
+
+  return (
+    <ScheduleBand folds={folds} id="schedule:meals:notes" title={NOTES_TITLE} icon="create-outline" count={notes.length}>
+      <Text style={[styles.helperText, styles.panelStandalone]}>{NOTES_INTRO}</Text>
+      {notes.length === 0 ? (
+        <Text style={[styles.emptyText, styles.panelStandalone]}>{noNotesLine(dayPhrase)}</Text>
+      ) : (
+        <View style={styles.table}>
+          {notes.map((note) => (
+            <View key={note.id} style={styles.row}>
+              <View style={styles.rowMain}>
+                <Text style={styles.rowTime}>{noteTimeLabel(note.scheduledFor)}</Text>
+                <View style={styles.rowTextCol}>
+                  <Text style={styles.rowTitle}>{note.text}</Text>
+                </View>
+              </View>
+              <View style={styles.rowActions}>
+                <TouchableOpacity
+                  onPress={() => {
+                    const time = noteTime(note.scheduledFor);
+                    setDraft({ id: note.id, text: note.text, time: time ? formatTime12(time) : '' });
+                    setMessage(null);
+                  }}
+                >
+                  <Text style={styles.actionText}>Edit</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => void handleRemove(note)}>
+                  <Text style={styles.actionTextRemove}>Remove</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+      {draft ? (
+        <View style={styles.formCard}>
+          <Text style={styles.helperText}>
+            {draft.id ? 'Changing a note' : 'A note'} on {dayPhrase}.
+          </Text>
+          <Text style={styles.label}>The note</Text>
+          <AppTextInput
+            style={styles.input}
+            value={draft.text}
+            onChangeText={(text) => setDraft({ ...draft, text })}
+            placeholder="Out for dinner with Ana"
+            multiline
+          />
+          <Text style={styles.label}>Time (optional, like 18:30 or 6:30 pm)</Text>
+          <AppTextInput style={styles.input} value={draft.time} onChangeText={(time) => setDraft({ ...draft, time })} placeholder="Any time" />
+          <View style={styles.formActions}>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => {
+                setDraft(null);
+                setMessage(null);
+              }}
+            >
+              <Text style={styles.secondaryButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => void handleSave()}>
+              <Text style={styles.primaryButtonText}>{draft.id ? 'Save changes' : 'Add the note'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => {
+            setDraft({ id: null, text: '', time: '' });
+            setMessage(null);
+          }}
+        >
+          <Text style={styles.addButtonText}>{ADD_NOTE_LABEL}</Text>
+        </TouchableOpacity>
+      )}
+      {message ? (
+        <Text style={[message.problem ? styles.errorText : styles.helperText, styles.panelStandalone]}>{message.text}</Text>
+      ) : null}
+    </ScheduleBand>
   );
 }
 
@@ -6634,6 +6813,10 @@ const styles = StyleSheet.create({
   weekDayDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: 'transparent', marginTop: 4 },
   weekDayDotActive: { backgroundColor: TAB_COLOR },
   weekDayDotActiveSelected: { backgroundColor: colors.textOnPrimary },
+  weekDayMarks: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  weekDayRing: { width: 7, height: 7, borderRadius: 4, borderWidth: 1.5, borderColor: TAB_COLOR, marginTop: 4 },
+  weekDayRingSelected: { borderColor: colors.textOnPrimary },
+  weekStripKey: { ...typography.caption, color: TAB_COLOR, textAlign: 'center', marginTop: 8, ...textShadow },
   weekTodayLink: { ...typography.caption, color: TAB_COLOR, textAlign: 'center', marginTop: 10, textDecorationLine: 'underline', ...textShadow },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
   // 2026-07-27.
