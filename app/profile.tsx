@@ -96,6 +96,9 @@ import {
   weekPlanDayOf,
   weekPlanTimeOf,
   setWeekPlanSchedule,
+  gardenMonthDayOf,
+  gardenMonthTimeOf,
+  setGardenMonthSchedule,
   weekTimeOf,
   setWeekSchedule,
 } from '../lib/reminderPreferences';
@@ -571,6 +574,11 @@ const QUIET_TIME_OPTIONS = quietTimeOptions();
 const WEEK_DAY_OPTIONS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map(
   (label, index) => ({ label, value: String(index) }),
 );
+// This month in the garden's day (I12), 1 to 28 so every month has it.
+const MONTH_DAY_OPTIONS = Array.from({ length: 28 }, (_, i) => ({
+  label: i === 0 ? 'The 1st' : i === 1 ? 'The 2nd' : i === 2 ? 'The 3rd' : i === 20 ? 'The 21st' : i === 21 ? 'The 22nd' : i === 22 ? 'The 23rd' : `The ${i + 1}th`,
+  value: String(i + 1),
+}));
 
 function PickerField({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -889,6 +897,14 @@ export default function ProfileScreen() {
   // This week's meals' day and time (H10), reconciled the same way.
   function saveWeekPlanDay(day: string) {
     void setWeekPlanSchedule(Number(day), weekPlanTimeOf(reminderPrefs)).then(() => syncReminderNotifications());
+  }
+
+  function saveGardenMonthDay(day: string) {
+    void setGardenMonthSchedule(Number(day), gardenMonthTimeOf(reminderPrefs)).then(() => syncReminderNotifications());
+  }
+
+  function saveGardenMonthTime(time: string) {
+    void setGardenMonthSchedule(gardenMonthDayOf(reminderPrefs), time).then(() => syncReminderNotifications());
   }
 
   function saveWeekPlanTime(time: string) {
@@ -3795,6 +3811,30 @@ export default function ProfileScreen() {
                     tabColor={colors.menuIconMuted}
                     groundSurface
                     onSelect={saveWeekPlanTime}
+                  />
+                </PickerField>
+              </View>
+            ) : null}
+            {isReminderKindEnabled(reminderPrefs, 'gardenMonth') ? (
+              <View style={styles.dateRow}>
+                <PickerField label="This month in the garden on">
+                  <PopoverSelect
+                    options={MONTH_DAY_OPTIONS}
+                    selected={String(gardenMonthDayOf(reminderPrefs))}
+                    minWidth={130}
+                    tabColor={colors.menuIconMuted}
+                    groundSurface
+                    onSelect={saveGardenMonthDay}
+                  />
+                </PickerField>
+                <PickerField label="At">
+                  <PopoverSelect
+                    options={QUIET_TIME_OPTIONS}
+                    selected={gardenMonthTimeOf(reminderPrefs)}
+                    minWidth={110}
+                    tabColor={colors.menuIconMuted}
+                    groundSurface
+                    onSelect={saveGardenMonthTime}
                   />
                 </PickerField>
               </View>

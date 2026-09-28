@@ -493,6 +493,28 @@ export type FrostDatesResult =
   | { status: 'error'; message: string }
   | { status: 'ready'; dates: FrostDates };
 
+/** The frost dates as last worked out for the saved place, with no fetch:
+ *  for a reminder written in the background, which cannot wait on a
+ *  weather archive. 'unread' means none have been worked out for this
+ *  place yet (I12). */
+export async function readCachedFrostDates(): Promise<FrostDatesResult | { status: 'unread' }> {
+  const profile = await getUserProfile();
+  if (!profile.growingZoneCountry || !profile.growingZonePostalCode) return { status: 'no-location' };
+  const location = await readAppMeta<CachedLocation>(LOCATION_CACHE_KEY);
+  if (
+    !location ||
+    location.country !== profile.growingZoneCountry ||
+    location.postalCode !== profile.growingZonePostalCode
+  ) {
+    return { status: 'unread' };
+  }
+  const cached = await readAppMeta<CachedFrostDates>(FROST_DATES_CACHE_KEY);
+  if (cached && cached.lat === location.lat && cached.lon === location.lon) {
+    return { status: 'ready', dates: cached.dates };
+  }
+  return { status: 'unread' };
+}
+
 export async function getFrostDates(): Promise<FrostDatesResult> {
   const location = await resolveHomeLocation();
   if (!location) return { status: 'no-location' };

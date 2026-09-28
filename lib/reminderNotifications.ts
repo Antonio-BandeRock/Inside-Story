@@ -29,6 +29,8 @@ import {
   weekTimeOf,
   weekPlanDayOf,
   weekPlanTimeOf,
+  gardenMonthDayOf,
+  gardenMonthTimeOf,
   getReminderPreferences,
   isNudgeUntilDoneEnabled,
   isReminderKindEnabled,
@@ -62,6 +64,9 @@ import { quietDecision, SNOOZE_MINUTES } from './quietHours';
 import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
 import { YOUR_WEEK_NOTIFICATION_BODY, YOUR_WEEK_NOTIFICATION_TITLE } from './weeklySummary';
 import { buildWeekPlanBody, WEEK_PLAN_NOTIFICATION_TITLE, weekPlanDays } from './weekPlanNotice';
+import { buildGardenMonthBody, GARDEN_MONTH_NOTIFICATION_TITLE, nextGardenMonthFire, type GardenMonthPlace } from './gardenMonthNotice';
+import { readCachedFrostDates } from './homeSky';
+import { frostAnchor } from './sowingWindows';
 
 // Local reminders: the scheduled doses in Schedules > Meds, the visits in
 // Schedules > Appointments, the meals and drinks on the schedule, the work
@@ -220,7 +225,7 @@ type SignalsReminderLens = 'generalNote' | 'flares';
 // 'plotsAndPlantings' is what a 1.0.42.13 payload says for a counter; it
 // opens the Days Until lens too, which has held every counter since
 // 1.0.42.14.
-type GardenReminderLens = 'upcomingTasks' | 'plotsAndPlantings' | 'daysUntil' | 'compost';
+type GardenReminderLens = 'upcomingTasks' | 'plotsAndPlantings' | 'daysUntil' | 'compost' | 'sowingCalendar';
 // A Did I Do It check (C2) lands on its lens on Life, beside the dated ones.
 type LifeReminderLens = DatedReminderLens | 'didIDoIt';
 
@@ -688,6 +693,24 @@ function buildWeekPlanPlanned(fireAt: Date, body: string): PlannedNotification {
   };
 }
 
+// This month in the garden (I12). What the sowing calendar has open over
+// the next 30 days; opens Garden on the Sowing Calendar lens.
+function buildGardenMonthPlanned(fireAt: Date, body: string): PlannedNotification {
+  return {
+    identifier: `${IDENTIFIER_PREFIX}gardenMonth:${localDateString(fireAt)}`,
+    title: GARDEN_MONTH_NOTIFICATION_TITLE,
+    body,
+    fireAt,
+    payload: {
+      kind: 'gardenMonth',
+      scheduleItemId: localDateString(fireAt),
+      fireAt: fireAt.toISOString(),
+      tab: 'garden',
+      lens: 'sowingCalendar',
+    },
+  };
+}
+
 // Your week (F13). Word that the summary is on Home and nothing about what
 // it holds, since a notification can be read on a locked screen.
 function buildWeekPlanned(fireAt: Date): PlannedNotification {
@@ -842,6 +865,7 @@ function channelFor(kind: ReminderKind): string {
     kind === 'checkin' ||
     kind === 'morning' ||
     kind === 'week' ||
+    kind === 'gardenMonth' ||
     kind === 'afterMeal' ||
     kind === 'photoSeries'
   )
@@ -1097,6 +1121,35 @@ async function runSync(): Promise<ReminderSyncResult> {
       }
     }
   }
+  // This month in the garden (I12): one queued at a time, and it may sit up
+  // to 32 days ahead rather than the week the other kinds look, since what
+  // it says depends only on the date and the frost dates, and a month that
+  // started while the app went unopened for a week would otherwise pass
+  // with nothing said. The frost dates are read from what My Zone and the
+  // Sowing Calendar last worked out, never fetched here.
+  if (isReminderKindEnabled(preferences, 'gardenMonth')) {
+    const fireAt = nextGardenMonthFire(gardenMonthDayOf(preferences), gardenMonthTimeOf(preferences), now, 32);
+    if (fireAt) {
+      try {
+        const frost = await readCachedFrostDates();
+        const place: GardenMonthPlace =
+          frost.status === 'ready'
+            ? {
+                status: 'ready',
+                anchor: frostAnchor(frost.dates.frost, frost.dates.southern),
+                placeLabel: frost.dates.placeLabel,
+                southern: frost.dates.southern,
+              }
+            : frost.status === 'no-location'
+              ? { status: 'no-location' }
+              : { status: 'unread' };
+        const planned = buildGardenMonthPlanned(fireAt, buildGardenMonthBody(place, fireAt));
+        first.set(planned.identifier, planned);
+      } catch (error) {
+        console.warn('[reminderNotifications] could not read the frost dates for this month in the garden', error);
+      }
+    }
+  }
   if (isReminderKindEnabled(preferences, 'afterMeal')) {
     const nudge = planAfterMealNudge(checkinInputs.recentMeals, checkinInputs.lastCheckinAt, now);
     if (nudge) {
@@ -1294,6 +1347,7 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
   // from before counters, so it can only be a task.
   if (data?.tab === 'garden') {
     if (data.lens === 'compost') return { pathname: '/garden', params: { openGardenLens: 'compost' } };
+    if (data.lens === 'sowingCalendar') return { pathname: '/garden', params: { openGardenLens: 'sowingCalendar' } };
     const toCounters = data.lens === 'daysUntil' || data.lens === 'plotsAndPlantings';
     return { pathname: '/garden', params: { openGardenLens: toCounters ? 'daysUntil' : 'upcomingTasks' } };
   }

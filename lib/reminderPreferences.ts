@@ -29,6 +29,7 @@ export type ReminderKindKey =
   | 'morning'
   | 'week'
   | 'weekPlan'
+  | 'gardenMonth'
   | 'afterMeal'
   | 'garden'
   | 'routine'
@@ -77,6 +78,10 @@ export const ALL_REMINDER_KIND_KEYS: ReminderKindKey[] = [
   'weekPlan',
   'afterMeal',
   'garden',
+  // I12 (2026-09-28). This month in the garden: once a month, on the day
+  // and at the time the person picks, what the sowing calendar has open or
+  // opening over the next 30 days. Beside Garden tasks. Starts off.
+  'gardenMonth',
   // 1.0.39.22. The one kind that comes from nothing on a schedule at all:
   // a routine speaks on the days and at the time it was given, and the
   // notification opens the walk rather than marking anything done.
@@ -128,6 +133,7 @@ export const REMINDER_KIND_LABELS: Record<ReminderKindKey, string> = {
   morning: 'Morning check-in',
   week: 'Your week',
   weekPlan: "This week's meals",
+  gardenMonth: 'This month in the garden',
   afterMeal: 'After a meal',
   garden: 'Garden tasks',
   routine: 'Routines',
@@ -158,6 +164,8 @@ export const REMINDER_KIND_CAPTIONS: Record<ReminderKindKey, string> = {
     'Once a week, on the day and at the time you pick below, word that the last seven days are on Home beside the seven before. The notification itself says nothing about what was logged.',
   weekPlan:
     'Once a week, on the day and at the time you pick below, the meals planned for the next seven days, one line a day. It names the meals, so they can be read on a locked screen. A meal planned after the app was last opened is not in it yet.',
+  gardenMonth:
+    'Once a month, on the day and at the time you pick below, what Garden > Sowing Calendar has open or opening over the next 30 days, one line for each kind of work, with the full and new moons. It needs a place saved in Garden > My Zone to name crops.',
   afterMeal:
     'About two hours after a meal you logged, the same two buttons. Only the latest meal asks, a drink on its own asks nothing, and nothing comes once you have checked in since eating.',
   garden: 'Anything planned in Garden > Upcoming Tasks, at the time it is set for.',
@@ -213,6 +221,7 @@ const DEFAULT_REMINDER_KIND_ENABLED: Record<ReminderKindKey, boolean> = {
   morning: false,
   week: false,
   weekPlan: false,
+  gardenMonth: false,
   afterMeal: false,
   garden: true,
   // On. A routine reminder exists only because somebody went into that
@@ -274,6 +283,9 @@ export const DEFAULT_WEEK_TIME = '18:00';
 // shop for the week from it.
 export const DEFAULT_WEEK_PLAN_DAY = 0;
 export const DEFAULT_WEEK_PLAN_TIME = '16:00';
+// This month in the garden (I12): the first of the month, in the morning.
+export const DEFAULT_GARDEN_MONTH_DAY = 1;
+export const DEFAULT_GARDEN_MONTH_TIME = '08:00';
 
 export type ReminderPreferences = {
   // Whether a reminder comes back until the thing is marked done, rather
@@ -296,6 +308,9 @@ export type ReminderPreferences = {
   // This week's meals' day and time (H10). Undefined means the defaults.
   weekPlanDay?: number;
   weekPlanTime?: string;
+  // This month in the garden's day of the month (1 to 28) and time (I12).
+  gardenMonthDay?: number;
+  gardenMonthTime?: string;
   // Only what the person has actually changed. A key missing here means
   // "whatever DEFAULT_REMINDER_KIND_ENABLED says," so a kind added later
   // picks up its own default without needing a migration, and so changing a
@@ -354,6 +369,18 @@ export function weekPlanTimeOf(prefs: ReminderPreferences): string {
   return isValidTime(prefs.weekPlanTime) ? prefs.weekPlanTime : DEFAULT_WEEK_PLAN_TIME;
 }
 
+function isValidMonthDay(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 28;
+}
+
+export function gardenMonthDayOf(prefs: ReminderPreferences): number {
+  return isValidMonthDay(prefs.gardenMonthDay) ? prefs.gardenMonthDay : DEFAULT_GARDEN_MONTH_DAY;
+}
+
+export function gardenMonthTimeOf(prefs: ReminderPreferences): string {
+  return isValidTime(prefs.gardenMonthTime) ? prefs.gardenMonthTime : DEFAULT_GARDEN_MONTH_TIME;
+}
+
 export function isNudgeUntilDoneEnabled(prefs: ReminderPreferences): boolean {
   return prefs.nudgeUntilDone ?? DEFAULT_NUDGE_UNTIL_DONE;
 }
@@ -390,6 +417,8 @@ export async function getReminderPreferences(): Promise<ReminderPreferences> {
           weekTime: isValidTime(parsed.weekTime) ? parsed.weekTime : undefined,
           weekPlanDay: isValidWeekDay(parsed.weekPlanDay) ? parsed.weekPlanDay : undefined,
           weekPlanTime: isValidTime(parsed.weekPlanTime) ? parsed.weekPlanTime : undefined,
+          gardenMonthDay: isValidMonthDay(parsed.gardenMonthDay) ? parsed.gardenMonthDay : undefined,
+          gardenMonthTime: isValidTime(parsed.gardenMonthTime) ? parsed.gardenMonthTime : undefined,
         };
       } catch {
         // A blob that will not parse falls back to defaults rather than
@@ -461,6 +490,16 @@ export async function setWeekPlanSchedule(day: number, time: string): Promise<Re
     ...current,
     weekPlanDay: isValidWeekDay(day) ? day : undefined,
     weekPlanTime: isValidTime(time) ? time : undefined,
+  });
+}
+
+// This month in the garden's day and time (I12). Reconciled by the caller.
+export async function setGardenMonthSchedule(day: number, time: string): Promise<ReminderPreferences> {
+  const current = await getReminderPreferences();
+  return persist({
+    ...current,
+    gardenMonthDay: isValidMonthDay(day) ? day : undefined,
+    gardenMonthTime: isValidTime(time) ? time : undefined,
   });
 }
 
