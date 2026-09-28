@@ -7,7 +7,6 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { KeepRemindingPicker } from './KeepRemindingPicker';
-import { VoiceInputButton } from './VoiceInputButton';
 import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -259,11 +258,9 @@ export function DidIDoItSection({ tabColor }: Props) {
         <View style={band.box}>
           <Text style={styles.cardTitle}>{form.id ? 'Change this one' : 'Something to check'}</Text>
 
-          <View style={styles.labelRow}>
-            <Text style={styles.label}>What you want to be able to ask</Text>
-            <VoiceInputButton onResult={(text) => setForm({ ...form, name: text })} />
-          </View>
+          <Text style={styles.label}>What you want to be able to ask</Text>
           <AppTextInput
+            onVoiceResult={(text) => setForm({ ...form, name: text })}
             style={styles.input}
             value={form.name}
             onChangeText={(text) => setForm({ ...form, name: text })}

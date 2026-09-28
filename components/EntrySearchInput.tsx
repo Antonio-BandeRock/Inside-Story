@@ -101,6 +101,7 @@ export function EntrySearchInput({
           since it is pinned right regardless of NAVIGATION_HAND while the
           mic sits left today. With no icon, only the mic's side needs it. */}
       <AppTextInput
+        voice={false}
         style={[
           ...(Array.isArray(style) ? style : [style]),
           onPressInfo ? styles.searchInputPadBoth : (micOnLeft ? styles.searchInputPadLeft : styles.searchInputPadRight),

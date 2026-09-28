@@ -14,7 +14,6 @@ import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
-import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { DailyScalesPicker } from '../../components/DailyScalesPicker';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
@@ -719,11 +718,9 @@ function CheckinForm({
     <View style={styles.formCard}>
       {foodNameField ? (
         <>
-          <View style={styles.noteLabelRow}>
-            <Text style={styles.label}>What did you eat or drink?</Text>
-            <VoiceInputButton onResult={foodNameField.onChange} size={16} />
-          </View>
+          <Text style={styles.label}>What did you eat or drink?</Text>
           <AppTextInput
+            onVoiceResult={foodNameField.onChange}
             style={styles.input}
             placeholder="e.g. Greek yogurt with honey"
             value={foodNameField.value}
@@ -1396,11 +1393,15 @@ function NewFoodsLens({
         </TouchableOpacity>
       ) : (
         <View style={styles.formCard}>
-          <View style={styles.noteLabelRow}>
-            <Text style={styles.label}>What food are you introducing?</Text>
-            <VoiceInputButton onResult={setFoodName} size={16} />
-          </View>
-          <AppTextInput style={styles.input} placeholder="e.g. Quinoa" value={foodName} onChangeText={setFoodName} />
+          <Text style={styles.label}>What food are you introducing?</Text>
+          <AppTextInput
+          onVoiceResult={setFoodName}
+          style={styles.input}
+          placeholder="e.g.
+          Quinoa"
+          value={foodName}
+          onChangeText={setFoodName}
+          />
           <TouchableOpacity style={styles.secondaryButton} onPress={() => setPickingFood(true)}>
             <Text style={styles.secondaryButtonText}>
               {pickedFood ? 'Change the specific food' : 'Pick a specific food (optional)'}
@@ -1754,11 +1755,17 @@ function ExerciseSection() {
         </TouchableOpacity>
       ) : (
         <View style={styles.formCard}>
-          <View style={styles.noteLabelRow}>
-            <Text style={styles.label}>What did you do?</Text>
-            <VoiceInputButton onResult={setExerciseType} size={16} />
-          </View>
-          <AppTextInput style={styles.input} placeholder="e.g. Walk, yoga, weights" value={exerciseType} onChangeText={setExerciseType} />
+          <Text style={styles.label}>What did you do?</Text>
+          <AppTextInput
+          onVoiceResult={setExerciseType}
+          style={styles.input}
+          placeholder="e.g.
+          Walk,
+          yoga,
+          weights"
+          value={exerciseType}
+          onChangeText={setExerciseType}
+          />
           <Text style={styles.label}>How long? (minutes, optional)</Text>
           <AppTextInput
             style={[styles.input, styles.timeInput]}
@@ -2061,16 +2068,7 @@ function GeneralNoteSection() {
               just got. Only the FINAL transcript is parsed and
               appended -- a partial mid-sentence result would land real,
               half-finished command phrases in the actual note text. */}
-          <View style={styles.noteLabelRow}>
-            <Text style={styles.label}>Note</Text>
-            <VoiceInputButton
-              onResult={(transcript, isFinal) => {
-                if (!isFinal) return;
-                setNotes((current) => appendDictatedText(current, parseVoiceCommands(transcript)));
-              }}
-              size={16}
-            />
-          </View>
+          <Text style={styles.label}>Note</Text>
           {/* D14 (2026-09-26): questions to start from, for a day when the
               blank box is the hard part. A tap adds the question as a line
               of the note (lib/journalPrompts.ts). */}
@@ -2083,6 +2081,10 @@ function GeneralNoteSection() {
             ))}
           </View>
           <NotesInput
+                onVoiceResult={(transcript, isFinal) => {
+                if (!isFinal) return;
+                setNotes((current) => appendDictatedText(current, parseVoiceCommands(transcript)));
+              }}
             style={[styles.input, styles.multilineInput]}
             placeholder="e.g. Started a new dose of vitamin D today"
             multiline

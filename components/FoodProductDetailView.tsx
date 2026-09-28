@@ -6,7 +6,6 @@ import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { TrendLineChart } from './TrendLineChart';
-import { VoiceInputButton } from './VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
@@ -188,13 +187,13 @@ export function FoodProductDetailView({ id, onClose }: { id: string; title?: str
           <Text style={styles.sectionLabel}>Name</Text>
           <View style={styles.textAreaRow}>
             <AppTextInput
+              onVoiceResult={setName}
               value={name}
               onChangeText={setName}
               style={styles.textInput}
               placeholder="Product name"
               placeholderTextColor={colors.textMuted}
             />
-            <VoiceInputButton onResult={setName} />
           </View>
           {product.brand ? <Text style={styles.caption}>{product.brand}</Text> : null}
           <Text style={styles.caption}>Scanned {product.scannedAt.slice(0, 10)} · {product.lookupSource}</Text>
@@ -208,6 +207,7 @@ export function FoodProductDetailView({ id, onClose }: { id: string; title?: str
           <Text style={styles.sectionLabel}>Ingredients</Text>
           <View style={styles.textAreaRow}>
             <AppTextInput
+              onVoiceResult={setIngredientsText}
               value={ingredientsText}
               onChangeText={setIngredientsText}
               style={styles.textArea}
@@ -215,7 +215,6 @@ export function FoodProductDetailView({ id, onClose }: { id: string; title?: str
               placeholder="No ingredients text saved for this product yet."
               placeholderTextColor={colors.textMuted}
             />
-            <VoiceInputButton onResult={setIngredientsText} />
           </View>
           <TouchableOpacity
             style={[styles.primaryButton, saving ? styles.disabled : null]}
@@ -291,13 +290,13 @@ export function FoodProductDetailView({ id, onClose }: { id: string; title?: str
           </View>
           <View style={styles.textAreaRow}>
             <AppTextInput
+              onVoiceResult={setStoreNameText}
               value={storeNameText}
               onChangeText={setStoreNameText}
               style={styles.textInput}
               placeholder="Store (optional)"
               placeholderTextColor={colors.textMuted}
             />
-            <VoiceInputButton onResult={setStoreNameText} />
           </View>
           <TouchableOpacity
             style={[styles.secondaryButton, loggingPrice ? styles.disabled : null]}

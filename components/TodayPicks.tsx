@@ -33,7 +33,6 @@ import {
 } from '../lib/todayPicksDb';
 import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
-import { VoiceInputButton } from './VoiceInputButton';
 
 type Props = {
   tabColor: string;
@@ -133,6 +132,8 @@ export function TodayPicks({ tabColor }: Props) {
           ) : null}
           <View style={styles.inputRow}>
             <AppTextInput
+              onVoiceResult={(transcript) => setNewName(transcript)}
+              micColor={tabColor}
               style={styles.input}
               value={newName}
               onChangeText={setNewName}
@@ -145,7 +146,6 @@ export function TodayPicks({ tabColor }: Props) {
                 void run(() => pickNewForToday(day, name));
               }}
             />
-            <VoiceInputButton onResult={(transcript) => setNewName(transcript)} size={22} color={tabColor} />
             <TouchableOpacity
               style={[styles.button, { borderColor: tabColor }, newName.trim() ? null : styles.off]}
               disabled={busy || !newName.trim()}

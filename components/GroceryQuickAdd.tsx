@@ -12,7 +12,6 @@ import { textShadow, typography } from '../constants/typography';
 import { groceryItemsFromNote } from '../lib/captureNotes';
 import { addNamesToActiveGroceryList } from '../lib/groceryDb';
 import { AppTextInput } from './AppTextInput';
-import { VoiceInputButton } from './VoiceInputButton';
 
 type Props = {
   tabColor: string;
@@ -38,6 +37,8 @@ export function GroceryQuickAdd({ tabColor, onOpenList }: Props) {
     <View style={styles.body}>
       <View style={styles.inputRow}>
         <AppTextInput
+          onVoiceResult={(transcript) => setText(transcript)}
+          micColor={tabColor}
           style={styles.input}
           value={text}
           onChangeText={(value) => {
@@ -48,7 +49,6 @@ export function GroceryQuickAdd({ tabColor, onOpenList }: Props) {
           onSubmitEditing={() => void add()}
           returnKeyType="done"
         />
-        <VoiceInputButton onResult={(transcript) => setText(transcript)} size={22} color={tabColor} />
       </View>
       {items.length > 1 ? <Text style={styles.caption}>{`Adds ${items.length}: ${items.join(', ')}`}</Text> : null}
       <View style={styles.buttonRow}>

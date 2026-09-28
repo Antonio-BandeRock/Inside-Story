@@ -4,7 +4,6 @@ import { useRouter } from 'expo-router';
 import { Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
-import { VoiceInputButton } from './VoiceInputButton';
 import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
 import type { DropdownOption } from './Dropdown';
@@ -722,14 +721,10 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
             </View>
           ) : addMode === 'supplement' ? (
             <View style={styles.formCard}>
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Name</Text>
-                <VoiceInputButton
-                  onResult={(text) => setSupplementForm((current) => ({ ...current, name: text }))}
-                  color={tabColor}
-                />
-              </View>
+              <Text style={styles.label}>Name</Text>
               <AppTextInput
+                onVoiceResult={(text) => setSupplementForm((current) => ({ ...current, name: text }))}
+                micColor={tabColor}
                 style={styles.input}
                 placeholder="e.g. Daily Multivitamin, or just Magnesium"
                 value={supplementForm.name}
@@ -821,7 +816,8 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
               </TouchableOpacity>
 
               <Text style={styles.label}>Notes (optional)</Text>
-              <NotesInput micColor={tabColor}
+              <NotesInput
+                micColor={tabColor}
                 style={styles.input}
                 placeholder="e.g. take with food"
                 value={supplementForm.notes}
@@ -889,11 +885,10 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
                 </Text>
               ) : null}
 
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Name</Text>
-                <VoiceInputButton onResult={(text) => setMedForm((current) => ({ ...current, name: text }))} color={tabColor} />
-              </View>
+              <Text style={styles.label}>Name</Text>
               <AppTextInput
+                onVoiceResult={(text) => setMedForm((current) => ({ ...current, name: text }))}
+                micColor={tabColor}
                 style={styles.input}
                 placeholder="e.g. Synthroid 75mcg"
                 value={medForm.name}
@@ -902,14 +897,10 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
 
               {medForm.manualEntry ? (
                 <>
-                  <View style={styles.labelRow}>
-                    <Text style={styles.label}>Generic name (optional, helps interaction checking)</Text>
-                    <VoiceInputButton
-                      onResult={(text) => setMedForm((current) => ({ ...current, genericName: text }))}
-                      color={tabColor}
-                    />
-                  </View>
+                  <Text style={styles.label}>Generic name (optional, helps interaction checking)</Text>
                   <AppTextInput
+                    onVoiceResult={(text) => setMedForm((current) => ({ ...current, genericName: text }))}
+                    micColor={tabColor}
                     style={styles.input}
                     placeholder="e.g. levothyroxine"
                     value={medForm.genericName}
@@ -935,14 +926,10 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
                 />
               </View>
 
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Frequency (optional)</Text>
-                <VoiceInputButton
-                  onResult={(text) => setMedForm((current) => ({ ...current, frequency: text }))}
-                  color={tabColor}
-                />
-              </View>
+              <Text style={styles.label}>Frequency (optional)</Text>
               <AppTextInput
+                onVoiceResult={(text) => setMedForm((current) => ({ ...current, frequency: text }))}
+                micColor={tabColor}
                 style={styles.input}
                 placeholder="e.g. once daily"
                 value={medForm.frequency}
@@ -950,7 +937,8 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
               />
 
               <Text style={styles.label}>Notes (optional)</Text>
-              <NotesInput micColor={tabColor}
+              <NotesInput
+                micColor={tabColor}
                 style={styles.input}
                 placeholder="e.g. prescribed by Dr. …"
                 value={medForm.notes}

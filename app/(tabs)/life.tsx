@@ -35,7 +35,6 @@ import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
-import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
@@ -1288,11 +1287,10 @@ export default function LifeScreen() {
           tabColor={TAB_COLOR}
         />
 
-        <View style={styles.labelRow}>
-          <Text style={styles.label}>Name</Text>
-          <VoiceInputButton onResult={(text) => setRecurringForm({ ...form, name: text })} color={TAB_COLOR} />
-        </View>
+        <Text style={styles.label}>Name</Text>
         <AppTextInput
+          onVoiceResult={(text) => setRecurringForm({ ...form, name: text })}
+          micColor={TAB_COLOR}
           style={styles.input}
           placeholder={form.direction === 'income' ? 'e.g. Paycheck' : 'e.g. Rent'}
           value={form.name}
@@ -1645,7 +1643,8 @@ export default function LifeScreen() {
             ) : null}
 
             <Text style={styles.label}>Note (optional)</Text>
-            <NotesInput micColor={TAB_COLOR}
+            <NotesInput
+              micColor={TAB_COLOR}
               style={styles.input}
               placeholder="e.g. lunch with Ana"
               value={entryForm.description}

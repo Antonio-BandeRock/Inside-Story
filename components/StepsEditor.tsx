@@ -206,6 +206,7 @@ export function StepsEditor({
               <>
                 <VoiceInputButton onResult={handleStepVoiceResult} size={16} />
                 <AppTextInput
+                  voice={false}
                   style={[styles.formInput, styles.stepInputEmbedded]}
                   value={stepDraft}
                   onChangeText={setStepDraft}
@@ -219,6 +220,7 @@ export function StepsEditor({
             ) : (
               <>
                 <AppTextInput
+                  voice={false}
                   style={[styles.formInput, styles.stepInputEmbedded]}
                   value={stepDraft}
                   onChangeText={setStepDraft}

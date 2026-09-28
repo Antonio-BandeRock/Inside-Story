@@ -5,7 +5,6 @@ import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
 import { useInfoAlert } from './InfoAlert';
-import { VoiceInputButton } from './VoiceInputButton';
 import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -402,12 +401,12 @@ export function EmergencySection({ tabColor }: Props) {
             <Text style={styles.label}>Name</Text>
             <View style={styles.inlineRow}>
               <AppTextInput
+                onVoiceResult={(t) => setContactForm({ ...contactForm, name: t })}
                 style={[styles.input, { flex: 1 }]}
                 placeholder="Tony"
                 value={contactForm.name}
                 onChangeText={(t) => setContactForm({ ...contactForm, name: t })}
               />
-              <VoiceInputButton onResult={(t) => setContactForm({ ...contactForm, name: t })} />
             </View>
             <Text style={styles.label}>How you know them</Text>
             <AppTextInput

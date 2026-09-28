@@ -20,7 +20,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
 import { useInfoAlert } from '../components/InfoAlert';
-import { VoiceInputButton } from '../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
@@ -205,6 +204,8 @@ export default function PriceCompareScreen() {
               <View style={styles.priceRow}>
                 <Text style={styles.currency}>$</Text>
                 <AppTextInput
+                  onVoiceResult={(text) => handleSpokenPrice(index, text)}
+                  micColor={colors.textSecondary}
                   style={styles.priceInput}
                   value={entry.priceText}
                   onChangeText={(text) => update(index, { priceText: text })}
@@ -212,7 +213,6 @@ export default function PriceCompareScreen() {
                   placeholder="0.00"
                   placeholderTextColor={colors.textMuted}
                 />
-                <VoiceInputButton onResult={(text) => handleSpokenPrice(index, text)} size={22} color={colors.textSecondary} />
                 <TouchableOpacity
                   style={[styles.iconButton, readingIndex === index && styles.disabled]}
                   activeOpacity={0.85}

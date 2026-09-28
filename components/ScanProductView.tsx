@@ -31,7 +31,6 @@ import { AppTextInput } from './AppTextInput';
 import { DraggableCropOverlay, type CropRect } from './DraggableCropOverlay';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
 import { SimpleSlider } from './SimpleSlider';
-import { VoiceInputButton } from './VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
@@ -1583,6 +1582,7 @@ export function ScanProductView({
         </Text>
         <View style={styles.textAreaRow}>
           <AppTextInput
+            onVoiceResult={setIngredientsText}
             value={ingredientsText}
             onChangeText={setIngredientsText}
             style={styles.textArea}
@@ -1590,7 +1590,6 @@ export function ScanProductView({
             placeholder="Ingredients will appear here once scanned, or type them in directly."
             placeholderTextColor={colors.textMuted}
           />
-          <VoiceInputButton onResult={setIngredientsText} />
         </View>
         <TouchableOpacity
           style={[styles.primaryButton, computingReport ? styles.disabled : null]}

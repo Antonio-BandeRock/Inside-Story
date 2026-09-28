@@ -7,7 +7,6 @@ import { AppTextInput } from '../../components/AppTextInput';
 import { NotesInput } from '../../components/NotesInput';
 import { DayTimeline } from '../../components/DayTimeline';
 import { PeerDishPhotos } from '../../components/PeerDishPhotos';
-import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
 import { useConfirmSheet } from '../../components/ConfirmSheet';
 import type { HelpSection } from '../../components/HelpButton';
@@ -1836,14 +1835,12 @@ function MealsLens() {
                         </Text>
                         <View style={styles.labelRow}>
                           <AppTextInput
+                            onVoiceResult={(text) => setForm((current) => ({ ...current, title: text, sourceFavoriteId: null, sourceMealId: null }))}
+                            micColor={TAB_COLOR}
                             style={[styles.input, { flex: 1 }]}
                             placeholder="e.g. Lunch out with a coworker, probably a sandwich and fries"
                             value={form.title}
                             onChangeText={(text) => setForm((current) => ({ ...current, title: text, sourceFavoriteId: null, sourceMealId: null }))}
-                          />
-                          <VoiceInputButton
-                            onResult={(text) => setForm((current) => ({ ...current, title: text, sourceFavoriteId: null, sourceMealId: null }))}
-                            color={TAB_COLOR}
                           />
                         </View>
                       </>
@@ -1853,14 +1850,10 @@ function MealsLens() {
 
                 {form.editingId ? (
                   <>
-                    <View style={styles.labelRow}>
-                      <Text style={styles.label}>What do you plan to eat?</Text>
-                      <VoiceInputButton
-                        onResult={(text) => setForm((current) => ({ ...current, title: text }))}
-                        color={TAB_COLOR}
-                      />
-                    </View>
+                    <Text style={styles.label}>What do you plan to eat?</Text>
                     <AppTextInput
+                      onVoiceResult={(text) => setForm((current) => ({ ...current, title: text }))}
+                      micColor={TAB_COLOR}
                       style={styles.input}
                       value={form.title}
                       onChangeText={(text) => setForm((current) => ({ ...current, title: text }))}
@@ -5233,14 +5226,12 @@ function HydrationLens() {
                       </Text>
                       <View style={styles.labelRow}>
                         <AppTextInput
+                          onVoiceResult={(text) => setForm((current) => ({ ...current, title: text, sourceFavoriteId: null, sourceMealId: null }))}
+                          micColor={TAB_COLOR}
                           style={[styles.input, { flex: 1 }]}
                           placeholder="e.g. Green tea with honey"
                           value={form.title}
                           onChangeText={(text) => setForm((current) => ({ ...current, title: text, sourceFavoriteId: null, sourceMealId: null }))}
-                        />
-                        <VoiceInputButton
-                          onResult={(text) => setForm((current) => ({ ...current, title: text, sourceFavoriteId: null, sourceMealId: null }))}
-                          color={TAB_COLOR}
                         />
                       </View>
                     </>
@@ -5248,11 +5239,10 @@ function HydrationLens() {
                 </>
               ) : (
                 <>
-                  <View style={styles.labelRow}>
-                    <Text style={styles.label}>What do you plan to drink?</Text>
-                    <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, title: text }))} color={TAB_COLOR} />
-                  </View>
+                  <Text style={styles.label}>What do you plan to drink?</Text>
                   <AppTextInput
+                    onVoiceResult={(text) => setForm((current) => ({ ...current, title: text }))}
+                    micColor={TAB_COLOR}
                     style={styles.input}
                     value={form.title}
                     onChangeText={(text) => setForm((current) => ({ ...current, title: text }))}
@@ -6296,11 +6286,10 @@ function AppointmentsLens() {
 
           {showForm ? (
             <View style={styles.formCard}>
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>What is this for?</Text>
-                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, title: text }))} color={TAB_COLOR} />
-              </View>
+              <Text style={styles.label}>What is this for?</Text>
               <AppTextInput
+                onVoiceResult={(text) => setForm((current) => ({ ...current, title: text }))}
+                micColor={TAB_COLOR}
                 style={styles.input}
                 placeholder="e.g. Dr. Smith - Endocrinology follow-up"
                 value={form.title}
@@ -6370,25 +6359,20 @@ function AppointmentsLens() {
                 </View>
               </View>
 
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Location (optional)</Text>
-                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, location: text }))} color={TAB_COLOR} />
-              </View>
+              <Text style={styles.label}>Location (optional)</Text>
               <AppTextInput
+                onVoiceResult={(text) => setForm((current) => ({ ...current, location: text }))}
+                micColor={TAB_COLOR}
                 style={styles.input}
                 placeholder="e.g. Riverside Medical, Suite 200"
                 value={form.location}
                 onChangeText={(text) => setForm((current) => ({ ...current, location: text }))}
               />
 
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Provider (optional)</Text>
-                <VoiceInputButton
-                  onResult={(text) => setForm((current) => ({ ...current, providerName: text }))}
-                  color={TAB_COLOR}
-                />
-              </View>
+              <Text style={styles.label}>Provider (optional)</Text>
               <AppTextInput
+                onVoiceResult={(text) => setForm((current) => ({ ...current, providerName: text }))}
+                micColor={TAB_COLOR}
                 style={styles.input}
                 placeholder="e.g. Dr. Smith"
                 value={form.providerName}
@@ -6408,7 +6392,8 @@ function AppointmentsLens() {
               </Text>
 
               <Text style={styles.label}>Notes (optional)</Text>
-              <NotesInput micColor={TAB_COLOR}
+              <NotesInput
+                micColor={TAB_COLOR}
                 style={styles.input}
                 placeholder="e.g. fasting required, bring insurance card"
                 value={form.notes}

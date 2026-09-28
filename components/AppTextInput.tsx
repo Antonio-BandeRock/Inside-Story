@@ -1,7 +1,11 @@
 import { forwardRef, useCallback, useEffect, useId, useRef, useState } from 'react';
-import { TextInput, type TextInput as TextInputType, type TextInputProps } from 'react-native';
+import { StyleSheet, TextInput, View, type TextInput as TextInputType, type TextInputProps, type TextStyle, type ViewStyle } from 'react-native';
 import { useActiveInputControls, type AppKeyboardType } from './ActiveInputContext';
 import { useKeyboardLift } from './KeyboardLift';
+import { VoiceInputButton } from './VoiceInputButton';
+import { NAVIGATION_HAND } from '../constants/floatingButton';
+import { isDesktopApp } from '../lib/desktop/bridge';
+import { appendDictatedText, parseVoiceCommands } from '../lib/voiceCommandParsing';
 
 // Drop-in replacement for RN's own TextInput -- same prop surface, so every
 // existing call site (all controlled value/onChangeText fields, see this
@@ -46,9 +50,127 @@ export type AppTextInputProps = TextInputProps & {
   onInfoPress?: () => void;
   infoColor?: string;
   infoLabel?: string;
+  /**
+   * The mic inside the field (2026-09-28, direct request: "Can we make sure
+   * that all text and note fields have the mic inside of it, and left-right
+   * aware?"). On by default for every field typed in words, off for a number
+   * field, a password, a field that cannot be edited and AppKeyboard's
+   * search box. Pass false only for a field that draws a mic of its own
+   * inside its box (EntrySearchInput, StepsEditor); scripts/audit_text_mic.js
+   * holds the list.
+   */
+  voice?: boolean;
+  /**
+   * How a dictation lands. 'space' (the default) adds it after what is there
+   * through the spoken-command parser; 'line' adds it on a line of its own;
+   * 'replace' puts every result, partial ones included, in place of the
+   * text, for a field that holds one short thing said at once.
+   */
+  voiceJoin?: 'space' | 'line' | 'replace';
+  /** Takes the dictation in place of voiceJoin, for a field that reads what was said (a spoken price). */
+  onVoiceResult?: (transcript: string, isFinal: boolean) => void;
+  micColor?: string;
 };
 
+// Room left inside the box for the mic, on whichever side NAVIGATION_HAND
+// favors, the same flag the floating hubs and the search boxes read, so
+// flipping it moves every mic at once.
+const MIC_ROOM = 40;
+
+// How the field sits among its neighbours (flex in a row, a width, its
+// margins, an absolute place) moves to the wrap, so a field in a row still
+// stretches the way it did and the mic is placed against the visible box.
+const OUTER_KEYS = [
+  'flex', 'flexGrow', 'flexShrink', 'flexBasis', 'alignSelf', 'width', 'minWidth', 'maxWidth',
+  'margin', 'marginTop', 'marginBottom', 'marginLeft', 'marginRight', 'marginVertical', 'marginHorizontal', 'marginStart', 'marginEnd',
+  'position', 'top', 'bottom', 'left', 'right', 'zIndex',
+] as const;
+
 export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(function AppTextInput(
+  { voice, voiceJoin = 'space', onVoiceResult, micColor, ...props },
+  ref,
+) {
+  const isTextField =
+    props.keyboardType !== 'number-pad' &&
+    props.keyboardType !== 'decimal-pad' &&
+    props.keyboardType !== 'numeric' &&
+    props.keyboardType !== 'phone-pad' &&
+    !props.secureTextEntry &&
+    props.editable !== false &&
+    !props.disableKeyboardLift;
+  // A computer has no dictation (see lib/desktop/phoneOnly.ts), so a mic in
+  // every box there would only ever say so; it is left off rather than
+  // padding every field for a button that cannot listen.
+  // A number field that reads speech itself (a spoken price, through
+  // onVoiceResult) keeps its mic; any other number field goes without.
+  const hearsSpeech =
+    isTextField || (!!onVoiceResult && !props.secureTextEntry && props.editable !== false && !props.disableKeyboardLift);
+  const showMic = (voice ?? true) && hearsSpeech && !isDesktopApp();
+  if (!showMic) return <AppTextInputField ref={ref} {...props} />;
+
+  const { style, value, onChangeText, multiline, maxLength } = props;
+  const micOnLeft = NAVIGATION_HAND === 'left';
+  const field: Record<string, unknown> = { ...(StyleSheet.flatten(style) ?? {}) };
+  const outer: Record<string, unknown> = {};
+  for (const key of OUTER_KEYS) {
+    if (field[key] !== undefined) {
+      outer[key] = field[key];
+      delete field[key];
+    }
+  }
+
+  function handleResult(transcript: string, isFinal: boolean) {
+    if (onVoiceResult) {
+      onVoiceResult(transcript, isFinal);
+      return;
+    }
+    if (!onChangeText) return;
+    if (voiceJoin === 'replace') {
+      onChangeText(maxLength ? transcript.slice(0, maxLength) : transcript);
+      return;
+    }
+    if (!isFinal) return;
+    const current = value ?? '';
+    const parsed = parseVoiceCommands(transcript);
+    let next: string;
+    if (voiceJoin === 'line') {
+      const existing = current.replace(/\s+$/, '');
+      next = existing ? `${existing}\n${parsed.text.replace(/^\n+/, '')}` : parsed.text;
+    } else {
+      next = appendDictatedText(current, parsed);
+    }
+    onChangeText(maxLength ? next.slice(0, maxLength) : next);
+  }
+
+  return (
+    <View style={[micStyles.wrap, outer as ViewStyle]}>
+      <AppTextInputField
+        ref={ref}
+        {...props}
+        style={[field as TextStyle, micOnLeft ? micStyles.padLeft : micStyles.padRight]}
+      />
+      <VoiceInputButton
+        onResult={handleResult}
+        size={18}
+        color={micColor}
+        style={[micStyles.mic, multiline ? micStyles.micTop : micStyles.micMiddle, micOnLeft ? micStyles.micLeft : micStyles.micRight]}
+      />
+    </View>
+  );
+});
+
+const micStyles = StyleSheet.create({
+  wrap: { position: 'relative' },
+  padLeft: { paddingLeft: MIC_ROOM },
+  padRight: { paddingRight: MIC_ROOM },
+  mic: { position: 'absolute' },
+  micTop: { top: 8 },
+  micMiddle: { top: 0, bottom: 0, justifyContent: 'center' },
+  micLeft: { left: 6 },
+  micRight: { right: 6 },
+});
+
+const AppTextInputField = forwardRef<TextInputType, AppTextInputProps>(function AppTextInputField(
   {
     onFocus,
     onBlur,

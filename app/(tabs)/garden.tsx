@@ -21,7 +21,6 @@ import { GrowingCostsLens } from '../../components/GrowingCostsLens';
 import { AppTextInput } from '../../components/AppTextInput';
 import { FoodLookup, type ResolvedFoodSelection } from '../../components/FoodLookup';
 import { PopoverSelect } from '../../components/PopoverSelect';
-import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { COUNTRIES } from '../../constants/countries';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { typography, textShadow } from '../../constants/typography';
@@ -1138,12 +1137,13 @@ function PlotsAndPlantingsLens({
               result shape the Food builders' own Name fields just got. */}
           <View style={styles.fieldRow}>
             <AppTextInput
+              onVoiceResult={(transcript) => setNewAreaName(transcript)}
+              micColor={TAB_COLOR}
               style={[styles.textInput, { flex: 1 }]}
               placeholder="Name (e.g. Backyard raised bed)"
               value={newAreaName}
               onChangeText={setNewAreaName}
             />
-            <VoiceInputButton onResult={(transcript) => setNewAreaName(transcript)} color={TAB_COLOR} />
           </View>
 
           <Text style={styles.fieldLabel}>Where is your garden located?</Text>
@@ -1650,12 +1650,13 @@ function UpcomingTasksLens({ scrollBottomPadding }: { scrollBottomPadding: numbe
         )}
         <View style={styles.fieldRow}>
           <AppTextInput
+            onVoiceResult={(transcript) => setTaskTitle(transcript)}
+            micColor={TAB_COLOR}
             style={[styles.textInput, { flex: 1 }]}
             placeholder="Task (e.g. Water the tomatoes)"
             value={taskTitle}
             onChangeText={setTaskTitle}
           />
-          <VoiceInputButton onResult={(transcript) => setTaskTitle(transcript)} color={TAB_COLOR} />
           <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleAddTask}>
             <Text style={styles.primaryButtonText}>Add</Text>
           </TouchableOpacity>

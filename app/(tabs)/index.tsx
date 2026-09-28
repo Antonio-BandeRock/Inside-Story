@@ -15,7 +15,6 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
-import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DayTimeline } from '../../components/DayTimeline';
 import { GroceryQuickAdd } from '../../components/GroceryQuickAdd';
@@ -4774,12 +4773,12 @@ export default function HomeScreen() {
                   <Text style={styles.modalMeta}>Right now, {formatTime12(nowTimeString24())}</Text>
                   <View style={[styles.quickInputRow, { marginTop: 12 }]}>
                     <AppTextInput
+                      onVoiceResult={setExerciseType}
                       style={[styles.quickInput, { flex: 1 }]}
                       placeholder="e.g. Walk, yoga, weights"
                       value={exerciseType}
                       onChangeText={setExerciseType}
                     />
-                    <VoiceInputButton onResult={setExerciseType} />
                   </View>
                   <View style={styles.quickInputRow}>
                     <AppTextInput

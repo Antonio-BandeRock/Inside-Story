@@ -12,7 +12,6 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
-import { VoiceInputButton } from '../components/VoiceInputButton';
 import { useConfirmSheet } from '../components/ConfirmSheet';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -632,6 +631,7 @@ export default function ConnectionsScreen() {
             {editingId === connection.id ? (
               <View style={styles.editRow}>
                 <AppTextInput
+                  onVoiceResult={setEditingName}
                   value={editingName}
                   onChangeText={setEditingName}
                   style={styles.editInput}
@@ -639,7 +639,6 @@ export default function ConnectionsScreen() {
                   selectAllOnMount
                   placeholder="Name"
                 />
-                <VoiceInputButton onResult={setEditingName} />
                 <TouchableOpacity onPress={() => saveRename(connection.id)} hitSlop={8}>
                   <Text style={styles.rowActionText}>Save</Text>
                 </TouchableOpacity>

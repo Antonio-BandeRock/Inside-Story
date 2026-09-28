@@ -56,7 +56,6 @@ import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { StepsEditor } from './StepsEditor';
 import { ConditionNoteRow } from './ConditionNoteRow';
-import { VoiceInputButton } from './VoiceInputButton';
 
 // Common home-cooking units -- a plain pill row, not InlineSelectList's own
 // scrollable-box treatment, since this is a short, fixed set (unlike
@@ -1935,35 +1934,14 @@ export function SaladBuilder({
               needs its own hand-computed left offset the prior fix required;
               it can stay flush left, always correctly over the field. */}
           <View style={[styles.dishNameFieldWrap, { backgroundColor: inputBackground(tabColor) }]}>
-            {NAVIGATION_HAND === 'left' ? (
-              <>
-                <VoiceInputButton onResult={(transcript) => handleSaladNameChange(transcript)} size={22} />
-                <AppTextInput
-                  style={[styles.formInput, styles.dishNameInputEmbedded]}
-                  value={saladName}
-                  onChangeText={handleSaladNameChange}
-                  placeholder="e.g., Kale & Chickpea Salad"
-                  // The first thing this screen asks for -- focused and
-                  // ready to type into the instant it opens (AppKeyboard
-                  // rises automatically the same way it would from a real
-                  // tap, see AppTextInput's own onFocus handling) rather
-                  // than leaving the person to notice and tap the field
-                  // themselves first.
-                  autoFocus
-                />
-              </>
-            ) : (
-              <>
-                <AppTextInput
-                  style={[styles.formInput, styles.dishNameInputEmbedded]}
-                  value={saladName}
-                  onChangeText={handleSaladNameChange}
-                  placeholder="e.g., Kale & Chickpea Salad"
-                  autoFocus
-                />
-                <VoiceInputButton onResult={(transcript) => handleSaladNameChange(transcript)} size={22} />
-              </>
-            )}
+            <AppTextInput
+              onVoiceResult={(transcript) => handleSaladNameChange(transcript)}
+              style={[styles.formInput, styles.dishNameInputEmbedded]}
+              value={saladName}
+              onChangeText={handleSaladNameChange}
+              placeholder="e.g., Kale & Chickpea Salad"
+              autoFocus
+            />
           </View>
 
           {/* Converted to the same PopoverSelect fields the ingredient card

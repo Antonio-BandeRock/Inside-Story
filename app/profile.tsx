@@ -8,7 +8,6 @@ import { mediaStorageUsed } from '../lib/mediaDb';
 import { PEER_PHOTOS_WIFI_ONLY_LABEL, PEER_PHOTOS_WIFI_ONLY_WHAT } from '../lib/peerPhotos';
 import { getPeerPhotosWifiOnly, peerPhotoStorageUsed, setPeerPhotosWifiOnly } from '../lib/peerPhotosDb';
 import { AppTextInput } from '../components/AppTextInput';
-import { VoiceInputButton } from '../components/VoiceInputButton';
 import { GenericBackground } from '../components/GenericBackground';
 import { HelpButton, type HelpSection } from '../components/HelpButton';
 import { ActiveRingCircle } from '../components/ActiveRingCircle';
@@ -2987,23 +2986,23 @@ export default function ProfileScreen() {
             <View style={styles.dateRow}>
               <View style={styles.nameFieldWithMic}>
                 <AppTextInput
+                  onVoiceResult={(transcript) => setFirstNameInput(transcript)}
                   style={[styles.input, styles.nameInput]}
                   placeholder="First name"
                   value={firstNameInput}
                   onChangeText={setFirstNameInput}
                   onBlur={commitFirstName}
                 />
-                <VoiceInputButton onResult={(transcript) => setFirstNameInput(transcript)} />
               </View>
               <View style={styles.nameFieldWithMic}>
                 <AppTextInput
+                  onVoiceResult={(transcript) => setLastNameInput(transcript)}
                   style={[styles.input, styles.nameInput]}
                   placeholder="Last name"
                   value={lastNameInput}
                   onChangeText={setLastNameInput}
                   onBlur={commitLastName}
                 />
-                <VoiceInputButton onResult={(transcript) => setLastNameInput(transcript)} />
               </View>
             </View>
 
@@ -3394,12 +3393,12 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.dateRow}>
               <AppTextInput
+                onVoiceResult={(transcript) => setAllergyInput(transcript)}
                 style={[styles.input, styles.nameInput]}
                 placeholder="Add another allergen..."
                 value={allergyInput}
                 onChangeText={setAllergyInput}
               />
-              <VoiceInputButton onResult={(transcript) => setAllergyInput(transcript)} />
               <TouchableOpacity style={styles.addAllergyButton} onPress={() => addAllergy(allergyInput)}>
                 <Text style={styles.addAllergyButtonText}>Add</Text>
               </TouchableOpacity>

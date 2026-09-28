@@ -23,7 +23,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
-import { VoiceInputButton } from '../components/VoiceInputButton';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
@@ -212,6 +211,8 @@ export default function WhereIsItScreen() {
             <Ionicons name="search-outline" size={18} color={colors.textMuted} />
             <AppTextInput
               style={styles.searchField}
+              voiceJoin="replace"
+              micColor={colors.accent}
               value={query}
               onChangeText={setQuery}
               placeholder="Batteries"
@@ -224,11 +225,6 @@ export default function WhereIsItScreen() {
                 <Ionicons name="close-circle" size={18} color={colors.textMuted} />
               </TouchableOpacity>
             ) : null}
-            <VoiceInputButton
-              size={22}
-              color={colors.accent}
-              onResult={(transcript) => setQuery(transcript)}
-            />
           </View>
           {chips.length > 0 && movingId === null ? (
             <View style={styles.chipWrap}>

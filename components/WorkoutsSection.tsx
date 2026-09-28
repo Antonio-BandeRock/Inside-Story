@@ -8,7 +8,6 @@ import { NotesInput } from './NotesInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { RecordPhotos } from './RecordPhotos';
-import { VoiceInputButton } from './VoiceInputButton';
 import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -377,11 +376,17 @@ export function WorkoutsSection({ tabColor }: Props) {
       <View style={band.box}>
         <Text style={styles.cardTitle}>{form.id ? 'Change this exercise' : 'An exercise of your own'}</Text>
 
-        <View style={styles.labelRow}>
-          <Text style={styles.label}>What is it called</Text>
-          <VoiceInputButton onResult={(name) => set({ name })} />
-        </View>
-        <AppTextInput style={styles.input} value={draft.name} onChangeText={(name) => set({ name })} placeholder="Wall slide" placeholderTextColor={colors.textMuted} maxLength={80} />
+        <Text style={styles.label}>What is it called</Text>
+        <AppTextInput
+onVoiceResult={(name) => set({ name })}
+style={styles.input}
+value={draft.name}
+onChangeText={(name) => set({ name })}
+placeholder="Wall
+slide"
+placeholderTextColor={colors.textMuted}
+maxLength={80}
+/>
 
         <Text style={styles.label}>Kind</Text>
         <PopoverSelect options={FORM_CATEGORY_OPTIONS} selected={draft.category} onSelect={(value) => set({ category: value as ExerciseCategory })} tabColor={tabColor} />
@@ -528,11 +533,17 @@ export function WorkoutsSection({ tabColor }: Props) {
       {workoutForm ? (
         <View style={band.box}>
           <Text style={styles.cardTitle}>{workoutForm.id ? 'Change this workout' : 'A new workout'}</Text>
-          <View style={styles.labelRow}>
-            <Text style={styles.label}>What is it called</Text>
-            <VoiceInputButton onResult={(name) => setWorkoutForm({ ...workoutForm, name })} />
-          </View>
-          <AppTextInput style={styles.input} value={workoutForm.name} onChangeText={(name) => setWorkoutForm({ ...workoutForm, name })} placeholder="Monday strength" placeholderTextColor={colors.textMuted} maxLength={60} />
+          <Text style={styles.label}>What is it called</Text>
+          <AppTextInput
+          onVoiceResult={(name) => setWorkoutForm({ ...workoutForm, name })}
+          style={styles.input}
+          value={workoutForm.name}
+          onChangeText={(name) => setWorkoutForm({ ...workoutForm, name })}
+          placeholder="Monday
+          strength"
+          placeholderTextColor={colors.textMuted}
+          maxLength={60}
+          />
           <Text style={styles.label}>A note (optional)</Text>
           <NotesInput style={styles.input} value={workoutForm.note} onChangeText={(note) => setWorkoutForm({ ...workoutForm, note })} placeholder="Warm up with a walk first" placeholderTextColor={colors.textMuted} maxLength={200} />
           <Text style={styles.helperText}>Save it, then open it to add exercises from the list below or from your own.</Text>

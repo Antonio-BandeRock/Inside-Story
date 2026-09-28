@@ -27,7 +27,6 @@ import { NotesInput } from '../components/NotesInput';
 import { PopoverSelect } from '../components/PopoverSelect';
 import { useInfoAlert } from '../components/InfoAlert';
 import { useConfirmSheet } from '../components/ConfirmSheet';
-import { VoiceInputButton } from '../components/VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
@@ -1220,6 +1219,8 @@ export default function GroceryListScreen() {
                       <View style={styles.priceRow}>
                         <Text style={styles.currency}>$</Text>
                         <AppTextInput
+                          onVoiceResult={handleSpokenPrice}
+                          micColor={colors.textSecondary}
                           style={styles.priceInput}
                           value={editor.priceText}
                           onChangeText={(text) => setEditor((current) => ({ ...current, priceText: text }))}
@@ -1227,7 +1228,6 @@ export default function GroceryListScreen() {
                           placeholder="0.00"
                           placeholderTextColor={colors.textMuted}
                         />
-                        <VoiceInputButton onResult={handleSpokenPrice} size={22} color={colors.textSecondary} />
                         <TouchableOpacity
                           style={[styles.priceCameraButton, readingPrice && styles.disabled]
                           }

@@ -24,7 +24,7 @@ const ROOT = path.resolve(__dirname, '..');
 
 // file (relative, forward slashes) + value expression -> why it is not a notes field.
 const NOT_NOTES = {
-  'components/ScanProductView.tsx|ingredientsText': 'the ingredient list read off a label, with a mic beside it that replaces the list',
+  'components/ScanProductView.tsx|ingredientsText': 'the ingredient list read off a label, whose mic replaces the list',
   'components/FoodProductDetailView.tsx|ingredientsText': 'the same ingredient list, kept on a saved product',
   'components/LabelCheckView.tsx|labelText': 'a pasted food label to check, not writing',
   'components/RecipeImportView.tsx|pasteText': 'a pasted recipe to import, not writing',

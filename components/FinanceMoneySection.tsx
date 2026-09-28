@@ -4,7 +4,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
-import { VoiceInputButton } from './VoiceInputButton';
 import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -248,11 +247,15 @@ export function FinanceMoneySection({ tabColor }: Props) {
 
       {form ? (
         <View style={band.box}>
-          <View style={styles.labelRow}>
-            <Text style={styles.label}>Name</Text>
-            <VoiceInputButton onResult={(t) => setForm({ ...form, name: t })} color={tabColor} />
-          </View>
-          <AppTextInput style={styles.input} placeholder="e.g. Everyday checking" value={form.name}
+          <Text style={styles.label}>Name</Text>
+          <AppTextInput
+            onVoiceResult={(t) => setForm({ ...form, name: t })}
+            micColor={tabColor}
+            style={styles.input}
+            placeholder="e.g.
+            Everyday
+            checking"
+            value={form.name}
             onChangeText={(t) => setForm({ ...form, name: t })} />
 
           <Text style={styles.label}>What kind</Text>

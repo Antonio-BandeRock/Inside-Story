@@ -7,7 +7,6 @@ import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { StarterLists } from './StarterLists';
-import { VoiceInputButton } from './VoiceInputButton';
 import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -268,11 +267,10 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
 
       {form ? (
         <View style={band.box}>
-          <View style={styles.labelRow}>
-            <Text style={styles.label}>What is it</Text>
-            <VoiceInputButton onResult={(t) => setForm({ ...form, name: t })} color={tabColor} />
-          </View>
+          <Text style={styles.label}>What is it</Text>
           <AppTextInput
+            onVoiceResult={(t) => setForm({ ...form, name: t })}
+            micColor={tabColor}
             style={styles.input}
             placeholder="e.g. Boiler service"
             value={form.name}

@@ -5,7 +5,6 @@ import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
-import { VoiceInputButton } from './VoiceInputButton';
 import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -451,11 +450,15 @@ export function FinanceHealthSection({ tabColor }: Props) {
 
       {openForm === 'bill' ? (
         <View style={band.box}>
-          <View style={styles.labelRow}>
-            <Text style={styles.label}>Who from</Text>
-            <VoiceInputButton onResult={(t) => setBillForm({ ...billForm, provider: t })} color={tabColor} />
-          </View>
-          <AppTextInput style={styles.input} placeholder="e.g. Riverside Endocrinology" value={billForm.provider}
+          <Text style={styles.label}>Who from</Text>
+          <AppTextInput
+            onVoiceResult={(t) => setBillForm({ ...billForm, provider: t })}
+            micColor={tabColor}
+            style={styles.input}
+            placeholder="e.g.
+            Riverside
+            Endocrinology"
+            value={billForm.provider}
             onChangeText={(t) => setBillForm({ ...billForm, provider: t })} />
 
           <Text style={styles.label}>Date of service</Text>

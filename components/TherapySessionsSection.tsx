@@ -7,7 +7,6 @@ import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
 import { useInfoAlert } from './InfoAlert';
-import { VoiceInputButton } from './VoiceInputButton';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { useBandFolds } from '../hooks/useBandFolds';
@@ -345,25 +344,20 @@ export function TherapySessionsSection({ tabColor }: Props) {
                 </View>
               </View>
 
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>Who did it (optional)</Text>
-                <VoiceInputButton
-                  onResult={(text) => setForm((current) => ({ ...current, practitioner: text }))}
-                  color={tabColor}
-                />
-              </View>
+              <Text style={styles.label}>Who did it (optional)</Text>
               <AppTextInput
+                onVoiceResult={(text) => setForm((current) => ({ ...current, practitioner: text }))}
+                micColor={tabColor}
                 style={styles.input}
                 placeholder="e.g. Dr. Alvarez"
                 value={form.practitioner}
                 onChangeText={(text) => setForm((current) => ({ ...current, practitioner: text }))}
               />
 
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>What they worked on (optional)</Text>
-                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, bodyFocus: text }))} color={tabColor} />
-              </View>
+              <Text style={styles.label}>What they worked on (optional)</Text>
               <NotesInput
+                onVoiceResult={(text) => setForm((current) => ({ ...current, bodyFocus: text }))}
+                micColor={tabColor}
                 style={styles.input}
                 placeholder="e.g. sacrum and lower back"
                 value={form.bodyFocus}
@@ -389,7 +383,8 @@ export function TherapySessionsSection({ tabColor }: Props) {
               />
 
               <Text style={styles.label}>Notes (optional)</Text>
-              <NotesInput micColor={tabColor}
+              <NotesInput
+                micColor={tabColor}
                 style={styles.input}
                 placeholder="e.g. felt looser right after, sore that evening"
                 value={form.notes}
@@ -547,7 +542,7 @@ function makeStyles(tabColor: string) {
 
       textShadowColor: 'transparent',
 
-      textShadowRadius: 0,
+      textShadowRadius: 0,
     },
     row: {
       borderRadius: 10,

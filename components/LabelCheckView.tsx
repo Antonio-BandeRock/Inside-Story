@@ -8,7 +8,6 @@ import { AppTextInput } from './AppTextInput';
 import { HouseholdFitBand, useHouseholdPeople } from './HouseholdFitBand';
 import { IngredientCheckList } from './IngredientCheckList';
 import { makeTabBandStyles } from './TabBand';
-import { VoiceInputButton } from './VoiceInputButton';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import type { PersonalizationProfile } from '../lib/foodPersonalization';
@@ -60,6 +59,7 @@ export function LabelCheckView({ tabColor, profile, onOpenReading }: Props) {
         <Text style={styles.label}>Ingredients off the label</Text>
         <View style={styles.inputRow}>
           <AppTextInput
+            onVoiceResult={setLabelText}
             value={labelText}
             onChangeText={setLabelText}
             style={styles.textArea}
@@ -67,7 +67,6 @@ export function LabelCheckView({ tabColor, profile, onOpenReading }: Props) {
             placeholder="Paste or type the ingredient list, commas and all."
             placeholderTextColor={colors.textMuted}
           />
-          <VoiceInputButton onResult={setLabelText} />
         </View>
         <Text style={styles.hint}>
           Checked against your allergies, diet preferences, food restrictions and conditions from Profile, plus lists that apply to anybody.

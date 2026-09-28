@@ -6,7 +6,6 @@ import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
-import { VoiceInputButton } from './VoiceInputButton';
 import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -296,11 +295,10 @@ export function WorkSection({ tabColor }: Props) {
 
           {benefitForm ? (
             <View style={band.box}>
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>What is it</Text>
-                <VoiceInputButton onResult={(t) => setBenefitForm({ ...benefitForm, name: t })} color={tabColor} />
-              </View>
+              <Text style={styles.label}>What is it</Text>
               <AppTextInput
+                onVoiceResult={(t) => setBenefitForm({ ...benefitForm, name: t })}
+                micColor={tabColor}
                 style={styles.input}
                 placeholder="e.g. Dental max"
                 value={benefitForm.name}
@@ -615,7 +613,8 @@ export function WorkSection({ tabColor }: Props) {
               ))}
 
               <Text style={styles.label}>Anything worth remembering (optional)</Text>
-              <NotesInput micColor={tabColor}
+              <NotesInput
+                micColor={tabColor}
                 style={styles.input}
                 placeholder="e.g. covered for two people all week"
                 value={checkinForm.note}

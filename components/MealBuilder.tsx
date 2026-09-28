@@ -53,7 +53,6 @@ import { HelpButton, type HelpSection } from './HelpButton';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { RecipeDepthReport } from './RecipeDepthReport';
-import { VoiceInputButton } from './VoiceInputButton';
 
 // Deliberately last of the ten Food-tab builders, per this app's own build
 // order (see CLAUDE.md's Next steps) -- this is the only one that assembles
@@ -1562,13 +1561,14 @@ export function MealBuilder({
                   </Text>
                   <View style={styles.categorySearchRow}>
                     <AppTextInput
+                      onVoiceResult={(transcript) => setStartingPointSearch(transcript)}
+                      micColor={tabColor}
                       style={[styles.formInput, styles.categorySearchInput, { backgroundColor: inputBackground(tabColor) }]}
                       value={startingPointSearch}
                       onChangeText={setStartingPointSearch}
                       placeholder="Search your meals..."
                       placeholderTextColor={colors.textMuted}
                     />
-                    <VoiceInputButton onResult={(transcript) => setStartingPointSearch(transcript)} color={tabColor} />
                   </View>
                   {filteredStartingPoints.length === 0 ? (
                     <Text style={[styles.emptyText, styles.formLabelSpaced]}>{`No meals match "${startingPointSearch.trim()}".`}</Text>
@@ -1664,11 +1664,9 @@ export function MealBuilder({
                 it fill in" shape a search box already gets -- a name is
                 said whole, not built up with dictated bullet/paragraph
                 commands. */}
-            <View style={styles.nameLabelRow}>
-              <Text style={[styles.formLabel, { color: tabColor }]}>Meal Name (optional)</Text>
-              <VoiceInputButton onResult={(transcript) => setMealName(transcript)} size={16} />
-            </View>
+            <Text style={[styles.formLabel, { color: tabColor }]}>Meal Name (optional)</Text>
             <AppTextInput
+              onVoiceResult={(transcript) => setMealName(transcript)}
               style={[styles.formInput, { backgroundColor: inputBackground(tabColor) }]}
               value={mealName}
               onChangeText={setMealName}
@@ -2043,13 +2041,14 @@ export function MealBuilder({
               ) : (
                 <View style={styles.categorySearchRow}>
                   <AppTextInput
+                    onVoiceResult={(transcript) => setCategorySearchQuery(transcript)}
+                    micColor={tabColor}
                     style={[styles.formInput, styles.categorySearchInput, { backgroundColor: inputBackground(tabColor) }]}
                     value={categorySearchQuery}
                     onChangeText={setCategorySearchQuery}
                     placeholder={`Search ${lower}s by name or ingredient...`}
                     placeholderTextColor={colors.textMuted}
                   />
-                  <VoiceInputButton onResult={(transcript) => setCategorySearchQuery(transcript)} color={tabColor} />
                 </View>
               )}
             </HomeSectionBand>

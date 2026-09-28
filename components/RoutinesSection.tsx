@@ -9,7 +9,6 @@ import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { KeepRemindingPicker } from './KeepRemindingPicker';
 import { StarterLists } from './StarterLists';
-import { VoiceInputButton } from './VoiceInputButton';
 import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -391,11 +390,9 @@ export function RoutinesSection({ tabColor }: Props) {
         <View style={band.box}>
           <Text style={styles.cardTitle}>{form.id ? 'Change this routine' : 'A new routine'}</Text>
 
-          <View style={styles.labelRow}>
-            <Text style={styles.label}>What is it called</Text>
-            <VoiceInputButton onResult={(text) => setForm({ ...form, name: text })} />
-          </View>
+          <Text style={styles.label}>What is it called</Text>
           <AppTextInput
+            onVoiceResult={(text) => setForm({ ...form, name: text })}
             style={styles.input}
             value={form.name}
             onChangeText={(text) => setForm({ ...form, name: text })}
@@ -456,13 +453,11 @@ export function RoutinesSection({ tabColor }: Props) {
 
           {occasionForm ? (
             <View style={styles.inlineForm}>
-              <View style={styles.labelRow}>
-                <Text style={styles.label}>
+              <Text style={styles.label}>
                   {occasionForm.id ? 'Change this one' : 'A new when it happens'}
                 </Text>
-                <VoiceInputButton onResult={(name) => setOccasionForm({ ...occasionForm, name })} />
-              </View>
               <AppTextInput
+                onVoiceResult={(name) => setOccasionForm({ ...occasionForm, name })}
                 style={styles.input}
                 value={occasionForm.name}
                 onChangeText={(name) => setOccasionForm({ ...occasionForm, name })}
@@ -732,11 +727,9 @@ export function RoutinesSection({ tabColor }: Props) {
 
                 {stepForm && stepForm.routineId === routine.id ? (
                   <View style={styles.inlineForm}>
-                    <View style={styles.labelRow}>
-                      <Text style={styles.label}>The step</Text>
-                      <VoiceInputButton onResult={(text) => setStepForm({ ...stepForm, text })} />
-                    </View>
+                    <Text style={styles.label}>The step</Text>
                     <AppTextInput
+                      onVoiceResult={(text) => setStepForm({ ...stepForm, text })}
                       style={styles.input}
                       value={stepForm.text}
                       onChangeText={(text) => setStepForm({ ...stepForm, text })}
@@ -792,11 +785,9 @@ export function RoutinesSection({ tabColor }: Props) {
 
                     {checkForm ? (
                       <View style={styles.inlineForm}>
-                        <View style={styles.labelRow}>
-                          <Text style={styles.label}>A new check</Text>
-                          <VoiceInputButton onResult={(name) => setCheckForm({ ...checkForm, name })} />
-                        </View>
+                        <Text style={styles.label}>A new check</Text>
                         <AppTextInput
+                          onVoiceResult={(name) => setCheckForm({ ...checkForm, name })}
                           style={styles.input}
                           value={checkForm.name}
                           onChangeText={(name) => setCheckForm({ ...checkForm, name })}

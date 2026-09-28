@@ -130,7 +130,6 @@ import { DimensionChart } from '../../components/DimensionChart';
 import type { ConditionDimensionSummary } from '../../lib/conditionDimensions';
 import { AppTextInput } from '../../components/AppTextInput';
 import { NotesInput } from '../../components/NotesInput';
-import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useConfirmSheet } from '../../components/ConfirmSheet';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { FoodLookup, categoryLabel, sourceLabel, type ResolvedFoodSelection } from '../../components/FoodLookup';
@@ -3756,11 +3755,10 @@ function LabsView({
             <PopoverSelect options={LAB_DATE_MONTH_OPTIONS} selected={formMonth} onSelect={setFormMonth} tabColor={tabColor} minWidth={52} />
             <PopoverSelect options={LAB_DATE_DAY_OPTIONS} selected={formDay} onSelect={setFormDay} tabColor={tabColor} minWidth={52} />
           </View>
-          <View style={[styles.labFieldLabelRow, styles.rankSpaced]}>
-            <Text style={[styles.sectionLabel, { color: tabColor }]}>Lab Name (optional)</Text>
-            <VoiceInputButton onResult={setFormLabName} color={tabColor} />
-          </View>
+          <Text style={[styles.sectionLabel, { color: tabColor }]}>Lab Name (optional)</Text>
           <AppTextInput
+            onVoiceResult={setFormLabName}
+            micColor={tabColor}
             style={styles.labInput}
             value={formLabName}
             onChangeText={setFormLabName}
@@ -4073,7 +4071,8 @@ function MyMedsView({
         {formOpen ? (
           <View style={[styles.formCard, styles.rankSpaced, { borderColor: tabColor }]}>
             <Text style={[styles.sectionLabel, { color: tabColor }]}>What did you notice, or what were you told?</Text>
-            <NotesInput micColor={tabColor}
+            <NotesInput
+              micColor={tabColor}
               style={[styles.labInput, { minHeight: 72, textAlignVertical: 'top' }]}
               value={formDescription}
               onChangeText={setFormDescription}
@@ -4114,11 +4113,10 @@ function MyMedsView({
 
             {formLinkType === 'food' ? (
               <>
-                <View style={[styles.labFieldLabelRow, styles.rankSpaced]}>
-                  <Text style={[styles.sectionLabel, { color: tabColor }]}>What food or ingredient?</Text>
-                  <VoiceInputButton onResult={setFormFoodKeyword} color={tabColor} />
-                </View>
+                <Text style={[styles.sectionLabel, { color: tabColor }]}>What food or ingredient?</Text>
                 <AppTextInput
+                  onVoiceResult={setFormFoodKeyword}
+                  micColor={tabColor}
                   style={styles.labInput}
                   value={formFoodKeyword}
                   onChangeText={setFormFoodKeyword}

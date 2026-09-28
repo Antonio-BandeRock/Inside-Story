@@ -6,7 +6,6 @@ import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
-import { VoiceInputButton } from './VoiceInputButton';
 import { TabBand, makeTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -194,11 +193,10 @@ export function FinanceGoalsSection({ tabColor }: Props) {
 
       {goalForm ? (
         <View style={band.box}>
-          <View style={styles.labelRow}>
-            <Text style={styles.label}>What is it</Text>
-            <VoiceInputButton onResult={(t) => setGoalForm({ ...goalForm, name: t })} color={tabColor} />
-          </View>
+          <Text style={styles.label}>What is it</Text>
           <AppTextInput
+            onVoiceResult={(t) => setGoalForm({ ...goalForm, name: t })}
+            micColor={tabColor}
             style={styles.input}
             placeholder="e.g. Rebuild the raised bed"
             value={goalForm.name}
@@ -206,7 +204,8 @@ export function FinanceGoalsSection({ tabColor }: Props) {
           />
 
           <Text style={styles.label}>Why it matters (optional)</Text>
-          <NotesInput micColor={tabColor}
+          <NotesInput
+            micColor={tabColor}
             style={styles.input}
             placeholder="e.g. so the greens keep going through summer"
             value={goalForm.reason}

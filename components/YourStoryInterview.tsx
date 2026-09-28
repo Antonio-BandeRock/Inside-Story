@@ -13,7 +13,8 @@
 // since the first tap would otherwise answer it and move on.
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AppTextInput } from './AppTextInput';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { getConditionStagingModel } from '../lib/conditionStages';
@@ -325,7 +326,7 @@ export function YourStoryInterview({ mode, interview, onChanged, go }: Props) {
               {others.map((name) => pill(name, true, () => void act(() => removeFoodAllergy(name), key)))}
             </View>
             <View style={styles.addRow}>
-              <TextInput
+              <AppTextInput
                 style={styles.input}
                 value={allergyText}
                 onChangeText={setAllergyText}
