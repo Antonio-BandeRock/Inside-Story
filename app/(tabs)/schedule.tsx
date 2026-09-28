@@ -107,6 +107,39 @@ import {
   type SavedWeek,
 } from '../../lib/savedWeeks';
 import { applySavedWeek, listSavedWeeks, previewSavedWeek, removeSavedWeek, renameSavedWeek, saveWeekOfMeals } from '../../lib/savedWeeksDb';
+import {
+  ADD_TO_CALENDAR_LABEL,
+  blankDraft,
+  changedSinceMessage,
+  draftFromEntry,
+  draftFromMyMeal,
+  draftProblem,
+  entryMeta,
+  HOUSEHOLD_CALENDAR_TITLE,
+  HOUSEHOLD_MEAL_TYPES,
+  householdCalendarIntro,
+  mealTypeLabel,
+  PUT_ON_MY_SCHEDULE_LABEL,
+  putOnScheduleDone,
+  removeEntryMessage,
+  scheduleClashMessage,
+  scheduleState,
+  weekCountLine,
+  weekDays,
+  type CalendarPartner,
+  type HouseholdMealDraft,
+  type HouseholdMealEntry,
+  type MyDayMeal,
+} from '../../lib/householdCalendar';
+import {
+  addHouseholdMeal,
+  getCalendarPartners,
+  listHouseholdMeals,
+  listMyDayMeals,
+  putHouseholdMealOnSchedule,
+  removeHouseholdMeal,
+  updateHouseholdMeal,
+} from '../../lib/householdCalendarDb';
 import type { RecipeDietTag } from '../../lib/digest';
 import { describePlanningScope, resolvePlanningScope, type PlanningScope } from '../../lib/partnerPlanning';
 import { resolveHouseholdEaters } from '../../lib/householdEaters';
@@ -1829,6 +1862,7 @@ function MealsLens() {
             </ScheduleBand>
 
             <SavedWeeksBand folds={folds} weekStart={weekStart} onChanged={load} confirm={confirmSheet} />
+            <HouseholdMealCalendarBand folds={folds} weekStart={weekStart} onChanged={load} confirm={confirmSheet} />
           </>
         )}
     </ScrollView>
@@ -2307,6 +2341,254 @@ function SavedWeeksBand({
               </View>
             </View>
           ))}
+        </View>
+      ) : null}
+    </ScheduleBand>
+  );
+}
+
+// The household meal calendar (H9, 2026-09-27): meals planned for the whole
+// household, kept in step with a partner through the 'mealCalendar' peer
+// area. Nothing here becomes a meal on this person's day until they press
+// Put on my schedule. Decisions and sentences in lib/householdCalendar.ts.
+function HouseholdMealCalendarBand({
+  folds,
+  weekStart,
+  onChanged,
+  confirm,
+}: {
+  folds: ReturnType<typeof useBandFolds>;
+  weekStart: string;
+  onChanged: () => void;
+  confirm: ReturnType<typeof useConfirmSheet>[0];
+}) {
+  const [entries, setEntries] = useState<HouseholdMealEntry[]>([]);
+  const [partners, setPartners] = useState<CalendarPartner[]>([]);
+  const [myMeals, setMyMeals] = useState<MyDayMeal[]>([]);
+  const [draft, setDraft] = useState<HouseholdMealDraft | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ text: string; problem: boolean } | null>(null);
+
+  const days = useMemo(() => weekDays(weekStart), [weekStart]);
+  const weekEnd = days[days.length - 1];
+
+  const reload = useCallback(() => {
+    listHouseholdMeals(weekStart, weekEnd)
+      .then(setEntries)
+      .catch((error) => console.error('[HouseholdCalendar] Failed to read the calendar', error));
+    listMyDayMeals(weekStart, weekEnd)
+      .then(setMyMeals)
+      .catch((error) => console.error('[HouseholdCalendar] Failed to read the week', error));
+    getCalendarPartners()
+      .then(setPartners)
+      .catch((error) => console.error('[HouseholdCalendar] Failed to read connections', error));
+  }, [weekStart, weekEnd]);
+
+  useEffect(() => {
+    reload();
+    setMessage(null);
+  }, [reload]);
+
+  const dayLabel = (date: string) => `${formatWeekdayShort(date)} ${formatShortDate(date)}`;
+  const myMealLabel = (meal: MyDayMeal) =>
+    `${dayLabel(meal.scheduledFor.slice(0, 10))} · ${capitalize(meal.mealType ?? 'meal')} · ${meal.title}`;
+  const sharedWith = partners.filter((partner) => partner.sharing).map((partner) => partner.name);
+
+  function startAdding() {
+    const today = todayDateString();
+    setDraft(blankDraft(days.includes(today) ? today : weekStart));
+    setEditingId(null);
+    setMessage(null);
+  }
+
+  async function handleSaveDraft() {
+    if (!draft) return;
+    const problem = draftProblem(draft);
+    if (problem) {
+      setMessage({ text: problem, problem: true });
+      return;
+    }
+    try {
+      if (editingId) await updateHouseholdMeal(editingId, draft);
+      else await addHouseholdMeal(draft);
+      setDraft(null);
+      setEditingId(null);
+      setMessage(null);
+      reload();
+    } catch (error) {
+      setMessage({ text: error instanceof Error ? error.message : String(error), problem: true });
+    }
+  }
+
+  async function handlePut(entry: HouseholdMealEntry) {
+    try {
+      if (scheduleState(entry) === 'changedSince') {
+        const go = await confirm({ title: `${entry.title} was changed`, message: changedSinceMessage(entry), confirmLabel: 'Put it on again' });
+        if (!go) return;
+      }
+      const planned = myMeals.filter((meal) => meal.scheduledFor.slice(0, 10) === entry.mealDate);
+      const clash = scheduleClashMessage(entry, describeRelativeDate(entry.mealDate), planned);
+      if (clash) {
+        const go = await confirm({ title: PUT_ON_MY_SCHEDULE_LABEL, message: clash, confirmLabel: 'Put it on as well' });
+        if (!go) return;
+      }
+      await putHouseholdMealOnSchedule(entry);
+      setMessage({ text: putOnScheduleDone(entry, describeRelativeDate(entry.mealDate)), problem: false });
+      reload();
+      onChanged();
+    } catch (error) {
+      setMessage({ text: error instanceof Error ? error.message : String(error), problem: true });
+    }
+  }
+
+  async function handleRemove(entry: HouseholdMealEntry) {
+    const go = await confirm({
+      title: `Remove ${entry.title}?`,
+      message: removeEntryMessage(entry, sharedWith),
+      confirmLabel: 'Remove',
+      destructive: true,
+    });
+    if (!go) return;
+    try {
+      await removeHouseholdMeal(entry.id);
+      reload();
+    } catch (error) {
+      setMessage({ text: error instanceof Error ? error.message : String(error), problem: true });
+    }
+  }
+
+  return (
+    <ScheduleBand folds={folds} id="schedule:meals:householdCalendar" title={HOUSEHOLD_CALENDAR_TITLE} icon="people-outline" count={entries.length}>
+      <Text style={[styles.helperText, styles.panelStandalone]}>
+        {householdCalendarIntro(partners)} {weekCountLine(entries.length)}
+      </Text>
+      {draft ? (
+        <View style={styles.formCard}>
+          {!editingId && myMeals.length > 0 ? (
+            <>
+              <Text style={styles.label}>Start from a meal on your schedule</Text>
+              <PopoverSelect
+                selected=""
+                options={myMeals.map(myMealLabel)}
+                onSelect={(label) => {
+                  const meal = myMeals.find((option) => myMealLabel(option) === label);
+                  if (meal) setDraft(draftFromMyMeal(meal));
+                }}
+                placeholder="Pick one, or fill in below"
+                tabColor={TAB_COLOR}
+                width={320}
+              />
+            </>
+          ) : null}
+          <Text style={styles.label}>Which day</Text>
+          <PopoverSelect
+            selected={days.includes(draft.mealDate) ? dayLabel(draft.mealDate) : dayLabel(days[0])}
+            options={days.map(dayLabel)}
+            onSelect={(label) => {
+              const date = days.find((day) => dayLabel(day) === label);
+              if (date) setDraft({ ...draft, mealDate: date });
+            }}
+            placeholder="Which day"
+            tabColor={TAB_COLOR}
+            width={240}
+          />
+          <Text style={styles.label}>Meal</Text>
+          <View style={styles.pillRow}>
+            {HOUSEHOLD_MEAL_TYPES.map((type) => (
+              <TouchableOpacity
+                key={type}
+                style={[styles.pill, draft.mealType === type && styles.pillActive]}
+                onPress={() => setDraft({ ...draft, mealType: type })}
+              >
+                <Text style={[styles.pillText, draft.mealType === type && styles.pillTextActive]}>{mealTypeLabel(type)}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={styles.label}>What it is</Text>
+          <AppTextInput
+            style={styles.input}
+            value={draft.title}
+            onChangeText={(title) => setDraft({ ...draft, title, recipeIds: title === draft.title ? draft.recipeIds : [] })}
+            placeholder="Lentil soup and bread"
+          />
+          {draft.recipeIds.length > 0 ? (
+            <Text style={styles.helperText}>Made from the recipes in the app, so it logs from its ingredients when it goes on a schedule.</Text>
+          ) : null}
+          <Text style={styles.label}>Time (optional, like 18:30)</Text>
+          <AppTextInput style={styles.input} value={draft.time} onChangeText={(time) => setDraft({ ...draft, time })} placeholder="18:30" />
+          <Text style={styles.label}>Servings (optional)</Text>
+          <AppTextInput
+            style={styles.input}
+            value={draft.servings}
+            onChangeText={(servings) => setDraft({ ...draft, servings })}
+            keyboardType="decimal-pad"
+            placeholder="4"
+          />
+          <Text style={styles.label}>Who is cooking (optional)</Text>
+          <AppTextInput style={styles.input} value={draft.cook} onChangeText={(cook) => setDraft({ ...draft, cook })} />
+          <Text style={styles.label}>Note (optional)</Text>
+          <AppTextInput style={styles.input} value={draft.note} onChangeText={(note) => setDraft({ ...draft, note })} multiline />
+          <View style={styles.formActions}>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => {
+                setDraft(null);
+                setEditingId(null);
+                setMessage(null);
+              }}
+            >
+              <Text style={styles.secondaryButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => void handleSaveDraft()}>
+              <Text style={styles.primaryButtonText}>{editingId ? 'Save changes' : 'Add to the calendar'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        <TouchableOpacity style={styles.addButton} onPress={startAdding}>
+          <Text style={styles.addButtonText}>{ADD_TO_CALENDAR_LABEL}</Text>
+        </TouchableOpacity>
+      )}
+      {message ? (
+        <Text style={[message.problem ? styles.errorText : styles.helperText, styles.panelStandalone]}>{message.text}</Text>
+      ) : null}
+      {entries.length > 0 ? (
+        <View style={styles.table}>
+          {entries.map((entry) => {
+            const state = scheduleState(entry);
+            return (
+              <View key={entry.id} style={styles.row}>
+                <View style={styles.rowMain}>
+                  <View style={styles.rowTextCol}>
+                    <Text style={styles.rowTitle}>
+                      {capitalize(describeRelativeDate(entry.mealDate))}: {entry.title}
+                    </Text>
+                    <Text style={styles.rowMeta}>{entryMeta(entry)}</Text>
+                    {entry.note ? <Text style={styles.rowMeta}>{entry.note}</Text> : null}
+                  </View>
+                </View>
+                <View style={styles.rowActions}>
+                  {state !== 'copied' ? (
+                    <TouchableOpacity onPress={() => void handlePut(entry)}>
+                      <Text style={styles.actionTextPrimary}>{PUT_ON_MY_SCHEDULE_LABEL}</Text>
+                    </TouchableOpacity>
+                  ) : null}
+                  <TouchableOpacity
+                    onPress={() => {
+                      setDraft(draftFromEntry(entry));
+                      setEditingId(entry.id);
+                      setMessage(null);
+                    }}
+                  >
+                    <Text style={styles.actionText}>Edit</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => void handleRemove(entry)}>
+                    <Text style={styles.actionTextRemove}>Remove</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            );
+          })}
         </View>
       ) : null}
     </ScheduleBand>

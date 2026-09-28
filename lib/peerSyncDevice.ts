@@ -249,6 +249,7 @@ export async function mergeFromPeerId(
 const PEER_WORDS: Record<string, { one: string; many: string; counts: boolean }> = {
   grocery_lists: { one: 'shopping list', many: 'shopping lists', counts: true },
   grocery_list_items: { one: 'thing to buy', many: 'things to buy', counts: true },
+  household_meal_calendar: { one: 'meal on the household calendar', many: 'meals on the household calendar', counts: true },
 };
 
 export function wordsForPeerTable(table: string): { one: string; many: string; counts: boolean } | null {

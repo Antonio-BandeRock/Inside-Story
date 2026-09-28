@@ -50,7 +50,15 @@
 import type { ConnectionRole, ShareGrants, ShareScope } from './partners';
 
 /** A subject that can cross between two people. */
-export type PeerAreaCode = 'recipes' | 'meals' | 'shopping' | 'conditions' | 'schedule' | 'meds' | 'symptoms';
+export type PeerAreaCode =
+  | 'recipes'
+  | 'meals'
+  | 'mealCalendar'
+  | 'shopping'
+  | 'conditions'
+  | 'schedule'
+  | 'meds'
+  | 'symptoms';
 
 /**
  * One table an area covers, and the columns that stay on this device.
@@ -77,6 +85,12 @@ export type PeerArea = {
   ready: boolean;
   /** What it is waiting on, when it is not ready. */
   waitingOn?: string;
+  /**
+   * The permission switch that governs this area, when it is not named
+   * after one. The household meal calendar answers to Meals, since it is
+   * meals a person is letting somebody else see.
+   */
+  grantedBy?: ShareScope;
 };
 
 export const PEER_AREAS: readonly PeerArea[] = [
@@ -97,6 +111,18 @@ export const PEER_AREAS: readonly PeerArea[] = [
     // somebody else owns and never becomes a meal on this schedule.
     tables: [],
     ready: true,
+  },
+  {
+    code: 'mealCalendar',
+    label: 'The household meal calendar',
+    what: 'Meals planned for the whole household, which either of you can add, change or remove. Nothing on it goes on anybody\u2019s own schedule until they choose to put it there.',
+    // H9, 2026-09-27. The schedule area for meals only: a table that holds
+    // household meals and nothing else, since schedule_items holds
+    // appointments and doses and points at logged meals. What each person
+    // copied onto their own day is recorded per device and stays home.
+    tables: [{ table: 'household_meal_calendar', keepsHome: ['my_schedule_item_id', 'my_copied_at'] }],
+    ready: true,
+    grantedBy: 'meals',
   },
   {
     code: 'shopping',
@@ -231,8 +257,8 @@ export const RELATIONSHIPS: readonly Relationship[] = [
   {
     role: 'partner',
     label: 'Partner',
-    what: 'You plan meals together. You both see the same days, each with what those meals mean for your conditions, and you share one shopping list.',
-    shared: ['shopping'],
+    what: 'You plan meals together. You both see the same days, each with what those meals mean for your conditions, and you share one shopping list and one household meal calendar.',
+    shared: ['shopping', 'mealCalendar'],
     theirs: ['meals', 'conditions'],
     onTheirBehalf: [],
     granted: ['meals', 'shopping', 'conditions'],
@@ -242,7 +268,7 @@ export const RELATIONSHIPS: readonly Relationship[] = [
     role: 'child',
     label: 'Your child',
     what: 'You keep their side of things going and they see what you choose to let them see. Their meals, medicines and how they are doing stay theirs, recorded by you.',
-    shared: ['shopping'],
+    shared: ['shopping', 'mealCalendar'],
     theirs: ['meals', 'conditions'],
     onTheirBehalf: ['schedule', 'meds', 'symptoms'],
     granted: ['meals', 'shopping', 'conditions'],
@@ -254,7 +280,7 @@ export const RELATIONSHIPS: readonly Relationship[] = [
     role: 'caregiver',
     label: 'Someone who helps you',
     what: 'They can record meals, medicines, how you are doing and what is on your day, on your behalf. They never see anything you have not given them.',
-    shared: ['shopping'],
+    shared: ['shopping', 'mealCalendar'],
     theirs: ['meals', 'conditions'],
     onTheirBehalf: ['schedule', 'meds', 'symptoms'],
     granted: ['meals', 'shopping', 'conditions'],
@@ -281,8 +307,9 @@ export function holdOn(role: ConnectionRole, area: PeerAreaCode): PeerHold | nul
 
 /** Whether a permission switch has turned this area off. Areas nobody votes on are on. */
 function granted(relationship: Relationship, area: PeerAreaCode, grants: ShareGrants): boolean {
-  if (!relationship.granted.includes(area as ShareScope)) return true;
-  return grants[area as ShareScope] === true;
+  const scope = areaFor(area).grantedBy ?? (area as ShareScope);
+  if (!relationship.granted.includes(scope)) return true;
+  return grants[scope] === true;
 }
 
 /**

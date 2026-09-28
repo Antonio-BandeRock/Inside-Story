@@ -302,6 +302,7 @@ check('and a future timestamp never goes negative', daysSinceSent('2026-12-01T00
   const everything = {
     grocery_lists: [{ id: 'L1', name: 'Week', status: 'open' }],
     grocery_list_items: [{ id: 'I1', list_id: 'L1', food_name: 'Kale', note: 'for me only', checked: 0 }],
+    household_meal_calendar: [{ id: 'H1', meal_date: '2026-09-28', meal_type: 'dinner', title: 'Soup', my_schedule_item_id: 'S9' }],
   };
   for (const table of PERSONAL_HEALTH_TABLES) {
     everything[table] = [{ id: 'X1', severity: 8, value: 71.2 }];
@@ -338,8 +339,13 @@ check('and a future timestamp never goes negative', daysSinceSent('2026-12-01T00
 
   // Turning shopping off turns off the records that belong to it.
   const noShopping = build({ meals: true, shopping: false, conditions: true }, { shared: everything });
-  checkFalse('turning shopping off stops its records travelling',
-    Object.prototype.hasOwnProperty.call(noShopping, 'shared'));
+  check('turning shopping off stops its records travelling, and only the meal calendar still goes',
+    Object.keys(noShopping.shared ?? {}).sort(), ['household_meal_calendar']);
+  const nothing = build({ meals: false, shopping: false, conditions: true }, { shared: everything });
+  checkFalse('turning shopping and meals off stops every record travelling',
+    Object.prototype.hasOwnProperty.call(nothing, 'shared'));
+  checkFalse('the calendar copy this device made stays home',
+    Object.prototype.hasOwnProperty.call((sent.household_meal_calendar ?? [{}])[0], 'my_schedule_item_id'));
 
   // Reading back: version 1 still works, since the other phone updates when
   // it updates.
