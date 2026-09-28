@@ -290,6 +290,9 @@ export type HomeSectionKey =
   // renaming it would silently reset the section for anyone who had moved or
   // hidden it. Only the label people actually see has changed.
   | 'logAgain'
+  // G25 of the competitive build plan (2026-09-27): "Log your usual
+  // lunch?" near a usual meal time, and no card at all otherwise.
+  | 'usualMeal'
   // The Grocery List, 2026-09-01. Sits beside the quick-log shortcut
   // because both are things done in the moment rather than read: this
   // one is opened standing in a store, and a shortcut below the fold is
@@ -400,6 +403,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   // icon and colour from HOME_GROUP_IDENTITY in app/(tabs)/index.tsx.
   'lowStimulation',
   // Food.
+  'usualMeal',
   'logAgain',
   'scanProduct',
   // Schedules. mealsLoggedToday is stated here beside its tab-mates
@@ -482,6 +486,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   yourWeek: 'Your Week',
   todaysCheckin: "Today's Check-In",
   logAgain: 'Log a Meal',
+  usualMeal: 'Your Usual Meal',
   groceryList: 'Grocery List',
   yourDay: 'Your Day',
   dayTimeline: 'Timeline',

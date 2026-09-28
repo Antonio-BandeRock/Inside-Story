@@ -63,6 +63,7 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   // HOME_GROUP_IDENTITY in app/(tabs)/index.tsx instead.
   lowStimulation: '/profile',
   logAgain: '/food',
+  usualMeal: '/food',
   scanProduct: '/food',
   groceryList: '/life',
   groceryQuickAdd: '/life',

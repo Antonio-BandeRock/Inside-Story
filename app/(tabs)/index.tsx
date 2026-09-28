@@ -129,6 +129,15 @@ import { OUTSIDE_USUAL_CAPTION, outsideUsualLines, type OutsideUsualLine } from 
 import { getOutsideUsualInputs } from '../../lib/outsideUsualDb';
 import { buildYourWeek, nothingLoggedSentence, YOUR_WEEK_CAPTION, type YourWeek } from '../../lib/weeklySummary';
 import { getYourWeekInputs } from '../../lib/weeklySummaryDb';
+import {
+  USUAL_MEAL_TRIAL_NOTE,
+  usualMealCaption,
+  usualMealLoggedSentence,
+  usualMealTitle,
+  type UsualMealSuggestion,
+} from '../../lib/usualMeal';
+import { dismissUsualMeal, getUsualMealSuggestion, logUsualMeal } from '../../lib/usualMealDb';
+import { offerGardenUse } from '../../lib/gardenPlateOffer';
 import type { GardenYieldHomeSummary } from '../../lib/harvestYield';
 import { getGardenYieldHomeSummary } from '../../lib/harvestYieldDb';
 import { describeWhereIsItRow } from '../../lib/whereIsIt';
@@ -157,7 +166,7 @@ import {
   isReminderKindEnabled,
 } from '../../lib/reminderPreferences';
 import { buildDayTimeline, type DoseFoodNote } from '../../lib/doseMealTiming';
-import { reresolveSavedDishCookingMethods } from '../../lib/db';
+import { deleteMeal, reresolveSavedDishCookingMethods } from '../../lib/db';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { dateStringOffsetFrom } from '../../lib/trendAnalysis';
 import { LensHub, type LensOption } from '../../components/LensHub';
@@ -556,6 +565,9 @@ type DashboardData = {
   outsideUsual: OutsideUsualLine[];
   // F13, 2026-09-26: the last seven days beside the seven before.
   yourWeek: YourWeek;
+  // G25, 2026-09-27: the meal usually logged in the slot the clock is near,
+  // or null, which is most of the day.
+  usualMeal: UsualMealSuggestion | null;
   // What the garden gave this calendar month, 2026-09-23. A weight or a
   // count, what it came to at prices this person has recorded paying, and
   // nothing when the garden is out of season. Worked out in
@@ -742,6 +754,12 @@ const HOME_LENS_DESTINATIONS: Partial<
     scrollTo: true,
   },
   // What you put in.
+  usualMeal: {
+    label: 'Your Usual Meal',
+    icon: 'repeat',
+    color: colors.tabFood,
+    href: { pathname: '/food', params: { openFoodLens: 'findMeal' } } as Href,
+  },
   logAgain: {
     label: 'Log a Meal',
     icon: 'restaurant',
@@ -931,6 +949,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'yourStory',
   'captureInbox',
   'whereIsIt',
+  'usualMeal',
   'logAgain',
   'scanProduct',
   'yourDay',
@@ -1224,6 +1243,12 @@ export default function HomeScreen() {
   const [photoSourceSheetOpen, setPhotoSourceSheetOpen] = useState(false);
   const [activeDraft, setActiveDraft] = useState<MealPhotoDraft | null>(null);
   const [capturingPhoto, setCapturingPhoto] = useState(false);
+  // G25: what the usual-meal line just logged, held after the reload that
+  // makes the offer itself go away, so the line can say so and offer Undo.
+  const [usualMealLogged, setUsualMealLogged] = useState<{ id: string; sentence: string; undoable: boolean } | null>(
+    null,
+  );
+  const [usualMealBusy, setUsualMealBusy] = useState(false);
   const [bpSystolic, setBpSystolic] = useState('');
   const [bpDiastolic, setBpDiastolic] = useState('');
   const [bpBpm, setBpBpm] = useState('');
@@ -1309,6 +1334,7 @@ export default function HomeScreen() {
     if (key === 'sharedFolderSetup') return sharedFolderReady === false;
     if (key === 'weekTrend') return Boolean(weekTrend);
     if (key === 'outsideUsual') return (data?.outsideUsual.length ?? 0) > 0;
+    if (key === 'usualMeal') return Boolean(data?.usualMeal) || usualMealLogged != null;
     return true;
   }
 
@@ -1545,6 +1571,8 @@ export default function HomeScreen() {
       getOutsideUsualInputs(),
       // F13, 2026-09-26. Fourteen days of records, set side by side here.
       getYourWeekInputs(),
+      // G25, 2026-09-27. Four weeks of meal names and times, one query.
+      getUsualMealSuggestion(date, nowTimeString24()),
     ]).then(
       ([
         todaysMeals,
@@ -1572,6 +1600,7 @@ export default function HomeScreen() {
         gardenYield,
         outsideUsualInputs,
         yourWeekInputs,
+        usualMeal,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1632,6 +1661,7 @@ export default function HomeScreen() {
           gardenYield,
           outsideUsual: outsideUsualLines(outsideUsualInputs),
           yourWeek: buildYourWeek(yourWeekInputs),
+          usualMeal,
           reconcileCounts: { open: openToAnswer, assumed: assumedToConfirm },
           routines: routinesHome.routines,
           doneChecks: routinesHome.checks,
@@ -3212,6 +3242,127 @@ export default function HomeScreen() {
     }
   }
 
+  // G25, 2026-09-27: "Log your usual lunch?" Near a usual meal time, the
+  // meal this person logs most often in that slot, as one tap. Silent the
+  // rest of the day, and once anything is logged or planned for the slot.
+  async function handleLogUsualMeal(suggestion: UsualMealSuggestion) {
+    if (usualMealBusy) return;
+    setUsualMealBusy(true);
+    try {
+      const time = nowTimeString24();
+      const result = await logUsualMeal(suggestion, `${todayDateString()}T${time}`);
+      if ('error' in result) {
+        showInfoAlert('That did not log', result.error);
+        return;
+      }
+      setUsualMealLogged({
+        id: result.id,
+        sentence: usualMealLoggedSentence(result.name, time),
+        undoable: !result.touchedFoodTrials,
+      });
+      offerGardenUse(result.id);
+      await load();
+    } catch (error) {
+      console.error('[Home] Failed to log the usual meal', error);
+      showInfoAlert('That did not log', 'Something went wrong saving it. Check Past Meals before trying again.');
+    } finally {
+      setUsualMealBusy(false);
+    }
+  }
+
+  async function handleUndoUsualMeal() {
+    if (!usualMealLogged || usualMealBusy) return;
+    setUsualMealBusy(true);
+    try {
+      await deleteMeal(usualMealLogged.id);
+      setUsualMealLogged(null);
+      await load();
+    } catch (error) {
+      console.error('[Home] Failed to undo the usual meal', error);
+    } finally {
+      setUsualMealBusy(false);
+    }
+  }
+
+  async function handleDismissUsualMeal(suggestion: UsualMealSuggestion) {
+    try {
+      await dismissUsualMeal(suggestion.dismissKey);
+      await load();
+    } catch (error) {
+      console.error('[Home] Failed to put the usual meal away for today', error);
+    }
+  }
+
+  function renderUsualMeal() {
+    if (!homeSectionHasContent('usualMeal') || !isHomeSectionVisible(visualPrefs, 'usualMeal')) return null;
+    const foodColor = tabColorFor('/food');
+    const logged = usualMealLogged;
+    const suggestion = data?.usualMeal ?? null;
+    if (logged) {
+      return renderBand(
+        'usualMeal',
+        'Your Usual Meal',
+        <View style={styles.bandBody}>
+          <Text style={[styles.usualMealName, { color: foodColor }]}>{logged.sentence}</Text>
+          {logged.undoable ? null : <Text style={styles.logAgainCaption}>{USUAL_MEAL_TRIAL_NOTE}</Text>}
+          <View style={styles.usualMealActions}>
+            {logged.undoable ? (
+              <TouchableOpacity
+                style={[styles.logAgainSpeakButton, styles.usualMealButton, { borderColor: foodColor }]}
+                activeOpacity={0.8}
+                onPress={() => void handleUndoUsualMeal()}
+                disabled={usualMealBusy}
+              >
+                <Ionicons name="arrow-undo-outline" size={18} color={foodColor} style={textShadow} />
+                <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>Undo</Text>
+              </TouchableOpacity>
+            ) : null}
+            <TouchableOpacity
+              style={[styles.logAgainSpeakButton, styles.usualMealButton, { borderColor: foodColor }]}
+              activeOpacity={0.8}
+              onPress={() => setUsualMealLogged(null)}
+              disabled={usualMealBusy}
+            >
+              <Ionicons name="checkmark" size={18} color={foodColor} style={textShadow} />
+              <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>,
+      );
+    }
+    if (!suggestion) return null;
+    return renderBand(
+      'usualMeal',
+      usualMealTitle(suggestion),
+      <View style={styles.bandBody}>
+        <Text style={[styles.usualMealName, { color: foodColor }]}>{suggestion.name}</Text>
+        <Text style={styles.logAgainCaption}>{usualMealCaption(suggestion)}</Text>
+        <View style={styles.usualMealActions}>
+          <TouchableOpacity
+            style={[styles.logAgainSpeakButton, styles.usualMealButton, { borderColor: foodColor }]}
+            activeOpacity={0.8}
+            onPress={() => void handleLogUsualMeal(suggestion)}
+            disabled={usualMealBusy}
+          >
+            <Ionicons name="add-circle-outline" size={18} color={foodColor} style={textShadow} />
+            <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>
+              {usualMealBusy ? 'Logging…' : 'Log it now'}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.logAgainSpeakButton, styles.usualMealButton, { borderColor: foodColor }]}
+            activeOpacity={0.8}
+            onPress={() => void handleDismissUsualMeal(suggestion)}
+            disabled={usualMealBusy}
+          >
+            <Ionicons name="close-outline" size={18} color={foodColor} style={textShadow} />
+            <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>Not today</Text>
+          </TouchableOpacity>
+        </View>
+      </View>,
+    );
+  }
+
   function renderLogAgain() {
     if (!isHomeSectionVisible(visualPrefs, 'logAgain')) return null;
     const draftPhotos = data?.photoDrafts ?? [];
@@ -3913,6 +4064,8 @@ export default function HomeScreen() {
         return renderTodaysCheckin();
       case 'logAgain':
         return renderLogAgain();
+      case 'usualMeal':
+        return renderUsualMeal();
       case 'groceryList':
         return renderGroceryList();
       case 'yourDay':
@@ -4557,6 +4710,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   logAgainSpeakText: { ...typography.bodyEmphasis, ...textShadow },
+  usualMealName: { ...typography.bodyEmphasis, ...textShadow },
+  usualMealActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  usualMealButton: { flexGrow: 1 },
   // Negative margin so the tile row can scroll all the way to the card edges
   // instead of stopping short at its padding, with that same padding handed
   // to the content instead. Same negative-margin technique the page itself
