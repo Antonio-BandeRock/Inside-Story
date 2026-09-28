@@ -8709,6 +8709,39 @@ async function runDatabaseInitialization() {
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
     `);
+    // 2026-09-27: weekdays a usual meal stands on (lib/mealPack.ts), JSON.
+    const usualMealColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(usual_meals)');
+    if (!usualMealColumns.some((column) => column.name === 'standing_weekdays')) {
+      await db.execAsync("ALTER TABLE usual_meals ADD COLUMN standing_weekdays TEXT NOT NULL DEFAULT '[]'");
+    }
+
+    // 2026-09-27: a meal chosen the evening before for a day the plan left
+    // open (lib/mealPack.ts, lib/mealPackDb.ts). Each row carries the
+    // schedule_items row it put on the schedule and the reminder to make it,
+    // and reads its status from that schedule row. No UNIQUE on date and
+    // meal, so two devices choosing for the same day merge as two rows and
+    // the newer one is shown.
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS meal_packs (
+        id TEXT PRIMARY KEY,
+        date TEXT NOT NULL,
+        meal_type TEXT NOT NULL,
+        kind TEXT NOT NULL DEFAULT 'home',
+        source TEXT NOT NULL DEFAULT 'typed',
+        usual_meal_id TEXT,
+        favorite_id TEXT,
+        source_meal_id TEXT,
+        name TEXT NOT NULL,
+        place TEXT,
+        foods_json TEXT NOT NULL DEFAULT '[]',
+        schedule_item_id TEXT,
+        prep_reminder_id TEXT,
+        prep_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_meal_packs_date ON meal_packs(date);
+    `);
 
     // 2026-08-30, direct on-device report: "when I had the app create a 6 week
     // meal plan schedule, it seems to have made all of them a favorite
@@ -14470,6 +14503,13 @@ function resolveMealPlanTimes(profile: UserProfile): MealPlanTimes {
   }
 
   return { times, adjustedForFasting };
+}
+
+// The time a meal lands at when something else schedules it on the person's
+// behalf (a meal chosen the evening before, lib/mealPackDb.ts): the same
+// times the meal plan uses.
+export async function getMealPlanTimes(): Promise<MealPlanTimes['times']> {
+  return resolveMealPlanTimes(await getUserProfile()).times;
 }
 
 // "set this up for them if they want it to" -- walks every day in

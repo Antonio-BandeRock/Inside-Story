@@ -5,6 +5,7 @@
 // Reading never writes. Every write is the person's own tap: adding or
 // removing a usual meal, logging one, Not today, and the open-meal rule.
 import { createMeal, createMealFromComponents, getDatabase, getMealFavorite, getUserProfile, listScheduledMealsForDate, relogMeal } from './db';
+import { listPacksBetween } from './mealPackDb';
 import { OPEN_MEALS_META_KEY, openMealsOn, parseOpenMeals, serializeOpenMeals, type OpenMealRule } from './openMeals';
 import {
   NO_LEFTOVERS_ERROR,
@@ -34,7 +35,18 @@ type UsualMealRow = {
   foods_json: string | null;
   last_used_at: string | null;
   created_at: string;
+  standing_weekdays: string | null;
 };
+
+function parseWeekdays(json: string | null): number[] {
+  try {
+    const parsed = JSON.parse(json ?? '[]');
+    if (!Array.isArray(parsed)) return [];
+    return [...new Set(parsed.filter((day): day is number => Number.isInteger(day) && day >= 0 && day <= 6))].sort((a, b) => a - b);
+  } catch {
+    return [];
+  }
+}
 
 function toUsualMeal(row: UsualMealRow): UsualMeal {
   let foods: string[] = [];
@@ -56,6 +68,7 @@ function toUsualMeal(row: UsualMealRow): UsualMeal {
     foods,
     lastUsedAt: row.last_used_at,
     createdAt: row.created_at,
+    standingWeekdays: parseWeekdays(row.standing_weekdays),
   };
 }
 
@@ -95,7 +108,7 @@ export async function saveOpenMealRules(rules: OpenMealRule[]): Promise<void> {
 export async function listUsualMeals(): Promise<UsualMeal[]> {
   const db = await getDatabase();
   const rows = await db.getAllAsync<UsualMealRow>(
-    `SELECT id, meal_type, kind, source, name, favorite_id, source_meal_id, place, foods_json, last_used_at, created_at
+    `SELECT id, meal_type, kind, source, name, favorite_id, source_meal_id, place, foods_json, last_used_at, created_at, standing_weekdays
        FROM usual_meals ORDER BY created_at`,
   );
   return rows.map(toUsualMeal);
@@ -139,6 +152,21 @@ export async function removeUsualMeal(id: string): Promise<void> {
   await db.runAsync('DELETE FROM usual_meals WHERE id = ?', id);
 }
 
+// The weekdays a usual meal stands on. A weekday another usual meal of the
+// same slot already holds is left with that one: the screen shows it as
+// taken, and this refuses it rather than moving it quietly.
+export async function setStandingWeekdays(id: string, weekdays: number[]): Promise<void> {
+  const db = await getDatabase();
+  const meals = await listUsualMeals();
+  const meal = meals.find((row) => row.id === id);
+  if (!meal) return;
+  const taken = new Set(
+    meals.filter((row) => row.id !== id && row.mealType === meal.mealType).flatMap((row) => row.standingWeekdays),
+  );
+  const kept = [...new Set(weekdays)].filter((day) => Number.isInteger(day) && day >= 0 && day <= 6 && !taken.has(day)).sort((a, b) => a - b);
+  await db.runAsync('UPDATE usual_meals SET standing_weekdays = ?, updated_at = ? WHERE id = ?', JSON.stringify(kept), new Date().toISOString(), id);
+}
+
 async function readHistory(today: string): Promise<UsualMealHistoryRow[]> {
   const db = await getDatabase();
   return db.getAllAsync<UsualMealHistoryRow>(
@@ -166,14 +194,18 @@ export async function listSavedMealsForUsual(): Promise<{ id: string; name: stri
 
 export async function getUsualMealsCard(today: string, nowTime: string): Promise<UsualMealsCard | null> {
   const db = await getDatabase();
-  const [history, profile, planned, dismissed, usualMeals, openRules] = await Promise.all([
+  const [history, profile, planned, dismissed, usualMeals, openRules, packsToday] = await Promise.all([
     readHistory(today),
     getUserProfile(),
     listScheduledMealsForDate(today),
     db.getFirstAsync<{ value: string }>('SELECT value FROM app_meta WHERE key = ?', USUAL_MEAL_META_KEY),
     listUsualMeals(),
     getOpenMealRules(),
+    listPacksBetween(today, today),
   ]);
+  // A meal chosen the evening before is on the schedule too; Home offers
+  // it as the packed meal rather than hiding the card as planned.
+  const packItems = new Set(packsToday.map((pack) => pack.scheduleItemId).filter(Boolean));
   return usualMealsCard({
     history,
     today,
@@ -184,11 +216,12 @@ export async function getUsualMealsCard(today: string, nowTime: string): Promise
       dinner: profile.usualDinnerTime,
     },
     plannedToday: planned
-      .filter((item) => item.status !== 'skipped' && item.mealType)
+      .filter((item) => item.status !== 'skipped' && item.mealType && !packItems.has(item.id))
       .map((item) => item.mealType as string),
     dismissed: dismissed?.value ?? null,
     usualMeals,
     openToday: openMealsOn(openRules, today),
+    packsToday,
   });
 }
 
@@ -220,7 +253,7 @@ export async function logUsualMeal(meal: UsualMeal, eatenAt: string): Promise<Us
     logged = 'error' in result ? result : { id: result.id, name: meal.name };
   } else if ((meal.source === 'meal' && meal.sourceMealId) || meal.source === 'leftovers') {
     let sourceId = meal.sourceMealId;
-    if (meal.source === 'leftovers') {
+    if (meal.source === 'leftovers' && !sourceId) {
       const dinner = await db.getFirstAsync<{ id: string }>(
         `SELECT id FROM meals WHERE meal_type = 'dinner' AND eaten_at < ? ORDER BY eaten_at DESC LIMIT 1`,
         eatenAt.slice(0, 10),

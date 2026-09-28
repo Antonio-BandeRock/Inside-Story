@@ -156,7 +156,9 @@ import {
   type OpenMeal,
   type OpenMealRule,
 } from '../../lib/openMeals';
-import { getOpenMealRules, saveOpenMealRules } from '../../lib/usualMealDb';
+import { standingMealsLine, withStandingMeals } from '../../lib/mealPack';
+import type { UsualMeal } from '../../lib/usualMeal';
+import { getOpenMealRules, listUsualMeals, saveOpenMealRules } from '../../lib/usualMealDb';
 import { useWalkMark } from '../../components/WalkMark';
 
 // Every text box on this page belongs to this one page's own tab, so
@@ -2592,6 +2594,9 @@ function DailyMealPlanLens() {
   const [openRules, setOpenRules] = useState<OpenMealRule[]>([]);
   // The rules the plan on screen was built with.
   const [plannedOpenRules, setPlannedOpenRules] = useState<OpenMealRule[]>([]);
+  // Usual meals standing on chosen weekdays (Your Usual Meals) leave their
+  // meal open on those days too, without changing the rule saved here.
+  const [usualMeals, setUsualMeals] = useState<UsualMeal[]>([]);
   function changeOpenRules(next: OpenMealRule[]) {
     setOpenRules(next);
     saveOpenMealRules(next).catch((error) => console.error('[MealPlan] Failed to save the open meal', error));
@@ -2615,10 +2620,11 @@ function DailyMealPlanLens() {
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
-      Promise.all([getUserConditions(), getDietPreferences(), getUserNutrientWeekdayTargets(), getOpenMealRules()])
-        .then(([codes, tags, weekdayTargets, rules]) => {
+      Promise.all([getUserConditions(), getDietPreferences(), getUserNutrientWeekdayTargets(), getOpenMealRules(), listUsualMeals()])
+        .then(([codes, tags, weekdayTargets, rules, usual]) => {
           if (cancelled) return;
           setOpenRules(rules);
+          setUsualMeals(usual);
           setConditionCodes(codes);
           const fromProfile = splitDietPreferences(tags);
           setProfileDiet(fromProfile);
@@ -2701,10 +2707,10 @@ function DailyMealPlanLens() {
         limitAddedSugar,
         startDate,
         household,
-        openMeals: openRules,
+        openMeals: withStandingMeals(openRules, usualMeals),
       });
       setGeneratedStart(startDate);
-      setPlannedOpenRules(openRules);
+      setPlannedOpenRules(withStandingMeals(openRules, usualMeals));
       setScheduleDate(startDate);
       setPlanningScope(scope);
       setPlanHousehold(household);
@@ -2962,6 +2968,7 @@ function DailyMealPlanLens() {
           </View>
         ) : null}
         {describeOpenMeals(openRules) ? <Text style={styles.helperText}>{describeOpenMeals(openRules)}</Text> : null}
+        {standingMealsLine(usualMeals) ? <Text style={styles.helperText}>{standingMealsLine(usualMeals)}</Text> : null}
         <TouchableOpacity
           style={[styles.primaryButton, { marginTop: 12 }, generating && styles.primaryButtonDisabled]}
           activeOpacity={0.85}

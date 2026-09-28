@@ -55,6 +55,7 @@ const NAMED = [
   'lib/bestWorstDays.ts',
   'lib/outsideUsual.ts',
   'lib/usualMeal.ts',
+  'lib/mealPack.ts',
   'lib/openMeals.ts',
   'lib/weeklySummary.ts',
   'lib/periodAverages.ts',

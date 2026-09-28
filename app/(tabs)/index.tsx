@@ -138,6 +138,9 @@ import {
   type UsualMealsCard,
 } from '../../lib/usualMeal';
 import { dismissUsualMeal, getUsualMealsCard, logUsualMeal } from '../../lib/usualMealDb';
+import { packedCaption, packedTitle, standingCaption, standingTitle, type MealPack, type TomorrowSlot } from '../../lib/mealPack';
+import { getTomorrowSlots, logPackedMeal, skipPackedMeal, undoPackedMeal } from '../../lib/mealPackDb';
+import { PackPicker } from '../../components/PackPicker';
 import { offerGardenUse } from '../../lib/gardenPlateOffer';
 import type { GardenYieldHomeSummary } from '../../lib/harvestYield';
 import { getGardenYieldHomeSummary } from '../../lib/harvestYieldDb';
@@ -569,6 +572,9 @@ type DashboardData = {
   // G25, 2026-09-27: the meal usually logged in the slot the clock is near,
   // or null, which is most of the day.
   usualMeal: UsualMealsCard | null;
+  // Part 2 of the usual meals redesign, 2026-09-27: tomorrow's meals left
+  // open, from 4pm, to choose what each will be.
+  tomorrowPacks: TomorrowSlot[];
   // What the garden gave this calendar month, 2026-09-23. A weight or a
   // count, what it came to at prices this person has recorded paying, and
   // nothing when the garden is out of season. Worked out in
@@ -1246,7 +1252,7 @@ export default function HomeScreen() {
   const [capturingPhoto, setCapturingPhoto] = useState(false);
   // G25: what the usual-meal line just logged, held after the reload that
   // makes the offer itself go away, so the line can say so and offer Undo.
-  const [usualMealLogged, setUsualMealLogged] = useState<{ id: string; sentence: string; undoable: boolean } | null>(
+  const [usualMealLogged, setUsualMealLogged] = useState<{ id: string; sentence: string; undoable: boolean; pack?: MealPack } | null>(
     null,
   );
   const [usualMealBusy, setUsualMealBusy] = useState(false);
@@ -1335,7 +1341,7 @@ export default function HomeScreen() {
     if (key === 'sharedFolderSetup') return sharedFolderReady === false;
     if (key === 'weekTrend') return Boolean(weekTrend);
     if (key === 'outsideUsual') return (data?.outsideUsual.length ?? 0) > 0;
-    if (key === 'usualMeal') return Boolean(data?.usualMeal) || usualMealLogged != null;
+    if (key === 'usualMeal') return Boolean(data?.usualMeal) || usualMealLogged != null || (data?.tomorrowPacks.length ?? 0) > 0;
     return true;
   }
 
@@ -1574,6 +1580,7 @@ export default function HomeScreen() {
       getYourWeekInputs(),
       // G25, 2026-09-27. Four weeks of meal names and times, one query.
       getUsualMealsCard(date, nowTimeString24()),
+      getTomorrowSlots(date, nowTimeString24()),
     ]).then(
       ([
         todaysMeals,
@@ -1602,6 +1609,7 @@ export default function HomeScreen() {
         outsideUsualInputs,
         yourWeekInputs,
         usualMeal,
+        tomorrowPacks,
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
@@ -1663,6 +1671,7 @@ export default function HomeScreen() {
           outsideUsual: outsideUsualLines(outsideUsualInputs),
           yourWeek: buildYourWeek(yourWeekInputs),
           usualMeal,
+          tomorrowPacks,
           reconcileCounts: { open: openToAnswer, assumed: assumedToConfirm },
           routines: routinesHome.routines,
           doneChecks: routinesHome.checks,
@@ -3246,12 +3255,14 @@ export default function HomeScreen() {
   // G25, 2026-09-27: "Log your usual lunch?" Near a usual meal time, the
   // meal this person logs most often in that slot, as one tap. Silent the
   // rest of the day, and once anything is logged or planned for the slot.
-  async function handleLogUsualMeal(meal: UsualMeal) {
+  async function handleLogUsualMeal(meal: UsualMeal | null, pack?: MealPack) {
     if (usualMealBusy) return;
     setUsualMealBusy(true);
     try {
       const time = nowTimeString24();
-      const result = await logUsualMeal(meal, `${todayDateString()}T${time}`);
+      const eatenAt = `${todayDateString()}T${time}`;
+      const result = pack ? await logPackedMeal(pack, eatenAt) : meal ? await logUsualMeal(meal, eatenAt) : null;
+      if (!result) return;
       if ('error' in result) {
         showInfoAlert('That did not log', result.error);
         return;
@@ -3260,6 +3271,7 @@ export default function HomeScreen() {
         id: result.id,
         sentence: usualMealLoggedSentence(result.name, time),
         undoable: !result.touchedFoodTrials,
+        pack,
       });
       offerGardenUse(result.id);
       await load();
@@ -3275,13 +3287,26 @@ export default function HomeScreen() {
     if (!usualMealLogged || usualMealBusy) return;
     setUsualMealBusy(true);
     try {
-      await deleteMeal(usualMealLogged.id);
+      if (usualMealLogged.pack) await undoPackedMeal(usualMealLogged.pack, usualMealLogged.id);
+      else await deleteMeal(usualMealLogged.id);
       setUsualMealLogged(null);
       await load();
     } catch (error) {
       console.error('[Home] Failed to undo the usual meal', error);
     } finally {
       setUsualMealBusy(false);
+    }
+  }
+
+  // "Had something else" on a packed or standing meal: that one is put
+  // aside for today and the usual list comes back.
+  async function handleSomethingElse(card: UsualMealsCard) {
+    try {
+      if (card.packed) await skipPackedMeal(card.packed);
+      else await dismissUsualMeal(card.standingDismissKey);
+      await load();
+    } catch (error) {
+      console.error('[Home] Failed to put the packed meal aside', error);
     }
   }
 
@@ -3298,92 +3323,126 @@ export default function HomeScreen() {
     if (!homeSectionHasContent('usualMeal') || !isHomeSectionVisible(visualPrefs, 'usualMeal')) return null;
     const foodColor = tabColorFor('/food');
     const logged = usualMealLogged;
-    const suggestion = data?.usualMeal ?? null;
-    if (logged) {
-      return renderBand(
-        'usualMeal',
-        'Your Usual Meals',
-        <View style={styles.bandBody}>
-          <Text style={[styles.usualMealName, { color: foodColor }]}>{logged.sentence}</Text>
-          {logged.undoable ? null : <Text style={styles.logAgainCaption}>{USUAL_MEAL_TRIAL_NOTE}</Text>}
-          <View style={styles.usualMealActions}>
-            {logged.undoable ? (
-              <TouchableOpacity
-                style={[styles.logAgainSpeakButton, styles.usualMealButton, { borderColor: foodColor }]}
-                activeOpacity={0.8}
-                onPress={() => void handleUndoUsualMeal()}
-                disabled={usualMealBusy}
-              >
-                <Ionicons name="arrow-undo-outline" size={18} color={foodColor} style={textShadow} />
-                <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>Undo</Text>
-              </TouchableOpacity>
-            ) : null}
-            <TouchableOpacity
-              style={[styles.logAgainSpeakButton, styles.usualMealButton, { borderColor: foodColor }]}
-              activeOpacity={0.8}
-              onPress={() => setUsualMealLogged(null)}
-              disabled={usualMealBusy}
-            >
-              <Ionicons name="checkmark" size={18} color={foodColor} style={textShadow} />
-              <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>Done</Text>
-            </TouchableOpacity>
-          </View>
-        </View>,
-      );
-    }
-    if (!suggestion) return null;
-    const card = suggestion;
-    const groups = [
-      { label: 'From home', meals: card.home, more: card.moreHome },
-      { label: 'Eaten out', meals: card.out, more: card.moreOut },
-    ].filter((g) => g.meals.length > 0);
+    const card = logged ? null : (data?.usualMeal ?? null);
+    const tomorrow = data?.tomorrowPacks ?? [];
+    const button = [styles.logAgainSpeakButton, styles.usualMealButton, { borderColor: foodColor }];
+    const buttonText = [styles.logAgainSpeakText, { color: foodColor }];
+    // Planned, then packed, then standing, then the usual list.
+    const single = card?.packed
+      ? { title: packedTitle(card.packed), caption: packedCaption(card.packed), name: card.packed.name }
+      : card?.standing
+        ? { title: standingTitle(card.standing), caption: standingCaption(card.standing, todayDateString()), name: card.standing.name }
+        : null;
+    const groups = card
+      ? [
+          { label: 'From home', meals: card.home, more: card.moreHome },
+          { label: 'Eaten out', meals: card.out, more: card.moreOut },
+        ].filter((g) => g.meals.length > 0)
+      : [];
+    const title = logged
+      ? 'Your Usual Meals'
+      : single
+        ? single.title
+        : card
+          ? usualMealsCardTitle(card)
+          : tomorrow.length === 1
+            ? `Tomorrow's ${tomorrow[0].slot}`
+            : "Tomorrow's meals";
     return renderBand(
       'usualMeal',
-      usualMealsCardTitle(card),
+      title,
       <View style={styles.bandBody}>
-        <Text style={styles.logAgainCaption}>{usualMealsCardCaption(card)}</Text>
-        {groups.map((g) => (
-          <View key={g.label} style={styles.usualMealGroup}>
-            <Text style={styles.logAgainCaption}>{g.label}</Text>
+        {logged ? (
+          <>
+            <Text style={[styles.usualMealName, { color: foodColor }]}>{logged.sentence}</Text>
+            {logged.undoable ? null : <Text style={styles.logAgainCaption}>{USUAL_MEAL_TRIAL_NOTE}</Text>}
             <View style={styles.usualMealActions}>
-              {g.meals.map((meal) => (
-                <TouchableOpacity
-                  key={meal.id}
-                  style={[styles.logAgainSpeakButton, styles.usualMealButton, { borderColor: foodColor }]}
-                  activeOpacity={0.8}
-                  onPress={() => void handleLogUsualMeal(meal)}
-                  disabled={usualMealBusy}
-                >
-                  <Ionicons name={meal.kind === 'out' ? 'storefront-outline' : 'home-outline'} size={18} color={foodColor} style={textShadow} />
-                  <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>{meal.name}</Text>
+              {logged.undoable ? (
+                <TouchableOpacity style={button} activeOpacity={0.8} onPress={() => void handleUndoUsualMeal()} disabled={usualMealBusy}>
+                  <Ionicons name="arrow-undo-outline" size={18} color={foodColor} style={textShadow} />
+                  <Text style={buttonText}>Undo</Text>
                 </TouchableOpacity>
-              ))}
+              ) : null}
+              <TouchableOpacity style={button} activeOpacity={0.8} onPress={() => setUsualMealLogged(null)} disabled={usualMealBusy}>
+                <Ionicons name="checkmark" size={18} color={foodColor} style={textShadow} />
+                <Text style={buttonText}>Done</Text>
+              </TouchableOpacity>
             </View>
-            {g.more > 0 ? <Text style={styles.logAgainCaption}>{`${g.more} more on your list.`}</Text> : null}
-          </View>
+          </>
+        ) : null}
+
+        {card && single ? (
+          <>
+            <Text style={styles.logAgainCaption}>{single.caption}</Text>
+            <View style={styles.usualMealActions}>
+              <TouchableOpacity
+                style={button}
+                activeOpacity={0.8}
+                onPress={() =>
+                  card.packed
+                    ? void handleLogUsualMeal(null, card.packed)
+                    : card.standing
+                      ? void handleLogUsualMeal(card.standing)
+                      : undefined
+                }
+                disabled={usualMealBusy}
+              >
+                <Ionicons name="checkmark-circle-outline" size={18} color={foodColor} style={textShadow} />
+                <Text style={buttonText}>I had it</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={button} activeOpacity={0.8} onPress={() => void handleSomethingElse(card)} disabled={usualMealBusy}>
+                <Ionicons name="swap-horizontal-outline" size={18} color={foodColor} style={textShadow} />
+                <Text style={buttonText}>Had something else</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : null}
+
+        {card && !single ? (
+          <>
+            <Text style={styles.logAgainCaption}>{usualMealsCardCaption(card)}</Text>
+            {groups.map((g) => (
+              <View key={g.label} style={styles.usualMealGroup}>
+                <Text style={styles.logAgainCaption}>{g.label}</Text>
+                <View style={styles.usualMealActions}>
+                  {g.meals.map((meal) => (
+                    <TouchableOpacity key={meal.id} style={button} activeOpacity={0.8} onPress={() => void handleLogUsualMeal(meal)} disabled={usualMealBusy}>
+                      <Ionicons name={meal.kind === 'out' ? 'storefront-outline' : 'home-outline'} size={18} color={foodColor} style={textShadow} />
+                      <Text style={buttonText}>{meal.name}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                {g.more > 0 ? <Text style={styles.logAgainCaption}>{`${g.more} more on your list.`}</Text> : null}
+              </View>
+            ))}
+            <View style={styles.usualMealActions}>
+              <TouchableOpacity
+                style={button}
+                activeOpacity={0.8}
+                onPress={() => router.push({ pathname: '/usual-meals', params: { meal: card.slot } })}
+                disabled={usualMealBusy}
+              >
+                <Ionicons name="list-outline" size={18} color={foodColor} style={textShadow} />
+                <Text style={buttonText}>{card.home.length + card.out.length === 0 ? 'Add usual meals' : 'Change the list'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={button} activeOpacity={0.8} onPress={() => void handleDismissUsualMeal(card)} disabled={usualMealBusy}>
+                <Ionicons name="close-outline" size={18} color={foodColor} style={textShadow} />
+                <Text style={buttonText}>Not today</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : null}
+
+        {tomorrow.map((entry) => (
+          <PackPicker
+            key={`${entry.date}:${entry.slot}:${entry.pack?.id ?? 'none'}`}
+            entry={entry}
+            today={todayDateString()}
+            nowTime={nowTimeString24()}
+            tint={foodColor}
+            onChanged={() => void load()}
+          />
         ))}
-        <View style={styles.usualMealActions}>
-          <TouchableOpacity
-            style={[styles.logAgainSpeakButton, styles.usualMealButton, { borderColor: foodColor }]}
-            activeOpacity={0.8}
-            onPress={() => router.push({ pathname: '/usual-meals', params: { meal: card.slot } })}
-            disabled={usualMealBusy}
-          >
-            <Ionicons name="list-outline" size={18} color={foodColor} style={textShadow} />
-            <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>
-              {card.home.length + card.out.length === 0 ? 'Add usual meals' : 'Change the list'}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.logAgainSpeakButton, styles.usualMealButton, { borderColor: foodColor }]}
-            activeOpacity={0.8}
-            onPress={() => void handleDismissUsualMeal(card)}
-            disabled={usualMealBusy}
-          >
-            <Ionicons name="close-outline" size={18} color={foodColor} style={textShadow} />
-            <Text style={[styles.logAgainSpeakText, { color: foodColor }]}>Not today</Text>
-          </TouchableOpacity>
-        </View>
       </View>,
     );
   }

@@ -19,6 +19,7 @@
 // This half is pure: which slot the clock is in, the card, the suggestions
 // drawn from history, the starter lists, and every sentence. The database
 // half is lib/usualMealDb.ts.
+import type { MealPack } from './mealPack';
 import type { OpenMeal } from './openMeals';
 
 export const USUAL_LOOKBACK_DAYS = 28;
@@ -47,6 +48,9 @@ export type UsualMeal = {
   foods: string[];
   lastUsedAt: string | null;
   createdAt: string;
+  // Weekdays (0 Sunday) this meal stands on: the meal plan leaves the meal
+  // open on those days and Home offers this one (lib/mealPack.ts).
+  standingWeekdays: number[];
 };
 
 // How close to a usual time the offer appears: from 45 minutes before it
@@ -96,6 +100,12 @@ function nameKey(name: string): string {
 
 export function dismissKeyFor(today: string, slot: UsualSlot): string {
   return `${today}:${slot}`;
+}
+
+// "Had something else" on a standing meal puts only that meal away for the
+// day, so the usual list still shows.
+export function standingDismissKeyFor(today: string, slot: UsualSlot): string {
+  return `${today}:${slot}:standing`;
 }
 
 // The first day inside the lookback window, for the query.
@@ -163,6 +173,8 @@ export type UsualMealsCardInputs = {
   usualMeals: UsualMeal[];
   // Meals left open on the plan today (lib/openMeals.ts).
   openToday: UsualSlot[];
+  // Meals chosen the evening before for today (lib/mealPack.ts), any status.
+  packsToday?: MealPack[];
 };
 
 export type UsualMealsCard = {
@@ -174,6 +186,12 @@ export type UsualMealsCard = {
   moreHome: number;
   moreOut: number;
   dismissKey: string;
+  // Chosen the evening before and not yet logged or passed over: Home
+  // offers this one alone.
+  packed: MealPack | null;
+  // The standing meal for today, when nothing was chosen for it.
+  standing: UsualMeal | null;
+  standingDismissKey: string;
 };
 
 export function usualMealsCard(inputs: UsualMealsCardInputs): UsualMealsCard | null {
@@ -185,9 +203,19 @@ export function usualMealsCard(inputs: UsualMealsCardInputs): UsualMealsCard | n
   if (inputs.plannedToday.includes(slot)) return null;
   if (history.some((row) => row.mealType === slot && dayOf(row) === today)) return null;
 
-  const open = inputs.openToday.includes(slot);
+  // Planned, then packed, then standing, then the usual list.
+  const packs = (inputs.packsToday ?? []).filter((pack) => pack.mealType === slot && pack.date === today);
+  const packed = packs.find((pack) => pack.status === 'planned') ?? null;
+  const standingDismissKey = standingDismissKeyFor(today, slot);
+  const weekday = new Date(`${today}T12:00:00`).getDay();
+  const standing =
+    packs.length === 0 && inputs.dismissed !== standingDismissKey
+      ? (inputs.usualMeals.find((meal) => meal.mealType === slot && meal.standingWeekdays.includes(weekday)) ?? null)
+      : null;
+
+  const open = inputs.openToday.includes(slot) || standing != null;
   const mine = orderUsualMeals(inputs.usualMeals.filter((meal) => meal.mealType === slot));
-  if (mine.length === 0 && !open) return null;
+  if (mine.length === 0 && !open && !packed) return null;
   const home = mine.filter((meal) => meal.kind === 'home');
   const out = mine.filter((meal) => meal.kind === 'out');
   return {
@@ -198,6 +226,9 @@ export function usualMealsCard(inputs: UsualMealsCardInputs): UsualMealsCard | n
     moreHome: Math.max(0, home.length - HOME_LIST_MAX),
     moreOut: Math.max(0, out.length - HOME_LIST_MAX),
     dismissKey,
+    packed,
+    standing: packed ? null : standing,
+    standingDismissKey,
   };
 }
 
