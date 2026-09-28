@@ -2,8 +2,15 @@
 // decision and sentence is in lib/workouts.ts with no database; see
 // custom_exercises in lib/db.ts for how the three tables fit together.
 
-import { getDatabase } from './db';
-import { EXERCISE_CATEGORIES, EQUIPMENT_LABELS, type Equipment, type ExerciseCategory } from './exerciseLibrary';
+import { getDatabase, recordExercise } from './db';
+import {
+  EXERCISE_CATEGORIES,
+  EQUIPMENT_LABELS,
+  type Equipment,
+  type ExerciseCategory,
+  type ExerciseIntensity,
+} from './exerciseLibrary';
+import { parseKeptSets, type KeptSet } from './workoutSession';
 import { removePhotosOf } from './mediaDb';
 import {
   exerciseDraftToFields,
@@ -336,4 +343,66 @@ export async function reorderWorkoutSteps(workoutId: string, orderedIds: readonl
     await db.runAsync('UPDATE workout_exercises SET position = ?, updated_at = ? WHERE id = ? AND workout_id = ?', index + 1, now, orderedIds[index], workoutId);
   }
   await touchWorkout(workoutId);
+}
+
+// Sessions, H11 part 2: a workout done, from app/workout.tsx.
+
+/**
+ * Keeps a session and writes it to the exercise log as one entry named for
+ * the workout, so Movement and everything that reads exercise_logs sees it.
+ */
+export async function saveWorkoutSession(input: {
+  workoutId: string;
+  workoutName: string;
+  startedAt: string;
+  finishedAt: string;
+  sets: KeptSet[];
+  minutes: number;
+  intensity: ExerciseIntensity;
+  notes: string;
+  note: string | null;
+}): Promise<string> {
+  const logId = await recordExercise({
+    loggedAt: localStamp(new Date(input.startedAt)),
+    exerciseType: input.workoutName,
+    durationMinutes: input.minutes,
+    intensity: input.intensity,
+    notes: input.notes,
+  });
+  const db = await getDatabase();
+  const id = newId('workout_session');
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `INSERT INTO workout_sessions
+       (id, workout_id, workout_name, started_at, finished_at, exercise_log_id, sets_json, note, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    id,
+    input.workoutId,
+    input.workoutName,
+    input.startedAt,
+    input.finishedAt,
+    logId,
+    JSON.stringify(input.sets),
+    input.note?.trim() || null,
+    now,
+    now,
+  );
+  return id;
+}
+
+/** The latest session of a workout, for "last time" on each exercise. */
+export async function lastWorkoutSession(workoutId: string): Promise<{ finishedAt: string; sets: KeptSet[] } | null> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ finishedAt: string; setsJson: string }>(
+    `SELECT finished_at AS finishedAt, sets_json AS setsJson FROM workout_sessions
+     WHERE workout_id = ? ORDER BY finished_at DESC LIMIT 1`,
+    workoutId,
+  );
+  return row ? { finishedAt: row.finishedAt, sets: parseKeptSets(row.setsJson) } : null;
+}
+
+/** The same shape the quick log writes: local date and time, no zone. */
+function localStamp(date: Date): string {
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }

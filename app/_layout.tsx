@@ -713,6 +713,19 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
+                {/* Doing a workout, 1.0.55.2. A Stack screen for the same
+                    reason as a routine: the builder on Life > Workouts
+                    shows every step, doing one shows one set at a time
+                    with its rest timer. Titled with the workout's name. */}
+                <Stack.Screen
+                  name="workout"
+                  options={{
+                    headerShown: true,
+                    title: 'Workout',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
                 {/* Reconciliation, 1.0.39.15. A Stack screen for the same
                     reason Capture is one: it belongs to no tab because it asks
                     about all of them at once, and putting it inside one would

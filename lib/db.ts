@@ -7693,6 +7693,26 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_workout_exercises_workout ON workout_exercises(workout_id);
 
+      -- A workout done, H11 part 2 (app/workout.tsx). One row per finished
+      -- or saved-early session, holding every set as planned and as done in
+      -- sets_json (see lib/workoutSession.ts). The same session is also an
+      -- ordinary exercise_logs row (exercise_log_id), so Movement, Trends and
+      -- Reports count it with nothing new to learn. workout_name is kept
+      -- because a workout can be removed later and its sessions stay.
+      CREATE TABLE IF NOT EXISTS workout_sessions (
+        id TEXT PRIMARY KEY,
+        workout_id TEXT,
+        workout_name TEXT NOT NULL,
+        started_at TEXT NOT NULL,
+        finished_at TEXT NOT NULL,
+        exercise_log_id TEXT,
+        sets_json TEXT NOT NULL,
+        note TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_workout_sessions_workout ON workout_sessions(workout_id, finished_at);
+
       -- Nights, 1.0.52.7: how many times somebody got up in the night,
       -- written down the next morning. Signals > Nocturia is where it goes
       -- in and Trends > Nights reads it beside the evening's drinks.

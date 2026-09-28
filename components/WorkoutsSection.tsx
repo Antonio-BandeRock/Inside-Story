@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
@@ -117,6 +118,7 @@ function exerciseKey(view: { source: string; id: string }): string {
 
 export function WorkoutsSection({ tabColor }: Props) {
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const router = useRouter();
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [custom, setCustom] = useState<CustomExercise[]>([]);
   const [tracked, setTracked] = useState<string[]>([]);
@@ -559,6 +561,15 @@ export function WorkoutsSection({ tabColor }: Props) {
         <TabBand key={workout.id} folds={folds} color={tabColor} id={`life:workouts:${workout.id}`} title={workout.name} icon="barbell-outline" count={workout.steps.length}>
           <Text style={styles.rowMeta}>{describeWorkout(workout)}</Text>
           {workout.note ? <Text style={styles.rowMeta}>{workout.note}</Text> : null}
+          {workout.steps.length > 0 ? (
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() => router.push({ pathname: '/workout', params: { id: workout.id } })}
+              accessibilityRole="button"
+            >
+              <Text style={styles.primaryButtonText}>Start this workout</Text>
+            </TouchableOpacity>
+          ) : null}
 
           {workout.steps.map((step, index) => {
             const view = resolveExercise(step.source, step.exerciseId, custom);
@@ -696,6 +707,10 @@ export const WORKOUTS_HELP_SECTIONS = [
   {
     heading: 'Building a workout',
     body: 'Build a workout, open it, and add exercises in the order you do them. Each one carries its sets, reps or time, weight, rest between sets and a note, so the same exercise can be heavy in one workout and light in another. Up and Down change the order.',
+  },
+  {
+    heading: 'Doing a workout',
+    body: 'Start this workout shows one set at a time: what the plan asks for, what you did last time, and a counter that starts at the plan, so a set done as planned is one press of Done. Rest counts down by itself and the phone buzzes when it is over. Skip a set or the rest of an exercise, or stop part way. Nothing is saved until the end, where planned and done sit side by side, and saving adds one entry to your exercise log named for the workout.',
   },
   {
     heading: 'Notes for your conditions',

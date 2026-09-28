@@ -124,6 +124,7 @@ const NAMED = [
   'lib/savedWeeks.ts',
   'lib/exerciseLibrary.ts',
   'lib/workouts.ts',
+  'lib/workoutSession.ts',
 ];
 
 function targets() {
