@@ -4,7 +4,7 @@ import { getCheckinReminderInputs } from './checkinReminderDb';
 import { seriesReminderBody, seriesReminderTitle } from './photoSeries';
 import { listSeriesReminderInputs } from './photoSeriesDb';
 import { addCompostEvent, listCompostPilesToTurn } from './compostDb';
-import { getDailyNutrientAnalysis, listReminderCandidates, recordCheckin, setScheduleItemStatus, type ReminderCandidate } from './db';
+import { getDailyNutrientAnalysis, listReminderCandidates, listScheduledMealsForDateRange, recordCheckin, setScheduleItemStatus, type ReminderCandidate } from './db';
 import { getMovedWaterTarget } from './hydrationIndexDb';
 import { skipHydrationReminder, waterTargetReached } from './hydrationTarget';
 import {
@@ -27,6 +27,8 @@ import {
   morningTimeOf,
   weekDayOf,
   weekTimeOf,
+  weekPlanDayOf,
+  weekPlanTimeOf,
   getReminderPreferences,
   isNudgeUntilDoneEnabled,
   isReminderKindEnabled,
@@ -59,6 +61,7 @@ import { formatTime12 } from './timeOfDay';
 import { quietDecision, SNOOZE_MINUTES } from './quietHours';
 import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
 import { YOUR_WEEK_NOTIFICATION_BODY, YOUR_WEEK_NOTIFICATION_TITLE } from './weeklySummary';
+import { buildWeekPlanBody, WEEK_PLAN_NOTIFICATION_TITLE, weekPlanDays } from './weekPlanNotice';
 
 // Local reminders: the scheduled doses in Schedules > Meds, the visits in
 // Schedules > Appointments, the meals and drinks on the schedule, the work
@@ -210,7 +213,7 @@ export type ReminderKind = ReminderKindKey;
 // moment left today to hang a follow-up from.
 const NUDGEABLE_TIMED_KINDS: ReminderKind[] = ['dose', 'meal', 'hydration', 'garden', 'reminder', 'routine', 'check'];
 
-type ScheduleLens = 'meds' | 'appointments' | 'todaysMeals' | 'hydration' | 'exercise';
+type ScheduleLens = 'meds' | 'appointments' | 'meals' | 'todaysMeals' | 'hydration' | 'exercise';
 type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine' | 'signals' | 'camera' | 'home' | 'workout';
 // The two check-in reminders land on Signals (C1).
 type SignalsReminderLens = 'generalNote' | 'flares';
@@ -666,6 +669,25 @@ function buildMorningPlanned(fireAt: Date, now: Date): PlannedNotification {
   };
 }
 
+// This week's meals (H10). The meals planned for the seven days starting
+// the day it fires, read when the reminders are reconciled; the body says
+// when. Opens Schedules on the Meals lens, where the week strip is.
+function buildWeekPlanPlanned(fireAt: Date, body: string): PlannedNotification {
+  return {
+    identifier: `${IDENTIFIER_PREFIX}weekPlan:${localDateString(fireAt)}`,
+    title: WEEK_PLAN_NOTIFICATION_TITLE,
+    body,
+    fireAt,
+    payload: {
+      kind: 'weekPlan',
+      scheduleItemId: localDateString(fireAt),
+      fireAt: fireAt.toISOString(),
+      tab: 'schedule',
+      lens: 'meals',
+    },
+  };
+}
+
 // Your week (F13). Word that the summary is on Home and nothing about what
 // it holds, since a notification can be read on a locked screen.
 function buildWeekPlanned(fireAt: Date): PlannedNotification {
@@ -1056,6 +1078,25 @@ async function runSync(): Promise<ReminderSyncResult> {
         first.set(planned.identifier, planned);
       });
   }
+  // This week's meals (H10): at most one queued, like Your week. The meals
+  // are read only when the kind is on, and a failed read leaves the
+  // notification out rather than sending an empty week.
+  if (isReminderKindEnabled(preferences, 'weekPlan')) {
+    const planDay = weekPlanDayOf(preferences);
+    const fireAt = planDailyCheckins(weekPlanTimeOf(preferences), now, LOOKAHEAD_DAYS, false).find(
+      (at) => at.getDay() === planDay,
+    );
+    if (fireAt) {
+      try {
+        const days = weekPlanDays(fireAt);
+        const meals = await listScheduledMealsForDateRange(days[0], days[days.length - 1]);
+        const planned = buildWeekPlanPlanned(fireAt, buildWeekPlanBody(meals, fireAt, now));
+        first.set(planned.identifier, planned);
+      } catch (error) {
+        console.warn('[reminderNotifications] could not read the week of planned meals', error);
+      }
+    }
+  }
   if (isReminderKindEnabled(preferences, 'afterMeal')) {
     const nudge = planAfterMealNudge(checkinInputs.recentMeals, checkinInputs.lastCheckinAt, now);
     if (nudge) {
@@ -1194,7 +1235,7 @@ export type ReminderTapTarget =
   | { pathname: '/' }
   | { pathname: '/photo-camera'; params: { ownerKind: string; ownerId: string; guide: '1'; title: string } };
 
-const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'todaysMeals', 'hydration', 'exercise'];
+const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'meals', 'todaysMeals', 'hydration', 'exercise'];
 // The dated lenses that live on Life. 'compost' is a dated lens too and is
 // deliberately not here: it is on Garden, and this list is the fallback for
 // the Life branch below.

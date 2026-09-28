@@ -93,6 +93,9 @@ import {
   morningTimeOf,
   setMorningTime,
   weekDayOf,
+  weekPlanDayOf,
+  weekPlanTimeOf,
+  setWeekPlanSchedule,
   weekTimeOf,
   setWeekSchedule,
 } from '../lib/reminderPreferences';
@@ -881,6 +884,15 @@ export default function ProfileScreen() {
 
   function saveWeekTime(time: string) {
     void setWeekSchedule(weekDayOf(reminderPrefs), time).then(() => syncReminderNotifications());
+  }
+
+  // This week's meals' day and time (H10), reconciled the same way.
+  function saveWeekPlanDay(day: string) {
+    void setWeekPlanSchedule(Number(day), weekPlanTimeOf(reminderPrefs)).then(() => syncReminderNotifications());
+  }
+
+  function saveWeekPlanTime(time: string) {
+    void setWeekPlanSchedule(weekPlanDayOf(reminderPrefs), time).then(() => syncReminderNotifications());
   }
 
   // Home Screen section toggles, 2026-08-21, direct request: "make it
@@ -3759,6 +3771,30 @@ export default function ProfileScreen() {
                     tabColor={colors.menuIconMuted}
                     groundSurface
                     onSelect={saveWeekTime}
+                  />
+                </PickerField>
+              </View>
+            ) : null}
+            {isReminderKindEnabled(reminderPrefs, 'weekPlan') ? (
+              <View style={styles.dateRow}>
+                <PickerField label="This week's meals on">
+                  <PopoverSelect
+                    options={WEEK_DAY_OPTIONS}
+                    selected={String(weekPlanDayOf(reminderPrefs))}
+                    minWidth={130}
+                    tabColor={colors.menuIconMuted}
+                    groundSurface
+                    onSelect={saveWeekPlanDay}
+                  />
+                </PickerField>
+                <PickerField label="At">
+                  <PopoverSelect
+                    options={QUIET_TIME_OPTIONS}
+                    selected={weekPlanTimeOf(reminderPrefs)}
+                    minWidth={110}
+                    tabColor={colors.menuIconMuted}
+                    groundSurface
+                    onSelect={saveWeekPlanTime}
                   />
                 </PickerField>
               </View>

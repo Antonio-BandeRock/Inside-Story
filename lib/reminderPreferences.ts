@@ -28,6 +28,7 @@ export type ReminderKindKey =
   | 'checkin'
   | 'morning'
   | 'week'
+  | 'weekPlan'
   | 'afterMeal'
   | 'garden'
   | 'routine'
@@ -70,6 +71,10 @@ export const ALL_REMINDER_KIND_KEYS: ReminderKindKey[] = [
   // F13 (Phase 2). Your week: once a week, on the day and at the time the
   // person picks, word that the week's summary is on Home. Starts off.
   'week',
+  // H10 (2026-09-28). This week's meals: once a week, on the day and at the
+  // time the person picks, the meals planned for the seven days ahead, one
+  // line a day. Starts off, like Your week.
+  'weekPlan',
   'afterMeal',
   'garden',
   // 1.0.39.22. The one kind that comes from nothing on a schedule at all:
@@ -122,6 +127,7 @@ export const REMINDER_KIND_LABELS: Record<ReminderKindKey, string> = {
   checkin: 'How are you today',
   morning: 'Morning check-in',
   week: 'Your week',
+  weekPlan: "This week's meals",
   afterMeal: 'After a meal',
   garden: 'Garden tasks',
   routine: 'Routines',
@@ -150,6 +156,8 @@ export const REMINDER_KIND_CAPTIONS: Record<ReminderKindKey, string> = {
     "Once a morning at the time you pick below, a question about last night's sleep. Tapping it opens the Morning Check-In on Home. Skipped on a morning you have already answered.",
   week:
     'Once a week, on the day and at the time you pick below, word that the last seven days are on Home beside the seven before. The notification itself says nothing about what was logged.',
+  weekPlan:
+    'Once a week, on the day and at the time you pick below, the meals planned for the next seven days, one line a day. It names the meals, so they can be read on a locked screen. A meal planned after the app was last opened is not in it yet.',
   afterMeal:
     'About two hours after a meal you logged, the same two buttons. Only the latest meal asks, a drink on its own asks nothing, and nothing comes once you have checked in since eating.',
   garden: 'Anything planned in Garden > Upcoming Tasks, at the time it is set for.',
@@ -204,6 +212,7 @@ const DEFAULT_REMINDER_KIND_ENABLED: Record<ReminderKindKey, boolean> = {
   checkin: false,
   morning: false,
   week: false,
+  weekPlan: false,
   afterMeal: false,
   garden: true,
   // On. A routine reminder exists only because somebody went into that
@@ -261,6 +270,11 @@ export const DEFAULT_MORNING_TIME = '07:30';
 export const DEFAULT_WEEK_DAY = 0;
 export const DEFAULT_WEEK_TIME = '18:00';
 
+// When This week's meals speaks (H10): Sunday afternoon, early enough to
+// shop for the week from it.
+export const DEFAULT_WEEK_PLAN_DAY = 0;
+export const DEFAULT_WEEK_PLAN_TIME = '16:00';
+
 export type ReminderPreferences = {
   // Whether a reminder comes back until the thing is marked done, rather
   // than firing once and being gone. Undefined means the default above.
@@ -279,6 +293,9 @@ export type ReminderPreferences = {
   // defaults above.
   weekDay?: number;
   weekTime?: string;
+  // This week's meals' day and time (H10). Undefined means the defaults.
+  weekPlanDay?: number;
+  weekPlanTime?: string;
   // Only what the person has actually changed. A key missing here means
   // "whatever DEFAULT_REMINDER_KIND_ENABLED says," so a kind added later
   // picks up its own default without needing a migration, and so changing a
@@ -329,6 +346,14 @@ export function weekTimeOf(prefs: ReminderPreferences): string {
   return isValidTime(prefs.weekTime) ? prefs.weekTime : DEFAULT_WEEK_TIME;
 }
 
+export function weekPlanDayOf(prefs: ReminderPreferences): number {
+  return isValidWeekDay(prefs.weekPlanDay) ? prefs.weekPlanDay : DEFAULT_WEEK_PLAN_DAY;
+}
+
+export function weekPlanTimeOf(prefs: ReminderPreferences): string {
+  return isValidTime(prefs.weekPlanTime) ? prefs.weekPlanTime : DEFAULT_WEEK_PLAN_TIME;
+}
+
 export function isNudgeUntilDoneEnabled(prefs: ReminderPreferences): boolean {
   return prefs.nudgeUntilDone ?? DEFAULT_NUDGE_UNTIL_DONE;
 }
@@ -363,6 +388,8 @@ export async function getReminderPreferences(): Promise<ReminderPreferences> {
           morningTime: isValidTime(parsed.morningTime) ? parsed.morningTime : undefined,
           weekDay: isValidWeekDay(parsed.weekDay) ? parsed.weekDay : undefined,
           weekTime: isValidTime(parsed.weekTime) ? parsed.weekTime : undefined,
+          weekPlanDay: isValidWeekDay(parsed.weekPlanDay) ? parsed.weekPlanDay : undefined,
+          weekPlanTime: isValidTime(parsed.weekPlanTime) ? parsed.weekPlanTime : undefined,
         };
       } catch {
         // A blob that will not parse falls back to defaults rather than
@@ -424,6 +451,16 @@ export async function setWeekSchedule(day: number, time: string): Promise<Remind
     ...current,
     weekDay: isValidWeekDay(day) ? day : undefined,
     weekTime: isValidTime(time) ? time : undefined,
+  });
+}
+
+// This week's meals' day and time (H10). Reconciled by the caller.
+export async function setWeekPlanSchedule(day: number, time: string): Promise<ReminderPreferences> {
+  const current = await getReminderPreferences();
+  return persist({
+    ...current,
+    weekPlanDay: isValidWeekDay(day) ? day : undefined,
+    weekPlanTime: isValidTime(time) ? time : undefined,
   });
 }
 
