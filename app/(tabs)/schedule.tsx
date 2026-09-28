@@ -135,6 +135,8 @@ import {
   quickDrinkMeal,
   type QuickDrink,
 } from '../../lib/quickDrinks';
+import { hydrationReminderLine } from '../../lib/hydrationTarget';
+import { getReminderPreferences, isReminderKindEnabled } from '../../lib/reminderPreferences';
 import { buildTime24, describeTimeInputProblem, formatTime12, splitTime24, type TimeOfDayInput } from '../../lib/timeOfDay';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
@@ -3462,6 +3464,9 @@ function HydrationLens() {
   const [caffeineMg, setCaffeineMg] = useState<number | null>(null);
   const [lastQuick, setLastQuick] = useState<{ mealId: string; line: string } | null>(null);
   const [quickBusy, setQuickBusy] = useState(false);
+  // Whether Profile's Water & drinks reminders are on, so the line about
+  // reminders stopping at the target (G35) is only said when there are any.
+  const [hydrationRemindersOn, setHydrationRemindersOn] = useState(false);
   const [favorites, setFavorites] = useState<FavoriteRecord[]>([]);
   const [templates, setTemplates] = useState<MealRecord[]>([]);
   const [loading, setLoading] = useState(false);
@@ -3482,9 +3487,11 @@ function HydrationLens() {
           listFavorites(100, 'meal'),
           listMeals(100),
           getDailyNutrientAnalysis(date),
+          getReminderPreferences(),
         ]),
       )
-      .then(([scheduled, loggedToday, loadedFavorites, loadedTemplates, analysis]) => {
+      .then(([scheduled, loggedToday, loadedFavorites, loadedTemplates, analysis, reminderPrefs]) => {
+        setHydrationRemindersOn(isReminderKindEnabled(reminderPrefs, 'hydration'));
         setItems(scheduled.filter((item) => item.mealType === 'beverage'));
         setLoggedBeverages(loggedToday.filter((meal) => meal.meal_type === 'beverage'));
         setFavorites(loadedFavorites);
@@ -3512,6 +3519,7 @@ function HydrationLens() {
       const created = await createMeal(quickDrinkMeal(drink, now));
       setLastQuick({ mealId: created.id, line: loggedLine(drink, now) });
       load();
+      void syncReminderNotifications();
     } catch (error) {
       showInfoAlert('Could not log it', error instanceof Error ? error.message : String(error));
     } finally {
@@ -3525,6 +3533,7 @@ function HydrationLens() {
       await deleteMeal(lastQuick.mealId);
       setLastQuick(null);
       load();
+      void syncReminderNotifications();
     } catch (error) {
       showInfoAlert('Could not take it back', error instanceof Error ? error.message : String(error));
     }
@@ -3732,6 +3741,9 @@ function HydrationLens() {
                 {Math.round(waterEntry.combinedTotal)} / {Math.round(waterEntry.target)} ml
               </Text>
               <Text style={styles.hydrationSummaryMeta}>{Math.round(waterEntry.percentOfTarget)}% of today&apos;s target</Text>
+              {hydrationReminderLine(waterEntry, hydrationRemindersOn) ? (
+                <Text style={styles.hydrationSummaryMeta}>{hydrationReminderLine(waterEntry, hydrationRemindersOn)}</Text>
+              ) : null}
             </View>
           ) : null}
 

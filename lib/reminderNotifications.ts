@@ -4,7 +4,8 @@ import { getCheckinReminderInputs } from './checkinReminderDb';
 import { seriesReminderBody, seriesReminderTitle } from './photoSeries';
 import { listSeriesReminderInputs } from './photoSeriesDb';
 import { addCompostEvent, listCompostPilesToTurn } from './compostDb';
-import { listReminderCandidates, recordCheckin, setScheduleItemStatus, type ReminderCandidate } from './db';
+import { getDailyNutrientAnalysis, listReminderCandidates, recordCheckin, setScheduleItemStatus, type ReminderCandidate } from './db';
+import { skipHydrationReminder, waterTargetReached } from './hydrationTarget';
 import {
   ACTION_TEXT_INPUT,
   AFTER_MEAL_MINUTES,
@@ -874,6 +875,19 @@ async function runSync(): Promise<ReminderSyncResult> {
     listSeriesReminderInputs(localDay(now)),
   ]);
   const nudging = isNudgeUntilDoneEnabled(preferences);
+  // Water reminders stop at the target (G35): once today's logged water
+  // reaches the daily target, the rest of today's hydration reminders and
+  // their follow-ups are left out. Read only when hydration reminders are
+  // on, and a failed read keeps every reminder rather than dropping any.
+  let waterReached = false;
+  if (isReminderKindEnabled(preferences, 'hydration')) {
+    try {
+      const analysis = await getDailyNutrientAnalysis(today);
+      waterReached = waterTargetReached(analysis.entries.find((entry) => entry.nutrientCode === 'water'));
+    } catch (error) {
+      console.warn('[reminderNotifications] could not read the water total for today', error);
+    }
+  }
 
   const first = new Map<string, PlannedNotification>();
   const followUps = new Map<string, PlannedNotification>();
@@ -882,6 +896,7 @@ async function runSync(): Promise<ReminderSyncResult> {
     if (!isReminderKindEnabled(preferences, reminderKindFor(candidate))) continue;
     const planned = buildPlanned(candidate, now);
     if (!planned) continue;
+    if (reminderKindFor(candidate) === 'hydration' && skipHydrationReminder(planned.fireAt, now, waterReached)) continue;
     if (planned.fireAt.getTime() > now.getTime()) first.set(planned.identifier, planned);
     for (const nudge of buildNudges(planned, now, candidate.keepRemindingMinutes ?? null, nudging)) {
       followUps.set(nudge.identifier, nudge);

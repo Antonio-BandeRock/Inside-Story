@@ -114,6 +114,7 @@ const NAMED = [
   'lib/scanToList.ts',
   'lib/sinceLastMeal.ts',
   'lib/quickDrinks.ts',
+  'lib/hydrationTarget.ts',
 ];
 
 function targets() {
