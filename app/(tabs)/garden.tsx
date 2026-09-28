@@ -66,7 +66,10 @@ import { listGardenSpaces } from '../../lib/gardenSpacesDb';
 import { PLANTING_STATUS_OPTIONS, pastAreaBlocker, plantingStatusLabel } from '../../lib/gardenAreaLifecycle';
 import { GardenSpaceField } from '../../components/GardenSpaceField';
 import { DaysUntilSection } from '../../components/DaysUntilSection';
-import { countRunningGardenCountdowns } from '../../lib/gardenCountdownDb';
+import { SowingCalendarLens } from '../../components/SowingCalendarLens';
+import { addGardenCountdown, countRunningGardenCountdowns } from '../../lib/gardenCountdownDb';
+import { dateLabel } from '../../lib/moonSky';
+import { asksHowStarted, expectedDates, findSowingWindow, type SowingWindow } from '../../lib/sowingWindows';
 import { emptyLightDraft, GrowSetupSection, LightFields, lightDraftHasLight, lightDraftToInput, type LightDraft } from '../../components/GrowSetupSection';
 import type { CustomGardenTerm } from '../../lib/growSetup';
 import { addGrowEquipment, listGardenTerms } from '../../lib/growSetupDb';
@@ -106,10 +109,38 @@ const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 // this component's own memo() contract.
 const COUNTRY_OPTIONS = sortByLabel(COUNTRIES.map((country) => ({ label: country.name, value: country.code })));
 
+// I5, 1.0.55.20: how a planting went in, for its expected dates. Seed in
+// the ground, seed in a pot indoors (to be planted out later), or a plant,
+// set, slip or seed potato set out.
+type PlantingStart = 'seed' | 'indoors' | 'start';
+
+function sowingWindowForFood(foodName: string): SowingWindow | null {
+  const guide = findCropGuide(foodName);
+  return guide ? findSowingWindow(guide.key) : null;
+}
+
+function defaultPlantingStart(w: SowingWindow): PlantingStart {
+  if (w.direct || (!w.plantOut && w.sprout)) return 'seed';
+  return w.plantOut ? 'start' : 'seed';
+}
+
+function plantingStartOptions(w: SowingWindow): { label: string; value: PlantingStart }[] {
+  const out: { label: string; value: PlantingStart }[] = [];
+  if (w.sprout && (w.direct || !w.indoors)) out.push({ label: 'Seed in the ground', value: 'seed' });
+  if (w.indoors) out.push({ label: 'Seed in a pot indoors', value: 'indoors' });
+  if (w.plantOut) out.push({ label: w.plantWhat ? `Planted as ${w.plantWhat}` : 'A plant set out', value: 'start' });
+  return out;
+}
+
+function plantingExpected(w: SowingWindow, plantedOn: string, startedAs: PlantingStart) {
+  return expectedDates(w, plantedOn, startedAs === 'start' ? 'start' : 'seed', startedAs === 'indoors');
+}
+
 type GardenLens =
   | 'myZone'
   | 'plotsAndPlantings'
   | 'daysUntil'
+  | 'sowingCalendar'
   | 'harvestLog'
   | 'upcomingTasks'
   | 'compost'
@@ -121,6 +152,7 @@ const GARDEN_LENS_FULL_NAMES: Record<GardenLens, string> = {
   myZone: 'My Zone',
   plotsAndPlantings: 'Plots &\nPlantings',
   daysUntil: 'Days\nUntil',
+  sowingCalendar: 'Sowing\nCalendar',
   harvestLog: 'Harvest\nLog',
   upcomingTasks: 'Upcoming\nTasks',
   compost: 'Compost',
@@ -164,6 +196,20 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
       {
         heading: 'Days Until',
         body: 'Every Days Until counter in the garden, soonest first, each naming its area and the planting it is for. Start one here: pick the area, name what you are counting to (germination, transplanting out, the first harvest, the cover coming off), say how many days and the day it started, and tie it to one planting in that area if you like. A counter says Today on its day (the phone reminds you that morning; the switch for it is in Profile > Reminders), keeps counting past it until you mark it done, and Done keeps it as the record of how long the thing took. The same counters sit under each area on Plots & Plantings, and the running ones are on the Home screen under Garden, where one can also be started and marked done.',
+      },
+    ],
+  },
+  // I5, 1.0.55.20: the sowing windows counted from My Zone's frost dates,
+  // with the moon, the sun's turning points and the planting traditions
+  // beside them.
+  {
+    key: 'sowingCalendar',
+    label: 'Sowing Calendar',
+    icon: 'moon-outline',
+    help: [
+      {
+        heading: 'Sowing Calendar',
+        body: 'When each of 45 crops is usually started indoors, sown outside, planted out or sown for autumn where you live, counted in weeks from the frost dates My Zone works out for the saved place, from extension service planting guides. What to Sow Now lists the windows open now or opening in the next four weeks; Every Crop lists all of them, and tapping one shows its windows, how long seed takes to come up, the days to a first harvest and the next days the almanac moon tradition gives it. Where frost comes in too few years to give a date, the calendar follows the months a frost-free place grows by. Moon and Sky shows the moon today (phase, how much is lit, the sign the almanacs place it in), the next phases, the equinoxes and solstices named for your half of the world, the days of the old sayings (Good Friday for potatoes, St Patrick’s Day for peas, Midsummer Day for asparagus, San Isidro) and the current solar term. Planting by Tradition tells eight traditions the way their keepers tell them, among them the moon and the signs as the Amish and Pennsylvania German almanacs keep them, the biodynamic calendar, the 24 solar terms and the maramataka, each with what research has found beside it. Nothing here says a crop must go in on a day. When you add a planting on Plots & Plantings, the app fills in when its seed should be up and when its first harvest is due, and offers a Days Until counter for each.',
       },
     ],
   },
@@ -372,6 +418,7 @@ export default function GardenScreen() {
         openGardenLens === 'myZone' ||
         openGardenLens === 'plotsAndPlantings' ||
         openGardenLens === 'daysUntil' ||
+        openGardenLens === 'sowingCalendar' ||
         openGardenLens === 'harvestLog' ||
         openGardenLens === 'upcomingTasks' ||
         openGardenLens === 'compost' ||
@@ -450,6 +497,8 @@ export default function GardenScreen() {
             />
           ) : lens === 'daysUntil' ? (
             <DaysUntilLens scrollBottomPadding={scrollBottomPadding} />
+          ) : lens === 'sowingCalendar' ? (
+            <SowingCalendarLens scrollBottomPadding={scrollBottomPadding} onOpenMyZone={() => setLens('myZone')} />
           ) : lens === 'harvestLog' ? (
             <HarvestLogLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'upcomingTasks' ? (
@@ -812,6 +861,11 @@ function PlotsAndPlantingsLens({
   const [addingPlantingToPlot, setAddingPlantingToPlot] = useState<string | null>(null);
   const [pendingFood, setPendingFood] = useState<ResolvedFoodSelection | null>(null);
   const [pendingFoodName, setPendingFoodName] = useState('');
+  // I5, 1.0.55.20: how a new planting went in, and which Days Until
+  // counters to start with it, for a crop the sowing calendar knows.
+  const [pendingStartedAs, setPendingStartedAs] = useState<PlantingStart | null>(null);
+  const [pendingCountSprout, setPendingCountSprout] = useState(false);
+  const [pendingCountHarvest, setPendingCountHarvest] = useState(false);
 
   const loadPlots = useCallback(async () => {
     const [rows, spaces, active, terms] = await Promise.all([listGardenPlots(true), listGardenSpaces(true), listGardenSpaces(), listGardenTerms(true)]);
@@ -951,17 +1005,84 @@ function PlotsAndPlantingsLens({
 
   async function handleAddPlanting(plotId: string) {
     if (!pendingFood) return;
-    await createGardenPlanting({
+    const foodName = pendingFoodName || pendingFood.baseName;
+    const plantedAt = todayDateString();
+    const sowing = sowingWindowForFood(foodName);
+    const startedAs = sowing ? pendingStartedAs ?? defaultPlantingStart(sowing) : null;
+    const expected = sowing && startedAs ? plantingExpected(sowing, plantedAt, startedAs) : null;
+    const plantingId = await createGardenPlanting({
       plotId,
       foodId: pendingFood.foodId,
       source: pendingFood.source,
-      foodName: pendingFoodName || pendingFood.baseName,
-      plantedAt: todayDateString(),
+      foodName,
+      plantedAt,
+      expectedHarvestStart: expected?.harvestStart ?? null,
+      expectedHarvestEnd: expected?.harvestEnd ?? null,
     });
-    setPendingFood(null);
-    setPendingFoodName('');
+    if (expected && pendingCountSprout && expected.sproutDays !== null) {
+      await addGardenCountdown({ plotId, plantingId, name: `${foodName} coming up`, startedOn: plantedAt, days: expected.sproutDays });
+    }
+    if (expected && pendingCountHarvest && expected.harvestDays) {
+      await addGardenCountdown({ plotId, plantingId, name: `First ${foodName.toLowerCase()} harvest`, startedOn: plantedAt, days: expected.harvestDays[0] });
+    }
+    resetPendingPlanting();
     setAddingPlantingToPlot(null);
     await loadPlantingsFor(plotId);
+  }
+
+  function renderPlantingExpectations(foodName: string) {
+    const sowing = sowingWindowForFood(foodName);
+    if (!sowing) return null;
+    const startedAs = pendingStartedAs ?? defaultPlantingStart(sowing);
+    const expected = plantingExpected(sowing, todayDateString(), startedAs);
+    const options = plantingStartOptions(sowing);
+    const toggle = (on: boolean, label: string, onPress: () => void) => (
+      <TouchableOpacity
+        key={label}
+        style={[styles.pill, { borderColor: TAB_COLOR }, on ? { backgroundColor: PRIMARY_BUTTON_BACKGROUND } : null]}
+        onPress={onPress}
+      >
+        <Text style={on ? styles.pillTextActive : { color: TAB_COLOR }}>{label}</Text>
+      </TouchableOpacity>
+    );
+    return (
+      <>
+        {asksHowStarted(sowing) ? (
+          <>
+            <Text style={styles.fieldLabel}>How it went in</Text>
+            <View style={styles.pillRow}>
+              {options.map((option) => toggle(startedAs === option.value, option.label, () => setPendingStartedAs(option.value)))}
+            </View>
+          </>
+        ) : null}
+        {expected.sproutBy ? (
+          <Text style={styles.captionText}>Seed usually up by {dateLabel(expected.sproutBy)}, about {expected.sproutDays} days in warm soil.</Text>
+        ) : null}
+        {expected.harvestStart && expected.harvestEnd ? (
+          <Text style={styles.captionText}>
+            First harvest usually {dateLabel(expected.harvestStart)} to {dateLabel(expected.harvestEnd)}. Weather and the variety move it; the
+            seed packet&apos;s days to maturity is the closer figure where it differs.
+          </Text>
+        ) : null}
+        {expected.sproutDays !== null || expected.harvestDays ? (
+          <>
+            <Text style={styles.fieldLabel}>Start a Days Until counter for</Text>
+            <View style={styles.pillRow}>
+              {expected.sproutDays !== null ? toggle(pendingCountSprout, 'Coming up', () => setPendingCountSprout((on) => !on)) : null}
+              {expected.harvestDays ? toggle(pendingCountHarvest, 'First harvest', () => setPendingCountHarvest((on) => !on)) : null}
+            </View>
+          </>
+        ) : null}
+      </>
+    );
+  }
+
+  function resetPendingPlanting() {
+    setPendingFood(null);
+    setPendingFoodName('');
+    setPendingStartedAs(null);
+    setPendingCountSprout(false);
+    setPendingCountHarvest(false);
   }
 
   // Only for a planting with no harvest logged; one with a harvest is a
@@ -1088,6 +1209,15 @@ function PlotsAndPlantingsLens({
                           </TouchableOpacity>
                         ) : null}
                       </View>
+                      {planting.status === 'growing' && planting.expectedHarvestStart ? (
+                        <Text style={styles.captionText}>
+                          First harvest expected {dateLabel(planting.expectedHarvestStart)}
+                          {planting.expectedHarvestEnd && planting.expectedHarvestEnd !== planting.expectedHarvestStart
+                            ? ` to ${dateLabel(planting.expectedHarvestEnd)}`
+                            : ''}
+                          .
+                        </Text>
+                      ) : null}
                       {guide && onHowToGrow ? (
                         <TouchableOpacity onPress={() => onHowToGrow(guide.key)} style={styles.howToGrowLink}>
                           <Text style={styles.linkText}>How to grow {guide.name.toLowerCase()}</Text>
@@ -1110,6 +1240,7 @@ function PlotsAndPlantingsLens({
                 {addingPlantingToPlot === plot.id && pendingFood ? (
                   <View style={styles.pendingCard}>
                     <Text style={styles.bodyText}>Planting: {pendingFoodName || pendingFood.baseName}</Text>
+                    {renderPlantingExpectations(pendingFoodName || pendingFood.baseName)}
                     <View style={styles.actionRow}>
                       <TouchableOpacity
                         style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
@@ -1117,7 +1248,7 @@ function PlotsAndPlantingsLens({
                       >
                         <Text style={styles.primaryButtonText}>Save Planting</Text>
                       </TouchableOpacity>
-                      <TouchableOpacity onPress={() => { setPendingFood(null); setPendingFoodName(''); }}>
+                      <TouchableOpacity onPress={resetPendingPlanting}>
                         <Text style={styles.linkText}>Cancel</Text>
                       </TouchableOpacity>
                     </View>

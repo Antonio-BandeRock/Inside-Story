@@ -1423,6 +1423,7 @@ export const LENS_NAMES: Record<string, Record<string, string>> = {
     myZone: 'My Zone',
     plotsAndPlantings: 'Plots & Plantings',
     daysUntil: 'Days Until',
+    sowingCalendar: 'Sowing Calendar',
     harvestLog: 'Harvest Log',
     upcomingTasks: 'Upcoming Tasks',
     compost: 'Compost',
