@@ -72,6 +72,9 @@ import { addGrowEquipment, listGardenTerms } from '../../lib/growSetupDb';
 import { useWalkMark } from '../../components/WalkMark';
 import { RecordPhotos } from '../../components/RecordPhotos';
 import { PhotoSeriesBand } from '../../components/PhotoSeriesBand';
+import { dateKey } from '../../lib/plainDate';
+import { getRainForecast, type RainForecastResult } from '../../lib/homeSky';
+import { anyWateringSoon, rainNoteForTask } from '../../lib/rainForecast';
 
 // This page's own identity color -- see constants/colors.ts's own comment
 // on tabGarden for how it was chosen.
@@ -1614,10 +1617,13 @@ function DaysUntilLens({ scrollBottomPadding }: { scrollBottomPadding: number })
 function UpcomingTasksLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
   const [upcomingTasks, setUpcomingTasks] = useState<Awaited<ReturnType<typeof listUpcomingGardenTasks>>>([]);
   const [taskTitle, setTaskTitle] = useState('');
+  // The week's rain, read only when a watering task falls in it (I2).
+  const [rain, setRain] = useState<RainForecastResult | null>(null);
 
   const load = useCallback(async () => {
     const rows = await listUpcomingGardenTasks(20);
     setUpcomingTasks(rows);
+    setRain(anyWateringSoon(rows, dateKey(new Date())) ? await getRainForecast() : null);
   }, []);
 
   useFocusEffect(
@@ -1642,12 +1648,36 @@ function UpcomingTasksLens({ scrollBottomPadding }: { scrollBottomPadding: numbe
         {upcomingTasks.length === 0 ? (
           <Text style={styles.captionText}>Nothing scheduled.</Text>
         ) : (
-          upcomingTasks.map((task) => (
-            <Text key={task.id} style={styles.bodyText}>
-              {task.title}: {task.scheduledFor.replace('T', ' ')}
-            </Text>
-          ))
+          upcomingTasks.map((task) => {
+            const note = rainNoteForTask(task, rain?.status === 'ready' ? rain.forecast : null, dateKey(new Date()));
+            return (
+              <View key={task.id}>
+                <Text style={styles.bodyText}>
+                  {task.title}: {task.scheduledFor.replace('T', ' ')}
+                </Text>
+                {note ? (
+                  <Text style={[styles.captionText, note.rain && { color: colors.textSecondary }]}>
+                    {note.rain ? '🌧 ' : ''}
+                    {note.line}
+                  </Text>
+                ) : null}
+              </View>
+            );
+          })
         )}
+        {rain?.status === 'ready' ? (
+          <Text style={styles.captionText}>
+            Rain on a watering task is the Open-Meteo forecast for the place saved in My Zone, read at{' '}
+            {new Date(rain.forecast.fetchedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}. It
+            is a chance, never a promise, and nothing here moves or skips a task.
+          </Text>
+        ) : rain?.status === 'error' ? (
+          <Text style={styles.captionText}>Could not read the rain forecast for your watering tasks. {rain.message}</Text>
+        ) : rain?.status === 'no-location' ? (
+          <Text style={styles.captionText}>
+            Set a place in My Zone and a watering task shows the rain forecast for its day.
+          </Text>
+        ) : null}
         <View style={styles.fieldRow}>
           <AppTextInput
             onVoiceResult={(transcript) => setTaskTitle(transcript)}

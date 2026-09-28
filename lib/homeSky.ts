@@ -62,6 +62,7 @@
 
 import { geocodePostalCode } from './gardenZoneLookup';
 import { getDatabase, getStoredMeasurementSystem, getUserProfile } from './db';
+import type { RainForecast, RainUnit } from './rainForecast';
 
 const LOCATION_CACHE_KEY = 'home_sky_location';
 const WEATHER_CACHE_KEY = 'home_sky_weather';
@@ -381,4 +382,83 @@ export function isForecastFreezing(data: HomeSkyData): boolean {
 export function isForecastVeryHot(data: HomeSkyData): boolean {
   if (data.tempMax == null) return false;
   return data.tempUnit === 'F' ? data.tempMax >= 95 : data.tempMax >= 35;
+}
+
+// Rain for the week ahead, for a watering task in Garden (I2, 1.0.55.16).
+// The same service and the same saved location as the sky chips above,
+// asked for a week of daily rain and its chance. Kept apart from Home's
+// weather cache so neither one's shape change forces the other to refetch,
+// and read again after three hours because a rain forecast moves through
+// the day. The cache row is device-local (DEVICE_LOCAL_META_KEYS in
+// lib/snapshotSync.ts): each device reads its own, and a refetch is not a
+// change worth sending to the other one.
+export const RAIN_FORECAST_CACHE_KEY = 'garden_rain_forecast';
+const RAIN_FORECAST_FRESH_MS = 3 * 60 * 60 * 1000;
+
+type CachedRainForecast = { lat: number; lon: number; forecast: RainForecast };
+
+export type RainForecastResult =
+  | { status: 'no-location' }
+  | { status: 'error'; message: string }
+  | { status: 'ready'; forecast: RainForecast };
+
+export async function getRainForecast(): Promise<RainForecastResult> {
+  const location = await resolveHomeLocation();
+  if (!location) return { status: 'no-location' };
+  const system = await getStoredMeasurementSystem();
+  const unit: RainUnit = system === 'metric' ? 'mm' : 'in';
+  const cached = await readAppMeta<CachedRainForecast>(RAIN_FORECAST_CACHE_KEY);
+  if (
+    cached &&
+    cached.lat === location.lat &&
+    cached.lon === location.lon &&
+    cached.forecast.unit === unit &&
+    cached.forecast.days[0]?.date === todayLocalDateString() &&
+    Date.now() - Date.parse(cached.forecast.fetchedAt) < RAIN_FORECAST_FRESH_MS
+  ) {
+    return { status: 'ready', forecast: cached.forecast };
+  }
+  const params = new URLSearchParams({
+    latitude: String(location.lat),
+    longitude: String(location.lon),
+    daily: 'precipitation_sum,precipitation_probability_max',
+    forecast_days: '7',
+    timezone: 'auto',
+    precipitation_unit: unit === 'mm' ? 'mm' : 'inch',
+  });
+  let response: Response;
+  try {
+    response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
+  } catch (error) {
+    const { reason, detail } = classifyFetchError(error);
+    return { status: 'error', message: failureMessage(reason, detail, null) };
+  }
+  if (!response.ok) {
+    return { status: 'error', message: failureMessage('service-error', `HTTP ${response.status}`, null) };
+  }
+  try {
+    const data = await response.json();
+    const times: unknown = data?.daily?.time;
+    if (!Array.isArray(times)) return { status: 'error', message: failureMessage('unexpected', 'no daily forecast', null) };
+    const numberAt = (series: unknown, i: number): number | null => {
+      const value = Array.isArray(series) ? series[i] : null;
+      return typeof value === 'number' && Number.isFinite(value) ? value : null;
+    };
+    const forecast: RainForecast = {
+      unit,
+      fetchedAt: new Date().toISOString(),
+      days: times
+        .filter((time): time is string => typeof time === 'string')
+        .map((date, i) => ({
+          date,
+          amount: numberAt(data.daily.precipitation_sum, i),
+          chance: numberAt(data.daily.precipitation_probability_max, i),
+        })),
+    };
+    await writeAppMeta(RAIN_FORECAST_CACHE_KEY, { lat: location.lat, lon: location.lon, forecast } satisfies CachedRainForecast);
+    return { status: 'ready', forecast };
+  } catch (error) {
+    const { reason, detail } = classifyFetchError(error);
+    return { status: 'error', message: failureMessage(reason, detail, null) };
+  }
 }

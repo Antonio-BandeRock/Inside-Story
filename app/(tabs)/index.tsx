@@ -79,11 +79,13 @@ import { deleteMealPhotoFile, pickAndSaveMealPhoto } from '../../lib/mealPhotos'
 import {
   aqiBandForIndex,
   getHomeSkyData,
+  getRainForecast,
   isForecastFreezing,
   isForecastVeryHot,
   uvBandForIndex,
   type HomeSkyResult,
 } from '../../lib/homeSky';
+import { anyWateringSoon, rainNoteForTask, type RainForecast } from '../../lib/rainForecast';
 import {
   countAssumedScheduleItems,
   countOpenScheduleItems,
@@ -1335,6 +1337,29 @@ export default function HomeScreen() {
   // deliberately NOT state at all -- both are pure, synchronous, offline
   // math (lib/celestialEvents.ts), computed directly in the render below.
   const [skyResult, setSkyResult] = useState<HomeSkyResult | undefined>(undefined);
+  // The week's rain for a watering task in Garden Tasks (I2, 1.0.55.16).
+  // Read only when one of those tasks falls in the coming week, and quiet
+  // when it cannot be read: Garden > Upcoming Tasks is where a failure is
+  // said.
+  const [rainForecast, setRainForecast] = useState<RainForecast | null>(null);
+  const gardenTasksForRain = data?.gardenTasks;
+  useEffect(() => {
+    let cancelled = false;
+    if (!gardenTasksForRain || !anyWateringSoon(gardenTasksForRain, todayDateString())) {
+      setRainForecast(null);
+      return;
+    }
+    getRainForecast()
+      .then((result) => {
+        if (!cancelled) setRainForecast(result.status === 'ready' ? result.forecast : null);
+      })
+      .catch(() => {
+        if (!cancelled) setRainForecast(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [gardenTasksForRain]);
   // Bumped every 15 minutes to move every card onto a different entry from its
   // own group. Plain state rather than a timestamp so the shuffle below depends
   // on one changing number and nothing else.
@@ -3868,7 +3893,9 @@ export default function HomeScreen() {
         {tasks.length === 0 ? (
           <Text style={styles.bandCaption}>Nothing planned in the garden from today on.</Text>
         ) : (
-          tasks.map((task) => (
+          tasks.map((task) => {
+            const rain = rainNoteForTask(task, rainForecast, today);
+            return (
             <TouchableOpacity
               key={task.id}
               style={styles.reminderRow}
@@ -3889,9 +3916,16 @@ export default function HomeScreen() {
                     {task.notes}
                   </Text>
                 ) : null}
+                {rain ? (
+                  <Text style={styles.reminderDetail} numberOfLines={2}>
+                    {rain.rain ? '🌧 ' : ''}
+                    {rain.line.split('. ')[0].replace(/\.$/, '')}.
+                  </Text>
+                ) : null}
               </View>
             </TouchableOpacity>
-          ))
+            );
+          })
         )}
       </View>,
     );

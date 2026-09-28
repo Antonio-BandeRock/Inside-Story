@@ -270,6 +270,9 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'timeline_device_calendar',
   // Your Progress: what this device showed last time (lib/progressDb.ts).
   'progress_last_seen',
+  // The week's rain for watering tasks (lib/homeSky.ts): each device reads
+  // its own, and a refetch is not a change to send.
+  'garden_rain_forecast',
   CHANGE_BASELINE_META_KEY,
 ];
 
