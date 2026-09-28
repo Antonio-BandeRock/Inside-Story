@@ -91,6 +91,7 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   logBloodPressure: '/log',
   logExercise: '/log',
   mealsLoggedToday: '/schedule',
+  sinceLastMeal: '/schedule',
   worthALook: '/insights',
   fuelGauges: '/insights',
   weekTrend: '/trends',

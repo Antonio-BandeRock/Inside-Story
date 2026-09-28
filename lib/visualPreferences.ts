@@ -310,6 +310,7 @@ export type HomeSectionKey =
   // split into their own rows, each with its own tab, direct request:
   // "Separate the Meals & Worth a Look the same way."
   | 'mealsLoggedToday'
+  | 'sinceLastMeal'
   | 'worthALook'
   // 2026-09-12, the old Quick Actions row split into its own entities,
   // direct correction: "All things on the Home Screen are supposed to be
@@ -413,6 +414,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'dayTimeline',
   'todaysReminders',
   'mealsLoggedToday',
+  'sinceLastMeal',
   // Signals.
   'symptomCheckinReminder',
   'morningCheckin',
@@ -492,6 +494,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   dayTimeline: 'Timeline',
   todaysReminders: "Today's Reminders",
   mealsLoggedToday: 'Meals Logged Today',
+  sinceLastMeal: 'Since Your Last Meal',
   worthALook: 'Worth a Look',
   scanProduct: 'Scan a Product',
   logFlare: 'Log a Flare',

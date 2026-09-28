@@ -112,6 +112,7 @@ const NAMED = [
   'lib/groceryAisles.ts',
   'lib/fodmapLabel.ts',
   'lib/scanToList.ts',
+  'lib/sinceLastMeal.ts',
 ];
 
 function targets() {

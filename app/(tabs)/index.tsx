@@ -63,6 +63,8 @@ import { DailyList } from '../../components/DailyList';
 import { FuelGaugeChooser } from '../../components/FuelGaugeChooser';
 import { DEFAULT_FUEL_GAUGE_CODES, FUEL_GAUGE_EMPTY_LINE, pickFuelGauges } from '../../lib/fuelGaugeChoice';
 import { getFuelGaugeChoice, saveFuelGaugeChoice } from '../../lib/fuelGaugeChoiceDb';
+import { NO_WINDOW_LINE, SINCE_LAST_MEAL_CAPTION, sinceLastMeal, windowFromProfile, type EatingWindow } from '../../lib/sinceLastMeal';
+import { getLastMealEatenAt } from '../../lib/sinceLastMealDb';
 import { MorningCheckin } from '../../components/MorningCheckin';
 import { dailyRatingLabel, mergeDailyRatings, noneTodaySentence, ratingsFromSaved } from '../../lib/dailyList';
 import { getDailyList, saveDailyList } from '../../lib/dailyListDb';
@@ -583,6 +585,10 @@ type DashboardData = {
   // Part 2 of the usual meals redesign, 2026-09-27: tomorrow's meals left
   // open, from 4pm, to choose what each will be.
   tomorrowPacks: TomorrowSlot[];
+  // G33, 2026-09-27: the newest meal logged at or before now, and the
+  // eating window from Profile when fasting is turned on there.
+  lastMealAt: string | null;
+  eatingWindow: EatingWindow | null;
   // What the garden gave this calendar month, 2026-09-23. A weight or a
   // count, what it came to at prices this person has recorded paying, and
   // nothing when the garden is out of season. Worked out in
@@ -814,6 +820,12 @@ const HOME_LENS_DESTINATIONS: Partial<
   logBloodPressure: { label: 'Log Blood Pressure', icon: 'heart-circle', color: colors.tabBioCompass, open: 'bp' },
   logExercise: { label: 'Log Exercise', icon: 'walk', color: colors.tabBioCompass, open: 'exercise' },
   // What it tells you.
+  sinceLastMeal: {
+    label: 'Since Your Last Meal',
+    icon: 'time',
+    color: colors.tabSchedules,
+    href: { pathname: '/schedule', params: { openScheduleLens: 'todaysMeals' } } as Href,
+  },
   mealsLoggedToday: {
     label: 'Meals Logged Today',
     icon: 'restaurant',
@@ -978,6 +990,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'logBloodPressure',
   'logExercise',
   'mealsLoggedToday',
+  'sinceLastMeal',
   'worthALook',
   'fuelGauges',
   'weekTrend',
@@ -1297,6 +1310,13 @@ export default function HomeScreen() {
   const [dailyRatings, setDailyRatings] = useState<Record<string, number>>({});
   // G31: which nutrients the Fuel Gauges show, and whether the chooser is open.
   const [gaugeCodes, setGaugeCodes] = useState<string[]>(CORE_NUTRIENT_CODES);
+  // G33: the minute Since Your Last Meal counts to, moved on once a
+  // minute while Home is open so the count does not sit still.
+  const [clockNow, setClockNow] = useState(() => new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setClockNow(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
   const [gaugeChooserOpen, setGaugeChooserOpen] = useState(false);
   const [firstName, setFirstName] = useState<string | null>(null);
   // undefined = not fetched yet, null = fetched but no logged days this
@@ -1604,6 +1624,8 @@ export default function HomeScreen() {
       getTomorrowSlots(date, nowTimeString24()),
       // G31, 2026-09-27. The nutrients the person chose for the gauges.
       getFuelGaugeChoice(),
+      // G33, 2026-09-27. One indexed MAX over meals.eaten_at.
+      getLastMealEatenAt(),
     ]).then(
       ([
         todaysMeals,
@@ -1634,6 +1656,7 @@ export default function HomeScreen() {
         usualMeal,
         tomorrowPacks,
         gaugeChoice,
+        lastMealAt,
       ]) => {
         setFirstName(profile.firstName);
         setGaugeCodes(gaugeChoice);
@@ -1697,6 +1720,8 @@ export default function HomeScreen() {
           yourWeek: buildYourWeek(yourWeekInputs),
           usualMeal,
           tomorrowPacks,
+          lastMealAt,
+          eatingWindow: windowFromProfile(profile),
           reconcileCounts: { open: openToAnswer, assumed: assumedToConfirm },
           routines: routinesHome.routines,
           doneChecks: routinesHome.checks,
@@ -2802,6 +2827,37 @@ export default function HomeScreen() {
   // in time order, each meal openable to its ingredients and steps. It
   // used to land on the My Foods menu, reported 2026-08-29 as leading
   // nowhere. Schedules' colour and icon, since that is where it goes.
+  // G33, 2026-09-27: how long since the last meal logged, and where the
+  // clock sits against the eating window set in Profile. Every sentence
+  // comes from lib/sinceLastMeal.ts. A tap opens Today's Meals; the line
+  // about setting a window opens Profile, where the window lives.
+  function renderSinceLastMeal() {
+    if (!isHomeSectionVisible(visualPrefs, 'sinceLastMeal')) return null;
+    if (!data) return null;
+    const color = tabColorFor('/schedule');
+    const since = sinceLastMeal(data.lastMealAt, clockNow, data.eatingWindow);
+    return renderBand(
+      'sinceLastMeal',
+      'Since Your Last Meal',
+      <View>
+        <TouchableOpacity
+          onPress={() => router.navigate({ pathname: '/schedule', params: { openScheduleLens: 'todaysMeals' } })}
+          activeOpacity={0.75}
+        >
+          <Text style={[styles.trendNumber, { color }]}>{since.headline}</Text>
+          {since.detail ? <Text style={[styles.trendDelta, { color }]}>{since.detail}</Text> : null}
+          {since.windowLine ? <Text style={[styles.trendDelta, { color }]}>{since.windowLine}</Text> : null}
+          <Text style={[styles.trendCaption, { color }]}>{SINCE_LAST_MEAL_CAPTION}</Text>
+        </TouchableOpacity>
+        {since.windowLine ? null : (
+          <TouchableOpacity onPress={() => router.push('/profile')} activeOpacity={0.75}>
+            <Text style={[styles.trendCaption, { color }]}>{`${NO_WINDOW_LINE} →`}</Text>
+          </TouchableOpacity>
+        )}
+      </View>,
+    );
+  }
+
   function renderMealsLoggedToday() {
     if (!isHomeSectionVisible(visualPrefs, 'mealsLoggedToday')) return null;
     return renderActionRow(
@@ -4309,6 +4365,8 @@ export default function HomeScreen() {
         return renderTodaysReminders();
       case 'mealsLoggedToday':
         return renderMealsLoggedToday();
+      case 'sinceLastMeal':
+        return renderSinceLastMeal();
       case 'worthALook':
         return renderWorthALook();
       case 'scanProduct':
