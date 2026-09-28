@@ -1,7 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DIGEST_READING_HELP, DigestCategoryLens } from '../../components/DigestCategoryLens';
@@ -16,6 +16,7 @@ import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { CompostLens } from '../../components/CompostLens';
 import { CROP_GUIDE_HELP, CropGuideSection } from '../../components/CropGuideSection';
 import { findCropGuide } from '../../lib/cropGuides';
+import { ROTATION_WHY, rotationNote, rotationSources } from '../../lib/cropFamilies';
 import { GrowingConditionsLens } from '../../components/GrowingConditionsLens';
 import { GrowingCostsLens } from '../../components/GrowingCostsLens';
 import { AppTextInput } from '../../components/AppTextInput';
@@ -824,6 +825,8 @@ function PlotsAndPlantingsLens({
   const walkMark = useWalkMark();
   const [plots, setPlots] = useState<GardenPlot[]>([]);
   const [plantingsByPlot, setPlantingsByPlot] = useState<Record<string, GardenPlanting[]>>({});
+  // I10: whether Why gardeners rotate is open under the rotation note.
+  const [rotationWhyOpen, setRotationWhyOpen] = useState(false);
   const [expandedPlotId, setExpandedPlotId] = useState<string | null>(null);
   const [showAddPlot, setShowAddPlot] = useState(false);
   const [newAreaName, setNewAreaName] = useState('');
@@ -1188,6 +1191,35 @@ function PlotsAndPlantingsLens({
     );
   }
 
+  // I10, 1.0.55.24: what from the same plant family grew in this area over
+  // the last three years (lib/cropFamilies.ts). It says what grew and when,
+  // and leaves the choice of what to plant with the person.
+  function renderRotationNote(plotId: string, foodName: string) {
+    const note = rotationNote(foodName, plantingsByPlot[plotId] ?? [], todayDateString());
+    if (!note) return null;
+    return (
+      <>
+        <Text style={styles.fieldLabel}>Crop Rotation</Text>
+        <Text style={styles.captionText}>{note.sentence}</Text>
+        {note.kind === 'repeat' && note.carryover ? <Text style={styles.captionText}>{note.carryover}</Text> : null}
+        <TouchableOpacity onPress={() => setRotationWhyOpen((open) => !open)} style={styles.howToGrowLink}>
+          <Text style={styles.linkText}>{rotationWhyOpen ? 'Hide why gardeners rotate' : 'Why gardeners rotate'}</Text>
+        </TouchableOpacity>
+        {rotationWhyOpen ? (
+          <>
+            <Text style={styles.captionText}>{ROTATION_WHY}</Text>
+            {note.kind === 'clear' && note.carryover ? <Text style={styles.captionText}>{note.carryover}</Text> : null}
+            {rotationSources(note.family).map((source) => (
+              <TouchableOpacity key={source.url} onPress={() => Linking.openURL(source.url)} style={styles.howToGrowLink}>
+                <Text style={styles.linkText}>{source.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </>
+        ) : null}
+      </>
+    );
+  }
+
   function resetPendingPlanting() {
     setPendingFood(null);
     setPendingFoodName('');
@@ -1388,6 +1420,7 @@ function PlotsAndPlantingsLens({
                   <View style={styles.pendingCard}>
                     <Text style={styles.bodyText}>Planting: {pendingFoodName || pendingFood.baseName}</Text>
                     {renderPlantingExpectations(pendingFoodName || pendingFood.baseName)}
+                    {renderRotationNote(plot.id, pendingFoodName || pendingFood.baseName)}
                     {renderSowAgain()}
                     <View style={styles.actionRow}>
                       <TouchableOpacity
