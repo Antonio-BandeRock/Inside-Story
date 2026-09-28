@@ -19,6 +19,8 @@ import {
   applyRotationSelection,
   applyRotationSelectionsToIngredients,
   deleteScheduledMeal,
+  listLeftoversOf,
+  scheduleLeftover,
   deleteScheduleSeries,
   ensureScheduleSeriesGenerated,
   getDailyNutrientAnalysis,
@@ -67,6 +69,22 @@ import {
   type UserProfile,
 } from '../../lib/db';
 import { MEAL_SERVING_CHOICES, mealServingsLabel } from '../../lib/makeItFor';
+import {
+  EAT_AGAIN_MEAL_TYPES,
+  REMOVE_KEEP_LEFTOVERS,
+  REMOVE_WITH_LEFTOVERS,
+  USDA_FRIDGE_DAYS,
+  USDA_NOTE,
+  cookCaption,
+  daysBetween,
+  defaultMealTime,
+  eatAgainAdded,
+  eatAgainDayChoices,
+  eatAgainIntro,
+  eatAgainProblem,
+  leftoverCaption,
+  removeCookMessage,
+} from '../../lib/leftovers';
 import type { RecipeDietTag } from '../../lib/digest';
 import { describePlanningScope, resolvePlanningScope, type PlanningScope } from '../../lib/partnerPlanning';
 import { resolveHouseholdEaters } from '../../lib/householdEaters';
@@ -1188,6 +1206,28 @@ function MealsLens() {
     const hasRepeat = Boolean(item.repeatGroupId);
     const hasCalendarLink = Boolean(item.linkedDeviceCalendarEventId);
 
+    // H3: a cooked meal whose leftovers are planned says so, and either
+    // takes them with it or keeps them as separate meals, never leaving
+    // them pointing at nothing (deleteScheduledMeal in lib/db.ts).
+    if (!hasRepeat && item.leftoverCount > 0) {
+      const removeCooked = (withLeftovers: boolean) => {
+        void (async () => {
+          await deleteScheduledMeal(item.id, { withLeftovers });
+          load();
+        })();
+      };
+      setRemovePrompt({
+        title: 'Remove this planned meal?',
+        message: removeCookMessage(item.title, item.leftoverCount) + (hasCalendarLink ? ' It stays on your phone calendar either way.' : ''),
+        actions: [
+          { label: REMOVE_KEEP_LEFTOVERS, onPress: () => removeCooked(false) },
+          { label: REMOVE_WITH_LEFTOVERS, destructive: true, onPress: () => removeCooked(true) },
+          { label: 'Cancel', onPress: () => {} },
+        ],
+      });
+      return;
+    }
+
     const removeOne = (alsoRemoveFromCalendar: boolean) => {
       void (async () => {
         if (alsoRemoveFromCalendar && item.linkedDeviceCalendarEventId) {
@@ -1308,9 +1348,54 @@ function MealsLens() {
         mealType: item.mealType ?? '',
         title: item.title,
         favoriteId: item.sourceFavoriteId ?? '',
-        templateMealId: item.sourceMealId ?? '',
+        // Leftovers of a meal already logged start from what was logged (H3).
+        templateMealId: (item.leftoverOf ? item.cookLinkedMealId : null) ?? item.sourceMealId ?? '',
       },
     });
+  }
+
+  // H3: "Eat again" plans a later meal that eats what this one cooks.
+  const [eatAgainItem, setEatAgainItem] = useState<ScheduleItemRecord | null>(null);
+  const [eatAgainDate, setEatAgainDate] = useState('');
+  const [eatAgainMealType, setEatAgainMealType] = useState('lunch');
+  const [eatAgainPlanned, setEatAgainPlanned] = useState<{ scheduledFor: string; mealType: string }[]>([]);
+  const [eatAgainMessage, setEatAgainMessage] = useState<{ text: string; problem: boolean } | null>(null);
+
+  function openEatAgain(item: ScheduleItemRecord) {
+    const cookDate = item.scheduledFor.slice(0, 10);
+    setEatAgainItem(item);
+    setEatAgainDate(eatAgainDayChoices(cookDate)[1].date);
+    setEatAgainMealType(item.mealType === 'breakfast' ? 'breakfast' : 'lunch');
+    setEatAgainMessage(null);
+    setEatAgainPlanned([]);
+    listLeftoversOf(item.id)
+      .then((rows) => setEatAgainPlanned(rows.map((row) => ({ scheduledFor: row.scheduledFor, mealType: row.mealType }))))
+      .catch((error) => console.error('[Leftovers] Failed to read planned leftovers', error));
+  }
+
+  function closeEatAgain() {
+    setEatAgainItem(null);
+    load();
+  }
+
+  async function handleAddEatAgain() {
+    const cook = eatAgainItem;
+    if (!cook) return;
+    const time = usualTimeForMealType(profile, eatAgainMealType) ?? defaultMealTime(eatAgainMealType);
+    const slot = { scheduledFor: `${eatAgainDate}T${time}`, mealType: eatAgainMealType };
+    const problem = eatAgainProblem({ scheduledFor: cook.scheduledFor, mealType: cook.mealType ?? '' }, slot, eatAgainPlanned);
+    if (problem) {
+      setEatAgainMessage({ text: problem, problem: true });
+      return;
+    }
+    try {
+      await scheduleLeftover(cook.id, slot.scheduledFor, slot.mealType);
+      setEatAgainPlanned((current) => [...current, slot]);
+      const label = `${capitalize(eatAgainMealType)}, ${describeRelativeDate(eatAgainDate)}, ${formatTime12(time)}`;
+      setEatAgainMessage({ text: eatAgainAdded(label, daysBetween(cook.scheduledFor, eatAgainDate)), problem: false });
+    } catch (error) {
+      setEatAgainMessage({ text: error instanceof Error ? error.message : String(error), problem: true });
+    }
   }
 
   // "Rotate ingredients" changes what's current for THIS one scheduled
@@ -1697,6 +1782,13 @@ function MealsLens() {
                               records and for trends, not a nag. */}
                           {item.outsideEatingWindow ? ' · Outside eating window' : ''}
                           {mealServingsLabel(item.servings) ? ` · ${mealServingsLabel(item.servings)}` : ''}
+                          {cookCaption(item.leftoverCount) ? ` · ${cookCaption(item.leftoverCount)}` : ''}
+                          {item.leftoverOf
+                            ? ` · ${leftoverCaption(
+                                item.cookScheduledFor ? { scheduledFor: item.cookScheduledFor, mealType: item.cookMealType, status: item.cookStatus ?? 'planned' } : null,
+                                item.scheduledFor.slice(0, 10),
+                              )}`
+                            : ''}
                         </Text>
                       </View>
                     </View>
@@ -1707,6 +1799,11 @@ function MealsLens() {
                           <TouchableOpacity style={walkMark('schedule.logNow')} onPress={() => handleLogNow(item)}>
                             <Text style={styles.actionTextPrimary}>Log now</Text>
                           </TouchableOpacity>
+                          {!item.leftoverOf && (item.sourceFavoriteId || item.sourceMealId) ? (
+                            <TouchableOpacity onPress={() => openEatAgain(item)}>
+                              <Text style={styles.actionText}>Eat again</Text>
+                            </TouchableOpacity>
+                          ) : null}
                           {favoriteRotatingIngredients(item.sourceFavoriteId).length > 0 ? (
                             <TouchableOpacity onPress={() => openRotateSheet(item)}>
                               <Text style={styles.actionText}>Rotate</Text>
@@ -1804,6 +1901,70 @@ function MealsLens() {
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={handleSaveRotation}>
               <Text style={styles.primaryButtonText}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+
+    <Modal visible={eatAgainItem !== null} transparent animationType={modalAnimationType('slide')} onRequestClose={closeEatAgain}>
+      <View style={styles.backdrop}>
+        <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={closeEatAgain} />
+        <View style={styles.rotateSheet}>
+          <View style={styles.rotateSheetHeader}>
+            <Text style={styles.rotateSheetTitle}>Eat again: {eatAgainItem?.title}</Text>
+            <TouchableOpacity onPress={closeEatAgain}>
+              <Text style={styles.rotateSheetCloseText}>✕</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView style={styles.rotateSheetScroll}>
+            <Text style={styles.helperText}>{eatAgainItem ? eatAgainIntro(eatAgainItem.title) : ''}</Text>
+            <Text style={styles.label}>Which day</Text>
+            {eatAgainItem ? (
+              <PopoverSelect
+                selected={eatAgainDayChoices(eatAgainItem.scheduledFor.slice(0, 10)).find((choice) => choice.date === eatAgainDate)?.label ?? ''}
+                options={eatAgainDayChoices(eatAgainItem.scheduledFor.slice(0, 10)).map((choice) => choice.label)}
+                onSelect={(label) => {
+                  const choice = eatAgainDayChoices(eatAgainItem.scheduledFor.slice(0, 10)).find((option) => option.label === label);
+                  if (choice) setEatAgainDate(choice.date);
+                  setEatAgainMessage(null);
+                }}
+                placeholder="Which day"
+                tabColor={TAB_COLOR}
+                width={280}
+              />
+            ) : null}
+            {eatAgainItem && eatAgainDate && daysBetween(eatAgainItem.scheduledFor, eatAgainDate) > USDA_FRIDGE_DAYS ? (
+              <Text style={styles.helperText}>{USDA_NOTE}</Text>
+            ) : null}
+            <Text style={styles.label}>Which meal</Text>
+            <View style={styles.pillRow}>
+              {EAT_AGAIN_MEAL_TYPES.map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  style={[styles.pill, eatAgainMealType === type && styles.pillActive]}
+                  onPress={() => {
+                    setEatAgainMealType(type);
+                    setEatAgainMessage(null);
+                  }}
+                >
+                  <Text style={[styles.pillText, eatAgainMealType === type && styles.pillTextActive]}>{capitalize(type)}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {eatAgainMessage ? (
+              <Text style={eatAgainMessage.problem ? styles.errorText : styles.helperText}>{eatAgainMessage.text}</Text>
+            ) : null}
+            {eatAgainPlanned.length > 0 ? (
+              <Text style={styles.helperText}>{cookCaption(eatAgainPlanned.length)}.</Text>
+            ) : null}
+          </ScrollView>
+          <View style={styles.formActions}>
+            <TouchableOpacity style={styles.secondaryButton} onPress={closeEatAgain}>
+              <Text style={styles.secondaryButtonText}>Done</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => void handleAddEatAgain()}>
+              <Text style={styles.primaryButtonText}>Add this meal</Text>
             </TouchableOpacity>
           </View>
         </View>

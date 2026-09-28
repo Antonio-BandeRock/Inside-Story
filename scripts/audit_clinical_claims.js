@@ -118,6 +118,7 @@ const NAMED = [
   'lib/hydrationIndex.ts',
   'lib/energyBand.ts',
   'lib/mealPlanBudget.ts',
+  'lib/leftovers.ts',
 ];
 
 function targets() {
