@@ -184,6 +184,17 @@ import {
   underEatingNote,
   type EnergySetting,
 } from '../../lib/energyBand';
+import {
+  BUDGET_CAPTION,
+  BUDGET_NO_PRICES,
+  BUDGET_OFF_LABEL,
+  budgetChoiceLabels,
+  budgetFromLabel,
+  budgetLabel,
+  budgetLines,
+  type DishCost,
+} from '../../lib/mealPlanBudget';
+import { getCuratedDishCosts, getRecordedGroceryPrices } from '../../lib/mealPlanBudgetDb';
 import { standingMealsLine, withStandingMeals } from '../../lib/mealPack';
 import type { UsualMeal } from '../../lib/usualMeal';
 import { getOpenMealRules, listUsualMeals, saveOpenMealRules } from '../../lib/usualMealDb';
@@ -2251,8 +2262,12 @@ function DailyPlanFullReport({
   folds,
   foldId,
   swapper,
+  dishCosts,
 }: {
   day: DailyMealPlanResult;
+  // One serving's known cost per curated recipe, from recorded prices
+  // (G38, lib/mealPlanBudget.ts); read only when the day carries a budget.
+  dishCosts?: Map<string, DishCost> | null;
   // Present for the top-level layout; absent when nested in a day band.
   folds?: ScheduleFolds;
   foldId?: string;
@@ -2285,6 +2300,18 @@ function DailyPlanFullReport({
           {line}
         </Text>
       ))}
+      {day.budgetCeiling != null && dishCosts
+        ? budgetLines(
+            [day.breakfast, ...day.lunch, ...day.dinner]
+              .filter((pick): pick is NonNullable<typeof pick> => pick !== null)
+              .map((pick) => ({ name: pick.entry.title, cost: dishCosts.get(pick.entry.linkedCuratedRecipeId) })),
+            day.budgetCeiling,
+          ).map((line, index) => (
+            <Text key={`budget-${index}`} style={styles.helperText}>
+              {line}
+            </Text>
+          ))
+        : null}
       {reached.of > 0 ? (
         <Text style={styles.helperText}>
           Reaches {reached.met} of your {reached.of} nutrient targets from food.
@@ -2591,6 +2618,13 @@ function DailyMealPlanLens() {
   // G37: an optional calorie range and macro split, off unless chosen here
   // and never saved, so every plan starts with both off (lib/energyBand.ts).
   const [energy, setEnergy] = useState<EnergySetting>(ENERGY_OFF);
+  // G38: an optional daily food budget, off unless chosen here and never
+  // saved. The costs come from prices recorded on the Grocery List and are
+  // loaded on focus; an empty map means no price this can use, and the
+  // choice is not offered (lib/mealPlanBudget.ts).
+  const [budgetCeiling, setBudgetCeiling] = useState<number | null>(null);
+  const [dishCosts, setDishCosts] = useState<Map<string, DishCost> | null>(null);
+  const budget = budgetCeiling != null && dishCosts && dishCosts.size > 0 ? { ceiling: budgetCeiling, costs: dishCosts } : undefined;
   const [daysToGenerate, setDaysToGenerate] = useState(1);
   const [conditionCodes, setConditionCodes] = useState<string[]>([]);
   // The eating style this plan is built around, asked on the form and
@@ -2673,6 +2707,12 @@ function DailyMealPlanLens() {
           // with no declared condition/diet narrowing, the same as
           // someone who genuinely hasn't set either on Profile yet.
         });
+      getRecordedGroceryPrices()
+        .then((prices) => (prices.size > 0 ? getCuratedDishCosts(prices) : new Map<string, DishCost>()))
+        .then((costs) => {
+          if (!cancelled) setDishCosts(costs);
+        })
+        .catch((error) => console.error('[MealPlan] Failed to read recorded prices', error));
       // On focus rather than once, because a plan arrives through a sync the
       // person runs on the Connections screen and then comes straight back
       // here to look at it.
@@ -2742,6 +2782,7 @@ function DailyMealPlanLens() {
         days: daysToGenerate,
         limitAddedSugar,
         energy,
+        budget,
         startDate,
         household,
         openMeals: withStandingMeals(openRules, usualMeals),
@@ -2785,6 +2826,7 @@ function DailyMealPlanLens() {
         carbLevel,
         limitAddedSugar,
         energy,
+        budget,
         date: generatedStart ? addDaysToLocalDate(generatedStart, index) : undefined,
         household: planHousehold ?? (await resolveHouseholdEaters(scope, diet)),
         openMeals: plannedOpenRules,
@@ -2984,6 +3026,22 @@ function DailyMealPlanLens() {
         >
           <Text style={[styles.pillText, energy.macros && styles.pillTextActive]}>{energy.macros ? 'Showing the split' : 'Off'}</Text>
         </TouchableOpacity>
+        <Text style={[styles.label, { marginTop: 12 }]}>Daily food budget (optional)</Text>
+        {dishCosts && dishCosts.size > 0 ? (
+          <>
+            <Text style={styles.helperText}>{BUDGET_CAPTION}</Text>
+            <PopoverSelect
+              selected={budgetCeiling != null ? budgetLabel(budgetCeiling) : BUDGET_OFF_LABEL}
+              options={budgetChoiceLabels()}
+              onSelect={(value) => setBudgetCeiling(budgetFromLabel(value))}
+              placeholder="Daily food budget"
+              tabColor={TAB_COLOR}
+              width={220}
+            />
+          </>
+        ) : (
+          <Text style={styles.helperText}>{BUDGET_NO_PRICES}</Text>
+        )}
         <Text style={[styles.label, { marginTop: 12 }]}>Leave a meal open</Text>
         <Text style={styles.helperText}>
           For a meal you pack the day before or eat out, such as lunch on work days. Nothing is planned for it, and Home offers your
@@ -3086,7 +3144,7 @@ function DailyMealPlanLens() {
       ) : null}
 
       {singleDay ? (
-        <DailyPlanFullReport day={singleDay} folds={folds} foldId="schedule:dailyPlan" swapper={swapperFor(0)} />
+        <DailyPlanFullReport day={singleDay} folds={folds} foldId="schedule:dailyPlan" swapper={swapperFor(0)} dishCosts={dishCosts} />
       ) : plans.length > 1 ? (
         // Multi-day: one band per day, opening into the exact same full
         // report the single-day case uses -- "Each week per day needs to
@@ -3108,7 +3166,7 @@ function DailyMealPlanLens() {
                 expanded={isExpanded}
                 onToggle={() => setExpandedDayIndex(isExpanded ? null : index)}
               >
-                <DailyPlanFullReport day={day} swapper={swapperFor(index)} />
+                <DailyPlanFullReport day={day} swapper={swapperFor(index)} dishCosts={dishCosts} />
                 <TouchableOpacity
                   style={[styles.primaryButton, { marginTop: 8 }, isRegenerating && styles.primaryButtonDisabled]}
                   activeOpacity={0.85}
