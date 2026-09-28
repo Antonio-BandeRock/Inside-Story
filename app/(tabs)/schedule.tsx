@@ -126,6 +126,21 @@ import {
 } from '../../lib/calendarNotes';
 import { addCalendarNote, listCalendarNotes, removeCalendarNote, updateCalendarNote } from '../../lib/calendarNotesDb';
 import {
+  isInMonth,
+  MONTH_GRID_KEY,
+  MONTH_VIEW_LABEL,
+  marksByDate,
+  monthDayAccessibilityLabel,
+  monthGridRange,
+  monthGridWeeks,
+  monthLabel,
+  monthOf,
+  shiftMonth,
+  WEEK_VIEW_LABEL,
+  weekdayInitials,
+  type DayMarks,
+} from '../../lib/monthGrid';
+import {
   SAVE_WEEK_LABEL,
   USE_SAVED_WEEK_LABEL,
   defaultWeekName,
@@ -1093,6 +1108,42 @@ function MealsLens() {
   const notesByDay = useMemo(() => notesByDate(notes), [notes]);
   const stripKey = weekStripKey(notes.length > 0);
 
+  // H8: the month grid. The same marks as the week strip (a dot for a meal
+  // planned, a ring for a note) over the whole month, read by one query for
+  // the grid's range. It reloads whenever the week's records reload, so a
+  // meal added or a note written shows in the grid at once.
+  const [calendarView, setCalendarView] = useState<'week' | 'month'>('week');
+  const [viewMonth, setViewMonth] = useState<string>(() => monthOf(todayDateString()));
+  const [monthMarks, setMonthMarks] = useState<Map<string, DayMarks>>(() => new Map());
+  const monthWeeks = useMemo(() => monthGridWeeks(viewMonth), [viewMonth]);
+  useEffect(() => {
+    if (calendarView !== 'month') return;
+    let cancelled = false;
+    const { from, to } = monthGridRange(viewMonth);
+    Promise.all([listScheduledMealsForDateRange(from, to), listCalendarNotes(from, to)])
+      .then(([monthMeals, monthNotes]) => {
+        if (cancelled) return;
+        setMonthMarks(marksByDate(monthMeals.map((meal) => meal.scheduledFor), monthNotes.map((note) => note.scheduledFor)));
+      })
+      .catch((error) => console.error('month grid load failed', error));
+    return () => {
+      cancelled = true;
+    };
+  }, [calendarView, viewMonth, items, notes]);
+
+  function showCalendarView(view: 'week' | 'month') {
+    if (view === 'month') setViewMonth(monthOf(selectedDate));
+    setCalendarView(view);
+  }
+
+  // Tapping a day of the grid opens it below, and the week strip, when it
+  // is next shown, is on the week that day sits in.
+  function pickMonthDay(date: string) {
+    setSelectedDate(date);
+    setWeekStart(startOfWeekLocal(date));
+    if (!isInMonth(date, viewMonth)) setViewMonth(monthOf(date));
+  }
+
   const load = useCallback(() => {
     setLoading(true);
     const weekEnd = addDaysToDateStringLocal(weekStart, 6);
@@ -1148,6 +1199,7 @@ function MealsLens() {
     const today = todayDateString();
     setWeekStart(startOfWeekLocal(today));
     setSelectedDate(today);
+    setViewMonth(monthOf(today));
   }
 
   // useFocusEffect, not a plain useEffect -- Expo Router keeps tab screens
@@ -1587,23 +1639,84 @@ function MealsLens() {
         ) : (
           <>
             <View style={styles.weekStripCard}>
+              <View style={styles.calendarViewRow}>
+                {(['week', 'month'] as const).map((view) => (
+                  <TouchableOpacity
+                    key={view}
+                    style={[styles.pill, calendarView === view && styles.pillActive]}
+                    onPress={() => showCalendarView(view)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: calendarView === view }}
+                  >
+                    <Text style={[styles.pillText, calendarView === view && styles.pillTextActive]}>
+                      {view === 'week' ? WEEK_VIEW_LABEL : MONTH_VIEW_LABEL}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
               <View style={styles.weekStripNav}>
                 <TouchableOpacity
                   style={styles.weekNavButton}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  onPress={() => shiftWeek(-1)}
+                  onPress={() => (calendarView === 'month' ? setViewMonth(shiftMonth(viewMonth, -1)) : shiftWeek(-1))}
                 >
                   <Text style={styles.weekNavButtonText}>‹</Text>
                 </TouchableOpacity>
-                <Text style={styles.weekRangeLabel}>{formatWeekRangeLabel(weekStart)}</Text>
+                <Text style={styles.weekRangeLabel}>
+                  {calendarView === 'month' ? monthLabel(viewMonth) : formatWeekRangeLabel(weekStart)}
+                </Text>
                 <TouchableOpacity
                   style={styles.weekNavButton}
                   hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  onPress={() => shiftWeek(1)}
+                  onPress={() => (calendarView === 'month' ? setViewMonth(shiftMonth(viewMonth, 1)) : shiftWeek(1))}
                 >
                   <Text style={styles.weekNavButtonText}>›</Text>
                 </TouchableOpacity>
               </View>
+              {calendarView === 'month' ? (
+                <View>
+                  <View style={styles.monthHeaderRow}>
+                    {weekdayInitials().map((initial, index) => (
+                      <Text key={index} style={styles.monthHeaderText}>{initial}</Text>
+                    ))}
+                  </View>
+                  {monthWeeks.map((week) => (
+                    <View key={week[0]} style={styles.monthWeekRow}>
+                      {week.map((date) => {
+                        const isSelected = date === selectedDate;
+                        const isToday = date === todayDateString();
+                        const marks = monthMarks.get(date);
+                        const outside = !isInMonth(date, viewMonth);
+                        return (
+                          <TouchableOpacity
+                            key={date}
+                            style={[styles.monthDayCell, isSelected && styles.weekDayCellSelected, isToday && !isSelected && styles.weekDayCellToday]}
+                            onPress={() => pickMonthDay(date)}
+                            accessibilityRole="button"
+                            accessibilityLabel={monthDayAccessibilityLabel(date, marks)}
+                          >
+                            <Text style={[styles.weekDayNumber, outside && styles.monthDayOutside, isSelected && styles.weekDayLabelSelected]}>
+                              {formatDayNumber(date)}
+                            </Text>
+                            <View style={styles.weekDayMarks}>
+                              <View
+                                style={[
+                                  styles.weekDayDot,
+                                  (marks?.meals ?? 0) > 0 && (isSelected ? styles.weekDayDotActiveSelected : styles.weekDayDotActive),
+                                ]}
+                              />
+                              {(marks?.notes ?? 0) > 0 ? (
+                                <View style={[styles.weekDayRing, isSelected && styles.weekDayRingSelected]} />
+                              ) : null}
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  ))}
+                  <Text style={styles.weekStripKey}>{MONTH_GRID_KEY}</Text>
+                </View>
+              ) : (
               <View style={styles.weekDayRow}>
                 {weekDates.map((date) => {
                   const isSelected = date === selectedDate;
@@ -1637,7 +1750,8 @@ function MealsLens() {
                   );
                 })}
               </View>
-              {stripKey ? <Text style={styles.weekStripKey}>{stripKey}</Text> : null}
+              )}
+              {calendarView === 'week' && stripKey ? <Text style={styles.weekStripKey}>{stripKey}</Text> : null}
               {selectedDate !== todayDateString() ? (
                 <TouchableOpacity onPress={jumpToToday}>
                   <Text style={styles.weekTodayLink}>Jump back to today</Text>
@@ -6814,6 +6928,19 @@ const styles = StyleSheet.create({
   weekDayMarks: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   weekDayRing: { width: 7, height: 7, borderRadius: 4, borderWidth: 1.5, borderColor: TAB_COLOR, marginTop: 4 },
   weekDayRingSelected: { borderColor: colors.textOnPrimary },
+  calendarViewRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginBottom: 10 },
+  monthHeaderRow: { flexDirection: 'row', gap: 4, marginBottom: 4 },
+  monthHeaderText: { ...typography.caption, flex: 1, textAlign: 'center', color: TAB_COLOR, ...textShadow },
+  monthWeekRow: { flexDirection: 'row', gap: 4, marginBottom: 4 },
+  monthDayCell: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  monthDayOutside: { opacity: 0.45 },
   weekStripKey: { ...typography.caption, color: TAB_COLOR, textAlign: 'center', marginTop: 8, ...textShadow },
   weekTodayLink: { ...typography.caption, color: TAB_COLOR, textAlign: 'center', marginTop: 10, textDecorationLine: 'underline', ...textShadow },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
