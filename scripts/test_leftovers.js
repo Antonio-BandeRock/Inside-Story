@@ -107,6 +107,17 @@ ok('USDA line past four days', lo.eatAgainAdded('x', 5).includes('USDA'));
 ok('no USDA line within four days', !lo.eatAgainAdded('x', 4).includes('USDA'));
 ok('one later meal', lo.removeCookMessage('Stew', 1).startsWith('1 later meal eats leftovers of "Stew". Remove it too'));
 
+// --- Leftovers of a meal already eaten ----------------------------------------------
+const ahead = lo.leftoverDayChoices('2026-09-25', '2026-09-27');
+ok('only today on', ahead.length > 0 && ahead.every((c) => c.date >= '2026-09-27'));
+ok('ends a week after the cooking', ahead[ahead.length - 1].date === '2026-10-02');
+ok('first day is today when the next day passed', lo.firstLeftoverDay('2026-09-25', '2026-09-27') === '2026-09-27');
+ok('first day is the next day when eaten today', lo.firstLeftoverDay('2026-09-27T12:30', '2026-09-27') === '2026-09-28');
+ok('nothing past a week', lo.leftoverDayChoices('2026-09-10', '2026-09-27').length === 0);
+ok('can save within the week', lo.canSaveLeftovers('2026-09-21T18:30', '2026-09-27'));
+ok('cannot save after a week', !lo.canSaveLeftovers('2026-09-19T18:30', '2026-09-27'));
+[lo.saveLeftoversIntro('Lentil stew'), lo.SAVE_LEFTOVERS_LABEL, lo.EAT_AGAIN_LABEL].forEach((text) => clean('sentence', text));
+
 // --- Times ------------------------------------------------------------------------
 ok('breakfast time', lo.defaultMealTime('breakfast') === '08:00');
 ok('dinner time', lo.defaultMealTime('dinner') === '18:30');

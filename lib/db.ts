@@ -9307,6 +9307,14 @@ async function runDatabaseInitialization() {
       await db.execAsync('ALTER TABLE schedule_items ADD COLUMN leftover_of TEXT;');
     }
     await db.execAsync('CREATE INDEX IF NOT EXISTS idx_schedule_items_leftover_of ON schedule_items(leftover_of);');
+    // Leftovers of a meal already eaten, logged anywhere (H3, 2026-09-27):
+    // somebody made too much, and a later meal eats the rest. Names the
+    // `meals` row, since a meal logged straight from Food has no schedule
+    // row to point at. Deleting that meal keeps the later meal under the
+    // dish's name (deleteMeal).
+    if (!scheduleItemColumns.some((existing) => existing.name === 'leftover_of_meal')) {
+      await db.execAsync('ALTER TABLE schedule_items ADD COLUMN leftover_of_meal TEXT;');
+    }
 
     // Free-text food/drink name for a check-in -- most reactions are to
     // something never formally logged as a meal (a bite at a party, a new
@@ -14161,6 +14169,13 @@ export async function replaceMealItems(mealId: string, ingredients: MealIngredie
 
 export async function deleteMeal(mealId: string) {
   const db = await getDatabase();
+  // Leftovers planned from this meal (H3) stay as separate meals under the
+  // dish's name rather than pointing at a meal that is gone.
+  const leftovers = await db.getAllAsync<{ id: string; title: string }>(`SELECT id, title FROM schedule_items WHERE leftover_of_meal = ?`, mealId);
+  const now = new Date().toISOString();
+  for (const row of leftovers) {
+    await db.runAsync('UPDATE schedule_items SET leftover_of_meal = NULL, title = ?, updated_at = ? WHERE id = ?', titleWithoutLeftover(row.title), now, row.id);
+  }
   await db.runAsync('DELETE FROM meals WHERE id = ?', mealId);
 }
 
@@ -15036,14 +15051,17 @@ export async function getUpcomingShoppingList(daysAhead: number = 4, peopleCount
     title: string;
     servings: number | null;
     leftover_of: string | null;
+    leftover_of_meal: string | null;
     cook_status: string | null;
     cook_for: string | null;
   }>(
     `
-      SELECT s.id, s.source_favorite_id, s.source_meal_id, s.title, s.servings, s.leftover_of,
-             c.status AS cook_status, c.scheduled_for AS cook_for
+      SELECT s.id, s.source_favorite_id, s.source_meal_id, s.title, s.servings, s.leftover_of, s.leftover_of_meal,
+             COALESCE(c.status, CASE WHEN m.id IS NOT NULL THEN 'logged' END) AS cook_status,
+             COALESCE(c.scheduled_for, m.eaten_at) AS cook_for
       FROM schedule_items s
       LEFT JOIN schedule_items c ON c.id = s.leftover_of
+      LEFT JOIN meals m ON m.id = s.leftover_of_meal
       WHERE s.item_type = 'meal' AND s.status = 'planned' AND substr(s.scheduled_for, 1, 10) BETWEEN ? AND ?
       ORDER BY s.scheduled_for
     `,
@@ -15059,7 +15077,7 @@ export async function getUpcomingShoppingList(daysAhead: number = 4, peopleCount
 
   const allEntries: RawShoppingEntry[] = [];
   for (const row of rows) {
-    if (row.leftover_of && !leftoverBuysOnItsOwn(row.cook_status, row.cook_for, startDate)) continue;
+    if ((row.leftover_of || row.leftover_of_meal) && !leftoverBuysOnItsOwn(row.cook_status, row.cook_for, startDate)) continue;
     const entries = row.source_favorite_id
       ? await shoppingListItemsForFavorite(row.source_favorite_id, row.title)
       : row.source_meal_id
@@ -16103,6 +16121,9 @@ export type ScheduleItemRecord = {
   // food is cooked and that meal's time, type, status and logged meal;
   // on a cooked meal, how many planned or eaten leftovers it feeds.
   leftoverOf: string | null;
+  // Leftovers of a meal logged anywhere, by its `meals` id; the cook* fields
+  // below then describe that meal.
+  leftoverOfMeal: string | null;
   leftoverCount: number;
   cookScheduledFor: string | null;
   cookMealType: string | null;
@@ -16127,10 +16148,15 @@ const SCHEDULE_ITEM_COLUMNS = `
   duration_minutes AS durationMinutes, servings,
   leftover_of AS leftoverOf,
   (SELECT COUNT(*) FROM schedule_items lo WHERE lo.leftover_of = schedule_items.id AND lo.status != 'skipped') AS leftoverCount,
-  (SELECT c.scheduled_for FROM schedule_items c WHERE c.id = schedule_items.leftover_of) AS cookScheduledFor,
-  (SELECT c.meal_type FROM schedule_items c WHERE c.id = schedule_items.leftover_of) AS cookMealType,
-  (SELECT c.status FROM schedule_items c WHERE c.id = schedule_items.leftover_of) AS cookStatus,
-  (SELECT c.linked_meal_id FROM schedule_items c WHERE c.id = schedule_items.leftover_of) AS cookLinkedMealId,
+  leftover_of_meal AS leftoverOfMeal,
+  COALESCE((SELECT c.scheduled_for FROM schedule_items c WHERE c.id = schedule_items.leftover_of),
+    (SELECT m.eaten_at FROM meals m WHERE m.id = schedule_items.leftover_of_meal)) AS cookScheduledFor,
+  COALESCE((SELECT c.meal_type FROM schedule_items c WHERE c.id = schedule_items.leftover_of),
+    (SELECT m.meal_type FROM meals m WHERE m.id = schedule_items.leftover_of_meal)) AS cookMealType,
+  COALESCE((SELECT c.status FROM schedule_items c WHERE c.id = schedule_items.leftover_of),
+    (SELECT 'logged' FROM meals m WHERE m.id = schedule_items.leftover_of_meal)) AS cookStatus,
+  COALESCE((SELECT c.linked_meal_id FROM schedule_items c WHERE c.id = schedule_items.leftover_of),
+    (SELECT m.id FROM meals m WHERE m.id = schedule_items.leftover_of_meal)) AS cookLinkedMealId,
   created_at AS createdAt, updated_at AS updatedAt
 `;
 
@@ -17311,13 +17337,71 @@ async function releaseLeftovers(cookIds: string[]) {
   }
 }
 
-/** The later meals planned to eat what `cookId` cooks, soonest first. */
-export async function listLeftoversOf(cookId: string): Promise<{ id: string; scheduledFor: string; mealType: string; status: string }[]> {
+/**
+ * The later meals planned to eat what `cookId` cooks, soonest first. With
+ * `fromMeal`, cookId is a logged `meals` id rather than a schedule row.
+ */
+export async function listLeftoversOf(
+  cookId: string,
+  fromMeal = false,
+): Promise<{ id: string; scheduledFor: string; mealType: string; status: string }[]> {
   const db = await getDatabase();
   return db.getAllAsync(
-    `SELECT id, scheduled_for AS scheduledFor, COALESCE(meal_type, '') AS mealType, status FROM schedule_items WHERE leftover_of = ? ORDER BY scheduled_for`,
+    `SELECT id, scheduled_for AS scheduledFor, COALESCE(meal_type, '') AS mealType, status FROM schedule_items WHERE ${fromMeal ? 'leftover_of_meal' : 'leftover_of'} = ? ORDER BY scheduled_for`,
     cookId,
   );
+}
+
+export type RecentLoggedMeal = { id: string; name: string; mealType: string; eatenAt: string; leftoverCount: number };
+
+/**
+ * Meals logged since `sinceDate` that no schedule row stands for, meaning
+ * they were logged straight from Food, voice or a scan. Past Meals lists
+ * them so the rest of one can be saved as leftovers (H3).
+ */
+export async function listRecentUnscheduledMeals(sinceDate: string): Promise<RecentLoggedMeal[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<RecentLoggedMeal>(
+    `
+      SELECT m.id, m.name, m.meal_type AS mealType, m.eaten_at AS eatenAt,
+             (SELECT COUNT(*) FROM schedule_items lo WHERE lo.leftover_of_meal = m.id AND lo.status != 'skipped') AS leftoverCount
+      FROM meals m
+      WHERE substr(m.eaten_at, 1, 10) >= ?
+        AND NOT EXISTS (SELECT 1 FROM schedule_items s WHERE s.linked_meal_id = m.id)
+      ORDER BY m.eaten_at DESC
+    `,
+    sinceDate,
+  );
+}
+
+/**
+ * Plans a later meal that eats the rest of a meal already logged (H3):
+ * somebody made too much. The logged meal is its template, so logging the
+ * later meal starts from what was eaten, and the Grocery List buys nothing
+ * for it while that meal is kept. Returns the new row's id.
+ */
+export async function scheduleLeftoverOfMeal(mealId: string, scheduledFor: string, mealType: string): Promise<string> {
+  const db = await getDatabase();
+  const meal = await db.getFirstAsync<{ name: string }>('SELECT name FROM meals WHERE id = ?', mealId);
+  if (!meal) throw new Error('That meal is no longer in your log.');
+  const id = `schedule_item_${Date.now()}_leftover`;
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `
+      INSERT INTO schedule_items
+        (id, scheduled_for, item_type, meal_type, title, status, source_meal_id, repeat_type, leftover_of_meal, created_at, updated_at)
+      VALUES (?, ?, 'meal', ?, ?, 'planned', ?, 'none', ?, ?, ?)
+    `,
+    id,
+    scheduledFor,
+    mealType,
+    leftoverTitle(meal.name),
+    mealId,
+    mealId,
+    now,
+    now,
+  );
+  return id;
 }
 
 /**

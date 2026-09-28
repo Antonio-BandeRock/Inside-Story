@@ -168,3 +168,33 @@ export function defaultMealTime(mealType: string): string {
       return '18:30';
   }
 }
+
+// --- Leftovers of a meal already eaten ----------------------------------------------
+// Somebody made too much. The later meal eats the rest, counts in the day it
+// lands on when it is logged, and buys nothing on the Grocery List.
+
+export const EAT_AGAIN_LABEL = 'Eat again';
+export const SAVE_LEFTOVERS_LABEL = 'Save leftovers';
+
+export function saveLeftoversIntro(title: string): string {
+  return `Made more of "${title}" than was eaten? Pick a later meal to eat the rest. It shows on your schedule at that meal, and the Grocery List buys nothing for it.`;
+}
+
+/**
+ * The days a later meal can be picked on: the week after the cooking, from
+ * today on, since a leftover of a meal already eaten is planned forward.
+ */
+export function leftoverDayChoices(cookDate: string, today: string): DayChoice[] {
+  return eatAgainDayChoices(cookDate).filter((choice) => choice.date >= today.slice(0, 10));
+}
+
+/** Whether a later meal can still be picked: the cooking was within the last week. */
+export function canSaveLeftovers(cookDate: string, today: string): boolean {
+  return daysBetween(cookDate, today) <= EAT_AGAIN_MAX_DAYS;
+}
+
+/** The day first offered: the day after the cooking, or today when that has passed. */
+export function firstLeftoverDay(cookDate: string, today: string): string {
+  const choices = leftoverDayChoices(cookDate, today);
+  return (choices.find((choice) => choice.date > cookDate.slice(0, 10)) ?? choices[0])?.date ?? today.slice(0, 10);
+}
