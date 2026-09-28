@@ -23,6 +23,7 @@ import { DidIDoItSection } from '../../components/DidIDoItSection';
 import { KitchenSection } from '../../components/KitchenSection';
 import { RoutinesSection } from '../../components/RoutinesSection';
 import { MOVEMENT_HELP_SECTIONS, MovementSection } from '../../components/MovementSection';
+import { WORKOUTS_HELP_SECTIONS, WorkoutsSection } from '../../components/WorkoutsSection';
 import { MyMedsSection } from '../../components/MyMedsSection';
 import { UpkeepSection } from '../../components/UpkeepSection';
 import { WorkSection } from '../../components/WorkSection';
@@ -165,6 +166,7 @@ type LifeLens =
   | 'groceryList'
   | 'myMeds'
   | 'movement'
+  | 'workouts'
   | 'routines'
   | 'didIDoIt'
   | 'daysUntil';
@@ -497,6 +499,9 @@ const LIFE_LENSES: LensOption<LifeLens>[] = [
   // to keep; Trends reads what this area brings in. See
   // components/MovementSection.tsx.
   { key: 'movement', label: 'Movement', icon: 'walk-outline', help: MOVEMENT_HELP_SECTIONS },
+  // 2026-09-28 (H11). The plan of what to do, beside Movement, the record of
+  // what the phone saw done. See components/WorkoutsSection.tsx.
+  { key: 'workouts', label: 'Workouts', icon: 'barbell-outline', help: WORKOUTS_HELP_SECTIONS },
   // 2026-09-17. Both from the daily-living program. footsteps-outline for
   // an order you walk through, and a finished tick for the record of what
   // has already happened. They sit next to each other because a routine
@@ -1948,6 +1953,7 @@ export default function LifeScreen() {
             {lens === 'emergency' ? <EmergencySection tabColor={TAB_COLOR} /> : null}
             {lens === 'myMeds' ? <MyMedsSection tabColor={TAB_COLOR} focusTreatmentId={focusTreatmentId} /> : null}
             {lens === 'movement' ? <MovementSection tabColor={TAB_COLOR} /> : null}
+            {lens === 'workouts' ? <WorkoutsSection tabColor={TAB_COLOR} /> : null}
             {lens === 'routines' ? <RoutinesSection tabColor={TAB_COLOR} /> : null}
             {lens === 'didIDoIt' ? <DidIDoItSection tabColor={TAB_COLOR} /> : null}
             {lens === 'daysUntil' ? (

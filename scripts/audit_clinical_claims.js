@@ -122,6 +122,8 @@ const NAMED = [
   'lib/mealPlanBudget.ts',
   'lib/leftovers.ts',
   'lib/savedWeeks.ts',
+  'lib/exerciseLibrary.ts',
+  'lib/workouts.ts',
 ];
 
 function targets() {

@@ -129,6 +129,8 @@ const AREAS: readonly Area[] = [
   { one: 'kitchen item', many: 'kitchen items', count: ['kitchen_items'], quiet: [] },
   { one: 'scheduled item', many: 'scheduled items', count: ['schedule_items'], quiet: [] },
   { one: 'household meal', many: 'household meals', count: ['household_meal_calendar'], quiet: [] },
+  { one: 'workout', many: 'workouts', count: ['workouts'], quiet: ['workout_exercises'] },
+  { one: 'exercise of your own', many: 'exercises of your own', count: ['custom_exercises'], quiet: [] },
   { one: 'upkeep item', many: 'upkeep items', count: ['upkeep_items'], quiet: ['upkeep_doings'] },
   {
     one: 'routine',

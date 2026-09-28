@@ -7633,6 +7633,66 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_household_meal_calendar_date ON household_meal_calendar(meal_date);
 
+      -- Workouts, H11 (2026-09-28). The built-in exercises live in
+      -- lib/exerciseLibrary.ts and never in the database; custom_exercises
+      -- holds the person's own, with the same fields. A workout is an ordered
+      -- list of workout_exercises, each naming its exercise by source
+      -- ('library' or 'custom') and id and carrying its own sets, reps or
+      -- seconds, weight and rest. A custom exercise used in any workout is
+      -- retired (archived_at) rather than deleted. Nothing here records a
+      -- session; that goes to exercise_logs. Not on the between-people
+      -- allowlist. See lib/workouts.ts and lib/workoutsDb.ts.
+      CREATE TABLE IF NOT EXISTS custom_exercises (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        category TEXT NOT NULL,
+        muscles TEXT,
+        equipment_json TEXT,
+        measure TEXT NOT NULL DEFAULT 'reps',
+        sets INTEGER NOT NULL DEFAULT 1,
+        reps INTEGER,
+        seconds INTEGER,
+        per_side INTEGER NOT NULL DEFAULT 0,
+        steps_json TEXT,
+        safety_json TEXT,
+        mistakes_json TEXT,
+        easier TEXT,
+        harder TEXT,
+        gentle INTEGER NOT NULL DEFAULT 0,
+        video_url TEXT,
+        notes TEXT,
+        archived_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS workouts (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        note TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        archived_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS workout_exercises (
+        id TEXT PRIMARY KEY,
+        workout_id TEXT NOT NULL,
+        exercise_source TEXT NOT NULL,
+        exercise_id TEXT NOT NULL,
+        position INTEGER NOT NULL,
+        sets INTEGER NOT NULL DEFAULT 1,
+        reps INTEGER,
+        seconds INTEGER,
+        per_side INTEGER NOT NULL DEFAULT 0,
+        weight REAL,
+        weight_unit TEXT,
+        rest_seconds INTEGER,
+        note TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_workout_exercises_workout ON workout_exercises(workout_id);
+
       -- Nights, 1.0.52.7: how many times somebody got up in the night,
       -- written down the next morning. Signals > Nocturia is where it goes
       -- in and Trends > Nights reads it beside the evening's drinks.

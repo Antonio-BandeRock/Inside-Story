@@ -1392,6 +1392,7 @@ export const LENS_NAMES: Record<string, Record<string, string>> = {
     myMeds: 'My Meds',
     kitchen: 'Kitchen',
     movement: 'Movement',
+    workouts: 'Workouts',
     routines: 'Routines',
     didIDoIt: 'Did I Do It',
     daysUntil: 'Days Until',
