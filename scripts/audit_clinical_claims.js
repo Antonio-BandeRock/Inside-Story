@@ -116,6 +116,7 @@ const NAMED = [
   'lib/quickDrinks.ts',
   'lib/hydrationTarget.ts',
   'lib/hydrationIndex.ts',
+  'lib/energyBand.ts',
 ];
 
 function targets() {

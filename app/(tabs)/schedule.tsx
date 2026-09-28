@@ -172,6 +172,18 @@ import {
   type OpenMeal,
   type OpenMealRule,
 } from '../../lib/openMeals';
+import {
+  ENERGY_OFF,
+  KCAL_CAPTION,
+  KCAL_OFF_LABEL,
+  MACRO_CAPTION,
+  energyLines,
+  kcalChoiceLabels,
+  kcalRangeFromLabel,
+  kcalRangeLabel,
+  underEatingNote,
+  type EnergySetting,
+} from '../../lib/energyBand';
 import { standingMealsLine, withStandingMeals } from '../../lib/mealPack';
 import type { UsualMeal } from '../../lib/usualMeal';
 import { getOpenMealRules, listUsualMeals, saveOpenMealRules } from '../../lib/usualMealDb';
@@ -2268,6 +2280,11 @@ function DailyPlanFullReport({
       <Text style={styles.helperText}>
         Total carbohydrate: {Math.round(day.totalCarbGrams)}g{day.carbCeiling ? ` (target: under ${day.carbCeiling}g)` : ''}
       </Text>
+      {energyLines(day.nutrientTotals, day.energy, day.carbCeiling !== null).map((line, index) => (
+        <Text key={`energy-${index}`} style={styles.helperText}>
+          {line}
+        </Text>
+      ))}
       {reached.of > 0 ? (
         <Text style={styles.helperText}>
           Reaches {reached.met} of your {reached.of} nutrient targets from food.
@@ -2571,6 +2588,9 @@ function DailyMealPlanLens() {
   // gram cap -- this corpus has no way to separate a recipe's added
   // sugar from its own natural fruit sugar.
   const [limitAddedSugar, setLimitAddedSugar] = useState(false);
+  // G37: an optional calorie range and macro split, off unless chosen here
+  // and never saved, so every plan starts with both off (lib/energyBand.ts).
+  const [energy, setEnergy] = useState<EnergySetting>(ENERGY_OFF);
   const [daysToGenerate, setDaysToGenerate] = useState(1);
   const [conditionCodes, setConditionCodes] = useState<string[]>([]);
   // The eating style this plan is built around, asked on the form and
@@ -2721,6 +2741,7 @@ function DailyMealPlanLens() {
         carbLevel,
         days: daysToGenerate,
         limitAddedSugar,
+        energy,
         startDate,
         household,
         openMeals: withStandingMeals(openRules, usualMeals),
@@ -2763,6 +2784,7 @@ function DailyMealPlanLens() {
         dietPreferences: diet,
         carbLevel,
         limitAddedSugar,
+        energy,
         date: generatedStart ? addDaysToLocalDate(generatedStart, index) : undefined,
         household: planHousehold ?? (await resolveHouseholdEaters(scope, diet)),
         openMeals: plannedOpenRules,
@@ -2942,6 +2964,25 @@ function DailyMealPlanLens() {
           onPress={() => setLimitAddedSugar((current) => !current)}
         >
           <Text style={[styles.pillText, limitAddedSugar && styles.pillTextActive]}>{limitAddedSugar ? 'Limiting added sugar' : 'No limit'}</Text>
+        </TouchableOpacity>
+        <Text style={[styles.label, { marginTop: 12 }]}>Calories (optional)</Text>
+        <Text style={styles.helperText}>{KCAL_CAPTION}</Text>
+        {underEatingNote(conditionCodes) ? <Text style={styles.helperText}>{underEatingNote(conditionCodes)}</Text> : null}
+        <PopoverSelect
+          selected={energy.kcal ? kcalRangeLabel(energy.kcal) : KCAL_OFF_LABEL}
+          options={kcalChoiceLabels()}
+          onSelect={(value) => setEnergy((current) => ({ ...current, kcal: kcalRangeFromLabel(value) }))}
+          placeholder="Calories"
+          tabColor={TAB_COLOR}
+          width={220}
+        />
+        <Text style={[styles.label, { marginTop: 12 }]}>Protein, fat and carbohydrate (optional)</Text>
+        <Text style={styles.helperText}>{MACRO_CAPTION}</Text>
+        <TouchableOpacity
+          style={[styles.pill, energy.macros && styles.pillActive, { alignSelf: 'flex-start' }]}
+          onPress={() => setEnergy((current) => ({ ...current, macros: !current.macros }))}
+        >
+          <Text style={[styles.pillText, energy.macros && styles.pillTextActive]}>{energy.macros ? 'Showing the split' : 'Off'}</Text>
         </TouchableOpacity>
         <Text style={[styles.label, { marginTop: 12 }]}>Leave a meal open</Text>
         <Text style={styles.helperText}>
