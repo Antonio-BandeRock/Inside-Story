@@ -406,3 +406,12 @@ function localStamp(date: Date): string {
   const pad = (value: number) => String(value).padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
+
+/** When each workout was last finished, for Home's Start a Workout card. */
+export async function lastSessionTimes(): Promise<Map<string, string>> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ workoutId: string; finishedAt: string }>(
+    `SELECT workout_id AS workoutId, MAX(finished_at) AS finishedAt FROM workout_sessions GROUP BY workout_id`,
+  );
+  return new Map(rows.map((row) => [row.workoutId, row.finishedAt]));
+}

@@ -21,6 +21,7 @@ import { DayTimeline } from '../../components/DayTimeline';
 import { GroceryQuickAdd } from '../../components/GroceryQuickAdd';
 import { TodayPicks } from '../../components/TodayPicks';
 import { DaysUntilSection } from '../../components/DaysUntilSection';
+import { StartWorkoutCard } from '../../components/StartWorkoutCard';
 import { DailyScalesPicker } from '../../components/DailyScalesPicker';
 import { DayArc } from '../../components/DayArc';
 import { HealthConnectFilledIn } from '../../components/HealthConnectFilledIn';
@@ -922,6 +923,12 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.tabLife,
     href: { pathname: '/life', params: { openLifeLens: 'daysUntil' } } as Href,
   },
+  startWorkout: {
+    label: 'Start a Workout',
+    icon: 'barbell',
+    color: colors.tabLife,
+    href: { pathname: '/life', params: { openLifeLens: 'workouts' } } as Href,
+  },
   // Belongs to no tab, so it keeps colors.primary the way the shared-
   // folder nudge does.
   captureInbox: {
@@ -1009,6 +1016,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'doneChecks',
   'todayPicks',
   'countdowns',
+  'startWorkout',
   'digestCards',
 ];
 
@@ -4030,6 +4038,19 @@ export default function HomeScreen() {
     );
   }
 
+  // Start a Workout, H11 part 4. Today's planned exercise first, then the
+  // workouts on Life > Workouts, each one press from the player.
+  function renderStartWorkout() {
+    if (!isHomeSectionVisible(visualPrefs, 'startWorkout')) return null;
+    return renderBand(
+      'startWorkout',
+      'Start a Workout',
+      <View style={styles.bandBody}>
+        <StartWorkoutCard tabColor={colors.tabLife} />
+      </View>,
+    );
+  }
+
   // Did I Do It, 2026-09-17. Read-only here on purpose. The question this
   // answers is asked on the stairs, so the whole value is being able to
   // look; recording something is a decision, and a decision belongs on the
@@ -4409,6 +4430,8 @@ export default function HomeScreen() {
         return renderTodayPicks();
       case 'countdowns':
         return renderCountdowns();
+      case 'startWorkout':
+        return renderStartWorkout();
       case 'groceryQuickAdd':
         return renderGroceryQuickAdd();
       case 'dayTimeline':

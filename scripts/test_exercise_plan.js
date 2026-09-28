@@ -163,8 +163,44 @@ for (const problem of [
   clean(problem, 'draft problem');
 }
 
-// The lens: every sentence a person reads there.
-for (const rel of ['components/ExerciseScheduleSection.tsx']) {
+// 8. Home's Start a Workout card (lib/startWorkout.ts, H11 part 4).
+const S = load('lib/startWorkout.ts');
+const cardNow = new Date(2026, 8, 28, 9, 0, 0);
+ok(S.lastDoneLine(null, cardNow) === 'Not done yet', 'never done');
+ok(S.lastDoneLine(new Date(2026, 8, 28, 7, 0).toISOString(), cardNow) === 'Last done today', 'done today');
+ok(S.lastDoneLine(new Date(2026, 8, 27, 22, 0).toISOString(), cardNow) === 'Last done yesterday', 'done yesterday');
+ok(S.lastDoneLine(new Date(2026, 8, 24, 7, 0).toISOString(), cardNow) === 'Last done 4 days ago', 'done days ago');
+const cardWorkouts = [
+  { id: 'w1', name: 'Morning strength', stepCount: 5 },
+  { id: 'w2', name: 'Stretch', stepCount: 1 },
+  { id: 'w3', name: 'Empty', stepCount: 0 },
+  { id: 'w4', name: 'Bike', stepCount: 3 },
+  { id: 'w5', name: 'Arms', stepCount: 2 },
+  { id: 'w6', name: 'Core', stepCount: 4 },
+  { id: 'w7', name: 'Balance', stepCount: 2 },
+];
+const lastDone = new Map([['w4', '2026-09-27T08:00:00Z'], ['w2', '2026-09-20T08:00:00Z']]);
+const card = S.startWorkoutCard({ plans: [plan(), walk], marks: [], workouts: cardWorkouts, lastDone, today: '2026-09-28', now: cardNow });
+ok(card.today.length === 2 && card.today[0].action === 'start' && card.today[1].action === 'mark', 'today: start a workout, mark an activity');
+ok(!card.others.some((o) => o.id === 'w1' || o.id === 'w3'), 'planned and empty workouts not repeated below');
+ok(card.others[0].id === 'w4' && card.others[1].id === 'w2', 'most recently done first');
+ok(card.others.length === S.OTHERS_LIMIT && card.heldBack === 1, `limit and held back: ${card.heldBack}`);
+ok(card.others[0].line === '3 exercises. Last done yesterday', card.others[0].line);
+ok(card.emptyLine === null, 'no empty line when something shows');
+const markedCard = S.startWorkoutCard({ plans: [plan()], marks, workouts: cardWorkouts, lastDone, today: '2026-09-28', now: cardNow });
+ok(markedCard.today[0].action === 'none', 'a marked day has nothing to press');
+const noneCard = S.startWorkoutCard({ plans: [], marks: [], workouts: [], lastDone: new Map(), today: '2026-09-28', now: cardNow });
+ok(noneCard.emptyLine === S.EMPTY_LINE, 'nothing built says how to begin');
+const emptyCard = S.startWorkoutCard({ plans: [], marks: [], workouts: [{ id: 'w3', name: 'Empty', stepCount: 0 }], lastDone: new Map(), today: '2026-09-28', now: cardNow });
+ok(/needs at least one exercise/.test(emptyCard.emptyLine || ''), 'a workout with no exercises says so');
+for (const c of [card, markedCard, noneCard, emptyCard]) {
+  clean(c.emptyLine, 'card empty line');
+  for (const item of c.today) clean(item.status, 'card status');
+  for (const other of c.others) clean(other.line, 'card line');
+}
+
+// The lens and the card: every sentence a person reads there.
+for (const rel of ['components/ExerciseScheduleSection.tsx', 'components/StartWorkoutCard.tsx']) {
   const text = fs.readFileSync(path.join(ROOT, rel), 'utf8');
   const sf = ts.createSourceFile(rel, text, ts.ScriptTarget.ES2020, true, ts.ScriptKind.TSX);
   (function visit(node) {

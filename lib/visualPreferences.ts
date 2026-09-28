@@ -365,6 +365,9 @@ export type HomeSectionKey =
   // ('daysUntil') keeps the garden ones; this is the card for everything
   // else somebody is counting the days to.
   | 'countdowns'
+  // H11 part 4, 2026-09-28: today's planned exercise and the workouts on
+  // Life > Workouts, each one press from starting.
+  | 'startWorkout'
   // C6, 2026-09-26: a box on Home that puts things on the grocery list
   // without opening it.
   | 'groceryQuickAdd'
@@ -446,6 +449,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'doneChecks',
   'todayPicks',
   'countdowns',
+  'startWorkout',
   // The Digest, last. 2026-09-16 put the groups "into the order they exist
   // in the TabHub menu", which ran the Digest ahead of Life while it was a
   // tab. The tab went on 2026-09-19 and the cards kept a group of their
@@ -514,6 +518,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   routines: 'Routines',
   doneChecks: 'Did I Do It',
   countdowns: 'Days Until',
+  startWorkout: 'Start a Workout',
   groceryQuickAdd: 'Add to the Grocery List',
   todayPicks: 'Today I Want To',
   nextThing: 'One Next Thing',
