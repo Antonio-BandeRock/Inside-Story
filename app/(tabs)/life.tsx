@@ -723,6 +723,8 @@ export default function LifeScreen() {
   // is relative to its own wrapper, so the wrapper's place in this scroll
   // is added on the way through.
   const scrollRef = useRef<ScrollView>(null);
+  // An exercise being dragged in Workouts holds the page still (1.0.55.15).
+  const [rowDragging, setRowDragging] = useState(false);
   const conditionsTop = useRef(0);
   const scrollConditionsTo = useCallback((y: number) => {
     scrollRef.current?.scrollTo({ y: conditionsTop.current + y, animated: true });
@@ -1906,9 +1908,9 @@ export default function LifeScreen() {
 
   return (
     <View style={styles.screen}>
-      <SwipeableTabScreen enabled={!revealed}>
+      <SwipeableTabScreen enabled={!revealed && !rowDragging}>
         <GatedTabContent pageTitle="Life" variant="field" revealed={revealed}>
-          <ScrollView ref={scrollRef} style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
+          <ScrollView ref={scrollRef} scrollEnabled={!rowDragging} style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
             {infoAlertElement}
             <AppActionSheet
               visible={confirm !== null}
@@ -1950,7 +1952,7 @@ export default function LifeScreen() {
             {lens === 'emergency' ? <EmergencySection tabColor={TAB_COLOR} /> : null}
             {lens === 'myMeds' ? <MyMedsSection tabColor={TAB_COLOR} focusTreatmentId={focusTreatmentId} /> : null}
             {lens === 'movement' ? <MovementSection tabColor={TAB_COLOR} /> : null}
-            {lens === 'workouts' ? <WorkoutsSection tabColor={TAB_COLOR} /> : null}
+            {lens === 'workouts' ? <WorkoutsSection tabColor={TAB_COLOR} onDragChange={setRowDragging} /> : null}
             {lens === 'routines' ? <RoutinesSection tabColor={TAB_COLOR} /> : null}
             {lens === 'didIDoIt' ? <DidIDoItSection tabColor={TAB_COLOR} /> : null}
             {lens === 'daysUntil' ? (

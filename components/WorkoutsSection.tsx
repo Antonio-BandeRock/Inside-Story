@@ -4,6 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
+import { DragReorderList } from './DragReorderList';
 import { NotesInput } from './NotesInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
@@ -46,7 +47,6 @@ import {
   exerciseRemovalMessage,
   libraryCountLine,
   missingExerciseName,
-  moveStep,
   newStepFields,
   resolveExercise,
   stepDraftFrom,
@@ -94,7 +94,12 @@ import {
 // never as a rule: the flare-day filter finds gentle exercises and decides
 // nothing.
 
-type Props = { tabColor: string };
+type Props = {
+  tabColor: string;
+  // True while an exercise is being dragged to a new place, so Life can
+  // stop its ScrollView scrolling; without that the scroll wins the gesture.
+  onDragChange?: (dragging: boolean) => void;
+};
 
 type WorkoutForm = { id: string | null; name: string; note: string };
 type ExerciseForm = { id: string | null; draft: CustomExerciseDraft };
@@ -116,7 +121,7 @@ function exerciseKey(view: { source: string; id: string }): string {
   return `${view.source}:${view.id}`;
 }
 
-export function WorkoutsSection({ tabColor }: Props) {
+export function WorkoutsSection({ tabColor, onDragChange }: Props) {
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const router = useRouter();
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -217,10 +222,9 @@ export function WorkoutsSection({ tabColor }: Props) {
     });
   }
 
-  async function shiftStep(workout: Workout, step: WorkoutStep, direction: -1 | 1) {
-    const ids = workout.steps.map((entry) => entry.id);
-    const next = moveStep(ids, step.id, direction);
-    await reorderWorkoutSteps(workout.id, next);
+  // Dragged by the grip, the way Home's cards are arranged (1.0.55.15).
+  async function saveStepOrder(workout: Workout, orderedIds: string[]) {
+    await reorderWorkoutSteps(workout.id, orderedIds);
     load();
   }
 
@@ -580,12 +584,25 @@ maxLength={80}
             </TouchableOpacity>
           ) : null}
 
-          {workout.steps.map((step, index) => {
-            const view = resolveExercise(step.source, step.exerciseId, custom);
-            const name = view ? view.name : missingExerciseName(step);
-            const editing = stepForm?.step.id === step.id;
-            return (
-              <View key={step.id} style={styles.row}>
+          {workout.steps.length > 1 ? (
+            <Text style={styles.rowMeta}>Drag an exercise by its grip to change the order.</Text>
+          ) : null}
+          <DragReorderList
+            items={workout.steps}
+            keyOf={(step) => step.id}
+            labelOf={(step) => {
+              const view = resolveExercise(step.source, step.exerciseId, custom);
+              return view ? view.name : missingExerciseName(step);
+            }}
+            onReorder={(ids) => void saveStepOrder(workout, ids)}
+            onDragChange={onDragChange}
+            color={tabColor}
+            rowStyle={styles.row}
+            renderItem={(step, index) => {
+              const view = resolveExercise(step.source, step.exerciseId, custom);
+              const name = view ? view.name : missingExerciseName(step);
+              const editing = stepForm?.step.id === step.id;
+              return (
                 <View style={styles.rowMain}>
                   <Text style={styles.rowTitle}>
                     {index + 1}. {name}
@@ -594,16 +611,6 @@ maxLength={80}
                   {step.note ? <Text style={styles.rowMeta}>{step.note}</Text> : null}
                   {editing && stepForm ? renderStepForm(stepForm) : (
                     <View style={styles.rowActions}>
-                      {index > 0 ? (
-                        <TouchableOpacity onPress={() => shiftStep(workout, step, -1)}>
-                          <Text style={styles.actionText}>Up</Text>
-                        </TouchableOpacity>
-                      ) : null}
-                      {index < workout.steps.length - 1 ? (
-                        <TouchableOpacity onPress={() => shiftStep(workout, step, 1)}>
-                          <Text style={styles.actionText}>Down</Text>
-                        </TouchableOpacity>
-                      ) : null}
                       <TouchableOpacity onPress={() => setStepForm({ step, draft: stepDraftFrom(step, view) })}>
                         <Text style={styles.actionText}>Sets and reps</Text>
                       </TouchableOpacity>
@@ -618,9 +625,9 @@ maxLength={80}
                     </View>
                   )}
                 </View>
-              </View>
-            );
-          })}
+              );
+            }}
+          />
 
           <Text style={styles.label}>Add an exercise</Text>
           <PopoverSelect
@@ -715,7 +722,7 @@ export const WORKOUTS_HELP_SECTIONS = [
   },
   {
     heading: 'Building a workout',
-    body: 'Build a workout, open it, and add exercises in the order you do them. Each one carries its sets, reps or time, weight, rest between sets and a note, so the same exercise can be heavy in one workout and light in another. Up and Down change the order.',
+    body: 'Build a workout, open it, and add exercises in the order you do them. Each one carries its sets, reps or time, weight, rest between sets and a note, so the same exercise can be heavy in one workout and light in another. Drag an exercise by the grip on its right to change the order, the same way cards are arranged on Home.',
   },
   {
     heading: 'Doing a workout',
