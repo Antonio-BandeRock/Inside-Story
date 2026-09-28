@@ -5,6 +5,7 @@ import { seriesReminderBody, seriesReminderTitle } from './photoSeries';
 import { listSeriesReminderInputs } from './photoSeriesDb';
 import { addCompostEvent, listCompostPilesToTurn } from './compostDb';
 import { getDailyNutrientAnalysis, listReminderCandidates, recordCheckin, setScheduleItemStatus, type ReminderCandidate } from './db';
+import { getMovedWaterTarget } from './hydrationIndexDb';
 import { skipHydrationReminder, waterTargetReached } from './hydrationTarget';
 import {
   ACTION_TEXT_INPUT,
@@ -883,7 +884,11 @@ async function runSync(): Promise<ReminderSyncResult> {
   if (isReminderKindEnabled(preferences, 'hydration')) {
     try {
       const analysis = await getDailyNutrientAnalysis(today);
-      waterReached = waterTargetReached(analysis.entries.find((entry) => entry.nutrientCode === 'water'));
+      const water = analysis.entries.find((entry) => entry.nutrientCode === 'water');
+      // The target moves with the day's activity (G36), so the reminders
+      // stop at the same figure Hydration shows.
+      const moved = water ? await getMovedWaterTarget(today, water.target) : null;
+      waterReached = waterTargetReached(water && moved ? { combinedTotal: water.combinedTotal, target: moved.targetMl } : water);
     } catch (error) {
       console.warn('[reminderNotifications] could not read the water total for today', error);
     }

@@ -115,6 +115,7 @@ const NAMED = [
   'lib/sinceLastMeal.ts',
   'lib/quickDrinks.ts',
   'lib/hydrationTarget.ts',
+  'lib/hydrationIndex.ts',
 ];
 
 function targets() {

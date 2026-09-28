@@ -135,6 +135,8 @@ import {
   quickDrinkMeal,
   type QuickDrink,
 } from '../../lib/quickDrinks';
+import { DRINK_INDEX_CAPTION, drinkIndexLines, movedWaterTarget, MOVED_TARGET_CAPTION, type MovedTarget } from '../../lib/hydrationIndex';
+import { getHydrationDay, type HydrationDay } from '../../lib/hydrationIndexDb';
 import { hydrationReminderLine } from '../../lib/hydrationTarget';
 import { getReminderPreferences, isReminderKindEnabled } from '../../lib/reminderPreferences';
 import { buildTime24, describeTimeInputProblem, formatTime12, splitTime24, type TimeOfDayInput } from '../../lib/timeOfDay';
@@ -3467,6 +3469,9 @@ function HydrationLens() {
   // Whether Profile's Water & drinks reminders are on, so the line about
   // reminders stopping at the target (G35) is only said when there are any.
   const [hydrationRemindersOn, setHydrationRemindersOn] = useState(false);
+  // Today's activity and the names of today's drinks (G36): the first moves
+  // the water target, the second finds each drink in the hydration index.
+  const [hydrationDay, setHydrationDay] = useState<HydrationDay | null>(null);
   const [favorites, setFavorites] = useState<FavoriteRecord[]>([]);
   const [templates, setTemplates] = useState<MealRecord[]>([]);
   const [loading, setLoading] = useState(false);
@@ -3488,10 +3493,12 @@ function HydrationLens() {
           listMeals(100),
           getDailyNutrientAnalysis(date),
           getReminderPreferences(),
+          getHydrationDay(date),
         ]),
       )
-      .then(([scheduled, loggedToday, loadedFavorites, loadedTemplates, analysis, reminderPrefs]) => {
+      .then(([scheduled, loggedToday, loadedFavorites, loadedTemplates, analysis, reminderPrefs, day]) => {
         setHydrationRemindersOn(isReminderKindEnabled(reminderPrefs, 'hydration'));
+        setHydrationDay(day);
         setItems(scheduled.filter((item) => item.mealType === 'beverage'));
         setLoggedBeverages(loggedToday.filter((meal) => meal.meal_type === 'beverage'));
         setFavorites(loadedFavorites);
@@ -3510,6 +3517,14 @@ function HydrationLens() {
       load();
     }, [load]),
   );
+
+  // The water target moved for today's activity (G36). The base is the
+  // target the nutrient analysis carries; the reminders read the same figure.
+  const movedTarget: MovedTarget | null = waterEntry
+    ? movedWaterTarget(waterEntry.target, hydrationDay?.active ?? { minutes: 0, source: null })
+    : null;
+  const movedWaterEntry = waterEntry && movedTarget ? { combinedTotal: waterEntry.combinedTotal, target: movedTarget.targetMl } : waterEntry;
+  const drinkIndex = drinkIndexLines(hydrationDay?.drinkNames ?? []);
 
   async function handleQuickDrink(drink: QuickDrink) {
     if (quickBusy) return;
@@ -3734,15 +3749,25 @@ function HydrationLens() {
         <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View>
       ) : (
         <>
-          {waterEntry ? (
+          {waterEntry && movedTarget ? (
             <View style={styles.hydrationSummaryCard}>
               <Text style={styles.hydrationSummaryLabel}>Today&apos;s water</Text>
               <Text style={styles.hydrationSummaryValue}>
-                {Math.round(waterEntry.combinedTotal)} / {Math.round(waterEntry.target)} ml
+                {Math.round(waterEntry.combinedTotal)} / {Math.round(movedTarget.targetMl)} ml
               </Text>
-              <Text style={styles.hydrationSummaryMeta}>{Math.round(waterEntry.percentOfTarget)}% of today&apos;s target</Text>
-              {hydrationReminderLine(waterEntry, hydrationRemindersOn) ? (
-                <Text style={styles.hydrationSummaryMeta}>{hydrationReminderLine(waterEntry, hydrationRemindersOn)}</Text>
+              <Text style={styles.hydrationSummaryMeta}>
+                {movedTarget.targetMl > 0 ? Math.round((waterEntry.combinedTotal / movedTarget.targetMl) * 100) : 0}% of today&apos;s target
+              </Text>
+              {movedTarget.line ? (
+                <TouchableOpacity
+                  onPress={() => showInfoAlert('A target that moves with the day', MOVED_TARGET_CAPTION)}
+                  accessibilityLabel="Why the target moved today"
+                >
+                  <Text style={styles.hydrationSummaryMeta}>{movedTarget.line} Why?</Text>
+                </TouchableOpacity>
+              ) : null}
+              {hydrationReminderLine(movedWaterEntry, hydrationRemindersOn) ? (
+                <Text style={styles.hydrationSummaryMeta}>{hydrationReminderLine(movedWaterEntry, hydrationRemindersOn)}</Text>
               ) : null}
             </View>
           ) : null}
@@ -3933,6 +3958,28 @@ function HydrationLens() {
             </View>
           )}
           </ScheduleBand>
+
+          {drinkIndex.found.length > 0 || drinkIndex.untested.length > 0 ? (
+            <ScheduleBand folds={folds} id="schedule:hydration:index" title="How today's drinks hold water" icon="flask-outline" count={drinkIndex.found.length}>
+              <View style={[styles.bandBox, styles.bandRows]}>
+                {drinkIndex.found.map((entry) => (
+                  <View key={entry.key}>
+                    <Text style={styles.quickDrinkLogged}>
+                      {entry.label}
+                      {entry.index ? `: ${entry.index}` : ''}
+                    </Text>
+                    <Text style={styles.hydrationSummaryMeta}>{entry.line}</Text>
+                  </View>
+                ))}
+                {drinkIndex.untested.length > 0 ? (
+                  <Text style={styles.hydrationSummaryMeta}>
+                    Not in the trial, so no figure: {drinkIndex.untested.join(', ')}.
+                  </Text>
+                ) : null}
+                <Text style={styles.quickDrinkSize}>{DRINK_INDEX_CAPTION}</Text>
+              </View>
+            </ScheduleBand>
+          ) : null}
         </>
       )}
     </ScrollView>
