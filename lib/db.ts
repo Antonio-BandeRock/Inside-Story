@@ -7227,7 +7227,7 @@ async function runDatabaseInitialization() {
         planted_at TEXT NOT NULL,
         expected_harvest_start TEXT,
         expected_harvest_end TEXT,
-        status TEXT NOT NULL DEFAULT 'growing', -- 'growing' | 'harvested' | 'failed' | 'removed'
+        status TEXT NOT NULL DEFAULT 'growing', -- 'growing' | 'harvested' | 'failed' | 'removed' | 'planned' (a later succession sowing, I6)
         notes TEXT,
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
         updated_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -23424,15 +23424,17 @@ export async function gardenPlotHasRecords(id: string): Promise<boolean> {
   return (row?.n ?? 0) > 0;
 }
 
-/** How many plantings in an area are still growing: what stands between
- *  the area and Past Areas. */
-export async function countGrowingPlantings(plotId: string): Promise<number> {
+/** How many plantings in an area are still growing, and how many later
+ *  sowings are still to go in: what stands between the area and Past Areas. */
+export async function countGrowingPlantings(plotId: string): Promise<{ growing: number; planned: number }> {
   const db = await getDatabase();
-  const row = await db.getFirstAsync<{ n: number }>(
-    "SELECT COUNT(*) AS n FROM garden_plantings WHERE plot_id = ? AND status = 'growing'",
+  const row = await db.getFirstAsync<{ growing: number; planned: number }>(
+    `SELECT SUM(CASE WHEN status = 'growing' THEN 1 ELSE 0 END) AS growing,
+            SUM(CASE WHEN status = 'planned' THEN 1 ELSE 0 END) AS planned
+     FROM garden_plantings WHERE plot_id = ?`,
     plotId,
   );
-  return row?.n ?? 0;
+  return { growing: row?.growing ?? 0, planned: row?.planned ?? 0 };
 }
 
 /** How many harvests were logged from each planting in an area, keyed by
@@ -23456,7 +23458,7 @@ export type GardenPlanting = {
   plantedAt: string;
   expectedHarvestStart: string | null;
   expectedHarvestEnd: string | null;
-  status: 'growing' | 'harvested' | 'failed' | 'removed';
+  status: 'growing' | 'harvested' | 'failed' | 'removed' | 'planned';
   notes: string | null;
   createdAt: string;
   updatedAt: string;
@@ -23478,16 +23480,20 @@ export async function createGardenPlanting(input: {
   expectedHarvestStart?: string | null;
   expectedHarvestEnd?: string | null;
   notes?: string | null;
+  /** 'planned' for a later succession sowing not in the ground yet (I6). */
+  status?: 'growing' | 'planned';
 }): Promise<string> {
   const db = await getDatabase();
-  const id = `garden_planting_${Date.now()}`;
+  // A succession sowing writes several in the same millisecond, so the id
+  // carries a random tail as well as the time.
+  const id = `garden_planting_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const now = new Date().toISOString();
   await db.runAsync(
     `
       INSERT INTO garden_plantings
         (id, plot_id, food_id, source, food_name, variety_note, planted_at, expected_harvest_start, expected_harvest_end,
          status, notes, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'growing', ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.plotId,
@@ -23498,6 +23504,7 @@ export async function createGardenPlanting(input: {
     input.plantedAt,
     input.expectedHarvestStart ?? null,
     input.expectedHarvestEnd ?? null,
+    input.status ?? 'growing',
     input.notes?.trim() || null,
     now,
     now,
@@ -23531,7 +23538,7 @@ export async function updateGardenPlanting(
     plantedAt: string;
     expectedHarvestStart: string | null;
     expectedHarvestEnd: string | null;
-    status: 'growing' | 'harvested' | 'failed' | 'removed';
+    status: 'growing' | 'harvested' | 'failed' | 'removed' | 'planned';
     notes: string | null;
   }>,
 ): Promise<void> {

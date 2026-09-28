@@ -70,5 +70,14 @@ check('two growing read plural', pastAreaBlocker([growing, growing, done]).start
 check('the line says what to do', pastAreaBlocker([growing]).includes('Mark each one harvested, failed or pulled out first'));
 check('the line says what is kept', pastAreaBlocker([growing]).endsWith('with everything recorded under it kept.'));
 
+// 4. Later succession sowings (I6, 1.0.55.22).
+const planned = { status: 'planned' };
+check('a planned sowing reads as To sow', plantingStatusLabel('planned') === 'To sow');
+check('a planned sowing is not finished', isFinishedPlanting(planned) === false);
+check('a planned sowing blocks Past Areas', stillGrowing([planned, done]) === 1);
+check('only planned names the sowing', pastAreaBlocker([planned]) === '1 later sowing is still to go in. First mark each later sowing sown or remove it; the area then moves to Past Areas with everything recorded under it kept.');
+check('growing and planned name both', pastAreaBlocker([growing, planned, planned]).startsWith('1 planting is still growing here, and 2 later sowings are still to go in. First mark each growing one'));
+check('the status picker never offers planned', !PLANTING_STATUS_OPTIONS.some((option) => option.value === 'planned'));
+
 console.log(`${passed} passed, ${failed} failed`);
 process.exit(failed ? 1 : 0);

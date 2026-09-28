@@ -29,12 +29,15 @@ export const PLANTING_STATUS_OPTIONS: { value: PlantingStatus; label: string }[]
 ];
 
 export function plantingStatusLabel(status: string): string {
+  if (status === 'planned') return 'To sow';
   return PLANTING_STATUS_OPTIONS.find((entry) => entry.value === status)?.label ?? status;
 }
 
-/** A grow is finished once its status has moved off growing. */
+/** A grow is finished once its status has moved off growing. A later
+ *  succession sowing (planned, I6) is not finished either: it has not
+ *  started. */
 export function isFinishedPlanting(planting: Pick<GardenPlanting, 'status'>): boolean {
-  return planting.status !== 'growing';
+  return planting.status !== 'growing' && planting.status !== 'planned';
 }
 
 /** The plantings still growing in an area, which is what stands between it
@@ -48,6 +51,19 @@ export function stillGrowing(plantings: Pick<GardenPlanting, 'status'>[]): numbe
 export function pastAreaBlocker(plantings: Pick<GardenPlanting, 'status'>[]): string | null {
   const count = stillGrowing(plantings);
   if (count === 0) return null;
-  const noun = count === 1 ? 'planting is' : 'plantings are';
-  return `${count} ${noun} still growing here. Mark each one harvested, failed or pulled out first; the area then moves to Past Areas with everything recorded under it kept.`;
+  const planned = plantings.filter((planting) => planting.status === 'planned').length;
+  const growing = count - planned;
+  if (planned === 0) {
+    const noun = count === 1 ? 'planting is' : 'plantings are';
+    return `${count} ${noun} still growing here. Mark each one harvested, failed or pulled out first; the area then moves to Past Areas with everything recorded under it kept.`;
+  }
+  const parts: string[] = [];
+  if (growing > 0) parts.push(`${growing} ${growing === 1 ? 'planting is' : 'plantings are'} still growing here`);
+  if (planned > 0) parts.push(`${planned} later ${planned === 1 ? 'sowing is' : 'sowings are'} still to go in`);
+  const steps = [
+    growing > 0 ? 'mark each growing one harvested, failed or pulled out' : null,
+    planned > 0 ? 'mark each later sowing sown or remove it' : null,
+  ].filter(Boolean);
+  const sentence = parts.join(', and ');
+  return `${sentence.charAt(0).toUpperCase()}${sentence.slice(1)}. First ${steps.join(', and ')}; the area then moves to Past Areas with everything recorded under it kept.`;
 }

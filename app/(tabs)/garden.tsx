@@ -67,7 +67,21 @@ import { PLANTING_STATUS_OPTIONS, pastAreaBlocker, plantingStatusLabel } from '.
 import { GardenSpaceField } from '../../components/GardenSpaceField';
 import { DaysUntilSection } from '../../components/DaysUntilSection';
 import { SowingCalendarLens } from '../../components/SowingCalendarLens';
-import { addGardenCountdown, countRunningGardenCountdowns } from '../../lib/gardenCountdownDb';
+import { addGardenCountdown, countRunningGardenCountdowns, listGardenCountdowns, setGardenCountdownDone } from '../../lib/gardenCountdownDb';
+import {
+  daysBetween,
+  joinDates,
+  parseWhole,
+  shiftDate,
+  SUCCESSION_EVERY_DEFAULT,
+  SUCCESSION_EVERY_MAX,
+  SUCCESSION_EVERY_MIN,
+  SUCCESSION_TIMES_DEFAULT,
+  SUCCESSION_TIMES_MAX,
+  SUCCESSION_TIMES_MIN,
+  successionCounterName,
+  successionDates,
+} from '../../lib/successionSowing';
 import { dateLabel } from '../../lib/moonSky';
 import { asksHowStarted, expectedDates, findSowingWindow, type SowingWindow } from '../../lib/sowingWindows';
 import { emptyLightDraft, GrowSetupSection, LightFields, lightDraftHasLight, lightDraftToInput, type LightDraft } from '../../components/GrowSetupSection';
@@ -379,7 +393,9 @@ const QUANTITY_OPTIONS = [
 ];
 
 function todayDateString(): string {
-  return new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
 export default function GardenScreen() {
@@ -866,6 +882,13 @@ function PlotsAndPlantingsLens({
   const [pendingStartedAs, setPendingStartedAs] = useState<PlantingStart | null>(null);
   const [pendingCountSprout, setPendingCountSprout] = useState(false);
   const [pendingCountHarvest, setPendingCountHarvest] = useState(false);
+  // I6, 1.0.55.22: succession sowing. With "Sow again" on, saving writes
+  // today's planting plus each later sowing as a planned planting, and a
+  // Days Until counter landing on each one's day when the person asks.
+  const [pendingSowAgain, setPendingSowAgain] = useState(false);
+  const [pendingEveryText, setPendingEveryText] = useState(String(SUCCESSION_EVERY_DEFAULT));
+  const [pendingTimesText, setPendingTimesText] = useState(String(SUCCESSION_TIMES_DEFAULT));
+  const [pendingCountSowings, setPendingCountSowings] = useState(true);
 
   const loadPlots = useCallback(async () => {
     const [rows, spaces, active, terms] = await Promise.all([listGardenPlots(true), listGardenSpaces(true), listGardenSpaces(), listGardenTerms(true)]);
@@ -958,9 +981,12 @@ function PlotsAndPlantingsLens({
   // it is completed." The count is re-read from the database rather than
   // trusted from state, so a planting added on another screen still counts.
   async function handleMoveToPast(id: string) {
-    const growing = await countGrowingPlantings(id);
-    if (growing > 0) {
-      const line = pastAreaBlocker(Array.from({ length: growing }, () => ({ status: 'growing' as const })));
+    const { growing, planned } = await countGrowingPlantings(id);
+    if (growing + planned > 0) {
+      const line = pastAreaBlocker([
+        ...Array.from({ length: growing }, () => ({ status: 'growing' as const })),
+        ...Array.from({ length: planned }, () => ({ status: 'planned' as const })),
+      ]);
       setPastBlockers((current) => ({ ...current, [id]: line ?? '' }));
       return;
     }
@@ -1025,9 +1051,94 @@ function PlotsAndPlantingsLens({
     if (expected && pendingCountHarvest && expected.harvestDays) {
       await addGardenCountdown({ plotId, plantingId, name: `First ${foodName.toLowerCase()} harvest`, startedOn: plantedAt, days: expected.harvestDays[0] });
     }
+    const later = laterSowings();
+    if (later) {
+      for (let i = 0; i < later.dates.length; i += 1) {
+        const sowOn = later.dates[i];
+        const laterExpected = sowing && startedAs ? plantingExpected(sowing, sowOn, startedAs) : null;
+        const laterId = await createGardenPlanting({
+          plotId,
+          foodId: pendingFood.foodId,
+          source: pendingFood.source,
+          foodName,
+          plantedAt: sowOn,
+          expectedHarvestStart: laterExpected?.harvestStart ?? null,
+          expectedHarvestEnd: laterExpected?.harvestEnd ?? null,
+          status: 'planned',
+        });
+        if (pendingCountSowings) {
+          await addGardenCountdown({
+            plotId,
+            plantingId: laterId,
+            name: successionCounterName(foodName, i + 2, later.dates.length + 1),
+            startedOn: plantedAt,
+            days: daysBetween(plantedAt, sowOn),
+          });
+        }
+      }
+    }
     resetPendingPlanting();
     setAddingPlantingToPlot(null);
     await loadPlantingsFor(plotId);
+  }
+
+  // The later sowings the Sow again fields describe, or null when it is off
+  // or a figure is out of range.
+  function laterSowings(): { dates: string[]; every: number } | null {
+    if (!pendingSowAgain) return null;
+    const every = parseWhole(pendingEveryText, SUCCESSION_EVERY_MIN, SUCCESSION_EVERY_MAX);
+    const times = parseWhole(pendingTimesText, SUCCESSION_TIMES_MIN, SUCCESSION_TIMES_MAX);
+    if (every === null || times === null) return null;
+    return { dates: successionDates(todayDateString(), every, times), every };
+  }
+
+  function renderSowAgain() {
+    const later = laterSowings();
+    const toggle = (on: boolean, label: string, onPress: () => void) => (
+      <TouchableOpacity
+        key={label}
+        style={[styles.pill, { borderColor: TAB_COLOR }, on ? { backgroundColor: PRIMARY_BUTTON_BACKGROUND } : null]}
+        onPress={onPress}
+      >
+        <Text style={on ? styles.pillTextActive : { color: TAB_COLOR }}>{label}</Text>
+      </TouchableOpacity>
+    );
+    return (
+      <>
+        <View style={styles.pillRow}>{toggle(pendingSowAgain, 'Sow again later', () => setPendingSowAgain((on) => !on))}</View>
+        {pendingSowAgain ? (
+          <>
+            <View style={styles.fieldRow}>
+              <Text style={styles.fieldLabel}>Every</Text>
+              <AppTextInput
+                style={[styles.textInput, styles.sizeInput]}
+                keyboardType="number-pad"
+                value={pendingEveryText}
+                onChangeText={setPendingEveryText}
+                placeholder={String(SUCCESSION_EVERY_DEFAULT)}
+              />
+              <Text style={styles.fieldLabel}>days,</Text>
+              <AppTextInput
+                style={[styles.textInput, styles.sizeInput]}
+                keyboardType="number-pad"
+                value={pendingTimesText}
+                onChangeText={setPendingTimesText}
+                placeholder={String(SUCCESSION_TIMES_DEFAULT)}
+              />
+              <Text style={styles.fieldLabel}>more times</Text>
+            </View>
+            <Text style={styles.captionText}>
+              {later
+                ? `Sown again on ${joinDates(later.dates.map((date) => dateLabel(date)))}. Each waits on this area as To sow until you mark it sown, on whatever day that happens.`
+                : `Every ${SUCCESSION_EVERY_MIN} to ${SUCCESSION_EVERY_MAX} days, ${SUCCESSION_TIMES_MIN} to ${SUCCESSION_TIMES_MAX} more times.`}
+            </Text>
+            <View style={styles.pillRow}>
+              {toggle(pendingCountSowings, 'A Days Until counter for each', () => setPendingCountSowings((on) => !on))}
+            </View>
+          </>
+        ) : null}
+      </>
+    );
   }
 
   function renderPlantingExpectations(foodName: string) {
@@ -1083,6 +1194,29 @@ function PlotsAndPlantingsLens({
     setPendingStartedAs(null);
     setPendingCountSprout(false);
     setPendingCountHarvest(false);
+    setPendingSowAgain(false);
+    setPendingEveryText(String(SUCCESSION_EVERY_DEFAULT));
+    setPendingTimesText(String(SUCCESSION_TIMES_DEFAULT));
+    setPendingCountSowings(true);
+  }
+
+  // A later sowing marked sown: it becomes a growing planting dated today,
+  // its expected harvest moved by however early or late it went in, and
+  // the counter that was waiting for it is marked done.
+  async function handleSownToday(plotId: string, planting: { id: string; plantedAt: string; expectedHarvestStart: string | null; expectedHarvestEnd: string | null }) {
+    const today = todayDateString();
+    const moved = daysBetween(planting.plantedAt, today);
+    await updateGardenPlanting(planting.id, {
+      status: 'growing',
+      plantedAt: today,
+      expectedHarvestStart: shiftDate(planting.expectedHarvestStart, moved),
+      expectedHarvestEnd: shiftDate(planting.expectedHarvestEnd, moved),
+    });
+    const counters = await listGardenCountdowns(plotId);
+    for (const counter of counters) {
+      if (counter.plantingId === planting.id && !counter.doneAt) await setGardenCountdownDone(counter.id, true);
+    }
+    await loadPlantingsFor(plotId);
   }
 
   // Only for a planting with no harvest logged; one with a harvest is a
@@ -1196,19 +1330,32 @@ function PlotsAndPlantingsLens({
                           {planting.foodName}
                           {planting.varietyNote ? ` (${planting.varietyNote})` : ''}
                         </Text>
-                        <PopoverSelect
-                          options={PLANTING_STATUS_OPTIONS}
-                          selected={planting.status}
-                          onSelect={(value) => handlePlantingStatus(plot.id, planting.id, value)}
-                          tabColor={TAB_COLOR}
-                          width={140}
-                        />
+                        {planting.status === 'planned' ? (
+                          <TouchableOpacity onPress={() => handleSownToday(plot.id, planting)}>
+                            <Text style={styles.linkText}>Sown Today</Text>
+                          </TouchableOpacity>
+                        ) : (
+                          <PopoverSelect
+                            options={PLANTING_STATUS_OPTIONS}
+                            selected={planting.status}
+                            onSelect={(value) => handlePlantingStatus(plot.id, planting.id, value)}
+                            tabColor={TAB_COLOR}
+                            width={140}
+                          />
+                        )}
                         {harvests === 0 ? (
                           <TouchableOpacity onPress={() => handleRemovePlanting(plot.id, planting.id)}>
                             <Text style={[styles.linkText, { color: colors.danger }]}>Remove</Text>
                           </TouchableOpacity>
                         ) : null}
                       </View>
+                      {planting.status === 'planned' ? (
+                        <Text style={styles.captionText}>
+                          To sow {dateLabel(planting.plantedAt)}
+                          {planting.plantedAt < todayDateString() ? `, ${daysBetween(planting.plantedAt, todayDateString())} days ago` : ''}
+                          {planting.expectedHarvestStart ? `; first harvest then about ${dateLabel(planting.expectedHarvestStart)}` : ''}.
+                        </Text>
+                      ) : null}
                       {planting.status === 'growing' && planting.expectedHarvestStart ? (
                         <Text style={styles.captionText}>
                           First harvest expected {dateLabel(planting.expectedHarvestStart)}
@@ -1241,6 +1388,7 @@ function PlotsAndPlantingsLens({
                   <View style={styles.pendingCard}>
                     <Text style={styles.bodyText}>Planting: {pendingFoodName || pendingFood.baseName}</Text>
                     {renderPlantingExpectations(pendingFoodName || pendingFood.baseName)}
+                    {renderSowAgain()}
                     <View style={styles.actionRow}>
                       <TouchableOpacity
                         style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
@@ -1693,13 +1841,13 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
           </>
         ) : pickingPlanting ? (
           <>
-            {plantings.length === 0 ? (
+            {plantings.filter((planting) => planting.status !== 'planned').length === 0 ? (
               <Text style={styles.captionText}>
                 Nothing tracked as planted yet. Add a planting in Plots &amp; Plantings first; once something&apos;s actually
                 growing, it&apos;ll show up here to log a harvest from.
               </Text>
             ) : (
-              plantings.map((planting) => (
+              plantings.filter((planting) => planting.status !== 'planned').map((planting) => (
                 <TouchableOpacity
                   key={planting.id}
                   style={styles.plantingPickRow}
@@ -1710,7 +1858,7 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
                 >
                   <Text style={styles.bodyText}>{planting.foodName}</Text>
                   <Text style={styles.captionText}>
-                    {plotNameById[planting.plotId] ?? 'Unknown plot'} · {planting.status}
+                    {plotNameById[planting.plotId] ?? 'Unknown plot'} · {plantingStatusLabel(planting.status)}
                   </Text>
                 </TouchableOpacity>
               ))
