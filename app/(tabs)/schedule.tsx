@@ -160,6 +160,7 @@ import {
   applyPlateSwap,
   dailyPlanTargetsMet,
   loadPlateSwapPools,
+  mealPlate,
   plateSwapOptions,
   removeAddedPick,
   type DailyMealPlanPick,
@@ -2873,7 +2874,11 @@ const SWAP_CARD_STEP = SWAP_CARD_WIDTH + SWAP_CARD_GAP;
 /** The scroller shows this many at most, nearest the targets first. */
 const SWAP_CARD_LIMIT = 40;
 
-const SWAP_ROLE_WORDS: Record<PlateSwapRole, string> = { side: 'side', salad: 'salad', beverage: 'drink' };
+const SWAP_ROLE_WORDS: Record<PlateSwapRole, string> = { main: 'main dish', side: 'side', salad: 'salad', beverage: 'drink' };
+
+function swapWord(meal: PlanMeal, role: PlateSwapRole): string {
+  return meal === 'breakfast' && role === 'main' ? 'breakfast' : SWAP_ROLE_WORDS[role];
+}
 
 function PlateSwapScroller({
   day,
@@ -2884,7 +2889,7 @@ function PlateSwapScroller({
   onClose,
 }: {
   day: DailyMealPlanResult;
-  meal: 'lunch' | 'dinner';
+  meal: PlanMeal;
   role: PlateSwapRole;
   mode?: PlateSwapMode;
   swapper: PlateSwapper;
@@ -2927,10 +2932,11 @@ function PlateSwapScroller({
     scrollRef.current?.scrollTo({ x: index * SWAP_CARD_STEP, animated: true });
   }
 
-  const adding = mode === 'add';
-  const hasCurrent = !adding && day[meal].some((p) => p.role === role && !p.added);
+  // Nothing is added beside a breakfast: it holds one dish.
+  const adding = mode === 'add' && meal !== 'breakfast';
+  const hasCurrent = !adding && mealPlate(day, meal).some((p) => p.role === role && !p.added);
   const chosen = state?.choices[selected];
-  const word = SWAP_ROLE_WORDS[role];
+  const word = swapWord(meal, role);
 
   return (
     <View style={styles.swapBox}>
@@ -2991,7 +2997,9 @@ function PlateSwapScroller({
             activeOpacity={0.85}
             onPress={() => {
               swapper.apply(
-                adding ? applyPlateAdd(state.handle, day, meal, role, chosen) : applyPlateSwap(state.handle, day, meal, role, chosen),
+                adding
+                  ? applyPlateAdd(state.handle, day, meal, role, chosen)
+                  : applyPlateSwap(state.handle, day, meal, role, chosen),
               );
               onClose();
             }}
@@ -3035,10 +3043,11 @@ function DailyPlanFullReport({
   // Present for the top-level layout; absent when nested in a day band.
   folds?: ScheduleFolds;
   foldId?: string;
-  // Present when a side, salad or drink on this day can be changed.
+  // Present when a dish on this day can be changed (a side, salad or drink
+  // since 2026-09-27, the breakfast and main dishes since H4).
   swapper?: PlateSwapper;
 }) {
-  const [swapping, setSwapping] = useState<{ meal: 'lunch' | 'dinner'; role: PlateSwapRole; mode: PlateSwapMode } | null>(null);
+  const [swapping, setSwapping] = useState<{ meal: PlanMeal; role: PlateSwapRole; mode: PlateSwapMode } | null>(null);
   const [removing, setRemoving] = useState(false);
   const reached = dailyPlanTargetsMet(day);
   const ratingColors = healthRatingColors(day.healthRating);
@@ -3119,7 +3128,9 @@ function DailyPlanFullReport({
     return (
       <>
         {plate.map((pick) => {
-          const role = pick.role === 'main' ? null : pick.role;
+          // Every dish the plan picked can be changed, the main dish included
+          // (H4); a dish somebody added is taken off instead.
+          const role = pick.role;
           const remove =
             swapper && pick.added && !swapping && !removing
               ? () => {
@@ -3188,7 +3199,15 @@ function DailyPlanFullReport({
       <View style={nested ? styles.dailyPlanSlot : styles.row}>
         <Text style={styles.rowTitle}>Breakfast</Text>
         {day.breakfast ? (
-          <DailyMealPlanPickRow pick={day.breakfast} />
+          <>
+            <DailyMealPlanPickRow
+              pick={day.breakfast}
+              onChange={swapper && !swapping ? () => setSwapping({ meal: 'breakfast', role: 'main', mode: 'change' }) : undefined}
+            />
+            {swapper && swapping?.meal === 'breakfast' ? (
+              <PlateSwapScroller day={day} meal="breakfast" role="main" swapper={swapper} onClose={() => setSwapping(null)} />
+            ) : null}
+          </>
         ) : isOpen('breakfast') ? (
           openLine
         ) : (

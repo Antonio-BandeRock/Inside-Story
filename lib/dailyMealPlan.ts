@@ -2503,9 +2503,17 @@ async function generateHouseholdDay(
 // lens's state until it is scheduled, so a trade changes nothing saved.
 // ---------------------------------------------------------------------
 
-export type PlateSwapPools = { pools: CandidatePools; conditionCodes: string[] };
+export type PlateSwapPools = {
+  pools: CandidatePools;
+  conditionCodes: string[];
+  /** Everybody the plan feeds, when it feeds more than you. */
+  eaters?: PlanEater[];
+};
 
-export type PlateSwapRole = 'side' | 'salad' | 'beverage';
+// 'main' is the breakfast or the main dish of lunch or dinner (H4,
+// 2026-09-28: "Swap one meal: reruns one slot against what the day still
+// needs"). Sides, salads and drinks were first (2026-09-27).
+export type PlateSwapRole = 'main' | 'side' | 'salad' | 'beverage';
 
 export type PlateSwapChoice = {
   entry: EligibleRecipeEntry;
@@ -2531,24 +2539,34 @@ export async function loadPlateSwapPools(
   if (!table) {
     return retryOnceOnReleasedObject(async () => ({ pools: await buildCandidatePools(conditionCodes, dietPreferences), conditionCodes }));
   }
-  // With a household, a side traded onto a shared plate fits everybody the
+  // With a household, a dish traded onto a shared plate fits everybody the
   // plan feeds, since which of them are home for that meal can change by day.
+  // That holds for a main dish too, so trading one in means nobody at that
+  // meal needs a plate of their own any more (foldOwnPlates below).
   return retryOnceOnReleasedObject(async () => {
     const pools = await buildCandidatePools([], []);
     const forEveryone = (list: LoadedCandidate[]) => list.filter((c) => table.eaters.every((eater) => table.fits(eater, c)));
     return {
       pools: {
         ...pools,
+        breakfastCandidates: forEveryone(pools.breakfastCandidates),
+        lunchMainCandidates: forEveryone(pools.lunchMainCandidates),
+        dinnerMainCandidates: forEveryone(pools.dinnerMainCandidates),
         sideCandidates: forEveryone(pools.sideCandidates),
         saladCandidates: forEveryone(pools.saladCandidates),
         beverageCandidates: forEveryone(pools.beverageCandidates),
       },
       conditionCodes: table.you.conditionCodes,
+      eaters: table.eaters,
     };
   });
 }
 
-function poolForRole(pools: CandidatePools, role: PlateSwapRole): LoadedCandidate[] {
+function poolForRole(pools: CandidatePools, role: PlateSwapRole, meal: PlanMeal): LoadedCandidate[] {
+  if (role === 'main') {
+    if (meal === 'breakfast') return pools.breakfastCandidates;
+    return meal === 'lunch' ? pools.lunchMainCandidates : pools.dinnerMainCandidates;
+  }
   if (role === 'side') return pools.sideCandidates;
   if (role === 'salad') return pools.saladCandidates;
   return pools.beverageCandidates;
@@ -2556,6 +2574,56 @@ function poolForRole(pools: CandidatePools, role: PlateSwapRole): LoadedCandidat
 
 function dayPicks(day: DailyMealPlanResult): DailyMealPlanPick[] {
   return [day.breakfast, ...day.lunch, ...day.dinner].filter((p): p is DailyMealPlanPick => p !== null);
+}
+
+/** One meal's dishes as a list, breakfast included (it holds one dish). */
+export function mealPlate(day: DailyMealPlanResult, meal: PlanMeal): DailyMealPlanPick[] {
+  if (meal === 'breakfast') return day.breakfast ? [day.breakfast] : [];
+  return day[meal];
+}
+
+function withMealPlate(day: DailyMealPlanResult, meal: PlanMeal, plate: DailyMealPlanPick[]): DailyMealPlanResult {
+  if (meal === 'breakfast') return { ...day, breakfast: plate[0] ?? null };
+  return { ...day, [meal]: plate };
+}
+
+/**
+ * With a household, a main dish traded in fits everybody the plan feeds, so
+ * anybody who had a plate of their own at that meal now eats the shared
+ * dish: their plate comes off, their name and servings join the meal, and
+ * the notes about that meal are worked again. Nothing changes without a
+ * household or for a side, salad or drink.
+ */
+function foldOwnPlates(handle: PlateSwapPools, day: DailyMealPlanResult, meal: PlanMeal): DailyMealPlanResult {
+  const household = day.household;
+  if (!household || !handle.eaters) return day;
+  const label = PLAN_MEAL_LABELS[meal];
+  // Everybody home for this meal, the ones who had no plate at all included.
+  const home = eatersAt(handle.eaters, day.date, meal);
+  const own = household.plates.filter((plate) => plate.meal === meal && plate.reason === 'own');
+  const staleNotes = own.map((plate) => `${plate.pick.entry.title} for ${plate.forName} has `);
+  const notes = household.notes.filter(
+    (note) =>
+      !note.startsWith(`${label} has `) &&
+      !note.endsWith(` for ${meal}, so there is no plate for them at that meal.`) &&
+      !staleNotes.some((start) => note.startsWith(start)),
+  );
+  const names = home.map((eater) => (eater.isYou ? 'you' : eater.name));
+  const servings = servingsFor(home);
+  // Chop, mash or cook softer, for anybody at this meal who eats soft food.
+  const soft = home.filter((eater) => eater.soft);
+  if (soft.length > 0) {
+    const words = [...new Set(mealPlate(day, meal).flatMap((pick) => hardToChewWords(ingredientTextOf(pick.entry))))];
+    if (words.length > 0) notes.push(`${label} has ${joinNames(words)} in it; for ${joinNames(soft.map((eater) => eater.name))}, chop, mash or cook it softer.`);
+  }
+  return {
+    ...day,
+    household: {
+      meals: { ...household.meals, [meal]: { names, servings } },
+      plates: household.plates.filter((plate) => !own.includes(plate)),
+      notes,
+    },
+  };
 }
 
 /**
@@ -2571,13 +2639,13 @@ function dayPicks(day: DailyMealPlanResult): DailyMealPlanPick[] {
 export function plateSwapOptions(
   handle: PlateSwapPools,
   day: DailyMealPlanResult,
-  meal: 'lunch' | 'dinner',
+  meal: PlanMeal,
   role: PlateSwapRole,
   mode: PlateSwapMode = 'change',
 ): { choices: PlateSwapChoice[]; notes: string[] } {
   const driRows = Array.from(driByCodeForDate(handle.pools, day.date).values());
-  const onPlate = mode === 'add' ? null : (day[meal].find((pick) => pick.role === role && !pick.added) ?? null);
-  const pool = poolForRole(handle.pools, role);
+  const onPlate = mode === 'add' ? null : (mealPlate(day, meal).find((pick) => pick.role === role && !pick.added) ?? null);
+  const pool = poolForRole(handle.pools, role, meal);
   type Dish = { id: string; totals: Record<string, number>; carbGrams: number; entry: EligibleRecipeEntry | null };
   const current: Dish = onPlate
     ? { id: onPlate.entry.linkedCuratedRecipeId, totals: onPlate.nutrientTotals, carbGrams: onPlate.carbGrams, entry: onPlate.entry }
@@ -2606,7 +2674,24 @@ export function plateSwapOptions(
       cautions: describeLimitsPassed(option, driRows),
     });
   }
-  return { choices, notes: describeLeftOut(leftOutLimit, leftOutCarbs) };
+  const notes = describeLeftOut(leftOutLimit, leftOutCarbs);
+  if (choices.every((choice) => choice.current) && notes.length === 0) {
+    notes.push(
+      handle.eaters
+        ? 'Nothing else in the recipe library fits everybody this plan feeds.'
+        : 'Nothing else in the recipe library fits your conditions and eating style here.',
+    );
+  }
+  // A main dish traded in with a household fits everybody, so a plate made
+  // for one person at this meal would come off.
+  if (role === 'main' && mode === 'change' && day.household) {
+    const own = day.household.plates.filter((plate) => plate.meal === meal && plate.reason === 'own');
+    if (own.length > 0 && choices.some((choice) => !choice.current)) {
+      const names = joinNames(own.map((plate) => plate.forName));
+      notes.push(`Each of these fits everybody the plan feeds, so a new one would be made for ${names} too, in place of the plate of their own.`);
+    }
+  }
+  return { choices, notes };
 }
 
 /**
@@ -2617,16 +2702,19 @@ export function plateSwapOptions(
 export function applyPlateSwap(
   handle: PlateSwapPools,
   day: DailyMealPlanResult,
-  meal: 'lunch' | 'dinner',
+  meal: PlanMeal,
   role: PlateSwapRole,
   choice: PlateSwapChoice,
 ): DailyMealPlanResult {
   const incoming: DailyMealPlanPick = { entry: choice.entry, role, carbGrams: choice.carbGrams, nutrientTotals: choice.nutrientTotals };
-  const plate = [...day[meal]];
+  const plate = [...mealPlate(day, meal)];
   const index = plate.findIndex((pick) => pick.role === role && !pick.added);
   if (index >= 0) plate[index] = incoming;
+  else if (role === 'main') plate.unshift(incoming);
   else plate.push(incoming);
-  return recomputePlannedDay(handle, day, { ...day, [meal]: plate });
+  let next = withMealPlate(day, meal, plate);
+  if (role === 'main') next = foldOwnPlates(handle, next, meal);
+  return recomputePlannedDay(handle, day, next);
 }
 
 /** The day with `choice` put on `meal` beside everything already there. */
