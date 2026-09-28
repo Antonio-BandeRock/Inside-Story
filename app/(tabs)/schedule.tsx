@@ -53,6 +53,7 @@ import {
   setAppointmentCancelled,
   setScheduledMealRotationSelections,
   setScheduledMealSkipped,
+  moveScheduledMealToDay,
   settlePastScheduledMeals,
   setUpMealPlan,
   unlinkScheduleItemFromDeviceCalendarEvent,
@@ -94,6 +95,18 @@ import {
   removeCookMessage,
   saveLeftoversIntro,
 } from '../../lib/leftovers';
+import {
+  MOVE_LABEL,
+  MOVE_SERIES_NOTE,
+  MOVE_DAY_SPAN,
+  moveBounds,
+  moveDayChoices,
+  moveIntro,
+  moveProblem,
+  movedMessage,
+  movedScheduledFor,
+  shiftDay,
+} from '../../lib/moveMeal';
 import {
   SAVE_WEEK_LABEL,
   USE_SAVED_WEEK_LABEL,
@@ -186,6 +199,7 @@ import {
 import {
   createDeviceCalendarEvent,
   deleteDeviceCalendarEvent,
+  updateDeviceCalendarEvent,
   hasCalendarPermission,
   listUpcomingDeviceEvents,
   requestCalendarPermission,
@@ -1422,6 +1436,8 @@ function MealsLens() {
   // H3: "Eat again" plans a later meal that eats what this one cooks, and
   // "Save leftovers" does the same for a meal already eaten.
   const [leftoverCook, setLeftoverCook] = useState<LeftoverCook | null>(null);
+  // H5: one planned meal moved to another day.
+  const [movingItem, setMovingItem] = useState<ScheduleItemRecord | null>(null);
 
   // "Rotate ingredients" changes what's current for THIS one scheduled
   // occurrence only -- persisted on the schedule_items row itself (see
@@ -1837,6 +1853,9 @@ function MealsLens() {
                           <TouchableOpacity onPress={() => handleToggleSkipped(item)}>
                             <Text style={styles.actionText}>Skip</Text>
                           </TouchableOpacity>
+                          <TouchableOpacity onPress={() => setMovingItem(item)}>
+                            <Text style={styles.actionText}>{MOVE_LABEL}</Text>
+                          </TouchableOpacity>
                           <TouchableOpacity onPress={() => openEditForm(item)}>
                             <Text style={styles.actionText}>Edit</Text>
                           </TouchableOpacity>
@@ -1945,6 +1964,16 @@ function MealsLens() {
       onClose={() => {
         setLeftoverCook(null);
         load();
+      }}
+    />
+    <MoveMealSheet
+      item={movingItem}
+      onClose={() => setMovingItem(null)}
+      onMoved={(date, message) => {
+        setMovingItem(null);
+        setSelectedDate(date);
+        load();
+        showInfoAlert('Moved', message);
       }}
     />
     </>
@@ -2081,6 +2110,138 @@ function canSaveLeftoversFrom(item: ScheduleItemRecord): boolean {
   if (item.status !== 'logged' && item.status !== 'partial') return false;
   if (item.leftoverOf || item.leftoverOfMeal) return false;
   return canSaveLeftovers(item.scheduledFor, todayDateString());
+}
+
+// H5: a day picker on one planned meal. The meal keeps its time and kind,
+// only this occurrence moves, and leftovers stay after their cooking
+// (lib/moveMeal.ts). A meal on the phone calendar moves there too.
+function MoveMealSheet({
+  item,
+  onClose,
+  onMoved,
+}: {
+  item: ScheduleItemRecord | null;
+  onClose: () => void;
+  onMoved: (date: string, message: string) => void;
+}) {
+  const [date, setDate] = useState('');
+  const [leftoverTimes, setLeftoverTimes] = useState<string[]>([]);
+  const [planned, setPlanned] = useState<{ date: string; mealType: string | null }[]>([]);
+  const [message, setMessage] = useState<string | null>(null);
+  const today = todayDateString();
+
+  useEffect(() => {
+    if (!item) return;
+    setDate('');
+    setMessage(null);
+    setLeftoverTimes([]);
+    setPlanned([]);
+    const start = todayDateString();
+    Promise.all([
+      item.leftoverOf || item.leftoverOfMeal ? Promise.resolve([]) : listLeftoversOf(item.id),
+      listScheduledMealsForDateRange(start, shiftDay(start, MOVE_DAY_SPAN)),
+    ])
+      .then(([leftovers, meals]) => {
+        setLeftoverTimes(leftovers.filter((row) => row.status === 'planned').map((row) => row.scheduledFor));
+        setPlanned(
+          meals
+            .filter((meal) => meal.id !== item.id && meal.status !== 'skipped')
+            .map((meal) => ({ date: meal.scheduledFor.slice(0, 10), mealType: meal.mealType })),
+        );
+      })
+      .catch((error) => console.error('[Move meal] Failed to read the days ahead', error));
+  }, [item]);
+
+  const links = { cookScheduledFor: item && (item.leftoverOf || item.leftoverOfMeal) ? item.cookScheduledFor : null, leftoverTimes };
+  const bounds = moveBounds(links);
+  const choices = item ? moveDayChoices({ fromDate: item.scheduledFor, today, mealType: item.mealType, bounds, planned }) : [];
+
+  async function handleMove() {
+    if (!item || !date) {
+      setMessage('Pick a day first.');
+      return;
+    }
+    const scheduledFor = movedScheduledFor(item.scheduledFor, date);
+    const problem = moveProblem(scheduledFor, links);
+    if (problem) {
+      setMessage(problem);
+      return;
+    }
+    try {
+      await moveScheduledMealToDay(item.id, scheduledFor);
+      void syncReminderNotifications();
+      let text = movedMessage(item.title, scheduledFor, todayDateString());
+      if (item.linkedDeviceCalendarEventId) {
+        const [datePart, timePart] = scheduledFor.split('T');
+        const [year, month, day] = datePart.split('-').map(Number);
+        const [hour, minute] = timePart.split(':').map(Number);
+        const startDate = new Date(year, month - 1, day, hour, minute);
+        try {
+          await updateDeviceCalendarEvent(item.linkedDeviceCalendarEventId, {
+            title: item.mealType ? `${capitalize(item.mealType)}: ${item.title}` : item.title,
+            startDate,
+            endDate: new Date(startDate.getTime() + 30 * 60 * 1000),
+            notes: item.notes ?? undefined,
+          });
+          text += ' The phone calendar entry moved with it.';
+        } catch {
+          text += ' The phone calendar entry could not be moved, so it still shows the day it was on.';
+        }
+      }
+      onMoved(date, text);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  return (
+    <Modal visible={item !== null} transparent animationType={modalAnimationType('slide')} onRequestClose={onClose}>
+      <View style={styles.backdrop}>
+        <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={onClose} />
+        <View style={styles.rotateSheet}>
+          <View style={styles.rotateSheetHeader}>
+            <Text style={styles.rotateSheetTitle}>
+              {MOVE_LABEL}: {item?.title}
+            </Text>
+            <TouchableOpacity onPress={onClose}>
+              <Text style={styles.rotateSheetCloseText}>✕</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView style={styles.rotateSheetScroll}>
+            <Text style={styles.helperText}>{item ? moveIntro(item.title, item.scheduledFor, today) : ''}</Text>
+            {item?.repeatGroupId ? <Text style={styles.helperText}>{MOVE_SERIES_NOTE}</Text> : null}
+            {bounds.reason ? <Text style={styles.helperText}>{bounds.reason}</Text> : null}
+            <Text style={styles.label}>Which day</Text>
+            {item && choices.length > 0 ? (
+              <PopoverSelect
+                selected={choices.find((choice) => choice.date === date)?.label ?? ''}
+                options={choices.map((choice) => choice.label)}
+                onSelect={(label) => {
+                  const choice = choices.find((option) => option.label === label);
+                  if (choice) setDate(choice.date);
+                  setMessage(null);
+                }}
+                placeholder="Which day"
+                tabColor={TAB_COLOR}
+                width={300}
+              />
+            ) : item ? (
+              <Text style={styles.helperText}>There is no other day in the next four weeks this meal can move to.</Text>
+            ) : null}
+            {message ? <Text style={styles.errorText}>{message}</Text> : null}
+          </ScrollView>
+          <View style={styles.formActions}>
+            <TouchableOpacity style={styles.secondaryButton} onPress={onClose}>
+              <Text style={styles.secondaryButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => void handleMove()}>
+              <Text style={styles.primaryButtonText}>Move it</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
 }
 
 function LeftoverSheet({ cook, profile, onClose }: { cook: LeftoverCook | null; profile: UserProfile | null; onClose: () => void }) {

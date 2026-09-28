@@ -17495,6 +17495,24 @@ export async function updateScheduledMeal(
   await db.runAsync('UPDATE schedule_items SET title = ?, updated_at = ? WHERE leftover_of = ?', leftoverTitle(input.title), now, id);
 }
 
+// Moving one planned meal to another day (H5, lib/moveMeal.ts). Only this
+// occurrence moves and it keeps its time. The meal plan slot it came from
+// follows it to the new day so a partner is sent the day it is on now;
+// where that day already has a slot for the same meal, the moved slot lets
+// go of the meal instead (schedule_item_id NULL), which getMealPlanForSync
+// then leaves out, rather than overwrite what that day holds.
+export async function moveScheduledMealToDay(id: string, scheduledFor: string): Promise<void> {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  const date = scheduledFor.slice(0, 10);
+  await db.runAsync(`UPDATE schedule_items SET scheduled_for = ?, updated_at = ? WHERE id = ? AND status = 'planned'`, scheduledFor, now, id);
+  const slot = await db.getFirstAsync<{ id: string; mealType: string }>('SELECT id, meal_type AS mealType FROM meal_plan_slots WHERE schedule_item_id = ?', id);
+  if (!slot) return;
+  const taken = await db.getFirstAsync<{ id: string }>('SELECT id FROM meal_plan_slots WHERE date = ? AND meal_type = ? AND id != ?', date, slot.mealType, slot.id);
+  if (taken) await db.runAsync('UPDATE meal_plan_slots SET schedule_item_id = NULL WHERE id = ?', slot.id);
+  else await db.runAsync('UPDATE meal_plan_slots SET date = ? WHERE id = ?', date, slot.id);
+}
+
 // How many people a planned meal is made for (G5). Null goes back to
 // following the grocery list. wholeSeries is for a meal just scheduled, where
 // every occurrence it created takes the number; an edit touches one
