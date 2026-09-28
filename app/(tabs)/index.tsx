@@ -60,6 +60,9 @@ import { APP_VERSION } from '../../constants/version';
 import { textShadow, typography } from '../../constants/typography';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/checkinTags';
 import { DailyList } from '../../components/DailyList';
+import { FuelGaugeChooser } from '../../components/FuelGaugeChooser';
+import { DEFAULT_FUEL_GAUGE_CODES, FUEL_GAUGE_EMPTY_LINE, pickFuelGauges } from '../../lib/fuelGaugeChoice';
+import { getFuelGaugeChoice, saveFuelGaugeChoice } from '../../lib/fuelGaugeChoiceDb';
 import { MorningCheckin } from '../../components/MorningCheckin';
 import { dailyRatingLabel, mergeDailyRatings, noneTodaySentence, ratingsFromSaved } from '../../lib/dailyList';
 import { getDailyList, saveDailyList } from '../../lib/dailyListDb';
@@ -466,7 +469,10 @@ function mulberry32(seed: number): () => number {
 // iron, copper) and to bone health (vitamin D, calcium, magnesium) --
 // deliberately not a marketing-style "17 pillars" claim, just the nutrients
 // this app already tracks DRIs for that are most relevant here.
-export const CORE_NUTRIENT_CODES = ['iodine', 'selenium', 'zinc', 'iron', 'vitamin_d', 'calcium', 'magnesium', 'copper', 'vitamin_b12'];
+// G31, 2026-09-27: Home's gauges now show whatever the person chose
+// (lib/fuelGaugeChoice.ts); these nine are what they start with, and what
+// Trends and the Overview report keep reading.
+export const CORE_NUTRIENT_CODES: string[] = [...DEFAULT_FUEL_GAUGE_CODES];
 
 // 2026-08-29, direct report: the ring colours "don't really mean
 // anything; pink brown and light blue. Can these colors be more apparent
@@ -1289,6 +1295,9 @@ export default function HomeScreen() {
   // D6: the daily list and today's ratings for it (lib/dailyList.ts).
   const [dailyList, setDailyList] = useState<string[]>([]);
   const [dailyRatings, setDailyRatings] = useState<Record<string, number>>({});
+  // G31: which nutrients the Fuel Gauges show, and whether the chooser is open.
+  const [gaugeCodes, setGaugeCodes] = useState<string[]>(CORE_NUTRIENT_CODES);
+  const [gaugeChooserOpen, setGaugeChooserOpen] = useState(false);
   const [firstName, setFirstName] = useState<string | null>(null);
   // undefined = not fetched yet, null = fetched but no logged days this
   // week (nothing worth showing), object = real comparison.
@@ -1593,6 +1602,8 @@ export default function HomeScreen() {
       // G25, 2026-09-27. Four weeks of meal names and times, one query.
       getUsualMealsCard(date, nowTimeString24()),
       getTomorrowSlots(date, nowTimeString24()),
+      // G31, 2026-09-27. The nutrients the person chose for the gauges.
+      getFuelGaugeChoice(),
     ]).then(
       ([
         todaysMeals,
@@ -1622,8 +1633,10 @@ export default function HomeScreen() {
         yourWeekInputs,
         usualMeal,
         tomorrowPacks,
+        gaugeChoice,
       ]) => {
         setFirstName(profile.firstName);
+        setGaugeCodes(gaugeChoice);
         const nutrientEntries = analyzeNutrientIntake(
           nutrientTotals.driRows,
           nutrientTotals.dayTotals[date] ?? {},
@@ -2163,11 +2176,7 @@ export default function HomeScreen() {
       ? data.daysSinceAssessment === null || data.daysSinceAssessment >= checkinIntervalDays
       : false;
 
-  const coreNutrientRings = data
-    ? CORE_NUTRIENT_CODES.map((code) => data.nutrientEntries.find((entry) => entry.nutrientCode === code)).filter(
-        (entry): entry is NutrientGapEntry => entry != null,
-      )
-    : [];
+  const coreNutrientRings = data ? pickFuelGauges(gaugeCodes, data.nutrientEntries) : [];
   // Named in the gauges card only when there is genuinely something over a
   // published upper limit, so the warning stays rare enough to mean
   // something. See nutrientRingColors above for why 'excess_risk' is the
@@ -2902,13 +2911,41 @@ export default function HomeScreen() {
     );
   }
 
+  function changeGaugeCodes(codes: string[]) {
+    setGaugeCodes(codes);
+    void saveFuelGaugeChoice(codes);
+  }
+
+  // G31, 2026-09-27: the chooser, or the link that opens it, under the gauges.
+  function renderGaugeChooser() {
+    if (gaugeChooserOpen) {
+      return (
+        <FuelGaugeChooser
+          codes={gaugeCodes}
+          nutrients={data?.nutrientEntries ?? []}
+          onChange={changeGaugeCodes}
+          onDone={() => setGaugeChooserOpen(false)}
+          accent={tabColorFor('/insights')}
+        />
+      );
+    }
+    return (
+      <TouchableOpacity onPress={() => setGaugeChooserOpen(true)} hitSlop={8} style={styles.fuelGaugesChooseLink}>
+        <Text style={[styles.fuelGaugesChooseText, { color: tabColorFor('/insights') }]}>Choose nutrients</Text>
+      </TouchableOpacity>
+    );
+  }
+
   function renderFuelGauges() {
     if (!isHomeSectionVisible(visualPrefs, 'fuelGauges')) return null;
     if (mealsLoggedToday === 0) {
       return renderBand(
         'fuelGauges',
         "Today's Fuel Gauges",
-        <Text style={[styles.emptyText, { color: tabColorFor('/insights') }]}>Log a meal to see today’s fuel gauges fill in.</Text>,
+        <>
+          <Text style={[styles.emptyText, { color: tabColorFor('/insights') }]}>Log a meal to see today’s fuel gauges fill in.</Text>
+          {renderGaugeChooser()}
+        </>,
       );
     }
     return renderBand(
@@ -2928,6 +2965,7 @@ export default function HomeScreen() {
           Percent of your whole day&apos;s target, from what you have logged so far today. These climb as you log
           more, so a low number early is normal.
         </Text>
+        {coreNutrientRings.length === 0 ? <Text style={[styles.fuelGaugesChooseText, { color: tabColorFor('/insights') }]}>{FUEL_GAUGE_EMPTY_LINE}</Text> : null}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.ringRow}>
           {coreNutrientRings.map((entry) => {
             const ringColors = nutrientRingColors(entry);
@@ -2967,6 +3005,7 @@ export default function HomeScreen() {
             {`Over a safe upper limit today: ${overLimitNutrients.map((entry) => entry.displayName).join(', ')}. Tap through for the detail.`}
           </Text>
         ) : null}
+        {renderGaugeChooser()}
       </>,
     );
   }
@@ -4959,6 +4998,8 @@ const styles = StyleSheet.create({
   },
   // 2026-09-23. The amber the supplement stretch of a ring is drawn in,
   // so the line saying what that colour means is written in it.
+  fuelGaugesChooseLink: { alignSelf: 'flex-start' },
+  fuelGaugesChooseText: { ...typography.caption, ...textShadow, marginTop: 12 },
   fuelGaugesSourceKey: {
     ...typography.caption,
     ...textShadow,
