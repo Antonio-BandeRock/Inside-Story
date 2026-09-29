@@ -20,8 +20,12 @@ import type { GardenPlanting, GardenPlot } from './db';
 import {
   buildMeasurementBand,
   buildMonths,
+  buildVpdBand,
   describeAreaCoverage,
   describeMeasuredThings,
+  pairVpdReadings,
+  VPD_CODE,
+  VPD_LABEL,
   type AreaCoverage,
   type GardenReading,
   type MeasurementBand,
@@ -231,24 +235,42 @@ export async function getGrowingConditionsSummary(
 
   const things = describeMeasuredThings(latest, today);
   const measurements = things.map((thing) => ({ code: thing.measurement, label: thing.label }));
+  // Air VPD (I18) is worked out rather than measured, so it is offered once
+  // both of its readings have ever been recorded, last in the row so it is
+  // never the one shown first.
+  const measuredCodes = new Set(tallies.map((tally) => tally.measurement));
+  if (measuredCodes.has('air_temperature') && measuredCodes.has('humidity')) {
+    measurements.push({ code: VPD_CODE, label: VPD_LABEL });
+  }
   const chosen = picked && measurements.some((entry) => entry.code === picked) ? picked : measurements[0].code;
 
-  const readings = await db.getAllAsync<GardenReading>(
-    `SELECT ${READING_COLUMNS} FROM garden_readings
-      WHERE measurement = ? AND measured_on >= ? AND measured_on <= ?
-      ORDER BY measured_on ASC`,
-    chosen,
-    startDate,
-    endDate,
-  );
-
-  const band = buildMeasurementBand({
-    measurement: chosen,
-    label: labelFor(chosen),
-    readings,
-    months: buildMonths(startDate, endDate),
-    preferredUnit: await getCurrentUnit(chosen),
-  });
+  let band: MeasurementBand | null;
+  if (chosen === VPD_CODE) {
+    const pairable = await db.getAllAsync<GardenReading>(
+      `SELECT ${READING_COLUMNS} FROM garden_readings
+        WHERE measurement IN ('air_temperature', 'humidity') AND measured_on >= ? AND measured_on <= ?
+        ORDER BY measured_on ASC`,
+      startDate,
+      endDate,
+    );
+    band = buildVpdBand({ pairing: pairVpdReadings(pairable), months: buildMonths(startDate, endDate) });
+  } else {
+    const readings = await db.getAllAsync<GardenReading>(
+      `SELECT ${READING_COLUMNS} FROM garden_readings
+        WHERE measurement = ? AND measured_on >= ? AND measured_on <= ?
+        ORDER BY measured_on ASC`,
+      chosen,
+      startDate,
+      endDate,
+    );
+    band = buildMeasurementBand({
+      measurement: chosen,
+      label: labelFor(chosen),
+      readings,
+      months: buildMonths(startDate, endDate),
+      preferredUnit: await getCurrentUnit(chosen),
+    });
+  }
 
   const areas = await listGardenPlots(true);
   const forCoverage = await db.getAllAsync<{ plotId: string | null; plotName: string | null; measurement: string; measuredOn: string }>(

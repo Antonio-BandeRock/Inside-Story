@@ -11,7 +11,14 @@ import { getStoredMeasurementSystem, type GardenPlanting, type GardenPlot } from
 import {
   checkReading,
   describeReading,
+  describeVpdPair,
+  pairVpdReadings,
   unitChoices,
+  VPD_CODE,
+  VPD_HOW,
+  VPD_LABEL,
+  VPD_LEAF_NOTE,
+  VPD_PAIRING_NOTE,
   type GardenReading,
   type ReadingDraft,
 } from '../lib/growingConditions';
@@ -372,6 +379,11 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
       }))
       .sort((a, b) => b.rows[0].measuredOn.localeCompare(a.rows[0].measuredOn) || a.label.localeCompare(b.label));
   }, [readings, terms]);
+
+  // Air VPD worked out from the temperature and humidity readings above
+  // (I18). Nothing is stored, so deleting either reading changes it.
+  const vpd = useMemo(() => pairVpdReadings(readings), [readings]);
+  const showVpd = vpd.pairs.length > 0 || (groups.some((group) => group.measurement === 'air_temperature') && groups.some((group) => group.measurement === 'humidity'));
 
   // What the spectrum section says about the ratio: where it came from and
   // the formula behind it, or why none is worked out yet (1.0.55.25).
@@ -894,6 +906,42 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
           );
         })
       )}
+
+      {showVpd ? (
+        <TabBand
+          folds={folds}
+          color={TAB_COLOR}
+          id="garden:conditions:vpd"
+          title={`${VPD_LABEL}, Worked Out`}
+          icon="water-outline"
+          count={vpd.pairs.length}
+        >
+          <View style={styles.eventList}>
+            {vpd.pairs.length === 0 ? (
+              <Text style={styles.bodyText}>No air temperature and humidity recorded for the same area on the same day yet.</Text>
+            ) : null}
+            {(showAll[VPD_CODE] ? vpd.pairs : vpd.pairs.slice(0, SHOWN_AT_FIRST)).map((pair) => (
+              <View key={`${pair.temperatureId}+${pair.humidityId}`} style={styles.rowText}>
+                <Text style={styles.bodyText}>{describeVpdPair(pair, today)}</Text>
+                <Text style={styles.captionText}>{pair.plotName ?? 'An area since removed'}</Text>
+              </View>
+            ))}
+            {vpd.pairs.length > SHOWN_AT_FIRST ? (
+              <TouchableOpacity onPress={() => setShowAll({ ...showAll, [VPD_CODE]: !showAll[VPD_CODE] })}>
+                <Text style={styles.linkText}>{showAll[VPD_CODE] ? 'Show fewer' : `Show all ${vpd.pairs.length}`}</Text>
+              </TouchableOpacity>
+            ) : null}
+            {vpd.notes.map((note, index) => (
+              <Text key={index} style={styles.captionText}>
+                {note}
+              </Text>
+            ))}
+            <Text style={styles.captionText}>{VPD_HOW}</Text>
+            <Text style={styles.captionText}>{VPD_LEAF_NOTE}</Text>
+            <Text style={styles.captionText}>{VPD_PAIRING_NOTE}</Text>
+          </View>
+        </TabBand>
+      ) : null}
 
       {/* The record stays here and the months live on Trends, the rule the
           2026-09-23 push runs on. */}

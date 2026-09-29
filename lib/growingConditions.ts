@@ -156,7 +156,7 @@ function roundTo(value: number, places: number): number {
 /** How many decimal places a unit reads naturally in. pH and EC are read to
  *  a tenth or better; a lux figure never is. */
 export function placesFor(unit: string): number {
-  if (unit === 'pH' || unit === 'mS/cm') return 2;
+  if (unit === 'pH' || unit === 'mS/cm' || unit === 'kPa') return 2;
   if (unit === 'lux' || unit === 'PPFD' || unit === 'ppm' || unit === 'µS/cm' || unit === 'cb') return 0;
   return 1;
 }
@@ -205,6 +205,9 @@ export type MeasurementBandInput = {
    *  the figures read in the unit the person uses now rather than the unit
    *  of the oldest reading in view. */
   preferredUnit?: string | null;
+  /** What a blank month lacked, where "nothing was measured" would not be
+   *  so: a worked-out figure is blank when its two readings never met. */
+  blankReason?: string;
 };
 
 /** The unit a band reads in: the one given, or the unit of the newest
@@ -270,7 +273,7 @@ export function buildMeasurementBand(input: MeasurementBandInput): MeasurementBa
 
   const notes: string[] = [];
   if (blank > 0) {
-    const what = anyFromDevice ? 'nothing came in' : 'nothing was measured';
+    const what = input.blankReason ?? (anyFromDevice ? 'nothing came in' : 'nothing was measured');
     notes.push(blank === 1 ? `One month is blank, because ${what} that month.` : `${blank} months are blank, because ${what} those months.`);
   }
   if (aggregate === 'average' && measured.length > 0) {
@@ -509,4 +512,252 @@ export function describeReading(reading: GardenReading, today: string): string {
   const parts = [formatFigure(reading.value, reading.unit), describeWhen(reading.measuredOn, today)];
   if (reading.source === 'device') parts.push(reading.deviceName ? `from ${reading.deviceName}` : 'from a device');
   return parts.join(', ');
+}
+
+// ---------------------------------------------------------------------------
+// Air VPD, worked out from readings already entered (I18, 2026-09-28)
+// ---------------------------------------------------------------------------
+//
+// Vapour pressure deficit is the figure indoor growers steer by: how much
+// more water the air could hold at its temperature than it holds now. It is
+// never typed in and never stored. It is worked out from an air temperature
+// reading and a humidity reading recorded for the same area on the same day,
+// so correcting or deleting either reading changes it with no second record
+// to keep in step.
+//
+// A reading carries a day and no time of day, so where an area has several
+// of each on one day the two entered nearest together are taken as a pair,
+// and each reading is used once. Leaf temperature is not recorded, so this
+// is the air's VPD with the leaf taken to be at the air's temperature, and
+// every place it is shown says so. No figure is called right or wrong: what a
+// crop wants differs with the crop and its stage.
+
+export const VPD_CODE = 'derived_vpd';
+export const VPD_LABEL = 'Air VPD';
+export const VPD_UNIT = 'kPa';
+
+export const VPD_HOW =
+  'Worked out from an air temperature and a humidity reading recorded for the same area on the same day. Air can hold water vapour up to its saturation vapour pressure, 0.6108 × e^(17.27 × T ÷ (T + 237.3)) kPa with T in °C (the Tetens formula), and VPD is that figure times the share it is not holding: 100 minus the humidity, divided by 100.';
+export const VPD_LEAF_NOTE =
+  'Leaf temperature is not recorded, so the leaf is taken to be at the air temperature. A leaf a degree or two cooler than the air, which is common under lights, gives a lower figure than the one shown.';
+export const VPD_PAIRING_NOTE =
+  'A reading has a day and no time of day, so where an area has several of each on one day, the two entered nearest together are taken as a pair, and each reading is used once.';
+
+/** The kPa of water vapour air at this temperature can hold (Tetens). */
+export function saturationVapourPressure(celsius: number): number {
+  return 0.6108 * Math.exp((17.27 * celsius) / (celsius + 237.3));
+}
+
+/** The temperatures the Tetens formula is read over here, in °C. A figure
+ *  outside them is left out and counted rather than worked through. */
+export const VPD_LOWEST_C = -50;
+export const VPD_HIGHEST_C = 70;
+
+/** Air VPD in kPa, or null where the two figures cannot be read as an air
+ *  temperature in °C and a relative humidity. */
+export function airVpd(celsius: number, humidity: number): number | null {
+  if (!Number.isFinite(celsius) || !Number.isFinite(humidity)) return null;
+  if (humidity < 0 || humidity > 100) return null;
+  if (celsius < VPD_LOWEST_C || celsius > VPD_HIGHEST_C) return null;
+  return saturationVapourPressure(celsius) * (1 - humidity / 100);
+}
+
+export type VpdPair = {
+  plotId: string;
+  plotName: string | null;
+  measuredOn: string;
+  celsius: number;
+  /** The temperature as it was recorded, in its own unit. */
+  temperature: string;
+  humidity: number;
+  vpd: number;
+  temperatureId: string;
+  humidityId: string;
+  /** Set when both readings came from the same device. */
+  deviceName: string | null;
+};
+
+export type VpdPairing = {
+  /** Newest day first. */
+  pairs: VpdPair[];
+  unpairedTemperature: number;
+  unpairedHumidity: number;
+  noArea: number;
+  unreadable: number;
+  /** Each already a finished sentence. */
+  notes: string[];
+};
+
+function timeOf(stamp: string): number {
+  const time = Date.parse(stamp);
+  return Number.isFinite(time) ? time : Number.POSITIVE_INFINITY;
+}
+
+function countOf(count: number, one: string, many: string): string {
+  return count === 1 ? `1 ${one}` : `${count} ${many}`;
+}
+
+/** Every air temperature reading paired with a humidity reading from the
+ *  same area on the same day. Soil temperature is a different thing and is
+ *  never used. */
+export function pairVpdReadings(readings: GardenReading[]): VpdPairing {
+  type Temp = { reading: GardenReading; celsius: number };
+  const groups = new Map<string, { temps: Temp[]; hums: GardenReading[] }>();
+  let noArea = 0;
+  let unreadable = 0;
+  const groupFor = (reading: GardenReading) => {
+    const key = `${reading.plotId}|${reading.measuredOn}`;
+    let group = groups.get(key);
+    if (!group) {
+      group = { temps: [], hums: [] };
+      groups.set(key, group);
+    }
+    return group;
+  };
+
+  for (const reading of readings) {
+    if (reading.measurement !== 'air_temperature' && reading.measurement !== 'humidity') continue;
+    if (!reading.plotId) {
+      noArea += 1;
+      continue;
+    }
+    if (reading.measurement === 'air_temperature') {
+      const celsius = convertUnit(reading.value, reading.unit, '°C');
+      if (celsius === null || airVpd(celsius, 50) === null) {
+        unreadable += 1;
+        continue;
+      }
+      groupFor(reading).temps.push({ reading, celsius });
+    } else {
+      if (reading.unit.trim() !== '%' || airVpd(20, reading.value) === null) {
+        unreadable += 1;
+        continue;
+      }
+      groupFor(reading).hums.push(reading);
+    }
+  }
+
+  const pairs: VpdPair[] = [];
+  let unpairedTemperature = 0;
+  let unpairedHumidity = 0;
+  for (const group of groups.values()) {
+    const candidates: { temp: Temp; hum: GardenReading; gap: number }[] = [];
+    for (const temp of group.temps) {
+      for (const hum of group.hums) {
+        candidates.push({ temp, hum, gap: Math.abs(timeOf(temp.reading.createdAt) - timeOf(hum.createdAt)) });
+      }
+    }
+    // Nearest together first. A stamp that cannot be read sorts last, and
+    // the ids settle a tie so the same readings always make the same pairs.
+    const gapOf = (gap: number) => (Number.isNaN(gap) ? Number.POSITIVE_INFINITY : gap);
+    candidates.sort((a, b) => {
+      const x = gapOf(a.gap);
+      const y = gapOf(b.gap);
+      if (x !== y) return x < y ? -1 : 1;
+      return a.temp.reading.id.localeCompare(b.temp.reading.id) || a.hum.id.localeCompare(b.hum.id);
+    });
+    const usedTemps = new Set<string>();
+    const usedHums = new Set<string>();
+    for (const { temp, hum } of candidates) {
+      if (usedTemps.has(temp.reading.id) || usedHums.has(hum.id)) continue;
+      usedTemps.add(temp.reading.id);
+      usedHums.add(hum.id);
+      const sameDevice =
+        temp.reading.source === 'device' && hum.source === 'device' && temp.reading.deviceName === hum.deviceName
+          ? temp.reading.deviceName
+          : null;
+      pairs.push({
+        plotId: temp.reading.plotId as string,
+        plotName: temp.reading.plotName ?? hum.plotName,
+        measuredOn: temp.reading.measuredOn,
+        celsius: temp.celsius,
+        temperature: formatFigure(temp.reading.value, temp.reading.unit),
+        humidity: hum.value,
+        vpd: airVpd(temp.celsius, hum.value) as number,
+        temperatureId: temp.reading.id,
+        humidityId: hum.id,
+        deviceName: sameDevice,
+      });
+    }
+    unpairedTemperature += group.temps.length - usedTemps.size;
+    unpairedHumidity += group.hums.length - usedHums.size;
+  }
+  pairs.sort((a, b) => b.measuredOn.localeCompare(a.measuredOn) || a.temperatureId.localeCompare(b.temperatureId));
+
+  const notes: string[] = [];
+  if (unpairedTemperature > 0 || unpairedHumidity > 0) {
+    const parts: string[] = [];
+    if (unpairedTemperature > 0) parts.push(countOf(unpairedTemperature, 'air temperature reading', 'air temperature readings'));
+    if (unpairedHumidity > 0) parts.push(countOf(unpairedHumidity, 'humidity reading', 'humidity readings'));
+    const many = unpairedTemperature + unpairedHumidity > 1;
+    notes.push(
+      `${parts.join(' and ')} ${many ? 'have' : 'has'} no reading of the other kind for the same area on the same day, so ${many ? 'they give' : 'it gives'} no VPD.`,
+    );
+  }
+  if (noArea > 0) {
+    notes.push(
+      `${countOf(noArea, 'reading was', 'readings were')} recorded with no area, so there is nothing to pair ${noArea === 1 ? 'it' : 'them'} by.`,
+    );
+  }
+  if (unreadable > 0) {
+    notes.push(
+      `${countOf(unreadable, 'reading is', 'readings are')} left out: humidity is read here as a percentage from 0 to 100, and an air temperature in °C or °F between ${VPD_LOWEST_C}°C and ${VPD_HIGHEST_C}°C.`,
+    );
+  }
+  return { pairs, unpairedTemperature, unpairedHumidity, noArea, unreadable, notes };
+}
+
+/** What one worked-out VPD reads back as on its own row. */
+export function describeVpdPair(pair: VpdPair, today: string): string {
+  const parts = [
+    formatFigure(pair.vpd, VPD_UNIT),
+    describeWhen(pair.measuredOn, today),
+    `from ${pair.temperature} and ${Math.round(pair.humidity * 10) / 10}% humidity`,
+  ];
+  if (pair.deviceName) parts.push(`both from ${pair.deviceName}`);
+  return parts.join(', ');
+}
+
+/** Air VPD month by month, as a band the same shape as a measurement's. A
+ *  month is blank when no temperature and humidity met on one area and day,
+ *  which is a different thing from nothing being measured. */
+export function buildVpdBand(input: { pairing: VpdPairing; months: YieldMonth[] }): MeasurementBand {
+  const readings: GardenReading[] = input.pairing.pairs.map((pair) => ({
+    id: `${pair.temperatureId}+${pair.humidityId}`,
+    plotId: pair.plotId,
+    plotName: pair.plotName,
+    plantingId: null,
+    measurement: VPD_CODE,
+    value: pair.vpd,
+    unit: VPD_UNIT,
+    measuredOn: pair.measuredOn,
+    source: 'hand',
+    deviceName: null,
+    note: null,
+    createdAt: '',
+  }));
+  const band = buildMeasurementBand({
+    measurement: VPD_CODE,
+    label: VPD_LABEL,
+    readings,
+    months: input.months,
+    preferredUnit: VPD_UNIT,
+    blankReason: 'no air temperature and humidity were recorded for the same area on the same day',
+  }) as MeasurementBand;
+
+  const measured = band.months.filter((month) => month.figure !== null);
+  const pairsInRange = measured.reduce((sum, month) => sum + month.readings, 0);
+  let headline: string;
+  if (measured.length === 0) {
+    headline = 'No air VPD in this stretch, since no air temperature and humidity were recorded for the same area on the same day.';
+  } else {
+    const mean = measured.reduce((sum, month) => sum + (month.figure ?? 0), 0) / measured.length;
+    const spread = measured.length === 1 ? 'in one month' : `across ${measured.length} months`;
+    headline = `${formatFigure(mean, VPD_UNIT)} on average, from ${countOf(pairsInRange, 'pair of readings', 'pairs of readings')} ${spread}.`;
+  }
+  return {
+    ...band,
+    headline,
+    notes: [...band.notes, ...input.pairing.notes, VPD_HOW, VPD_LEAF_NOTE, VPD_PAIRING_NOTE],
+  };
 }
