@@ -19,8 +19,10 @@ import {
   isDue,
   liveDataUrl,
   momentOf,
+  NOT_A_GATEWAY_ADVICE,
   readLiveData,
   sensorDeviceName,
+  UNREACHABLE_ADVICE,
   type GatewayRead,
 } from './ecowittLocal';
 import { reworkDeviceFigures, storeDeviceSamples } from './growingConditionsDb';
@@ -238,7 +240,7 @@ export async function fetchGateway(host: string): Promise<GatewayRead> {
       const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
       try {
         const response = await fetch(url, { signal: controller.signal, headers: { Accept: 'application/json' } });
-        if (!response.ok) throw new Error(`Something at ${host} answered, but with ${response.status} rather than readings.`);
+        if (!response.ok) throw new Error(`Something at ${host} answered, but with error ${response.status} rather than readings. ${NOT_A_GATEWAY_ADVICE}`);
         text = await response.text();
       } finally {
         clearTimeout(timer);
@@ -247,10 +249,10 @@ export async function fetchGateway(host: string): Promise<GatewayRead> {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (/abort|longer than/i.test(message) || (error instanceof Error && error.name === 'AbortError')) {
-      throw new Error(`Nothing at ${host} answered within ${FETCH_TIMEOUT_MS / 1000} seconds. Check that this device is on the same network as the gateway.`);
+      throw new Error(`Nothing at ${host} answered within ${FETCH_TIMEOUT_MS / 1000} seconds. ${UNREACHABLE_ADVICE}`);
     }
     if (/network request failed|ECONNREFUSED|EHOSTUNREACH|ENOTFOUND|ETIMEDOUT|fetch failed/i.test(message)) {
-      throw new Error(`Nothing at ${host} could be reached. Check the address, and that this device is on the same network as the gateway.`);
+      throw new Error(`Nothing at ${host} could be reached. ${UNREACHABLE_ADVICE}`);
     }
     throw error instanceof Error ? error : new Error(message);
   }
@@ -258,10 +260,10 @@ export async function fetchGateway(host: string): Promise<GatewayRead> {
   try {
     json = JSON.parse(text);
   } catch {
-    throw new Error(`Something at ${host} answered, but not the way an Ecowitt gateway does.`);
+    throw new Error(`Something at ${host} answered, but not the way an Ecowitt gateway does. ${NOT_A_GATEWAY_ADVICE}`);
   }
   const read = readLiveData(json);
-  if (!read) throw new Error(`Something at ${host} answered, but not the way an Ecowitt gateway does.`);
+  if (!read) throw new Error(`Something at ${host} answered, but not the way an Ecowitt gateway does. ${NOT_A_GATEWAY_ADVICE}`);
   return read;
 }
 

@@ -15,12 +15,16 @@ import {
   type GatewayWithSettings,
 } from '../lib/ecowittDb';
 import {
+  ADDRESS_TIP,
   GATEWAY_HOW,
+  GATEWAY_STEPS,
+  gatewayStatus,
   HOURS_NOTE,
   normaliseHost,
   ONE_DEVICE_NOTE,
   POLL_CHOICES,
   PROBE_TEMPERATURE_CHOICES,
+  RAIN_NOTE,
   WHILE_OPEN_NOTE,
   type GatewayRead,
   type GatewaySensor,
@@ -44,6 +48,21 @@ const NO_PLANTING = '__none__';
 
 const LIGHT_NOTE =
   'An outdoor station reports sunlight in W/m² or lux. A figure in W/m² is kept as it is, since turning sunlight into the light a plant uses depends on the sky.';
+
+/** The setup steps, numbered, each on a line of its own. */
+function SetupSteps(props: { upTo?: number }) {
+  const steps = props.upTo ? GATEWAY_STEPS.slice(0, props.upTo) : GATEWAY_STEPS;
+  return (
+    <View style={styles.steps}>
+      {steps.map((step, index) => (
+        <View key={index} style={styles.stepRow}>
+          <Text style={[styles.stepNumber, { color: TAB_COLOR }]}>{index + 1}</Text>
+          <Text style={[styles.bodyText, styles.stepText]}>{step}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
 
 function when(stamp: string | null): string {
   if (!stamp) return '';
@@ -237,7 +256,8 @@ export function EcowittGatewaySection(props: {
   if (adding) {
     return (
       <View style={styles.formCard}>
-        <Text style={styles.captionText}>{GATEWAY_HOW}</Text>
+        <Text style={styles.fieldLabel}>Before you type anything</Text>
+        <SetupSteps upTo={2} />
         <View style={styles.fieldRow}>
           <Text style={styles.fieldLabel}>Name</Text>
           <AppTextInput style={[styles.textInput, styles.wideInput]} value={name} onChangeText={setName} placeholder="Greenhouse gateway" />
@@ -254,6 +274,7 @@ export function EcowittGatewaySection(props: {
             keyboardType="url"
           />
         </View>
+        <Text style={styles.captionText}>Only the address: no http, no password, nothing after it.</Text>
         {problem ? <Text style={styles.errorText}>{problem}</Text> : null}
         <View style={styles.actionRow}>
           <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={() => void handleSave()}>
@@ -274,7 +295,13 @@ export function EcowittGatewaySection(props: {
 
   return (
     <View style={styles.list}>
-      {gateways.length === 0 ? <Text style={styles.captionText}>{GATEWAY_HOW}</Text> : null}
+      {gateways.length === 0 ? (
+        <View style={styles.formCard}>
+          <Text style={styles.bodyText}>{GATEWAY_HOW}</Text>
+          <Text style={styles.fieldLabel}>Setting it up</Text>
+          <SetupSteps />
+        </View>
+      ) : null}
       {gateways.map((entry) => {
         const { gateway, sensors, polling } = entry;
         const read = lastRead[gateway.id];
@@ -286,6 +313,22 @@ export function EcowittGatewaySection(props: {
           <View key={gateway.id} style={styles.formCard}>
             <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>{gateway.name}</Text>
             <Text style={styles.captionText}>{gateway.host}</Text>
+            {(() => {
+              const status = gatewayStatus({
+                reading: busyId === gateway.id,
+                lastReadAt: polling.lastReadAt,
+                lastProblem: polling.lastProblem,
+                readingOn: polling.readingOn,
+              });
+              const dot =
+                status.kind === 'connected' ? colors.primary : status.kind === 'problem' ? colors.danger : colors.textMuted;
+              return (
+                <View style={styles.statusRow}>
+                  <View style={[styles.statusDot, { backgroundColor: dot }]} />
+                  <Text style={styles.bodyText}>{status.text}</Text>
+                </View>
+              );
+            })()}
             {polling.lastProblem ? (
               <Text style={styles.errorText}>
                 {polling.lastProblem}
@@ -337,6 +380,11 @@ export function EcowittGatewaySection(props: {
             {saved.length === 0 && waiting.length === 0 ? (
               <Text style={styles.captionText}>Read It Now lists the sensors the gateway reports, each to be given an area.</Text>
             ) : null}
+            {waiting.length > 0 ? (
+              <Text style={styles.captionText}>
+                Next: give each sensor you want kept an area. Nothing from a sensor is kept until it has one.
+              </Text>
+            ) : null}
             {read && read.notKept.length > 0 ? (
               <Text style={styles.captionText}>Also reported and not kept in Garden: {read.notKept.join(', ')}.</Text>
             ) : null}
@@ -351,9 +399,11 @@ export function EcowittGatewaySection(props: {
         <Text style={styles.primaryButtonText}>+ Add a Gateway</Text>
       </TouchableOpacity>
       <View style={styles.formCard}>
+        <Text style={styles.captionText}>{ADDRESS_TIP}</Text>
         <Text style={styles.captionText}>{WHILE_OPEN_NOTE}</Text>
         <Text style={styles.captionText}>{ONE_DEVICE_NOTE}</Text>
         <Text style={styles.captionText}>{HOURS_NOTE}</Text>
+        <Text style={styles.captionText}>{RAIN_NOTE}</Text>
         <Text style={styles.captionText}>{LIGHT_NOTE}</Text>
       </View>
     </View>
@@ -363,6 +413,12 @@ export function EcowittGatewaySection(props: {
 const styles = StyleSheet.create({
   list: { gap: 10 },
   formCard: { borderRadius: 10, backgroundColor: colors.surfaceMuted, padding: 12, gap: 8 },
+  steps: { gap: 6 },
+  stepRow: { flexDirection: 'row', gap: 8, alignItems: 'flex-start' },
+  stepNumber: { ...typography.label, minWidth: 16, ...textShadow },
+  stepText: { flex: 1 },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  statusDot: { width: 10, height: 10, borderRadius: 5 },
   sensorBox: { gap: 6, paddingLeft: 10, borderLeftWidth: 2, borderLeftColor: TAB_COLOR },
   cardTitle: { ...typography.label, ...textShadow },
   bodyText: { ...typography.body, color: colors.textPrimary, ...textShadow },

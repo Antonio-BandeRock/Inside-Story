@@ -169,12 +169,12 @@ export function guessColumn(header: string, preferF = false): ColumnGuess {
 
 /** Measurements a file is never read into, and why. */
 export const NOT_FROM_A_FILE: Record<string, string> = {
-  rainfall: 'Rain is entered by hand for now, since a file may hold a running total rather than what fell since the row before.',
+  rainfall: 'Rain is entered by hand or read from an Ecowitt gateway on your network, never from a file, since a file may hold a running total rather than what fell since the row before.',
   water_given: 'Water given is entered by hand, since a file may hold a running total rather than what went on since the row before.',
 };
 
 export const RAIN_FROM_A_FILE_NOTE =
-  'Rain and water given are entered by hand rather than read from a file, since a file may hold a running total rather than the amount since the row before, and adding up a running total gives a figure many times too large.';
+  'Rain and water given are not read from a file, since a file may hold a running total rather than the amount since the row before, and adding up a running total gives a figure many times too large.';
 
 export const VPD_COLUMN_NOTE =
   'A VPD column comes in as Controller VPD, kept apart from the Air VPD worked out here from temperature and humidity, since a controller may work VPD out for the leaf with an offset the file does not state.';
@@ -340,6 +340,10 @@ export function couldBeRead(measurement: string, value: number, unit: string): b
   if (measurement === 'soil_moisture' && unit === '%') return value >= 0 && value <= 100;
   if (measurement === 'co2') return value >= 0 && value <= 20000;
   if (measurement === 'vpd') return value >= 0 && value <= 10;
+  if (measurement === 'rainfall') {
+    const mm = convertUnit(value, unit, 'mm');
+    return mm !== null && mm >= 0 && mm <= 2000;
+  }
   if (measurement === 'light' || measurement === 'soil_ec' || measurement === 'soil_moisture') return value >= 0;
   return true;
 }
@@ -522,6 +526,115 @@ export function combineGroups(groups: SampleGroup[]): PeriodFigure[] {
     out.push({ measurement: main.measurement, unit: main.unit, period: main.period, average: sum / count, lowest, highest, count });
   }
   return out.sort((a, b) => a.period.localeCompare(b.period) || a.measurement.localeCompare(b.measurement));
+}
+
+/** One reading of a rain gauge's total for the day so far, as an Ecowitt
+ *  gateway reports it (I21). */
+export type RunningSample = { at: string; value: number; unit: string };
+
+export type RainDay = PeriodFigure & {
+  /** The moment of the first and last readings that day. */
+  firstAt: string;
+  lastAt: string;
+  /** What had already fallen that day when it was first read. */
+  beforeFirst: number;
+};
+
+export type RainFigures = { days: RainDay[]; hours: PeriodFigure[] };
+
+function round2(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+/**
+ * The day's rain and each hour's rain, from a gauge's running total for the
+ * day. A running total is never averaged or added up as it stands: the day
+ * is the total as last read, and an hour is how far the total rose in it.
+ *
+ * A total that falls has been reset (the gauge's midnight, or somebody
+ * clearing it), so what it reads after the fall is new rain in full. Rain
+ * that had already fallen before the first reading of a day counts toward
+ * the day and no hour, since nothing says which hour it fell in. Readings
+ * in two units within a day are moved into the unit of the last one.
+ */
+export function rainFromRunningTotals(samples: RunningSample[]): RainFigures {
+  const byDay = new Map<string, RunningSample[]>();
+  for (const sample of samples) {
+    const day = sample.at.slice(0, 10);
+    const list = byDay.get(day);
+    if (list) list.push(sample);
+    else byDay.set(day, [sample]);
+  }
+  const days: RainDay[] = [];
+  const hours: PeriodFigure[] = [];
+  for (const day of [...byDay.keys()].sort()) {
+    const list = [...(byDay.get(day) ?? [])].sort((a, b) => a.at.localeCompare(b.at));
+    const unit = list[list.length - 1].unit;
+    let total = 0;
+    let previous: number | null = null;
+    let beforeFirst = 0;
+    let firstAt = '';
+    let lastAt = '';
+    let count = 0;
+    const byHour = new Map<string, PeriodFigure>();
+    for (const sample of list) {
+      const value = convertUnit(sample.value, sample.unit, unit);
+      if (value === null) continue;
+      let fell = 0;
+      if (previous === null) {
+        total = value;
+        beforeFirst = value;
+        firstAt = sample.at;
+      } else {
+        fell = value >= previous ? value - previous : value;
+        total += fell;
+      }
+      previous = value;
+      lastAt = sample.at;
+      count += 1;
+      if (sample.at.length < 13) continue;
+      const hour = sample.at.slice(0, 13);
+      const held = byHour.get(hour);
+      if (held) {
+        held.average += fell;
+        held.highest = total;
+        held.count += 1;
+      } else {
+        byHour.set(hour, { measurement: 'rainfall', unit, period: hour, average: fell, lowest: total - fell, highest: total, count: 1 });
+      }
+    }
+    if (count === 0) continue;
+    for (const figure of byHour.values()) {
+      hours.push({ ...figure, average: round2(figure.average), lowest: round2(figure.lowest), highest: round2(figure.highest) });
+    }
+    days.push({
+      measurement: 'rainfall',
+      unit,
+      period: day,
+      average: round2(total),
+      lowest: round2(beforeFirst),
+      highest: round2(total),
+      count,
+      firstAt,
+      lastAt,
+      beforeFirst: round2(beforeFirst),
+    });
+  }
+  return { days, hours: hours.sort((a, b) => a.period.localeCompare(b.period)) };
+}
+
+function clockOf(moment: string): string {
+  return moment.length >= 16 ? moment.slice(11, 16) : '';
+}
+
+/** The note a day's rain carries. */
+export function rainDayNote(day: RainDay, deviceName: string): string {
+  const last = clockOf(day.lastAt);
+  const readings = day.count === 1 ? 'one reading' : `${day.count.toLocaleString('en-US')} readings`;
+  const first = clockOf(day.firstAt);
+  const before =
+    day.count > 1 && day.beforeFirst > 0 && first ? ` ${formatFigure(day.beforeFirst, day.unit)} had fallen before the first reading at ${first}.` : '';
+  return `The day's rain from ${deviceName}${last ? `, as last read at ${last}` : ''}, from ${readings}.${before}`;
 }
 
 /** The note a day's reading carries. */

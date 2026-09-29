@@ -19,6 +19,7 @@ import { areaPath } from './gardenAreaNesting';
 import { getDatabase, listGardenPlantings, listGardenPlots } from './db';
 import type { GardenPlanting, GardenPlot } from './db';
 import {
+  aggregateFor,
   buildDeviceDetail,
   buildMeasurementBand,
   buildMonths,
@@ -43,6 +44,8 @@ import {
   figureNote,
   hourReadingId,
   importedReadingId,
+  rainDayNote,
+  rainFromRunningTotals,
   type Sample,
   type SampleGroup,
 } from './readingImport';
@@ -217,7 +220,7 @@ async function reworkFigures(db: Db, target: DeviceTarget, firstDay: string, las
             SUM(value) AS sum, COUNT(*) AS count, MIN(value) AS lowest, MAX(value) AS highest
        FROM garden_device_samples
       WHERE plot_id = ? AND planting_id = ? AND device_key = ?
-        AND measured_at >= ? AND measured_at <= ?
+        AND measured_at >= ? AND measured_at <= ? AND measurement <> 'rainfall'
       GROUP BY measurement, unit, period`,
     plotKey,
     plantingKey,
@@ -242,6 +245,22 @@ async function reworkFigures(db: Db, target: DeviceTarget, firstDay: string, las
     }
   }
   const dayFigures = combineGroups([...dayGroups.values()]);
+
+  // A rain gauge reports the day's running total (I21), which is never
+  // averaged: the day is the total as last read and an hour is how far it
+  // rose. Worked out apart from everything else, then written alongside.
+  const rainSamples = await db.getAllAsync<{ at: string; value: number; unit: string }>(
+    `SELECT measured_at AS at, value, unit FROM garden_device_samples
+      WHERE plot_id = ? AND planting_id = ? AND device_key = ? AND measurement = 'rainfall'
+        AND measured_at >= ? AND measured_at <= ?`,
+    plotKey,
+    plantingKey,
+    deviceKey,
+    firstDay,
+    `${lastDay} 99`,
+  );
+  const rain = rainFromRunningTotals(rainSamples);
+  hourFigures.push(...rain.hours);
 
   for (let start = 0; start < hourFigures.length; start += CHUNK) {
     const chunk = hourFigures.slice(start, start + CHUNK);
@@ -289,7 +308,25 @@ async function reworkFigures(db: Db, target: DeviceTarget, firstDay: string, las
       now,
     );
   }
-  return { days: dayFigures.length, hours: hourFigures.length };
+  for (const day of rain.days) {
+    await db.runAsync(
+      `INSERT OR REPLACE INTO garden_readings
+         (id, plot_id, plot_name, planting_id, measurement, value, unit, measured_on, source, device_name, note, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'device', ?, ?, ?)`,
+      importedReadingId({ plotId: target.plotId, plantingId: target.plantingId, measurement: 'rainfall', day: day.period, deviceName }),
+      target.plotId,
+      plotName,
+      target.plantingId,
+      'rainfall',
+      day.average,
+      day.unit,
+      day.period,
+      deviceName,
+      rainDayNote(day, deviceName),
+      now,
+    );
+  }
+  return { days: dayFigures.length + rain.days.length, hours: hourFigures.length };
 }
 
 export async function deleteGardenReading(id: string): Promise<void> {
@@ -508,6 +545,7 @@ export async function getGrowingConditionsSummary(
         },
         pickedSource,
         pickedDay,
+        total: aggregateFor(chosen) === 'total',
       });
     }
   }

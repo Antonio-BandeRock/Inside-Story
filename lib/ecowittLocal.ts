@@ -17,9 +17,11 @@
 // reported, and anything that is not a number a sensor could read is left
 // out rather than stored as a zero.
 //
-// Rain is not read here yet (I21 feeds the Rain total), and wind, pressure,
-// UV, leaf wetness, air quality and lightning have no measurement kind in
-// Garden, so they are named in "not kept" rather than dropped silently.
+// Rain (I21) is read as the gauge's total for the day so far, which is
+// worked out into the day's rain and each hour's rain rather than averaged
+// (rainFromRunningTotals in lib/readingImport.ts). Wind, pressure, UV, leaf
+// wetness, air quality and lightning have no measurement kind in Garden, so
+// they are named in "not kept" rather than dropped silently.
 
 import { couldBeRead } from './readingImport';
 
@@ -142,14 +144,32 @@ const COMMON_NOT_KEPT: Record<string, string> = {
 
 /** Top-level parts of the answer that are not kept, by plain name. */
 const SECTION_NOT_KEPT: Record<string, string> = {
-  rain: 'rain',
-  piezoRain: 'rain',
   ch_leaf: 'leaf wetness',
   ch_pm25: 'air quality',
   ch_lds: 'water level',
   ch_leak: 'water leak',
   lightning: 'lightning',
 };
+
+/** The two kinds of rain gauge a gateway reports, each its own sensor, so a
+ *  station with both can keep one and leave the other. */
+const RAIN_SECTIONS: { section: string; key: string; label: string }[] = [
+  { section: 'rain', key: 'rain', label: 'Rain gauge' },
+  { section: 'piezoRain', key: 'piezorain', label: 'Rain gauge (piezo, WS90)' },
+];
+
+/** The rain entry that holds the total for the day so far. */
+const RAIN_DAY_ID = '0x10';
+
+/** A rain amount: "1.2 mm", "0.05 in", or a bare figure beside a unit field. */
+export function rainFigure(raw: unknown, unitField: unknown): { value: number; unit: 'mm' | 'in' } | null {
+  const split = splitValue(raw);
+  if (!split) return null;
+  const unit = (split.unit || (typeof unitField === 'string' ? unitField : '')).trim().toLowerCase();
+  if (unit === 'mm') return { value: split.value, unit: 'mm' };
+  if (unit === 'in' || unit === 'inch' || unit === 'inches') return { value: split.value, unit: 'in' };
+  return null;
+}
 
 /**
  * What one answer from get_livedata_info holds, or null when it is not an
@@ -246,6 +266,21 @@ export function readLiveData(json: unknown): GatewayRead | null {
     if (field(entry, 'PM25') !== undefined || field(entry, 'PM10') !== undefined) notKept.add('air quality');
   }
 
+  // Rain gauges: the day's total is kept, and what else they report is named.
+  for (const gauge of RAIN_SECTIONS) {
+    const entries = entriesOf(json[gauge.section]);
+    if (entries.length === 0) continue;
+    const sensor: GatewaySensor = { key: gauge.key, label: gauge.label, temperatureCanBeEither: false };
+    for (const entry of entries) {
+      const id = String(field(entry, 'id') ?? '');
+      if (id === RAIN_DAY_ID) {
+        const rain = rainFigure(field(entry, 'val'), field(entry, 'unit'));
+        if (rain) add(sensor, 'rainfall', rain.value, rain.unit);
+      }
+    }
+    notKept.add('rain rate and the week, month and year totals');
+  }
+
   for (const [section, name] of Object.entries(SECTION_NOT_KEPT)) {
     if (entriesOf(json[section]).length > 0) notKept.add(name);
   }
@@ -315,13 +350,48 @@ export function describeRead(read: GatewayRead, kept: number): string {
 }
 
 export const GATEWAY_HOW =
-  'An Ecowitt gateway (GW1100, GW1200, GW2000 and the consoles built on them) can be read straight from your home network, with no Ecowitt account and nothing leaving the house. Its address is shown in the Ecowitt or WS View Plus app under the device, or in your router\'s list of devices.';
+  'An Ecowitt gateway (GW1100, GW1200, GW2000 and the consoles built on them) can be read straight from your home network, with no Ecowitt account, no password and nothing leaving the house. Setting it up takes a few minutes and is done once.';
+
+/** The setup, in the order it has to be done, so it works the first time. */
+export const GATEWAY_STEPS: string[] = [
+  'Put this phone or computer on the same Wi-Fi as the gateway. A phone on mobile data or on a guest network cannot reach it, and neither can a computer on a VPN.',
+  "Find the gateway's address on your network: four numbers with dots between them, such as 192.168.1.40. In the Ecowitt app or the WS View Plus app, open the gateway and look through its settings or device information for IP address. Your router's list of connected devices shows it too, usually under a name like GW1100 or GW2000.",
+  'Press Add a Gateway, give it a name you will recognise, such as Greenhouse gateway, and type only the address, exactly as it is shown. Nothing else is needed.',
+  'Press Save and Read It. Within a few seconds the gateway reads as Connected and every sensor it reports is listed under it. If a problem shows instead, it says what to check.',
+  'Give each sensor you want kept an area, with Add an area if the right one is not there yet. A sensor with no area is read and nothing from it is kept. Where an area has plantings, a sensor can be given one planting.',
+  'Leave Read it on this device on for the one phone or computer that is open most, and off on any other.',
+];
+
+export const ADDRESS_TIP =
+  "A router can hand the gateway a new address after a power cut. So the address stays the same, ask the router to keep it for the gateway (a router calls this a reserved address or DHCP reservation). If the address does change, the gateway reads as not reached; find the new one the same way and put it in with Change. Every reading kept so far stays where it is.";
+
+export const UNREACHABLE_ADVICE =
+  "Check that this device is on the same Wi-Fi as the gateway and not on mobile data, that the gateway is plugged in with its light on, and that the address matches the one in the Ecowitt app, since a router can give it a new one.";
+
+export const NOT_A_GATEWAY_ADVICE =
+  "The address may now belong to another device, so check it against the one in the Ecowitt app. A gateway on very old firmware cannot share its readings this way; updating it in the Ecowitt app fixes that.";
+
+/** How a gateway stands, in words, for the line under its name. */
+export function gatewayStatus(input: {
+  reading: boolean;
+  lastReadAt: string | null;
+  lastProblem: string | null;
+  readingOn: boolean;
+}): { kind: 'reading' | 'connected' | 'problem' | 'waiting'; text: string } {
+  if (input.reading) return { kind: 'reading', text: 'Asking the gateway now…' };
+  if (input.lastProblem) return { kind: 'problem', text: 'Not reached on the last try' };
+  if (input.lastReadAt) return { kind: 'connected', text: input.readingOn ? 'Connected, and read while the app is open' : 'Connected, and read only when Read It Now is pressed' };
+  return { kind: 'waiting', text: 'Not read yet. Press Read It Now.' };
+}
 
 export const WHILE_OPEN_NOTE =
   'The gateway is read only while Inside Story is open on this device, and it keeps little history of its own, so time with the app closed stays blank. A history file from the Ecowitt app can fill those days through Import Readings from a File.';
 
 export const ONE_DEVICE_NOTE =
   'Turn reading on for one device only. Each device keeps what it read, and the hours worked out from two devices reading the same sensor would each replace the other.';
+
+export const RAIN_NOTE =
+  "A rain gauge is kept as the gateway's total for the day. The day's rain is that total as last read that day, and each hour shows how far it rose. Because the gateway counts the whole day itself, opening the app once late in the day catches that day's rain up to then; a day the app is not opened at all stays blank. Where a station has two rain gauges, keep one, since the Rain total adds up every gauge that is kept.";
 
 export const HOURS_NOTE =
   'Hours and days are worked out as each hour turns over and when the app is put away, so Trends shows the hour just finished rather than the one still going.';

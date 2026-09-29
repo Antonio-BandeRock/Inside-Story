@@ -859,6 +859,10 @@ export function buildDeviceDetail(input: {
   labelOfSource: (row: ReadingHourRow) => string;
   pickedSource: string | null;
   pickedDay: string | null;
+  /** Rain (I21): an hour holds what fell in it, with the day's total by the
+   *  end of the hour as its highest, so a day is its last hour's total rather
+   *  than an average. */
+  total?: boolean;
 }): DeviceDetail | null {
   if (input.rows.length === 0) return null;
   const sourceRows = new Map<string, ReadingHourRow[]>();
@@ -903,12 +907,39 @@ export function buildDeviceDetail(input: {
   const lastDay = loggedDays[loggedDays.length - 1];
   const earliestShown = shiftDay(lastDay, -(DEVICE_DAYS_SHOWN - 1));
   const firstShown = loggedDays[0] > earliestShown ? loggedDays[0] : earliestShown;
+  // For rain, each day's total as of its latest hour.
+  const dayTotals = new Map<string, { hour: string; total: number }>();
+  if (input.total) {
+    for (const row of moved) {
+      const day = row.hour.slice(0, 10);
+      const held = dayTotals.get(day);
+      if (!held || row.hour > held.hour) dayTotals.set(day, { hour: row.hour, total: row.highest });
+    }
+  }
+  const dayRow = (key: string, label: string, tally: Tally | undefined): PeriodRow => {
+    if (!input.total) return tallyRow(key, label, tally, unit);
+    const held = dayTotals.get(key);
+    return held
+      ? { key, label, value: held.total, display: formatFigure(held.total, unit) }
+      : { key, label, value: null, display: 'not logged' };
+  };
+  const hourRow = (key: string, label: string, tally: Tally | undefined): PeriodRow => {
+    if (!input.total || !tally) return tallyRow(key, label, tally, unit);
+    // The tally weights by readings; an hour of rain is the rise the hour row holds.
+    const fell = tally.sum / tally.count;
+    return {
+      key,
+      label,
+      value: fell,
+      display: `${formatFigure(fell, unit)} fell, ${formatFigure(tally.highest, unit)} for the day by then`,
+    };
+  };
   const days: PeriodRow[] = [];
   let blankDays = 0;
   for (let day = firstShown; day <= lastDay; day = shiftDay(day, 1)) {
     const tally = byDay.get(day);
     if (!tally) blankDays += 1;
-    days.push(tallyRow(day, shortDay(day), tally, unit));
+    days.push(dayRow(day, shortDay(day), tally));
   }
 
   const day = input.pickedDay && byDay.has(input.pickedDay) ? input.pickedDay : lastDay;
@@ -922,11 +953,14 @@ export function buildDeviceDetail(input: {
       loggedHours += 1;
       figures += tally.count;
     }
-    hours.push(tallyRow(key, `${String(h).padStart(2, '0')}:00`, tally, unit));
+    hours.push(hourRow(key, `${String(h).padStart(2, '0')}:00`, tally));
   }
 
-  const headline =
-    days.length === 1
+  const headline = input.total
+    ? days.length === 1
+      ? `${longDay(lastDay)}, the one day logged in this range: the day's rain as last read.`
+      : `Day by day, ${longDay(firstShown)} to ${longDay(lastDay)}, latest first: each day's rain as last read that day.`
+    : days.length === 1
       ? `${longDay(lastDay)}, the one day logged in this range.`
       : `Day by day, ${longDay(firstShown)} to ${longDay(lastDay)}, latest first: each day's average, then its lowest to highest.`;
   const notes: string[] = [];
@@ -937,7 +971,13 @@ export function buildDeviceDetail(input: {
   if (setAside > 0) {
     notes.push(`${setAside} ${setAside === 1 ? 'hour was' : 'hours were'} logged in a unit that cannot be turned into ${unit}, and ${setAside === 1 ? 'is' : 'are'} left out here.`);
   }
-  notes.push('A day or an hour is the average of every figure logged in it, with the lowest and highest beside it.');
+  if (input.total) {
+    notes.push(
+      "An hour is how far the gauge's total for the day rose in it. Rain that had fallen before the first reading of a day counts toward the day and no hour, and rain after the last reading of a day is not in that day's figure.",
+    );
+  } else {
+    notes.push('A day or an hour is the average of every figure logged in it, with the lowest and highest beside it.');
+  }
 
   return {
     sources,

@@ -2,7 +2,9 @@
 // answers and what is kept of it (I20, 1.0.55.36), then checks the wiring:
 // samples and polling state stay on the device and are not counted as
 // changes, the hours are worked out hourly rather than on every read, and
-// removing a gateway keeps every reading.
+// removing a gateway keeps every reading. Since I21 (1.0.55.37) it also
+// covers rain: the gauge's running total for the day becomes the day's rain
+// and each hour's rise, never an average.
 //
 // Built 2026-09-28.
 //
@@ -62,12 +64,18 @@ const answer = {
   ch_soil: [{ channel: '1', name: '', humidity: '37%' }],
   ch_temp: [{ channel: '3', temp: '18.4', unit: 'C' }],
   co2: { CO2: '812', temp: '24.0', unit: 'C', humidity: '55%' },
-  rain: [{ id: '0x0D', val: '1.2 mm' }],
+  rain: [
+    { id: '0x0D', val: '1.2 mm' },
+    { id: '0x0E', val: '0.6 mm/Hr' },
+    { id: '0x10', val: '3.4 mm' },
+    { id: '0x11', val: '12.0 mm' },
+  ],
+  piezoRain: [{ id: '0x10', val: '0.13 in' }],
 };
 const read = E.readLiveData(answer);
 check('an Ecowitt answer is read', read !== null);
 const keys = read.sensors.map((s) => s.key).sort().join(',');
-check('every sensor is found', keys === 'co2,indoor,outdoor,probe3,soil1,th2');
+check('every sensor is found', keys === 'co2,indoor,outdoor,piezorain,probe3,rain,soil1,th2');
 const fig = (key, m) => read.figures.find((f) => f.sensorKey === key && f.measurement === m);
 check('outdoor temperature in °C', fig('outdoor', 'air_temperature')?.unit === '°C' && fig('outdoor', 'air_temperature')?.value === 21.5);
 check('outdoor humidity', fig('outdoor', 'humidity')?.value === 64);
@@ -78,7 +86,11 @@ check('channel sensor', fig('th2', 'humidity')?.value === 58 && /Tent 1/.test(re
 check('soil moisture', fig('soil1', 'soil_moisture')?.value === 37);
 check('probe can be either', read.sensors.find((s) => s.key === 'probe3').temperatureCanBeEither === true);
 check('CO2 as a lone object', fig('co2', 'co2')?.value === 812);
-check('rain and pressure said not kept', read.notKept.includes('air pressure') && read.notKept.some((n) => /rain/.test(n)));
+check('pressure and rain rate said not kept', read.notKept.includes('air pressure') && read.notKept.some((n) => /rain rate/.test(n)));
+check("rain is the day's total, not the event", fig('rain', 'rainfall')?.value === 3.4 && fig('rain', 'rainfall')?.unit === 'mm');
+check('piezo rain in inches', fig('piezorain', 'rainfall')?.value === 0.13 && fig('piezorain', 'rainfall')?.unit === 'in');
+check('only one rain figure per gauge', read.figures.filter((f) => f.sensorKey === 'rain').length === 1);
+check('rain with a unit field', E.rainFigure('0.25', 'in')?.unit === 'in' && E.rainFigure('2', 'mm/Hr') === null && E.rainFigure('--', 'mm') === null);
 check('something else is not Ecowitt', E.readLiveData({ hello: 1 }) === null && E.readLiveData([]) === null);
 const broken = E.readLiveData({ ch_aisle: [{ channel: '1', temp: '--', humidity: '140%' }] });
 check('impossible figures are left out', broken !== null && broken.figures.length === 0);
@@ -94,8 +106,63 @@ check('not due inside the interval', !E.isDue(new Date(2026, 8, 28, 11, 58, 0).t
 check('due past the interval', E.isDue(new Date(2026, 8, 28, 11, 55, 0).toISOString(), 5, now));
 check('device name per sensor', E.sensorDeviceName('Greenhouse', 'Outdoor station') === 'Greenhouse, Outdoor station');
 
+// 2b. Rain from running totals (I21)
+const R = load('lib/readingImport.ts');
+const G = load('lib/growingConditions.ts');
+const rain = R.rainFromRunningTotals([
+  { at: '2026-09-28 07:05:00', value: 2.0, unit: 'mm' },
+  { at: '2026-09-28 07:35:00', value: 2.5, unit: 'mm' },
+  { at: '2026-09-28 08:10:00', value: 4.0, unit: 'mm' },
+  { at: '2026-09-28 08:40:00', value: 0.3, unit: 'mm' },
+  { at: '2026-09-28 09:00:00', value: 1.0, unit: 'mm' },
+  { at: '2026-09-29 00:05:00', value: 0, unit: 'mm' },
+]);
+const day28 = rain.days.find((d) => d.period === '2026-09-28');
+check('day is the total as last read, a reset counted in full', day28?.average === 5);
+check('rain before the first reading is kept for the day', day28?.beforeFirst === 2 && day28?.firstAt === '2026-09-28 07:05:00');
+const hour = (h) => rain.hours.find((x) => x.period === h);
+check('an hour is how far the total rose in it', hour('2026-09-28 07')?.average === 0.5 && hour('2026-09-28 07')?.highest === 2.5);
+check('an hour across a reset', hour('2026-09-28 08')?.average === 1.8 && hour('2026-09-28 08')?.highest === 4.3);
+check('the last hour ends on the day total', hour('2026-09-28 09')?.highest === 5);
+check('a dry day is a zero, since it was read', rain.days.find((d) => d.period === '2026-09-29')?.average === 0);
+const mixed = R.rainFromRunningTotals([
+  { at: '2026-09-28 10:00:00', value: 0.1, unit: 'in' },
+  { at: '2026-09-28 11:00:00', value: 5.08, unit: 'mm' },
+]);
+check('two units move into the last one', mixed.days[0].unit === 'mm' && mixed.days[0].average === 5.08);
+check('rain cannot be negative', !R.couldBeRead('rainfall', -1, 'mm') && R.couldBeRead('rainfall', 3, 'in'));
+const rainNote = R.rainDayNote(day28, 'Greenhouse, Rain gauge');
+check('day note says when it was last read and what came before', /last read at 09:00/.test(rainNote) && /2 mm had fallen before the first reading at 07:05/.test(rainNote));
+
+const rows = rain.hours
+  .filter((h) => h.period.startsWith('2026-09-28'))
+  .map((h) => ({ plotId: 'p', plotName: 'Garden', plantingId: null, deviceName: 'Rain gauge', unit: h.unit, hour: h.period, average: h.average, lowest: h.lowest, highest: h.highest, count: h.count }));
+const detail = G.buildDeviceDetail({ rows, labelOfSource: () => 'Garden', pickedSource: null, pickedDay: null, total: true });
+check('Trends reads a rain day as its total', detail.days[0].value === 5 && detail.days[0].display === '5 mm');
+check('Trends reads a rain hour as what fell', detail.hours[8].display === '1.8 mm fell, 4.3 mm for the day by then');
+check('an hour with no reading is a gap', detail.hours[3].value === null);
+const averaged = G.buildDeviceDetail({ rows, labelOfSource: () => 'Garden', pickedSource: null, pickedDay: null });
+check('without total a day still averages', averaged.days[0].value !== 5);
+
 // 3. Sentences
-const sentences = [E.GATEWAY_HOW, E.WHILE_OPEN_NOTE, E.ONE_DEVICE_NOTE, E.HOURS_NOTE, E.describeRead(read, 12)].join(' ');
+const sentences = [
+  E.GATEWAY_HOW,
+  ...E.GATEWAY_STEPS,
+  E.ADDRESS_TIP,
+  E.UNREACHABLE_ADVICE,
+  E.NOT_A_GATEWAY_ADVICE,
+  E.RAIN_NOTE,
+  E.WHILE_OPEN_NOTE,
+  E.ONE_DEVICE_NOTE,
+  E.HOURS_NOTE,
+  E.describeRead(read, 12),
+  rainNote,
+  ...detail.notes,
+].join(' ');
+check('six setup steps, in order', E.GATEWAY_STEPS.length === 6 && /same Wi-Fi/.test(E.GATEWAY_STEPS[0]) && /address/.test(E.GATEWAY_STEPS[1]));
+check('status reads in words', E.gatewayStatus({ reading: false, lastReadAt: null, lastProblem: null, readingOn: true }).kind === 'waiting'
+  && E.gatewayStatus({ reading: false, lastReadAt: 'x', lastProblem: 'no', readingOn: true }).kind === 'problem'
+  && E.gatewayStatus({ reading: false, lastReadAt: 'x', lastProblem: null, readingOn: true }).kind === 'connected');
 check('no verdict words', !/\b(ideal|optimal|too (low|high)|healthy|unhealthy|perfect)\b/i.test(sentences));
 check('no dashes as punctuation', !/[–—]| -- /.test(sentences));
 
@@ -120,6 +187,9 @@ check('removed area is skipped', /archived_at IS NULL/.test(edb));
 check('poller mounted', /<EcowittPoller \/>/.test(read_('app/_layout.tsx')));
 check('poller works out on background', /workOutAllGateways\(\)/.test(read_('components/EcowittPoller.tsx')));
 check('band on Growing Conditions', /garden:conditions:gateways/.test(read_('components/GrowingConditionsLens.tsx')));
+check('reworking keeps rain apart from the averages', /measurement <> 'rainfall'/.test(read_('lib/growingConditionsDb.ts')) && read_('lib/growingConditionsDb.ts').includes('rainFromRunningTotals(') && (read_('lib/growingConditionsDb.ts')));
+check('Trends is told rain is a total', read_('lib/growingConditionsDb.ts').includes("total: aggregateFor(chosen) === 'total'"));
+check('band shows the setup steps and status', /<SetupSteps/.test(read_('components/EcowittGatewaySection.tsx')) && read_('components/EcowittGatewaySection.tsx').includes('gatewayStatus('));
 check('band can add an area', /<QuickAreaForm/.test(read_('components/EcowittGatewaySection.tsx')));
 
 console.log(`${passed} passed, ${failed} failed`);
