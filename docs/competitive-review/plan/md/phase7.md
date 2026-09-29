@@ -14,14 +14,14 @@
 - **How:** US only, an app registration per health system, or Health Connect medical records. A decision on scope first.
 
 ### I23. Live AC Infinity readings
-- **Ships by:** Explicit opt-in only · **Size:** L · **Tabs:** Garden
+- **Ships by:** Owner decision first · **Size:** L · **Tabs:** Garden
 - **Answers:** AC Infinity · **Theme:** Garden
-- **How:** Only through an undocumented cloud API; opt-in, stated, fragile.
+- **How:** Ruled out 2026-09-28 by direct instruction. Built as an opt-in in 1.0.55.39 through the unpublished server AC Infinity's phone app uses, then removed entirely in 1.0.55.40: the app is sold, and a paid app reading another company's service needs that company's permission (App Store guideline 5.2.2 says so outright), so a device joins only when its maker offers a free, published way in, the way Ecowitt does with its gateways. What stays is Import Readings from a File (I19), which reads the history file a person saves from the AC Infinity app. Revisit only if AC Infinity publishes an API or grants permission in writing.
 
 ### I25. What is wrong with this plant
-- **Ships by:** Explicit opt-in only · **Size:** L · **Tabs:** Garden
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden
 - **Answers:** PictureThis · **Theme:** Garden
-- **How:** A paid diagnosis service or a vision model, opt-in per use. Cost decision.
+- **How:** Reshaped 2026-09-29 by direct instruction: nothing in the app may cost a subscription or a charge, so no paid diagnosis service and no vision model. What Is Wrong With It, under each planting, lists the three problems that crop is known for, asks where the trouble shows first and lists the shortages and look-alikes that show there, all from the crop guides and the plant nutrient reading, each put right from the soil. When nothing matches it opens the free Google Lens app and names the people who answer gardening questions for free. Any row can be written down on the planting as a Something wrong seen entry. Always the likeliest causes, never a diagnosis. Built 1.0.56.3.
 
 ### O4. Capture from other apps' notifications
 - **Ships by:** Explicit opt-in only · **Size:** M · **Tabs:** Life

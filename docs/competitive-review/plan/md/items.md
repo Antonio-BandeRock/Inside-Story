@@ -887,10 +887,10 @@
 - **Answers:** Ecowitt · **Theme:** Garden
 - **How:** Polling by IP (zeroconf and cleartext LAN already in the build) while the app is open.
 
-### I26. A symptom guide in Horticulture
-- **Ships by:** Reading content · **Size:** M · **Tabs:** Garden
+### I26. What is wrong with a plant, crop by crop
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden
 - **Answers:** PictureThis · **Theme:** Garden
-- **How:** "Yellow lower leaves on tomatoes: what it can be", cited, nothing leaves the phone.
+- **How:** What Is Wrong With a Plant, the first band on Garden > Horticulture, starts from the crop, since each crop shows trouble differently (reworked 2026-09-29 by direct instruction; the 1.0.56.4 version read a symptom the same way for every crop and was removed). Pick the crop, then what you see or Show every sign, and it lists that crop's signs grouped as too little of a nutrient, too much of one, watering, soil pH, and diseases that look like a shortage, each citing a page about that crop, then its known problems that show that way and how to confirm it with a soil test and a leaf test. A sign no source for that crop describes is left out rather than borrowed. Built in batches, best documented first: batch 1 is tomato, hops and cannabis (hops and cannabis added as crop guides; cannabis as a crop only, kept on the adult side). lib/cropSigns.ts, scripts/test_crop_signs.js. Nothing leaves the phone; always the likeliest causes, never a diagnosis. Batch 2 (1.0.56.7) adds carrot, beetroot, parsnip, radish, cabbage, broccoli, cauliflower, Brussels sprouts, kale, turnip, cucumber, lettuce, potato, green beans, runner beans, peas, broad beans, spinach, chard and basil, split by kind into lib/cropSignsVegetables.ts and lib/cropSignsHerbs.ts. By direct instruction I27 waits until every standard home crop, indoors or out, has signs, and the missing ones (peach, watermelon, pumpkin, olive, ginger, turmeric, peanut, collards, tea, coffee and more) are added as full crop guides first. Built 1.0.56.4, reworked 1.0.56.6, batch 2 1.0.56.7; later batches open.
 
 ### J1. Import a bank export
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life
@@ -997,9 +997,9 @@
 - **How:** daily_weather from the Worker bundle with a coarsened location (item 27), listed beside flares in lib/patternContext.ts. A typed city ships over the air; automatic location needs expo-location in R1.
 
 ### I24. What plant is this
-- **Ships by:** Cloudflare Worker · **Size:** M · **Tabs:** Garden
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Garden
 - **Answers:** PictureThis, Planta · **Theme:** Garden
-- **How:** Pl@ntNet through the Worker so the key stays off the phone; the photo leaves only on an explicit opt-in each time.
+- **How:** Reshaped 2026-09-29 by direct instruction: nothing in the app may cost a subscription or a charge, and the Pl@ntNet API is free only to 500 identifications a day for one account shared by every user, then paid. So the app names no plant itself. What Plant Is This, above the food search on Add a Planting, opens the free Pl@ntNet or Google Lens app on a phone (their websites on a computer), the person searches for the name it gave, and the planting records which app named it and how sure Pl@ntNet said it was. Every time it says an app’s name is a likely match and never to eat a plant on an app’s word alone. Built 1.0.56.2.
 
 ### O3. Messages between Inside Story users
 - **Ships by:** Relay (Worker plus push) · **Size:** L · **Tabs:** Life
@@ -1041,14 +1041,14 @@
 - **How:** US only, an app registration per health system, or Health Connect medical records. A decision on scope first.
 
 ### I23. Live AC Infinity readings
-- **Ships by:** Explicit opt-in only · **Size:** L · **Tabs:** Garden
+- **Ships by:** Owner decision first · **Size:** L · **Tabs:** Garden
 - **Answers:** AC Infinity · **Theme:** Garden
-- **How:** Only through an undocumented cloud API; opt-in, stated, fragile.
+- **How:** Ruled out 2026-09-28 by direct instruction. Built as an opt-in in 1.0.55.39 through the unpublished server AC Infinity's phone app uses, then removed entirely in 1.0.55.40: the app is sold, and a paid app reading another company's service needs that company's permission (App Store guideline 5.2.2 says so outright), so a device joins only when its maker offers a free, published way in, the way Ecowitt does with its gateways. What stays is Import Readings from a File (I19), which reads the history file a person saves from the AC Infinity app. Revisit only if AC Infinity publishes an API or grants permission in writing.
 
 ### I25. What is wrong with this plant
-- **Ships by:** Explicit opt-in only · **Size:** L · **Tabs:** Garden
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden
 - **Answers:** PictureThis · **Theme:** Garden
-- **How:** A paid diagnosis service or a vision model, opt-in per use. Cost decision.
+- **How:** Reshaped 2026-09-29 by direct instruction: nothing in the app may cost a subscription or a charge, so no paid diagnosis service and no vision model. What Is Wrong With It, under each planting, lists the three problems that crop is known for, asks where the trouble shows first and lists the shortages and look-alikes that show there, all from the crop guides and the plant nutrient reading, each put right from the soil. When nothing matches it opens the free Google Lens app and names the people who answer gardening questions for free. Any row can be written down on the planting as a Something wrong seen entry. Always the likeliest causes, never a diagnosis. Built 1.0.56.3.
 
 ### O4. Capture from other apps' notifications
 - **Ships by:** Explicit opt-in only · **Size:** M · **Tabs:** Life

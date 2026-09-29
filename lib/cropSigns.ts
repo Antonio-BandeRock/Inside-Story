@@ -33,13 +33,18 @@
 // child's view is built under the Guardian tier, the cannabis guide and
 // its signs stay off it until the child is 18 or the parent opens it.
 //
-// Pure: no React and no database.
+// The signs for tomato, hops and cannabis (batch 1) are in this file; later
+// batches are in one file per group of crops (lib/cropSignsVegetables.ts
+// and the rest), gathered here. Pure: no React and no database.
 
 import { CROP_PROBLEMS, type CropProblem } from './cropProblems';
 import { CROP_PROBLEM_SYMPTOMS, SYMPTOMS, type Symptom, type SymptomKey } from './cropSymptoms';
-import type { GuideSource, PlantNutrientKey } from './plantNutrients';
+import type { GuideSource } from './plantNutrients';
+import type { CropConfirm, CropSign, CropSignKind } from './cropSignTypes';
+import { VEGETABLE_SIGNS, VEGETABLE_SIGN_CONFIRM } from './cropSignsVegetables';
+import { HERB_SIGNS, HERB_SIGN_CONFIRM } from './cropSignsHerbs';
 
-export type CropSignKind = 'short' | 'excess' | 'water' | 'ph' | 'mimic';
+export type { CropConfirm, CropSign, CropSignKind } from './cropSignTypes';
 
 export const CROP_SIGN_KIND_LABELS: Record<CropSignKind, string> = {
   short: 'Too little of a nutrient',
@@ -50,21 +55,6 @@ export const CROP_SIGN_KIND_LABELS: Record<CropSignKind, string> = {
 };
 
 export const CROP_SIGN_KIND_ORDER: CropSignKind[] = ['short', 'excess', 'water', 'ph', 'mimic'];
-
-export type CropSign = {
-  kind: CropSignKind;
-  nutrient?: PlantNutrientKey;
-  label: string;
-  /** The symptoms a person would pick for it, from SYMPTOMS. */
-  where: SymptomKey[];
-  looks: string;
-  why?: string;
-  fix: string;
-  /** Pages about this crop that describe the sign. */
-  sources: GuideSource[];
-};
-
-export type CropConfirm = { text: string; sources: GuideSource[] };
 
 // Tomato.
 const MBG_TOMATO: GuideSource = {
@@ -140,7 +130,7 @@ const USU_HEMP_MILDEW: GuideSource = {
   url: 'https://extension.usu.edu/planthealth/ipm/notes_ag/hemp-powdery-mildew',
 };
 
-export const CROP_SIGNS: Record<string, CropSign[]> = {
+const BATCH_ONE_SIGNS: Record<string, CropSign[]> = {
   tomato: [
     {
       kind: 'short',
@@ -564,7 +554,7 @@ export const CROP_SIGNS: Record<string, CropSign[]> = {
   ],
 };
 
-export const CROP_SIGN_CONFIRM: Record<string, CropConfirm> = {
+const BATCH_ONE_CONFIRM: Record<string, CropConfirm> = {
   tomato: {
     text: 'Confirm with a soil test for pH, potassium, calcium and magnesium before adding anything. Blossom-end rot and splitting are nearly always the watering, which no test shows, so look at the watering first.',
     sources: [MBG_TOMATO, UMD_TOMATO],
@@ -579,11 +569,14 @@ export const CROP_SIGN_CONFIRM: Record<string, CropConfirm> = {
   },
 };
 
+export const CROP_SIGNS: Record<string, CropSign[]> = { ...BATCH_ONE_SIGNS, ...VEGETABLE_SIGNS, ...HERB_SIGNS };
+export const CROP_SIGN_CONFIRM: Record<string, CropConfirm> = { ...BATCH_ONE_CONFIRM, ...VEGETABLE_SIGN_CONFIRM, ...HERB_SIGN_CONFIRM };
+
 // Pages the powdery mildew problem for cannabis stands on, for the crop
 // problem sources in lib/cropProblems.ts.
 export const CANNABIS_MILDEW_SOURCE = USU_HEMP_MILDEW;
 
-/** Crop keys with signs, in the order the batches added them. */
+/** Crop keys with signs. */
 export function cropsWithSigns(): string[] {
   return Object.keys(CROP_SIGNS);
 }

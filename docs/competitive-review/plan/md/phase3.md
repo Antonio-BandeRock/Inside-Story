@@ -278,10 +278,10 @@
 - **Answers:** Ecowitt · **Theme:** Garden
 - **How:** Polling by IP (zeroconf and cleartext LAN already in the build) while the app is open.
 
-### I26. A symptom guide in Horticulture
-- **Ships by:** Reading content · **Size:** M · **Tabs:** Garden
+### I26. What is wrong with a plant, crop by crop
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden
 - **Answers:** PictureThis · **Theme:** Garden
-- **How:** "Yellow lower leaves on tomatoes: what it can be", cited, nothing leaves the phone.
+- **How:** What Is Wrong With a Plant, the first band on Garden > Horticulture, starts from the crop, since each crop shows trouble differently (reworked 2026-09-29 by direct instruction; the 1.0.56.4 version read a symptom the same way for every crop and was removed). Pick the crop, then what you see or Show every sign, and it lists that crop's signs grouped as too little of a nutrient, too much of one, watering, soil pH, and diseases that look like a shortage, each citing a page about that crop, then its known problems that show that way and how to confirm it with a soil test and a leaf test. A sign no source for that crop describes is left out rather than borrowed. Built in batches, best documented first: batch 1 is tomato, hops and cannabis (hops and cannabis added as crop guides; cannabis as a crop only, kept on the adult side). lib/cropSigns.ts, scripts/test_crop_signs.js. Nothing leaves the phone; always the likeliest causes, never a diagnosis. Batch 2 (1.0.56.7) adds carrot, beetroot, parsnip, radish, cabbage, broccoli, cauliflower, Brussels sprouts, kale, turnip, cucumber, lettuce, potato, green beans, runner beans, peas, broad beans, spinach, chard and basil, split by kind into lib/cropSignsVegetables.ts and lib/cropSignsHerbs.ts. By direct instruction I27 waits until every standard home crop, indoors or out, has signs, and the missing ones (peach, watermelon, pumpkin, olive, ginger, turmeric, peanut, collards, tea, coffee and more) are added as full crop guides first. Built 1.0.56.4, reworked 1.0.56.6, batch 2 1.0.56.7; later batches open.
 
 ### J1. Import a bank export
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life
