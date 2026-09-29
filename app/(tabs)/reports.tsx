@@ -5,6 +5,7 @@ import { ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
+import { GardenCsvButtons } from '../../components/GardenCsvButtons';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { YourStoryMissingLine } from '../../components/YourStoryMissingLine';
 import { LensHub, type LensOption } from '../../components/LensHub';
@@ -310,6 +311,15 @@ export default function ReportsScreen() {
                 <TouchableOpacity style={styles.shareButtonSecondary} onPress={handleShareText}>
                   <Text style={styles.shareButtonSecondaryText}>Share as text</Text>
                 </TouchableOpacity>
+              </View>
+            ) : null}
+
+            {/* I15, 2026-09-28: under the Garden report, the garden's rows as
+                spreadsheet files, for somebody who wants their own charts. */}
+            {lens === 'r-garden' && !loading ? (
+              <View style={band.box}>
+                <Text style={styles.customLabel}>Save as a Spreadsheet</Text>
+                <GardenCsvButtons />
               </View>
             ) : null}
           </ScrollView>

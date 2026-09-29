@@ -91,6 +91,7 @@ import { addGrowEquipment, listGardenTerms } from '../../lib/growSetupDb';
 import { useWalkMark } from '../../components/WalkMark';
 import { RecordPhotos } from '../../components/RecordPhotos';
 import { PlantingEventsSection } from '../../components/PlantingEventsSection';
+import { GardenCsvButtons } from '../../components/GardenCsvButtons';
 import { listPlantingEventCounts } from '../../lib/plantingEventsDb';
 import { PhotoSeriesBand } from '../../components/PhotoSeriesBand';
 import { dateKey } from '../../lib/plainDate';
@@ -847,6 +848,7 @@ function PlotsAndPlantingsLens({
   // as documentation, listed in their own fold band under the current ones.
   const [pastPlots, setPastPlots] = useState<GardenPlot[]>([]);
   const [showPastAreas, setShowPastAreas] = useState(false);
+  const [showSpreadsheet, setShowSpreadsheet] = useState(false);
   // Per area: harvests logged from each planting (a planting with one is a
   // record and offers no Remove) and whether anything at all is recorded
   // under it (only an empty area offers Delete).
@@ -1515,6 +1517,23 @@ function PlotsAndPlantingsLens({
                 </View>
               );
             })}
+          </View>
+        </HomeSectionBand>
+      ) : null}
+
+      {/* I15, 2026-09-28: the garden as spreadsheet files, the same buttons
+          as under the Garden report on Reports. */}
+      {plots.length > 0 || pastPlots.length > 0 ? (
+        <HomeSectionBand
+          kind="fold"
+          title="Save as a Spreadsheet"
+          icon="grid-outline"
+          color={TAB_COLOR}
+          expanded={showSpreadsheet}
+          onToggle={() => setShowSpreadsheet(!showSpreadsheet)}
+        >
+          <View style={styles.expandedSection}>
+            <GardenCsvButtons caption="Plantings, harvests and what was done, each as a CSV file holding everything recorded, for Excel, Google Sheets, Numbers or any program that reads CSV." />
           </View>
         </HomeSectionBand>
       ) : null}
