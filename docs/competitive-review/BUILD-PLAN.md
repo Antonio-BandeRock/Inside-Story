@@ -947,10 +947,10 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Answers:** Ecowitt · **Theme:** Garden
 - **How:** Polling by IP (zeroconf and cleartext LAN already in the build) while the app is open.
 
-### I26. A symptom guide in Horticulture
+### I26. What is wrong with a plant, crop by crop
 - **Ships by:** Over the air · **Size:** M · **Tabs:** Garden
 - **Answers:** PictureThis · **Theme:** Garden
-- **How:** What Is Wrong With a Plant, the first band on Garden > Horticulture: pick what the plant is doing (yellow lower leaves, pale new leaves, purple, spots or mildew, brown edges, curled leaves, wilting, rot at the base, trouble with what you eat, flowers falling, bolting, small or leggy, something eating it, flavour or seed) and a crop if known, and it reads "What yellow lower leaves on tomato can be": what that symptom most often is, the problems that crop is known for that show that way, the soil shortages that do and the look-alikes, each with its pages and a PubMed search. With any crop it lists the crops known for it. All 273 crop problems are tagged by hand (lib/cropSymptoms.ts). Nothing leaves the phone; always the likeliest causes, never a diagnosis. Built 1.0.56.4.
+- **How:** What Is Wrong With a Plant, the first band on Garden > Horticulture, starts from the crop, since each crop shows trouble differently (reworked 2026-09-29 by direct instruction; the 1.0.56.4 version read a symptom the same way for every crop and was removed). Pick the crop, then what you see or Show every sign, and it lists that crop's signs grouped as too little of a nutrient, too much of one, watering, soil pH, and diseases that look like a shortage, each citing a page about that crop, then its known problems that show that way and how to confirm it with a soil test and a leaf test. A sign no source for that crop describes is left out rather than borrowed. Built in batches, best documented first: batch 1 is tomato, hops and cannabis (hops and cannabis added as crop guides; cannabis as a crop only, kept on the adult side). lib/cropSigns.ts, scripts/test_crop_signs.js. Nothing leaves the phone; always the likeliest causes, never a diagnosis. Built 1.0.56.4, reworked 1.0.56.6; later batches open.
 
 ### J1. Import a bank export
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life
