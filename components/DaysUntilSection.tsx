@@ -83,6 +83,7 @@ import {
   setCountdownDone,
 } from '../lib/countdownDb';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
+import { areaPath } from '../lib/gardenAreaNesting';
 import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
 import { RecordPhotos } from './RecordPhotos';
@@ -195,7 +196,7 @@ export function DaysUntilSection({
   // Alphabetical, like every chooser list of names. Anything is the fixed
   // first entry where a counter need not belong to an area at all.
   const plotOptions = useMemo(() => {
-    const areas = sortByLabel(plots.map((p) => ({ label: p.name, value: p.id })));
+    const areas = sortByLabel(plots.map((p) => ({ label: areaPath(p.id, plots), value: p.id })));
     return scope === 'everything' ? [{ label: 'Anything', value: NO_AREA }, ...areas] : areas;
   }, [plots, scope]);
 

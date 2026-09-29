@@ -38,6 +38,7 @@ function run(relPath) {
   });
   const module = { exports: {} };
   new Function('exports', 'module', 'require', outputText)(module.exports, module, (name) => {
+    if (name === './gardenAreaNesting') return run('lib/gardenAreaNesting.ts');
     throw new Error(`unexpected import ${name}`);
   });
   return module.exports;
@@ -157,6 +158,29 @@ check('a removed planting is named as such', gone2.targets[0].name === 'A planti
 const loose = grouped[grouped.length - 1];
 check('no area reads plainly', loose.plotId === null && loose.targets[0].name === 'Not tied to a planting');
 check('nothing at all', M.groupReadingsByArea({ readings: [], areas: [], plantings: [], labelOf }).length === 0);
+
+// An area inside another one (1.0.55.33): a tent in a grow room reads under
+// the room, by path, and its whole is "the area", since the room is measured
+// on its own.
+check('a room on its own is the room', M.scopeLabel('area', 'indoor') === 'The room as a whole');
+check('a tent in a room is the area', M.scopeLabel('area', 'indoor', true) === 'The area as a whole');
+check('planSummary says the area for a tent', /for the area as a whole/.test(M.planSummary([{ measurement: 'humidity', scope: 'area' }], labelOf, 'indoor', true)));
+const nestedGroups = M.groupReadingsByArea({
+  readings: [],
+  areas: [
+    { id: 'tent', name: 'Tent 2', locationType: 'indoor', insidePlotId: 'room' },
+    { id: 'bed', name: 'Back bed', locationType: 'outdoor', insidePlotId: null },
+    { id: 'room', name: 'Grow room', locationType: 'indoor', insidePlotId: null },
+  ],
+  plantings: [],
+  labelOf,
+});
+const roomAt = nestedGroups.findIndex((g) => g.plotId === 'room');
+const tentAt = nestedGroups.findIndex((g) => g.plotId === 'tent');
+check('a tent follows its room', tentAt === roomAt + 1);
+check('a tent reads by path', nestedGroups[tentAt].name === 'Grow room › Tent 2' && nestedGroups[tentAt].depth === 1);
+check('a room has depth 0', nestedGroups[roomAt].depth === 0);
+check('every area still listed', nestedGroups.length === 3);
 
 // No verdict words in anything this module says.
 const words = [M.PLAN_HOW, M.suggestionNote('indoor'), M.suggestionNote('greenhouse'), M.suggestionNote('outdoor')].join(' ');

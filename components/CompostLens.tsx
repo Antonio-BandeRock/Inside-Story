@@ -39,6 +39,7 @@ import {
 import { listGardenPlots, type GardenPlot } from '../lib/db';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { sortByLabel } from '../lib/choiceOrder';
+import { areaPath } from '../lib/gardenAreaNesting';
 import { listGardenCostGroups, type GardenCostGroup } from '../lib/gardenMoneyDb';
 import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
@@ -97,7 +98,7 @@ function feedsOptions(plots: GardenPlot[], groups: GardenCostGroup[]): { label: 
     { label: 'No area in particular', value: NO_PLOT },
     ...sortByLabel([
       ...groups.map((group) => ({ label: `${group.name} (whole group)`, value: `${GROUP_PREFIX}${group.id}` })),
-      ...plots.map((plot) => ({ label: plot.name, value: plot.id })),
+      ...plots.map((plot) => ({ label: areaPath(plot.id, plots), value: plot.id })),
     ]),
   ];
 }
@@ -346,7 +347,7 @@ function PileBand({
   }, [materialPick]);
 
   const plotOptions = useMemo(
-    () => [{ label: 'Not a tracked plot', value: NO_PLOT }, ...sortByLabel(plots.map((plot) => ({ label: plot.name, value: plot.id })))],
+    () => [{ label: 'Not a tracked plot', value: NO_PLOT }, ...sortByLabel(plots.map((plot) => ({ label: areaPath(plot.id, plots), value: plot.id })))],
     [plots],
   );
   const pileFeedsOptions = useMemo(() => feedsOptions(plots, groups), [plots, groups]);

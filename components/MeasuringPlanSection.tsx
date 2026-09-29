@@ -90,7 +90,7 @@ export function MeasuringPlanSection({ plot, startOpen = false, onSaved }: Props
     const level = choices[code] ?? 'none';
     const levels: { value: Level; label: string }[] = [
       { value: 'none', label: 'Not here' },
-      { value: 'area', label: scopeLabel('area', plot.locationType) },
+      { value: 'area', label: scopeLabel('area', plot.locationType, !!plot.insidePlotId) },
       { value: 'planting', label: 'Each planting' },
     ];
     return (
@@ -122,7 +122,7 @@ export function MeasuringPlanSection({ plot, startOpen = false, onSaved }: Props
         <Text style={styles.linkText}>{open ? 'Hide what is measured here' : 'What Is Measured Here'}</Text>
       </TouchableOpacity>
       {!open ? (
-        <Text style={styles.captionText}>{planSummary(saved, labelOf, plot.locationType)}</Text>
+        <Text style={styles.captionText}>{planSummary(saved, labelOf, plot.locationType, !!plot.insidePlotId)}</Text>
       ) : (
         <View style={styles.nested}>
           <Text style={styles.captionText}>{PLAN_HOW}</Text>

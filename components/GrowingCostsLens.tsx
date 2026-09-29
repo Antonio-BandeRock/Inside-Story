@@ -6,7 +6,8 @@ import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { sortByLabel } from '../lib/choiceOrder';
-import { createGardenPlot, listGardenPlots, type GardenPlot } from '../lib/db';
+import { listGardenPlots, type GardenPlot } from '../lib/db';
+import { areaPath } from '../lib/gardenAreaNesting';
 import {
   describeAreaSetting,
   describeGardenNet,
@@ -40,9 +41,9 @@ import { formatTradeMoney } from '../lib/harvestTrade';
 import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
 import { ElectricityBand } from './ElectricityBand';
-import { GardenSpaceField } from './GardenSpaceField';
 import { HOME_BAND_GAP } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
+import { QuickAreaForm } from './QuickAreaForm';
 import { makeTabBandStyles, TabBand } from './TabBand';
 
 // Growing Costs, a lens of Garden.
@@ -110,14 +111,8 @@ const ADD_KIND = '__add_kind__';
 const NO_PLOT = '__none__';
 const GROUP_PREFIX = 'group:';
 
-type AreaLocationType = 'outdoor' | 'indoor' | 'greenhouse';
-const LOCATION_OPTIONS: { label: string; value: AreaLocationType }[] = [
-  { label: 'Greenhouse', value: 'greenhouse' },
-  { label: 'Indoor', value: 'indoor' },
-  { label: 'Outdoor', value: 'outdoor' },
-];
-// The Space picker is components/GardenSpaceField.tsx, the same one Plots &
-// Plantings uses, so a space named in either place is on the list in both.
+// The short area form is components/QuickAreaForm.tsx, the same one Record
+// a Reading opens, and its Space picker is the one Plots & Plantings uses.
 
 function todayDateString(): string {
   return new Date().toISOString().slice(0, 10);
@@ -152,10 +147,6 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
   const [plotId, setPlotId] = useState<string>(NO_PLOT);
   const [error, setError] = useState<string | null>(null);
   const [addingArea, setAddingArea] = useState(false);
-  const [areaName, setAreaName] = useState('');
-  const [areaLocation, setAreaLocation] = useState<AreaLocationType>('outdoor');
-  const [areaSpace, setAreaSpace] = useState<string | null>(null);
-  const [areaError, setAreaError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [costRows, money, plotRows, groupRows, kindRows] = await Promise.all([
@@ -208,7 +199,8 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
         ...groups.map((group) => ({ label: `${group.name} (whole group)`, value: `${GROUP_PREFIX}${group.id}` })),
         ...plots.map((plot) => {
           const inGroup = groupNameOf.get(plot.id);
-          return { label: inGroup ? `${plot.name}, in ${inGroup}` : plot.name, value: plot.id };
+          const name = areaPath(plot.id, plots);
+          return { label: inGroup ? `${name}, in ${inGroup}` : name, value: plot.id };
         }),
       ]),
     ],
@@ -327,25 +319,12 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
   }
 
   function startArea() {
-    setAreaName('');
-    setAreaLocation('outdoor');
-    setAreaSpace(null);
-    setAreaError(null);
     setAddingArea(true);
   }
 
-  // Saves the area, picks it for the cost being entered and closes the
-  // short form; the cost's other fields are not touched.
-  async function handleSaveArea() {
-    if (!areaName.trim()) {
-      setAreaError('Give the area a name.');
-      return;
-    }
-    const id = await createGardenPlot({
-      name: areaName,
-      locationType: areaLocation,
-      spaceType: areaSpace,
-    });
+  // The new area is picked for the cost being entered; the cost's other
+  // fields are not touched.
+  async function handleAreaSaved(id: string) {
     setPlots(await listGardenPlots());
     setPlotId(id);
     setAddingArea(false);
@@ -601,27 +580,13 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
               )}
             </View>
             {addingArea ? (
-              <View style={styles.nestedForm}>
-                <Text style={styles.fieldLabel}>New area</Text>
-                <AppTextInput style={styles.textInput} value={areaName} onChangeText={setAreaName} placeholder="Backyard raised bed" />
-                <View style={styles.fieldRow}>
-                  <Text style={styles.fieldLabel}>Where</Text>
-                  <PopoverSelect options={LOCATION_OPTIONS} selected={areaLocation} onSelect={(value) => setAreaLocation(value as AreaLocationType)} tabColor={TAB_COLOR} />
-                </View>
-                <GardenSpaceField label="Space" selected={areaSpace} onSelect={setAreaSpace} />
-                <Text style={styles.captionText}>
-                  Saving picks this area for the cost you are entering. Size, sunlight and zone can be filled in under Plots &amp; Plantings whenever you like.
-                </Text>
-                {areaError ? <Text style={styles.errorText}>{areaError}</Text> : null}
-                <View style={styles.actionRow}>
-                  <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSaveArea}>
-                    <Text style={styles.primaryButtonText}>Save Area</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => setAddingArea(false)}>
-                    <Text style={styles.linkText}>Back to the cost</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
+              <QuickAreaForm
+                areas={plots}
+                caption="Saving picks this area for the cost you are entering. Size, sunlight and zone can be filled in under Plots & Plantings whenever you like."
+                backLabel="Back to the cost"
+                onSaved={handleAreaSaved}
+                onBack={() => setAddingArea(false)}
+              />
             ) : (
               <Text style={styles.captionText}>
                 {plots.length > 0

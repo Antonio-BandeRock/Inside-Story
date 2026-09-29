@@ -7,6 +7,7 @@ import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { sortByLabel } from '../lib/choiceOrder';
+import { areaPath } from '../lib/gardenAreaNesting';
 import { getStoredMeasurementSystem, type GardenPlanting, type GardenPlot } from '../lib/db';
 import {
   checkReading,
@@ -79,11 +80,13 @@ import {
   plannedFor,
   scopeLabel,
   whereLine,
+  wholeWord,
   type MeasurePlanRow,
 } from '../lib/measuringPlan';
 import { listMeasurePlans } from '../lib/measuringPlanDb';
 import { AppTextInput } from './AppTextInput';
 import { MeasuringPlanSection } from './MeasuringPlanSection';
+import { QuickAreaForm } from './QuickAreaForm';
 import { NotesInput } from './NotesInput';
 import { GardenTermField } from './GardenTermField';
 import { HOME_BAND_GAP } from './HomeSectionBand';
@@ -166,6 +169,8 @@ function emptyDraft(): ReadingDraft {
 export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
   const folds = useBandFolds();
   const [areas, setAreas] = useState<GardenPlot[]>([]);
+  // The short New area form, opened from the where step (1.0.55.33).
+  const [addingArea, setAddingArea] = useState(false);
   const [plantings, setPlantings] = useState<GardenPlanting[]>([]);
   const [terms, setTerms] = useState<CustomGardenTerm[]>([]);
   const [readings, setReadings] = useState<GardenReading[]>([]);
@@ -369,19 +374,22 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
   const areaOptions = useMemo(
     () => [
       { label: 'No area in particular', value: NO_PLOT },
-      ...sortByLabel(areas.map((area) => ({ label: area.name, value: area.id }))),
+      ...sortByLabel(areas.map((area) => ({ label: areaPath(area.id, areas), value: area.id }))),
     ],
     [areas],
   );
 
   const pickedArea = areas.find((area) => area.id === draft.plotId) ?? null;
+  const pickedNested = !!pickedArea?.insidePlotId;
+  const pickedPath = pickedArea ? areaPath(pickedArea.id, areas) : null;
   const plantingOptions = useMemo(() => {
     if (!draft.plotId) return [];
-    const kind = areas.find((area) => area.id === draft.plotId)?.locationType ?? null;
+    const area = areas.find((entry) => entry.id === draft.plotId);
+    const kind = area?.locationType ?? null;
     const mine = plantings.filter((planting) => planting.plotId === draft.plotId && planting.status === 'growing');
     if (mine.length === 0) return [];
     return [
-      { label: scopeLabel('area', kind), value: NO_PLANTING },
+      { label: scopeLabel('area', kind, !!area?.insidePlotId), value: NO_PLANTING },
       ...sortByLabel(mine.map((planting) => ({ label: planting.foodName, value: planting.id }))),
     ];
   }, [draft.plotId, plantings, areas]);
@@ -537,7 +545,16 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
       value: '',
     }));
     setStep('where');
+    setAddingArea(false);
     setRecording(true);
+  }
+
+  // A new area made from the where step is picked for the reading.
+  async function handleAreaSaved(id: string) {
+    setAddingArea(false);
+    await load();
+    setDraft((current) => ({ ...current, plotId: id, plantingId: null }));
+    setPickedSource(null);
   }
 
   function handleWhereNext() {
@@ -565,10 +582,10 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
         {recording && step === 'where' ? (
           <>
             <Text style={styles.bodyText}>{lightNext ? 'Which area is this light for?' : 'Which area is this reading for?'}</Text>
-            {areas.length === 0 ? (
+            {areas.length === 0 && !addingArea ? (
               <Text style={styles.captionText}>
-                No garden area is set up yet. An area is added on Plots &amp; Plantings, and a reading can be recorded
-                with no area in the meantime.
+                No garden area is set up yet. Add one here and the reading goes with it, or record this one with no
+                area in particular.
               </Text>
             ) : null}
             <View style={styles.fieldRow}>
@@ -583,11 +600,25 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                 tabColor={TAB_COLOR}
                 width={220}
               />
+              {addingArea ? null : (
+                <TouchableOpacity onPress={() => setAddingArea(true)}>
+                  <Text style={styles.linkText}>Add an area</Text>
+                </TouchableOpacity>
+              )}
             </View>
+            {addingArea ? (
+              <QuickAreaForm
+                areas={areas}
+                caption="Saving picks this area for the reading. Its lights, fans, heating and cooling, size and what is measured there can be filled in under Plots & Plantings whenever you like."
+                backLabel="Back to the reading"
+                onSaved={handleAreaSaved}
+                onBack={() => setAddingArea(false)}
+              />
+            ) : null}
             {plantingOptions.length > 0 ? (
               <>
                 <Text style={styles.captionText}>
-                  One figure for {pickedArea?.locationType === 'indoor' ? 'the room' : 'the area'} as a whole, such as
+                  One figure for {wholeWord(pickedArea?.locationType ?? null, pickedNested)} as a whole, such as
                   the air, or one for a single planting, such as its soil or the light it sits under?
                 </Text>
                 <View style={styles.fieldRow}>
@@ -608,10 +639,11 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
               <Text style={styles.captionText}>Nothing is growing here now, so this is for the area as a whole.</Text>
             ) : null}
             {pickedArea ? (
-              <Text style={styles.captionText}>{planSummary(areaPlan, measurementLabel, pickedArea.locationType)}.</Text>
+              <Text style={styles.captionText}>{planSummary(areaPlan, measurementLabel, pickedArea.locationType, pickedNested)}.</Text>
             ) : null}
-            <View style={styles.actionRow}>
-              <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleWhereNext}>
+            {addingArea ? null : (
+              <View style={styles.actionRow}>
+                <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleWhereNext}>
                 <Text style={styles.primaryButtonText}>
                   {lightNext && METER_ON_THIS_DEVICE ? 'Measure the Light' : 'Next'}
                 </Text>
@@ -626,11 +658,12 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                 <Text style={styles.linkText}>Cancel</Text>
               </TouchableOpacity>
             </View>
+            )}
           </>
         ) : recording ? (
           <>
             <View style={styles.fieldRow}>
-              <Text style={styles.bodyText}>{whereLine(pickedArea?.name ?? null, plantingName, pickedArea?.locationType ?? null)}</Text>
+              <Text style={styles.bodyText}>{whereLine(pickedPath, plantingName, pickedArea?.locationType ?? null, pickedNested)}</Text>
               <TouchableOpacity
                 onPress={() => {
                   resetMeter();

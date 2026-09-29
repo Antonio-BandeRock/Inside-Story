@@ -15,6 +15,7 @@
 // the person was living in and none of the local-day machinery in
 // lib/keepingUpDb.ts is needed here.
 
+import { areaPath } from './gardenAreaNesting';
 import { getDatabase, listGardenPlantings, listGardenPlots } from './db';
 import type { GardenPlanting, GardenPlot } from './db';
 import {
@@ -277,7 +278,7 @@ export async function getGrowingConditionsSummary(
     'SELECT plot_id AS plotId, plot_name AS plotName, measurement, measured_on AS measuredOn FROM garden_readings',
   );
   const coverage = describeAreaCoverage({
-    areas: areas.map((area) => ({ id: area.id, name: area.name })),
+    areas: areas.map((area) => ({ id: area.id, name: areaPath(area.id, areas) })),
     readings: forCoverage,
     today,
   });

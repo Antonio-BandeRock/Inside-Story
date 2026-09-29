@@ -65,6 +65,7 @@ import {
 } from '../../lib/db';
 import { gardenSpaceLabel, isRetiredGardenSpace, type CustomGardenSpace } from '../../lib/gardenSpaces';
 import { listGardenSpaces } from '../../lib/gardenSpacesDb';
+import { areaPath, insideAreaBlocker, insideChoices, nestedOrder, ON_ITS_OWN } from '../../lib/gardenAreaNesting';
 import { PLANTING_STATUS_OPTIONS, pastAreaBlocker, plantingStatusLabel } from '../../lib/gardenAreaLifecycle';
 import { GardenSpaceField } from '../../components/GardenSpaceField';
 import { DaysUntilSection } from '../../components/DaysUntilSection';
@@ -116,6 +117,7 @@ import { anyWateringSoon, rainNoteForTask } from '../../lib/rainForecast';
 
 // This page's own identity color -- see constants/colors.ts's own comment
 // on tabGarden for how it was chosen.
+const ON_ITS_OWN_VALUE = '__own__';
 const TAB_COLOR = colors.tabGarden;
 const band = makeTabBandStyles(TAB_COLOR);
 
@@ -856,6 +858,8 @@ function PlotsAndPlantingsLens({
   const [newAreaLocationType, setNewAreaLocationType] = useState<'outdoor' | 'indoor' | 'greenhouse'>('outdoor');
   // Phase 2 -- Space Type.
   const [newAreaSpaceType, setNewAreaSpaceType] = useState<string | null>(null);
+  // The area a new one stands inside, a tent in a grow room (1.0.55.33).
+  const [newAreaInsideId, setNewAreaInsideId] = useState<string | null>(null);
   // The spaces the person has named. allSpaces includes retired ones, for
   // reading a past area's space by name; activeSpaces is the picker's list,
   // for telling a current area its space is no longer offered.
@@ -992,6 +996,7 @@ function PlotsAndPlantingsLens({
       zone: newAreaZone,
       zoneCountry: newAreaZoneCountry,
       zonePostalCode: newAreaZonePostal.trim() || null,
+      insidePlotId: newAreaInsideId,
     });
     if (asksForLight && lightDraftHasLight(newAreaLight)) {
       await addGrowEquipment(lightDraftToInput(newAreaLight, plotId, gardenTerms));
@@ -999,6 +1004,7 @@ function PlotsAndPlantingsLens({
     setNewAreaName('');
     setNewAreaLocationType('outdoor');
     setNewAreaSpaceType(null);
+    setNewAreaInsideId(null);
     setNewAreaSunlight(null);
     setNewAreaLight(emptyLightDraft());
     setNewAreaGreenhouseLit(false);
@@ -1022,6 +1028,13 @@ function PlotsAndPlantingsLens({
   // it is completed." The count is re-read from the database rather than
   // trusted from state, so a planting added on another screen still counts.
   async function handleMoveToPast(id: string) {
+    // Areas still in use inside this one hold it back the same way a grow
+    // still going does (lib/gardenAreaNesting.ts).
+    const insideLine = insideAreaBlocker(id, [...plots, ...pastPlots]);
+    if (insideLine) {
+      setPastBlockers((current) => ({ ...current, [id]: insideLine }));
+      return;
+    }
     const { growing, planned } = await countGrowingPlantings(id);
     if (growing + planned > 0) {
       const line = pastAreaBlocker([
@@ -1034,6 +1047,17 @@ function PlotsAndPlantingsLens({
     await archiveGardenPlot(id, true);
     setPastBlockers((current) => ({ ...current, [id]: '' }));
     if (expandedPlotId === id) setExpandedPlotId(null);
+    await loadPlots();
+  }
+
+  // Put an area inside another one, or stand it on its own.
+  async function handleSetInside(id: string, insideId: string | null) {
+    await updateGardenPlot(id, { insidePlotId: insideId });
+    setPastBlockers((current) => {
+      const next = { ...current };
+      for (const key of Object.keys(next)) next[key] = '';
+      return next;
+    });
     await loadPlots();
   }
 
@@ -1404,14 +1428,14 @@ function PlotsAndPlantingsLens({
           <Text style={styles.emptyText}>No garden areas yet. Add one below to start tracking what you&apos;re growing.</Text>
         </View>
       ) : (
-        plots.map((plot) => {
+        nestedOrder(plots).map((plot) => {
           const expanded = expandedPlotId === plot.id;
           const plantings = plantingsByPlot[plot.id] ?? [];
           return (
             <HomeSectionBand
               key={plot.id}
               kind="fold"
-              title={plot.name}
+              title={areaPath(plot.id, [...plots, ...pastPlots])}
               icon="leaf-outline"
               color={TAB_COLOR}
               expanded={expanded}
@@ -1437,6 +1461,16 @@ function PlotsAndPlantingsLens({
                   {plot.length && plot.width ? ` · ${plot.length}×${plot.width} ${plot.sizeUnit ?? ''}` : ''}
                   {plot.zone ? ` · Zone ${plot.zone}` : ''}
                 </Text>
+                <View style={styles.fieldRow}>
+                  <Text style={styles.fieldLabel}>Inside</Text>
+                  <PopoverSelect
+                    options={[{ label: ON_ITS_OWN, value: ON_ITS_OWN_VALUE }, ...insideChoices(plot.id, plots)]}
+                    selected={plot.insidePlotId && plots.some((other) => other.id === plot.insidePlotId) ? plot.insidePlotId : ON_ITS_OWN_VALUE}
+                    onSelect={(value) => handleSetInside(plot.id, value === ON_ITS_OWN_VALUE ? null : value)}
+                    tabColor={TAB_COLOR}
+                    width={220}
+                  />
+                </View>
                 {isRetiredGardenSpace(plot.spaceType, activeSpaces) ? (
                   <View style={styles.pendingCard}>
                     <Text style={styles.captionText}>
@@ -1614,7 +1648,7 @@ function PlotsAndPlantingsLens({
               const plantings = plantingsByPlot[plot.id] ?? [];
               return (
                 <View key={plot.id} style={styles.pastArea}>
-                  <Text style={styles.bodyText}>{plot.name}</Text>
+                  <Text style={styles.bodyText}>{areaPath(plot.id, [...plots, ...pastPlots])}</Text>
                   <Text style={styles.captionText}>
                     {plot.locationType === 'greenhouse' ? 'Greenhouse' : plot.locationType === 'indoor' ? 'Indoor' : 'Outdoor'}
                     {gardenSpaceLabel(plot.spaceType, customSpaces) ? ` · ${gardenSpaceLabel(plot.spaceType, customSpaces)}` : ''}
@@ -1692,6 +1726,29 @@ function PlotsAndPlantingsLens({
             ))}
           </View>
           <Text style={styles.captionText}>Determines temperature exposure, humidity levels, and natural climate risks.</Text>
+
+          {plots.length > 0 ? (
+            <>
+              <View style={[styles.fieldRow, { marginTop: 10 }]}>
+                <Text style={styles.fieldLabel}>Inside another area?</Text>
+                <PopoverSelect
+                  options={[{ label: ON_ITS_OWN, value: ON_ITS_OWN_VALUE }, ...insideChoices(null, plots)]}
+                  selected={newAreaInsideId ?? ON_ITS_OWN_VALUE}
+                  onSelect={(value) => {
+                    const picked = value === ON_ITS_OWN_VALUE ? null : value;
+                    setNewAreaInsideId(picked);
+                    const room = plots.find((plot) => plot.id === picked);
+                    if (room) setNewAreaLocationType(room.locationType);
+                  }}
+                  tabColor={TAB_COLOR}
+                  width={220}
+                />
+              </View>
+              <Text style={styles.captionText}>
+                A tent or a section in a grow room, or a bed in a larger garden, can stand inside that area and keep separate lights, fans, heating, cooling, readings and plantings. The room keeps separate ones as well.
+              </Text>
+            </>
+          ) : null}
 
           <View style={{ marginTop: 10 }}>
             <GardenSpaceField label="What type of space are you growing in?" selected={newAreaSpaceType} onSelect={setNewAreaSpaceType} />

@@ -9360,6 +9360,11 @@ async function runDatabaseInitialization() {
     if (!gardenPlotColumns.some((existing) => existing.name === 'cost_group_id')) {
       await db.execAsync('ALTER TABLE garden_plots ADD COLUMN cost_group_id TEXT;');
     }
+    // An area inside another area, 1.0.55.33: a tent in a grow room, a
+    // section of a greenhouse. See lib/gardenAreaNesting.ts.
+    if (!gardenPlotColumns.some((existing) => existing.name === 'inside_plot_id')) {
+      await db.execAsync('ALTER TABLE garden_plots ADD COLUMN inside_plot_id TEXT;');
+    }
     const gardenCostColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(garden_cost_details)');
     if (gardenCostColumns.length > 0 && !gardenCostColumns.some((existing) => existing.name === 'cost_group_id')) {
       await db.execAsync('ALTER TABLE garden_cost_details ADD COLUMN cost_group_id TEXT;');
@@ -23296,6 +23301,9 @@ export type GardenPlot = {
   /** The cost group this area is combined into, if any. Managed from
    *  Garden > Growing Costs; see garden_cost_groups. */
   costGroupId: string | null;
+  /** The area this one stands inside (a tent in a grow room), or null for
+   *  an area on its own. See lib/gardenAreaNesting.ts. */
+  insidePlotId: string | null;
   archivedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -23305,7 +23313,8 @@ const GARDEN_PLOT_COLUMNS = `
   id, name, location_type AS locationType, space_type AS spaceType, sunlight_exposure AS sunlightExposure,
   length, width, size_unit AS sizeUnit, zone, zone_country AS zoneCountry, zone_postal_code AS zonePostalCode,
   growing_medium AS growingMedium, light_source AS lightSource, size_description AS sizeDescription, notes,
-  cost_group_id AS costGroupId, archived_at AS archivedAt, created_at AS createdAt, updated_at AS updatedAt
+  cost_group_id AS costGroupId, inside_plot_id AS insidePlotId, archived_at AS archivedAt, created_at AS createdAt,
+  updated_at AS updatedAt
 `;
 
 export async function createGardenPlot(input: {
@@ -23323,6 +23332,7 @@ export async function createGardenPlot(input: {
   lightSource?: string | null;
   sizeDescription?: string | null;
   notes?: string | null;
+  insidePlotId?: string | null;
 }): Promise<string> {
   const db = await getDatabase();
   const id = `garden_plot_${Date.now()}`;
@@ -23332,9 +23342,9 @@ export async function createGardenPlot(input: {
       INSERT INTO garden_plots (
         id, name, location_type, space_type, sunlight_exposure, length, width, size_unit,
         zone, zone_country, zone_postal_code, growing_medium, light_source, size_description, notes,
-        created_at, updated_at
+        inside_plot_id, created_at, updated_at
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
@@ -23351,6 +23361,7 @@ export async function createGardenPlot(input: {
     input.lightSource?.trim() || null,
     input.sizeDescription?.trim() || null,
     input.notes?.trim() || null,
+    input.insidePlotId ?? null,
     now,
     now,
   );
@@ -23395,6 +23406,7 @@ export async function updateGardenPlot(
     lightSource: string | null;
     sizeDescription: string | null;
     notes: string | null;
+    insidePlotId: string | null;
   }>,
 ): Promise<void> {
   const db = await getDatabase();
@@ -23407,7 +23419,7 @@ export async function updateGardenPlot(
       UPDATE garden_plots
       SET name = ?, location_type = ?, space_type = ?, sunlight_exposure = ?, length = ?, width = ?, size_unit = ?,
           zone = ?, zone_country = ?, zone_postal_code = ?, growing_medium = ?, light_source = ?, size_description = ?,
-          notes = ?, updated_at = ?
+          notes = ?, inside_plot_id = ?, updated_at = ?
       WHERE id = ?
     `,
     merged.name.trim(),
@@ -23424,6 +23436,7 @@ export async function updateGardenPlot(
     merged.lightSource,
     merged.sizeDescription,
     merged.notes,
+    merged.insidePlotId,
     now,
     id,
   );
@@ -23466,8 +23479,10 @@ export async function gardenPlotHasRecords(id: string): Promise<boolean> {
            + (SELECT COUNT(*) FROM garden_cost_details WHERE plot_id = ?)
            + (SELECT COUNT(*) FROM compost_piles WHERE plot_id = ?)
            + (SELECT COUNT(*) FROM garden_equipment WHERE plot_id = ?)
-           + (SELECT COUNT(*) FROM garden_countdowns WHERE plot_id = ?) AS n
+           + (SELECT COUNT(*) FROM garden_countdowns WHERE plot_id = ?)
+           + (SELECT COUNT(*) FROM garden_plots WHERE inside_plot_id = ?) AS n
     `,
+    id,
     id,
     id,
     id,
