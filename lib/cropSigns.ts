@@ -43,6 +43,9 @@ import type { GuideSource } from './plantNutrients';
 import type { CropConfirm, CropSign, CropSignKind } from './cropSignTypes';
 import { VEGETABLE_SIGNS, VEGETABLE_SIGN_CONFIRM } from './cropSignsVegetables';
 import { HERB_SIGNS, HERB_SIGN_CONFIRM } from './cropSignsHerbs';
+import { ALLIUM_SIGNS, ALLIUM_SIGN_CONFIRM } from './cropSignsAlliums';
+import { CUCURBIT_SIGNS, CUCURBIT_SIGN_CONFIRM } from './cropSignsCucurbits';
+import { SOLANUM_SIGNS, SOLANUM_SIGN_CONFIRM } from './cropSignsSolanums';
 
 export type { CropConfirm, CropSign, CropSignKind } from './cropSignTypes';
 
@@ -569,8 +572,8 @@ const BATCH_ONE_CONFIRM: Record<string, CropConfirm> = {
   },
 };
 
-export const CROP_SIGNS: Record<string, CropSign[]> = { ...BATCH_ONE_SIGNS, ...VEGETABLE_SIGNS, ...HERB_SIGNS };
-export const CROP_SIGN_CONFIRM: Record<string, CropConfirm> = { ...BATCH_ONE_CONFIRM, ...VEGETABLE_SIGN_CONFIRM, ...HERB_SIGN_CONFIRM };
+export const CROP_SIGNS: Record<string, CropSign[]> = { ...BATCH_ONE_SIGNS, ...VEGETABLE_SIGNS, ...ALLIUM_SIGNS, ...CUCURBIT_SIGNS, ...SOLANUM_SIGNS, ...HERB_SIGNS };
+export const CROP_SIGN_CONFIRM: Record<string, CropConfirm> = { ...BATCH_ONE_CONFIRM, ...VEGETABLE_SIGN_CONFIRM, ...ALLIUM_SIGN_CONFIRM, ...CUCURBIT_SIGN_CONFIRM, ...SOLANUM_SIGN_CONFIRM, ...HERB_SIGN_CONFIRM };
 
 // Pages the powdery mildew problem for cannabis stands on, for the crop
 // problem sources in lib/cropProblems.ts.
