@@ -29,7 +29,7 @@
 
 import { isDesktopApp } from './desktop/bridge';
 import * as disk from './desktop/cloudFolder';
-import { getAccessToken } from './oneDriveAuth';
+import { forgetAccessToken, getAccessToken } from './oneDriveAuth';
 
 const GRAPH = 'https://graph.microsoft.com/v1.0';
 
@@ -92,26 +92,57 @@ type GraphChild = {
   };
 };
 
+/**
+ * What to say about a refused Graph request. A message that is a sentence is
+ * read out as it is; one that is only an exception's name ("AuthenticationException",
+ * "generalException") says nothing to a person, so it goes in brackets after
+ * a sentence that does.
+ */
+export function graphErrorSentence(status: number, message: string | null): string {
+  const bare = !message || !/\s/.test(message.trim());
+  if (status === 401) {
+    return (
+      'OneDrive did not accept this phone\u2019s sign-in' +
+      (message ? ' (it answered ' + message.trim() + ')' : '') +
+      '. This is sometimes on Microsoft\u2019s side and clears within a few minutes. If it keeps happening, sign in to OneDrive again on the Shared Folder screen.'
+    );
+  }
+  if (!bare && message) return message;
+  return 'OneDrive refused that (' + status + (message ? ', ' + message.trim() : '') + '). Try again in a few minutes.';
+}
+
 async function graphFetch(
   path: string,
   init?: { method?: string; body?: string; contentType?: string; raw?: boolean },
 ): Promise<GraphResult<unknown>> {
-  const token = await getAccessToken();
-  if (!token.ok) return { ok: false, reason: token.reason };
+  const send = async (): Promise<Response | { ok: false; reason: string }> => {
+    const token = await getAccessToken();
+    if (!token.ok) return { ok: false, reason: token.reason };
+    const headers: Record<string, string> = { Authorization: 'Bearer ' + token.token };
+    if (init?.contentType) headers['Content-Type'] = init.contentType;
+    try {
+      return await fetch(GRAPH + path, {
+        method: init?.method ?? 'GET',
+        headers,
+        body: init?.body,
+      });
+    } catch {
+      return { ok: false, reason: 'OneDrive could not be reached. Check the connection and try again.' };
+    }
+  };
 
-  const headers: Record<string, string> = { Authorization: 'Bearer ' + token.token };
-  if (init?.contentType) headers['Content-Type'] = init.contentType;
-
-  let response: Response;
-  try {
-    response = await fetch(GRAPH + path, {
-      method: init?.method ?? 'GET',
-      headers,
-      body: init?.body,
-    });
-  } catch {
-    return { ok: false, reason: 'OneDrive could not be reached. Check the connection and try again.' };
+  let sent = await send();
+  if (!(sent instanceof Response)) return sent;
+  if (sent.status === 401) {
+    // OneDrive can refuse a token before its time is up, and now and then
+    // refuses a fresh one for a few minutes with a bare "AuthenticationException"
+    // (2026-09-29, the first launch after an update). Ask Microsoft for a new
+    // token once and try again before saying anything.
+    forgetAccessToken();
+    sent = await send();
+    if (!(sent instanceof Response)) return sent;
   }
+  const response = sent;
 
   if (response.status === 204) return { ok: true, value: null };
 
@@ -119,14 +150,14 @@ async function graphFetch(
     // Graph's own message names the actual problem: a folder that was moved, a
     // permission that was never granted, a name already in use. Reading it out
     // is more useful than a status number.
-    let detail = 'OneDrive refused that (' + response.status + ').';
+    let message: string | null = null;
     try {
       const body = (await response.json()) as { error?: { message?: string } };
-      if (body.error?.message) detail = body.error.message;
+      if (body.error?.message) message = body.error.message;
     } catch {
       // A body that is not JSON leaves the status-based sentence in place.
     }
-    return { ok: false, reason: detail };
+    return { ok: false, reason: graphErrorSentence(response.status, message) };
   }
 
   if (init?.raw) {

@@ -132,6 +132,15 @@ export async function isSignedIn(): Promise<boolean> {
   }
 }
 
+/**
+ * Drops the access token held for this run, so the next call asks Microsoft
+ * for a fresh one. For a token OneDrive refused before its time was up
+ * (lib/oneDriveGraph.ts retries once after this); the sign-in itself stays.
+ */
+export function forgetAccessToken(): void {
+  cachedAccessToken = null;
+}
+
 export async function signOut(): Promise<void> {
   if (isDesktopApp()) return;
   cachedAccessToken = null;
