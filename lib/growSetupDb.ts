@@ -128,6 +128,9 @@ export async function removeGardenTerm(list: GardenTermList, id: string, moveTo:
       id,
     );
   }
+  // A measurement taken off the list can no longer be picked, so no area
+  // is left set to measure it (1.0.55.32). Readings under it keep it.
+  if (list === 'measurement_kind') await db.runAsync('DELETE FROM garden_measure_plan WHERE measurement = ?', id);
   if (plan.keepRow) await db.runAsync('UPDATE garden_custom_terms SET retired_at = ? WHERE id = ?', new Date().toISOString(), id);
   else await db.runAsync('DELETE FROM garden_custom_terms WHERE id = ?', id);
   return true;

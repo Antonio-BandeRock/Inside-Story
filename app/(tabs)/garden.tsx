@@ -92,6 +92,7 @@ import { addGrowEquipment, listGardenTerms } from '../../lib/growSetupDb';
 import { useWalkMark } from '../../components/WalkMark';
 import { RecordPhotos } from '../../components/RecordPhotos';
 import { PlantingEventsSection } from '../../components/PlantingEventsSection';
+import { MeasuringPlanSection } from '../../components/MeasuringPlanSection';
 import { SeedPacketSection } from '../../components/SeedPacketSection';
 import { PhotoStrip } from '../../components/PhotoStrip';
 import { removePhotosOf } from '../../lib/mediaDb';
@@ -845,6 +846,9 @@ function PlotsAndPlantingsLens({
   const [rotationWhyOpen, setRotationWhyOpen] = useState(false);
   const [expandedPlotId, setExpandedPlotId] = useState<string | null>(null);
   const [showAddPlot, setShowAddPlot] = useState(false);
+  // The area just saved, whose What Is Measured Here opens by itself as the
+  // next step of setting it up (1.0.55.32).
+  const [planStepFor, setPlanStepFor] = useState<string | null>(null);
   const [newAreaName, setNewAreaName] = useState('');
   // Phase 1 -- Location & Environment. Always has a real value (defaults to
   // 'outdoor', matching this field's own real NOT NULL column) rather than
@@ -1007,6 +1011,10 @@ function PlotsAndPlantingsLens({
     setZoneLookupResult(null);
     setShowAddPlot(false);
     await loadPlots();
+    // Next step of setting the area up: what is measured there.
+    setExpandedPlotId(plotId);
+    setPlanStepFor(plotId);
+    loadPlantingsFor(plotId);
   }
 
   // Move to Past Areas, only once every grow in the area has finished:
@@ -1439,6 +1447,14 @@ function PlotsAndPlantingsLens({
                 ) : null}
                 <View style={styles.pendingCard}>
                   <GrowSetupSection plot={plot} onChanged={() => loadPlantingsFor(plot.id)} />
+                </View>
+                <View style={styles.pendingCard}>
+                  <MeasuringPlanSection
+                    key={planStepFor === plot.id ? 'plan-step' : 'plan'}
+                    plot={plot}
+                    startOpen={planStepFor === plot.id}
+                    onSaved={() => setPlanStepFor(null)}
+                  />
                 </View>
                 <View style={styles.pendingCard}>
                   <DaysUntilSection plot={plot} plantings={plantings} onChanged={() => loadPlantingsFor(plot.id)} />

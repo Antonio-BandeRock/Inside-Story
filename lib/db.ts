@@ -7377,6 +7377,23 @@ async function runDatabaseInitialization() {
       CREATE INDEX IF NOT EXISTS idx_garden_planting_events_planting ON garden_planting_events(planting_id, occurred_on);
       CREATE INDEX IF NOT EXISTS idx_garden_planting_events_plot ON garden_planting_events(plot_id);
 
+      -- What is measured in each garden area (1.0.55.32): one row per
+      -- measurement, with scope 'area' (one figure for the area or room as
+      -- a whole) or 'planting' (one for each planting). A setting rather
+      -- than a record: it orders what the reading form offers, and no
+      -- reading refers to it, so a row is deleted when unticked. The id is
+      -- plan_<plot id>_<measurement>, so the same choice made on two
+      -- devices merges into one row. lib/measuringPlan.ts holds the rules.
+      CREATE TABLE IF NOT EXISTS garden_measure_plan (
+        id TEXT PRIMARY KEY,
+        plot_id TEXT NOT NULL,
+        measurement TEXT NOT NULL,
+        scope TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_garden_measure_plan_plot ON garden_measure_plan(plot_id);
+
       -- A real, basic Scheduler tie-in, 2026-08-13 -- schedule_items.item_type
       -- is already a free-text, extensible vocabulary (see that table's own
       -- comment further up) with 'meal'/'supplement'/'prescription'/
@@ -23428,6 +23445,9 @@ export async function deleteGardenPlot(id: string): Promise<boolean> {
   const db = await getDatabase();
   if (await gardenPlotHasRecords(id)) return false;
   await db.runAsync('DELETE FROM garden_plots WHERE id = ?', id);
+  // What was set to be measured there is a setting, not a record, and goes
+  // with it (1.0.55.32).
+  await db.runAsync('DELETE FROM garden_measure_plan WHERE plot_id = ?', id);
   // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
   await (await import('./mediaDb')).removePhotosOf('garden_area', id);
   return true;

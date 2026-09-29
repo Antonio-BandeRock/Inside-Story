@@ -73,7 +73,17 @@ import {
   SPECTRUM_SHARES_HOW,
   type PeakText,
 } from '../lib/lightSpectrum';
+import {
+  groupReadingsByArea,
+  planSummary,
+  plannedFor,
+  scopeLabel,
+  whereLine,
+  type MeasurePlanRow,
+} from '../lib/measuringPlan';
+import { listMeasurePlans } from '../lib/measuringPlanDb';
 import { AppTextInput } from './AppTextInput';
+import { MeasuringPlanSection } from './MeasuringPlanSection';
 import { NotesInput } from './NotesInput';
 import { GardenTermField } from './GardenTermField';
 import { HOME_BAND_GAP } from './HomeSectionBand';
@@ -90,8 +100,14 @@ import { makeTabBandStyles, TabBand } from './TabBand';
 // later way of filling it writes the same rows.
 //
 // The record lives here and the months live on Trends > Growing Conditions,
-// which is the rule the 2026-09-23 push runs on. One band per measurement,
-// because what somebody wants to see is how one thing has been reading.
+// which is the rule the 2026-09-23 push runs on. Since 1.0.55.32 the
+// record is read area by area, by direct request ("Growing conditions need
+// to be more on a per area way of looking at it"): one band per area, the
+// area as a whole first and then each planting in it, each with its
+// measurements. Recording a reading, or measuring the light, first asks
+// which area and which planting it is for, and then offers what that area
+// is set to measure at that level (lib/measuringPlan.ts) before anything
+// else.
 //
 // What can be measured is an open list (measurement_kind in
 // garden_custom_terms, through GardenTermField), so somebody measuring
@@ -106,7 +122,7 @@ const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 const NO_PLOT = '__none__';
 const NO_PLANTING = '__none__';
 const ADD_UNIT = '__add_unit__';
-const SHOWN_AT_FIRST = 8;
+const SHOWN_AT_FIRST = 4;
 const NO_SOURCE = '__none__';
 // The four ways of giving a light's spectrum (1.0.55.25). Colour shares open
 // first, since that is what most spec sheets print.
@@ -154,6 +170,13 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
   const [terms, setTerms] = useState<CustomGardenTerm[]>([]);
   const [readings, setReadings] = useState<GardenReading[]>([]);
   const [recording, setRecording] = useState(false);
+  // The reading form asks where first (1.0.55.32): 'where' picks the area
+  // and planting, 'what' is the measurement and figure. lightNext is set
+  // when the form was opened from Measure the Light Here, so the where
+  // step's button starts the meter.
+  const [step, setStep] = useState<'where' | 'what'>('where');
+  const [lightNext, setLightNext] = useState(false);
+  const [plans, setPlans] = useState<MeasurePlanRow[]>([]);
   const [draft, setDraft] = useState<ReadingDraft>(emptyDraft());
   const [newUnit, setNewUnit] = useState<string | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
@@ -235,13 +258,15 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
   }, [stopListening]);
 
   const load = useCallback(async () => {
-    const [setup, rows, equipment, system, ratios] = await Promise.all([
+    const [setup, rows, equipment, system, ratios, planRows] = await Promise.all([
       getConditionsSetup(),
       listGardenReadings(),
       listAllGrowEquipmentInUse(),
       getStoredMeasurementSystem(),
       getLampRatios(),
+      listMeasurePlans(),
     ]);
+    setPlans(planRows);
     setSavedRatios(ratios);
     setLights(equipment.filter((piece) => piece.kind === 'light'));
     setDistanceUnit((system ?? detectMeasurementSystemFromLocale()) === 'imperial' ? 'in' : 'cm');
@@ -276,14 +301,18 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
     [],
   );
 
-  // The ratio remembered for this area and light fills the field whenever
-  // either changes; a blank field means the kind's general figure is used.
-  const ratioKey = lampRatioKey(draft.plotId, source);
+  // The ratio remembered for this light fills the field whenever it
+  // changes; a blank field means the kind's general figure is used. A
+  // planting can sit under its own lamp, so with a planting picked the
+  // ratio is kept for that planting, and the area's is used until it has
+  // one (1.0.55.32).
+  const ratioKey = lampRatioKey(draft.plantingId ?? draft.plotId, source);
+  const areaRatioKey = lampRatioKey(draft.plotId, source);
   useEffect(() => {
-    const remembered = ratioKey ? savedRatios[ratioKey] : undefined;
+    const remembered = ratioKey ? savedRatios[ratioKey] ?? (areaRatioKey ? savedRatios[areaRatioKey] : undefined) : undefined;
     setLampRatioText(remembered !== undefined ? String(remembered) : '');
     setRatioWay(remembered !== undefined ? 'typed' : 'shares');
-  }, [ratioKey, savedRatios]);
+  }, [ratioKey, areaRatioKey, savedRatios]);
   const makerRatio = lampRatioFromMaker(makerLumens, makerPpf);
   const sharesRatio = ratioFromColourShares(shareTexts);
   const peaksRatio = ratioFromPeaks(peakTexts);
@@ -312,12 +341,14 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
     return Number.isFinite(value) && value >= 0 ? value : null;
   }, [typedLuxText]);
 
-  // The last unit light was recorded in, so the form opens on it rather
-  // than on lux every time.
-  const lastLightUnit = useMemo(
-    () => readings.find((reading) => reading.measurement === 'light')?.unit ?? 'lux',
+  // The last unit each measurement was recorded in, so the form opens on
+  // it; light opens on lux the first time.
+  const lastUnitFor = useCallback(
+    (measurement: string) =>
+      readings.find((reading) => reading.measurement === measurement)?.unit ?? (measurement === 'light' ? 'lux' : null),
     [readings],
   );
+  const lastLightUnit = lastUnitFor('light') ?? 'lux';
 
   // While the figure is the phone's, it follows the unit and the light:
   // switching lux to PPFD, or picking another light, works it out again.
@@ -343,15 +374,37 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
     [areas],
   );
 
+  const pickedArea = areas.find((area) => area.id === draft.plotId) ?? null;
   const plantingOptions = useMemo(() => {
     if (!draft.plotId) return [];
+    const kind = areas.find((area) => area.id === draft.plotId)?.locationType ?? null;
     const mine = plantings.filter((planting) => planting.plotId === draft.plotId && planting.status === 'growing');
     if (mine.length === 0) return [];
     return [
-      { label: 'The area as a whole', value: NO_PLANTING },
+      { label: scopeLabel('area', kind), value: NO_PLANTING },
       ...sortByLabel(mine.map((planting) => ({ label: planting.foodName, value: planting.id }))),
     ];
-  }, [draft.plotId, plantings]);
+  }, [draft.plotId, plantings, areas]);
+
+  const measurementLabel = useCallback(
+    (code: string) => termLabel('measurement_kind', code, terms) ?? code,
+    [terms],
+  );
+  // What the picked area is set to measure at the level picked: for the
+  // area as a whole, or for each planting.
+  const areaPlan = useMemo(
+    () => plans.filter((row) => row.plotId === draft.plotId).map((row) => ({ measurement: row.measurement, scope: row.scope })),
+    [plans, draft.plotId],
+  );
+  const planned = plannedFor(areaPlan, draft.plantingId ? 'planting' : 'area');
+  const plantingName = draft.plantingId ? plantings.find((planting) => planting.id === draft.plantingId)?.foodName ?? null : null;
+
+  // Every area with what was read in it, the area as a whole first, then
+  // each planting, then each measurement.
+  const byArea = useMemo(
+    () => groupReadingsByArea({ readings, areas, plantings, labelOf: measurementLabel }),
+    [readings, areas, plantings, measurementLabel],
+  );
 
   // The units already recorded against the picked measurement, so the picker
   // offers what this person actually uses.
@@ -362,28 +415,13 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
     return [...choices, { label: 'Add a unit of your own', value: ADD_UNIT }];
   }, [draft.measurement, readings]);
 
-  // One group per measurement, newest reading first, which is the order the
-  // bands stand in.
-  const groups = useMemo(() => {
-    const byMeasurement = new Map<string, GardenReading[]>();
-    for (const reading of readings) {
-      const bucket = byMeasurement.get(reading.measurement);
-      if (bucket) bucket.push(reading);
-      else byMeasurement.set(reading.measurement, [reading]);
-    }
-    return [...byMeasurement.entries()]
-      .map(([measurement, rows]) => ({
-        measurement,
-        label: termLabel('measurement_kind', measurement, terms) ?? measurement,
-        rows,
-      }))
-      .sort((a, b) => b.rows[0].measuredOn.localeCompare(a.rows[0].measuredOn) || a.label.localeCompare(b.label));
-  }, [readings, terms]);
 
   // Air VPD worked out from the temperature and humidity readings above
   // (I18). Nothing is stored, so deleting either reading changes it.
   const vpd = useMemo(() => pairVpdReadings(readings), [readings]);
-  const showVpd = vpd.pairs.length > 0 || (groups.some((group) => group.measurement === 'air_temperature') && groups.some((group) => group.measurement === 'humidity'));
+  const showVpd =
+    vpd.pairs.length > 0 ||
+    (readings.some((reading) => reading.measurement === 'air_temperature') && readings.some((reading) => reading.measurement === 'humidity'));
 
   // What the spectrum section says about the ratio: where it came from and
   // the formula behind it, or why none is worked out yet (1.0.55.25).
@@ -474,6 +512,47 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
     await load();
   }
 
+  function resetMeter() {
+    stopListening();
+    setMeter({ status: 'idle' });
+    setFromPhone(false);
+    setMeterLux(null);
+  }
+
+  // Record a Reading or Measure the Light Here: the first question is which
+  // area, and which planting, the reading is for. An area band's own
+  // buttons come in with that area already picked.
+  function startReading(light: boolean, plotId?: string | null) {
+    resetMeter();
+    setProblem(null);
+    setNewUnit(null);
+    setLightNext(light);
+    setPickedSource(null);
+    setDraft((current) => ({
+      ...current,
+      plotId: plotId !== undefined ? plotId : current.plotId,
+      plantingId: plotId !== undefined && plotId !== current.plotId ? null : current.plantingId,
+      measurement: light ? 'light' : null,
+      unit: light ? lastLightUnit : null,
+      value: '',
+    }));
+    setStep('where');
+    setRecording(true);
+  }
+
+  function handleWhereNext() {
+    setStep('what');
+    if (lightNext) {
+      setDraft((current) => ({ ...current, measurement: 'light', unit: current.unit ?? lastLightUnit }));
+      if (METER_ON_THIS_DEVICE) void measureLight();
+    }
+  }
+
+  function pickMeasurement(value: string | null) {
+    setDraft({ ...draft, measurement: value, unit: value ? lastUnitFor(value) : null, value: '' });
+    resetMeter();
+  }
+
   async function handleDelete(id: string) {
     await deleteGardenReading(id);
     await load();
@@ -483,8 +562,15 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
     <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
       <View style={[band.box, styles.card]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Record a Reading</Text>
-        {recording ? (
+        {recording && step === 'where' ? (
           <>
+            <Text style={styles.bodyText}>{lightNext ? 'Which area is this light for?' : 'Which area is this reading for?'}</Text>
+            {areas.length === 0 ? (
+              <Text style={styles.captionText}>
+                No garden area is set up yet. An area is added on Plots &amp; Plantings, and a reading can be recorded
+                with no area in the meantime.
+              </Text>
+            ) : null}
             <View style={styles.fieldRow}>
               <Text style={styles.fieldLabel}>Area</Text>
               <PopoverSelect
@@ -499,27 +585,86 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
               />
             </View>
             {plantingOptions.length > 0 ? (
-              <View style={styles.fieldRow}>
-                <Text style={styles.fieldLabel}>About</Text>
-                <PopoverSelect
-                  options={plantingOptions}
-                  selected={draft.plantingId ?? NO_PLANTING}
-                  onSelect={(value) => setDraft({ ...draft, plantingId: value === NO_PLANTING ? null : value })}
-                  tabColor={TAB_COLOR}
-                  width={220}
-                />
-              </View>
+              <>
+                <Text style={styles.captionText}>
+                  One figure for {pickedArea?.locationType === 'indoor' ? 'the room' : 'the area'} as a whole, such as
+                  the air, or one for a single planting, such as its soil or the light it sits under?
+                </Text>
+                <View style={styles.fieldRow}>
+                  <Text style={styles.fieldLabel}>For</Text>
+                  <PopoverSelect
+                    options={plantingOptions}
+                    selected={draft.plantingId ?? NO_PLANTING}
+                    onSelect={(value) => {
+                      setDraft({ ...draft, plantingId: value === NO_PLANTING ? null : value });
+                      setPickedSource(null);
+                    }}
+                    tabColor={TAB_COLOR}
+                    width={220}
+                  />
+                </View>
+              </>
+            ) : draft.plotId ? (
+              <Text style={styles.captionText}>Nothing is growing here now, so this is for the area as a whole.</Text>
+            ) : null}
+            {pickedArea ? (
+              <Text style={styles.captionText}>{planSummary(areaPlan, measurementLabel, pickedArea.locationType)}.</Text>
+            ) : null}
+            <View style={styles.actionRow}>
+              <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleWhereNext}>
+                <Text style={styles.primaryButtonText}>
+                  {lightNext && METER_ON_THIS_DEVICE ? 'Measure the Light' : 'Next'}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  resetMeter();
+                  setRecording(false);
+                  setProblem(null);
+                }}
+              >
+                <Text style={styles.linkText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        ) : recording ? (
+          <>
+            <View style={styles.fieldRow}>
+              <Text style={styles.bodyText}>{whereLine(pickedArea?.name ?? null, plantingName, pickedArea?.locationType ?? null)}</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  resetMeter();
+                  setLightNext(draft.measurement === 'light');
+                  setStep('where');
+                }}
+              >
+                <Text style={styles.linkText}>Change</Text>
+              </TouchableOpacity>
+            </View>
+            {planned.length > 0 ? (
+              <>
+                <Text style={styles.fieldLabel}>Measured here</Text>
+                <View style={styles.wayRow}>
+                  {planned.map((code) => {
+                    const on = draft.measurement === code;
+                    return (
+                      <TouchableOpacity
+                        key={code}
+                        onPress={() => pickMeasurement(code)}
+                        style={[styles.wayPill, on ? { backgroundColor: TAB_COLOR, borderColor: TAB_COLOR } : null]}
+                      >
+                        <Text style={[styles.wayPillText, on ? styles.wayPillTextOn : null]}>{measurementLabel(code)}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </>
             ) : null}
             <GardenTermField
               list="measurement_kind"
-              label="Measured"
+              label={planned.length > 0 ? 'Or something else' : 'Measured'}
               selected={draft.measurement}
-              onSelect={(value) => {
-                setDraft({ ...draft, measurement: value, unit: value === 'light' ? lastLightUnit : null });
-                setFromPhone(false);
-                setMeterLux(null);
-                setMeter({ status: 'idle' });
-              }}
+              onSelect={pickMeasurement}
               terms={terms}
               onTermsChanged={load}
               showHelp
@@ -823,13 +968,10 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  stopListening();
+                  resetMeter();
                   setRecording(false);
                   setProblem(null);
                   setNewUnit(null);
-                  setMeter({ status: 'idle' });
-                  setFromPhone(false);
-                  setMeterLux(null);
                 }}
               >
                 <Text style={styles.linkText}>Done</Text>
@@ -844,17 +986,11 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
               worth keeping whether or not you ever wire anything up.
             </Text>
             <View style={styles.actionRow}>
-              <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={() => setRecording(true)}>
+              <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={() => startReading(false)}>
                 <Text style={styles.primaryButtonText}>+ Record a Reading</Text>
               </TouchableOpacity>
               {METER_ON_THIS_DEVICE ? (
-                <TouchableOpacity
-                  onPress={() => {
-                    setDraft({ ...draft, measurement: 'light', unit: lastLightUnit, value: '' });
-                    setRecording(true);
-                    void measureLight();
-                  }}
-                >
+                <TouchableOpacity onPress={() => startReading(true)}>
                   <Text style={styles.linkText}>Measure the Light Here</Text>
                 </TouchableOpacity>
               ) : null}
@@ -863,44 +999,75 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
         )}
       </View>
 
-      {groups.length === 0 ? (
+      {byArea.length === 0 ? (
         <View style={[band.boxMuted, styles.card]}>
-          <Text style={styles.emptyText}>Nothing measured yet.</Text>
+          <Text style={styles.emptyText}>Nothing measured yet, and no garden area is set up yet.</Text>
         </View>
       ) : (
-        groups.map((group) => {
-          const open = !!showAll[group.measurement];
-          const shown = open ? group.rows : group.rows.slice(0, SHOWN_AT_FIRST);
+        byArea.map((area) => {
+          const areaKey = area.plotId ?? 'none';
+          const plot = area.plotId && !area.removed ? areas.find((entry) => entry.id === area.plotId) ?? null : null;
           return (
             <TabBand
-              key={group.measurement}
+              key={areaKey}
               folds={folds}
               color={TAB_COLOR}
-              id={`garden:conditions:${group.measurement}`}
-              title={group.label}
-              icon="thermometer-outline"
-              count={group.rows.length}
+              id={`garden:conditions:area:${areaKey}`}
+              title={area.removed ? `${area.name} (since removed)` : area.name}
+              icon="leaf-outline"
+              count={area.count}
             >
               <View style={styles.eventList}>
-                {shown.map((reading) => (
-                  <View key={reading.id} style={styles.row}>
-                    <View style={styles.rowText}>
-                      <Text style={styles.bodyText}>{describeReading(reading, today)}</Text>
-                      <Text style={styles.captionText}>
-                        {reading.plotName ?? 'No area in particular'}
-                        {reading.note ? `. ${reading.note}` : ''}
-                      </Text>
+                {plot ? (
+                  <>
+                    <MeasuringPlanSection plot={plot} onSaved={load} />
+                    <View style={styles.actionRow}>
+                      <TouchableOpacity
+                        style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
+                        onPress={() => startReading(false, plot.id)}
+                      >
+                        <Text style={styles.primaryButtonText}>+ Record a Reading Here</Text>
+                      </TouchableOpacity>
+                      {METER_ON_THIS_DEVICE ? (
+                        <TouchableOpacity onPress={() => startReading(true, plot.id)}>
+                          <Text style={styles.linkText}>Measure the Light Here</Text>
+                        </TouchableOpacity>
+                      ) : null}
                     </View>
-                    <TouchableOpacity onPress={() => handleDelete(reading.id)}>
-                      <Text style={[styles.linkText, { color: colors.danger }]}>Delete</Text>
-                    </TouchableOpacity>
+                  </>
+                ) : null}
+                {area.targets.length === 0 ? <Text style={styles.captionText}>Nothing measured here yet.</Text> : null}
+                {area.targets.map((target) => (
+                  <View key={target.plantingId ?? 'whole'} style={styles.eventList}>
+                    <Text style={[styles.fieldLabel, { color: TAB_COLOR }]}>{target.name}</Text>
+                    {target.measurements.map((group) => {
+                      const showKey = `${areaKey}|${target.plantingId ?? 'whole'}|${group.measurement}`;
+                      const open = !!showAll[showKey];
+                      const shown = open ? group.rows : group.rows.slice(0, SHOWN_AT_FIRST);
+                      return (
+                        <View key={group.measurement} style={styles.eventList}>
+                          <Text style={styles.fieldLabel}>{group.label}</Text>
+                          {shown.map((reading) => (
+                            <View key={reading.id} style={styles.row}>
+                              <View style={styles.rowText}>
+                                <Text style={styles.bodyText}>{describeReading(reading, today)}</Text>
+                                {reading.note ? <Text style={styles.captionText}>{reading.note}</Text> : null}
+                              </View>
+                              <TouchableOpacity onPress={() => handleDelete(reading.id)}>
+                                <Text style={[styles.linkText, { color: colors.danger }]}>Delete</Text>
+                              </TouchableOpacity>
+                            </View>
+                          ))}
+                          {group.rows.length > SHOWN_AT_FIRST ? (
+                            <TouchableOpacity onPress={() => setShowAll({ ...showAll, [showKey]: !open })}>
+                              <Text style={styles.linkText}>{open ? 'Show fewer' : `Show all ${group.rows.length}`}</Text>
+                            </TouchableOpacity>
+                          ) : null}
+                        </View>
+                      );
+                    })}
                   </View>
                 ))}
-                {group.rows.length > SHOWN_AT_FIRST ? (
-                  <TouchableOpacity onPress={() => setShowAll({ ...showAll, [group.measurement]: !open })}>
-                    <Text style={styles.linkText}>{open ? 'Show fewer' : `Show all ${group.rows.length}`}</Text>
-                  </TouchableOpacity>
-                ) : null}
               </View>
             </TabBand>
           );
