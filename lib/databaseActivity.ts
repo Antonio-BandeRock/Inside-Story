@@ -29,6 +29,21 @@ export function isRowChangingSql(sql: string): boolean {
   return ROW_CHANGING.test(sql);
 }
 
+// Tables that stay on this device (DEVICE_LOCAL_TABLES in
+// lib/snapshotSync.ts) and are written often enough to matter: a gateway
+// read every minute (I20) writes its samples and its last-read time each
+// time, and neither is anything the other device receives. A single
+// statement writing only to one of these is not counted, so sync does not
+// save a snapshot that nothing in it changed. The hours and days worked out
+// from the samples go to tables that travel and are counted as usual.
+const STAYS_ON_THIS_DEVICE =
+  /^\s*(?:INSERT(?:\s+OR\s+\w+)?\s+INTO|REPLACE\s+INTO|UPDATE|DELETE\s+FROM)\s+(?:garden_device_samples|garden_gateway_polling)\b[^;]*;?\s*$/i;
+
+/** Whether a statement is a change the other device needs to hear about. */
+export function countsAsChange(sql: string): boolean {
+  return isRowChangingSql(sql) && !STAYS_ON_THIS_DEVICE.test(sql);
+}
+
 /** Records one write. Silent while tracking is suspended (during a restore). */
 export function noteDatabaseWrite(): void {
   if (suspendDepth > 0) return;
@@ -90,12 +105,12 @@ export function attachWriteTracking<T extends TrackableDatabase>(db: T): T {
   const execAsync = db.execAsync.bind(db);
   db.runAsync = async (...args: any[]) => {
     const result = await runAsync(...args);
-    if (typeof args[0] === 'string' && isRowChangingSql(args[0])) noteDatabaseWrite();
+    if (typeof args[0] === 'string' && countsAsChange(args[0])) noteDatabaseWrite();
     return result;
   };
   db.execAsync = async (source: string) => {
     await execAsync(source);
-    if (isRowChangingSql(source)) noteDatabaseWrite();
+    if (countsAsChange(source)) noteDatabaseWrite();
   };
   return db;
 }

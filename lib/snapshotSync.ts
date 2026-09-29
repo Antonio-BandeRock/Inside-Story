@@ -313,6 +313,9 @@ export const DEVICE_LOCAL_TABLES: readonly string[] = [
   // logger fills hundreds of thousands a year. What travels is worked out
   // from them, garden_reading_hours and the day's garden_readings row.
   'garden_device_samples',
+  // Whether this device reads an Ecowitt gateway, and when it last did (I20):
+  // two devices reading one sensor would each replace the other's hours.
+  'garden_gateway_polling',
 ];
 
 /**

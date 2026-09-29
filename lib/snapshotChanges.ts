@@ -229,7 +229,7 @@ const AREAS: readonly Area[] = [
   // Its own area, 2026-09-23: a soil temperature is not a harvest and not
   // a planting, and somebody measuring an indoor tent between grows may be
   // adding nothing else at all.
-  { one: 'growing conditions reading', many: 'growing conditions readings', count: ['garden_readings'], quiet: ['garden_measure_plan'] },
+  { one: 'growing conditions reading', many: 'growing conditions readings', count: ['garden_readings'], quiet: ['garden_measure_plan', 'garden_reading_hours', 'garden_gateways', 'garden_gateway_sensors'] },
   // Both kinds of counter read as one thing here, 2026-09-22: somebody who
   // started three of them does not care which tab each was born on.
   { one: 'Days Until counter', many: 'Days Until counters', count: ['garden_countdowns', 'countdowns'], quiet: [] },

@@ -16,6 +16,7 @@ import { GardenPlateOfferHost } from '../components/GardenPlateOfferHost';
 import { StartupFailureScreen } from '../components/StartupFailureScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
 import { SnapshotSyncWatcher } from '../components/SnapshotSyncWatcher';
+import EcowittPoller from '../components/EcowittPoller';
 import { PendingScanWatcher } from '../components/PendingScanWatcher';
 import { StoryReturnHost } from '../components/StoryReturnHost';
 import { StoryWalkHost } from '../components/StoryWalkHost';
@@ -806,6 +807,8 @@ export default function RootLayout() {
                   raises, mounted only once the database is ready, since
                   dbReady is true for everything rendered here. */}
               <SnapshotSyncWatcher />
+              {/* Ecowitt gateways read over the home network while the app is open (I20). */}
+              <EcowittPoller />
               {/* Barcodes scanned with no signal (G21), looked up once there is one. */}
               <PendingScanWatcher />
               {/* Tell Claude (1.0.49.8): the button and the sheet a note is

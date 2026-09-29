@@ -7392,6 +7392,47 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_garden_reading_hours_measurement ON garden_reading_hours(measurement, hour);
 
+      -- An Ecowitt gateway on the home network (I20, 2026-09-28), read by
+      -- its address while the app is open (lib/ecowittDb.ts). The gateway
+      -- and where each sensor on it goes travel between devices; whether
+      -- this device reads it, and when it last did, is
+      -- garden_gateway_polling, which stays here.
+      CREATE TABLE IF NOT EXISTS garden_gateways (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        host TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+      -- One row per sensor the gateway has reported: the area and planting
+      -- its figures go to, and the device name they are kept under, fixed
+      -- when the row is made so renaming the gateway never splits a
+      -- sensor's history. kept 0 leaves a sensor out. probe_measurement is
+      -- what a temperature probe counts as (soil or air).
+      CREATE TABLE IF NOT EXISTS garden_gateway_sensors (
+        id TEXT PRIMARY KEY,
+        gateway_id TEXT NOT NULL,
+        sensor_key TEXT NOT NULL,
+        label TEXT NOT NULL,
+        device_name TEXT NOT NULL,
+        plot_id TEXT,
+        planting_id TEXT,
+        probe_measurement TEXT,
+        kept INTEGER NOT NULL DEFAULT 1,
+        updated_at TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_garden_gateway_sensors_gateway ON garden_gateway_sensors(gateway_id);
+      CREATE TABLE IF NOT EXISTS garden_gateway_polling (
+        gateway_id TEXT PRIMARY KEY,
+        reading_on INTEGER NOT NULL DEFAULT 0,
+        every_minutes INTEGER NOT NULL DEFAULT 5,
+        last_attempt_at TEXT,
+        last_read_at TEXT,
+        last_problem TEXT,
+        last_line TEXT,
+        unworked_from TEXT
+      );
+
       -- What was done to a planting (I14, 2026-09-28): watered, fed,
       -- pruned, a pest seen. Append-only like compost_events, one row per
       -- thing done on one day. kind is a code from lib/growSetup.ts's

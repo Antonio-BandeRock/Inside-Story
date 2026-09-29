@@ -88,6 +88,7 @@ import { AppTextInput } from './AppTextInput';
 import { MeasuringPlanSection } from './MeasuringPlanSection';
 import { QuickAreaForm } from './QuickAreaForm';
 import { ReadingImportForm } from './ReadingImportForm';
+import { EcowittGatewaySection } from './EcowittGatewaySection';
 import { NotesInput } from './NotesInput';
 import { GardenTermField } from './GardenTermField';
 import { HOME_BAND_GAP } from './HomeSectionBand';
@@ -1170,6 +1171,10 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
           </View>
         </TabBand>
       ) : null}
+
+      <TabBand folds={folds} color={TAB_COLOR} id="garden:conditions:gateways" title="Sensors on Your Network" icon="wifi-outline">
+        <EcowittGatewaySection areas={areas} plantings={plantings} onAreaAdded={load} onRead={() => void load()} />
+      </TabBand>
 
       {/* The record stays here and the months live on Trends, the rule the
           2026-09-23 push runs on. */}

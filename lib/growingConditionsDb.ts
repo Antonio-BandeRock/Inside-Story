@@ -119,17 +119,23 @@ export async function importDeviceReadings(
   samples: Sample[],
   where: { plotId: string | null; plantingId: string | null; deviceName: string; fileName: string },
 ): Promise<{ added: number; alreadyHere: number; days: number; hours: number }> {
-  const db = await getDatabase();
-  let plotName: string | null = null;
-  if (where.plotId) {
-    const row = await db.getFirstAsync<{ name: string }>('SELECT name FROM garden_plots WHERE id = ?', where.plotId);
-    plotName = row?.name ?? null;
-  }
-  const deviceName = where.deviceName.trim() || where.fileName;
-  const deviceKey = deviceKeyOf(deviceName);
-  const plotKey = where.plotId ?? '';
-  const plantingKey = where.plantingId ?? '';
   if (samples.length === 0) return { added: 0, alreadyHere: 0, days: 0, hours: 0 };
+  const db = await getDatabase();
+  const deviceName = where.deviceName.trim() || where.fileName;
+  const target = { plotId: where.plotId, plantingId: where.plantingId, deviceName };
+  const span = daySpanOf(samples);
+  let added = 0;
+  let worked = { days: 0, hours: 0 };
+  await db.withTransactionAsync(async () => {
+    added = await insertSamples(db, samples, target);
+    worked = await reworkFigures(db, target, span.firstDay, span.lastDay);
+  });
+  return { added, alreadyHere: samples.length - added, days: worked.days, hours: worked.hours };
+}
+
+export type DeviceTarget = { plotId: string | null; plantingId: string | null; deviceName: string };
+
+function daySpanOf(samples: Sample[]): { firstDay: string; lastDay: string } {
   let firstDay = samples[0].at.slice(0, 10);
   let lastDay = firstDay;
   for (const sample of samples) {
@@ -137,108 +143,153 @@ export async function importDeviceReadings(
     if (day < firstDay) firstDay = day;
     if (day > lastDay) lastDay = day;
   }
+  return { firstDay, lastDay };
+}
+
+type Db = Awaited<ReturnType<typeof getDatabase>>;
+
+const CHUNK = 100;
+
+/** Adds figures to garden_device_samples, skipping any moment already
+ *  held for the same area, planting, device and measurement. Returns how
+ *  many were new. The table stays on this device, so these writes are not
+ *  something sync saves for (lib/databaseActivity.ts). */
+async function insertSamples(db: Db, samples: Sample[], target: DeviceTarget): Promise<number> {
+  const deviceKey = deviceKeyOf(target.deviceName);
+  const plotKey = target.plotId ?? '';
+  const plantingKey = target.plantingId ?? '';
   let added = 0;
-  let dayCount = 0;
-  let hourCount = 0;
-  const now = new Date().toISOString();
-  const CHUNK = 100;
-  await db.withTransactionAsync(async () => {
-    for (let start = 0; start < samples.length; start += CHUNK) {
-      const chunk = samples.slice(start, start + CHUNK);
-      const params: (string | number)[] = [];
-      for (const sample of chunk) {
-        params.push(plotKey, plantingKey, deviceKey, sample.measurement, sample.at, sample.unit, sample.value);
-      }
-      const result = await db.runAsync(
-        `INSERT OR IGNORE INTO garden_device_samples (plot_id, planting_id, device_key, measurement, measured_at, unit, value)
-         VALUES ${chunk.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(', ')}`,
-        ...params,
-      );
-      added += result.changes;
+  for (let start = 0; start < samples.length; start += CHUNK) {
+    const chunk = samples.slice(start, start + CHUNK);
+    const params: (string | number)[] = [];
+    for (const sample of chunk) {
+      params.push(plotKey, plantingKey, deviceKey, sample.measurement, sample.at, sample.unit, sample.value);
     }
-
-    // Every group touched by this file, worked out from all that is held.
-    const groups = await db.getAllAsync<SampleGroup>(
-      `SELECT measurement, unit, substr(measured_at, 1, 13) AS period,
-              SUM(value) AS sum, COUNT(*) AS count, MIN(value) AS lowest, MAX(value) AS highest
-         FROM garden_device_samples
-        WHERE plot_id = ? AND planting_id = ? AND device_key = ?
-          AND measured_at >= ? AND measured_at <= ?
-        GROUP BY measurement, unit, period`,
-      plotKey,
-      plantingKey,
-      deviceKey,
-      firstDay,
-      `${lastDay} 99`,
+    const result = await db.runAsync(
+      `INSERT OR IGNORE INTO garden_device_samples (plot_id, planting_id, device_key, measurement, measured_at, unit, value)
+       VALUES ${chunk.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(', ')}`,
+      ...params,
     );
-    // A moment with no time is 'YYYY-MM-DD', so its period is ten
-    // characters and it counts toward the day and no hour.
-    const hourFigures = combineGroups(groups.filter((group) => group.period.length === 13));
-    const dayGroups = new Map<string, SampleGroup>();
-    for (const group of groups) {
-      const key = `${group.measurement}|${group.unit}|${group.period.slice(0, 10)}`;
-      const held = dayGroups.get(key);
-      if (held) {
-        held.sum += group.sum;
-        held.count += group.count;
-        held.lowest = Math.min(held.lowest, group.lowest);
-        held.highest = Math.max(held.highest, group.highest);
-      } else {
-        dayGroups.set(key, { ...group, period: group.period.slice(0, 10) });
-      }
-    }
-    const dayFigures = combineGroups([...dayGroups.values()]);
+    added += result.changes;
+  }
+  return added;
+}
 
-    for (let start = 0; start < hourFigures.length; start += CHUNK) {
-      const chunk = hourFigures.slice(start, start + CHUNK);
-      const params: (string | number | null)[] = [];
-      for (const figure of chunk) {
-        params.push(
-          hourReadingId({ plotId: where.plotId, plantingId: where.plantingId, measurement: figure.measurement, hour: figure.period, deviceName }),
-          where.plotId,
-          plotName,
-          where.plantingId,
-          deviceName,
-          figure.measurement,
-          figure.unit,
-          figure.period,
-          Math.round(figure.average * 100) / 100,
-          figure.lowest,
-          figure.highest,
-          figure.count,
-          now,
-        );
-      }
-      await db.runAsync(
-        `INSERT OR REPLACE INTO garden_reading_hours
-           (id, plot_id, plot_name, planting_id, device_name, measurement, unit, hour, average, lowest, highest, count, updated_at)
-         VALUES ${chunk.map(() => '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').join(', ')}`,
-        ...params,
-      );
-    }
-    hourCount = hourFigures.length;
+/** Adds a sensor's latest figures (I20, an Ecowitt gateway) without working
+ *  out the hours and days, which lib/ecowittDb.ts does once an hour rather
+ *  than on every reading. */
+export async function storeDeviceSamples(samples: Sample[], target: DeviceTarget): Promise<number> {
+  if (samples.length === 0) return 0;
+  const db = await getDatabase();
+  let added = 0;
+  await db.withTransactionAsync(async () => {
+    added = await insertSamples(db, samples, target);
+  });
+  return added;
+}
 
-    for (const figure of dayFigures) {
-      await db.runAsync(
-        `INSERT OR REPLACE INTO garden_readings
-           (id, plot_id, plot_name, planting_id, measurement, value, unit, measured_on, source, device_name, note, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'device', ?, ?, ?)`,
-        importedReadingId({ plotId: where.plotId, plantingId: where.plantingId, measurement: figure.measurement, day: figure.period, deviceName }),
-        where.plotId,
+/** Works out the hours and the one reading a day for a device from every
+ *  sample held for it between two days. */
+export async function reworkDeviceFigures(target: DeviceTarget, firstDay: string, lastDay: string): Promise<{ days: number; hours: number }> {
+  const db = await getDatabase();
+  let worked = { days: 0, hours: 0 };
+  await db.withTransactionAsync(async () => {
+    worked = await reworkFigures(db, target, firstDay, lastDay);
+  });
+  return worked;
+}
+
+async function reworkFigures(db: Db, target: DeviceTarget, firstDay: string, lastDay: string): Promise<{ days: number; hours: number }> {
+  let plotName: string | null = null;
+  if (target.plotId) {
+    const row = await db.getFirstAsync<{ name: string }>('SELECT name FROM garden_plots WHERE id = ?', target.plotId);
+    plotName = row?.name ?? null;
+  }
+  const deviceName = target.deviceName;
+  const deviceKey = deviceKeyOf(deviceName);
+  const plotKey = target.plotId ?? '';
+  const plantingKey = target.plantingId ?? '';
+  const now = new Date().toISOString();
+
+  // Every group in the span, worked out from all that is held.
+  const groups = await db.getAllAsync<SampleGroup>(
+    `SELECT measurement, unit, substr(measured_at, 1, 13) AS period,
+            SUM(value) AS sum, COUNT(*) AS count, MIN(value) AS lowest, MAX(value) AS highest
+       FROM garden_device_samples
+      WHERE plot_id = ? AND planting_id = ? AND device_key = ?
+        AND measured_at >= ? AND measured_at <= ?
+      GROUP BY measurement, unit, period`,
+    plotKey,
+    plantingKey,
+    deviceKey,
+    firstDay,
+    `${lastDay} 99`,
+  );
+  // A moment with no time is 'YYYY-MM-DD', so its period is ten
+  // characters and it counts toward the day and no hour.
+  const hourFigures = combineGroups(groups.filter((group) => group.period.length === 13));
+  const dayGroups = new Map<string, SampleGroup>();
+  for (const group of groups) {
+    const key = `${group.measurement}|${group.unit}|${group.period.slice(0, 10)}`;
+    const held = dayGroups.get(key);
+    if (held) {
+      held.sum += group.sum;
+      held.count += group.count;
+      held.lowest = Math.min(held.lowest, group.lowest);
+      held.highest = Math.max(held.highest, group.highest);
+    } else {
+      dayGroups.set(key, { ...group, period: group.period.slice(0, 10) });
+    }
+  }
+  const dayFigures = combineGroups([...dayGroups.values()]);
+
+  for (let start = 0; start < hourFigures.length; start += CHUNK) {
+    const chunk = hourFigures.slice(start, start + CHUNK);
+    const params: (string | number | null)[] = [];
+    for (const figure of chunk) {
+      params.push(
+        hourReadingId({ plotId: target.plotId, plantingId: target.plantingId, measurement: figure.measurement, hour: figure.period, deviceName }),
+        target.plotId,
         plotName,
-        where.plantingId,
+        target.plantingId,
+        deviceName,
         figure.measurement,
-        Math.round(figure.average * 100) / 100,
         figure.unit,
         figure.period,
-        deviceName,
-        figureNote(figure, deviceName),
+        Math.round(figure.average * 100) / 100,
+        figure.lowest,
+        figure.highest,
+        figure.count,
         now,
       );
     }
-    dayCount = dayFigures.length;
-  });
-  return { added, alreadyHere: samples.length - added, days: dayCount, hours: hourCount };
+    await db.runAsync(
+      `INSERT OR REPLACE INTO garden_reading_hours
+         (id, plot_id, plot_name, planting_id, device_name, measurement, unit, hour, average, lowest, highest, count, updated_at)
+       VALUES ${chunk.map(() => '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').join(', ')}`,
+      ...params,
+    );
+  }
+
+  for (const figure of dayFigures) {
+    await db.runAsync(
+      `INSERT OR REPLACE INTO garden_readings
+         (id, plot_id, plot_name, planting_id, measurement, value, unit, measured_on, source, device_name, note, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'device', ?, ?, ?)`,
+      importedReadingId({ plotId: target.plotId, plantingId: target.plantingId, measurement: figure.measurement, day: figure.period, deviceName }),
+      target.plotId,
+      plotName,
+      target.plantingId,
+      figure.measurement,
+      Math.round(figure.average * 100) / 100,
+      figure.unit,
+      figure.period,
+      deviceName,
+      figureNote(figure, deviceName),
+      now,
+    );
+  }
+  return { days: dayFigures.length, hours: hourFigures.length };
 }
 
 export async function deleteGardenReading(id: string): Promise<void> {
