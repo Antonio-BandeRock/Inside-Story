@@ -57,7 +57,7 @@ export type PlantNutrient = {
   sources: GuideSource[];
 };
 
-const RHS_DEFICIENCIES: GuideSource = {
+export const RHS_DEFICIENCIES: GuideSource = {
   label: 'RHS: Nutrient deficiencies',
   url: 'https://www.rhs.org.uk/prevention-protection/nutrient-deficiencies',
 };

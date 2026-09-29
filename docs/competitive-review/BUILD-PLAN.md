@@ -948,9 +948,9 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **How:** Polling by IP (zeroconf and cleartext LAN already in the build) while the app is open.
 
 ### I26. A symptom guide in Horticulture
-- **Ships by:** Reading content · **Size:** M · **Tabs:** Garden
+- **Ships by:** Over the air · **Size:** M · **Tabs:** Garden
 - **Answers:** PictureThis · **Theme:** Garden
-- **How:** "Yellow lower leaves on tomatoes: what it can be", cited, nothing leaves the phone.
+- **How:** What Is Wrong With a Plant, the first band on Garden > Horticulture: pick what the plant is doing (yellow lower leaves, pale new leaves, purple, spots or mildew, brown edges, curled leaves, wilting, rot at the base, trouble with what you eat, flowers falling, bolting, small or leggy, something eating it, flavour or seed) and a crop if known, and it reads "What yellow lower leaves on tomato can be": what that symptom most often is, the problems that crop is known for that show that way, the soil shortages that do and the look-alikes, each with its pages and a PubMed search. With any crop it lists the crops known for it. All 273 crop problems are tagged by hand (lib/cropSymptoms.ts). Nothing leaves the phone; always the likeliest causes, never a diagnosis. Built 1.0.56.4.
 
 ### J1. Import a bank export
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life

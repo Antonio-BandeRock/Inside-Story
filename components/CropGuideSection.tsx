@@ -5,6 +5,7 @@ import { makeDigestRowStyles } from './DigestEntryRow';
 import { EntryScrollAnchor, type EntryScrollTarget } from './EntryScrollAnchor';
 import { EntrySearchInput, searchFieldStyle } from './EntrySearchInput';
 import { HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { PopoverSelect } from './PopoverSelect';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import {
@@ -19,7 +20,19 @@ import {
   type CropGroup,
   type CropGuide,
 } from '../lib/cropGuides';
-import { CROP_PROBLEMS } from '../lib/cropProblems';
+import { CROP_PROBLEMS, type CropProblem } from '../lib/cropProblems';
+import {
+  SYMPTOMS,
+  SYMPTOM_GUIDE_CAUTION,
+  SYMPTOM_GUIDE_INTRO,
+  SYMPTOM_NO_CROP_LINE,
+  cropProblemsFor,
+  cropsWithSymptom,
+  findSymptom,
+  symptomHeading,
+  symptomSources,
+  type SymptomKey,
+} from '../lib/cropSymptoms';
 import {
   LIVING_SOIL_GUIDE,
   LIVING_SOIL_SOURCES,
@@ -58,8 +71,20 @@ import {
 //
 // The data is lib/cropGuides.ts, lib/cropProblems.ts and lib/plantNutrients.ts; a planting on
 // Plots & Plantings opens its crop here through openCropKey.
+//
+// The first band, What Is Wrong With a Plant (I26, 2026-09-29), reads the
+// same data from the other end: pick what the plant is doing, and a crop
+// if known, and it lists that crop's problems that show that way, the
+// shortages that show that way and the look-alikes. The index between
+// them is lib/cropSymptoms.ts.
 
-type Band = 'crops' | 'leaves' | 'soil' | 'help' | null;
+type Band = 'symptoms' | 'crops' | 'leaves' | 'soil' | 'help' | null;
+
+const ANY_CROP = 'any';
+const CROP_OPTIONS = [
+  { value: ANY_CROP, label: 'Any crop' },
+  ...[...CROP_GUIDES].sort((a, b) => a.name.localeCompare(b.name)).map((guide) => ({ value: guide.key, label: guide.name })),
+];
 
 const GROUP_ORDER: CropGroup[] = ['vegetables', 'herbs', 'fruit', 'warm'];
 
@@ -68,7 +93,7 @@ const NUTRIENT_ANCHOR = (key: PlantNutrientKey) => `nutrient:${key}`;
 
 export const CROP_GUIDE_HELP = {
   heading: 'Growing Crops with Living Soil',
-  body: 'The four bands at the top of this lens. How to Grow Each Crop covers vegetables, herbs, fruit and warm-climate and tropical crops: the sun and soil each one wants, the soil pH it grows best in, how hungry it is, how to sow and space it, when it is ready, how to water it, and three problems that crop is known for, each with what it looks like, why it happens and how to put it right by feeding the soil rather than the plant. Reading a Plant’s Leaves starts from where the trouble shows, the older leaves or the newest ones, since that alone halves the list. Living Soil explains compost, no-dig, cover crops and Korean Natural Farming, and says plainly how strong the evidence for each is. Where to Ask for Help lists people who answer gardening questions for free. Figures are the ranges the advisory services commonly give; the page linked under each guide has the detail for your climate, and PubMed has the research. A planting on Plots & Plantings with a guide shows a How to grow link that opens it here.',
+  body: 'The five bands at the top of this lens. What Is Wrong With a Plant starts from what you see, yellow lower leaves, spots, flowers falling, and lists what it can be for the crop you pick: the problems that crop is known for that show that way, the soil shortages that do, and the things that look like a shortage and are not, each with the pages it stands on. How to Grow Each Crop covers vegetables, herbs, fruit and warm-climate and tropical crops: the sun and soil each one wants, the soil pH it grows best in, how hungry it is, how to sow and space it, when it is ready, how to water it, and three problems that crop is known for, each with what it looks like, why it happens and how to put it right by feeding the soil rather than the plant. Reading a Plant’s Leaves starts from where the trouble shows, the older leaves or the newest ones, since that alone halves the list. Living Soil explains compost, no-dig, cover crops and Korean Natural Farming, and says plainly how strong the evidence for each is. Where to Ask for Help lists people who answer gardening questions for free. Figures are the ranges the advisory services commonly give; the page linked under each guide has the detail for your climate, and PubMed has the research. A planting on Plots & Plantings with a guide shows a How to grow link that opens it here.',
 };
 
 export function CropGuideSection({
@@ -88,6 +113,8 @@ export function CropGuideSection({
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [openItem, setOpenItem] = useState<string | null>(null);
   const [query, setQuery] = useState('');
+  const [symptomKey, setSymptomKey] = useState<SymptomKey | null>(null);
+  const [symptomCrop, setSymptomCrop] = useState<string | null>(null);
 
   const sectionRef = useRef<View>(null);
   const pending = useRef<string | null>(null);
@@ -159,6 +186,34 @@ export function CropGuideSection({
     </View>
   );
 
+  const renderProblem = (problem: CropProblem) => (
+    <View key={problem.label} style={styles.watchItem}>
+      <Text style={styles.watchLabel}>{problem.label}</Text>
+      <Text style={styles.detailText}>{problem.looks}</Text>
+      <Text style={styles.detailText}>
+        <Text style={styles.watchLabel}>Why. </Text>
+        {problem.why}
+      </Text>
+      <Text style={styles.detailText}>
+        <Text style={styles.watchLabel}>Put it right. </Text>
+        {problem.fix}
+      </Text>
+      {problem.insteadOf ? (
+        <Text style={styles.detailText}>
+          <Text style={styles.watchLabel}>Why not the bag or bottle. </Text>
+          {problem.insteadOf}
+        </Text>
+      ) : null}
+      {problem.nutrient ? (
+        <TouchableOpacity onPress={() => openNutrient(problem.nutrient!)} activeOpacity={0.7}>
+          <Text style={styles.inlineLink}>
+            What {PLANT_NUTRIENTS.find((n) => n.key === problem.nutrient)?.name.toLowerCase()} shortage looks like
+          </Text>
+        </TouchableOpacity>
+      ) : null}
+    </View>
+  );
+
   const renderCropRow = (guide: CropGuide, index: number, showGroup: boolean) => {
     const id = CROP_ANCHOR(guide.key);
     const expanded = openItem === id;
@@ -191,33 +246,7 @@ export function CropGuideSection({
                 {fact('Growing it well', guide.grow)}
                 <View style={styles.fact}>
                   <Text style={styles.detailLabel}>Three problems to know</Text>
-                  {(CROP_PROBLEMS[guide.key] ?? []).map((problem) => (
-                    <View key={problem.label} style={styles.watchItem}>
-                      <Text style={styles.watchLabel}>{problem.label}</Text>
-                      <Text style={styles.detailText}>{problem.looks}</Text>
-                      <Text style={styles.detailText}>
-                        <Text style={styles.watchLabel}>Why. </Text>
-                        {problem.why}
-                      </Text>
-                      <Text style={styles.detailText}>
-                        <Text style={styles.watchLabel}>Put it right. </Text>
-                        {problem.fix}
-                      </Text>
-                      {problem.insteadOf ? (
-                        <Text style={styles.detailText}>
-                          <Text style={styles.watchLabel}>Why not the bag or bottle. </Text>
-                          {problem.insteadOf}
-                        </Text>
-                      ) : null}
-                      {problem.nutrient ? (
-                        <TouchableOpacity onPress={() => openNutrient(problem.nutrient!)} activeOpacity={0.7}>
-                          <Text style={styles.inlineLink}>
-                            What {PLANT_NUTRIENTS.find((n) => n.key === problem.nutrient)?.name.toLowerCase()} shortage looks like
-                          </Text>
-                        </TouchableOpacity>
-                      ) : null}
-                    </View>
-                  ))}
+                  {(CROP_PROBLEMS[guide.key] ?? []).map(renderProblem)}
                 </View>
                 {renderSources(cropSources(guide))}
               </View>
@@ -275,11 +304,115 @@ export function CropGuideSection({
     );
   };
 
+  const renderSymptomGuide = () => {
+    const symptom = symptomKey ? findSymptom(symptomKey) : undefined;
+    if (!symptom) return null;
+    const cropGuide = symptomCrop ? findCropGuideByKey(symptomCrop) : undefined;
+    const problems = cropGuide ? cropProblemsFor(cropGuide.key, symptom.key) : [];
+    const knownFor = cropGuide ? [] : cropsWithSymptom(symptom.key).flatMap((key) => findCropGuideByKey(key) ?? []);
+    const nutrients = symptom.nutrients.flatMap((key) => PLANT_NUTRIENTS.find((nutrient) => nutrient.key === key) ?? []);
+    const lookAlikes = symptom.lookAlikes.flatMap((heading) => NUTRIENT_LOOK_ALIKES.find((item) => item.heading === heading) ?? []);
+    return (
+      <View style={styles.detailBody}>
+        <View style={styles.fact}>
+          <Text style={styles.detailLabel}>{symptomHeading(symptom, cropGuide?.name ?? null)}</Text>
+          <Text style={styles.detailText}>{symptom.about}</Text>
+        </View>
+        {cropGuide ? (
+          <View style={styles.fact}>
+            <Text style={styles.detailLabel}>{`Known for ${cropGuide.name.toLowerCase()}`}</Text>
+            {problems.length > 0 ? (
+              problems.map(renderProblem)
+            ) : (
+              <Text style={styles.detailText}>
+                None of the three problems {cropGuide.name.toLowerCase()} is best known for shows this way, so start with the shortages and look-alikes below.
+              </Text>
+            )}
+            <TouchableOpacity onPress={() => openCrop(cropGuide)} activeOpacity={0.7}>
+              <Text style={styles.inlineLink}>How to grow {cropGuide.name.toLowerCase()}</Text>
+            </TouchableOpacity>
+          </View>
+        ) : knownFor.length > 0 ? (
+          <View style={styles.fact}>
+            <Text style={styles.detailLabel}>Crops known for this</Text>
+            <Text style={styles.detailText}>{SYMPTOM_NO_CROP_LINE}</Text>
+            <View style={styles.cropChips}>
+              {knownFor.map((guide) => (
+                <TouchableOpacity key={guide.key} onPress={() => setSymptomCrop(guide.key)} activeOpacity={0.7}>
+                  <Text style={styles.inlineLink}>{guide.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        ) : null}
+        {nutrients.length > 0 ? (
+          <View style={styles.fact}>
+            <Text style={styles.detailLabel}>Soil shortages that show this way</Text>
+            {nutrients.map(renderNutrientRow)}
+          </View>
+        ) : null}
+        {lookAlikes.length > 0 ? (
+          <View style={styles.fact}>
+            <Text style={styles.detailLabel}>Looks like a shortage, is not</Text>
+            {lookAlikes.map((item) => (
+              <View key={item.heading} style={styles.watchItem}>
+                <Text style={styles.watchLabel}>{item.heading}</Text>
+                <Text style={styles.detailText}>{item.body}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
+        <Text style={styles.topicDescription}>{SYMPTOM_GUIDE_CAUTION}</Text>
+        {renderSources(symptomSources(symptom))}
+      </View>
+    );
+  };
+
   const olderFirst = PLANT_NUTRIENTS.filter((nutrient) => nutrient.showsOn === 'older');
   const newerFirst = PLANT_NUTRIENTS.filter((nutrient) => nutrient.showsOn === 'newer');
 
   return (
     <View ref={sectionRef} style={styles.wrapper}>
+      <HomeSectionBand
+        kind="fold"
+        title="What Is Wrong With a Plant"
+        icon="search-outline"
+        color={tabColor}
+        expanded={openBand === 'symptoms'}
+        onToggle={() => toggleBand('symptoms')}
+        contentStyle={styles.bandBody}
+      >
+        <Text style={styles.topicDescription}>{SYMPTOM_GUIDE_INTRO}</Text>
+        <View style={styles.fact}>
+          <Text style={styles.detailLabel}>What do you see?</Text>
+          <PopoverSelect
+            options={SYMPTOMS.map((symptom) => ({ value: symptom.key, label: symptom.label }))}
+            selected={symptomKey}
+            onSelect={(value) => {
+              setSymptomKey(value as SymptomKey);
+              setOpenItem(null);
+            }}
+            placeholder="Pick what the plant is doing"
+            tabColor={tabColor}
+          />
+        </View>
+        <View style={styles.fact}>
+          <Text style={styles.detailLabel}>On which crop?</Text>
+          <PopoverSelect
+            options={CROP_OPTIONS}
+            selected={symptomCrop ?? ANY_CROP}
+            onSelect={(value) => {
+              setSymptomCrop(value === ANY_CROP ? null : value);
+              setOpenItem(null);
+            }}
+            searchable
+            searchPlaceholder="Find a crop..."
+            tabColor={tabColor}
+          />
+        </View>
+        {renderSymptomGuide()}
+      </HomeSectionBand>
+
       <HomeSectionBand
         kind="fold"
         title={`How to Grow Each Crop (${CROP_GUIDES.length})`}
@@ -407,6 +540,7 @@ function makeStyles(tabColor: string) {
     detailText: { ...typography.body, color: colors.textPrimary, ...textShadow },
     watchItem: { gap: 2, marginTop: 4 },
     watchLabel: { ...typography.bodyEmphasis, color: colors.textPrimary },
+    cropChips: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 12, rowGap: 4 },
     inlineLink: { ...typography.caption, color: tabColor, textDecorationLine: 'underline', ...textShadow },
     sourceList: { gap: 6 },
     sourceRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
