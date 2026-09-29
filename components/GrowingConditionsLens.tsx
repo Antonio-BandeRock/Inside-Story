@@ -1175,9 +1175,6 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
       <TabBand folds={folds} color={TAB_COLOR} id="garden:conditions:gateways" title="Sensors on Your Network" icon="wifi-outline">
         <EcowittGatewaySection areas={areas} plantings={plantings} onAreaAdded={load} onRead={() => void load()} />
       </TabBand>
-      <TabBand folds={folds} color={TAB_COLOR} id="garden:conditions:acinfinity" title="AC Infinity Account" icon="cloud-outline">
-        <EcowittGatewaySection kind="acinfinity" areas={areas} plantings={plantings} onAreaAdded={load} onRead={() => void load()} />
-      </TabBand>
 
       {/* The record stays here and the months live on Trends, the rule the
           2026-09-23 push runs on. */}

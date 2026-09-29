@@ -101,7 +101,6 @@ contextBridge.exposeInMainWorld('insideStoryDesktop', {
   },
   web: {
     fetchPage: (url) => ipcRenderer.invoke('web:fetchPage', url),
-    postForm: (url, body, headers) => ipcRenderer.invoke('web:postForm', url, body, headers),
   },
   stationListener: {
     start: (port) => ipcRenderer.invoke('station:start', port),

@@ -176,7 +176,7 @@ I19|2|OTA|S-M|Garden|AC Infinity|Import a controller's history file|garden_readi
 I20|3|OTA|M|Garden|Ecowitt|Read an Ecowitt gateway on the home network|Polling by IP (zeroconf and cleartext LAN already in the build) while the app is open.
 I21|2|OTA|S|Garden|Ecowitt|Rain from the station|Feeds the Rain total. After I20.
 I22|4|R1|M-L|Garden|Ecowitt|Receive the gateway's pushes|A small HTTP listener native module. Polling covers it until then.
-I23|7|OPT|L|Garden|AC Infinity|Live AC Infinity readings|Only through an undocumented cloud API; opt-in, stated, fragile.
+I23|7|DEC|L|Garden|AC Infinity|Live AC Infinity readings|Ruled out 2026-09-28 by direct instruction. Built as an opt-in in 1.0.55.39 through the unpublished server AC Infinity's phone app uses, then removed entirely in 1.0.55.40: the app is sold, and a paid app reading another company's service needs that company's permission (App Store guideline 5.2.2 says so outright), so a device joins only when its maker offers a free, published way in, the way Ecowitt does with its gateways. What stays is Import Readings from a File (I19), which reads the history file a person saves from the AC Infinity app. Revisit only if AC Infinity publishes an API or grants permission in writing.
 I24|5|WK|M|Garden|PictureThis, Planta|What plant is this|Pl@ntNet through the Worker so the key stays off the phone; the photo leaves only on an explicit opt-in each time.
 I25|7|OPT|L|Garden|PictureThis|What is wrong with this plant|A paid diagnosis service or a vision model, opt-in per use. Cost decision.
 I26|3|DOC|M|Garden|PictureThis|A symptom guide in Horticulture|"Yellow lower leaves on tomatoes: what it can be", cited, nothing leaves the phone.

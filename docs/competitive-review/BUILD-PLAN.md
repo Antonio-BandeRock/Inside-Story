@@ -1101,9 +1101,9 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **How:** US only, an app registration per health system, or Health Connect medical records. A decision on scope first.
 
 ### I23. Live AC Infinity readings
-- **Ships by:** Explicit opt-in only · **Size:** L · **Tabs:** Garden
+- **Ships by:** Ruled out · **Size:** L · **Tabs:** Garden
 - **Answers:** AC Infinity · **Theme:** Garden
-- **How:** Only through an undocumented cloud API; opt-in, stated, fragile.
+- **How:** Ruled out 2026-09-28 by direct instruction. Built as an opt-in in 1.0.55.39 through the unpublished server AC Infinity's phone app uses, then removed entirely in 1.0.55.40: the app is sold, and a paid app reading another company's service needs that company's permission (App Store guideline 5.2.2 says so outright), so a device joins only when its maker offers a free, published way in, the way Ecowitt does with its gateways. What stays is Import Readings from a File (I19), which reads the history file a person saves from the AC Infinity app. Revisit only if AC Infinity publishes an API or grants permission in writing.
 
 ### I25. What is wrong with this plant
 - **Ships by:** Explicit opt-in only · **Size:** L · **Tabs:** Garden
