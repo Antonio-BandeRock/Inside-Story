@@ -7397,12 +7397,23 @@ async function runDatabaseInitialization() {
       -- and where each sensor on it goes travel between devices; whether
       -- this device reads it, and when it last did, is
       -- garden_gateway_polling, which stays here.
+      -- method is ask (the app asks it by its address) or push (it sends
+      -- its readings to the desktop app, I22). reader_id is the one device
+      -- that reads it (a random id each device keeps in app_meta under
+      -- gateway_reader_self), so a phone and a computer never both read one
+      -- gateway; reader_kind is phone or computer, for saying where.
+      -- passkey is the key a sending station signs its posts with.
       CREATE TABLE IF NOT EXISTS garden_gateways (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         host TEXT NOT NULL,
         created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL
+        updated_at TEXT NOT NULL,
+        method TEXT NOT NULL DEFAULT 'ask',
+        reader_id TEXT,
+        reader_kind TEXT,
+        reader_set_at TEXT,
+        passkey TEXT
       );
       -- One row per sensor the gateway has reported: the area and planting
       -- its figures go to, and the device name they are kept under, fixed
@@ -9444,6 +9455,19 @@ async function runDatabaseInitialization() {
     // section of a greenhouse. See lib/gardenAreaNesting.ts.
     if (!gardenPlotColumns.some((existing) => existing.name === 'inside_plot_id')) {
       await db.execAsync('ALTER TABLE garden_plots ADD COLUMN inside_plot_id TEXT;');
+    }
+    // How a gateway is read and which one device reads it, I22.
+    const gatewayColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(garden_gateways)');
+    for (const [column, type] of [
+      ['method', "TEXT NOT NULL DEFAULT 'ask'"],
+      ['reader_id', 'TEXT'],
+      ['reader_kind', 'TEXT'],
+      ['reader_set_at', 'TEXT'],
+      ['passkey', 'TEXT'],
+    ] as const) {
+      if (gatewayColumns.length > 0 && !gatewayColumns.some((existing) => existing.name === column)) {
+        await db.execAsync(`ALTER TABLE garden_gateways ADD COLUMN ${column} ${type};`);
+      }
     }
     const gardenCostColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(garden_cost_details)');
     if (gardenCostColumns.length > 0 && !gardenCostColumns.some((existing) => existing.name === 'cost_group_id')) {

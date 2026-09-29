@@ -359,7 +359,7 @@ export const GATEWAY_STEPS: string[] = [
   'Press Add a Gateway, give it a name you will recognise, such as Greenhouse gateway, and type only the address, exactly as it is shown. Nothing else is needed.',
   'Press Save and Read It. Within a few seconds the gateway reads as Connected and every sensor it reports is listed under it. If a problem shows instead, it says what to check.',
   'Give each sensor you want kept an area, with Add an area if the right one is not there yet. A sensor with no area is read and nothing from it is kept. Where an area has plantings, a sensor can be given one planting.',
-  'Leave Read it on this device on for the one phone or computer that is open most, and off on any other.',
+  'The phone or computer that adds the gateway is the one that reads it. To read it on another device instead, open it there and press Read It on This Phone Instead (or Computer). Only one device reads a gateway at a time, and the other stops when the two sync.',
 ];
 
 export const ADDRESS_TIP =
@@ -376,19 +376,86 @@ export function gatewayStatus(input: {
   reading: boolean;
   lastReadAt: string | null;
   lastProblem: string | null;
-  readingOn: boolean;
+  readsHere: boolean;
 }): { kind: 'reading' | 'connected' | 'problem' | 'waiting'; text: string } {
   if (input.reading) return { kind: 'reading', text: 'Asking the gateway now…' };
   if (input.lastProblem) return { kind: 'problem', text: 'Not reached on the last try' };
-  if (input.lastReadAt) return { kind: 'connected', text: input.readingOn ? 'Connected, and read while the app is open' : 'Connected, and read only when Read It Now is pressed' };
+  if (input.lastReadAt) return { kind: 'connected', text: input.readsHere ? 'Connected, and read while the app is open' : 'Connected' };
   return { kind: 'waiting', text: 'Not read yet. Press Read It Now.' };
 }
 
 export const WHILE_OPEN_NOTE =
-  'The gateway is read only while Inside Story is open on this device, and it keeps little history of its own, so time with the app closed stays blank. A history file from the Ecowitt app can fill those days through Import Readings from a File.';
+  'A gateway is read only while Inside Story is open on the device that reads it, and it keeps little history of its own, so time with the app closed stays blank. A history file from the Ecowitt app can fill those days through Import Readings from a File.';
 
 export const ONE_DEVICE_NOTE =
-  'Turn reading on for one device only. Each device keeps what it read, and the hours worked out from two devices reading the same sensor would each replace the other.';
+  "One device reads each gateway, so a phone and a computer never read the same one and never replace each other's hours. The other device shows where it is read and gets the hours and days when the two sync. Moving it to another device is one press there; on the day it moves, that day is worked out from the device reading it by the end of the day.";
+
+export type ReaderKind = 'phone' | 'computer';
+export type GatewayMethod = 'ask' | 'push';
+
+export type GatewayReader = {
+  readsHere: boolean;
+  /** Where the gateway is read, in words. */
+  text: string;
+  /** A button to read it here instead, where this device can. */
+  takeOverLabel: string | null;
+  /** What pressing it does, said before it is done. */
+  takeOverConfirm: string | null;
+};
+
+function deviceWord(kind: ReaderKind | null): string {
+  return kind === 'computer' ? 'computer' : kind === 'phone' ? 'phone' : 'other device';
+}
+
+/**
+ * Which device reads a gateway, from this device's point of view. One
+ * device reads each gateway: the id it keeps travels with the gateway, so
+ * the other device stops as soon as the two sync. A gateway that sends its
+ * readings can only be received by a computer.
+ */
+export function gatewayReader(input: {
+  method: GatewayMethod;
+  readerId: string | null;
+  readerKind: ReaderKind | null;
+  me: string;
+  myKind: ReaderKind;
+}): GatewayReader {
+  const mine = deviceWord(input.myKind);
+  const title = input.myKind === 'computer' ? 'Computer' : 'Phone';
+  if (input.readerId === input.me) {
+    return {
+      readsHere: true,
+      text: input.method === 'push' ? 'Received on this computer.' : `Read on this ${mine}.`,
+      takeOverLabel: null,
+      takeOverConfirm: null,
+    };
+  }
+  if (input.method === 'push' && input.myKind !== 'computer') {
+    return {
+      readsHere: false,
+      text: input.readerId
+        ? 'It sends its readings to your computer. The hours and days reach this phone when the two sync.'
+        : 'It is set to send its readings to a computer, and no computer receives them yet. Set that up from Inside Story on the computer.',
+      takeOverLabel: null,
+      takeOverConfirm: null,
+    };
+  }
+  if (input.readerId) {
+    const theirs = deviceWord(input.readerKind);
+    return {
+      readsHere: false,
+      text: `Read on your ${theirs}. The hours and days reach this ${mine} when the two sync.`,
+      takeOverLabel: `Read It on This ${title} Instead`,
+      takeOverConfirm: `This ${mine} starts reading it now, and your ${theirs} stops the next time the two devices sync.`,
+    };
+  }
+  return {
+    readsHere: false,
+    text: 'No device reads this gateway.',
+    takeOverLabel: `Read It on This ${title}`,
+    takeOverConfirm: null,
+  };
+}
 
 export const RAIN_NOTE =
   "A rain gauge is kept as the gateway's total for the day. The day's rain is that total as last read that day, and each hour shows how far it rose. Because the gateway counts the whole day itself, opening the app once late in the day catches that day's rain up to then; a day the app is not opened at all stays blank. Where a station has two rain gauges, keep one, since the Rain total adds up every gauge that is kept.";

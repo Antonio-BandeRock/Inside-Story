@@ -31,6 +31,7 @@ const notifications = require('./notifications');
 const files = require('./files');
 const cloudFolder = require('./cloudFolder');
 const zoom = require('./zoom');
+const stationListener = require('./stationListener');
 
 const APP_ID = 'com.insidestoryapp.app';
 const SCHEME = 'app';
@@ -192,6 +193,15 @@ function registerIpc() {
   // own fetch cannot read another site from app://, so the main process
   // reads it: http and https only, 15 seconds, 5 MB at most, text only.
   ipcMain.handle('web:fetchPage', (_event, url) => fetchPage(url));
+
+  // A weather station that sends its readings here (I22): listening starts
+  // only when the app asks, and each post is passed to the window.
+  stationListener.install((report) => {
+    if (mainWindow) mainWindow.webContents.send('station:report', report);
+  });
+  ipcMain.handle('station:start', (_event, port) => stationListener.start(port));
+  ipcMain.handle('station:stop', () => stationListener.stop());
+  ipcMain.handle('station:status', () => stationListener.status());
 }
 
 const PAGE_LIMIT_BYTES = 5 * 1024 * 1024;
@@ -376,5 +386,6 @@ app.on('window-all-closed', () => {
 });
 
 app.on('before-quit', () => {
+  void stationListener.stop();
   sqlite.closeAll();
 });

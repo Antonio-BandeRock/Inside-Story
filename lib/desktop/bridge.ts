@@ -196,6 +196,29 @@ export type DesktopBridge = {
   cloudFolder: DesktopCloudFolderBridge;
   /** Missing on an installer built before 1.0.53.12. */
   web?: DesktopWebBridge;
+  /** Missing on an installer built before 1.0.55.38. */
+  stationListener?: DesktopStationListenerBridge;
+};
+
+export type StationListenerStatus = {
+  listening: boolean;
+  port: number | null;
+  /** This computer's IPv4 addresses on the home network. */
+  addresses: string[];
+  /** A sentence, when listening failed. */
+  error: string | null;
+  lastReport: { from: string; receivedAt: string } | null;
+};
+
+export type StationReport = { from: string; body: string; receivedAt: string };
+
+/** A weather station that sends its readings to this computer (I22,
+ *  desktop/stationListener.js). */
+export type DesktopStationListenerBridge = {
+  start(port: number): Promise<StationListenerStatus>;
+  stop(): Promise<StationListenerStatus>;
+  status(): Promise<StationListenerStatus>;
+  onReport(listener: (report: StationReport) => void): () => void;
 };
 
 declare global {

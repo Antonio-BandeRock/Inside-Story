@@ -9,7 +9,7 @@ directories:
 # which is not semver, so package.json carries the first three and the whole
 # thing goes here: Windows shows it as the file version, and the installer
 # file is named by it.
-buildVersion: 1.0.55.37
+buildVersion: 1.0.55.38
 artifactName: ${productName} Setup ${buildVersion}.${ext}
 files:
   - main.js
@@ -20,6 +20,7 @@ files:
   - files.js
   - zoom.js
   - cloudFolder.js
+  - stationListener.js
   - package.json
   - web-build/**
 # The reference database ships beside the app (resources/foods_reference.db)

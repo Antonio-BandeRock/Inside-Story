@@ -6,6 +6,10 @@
 // covers rain: the gauge's running total for the day becomes the day's rain
 // and each hour's rise, never an average.
 //
+// Since I22 (1.0.55.38) it also covers a station that sends its readings
+// to the computer (lib/ecowittPush.ts, desktop/stationListener.js) and the
+// rule that one device reads each gateway.
+//
 // Built 2026-09-28.
 //
 // Run with: node scripts/test_ecowitt_local.js
@@ -160,9 +164,9 @@ const sentences = [
   ...detail.notes,
 ].join(' ');
 check('six setup steps, in order', E.GATEWAY_STEPS.length === 6 && /same Wi-Fi/.test(E.GATEWAY_STEPS[0]) && /address/.test(E.GATEWAY_STEPS[1]));
-check('status reads in words', E.gatewayStatus({ reading: false, lastReadAt: null, lastProblem: null, readingOn: true }).kind === 'waiting'
-  && E.gatewayStatus({ reading: false, lastReadAt: 'x', lastProblem: 'no', readingOn: true }).kind === 'problem'
-  && E.gatewayStatus({ reading: false, lastReadAt: 'x', lastProblem: null, readingOn: true }).kind === 'connected');
+check('status reads in words', E.gatewayStatus({ reading: false, lastReadAt: null, lastProblem: null, readsHere: true }).kind === 'waiting'
+  && E.gatewayStatus({ reading: false, lastReadAt: 'x', lastProblem: 'no', readsHere: true }).kind === 'problem'
+  && E.gatewayStatus({ reading: false, lastReadAt: 'x', lastProblem: null, readsHere: true }).kind === 'connected');
 check('no verdict words', !/\b(ideal|optimal|too (low|high)|healthy|unhealthy|perfect)\b/i.test(sentences));
 check('no dashes as punctuation', !/[–—]| -- /.test(sentences));
 
@@ -192,5 +196,115 @@ check('Trends is told rain is a total', read_('lib/growingConditionsDb.ts').incl
 check('band shows the setup steps and status', /<SetupSteps/.test(read_('components/EcowittGatewaySection.tsx')) && read_('components/EcowittGatewaySection.tsx').includes('gatewayStatus('));
 check('band can add an area', /<QuickAreaForm/.test(read_('components/EcowittGatewaySection.tsx')));
 
-console.log(`${passed} passed, ${failed} failed`);
-if (failed > 0) process.exit(1);
+// 6. A station that sends its readings (I22, 1.0.55.38)
+const P = load('lib/ecowittPush.ts');
+const body = 'PASSKEY=ABC123&stationtype=GW2000A_V3.1.4&dateutc=2026-09-28+14%3A00%3A00&tempinf=72.5&humidityin=48&tempf=80.1&humidity=61'
+  + '&solarradiation=512.3&temp1f=70.0&humidity1=55&soilmoisture1=34&tf_ch2=65.3&co2=640&tf_co2=71.0&humi_co2=50'
+  + '&dailyrainin=0.12&rainratein=0.00&weeklyrainin=1.2&windspeedmph=3.1&baromrelin=29.9&uv=2&pm25_ch1=8&vpd=0.9';
+const fields = P.parsePushBody(body);
+check('form body parsed, plus sign as space', fields.dateutc === '2026-09-28 14:00:00' && fields.PASSKEY === 'ABC123');
+check('passkey and station type', P.passkeyOf(fields) === 'ABC123' && P.stationTypeOf(fields) === 'GW2000A_V3.1.4');
+const pushed = P.readPush(fields);
+const pfig = (key, measurement) => pushed.figures.find((f) => f.sensorKey === key && f.measurement === measurement) || { value: null };
+check('outdoor kept in °F', pfig('outdoor', 'air_temperature').value === 80.1 && pfig('outdoor', 'air_temperature').unit === '°F');
+check('outdoor humidity', pfig('outdoor', 'humidity').value === 61);
+check('indoor', pfig('indoor', 'air_temperature').value === 72.5 && pfig('indoor', 'humidity').value === 48);
+check('sunlight kept as W/m²', pfig('outdoor', 'light').value === 512.3);
+check('channel sensor', pfig('th1', 'air_temperature').value === 70 && pfig('th1', 'humidity').value === 55);
+check('soil moisture', pfig('soil1', 'soil_moisture').value === 34);
+check('probe can be soil or air', pfig('probe2', 'soil_temperature').value === 65.3 && pushed.sensors.find((s) => s.key === 'probe2').temperatureCanBeEither);
+check('co2 monitor', pfig('co2', 'co2').value === 640 && pfig('co2', 'air_temperature').value === 71);
+check('rain is the day total in inches', pfig('rain', 'rainfall').value === 0.12 && pfig('rain', 'rainfall').unit === 'in');
+check('sensor keys match the asked answer', ['outdoor', 'indoor', 'th1', 'soil1', 'probe2', 'co2', 'rain'].every((key) => pushed.sensors.some((s) => s.key === key)));
+check('not kept is named', ['wind', 'air pressure', 'UV', 'air quality', 'rain rate and the week, month and year totals'].every((name) => pushed.notKept.includes(name))
+  && pushed.notKept.some((name) => /VPD/.test(name)));
+check('no passkey is not a station post', P.readPush(P.parsePushBody('tempf=70')) === null);
+check('an unreadable figure is left out', !P.readPush(P.parsePushBody('PASSKEY=x&humidity=140')).figures.some((f) => f.measurement === 'humidity'));
+check('a bad escape does not throw', P.parsePushBody('PASSKEY=x&bad=%E0%A4%A').PASSKEY === 'x');
+
+const gws = [
+  { id: 'a', passkey: 'K1', receivesHere: true },
+  { id: 'b', passkey: null, receivesHere: true },
+  { id: 'c', passkey: 'K3', receivesHere: false },
+];
+check('matched by key', JSON.stringify(P.matchPush('K1', gws)) === JSON.stringify({ gatewayId: 'a', adopt: false }));
+check('first post adopted by the one waiting', JSON.stringify(P.matchPush('NEW', gws)) === JSON.stringify({ gatewayId: 'b', adopt: true }));
+check('a gateway received elsewhere is not kept here', P.matchPush('K3', gws) === null);
+check('two waiting means no guess', P.matchPush('NEW', [...gws, { id: 'd', passkey: null, receivesHere: true }]) === null);
+
+// 7. One reader per gateway
+const who = (over) => E.gatewayReader({ method: 'ask', readerId: null, readerKind: null, me: 'me', myKind: 'phone', ...over });
+check('read here', who({ readerId: 'me', readerKind: 'phone' }).readsHere && who({ readerId: 'me' }).takeOverLabel === null);
+check('read elsewhere offers to move, said first', !who({ readerId: 'pc', readerKind: 'computer' }).readsHere
+  && who({ readerId: 'pc', readerKind: 'computer' }).takeOverLabel === 'Read It on This Phone Instead'
+  && /your computer stops/.test(who({ readerId: 'pc', readerKind: 'computer' }).takeOverConfirm));
+check('nobody reads it', who({}).text === 'No device reads this gateway.' && who({}).takeOverLabel === 'Read It on This Phone');
+check('a phone never takes a sending gateway', who({ method: 'push', readerId: 'pc', readerKind: 'computer' }).takeOverLabel === null
+  && who({ method: 'push' }).takeOverLabel === null);
+check('a computer can take a sending gateway', who({ method: 'push', readerId: 'pc2', readerKind: 'computer', myKind: 'computer' }).takeOverLabel === 'Read It on This Computer Instead');
+check('status follows who reads', E.gatewayStatus({ reading: false, lastReadAt: 'x', lastProblem: null, readsHere: false }).text === 'Connected');
+check('push status in words', P.pushStatus({ listening: false, listenError: 'x', lastReadAt: null, lastProblem: null }).kind === 'problem'
+  && P.pushStatus({ listening: true, listenError: null, lastReadAt: null, lastProblem: null }).kind === 'waiting'
+  && P.pushStatus({ listening: true, listenError: null, lastReadAt: 'x', lastProblem: null }).kind === 'connected');
+const steps = P.pushSteps({ addresses: ['192.168.1.20'], port: 8588 });
+check('push steps name the address, path and port', steps.length === 7 && steps.some((s) => s.includes('192.168.1.20') && s.includes('/data/report/') && s.includes('8588')));
+check('push steps with two addresses say which', /192\.168\.1\.20 or 10\.0\.0\.5/.test(P.pushSteps({ addresses: ['192.168.1.20', '10.0.0.5'], port: 9000 }).join(' ')));
+const readerLines = ['ask', 'push'].flatMap((method) => [who({ method }), who({ method, readerId: 'x', readerKind: 'computer' }), who({ method, readerId: 'me' })]);
+const pushSentences = [P.PUSH_HOW, P.PUSH_ADDRESS_TIP, P.PUSH_PHONE_NOTE, ...steps, E.ONE_DEVICE_NOTE, E.WHILE_OPEN_NOTE, ...E.GATEWAY_STEPS,
+  ...readerLines.flatMap((r) => [r.text, r.takeOverConfirm || ''])].join(' ');
+check('push text: no verdict words', !/\b(ideal|optimal|too (low|high)|healthy|unhealthy|perfect)\b/i.test(pushSentences));
+check('push text: no dashes as punctuation', !/[–—]| -- /.test(pushSentences));
+check('push text: no filler', !/\b(real|genuine|genuinely)\b/i.test(pushSentences));
+
+// 8. Wiring for I22
+const snap = read_('lib/snapshotSync.ts');
+check('reader id stays on the device', /'gateway_reader_self'/.test(snap) && /'station_listener_port'/.test(snap));
+check('reader columns made', /reader_id TEXT/.test(db) && /passkey TEXT/.test(db) && /method TEXT NOT NULL DEFAULT 'ask'/.test(db));
+check('listener packaged', /- stationListener\.js/.test(read_('desktop/electron-builder.yml')));
+check('listener wired in main', /require\('\.\/stationListener'\)/.test(read_('desktop/main.js')) && /station:report/.test(read_('desktop/main.js')));
+check('listener exposed in preload', /stationListener:/.test(read_('desktop/preload.js')) && /station:report/.test(read_('desktop/preload.js')));
+const poller = read_('components/EcowittPoller.tsx');
+check('poller starts and stops the listener', /listener\.start\(/.test(poller) && /listener\.stop\(/.test(poller) && /receiveStationReport\(/.test(poller));
+check('a phone cannot take a sending gateway', /method === 'push' && thisDeviceKind\(\) !== 'computer'/.test(edb));
+const band = read_('components/EcowittGatewaySection.tsx');
+check('band has the take-over and no switch per device', band.includes('readGatewayHere(') && !/Read it on this device/.test(band));
+check('band offers sending on the computer only', /onComputer \? \(/.test(band) && band.includes('PUSH_PHONE_NOTE'));
+
+const L = require(path.join(__dirname, '..', 'desktop', 'stationListener.js'));
+check('nearby senders', L.isNearby('192.168.1.40') && L.isNearby('::ffff:10.0.0.2') && L.isNearby('172.20.1.1') && L.isNearby('127.0.0.1'));
+check('far senders refused', !L.isNearby('8.8.8.8') && !L.isNearby('172.40.1.1') && !L.isNearby('::ffff:52.1.2.3'));
+
+async function listenerRoundTrip() {
+  const http = require('http');
+  const got = [];
+  L.install((report) => got.push(report));
+  const port = 20000 + Math.floor(Math.random() * 20000);
+  const started = await L.start(port);
+  check('listener starts', started.listening && started.port === port);
+  const request = (method, payload) => new Promise((resolve, reject) => {
+    const headers = payload ? { 'Content-Type': 'application/x-www-form-urlencoded' } : {};
+    const req = http.request({ host: '127.0.0.1', port, path: '/data/report/', method, headers }, (res) => {
+      let text = '';
+      res.on('data', (chunk) => { text += chunk; });
+      res.on('end', () => resolve({ status: res.statusCode, text }));
+    });
+    req.on('error', reject);
+    if (payload) req.write(payload);
+    req.end();
+  });
+  const hello = await request('GET');
+  check('a browser check answers', hello.status === 200 && /Inside Story is listening/.test(hello.text));
+  const posted = await request('POST', body);
+  check('a post is answered and passed on', posted.status === 200 && got.length === 1 && got[0].body === body && L.isNearby(got[0].from) && !!got[0].receivedAt);
+  const now = L.status();
+  check('status remembers the last post', !!now.lastReport && now.lastReport.from === got[0].from);
+  const stopped = await L.stop();
+  check('listener stops', !stopped.listening);
+}
+
+listenerRoundTrip()
+  .catch((error) => check(`listener round trip: ${error.message}`, false))
+  .then(() => {
+    console.log(`${passed} passed, ${failed} failed`);
+    if (failed > 0) process.exit(1);
+  });

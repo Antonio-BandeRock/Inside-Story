@@ -275,6 +275,11 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'garden_rain_forecast',
   // Last and first frost dates (lib/homeSky.ts), worked out on each device.
   'garden_frost_dates',
+  // Which device this is, for which one reads each Ecowitt gateway (I22,
+  // lib/ecowittDb.ts): carried over, two devices would each be the reader.
+  'gateway_reader_self',
+  // The port this computer listens on for a station that sends (I22).
+  'station_listener_port',
   CHANGE_BASELINE_META_KEY,
 ];
 

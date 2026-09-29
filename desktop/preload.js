@@ -17,6 +17,16 @@ function unwrap(reply) {
 
 const responseListeners = new Set();
 const zoomListeners = new Set();
+const stationListeners = new Set();
+ipcRenderer.on('station:report', (_event, report) => {
+  for (const listener of stationListeners) {
+    try {
+      listener(report);
+    } catch (error) {
+      console.error('station report listener failed', error);
+    }
+  }
+});
 ipcRenderer.on('zoom:changed', (_event, factor) => {
   for (const listener of zoomListeners) {
     try {
@@ -91,6 +101,17 @@ contextBridge.exposeInMainWorld('insideStoryDesktop', {
   },
   web: {
     fetchPage: (url) => ipcRenderer.invoke('web:fetchPage', url),
+  },
+  stationListener: {
+    start: (port) => ipcRenderer.invoke('station:start', port),
+    stop: () => ipcRenderer.invoke('station:stop'),
+    status: () => ipcRenderer.invoke('station:status'),
+    onReport: (listener) => {
+      stationListeners.add(listener);
+      return () => {
+        stationListeners.delete(listener);
+      };
+    },
   },
   notifications: {
     schedule: (request) => ipcRenderer.invoke('notifications:schedule', request),
