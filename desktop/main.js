@@ -194,6 +194,11 @@ function registerIpc() {
   // reads it: http and https only, 15 seconds, 5 MB at most, text only.
   ipcMain.handle('web:fetchPage', (_event, url) => fetchPage(url));
 
+  // An AC Infinity account (I23): a form posted to AC Infinity's server and
+  // its JSON answer handed back. Only that server can be posted to, so the
+  // window cannot use this to send anything anywhere else.
+  ipcMain.handle('web:postForm', (_event, url, body, headers) => postForm(url, body, headers));
+
   // A weather station that sends its readings here (I22): listening starts
   // only when the app asks, and each post is passed to the window.
   stationListener.install((report) => {
@@ -225,6 +230,43 @@ async function fetchPage(url) {
     return { text: text.slice(0, PAGE_LIMIT_BYTES), finalUrl: response.url || url.trim() };
   } catch (error) {
     if (error && error.name === 'AbortError') throw new Error('The site took longer than 15 seconds to answer.');
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+const POST_FORM_HOSTS = new Set(['www.acinfinityserver.com']);
+
+async function postForm(url, body, headers) {
+  let parsed;
+  try {
+    parsed = new URL(String(url));
+  } catch {
+    throw new Error('That address cannot be posted to.');
+  }
+  if (parsed.protocol !== 'https:' || !POST_FORM_HOSTS.has(parsed.hostname)) {
+    throw new Error('That address cannot be posted to.');
+  }
+  const extra = {};
+  if (headers && typeof headers === 'object') {
+    for (const [key, value] of Object.entries(headers)) {
+      if (typeof value === 'string' && /^[A-Za-z-]+$/.test(key)) extra[key] = value;
+    }
+  }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15000);
+  try {
+    const response = await net.fetch(parsed.toString(), {
+      method: 'POST',
+      signal: controller.signal,
+      body: typeof body === 'string' ? body : '',
+      headers: { ...extra, 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
+    const text = await response.text();
+    return { status: response.status, text: text.slice(0, PAGE_LIMIT_BYTES) };
+  } catch (error) {
+    if (error && error.name === 'AbortError') throw new Error('The server took longer than 15 seconds to answer.');
     throw error;
   } finally {
     clearTimeout(timer);

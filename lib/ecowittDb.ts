@@ -18,7 +18,15 @@
 // gateway is either asked by its address (both kinds of device) or sends
 // its readings to the computer (desktop/stationListener.js, which hands each
 // post to receiveStationReport here).
+//
+// Since I23 (1.0.55.39) an AC Infinity account is a gateway too, with
+// method 'cloud' and the account email as its host: it is asked through
+// AC Infinity's server (lib/acInfinityAccount.ts), its password is kept on
+// each device that reads it and never in this database, and its sensors,
+// areas and hours are handled here the same way as a gateway's.
 
+import { describeAccountRead, type AcInfinityRead } from './acInfinityCloud';
+import { fetchAcInfinity, forgetAcPassword } from './acInfinityAccount';
 import { getDatabase } from './db';
 import { getDesktopBridge, isDesktopApp } from './desktop/bridge';
 import {
@@ -178,7 +186,7 @@ export async function listGateways(): Promise<GatewayWithSettings[]> {
   );
   const result: GatewayWithSettings[] = [];
   for (const held of gateways) {
-    let gateway: Gateway = { ...held, method: held.method === 'push' ? 'push' : 'ask' };
+    let gateway: Gateway = { ...held, method: methodOf(held.method) };
     const polling = pollingRows.find((row) => row.gatewayId === gateway.id);
     // A gateway added before I22 was read wherever its switch was on; the
     // device with the switch on takes it, once.
@@ -193,6 +201,10 @@ export async function listGateways(): Promise<GatewayWithSettings[]> {
     });
   }
   return result;
+}
+
+function methodOf(held: string | null | undefined): GatewayMethod {
+  return held === 'push' ? 'push' : held === 'cloud' ? 'cloud' : 'ask';
 }
 
 async function setReader(gateway: Gateway, readerId: string | null): Promise<Gateway> {
@@ -249,10 +261,10 @@ export async function saveGateway(input: { id?: string; name: string; host: stri
   const now = new Date().toISOString();
   const me = await gatewayReaderSelf();
   const kind = thisDeviceKind();
-  const method: GatewayMethod = input.method === 'push' && kind === 'computer' ? 'push' : 'ask';
+  const method: GatewayMethod = input.method === 'push' && kind === 'computer' ? 'push' : input.method === 'cloud' ? 'cloud' : 'ask';
   if (input.id) {
     const held = await db.getFirstAsync<{ method: string }>('SELECT method FROM garden_gateways WHERE id = ?', input.id);
-    const nextMethod: GatewayMethod = input.method === undefined ? (held?.method === 'push' ? 'push' : 'ask') : method;
+    const nextMethod: GatewayMethod = input.method === undefined ? methodOf(held?.method) : method;
     await db.runAsync(
       'UPDATE garden_gateways SET name = ?, host = ?, method = ?, updated_at = ? WHERE id = ?',
       input.name.trim(),
@@ -295,6 +307,7 @@ export async function deleteGateway(id: string): Promise<void> {
     await db.runAsync('DELETE FROM garden_gateway_polling WHERE gateway_id = ?', id);
     await db.runAsync('DELETE FROM garden_gateways WHERE id = ?', id);
   });
+  await forgetAcPassword(id);
 }
 
 /** Where one sensor's figures go. The device name is set when the row is
@@ -434,7 +447,10 @@ export async function readGatewayNow(gatewayId: string, now: Date = new Date()):
 
   let read: GatewayRead;
   try {
-    read = await fetchGateway(entry.gateway.host);
+    read =
+      entry.gateway.method === 'cloud'
+        ? await fetchAcInfinity(gatewayId, entry.gateway.host, thisDeviceKind())
+        : await fetchGateway(entry.gateway.host);
   } catch (error) {
     const problem = error instanceof Error ? error.message : String(error);
     await db.runAsync(
@@ -511,7 +527,13 @@ async function keepGatewayRead(entry: GatewayWithSettings, read: GatewayRead, no
     kept += samples.length;
   }
   const waiting = read.sensors.filter((sensor) => !sensors.some((setting) => setting.sensorKey === sensor.key)).length;
-  const parts = [entry.gateway.method === 'push' ? describeRead(read, kept).replace('The gateway answered', 'The station sent a reading') : describeRead(read, kept)];
+  const parts = [
+    entry.gateway.method === 'cloud' && 'offline' in read
+      ? describeAccountRead(read as AcInfinityRead, kept)
+      : entry.gateway.method === 'push'
+        ? describeRead(read, kept).replace('The gateway answered', 'The station sent a reading')
+        : describeRead(read, kept),
+  ];
   if (waiting > 0) parts.push(`${waiting} ${waiting === 1 ? 'sensor has' : 'sensors have'} not been given an area yet.`);
   if (areaGone > 0) parts.push(`${areaGone} ${areaGone === 1 ? 'sensor goes' : 'sensors go'} to an area that has been removed, so ${areaGone === 1 ? 'its figures were' : 'their figures were'} not kept. Pick another area for ${areaGone === 1 ? 'it' : 'them'}.`);
   const line = parts.join(' ');
@@ -589,7 +611,7 @@ export async function readDueGateways(now: Date = new Date()): Promise<boolean> 
       if (polling.unworkedFrom) await workOutGateway(gateway.id, now);
       continue;
     }
-    if (gateway.method !== 'ask' || !isDue(polling.lastAttemptAt, polling.everyMinutes, now)) continue;
+    if (gateway.method === 'push' || !isDue(polling.lastAttemptAt, polling.everyMinutes, now)) continue;
     await readGatewayNow(gateway.id, now);
     readAny = true;
   }

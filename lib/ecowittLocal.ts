@@ -391,7 +391,9 @@ export const ONE_DEVICE_NOTE =
   "One device reads each gateway, so a phone and a computer never read the same one and never replace each other's hours. The other device shows where it is read and gets the hours and days when the two sync. Moving it to another device is one press there; on the day it moves, that day is worked out from the device reading it by the end of the day.";
 
 export type ReaderKind = 'phone' | 'computer';
-export type GatewayMethod = 'ask' | 'push';
+/** How a gateway is read: asked at its address, sending to the computer,
+ *  or (I23) an AC Infinity account asked through AC Infinity's server. */
+export type GatewayMethod = 'ask' | 'push' | 'cloud';
 
 export type GatewayReader = {
   readsHere: boolean;
@@ -446,12 +448,14 @@ export function gatewayReader(input: {
       readsHere: false,
       text: `Read on your ${theirs}. The hours and days reach this ${mine} when the two sync.`,
       takeOverLabel: `Read It on This ${title} Instead`,
-      takeOverConfirm: `This ${mine} starts reading it now, and your ${theirs} stops the next time the two devices sync.`,
+      takeOverConfirm: input.method === 'cloud'
+        ? `This ${mine} starts reading the account once its password is typed here, and your ${theirs} stops the next time the two devices sync. The password stays on each device that holds it.`
+        : `This ${mine} starts reading it now, and your ${theirs} stops the next time the two devices sync.`,
     };
   }
   return {
     readsHere: false,
-    text: 'No device reads this gateway.',
+    text: input.method === 'cloud' ? 'No device reads this account.' : 'No device reads this gateway.',
     takeOverLabel: `Read It on This ${title}`,
     takeOverConfirm: null,
   };

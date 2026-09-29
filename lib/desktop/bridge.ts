@@ -173,6 +173,9 @@ export type DesktopCloudFolderBridge = {
 export type DesktopWebBridge = {
   /** Rejects with an Error carrying a sentence when the page cannot be read. */
   fetchPage(url: string): Promise<{ text: string; finalUrl: string }>;
+  /** Posts a form to AC Infinity's server and hands back its answer (I23).
+   *  Missing on an installer built before 1.0.55.39. */
+  postForm?(url: string, body: string, headers: Record<string, string>): Promise<{ status: number; text: string }>;
 };
 
 export type DesktopPaths = {

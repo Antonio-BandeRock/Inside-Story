@@ -1,6 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
+import { forgetAcPassword, hasAcPassword, saveAcPassword } from '../lib/acInfinityAccount';
+import {
+  AC_CONSENT_LABEL,
+  AC_FRAGILE_NOTE,
+  AC_HOW,
+  AC_PASSWORD_NEEDED,
+  AC_STEPS,
+  AC_WHAT_IS_SENT,
+  AC_WHILE_OPEN_NOTE,
+} from '../lib/acInfinityCloud';
 import { textShadow, typography } from '../constants/typography';
 import { sortByLabel } from '../lib/choiceOrder';
 import type { GardenPlanting, GardenPlot } from '../lib/db';
@@ -51,6 +61,13 @@ import { QuickAreaForm } from './QuickAreaForm';
 // writes in lib/ecowittDb.ts, and the reading on a timer in
 // components/EcowittPoller.tsx; this is where a gateway is added and each
 // of its sensors is given an area.
+//
+// The same band, with kind 'acinfinity', is Garden > Growing Conditions >
+// AC Infinity Account (I23, 2026-09-28): an account is a gateway with
+// method 'cloud', added only after the switch agreeing to send the email
+// and password to AC Infinity is turned on. The password field is React
+// Native's TextInput with secureTextEntry, as in components/PasswordPrompt.tsx,
+// so no mic is offered for it.
 
 const TAB_COLOR = colors.tabGarden;
 const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
@@ -103,7 +120,10 @@ export function EcowittGatewaySection(props: {
   onAreaAdded: () => Promise<void> | void;
   /** Called after a reading is kept, so the lens can show it. */
   onRead: () => void;
+  /** Gateways on the home network (the default), or AC Infinity accounts. */
+  kind?: 'network' | 'acinfinity';
 }) {
+  const isAc = props.kind === 'acinfinity';
   const [gateways, setGateways] = useState<GatewayWithSettings[]>([]);
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -120,23 +140,33 @@ export function EcowittGatewaySection(props: {
   const [port, setPort] = useState(String(DEFAULT_LISTEN_PORT));
   const [portProblem, setPortProblem] = useState<string | null>(null);
   const [unmatched, setUnmatched] = useState<UnmatchedReport | null>(null);
+  const [password, setPassword] = useState('');
+  const [consent, setConsent] = useState(false);
+  const [passwordHeld, setPasswordHeld] = useState<Record<string, boolean>>({});
+  const [passwordFor, setPasswordFor] = useState<Record<string, string>>({});
 
   const onComputer = isDesktopApp();
   const bridge = stationListener();
 
   const load = useCallback(async () => {
-    const all = await listGateways();
+    const all = (await listGateways()).filter((entry) => (entry.gateway.method === 'cloud') === isAc);
     setGateways(all);
     const lines: Record<string, ReaderLine> = {};
-    for (const entry of all) lines[entry.gateway.id] = await describeGatewayReader(entry.gateway);
+    const heldPasswords: Record<string, boolean> = {};
+    for (const entry of all) {
+      lines[entry.gateway.id] = await describeGatewayReader(entry.gateway);
+      if (isAc) heldPasswords[entry.gateway.id] = await hasAcPassword(entry.gateway.id);
+    }
     setReaders(lines);
+    setPasswordHeld(heldPasswords);
+    if (isAc) return;
     setUnmatched(lastUnmatchedReport());
     const held = stationListener();
     if (held) {
       setListener(await held.status());
       setPort(String(await getListenPort()));
     }
-  }, []);
+  }, [isAc]);
 
   useEffect(() => {
     void load();
@@ -148,7 +178,7 @@ export function EcowittGatewaySection(props: {
     // The listener is started by EcowittPoller on its own tick, so the
     // status here is looked at again every few seconds while a station is
     // being set up, rather than only after something arrives.
-    const held = stationListener();
+    const held = isAc ? null : stationListener();
     const timer = held
       ? setInterval(() => {
           void held.status().then(setListener);
@@ -186,8 +216,42 @@ export function EcowittGatewaySection(props: {
     setEditingId(entry?.gateway.id ?? null);
     setName(entry?.gateway.name ?? '');
     setHost(entry?.gateway.host ?? '');
-    setMethod(entry?.gateway.method ?? 'ask');
+    setMethod(entry?.gateway.method ?? (isAc ? 'cloud' : 'ask'));
+    setPassword('');
+    setConsent(!!entry);
     setAdding(true);
+  }
+
+  async function handleSaveAccount() {
+    const email = host.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setProblem('Type the email you sign in to the AC Infinity app with.');
+      return;
+    }
+    if (!editingId && !password) {
+      setProblem('Type the password you sign in to the AC Infinity app with.');
+      return;
+    }
+    if (!consent) {
+      setProblem('Nothing is sent to AC Infinity until the switch above is turned on.');
+      return;
+    }
+    const id = await saveGateway({ id: editingId ?? undefined, name: name.trim() || 'AC Infinity', host: email, method: 'cloud' });
+    if (password) await saveAcPassword(id, password);
+    setPassword('');
+    setAdding(false);
+    setEditingId(null);
+    await load();
+    await readNow(id);
+  }
+
+  async function handlePasswordHere(id: string) {
+    const typed = passwordFor[id] ?? '';
+    if (!typed) return;
+    await saveAcPassword(id, typed);
+    setPasswordFor((held) => ({ ...held, [id]: '' }));
+    await load();
+    await readNow(id);
   }
 
   async function handleSave() {
@@ -249,6 +313,7 @@ export function EcowittGatewaySection(props: {
 
   async function handleRemove(id: string) {
     await deleteGateway(id);
+    if (isAc) await forgetAcPassword(id);
     await load();
   }
 
@@ -281,7 +346,7 @@ export function EcowittGatewaySection(props: {
       <View key={key} style={styles.sensorBox}>
         <Text style={styles.fieldLabel}>{label}</Text>
         {setting && lastRead[entry.gateway.id] && !reported ? (
-          <Text style={styles.captionText}>Not in the gateway’s last answer.</Text>
+          <Text style={styles.captionText}>{isAc ? 'Not in AC Infinity’s last answer.' : 'Not in the gateway’s last answer.'}</Text>
         ) : null}
         {addingAreaFor === addKey ? (
           <QuickAreaForm
@@ -353,6 +418,66 @@ export function EcowittGatewaySection(props: {
     );
   }
 
+  if (adding && isAc) {
+    return (
+      <View style={styles.formCard}>
+        <Text style={styles.bodyText}>{AC_WHAT_IS_SENT}</Text>
+        <Text style={styles.captionText}>{AC_FRAGILE_NOTE}</Text>
+        <View style={styles.fieldRow}>
+          <Text style={styles.fieldLabel}>Name</Text>
+          <AppTextInput style={[styles.textInput, styles.wideInput]} value={name} onChangeText={setName} placeholder="Grow tent controllers" />
+        </View>
+        <View style={styles.fieldRow}>
+          <Text style={styles.fieldLabel}>AC Infinity email</Text>
+          <AppTextInput
+            style={[styles.textInput, styles.wideInput]}
+            value={host}
+            onChangeText={setHost}
+            placeholder="you@example.com"
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+          />
+        </View>
+        <View style={styles.fieldRow}>
+          <Text style={styles.fieldLabel}>{editingId ? 'Password (blank keeps the one held here)' : 'AC Infinity password'}</Text>
+          <TextInput
+            style={[styles.textInput, styles.wideInput]}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            placeholder="Password"
+            placeholderTextColor={colors.textMuted}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+        </View>
+        <View style={styles.fieldRow}>
+          <Switch value={consent} onValueChange={setConsent} trackColor={{ true: TAB_COLOR, false: colors.border }} />
+          <Text style={[styles.bodyText, styles.stepText]}>{AC_CONSENT_LABEL}</Text>
+        </View>
+        {problem ? <Text style={styles.errorText}>{problem}</Text> : null}
+        <View style={styles.actionRow}>
+          <TouchableOpacity
+            style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND, opacity: consent ? 1 : 0.5 }]}
+            onPress={() => void handleSaveAccount()}
+          >
+            <Text style={styles.primaryButtonText}>Sign In and Read It</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setPassword('');
+              setAdding(false);
+              setEditingId(null);
+            }}
+          >
+            <Text style={styles.linkText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   if (adding) {
     const sends = onComputer && method === 'push';
     return (
@@ -419,9 +544,9 @@ export function EcowittGatewaySection(props: {
     <View style={styles.list}>
       {gateways.length === 0 ? (
         <View style={styles.formCard}>
-          <Text style={styles.bodyText}>{GATEWAY_HOW}</Text>
+          <Text style={styles.bodyText}>{isAc ? AC_HOW : GATEWAY_HOW}</Text>
           <Text style={styles.fieldLabel}>Setting it up</Text>
-          <SetupSteps />
+          <SetupSteps steps={isAc ? AC_STEPS : undefined} />
         </View>
       ) : null}
       {gateways.map((entry) => {
@@ -485,10 +610,33 @@ export function EcowittGatewaySection(props: {
               return (
                 <View style={styles.statusRow}>
                   <View style={[styles.statusDot, { backgroundColor: dot }]} />
-                  <Text style={styles.bodyText}>{status.text}</Text>
+                  <Text style={styles.bodyText}>{isAc ? status.text.replace('the gateway', 'AC Infinity') : status.text}</Text>
                 </View>
               );
             })() : null}
+            {isAc && entry.readsHere && passwordHeld[gateway.id] === false ? (
+              <View style={styles.confirmBox}>
+                <Text style={styles.bodyText}>{AC_PASSWORD_NEEDED}</Text>
+                <View style={styles.fieldRow}>
+                  <TextInput
+                    style={[styles.textInput, styles.wideInput]}
+                    value={passwordFor[gateway.id] ?? ''}
+                    onChangeText={(text) => setPasswordFor((held) => ({ ...held, [gateway.id]: text }))}
+                    secureTextEntry
+                    placeholder="AC Infinity password"
+                    placeholderTextColor={colors.textMuted}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                  />
+                </View>
+                <TouchableOpacity
+                  style={[styles.primaryButton, styles.addButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
+                  onPress={() => void handlePasswordHere(gateway.id)}
+                >
+                  <Text style={styles.primaryButtonText}>Save the Password and Read It</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
             {entry.readsHere && sends && bridge && listener?.error ? <Text style={styles.errorText}>{listener.error}</Text> : null}
             {entry.readsHere && sends && !bridge ? <Text style={styles.errorText}>{OLD_INSTALLER_NOTE}</Text> : null}
             {!entry.readsHere ? null : polling.lastProblem ? (
@@ -562,7 +710,9 @@ export function EcowittGatewaySection(props: {
                 {sends
                   ? 'The first reading the station sends lists its sensors here, each to be given an area.'
                   : entry.readsHere
-                    ? 'Read It Now lists the sensors the gateway reports, each to be given an area.'
+                    ? isAc
+                      ? "Read It Now lists each controller's built-in probe and every sensor plugged into its ports, each to be given an area."
+                      : 'Read It Now lists the sensors the gateway reports, each to be given an area.'
                     : 'The sensors are given areas on the device that reads it.'}
               </Text>
             ) : null}
@@ -575,22 +725,32 @@ export function EcowittGatewaySection(props: {
               <Text style={styles.captionText}>Also reported and not kept in Garden: {read.notKept.join(', ')}.</Text>
             ) : null}
             <Text style={styles.captionText}>
-              Removing the gateway keeps every reading it gave. Its readings are kept under the sensor’s name, such as “
-              {gateway.name}, Outdoor station”.
+              {isAc
+                ? 'Removing the account keeps every reading it gave, and forgets its password on this device. Its readings are kept under the sensor’s name, such as “Tent controller, built-in probe”.'
+                : `Removing the gateway keeps every reading it gave. Its readings are kept under the sensor’s name, such as “${gateway.name}, Outdoor station”.`}
             </Text>
           </View>
         );
       })}
       <TouchableOpacity style={[styles.primaryButton, styles.addButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={() => startForm(null)}>
-        <Text style={styles.primaryButtonText}>+ Add a Gateway</Text>
+        <Text style={styles.primaryButtonText}>{isAc ? '+ Add an AC Infinity Account' : '+ Add a Gateway'}</Text>
       </TouchableOpacity>
-      {unmatched && onComputer ? (
+      {isAc ? (
+        <View style={styles.formCard}>
+          <Text style={styles.captionText}>{AC_FRAGILE_NOTE}</Text>
+          <Text style={styles.captionText}>{AC_WHILE_OPEN_NOTE}</Text>
+          <Text style={styles.captionText}>{ONE_DEVICE_NOTE.replace(/gateway/g, 'account')}</Text>
+          <Text style={styles.captionText}>{HOURS_NOTE}</Text>
+        </View>
+      ) : null}
+      {!isAc && unmatched && onComputer ? (
         <View style={styles.formCard}>
           <Text style={styles.errorText}>
             {`A station at ${unmatched.from}${unmatched.stationType ? ` (${unmatched.stationType})` : ''} sent readings at ${when(unmatched.at)}, and no gateway received on this computer matches it. Add a gateway that sends its readings to this computer, or press Read It on This Computer on the one it belongs to.`}
           </Text>
         </View>
       ) : null}
+      {isAc ? null : (
       <View style={styles.formCard}>
         <Text style={styles.captionText}>{onComputer ? PUSH_HOW : PUSH_PHONE_NOTE}</Text>
         <Text style={styles.captionText}>{ADDRESS_TIP}</Text>
@@ -600,6 +760,7 @@ export function EcowittGatewaySection(props: {
         <Text style={styles.captionText}>{RAIN_NOTE}</Text>
         <Text style={styles.captionText}>{LIGHT_NOTE}</Text>
       </View>
+      )}
     </View>
   );
 }

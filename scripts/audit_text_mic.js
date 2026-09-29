@@ -38,6 +38,7 @@ const OWN_MIC = {
 const BARE_TEXT_INPUT = {
   'components/AppTextInput.tsx': 'the field itself',
   'components/PasswordPrompt.tsx': 'password fields, where speaking the password aloud is the thing to avoid',
+  'components/EcowittGatewaySection.tsx': 'the AC Infinity password fields (I23), for the same reason',
 };
 
 function walk(dir, out) {
