@@ -22,17 +22,20 @@ import {
 } from '../lib/cropGuides';
 import { CROP_PROBLEMS, type CropProblem } from '../lib/cropProblems';
 import {
-  SYMPTOMS,
-  SYMPTOM_GUIDE_CAUTION,
-  SYMPTOM_GUIDE_INTRO,
-  SYMPTOM_NO_CROP_LINE,
-  cropProblemsFor,
-  cropsWithSymptom,
-  findSymptom,
-  symptomHeading,
-  symptomSources,
-  type SymptomKey,
-} from '../lib/cropSymptoms';
+  CROP_SIGN_BATCH_LINE,
+  CROP_SIGN_CAUTION,
+  CROP_SIGN_CONFIRM,
+  CROP_SIGN_INTRO,
+  CROP_SIGN_KIND_LABELS,
+  CROP_SIGN_KIND_ORDER,
+  cropProblemsShowing,
+  cropSignHeading,
+  cropSignsFor,
+  cropSymptomChoices,
+  cropsWithSigns,
+  type CropSign,
+} from '../lib/cropSigns';
+import { findSymptom, type SymptomKey } from '../lib/cropSymptoms';
 import {
   LIVING_SOIL_GUIDE,
   LIVING_SOIL_SOURCES,
@@ -72,19 +75,21 @@ import {
 // The data is lib/cropGuides.ts, lib/cropProblems.ts and lib/plantNutrients.ts; a planting on
 // Plots & Plantings opens its crop here through openCropKey.
 //
-// The first band, What Is Wrong With a Plant (I26, 2026-09-29), reads the
-// same data from the other end: pick what the plant is doing, and a crop
-// if known, and it lists that crop's problems that show that way, the
-// shortages that show that way and the look-alikes. The index between
-// them is lib/cropSymptoms.ts.
+// The first band, What Is Wrong With a Plant (I26, reworked 2026-09-29),
+// starts from the crop, because each crop shows trouble differently:
+// pick the crop, then what it is doing, and it lists that crop's signs
+// from lib/cropSigns.ts (too little or too much of a nutrient, watering,
+// soil pH, and the diseases that look like a shortage, each citing a page
+// about that crop), the crop's known problems that show that way, and how
+// to confirm it. Only crops with signs are offered; they come in batches.
 
 type Band = 'symptoms' | 'crops' | 'leaves' | 'soil' | 'help' | null;
 
-const ANY_CROP = 'any';
-const CROP_OPTIONS = [
-  { value: ANY_CROP, label: 'Any crop' },
-  ...[...CROP_GUIDES].sort((a, b) => a.name.localeCompare(b.name)).map((guide) => ({ value: guide.key, label: guide.name })),
-];
+const EVERY_SIGN = 'every';
+const SIGN_CROP_OPTIONS = cropsWithSigns()
+  .flatMap((key) => findCropGuideByKey(key) ?? [])
+  .sort((a, b) => a.name.localeCompare(b.name))
+  .map((guide) => ({ value: guide.key, label: guide.name }));
 
 const GROUP_ORDER: CropGroup[] = ['vegetables', 'herbs', 'fruit', 'warm'];
 
@@ -93,7 +98,7 @@ const NUTRIENT_ANCHOR = (key: PlantNutrientKey) => `nutrient:${key}`;
 
 export const CROP_GUIDE_HELP = {
   heading: 'Growing Crops with Living Soil',
-  body: 'The five bands at the top of this lens. What Is Wrong With a Plant starts from what you see, yellow lower leaves, spots, flowers falling, and lists what it can be for the crop you pick: the problems that crop is known for that show that way, the soil shortages that do, and the things that look like a shortage and are not, each with the pages it stands on. How to Grow Each Crop covers vegetables, herbs, fruit and warm-climate and tropical crops: the sun and soil each one wants, the soil pH it grows best in, how hungry it is, how to sow and space it, when it is ready, how to water it, and three problems that crop is known for, each with what it looks like, why it happens and how to put it right by feeding the soil rather than the plant. Reading a Plant’s Leaves starts from where the trouble shows, the older leaves or the newest ones, since that alone halves the list. Living Soil explains compost, no-dig, cover crops and Korean Natural Farming, and says plainly how strong the evidence for each is. Where to Ask for Help lists people who answer gardening questions for free. Figures are the ranges the advisory services commonly give; the page linked under each guide has the detail for your climate, and PubMed has the research. A planting on Plots & Plantings with a guide shows a How to grow link that opens it here.',
+  body: 'The five bands at the top of this lens. What Is Wrong With a Plant starts from the crop, since each crop shows trouble differently. Pick the crop, then what you see, and it lists the signs that crop is known to show that way: too little or too much of a nutrient, watering, soil pH, and the diseases that look like a shortage, each from a page about that crop, then how to confirm it with a soil or leaf test. Crops are added a few at a time, starting with tomato, hops and cannabis. How to Grow Each Crop covers vegetables, herbs, fruit and warm-climate and tropical crops: the sun and soil each one wants, the soil pH it grows best in, how hungry it is, how to sow and space it, when it is ready, how to water it, and three problems that crop is known for, each with what it looks like, why it happens and how to put it right by feeding the soil rather than the plant. Reading a Plant’s Leaves starts from where the trouble shows, the older leaves or the newest ones, since that alone halves the list. Living Soil explains compost, no-dig, cover crops and Korean Natural Farming, and says plainly how strong the evidence for each is. Where to Ask for Help lists people who answer gardening questions for free. Figures are the ranges the advisory services commonly give; the page linked under each guide has the detail for your climate, and PubMed has the research. A planting on Plots & Plantings with a guide shows a How to grow link that opens it here.',
 };
 
 export function CropGuideSection({
@@ -113,8 +118,8 @@ export function CropGuideSection({
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [openItem, setOpenItem] = useState<string | null>(null);
   const [query, setQuery] = useState('');
-  const [symptomKey, setSymptomKey] = useState<SymptomKey | null>(null);
-  const [symptomCrop, setSymptomCrop] = useState<string | null>(null);
+  const [signCrop, setSignCrop] = useState<string | null>(null);
+  const [signSymptom, setSignSymptom] = useState<SymptomKey | null>(null);
 
   const sectionRef = useRef<View>(null);
   const pending = useRef<string | null>(null);
@@ -304,66 +309,73 @@ export function CropGuideSection({
     );
   };
 
-  const renderSymptomGuide = () => {
-    const symptom = symptomKey ? findSymptom(symptomKey) : undefined;
-    if (!symptom) return null;
-    const cropGuide = symptomCrop ? findCropGuideByKey(symptomCrop) : undefined;
-    const problems = cropGuide ? cropProblemsFor(cropGuide.key, symptom.key) : [];
-    const knownFor = cropGuide ? [] : cropsWithSymptom(symptom.key).flatMap((key) => findCropGuideByKey(key) ?? []);
-    const nutrients = symptom.nutrients.flatMap((key) => PLANT_NUTRIENTS.find((nutrient) => nutrient.key === key) ?? []);
-    const lookAlikes = symptom.lookAlikes.flatMap((heading) => NUTRIENT_LOOK_ALIKES.find((item) => item.heading === heading) ?? []);
+  const renderSign = (sign: CropSign) => (
+    <View key={sign.label} style={styles.watchItem}>
+      <Text style={styles.watchLabel}>{sign.label}</Text>
+      <Text style={styles.detailText}>{sign.looks}</Text>
+      {sign.why ? (
+        <Text style={styles.detailText}>
+          <Text style={styles.watchLabel}>Why. </Text>
+          {sign.why}
+        </Text>
+      ) : null}
+      <Text style={styles.detailText}>
+        <Text style={styles.watchLabel}>Put it right. </Text>
+        {sign.fix}
+      </Text>
+      {sign.nutrient ? (
+        <TouchableOpacity onPress={() => openNutrient(sign.nutrient!)} activeOpacity={0.7}>
+          <Text style={styles.inlineLink}>
+            What {PLANT_NUTRIENTS.find((n) => n.key === sign.nutrient)?.name.toLowerCase()} does in any plant
+          </Text>
+        </TouchableOpacity>
+      ) : null}
+      {sign.sources.map((source) => (
+        <TouchableOpacity key={source.url} onPress={() => Linking.openURL(source.url)} activeOpacity={0.7} style={styles.sourceRow}>
+          <Ionicons name="open-outline" size={14} color={tabColor} />
+          <Text style={styles.sourceText}>{source.label}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+
+  const renderSignGuide = () => {
+    const cropGuide = signCrop ? findCropGuideByKey(signCrop) : null;
+    if (!cropGuide) return null;
+    const symptom = signSymptom ? (findSymptom(signSymptom) ?? null) : null;
+    const signs = cropSignsFor(cropGuide.key, signSymptom);
+    const problems = cropProblemsShowing(cropGuide.key, signSymptom);
+    const confirm = CROP_SIGN_CONFIRM[cropGuide.key];
     return (
       <View style={styles.detailBody}>
-        <View style={styles.fact}>
-          <Text style={styles.detailLabel}>{symptomHeading(symptom, cropGuide?.name ?? null)}</Text>
-          <Text style={styles.detailText}>{symptom.about}</Text>
-        </View>
-        {cropGuide ? (
-          <View style={styles.fact}>
-            <Text style={styles.detailLabel}>{`Known for ${cropGuide.name.toLowerCase()}`}</Text>
-            {problems.length > 0 ? (
-              problems.map(renderProblem)
-            ) : (
-              <Text style={styles.detailText}>
-                None of the three problems {cropGuide.name.toLowerCase()} is best known for shows this way, so start with the shortages and look-alikes below.
-              </Text>
-            )}
-            <TouchableOpacity onPress={() => openCrop(cropGuide)} activeOpacity={0.7}>
-              <Text style={styles.inlineLink}>How to grow {cropGuide.name.toLowerCase()}</Text>
-            </TouchableOpacity>
-          </View>
-        ) : knownFor.length > 0 ? (
-          <View style={styles.fact}>
-            <Text style={styles.detailLabel}>Crops known for this</Text>
-            <Text style={styles.detailText}>{SYMPTOM_NO_CROP_LINE}</Text>
-            <View style={styles.cropChips}>
-              {knownFor.map((guide) => (
-                <TouchableOpacity key={guide.key} onPress={() => setSymptomCrop(guide.key)} activeOpacity={0.7}>
-                  <Text style={styles.inlineLink}>{guide.name}</Text>
-                </TouchableOpacity>
-              ))}
+        <Text style={styles.detailLabel}>{cropSignHeading(symptom, cropGuide.name)}</Text>
+        {CROP_SIGN_KIND_ORDER.map((kind) => {
+          const ofKind = signs.filter((sign) => sign.kind === kind);
+          if (ofKind.length === 0) return null;
+          return (
+            <View key={kind} style={styles.fact}>
+              <Text style={styles.detailLabel}>{CROP_SIGN_KIND_LABELS[kind]}</Text>
+              {ofKind.map(renderSign)}
             </View>
-          </View>
-        ) : null}
-        {nutrients.length > 0 ? (
+          );
+        })}
+        {problems.length > 0 ? (
           <View style={styles.fact}>
-            <Text style={styles.detailLabel}>Soil shortages that show this way</Text>
-            {nutrients.map(renderNutrientRow)}
+            <Text style={styles.detailLabel}>Known problems of {cropGuide.name.toLowerCase()}</Text>
+            {problems.map(renderProblem)}
           </View>
         ) : null}
-        {lookAlikes.length > 0 ? (
+        {confirm ? (
           <View style={styles.fact}>
-            <Text style={styles.detailLabel}>Looks like a shortage, is not</Text>
-            {lookAlikes.map((item) => (
-              <View key={item.heading} style={styles.watchItem}>
-                <Text style={styles.watchLabel}>{item.heading}</Text>
-                <Text style={styles.detailText}>{item.body}</Text>
-              </View>
-            ))}
+            <Text style={styles.detailLabel}>How to confirm it</Text>
+            <Text style={styles.detailText}>{confirm.text}</Text>
+            {renderSources(confirm.sources)}
           </View>
         ) : null}
-        <Text style={styles.topicDescription}>{SYMPTOM_GUIDE_CAUTION}</Text>
-        {renderSources(symptomSources(symptom))}
+        <Text style={styles.topicDescription}>{CROP_SIGN_CAUTION}</Text>
+        <TouchableOpacity onPress={() => openCrop(cropGuide)} activeOpacity={0.7}>
+          <Text style={styles.inlineLink}>How to grow {cropGuide.name.toLowerCase()}</Text>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -382,35 +394,40 @@ export function CropGuideSection({
         onToggle={() => toggleBand('symptoms')}
         contentStyle={styles.bandBody}
       >
-        <Text style={styles.topicDescription}>{SYMPTOM_GUIDE_INTRO}</Text>
+        <Text style={styles.topicDescription}>{CROP_SIGN_INTRO}</Text>
         <View style={styles.fact}>
-          <Text style={styles.detailLabel}>What do you see?</Text>
+          <Text style={styles.detailLabel}>Which crop?</Text>
           <PopoverSelect
-            options={SYMPTOMS.map((symptom) => ({ value: symptom.key, label: symptom.label }))}
-            selected={symptomKey}
+            options={SIGN_CROP_OPTIONS}
+            selected={signCrop}
             onSelect={(value) => {
-              setSymptomKey(value as SymptomKey);
+              setSignCrop(value);
+              setSignSymptom(null);
               setOpenItem(null);
             }}
-            placeholder="Pick what the plant is doing"
+            placeholder="Pick the crop"
             tabColor={tabColor}
           />
+          <Text style={styles.detailText}>{CROP_SIGN_BATCH_LINE}</Text>
         </View>
-        <View style={styles.fact}>
-          <Text style={styles.detailLabel}>On which crop?</Text>
-          <PopoverSelect
-            options={CROP_OPTIONS}
-            selected={symptomCrop ?? ANY_CROP}
-            onSelect={(value) => {
-              setSymptomCrop(value === ANY_CROP ? null : value);
-              setOpenItem(null);
-            }}
-            searchable
-            searchPlaceholder="Find a crop..."
-            tabColor={tabColor}
-          />
-        </View>
-        {renderSymptomGuide()}
+        {signCrop ? (
+          <View style={styles.fact}>
+            <Text style={styles.detailLabel}>What do you see?</Text>
+            <PopoverSelect
+              options={[
+                { value: EVERY_SIGN, label: 'Show every sign' },
+                ...cropSymptomChoices(signCrop).map((symptom) => ({ value: symptom.key, label: symptom.label })),
+              ]}
+              selected={signSymptom ?? EVERY_SIGN}
+              onSelect={(value) => {
+                setSignSymptom(value === EVERY_SIGN ? null : (value as SymptomKey));
+                setOpenItem(null);
+              }}
+              tabColor={tabColor}
+            />
+          </View>
+        ) : null}
+        {renderSignGuide()}
       </HomeSectionBand>
 
       <HomeSectionBand

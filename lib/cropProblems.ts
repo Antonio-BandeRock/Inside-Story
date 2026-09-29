@@ -2094,6 +2094,49 @@ export const CROP_PROBLEMS: Record<string, CropProblem[]> = {
       fix: 'Grow in a pot and bring it indoors before the first frost, or lift and pot a few stalks, and keep it on the dry side in a bright room until spring.',
     },
   ],
+  hops: [
+    {
+      label: 'Hop downy mildew',
+      looks: 'Stiff, stunted hop shoots come up silvery or pale green in spring with blackish undersides, and later cones turn brown and shrivel.',
+      why: 'A water mould that overwinters in the crown and spreads to new growth on wet leaves in mild, damp weather.',
+      fix: 'Cut away the first flush of shoots from the crown in spring before training the next, strip leaves off the bottom metre of each bine, water at the base only, and replace a badly affected crown with a resistant kind such as Fuggle.',
+    },
+    {
+      label: 'Hop Verticillium wilt',
+      looks: 'Hop leaves yellow and die from the bottom of the bine upward in a striped pattern like a tiger, and the stem is brown under the bark.',
+      why: 'A soil fungus that blocks the water-carrying tissue, made worse by heavy spring watering, weeds around the hill and too much nitrogen.',
+      fix: 'Grow a resistant kind, keep the hills weeded, water lightly while the spring soil is cool, feed with compost rather than rich manure, and dig out and bin a plant that keeps wilting rather than composting it.',
+    },
+    {
+      nutrient: 'Zn',
+      label: 'Small, crinkled hop leaves on limy soil',
+      looks: 'Hop leaves stay small, yellow, misshapen and brittle and curl upward, side arms stay short, and it looks like a virus.',
+      why: 'Zinc is locked away in soil above about pH 7.5, and too much phosphorus from years of manure makes it worse.',
+      fix: 'Test the pH, stop adding lime and wood ash, ease off manure if a test shows phosphorus is high, and work compost and leaf mould into the hills every spring to bring the pH down slowly and feed the soil life.',
+    },
+  ],
+  cannabis: [
+    {
+      nutrient: 'K',
+      label: 'Cannabis leaf edges scorched rusty brown',
+      looks: 'The edges and tips of the younger cannabis leaves turn rusty brown, dry out and curl up, and the stems stay weak.',
+      why: 'Potassium runs short, most often because salt from heavy feeding or salty water, or cold soil, stops the roots taking it up.',
+      fix: 'Water deeply once or twice with clean water to wash salts below the roots, stop any heavy feeding, then mulch with comfrey leaves and topdress with compost, and have the water tested if it may be salty.',
+    },
+    {
+      nutrient: 'Mg',
+      label: 'Cannabis lower leaves yellowing in cool nights',
+      looks: 'Older cannabis leaves yellow between green veins, with rust-brown spots, and curl upward, often after a run of cool nights.',
+      why: 'Cold soil, heavy watering, clay, acid soil and too much potassium or calcium all stop the roots taking magnesium up, even from soil that holds plenty.',
+      fix: 'Plant out only once nights stay warm, let the soil dry a little between waterings, open clay with compost, and on acid soil add dolomitic lime by a pH test rather than feeding more.',
+    },
+    {
+      label: 'Cannabis powdery mildew',
+      looks: 'White powdery spots on cannabis leaves, stems and flower buds, usually first on the lowest leaves, most of all under cover.',
+      why: 'A fungus that thrives in still, humid air among crowded plants, above all in greenhouses and indoor grows.',
+      fix: 'Space plants so air moves between them, water at the base by drip, check the lowest leaves every week and cut away and bin any with spots, and keep a fan moving the air under cover.',
+    },
+  ],
 };
 
 // Where to read more about growing each crop without chemicals: Garden
@@ -2372,5 +2415,13 @@ export const CROP_ORGANIC_SOURCES: Record<string, GuideSource[]> = {
   ],
   lemongrass: [
     { label: 'Garden Organic: Growing lemongrass organically', url: 'https://www.gardenorganic.org.uk/expert-advice/how-to-grow/growing-guides/vegetables-herbs-guides/how-to-grow-lemongrass' },
+  ],
+  cannabis: [
+    { label: 'NC State: Nutrition guides for greenhouse hemp', url: 'https://hemp.ces.ncsu.edu/news/nutritional-guides-for-greenhouse-hemp/' },
+    { label: 'Utah State University: Hemp powdery mildew', url: 'https://extension.usu.edu/planthealth/ipm/notes_ag/hemp-powdery-mildew' },
+  ],
+  hops: [
+    { label: 'Ontario: Nutrient deficiency identification guide for hops', url: 'https://www.ontario.ca/page/nutrient-deficiency-identification-guide-hops' },
+    { label: 'University of Vermont: Hops research', url: 'https://www.uvm.edu/extension/nwcrops/hops' },
   ],
 };

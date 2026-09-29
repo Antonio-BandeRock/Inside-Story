@@ -1,26 +1,19 @@
-// A symptom guide in Horticulture (I26, 2026-09-29): start from what the
-// plant is doing, "yellow lower leaves", "spots on the leaves", "flowers
-// falling", and read what it can be, for one crop or for any.
+// The symptoms a person picks from in Horticulture's What Is Wrong With a
+// Plant band, and which of them each crop problem shows as.
 //
-// Nothing here is new advice. It joins three things already in the app:
-// the three problems each crop is known for (lib/cropProblems.ts), the
-// nutrient shortages and where they show (PLANT_NUTRIENTS), and the things
-// that look like a shortage and are not (NUTRIENT_LOOK_ALIKES). This file
-// adds only the index between them: which symptoms each crop problem shows
-// as, tagged by hand from its `looks` text, and which shortages and
-// look-alikes go with each symptom. Every page it points to is one those
-// three files already cite, plus the RHS deficiencies page and a PubMed
-// search for the symptom itself.
+// The first version (I26, 2026-09-29) also read each symptom the same way
+// for every crop: a list of shortages and look-alikes per symptom. That was
+// removed the same day by direct statement: "what every plant presents or
+// does when it is high or low on any specific nutrient or is being over or
+// under watered doesn't always follow the same path ... Is there any way
+// to separate it by the crop being grown and retain complete accuracy?"
+// What a symptom means now comes only from lib/cropSigns.ts, crop by crop.
+// Do not add a cross-crop reading of a symptom back here.
 //
-// Answers what PictureThis sells as a subscription, with nothing leaving
-// the phone. Every list is the likeliest causes, never a diagnosis.
-//
-// Pure: no React and no database, so scripts/test_crop_symptoms.js can
-// check that every crop problem is tagged, every tag is known, and each
-// shortage listed under a symptom says it shows that way.
-
-import { CROP_PROBLEMS, type CropProblem } from './cropProblems';
-import { GO_PESTICIDES, RHS_DEFICIENCIES, pubmedSearchUrl, type GuideSource, type PlantNutrientKey } from './plantNutrients';
+// This file keeps the picker list and the hand-made tags saying which
+// symptoms each of the three known problems per crop (lib/cropProblems.ts)
+// shows as. Pure: no React and no database, checked by
+// scripts/test_crop_symptoms.js.
 
 export type SymptomKey = 'yo' | 'yn' | 'pu' | 'sp' | 'ed' | 'cu' | 'wi' | 'ro' | 'ha' | 'fl' | 'bo' | 'st' | 'ho' | 'ot';
 
@@ -28,14 +21,8 @@ export type Symptom = {
   key: SymptomKey;
   /** The picker label, as a person would say it. */
   label: string;
-  /** Lower-case, fits "What ... can be". */
+  /** Lower-case, fits "What ... on tomato can be". */
   phrase: string;
-  /** What it most often is, in two or three sentences. */
-  about: string;
-  nutrients: PlantNutrientKey[];
-  /** Headings in NUTRIENT_LOOK_ALIKES. */
-  lookAlikes: string[];
-  pubmedTerms: string;
 };
 
 export const SYMPTOMS: Symptom[] = [
@@ -43,141 +30,71 @@ export const SYMPTOMS: Symptom[] = [
     key: 'yo',
     label: 'Yellow older, lower leaves',
     phrase: 'yellow lower leaves',
-    about:
-      'Yellowing that starts at the bottom of the plant is a nutrient the plant can move, drawn out of the old leaves to feed the new: nitrogen most often, then magnesium and potassium. Before any of those, check the soil a finger deep, since too dry and too wet both do this, and one or two old leaves yellowing on a healthy plant is only age.',
-    nutrients: ['N', 'Mg', 'K', 'Mo'],
-    lookAlikes: ['Old leaves doing what old leaves do', 'Too dry or too wet', 'Cold', 'Damaged roots'],
-    pubmedTerms: 'chlorosis older leaves nutrient deficiency vegetable crops',
   },
   {
     key: 'yn',
     label: 'Pale or yellow new leaves',
     phrase: 'pale or yellow new leaves',
-    about:
-      'Yellowing that starts at the top is a nutrient the plant cannot move, most often iron or manganese locked away in a soil too alkaline, or sulphur. Veins staying sharply green on a yellow young leaf points to iron. Weedkiller drift and a virus can look much the same.',
-    nutrients: ['Fe', 'Mn', 'S', 'Zn'],
-    lookAlikes: ['Too dry or too wet', 'Weedkiller drift', 'Virus'],
-    pubmedTerms: 'interveinal chlorosis young leaves iron deficiency high pH soil',
   },
   {
     key: 'pu',
     label: 'Purple or red leaves',
     phrase: 'purple or red leaves',
-    about:
-      'Purple on seedlings in a cold spring is usually the cold, and greens up as the soil warms. Where it lasts, phosphorus shortage tints the older leaves and undersides, and magnesium and potassium shortage can turn yellow patches purple or reddish brown.',
-    nutrients: ['P', 'Mg', 'K'],
-    lookAlikes: ['Cold', 'Too dry or too wet'],
-    pubmedTerms: 'anthocyanin purple leaves phosphorus deficiency low temperature seedlings',
   },
   {
     key: 'sp',
     label: 'Spots, patches, mildew or rust on the leaves',
     phrase: 'spots, patches, mildew or rust on the leaves',
-    about:
-      'Most spots are a fungus or a bacterium, which the crop problems below name for each crop, and most are made worse by wet leaves, crowding and still air. A white powder is mildew, orange pustules are rust, and a mosaic of light and dark green points to a virus. A nutrient can speckle a leaf too.',
-    nutrients: ['Mn', 'Mg'],
-    lookAlikes: ['Virus', 'Too much feed'],
-    pubmedTerms: 'leaf spot disease diagnosis vegetable crops cultural control',
   },
   {
     key: 'ed',
     label: 'Brown, scorched leaf edges or tips',
     phrase: 'brown leaf edges and tips',
-    about:
-      'Crisp brown edges on older leaves are the classic look of potassium shortage, and on the inner leaves of lettuce and cabbage they are tipburn, a calcium problem that comes from uneven watering far more often than from the soil. In pots, salt from heavy feeding does the same.',
-    nutrients: ['K', 'Ca'],
-    lookAlikes: ['Too much feed', 'Too dry or too wet'],
-    pubmedTerms: 'leaf margin necrosis potassium deficiency tipburn calcium',
   },
   {
     key: 'cu',
     label: 'Curled, twisted or narrow new leaves',
     phrase: 'curled, twisted or narrow new leaves',
-    about:
-      'New growth that twists, cups or narrows to straps is weedkiller drift more often than anything else, including from manure out of treated fields. Aphids and leaf miners curl leaves as well. Where neither fits, zinc, boron, copper and molybdenum shortages all distort new growth.',
-    nutrients: ['Zn', 'B', 'Cu', 'Mo'],
-    lookAlikes: ['Weedkiller drift', 'Virus'],
-    pubmedTerms: 'leaf distortion herbicide injury micronutrient deficiency diagnosis',
   },
   {
     key: 'wi',
     label: 'Wilting or collapsing',
     phrase: 'wilting or collapse',
-    about:
-      'A plant that wilts in dry soil wants water. One that wilts in wet soil has roots that have stopped working, from waterlogging, a root rot or something eating them, and more water makes it worse. Wilting that does not recover by evening is the one to worry about.',
-    nutrients: ['Cu'],
-    lookAlikes: ['Too dry or too wet', 'Damaged roots'],
-    pubmedTerms: 'plant wilting root rot waterlogging diagnosis',
   },
   {
     key: 'ro',
     label: 'Rot, cracks or damage at the stem, base or roots',
     phrase: 'rot or cracks at the stem, base or roots',
-    about:
-      'Rot at the base is nearly always water sitting where it should drain, or soil piled against the stem. Cracked stems and hollow or brown hearts in roots are the classic look of boron shortage, and root crops fork and split when the soil is stony, fresh-manured or watered unevenly.',
-    nutrients: ['B', 'Ca'],
-    lookAlikes: ['Too dry or too wet', 'Damaged roots'],
-    pubmedTerms: 'stem rot root crop disorders boron deficiency hollow stem',
   },
   {
     key: 'ha',
     label: 'Something wrong with the fruit, pods, heads or roots you eat',
     phrase: 'trouble with the fruit, heads or roots you eat',
-    about:
-      'Most faults in the part you eat come from water rather than the soil: blossom-end rot, bitter pit and splitting all follow uneven watering, since calcium only travels with the water. Uneven ripening can be potassium or heat, and hollow or brown hearts can be boron.',
-    nutrients: ['Ca', 'K', 'B'],
-    lookAlikes: ['Too dry or too wet'],
-    pubmedTerms: 'fruit physiological disorders blossom end rot calcium irrigation',
   },
   {
     key: 'fl',
     label: 'Flowers falling, or flowers with no fruit',
     phrase: 'flowers falling or no fruit setting',
-    about:
-      'Flowers drop when nights are too hot or too cold, when the plant is too dry, or when nothing pollinates them. Some crops need a second plant, or a male and a female. Too much nitrogen gives leaves instead of flowers, and potassium shortage gives few flowers and small fruit.',
-    nutrients: ['K'],
-    lookAlikes: ['Too dry or too wet', 'Cold'],
-    pubmedTerms: 'flower abortion fruit set temperature pollination vegetable crops',
   },
   {
     key: 'bo',
     label: 'Running to flower early (bolting)',
     phrase: 'running to flower early',
-    about:
-      'Bolting is the plant deciding to set seed, triggered by lengthening days, heat, a cold spell after sowing, or dry roots. No nutrient causes it. Sowing at the right time of year, a bolt-resistant variety and steady water are what stop it.',
-    nutrients: [],
-    lookAlikes: ['Too dry or too wet', 'Cold'],
-    pubmedTerms: 'bolting premature flowering vernalization day length leafy vegetables',
   },
   {
     key: 'st',
     label: 'Small, slow, thin or leggy growth',
     phrase: 'small, slow or leggy growth',
-    about:
-      'Long, pale, floppy seedlings are reaching for light. Small, slow plants in good light are most often cold soil, poor roots or a soil short of nitrogen or phosphorus, and a plant crowded by its neighbours stays small whatever it is fed.',
-    nutrients: ['N', 'P', 'Zn'],
-    lookAlikes: ['Cold', 'Damaged roots', 'Too dry or too wet', 'Too much feed'],
-    pubmedTerms: 'stunted growth nitrogen phosphorus deficiency soil temperature vegetable seedlings',
   },
   {
     key: 'ho',
     label: 'Holes, insects or something eating it',
     phrase: 'holes, insects or something eating it',
-    about:
-      'Holes and chewed edges are something eating: caterpillars, slugs, beetles or birds. Sticky leaves and ants point to aphids, scale or mealybugs. A garden with flowers, cover and no sprays keeps the ladybirds, hoverflies and birds that eat most of them, and a net or a barrier does the rest.',
-    nutrients: [],
-    lookAlikes: [],
-    pubmedTerms: 'natural enemies conservation biological control vegetable garden pests',
   },
   {
     key: 'ot',
     label: 'Flavour, spreading, or seed not coming up',
     phrase: 'flavour, spreading or seed not coming up',
-    about:
-      'Weak flavour usually comes from too much water, too much feed or too little sun rather than a shortage. Seed that never comes up is old seed, cold soil or soil that dried out. The crop problems below cover what each crop is known for.',
-    nutrients: [],
-    lookAlikes: [],
-    pubmedTerms: 'herb essential oil content fertilization irrigation light',
   },
 ];
 
@@ -643,37 +560,18 @@ export const CROP_PROBLEM_SYMPTOMS: Record<string, Record<string, SymptomKey[]>>
     'Lemongrass rust': ['sp'],
     'Lemongrass dying back in winter': ['wi', 'ro'],
   },
+  hops: {
+    'Hop downy mildew': ['cu', 'st', 'sp', 'ha'],
+    'Hop Verticillium wilt': ['yo', 'wi'],
+    'Small, crinkled hop leaves on limy soil': ['cu', 'yn', 'st'],
+  },
+  cannabis: {
+    'Cannabis leaf edges scorched rusty brown': ['ed', 'cu'],
+    'Cannabis lower leaves yellowing in cool nights': ['yo', 'sp', 'cu'],
+    'Cannabis powdery mildew': ['sp'],
+  },
 };
 
 export function findSymptom(key: SymptomKey): Symptom | undefined {
   return SYMPTOMS.find((symptom) => symptom.key === key);
 }
-
-/** The problems a crop is known for that show as this symptom. */
-export function cropProblemsFor(cropKey: string, symptom: SymptomKey): CropProblem[] {
-  const tags = CROP_PROBLEM_SYMPTOMS[cropKey] ?? {};
-  return (CROP_PROBLEMS[cropKey] ?? []).filter((problem) => (tags[problem.label] ?? []).includes(symptom));
-}
-
-/** Crop keys with at least one known problem showing as this symptom. */
-export function cropsWithSymptom(symptom: SymptomKey): string[] {
-  return Object.keys(CROP_PROBLEM_SYMPTOMS).filter((cropKey) => cropProblemsFor(cropKey, symptom).length > 0);
-}
-
-export function symptomSources(symptom: Symptom): GuideSource[] {
-  const research: GuideSource = { label: 'PubMed: the research', url: pubmedSearchUrl(symptom.pubmedTerms) };
-  return symptom.key === 'ho' ? [GO_PESTICIDES, research] : [RHS_DEFICIENCIES, research];
-}
-
-/** "What yellow lower leaves on tomato can be", or on any crop. */
-export function symptomHeading(symptom: Symptom, cropName: string | null): string {
-  return cropName ? `What ${symptom.phrase} on ${cropName.toLowerCase()} can be` : `What ${symptom.phrase} can be`;
-}
-
-export const SYMPTOM_GUIDE_INTRO =
-  'Start from what the plant is doing. Pick what you see, and a crop if you know it, and this lists what it most often is: the problems that crop is known for, the soil shortages that show that way, and the things that look like a shortage and are not. Nothing leaves the phone.';
-
-export const SYMPTOM_GUIDE_CAUTION =
-  'These are the likeliest causes, not a diagnosis. Check the soil a finger deep before anything else, and test it before adding anything to it.';
-
-export const SYMPTOM_NO_CROP_LINE = 'Pick a crop to see the problems it is known for that show this way.';

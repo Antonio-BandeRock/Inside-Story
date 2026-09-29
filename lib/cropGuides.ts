@@ -1816,6 +1816,52 @@ export const CROP_GUIDES: CropGuide[] = [
     grow: 'Frost-tender; in cold climates, keep in a pot under cover for winter. Divide large clumps.',
     sources: [rhs('herbs', 'lemongrass', 'Lemongrass')],
   },
+  // Cannabis is a crop guide and nothing else (lib/cropSigns.ts says why
+  // it stays on the adult side).
+  {
+    key: 'cannabis',
+    name: 'Cannabis',
+    aliases: ['cannabis', 'hemp', 'marijuana'],
+    latin: 'Cannabis sativa',
+    family: 'Hemp family (Cannabaceae)',
+    group: 'herbs',
+    season: 'warm',
+    sun: 'Full sun.',
+    soil: 'Deep, loose, well-drained soil; it does poorly on wet, heavy clay and in soil that crusts or packs down.',
+    ph: [6.0, 7.0],
+    feeding: 'heavy',
+    sow: 'Sow 1 to 2 cm deep once the soil is warm, from mid spring to early summer, or plant out young plants.',
+    spacing: 'Plants grown for flower 1.2 to 1.5 m apart each way.',
+    ready: 'Flowers ripen in autumn, as the days shorten.',
+    water: 'Steadily, at the base, by drip where you can; never leave the roots standing wet.',
+    grow: 'It flowers once the days fall below about 12 hours of light. Growing it is regulated or against the law in many places, so check the law where you live before you sow.',
+    sources: [
+      { label: 'Penn State Extension: Industrial hemp production', url: 'https://extension.psu.edu/industrial-hemp-production' },
+      { label: 'Cornell: Hemp', url: 'https://hemp.cals.cornell.edu/' },
+    ],
+  },
+  {
+    key: 'hops',
+    name: 'Hops',
+    aliases: ['hops', 'hop'],
+    latin: 'Humulus lupulus',
+    family: 'Hemp family (Cannabaceae)',
+    group: 'herbs',
+    season: 'perennial',
+    sun: 'Full sun.',
+    soil: 'Deep, well-drained soil rich in organic matter.',
+    ph: [5.7, 7.5],
+    feeding: 'heavy',
+    sow: 'Plant a rooted cutting or a piece of rhizome in spring.',
+    spacing: '1 to 1.5 m apart, each with a tall string or pole to climb.',
+    ready: 'Pick cones in late summer, once they feel papery and the yellow powder inside smells strongly.',
+    water: 'Deeply in summer while the bines grow fast; go easy in spring while the soil is cool and wet.',
+    grow: 'Bines climb 5 m or more each year and die back to the crown in winter. Train two or three bines up each string and cut the rest away.',
+    sources: [
+      { label: 'USA Hops field guide: Nutrient disorders of hop', url: 'https://www.usahops.org/cabinet/data/9.pdf' },
+      { label: 'Oregon State University: Hops fertilizer guide (FG 79)', url: 'https://extension.oregonstate.edu/catalog/fg-79-hops-fertilizer-guide' },
+    ],
+  },
 ];
 
 function cropSpecies(guide: CropGuide): string {
