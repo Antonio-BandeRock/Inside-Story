@@ -426,6 +426,29 @@ for (const line of source.split('\n')) {
   check(!/[–—]| -- /.test(line), 'comment clean: ' + line.trim().slice(0, 60));
 }
 
+// The 1.0.55.33 deadlock: each device took the other's copy as the
+// agreed one, so each read its own last_used_at as the edit and sent it
+// back forever. The later stamp settles it, from either side.
+{
+  const old = { id: 'f1', name: 'Soup', last_used_at: '2026-09-27T02:50:20Z', updated_at: '2026-09-10T00:00:00Z' };
+  const fresh = { ...old, last_used_at: '2026-09-27T16:12:02Z' };
+  const onComputer = run({ meals: [old] }, { meals: [fresh] }, { meals: [old] });
+  same(onComputer.tables.meals, [fresh], 'the computer keeps the later-used favorite');
+  const onPhone = run({ meals: [fresh] }, { meals: [old] }, { meals: [fresh] });
+  same(onPhone.tables.meals, [fresh], 'the phone gives way to the later-used favorite');
+  check(!onPhone.sendsBack, 'once the phone gives way there is nothing to send back');
+  check(merge.touchedAt(fresh) === '2026-09-27T16:12:02Z', 'last_used_at counts as a touch');
+  const later = { ...old, updated_at: '2026-09-28T00:00:00Z', name: 'Broth' };
+  same(run({ meals: [old] }, { meals: [later] }, { meals: [old] }).tables.meals, [later], 'an ordinary edit here still stands');
+  same(run({ meals: [old] }, { meals: [old] }, { meals: [later] }).tables.meals, [later], 'an ordinary edit there still arrives');
+  const noStamp = { id: 'n1', name: 'A' };
+  same(run({ meals: [noStamp] }, { meals: [{ id: 'n1', name: 'B' }] }, { meals: [noStamp] }).tables.meals, [{ id: 'n1', name: 'B' }], 'with no stamps the three-way rule stands');
+  check(merge.sameRows([old, fresh], [fresh, old]), 'the same rows in another order are the same');
+}
+const device = fs.readFileSync(path.join(__dirname, '..', 'lib/snapshotSyncDevice.ts'), 'utf8');
+check(device.includes('!WORKED_OUT_TABLES.includes(tableName)'), 'a worked-out table never restarts the app');
+check(device.includes('sameRows(rows, mine)'), 'the restart check ignores row order');
+
 if (failures > 0) {
   console.error(`${failures} of ${checks} checks failed`);
   process.exit(1);

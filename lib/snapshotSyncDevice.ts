@@ -44,6 +44,7 @@ import {
   conflictsIn,
   describeMerge,
   mergeTables,
+  sameRows,
   type MergeSide,
   type Tables,
 } from './snapshotMerge';
@@ -619,12 +620,21 @@ export function mergeSnapshot(record: SnapshotRecord): Promise<MergeOutcome> {
     // Only the tables the merge changed are written back. Rewriting all of
     // them emptied and refilled some 5,000 rows to carry three, and held
     // the database for seconds while it did (1.0.54.3).
+    // Compared by what the rows say rather than the order they came back
+    // in, and a table this device does not have is left for the version
+    // that does.
     const changedTables: Tables = {};
     for (const [tableName, rows] of Object.entries(merged.tables)) {
-      if (JSON.stringify(rows) !== JSON.stringify(here[tableName] ?? [])) changedTables[tableName] = rows;
+      const mine = here[tableName];
+      if (!Array.isArray(mine)) continue;
+      if (!sameRows(rows, mine)) changedTables[tableName] = rows;
     }
-    const restart = Object.keys(changedTables).length > 0;
-    if (restart) {
+    // Tables the app works out for itself are written but never restart
+    // the app: each device rebuilds them on opening, so a restart for one
+    // would rebuild it, differ again at the next arrival, and restart
+    // again (1.0.55.33).
+    const restart = Object.keys(changedTables).some((tableName) => !WORKED_OUT_TABLES.includes(tableName));
+    if (Object.keys(changedTables).length > 0) {
       try {
         await withDatabaseWriteTrackingSuspended(async () => {
           const mine = await readDeviceLocalRows();

@@ -144,6 +144,39 @@ const TIME_COLUMNS: readonly string[] = [
   'created_at',
 ];
 
+/**
+ * Columns the app stamps itself whenever a row is touched, never a time a
+ * person typed in. The latest of them is when the row last moved.
+ *
+ * last_used_at is here because opening a favorite stamps it without
+ * touching updated_at. Left out, two devices each holding a different
+ * last_used_at on the same favorite read their own as the edit, kept it,
+ * and sent it back, and the phone and the computer answered each other
+ * every minute or so for as long as both were open (1.0.55.33).
+ */
+const TOUCH_COLUMNS: readonly string[] = ['updated_at', 'edited_at', 'saved_at', 'last_used_at'];
+
+/** The latest time the app stamped on a row, or null when it carries none. */
+export function touchedAt(row: Row): string | null {
+  let latest: string | null = null;
+  for (const column of TOUCH_COLUMNS) {
+    const value = row[column];
+    if (typeof value === 'string' && value.length > 0 && (latest === null || value > latest)) latest = value;
+  }
+  return latest;
+}
+
+/**
+ * Which side holds the more recently touched version, when both carry a
+ * stamp and the stamps differ. Null when the stamps cannot say.
+ */
+function touchedLater(here: Row, there: Row): MergeSide | null {
+  const mine = touchedAt(here);
+  const theirs = touchedAt(there);
+  if (!mine || !theirs || mine === theirs) return null;
+  return mine > theirs ? 'here' : 'there';
+}
+
 const SEP = '\u0001';
 
 /** A stable text for a row, so two versions of it can be compared. */
@@ -187,7 +220,7 @@ function indexRows(rows: Row[] | undefined, shape: TableShape | undefined): Map<
  * rather than by the order the rows arrived in: the same rows read back
  * off two devices come out in whatever order each one's table held them.
  */
-function sameRows(mine: Row[], theirs: Row[]): boolean {
+export function sameRows(mine: Row[], theirs: Row[]): boolean {
   if (mine.length !== theirs.length) return false;
   const left = mine.map(rowText).sort();
   const right = theirs.map(rowText).sort();
@@ -211,6 +244,8 @@ function timeOf(row: Row): string | null {
  * saved later does.
  */
 export function laterOf(here: Row, there: Row, laterSide: MergeSide): MergeSide {
+  const touched = touchedLater(here, there);
+  if (touched) return touched;
   const mine = timeOf(here);
   const theirs = timeOf(there);
   if (mine && theirs && mine !== theirs) return mine > theirs ? 'here' : 'there';
@@ -346,6 +381,21 @@ function mergeOneTable(
       if (mine) rows.push(mine);
       continue;
     }
+    // One side moved a row the two still hold differently, yet the other
+    // side's copy was touched more recently. That happens when the two
+    // devices each took the other's copy as the agreed one, so each reads
+    // its own as the edit and neither ever gives way. The stamps settle it
+    // and the two converge.
+    if (iMoved !== theyMoved && mine && theirs && rowText(mine) !== rowText(theirs)) {
+      const touched = touchedLater(mine, theirs);
+      const mover: MergeSide = iMoved ? 'here' : 'there';
+      if (touched && touched !== mover) {
+        rows.push(touched === 'here' ? mine : theirs);
+        entries.push({ table, key, kind: 'changed', side: touched });
+        continue;
+      }
+    }
+
     if (!theyMoved) {
       // Only this device moved it. Kept, and said, so the log carries both
       // sides rather than only what arrived.
