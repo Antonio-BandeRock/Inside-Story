@@ -60,7 +60,7 @@ import { formatTradeMoney } from './harvestTrade';
 // --- Open lists --------------------------------------------------------------
 
 /** Which list a term the person named belongs to. */
-export type GardenTermList = 'equipment_kind' | 'light_type' | 'light_spectrum' | 'container_material' | 'measurement_kind';
+export type GardenTermList = 'equipment_kind' | 'light_type' | 'light_spectrum' | 'container_material' | 'measurement_kind' | 'planting_event_kind';
 
 /** A term the person named, on one of the lists. */
 export type CustomGardenTerm = { id: string; list: GardenTermList; name: string; retiredAt?: string | null };
@@ -133,12 +133,36 @@ export const MEASUREMENT_KINDS: { code: string; label: string; help: string }[] 
   { code: 'co2', label: 'CO2', help: 'Parts per million. Around 420 outdoors; a closed room with plants in it runs lower.' },
 ];
 
+// What can be done to a planting, 2026-09-28 (I14). An open list: a person
+// who does something nobody listed records it under a name they chose. The
+// codes are stored in garden_planting_events.kind. Each help line says what
+// the word covers, never whether or when to do it.
+export const PLANTING_EVENT_KINDS: { code: string; label: string; help: string }[] = [
+  { code: 'watered', label: 'Watered', help: 'By hand, by hose, or by turning a system on.' },
+  { code: 'fed', label: 'Fed', help: 'Compost, a compost or worm tea, a ferment, or anything else given to feed it.' },
+  { code: 'mulched', label: 'Mulched', help: 'Straw, leaves, wood chip or anything else laid over the soil around it.' },
+  { code: 'pruned', label: 'Pruned', help: 'Stems, suckers, runners or leaves cut away.' },
+  { code: 'thinned', label: 'Thinned', help: 'Seedlings or fruit taken out so fewer grow on.' },
+  { code: 'staked', label: 'Staked or tied', help: 'Given a stake, cane, cage, string or trellis, or tied in again.' },
+  { code: 'weeded', label: 'Weeded', help: 'What was growing around it taken out.' },
+  { code: 'pest_seen', label: 'Pest seen', help: 'Aphids, slugs, caterpillars, anything seen eating it. The note can say what and how many.' },
+  { code: 'disease_seen', label: 'Disease seen', help: 'Mildew, blight, spots, wilting. The note can say what it looked like.' },
+  { code: 'pest_handled', label: 'Pest or disease dealt with', help: 'Picked off, netted, sprayed with water, leaves taken off. The note can say how.' },
+  { code: 'covered', label: 'Covered', help: 'Fleece, a cloche, netting or shade cloth put over it.' },
+  { code: 'uncovered', label: 'Uncovered', help: 'A cover taken off again.' },
+  { code: 'moved', label: 'Moved or potted on', help: 'Into a bigger pot, or to another spot.' },
+  { code: 'pollinated', label: 'Pollinated by hand', help: 'Pollen moved with a brush, or by shaking the flowers.' },
+  { code: 'flowering', label: 'First flowers', help: 'The day flowers were first seen open.' },
+  { code: 'fruiting', label: 'First fruit set', help: 'The day fruit was first seen forming.' },
+];
+
 const BUILT_INS: Record<GardenTermList, { code: string; label: string; help: string }[]> = {
   equipment_kind: GROW_EQUIPMENT_KINDS,
   light_type: LIGHT_TYPES,
   light_spectrum: LIGHT_SPECTRUMS,
   container_material: CONTAINER_MATERIALS,
   measurement_kind: MEASUREMENT_KINDS,
+  planting_event_kind: PLANTING_EVENT_KINDS,
 };
 
 /** What the picker says as its add-a-term choice and its placeholder. */
@@ -148,6 +172,7 @@ export const TERM_LIST_WORDS: Record<GardenTermList, { singular: string; example
   light_spectrum: { singular: 'spectrum', example: 'Far red' },
   container_material: { singular: 'material', example: 'Coir' },
   measurement_kind: { singular: 'measurement', example: 'Soil nitrogen' },
+  planting_event_kind: { singular: 'thing done', example: 'Sprayed with seaweed' },
 };
 
 // What is recorded under a term on each list, and whether one of those
@@ -160,6 +185,7 @@ const TERM_RECORDS: Record<GardenTermList, { one: string; many: string; movable:
   light_spectrum: { one: 'light', many: 'lights', movable: true },
   container_material: { one: 'container', many: 'containers', movable: true },
   measurement_kind: { one: 'reading', many: 'readings', movable: false },
+  planting_event_kind: { one: 'entry', many: 'entries', movable: false },
 };
 
 /** What the picker says under the box while a name is being added, so

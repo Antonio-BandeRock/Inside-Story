@@ -250,6 +250,7 @@ const AREAS: readonly Area[] = [
     quiet: ['garden_cost_groups', 'garden_cost_kinds', 'electricity_bills'],
   },
   { one: 'compost record', many: 'compost records', count: ['compost_events'], quiet: ['compost_piles'] },
+  { one: 'thing done in the garden', many: 'things done in the garden', count: ['garden_planting_events'], quiet: [] },
   {
     one: 'harvest share',
     many: 'harvest shares',

@@ -91,6 +91,7 @@ const TERM_SOURCES: Record<GardenTermList, { table: string; column: string; reti
   light_spectrum: { table: 'garden_equipment', column: 'spectrum', retiredColumn: 'retired_at', movable: true },
   container_material: { table: 'garden_equipment', column: 'container_material', retiredColumn: 'retired_at', movable: true },
   measurement_kind: { table: 'garden_readings', column: 'measurement', retiredColumn: null, movable: false },
+  planting_event_kind: { table: 'garden_planting_events', column: 'kind', retiredColumn: null, movable: false },
 };
 
 /** How many records read a term: current ones, which have to be moved

@@ -33,6 +33,7 @@ import {
   type DispositionRecord,
   type SurplusSummary,
 } from './harvestTrade';
+import { summarizeCareBeforePicking, type CareBand, type CareEvent } from './plantingEvents';
 import { convertToGrams, type MeasurementUnit } from './unitConversion';
 
 export type MeasureSystem = 'metric' | 'imperial';
@@ -91,6 +92,9 @@ export type HarvestYieldInputs = {
   compostPiles: CompostPileStanding;
   dispositions: DispositionRecord[];
   shares: ReceivedShare[];
+  /** What was recorded as done to the plantings read above (I14), with
+   *  each kind's label resolved. Absent reads as none. */
+  careEvents?: CareEvent[];
 };
 
 // ---------------------------------------------------------------------------
@@ -694,6 +698,7 @@ export type HarvestYieldSummary = {
   timing: TimingBand;
   compost: CompostBand;
   sharing: SharingBand;
+  care: CareBand;
 };
 
 export function summarizeHarvestYield(inputs: HarvestYieldInputs): HarvestYieldSummary {
@@ -702,16 +707,18 @@ export function summarizeHarvestYield(inputs: HarvestYieldInputs): HarvestYieldS
   const timing = summarizeTiming(inputs.plantings, inputs.endDate);
   const compost = summarizeCompost(inputs.compostEvents, inputs.compostPiles);
   const sharing = summarizeSharing(inputs.dispositions, inputs.shares);
+  const care = summarizeCareBeforePicking(inputs.plantings, inputs.careEvents ?? []);
   return {
     startDate: inputs.startDate,
     endDate: inputs.endDate,
     system: inputs.system,
     months,
-    hasAnything: yields.hasAnything || timing.hasAnything || compost.hasAnything || sharing.hasAnything,
+    hasAnything: yields.hasAnything || timing.hasAnything || compost.hasAnything || sharing.hasAnything || care.hasAnything,
     yields,
     timing,
     compost,
     sharing,
+    care,
   };
 }
 

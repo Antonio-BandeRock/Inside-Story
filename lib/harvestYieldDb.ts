@@ -20,6 +20,9 @@ import { getDatabase, getStoredMeasurementSystem } from './db';
 import { harvestUnitForPricing, valueReceivedGoods } from './harvestTrade';
 import type { DispositionKind, DispositionRecord, ReceivedGood } from './harvestTrade';
 import { getLastPaidPrices } from './harvestTradeDb';
+import { termLabel } from './growSetup';
+import { listGardenTerms } from './growSetupDb';
+import { listPlantingEventsFor } from './plantingEventsDb';
 import {
   buildMonths,
   describeGardenYieldHome,
@@ -225,7 +228,20 @@ export async function getHarvestYieldInputs(
     readDispositions(startDate, endDate),
     readShares(startDate, endDate),
   ]);
-  return { startDate, endDate, system, harvests, plantings, compostEvents, compostPiles, dispositions, shares };
+  // What was done to each planting read above, up to the end of the range
+  // (I14). The kind is resolved to its label here, retired names included,
+  // so the pure summary needs no list.
+  const [events, terms] = await Promise.all([
+    listPlantingEventsFor(plantings.map((planting) => planting.id), endDate),
+    listGardenTerms(true),
+  ]);
+  const careEvents = events.map((event) => ({
+    plantingId: event.plantingId,
+    occurredOn: event.occurredOn,
+    kind: event.kind,
+    label: termLabel('planting_event_kind', event.kind, terms) ?? 'A kind no longer on the list',
+  }));
+  return { startDate, endDate, system, harvests, plantings, compostEvents, compostPiles, dispositions, shares, careEvents };
 }
 
 export async function getHarvestYieldSummary(

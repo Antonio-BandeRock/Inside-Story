@@ -2345,6 +2345,26 @@ export default function TrendsScreen() {
                       <Text style={styles.patternRowCaption}>{harvestSummary.compost.unmeasuredLine}</Text>
                     ) : null}
                   </TabBand>
+                  <TabBand
+                    folds={folds}
+                    color={TAB_COLOR}
+                    id="trends:harvest:care"
+                    title="What was done before the first picking"
+                    icon="hand-left-outline"
+                  >
+                    <Text style={styles.patternRowCaption}>{harvestSummary.care.headline}</Text>
+                    {harvestSummary.care.rows.map((row) => (
+                      <View key={`care:${row.plantingId}`} style={styles.patternRow}>
+                        <Text style={styles.patternRowTitle}>{row.title}</Text>
+                        <Text style={styles.patternRowCaption}>{row.line}</Text>
+                      </View>
+                    ))}
+                    {harvestSummary.care.hasAnything ? (
+                      <Text style={styles.patternRowCaption}>{harvestSummary.care.caveat}</Text>
+                    ) : (
+                      <Text style={styles.patternRowCaption}>Garden &gt; Plots &amp; Plantings has What was done under each planting.</Text>
+                    )}
+                  </TabBand>
 
                   <TabBand
                     folds={folds}

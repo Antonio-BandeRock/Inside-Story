@@ -151,6 +151,7 @@ export async function loadProgressInputs(): Promise<ProgressInputs> {
     ...harvests.map((row) => row.day),
     ...days(await rows(db, 'SELECT occurred_on AS at FROM compost_events')),
     ...days(await rows(db, 'SELECT measured_on AS at FROM garden_readings')),
+    ...days(await rows(db, 'SELECT occurred_on AS at FROM garden_planting_events')),
   ];
   const seasonRows = await rows<{ area: string | null; years: number }>(
     db,

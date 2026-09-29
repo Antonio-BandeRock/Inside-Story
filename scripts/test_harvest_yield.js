@@ -55,6 +55,7 @@ const V = run('lib/eatingVariety.ts', {});
 const T = run('lib/harvestTrade.ts', {});
 const U = run('lib/unitConversion.ts', {});
 const H = run('lib/harvestYield.ts', {
+  './plantingEvents': run('lib/plantingEvents.ts', {}),
   './eatingVariety': V,
   './harvestTrade': T,
   './unitConversion': U,

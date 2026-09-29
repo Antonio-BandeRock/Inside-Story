@@ -90,6 +90,8 @@ import type { CustomGardenTerm } from '../../lib/growSetup';
 import { addGrowEquipment, listGardenTerms } from '../../lib/growSetupDb';
 import { useWalkMark } from '../../components/WalkMark';
 import { RecordPhotos } from '../../components/RecordPhotos';
+import { PlantingEventsSection } from '../../components/PlantingEventsSection';
+import { listPlantingEventCounts } from '../../lib/plantingEventsDb';
 import { PhotoSeriesBand } from '../../components/PhotoSeriesBand';
 import { dateKey } from '../../lib/plainDate';
 import { getFrostDates, getRainForecast, type FrostDatesResult, type RainForecastResult } from '../../lib/homeSky';
@@ -848,7 +850,7 @@ function PlotsAndPlantingsLens({
   // Per area: harvests logged from each planting (a planting with one is a
   // record and offers no Remove) and whether anything at all is recorded
   // under it (only an empty area offers Delete).
-  const [plotFacts, setPlotFacts] = useState<Record<string, { harvestsByPlanting: Record<string, number>; hasRecords: boolean }>>({});
+  const [plotFacts, setPlotFacts] = useState<Record<string, { harvestsByPlanting: Record<string, number>; eventsByPlanting: Record<string, number>; hasRecords: boolean }>>({});
   // The line shown under an area whose move to Past Areas was refused
   // because a grow in it is still going.
   const [pastBlockers, setPastBlockers] = useState<Record<string, string>>({});
@@ -909,13 +911,14 @@ function PlotsAndPlantingsLens({
   );
 
   async function loadPlantingsFor(plotId: string) {
-    const [rows, harvestsByPlanting, hasRecords] = await Promise.all([
+    const [rows, harvestsByPlanting, eventsByPlanting, hasRecords] = await Promise.all([
       listGardenPlantings(plotId),
       listPlantingHarvestCounts(plotId),
+      listPlantingEventCounts(plotId),
       gardenPlotHasRecords(plotId),
     ]);
     setPlantingsByPlot((current) => ({ ...current, [plotId]: rows }));
-    setPlotFacts((current) => ({ ...current, [plotId]: { harvestsByPlanting, hasRecords } }));
+    setPlotFacts((current) => ({ ...current, [plotId]: { harvestsByPlanting, eventsByPlanting, hasRecords } }));
   }
 
   // Opens the New Garden Area form, pre-filling Phase 5's own zone fields
@@ -1353,6 +1356,9 @@ function PlotsAndPlantingsLens({
                 ) : (
                   plantings.map((planting) => {
                     const harvests = plotFacts[plot.id]?.harvestsByPlanting[planting.id] ?? 0;
+                    // A planting with anything recorded against it is a
+                    // record: Pulled out is its status, not Remove.
+                    const doneEntries = plotFacts[plot.id]?.eventsByPlanting[planting.id] ?? 0;
                     const plantingTitle = planting.varietyNote ? `${planting.foodName} (${planting.varietyNote})` : planting.foodName;
                     const guide = findCropGuide(planting.foodName);
                     return (
@@ -1375,7 +1381,7 @@ function PlotsAndPlantingsLens({
                             width={140}
                           />
                         )}
-                        {harvests === 0 ? (
+                        {harvests === 0 && doneEntries === 0 ? (
                           <TouchableOpacity onPress={() => handleRemovePlanting(plot.id, planting.id)}>
                             <Text style={[styles.linkText, { color: colors.danger }]}>Remove</Text>
                           </TouchableOpacity>
@@ -1402,6 +1408,13 @@ function PlotsAndPlantingsLens({
                           <Text style={styles.linkText}>How to grow {guide.name.toLowerCase()}</Text>
                         </TouchableOpacity>
                       ) : null}
+                      <PlantingEventsSection
+                        plantingId={planting.id}
+                        plotId={plot.id}
+                        terms={gardenTerms}
+                        onTermsChanged={reloadGardenTerms}
+                        onChanged={() => loadPlantingsFor(plot.id)}
+                      />
                       <RecordPhotos ownerKind="planting" ownerId={planting.id} tabColor={TAB_COLOR} title={plantingTitle}>
                         <PhotoSeriesBand ownerKind="planting" ownerId={planting.id} title={plantingTitle} tabColor={TAB_COLOR} />
                       </RecordPhotos>

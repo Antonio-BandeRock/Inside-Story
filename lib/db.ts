@@ -7351,6 +7351,30 @@ async function runDatabaseInitialization() {
       CREATE INDEX IF NOT EXISTS idx_garden_readings_measurement ON garden_readings(measurement);
       CREATE INDEX IF NOT EXISTS idx_garden_readings_plot ON garden_readings(plot_id);
 
+      -- What was done to a planting (I14, 2026-09-28): watered, fed,
+      -- pruned, a pest seen. Append-only like compost_events, one row per
+      -- thing done on one day. kind is a code from lib/growSetup.ts's
+      -- planting_event_kind list (a built-in code, or the id of a term the
+      -- person named), so the list is open and a removed kind with rows
+      -- under it is retired rather than reassigned, since moving a row
+      -- would change what was done. plot_id is copied from the planting so
+      -- an area's record reads without a join. A row can be deleted, since
+      -- a mistaken tap has to be fixable and nothing else refers to one. A
+      -- planting with any row here keeps its record: the Remove link is
+      -- not offered for it, and Pulled out is its status instead.
+      CREATE TABLE IF NOT EXISTS garden_planting_events (
+        id TEXT PRIMARY KEY,
+        planting_id TEXT NOT NULL,
+        plot_id TEXT,
+        occurred_on TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        note TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (planting_id) REFERENCES garden_plantings(id) ON DELETE CASCADE
+      );
+      CREATE INDEX IF NOT EXISTS idx_garden_planting_events_planting ON garden_planting_events(planting_id, occurred_on);
+      CREATE INDEX IF NOT EXISTS idx_garden_planting_events_plot ON garden_planting_events(plot_id);
+
       -- A real, basic Scheduler tie-in, 2026-08-13 -- schedule_items.item_type
       -- is already a free-text, extensible vocabulary (see that table's own
       -- comment further up) with 'meal'/'supplement'/'prescription'/
@@ -23566,6 +23590,10 @@ export async function updateGardenPlanting(
 
 export async function deleteGardenPlanting(id: string): Promise<void> {
   const db = await getDatabase();
+  // A planting with anything recorded as done to it (I14) is a record and
+  // is kept; the screen offers no Remove for it, and this holds the line.
+  const done = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM garden_planting_events WHERE planting_id = ?', id);
+  if ((done?.n ?? 0) > 0) return;
   await db.runAsync('DELETE FROM garden_plantings WHERE id = ?', id);
   // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
   await (await import('./mediaDb')).removePhotosOf('planting', id);
