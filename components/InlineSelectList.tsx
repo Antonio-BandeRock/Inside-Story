@@ -282,7 +282,7 @@ export function InlineSelectList({
                   onChange(item.value);
                 }}
               >
-                <Text style={[styles.itemText, isSelected ? styles.itemTextSelected : null]} numberOfLines={1}>
+                <Text style={[styles.itemText, isSelected ? styles.itemTextSelected : null]}>
                   {item.label}
                 </Text>
               </TouchableOpacity>

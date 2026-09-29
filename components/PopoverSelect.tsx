@@ -1,9 +1,17 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Dimensions, Keyboard, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Keyboard, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { BUTTON_SHADOW, colors, popoverBackground } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
+import {
+  POPOVER_MIN_WIDTH,
+  POPOVER_ROW_HEIGHT,
+  POPOVER_ROW_PADDING_H,
+  POPOVER_ROW_PADDING_V,
+  popoverListHeight,
+  popoverListWidth,
+} from '../lib/popoverFit';
 import { useActiveInputControls } from './ActiveInputContext';
 import { useKeyboardLift } from './KeyboardLift';
 import type { DropdownOption } from './Dropdown';
@@ -60,7 +68,9 @@ const GAP_FROM_FIELD = 6;
 // Tall enough for a comfortable tap target (a bare wheel row was only
 // 26dp, fine for a glance-and-drag gesture but too tight for a direct tap
 // target), short enough that six of them still read as one compact list.
-const ROW_HEIGHT = 38;
+// A row is at least this tall and grows when its option wraps (see
+// lib/popoverFit.ts).
+const ROW_HEIGHT = POPOVER_ROW_HEIGHT;
 const LIST_PADDING_VERTICAL = 6;
 // Caps how tall the popover gets before its own list starts scrolling --
 // Cut Prep's 18 options would otherwise make for a popover taller than
@@ -76,7 +86,12 @@ const MAX_VISIBLE_ROWS_SEARCHABLE = 8;
 // generous constant already solves. Callers with longer real-world labels
 // (a medication name, a nutrient's full display name) override this via
 // the `width` prop instead.
-const POPOVER_WIDTH = 160;
+//
+// 2026-09-29: this is now the narrowest the list opens, not its width. The
+// list widens to its longest option and a row that still does not fit wraps,
+// so every option reads in full (lib/popoverFit.ts). A caller's `width` is a
+// floor in the same way.
+const POPOVER_WIDTH = POPOVER_MIN_WIDTH;
 
 type Anchor = { x: number; y: number; width: number; height: number };
 
@@ -273,6 +288,10 @@ export const PopoverSelect = memo(function PopoverSelect({
   const [isOpen, setIsOpen] = useState(false);
   const [anchor, setAnchor] = useState<Anchor | null>(null);
   const [searchText, setSearchText] = useState('');
+  // The drawn height of the list's rows, once drawn. Until then the height
+  // is estimated from the options (lib/popoverFit.ts).
+  const [contentHeight, setContentHeight] = useState<number | null>(null);
+  const windowSize = useWindowDimensions();
   const { showOverlay, hideOverlay } = useOverlay();
   // A real, stable per-instance identity -- see OverlayContext.tsx's own
   // OverlayOwner comment for why every real caller of useOverlay() now
@@ -289,8 +308,28 @@ export const PopoverSelect = memo(function PopoverSelect({
       : normalizedOptions;
 
   const maxRows = searchable ? MAX_VISIBLE_ROWS_SEARCHABLE : MAX_VISIBLE_ROWS;
-  const listHeight = Math.min(maxRows, Math.max(visibleOptions.length, 1)) * ROW_HEIGHT + LIST_PADDING_VERTICAL * 2;
-  const selectedIndex = selected ? visibleOptions.findIndex((option) => option.value === selected) : -1;
+  const rowMetrics = {
+    fontSize: typography.body.fontSize,
+    lineHeight: typography.body.lineHeight,
+    letterSpacing: typography.body.letterSpacing,
+    fontScale: windowSize.fontScale,
+  };
+  // Sized from every option, not only the ones a search leaves, so the list
+  // keeps its width while someone types.
+  const listWidth = popoverListWidth(
+    width,
+    normalizedOptions.map((option) => option.label),
+    windowSize.width,
+    rowMetrics,
+  );
+  const listHeight = popoverListHeight(
+    visibleOptions.map((option) => option.label),
+    listWidth,
+    rowMetrics,
+    maxRows,
+    contentHeight,
+    LIST_PADDING_VERTICAL,
+  );
   const selectedLabel = selected ? (normalizedOptions.find((option) => option.value === selected)?.label ?? selected) : null;
   // Only a searchable picker can raise AppKeyboard, so only it needs to
   // reserve room for it -- a plain short list keeps behaving exactly as
@@ -304,6 +343,7 @@ export const PopoverSelect = memo(function PopoverSelect({
 
   function closeMenu() {
     setIsOpen(false);
+    setContentHeight(null);
     if (searchable) {
       setSearchText('');
       setSearchRequest(null);
@@ -352,10 +392,10 @@ export const PopoverSelect = memo(function PopoverSelect({
 
   const menuPosition = anchor
     ? openAbove
-      ? computePopoverPositionAbove(anchor, listHeight, width)
+      ? computePopoverPositionAbove(anchor, listHeight, listWidth)
       : openBelow
-        ? computePopoverPositionBelow(anchor, listHeight, width)
-        : computePopoverPosition(anchor, listHeight, width, bottomReserve)
+        ? computePopoverPositionBelow(anchor, listHeight, listWidth)
+        : computePopoverPosition(anchor, listHeight, listWidth, bottomReserve)
     : null;
 
   // Rebuilt from this render's own live state (options/selected/searchText)
@@ -374,7 +414,7 @@ export const PopoverSelect = memo(function PopoverSelect({
             {
               left: menuPosition.left,
               top: menuPosition.top,
-              width,
+              width: listWidth,
               height: listHeight,
               borderColor: tabColor,
               backgroundColor: resolvedPopoverBackground,
@@ -429,7 +469,12 @@ export const PopoverSelect = memo(function PopoverSelect({
           {visibleOptions.length === 0 ? (
             searchable ? <Text style={styles.emptyText}>No matches.</Text> : null
           ) : (
-            <ScrollView ref={listRef} style={styles.list} showsVerticalScrollIndicator={false}>
+            <ScrollView
+              ref={listRef}
+              style={styles.list}
+              showsVerticalScrollIndicator={false}
+              onContentSizeChange={(_w, h) => setContentHeight((previous) => (previous !== null && Math.abs(previous - h) < 1 ? previous : h))}
+            >
               {visibleOptions.map((option, index) => {
                 const isRowSelected = option.value === selected;
                 return (
@@ -437,8 +482,21 @@ export const PopoverSelect = memo(function PopoverSelect({
                     key={`${option.value}-${index}`}
                     style={[styles.row, isRowSelected ? { backgroundColor: tabColor } : null]}
                     onPress={() => handleSelect(option.value)}
+                    onLayout={
+                      isRowSelected
+                        ? (event) => {
+                            // Rows wrap now, so the selection's offset is read
+                            // from where it was drawn rather than worked out
+                            // from a fixed row height.
+                            if (hasScrolledToSelectionRef.current || searchText.trim()) return;
+                            hasScrolledToSelectionRef.current = true;
+                            const y = event.nativeEvent.layout.y;
+                            requestAnimationFrame(() => listRef.current?.scrollTo({ y, animated: false }));
+                          }
+                        : undefined
+                    }
                   >
-                    <Text numberOfLines={1} style={[styles.rowText, isRowSelected ? styles.rowTextSelected : null]}>
+                    <Text style={[styles.rowText, isRowSelected ? styles.rowTextSelected : null]}>
                       {option.label}
                     </Text>
                   </TouchableOpacity>
@@ -494,17 +552,9 @@ export const PopoverSelect = memo(function PopoverSelect({
       hasScrolledToSelectionRef.current = false;
       return;
     }
-    if (hasScrolledToSelectionRef.current) return;
-    if (searchText.trim() || selectedIndex < 0 || selectedIndex >= visibleOptions.length) return;
-    hasScrolledToSelectionRef.current = true;
-    const targetOffset = ROW_HEIGHT * selectedIndex;
-    // One frame's worth of defer -- the same "let a just-triggered mount/
-    // layout actually land first" pattern already used elsewhere in this
-    // app, guarding against the overlay's own portal render not having
-    // attached the ScrollView's ref on this exact same tick yet.
-    requestAnimationFrame(() => {
-      listRef.current?.scrollTo({ y: targetOffset, animated: false });
-    });
+    // 2026-09-29: the scroll itself now happens in the selected row's
+    // onLayout above, since a wrapped row makes ROW_HEIGHT * index wrong.
+    // This effect only resets the guard between opens.
   });
 
   // Feeds this picker's own search text into AppKeyboard's search row
@@ -577,7 +627,7 @@ export const PopoverSelect = memo(function PopoverSelect({
       onPress={openMenu}
       activeOpacity={0.7}
     >
-      <Text numberOfLines={1} style={[styles.fieldText, selectedLabel ? { color: colors.textOnButton } : styles.fieldTextPlaceholder]}>
+      <Text style={[styles.fieldText, selectedLabel ? { color: colors.textOnButton } : styles.fieldTextPlaceholder]}>
         {selectedLabel ?? placeholder}
       </Text>
       <Text style={styles.chevron}>{'▾'}</Text>
@@ -688,9 +738,10 @@ const styles = StyleSheet.create({
   // overflow:hidden container.
   list: { flex: 1 },
   row: {
-    height: ROW_HEIGHT,
+    minHeight: ROW_HEIGHT,
     justifyContent: 'center',
-    paddingHorizontal: 12,
+    paddingHorizontal: POPOVER_ROW_PADDING_H,
+    paddingVertical: POPOVER_ROW_PADDING_V,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
