@@ -33,7 +33,7 @@ type Props = {
   onOpened: (id: IdentifyServiceId) => void;
 };
 
-async function openService(service: IdentifyService): Promise<boolean> {
+export async function openIdentifyService(service: IdentifyService): Promise<boolean> {
   for (const url of identifyLinks(service, PLATFORM)) {
     try {
       await Linking.openURL(url);
@@ -51,7 +51,7 @@ export function WhatPlantIsThis({ openedWith, onOpened }: Props) {
 
   async function handleOpen(service: IdentifyService) {
     setFailed(null);
-    const opened = await openService(service);
+    const opened = await openIdentifyService(service);
     if (opened) onOpened(service.id);
     else setFailed(`${service.name} could not be opened on this device.`);
   }

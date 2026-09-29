@@ -95,6 +95,7 @@ import { RecordPhotos } from '../../components/RecordPhotos';
 import { PlantingEventsSection } from '../../components/PlantingEventsSection';
 import { MeasuringPlanSection } from '../../components/MeasuringPlanSection';
 import { SeedPacketSection } from '../../components/SeedPacketSection';
+import { WhatIsWrongSection } from '../../components/WhatIsWrongSection';
 import { WhatPlantIsThis } from '../../components/WhatPlantIsThis';
 import {
   identifiedLine,
@@ -934,6 +935,9 @@ function PlotsAndPlantingsLens({
   // I24: the free app opened from What Plant Is This, and how sure it said.
   const [pendingIdentifiedWith, setPendingIdentifiedWith] = useState<IdentifyServiceId | null>(null);
   const [pendingSureText, setPendingSureText] = useState('');
+  // I25: bumped when What Is Wrong With It writes an entry, so What was done
+  // under the same planting reads its list again.
+  const [careRefresh, setCareRefresh] = useState(0);
 
   // A packet photo left by a form the app closed on (I17). Run once, before
   // any form can be open.
@@ -1617,12 +1621,22 @@ function PlotsAndPlantingsLens({
                         packetDays={planting.packetDays}
                         onSaved={() => loadPlantingsFor(plot.id)}
                       />
+                      <WhatIsWrongSection
+                        plantingId={planting.id}
+                        plotId={plot.id}
+                        guide={guide}
+                        onRecorded={() => {
+                          setCareRefresh((n) => n + 1);
+                          loadPlantingsFor(plot.id);
+                        }}
+                      />
                       <PlantingEventsSection
                         plantingId={planting.id}
                         plotId={plot.id}
                         terms={gardenTerms}
                         onTermsChanged={reloadGardenTerms}
                         onChanged={() => loadPlantingsFor(plot.id)}
+                        refreshKey={careRefresh}
                       />
                       <RecordPhotos ownerKind="planting" ownerId={planting.id} tabColor={TAB_COLOR} title={plantingTitle}>
                         <PhotoSeriesBand ownerKind="planting" ownerId={planting.id} title={plantingTitle} tabColor={TAB_COLOR} />

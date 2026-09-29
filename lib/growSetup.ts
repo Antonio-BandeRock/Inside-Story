@@ -148,6 +148,7 @@ export const PLANTING_EVENT_KINDS: { code: string; label: string; help: string }
   { code: 'weeded', label: 'Weeded', help: 'What was growing around it taken out.' },
   { code: 'pest_seen', label: 'Pest seen', help: 'Aphids, slugs, caterpillars, anything seen eating it. The note can say what and how many.' },
   { code: 'disease_seen', label: 'Disease seen', help: 'Mildew, blight, spots, wilting. The note can say what it looked like.' },
+  { code: 'problem_seen', label: 'Something wrong seen', help: 'Yellowing, spots, rot, stalling, anything that looked wrong. What Is Wrong With It writes these, with what it looked like in the note.' },
   { code: 'pest_handled', label: 'Pest or disease dealt with', help: 'Picked off, netted, sprayed with water, leaves taken off. The note can say how.' },
   { code: 'covered', label: 'Covered', help: 'Fleece, a cloche, netting or shade cloth put over it.' },
   { code: 'uncovered', label: 'Uncovered', help: 'A cover taken off again.' },

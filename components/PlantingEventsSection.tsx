@@ -39,6 +39,9 @@ type Props = {
   /** After an entry is added or deleted, so the row above can tell whether
    *  the planting now has a record. */
   onChanged?: () => void;
+  /** Changes when an entry is written from outside this section (What Is
+   *  Wrong With It, I25), so the list reads it again. */
+  refreshKey?: number;
 };
 
 function yesterdayKey(): string {
@@ -46,7 +49,7 @@ function yesterdayKey(): string {
   return dateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
 }
 
-export function PlantingEventsSection({ plantingId, plotId, terms, onTermsChanged, onChanged }: Props) {
+export function PlantingEventsSection({ plantingId, plotId, terms, onTermsChanged, onChanged, refreshKey }: Props) {
   const [open, setOpen] = useState(false);
   const [events, setEvents] = useState<PlantingEventRecord[]>([]);
   const [adding, setAdding] = useState(false);
@@ -62,7 +65,7 @@ export function PlantingEventsSection({ plantingId, plotId, terms, onTermsChange
 
   useEffect(() => {
     load();
-  }, [load]);
+  }, [load, refreshKey]);
 
   const labelFor = (code: string) => termLabel('planting_event_kind', code, terms) ?? 'A kind no longer on the list';
   const counts = countByKind(events, labelFor);
