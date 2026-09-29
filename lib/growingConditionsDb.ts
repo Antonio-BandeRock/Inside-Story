@@ -34,6 +34,7 @@ import {
   type ReadingSource,
 } from './growingConditions';
 import { termLabel, type CustomGardenTerm } from './growSetup';
+import { figureNote, importedReadingId, type DayFigure } from './readingImport';
 import { listGardenTerms } from './growSetupDb';
 
 const READING_COLUMNS = `
@@ -91,6 +92,58 @@ export async function addGardenReading(reading: NewReading): Promise<string> {
     new Date().toISOString(),
   );
   return id;
+}
+
+/** Saves one reading per measurement per day brought in from a
+ *  controller's history file (I19, lib/readingImport.ts), all at once. Each
+ *  row's id comes from its area, planting, measurement, day and device, so
+ *  bringing in the same days again replaces them. Returns how many were
+ *  new and how many replaced an earlier import. */
+export async function importDeviceReadings(
+  figures: DayFigure[],
+  where: { plotId: string | null; plantingId: string | null; deviceName: string; fileName: string },
+): Promise<{ added: number; replaced: number }> {
+  const db = await getDatabase();
+  let plotName: string | null = null;
+  if (where.plotId) {
+    const row = await db.getFirstAsync<{ name: string }>('SELECT name FROM garden_plots WHERE id = ?', where.plotId);
+    plotName = row?.name ?? null;
+  }
+  const deviceName = where.deviceName.trim() || where.fileName;
+  let added = 0;
+  let replaced = 0;
+  const now = new Date().toISOString();
+  await db.withTransactionAsync(async () => {
+    for (const figure of figures) {
+      const id = importedReadingId({
+        plotId: where.plotId,
+        plantingId: where.plantingId,
+        measurement: figure.measurement,
+        day: figure.day,
+        deviceName,
+      });
+      const before = await db.getFirstAsync<{ id: string }>('SELECT id FROM garden_readings WHERE id = ?', id);
+      if (before) replaced += 1;
+      else added += 1;
+      await db.runAsync(
+        `INSERT OR REPLACE INTO garden_readings
+           (id, plot_id, plot_name, planting_id, measurement, value, unit, measured_on, source, device_name, note, created_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'device', ?, ?, ?)`,
+        id,
+        where.plotId,
+        plotName,
+        where.plantingId,
+        figure.measurement,
+        Math.round(figure.average * 100) / 100,
+        figure.unit,
+        figure.day,
+        deviceName,
+        figureNote(figure, where.fileName),
+        now,
+      );
+    }
+  });
+  return { added, replaced };
 }
 
 export async function deleteGardenReading(id: string): Promise<void> {

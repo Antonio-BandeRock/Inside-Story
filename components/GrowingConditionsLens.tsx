@@ -87,6 +87,7 @@ import { listMeasurePlans } from '../lib/measuringPlanDb';
 import { AppTextInput } from './AppTextInput';
 import { MeasuringPlanSection } from './MeasuringPlanSection';
 import { QuickAreaForm } from './QuickAreaForm';
+import { ReadingImportForm } from './ReadingImportForm';
 import { NotesInput } from './NotesInput';
 import { GardenTermField } from './GardenTermField';
 import { HOME_BAND_GAP } from './HomeSectionBand';
@@ -175,6 +176,10 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
   const [terms, setTerms] = useState<CustomGardenTerm[]>([]);
   const [readings, setReadings] = useState<GardenReading[]>([]);
   const [recording, setRecording] = useState(false);
+  // Import Readings from a File (I19), and the line saying what the last
+  // import added.
+  const [importing, setImporting] = useState(false);
+  const [importLine, setImportLine] = useState<string | null>(null);
   // The reading form asks where first (1.0.55.32): 'where' picks the area
   // and planting, 'what' is the measurement and figure. lightNext is set
   // when the form was opened from Measure the Light Here, so the where
@@ -1011,6 +1016,20 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
               </TouchableOpacity>
             </View>
           </>
+        ) : importing ? (
+          <ReadingImportForm
+            areas={areas}
+            plantings={plantings}
+            terms={terms}
+            preferF={distanceUnit === 'in'}
+            onAreaAdded={load}
+            onImported={(line) => {
+              setImporting(false);
+              setImportLine(line);
+              void load();
+            }}
+            onCancel={() => setImporting(false)}
+          />
         ) : (
           <>
             <Text style={styles.captionText}>
@@ -1028,6 +1047,15 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                 </TouchableOpacity>
               ) : null}
             </View>
+            <TouchableOpacity
+              onPress={() => {
+                setImportLine(null);
+                setImporting(true);
+              }}
+            >
+              <Text style={styles.linkText}>Import Readings from a File</Text>
+            </TouchableOpacity>
+            {importLine ? <Text style={styles.bodyText}>{importLine}</Text> : null}
           </>
         )}
       </View>
