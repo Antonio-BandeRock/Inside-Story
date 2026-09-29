@@ -116,12 +116,17 @@ async function getRealUserTableNames(): Promise<string[]> {
   return rows.map((row) => row.name);
 }
 
-export async function buildBackupEnvelope(): Promise<BackupEnvelope> {
+// skipTables leaves tables unread. Sync passes the tables a device keeps to
+// itself (DEVICE_LOCAL_TABLES in lib/snapshotSync.ts), since it would only
+// drop them afterwards, and one of them (garden_device_samples) can hold a
+// controller's every logged minute. A manual backup reads everything.
+export async function buildBackupEnvelope(skipTables: readonly string[] = []): Promise<BackupEnvelope> {
   const db = await getDatabase();
   const tableNames = await getRealUserTableNames();
   const tables: Record<string, Record<string, unknown>[]> = {};
 
   for (const name of tableNames) {
+    if (skipTables.includes(name)) continue;
     // `name` comes straight out of sqlite_master, never from anything a
     // person typed -- safe to interpolate as a real identifier here, and
     // there's no way to parametrize a table name in a prepared statement

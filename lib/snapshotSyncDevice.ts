@@ -57,6 +57,7 @@ import {
   clashNotice,
   CHANGE_BASELINE_META_KEY,
   DEVICE_LOCAL_META_KEYS,
+  DEVICE_LOCAL_TABLES,
   withoutDeviceLocalRows,
   buildSnapshotRecord,
   EMPTY_SYNC_STATE,
@@ -248,7 +249,7 @@ export function describeUnsavedChangesHere(): Promise<string[]> {
     const baseline = await readChangeBaseline();
     if (!baseline) return [];
     try {
-      const built = await buildBackupEnvelope();
+      const built = await buildBackupEnvelope(DEVICE_LOCAL_TABLES);
       return describeChanges(baseline, stampTables(withoutDeviceLocalRows(built.tables), fingerprintText));
     } catch (error) {
       console.error('[snapshotSync] could not work out what is unsaved here', error);
@@ -352,7 +353,7 @@ export function saveSnapshot(options: { force?: boolean } = {}): Promise<SaveOut
     const writesBefore = getDatabaseWriteCount();
     let envelope: BackupEnvelope;
     try {
-      const built = await buildBackupEnvelope();
+      const built = await buildBackupEnvelope(DEVICE_LOCAL_TABLES);
       // This device's bookkeeping stays here rather than being published
       // to the other device. Done before the hash, so a change to a row
       // that never travels is not a reason to upload.
@@ -587,7 +588,7 @@ export function mergeSnapshot(record: SnapshotRecord): Promise<MergeOutcome> {
 
     let built: BackupEnvelope;
     try {
-      built = await buildBackupEnvelope();
+      built = await buildBackupEnvelope(DEVICE_LOCAL_TABLES);
     } catch (error) {
       console.error('[snapshotSync] could not read this device for the merge', error);
       return problem('What is on this device could not be read.');

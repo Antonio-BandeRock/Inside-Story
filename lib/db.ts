@@ -7353,6 +7353,45 @@ async function runDatabaseInitialization() {
       CREATE INDEX IF NOT EXISTS idx_garden_readings_measurement ON garden_readings(measurement);
       CREATE INDEX IF NOT EXISTS idx_garden_readings_plot ON garden_readings(plot_id);
 
+      -- Every row of a controller's history file (I19 rework, 1.0.55.35),
+      -- one figure per measurement per moment, kept on the device that
+      -- imported it (DEVICE_LOCAL_TABLES). The key is the area, planting
+      -- ('' for none), device, measurement and moment, so the same row
+      -- brought in again is skipped by INSERT OR IGNORE. measured_at is the
+      -- local time as the file wrote it, 'YYYY-MM-DD HH:MM:SS', or the day
+      -- alone where the file gave no time.
+      CREATE TABLE IF NOT EXISTS garden_device_samples (
+        plot_id TEXT NOT NULL DEFAULT '',
+        planting_id TEXT NOT NULL DEFAULT '',
+        device_key TEXT NOT NULL,
+        measurement TEXT NOT NULL,
+        measured_at TEXT NOT NULL,
+        unit TEXT NOT NULL,
+        value REAL NOT NULL,
+        PRIMARY KEY (plot_id, planting_id, device_key, measurement, measured_at)
+      ) WITHOUT ROWID;
+
+      -- Each hour of those samples, worked out after every import and
+      -- carried to the other device, which has no samples to work it out
+      -- from. The id comes from the area, planting, device, measurement and
+      -- hour, so a later import rewrites the hour rather than adding one.
+      CREATE TABLE IF NOT EXISTS garden_reading_hours (
+        id TEXT PRIMARY KEY,
+        plot_id TEXT,
+        plot_name TEXT,
+        planting_id TEXT,
+        device_name TEXT NOT NULL,
+        measurement TEXT NOT NULL,
+        unit TEXT NOT NULL,
+        hour TEXT NOT NULL,
+        average REAL NOT NULL,
+        lowest REAL NOT NULL,
+        highest REAL NOT NULL,
+        count INTEGER NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_garden_reading_hours_measurement ON garden_reading_hours(measurement, hour);
+
       -- What was done to a planting (I14, 2026-09-28): watered, fed,
       -- pruned, a pest seen. Append-only like compost_events, one row per
       -- thing done on one day. kind is a code from lib/growSetup.ts's

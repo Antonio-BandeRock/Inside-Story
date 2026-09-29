@@ -1,39 +1,41 @@
-// Readings brought in from a controller's history file (I19, 2026-09-28).
+// Readings brought in from a controller's history file (I19, 2026-09-28,
+// reworked the same day in 1.0.55.35).
 //
 // A grow controller or sensor hub (AC Infinity, Ecowitt, SensorPush, Govee
 // and others) can save what it logged as a spreadsheet file: one row per
 // moment, a time column, and a column per sensor. This reads such a file
-// and turns it into garden_readings with source 'device', so a season of
-// logging counts the same as figures typed in by hand.
+// row by row, every row, and keeps each figure with the moment it was
+// logged.
 //
 // No maker's layout is assumed. Every column is shown with a guess at what
 // it holds, taken from its heading ("Temperature (°F)", "Humidity (%)"),
 // and the person changes any guess before anything is saved.
 //
-// A reading in this app has a day and no time of day, and a controller
-// logs every minute or so. So one reading is kept per measurement per day:
-// that day's average, with how many rows it came from and the day's lowest
-// and highest in its note. The month figures on Trends are then averages
-// of daily averages, and the lowest and highest there are of those daily
-// figures, which the import screen says before saving.
+// Where the figures go (importDeviceReadings in lib/growingConditionsDb.ts):
+//  - garden_device_samples holds every figure, keyed by area, planting,
+//    device, measurement and moment. Bringing in the same file again, or a
+//    later file overlapping an earlier one, adds only the moments not
+//    already there. It stays on the device that imported it, since a
+//    minute logger fills hundreds of thousands of rows a year.
+//  - garden_reading_hours holds each hour's average, lowest and highest,
+//    and travels to the other device, so Trends can show hour by hour and
+//    day by day on both.
+//  - garden_readings gets one row per measurement per day, that day's
+//    average, so everything built on readings (the month figures, Air VPD,
+//    what is measured where) counts a logged day beside a typed one.
 //
-// Importing the same file again, or a later file covering some of the same
-// days, replaces those days' figures rather than adding a second copy,
-// because each imported reading's id comes from its area, planting,
-// measurement, day and device. Readings typed in by hand are never touched.
+// A controller's VPD column comes in as its own measurement, Controller
+// VPD, kept apart from the Air VPD worked out here, since a controller may
+// work VPD out for the leaf with an offset the file does not state.
 //
 // Left out of an import, each with a stated reason:
-//  - VPD columns: the app works Air VPD out from temperature and humidity
-//    (lib/growingConditions.ts), and a controller's VPD may be leaf VPD
-//    with an offset the file does not state.
 //  - Rain and water given: a file may hold a running total rather than
 //    what fell since the last row, and adding up a running total gives a
 //    figure many times too large.
 //  - Values that are not numbers, and values no sensor could read (a
 //    humidity over 100%, a pH over 14), each counted in a sentence.
 //
-// No database in this file; importDeviceReadings in
-// lib/growingConditionsDb.ts writes the rows.
+// No database in this file.
 
 import { convertUnit, formatFigure } from './growingConditions';
 
@@ -137,7 +139,6 @@ export function parseTable(raw: string): ParsedTable | null {
 export type ColumnGuess =
   | { kind: 'time' }
   | { kind: 'measure'; measurement: string; unit: string }
-  | { kind: 'vpd' }
   | { kind: 'skip' };
 
 function unitIn(header: string): '°F' | '°C' | null {
@@ -150,7 +151,7 @@ function unitIn(header: string): '°F' | '°C' | null {
  *  out until the person says what it is. */
 export function guessColumn(header: string, preferF = false): ColumnGuess {
   const h = header.toLowerCase();
-  if (/\bvpd\b|vapou?r pressure/.test(h)) return { kind: 'vpd' };
+  if (/\bvpd\b|vapou?r pressure/.test(h)) return { kind: 'measure', measurement: 'vpd', unit: 'kPa' };
   if (TIME_HEADER.test(header) && !/temp/.test(h)) return { kind: 'time' };
   if (/temp|temperature|\btmp\b/.test(h)) {
     const unit = unitIn(header) ?? (preferF ? '°F' : '°C');
@@ -176,7 +177,7 @@ export const RAIN_FROM_A_FILE_NOTE =
   'Rain and water given are entered by hand rather than read from a file, since a file may hold a running total rather than the amount since the row before, and adding up a running total gives a figure many times too large.';
 
 export const VPD_COLUMN_NOTE =
-  'VPD columns are left out. Air VPD is worked out here from the temperature and humidity on the same day, and a controller’s VPD may be leaf VPD with an offset the file does not state.';
+  'A VPD column comes in as Controller VPD, kept apart from the Air VPD worked out here from temperature and humidity, since a controller may work VPD out for the leaf with an offset the file does not state.';
 
 // ---------------------------------------------------------------------------
 // Days
@@ -218,39 +219,78 @@ export function dateOrderOf(cells: string[]): DateOrder | null | 'none' {
   return seen ? null : 'none';
 }
 
-/** The day a cell names, as written: a time in the file is the time where
+function localMoment(date: Date): string | null {
+  const day = localDay(date);
+  if (!day) return null;
+  return `${day} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+}
+
+/** The time of day written after a day ("23:50", "2:05:30 PM"), as
+ *  'HH:MM:SS', or null where there is none that can be read. */
+function timeIn(rest: string): string | null {
+  const match = /(\d{1,2}):(\d{2})(?::(\d{2}))?(?:[.,]\d+)?\s*([ap])?\.?\s*m?\.?/i.exec(rest);
+  if (!match) return null;
+  let hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  const seconds = match[3] ? Number(match[3]) : 0;
+  const half = match[4]?.toLowerCase();
+  if (half) {
+    if (hours < 1 || hours > 12) return null;
+    if (half === 'p' && hours < 12) hours += 12;
+    if (half === 'a' && hours === 12) hours = 0;
+  }
+  if (hours > 23 || minutes > 59 || seconds > 59) return null;
+  return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+}
+
+function withTime(day: string | null, rest: string): string | null {
+  if (!day) return null;
+  const time = timeIn(rest);
+  return time ? `${day} ${time}` : day;
+}
+
+/** The moment a cell names, as written: 'YYYY-MM-DD HH:MM:SS', or the day
+ *  alone where the cell gives no time. A time in the file is the time where
  *  the controller was, so it is not moved to another time zone unless the
  *  cell states its own offset. Null where the cell names no day. */
-export function dayOfCell(cell: string, order: DateOrder | null): string | null {
+export function momentOfCell(cell: string, order: DateOrder | null): string | null {
   const text = cell.trim();
   if (!text) return null;
   // A count of seconds or milliseconds since 1970.
-  if (/^\d{10}(\.\d+)?$/.test(text)) return localDay(new Date(Number(text) * 1000));
-  if (/^\d{13}$/.test(text)) return localDay(new Date(Number(text)));
+  if (/^\d{10}(\.\d+)?$/.test(text)) return localMoment(new Date(Number(text) * 1000));
+  if (/^\d{13}$/.test(text)) return localMoment(new Date(Number(text)));
   // 2026-09-27, 2026/9/27, with or without a time after it.
   let match = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(.*)$/.exec(text);
   if (match) {
     const rest = match[4];
     if (/(z|[+-]\d{2}:?\d{2})\s*$/i.test(rest) && /\d{1,2}:\d{2}/.test(rest)) {
-      return localDay(new Date(text.replace(' ', 'T')));
+      return localMoment(new Date(text.replace(' ', 'T')));
     }
-    return validDay(Number(match[1]), Number(match[2]), Number(match[3]));
+    return withTime(validDay(Number(match[1]), Number(match[2]), Number(match[3])), rest);
   }
   // 27/09/2026 or 09/27/2026, with a two-figure year read as 20xx.
-  match = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})\b/.exec(text);
+  match = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})\b(.*)$/.exec(text);
   if (match) {
     if (!order) return null;
     const a = Number(match[1]);
     const b = Number(match[2]);
     const y = match[3].length === 2 ? 2000 + Number(match[3]) : Number(match[3]);
-    return order === 'mdy' ? validDay(y, a, b) : validDay(y, b, a);
+    return withTime(order === 'mdy' ? validDay(y, a, b) : validDay(y, b, a), match[4]);
   }
   // A month written in English words ("Sep 27, 2026 2:05 PM").
   if (/[a-z]{3}/i.test(text)) {
     const parsed = Date.parse(text);
-    if (!Number.isNaN(parsed)) return localDay(new Date(parsed));
+    if (!Number.isNaN(parsed)) {
+      const date = new Date(parsed);
+      return /\d{1,2}:\d{2}/.test(text) ? localMoment(date) : localDay(date);
+    }
   }
   return null;
+}
+
+/** The day a cell names, the first ten characters of its moment. */
+export function dayOfCell(cell: string, order: DateOrder | null): string | null {
+  return momentOfCell(cell, order)?.slice(0, 10) ?? null;
 }
 
 /** The column that names the day on each row: the first column whose
@@ -299,6 +339,7 @@ export function couldBeRead(measurement: string, value: number, unit: string): b
   if (measurement === 'soil_ph') return value >= 0 && value <= 14;
   if (measurement === 'soil_moisture' && unit === '%') return value >= 0 && value <= 100;
   if (measurement === 'co2') return value >= 0 && value <= 20000;
+  if (measurement === 'vpd') return value >= 0 && value <= 10;
   if (measurement === 'light' || measurement === 'soil_ec' || measurement === 'soil_moisture') return value >= 0;
   return true;
 }
@@ -322,28 +363,33 @@ export function initialColumns(table: ParsedTable, dayColumn: number | null, pre
 }
 
 // ---------------------------------------------------------------------------
-// One reading per measurement per day
+// Every row, with its moment
 // ---------------------------------------------------------------------------
 
 export type ColumnChoice = { index: number; measurement: string; unit: string };
 
-export type DayFigure = {
+/** One figure from one row: what was measured, when, and what it read. */
+export type Sample = {
   measurement: string;
   unit: string;
-  day: string;
-  average: number;
-  lowest: number;
-  highest: number;
-  count: number;
+  /** 'YYYY-MM-DD HH:MM:SS', or 'YYYY-MM-DD' where the file gave no time. */
+  at: string;
+  value: number;
 };
 
 export type ImportPlan = {
-  figures: DayFigure[];
+  samples: Sample[];
   firstDay: string | null;
   lastDay: string | null;
   days: number;
   rowsRead: number;
   rowsWithoutDay: number;
+  /** Rows with a day and no time of day, kept for the day but not an hour. */
+  rowsWithoutTime: number;
+  /** Per measurement: a second figure for a moment the file already gave. */
+  repeatsInFile: Record<string, number>;
+  /** Per measurement: figures kept. */
+  kept: Record<string, number>;
   /** Per measurement: cells that were blank or not a number. */
   notNumbers: Record<string, number>;
   /** Per measurement: numbers no sensor could have read. */
@@ -357,75 +403,139 @@ export function planImport(input: {
   columns: ColumnChoice[];
   decimalComma: boolean;
 }): ImportPlan {
-  const buckets = new Map<string, { measurement: string; unit: string; day: string; values: number[] }>();
+  const samples: Sample[] = [];
+  const seen = new Set<string>();
+  const repeatsInFile: Record<string, number> = {};
+  const kept: Record<string, number> = {};
   const notNumbers: Record<string, number> = {};
   const outOfReach: Record<string, number> = {};
   const columns = input.columns.filter((column) => !NOT_FROM_A_FILE[column.measurement]);
+  const days = new Set<string>();
   let rowsWithoutDay = 0;
+  let rowsWithoutTime = 0;
+  const bump = (tally: Record<string, number>, code: string) => {
+    tally[code] = (tally[code] ?? 0) + 1;
+  };
   for (const row of input.table.rows) {
-    const day = dayOfCell(row[input.dayColumn] ?? '', input.order);
-    if (!day) {
+    const at = momentOfCell(row[input.dayColumn] ?? '', input.order);
+    if (!at) {
       rowsWithoutDay += 1;
       continue;
     }
+    if (at.length === 10) rowsWithoutTime += 1;
     for (const column of columns) {
       const value = numberOfCell(row[column.index] ?? '', input.decimalComma);
       if (value === null) {
-        notNumbers[column.measurement] = (notNumbers[column.measurement] ?? 0) + 1;
+        bump(notNumbers, column.measurement);
         continue;
       }
       if (!couldBeRead(column.measurement, value, column.unit)) {
-        outOfReach[column.measurement] = (outOfReach[column.measurement] ?? 0) + 1;
+        bump(outOfReach, column.measurement);
         continue;
       }
-      const key = `${column.measurement}|${column.unit}|${day}`;
-      const bucket = buckets.get(key);
-      if (bucket) bucket.values.push(value);
-      else buckets.set(key, { measurement: column.measurement, unit: column.unit, day, values: [value] });
+      const key = `${column.measurement}|${at}`;
+      if (seen.has(key)) {
+        bump(repeatsInFile, column.measurement);
+        continue;
+      }
+      seen.add(key);
+      samples.push({ measurement: column.measurement, unit: column.unit, at, value });
+      bump(kept, column.measurement);
+      days.add(at.slice(0, 10));
     }
   }
-  const figures: DayFigure[] = [...buckets.values()]
-    .map((bucket) => ({
-      measurement: bucket.measurement,
-      unit: bucket.unit,
-      day: bucket.day,
-      average: bucket.values.reduce((sum, value) => sum + value, 0) / bucket.values.length,
-      lowest: Math.min(...bucket.values),
-      highest: Math.max(...bucket.values),
-      count: bucket.values.length,
-    }))
-    .sort((a, b) => a.day.localeCompare(b.day) || a.measurement.localeCompare(b.measurement));
-  const days = [...new Set(figures.map((figure) => figure.day))].sort();
+  const sortedDays = [...days].sort();
   return {
-    figures,
-    firstDay: days[0] ?? null,
-    lastDay: days[days.length - 1] ?? null,
-    days: days.length,
+    samples,
+    firstDay: sortedDays[0] ?? null,
+    lastDay: sortedDays[sortedDays.length - 1] ?? null,
+    days: sortedDays.length,
     rowsRead: input.table.rows.length,
     rowsWithoutDay,
+    rowsWithoutTime,
+    repeatsInFile,
+    kept,
     notNumbers,
     outOfReach,
   };
 }
 
-/** The note an imported reading carries. */
-export function figureNote(figure: DayFigure, fileName: string): string {
-  if (figure.count === 1) return `One reading from ${fileName}.`;
-  return `Average of ${figure.count} readings that day from ${fileName}; lowest ${formatFigure(figure.lowest, figure.unit)}, highest ${formatFigure(figure.highest, figure.unit)}.`;
+// ---------------------------------------------------------------------------
+// Hours and days, worked out from the samples
+// ---------------------------------------------------------------------------
+
+/** What the database hands back for one measurement over one hour or day in
+ *  one unit: a sum rather than an average, so groups in two units can be
+ *  put together. */
+export type SampleGroup = {
+  measurement: string;
+  unit: string;
+  /** 'YYYY-MM-DD HH' for an hour, 'YYYY-MM-DD' for a day. */
+  period: string;
+  sum: number;
+  count: number;
+  lowest: number;
+  highest: number;
+};
+
+export type PeriodFigure = {
+  measurement: string;
+  unit: string;
+  period: string;
+  average: number;
+  lowest: number;
+  highest: number;
+  count: number;
+};
+
+/** One figure per measurement per period. Where a period holds samples in
+ *  two units (a controller switched from °F to °C), they are moved into the
+ *  unit most of them were logged in; any that cannot be moved are left out
+ *  of that period, since a figure in another quantity is not a reading of
+ *  this one. */
+export function combineGroups(groups: SampleGroup[]): PeriodFigure[] {
+  const byPeriod = new Map<string, SampleGroup[]>();
+  for (const group of groups) {
+    const key = `${group.measurement}|${group.period}`;
+    const list = byPeriod.get(key);
+    if (list) list.push(group);
+    else byPeriod.set(key, [group]);
+  }
+  const out: PeriodFigure[] = [];
+  for (const list of byPeriod.values()) {
+    const main = list.reduce((best, group) => (group.count > best.count ? group : best), list[0]);
+    let sum = 0;
+    let count = 0;
+    let lowest = Infinity;
+    let highest = -Infinity;
+    for (const group of list) {
+      const mean = convertUnit(group.sum / group.count, group.unit, main.unit);
+      const low = convertUnit(group.lowest, group.unit, main.unit);
+      const high = convertUnit(group.highest, group.unit, main.unit);
+      if (mean === null || low === null || high === null) continue;
+      sum += mean * group.count;
+      count += group.count;
+      lowest = Math.min(lowest, low);
+      highest = Math.max(highest, high);
+    }
+    if (count === 0) continue;
+    out.push({ measurement: main.measurement, unit: main.unit, period: main.period, average: sum / count, lowest, highest, count });
+  }
+  return out.sort((a, b) => a.period.localeCompare(b.period) || a.measurement.localeCompare(b.measurement));
 }
 
-/** The same imported reading always has the same id, so a file brought in
- *  twice, or a later file overlapping the days of an earlier one, replaces
- *  those days rather than doubling them, on this device and on any device
- *  it syncs with. */
-export function importedReadingId(parts: {
-  plotId: string | null;
-  plantingId: string | null;
-  measurement: string;
-  day: string;
-  deviceName: string;
-}): string {
-  const key = [parts.plotId ?? '', parts.plantingId ?? '', parts.measurement, parts.day, parts.deviceName.trim().toLowerCase()].join('|');
+/** The note a day's reading carries. */
+export function figureNote(figure: PeriodFigure, deviceName: string): string {
+  if (figure.count === 1) return `One reading from ${deviceName}.`;
+  return `Average of ${figure.count.toLocaleString('en-US')} readings that day from ${deviceName}; lowest ${formatFigure(figure.lowest, figure.unit)}, highest ${formatFigure(figure.highest, figure.unit)}.`;
+}
+
+/** How a device name is compared: "Tent 2" and " tent 2 " are one device. */
+export function deviceKeyOf(deviceName: string): string {
+  return deviceName.trim().toLowerCase();
+}
+
+function hashId(prefix: string, key: string): string {
   let a = 5381;
   let b = 52711;
   for (let i = 0; i < key.length; i += 1) {
@@ -433,7 +543,31 @@ export function importedReadingId(parts: {
     a = (Math.imul(a, 33) ^ code) >>> 0;
     b = (Math.imul(b, 31) + code) >>> 0;
   }
-  return `reading_file_${a.toString(36)}${b.toString(36)}`;
+  return `${prefix}${a.toString(36)}${b.toString(36)}`;
+}
+
+/** The same day's imported reading always has the same id, so a later
+ *  import rewrites that day rather than adding a second one, on this device
+ *  and on any device it syncs with. */
+export function importedReadingId(parts: {
+  plotId: string | null;
+  plantingId: string | null;
+  measurement: string;
+  day: string;
+  deviceName: string;
+}): string {
+  return hashId('reading_file_', [parts.plotId ?? '', parts.plantingId ?? '', parts.measurement, parts.day, deviceKeyOf(parts.deviceName)].join('|'));
+}
+
+/** The same for an hour in garden_reading_hours. */
+export function hourReadingId(parts: {
+  plotId: string | null;
+  plantingId: string | null;
+  measurement: string;
+  hour: string;
+  deviceName: string;
+}): string {
+  return hashId('reading_hour_', [parts.plotId ?? '', parts.plantingId ?? '', parts.measurement, parts.hour, deviceKeyOf(parts.deviceName)].join('|'));
 }
 
 // ---------------------------------------------------------------------------
@@ -458,17 +592,24 @@ function plural(n: number, one: string, many: string): string {
 
 /** What saving would add, in words, before anything is saved. */
 export function describePlan(plan: ImportPlan, labelOf: (code: string) => string): string[] {
-  if (plan.figures.length === 0 || !plan.firstDay || !plan.lastDay) {
+  if (plan.samples.length === 0 || !plan.firstDay || !plan.lastDay) {
     return ['Nothing in this file can be kept as it is set: no row has both a day and a figure in a column picked below.'];
   }
   const lines: string[] = [];
   const span = plan.firstDay === plan.lastDay ? spokenDay(plan.firstDay) : `${spokenDay(plan.firstDay)} to ${spokenDay(plan.lastDay)}`;
   lines.push(`${plural(plan.days, 'day', 'days')}, ${span}, from ${plural(plan.rowsRead, 'row', 'rows')}.`);
-  const measured = [...new Set(plan.figures.map((figure) => figure.measurement))].map((code) => labelOf(code).toLowerCase());
+  const counts = Object.entries(plan.kept).map(([code, count]) => `${labelOf(code).toLowerCase()}, ${plural(count, 'figure', 'figures')}`);
+  lines.push(`Kept: ${joinWords(counts)}.`);
   lines.push(
-    `One reading per day for ${joinWords(measured)}: that day’s average, with how many rows it came from and the lowest and highest in its note. The months on Trends are then worked out from those daily averages.`,
+    'Every figure is kept with its time. Trends > Growing Conditions shows them hour by hour and day by day, and Growing Conditions here gets one reading a day: that day’s average, with how many figures it came from and the lowest and highest in its note.',
   );
+  if (plan.rowsWithoutTime > 0) {
+    lines.push(`${plural(plan.rowsWithoutTime, 'row has', 'rows have')} a day and no time, so ${plan.rowsWithoutTime === 1 ? 'it counts' : 'they count'} toward that day but not toward any hour.`);
+  }
   if (plan.rowsWithoutDay > 0) lines.push(`${plural(plan.rowsWithoutDay, 'row has', 'rows have')} no day that can be read, and ${plan.rowsWithoutDay === 1 ? 'is' : 'are'} left out.`);
+  for (const [code, count] of Object.entries(plan.repeatsInFile)) {
+    lines.push(`${labelOf(code)}: ${plural(count, 'figure repeats', 'figures repeat')} a moment the file already gave, and only the first is kept.`);
+  }
   for (const [code, count] of Object.entries(plan.notNumbers)) {
     lines.push(`${labelOf(code)}: ${plural(count, 'cell was', 'cells were')} blank or not a number, and left out.`);
   }
@@ -482,4 +623,7 @@ export const IMPORT_HOW =
   'A controller or sensor hub (AC Infinity, Ecowitt, SensorPush, Govee and others) can usually save what it logged as a CSV file from its app, often by email. Pick that file here. Each column is shown with a guess at what it holds, which you can change, and nothing is saved until you say so.';
 
 export const REIMPORT_NOTE =
-  'Bringing in a file again, or a later file that covers some of the same days, replaces those days for this area and device rather than adding them twice. Readings you typed in are never changed.';
+  'Bringing in a file again, or a later file that overlaps an earlier one, adds only the moments not already here for this area and device; figures already brought in are skipped, and the days and hours they touch are worked out again from everything held. Readings you typed in are never changed.';
+
+export const WHERE_KEPT_NOTE =
+  'Every figure with its time stays on this device, since a year of readings every minute is too much to send on each sync. The hours and days worked out from them travel to your other devices.';

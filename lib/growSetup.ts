@@ -131,6 +131,7 @@ export const MEASUREMENT_KINDS: { code: string; label: string; help: string }[] 
   { code: 'rainfall', label: 'Rainfall', help: 'What fell, from a gauge. Added up over a month rather than averaged.' },
   { code: 'water_given', label: 'Water given', help: 'What you put on, by hand or through a system. Added up over a month.' },
   { code: 'co2', label: 'CO2', help: 'Parts per million. Around 420 outdoors; a closed room with plants in it runs lower.' },
+  { code: 'vpd', label: 'Controller VPD', help: 'Vapour pressure deficit in kPa as a controller or sensor reports it. Some work it out for the air and some for the leaf, so it is kept apart from the Air VPD this app works out from temperature and humidity.' },
 ];
 
 // What can be done to a planting, 2026-09-28 (I14). An open list: a person

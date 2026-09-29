@@ -19,6 +19,7 @@ import { areaPath } from './gardenAreaNesting';
 import { getDatabase, listGardenPlantings, listGardenPlots } from './db';
 import type { GardenPlanting, GardenPlot } from './db';
 import {
+  buildDeviceDetail,
   buildMeasurementBand,
   buildMonths,
   buildVpdBand,
@@ -28,13 +29,23 @@ import {
   VPD_CODE,
   VPD_LABEL,
   type AreaCoverage,
+  type DeviceDetail,
   type GardenReading,
   type MeasurementBand,
   type MeasuredThing,
+  type ReadingHourRow,
   type ReadingSource,
 } from './growingConditions';
 import { termLabel, type CustomGardenTerm } from './growSetup';
-import { figureNote, importedReadingId, type DayFigure } from './readingImport';
+import {
+  combineGroups,
+  deviceKeyOf,
+  figureNote,
+  hourReadingId,
+  importedReadingId,
+  type Sample,
+  type SampleGroup,
+} from './readingImport';
 import { listGardenTerms } from './growSetupDb';
 
 const READING_COLUMNS = `
@@ -94,15 +105,20 @@ export async function addGardenReading(reading: NewReading): Promise<string> {
   return id;
 }
 
-/** Saves one reading per measurement per day brought in from a
- *  controller's history file (I19, lib/readingImport.ts), all at once. Each
- *  row's id comes from its area, planting, measurement, day and device, so
- *  bringing in the same days again replaces them. Returns how many were
- *  new and how many replaced an earlier import. */
+/** Brings in every row of a controller's history file (I19,
+ *  lib/readingImport.ts). Each figure goes into garden_device_samples with
+ *  its moment, where a figure already brought in for the same area,
+ *  planting, device, measurement and moment is skipped rather than added
+ *  twice. The hours and days those moments fall in are then worked out
+ *  again from everything held for that device, so two files that overlap
+ *  combine rather than one replacing the other: hours into
+ *  garden_reading_hours, and one reading a day into garden_readings under a
+ *  fixed id. Returns how many figures were new, how many were here already,
+ *  and how many days and hours were written. */
 export async function importDeviceReadings(
-  figures: DayFigure[],
+  samples: Sample[],
   where: { plotId: string | null; plantingId: string | null; deviceName: string; fileName: string },
-): Promise<{ added: number; replaced: number }> {
+): Promise<{ added: number; alreadyHere: number; days: number; hours: number }> {
   const db = await getDatabase();
   let plotName: string | null = null;
   if (where.plotId) {
@@ -110,40 +126,119 @@ export async function importDeviceReadings(
     plotName = row?.name ?? null;
   }
   const deviceName = where.deviceName.trim() || where.fileName;
+  const deviceKey = deviceKeyOf(deviceName);
+  const plotKey = where.plotId ?? '';
+  const plantingKey = where.plantingId ?? '';
+  if (samples.length === 0) return { added: 0, alreadyHere: 0, days: 0, hours: 0 };
+  let firstDay = samples[0].at.slice(0, 10);
+  let lastDay = firstDay;
+  for (const sample of samples) {
+    const day = sample.at.slice(0, 10);
+    if (day < firstDay) firstDay = day;
+    if (day > lastDay) lastDay = day;
+  }
   let added = 0;
-  let replaced = 0;
+  let dayCount = 0;
+  let hourCount = 0;
   const now = new Date().toISOString();
+  const CHUNK = 100;
   await db.withTransactionAsync(async () => {
-    for (const figure of figures) {
-      const id = importedReadingId({
-        plotId: where.plotId,
-        plantingId: where.plantingId,
-        measurement: figure.measurement,
-        day: figure.day,
-        deviceName,
-      });
-      const before = await db.getFirstAsync<{ id: string }>('SELECT id FROM garden_readings WHERE id = ?', id);
-      if (before) replaced += 1;
-      else added += 1;
+    for (let start = 0; start < samples.length; start += CHUNK) {
+      const chunk = samples.slice(start, start + CHUNK);
+      const params: (string | number)[] = [];
+      for (const sample of chunk) {
+        params.push(plotKey, plantingKey, deviceKey, sample.measurement, sample.at, sample.unit, sample.value);
+      }
+      const result = await db.runAsync(
+        `INSERT OR IGNORE INTO garden_device_samples (plot_id, planting_id, device_key, measurement, measured_at, unit, value)
+         VALUES ${chunk.map(() => '(?, ?, ?, ?, ?, ?, ?)').join(', ')}`,
+        ...params,
+      );
+      added += result.changes;
+    }
+
+    // Every group touched by this file, worked out from all that is held.
+    const groups = await db.getAllAsync<SampleGroup>(
+      `SELECT measurement, unit, substr(measured_at, 1, 13) AS period,
+              SUM(value) AS sum, COUNT(*) AS count, MIN(value) AS lowest, MAX(value) AS highest
+         FROM garden_device_samples
+        WHERE plot_id = ? AND planting_id = ? AND device_key = ?
+          AND measured_at >= ? AND measured_at <= ?
+        GROUP BY measurement, unit, period`,
+      plotKey,
+      plantingKey,
+      deviceKey,
+      firstDay,
+      `${lastDay} 99`,
+    );
+    // A moment with no time is 'YYYY-MM-DD', so its period is ten
+    // characters and it counts toward the day and no hour.
+    const hourFigures = combineGroups(groups.filter((group) => group.period.length === 13));
+    const dayGroups = new Map<string, SampleGroup>();
+    for (const group of groups) {
+      const key = `${group.measurement}|${group.unit}|${group.period.slice(0, 10)}`;
+      const held = dayGroups.get(key);
+      if (held) {
+        held.sum += group.sum;
+        held.count += group.count;
+        held.lowest = Math.min(held.lowest, group.lowest);
+        held.highest = Math.max(held.highest, group.highest);
+      } else {
+        dayGroups.set(key, { ...group, period: group.period.slice(0, 10) });
+      }
+    }
+    const dayFigures = combineGroups([...dayGroups.values()]);
+
+    for (let start = 0; start < hourFigures.length; start += CHUNK) {
+      const chunk = hourFigures.slice(start, start + CHUNK);
+      const params: (string | number | null)[] = [];
+      for (const figure of chunk) {
+        params.push(
+          hourReadingId({ plotId: where.plotId, plantingId: where.plantingId, measurement: figure.measurement, hour: figure.period, deviceName }),
+          where.plotId,
+          plotName,
+          where.plantingId,
+          deviceName,
+          figure.measurement,
+          figure.unit,
+          figure.period,
+          Math.round(figure.average * 100) / 100,
+          figure.lowest,
+          figure.highest,
+          figure.count,
+          now,
+        );
+      }
+      await db.runAsync(
+        `INSERT OR REPLACE INTO garden_reading_hours
+           (id, plot_id, plot_name, planting_id, device_name, measurement, unit, hour, average, lowest, highest, count, updated_at)
+         VALUES ${chunk.map(() => '(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)').join(', ')}`,
+        ...params,
+      );
+    }
+    hourCount = hourFigures.length;
+
+    for (const figure of dayFigures) {
       await db.runAsync(
         `INSERT OR REPLACE INTO garden_readings
            (id, plot_id, plot_name, planting_id, measurement, value, unit, measured_on, source, device_name, note, created_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'device', ?, ?, ?)`,
-        id,
+        importedReadingId({ plotId: where.plotId, plantingId: where.plantingId, measurement: figure.measurement, day: figure.period, deviceName }),
         where.plotId,
         plotName,
         where.plantingId,
         figure.measurement,
         Math.round(figure.average * 100) / 100,
         figure.unit,
-        figure.day,
+        figure.period,
         deviceName,
-        figureNote(figure, where.fileName),
+        figureNote(figure, deviceName),
         now,
       );
     }
+    dayCount = dayFigures.length;
   });
-  return { added, replaced };
+  return { added, alreadyHere: samples.length - added, days: dayCount, hours: hourCount };
 }
 
 export async function deleteGardenReading(id: string): Promise<void> {
@@ -234,6 +329,9 @@ export type GrowingConditionsSummary = {
   measurements: { code: string; label: string }[];
   things: MeasuredThing[];
   coverage: { measured: AreaCoverage[]; unmeasured: string[]; note: string };
+  /** Hour by hour and day by day for the chosen measurement, from files
+   *  brought in from a controller (I19). Null when none holds it. */
+  device: DeviceDetail | null;
   /** True when nothing has ever been recorded, so the lens says what the
    *  record is for rather than drawing an empty chart. */
   empty: boolean;
@@ -243,6 +341,8 @@ export async function getGrowingConditionsSummary(
   startDate: string,
   endDate: string,
   picked: string | null,
+  pickedSource: string | null = null,
+  pickedDay: string | null = null,
 ): Promise<GrowingConditionsSummary> {
   const db = await getDatabase();
   const today = todayDateString();
@@ -266,7 +366,14 @@ export async function getGrowingConditionsSummary(
   );
 
   if (tallies.length === 0) {
-    return { band: null, measurements: [], things: [], coverage: { measured: [], unmeasured: [], note: 'Nothing is measured anywhere yet.' }, empty: true };
+    return {
+      band: null,
+      measurements: [],
+      things: [],
+      coverage: { measured: [], unmeasured: [], note: 'Nothing is measured anywhere yet.' },
+      device: null,
+      empty: true,
+    };
   }
 
   const latest = await Promise.all(
@@ -327,6 +434,33 @@ export async function getGrowingConditionsSummary(
   }
 
   const areas = await listGardenPlots(true);
+
+  let device: DeviceDetail | null = null;
+  if (chosen !== VPD_CODE) {
+    const hourRows = await db.getAllAsync<ReadingHourRow>(
+      `SELECT plot_id AS plotId, plot_name AS plotName, planting_id AS plantingId, device_name AS deviceName,
+              unit, hour, average, lowest, highest, count
+         FROM garden_reading_hours
+        WHERE measurement = ? AND hour >= ? AND hour <= ?`,
+      chosen,
+      startDate,
+      `${endDate} 99`,
+    );
+    if (hourRows.length > 0) {
+      const plantings = await listGardenPlantings();
+      device = buildDeviceDetail({
+        rows: hourRows,
+        labelOfSource: (row) => {
+          const area = row.plotId && areas.some((entry) => entry.id === row.plotId) ? areaPath(row.plotId, areas) : row.plotName ?? 'No area';
+          const planting = row.plantingId ? plantings.find((entry) => entry.id === row.plantingId) : undefined;
+          return [area, planting?.foodName, row.deviceName].filter(Boolean).join(' › ');
+        },
+        pickedSource,
+        pickedDay,
+      });
+    }
+  }
+
   const forCoverage = await db.getAllAsync<{ plotId: string | null; plotName: string | null; measurement: string; measuredOn: string }>(
     'SELECT plot_id AS plotId, plot_name AS plotName, measurement, measured_on AS measuredOn FROM garden_readings',
   );
@@ -336,7 +470,7 @@ export async function getGrowingConditionsSummary(
     today,
   });
 
-  return { band, measurements, things, coverage, empty: false };
+  return { band, measurements, things, coverage, device, empty: false };
 }
 
 // This lamp's lux-to-PPFD ratio (1.0.55.21), remembered per area and kind of

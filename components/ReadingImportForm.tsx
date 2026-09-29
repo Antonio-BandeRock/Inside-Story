@@ -24,6 +24,7 @@ import {
   spokenDay,
   usesDecimalComma,
   VPD_COLUMN_NOTE,
+  WHERE_KEPT_NOTE,
   type ColumnGuess,
   type ColumnSetting,
   type DateOrder,
@@ -204,25 +205,30 @@ export function ReadingImportForm(props: {
   }
 
   async function handleImport() {
-    if (!loaded || !plan || plan.figures.length === 0 || saving) return;
+    if (!loaded || !plan || plan.samples.length === 0 || saving) return;
     setSaving(true);
-    const result = await importDeviceReadings(plan.figures, {
-      plotId,
-      plantingId,
-      deviceName,
-      fileName: loaded.fileName,
-    });
-    setSaving(false);
+    let result: Awaited<ReturnType<typeof importDeviceReadings>>;
+    try {
+      result = await importDeviceReadings(plan.samples, {
+        plotId,
+        plantingId,
+        deviceName,
+        fileName: loaded.fileName,
+      });
+    } finally {
+      setSaving(false);
+    }
     const parts: string[] = [];
-    if (result.added > 0) parts.push(`${result.added.toLocaleString('en-US')} ${result.added === 1 ? 'reading' : 'readings'} added`);
-    if (result.replaced > 0)
-      parts.push(`${result.replaced.toLocaleString('en-US')} ${result.replaced === 1 ? 'reading' : 'readings'} replaced from an earlier import of the same days`);
+    parts.push(`${result.added.toLocaleString('en-US')} ${result.added === 1 ? 'reading' : 'readings'} added`);
+    if (result.alreadyHere > 0)
+      parts.push(`${result.alreadyHere.toLocaleString('en-US')} already here from an earlier import, left as they were`);
+    parts.push(`${result.days.toLocaleString('en-US')} ${result.days === 1 ? 'day' : 'days'} and ${result.hours.toLocaleString('en-US')} ${result.hours === 1 ? 'hour' : 'hours'} worked out again`);
     props.onImported(`From ${loaded.fileName}: ${parts.join(', ')}.`);
   }
 
-  const vpdColumns = columns.filter((column) => column.guess.kind === 'vpd');
+  const vpdColumns = columns.filter((column) => column.guess.kind === 'measure' && column.guess.measurement === 'vpd');
   const showOrder = !!loaded && loaded.detectedOrder === null && needsDayOrder(loaded);
-  const sample = plan ? plan.figures.slice(-4) : [];
+  const sample = plan ? plan.samples.slice(-4) : [];
 
   return (
     <View style={styles.formCard}>
@@ -331,9 +337,7 @@ export function ReadingImportForm(props: {
           ) : null}
 
           <Text style={styles.fieldLabel}>What each column holds</Text>
-          {columns
-            .filter((column) => column.guess.kind !== 'vpd')
-            .map((column) => {
+          {columns.map((column) => {
               const guess = column.guess;
               const measurement = guess.kind === 'measure' ? guess.measurement : LEAVE_OUT;
               const units = guess.kind === 'measure' ? unitChoices(guess.measurement, [guess.unit].filter(Boolean)) : [];
@@ -385,13 +389,15 @@ export function ReadingImportForm(props: {
               ))}
               {sample.length > 0 ? <Text style={styles.captionText}>The last few, as they will be kept:</Text> : null}
               {sample.map((figure) => (
-                <Text key={`${figure.day}|${figure.measurement}`} style={styles.captionText}>
-                  {spokenDay(figure.day)}, {labelOf(figure.measurement).toLowerCase()}: {formatFigure(figure.average, figure.unit)} (from{' '}
-                  {figure.count.toLocaleString('en-US')} {figure.count === 1 ? 'row' : 'rows'})
+                <Text key={`${figure.at}|${figure.measurement}`} style={styles.captionText}>
+                  {spokenDay(figure.at.slice(0, 10))}
+                  {figure.at.length > 10 ? ` ${figure.at.slice(11, 16)}` : ''}, {labelOf(figure.measurement).toLowerCase()}:{' '}
+                  {formatFigure(figure.value, figure.unit)}
                 </Text>
               ))}
               <Text style={styles.captionText}>{REIMPORT_NOTE}</Text>
-              {plan.figures.length > 0 ? (
+              <Text style={styles.captionText}>{WHERE_KEPT_NOTE}</Text>
+              {plan.samples.length > 0 ? (
                 <View style={styles.actionRow}>
                   <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleImport}>
                     <Text style={styles.primaryButtonText}>{saving ? 'Importing…' : 'Import These Readings'}</Text>

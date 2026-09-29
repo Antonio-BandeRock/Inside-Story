@@ -309,6 +309,10 @@ export const DEVICE_LOCAL_TABLES: readonly string[] = [
   'daily_nutrient_totals_cache',
   // A lookup this device could not make (G21); the other device has its own signal.
   'pending_barcode_scans',
+  // Every row of a controller's history file (I19, 1.0.55.35): a minute
+  // logger fills hundreds of thousands a year. What travels is worked out
+  // from them, garden_reading_hours and the day's garden_readings row.
+  'garden_device_samples',
 ];
 
 /**

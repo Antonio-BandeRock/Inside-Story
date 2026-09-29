@@ -46,6 +46,7 @@ const USUAL_SCOPE: Record<string, MeasureScope> = {
   air_temperature: 'area',
   humidity: 'area',
   co2: 'area',
+  vpd: 'area',
   rainfall: 'area',
   light: 'planting',
   soil_moisture: 'planting',

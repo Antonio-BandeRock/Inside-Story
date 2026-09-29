@@ -1069,6 +1069,8 @@ export default function TrendsScreen() {
   // Null means whatever the summary picks, which is the measurement with
   // the most recent reading. Set once the person taps another.
   const [pickedMeasurement, setPickedMeasurement] = useState<string | null>(null);
+  const [pickedDeviceSource, setPickedDeviceSource] = useState<string | null>(null);
+  const [pickedDeviceDay, setPickedDeviceDay] = useState<string | null>(null);
   const [costSummary, setCostSummary] = useState<CostSummary | null>(null);
   // Its own state rather than harvestMonths shared: the two lenses reach
   // back over different records, and a range chosen for one should not
@@ -1259,6 +1261,8 @@ export default function TrendsScreen() {
               : monthsBack(conditionsEnd, conditionMonths),
             conditionsEnd,
             pickedMeasurement,
+            pickedDeviceSource,
+            pickedDeviceDay,
           ),
         )
         .then(setConditionsSummary)
@@ -1360,7 +1364,7 @@ export default function TrendsScreen() {
         setLoading(false);
       });
     }
-  }, [lens, days, harvestMonths, conditionMonths, pickedMeasurement, costMonths, measurementSystem, resolvedRange, selectedNutrient, selectedTestCode, selectedGroceryFood, patternWindow, patternOutcome, personalizationProfile]);
+  }, [lens, days, harvestMonths, conditionMonths, pickedMeasurement, pickedDeviceSource, pickedDeviceDay, costMonths, measurementSystem, resolvedRange, selectedNutrient, selectedTestCode, selectedGroceryFood, patternWindow, patternOutcome, personalizationProfile]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
@@ -2437,6 +2441,54 @@ export default function TrendsScreen() {
                       <Text style={styles.patternRowCaption}>{conditionsSummary.band.headline}</Text>
                       {renderPeriodRows(conditionsSummary.band.rows)}
                       {conditionsSummary.band.notes.map((note, index) => (
+                        <Text key={index} style={styles.patternRowCaption}>
+                          {note}
+                        </Text>
+                      ))}
+                    </TabBand>
+                  ) : null}
+                  {conditionsSummary.device ? (
+                    <TabBand
+                      folds={folds}
+                      color={TAB_COLOR}
+                      id="trends:conditions:device"
+                      title="Hour by Hour from a Device"
+                      icon="time-outline"
+                    >
+                      {conditionsSummary.device.sources.length > 1 ? (
+                        <View style={styles.pillRow}>
+                          {conditionsSummary.device.sources.map((source) => {
+                            const chosen = conditionsSummary.device?.sourceKey === source.key;
+                            return (
+                              <TouchableOpacity
+                                key={source.key}
+                                style={[styles.pill, chosen && styles.pillActive]}
+                                onPress={() => {
+                                  setPickedDeviceSource(source.key);
+                                  setPickedDeviceDay(null);
+                                }}
+                              >
+                                <Text style={[styles.pillText, chosen && styles.pillTextActive]}>{source.label}</Text>
+                              </TouchableOpacity>
+                            );
+                          })}
+                        </View>
+                      ) : (
+                        <Text style={styles.patternRowTitle}>{conditionsSummary.device.sources[0].label}</Text>
+                      )}
+                      <Text style={styles.patternRowCaption}>{conditionsSummary.device.headline}</Text>
+                      {renderPeriodRows(conditionsSummary.device.days)}
+                      <Text style={styles.customLabel}>Day to see hour by hour</Text>
+                      <PopoverSelect
+                        options={conditionsSummary.device.dayOptions}
+                        selected={conditionsSummary.device.day}
+                        tabColor={TAB_COLOR}
+                        searchable={conditionsSummary.device.dayOptions.length > 12}
+                        onSelect={(value) => setPickedDeviceDay(value)}
+                      />
+                      <Text style={styles.patternRowCaption}>{conditionsSummary.device.hoursHeadline}</Text>
+                      {renderPeriodRows(conditionsSummary.device.hours)}
+                      {conditionsSummary.device.notes.map((note, index) => (
                         <Text key={index} style={styles.patternRowCaption}>
                           {note}
                         </Text>

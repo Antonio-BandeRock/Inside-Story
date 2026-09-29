@@ -124,6 +124,7 @@ export const BUILT_IN_UNITS: Record<string, string[]> = {
   rainfall: ['mm', 'in'],
   water_given: ['L', 'gal'],
   co2: ['ppm'],
+  vpd: ['kPa'],
 };
 
 export function unitChoices(measurement: string, recorded: string[] = []): string[] {
@@ -759,5 +760,194 @@ export function buildVpdBand(input: { pairing: VpdPairing; months: YieldMonth[] 
     ...band,
     headline,
     notes: [...band.notes, ...input.pairing.notes, VPD_HOW, VPD_LEAF_NOTE, VPD_PAIRING_NOTE],
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Hour by hour and day by day from a device (I19)
+// ---------------------------------------------------------------------------
+//
+// A file brought in from a controller keeps every figure with its time on
+// the device that imported it, and garden_reading_hours carries each hour's
+// average, lowest, highest and count everywhere. This band reads the hours:
+// one source at a time (an area or a planting, and the device that logged
+// it), the latest month of days in the range, and the 24 hours of one day.
+// An hour or day with nothing logged is a gap, never a zero.
+
+export type ReadingHourRow = {
+  plotId: string | null;
+  plotName: string | null;
+  plantingId: string | null;
+  deviceName: string;
+  unit: string;
+  /** 'YYYY-MM-DD HH'. */
+  hour: string;
+  average: number;
+  lowest: number;
+  highest: number;
+  count: number;
+};
+
+export type DeviceSource = { key: string; label: string };
+
+export type DeviceDetail = {
+  sources: DeviceSource[];
+  sourceKey: string;
+  headline: string;
+  days: PeriodRow[];
+  dayOptions: { label: string; value: string }[];
+  day: string;
+  hoursHeadline: string;
+  hours: PeriodRow[];
+  notes: string[];
+};
+
+export function deviceSourceKey(row: { plotId: string | null; plantingId: string | null; deviceName: string }): string {
+  return [row.plotId ?? '', row.plantingId ?? '', row.deviceName.trim().toLowerCase()].join('|');
+}
+
+export const DEVICE_DAYS_SHOWN = 31;
+
+function shiftDay(day: string, by: number): string {
+  const [y, m, d] = day.split('-').map(Number);
+  const moved = new Date(y, m - 1, d + by);
+  return `${moved.getFullYear()}-${String(moved.getMonth() + 1).padStart(2, '0')}-${String(moved.getDate()).padStart(2, '0')}`;
+}
+
+function shortDay(day: string): string {
+  const [y, m, d] = day.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function longDay(day: string): string {
+  const [y, m, d] = day.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function spreadDisplay(average: number, lowest: number, highest: number, unit: string): string {
+  const places = placesFor(unit);
+  if (roundTo(lowest, places) === roundTo(highest, places)) return formatFigure(average, unit);
+  return `${formatFigure(average, unit)}, ${roundTo(lowest, places)} to ${roundTo(highest, places)}`;
+}
+
+type Tally = { sum: number; count: number; lowest: number; highest: number };
+
+function addTo(tallies: Map<string, Tally>, key: string, row: { average: number; lowest: number; highest: number; count: number }) {
+  const held = tallies.get(key);
+  if (held) {
+    held.sum += row.average * row.count;
+    held.count += row.count;
+    held.lowest = Math.min(held.lowest, row.lowest);
+    held.highest = Math.max(held.highest, row.highest);
+  } else {
+    tallies.set(key, { sum: row.average * row.count, count: row.count, lowest: row.lowest, highest: row.highest });
+  }
+}
+
+function tallyRow(key: string, label: string, tally: Tally | undefined, unit: string): PeriodRow {
+  return {
+    key,
+    label,
+    value: tally ? tally.sum / tally.count : null,
+    display: tally ? spreadDisplay(tally.sum / tally.count, tally.lowest, tally.highest, unit) : 'not logged',
+  };
+}
+
+/** Null when no device has logged this measurement by the hour. */
+export function buildDeviceDetail(input: {
+  rows: ReadingHourRow[];
+  labelOfSource: (row: ReadingHourRow) => string;
+  pickedSource: string | null;
+  pickedDay: string | null;
+}): DeviceDetail | null {
+  if (input.rows.length === 0) return null;
+  const sourceRows = new Map<string, ReadingHourRow[]>();
+  const sources: DeviceSource[] = [];
+  for (const row of input.rows) {
+    const key = deviceSourceKey(row);
+    const list = sourceRows.get(key);
+    if (list) list.push(row);
+    else {
+      sourceRows.set(key, [row]);
+      sources.push({ key, label: input.labelOfSource(row) });
+    }
+  }
+  sources.sort((a, b) => a.label.localeCompare(b.label));
+  const sourceKey = input.pickedSource && sourceRows.has(input.pickedSource) ? input.pickedSource : sources[0].key;
+  const rows = [...(sourceRows.get(sourceKey) ?? [])].sort((a, b) => a.hour.localeCompare(b.hour));
+
+  // The unit the latest hour was logged in. Hours in another unit of the
+  // same quantity are moved into it, and any that cannot be are set aside.
+  const unit = rows[rows.length - 1].unit;
+  let setAside = 0;
+  const moved: ReadingHourRow[] = [];
+  for (const row of rows) {
+    const average = convertUnit(row.average, row.unit, unit);
+    const lowest = convertUnit(row.lowest, row.unit, unit);
+    const highest = convertUnit(row.highest, row.unit, unit);
+    if (average === null || lowest === null || highest === null) {
+      setAside += 1;
+      continue;
+    }
+    moved.push({ ...row, unit, average, lowest, highest });
+  }
+  if (moved.length === 0) return null;
+
+  const byDay = new Map<string, Tally>();
+  const byHour = new Map<string, Tally>();
+  for (const row of moved) {
+    addTo(byDay, row.hour.slice(0, 10), row);
+    addTo(byHour, row.hour, row);
+  }
+  const loggedDays = [...byDay.keys()].sort();
+  const lastDay = loggedDays[loggedDays.length - 1];
+  const earliestShown = shiftDay(lastDay, -(DEVICE_DAYS_SHOWN - 1));
+  const firstShown = loggedDays[0] > earliestShown ? loggedDays[0] : earliestShown;
+  const days: PeriodRow[] = [];
+  let blankDays = 0;
+  for (let day = firstShown; day <= lastDay; day = shiftDay(day, 1)) {
+    const tally = byDay.get(day);
+    if (!tally) blankDays += 1;
+    days.push(tallyRow(day, shortDay(day), tally, unit));
+  }
+
+  const day = input.pickedDay && byDay.has(input.pickedDay) ? input.pickedDay : lastDay;
+  const hours: PeriodRow[] = [];
+  let loggedHours = 0;
+  let figures = 0;
+  for (let h = 0; h < 24; h += 1) {
+    const key = `${day} ${String(h).padStart(2, '0')}`;
+    const tally = byHour.get(key);
+    if (tally) {
+      loggedHours += 1;
+      figures += tally.count;
+    }
+    hours.push(tallyRow(key, `${String(h).padStart(2, '0')}:00`, tally, unit));
+  }
+
+  const headline =
+    days.length === 1
+      ? `${longDay(lastDay)}, the one day logged in this range.`
+      : `Day by day, ${longDay(firstShown)} to ${longDay(lastDay)}, latest first: each day's average, then its lowest to highest.`;
+  const notes: string[] = [];
+  if (blankDays > 0) {
+    notes.push(`${blankDays} ${blankDays === 1 ? 'day' : 'days'} in that stretch had nothing logged, and ${blankDays === 1 ? 'reads' : 'read'} as a gap.`);
+  }
+  if (firstShown > loggedDays[0]) notes.push(`The latest ${DEVICE_DAYS_SHOWN} days are shown here; the months above cover the whole range.`);
+  if (setAside > 0) {
+    notes.push(`${setAside} ${setAside === 1 ? 'hour was' : 'hours were'} logged in a unit that cannot be turned into ${unit}, and ${setAside === 1 ? 'is' : 'are'} left out here.`);
+  }
+  notes.push('A day or an hour is the average of every figure logged in it, with the lowest and highest beside it.');
+
+  return {
+    sources,
+    sourceKey,
+    headline,
+    days: days.reverse(),
+    dayOptions: [...loggedDays].reverse().map((value) => ({ label: longDay(value), value })),
+    day,
+    hoursHeadline: `Hour by hour on ${longDay(day)}: ${figures.toLocaleString('en-US')} ${figures === 1 ? 'figure' : 'figures'} over ${loggedHours} ${loggedHours === 1 ? 'hour' : 'hours'}.`,
+    hours,
+    notes,
   };
 }
