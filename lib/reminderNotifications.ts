@@ -349,6 +349,20 @@ function describeFreshness(computedAt: Date, fireAt: Date): string {
   return `${MONTHS[computedAt.getMonth()]} ${computedAt.getDate()}, ${time}`;
 }
 
+// The body with its "as of" stamp taken out, for deciding whether a pending
+// reminder is still right (2026-09-28). The stamp carries the minute the
+// reconcile ran, so comparing whole bodies found every reminder changed at
+// any reconcile in a later minute, and each app open or close cancelled and
+// rescheduled up to MAX_PENDING of them, one native call at a time, which
+// showed as lag between screens. Compared without it, a reminder whose time
+// and wording are otherwise the same stays as it is, keeping the stamp of
+// when it was worked out, which is still true since nothing in it changed.
+const FRESHNESS_STAMP = / as of (?:[A-Z][a-z]{2} \d{1,2}, )?\d{1,2}:\d{2} [AP]M\./g;
+
+export function withoutFreshness(body: string | null | undefined): string {
+  return (body ?? '').replace(FRESHNESS_STAMP, ' as of.');
+}
+
 function describeDose(candidate: ReminderCandidate): string | null {
   if (candidate.doseAmount != null && candidate.doseUnit) {
     return `${candidate.doseAmount} ${candidate.doseUnit}`;
@@ -911,14 +925,26 @@ async function cancelAllOurs(): Promise<number> {
 }
 
 let inFlight: Promise<ReminderSyncResult> | null = null;
+let queued: Promise<ReminderSyncResult> | null = null;
 
 // Reconciles pending notifications with everything that has a date. Safe to
-// call from anywhere at any time; overlapping calls share one run. Never
-// throws: a reminder that could not be scheduled is logged, and the records
-// themselves are untouched either way.
+// call from anywhere at any time. A call made while a run is going queues
+// one more run after it, shared by every call made in the meantime
+// (2026-09-28): the run already going read the records and switches before
+// that call, so sharing it alone left a switch flipped mid-run unapplied
+// until the app next opened. Never throws: a reminder that could not be
+// scheduled is logged, and the records themselves are untouched either way.
 export function syncReminderNotifications(): Promise<ReminderSyncResult> {
   if (!supported) return Promise.resolve({ permission: 'unavailable', pending: 0 });
-  if (inFlight) return inFlight;
+  if (inFlight) {
+    if (!queued) {
+      queued = inFlight.then(() => {
+        queued = null;
+        return syncReminderNotifications();
+      });
+    }
+    return queued;
+  }
   inFlight = runSync()
     .catch((error) => {
       console.error('[reminderNotifications] sync failed', error);
@@ -1206,7 +1232,8 @@ async function runSync(): Promise<ReminderSyncResult> {
     if (!isOurs(request.identifier)) continue;
     const want = keptById.get(request.identifier);
     const data = request.content.data as Partial<ReminderPayload> | undefined;
-    // Same moment and same wording means the pending one is already right;
+    // Same moment and same wording, leaving the "as of" stamp aside
+    // (withoutFreshness), means the pending one is already right;
     // anything else (moved time, edited title, dropped row) is replaced.
     // The category check replaces, once, every reminder queued before its
     // buttons existed (Snooze in Phase A, the rest in C1), so each gets them.
@@ -1214,7 +1241,7 @@ async function runSync(): Promise<ReminderSyncResult> {
       want &&
       data?.fireAt === want.payload.fireAt &&
       request.content.title === want.title &&
-      request.content.body === want.body &&
+      withoutFreshness(request.content.body) === withoutFreshness(want.body) &&
       request.content.categoryIdentifier === categoryIdFor(want)
     ) {
       unchanged.add(request.identifier);
