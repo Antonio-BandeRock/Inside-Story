@@ -2137,6 +2137,277 @@ export const CROP_PROBLEMS: Record<string, CropProblem[]> = {
       fix: 'Space plants so air moves between them, water at the base by drip, check the lowest leaves every week and cut away and bin any with spots, and keep a fan moving the air under cover.',
     },
   ],
+  peach: [
+    {
+      label: 'Peach leaf curl',
+      looks: 'Peach and nectarine leaves come out in spring puckered, thickened and blistered, turning red or purple, then white and powdery before they drop early.',
+      why: 'A fungus whose spores sit on the bark and buds over winter and infect the new leaves when rain splashes them as the buds open in late winter and early spring.',
+      fix: 'Keep the rain off the tree from midwinter until the leaves are fully open, with a lean-to cover over a wall-trained fan, pick off and bin the curled leaves as they appear, and feed and water the tree well so it grows a second, healthy flush of leaves.',
+    },
+    {
+      nutrient: 'Fe',
+      label: 'Peach leaves yellowing on limy soil',
+      looks: 'Young peach leaves turn yellow between green veins, and in a bad year the leaves go nearly white and drop from the tree.',
+      why: 'On soil above neutral, the iron that is there turns insoluble and the roots cannot take it up, and wet soil in spring or from overwatering makes it worse.',
+      fix: 'Water deeply but less often so the soil is never waterlogged, mulch the root area every year with compost and leaf mould to lower the pH slowly and feed the soil life, keep lawn grass away from the trunk, and choose a rootstock suited to limy soil when replanting.',
+      insteadOf: 'An iron product watered in or sprayed on greens the leaves for one season only, since it leaves the high pH and the wet soil behind the trouble as they were.',
+    },
+    {
+      label: 'Brown rot and mummified peaches',
+      looks: 'Ripening peaches get a soft brown patch that spreads quickly over the whole fruit and grows grey tufts, and the fruit shrivels into a hard mummy on the branch.',
+      why: 'A fungus that overwinters in the mummies left on the tree or the ground and enters through cracks, wounds and insect holes in wet, warm weather near harvest.',
+      fix: 'Thin the fruit so no two touch, pick off and bin every rotten fruit and every mummy from the tree and the ground in autumn, prune so air moves through the tree, and water evenly so the skins do not split open.',
+    },
+  ],
+  drybeans: [
+    {
+      label: 'White mould on dry beans',
+      looks: 'Dry bean stems, pods and branches get soft, water-soaked patches covered in white cottony growth, with hard black bodies in it, and whole branches wilt and bleach.',
+      why: 'A soil fungus that thrives under a dense, wet canopy at flowering, when fallen petals give it a foothold, and whose black resting bodies stay in the soil for years.',
+      fix: 'Sow in rows wide enough that the canopy dries after rain, water at the base in the morning and not at all in cool damp spells, pull and bin affected plants with their black bodies, and keep beans, lettuce and other hosts off that ground for several years.',
+    },
+    {
+      label: 'Dry bean root rot in wet, crusted soil',
+      looks: 'Dry bean seedlings come up patchy and slowly, then yellow and stunt, and the roots and lower stem are reddish brown, sunken and rotten when lifted.',
+      why: 'Root rot fungi that live in most soils attack beans sown into cold, wet, compacted or crusted ground, where the roots cannot breathe or grow quickly away from them.',
+      fix: 'Sow only once the soil is above 60°F, into ground opened with compost rather than dug wet, keep a light mulch over the row so the surface never crusts, water only when the top of the soil is dry, and move beans to new ground each year.',
+    },
+    {
+      nutrient: 'N',
+      label: 'Dry beans all leaf and few pods',
+      looks: 'Dry bean plants grow lush, dark and tall but flower late and set few pods, and many pods are still green when the first frost comes.',
+      why: 'Beans make most of the nitrogen they need with root bacteria, so rich manure or a nitrogen feed pushes leaves at the expense of flowers and delays the whole crop.',
+      fix: 'Grow dry beans after a hungry crop rather than on freshly manured ground, add only well-finished compost, look for pink nodules on a lifted root to know the bacteria are working, and sow early enough in the season for the pods to dry before frost.',
+    },
+  ],
+  chickpea: [
+    {
+      label: 'Ascochyta blight on chickpeas',
+      looks: 'Chickpea leaves, stems and pods get tan spots with dark borders and rings of tiny dark dots, stems snap where the spots circle them, and whole plants brown quickly.',
+      why: 'A fungus carried on infected seed and on old chickpea straw, spread by rain splash, and very aggressive in cool, wet weather on crowded plants.',
+      fix: 'Sow seed from a clean source rather than saved from a spotted crop, clear and compost old chickpea straw well away from the new bed, grow chickpeas in the same ground only once every few years, space the rows for air, and never water over the leaves.',
+    },
+    {
+      label: 'Chickpeas failing in wet, cold soil',
+      looks: 'Chickpeas come up slowly and unevenly in spring, stand yellow and stunted, and the roots are brown and soft when a wilting plant is pulled.',
+      why: 'Chickpeas come from dry, warm ground and do not tolerate wet or waterlogged soil, heavy clay or soil slow to warm, where root rots take hold.',
+      fix: 'Grow chickpeas on the lightest, best-drained bed in the garden or a raised bed, open heavy soil with compost the autumn before, wait until the soil has warmed before sowing, and water only in a long dry spell once the plants are up.',
+    },
+    {
+      nutrient: 'Zn',
+      label: 'Chickpea leaves small and bunched on limy soil',
+      looks: 'Six to eight weeks after sowing, the younger chickpea leaves turn yellow, the plant bunches into a rosette, and the leaflet edges and lower stems go reddish brown.',
+      why: 'Zinc gets harder to take up as soil pH rises, and soil low in organic matter holds less of it where the roots can reach.',
+      fix: 'Test the pH, stop adding lime or wood ash where it is already high, and dig compost into the bed and mulch with it each year, which raises the organic matter that holds zinc and feeds the root fungi that help chickpeas take up zinc.',
+    },
+  ],
+  lentil: [
+    {
+      label: 'Lentil root rot in waterlogged soil',
+      looks: 'Lentil plants in the wettest part of the bed stay stunted, their lower leaves turn yellow or purple, and the roots are brown and have few nodules.',
+      why: 'Root rot moulds such as Pythium attack lentils in cool, saturated soil, and wet, poorly drained ground is where lentils suffer most.',
+      fix: 'Sow lentils on well-drained ground or a raised bed, open heavy soil with compost the autumn before rather than digging it wet in spring, water only in a long dry spell, and grow lentils in the same bed only once in four years.',
+    },
+    {
+      label: 'Lentil anthracnose and blight',
+      looks: 'Lentil leaves and stems get tan spots with dark borders, the lower leaves drop, stems darken and girdle, and patches of plants die in wet summers.',
+      why: 'Anthracnose and Ascochyta fungi live on old lentil straw and seed, spread by rain splash, and build up where lentils are grown too often.',
+      fix: 'Sow seed from a clean source, compost lentil straw well away from next year’s bed, rotate so lentils return to a bed only every four years, space rows so the plants dry after rain, and never water over the leaves.',
+    },
+    {
+      nutrient: 'S',
+      label: 'Pale lentils short of sulphur',
+      looks: 'Lentil plants go pale yellow from the top down while the lower leaves stay greener, the stems turn reddish, and growth is thin.',
+      why: 'Sulphur washes out of light, low-organic soil, and lentils fixing nitrogen need it to make protein and feed their root bacteria.',
+      fix: 'Dig in well-finished compost or rotted manure before sowing and keep the soil mulched, since organic matter is where most of a soil’s sulphur is held, and grow a cover crop over winter so the next year’s sulphur is not washed out.',
+    },
+  ],
+  soybean: [
+    {
+      nutrient: 'N',
+      label: 'Pale soya plants with no nodules',
+      looks: 'Soya bean plants stay pale green to yellow from the bottom leaves up, grow slowly, and the roots show few or no pink nodules when a plant is lifted.',
+      why: 'Soya beans rely on a particular root bacterium to fix their nitrogen, and in soil where soya has never grown that bacterium is usually missing.',
+      fix: 'Coat the seed with a soya bean inoculant the first year soya grows in a bed, keep the soil warm, open and moist so the nodules form, add finished compost rather than a nitrogen feed, and leave the roots in the ground at the end.',
+    },
+    {
+      nutrient: 'Fe',
+      label: 'Yellow young soya leaves on limy soil',
+      looks: 'The youngest soya leaves turn yellow between green veins, the plants stand stunted, and in bad patches the new leaves go white and brown at the edges.',
+      why: 'On high-pH, limy soil the iron that is there is locked away from the roots, and cold, wet soil early in the season makes it worse.',
+      fix: 'Work compost and leaf mould into the bed and mulch with them to lower the pH slowly and feed the soil life, keep the soil from waterlogging, sow once the soil is warm, and grow soya somewhere else if the soil is strongly limy.',
+    },
+    {
+      label: 'Soya seed and seedlings eaten',
+      looks: 'Rows of soya beans come up patchy or not at all, the seeds are dug out and eaten, and seedlings that do come up are grazed to the stem overnight.',
+      why: 'Mice seek out the large seed in cool soil, and slugs graze the soft seedlings, most of all in a cool, damp late spring.',
+      fix: 'Start soya beans indoors in modules at 18 to 20°C and plant them out once they have a few leaves, cover the row with fleece or cloches, and go out on damp evenings to pick off slugs rather than scattering pellets.',
+    },
+  ],
+  peanut: [
+    {
+      nutrient: 'Ca',
+      label: 'Empty peanut pods short of calcium',
+      looks: 'Peanut pods are lifted empty or with shrivelled kernels, and some pods have rotted in the ground, most often on sandy soil after a dry spell.',
+      why: 'The pods take their calcium straight from the soil around them rather than through the plant, so a shortage in the pod zone or dry soil there leaves them unfilled.',
+      fix: 'Test the soil in autumn and lime by the result a few months before planting, which raises the pH and supplies calcium, dig compost in to hold water where the pods form, and water evenly from 60 to 110 days after planting.',
+      insteadOf: 'Calcium sprayed on the leaves does nothing for the pods, which only take calcium from the soil around them.',
+    },
+    {
+      nutrient: 'N',
+      label: 'Yellow peanuts in a new bed',
+      looks: 'Peanut plants grown where no peanuts have been for four years or more stay yellow and small, and lifted roots show few or no nodules.',
+      why: 'Peanuts need a particular root bacterium to fix nitrogen, and where the bacterium is missing from the soil, or the inoculant failed, the plants go short.',
+      fix: 'Coat the seed with a peanut inoculant at sowing, keep the new bed moist and warm while the nodules form, and dig in finished compost rather than a nitrogen feed; a bed that has grown peanuts before carries the bacterium forward.',
+    },
+    {
+      label: 'Peanut southern blight and leaf spot',
+      looks: 'Peanut leaves get brown and black spots and drop, then branches wilt and white threads with small seedlike balls grow over the stem at soil level and on the pods.',
+      why: 'Leaf spot fungi and the southern blight fungus live on old peanut debris in the soil and build up where peanuts are grown in the same place year after year.',
+      fix: 'Grow peanuts in a different bed every year, clear and compost old vines away from the next bed, keep dead leaves and soil from piling against the stems, and water at the base so the leaves stay dry.',
+    },
+  ],
+  ginger: [
+    {
+      label: 'Ginger rhizome rotting in wet soil',
+      looks: 'Ginger shoots yellow and collapse, and the rhizome below is soft, brown and foul smelling when dug, or planted pieces never sprout and turn to mush.',
+      why: 'The fleshy rhizome rots in soil that stays wet or drains poorly, most of all before the shoots are up and while the weather is cool.',
+      fix: 'Let cut pieces dry and callus for a few days before planting, plant in loose soil or potting mix rich in compost with good drainage, water sparingly until shoots show, let the surface dry slightly between waterings, and water less as the weather cools.',
+    },
+    {
+      label: 'Ginger leaf tips browning in the sun',
+      looks: 'The tips and edges of ginger leaves turn brown and papery, the plants grow poorly and stay small, most of all where they get afternoon sun.',
+      why: 'Ginger is a shade plant, and more than a couple of hours of direct sun a day, above all intense afternoon sun, scorches the leaves.',
+      fix: 'Move the pot or plant to partial shade out of the late afternoon sun, keep the soil evenly moist through hot spells, mulch with compost or leaf mould to hold the moisture in, and give plants brought outdoors a few days to get used to the light.',
+    },
+    {
+      label: 'Store ginger that never sprouts',
+      looks: 'Pieces of ginger bought to plant sit in warm, moist soil for weeks without swelling a single bud, and eventually shrivel or rot.',
+      why: 'Some ginger sold for eating is treated for long storage, which can stop it sprouting, and ginger can take 50 days or more to sprout even when it is fine.',
+      fix: 'Buy seed ginger from a nursery or seed company, or choose plump, firm organic pieces with swollen buds, rinse them, sprout them in moist mix somewhere warm before planting out, and give them the full eight weeks before giving up.',
+    },
+  ],
+  turmeric: [
+    {
+      label: 'Turmeric rhizome rotting',
+      looks: 'Turmeric pieces rot in the pot before sprouting, or grown plants wilt and yellow and the rhizome is soft and discoloured when dug.',
+      why: 'Turmeric sprouts more slowly than ginger and sits for weeks in the soil, where cold or constantly wet mix rots the rhizome.',
+      fix: 'Let the cut pieces dry for a few days before planting, sprout them in moist but never wet mix at 72 to 80°F, water only as much as keeps the mix damp until the shoots show, and grow on in well-drained soil amended with compost.',
+    },
+    {
+      label: 'Turmeric leaves yellowing in too much sun',
+      looks: 'Turmeric leaves lose their dark green and turn yellow across the blade on a plant standing in full sun, while plants in shade stay green.',
+      why: 'Turmeric grows naturally in partial shade, and a site with more than about five hours of direct sun yellows the leaves.',
+      fix: 'Grow turmeric where it gets 2 to 5 hours of sun a day, move plants brought outdoors into the light gradually over several days, keep the soil evenly moist, and mulch with compost to keep the roots cool.',
+    },
+    {
+      label: 'Turmeric cut short by cold',
+      looks: 'Turmeric stops growing, its leaves yellow and die back early in autumn, and the rhizomes dug are small and thin.',
+      why: 'Turmeric needs 8 to 10 months of warmth to fill its rhizomes, grows best at 68°F or more, and should never sit below 50°F.',
+      fix: 'Start the rhizomes indoors in late winter, plant out only once nights stay above 50°F, grow in a large pot that comes back indoors before autumn cold, and let the leaves die down on their own before digging.',
+    },
+  ],
+  collards: [
+    {
+      label: 'Black rot on collards',
+      looks: 'Collard leaves get yellow patches shaped like a V at the edges, with blackened veins running into them, and the leaves wilt and drop.',
+      why: 'A bacterium carried on seed and in old cabbage-family debris, spread by rain and overhead watering and entering through the pores at the leaf edge.',
+      fix: 'Buy seed from a clean source, keep collards and the rest of the cabbage family off the same bed for several years, water at the base in the morning, pick off and bin affected leaves, and compost old plants hot or bin them.',
+    },
+    {
+      label: 'Collards bolting after a cold spell',
+      looks: 'Spring collards send up a tall stalk from the centre and open yellow flowers, and the leaves turn smaller and tougher.',
+      why: 'A long spell of cold weather after the plants are well grown sets off flowering, so the plants bolt as the days warm and lengthen.',
+      fix: 'Grow a kind slow to bolt, plant spring collards out once the worst cold is over, sow the main crop in late summer for autumn and winter picking when frost sweetens the leaves, and keep them well watered and fed with compost.',
+    },
+    {
+      label: 'Caterpillars on collards',
+      looks: 'Collard leaves are chewed full of ragged holes, with green caterpillars and their dark droppings along the veins and in the centre of the plant.',
+      why: 'Cabbageworms, loopers and diamondback moth larvae feed on the whole cabbage family, and collards picked leaf by leaf over months give them a long season.',
+      fix: 'Cover the plants with fine insect netting from planting, check under the leaves every few days and pick off caterpillars and egg clusters, and grow flowering herbs nearby to bring in the wasps that hunt them.',
+    },
+  ],
+  mustardgreens: [
+    {
+      label: 'Flea beetle holes in mustard greens',
+      looks: 'Mustard leaves are peppered with tiny round holes, young seedlings are riddled and stunted, and small shiny beetles jump when the leaves are touched.',
+      why: 'Flea beetles feed on the whole cabbage family, and mustards take more damage than most because their leaves carry little wax.',
+      fix: 'Cover the row with fine insect netting from sowing, keep the soil moist, since flea beetles like dry soil, sow the main crop in late summer when there are fewer of them, and water the plants on so they grow away from the damage.',
+    },
+    {
+      label: 'Mustard greens bolting and turning bitter',
+      looks: 'Mustard plants run up a flower stalk soon after they form leaves, and the leaves turn strong, hot and bitter.',
+      why: 'Spring mustard flowers in the long, warm days of early summer, and heat, dry soil and low fertility all make the leaves strong and bitter.',
+      fix: 'Sow little and often from early spring and again from mid to late summer, dig compost into the bed and mulch to keep the soil moist and fed, water evenly, and pick the leaves young.',
+    },
+    {
+      nutrient: 'S',
+      label: 'Yellow new mustard leaves short of sulphur',
+      looks: 'The newest mustard leaves turn yellow while the lower ones stay green, the plants stay small, and the flowers are pale with small petals.',
+      why: 'Mustards are hungry for sulphur, which washes out of light soil low in organic matter.',
+      fix: 'Dig in finished compost or rotted manure before sowing and mulch with it through the season, since organic matter holds most of the soil’s sulphur, and grow a cover crop over winter so sulphur is not washed out.',
+    },
+  ],
+  fennel: [
+    {
+      label: 'Florence fennel bolting before it bulbs',
+      looks: 'Florence fennel runs up a tall flowering stalk from the centre instead of swelling a bulb, and any bulb that forms is thin and tough.',
+      why: 'Cold spells after early sowing, root disturbance at transplanting, dry soil and hot, long days all make Florence fennel flower before it bulbs.',
+      fix: 'Sow after midsummer, or one seed to a module so the roots are never disturbed, grow a kind slow to bolt, dig compost into the bed and mulch to keep the soil moist, and water every week in dry weather.',
+    },
+    {
+      label: 'Split fennel bulbs',
+      looks: 'Florence fennel bulbs crack open down the side, and the layers inside grow loose and start to rot at the break.',
+      why: 'Swings between wet and dry soil make the bulb swell in bursts, and the outer layers split when a dry spell is followed by heavy rain or watering.',
+      fix: 'Give 1 to 2 inches of water a week and never let the soil dry out, mulch thickly with compost to keep the moisture even, and cut the bulbs once they reach 10 to 15 cm across rather than leaving them to grow on.',
+    },
+    {
+      label: 'Small, flat fennel bulbs',
+      looks: 'Fennel plants make plenty of feathery leaves but only a small, flat base, or no bulb at all.',
+      why: 'Common fennel grown by mistake never bulbs, and in Florence fennel summer heat, dry soil or a hungry soil keeps the bulb small.',
+      fix: 'Buy seed of Florence fennel rather than common fennel, grow it in fertile soil dug with compost, keep it watered, heap soil around the base as it swells, and give each plant 30 cm to itself.',
+    },
+  ],
+  tomatillo: [
+    {
+      label: 'Empty tomatillo husks',
+      looks: 'Tomatillo plants flower and fill with papery husks, but the husks stay empty or hold only a tiny fruit that never fills them.',
+      why: 'A tomatillo cannot pollinate itself, so a single plant sets little, and hot, cold or dry spells at flowering stop fruit forming too.',
+      fix: 'Grow at least two plants close together, plant flowers nearby to bring in bees, keep the soil evenly moist through flowering with a deep watering once or twice a week, and mulch with compost to cool the roots in hot spells.',
+    },
+    {
+      label: 'Tomatillos all leaf and no fruit',
+      looks: 'Tomatillo plants grow huge and leafy and sprawl across the bed, but set fruit late or very little of it.',
+      why: 'Too much feeding, above all rich manure or a nitrogen feed, pushes leaves at the expense of flowers and fruit.',
+      fix: 'Grow tomatillos in ordinary garden soil with a little finished compost rather than a freshly manured bed, give no extra feed through the season, and grow at least two plants for pollination.',
+    },
+    {
+      label: 'Tomatillo root rot and virus',
+      looks: 'Tomatillo leaves turn light green, mottled, curled or misshapen, or the plants wilt and yellow where the soil stays wet.',
+      why: 'Viruses spread by aphids and whitefly, and root rots in soil that stays wet, attack tomatillos and the rest of the nightshade family.',
+      fix: 'Grow tomatillos in well-drained soil away from where tomatoes, peppers and potatoes grew, water deeply but not often, pull and bin plants with mottled, curled leaves, and cover young plants with netting against aphids.',
+    },
+  ],
+  cowpea: [
+    {
+      label: 'Cowpea fusarium wilt',
+      looks: 'Cowpea plants yellow over most of their leaves, set few pods, wilt and die, and the inside of the stem is brown when cut.',
+      why: 'A soil fungus that blocks the water-carrying tissue, lives in the soil for years, and is worse where root-knot nematodes wound the roots.',
+      fix: 'Grow a wilt-resistant kind, move cowpeas to new ground each year, dig compost in to build the soil life that keeps the fungus and nematodes down, and pull and bin wilted plants with their roots.',
+    },
+    {
+      label: 'Cowpeas all vine and few peas',
+      looks: 'Cowpea plants grow long, lush vines with plenty of leaves, but flower late and fill few pods.',
+      why: 'Cowpeas make nitrogen for themselves, so soil left rich from a heavily fed crop before them gives vines with poor seed.',
+      fix: 'Grow cowpeas after a hungry crop rather than in a freshly manured bed, add no extra feed, coat the seed with an inoculant the first time, and pick the pods often to keep the flowers coming.',
+    },
+    {
+      label: 'Cowpeas failing in cool soil',
+      looks: 'Cowpea seed sown early rots in the ground or comes up slowly, and the weak seedlings are eaten by pests and yellowed by root disease.',
+      why: 'Cowpeas are a hot-weather crop, and in soil below 60°F the seedlings sit still while pests and diseases attack them.',
+      fix: 'Wait until the soil is at least 60°F before sowing, sow ¾ to 1½ inches deep in well-drained soil rather than heavy, wet ground, and mulch once the seedlings are up to hold the warmth and moisture in.',
+    },
+  ],
 };
 
 // Where to read more about growing each crop without chemicals: Garden
@@ -2403,7 +2674,7 @@ export const CROP_ORGANIC_SOURCES: Record<string, GuideSource[]> = {
     { label: 'Garden Organic: Growing malanga and taro organically', url: 'https://www.gardenorganic.org.uk/taro' },
   ],
   roselle: [
-    { label: 'UC Master Gardeners: Hibiscus roselle', url: 'https://ucanr.edu/blog/under-solano-sun/article/hibiscus-roselle' },
+    { label: 'University of Florida: Roselle', url: 'https://gardeningsolutions.ifas.ufl.edu/plants/edibles/vegetables/roselle/' },
   ],
   malabarspinach: [
     { label: 'UF/IFAS: Malabar spinach', url: 'https://edis.ifas.ufl.edu/publication/HS1371' },
@@ -2423,5 +2694,44 @@ export const CROP_ORGANIC_SOURCES: Record<string, GuideSource[]> = {
   hops: [
     { label: 'Ontario: Nutrient deficiency identification guide for hops', url: 'https://www.ontario.ca/page/nutrient-deficiency-identification-guide-hops' },
     { label: 'University of Vermont: Hops research', url: 'https://www.uvm.edu/extension/nwcrops/hops' },
+  ],
+  peach: [
+    { label: 'Clemson Home & Garden Information Center: Peach diseases', url: 'https://hgic.clemson.edu/factsheet/peach-diseases/' },
+  ],
+  drybeans: [
+    { label: 'UC IPM: Nutrient deficiency and toxicity in dry beans', url: 'https://ipm.ucanr.edu/agriculture/dry-beans/nutrient-deficiency-and-toxicity/' },
+  ],
+  chickpea: [
+    { label: 'UC IPM: Ascochyta blight of garbanzo beans', url: 'https://ipm.ucanr.edu/agriculture/dry-beans/ascochyta-blight-garbanzo-beans/' },
+  ],
+  lentil: [
+    { label: 'Garden Organic: How to grow lentils', url: 'https://www.gardenorganic.org.uk/expert-advice/how-to-grow/growing-guides/vegetables-herbs-guides/how-to-grow-lentils' },
+  ],
+  soybean: [
+    { label: 'NC State Extension: Soybean diagnostic key', url: 'https://diagnosis.ces.ncsu.edu/soybean/' },
+  ],
+  peanut: [
+    { label: 'Mississippi State University Extension: Peanuts', url: 'https://extension.msstate.edu/lawn-and-garden/vegetable-gardens/peanuts' },
+  ],
+  ginger: [
+    { label: 'University of Vermont Extension: Growing ginger and turmeric indoors', url: 'https://www.uvm.edu/extension/news/growing-ginger-and-turmeric-indoors' },
+  ],
+  turmeric: [
+    { label: 'University of Georgia Extension, Fulton County: Growing ginger and turmeric at home', url: 'https://site.extension.uga.edu/fultonag/2021/03/growing-ginger-and-turmeric-at-home/' },
+  ],
+  collards: [
+    { label: 'UMass New England Vegetable Management Guide: Cabbage, broccoli and other brassica crops', url: 'https://nevegetable.org/crops/cabbage-broccoli-cauliflower-and-other-brassica-crops' },
+  ],
+  mustardgreens: [
+    { label: 'Saskatchewan Mustard Development Commission: Nitrogen', url: 'https://www.saskmustard.com/production-manual/fertility/nitrogen/index.html' },
+  ],
+  fennel: [
+    { label: 'UF/IFAS Gardening Solutions: Fennel', url: 'https://gardeningsolutions.ifas.ufl.edu/plants/edibles/vegetables/fennel/' },
+  ],
+  tomatillo: [
+    { label: 'UF/IFAS Gardening Solutions: Tomatillos', url: 'https://gardeningsolutions.ifas.ufl.edu/plants/edibles/vegetables/tomatillos/' },
+  ],
+  cowpea: [
+    { label: 'UF/IFAS Gardening Solutions: Southern peas', url: 'https://gardeningsolutions.ifas.ufl.edu/plants/edibles/vegetables/southern-peas/' },
   ],
 };

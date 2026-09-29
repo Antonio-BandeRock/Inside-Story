@@ -62,7 +62,8 @@ for (const w of W.SOWING_WINDOWS) {
   if (w.plantWhat && !w.indoors && !w.direct) ok(`${w.key} planted, not sown, has no sprout`, !w.sprout);
 }
 // Every annual guide has a window, except the listed ones.
-const NO_WINDOW = new Set(['chayote', 'lemongrass']);
+// Cannabis is a crop guide and nothing else (see its entry in lib/cropGuides.ts).
+const NO_WINDOW = new Set(['chayote', 'lemongrass', 'cannabis']);
 for (const g of G.CROP_GUIDES) {
   if (g.season === 'perennial' || g.group === 'fruit' || NO_WINDOW.has(g.key)) continue;
   ok(`${g.key} (${g.season}) has a sowing window`, seen.has(g.key));

@@ -191,7 +191,7 @@ async function checkLinks() {
   for (let i = 0; i < list.length; i += 8) {
     await Promise.all(list.slice(i, i + 8).map(async (url) => {
       try {
-        const res = await fetch(url, { redirect: 'follow', headers: { 'User-Agent': 'Mozilla/5.0' } });
+        const res = await fetch(url, { redirect: 'follow', headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0) Chrome/124' } });
         ok(`${url} answers 200 (got ${res.status})`, res.status === 200);
         // Garden Organic answers a missing guide with 200 and its landing
         // page, so a guide link is checked for the landing page title.

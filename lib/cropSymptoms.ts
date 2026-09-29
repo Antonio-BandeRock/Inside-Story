@@ -570,6 +570,71 @@ export const CROP_PROBLEM_SYMPTOMS: Record<string, Record<string, SymptomKey[]>>
     'Cannabis lower leaves yellowing in cool nights': ['yo', 'sp', 'cu'],
     'Cannabis powdery mildew': ['sp'],
   },
+  peach: {
+    'Peach leaf curl': ['cu', 'pu', 'sp'],
+    'Peach leaves yellowing on limy soil': ['yn'],
+    'Brown rot and mummified peaches': ['ha'],
+  },
+  drybeans: {
+    'White mould on dry beans': ['ro', 'wi', 'ha'],
+    'Dry bean root rot in wet, crusted soil': ['yo', 'st', 'ro'],
+    'Dry beans all leaf and few pods': ['fl'],
+  },
+  chickpea: {
+    'Ascochyta blight on chickpeas': ['sp'],
+    'Chickpeas failing in wet, cold soil': ['yo', 'st', 'ro'],
+    'Chickpea leaves small and bunched on limy soil': ['yn', 'st'],
+  },
+  lentil: {
+    'Lentil root rot in waterlogged soil': ['yo', 'pu', 'st', 'ro'],
+    'Lentil anthracnose and blight': ['sp'],
+    'Pale lentils short of sulphur': ['yn'],
+  },
+  soybean: {
+    'Pale soya plants with no nodules': ['yo', 'st'],
+    'Yellow young soya leaves on limy soil': ['yn', 'st'],
+    'Soya seed and seedlings eaten': ['ho', 'ot'],
+  },
+  peanut: {
+    'Empty peanut pods short of calcium': ['ha'],
+    'Yellow peanuts in a new bed': ['yo', 'st'],
+    'Peanut southern blight and leaf spot': ['sp', 'wi'],
+  },
+  ginger: {
+    'Ginger rhizome rotting in wet soil': ['ro', 'wi'],
+    'Ginger leaf tips browning in the sun': ['ed', 'st'],
+    'Store ginger that never sprouts': ['ot'],
+  },
+  turmeric: {
+    'Turmeric rhizome rotting': ['ro', 'wi'],
+    'Turmeric leaves yellowing in too much sun': ['yn'],
+    'Turmeric cut short by cold': ['st'],
+  },
+  collards: {
+    'Black rot on collards': ['ed', 'wi'],
+    'Collards bolting after a cold spell': ['bo'],
+    'Caterpillars on collards': ['ho'],
+  },
+  mustardgreens: {
+    'Flea beetle holes in mustard greens': ['ho'],
+    'Mustard greens bolting and turning bitter': ['bo'],
+    'Yellow new mustard leaves short of sulphur': ['yn', 'st'],
+  },
+  fennel: {
+    'Florence fennel bolting before it bulbs': ['bo'],
+    'Split fennel bulbs': ['ha'],
+    'Small, flat fennel bulbs': ['ha', 'st'],
+  },
+  tomatillo: {
+    'Empty tomatillo husks': ['fl', 'ha'],
+    'Tomatillos all leaf and no fruit': ['fl'],
+    'Tomatillo root rot and virus': ['cu', 'wi', 'ro'],
+  },
+  cowpea: {
+    'Cowpea fusarium wilt': ['yo', 'wi'],
+    'Cowpeas all vine and few peas': ['fl'],
+    'Cowpeas failing in cool soil': ['st', 'ro'],
+  },
 };
 
 export function findSymptom(key: SymptomKey): Symptom | undefined {

@@ -123,7 +123,7 @@ check('adult side noted', /adult side/.test(read('lib/cropSigns.ts')));
 async function links() {
   for (const url of allUrls) {
     try {
-      const res = await fetch(url, { redirect: 'follow', headers: { 'User-Agent': 'Mozilla/5.0' } });
+      const res = await fetch(url, { redirect: 'follow', headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0) Chrome/124' } });
       const body = await res.text();
       const title = (body.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || '';
       check(`link ${url}`, res.status === 200 && !/page not found/i.test(title), `${res.status} ${title.trim()}`);

@@ -52,11 +52,12 @@ export const QUARTER_WORK: Record<1 | 2 | 3 | 4, string> = {
 
 const FRUITING = new Set([
   'tomato', 'pepper', 'aubergine', 'cucumber', 'courgette', 'squash', 'melon', 'peas', 'greenbeans', 'runnerbeans',
-  'broadbeans', 'okra', 'roselle', 'pigeonpea', 'chayote',
+  'broadbeans', 'okra', 'roselle', 'pigeonpea', 'chayote', 'drybeans', 'chickpea', 'lentil', 'soybean', 'peanut',
+  'tomatillo', 'cowpea',
 ]);
 const ROOT = new Set([
   'potato', 'carrot', 'beetroot', 'radish', 'turnip', 'parsnip', 'onion', 'shallot', 'garlic', 'sweetpotato', 'cassava',
-  'malanga', 'jerusalemartichoke',
+  'malanga', 'jerusalemartichoke', 'ginger', 'turmeric',
 ]);
 
 /** The almanac's kind for a crop. Fruit, perennials and anything not a
