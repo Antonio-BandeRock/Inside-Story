@@ -93,7 +93,7 @@ check('section photo', /addLabel="Photo of the Packet"/.test(section) && /addLab
 
 // 4. The packet replaces the window
 check('packet dates stand in', /packetDays !== null\s+\? \{ expectedHarvestStart: packetHarvestDate\(sowOn, packetDays\)/.test(garden));
-check('later sowings carry the packet', /varietyNote: variety,\s+packetDays,\s+plantedAt: sowOn,/.test(garden));
+check('later sowings carry the packet', /varietyNote: variety,\s+packetDays,\s+(?:\.\.\.identified,\s+)?plantedAt: sowOn,/.test(garden));
 check('counter uses the packet', /days: packetDays \?\? expected\.harvestDays\[0\]/.test(garden));
 check('usual window hidden when given', /readPacketDays\(pendingPacketDaysText\)\.status !== 'days'/.test(garden));
 check('invalid days not saved', /if \(packet\.status === 'invalid'\) return;/.test(garden) && /reading\.status === 'invalid'\) \{\s+setError/.test(section));

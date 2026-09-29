@@ -95,6 +95,14 @@ import { RecordPhotos } from '../../components/RecordPhotos';
 import { PlantingEventsSection } from '../../components/PlantingEventsSection';
 import { MeasuringPlanSection } from '../../components/MeasuringPlanSection';
 import { SeedPacketSection } from '../../components/SeedPacketSection';
+import { WhatPlantIsThis } from '../../components/WhatPlantIsThis';
+import {
+  identifiedLine,
+  IDENTIFY_SERVICES,
+  readSurePercent,
+  SURE_RANGE_LINE,
+  type IdentifyServiceId,
+} from '../../lib/plantIdentify';
 import { PhotoStrip } from '../../components/PhotoStrip';
 import { removePhotosOf } from '../../lib/mediaDb';
 import { removeUnclaimedPacketPhotos } from '../../lib/seedPacketDb';
@@ -923,6 +931,9 @@ function PlotsAndPlantingsLens({
   const [pendingPlantingId, setPendingPlantingId] = useState(() => newGardenPlantingId());
   const [pendingVariety, setPendingVariety] = useState('');
   const [pendingPacketDaysText, setPendingPacketDaysText] = useState('');
+  // I24: the free app opened from What Plant Is This, and how sure it said.
+  const [pendingIdentifiedWith, setPendingIdentifiedWith] = useState<IdentifyServiceId | null>(null);
+  const [pendingSureText, setPendingSureText] = useState('');
 
   // A packet photo left by a form the app closed on (I17). Run once, before
   // any form can be open.
@@ -1106,6 +1117,12 @@ function PlotsAndPlantingsLens({
     // The packet's days are about this variety, so they stand in for the
     // crop's usual window (I17).
     const packetDays = packet.status === 'days' ? packet.days : null;
+    const sure = readSurePercent(pendingSureText);
+    if (pendingIdentifiedWith === 'plantnet' && sure.status === 'invalid') return;
+    const identified = {
+      identifiedWith: pendingIdentifiedWith,
+      identifiedSure: pendingIdentifiedWith === 'plantnet' && sure.status === 'percent' ? sure.percent : null,
+    };
     const variety = pendingVariety.trim() || null;
     const harvestFor = (sowOn: string, usual: { harvestStart: string | null; harvestEnd: string | null } | null) =>
       packetDays !== null
@@ -1119,6 +1136,7 @@ function PlotsAndPlantingsLens({
       foodName,
       varietyNote: variety,
       packetDays,
+      ...identified,
       plantedAt,
       ...harvestFor(plantedAt, expected),
     });
@@ -1146,6 +1164,7 @@ function PlotsAndPlantingsLens({
           foodName,
           varietyNote: variety,
           packetDays,
+          ...identified,
           plantedAt: sowOn,
           ...harvestFor(sowOn, laterExpected),
           status: 'planned',
@@ -1313,6 +1332,8 @@ function PlotsAndPlantingsLens({
     setPendingCountSowings(true);
     setPendingVariety('');
     setPendingPacketDaysText('');
+    setPendingIdentifiedWith(null);
+    setPendingSureText('');
     setPendingPlantingId(newGardenPlantingId());
   }
 
@@ -1321,6 +1342,39 @@ function PlotsAndPlantingsLens({
   async function handleCancelPlanting() {
     await removePhotosOf(SEED_PACKET_OWNER_KIND, pendingPlantingId).catch(() => undefined);
     resetPendingPlanting();
+  }
+
+  // Which free app named the plant (I24), filled in when What Plant Is This
+  // opened one, and changeable here: the app may have been opened and not
+  // used. A percent is asked only of Pl@ntNet, since Google Lens gives none.
+  function renderIdentifiedFields() {
+    const sure = readSurePercent(pendingSureText);
+    return (
+      <>
+        <Text style={styles.fieldLabel}>Named With</Text>
+        <PopoverSelect
+          options={[
+            { value: 'none', label: 'I knew it, or not named with an app' },
+            ...IDENTIFY_SERVICES.map((service) => ({ value: service.id, label: service.name })),
+          ]}
+          selected={pendingIdentifiedWith ?? 'none'}
+          onSelect={(value) => setPendingIdentifiedWith(value === 'none' ? null : (value as IdentifyServiceId))}
+          tabColor={TAB_COLOR}
+        />
+        {pendingIdentifiedWith === 'plantnet' ? (
+          <>
+            <AppTextInput
+              style={styles.textInput}
+              value={pendingSureText}
+              onChangeText={setPendingSureText}
+              placeholder="How sure it said, in percent (optional)"
+              keyboardType="decimal-pad"
+            />
+            {sure.status === 'invalid' ? <Text style={styles.errorText}>{SURE_RANGE_LINE}</Text> : null}
+          </>
+        ) : null}
+      </>
+    );
   }
 
   function renderSeedPacketFields(foodName: string) {
@@ -1408,6 +1462,7 @@ function PlotsAndPlantingsLens({
         <TouchableOpacity onPress={() => setAddingPlantingToPlot(null)}>
           <Text style={[styles.linkText, styles.groupHeadingChip]}>‹ Cancel</Text>
         </TouchableOpacity>
+        <WhatPlantIsThis openedWith={pendingIdentifiedWith} onOpened={setPendingIdentifiedWith} />
         <FoodLookup
           tabColor={TAB_COLOR}
           showNutrients={false}
@@ -1530,6 +1585,9 @@ function PlotsAndPlantingsLens({
                           </TouchableOpacity>
                         ) : null}
                       </View>
+                      {identifiedLine(planting.identifiedWith, planting.identifiedSure) ? (
+                        <Text style={styles.captionText}>{identifiedLine(planting.identifiedWith, planting.identifiedSure)}</Text>
+                      ) : null}
                       {planting.status === 'planned' ? (
                         <Text style={styles.captionText}>
                           To sow {dateLabel(planting.plantedAt)}
@@ -1583,6 +1641,7 @@ function PlotsAndPlantingsLens({
                 {addingPlantingToPlot === plot.id && pendingFood ? (
                   <View style={styles.pendingCard}>
                     <Text style={styles.bodyText}>Planting: {pendingFoodName || pendingFood.baseName}</Text>
+                    {renderIdentifiedFields()}
                     {renderSeedPacketFields(pendingFoodName || pendingFood.baseName)}
                     {renderPlantingExpectations(pendingFoodName || pendingFood.baseName)}
                     {renderRotationNote(plot.id, pendingFoodName || pendingFood.baseName)}

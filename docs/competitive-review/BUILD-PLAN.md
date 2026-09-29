@@ -1057,9 +1057,9 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **How:** daily_weather from the Worker bundle with a coarsened location (item 27), listed beside flares in lib/patternContext.ts. A typed city ships over the air; automatic location needs expo-location in R1.
 
 ### I24. What plant is this
-- **Ships by:** Cloudflare Worker · **Size:** M · **Tabs:** Garden
+- **Ships by:** Over the air · **Size:** S · **Tabs:** Garden
 - **Answers:** PictureThis, Planta · **Theme:** Garden
-- **How:** Pl@ntNet through the Worker so the key stays off the phone; the photo leaves only on an explicit opt-in each time.
+- **How:** Reshaped 2026-09-29 by direct instruction: nothing in the app may cost a subscription or a charge, and the Pl@ntNet API is free only to 500 identifications a day for one account shared by every user, then paid. So the app names no plant itself. What Plant Is This, above the food search on Add a Planting, opens the free Pl@ntNet or Google Lens app on a phone (their websites on a computer), the person searches for the name it gave, and the planting records which app named it and how sure Pl@ntNet said it was. Every time it says an app’s name is a likely match and never to eat a plant on an app’s word alone. Built 1.0.56.2.
 
 ### O3. Messages between Inside Story users
 - **Ships by:** Relay (Worker plus push) · **Size:** L · **Tabs:** Life

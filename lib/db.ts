@@ -7226,6 +7226,10 @@ async function runDatabaseInitialization() {
         variety_note TEXT,
         -- The seed packet's days to maturity (I17), null when not given.
         packet_days INTEGER,
+        -- Which free app named the plant ('plantnet' | 'lens', I24) and how
+        -- sure it said it was, a whole percent; both null when not named so.
+        identified_with TEXT,
+        identified_sure INTEGER,
         planted_at TEXT NOT NULL,
         expected_harvest_start TEXT,
         expected_harvest_end TEXT,
@@ -9875,6 +9879,13 @@ async function runDatabaseInitialization() {
       const columns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(garden_plantings)');
       if (!columns.some((column) => column.name === 'packet_days')) {
         await db.execAsync('ALTER TABLE garden_plantings ADD COLUMN packet_days INTEGER;');
+      }
+      // Which free app named the plant, and how sure it said (I24, 2026-09-29).
+      if (!columns.some((column) => column.name === 'identified_with')) {
+        await db.execAsync('ALTER TABLE garden_plantings ADD COLUMN identified_with TEXT;');
+      }
+      if (!columns.some((column) => column.name === 'identified_sure')) {
+        await db.execAsync('ALTER TABLE garden_plantings ADD COLUMN identified_sure INTEGER;');
       }
     }
     // The person's symptom names, loaded once so every label lookup finds
@@ -23630,6 +23641,10 @@ export type GardenPlanting = {
   varietyNote: string | null;
   /** The seed packet's days to maturity (I17), null when not given. */
   packetDays: number | null;
+  /** Which free app named the plant (I24): 'plantnet', 'lens' or null. */
+  identifiedWith: string | null;
+  /** How sure that app said it was, a whole percent, or null. */
+  identifiedSure: number | null;
   plantedAt: string;
   expectedHarvestStart: string | null;
   expectedHarvestEnd: string | null;
@@ -23641,7 +23656,7 @@ export type GardenPlanting = {
 
 const GARDEN_PLANTING_COLUMNS = `
   id, plot_id AS plotId, food_id AS foodId, source, food_name AS foodName, variety_note AS varietyNote,
-  packet_days AS packetDays, planted_at AS plantedAt, expected_harvest_start AS expectedHarvestStart, expected_harvest_end AS expectedHarvestEnd,
+  packet_days AS packetDays, identified_with AS identifiedWith, identified_sure AS identifiedSure, planted_at AS plantedAt, expected_harvest_start AS expectedHarvestStart, expected_harvest_end AS expectedHarvestEnd,
   status, notes, created_at AS createdAt, updated_at AS updatedAt
 `;
 
@@ -23652,6 +23667,8 @@ export async function createGardenPlanting(input: {
   foodName: string;
   varietyNote?: string | null;
   packetDays?: number | null;
+  identifiedWith?: string | null;
+  identifiedSure?: number | null;
   plantedAt: string;
   expectedHarvestStart?: string | null;
   expectedHarvestEnd?: string | null;
@@ -23668,9 +23685,9 @@ export async function createGardenPlanting(input: {
   await db.runAsync(
     `
       INSERT INTO garden_plantings
-        (id, plot_id, food_id, source, food_name, variety_note, packet_days, planted_at, expected_harvest_start, expected_harvest_end,
-         status, notes, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (id, plot_id, food_id, source, food_name, variety_note, packet_days, identified_with, identified_sure, planted_at,
+         expected_harvest_start, expected_harvest_end, status, notes, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.plotId,
@@ -23679,6 +23696,8 @@ export async function createGardenPlanting(input: {
     input.foodName,
     input.varietyNote?.trim() || null,
     input.packetDays ?? null,
+    input.identifiedWith ?? null,
+    input.identifiedWith ? input.identifiedSure ?? null : null,
     input.plantedAt,
     input.expectedHarvestStart ?? null,
     input.expectedHarvestEnd ?? null,
