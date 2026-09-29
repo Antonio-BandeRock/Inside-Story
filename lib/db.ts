@@ -7224,6 +7224,8 @@ async function runDatabaseInitialization() {
         source TEXT NOT NULL,
         food_name TEXT NOT NULL,
         variety_note TEXT,
+        -- The seed packet's days to maturity (I17), null when not given.
+        packet_days INTEGER,
         planted_at TEXT NOT NULL,
         expected_harvest_start TEXT,
         expected_harvest_end TEXT,
@@ -9739,6 +9741,14 @@ async function runDatabaseInitialization() {
         if (!columns.some((existing) => existing.name === column)) {
           await db.execAsync(`ALTER TABLE dev_notes ADD COLUMN ${column} TEXT;`);
         }
+      }
+    }
+    // garden_plantings.packet_days (I17, 2026-09-28): the seed packet's
+    // days to maturity, null where the packet gave none or none was typed.
+    {
+      const columns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(garden_plantings)');
+      if (!columns.some((column) => column.name === 'packet_days')) {
+        await db.execAsync('ALTER TABLE garden_plantings ADD COLUMN packet_days INTEGER;');
       }
     }
     // The person's symptom names, loaded once so every label lookup finds
@@ -23479,6 +23489,8 @@ export type GardenPlanting = {
   source: string;
   foodName: string;
   varietyNote: string | null;
+  /** The seed packet's days to maturity (I17), null when not given. */
+  packetDays: number | null;
   plantedAt: string;
   expectedHarvestStart: string | null;
   expectedHarvestEnd: string | null;
@@ -23490,7 +23502,7 @@ export type GardenPlanting = {
 
 const GARDEN_PLANTING_COLUMNS = `
   id, plot_id AS plotId, food_id AS foodId, source, food_name AS foodName, variety_note AS varietyNote,
-  planted_at AS plantedAt, expected_harvest_start AS expectedHarvestStart, expected_harvest_end AS expectedHarvestEnd,
+  packet_days AS packetDays, planted_at AS plantedAt, expected_harvest_start AS expectedHarvestStart, expected_harvest_end AS expectedHarvestEnd,
   status, notes, created_at AS createdAt, updated_at AS updatedAt
 `;
 
@@ -23500,24 +23512,26 @@ export async function createGardenPlanting(input: {
   source: string;
   foodName: string;
   varietyNote?: string | null;
+  packetDays?: number | null;
   plantedAt: string;
   expectedHarvestStart?: string | null;
   expectedHarvestEnd?: string | null;
   notes?: string | null;
   /** 'planned' for a later succession sowing not in the ground yet (I6). */
   status?: 'growing' | 'planned';
+  /** Chosen ahead by the Add a Planting form, so a photo of the seed
+   *  packet taken before saving is already filed under it (I17). */
+  id?: string;
 }): Promise<string> {
   const db = await getDatabase();
-  // A succession sowing writes several in the same millisecond, so the id
-  // carries a random tail as well as the time.
-  const id = `garden_planting_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  const id = input.id ?? newGardenPlantingId();
   const now = new Date().toISOString();
   await db.runAsync(
     `
       INSERT INTO garden_plantings
-        (id, plot_id, food_id, source, food_name, variety_note, planted_at, expected_harvest_start, expected_harvest_end,
+        (id, plot_id, food_id, source, food_name, variety_note, packet_days, planted_at, expected_harvest_start, expected_harvest_end,
          status, notes, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.plotId,
@@ -23525,6 +23539,7 @@ export async function createGardenPlanting(input: {
     input.source,
     input.foodName,
     input.varietyNote?.trim() || null,
+    input.packetDays ?? null,
     input.plantedAt,
     input.expectedHarvestStart ?? null,
     input.expectedHarvestEnd ?? null,
@@ -23559,6 +23574,7 @@ export async function updateGardenPlanting(
   id: string,
   update: Partial<{
     varietyNote: string | null;
+    packetDays: number | null;
     plantedAt: string;
     expectedHarvestStart: string | null;
     expectedHarvestEnd: string | null;
@@ -23574,10 +23590,11 @@ export async function updateGardenPlanting(
   await db.runAsync(
     `
       UPDATE garden_plantings
-      SET variety_note = ?, planted_at = ?, expected_harvest_start = ?, expected_harvest_end = ?, status = ?, notes = ?, updated_at = ?
+      SET variety_note = ?, packet_days = ?, planted_at = ?, expected_harvest_start = ?, expected_harvest_end = ?, status = ?, notes = ?, updated_at = ?
       WHERE id = ?
     `,
     merged.varietyNote,
+    merged.packetDays,
     merged.plantedAt,
     merged.expectedHarvestStart,
     merged.expectedHarvestEnd,
@@ -23595,8 +23612,17 @@ export async function deleteGardenPlanting(id: string): Promise<void> {
   const done = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM garden_planting_events WHERE planting_id = ?', id);
   if ((done?.n ?? 0) > 0) return;
   await db.runAsync('DELETE FROM garden_plantings WHERE id = ?', id);
-  // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
-  await (await import('./mediaDb')).removePhotosOf('planting', id);
+  // Its photos go with it (1.0.53.7), so none is left pointing at nothing,
+  // and the seed packet's photos with them (I17).
+  const media = await import('./mediaDb');
+  await media.removePhotosOf('planting', id);
+  await media.removePhotosOf('seed_packet', id);
+}
+
+/** A succession sowing writes several in the same millisecond, so the id
+ *  carries a random tail as well as the time. */
+export function newGardenPlantingId(): string {
+  return `garden_planting_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export type GardenHarvest = {

@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
@@ -38,6 +38,7 @@ import {
   archiveGardenPlot,
   countGrowingPlantings,
   createGardenPlanting,
+  newGardenPlantingId,
   createGardenPlot,
   deleteGardenHarvest,
   deleteGardenPlanting,
@@ -91,6 +92,18 @@ import { addGrowEquipment, listGardenTerms } from '../../lib/growSetupDb';
 import { useWalkMark } from '../../components/WalkMark';
 import { RecordPhotos } from '../../components/RecordPhotos';
 import { PlantingEventsSection } from '../../components/PlantingEventsSection';
+import { SeedPacketSection } from '../../components/SeedPacketSection';
+import { PhotoStrip } from '../../components/PhotoStrip';
+import { removePhotosOf } from '../../lib/mediaDb';
+import { removeUnclaimedPacketPhotos } from '../../lib/seedPacketDb';
+import {
+  packetDaysRangeLine,
+  packetHarvestDate,
+  packetHarvestLine,
+  readPacketDays,
+  SEED_PACKET_CAPTION,
+  SEED_PACKET_OWNER_KIND,
+} from '../../lib/seedPacket';
 import { GardenCsvButtons } from '../../components/GardenCsvButtons';
 import { listPlantingEventCounts } from '../../lib/plantingEventsDb';
 import { PhotoSeriesBand } from '../../components/PhotoSeriesBand';
@@ -896,6 +909,18 @@ function PlotsAndPlantingsLens({
   const [pendingEveryText, setPendingEveryText] = useState(String(SUCCESSION_EVERY_DEFAULT));
   const [pendingTimesText, setPendingTimesText] = useState(String(SUCCESSION_TIMES_DEFAULT));
   const [pendingCountSowings, setPendingCountSowings] = useState(true);
+  // I17, 1.0.55.30: what the seed packet says. The planting's id is chosen
+  // while the form is open so a photo of the packet can be taken before
+  // Save Planting; Cancel removes that photo.
+  const [pendingPlantingId, setPendingPlantingId] = useState(() => newGardenPlantingId());
+  const [pendingVariety, setPendingVariety] = useState('');
+  const [pendingPacketDaysText, setPendingPacketDaysText] = useState('');
+
+  // A packet photo left by a form the app closed on (I17). Run once, before
+  // any form can be open.
+  useEffect(() => {
+    removeUnclaimedPacketPhotos().catch(() => undefined);
+  }, []);
 
   const loadPlots = useCallback(async () => {
     const [rows, spaces, active, terms] = await Promise.all([listGardenPlots(true), listGardenSpaces(true), listGardenSpaces(), listGardenTerms(true)]);
@@ -1044,20 +1069,38 @@ function PlotsAndPlantingsLens({
     const sowing = sowingWindowForFood(foodName);
     const startedAs = sowing ? pendingStartedAs ?? defaultPlantingStart(sowing) : null;
     const expected = sowing && startedAs ? plantingExpected(sowing, plantedAt, startedAs) : null;
+    const packet = readPacketDays(pendingPacketDaysText);
+    if (packet.status === 'invalid') return;
+    // The packet's days are about this variety, so they stand in for the
+    // crop's usual window (I17).
+    const packetDays = packet.status === 'days' ? packet.days : null;
+    const variety = pendingVariety.trim() || null;
+    const harvestFor = (sowOn: string, usual: { harvestStart: string | null; harvestEnd: string | null } | null) =>
+      packetDays !== null
+        ? { expectedHarvestStart: packetHarvestDate(sowOn, packetDays), expectedHarvestEnd: packetHarvestDate(sowOn, packetDays) }
+        : { expectedHarvestStart: usual?.harvestStart ?? null, expectedHarvestEnd: usual?.harvestEnd ?? null };
     const plantingId = await createGardenPlanting({
+      id: pendingPlantingId,
       plotId,
       foodId: pendingFood.foodId,
       source: pendingFood.source,
       foodName,
+      varietyNote: variety,
+      packetDays,
       plantedAt,
-      expectedHarvestStart: expected?.harvestStart ?? null,
-      expectedHarvestEnd: expected?.harvestEnd ?? null,
+      ...harvestFor(plantedAt, expected),
     });
     if (expected && pendingCountSprout && expected.sproutDays !== null) {
       await addGardenCountdown({ plotId, plantingId, name: `${foodName} coming up`, startedOn: plantedAt, days: expected.sproutDays });
     }
     if (expected && pendingCountHarvest && expected.harvestDays) {
-      await addGardenCountdown({ plotId, plantingId, name: `First ${foodName.toLowerCase()} harvest`, startedOn: plantedAt, days: expected.harvestDays[0] });
+      await addGardenCountdown({
+        plotId,
+        plantingId,
+        name: `First ${foodName.toLowerCase()} harvest`,
+        startedOn: plantedAt,
+        days: packetDays ?? expected.harvestDays[0],
+      });
     }
     const later = laterSowings();
     if (later) {
@@ -1069,9 +1112,10 @@ function PlotsAndPlantingsLens({
           foodId: pendingFood.foodId,
           source: pendingFood.source,
           foodName,
+          varietyNote: variety,
+          packetDays,
           plantedAt: sowOn,
-          expectedHarvestStart: laterExpected?.harvestStart ?? null,
-          expectedHarvestEnd: laterExpected?.harvestEnd ?? null,
+          ...harvestFor(sowOn, laterExpected),
           status: 'planned',
         });
         if (pendingCountSowings) {
@@ -1177,7 +1221,7 @@ function PlotsAndPlantingsLens({
         {expected.sproutBy ? (
           <Text style={styles.captionText}>Seed usually up by {dateLabel(expected.sproutBy)}, about {expected.sproutDays} days in warm soil.</Text>
         ) : null}
-        {expected.harvestStart && expected.harvestEnd ? (
+        {expected.harvestStart && expected.harvestEnd && readPacketDays(pendingPacketDaysText).status !== 'days' ? (
           <Text style={styles.captionText}>
             First harvest usually {dateLabel(expected.harvestStart)} to {dateLabel(expected.harvestEnd)}. Weather and the variety move it; the
             seed packet&apos;s days to maturity is the closer figure where it differs.
@@ -1235,6 +1279,53 @@ function PlotsAndPlantingsLens({
     setPendingEveryText(String(SUCCESSION_EVERY_DEFAULT));
     setPendingTimesText(String(SUCCESSION_TIMES_DEFAULT));
     setPendingCountSowings(true);
+    setPendingVariety('');
+    setPendingPacketDaysText('');
+    setPendingPlantingId(newGardenPlantingId());
+  }
+
+  // Cancel on the Add a Planting form: a packet photo taken for a planting
+  // that was never saved goes with the form (I17).
+  async function handleCancelPlanting() {
+    await removePhotosOf(SEED_PACKET_OWNER_KIND, pendingPlantingId).catch(() => undefined);
+    resetPendingPlanting();
+  }
+
+  function renderSeedPacketFields(foodName: string) {
+    const packet = readPacketDays(pendingPacketDaysText);
+    return (
+      <>
+        <Text style={styles.fieldLabel}>From the Seed Packet</Text>
+        <Text style={styles.captionText}>{SEED_PACKET_CAPTION}</Text>
+        <AppTextInput
+          style={styles.textInput}
+          value={pendingVariety}
+          onChangeText={setPendingVariety}
+          placeholder="Variety, as printed on the packet"
+        />
+        <AppTextInput
+          style={styles.textInput}
+          value={pendingPacketDaysText}
+          onChangeText={setPendingPacketDaysText}
+          placeholder="Days to maturity, if the packet gives them"
+          keyboardType="number-pad"
+        />
+        {packet.status === 'days' ? (
+          <Text style={styles.captionText}>
+            {packetHarvestLine(packet.days, dateLabel(packetHarvestDate(todayDateString(), packet.days)))}
+          </Text>
+        ) : packet.status === 'invalid' ? (
+          <Text style={styles.errorText}>{packetDaysRangeLine()}</Text>
+        ) : null}
+        <PhotoStrip
+          ownerKind={SEED_PACKET_OWNER_KIND}
+          ownerId={pendingPlantingId}
+          tabColor={TAB_COLOR}
+          addLabel="Photo of the Packet"
+          title={`${foodName} seed packet`}
+        />
+      </>
+    );
   }
 
   // A later sowing marked sown: it becomes a growing planting dated today,
@@ -1410,6 +1501,14 @@ function PlotsAndPlantingsLens({
                           <Text style={styles.linkText}>How to grow {guide.name.toLowerCase()}</Text>
                         </TouchableOpacity>
                       ) : null}
+                      <SeedPacketSection
+                        plantingId={planting.id}
+                        foodName={planting.foodName}
+                        plantedAt={planting.plantedAt}
+                        varietyNote={planting.varietyNote}
+                        packetDays={planting.packetDays}
+                        onSaved={() => loadPlantingsFor(plot.id)}
+                      />
                       <PlantingEventsSection
                         plantingId={planting.id}
                         plotId={plot.id}
@@ -1434,6 +1533,7 @@ function PlotsAndPlantingsLens({
                 {addingPlantingToPlot === plot.id && pendingFood ? (
                   <View style={styles.pendingCard}>
                     <Text style={styles.bodyText}>Planting: {pendingFoodName || pendingFood.baseName}</Text>
+                    {renderSeedPacketFields(pendingFoodName || pendingFood.baseName)}
                     {renderPlantingExpectations(pendingFoodName || pendingFood.baseName)}
                     {renderRotationNote(plot.id, pendingFoodName || pendingFood.baseName)}
                     {renderSowAgain()}
@@ -1444,7 +1544,7 @@ function PlotsAndPlantingsLens({
                       >
                         <Text style={styles.primaryButtonText}>Save Planting</Text>
                       </TouchableOpacity>
-                      <TouchableOpacity onPress={resetPendingPlanting}>
+                      <TouchableOpacity onPress={handleCancelPlanting}>
                         <Text style={styles.linkText}>Cancel</Text>
                       </TouchableOpacity>
                     </View>

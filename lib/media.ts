@@ -43,6 +43,7 @@ export type MediaOwnerKind =
   | 'garden_area'
   | 'harvest'
   | 'compost_pile'
+  | 'seed_packet'
   | 'money_entry'
   | 'item'
   | 'place'
