@@ -31,7 +31,7 @@
 ### C9. Plan by sentence
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Home,Life
 - **Answers:** Structured · **Theme:** Capture, reminders and the second audience
-- **How:** A rule parser for times and verbs behind the existing voice screen.
+- **How:** A rule parser for times and verbs behind the existing voice screen. Built 1.0.57.7: lib/planSentence.ts reads a sentence into what, when, repeat and end, with the kind and its reason; PlanSentencePanel on Capture shows each part beside its words and saves only on a named button; vague repeats, slash dates and bare months are said and left alone; held-out 19 of 20.
 
 ### C10. A to-do list with dates and repeats
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life
