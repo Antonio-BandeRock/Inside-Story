@@ -598,7 +598,7 @@
 ### X2. A first-launch agreement screen
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** all
 - **Answers:** (your question) · **Theme:** Shared foundations
-- **How:** Before anything else on a first launch, one screen says in plain words what the app is and is not: general information and the person's own records, not medical advice, not a diagnosis, not a substitute for a doctor or pharmacist, allergen-aware and never allergy-safe, and a reminder to check with a doctor before making medical decisions (which Apple asks of health apps). The person agrees before going on; the date and the version of the wording they agreed to are kept, and a changed wording asks again. Links to the terms of use and privacy policy (X3). Readable again any time from Profile. Added 2026-09-26.
+- **How:** Before anything else on a first launch, one screen says in plain words what the app is and is not: general information and the person's own records, not medical advice, not a diagnosis, not a substitute for a doctor or pharmacist, allergen-aware and never allergy-safe, and a reminder to check with a doctor before making medical decisions (which Apple asks of health apps). The person agrees before going on; the date and the version of the wording they agreed to are kept, and a changed wording asks again. Links to the terms of use and privacy policy (X3). Readable again any time from Profile. Added 2026-09-26. Built 1.0.56.22: first-launch screen with six points, agreement kept by wording version in app_meta, asked again when the wording changes, readable from Profile; legal links wait for X3.
 
 ### X3. Terms of use and privacy policy
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** all
