@@ -511,7 +511,7 @@
 ### K6. What I have noticed
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Reports
 - **Answers:** mySymptoms · **Theme:** Reports
-- **How:** Pattern Finder candidates with denominators and experiment results, each a hypothesis from one person's records.
+- **How:** Pattern Finder candidates with denominators and experiment results, each a hypothesis from one person's records. Built 1.0.56.16: What I have noticed and Food experiments sections in the Overview, Doctor and Nutritionist reports, every candidate a hypothesis with its counts (lib/reportNoticed.ts).
 
 ### K7. Report history
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
