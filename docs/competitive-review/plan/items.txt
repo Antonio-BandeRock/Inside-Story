@@ -26,7 +26,7 @@ B1|1|OTA|M|Home,Schedules,Life,Signals|Tiimo, Todoist, Structured, mySymptoms|On
 B2|2|OTA|S-M|Home,Schedules|Structured|Phone calendar events on the timeline|Read today's and tomorrow's events live through lib/deviceCalendar.ts without copying them in. The desktop says phone only.
 B3|2|OTA|S-M|Home,Life|Tiimo|"Next in 25 minutes" and a running countdown|A line on the timeline, plus an ongoing notification with a chronometer for the current routine or item.
 B4|2|OTA|S-M|Life,Schedules|Tiimo, Routinery|Minutes on routine steps and scheduled items|Optional minutes, a routine total ("about 25 minutes"), and whether the day's timed items fit.
-B5|3|OTA|S-M|Life|Tiimo|Shrinking ring timer on a routine step|Drawn with react-native-svg, with an alert when it ends.
+B5|3|OTA|S-M|Life|Tiimo|Shrinking ring timer on a routine step|Drawn with react-native-svg, with an alert when it ends. Built 1.0.57.5: off unless turned on (Profile > Routine Timer, or on the step screen), pause and start again, counts on quietly past the time, the signal a separate switch also off, nothing recorded.
 B6|2|OTA|S|Life|Routinery|Read the next step aloud|expo-speech is already in the build; a switch per routine.
 B7|2|OTA|S|Home|Structured|"How full is today"|One sentence counting the day's meals, doses, routines, appointments and upkeep. Keeping Up wording rules.
 B8|2|OTA|S|Schedules,Life|Structured|Move what is left to tomorrow|Non-meal items move; a meal gets a new occurrence and the old one stays Skipped, so the record stays honest.

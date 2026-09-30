@@ -21,7 +21,7 @@
 ### B5. Shrinking ring timer on a routine step
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life
 - **Answers:** Tiimo · **Theme:** The day as one picture
-- **How:** Drawn with react-native-svg, with an alert when it ends.
+- **How:** Drawn with react-native-svg, with an alert when it ends. Built 1.0.57.5: off unless turned on (Profile > Routine Timer, or on the step screen), pause and start again, counts on quietly past the time, the signal a separate switch also off, nothing recorded.
 
 ### C8. Sorting help for a brain dump
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Home
