@@ -313,7 +313,7 @@ export type DoseInputs = {
 
 export type DoseMark = 'taken' | 'skipped' | 'unmarked';
 
-function doseMark(status: string): DoseMark {
+export function doseMark(status: string): DoseMark {
   if (status === 'logged' || status === 'partial' || status === 'replaced') return 'taken';
   if (status === 'skipped') return 'skipped';
   return 'unmarked';

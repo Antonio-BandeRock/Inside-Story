@@ -1,5 +1,6 @@
 import { withSeverityPrefix } from './ruleSeverity';
 import {
+  getDatabase,
   getLabTests,
   getUserConditions,
   listAllActiveTreatments,
@@ -35,7 +36,9 @@ import {
   type ReportKind,
 } from './reportKinds';
 import type { ReadingView } from './readingBands';
-import { loadSinceLastVisitView, loadTrendsMoreView, type TrendsMoreLens } from './trendsMoreDb';
+import { listScheduledDoses, loadSinceLastVisitView, loadTrendsMoreView, type TrendsMoreLens } from './trendsMoreDb';
+import { buildAtAGlance, type GlanceTag } from './reportGlance';
+import { addDays } from './eatingVariety';
 import { loadInsightsMoreView, type InsightsMoreLens } from './insightsMoreDb';
 import { getActiveInsurancePlan, listMedicalBills } from './financeHealthDb';
 import { describePlanStanding, planStanding } from './financeHealth';
@@ -164,6 +167,9 @@ export async function buildReport(days: number, kind: ReportKind = 'overview'): 
   const sections: ReportSection[] = [];
   const rangeStart = rangeStartDate(days);
   const rangeEnd = isoDate(new Date());
+
+  // K2: the front page, first so a reader sees it before anything else.
+  if (want.has('glance')) sections.push(await glanceSection(rangeStart, rangeEnd));
 
   // Tracked conditions. The codes are read whenever the flags section is
   // wanted too, since that section is scoped to them.
@@ -452,6 +458,67 @@ export async function buildReport(days: number, kind: ReportKind = 'overview'): 
     footer: `Generated on the phone by Inside Story ${APP_VERSION}. Nothing in this report left the phone until the person chose to share it.`,
     versionLine: reportVersionLine(APP_VERSION, REFERENCE_DB_VERSION),
   };
+}
+
+// K2's front page. Reads the check-ins, doses, body readings and labs over
+// the range and hands them to the pure builder in lib/reportGlance.ts. A
+// check-in's time is stored in UTC, so the window reaches a day early and
+// the builder narrows it by the local day.
+async function glanceSection(rangeStart: string, rangeEnd: string): Promise<ReportSection> {
+  try {
+    const db = await getDatabase();
+    const [tagRows, doses, measurements, labResults, labTests] = await Promise.all([
+      db.getAllAsync<{ loggedAt: string; checkinType: string; tagCode: string | null; severity: number | null }>(
+        `SELECT c.logged_at AS loggedAt, c.checkin_type AS checkinType, t.tag_code AS tagCode, t.severity AS severity
+         FROM wellbeing_checkins c LEFT JOIN checkin_tags t ON t.checkin_id = c.id
+         WHERE c.logged_at >= ?`,
+        addDays(rangeStart, -1),
+      ),
+      listScheduledDoses({ start: rangeStart, end: rangeEnd }),
+      listBodyMeasurements(undefined, 400),
+      listLabResults(undefined, 200),
+      getLabTests(),
+    ]);
+    const checkins: GlanceTag[] = tagRows.map((row) => {
+      const definition = row.tagCode ? getCheckinTagDefinition(row.tagCode) : undefined;
+      return {
+        ...row,
+        label: definition?.label ?? row.tagCode,
+        // A tag this phone has no definition for was somebody's own symptom.
+        negative: definition ? definition.usualValence === 'negative' : true,
+      };
+    });
+    const latestOf = (type: string) => measurements.find((row) => row.measurementType === type) ?? null;
+    const systolic = latestOf('blood_pressure_systolic');
+    const diastolic = latestOf('blood_pressure_diastolic');
+    const names = new Map(labTests.map((test) => [test.code, test.displayName]));
+    const latestLab = new Map<string, LabResultRecord>();
+    for (const result of labResults) if (!latestLab.has(result.testCode)) latestLab.set(result.testCode, result);
+    return buildAtAGlance({
+      rangeStart,
+      today: rangeEnd,
+      checkins,
+      doses,
+      weights: measurements
+        .filter((row) => row.measurementType === 'weight')
+        .map((row) => ({ loggedAt: row.loggedAt, value: row.value, unit: row.unit })),
+      bloodPressure:
+        systolic && diastolic
+          ? { systolic: systolic.value, diastolic: diastolic.value, unit: systolic.unit, loggedAt: systolic.loggedAt }
+          : null,
+      labs: [...latestLab.values()].map((lab) => ({
+        displayName: names.get(lab.testCode) ?? lab.testCode,
+        value: lab.value,
+        unit: lab.unit,
+        low: lab.labRangeLow,
+        high: lab.labRangeHigh,
+        testedAt: lab.testedAt,
+      })),
+    });
+  } catch (error) {
+    console.warn('[reports] at a glance could not be read', error);
+    return { kind: 'list', heading: 'At a glance', rows: [], empty: 'Could not be read for this report.' };
+  }
 }
 
 // The sections each narrower report adds after its core ones. A Trends or

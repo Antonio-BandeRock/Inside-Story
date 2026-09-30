@@ -31,7 +31,7 @@ export type ReportKind =
 /** The sections the Overview has always carried, each one a named block so
  *  a narrower report can ask for the ones its reader needs and skip the
  *  work of the rest. */
-export type CoreSectionId = 'conditions' | 'nutrients' | 'flags' | 'symptoms' | 'meds' | 'movement' | 'body' | 'rules' | 'labs';
+export type CoreSectionId = 'glance' | 'conditions' | 'nutrients' | 'flags' | 'symptoms' | 'meds' | 'movement' | 'body' | 'rules' | 'labs';
 
 export type ReportKindDef = {
   key: ReportKind;
@@ -52,8 +52,8 @@ export const REPORT_KINDS: ReportKindDef[] = [
     icon: 'document-text-outline',
     title: 'Inside Story: Health Summary',
     preface: ['A plain summary of what was logged in the app during this window, as the person entered it.', SELF_REPORTED],
-    help: 'Everything logged over the range in one summary: nutrient intake, foods flagged for your conditions, symptoms and flares, active meds and supplements, movement and sleep, weight and blood pressure, personal rules, and the most recent lab results.',
-    core: ['conditions', 'nutrients', 'flags', 'symptoms', 'meds', 'movement', 'body', 'rules', 'labs'],
+    help: 'Everything logged over the range in one summary, opening with an at a glance page: nutrient intake, foods flagged for your conditions, symptoms and flares, active meds and supplements, movement and sleep, weight and blood pressure, personal rules, and the most recent lab results.',
+    core: ['glance', 'conditions', 'nutrients', 'flags', 'symptoms', 'meds', 'movement', 'body', 'rules', 'labs'],
   },
   {
     key: 'r-doctor',
@@ -64,8 +64,8 @@ export const REPORT_KINDS: ReportKindDef[] = [
       'What changed since the last visit, and the records a clinician usually asks for, as the person entered them.',
       SELF_REPORTED,
     ],
-    help: 'Built for an appointment: what was recorded since the last appointment with anybody, the next visit and what changed since the last one with the same provider, symptoms and flares, blood pressure, doses as scheduled and as marked with how many days each was due and marked, active meds and supplements with the interaction notes that touch them and how each works, weight, personal rules and the most recent labs. Food detail is left to the Nutritionist report.',
-    core: ['conditions', 'symptoms', 'meds', 'body', 'rules', 'labs'],
+    help: 'Built for an appointment, opening with an at a glance page: what was recorded since the last appointment with anybody, the next visit and what changed since the last one with the same provider, symptoms and flares, blood pressure, doses as scheduled and as marked with how many days each was due and marked, active meds and supplements with the interaction notes that touch them and how each works, weight, personal rules and the most recent labs. Food detail is left to the Nutritionist report.',
+    core: ['glance', 'conditions', 'symptoms', 'meds', 'body', 'rules', 'labs'],
   },
   {
     key: 'r-nutrition',
@@ -106,8 +106,8 @@ export const REPORT_KINDS: ReportKindDef[] = [
       'What someone helping day to day needs in one place: what is on today, the doses and appointments, and the conditions and medicines behind them.',
       'Medicine questions go to the prescriber. Nothing here changes a dose or a time.',
     ],
-    help: 'What is on today, doses as scheduled and as marked over the range, appointments, the tracked conditions and every active medicine and supplement.',
-    core: ['conditions', 'meds'],
+    help: 'An at a glance page, then what is on today, doses as scheduled and as marked over the range, appointments, the tracked conditions and every active medicine and supplement.',
+    core: ['glance', 'conditions', 'meds'],
   },
   {
     key: 'r-medical-costs',
