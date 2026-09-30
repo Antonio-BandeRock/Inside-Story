@@ -548,7 +548,7 @@
 ### J12. Check the shared folder more often
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life
 - **Answers:** AnyList · **Theme:** Money, upkeep and places
-- **How:** Run the between-people mailbox exchange by itself through the existing allowlist: at startup, on return to the app, about every 30 seconds and about 15 seconds after a change, keeping the manual Send and Receive buttons. Instant delivery needs M1 and is not part of this.
+- **How:** Run the between-people mailbox exchange by itself through the existing allowlist: at startup, on return to the app, about every 30 seconds and about 15 seconds after a change, keeping the manual Send and Receive buttons. Instant delivery needs M1 and is not part of this. Built 1.0.56.12: components/PeerMailboxWatcher.tsx checks at startup, on return, on focus and every 30 seconds and sends 15 seconds after a change, through sendViaOneDrive and receiveViaOneDrive; a send goes only when its payload changed (onlyWhenChanged), and an unreachable folder is said once a run.
 
 ### K1. Six months, a year, any range, since the last visit
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
