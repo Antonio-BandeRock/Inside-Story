@@ -200,7 +200,7 @@ K3|1|OTA|M|Reports|Bearable, Visible, CareClinic|Charts in the PDF|Inline SVG fr
 K4|3|OTA|M|Reports,Insights|Guava|Visit prep questions|visit_questions tied to an appointment, reorder and tick off, in the person's words.
 K5|2|OTA|S|Reports|Bearable, mySymptoms, Gardenize|CSV export|Table sections through lib/nativeSharing.ts. Built 1.0.56.15: Save as a Spreadsheet on every report, each table on its own or the whole report in one file (lib/reportCsv.ts).
 K6|2|OTA|S-M|Reports|mySymptoms|What I have noticed|Pattern Finder candidates with denominators and experiment results, each a hypothesis from one person's records. Built 1.0.56.16: What I have noticed and Food experiments sections in the Overview, Doctor and Nutritionist reports, every candidate a hypothesis with its counts (lib/reportNoticed.ts).
-K7|2|OTA|S|Reports|Guava|Report history|What was made, when and for whom.
+K7|2|OTA|S|Reports|Guava|Report history|What was made, when and for whom. Built 1.0.56.17: report_history, Report history band with Make it again, who it was for, Remove.
 K8|2|OTA|S|Reports|Visible|Heart rate and HRV in reports|Health Connect already reads both with permission; no rebuild.
 K9|2|OTA|S|Reports|mySymptoms|Day-by-day food and symptom diary|A section in the nutritionist report.
 K10|2|OTA|S-M|Reports|Cronometer|Choose the sections|Tick which sections a report carries.

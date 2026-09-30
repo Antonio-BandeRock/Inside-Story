@@ -516,7 +516,7 @@
 ### K7. Report history
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
 - **Answers:** Guava · **Theme:** Reports
-- **How:** What was made, when and for whom.
+- **How:** What was made, when and for whom. Built 1.0.56.17: report_history, Report history band with Make it again, who it was for, Remove.
 
 ### K8. Heart rate and HRV in reports
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
