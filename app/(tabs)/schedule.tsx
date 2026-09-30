@@ -281,6 +281,8 @@ import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { describeStatus } from '../../lib/reconciliation';
 import { modalAnimationType } from '../../lib/visualPreferences';
 import { describeRepeat, describeRepeatPattern, validateRepeatRule, weekdayOf, weekdaysFromColumn } from '../../lib/repeatRule';
+import { stepOn, taperDoseLine, taperLastDay, taperRepeatNote, type TaperStep } from '../../lib/taper';
+import { listTaperSteps } from '../../lib/taperDb';
 import { WEEKDAY_NAMES, sameWeekday, weekdayOf as targetWeekdayOf } from '../../lib/weekdayTargets';
 import {
   OPEN_MEAL_CHOICES,
@@ -5390,6 +5392,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
   const [doseFormTreatmentId, setDoseFormTreatmentId] = useState<string | null>(null);
   const [doseFormTime, setDoseFormTime] = useState<TimeOfDayInput>({ hour: '', minute: '', ampm: '' });
   const [doseFormRepeat, setDoseFormRepeat] = useState<RepeatConfig>({ type: 'none' });
+  const [tapersByTreatment, setTapersByTreatment] = useState<Map<string, TaperStep[]>>(new Map());
   const [reminderPermissionGranted, setReminderPermissionGranted] = useState<boolean | null>(null);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
@@ -5403,10 +5406,17 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
     const today = todayDateString();
     ensureScheduleSeriesGenerated()
       .then(() =>
-        Promise.all([listAllActiveTreatments(), listScheduledMedDosesFrom(today), evaluateInteractionRules(today), hasReminderPermission()]),
+        Promise.all([
+          listAllActiveTreatments(),
+          listScheduledMedDosesFrom(today),
+          evaluateInteractionRules(today),
+          hasReminderPermission(),
+          listTaperSteps(),
+        ]),
       )
-      .then(([loadedTreatments, doses, evaluation, reminderGranted]) => {
+      .then(([loadedTreatments, doses, evaluation, reminderGranted, tapers]) => {
         setReminderPermissionGranted(reminderGranted);
+        setTapersByTreatment(tapers);
         // Every add, taken, skip and remove above ends here, so this one
         // call keeps the phone's pending reminders matched to the table.
         void syncReminderNotifications();
@@ -5427,7 +5437,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
             if (group && !folds.isOpen(`schedule:meds:${group.title}`)) folds.toggle(`schedule:meds:${group.title}`);
             setDoseFormTreatmentId(target.id);
             setDoseFormTime({ hour: '', minute: '', ampm: '' });
-            setDoseFormRepeat({ type: 'daily', endType: 'indefinite' });
+            setDoseFormRepeat(defaultDoseRepeat(tapers.get(target.id) ?? []));
           }
         }
       })
@@ -5456,7 +5466,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
     setDoseFormTreatmentId(treatmentId);
     setDoseFormTime({ hour: '', minute: '', ampm: '' });
     // A dose reminder is, almost always, every day; the picker can change it.
-    setDoseFormRepeat({ type: 'daily', endType: 'indefinite' });
+    setDoseFormRepeat(defaultDoseRepeat(tapersByTreatment.get(treatmentId) ?? []));
   }
 
   function closeDoseForm() {
@@ -5556,6 +5566,10 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
   );
 
   function describeDose(treatment: TreatmentRecord): string {
+    const taperToday = stepOn(tapersByTreatment.get(treatment.id) ?? [], today);
+    if (taperToday) {
+      return [`${taperDoseLine(taperToday)} today`, treatment.frequency].filter(Boolean).join(', ');
+    }
     if (treatment.treatmentType === 'supplement') {
       return `${treatment.unitsPerDay} ${treatment.servingUnitLabel}${Number(treatment.unitsPerDay) === 1 ? '' : 's'}/day`;
     }
@@ -5622,6 +5636,9 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
             ))}
           </View>
         </View>
+        {activeTaperNote(tapersByTreatment.get(treatment.id) ?? []) ? (
+          <Text style={styles.helperText}>{activeTaperNote(tapersByTreatment.get(treatment.id) ?? [])}</Text>
+        ) : null}
         <RepeatPicker repeat={doseFormRepeat} onChange={setDoseFormRepeat} />
         <View style={styles.formActions}>
           <TouchableOpacity style={styles.secondaryButton} onPress={closeDoseForm}>
@@ -7248,3 +7265,17 @@ const styles = StyleSheet.create({
   },
   rotateIngredientLabel: { ...typography.captionEmphasis, color: colors.textSecondary, marginBottom: 6, ...textShadow },
 });
+
+// A2: a med with a taper still to run gets its reminders preset to stop on
+// the taper's last day, since that is the schedule the prescriber wrote.
+// The picker below can change it; nothing here decides what comes after.
+function defaultDoseRepeat(steps: TaperStep[]): RepeatConfig {
+  const last = taperLastDay(steps);
+  if (last && last >= todayDateString()) return { type: 'daily', endType: 'until_date', until: last };
+  return { type: 'daily', endType: 'indefinite' };
+}
+
+function activeTaperNote(steps: TaperStep[]): string | null {
+  const last = taperLastDay(steps);
+  return last && last >= todayDateString() ? taperRepeatNote(steps) : null;
+}

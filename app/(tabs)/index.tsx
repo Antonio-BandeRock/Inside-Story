@@ -1,3 +1,4 @@
+import { formatAmount, stepSuffix } from '../../lib/taper';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
@@ -1057,6 +1058,9 @@ const DIGEST_CATEGORY_LABEL_BY_KEY: Partial<Record<DigestCategoryKey, string>> =
 // drugs carry an amount and a unit, supplements carry units per day of a
 // labelled serving. Whichever pair is null is simply left out.
 function describeReminderDose(reminder: TodaysReminder): string | null {
+  if (reminder.taperStepNumber && reminder.doseAmount != null) {
+    return `${formatAmount(reminder.doseAmount, reminder.doseUnit)}${stepSuffix(reminder.taperStepNumber, reminder.taperStepCount)}`;
+  }
   if (reminder.doseAmount != null && reminder.doseUnit) {
     return `${reminder.doseAmount} ${reminder.doseUnit}`;
   }

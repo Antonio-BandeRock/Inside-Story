@@ -8592,6 +8592,24 @@ async function runDatabaseInitialization() {
         FOREIGN KEY (treatment_id) REFERENCES treatments(id) ON DELETE CASCADE
       );
 
+      -- A2: a taper, one row per step of a stepped dose as the prescriber
+      -- wrote it (lib/taper.ts). start_date and end_date are inclusive local
+      -- 'YYYY-MM-DD' days laid end to end, so the reminder queries read a
+      -- day's amount with one BETWEEN. Outside every step the dose on the
+      -- treatments row applies.
+      CREATE TABLE IF NOT EXISTS treatment_taper_steps (
+        id TEXT PRIMARY KEY,
+        treatment_id TEXT NOT NULL,
+        start_date TEXT NOT NULL,
+        end_date TEXT NOT NULL,
+        dose_amount REAL NOT NULL,
+        dose_unit TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (treatment_id) REFERENCES treatments(id) ON DELETE CASCADE
+      );
+      CREATE INDEX IF NOT EXISTS idx_treatment_taper_steps_treatment ON treatment_taper_steps(treatment_id, start_date);
+
       -- C15, Phase 2: "Pick a few things for today". Each row says one Did I
       -- Do It check was picked for one local day ('YYYY-MM-DD'). Whether it
       -- happened is never stored here: it is read from done_check_marks, so
@@ -17434,6 +17452,10 @@ export type ReminderCandidate = {
   // Only a reminder somebody set carries one; null everywhere else.
   keepRemindingMinutes: number | null;
   doseUnit: string | null;
+  // A2: which step of a taper the dose's day falls in, and how many steps
+  // there are. Zero and null outside a taper.
+  taperStepNumber: number | null;
+  taperStepCount: number | null;
   unitsPerDay: number | null;
   servingUnitLabel: string | null;
 };
@@ -17445,7 +17467,14 @@ export async function listReminderCandidates(fromLocalDateTime: string, toDate: 
       SELECT s.id, s.scheduled_for AS scheduledFor, s.item_type AS itemType, s.title,
         s.meal_type AS mealType,
         s.location, s.provider_name AS providerName,
-        t.dose_amount AS doseAmount, t.dose_unit AS doseUnit,
+        -- A2: on a day inside a taper step, that step's amount and unit
+        -- stand in for the med's, and the step's place in the taper rides
+        -- along for "(step 3 of 5)".
+        COALESCE((SELECT ts.dose_amount FROM treatment_taper_steps ts WHERE ts.treatment_id = t.id AND substr(s.scheduled_for, 1, 10) BETWEEN ts.start_date AND ts.end_date LIMIT 1), t.dose_amount) AS doseAmount,
+        CASE WHEN (SELECT ts.id FROM treatment_taper_steps ts WHERE ts.treatment_id = t.id AND substr(s.scheduled_for, 1, 10) BETWEEN ts.start_date AND ts.end_date LIMIT 1) IS NOT NULL THEN (SELECT ts.dose_unit FROM treatment_taper_steps ts WHERE ts.treatment_id = t.id AND substr(s.scheduled_for, 1, 10) BETWEEN ts.start_date AND ts.end_date LIMIT 1) ELSE t.dose_unit END AS doseUnit,
+        (SELECT COUNT(*) FROM treatment_taper_steps tn WHERE tn.treatment_id = t.id AND tn.start_date <= substr(s.scheduled_for, 1, 10)
+           AND (SELECT ts.id FROM treatment_taper_steps ts WHERE ts.treatment_id = t.id AND substr(s.scheduled_for, 1, 10) BETWEEN ts.start_date AND ts.end_date LIMIT 1) IS NOT NULL) AS taperStepNumber,
+        CASE WHEN (SELECT ts.id FROM treatment_taper_steps ts WHERE ts.treatment_id = t.id AND substr(s.scheduled_for, 1, 10) BETWEEN ts.start_date AND ts.end_date LIMIT 1) IS NOT NULL THEN (SELECT COUNT(*) FROM treatment_taper_steps tc WHERE tc.treatment_id = t.id) END AS taperStepCount,
         t.units_per_day AS unitsPerDay, t.serving_unit_label AS servingUnitLabel,
         s.keep_reminding_minutes AS keepRemindingMinutes
       FROM schedule_items s
@@ -17501,6 +17530,8 @@ export type TodaysReminder = {
   providerName: string | null;
   doseAmount: number | null;
   doseUnit: string | null;
+  taperStepNumber: number | null;
+  taperStepCount: number | null;
   unitsPerDay: number | null;
   servingUnitLabel: string | null;
 };
@@ -17511,7 +17542,14 @@ export async function listTodaysReminders(date: string): Promise<TodaysReminder[
     `
       SELECT s.id, s.scheduled_for AS scheduledFor, s.item_type AS itemType, s.title, s.status,
         s.location, s.provider_name AS providerName,
-        t.dose_amount AS doseAmount, t.dose_unit AS doseUnit,
+        -- A2: on a day inside a taper step, that step's amount and unit
+        -- stand in for the med's, and the step's place in the taper rides
+        -- along for "(step 3 of 5)".
+        COALESCE((SELECT ts.dose_amount FROM treatment_taper_steps ts WHERE ts.treatment_id = t.id AND substr(s.scheduled_for, 1, 10) BETWEEN ts.start_date AND ts.end_date LIMIT 1), t.dose_amount) AS doseAmount,
+        CASE WHEN (SELECT ts.id FROM treatment_taper_steps ts WHERE ts.treatment_id = t.id AND substr(s.scheduled_for, 1, 10) BETWEEN ts.start_date AND ts.end_date LIMIT 1) IS NOT NULL THEN (SELECT ts.dose_unit FROM treatment_taper_steps ts WHERE ts.treatment_id = t.id AND substr(s.scheduled_for, 1, 10) BETWEEN ts.start_date AND ts.end_date LIMIT 1) ELSE t.dose_unit END AS doseUnit,
+        (SELECT COUNT(*) FROM treatment_taper_steps tn WHERE tn.treatment_id = t.id AND tn.start_date <= substr(s.scheduled_for, 1, 10)
+           AND (SELECT ts.id FROM treatment_taper_steps ts WHERE ts.treatment_id = t.id AND substr(s.scheduled_for, 1, 10) BETWEEN ts.start_date AND ts.end_date LIMIT 1) IS NOT NULL) AS taperStepNumber,
+        CASE WHEN (SELECT ts.id FROM treatment_taper_steps ts WHERE ts.treatment_id = t.id AND substr(s.scheduled_for, 1, 10) BETWEEN ts.start_date AND ts.end_date LIMIT 1) IS NOT NULL THEN (SELECT COUNT(*) FROM treatment_taper_steps tc WHERE tc.treatment_id = t.id) END AS taperStepCount,
         t.units_per_day AS unitsPerDay, t.serving_unit_label AS servingUnitLabel
       FROM schedule_items s
       LEFT JOIN treatments t ON t.id = s.linked_treatment_id
@@ -20109,6 +20147,7 @@ export async function updateSupplementTreatment(
 export async function deleteTreatment(treatmentId: string) {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM treatment_details WHERE treatment_id = ?', treatmentId);
+  await db.runAsync('DELETE FROM treatment_taper_steps WHERE treatment_id = ?', treatmentId);
   await db.runAsync('DELETE FROM medicine_labels WHERE treatment_id = ?', treatmentId);
   await db.runAsync('DELETE FROM treatments WHERE id = ?', treatmentId);
   await (await import('./mediaDb')).removePhotosOf('treatment', treatmentId);
@@ -21565,10 +21604,14 @@ export async function getDayMealAndDoseTimeline(date: string): Promise<{
     );
   }
 
+  const { listTaperSteps } = await import('./taperDb');
+  const { stepOn, taperDoseLine } = await import('./taper');
+  const tapers = await listTaperSteps();
   const doses: TimelineDose[] = [];
   for (const item of doseItems) {
     const treatment = item.linkedTreatmentId ? treatmentById.get(item.linkedTreatmentId) : undefined;
     if (!treatment) continue;
+    const taperToday = stepOn(tapers.get(treatment.id) ?? [], date);
     doses.push({
       id: item.id,
       time: item.scheduledFor.slice(11, 16),
@@ -21576,7 +21619,7 @@ export async function getDayMealAndDoseTimeline(date: string): Promise<{
       treatmentName: treatment.name,
       treatmentType: treatment.treatmentType,
       status: item.status,
-      doseLabel: describeTreatmentDose(treatment),
+      doseLabel: taperToday ? taperDoseLine(taperToday) : describeTreatmentDose(treatment),
       nutrientCodes: nutrientCodesByTreatment.get(treatment.id) ?? [],
       genericName: treatment.genericName,
     });

@@ -1,3 +1,4 @@
+import { formatAmount, stepSuffix } from './taper';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { getCheckinReminderInputs } from './checkinReminderDb';
@@ -364,6 +365,10 @@ export function withoutFreshness(body: string | null | undefined): string {
 }
 
 function describeDose(candidate: ReminderCandidate): string | null {
+  // A2: a dose on a day inside a taper says its amount and its step.
+  if (candidate.taperStepNumber && candidate.doseAmount != null) {
+    return `${formatAmount(candidate.doseAmount, candidate.doseUnit)}${stepSuffix(candidate.taperStepNumber, candidate.taperStepCount)}`;
+  }
   if (candidate.doseAmount != null && candidate.doseUnit) {
     return `${candidate.doseAmount} ${candidate.doseUnit}`;
   }

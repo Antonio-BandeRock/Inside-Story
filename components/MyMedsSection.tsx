@@ -45,6 +45,9 @@ import {
 import { evaluateInteractionRules, type InteractionWarning, type ReferenceOnlyRule } from '../lib/interactionRules';
 import { withSeverityPrefix } from '../lib/ruleSeverity';
 import { listSupplyReadings, listTreatmentDetails, type TreatmentDetails } from '../lib/medDetailsDb';
+import { stepOn, taperDoseLine, type TaperStep } from '../lib/taper';
+import { listTaperSteps } from '../lib/taperDb';
+import { TaperPanel } from './TaperPanel';
 import type { SupplyReading } from '../lib/medSupply';
 import type { NutrientGapEntry } from '../lib/nutrientAnalysis';
 import { useWalkMark } from '../components/WalkMark';
@@ -182,6 +185,7 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
   const [interactionWarnings, setInteractionWarnings] = useState<InteractionWarning[]>([]);
   const [referenceOnlyRules, setReferenceOnlyRules] = useState<ReferenceOnlyRule[]>([]);
   const [detailsByTreatment, setDetailsByTreatment] = useState<Map<string, TreatmentDetails>>(new Map());
+  const [tapersByTreatment, setTapersByTreatment] = useState<Map<string, TaperStep[]>>(new Map());
   const [supplyByTreatment, setSupplyByTreatment] = useState<Map<string, SupplyReading>>(new Map());
   const [labelIds, setLabelIds] = useState<Set<string>>(new Set());
   const [nutrients, setNutrients] = useState<TrackedNutrient[]>([]);
@@ -216,10 +220,12 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
           listTreatmentDetails(),
           listSupplyReadings(),
           getTreatmentIdsWithLabels(),
+          listTaperSteps(),
         ]),
       )
-      .then(async ([loadedTreatments, loadedNutrients, loadedMeds, dailyAnalysis, evaluation, details, supply, withLabels]) => {
+      .then(async ([loadedTreatments, loadedNutrients, loadedMeds, dailyAnalysis, evaluation, details, supply, withLabels, tapers]) => {
         setTreatments(loadedTreatments);
+        setTapersByTreatment(tapers);
         setLabelIds(withLabels);
         setDetailsByTreatment(details);
         setSupplyByTreatment(supply);
@@ -571,6 +577,9 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
           const isExpanded = expandedId === treatment.id;
           const ingredients = ingredientsByTreatment[treatment.id] ?? [];
           const matchedMed = treatment.genericName ? commonMedications.find((med) => med.id === treatment.genericName) : null;
+          const taperSteps = tapersByTreatment.get(treatment.id) ?? [];
+          const taperToday = stepOn(taperSteps, todayDateString());
+          const ownDose = treatment.doseAmount ? `${treatment.doseAmount}${treatment.doseUnit ? ' ' + treatment.doseUnit : ''}` : null;
 
           return (
             <View key={treatment.id} style={styles.row}>
@@ -579,7 +588,10 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
                 <Text style={styles.rowMeta}>
                   {treatment.treatmentType === 'supplement'
                     ? `${treatment.unitsPerDay} ${treatment.servingUnitLabel}${Number(treatment.unitsPerDay) === 1 ? '' : 's'}/day`
-                    : [treatment.doseAmount ? `${treatment.doseAmount}${treatment.doseUnit ?? ''}` : null, treatment.frequency]
+                    : [
+                        taperToday ? `${taperDoseLine(taperToday)} today` : treatment.doseAmount ? `${treatment.doseAmount}${treatment.doseUnit ?? ''}` : null,
+                        treatment.frequency,
+                      ]
                         .filter(Boolean)
                         .join(', ') || 'No dose details entered'}
                   {treatment.active ? '' : ' · Not tracking'}
@@ -674,6 +686,18 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
                         {labelIds.has(treatment.id) ? 'Read its kept label' : 'Find its label (openFDA)'}
                       </Text>
                     </TouchableOpacity>
+                  ) : null}
+                  {treatment.treatmentType !== 'supplement' ? (
+                    <TaperPanel
+                      treatmentId={treatment.id}
+                      steps={taperSteps}
+                      defaultUnit={treatment.doseUnit}
+                      afterDose={ownDose}
+                      today={todayDateString()}
+                      tabColor={tabColor}
+                      onSaved={load}
+                      onProblem={showInfoAlert}
+                    />
                   ) : null}
                   <MedDetailsPanel
                     treatmentId={treatment.id}
