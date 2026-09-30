@@ -111,8 +111,8 @@ for (const area of rel.PEER_AREAS) {
 check(rel.tableNamesThatCross('partner', ALL).includes('grocery_lists'), 'with shopping on, a partner shares the list');
 same(
   rel.tableNamesThatCross('partner', { ...ALL, shopping: false }),
-  ['household_meal_calendar'],
-  'with shopping off, a partner shares no list at all, and the meal calendar still follows Meals',
+  ['household_meal_calendar', 'upkeep_items', 'upkeep_doings'],
+  'with shopping off, a partner shares no list at all, and the meal calendar and chores still cross',
 );
 check(
   !rel.areasTheyOwn('partner', { ...ALL, conditions: false }).includes('conditions'),
@@ -182,7 +182,9 @@ check(
   said[0].includes('nothing either of you did is thrown away'),
   'a link that merges says plainly that nothing is thrown away',
 );
-check(said[1].includes('turned it all off'), 'a link with everything switched off says why nothing is happening');
+// Chores answer to no switch, since each chore marked as the household's is
+// its own permission, so with every switch off a link still says so.
+check(said[1].includes('household chores'), 'a link with every switch off still names the chores it carries');
 check(said[2].includes('send each other a dish'), 'a recipe link says what it can still do');
 
 // How a link is said about somebody, which a log line, a notice and a
@@ -195,6 +197,14 @@ for (const role of ROLES) {
   const phrase = rel.howYouAreLinked(role);
   check(phrase === phrase.toLowerCase(), role + ' reads mid sentence, after a name and a comma');
 }
+
+// J8: household chores cross a row at a time, never the whole table.
+for (const role of ['partner', 'child', 'caregiver']) {
+  const chores = rel.tablesThatCross(role, ALL).filter((entry) => entry.table.startsWith('upkeep_'));
+  same(chores.map((entry) => entry.table), ['upkeep_items', 'upkeep_doings'], 'a ' + role + ' link carries the household chores');
+  check(chores.every((entry) => typeof entry.where === 'string' && entry.where.includes('household = 1')), 'and only the ones marked as the household\'s');
+}
+same(rel.tablesThatCross('recipe', ALL).length, 0, 'a recipe link carries no chores');
 
 console.log((failures === 0 ? 'PASS' : 'FAIL') + ': ' + (checks - failures) + '/' + checks + ' checks');
 process.exit(failures === 0 ? 0 : 1);

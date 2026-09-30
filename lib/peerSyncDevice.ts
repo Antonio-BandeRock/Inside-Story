@@ -41,7 +41,7 @@ import {
   type PeerMergeResult,
   type PeerStanding,
 } from './peerMerge';
-import { tableNamesThatCross } from './peerRelationships';
+import { tableNamesThatCross, tablesThatCross } from './peerRelationships';
 import { ANNOUNCE_MERGES } from './snapshotSync';
 import { readSchemaShapes } from './snapshotShapes';
 import type { MergeSide, Row, Tables } from './snapshotMerge';
@@ -50,13 +50,16 @@ import { withDatabaseWriteTrackingSuspended } from './databaseActivity';
 
 /** What a link carries, as it stands on this device right now. */
 export async function readPeerTables(standing: PeerStanding): Promise<Tables> {
-  const names = tableNamesThatCross(standing.role, standing.grants);
-  if (names.length === 0) return {};
+  const carried = tablesThatCross(standing.role, standing.grants);
+  if (carried.length === 0) return {};
   const db = await getDatabase();
   const tables: Tables = {};
-  for (const name of names) {
+  for (const { table: name, where } of carried) {
     try {
-      tables[name] = await db.getAllAsync<Row>(`SELECT * FROM ${name}`);
+      // A table that holds private rows beside shared ones is narrowed to
+      // the shared ones (the household chores), by SQL written in
+      // lib/peerRelationships.ts and nowhere else.
+      tables[name] = await db.getAllAsync<Row>(`SELECT * FROM ${name}${where ? ` WHERE ${where}` : ''}`);
     } catch (error) {
       // A table this version of the app has not created yet. Left out
       // rather than guessed at, so an older phone talking to a newer one
@@ -144,7 +147,7 @@ export async function forgetPeerBase(connectionId: string): Promise<void> {
  * does not. Half a merge would leave a shopping list pointing at a list
  * row that never arrived.
  */
-async function writeTables(tables: Tables): Promise<void> {
+async function writeTables(tables: Tables, filters: Record<string, string | undefined>): Promise<void> {
   const names = Object.keys(tables);
   if (names.length === 0) return;
   const db = await getDatabase();
@@ -152,7 +155,10 @@ async function writeTables(tables: Tables): Promise<void> {
     // Children first on the way out, parents first on the way in, so a row
     // is never left pointing at something that is not there yet.
     for (const name of [...names].reverse()) {
-      await db.runAsync(`DELETE FROM ${name}`);
+      // Only the rows that cross are replaced. A table narrowed by a filter
+      // keeps every private row it holds untouched.
+      const where = filters[name];
+      await db.runAsync(`DELETE FROM ${name}${where ? ` WHERE ${where}` : ''}`);
     }
     for (const name of names) {
       for (const row of tables[name]) {
@@ -205,7 +211,9 @@ export async function mergeFromPeer(
   const result = mergePeerTables(base, here, there, { ...standing, shapes, laterSide });
 
   if (result.entries.length > 0) {
-    await writeTables(result.tables);
+    const filters: Record<string, string | undefined> = {};
+    for (const table of tablesThatCross(standing.role, standing.grants)) filters[table.table] = table.where;
+    await writeTables(result.tables, filters);
   }
 
   // The base is what arrived from that person, which is what they hold
@@ -250,6 +258,10 @@ const PEER_WORDS: Record<string, { one: string; many: string; counts: boolean }>
   grocery_lists: { one: 'shopping list', many: 'shopping lists', counts: true },
   grocery_list_items: { one: 'thing to buy', many: 'things to buy', counts: true },
   household_meal_calendar: { one: 'meal on the household calendar', many: 'meals on the household calendar', counts: true },
+  upkeep_items: { one: 'household chore', many: 'household chores', counts: true },
+  // A doing is when a chore was done, which the chore's own line already
+  // says, so it is not counted as a thing of its own.
+  upkeep_doings: { one: 'time a chore was done', many: 'times a chore was done', counts: false },
 };
 
 export function wordsForPeerTable(table: string): { one: string; many: string; counts: boolean } | null {

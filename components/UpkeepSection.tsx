@@ -13,24 +13,46 @@ import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import {
   DUE_SOON_DAYS,
+  TIME_CHOICES,
   UPKEEP_CATEGORIES,
+  describeAssignee,
+  describeInterval,
+  describePlaceGroup,
+  describeTimeFit,
   describeUpkeepStanding,
   describeUpkeepSummary,
+  fitInMinutes,
   formatUpkeepMoney,
+  groupByPlace,
   nextDueAfterDoing,
+  placeChoices,
+  placeRemovalNote,
+  resolveAssignee,
   summarizeUpkeep,
   upkeepStanding,
+  type AssigneeContext,
+  type CustomUpkeepPlace,
   type UpkeepCadence,
   type UpkeepCategory,
   type UpkeepItem,
 } from '../lib/upkeep';
 import {
+  assignUpkeepItem,
+  countUpkeepInPlace,
+  createUpkeepPlace,
   deleteUpkeepItem,
   listUpkeepItems,
+  listUpkeepPlaces,
+  loadAssigneeContext,
   markUpkeepDone,
+  removeUpkeepPlace,
+  renameUpkeepPlace,
   renewUpkeepItem,
   upsertUpkeepItem,
 } from '../lib/upkeepDb';
+import { listConnections } from '../lib/connections';
+import { talksAutomatically } from '../lib/peerRelationships';
+import { compareLabels } from '../lib/choiceOrder';
 import { parsePriceInput } from '../lib/groceryList';
 import { useWalkMark } from './WalkMark';
 import { RecordPhotos } from './RecordPhotos';
@@ -60,12 +82,40 @@ const CADENCE_OPTIONS = [
   { label: 'Needs doing again', value: 'recurring' },
   { label: 'Runs out on a date', value: 'expires' },
 ];
+// A chore around the house comes round in days or weeks as often as in
+// months (J6, 2026-09-29), so an interval is a unit and a number: d:7 is
+// every week, m:12 every year. Days are stored in interval_days, months in
+// interval_months, and only one of the two is ever set.
 const INTERVAL_OPTIONS = [
-  { label: 'Every month', value: '1' },
-  { label: 'Every 3 months', value: '3' },
-  { label: 'Every 6 months', value: '6' },
-  { label: 'Every year', value: '12' },
-  { label: 'Every 2 years', value: '24' },
+  { label: 'Every day', value: 'd:1' },
+  { label: 'Every week', value: 'd:7' },
+  { label: 'Every 2 weeks', value: 'd:14' },
+  { label: 'Every month', value: 'm:1' },
+  { label: 'Every 3 months', value: 'm:3' },
+  { label: 'Every 6 months', value: 'm:6' },
+  { label: 'Every year', value: 'm:12' },
+  { label: 'Every 2 years', value: 'm:24' },
+];
+
+function intervalCode(item: Pick<UpkeepItem, 'intervalDays' | 'intervalMonths'>): string {
+  if (item.intervalDays != null && item.intervalDays > 0) return `d:${item.intervalDays}`;
+  if (item.intervalMonths != null && item.intervalMonths > 0) return `m:${item.intervalMonths}`;
+  return 'm:12';
+}
+
+function readIntervalCode(code: string): { intervalDays: number | null; intervalMonths: number | null } {
+  const [unit, raw] = code.split(':');
+  const value = Number(raw) || null;
+  return unit === 'd' ? { intervalDays: value, intervalMonths: null } : { intervalDays: null, intervalMonths: value };
+}
+
+const ADD_PLACE = '__add_place__';
+const NO_PLACE = '__no_place__';
+const ANYONE = '__anyone__';
+const NO_TIME = '__no_time__';
+const TIME_OPTIONS = [
+  { label: 'Not written down', value: NO_TIME },
+  ...[5, 10, 15, 20, 30, 45, 60, 90, 120, 180, 240].map((n) => ({ label: `${n} minutes`, value: String(n) })),
 ];
 
 function todayLocal(): string {
@@ -79,19 +129,48 @@ type ItemForm = {
   name: string;
   category: UpkeepCategory;
   cadence: UpkeepCadence;
-  intervalMonths: string;
+  interval: string;
   lastDoneOn: string;
   expiresOn: string;
   renewable: boolean;
   cost: string;
+  /** A place code, or '' for none given. */
+  place: string;
+  /** Minutes as a string, or '' when not written down. */
+  minutes: string;
+  /** An assignee code, or '' for anyone. */
+  assignedTo: string;
+  household: boolean;
 };
 
 function blankForm(): ItemForm {
   return {
     id: null, name: '', category: 'home', cadence: 'recurring',
-    intervalMonths: '12', lastDoneOn: '', expiresOn: '', renewable: true, cost: '',
+    interval: 'm:12', lastDoneOn: '', expiresOn: '', renewable: true, cost: '',
+    place: '', minutes: '', assignedTo: '', household: false,
   };
 }
+
+function formFor(item: UpkeepItem): ItemForm {
+  return {
+    id: item.id,
+    name: item.name,
+    category: item.category,
+    cadence: item.cadence,
+    interval: intervalCode(item),
+    lastDoneOn: item.lastDoneOn ?? '',
+    expiresOn: item.expiresOn ?? '',
+    renewable: item.renewable,
+    cost: item.cost != null ? String(item.cost) : '',
+    place: item.place ?? '',
+    minutes: item.minutes != null ? String(item.minutes) : '',
+    assignedTo: item.assignedTo ?? '',
+    household: item.household,
+  };
+}
+
+type Context = AssigneeContext & { myName: string | null };
+const EMPTY_CONTEXT: Context = { myPersonId: null, myKey: null, connections: [], family: [], myName: null };
 
 export function UpkeepSection({ tabColor, prefillName }: Props) {
   // The outline on a button a Your Story walk line names (components/WalkMark.ts).
@@ -103,6 +182,15 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
   const [form, setForm] = useState<ItemForm | null>(null);
   const [renewForm, setRenewForm] = useState<{ id: string; name: string; date: string } | null>(null);
   const [confirm, setConfirm] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
+  // J6: the places the person named, and the one being named or renamed.
+  const [places, setPlaces] = useState<CustomUpkeepPlace[]>([]);
+  const [placeEdit, setPlaceEdit] = useState<{ id: string | null; name: string } | null>(null);
+  const [placeRemoval, setPlaceRemoval] = useState<{ id: string; name: string; inUse: number; moveTo: string } | null>(null);
+  // Who a chore can be for, and the people it can be shared with.
+  const [context, setContext] = useState<Context>(EMPTY_CONTEXT);
+  const [linked, setLinked] = useState<{ key: string; name: string }[]>([]);
+  // J7: how much time somebody has, or null before they say.
+  const [freeMinutes, setFreeMinutes] = useState<number | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
   const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
@@ -157,8 +245,23 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
 
   const load = useCallback(() => {
     setLoading(true);
-    listUpkeepItems()
-      .then(setItems)
+    Promise.all([
+      listUpkeepItems(),
+      listUpkeepPlaces(),
+      loadAssigneeContext().catch(() => EMPTY_CONTEXT),
+      listConnections().catch(() => []),
+    ])
+      .then(([loadedItems, loadedPlaces, loadedContext, connections]) => {
+        setItems(loadedItems);
+        setPlaces(loadedPlaces);
+        setContext(loadedContext);
+        // Only a link that keeps things in step by itself can carry a chore.
+        setLinked(
+          connections
+            .filter((entry) => talksAutomatically(entry.role))
+            .map((entry) => ({ key: entry.publicKeyBase64, name: entry.name })),
+        );
+      })
       .catch((error) => showInfoAlert('Could not load', error instanceof Error ? error.message : String(error)))
       .finally(() => setLoading(false));
   }, [showInfoAlert]);
@@ -167,16 +270,109 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
 
   const summary = useMemo(() => summarizeUpkeep(items, todayLocal()), [items]);
 
-  // Grouped for the list, in the order the categories are declared rather than
-  // alphabetically, so Home leads and Something else trails.
-  const grouped = useMemo(
-    () =>
-      UPKEEP_CATEGORIES.map((category) => ({
-        category,
-        entries: items.filter((item) => item.category === category.code),
-      })).filter((group) => group.entries.length > 0),
-    [items],
+  // J6: grouped by room or area, alphabetical, with No place given last.
+  const grouped = useMemo(() => groupByPlace(items, places, todayLocal()), [items, places]);
+
+  // J7: what fits in the time somebody has.
+  const timeFit = useMemo(
+    () => (freeMinutes != null ? fitInMinutes(items, freeMinutes, todayLocal(), context) : null),
+    [items, freeMinutes, context],
   );
+
+  const placeOptions = useMemo(
+    () => [
+      { label: 'No place given', value: NO_PLACE },
+      ...placeChoices(places).map((entry) => ({ label: entry.label, value: entry.code })),
+      { label: 'Add a place of your own', value: ADD_PLACE },
+    ],
+    [places],
+  );
+
+  // Anyone and the person themselves first, then everybody else by name.
+  const assigneeOptions = useMemo(() => {
+    const others = [
+      ...context.family.map((entry) => ({ label: entry.name, value: `family:${entry.id}` })),
+      ...linked.map((entry) => ({ label: entry.name, value: `key:${entry.key}` })),
+    ].sort((a, b) => compareLabels(a.label, b.label));
+    return [
+      { label: 'Anyone', value: ANYONE },
+      ...(context.myPersonId ? [{ label: 'Me', value: `person:${context.myPersonId}` }] : []),
+      ...others,
+    ];
+  }, [context, linked]);
+
+  function nameForAssignee(code: string): string | null {
+    if (!code) return null;
+    if (code.startsWith('person:')) return context.myName;
+    return assigneeOptions.find((entry) => entry.value === code)?.label ?? null;
+  }
+
+  async function take(item: UpkeepItem) {
+    if (!context.myPersonId) return;
+    await assignUpkeepItem(item.id, `person:${context.myPersonId}`, context.myName);
+    load();
+  }
+
+  async function giveBack(item: UpkeepItem) {
+    await assignUpkeepItem(item.id, null, null);
+    load();
+  }
+
+  async function saveNewPlaceName() {
+    if (!placeEdit || !form) return;
+    const name = placeEdit.name.trim();
+    if (!name) {
+      showInfoAlert('Almost there', 'Give the place a name, like "Spare room" or "Boat".');
+      return;
+    }
+    if (placeEdit.id) {
+      await renameUpkeepPlace(placeEdit.id, name);
+      setPlaces(await listUpkeepPlaces());
+      setPlaceEdit(null);
+      return;
+    }
+    const code = await createUpkeepPlace(name);
+    setPlaces(await listUpkeepPlaces());
+    setForm({ ...form, place: code });
+    setPlaceEdit(null);
+  }
+
+  async function startPlaceRemoval(id: string, name: string) {
+    const inUse = await countUpkeepInPlace(id);
+    if (inUse === 0) {
+      setConfirm({
+        title: `Remove ${name}?`,
+        message: placeRemovalNote(name, 0),
+        actions: [
+          {
+            label: 'Remove',
+            destructive: true,
+            onPress: async () => {
+              setConfirm(null);
+              await removeUpkeepPlace(id, null);
+              if (form?.place === id) setForm({ ...form, place: '' });
+              load();
+            },
+          },
+          { label: 'Keep it', onPress: () => setConfirm(null) },
+        ],
+      });
+      return;
+    }
+    setPlaceRemoval({ id, name, inUse, moveTo: '' });
+  }
+
+  async function finishPlaceRemoval() {
+    if (!placeRemoval) return;
+    if (!placeRemoval.moveTo) {
+      showInfoAlert('Almost there', 'Pick where the things in it go first.');
+      return;
+    }
+    const moved = await removeUpkeepPlace(placeRemoval.id, placeRemoval.moveTo);
+    if (moved && form?.place === placeRemoval.id) setForm({ ...form, place: placeRemoval.moveTo });
+    setPlaceRemoval(null);
+    load();
+  }
 
   async function save() {
     if (!form) return;
@@ -197,16 +393,24 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
       return;
     }
 
+    const interval = readIntervalCode(form.interval);
     await upsertUpkeepItem({
       id: form.id ?? undefined,
       name: form.name,
       category: form.category,
       cadence: form.cadence,
-      intervalMonths: Number(form.intervalMonths) || null,
+      intervalMonths: interval.intervalMonths,
+      intervalDays: interval.intervalDays,
       lastDoneOn: form.lastDoneOn,
       expiresOn: form.expiresOn,
       renewable: form.renewable,
       cost: form.cost.trim() ? parsePriceInput(form.cost) : null,
+      place: form.place || null,
+      minutes: Number(form.minutes) || null,
+      assignedTo: form.assignedTo || null,
+      assignedName: nameForAssignee(form.assignedTo),
+      // Somebody on a linked phone only ever sees a chore that is shared.
+      household: form.household || form.assignedTo.startsWith('key:'),
     });
     setForm(null);
     load();
@@ -277,6 +481,82 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
             onChangeText={(t) => setForm({ ...form, name: t })}
           />
 
+          <Text style={styles.label}>Where (optional)</Text>
+          <PopoverSelect
+            options={placeOptions}
+            selected={form.place || NO_PLACE}
+            onSelect={(value) => {
+              if (value === ADD_PLACE) {
+                setPlaceEdit({ id: null, name: '' });
+                return;
+              }
+              setForm({ ...form, place: value === NO_PLACE ? '' : value });
+            }}
+            tabColor={tabColor}
+            searchable
+          />
+          {placeEdit ? (
+            <View style={styles.inlineForm}>
+              <Text style={styles.label}>{placeEdit.id ? 'New name for the place' : 'Name of the place'}</Text>
+              <AppTextInput
+                onVoiceResult={(t) => setPlaceEdit({ ...placeEdit, name: t })}
+                micColor={tabColor}
+                style={styles.input}
+                placeholder="e.g. Spare room"
+                value={placeEdit.name}
+                onChangeText={(t) => setPlaceEdit({ ...placeEdit, name: t })}
+              />
+              <View style={styles.formActions}>
+                <TouchableOpacity style={styles.secondaryButton} onPress={() => setPlaceEdit(null)}>
+                  <Text style={styles.secondaryButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.primaryButton} onPress={saveNewPlaceName}>
+                  <Text style={styles.primaryButtonText}>{placeEdit.id ? 'Rename it' : 'Add the place'}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : null}
+          {(() => {
+            // Rename and Remove are offered on the places the person named,
+            // never on the built-in ones.
+            const own = places.find((entry) => entry.id === form.place);
+            if (!own || placeEdit) return null;
+            return (
+              <View style={styles.rowActions}>
+                <TouchableOpacity onPress={() => setPlaceEdit({ id: own.id, name: own.name })}>
+                  <Text style={styles.actionText}>{`Rename ${own.name}`}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => startPlaceRemoval(own.id, own.name)}>
+                  <Text style={styles.actionTextRemove}>{`Remove ${own.name}`}</Text>
+                </TouchableOpacity>
+              </View>
+            );
+          })()}
+          {placeRemoval ? (
+            <View style={styles.inlineForm}>
+              <Text style={styles.helperText}>{placeRemovalNote(placeRemoval.name, placeRemoval.inUse)}</Text>
+              <Text style={styles.label}>Move them to</Text>
+              <PopoverSelect
+                options={placeChoices(places)
+                  .filter((entry) => entry.code !== placeRemoval.id)
+                  .map((entry) => ({ label: entry.label, value: entry.code }))}
+                selected={placeRemoval.moveTo || null}
+                placeholder="Pick a place"
+                onSelect={(value) => setPlaceRemoval({ ...placeRemoval, moveTo: value })}
+                tabColor={tabColor}
+                searchable
+              />
+              <View style={styles.formActions}>
+                <TouchableOpacity style={styles.secondaryButton} onPress={() => setPlaceRemoval(null)}>
+                  <Text style={styles.secondaryButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.primaryButton} onPress={finishPlaceRemoval}>
+                  <Text style={styles.primaryButtonText}>Move and remove</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : null}
+
           <Text style={styles.label}>Which part of life</Text>
           <PopoverSelect
             options={CATEGORY_OPTIONS}
@@ -305,9 +585,13 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
             <>
               <Text style={styles.label}>How often</Text>
               <PopoverSelect
-                options={INTERVAL_OPTIONS}
-                selected={form.intervalMonths}
-                onSelect={(value) => setForm({ ...form, intervalMonths: value })}
+                options={
+                  INTERVAL_OPTIONS.some((entry) => entry.value === form.interval)
+                    ? INTERVAL_OPTIONS
+                    : [...INTERVAL_OPTIONS, { label: describeInterval(readIntervalCode(form.interval)), value: form.interval }]
+                }
+                selected={form.interval}
+                onSelect={(value) => setForm({ ...form, interval: value })}
                 tabColor={tabColor}
               />
 
@@ -371,6 +655,59 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
             than pretending to be complete.
           </Text>
 
+          <Text style={styles.label}>How long it takes (optional)</Text>
+          <PopoverSelect
+            options={
+              !form.minutes || TIME_OPTIONS.some((entry) => entry.value === form.minutes)
+                ? TIME_OPTIONS
+                : [...TIME_OPTIONS, { label: `${form.minutes} minutes`, value: form.minutes }]
+            }
+            selected={form.minutes || NO_TIME}
+            onSelect={(value) => setForm({ ...form, minutes: value === NO_TIME ? '' : value })}
+            tabColor={tabColor}
+          />
+          <Text style={styles.helperText}>
+            Used by I Have Some Time below. Anything with no time written down is left out there and counted, never
+            guessed at.
+          </Text>
+
+          <Text style={styles.label}>Who does it</Text>
+          <PopoverSelect
+            options={assigneeOptions}
+            selected={form.assignedTo || ANYONE}
+            onSelect={(value) => {
+              const code = value === ANYONE ? '' : value;
+              setForm({ ...form, assignedTo: code, household: form.household || code.startsWith('key:') });
+            }}
+            tabColor={tabColor}
+            searchable={assigneeOptions.length > 8}
+          />
+          <Text style={styles.helperText}>
+            {form.assignedTo.startsWith('key:')
+              ? 'They are on a linked phone, so this is shared with the household and reaches them there.'
+              : 'Anyone means whoever gets to it first can take it. Nobody is counted or compared.'}
+          </Text>
+
+          {linked.length > 0 ? (
+            <>
+              <TouchableOpacity
+                style={styles.checkRow}
+                onPress={() => {
+                  if (form.assignedTo.startsWith('key:')) return;
+                  setForm({ ...form, household: !form.household });
+                }}
+              >
+                <View style={[styles.checkBox, form.household && styles.checkBoxOn]}>
+                  {form.household ? <Text style={styles.checkMark}>{'✓'}</Text> : null}
+                </View>
+                <Text style={styles.checkLabel}>Share with the household</Text>
+              </TouchableOpacity>
+              <Text style={styles.helperText}>
+                {`${linked.map((entry) => entry.name).join(', ')} will see it, can take it or mark it done, and see when it was last done. Upkeep you do not share stays with you, on your devices.`}
+              </Text>
+            </>
+          ) : null}
+
           <View style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => setForm(null)}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
@@ -408,22 +745,68 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
         </TabBand>
       ) : null}
 
+      {items.some((item) => item.active) ? (
+        <TabBand folds={folds} color={tabColor} id="life:upkeep:time" title="I Have Some Time" icon="hourglass-outline">
+          <Text style={styles.bodyText}>
+            Say how long you have, and the things due or coming due that fit in it are listed, soonest first.
+          </Text>
+          <PopoverSelect
+            options={TIME_CHOICES.map((n) => ({ label: `I have ${n} minutes`, value: String(n) }))}
+            selected={freeMinutes != null ? String(freeMinutes) : null}
+            placeholder="How long do you have?"
+            onSelect={(value) => setFreeMinutes(Number(value))}
+            tabColor={tabColor}
+          />
+          {timeFit && freeMinutes != null ? (
+            <>
+              <Text style={styles.helperText}>{describeTimeFit(timeFit, freeMinutes)}</Text>
+              {timeFit.fits.map((standing) => (
+                <View key={standing.item.id} style={styles.row}>
+                  <View style={styles.rowMain}>
+                    <Text style={styles.rowTitle}>{standing.item.name}</Text>
+                    <Text style={[styles.rowMeta, standing.overdue && styles.warn]}>
+                      {`${standing.item.minutes} minutes. ${describeUpkeepStanding(standing)}`}
+                    </Text>
+                    <View style={styles.rowActions}>
+                      <TouchableOpacity onPress={() => confirmDone(standing.item)}>
+                        <Text style={styles.actionText}>Done today</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </>
+          ) : null}
+        </TabBand>
+      ) : null}
+
       {grouped.map((group) => (
         <TabBand
-          key={group.category.code}
+          key={group.code ?? 'none'}
           folds={folds}
           color={tabColor}
-          id={`life:upkeep:${group.category.code}`}
-          title={group.category.label}
-          icon="construct-outline"
+          id={`life:upkeep:place:${group.code ?? 'none'}`}
+          title={group.label}
+          icon="home-outline"
           count={group.entries.length}
         >
+          <Text style={styles.helperText}>{describePlaceGroup(group)}</Text>
           {group.entries.map((item) => {
             const standing = upkeepStanding(item, todayLocal());
+            const who = resolveAssignee(item, context);
             return (
               <View key={item.id} style={[styles.row, !item.active && styles.dimmed]}>
                 <View style={styles.rowMain}>
                   <Text style={styles.rowTitle}>{item.name}</Text>
+                  <Text style={styles.rowMeta}>
+                    {[
+                      describeAssignee(who) + '.',
+                      item.minutes != null ? `Takes about ${item.minutes} minutes.` : null,
+                      item.household ? 'Shared with the household.' : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' ')}
+                  </Text>
                   <Text
                     style={[
                       styles.rowMeta,
@@ -479,21 +862,17 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
                         <Text style={styles.actionText}>Renewed</Text>
                       </TouchableOpacity>
                     ) : null}
-                    <TouchableOpacity
-                      onPress={() =>
-                        setForm({
-                          id: item.id,
-                          name: item.name,
-                          category: item.category,
-                          cadence: item.cadence,
-                          intervalMonths: item.intervalMonths != null ? String(item.intervalMonths) : '12',
-                          lastDoneOn: item.lastDoneOn ?? '',
-                          expiresOn: item.expiresOn ?? '',
-                          renewable: item.renewable,
-                          cost: item.cost != null ? String(item.cost) : '',
-                        })
-                      }
-                    >
+                    {who.kind !== 'me' && context.myPersonId ? (
+                      <TouchableOpacity onPress={() => take(item)}>
+                        <Text style={styles.actionText}>{who.kind === 'anyone' ? 'Take it' : 'Take it over'}</Text>
+                      </TouchableOpacity>
+                    ) : null}
+                    {who.kind !== 'anyone' ? (
+                      <TouchableOpacity onPress={() => giveBack(item)}>
+                        <Text style={styles.actionText}>Leave it for anyone</Text>
+                      </TouchableOpacity>
+                    ) : null}
+                    <TouchableOpacity onPress={() => setForm(formFor(item))}>
                       <Text style={styles.actionText}>Edit</Text>
                     </TouchableOpacity>
                     <TouchableOpacity

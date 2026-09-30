@@ -5523,6 +5523,21 @@ async function runDatabaseInitialization() {
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
       CREATE INDEX IF NOT EXISTS idx_upkeep_items_active ON upkeep_items(active);
+      -- J6, J7 and chores (1.0.57.1): interval_days, place, place_name,
+      -- minutes, assigned_to, assigned_name and household are added to
+      -- upkeep_items by the migration near the end of this file, so a fresh
+      -- install and an old one take the same path. See lib/upkeep.ts.
+
+      -- The places a person named for their upkeep (J6), beside the built-in
+      -- ones in lib/upkeep.ts. Removing one moves what is in it first
+      -- (lib/upkeepDb.ts removeUpkeepPlace), so no item points at a place
+      -- that is gone.
+      CREATE TABLE IF NOT EXISTS upkeep_places (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
 
       -- Every upkeep doing kept, not just the last one (2026-09-23).
       --
@@ -9886,6 +9901,26 @@ async function runDatabaseInitialization() {
       }
       if (!columns.some((column) => column.name === 'identified_sure')) {
         await db.execAsync('ALTER TABLE garden_plantings ADD COLUMN identified_sure INTEGER;');
+      }
+    }
+    // Upkeep by place, minutes, and chores somebody is assigned or takes
+    // (J6, J7, 1.0.57.1). All nullable or defaulted, so every earlier item
+    // reads as it did: no place, no time given, anyone's, not shared.
+    {
+      const columns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(upkeep_items)');
+      const wanted: [string, string][] = [
+        ['interval_days', 'INTEGER'],
+        ['place', 'TEXT'],
+        ['place_name', 'TEXT'],
+        ['minutes', 'INTEGER'],
+        ['assigned_to', 'TEXT'],
+        ['assigned_name', 'TEXT'],
+        ['household', 'INTEGER NOT NULL DEFAULT 0'],
+      ];
+      for (const [column, type] of wanted) {
+        if (!columns.some((existing) => existing.name === column)) {
+          await db.execAsync(`ALTER TABLE upkeep_items ADD COLUMN ${column} ${type};`);
+        }
       }
     }
     // The person's symptom names, loaded once so every label lookup finds

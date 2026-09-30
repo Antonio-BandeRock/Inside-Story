@@ -55,6 +55,7 @@ export type PeerAreaCode =
   | 'meals'
   | 'mealCalendar'
   | 'shopping'
+  | 'chores'
   | 'conditions'
   | 'schedule'
   | 'meds'
@@ -68,8 +69,14 @@ export type PeerAreaCode =
  * put on a line). Columns are stripped on the way out and put back from
  * this device on the way in, so a merge can never blank something the
  * other side was never sent.
+ *
+ * `where` narrows a table to the rows that may cross, for a table that holds
+ * both a person's private rows and the ones they share. Only those rows are
+ * read to send, and only those rows are replaced on arrival, so a private
+ * row is never sent and never touched by what comes back. It is SQL written
+ * here and nowhere else, never built from anything a caller passes.
  */
-export type PeerTable = { table: string; keepsHome: readonly string[] };
+export type PeerTable = { table: string; keepsHome: readonly string[]; where?: string };
 
 export type PeerArea = {
   code: PeerAreaCode;
@@ -141,6 +148,26 @@ export const PEER_AREAS: readonly PeerArea[] = [
     ready: true,
   },
   {
+    code: 'chores',
+    label: 'Household chores',
+    what: 'The upkeep you choose to share with the household, and who is doing each one. Either of you can take one, hand one over, or mark it done. Upkeep you have not shared stays yours.',
+    // J8, 2026-09-29. Only rows marked household cross, and the doings go
+    // with the chore they belong to so either side sees when it was last
+    // done. A chore stops crossing the moment somebody unshares it.
+    tables: [
+      { table: 'upkeep_items', keepsHome: [], where: 'household = 1' },
+      {
+        table: 'upkeep_doings',
+        keepsHome: [],
+        where: 'item_id IN (SELECT id FROM upkeep_items WHERE household = 1)',
+      },
+    ],
+    // No permission switch of its own: nothing crosses until somebody marks
+    // a chore as the household's, and that mark is the permission, one
+    // chore at a time.
+    ready: true,
+  },
+  {
     code: 'conditions',
     label: 'Which conditions they track',
     what: 'The names only, so meals can be planned around both of you at once. Never symptoms, labs, healing stage or notes.',
@@ -150,11 +177,10 @@ export const PEER_AREAS: readonly PeerArea[] = [
   {
     code: 'schedule',
     label: 'Their schedule',
-    what: 'Appointments, doses and upkeep on their day, which you can add to on their behalf.',
-    tables: [
-      { table: 'schedule_items', keepsHome: [] },
-      { table: 'upkeep_items', keepsHome: [] },
-    ],
+    what: 'Appointments and doses on their day, which you can add to on their behalf.',
+    // Upkeep left this area on 2026-09-29: household chores cross through
+    // the chores area, a row at a time, and a table may belong to one area.
+    tables: [{ table: 'schedule_items', keepsHome: [] }],
     ready: false,
     waitingOn:
       'somewhere to keep another person’s schedule. It has to sit apart from yours, the way a partner’s meal plan already does, so that one query can never put their appointment on your day.',
@@ -257,8 +283,8 @@ export const RELATIONSHIPS: readonly Relationship[] = [
   {
     role: 'partner',
     label: 'Partner',
-    what: 'You plan meals together. You both see the same days, each with what those meals mean for your conditions, and you share one shopping list and one household meal calendar.',
-    shared: ['shopping', 'mealCalendar'],
+    what: 'You plan meals together. You both see the same days, each with what those meals mean for your conditions, and you share one shopping list, one household meal calendar and the household chores.',
+    shared: ['shopping', 'mealCalendar', 'chores'],
     theirs: ['meals', 'conditions'],
     onTheirBehalf: [],
     granted: ['meals', 'shopping', 'conditions'],
@@ -268,7 +294,7 @@ export const RELATIONSHIPS: readonly Relationship[] = [
     role: 'child',
     label: 'Your child',
     what: 'You keep their side of things going and they see what you choose to let them see. Their meals, medicines and how they are doing stay theirs, recorded by you.',
-    shared: ['shopping', 'mealCalendar'],
+    shared: ['shopping', 'mealCalendar', 'chores'],
     theirs: ['meals', 'conditions'],
     onTheirBehalf: ['schedule', 'meds', 'symptoms'],
     granted: ['meals', 'shopping', 'conditions'],
@@ -280,7 +306,7 @@ export const RELATIONSHIPS: readonly Relationship[] = [
     role: 'caregiver',
     label: 'Someone who helps you',
     what: 'They can record meals, medicines, how you are doing and what is on your day, on your behalf. They never see anything you have not given them.',
-    shared: ['shopping', 'mealCalendar'],
+    shared: ['shopping', 'mealCalendar', 'chores'],
     theirs: ['meals', 'conditions'],
     onTheirBehalf: ['schedule', 'meds', 'symptoms'],
     granted: ['meals', 'shopping', 'conditions'],

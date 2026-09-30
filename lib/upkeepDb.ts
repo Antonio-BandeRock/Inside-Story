@@ -5,10 +5,13 @@
 // lib/db.ts, arithmetic and every refusal in lib/upkeep.ts with no database so
 // they can be tested without one, and the reading and writing here.
 
-import { getDatabase } from './db';
+import { getDatabase, getFamilyMembers, getUserProfile } from './db';
 import {
   nextDueAfterDoing,
+  placeChoices,
   upkeepStanding,
+  type AssigneeContext,
+  type CustomUpkeepPlace,
   type UpkeepCadence,
   type UpkeepCategory,
   type UpkeepItem,
@@ -25,7 +28,7 @@ export async function upsertUpkeepItem(input: {
   renewable?: boolean;
   cost?: number | null;
   notes?: string;
-}): Promise<string> {
+} & ChoreFields): Promise<string> {
   const db = await getDatabase();
   const now = new Date().toISOString();
 
@@ -34,6 +37,14 @@ export async function upsertUpkeepItem(input: {
   // against a recurring item with an expiry date on it.
   const recurring = input.cadence === 'recurring';
   const intervalMonths = recurring ? input.intervalMonths ?? null : null;
+  const choreFields: ChoreFields = {
+    intervalDays: input.intervalDays === undefined ? undefined : recurring ? input.intervalDays : null,
+    place: input.place,
+    minutes: input.minutes,
+    assignedTo: input.assignedTo,
+    assignedName: input.assignedName,
+    household: input.household,
+  };
   const lastDoneOn = recurring ? input.lastDoneOn || null : null;
   const expiresOn = recurring ? null : input.expiresOn || null;
   // Renewable only means anything for something that expires. A service is
@@ -51,6 +62,7 @@ export async function upsertUpkeepItem(input: {
       input.name.trim(), input.category, input.cadence, intervalMonths, lastDoneOn,
       expiresOn, renewable, input.cost ?? null, input.notes?.trim() || null, now, input.id,
     );
+    await writeChoreFields(input.id, choreFields);
     return input.id;
   }
 
@@ -65,6 +77,7 @@ export async function upsertUpkeepItem(input: {
     id, input.name.trim(), input.category, input.cadence, intervalMonths, lastDoneOn,
     expiresOn, renewable, input.cost ?? null, input.notes?.trim() || null, now, now,
   );
+  await writeChoreFields(id, choreFields);
   return id;
 }
 
@@ -79,14 +92,12 @@ export async function upsertUpkeepItem(input: {
  */
 export async function markUpkeepDone(id: string, doneOn: string): Promise<{ nextDueOn: string | null }> {
   const db = await getDatabase();
-  const row = await db.getFirstAsync<{
-    id: string; name: string; category: string; cadence: string;
-    intervalMonths: number | null; lastDoneOn: string | null; expiresOn: string | null;
-    renewable: number; cost: number | null; active: number; notes: string | null;
-  }>(
+  const row = await db.getFirstAsync<UpkeepRow>(
     `
       SELECT id, name, category, cadence, interval_months AS intervalMonths,
-             last_done_on AS lastDoneOn, expires_on AS expiresOn, renewable, cost, active, notes
+             last_done_on AS lastDoneOn, expires_on AS expiresOn, renewable, cost, active, notes,
+             interval_days AS intervalDays, place, place_name AS placeName, minutes,
+             assigned_to AS assignedTo, assigned_name AS assignedName, household
       FROM upkeep_items WHERE id = ?
     `,
     id,
@@ -145,6 +156,8 @@ type UpkeepRow = {
   id: string; name: string; category: string; cadence: string;
   intervalMonths: number | null; lastDoneOn: string | null; expiresOn: string | null;
   renewable: number; cost: number | null; active: number; notes: string | null;
+  intervalDays: number | null; place: string | null; placeName: string | null; minutes: number | null;
+  assignedTo: string | null; assignedName: string | null; household: number | null;
 };
 
 function toItem(row: UpkeepRow): UpkeepItem {
@@ -162,6 +175,13 @@ function toItem(row: UpkeepRow): UpkeepItem {
     cost: row.cost,
     active: Number(row.active) === 1,
     notes: row.notes,
+    intervalDays: row.intervalDays != null ? Number(row.intervalDays) : null,
+    place: row.place,
+    placeName: row.placeName,
+    minutes: row.minutes != null ? Number(row.minutes) : null,
+    assignedTo: row.assignedTo,
+    assignedName: row.assignedName,
+    household: Number(row.household) === 1,
   };
 }
 
@@ -170,10 +190,191 @@ export async function listUpkeepItems(): Promise<UpkeepItem[]> {
   const rows = await db.getAllAsync<UpkeepRow>(
     `
       SELECT id, name, category, cadence, interval_months AS intervalMonths,
-             last_done_on AS lastDoneOn, expires_on AS expiresOn, renewable, cost, active, notes
+             last_done_on AS lastDoneOn, expires_on AS expiresOn, renewable, cost, active, notes,
+             interval_days AS intervalDays, place, place_name AS placeName, minutes,
+             assigned_to AS assignedTo, assigned_name AS assignedName, household
       FROM upkeep_items
       ORDER BY active DESC, category, name
     `,
   );
   return rows.map(toItem);
+}
+
+// --- J6, J7 and chores -------------------------------------------------------
+
+export type ChoreFields = {
+  intervalDays?: number | null;
+  place?: string | null;
+  minutes?: number | null;
+  assignedTo?: string | null;
+  assignedName?: string | null;
+  household?: boolean;
+};
+
+/**
+ * The J6 and J7 columns, written only where the caller gave them, so a
+ * caller that knows nothing about places (a starter list, a capture note)
+ * never blanks one on an update.
+ */
+async function writeChoreFields(id: string, fields: ChoreFields): Promise<void> {
+  const sets: string[] = [];
+  const values: (string | number | null)[] = [];
+  if (fields.intervalDays !== undefined) {
+    sets.push('interval_days = ?');
+    values.push(fields.intervalDays != null && fields.intervalDays > 0 ? Math.round(fields.intervalDays) : null);
+  }
+  if (fields.place !== undefined) {
+    sets.push('place = ?', 'place_name = ?');
+    values.push(fields.place, fields.place ? await placeNameFor(fields.place) : null);
+  }
+  if (fields.minutes !== undefined) {
+    sets.push('minutes = ?');
+    values.push(fields.minutes != null && fields.minutes > 0 ? Math.round(fields.minutes) : null);
+  }
+  if (fields.assignedTo !== undefined) {
+    sets.push('assigned_to = ?', 'assigned_name = ?');
+    values.push(fields.assignedTo, fields.assignedTo ? fields.assignedName ?? null : null);
+  }
+  if (fields.household !== undefined) {
+    sets.push('household = ?');
+    values.push(fields.household ? 1 : 0);
+  }
+  if (sets.length === 0) return;
+  const db = await getDatabase();
+  await db.runAsync(`UPDATE upkeep_items SET ${sets.join(', ')} WHERE id = ?`, ...values, id);
+}
+
+async function placeNameFor(code: string): Promise<string | null> {
+  const places = placeChoices(await listUpkeepPlaces());
+  return places.find((entry) => entry.code === code)?.label ?? null;
+}
+
+/**
+ * Who does it. Null is anyone. Assigning to a connected person shares the
+ * chore with the household too, since otherwise it would never reach them.
+ */
+export async function assignUpkeepItem(
+  id: string,
+  assignedTo: string | null,
+  assignedName: string | null,
+): Promise<void> {
+  await writeChoreFields(id, {
+    assignedTo,
+    assignedName,
+    household: assignedTo?.startsWith('key:') ? true : undefined,
+  });
+  const db = await getDatabase();
+  await db.runAsync('UPDATE upkeep_items SET updated_at = ? WHERE id = ?', new Date().toISOString(), id);
+}
+
+// --- Places (J6) -------------------------------------------------------------
+
+export async function listUpkeepPlaces(): Promise<CustomUpkeepPlace[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<CustomUpkeepPlace>('SELECT id, name FROM upkeep_places ORDER BY name COLLATE NOCASE');
+}
+
+/** Adds a place the person named, or hands back the one already called that. */
+export async function createUpkeepPlace(name: string): Promise<string> {
+  const db = await getDatabase();
+  const trimmed = name.trim();
+  const existing = placeChoices(await listUpkeepPlaces()).find(
+    (entry) => entry.label.trim().toLowerCase() === trimmed.toLowerCase(),
+  );
+  if (existing) return existing.code;
+  const id = `place_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+  const now = new Date().toISOString();
+  await db.runAsync(
+    'INSERT INTO upkeep_places (id, name, created_at, updated_at) VALUES (?, ?, ?, ?)',
+    id, trimmed, now, now,
+  );
+  return id;
+}
+
+export async function renameUpkeepPlace(id: string, name: string): Promise<void> {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  const trimmed = name.trim();
+  await db.runAsync('UPDATE upkeep_places SET name = ?, updated_at = ? WHERE id = ?', trimmed, now, id);
+  // The name carried on each item follows, so a household chore reads by
+  // the new name on the other phone too.
+  await db.runAsync('UPDATE upkeep_items SET place_name = ?, updated_at = ? WHERE place = ?', trimmed, now, id);
+}
+
+export async function countUpkeepInPlace(code: string): Promise<number> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM upkeep_items WHERE place = ?', code);
+  return Number(row?.n ?? 0);
+}
+
+/**
+ * Removes a place the person named, moving what is in it to the place they
+ * picked first. With things still in it and nowhere given to move them,
+ * nothing happens: a place is never taken out from under an item.
+ */
+export async function removeUpkeepPlace(id: string, moveTo: string | null): Promise<boolean> {
+  const inUse = await countUpkeepInPlace(id);
+  if (inUse > 0 && (!moveTo || moveTo === id)) return false;
+  const label = moveTo ? await placeNameFor(moveTo) : null;
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  await db.withTransactionAsync(async () => {
+    if (inUse > 0 && moveTo) {
+      await db.runAsync(
+        'UPDATE upkeep_items SET place = ?, place_name = ?, updated_at = ? WHERE place = ?',
+        moveTo, label, now, id,
+      );
+    }
+    await db.runAsync('DELETE FROM upkeep_places WHERE id = ?', id);
+  });
+  return true;
+}
+
+// --- Who this person is, for chores ------------------------------------------
+
+export const UPKEEP_PERSON_META_KEY = 'upkeep_person_id';
+
+/**
+ * An id for this person that their own devices share, so a chore somebody
+ * took on the phone reads as theirs on the computer too. It travels in
+ * app_meta with their other settings, which is why it is not in
+ * DEVICE_LOCAL_META_KEYS. Made the first time it is asked for.
+ */
+export async function getUpkeepPersonId(): Promise<string> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ value: string }>(
+    'SELECT value FROM app_meta WHERE key = ?', UPKEEP_PERSON_META_KEY,
+  );
+  if (row?.value) return row.value;
+  const id = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+  await db.runAsync(
+    'INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?) ON CONFLICT(key) DO NOTHING',
+    UPKEEP_PERSON_META_KEY, id, new Date().toISOString(),
+  );
+  const again = await db.getFirstAsync<{ value: string }>(
+    'SELECT value FROM app_meta WHERE key = ?', UPKEEP_PERSON_META_KEY,
+  );
+  return again?.value ?? id;
+}
+
+/** Everything resolveAssignee needs, read once per load of the screen. */
+export async function loadAssigneeContext(): Promise<AssigneeContext & { myName: string | null }> {
+  const [{ getDeviceIdentity }, { listConnections }] = await Promise.all([
+    import('./deviceIdentity'),
+    import('./connections'),
+  ]);
+  const [personId, identity, connections, family, profile] = await Promise.all([
+    getUpkeepPersonId(),
+    getDeviceIdentity().catch(() => null),
+    listConnections().catch(() => []),
+    getFamilyMembers().catch(() => []),
+    getUserProfile().catch(() => null),
+  ]);
+  return {
+    myPersonId: personId,
+    myKey: identity?.publicKeyBase64 ?? null,
+    connections: connections.map((entry) => ({ key: entry.publicKeyBase64, name: entry.name })),
+    family: family.map((entry) => ({ id: String(entry.id), name: entry.name })),
+    myName: profile?.firstName?.trim() || null,
+  };
 }

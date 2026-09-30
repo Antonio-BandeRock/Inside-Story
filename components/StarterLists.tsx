@@ -77,6 +77,8 @@ export function StarterLists({ kind, tabColor, heldNames, onAdded }: Props) {
           intervalMonths: item.intervalMonths,
           lastDoneOn: null,
           notes: item.notes ?? undefined,
+          // The starter groups are named for built-in places (J6).
+          place: group.key,
         });
         count += 1;
       }
