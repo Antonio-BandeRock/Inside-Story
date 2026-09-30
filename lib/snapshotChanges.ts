@@ -238,6 +238,9 @@ const AREAS: readonly Area[] = [
   { one: 'tracker of your own', many: 'trackers of your own', count: ['custom_trackers'], quiet: [] },
   { one: 'tracker entry', many: 'tracker entries', count: ['custom_tracker_entries'], quiet: [] },
   { one: 'report sent', many: 'reports sent', count: ['report_history'], quiet: [] },
+  // C10, 2026-09-30. The doings are each time one was ticked, which the
+  // to-do itself already says by moving on.
+  { one: 'to-do', many: 'to-dos', count: ['todos'], quiet: ['todo_doings'] },
   {
     one: 'piece of grow setup',
     many: 'pieces of grow setup',

@@ -159,6 +159,7 @@ export type YourStoryItemKey =
   | 'routine'
   | 'didIDoIt'
   | 'daysUntil'
+  | 'todo'
   | 'meal'
   | 'checkin'
   | 'water'
@@ -369,6 +370,16 @@ export const ITEMS: ItemDef[] = [
     done: 'A countdown is on record.',
     why: 'A date you are waiting for, counted in days, with a reminder on the day it lands.',
     destination: lifeLens('daysUntil'),
+  },
+  {
+    key: 'todo',
+    section: 'calendar',
+    kind: 'optional',
+    beats: ['routines', 'work'],
+    todo: 'Put one thing you mean to do on the list, in Life under To-Do.',
+    done: 'Your to-do list has something on it.',
+    why: 'Written down once, with a day if it has one, so it stops waiting in your head. One left open stays on the list and is never counted against you.',
+    destination: lifeLens('todos'),
   },
 
   // The Daily Report.

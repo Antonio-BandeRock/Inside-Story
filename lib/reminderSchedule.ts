@@ -43,7 +43,8 @@ export const REMINDER_HOUR = 9;
 // its own here.
 // H2 (2026-09-28): useBy, something in the kitchen with a use-by date, the
 // day before and on the day.
-export type DatedReminderKind = 'bill' | 'upkeep' | 'benefit' | 'countdown' | 'compost' | 'refill' | 'useBy';
+// C10 (2026-09-30): todo, a to-do given a day, on that day only.
+export type DatedReminderKind = 'bill' | 'upkeep' | 'benefit' | 'countdown' | 'compost' | 'refill' | 'useBy' | 'todo';
 
 export const ALL_DATED_REMINDER_KINDS: DatedReminderKind[] = [
   'bill',
@@ -53,6 +54,7 @@ export const ALL_DATED_REMINDER_KINDS: DatedReminderKind[] = [
   'compost',
   'refill',
   'useBy',
+  'todo',
 ];
 
 /**
@@ -92,6 +94,9 @@ export const LEAD_DAYS: Record<DatedReminderKind, number[]> = {
   // app cannot tell whether it was eaten, and marking it used or gone in
   // Life > Kitchen is where that is said.
   useBy: [1, 0],
+  // The day it was given, once. A to-do left open is not chased: it stays on
+  // its list under From earlier, still open, where it can be done or let go.
+  todo: [0],
 };
 
 /**
@@ -280,6 +285,7 @@ export const DATED_KIND_PREFIX: Record<DatedReminderKind, string | null> = {
   compost: 'Compost',
   refill: 'Refill',
   useBy: 'Kitchen',
+  todo: 'To-do',
 };
 
 /**
@@ -297,6 +303,8 @@ export function describeDatedDue(kind: DatedReminderKind, lead: number): string 
   // instead of the fourteenth.
   if (kind === 'compost') return lead < 0 ? `Ready to turn ${when}` : `Turn it ${when}`;
   if (kind === 'refill') return lead < 0 ? `Ask for more, the day was ${when}` : `Ask for more ${when}`;
+  // A to-do past its day is still open, never late or missed.
+  if (kind === 'todo') return lead < 0 ? `Still open from ${when}` : lead === 0 ? 'For today' : `For ${when}`;
   if (kind === 'useBy') return lead < 0 ? `Its use-by date was ${when}` : lead === 0 ? 'Use it today' : `Use it by ${when}`;
   return lead < 0 ? `Was due ${when}` : `Due ${when}`;
 }

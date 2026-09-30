@@ -67,11 +67,12 @@ import { describeRefillDue } from './medSupply';
 import { listKitchenInventory } from './kitchenDb';
 import { formatGroceryAmount } from './groceryList';
 import { isUseByDate } from './useBy';
+import { listOpenTodos } from './todosDb';
 
 /** Where a tapped reminder lands, each a lens that already takes a deep
  *  link (openLifeLens in app/(tabs)/life.tsx, openGardenLens in
  *  app/(tabs)/garden.tsx). */
-export type DatedReminderLens = 'finances' | 'upkeep' | 'work' | 'daysUntil' | 'compost' | 'myMeds' | 'kitchen';
+export type DatedReminderLens = 'finances' | 'upkeep' | 'work' | 'daysUntil' | 'compost' | 'myMeds' | 'kitchen' | 'todos';
 /** A garden counter and a compost pile land on Garden when tapped;
  *  everything else on Life. */
 export type DatedReminderTab = 'life' | 'garden';
@@ -117,6 +118,7 @@ export async function listDatedReminderSources(today: string): Promise<DatedRemi
   ]);
   const [activeTreatments, supplies] = await Promise.all([listAllActiveTreatments(), listSupplyReadings(today)]);
   const [kitchenFood, kitchenOther] = await Promise.all([listKitchenInventory('food'), listKitchenInventory('non_food')]);
+  const todos = await listOpenTodos();
 
   const sources: DatedReminderSource[] = [];
 
@@ -278,6 +280,23 @@ export async function listDatedReminderSources(today: string): Promise<DatedRemi
       tab: 'life',
       lens: 'kitchen',
       markable: false,
+    });
+  }
+
+  // A to-do given a day (C10, 2026-09-30). Only open ones, and only the
+  // day it holds now: marking a repeating one done moves its day on, so
+  // the reminder moves with it. Done on the notification marks it done.
+  // Every one lands on Life > To-Do, which holds both kinds.
+  for (const todo of todos) {
+    if (!todo.dueOn || todo.dueOn < today) continue;
+    sources.push({
+      kind: 'todo',
+      sourceId: todo.id,
+      title: todo.title,
+      detail: todo.notes ? todo.notes.split('\n')[0].slice(0, 120) : null,
+      dueOn: todo.dueOn,
+      tab: 'life',
+      lens: 'todos',
     });
   }
 

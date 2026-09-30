@@ -22,6 +22,7 @@ import { RecordPhotos } from '../../components/RecordPhotos';
 import { countMediaFor } from '../../lib/mediaDb';
 import { TabBand, makeTabBandStyles } from '../../components/TabBand';
 import { DaysUntilSection } from '../../components/DaysUntilSection';
+import { TodoSection } from '../../components/TodoSection';
 import { DidIDoItSection } from '../../components/DidIDoItSection';
 import { KitchenSection } from '../../components/KitchenSection';
 import { RoutinesSection } from '../../components/RoutinesSection';
@@ -171,7 +172,8 @@ type LifeLens =
   | 'workouts'
   | 'routines'
   | 'didIDoIt'
-  | 'daysUntil';
+  | 'daysUntil'
+  | 'todos';
 type FinanceSection = 'overview' | 'health' | 'recurring' | 'spending' | 'upcoming' | 'money' | 'goals';
 
 const SECTIONS: { key: FinanceSection; label: string }[] = [
@@ -457,6 +459,29 @@ const DAYS_UNTIL_HELP_SECTIONS: HelpSection[] = [
   },
 ];
 
+const TODO_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'What this is for',
+    body: 'Things to do, big or small, with a day if they have one. Type one the way you would say it: "renew the car insurance on 12 November", "water the ferns every 3 days", or just "buy stamps". What was read (the day, the repeat) shows before it is added, and you can keep it without the day.',
+  },
+  {
+    heading: 'A to-do past its day is still open',
+    body: 'Nothing here is ever late or missed. A to-do whose day has gone by moves to From earlier, still open, and waits there until you do it or let it go. Nothing is counted against you for how long it waited.',
+  },
+  {
+    heading: 'Repeating ones',
+    body: 'A to-do that repeats moves on to its next day when you tick it, and the day it was done is kept. Let this one go moves it on without calling it done. Days that went by while it waited are not owed: it moves to the next day from today.',
+  },
+  {
+    heading: 'Work and personal',
+    body: 'Every to-do is Personal or Work. This lens shows both, with the work ones marked, and the To-Do pill on Work shows only the work ones.',
+  },
+  {
+    heading: 'The phone tells you on the day',
+    body: 'A to-do with a day raises one reminder that morning, and Done on the reminder ticks it. One left open is not chased. The switch is in Profile > Reminders.',
+  },
+];
+
 const LIFE_LENSES: LensOption<LifeLens>[] = [
   // 2026-09-12, direct request: "create a Grocery List with the shopping
   // cart icon in the Life tab LensHub menu. Have it be the first icon after
@@ -515,6 +540,9 @@ const LIFE_LENSES: LensOption<LifeLens>[] = [
   // land; a counter started here belongs to nothing unless a garden area
   // is picked for it. See components/DaysUntilSection.tsx.
   { key: 'daysUntil', label: 'Days Until', icon: 'hourglass-outline', help: DAYS_UNTIL_HELP_SECTIONS },
+  // 2026-09-30 (C10). Things to do with an optional day and repeat, work and
+  // personal together. See components/TodoSection.tsx.
+  { key: 'todos', label: 'To-Do', icon: 'checkbox-outline', help: TODO_HELP_SECTIONS },
 ];
 
 const DIRECTION_OPTIONS = [
@@ -1996,6 +2024,12 @@ export default function LifeScreen() {
               <View style={band.box}>
                 <Text style={styles.cardTitle}>Days Until</Text>
                 <DaysUntilSection scope="everything" tabColor={TAB_COLOR} showHeading={false} />
+              </View>
+            ) : null}
+            {lens === 'todos' ? (
+              <View style={band.box}>
+                <Text style={styles.cardTitle}>To-Do</Text>
+                <TodoSection scope="everything" tabColor={TAB_COLOR} />
               </View>
             ) : null}
 

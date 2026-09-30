@@ -7,6 +7,7 @@ import { NotesInput } from './NotesInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { TabBand, makeTabBandStyles } from './TabBand';
+import { TodoSection } from './TodoSection';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -69,10 +70,13 @@ import { useWalkMark } from './WalkMark';
 // entitled to. It holds what they found out and counts it down.
 
 type Props = { tabColor: string };
-type Section = 'overview' | 'have' | 'ask' | 'feel';
+type Section = 'overview' | 'todos' | 'have' | 'ask' | 'feel';
 
 const SECTIONS: { key: Section; label: string }[] = [
   { key: 'overview', label: 'Overview' },
+  // C10 (2026-09-30): the work to-dos. Life > To-Do shows these beside the
+  // personal ones.
+  { key: 'todos', label: 'To-Do' },
   { key: 'have', label: 'What I Get' },
   { key: 'ask', label: 'Worth Asking' },
   { key: 'feel', label: 'How It Feels' },
@@ -556,6 +560,13 @@ export function WorkSection({ tabColor }: Props) {
             );
           })}
         </>
+      ) : null}
+
+      {section === 'todos' ? (
+        <View style={band.box}>
+          <Text style={styles.cardTitle}>Work To-Do</Text>
+          <TodoSection scope="work" tabColor={tabColor} />
+        </View>
       ) : null}
 
       {section === 'feel' ? (

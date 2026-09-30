@@ -9218,6 +9218,45 @@ async function runDatabaseInitialization() {
       CREATE INDEX IF NOT EXISTS idx_report_history_made ON report_history(made_at);
     `);
 
+    // To-dos (C10, 2026-09-30): things to do, personal on Life > To-Do and
+    // work inside Work, each with an optional day (due_on) and an optional
+    // repeat (repeat_json, the RepeatConfig every repeat in the app uses,
+    // anchored at anchor_on). A repeating to-do keeps one row whose due_on
+    // moves on each time it is answered; todo_doings is append-only and
+    // holds each answer, 'done' or 'let_go', with the day it was for, so
+    // what was done stays a record even as the row moves on. An occurrence
+    // that went by unanswered writes nothing: it is neither done nor failed.
+    // done_at closes the row, closed_as says how. Nothing refers to a to-do
+    // but its own doings, so removing one removes both. Travels between one
+    // person's devices; not on the between-people allowlist. See
+    // lib/todos.ts and lib/todosDb.ts.
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS todos (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        notes TEXT,
+        area TEXT NOT NULL DEFAULT 'personal',
+        due_on TEXT,
+        anchor_on TEXT,
+        repeat_json TEXT,
+        done_at TEXT,
+        closed_as TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_todos_open ON todos(done_at, due_on);
+      CREATE TABLE IF NOT EXISTS todo_doings (
+        id TEXT PRIMARY KEY,
+        todo_id TEXT NOT NULL,
+        due_on TEXT,
+        kind TEXT NOT NULL,
+        done_at TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_todo_doings_todo ON todo_doings(todo_id);
+    `);
+
     // 2026-08-30, direct on-device report: "when I had the app create a 6 week
     // meal plan schedule, it seems to have made all of them a favorite
     // automatically. If that is the case, it definitely should not do that."

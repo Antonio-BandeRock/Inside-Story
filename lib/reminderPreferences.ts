@@ -42,6 +42,7 @@ export type ReminderKindKey =
   | 'compost'
   | 'refill'
   | 'useBy'
+  | 'todo'
   | 'photoSeries'
   | 'reminder';
 
@@ -112,6 +113,8 @@ export const ALL_REMINDER_KIND_KEYS: ReminderKindKey[] = [
   // H2 (2026-09-28). Something in the kitchen with a use-by date, the day
   // before and on the day. Dated like the ones above it.
   'useBy',
+  // C10 (2026-09-30). A to-do given a day, once on that day.
+  'todo',
   // 1.0.53.7. A Photo Series asking for today's photo, at the time it was
   // given, skipped on a day the photo is already in. Timed like a routine,
   // but a record of something, so it sits after the dated kinds.
@@ -146,6 +149,7 @@ export const REMINDER_KIND_LABELS: Record<ReminderKindKey, string> = {
   compost: 'Turning the compost',
   refill: 'Running low on a med',
   useBy: 'Use it before its date',
+  todo: 'A to-do on its day',
   photoSeries: 'Photo series',
   reminder: 'Things you noted down',
 };
@@ -189,6 +193,7 @@ export const REMINDER_KIND_CAPTIONS: Record<ReminderKindKey, string> = {
     'A med or supplement on Life > My Meds whose counted supply is running low, a week ahead unless you picked another lead, then every few days until you save a fresh count.',
   useBy:
     'Something in Life > Kitchen with a use-by date you gave it, the day before and on the day. Marking it used or gone clears the reminder.',
+  todo: 'A to-do on Life > To-Do or Work that you gave a day to, once on that day. Done on the reminder marks it done; one left open stays on the list and is not chased.',
   photoSeries:
     "A Photo Series asking for today's photo, at the time set on the series. Tapping it opens the camera with the last photo faintly over the view. Skipped on a day the photo is already in.",
   reminder:
@@ -250,6 +255,8 @@ const DEFAULT_REMINDER_KIND_ENABLED: Record<ReminderKindKey, boolean> = {
   // On. A use-by date is only there because somebody typed one in to be
   // told about it, and there are two of these per date at most.
   useBy: true,
+  // On. A to-do only has a day because somebody gave it one.
+  todo: true,
   // On. A series exists only because somebody started one to take a photo
   // a day, and the reminder can be switched off on the series itself.
   photoSeries: true,

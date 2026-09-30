@@ -66,6 +66,7 @@ import { getHomeZone } from './travelTimeDb';
 import { PEER_DOSE_PREFIX } from './doseWatch';
 import { quietDecision, SNOOZE_MINUTES } from './quietHours';
 import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
+import { getTodo, markTodoDone } from './todosDb';
 import { YOUR_WEEK_NOTIFICATION_BODY, YOUR_WEEK_NOTIFICATION_TITLE } from './weeklySummary';
 import { buildWeekPlanBody, WEEK_PLAN_NOTIFICATION_TITLE, weekPlanDays } from './weekPlanNotice';
 import { buildGardenMonthBody, GARDEN_MONTH_NOTIFICATION_TITLE, nextGardenMonthFire, type GardenMonthPlace } from './gardenMonthNotice';
@@ -902,7 +903,8 @@ function channelFor(kind: ReminderKind): string {
     kind === 'countdown' ||
     kind === 'compost' ||
     kind === 'refill' ||
-    kind === 'useBy'
+    kind === 'useBy' ||
+    kind === 'todo'
   ) {
     return ANDROID_DATED_CHANNEL_ID;
   }
@@ -1357,7 +1359,7 @@ const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'meals', 'today
 // The dated lenses that live on Life. 'compost' is a dated lens too and is
 // deliberately not here: it is on Garden, and this list is the fallback for
 // the Life branch below.
-const DATED_LENSES: LifeReminderLens[] = ['finances', 'upkeep', 'work', 'daysUntil', 'myMeds', 'didIDoIt', 'kitchen'];
+const DATED_LENSES: LifeReminderLens[] = ['finances', 'upkeep', 'work', 'daysUntil', 'myMeds', 'didIDoIt', 'kitchen', 'todos'];
 
 // Where a tapped reminder should land: the lens the thing lives in. Null for
 // any notification this module did not create.
@@ -1536,6 +1538,14 @@ async function recordAnswer(plan: ReminderActionPlan, id: string, words: string,
     const item = (await listUpkeepItems()).find((candidate) => candidate.id === id);
     if (!item || item.lastDoneOn === today) return;
     await markUpkeepDone(id, today);
+    return;
+  }
+  if (plan.write === 'todoDone') {
+    // A copy still on screen after it was done, or after the day moved on,
+    // writes nothing.
+    const todo = await getTodo(id);
+    if (!todo || todo.doneAt) return;
+    await markTodoDone(id, today);
     return;
   }
   if (plan.write === 'compostTurned') {

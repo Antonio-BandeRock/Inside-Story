@@ -1236,6 +1236,16 @@ export const GUIDES: GuideDef[] = [
         },
       ),
       fromItem(
+        'todo',
+        'Put the things you mean to do on one list, in Life under To-Do.',
+        'One list, each thing with its day if it has one and a reminder that morning. One left open stays until you do it or let it go.',
+        {
+          when: 'whenItHappens',
+          takes: 'A few seconds each',
+          taps: ['Type it the way you would say it, like "pay the water bill on the 20th".', 'Check what was read and tap Add to the List.'],
+        },
+      ),
+      fromItem(
         'keepingUp',
         'Keeping Up on Trends fills in once something is marked on seven different days.',
         'Routines run and things marked done, across the weeks. It counts what happened and scores nobody.',
@@ -1280,6 +1290,16 @@ export const GUIDES: GuideDef[] = [
           when: 'whenItHappens',
           takes: 'Under a minute',
           taps: ['Tap + Add a Days Until Counter.', 'Name it, choose the date, and tap Start Counting.'],
+        },
+      ),
+      fromItem(
+        'todo',
+        'Keep the work to-dos in one place, in Life under Work, on the To-Do pill.',
+        'Each with its day if it has one, beside your personal ones on Life under To-Do.',
+        {
+          when: 'whenItHappens',
+          takes: 'A few seconds each',
+          taps: ['Tap To-Do on Work.', 'Type it the way you would say it, like "send the report on Friday", and tap Add to the List.'],
         },
       ),
     ],
@@ -1396,6 +1416,7 @@ export const LENS_NAMES: Record<string, Record<string, string>> = {
     routines: 'Routines',
     didIDoIt: 'Did I Do It',
     daysUntil: 'Days Until',
+    todos: 'To-Do',
   },
   '/schedule': {
     meals: 'Meals',
