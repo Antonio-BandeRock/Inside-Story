@@ -16,7 +16,7 @@
 ### A16. Caregiver or partner sees a missed dose
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Life,Schedules,Insights
 - **Answers:** Medisafe, CareClinic · **Theme:** Medication logistics
-- **How:** Turn on meds, schedule and symptoms for the onTheirBehalf holding in lib/peerRelationships.ts, merge rules in lib/peerMerge.ts, the consent and attestation steps from the Caregiver tier, then a local notification on the other phone after a merge. Timely delivery needs the relay (M1).
+- **How:** Turn on meds, schedule and symptoms for the onTheirBehalf holding in lib/peerRelationships.ts, merge rules in lib/peerMerge.ts, the consent and attestation steps from the Caregiver tier, then a local notification on the other phone after a merge. Timely delivery needs the relay (M1). Built 1.0.57.4: a partner link carries a "When a dose is not marked" permission, asked for with a yes or an attestation on the phone whose doses they are; the watching phone gets a "Doses you watch" band on Schedules > Meds and a local alert two hours after an unmarked dose, as soon as a sync brings it. Caregiver and child links and recording on someone's behalf remain open.
 
 ### B5. Shrinking ring timer on a routine step
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life
