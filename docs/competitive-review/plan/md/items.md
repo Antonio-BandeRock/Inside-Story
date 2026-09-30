@@ -610,7 +610,7 @@
 ### A2. Tapering doses
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
 - **Answers:** CareClinic · **Theme:** Medication logistics
-- **How:** A taper step list on treatments (amount per date range), read by the series generator and the dose reminder text. Prednisone tapers in RA, IBD and lupus flares. Needs A1.
+- **How:** A taper step list on treatments (amount per date range), read by the series generator and the dose reminder text. Prednisone tapers in RA, IBD and lupus flares. Needs A1. Built 1.0.57.1: steps entered on Life > My Meds as a first day plus amount and days per step (treatment_taper_steps, lib/taper.ts); reminders, Home, Schedules > Meds and Today's Meals show the day's amount with (step N of M); new reminder times preset to stop on the taper's last day; the med's own dose applies outside the taper.
 
 ### A4. Injection site rotation
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
