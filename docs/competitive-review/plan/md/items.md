@@ -563,7 +563,7 @@
 ### K5. CSV export
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
 - **Answers:** Bearable, mySymptoms, Gardenize · **Theme:** Reports
-- **How:** Table sections through lib/nativeSharing.ts.
+- **How:** Table sections through lib/nativeSharing.ts. Built 1.0.56.15: Save as a Spreadsheet on every report, each table on its own or the whole report in one file (lib/reportCsv.ts).
 
 ### K6. What I have noticed
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Reports
