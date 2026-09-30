@@ -48,6 +48,14 @@ import {
   type MergeSide,
   type Tables,
 } from './snapshotMerge';
+import {
+  applyDelta,
+  buildDelta,
+  changesFileName,
+  deltaWorthSending,
+  parseDelta,
+  type SnapshotDelta,
+} from './snapshotDelta';
 import { readSchemaShapes, WORKED_OUT_TABLES } from './snapshotShapes';
 import { recordMerge } from './syncLog';
 import {
@@ -67,6 +75,7 @@ import {
   parseSnapshotRecord,
   planBeforeSave,
   planOnArrival,
+  sameDevice,
   snapshotFileName,
   SYNC_RECORD_FILE_NAME,
   type ArrivalPlan,
@@ -286,12 +295,13 @@ function tablesHash(envelope: BackupEnvelope): string {
   return fingerprintText(JSON.stringify(envelope.tables));
 }
 
-async function downloadSnapshot(
+// One encrypted file from the folder, opened and parsed.
+async function downloadOpened(
   folder: DriveItemRef,
-  record: SnapshotRecord,
+  fileName: string,
   password: string,
-): Promise<FolderResult<{ envelope: BackupEnvelope; changes: string[] }>> {
-  const text = await downloadText(folder, record.latest.fileName);
+): Promise<FolderResult<string>> {
+  const text = await downloadText(folder, fileName);
   if (!text.ok) return text;
   let wire: unknown;
   try {
@@ -310,7 +320,17 @@ async function downloadSnapshot(
         'The copy in your shared folder was saved with a different password. Turn sync off and on again here and enter the password used on your other device.',
     };
   }
-  const envelope = parseBackupEnvelope(json);
+  return { ok: true, value: json };
+}
+
+async function downloadWhole(
+  folder: DriveItemRef,
+  fileName: string,
+  password: string,
+): Promise<FolderResult<{ envelope: BackupEnvelope; changes: string[] }>> {
+  const opened = await downloadOpened(folder, fileName, password);
+  if (!opened.ok) return opened;
+  const envelope = parseBackupEnvelope(opened.value);
   if (!envelope) return { ok: false, reason: 'The copy in your shared folder could not be read.' };
   // The list of changes rides inside the encrypted payload beside the
   // tables, never in the plaintext record: what somebody added to is as
@@ -319,6 +339,133 @@ async function downloadSnapshot(
   // several megabytes are parsed once.
   const changes = parseChangeList((envelope as { syncChanges?: unknown }).syncChanges);
   return { ok: true, value: { envelope, changes } };
+}
+
+const IN_FLIGHT_REASON =
+  'Your other device was saving while this one read the shared folder. It will be read again in a moment.';
+
+/**
+ * The other device's copy as a whole, whether the record names a whole
+ * copy or a changes file (lib/snapshotDelta.ts). A changes file is added
+ * to the whole copy it names, which is kept here from the last time it
+ * was downloaded, so after the first time only the changes travel.
+ */
+async function downloadSnapshot(
+  folder: DriveItemRef,
+  record: SnapshotRecord,
+  password: string,
+): Promise<FolderResult<{ envelope: BackupEnvelope; changes: string[] }>> {
+  const base = record.latest.base;
+  if (!base) return downloadWhole(folder, record.latest.fileName, password);
+
+  const opened = await downloadOpened(folder, record.latest.fileName, password);
+  if (!opened.ok) return opened;
+  let delta: SnapshotDelta | null = null;
+  try {
+    delta = parseDelta(JSON.parse(opened.value));
+  } catch {
+    delta = null;
+  }
+  if (!delta) return { ok: false, reason: 'The changes in your shared folder could not be read.' };
+  // The record and the changes file are two uploads, so one can be read
+  // between the other's.
+  if (delta.savedAt !== record.latest.savedAt || delta.baseSavedAt !== base.savedAt) {
+    return { ok: false, reason: IN_FLIGHT_REASON };
+  }
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const kept = attempt === 0 ? readReceivedWhole(record.latest.device, base.savedAt) : null;
+    let baseTables = kept ? kept.tables : null;
+    if (!baseTables) {
+      const downloaded = await downloadWhole(folder, base.fileName, password);
+      if (!downloaded.ok) return downloaded;
+      if (downloaded.value.envelope.exportedAt !== base.savedAt) return { ok: false, reason: IN_FLIGHT_REASON };
+      baseTables = downloaded.value.envelope.tables as Tables;
+      writeReceivedWhole(record.latest.device, base.savedAt, baseTables);
+    }
+    const tables = applyDelta(baseTables, delta);
+    if (tables) {
+      const envelope: BackupEnvelope = {
+        schemaVersion: delta.schemaVersion,
+        exportedAt: delta.savedAt,
+        tableNames: delta.tableNames,
+        tables,
+      };
+      return { ok: true, value: { envelope, changes: parseChangeList(delta.syncChanges) } };
+    }
+    // The kept whole copy did not add up with these changes. Fetch it
+    // again once before saying so.
+    if (!kept) break;
+  }
+  return {
+    ok: false,
+    reason:
+      'The changes in your shared folder did not add up with the copy they build on. Save to the shared folder on your other device again.',
+  };
+}
+
+// THE WHOLE COPIES KEPT BESIDE THE DATABASE, FOR THE CHANGES FILE.
+//
+// Two files, one for each direction. SENT is the whole copy this device
+// last put in the folder, which its changes files are worked out
+// against. RECEIVED is the other device's whole copy as last downloaded,
+// which its changes are added to. Both sit in the app's private storage
+// beside the merge base, for the same reasons. Either one missing costs a
+// whole copy, never a wrong one: no SENT file means the next save is
+// whole, and no RECEIVED file means the whole copy is downloaded.
+
+const SENT_WHOLE_FILE_NAME = 'inside-story-sync-sent-whole.json';
+const RECEIVED_WHOLE_FILE_NAME = 'inside-story-sync-received-whole.json';
+
+type KeptWhole = { device?: SyncDevice; savedAt: string; tables: Tables };
+
+function readKeptWhole(name: string): KeptWhole | null {
+  try {
+    const file = new File(Paths.document, name);
+    if (!file.exists) return null;
+    const parsed = JSON.parse(file.textSync()) as Partial<KeptWhole> | null;
+    if (!parsed || typeof parsed.savedAt !== 'string' || !parsed.tables || typeof parsed.tables !== 'object') {
+      return null;
+    }
+    return parsed as KeptWhole;
+  } catch (error) {
+    console.error('[snapshotSync] could not read a kept copy', error);
+    return null;
+  }
+}
+
+function writeKeptWhole(name: string, kept: KeptWhole): void {
+  try {
+    new File(Paths.document, name).write(JSON.stringify(kept));
+  } catch (error) {
+    console.error('[snapshotSync] could not keep a copy', error);
+    // Better none than a stale one, which would only cost a retry.
+    forgetKeptWhole(name);
+  }
+}
+
+function forgetKeptWhole(name: string): void {
+  try {
+    const file = new File(Paths.document, name);
+    if (file.exists) file.delete();
+  } catch (error) {
+    console.error('[snapshotSync] could not clear a kept copy', error);
+  }
+}
+
+function readReceivedWhole(device: SyncDevice, savedAt: string): KeptWhole | null {
+  const kept = readKeptWhole(RECEIVED_WHOLE_FILE_NAME);
+  if (!kept || kept.savedAt !== savedAt || !kept.device || !sameDevice(kept.device, device)) return null;
+  return kept;
+}
+
+function writeReceivedWhole(device: SyncDevice, savedAt: string, tables: Tables): void {
+  writeKeptWhole(RECEIVED_WHOLE_FILE_NAME, { device, savedAt, tables });
+}
+
+function forgetKeptWholes(): void {
+  forgetKeptWhole(SENT_WHOLE_FILE_NAME);
+  forgetKeptWhole(RECEIVED_WHOLE_FILE_NAME);
 }
 
 export type SaveOutcome =
@@ -377,19 +524,63 @@ export function saveSnapshot(options: { force?: boolean } = {}): Promise<SaveOut
     const stamps = stampTables(envelope.tables, fingerprintText);
     const baseline = await readChangeBaseline();
     const changes = baseline ? describeChanges(baseline, stamps) : [];
-    const wire = await encryptBackupPayload(
-      JSON.stringify({ ...envelope, syncChanges: changes }),
-      state.password,
-    );
     const savedAt = envelope.exportedAt;
-    const uploaded = await uploadText(folder.value, snapshotFileName(me), JSON.stringify(wire));
-    if (!uploaded.ok) return problem(uploaded.reason);
-    const recorded = await uploadText(
-      folder.value,
-      SYNC_RECORD_FILE_NAME,
-      JSON.stringify(buildSnapshotRecord(me, savedAt)),
-    );
-    if (!recorded.ok) return problem(recorded.reason);
+    const wholeText = JSON.stringify({ ...envelope, syncChanges: changes });
+
+    // Only what changed since the whole copy this device last put in the
+    // folder, when there is one and the changes come to half of it or
+    // less. A forced save is always whole, since it answers the first-time
+    // question.
+    const sent = options.force ? null : readKeptWhole(SENT_WHOLE_FILE_NAME);
+    let deltaText: string | null = null;
+    if (sent) {
+      try {
+        const { shapes } = await readSchemaShapes(Object.keys(envelope.tables));
+        const delta = buildDelta({
+          base: sent.tables,
+          baseSavedAt: sent.savedAt,
+          current: envelope.tables as Tables,
+          savedAt,
+          schemaVersion: envelope.schemaVersion,
+          tableNames: envelope.tableNames,
+          shapes,
+          syncChanges: changes,
+        });
+        const text = JSON.stringify(delta);
+        if (deltaWorthSending(text.length, wholeText.length)) deltaText = text;
+      } catch (error) {
+        console.error('[snapshotSync] could not work out the changes, sending the whole copy', error);
+      }
+    }
+
+    if (sent && deltaText !== null) {
+      const wire = await encryptBackupPayload(deltaText, state.password);
+      const uploaded = await uploadText(folder.value, changesFileName(me), JSON.stringify(wire));
+      if (!uploaded.ok) return problem(uploaded.reason);
+      const recorded = await uploadText(
+        folder.value,
+        SYNC_RECORD_FILE_NAME,
+        JSON.stringify(
+          buildSnapshotRecord(me, savedAt, { fileName: changesFileName(me), baseSavedAt: sent.savedAt }),
+        ),
+      );
+      if (!recorded.ok) return problem(recorded.reason);
+    } else {
+      const wire = await encryptBackupPayload(wholeText, state.password);
+      const uploaded = await uploadText(folder.value, snapshotFileName(me), JSON.stringify(wire));
+      if (!uploaded.ok) return problem(uploaded.reason);
+      // Kept as soon as the whole copy is in the folder rather than after
+      // the record, so the next changes file is worked out against what
+      // the folder holds even if the record below does not go through.
+      writeKeptWhole(SENT_WHOLE_FILE_NAME, { savedAt, tables: envelope.tables as Tables });
+      const recorded = await uploadText(
+        folder.value,
+        SYNC_RECORD_FILE_NAME,
+        JSON.stringify(buildSnapshotRecord(me, savedAt)),
+      );
+      if (!recorded.ok) return problem(recorded.reason);
+    }
+
     await writeChangeBaseline(stamps);
     // Only for a pair with no history yet, where the other device reads
     // this copy whole. After that the base is what arrived, since sending
@@ -739,8 +930,10 @@ export async function checkPasswordAgainstFolder(
 }
 
 export async function enableSnapshotSync(password: string): Promise<void> {
-  // Nothing from a previous pairing counts as agreed with this one.
+  // Nothing from a previous pairing counts as agreed with this one, and
+  // the first save afterwards is a whole copy.
   forgetMergeBase();
+  forgetKeptWholes();
   await updateSyncState({
     ...EMPTY_SYNC_STATE,
     enabled: true,
@@ -755,6 +948,7 @@ export async function disableSnapshotSync(): Promise<void> {
   // Nothing of the password, or of the other device, is kept once sync is off.
   forgetDerivedKeys();
   forgetMergeBase();
+  forgetKeptWholes();
   peeked = null;
 }
 

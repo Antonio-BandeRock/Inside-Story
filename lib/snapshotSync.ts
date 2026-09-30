@@ -46,6 +46,12 @@ export type SnapshotRecord = {
     /** ISO 8601, the saving device's clock. Compared for equality only. */
     savedAt: string;
     device: SyncDevice;
+    /**
+     * Present when fileName is a changes file (lib/snapshotDelta.ts): the
+     * whole copy those changes are added to. Absent when fileName is the
+     * whole copy itself.
+     */
+    base?: { fileName: string; savedAt: string };
   };
 };
 
@@ -345,10 +351,25 @@ export function sameDevice(a: SyncDevice, b: SyncDevice): boolean {
   return a.kind === b.kind && a.fingerprint === b.fingerprint;
 }
 
-export function buildSnapshotRecord(device: SyncDevice, savedAt: string): SnapshotRecord {
+export function buildSnapshotRecord(
+  device: SyncDevice,
+  savedAt: string,
+  changes?: { fileName: string; baseSavedAt: string },
+): SnapshotRecord {
+  if (!changes) {
+    return {
+      version: 1,
+      latest: { fileName: snapshotFileName(device), savedAt, device },
+    };
+  }
   return {
     version: 1,
-    latest: { fileName: snapshotFileName(device), savedAt, device },
+    latest: {
+      fileName: changes.fileName,
+      savedAt,
+      device,
+      base: { fileName: snapshotFileName(device), savedAt: changes.baseSavedAt },
+    },
   };
 }
 
@@ -368,12 +389,17 @@ export function parseSnapshotRecord(text: string): SnapshotRecord | null {
   if (typeof latest.fileName !== 'string' || typeof latest.savedAt !== 'string') return null;
   if (!device || (device.kind !== 'phone' && device.kind !== 'computer')) return null;
   if (typeof device.fingerprint !== 'string' || device.fingerprint.length === 0) return null;
+  const base = latest.base as Partial<{ fileName: string; savedAt: string }> | undefined;
+  if (base !== undefined && (!base || typeof base.fileName !== 'string' || typeof base.savedAt !== 'string')) {
+    return null;
+  }
   return {
     version: 1,
     latest: {
       fileName: latest.fileName,
       savedAt: latest.savedAt,
       device: { kind: device.kind, fingerprint: device.fingerprint },
+      ...(base ? { base: { fileName: base.fileName as string, savedAt: base.savedAt as string } } : {}),
     },
   };
 }
