@@ -81,6 +81,24 @@ const PKCE_VERIFIER_KEY = 'onedrive.pkceVerifier';
 let cachedAccessToken: { token: string; expiresAt: number } | null = null;
 
 /**
+ * The refresh already under way, shared by every caller that needs a token
+ * while it runs. Sync, the mailbox and a backup can all ask in the same
+ * second once the hour is up, and each sending the same refresh token on
+ * its own raced the rotated token Microsoft hands back.
+ */
+let inFlightRefresh: Promise<{ ok: true; token: string } | { ok: false; reason: string }> | null = null;
+
+/**
+ * The token errors that mean Microsoft will not honour this sign-in again,
+ * so keeping the refresh token only repeats the refusal. Anything else (no
+ * connection, a server hiccup, a throttled request) leaves the sign-in in
+ * place for the next try. Before 1.0.57.9 every failed refresh signed the
+ * phone out, so a moment without signal while the sync check ran every half
+ * minute read as "Sign in to OneDrive first" and stayed that way.
+ */
+const REFUSED_GRANT_ERRORS = new Set(['invalid_grant', 'interaction_required', 'consent_required', 'login_required', 'invalid_client', 'unauthorized_client']);
+
+/**
  * The redemption already under way, keyed by the code it is redeeming.
  *
  * Both redirect paths run in this same JS context, so the second one to
@@ -145,6 +163,7 @@ export async function signOut(): Promise<void> {
   if (isDesktopApp()) return;
   cachedAccessToken = null;
   inFlightExchange = null;
+  inFlightRefresh = null;
   try {
     await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
   } catch {
@@ -162,7 +181,7 @@ type TokenResponse = {
 
 async function exchange(
   body: Record<string, string>,
-): Promise<{ ok: true; accessToken: string } | { ok: false; reason: string }> {
+): Promise<{ ok: true; accessToken: string } | { ok: false; reason: string; refused: boolean }> {
   let response: Response;
   try {
     response = await fetch(AUTHORITY + '/token', {
@@ -171,14 +190,14 @@ async function exchange(
       body: new URLSearchParams(body).toString(),
     });
   } catch {
-    return { ok: false, reason: 'Microsoft could not be reached. Check the connection and try again.' };
+    return { ok: false, reason: 'Microsoft could not be reached. Check the connection and try again.', refused: false };
   }
 
   let json: TokenResponse;
   try {
     json = (await response.json()) as TokenResponse;
   } catch {
-    return { ok: false, reason: 'Microsoft sent back something this app could not read.' };
+    return { ok: false, reason: 'Microsoft sent back something this app could not read.', refused: false };
   }
 
   if (!response.ok || !json.access_token) {
@@ -189,6 +208,7 @@ async function exchange(
     return {
       ok: false,
       reason: json.error_description ?? json.error ?? 'Microsoft refused the sign-in.',
+      refused: typeof json.error === 'string' && REFUSED_GRANT_ERRORS.has(json.error),
     };
   }
 
@@ -367,6 +387,16 @@ export async function getAccessToken(): Promise<
     return { ok: true, token: cachedAccessToken.token };
   }
 
+  if (inFlightRefresh) return inFlightRefresh;
+  inFlightRefresh = refreshAccessToken();
+  try {
+    return await inFlightRefresh;
+  } finally {
+    inFlightRefresh = null;
+  }
+}
+
+async function refreshAccessToken(): Promise<{ ok: true; token: string } | { ok: false; reason: string }> {
   let refreshToken: string | null = null;
   try {
     refreshToken = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
@@ -378,13 +408,14 @@ export async function getAccessToken(): Promise<
   }
 
   const exchanged = await exchange({
-    client_id: ONEDRIVE_CLIENT_ID,
+    client_id: ONEDRIVE_CLIENT_ID!,
     grant_type: 'refresh_token',
     refresh_token: refreshToken,
     redirect_uri: ONEDRIVE_REDIRECT_URI,
     scope: ONEDRIVE_SCOPES.join(' '),
   });
   if (exchanged.ok) return { ok: true, token: exchanged.accessToken };
+  if (!exchanged.refused) return { ok: false, reason: exchanged.reason };
 
   // A refresh token Microsoft will no longer honour is worse than none: every
   // later call fails the same way with no path out. Clearing it puts the person
