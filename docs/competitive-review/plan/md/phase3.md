@@ -26,7 +26,7 @@
 ### C8. Sorting help for a brain dump
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Home
 - **Answers:** Tiimo · **Theme:** Capture, reminders and the second audience
-- **How:** Rule-based suggestions (dates, buy, call, place words) in lib/captureNotes.ts. On the phone only.
+- **How:** Rule-based suggestions (dates, buy, call, place words) in lib/captureNotes.ts. On the phone only. Built 1.0.57.6: waiting capture notes suggest one or two places with the reason, from past sorting, records and sentence shape; one tap files; 100% right when it spoke on 168 labelled notes and 26/26 on 42 held out (lib/captureSuggest.ts).
 
 ### C9. Plan by sentence
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Home,Life
