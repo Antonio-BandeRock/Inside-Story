@@ -69,6 +69,7 @@ const NAMED = [
   'lib/reportGlance.ts',
   'lib/reportNoticed.ts',
   'lib/reportHeart.ts',
+  'lib/reportDiary.ts',
   'lib/weekdayTargets.ts',
   'lib/patternFactors.ts',
   'lib/foodExperiment.ts',

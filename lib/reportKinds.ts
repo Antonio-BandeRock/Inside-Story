@@ -31,7 +31,7 @@ export type ReportKind =
 /** The sections the Overview has always carried, each one a named block so
  *  a narrower report can ask for the ones its reader needs and skip the
  *  work of the rest. */
-export type CoreSectionId = 'glance' | 'conditions' | 'nutrients' | 'flags' | 'symptoms' | 'noticed' | 'meds' | 'movement' | 'body' | 'heart' | 'rules' | 'labs';
+export type CoreSectionId = 'glance' | 'conditions' | 'nutrients' | 'flags' | 'diary' | 'symptoms' | 'noticed' | 'meds' | 'movement' | 'body' | 'heart' | 'rules' | 'labs';
 
 export type ReportKindDef = {
   key: ReportKind;
@@ -72,9 +72,9 @@ export const REPORT_KINDS: ReportKindDef[] = [
     label: 'For a Nutritionist',
     icon: 'nutrition-outline',
     title: 'Inside Story: For the Nutritionist',
-    preface: ['What was eaten and drunk over the range, what was planned, and what was noticed after meals, as the person entered it.', SELF_REPORTED],
-    help: 'Nutrient intake against targets, foods flagged for your conditions, hydration, planned meals against what was eaten, after-meal reactions and food tests, what Pattern Finder noticed and any food experiments, and the supplements currently taken.',
-    core: ['conditions', 'nutrients', 'flags', 'symptoms', 'noticed', 'meds'],
+    preface: ['What was eaten and drunk over the range, day by day, what was planned, and what was noticed after meals, as the person entered it.', SELF_REPORTED],
+    help: 'Nutrient intake against targets, foods flagged for your conditions, a day-by-day diary of meals beside flares and reactions, hydration, planned meals against what was eaten, after-meal reactions and food tests, what Pattern Finder noticed and any food experiments, and the supplements currently taken.',
+    core: ['conditions', 'nutrients', 'flags', 'diary', 'symptoms', 'noticed', 'meds'],
   },
   {
     key: 'r-trainer',

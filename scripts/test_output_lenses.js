@@ -403,10 +403,14 @@ run('i-garden', I.buildGardenView, {
 run('i-garden empty', I.buildGardenView, { today, plantings: [], onHand: [], weekUses: [], nutrientShare: [], usesUncounted: 0 }, false);
 
 // Reports
-const CORE = ['glance', 'conditions', 'nutrients', 'flags', 'symptoms', 'noticed', 'meds', 'movement', 'body', 'heart', 'rules', 'labs'];
+const CORE = ['glance', 'conditions', 'nutrients', 'flags', 'diary', 'symptoms', 'noticed', 'meds', 'movement', 'body', 'heart', 'rules', 'labs'];
 check(R.REPORT_KINDS.length === 9, 'nine reports');
 check(R.REPORT_KINDS[0].key === 'overview', 'the Overview comes first');
-check(R.REPORT_KIND_BY_KEY.overview.core.length === CORE.length, 'the Overview carries every core section');
+// The diary (K9) is the Nutritionist's alone: a row a day would bury the
+// Overview's summary.
+const NOT_ON_OVERVIEW = ['diary'];
+check(R.REPORT_KIND_BY_KEY.overview.core.length === CORE.length - NOT_ON_OVERVIEW.length, 'the Overview carries every core section but the diary');
+check(R.REPORT_KIND_BY_KEY['r-nutrition'].core.includes('diary'), 'the Nutritionist report carries the diary');
 for (const def of R.REPORT_KINDS) {
   check(!!def.title && !!def.label && !!def.icon, `${def.key}: has a title, label and icon`);
   check(Array.isArray(def.preface) && def.preface.length > 0, `${def.key}: has a preface`);

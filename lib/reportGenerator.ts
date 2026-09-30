@@ -38,6 +38,8 @@ import {
 } from './reportKinds';
 import type { ReadingView } from './readingBands';
 import { heartSection } from './reportHeart';
+import { diarySection } from './reportDiary';
+import { listDiaryCheckins, listDiaryMeals } from './reportDiaryDb';
 import { listBodySignalReadings, listScheduledDoses, loadSinceLastVisitView, loadTrendsMoreView, type TrendsMoreLens } from './trendsMoreDb';
 import { buildAtAGlance, type GlanceTag } from './reportGlance';
 import { addDays } from './eatingVariety';
@@ -243,6 +245,21 @@ export async function buildReport(days: number, kind: ReportKind = 'overview'): 
           : [],
       empty: 'No meals logged in this range yet.',
     });
+  }
+
+  // K9: the food and symptom diary, one row a day, for the Nutritionist.
+  if (want.has('diary')) {
+    const [meals, checkins] = await Promise.all([
+      listDiaryMeals(rangeStart, rangeEnd).catch((error: unknown) => {
+        console.warn('[reports] could not read meals for the diary', error);
+        return null;
+      }),
+      listDiaryCheckins(rangeStart, rangeEnd).catch((error: unknown) => {
+        console.warn('[reports] could not read check-ins for the diary', error);
+        return null;
+      }),
+    ]);
+    sections.push(diarySection(meals, checkins, rangeStart, rangeEnd));
   }
 
   // Symptom/flare log -- real, chronological, everything actually logged
