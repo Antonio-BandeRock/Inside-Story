@@ -36,7 +36,7 @@
 ### C10. A to-do list with dates and repeats
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life
 - **Answers:** Todoist · **Theme:** Capture, reminders and the second audience
-- **How:** A tasks table (or done_checks with a due date), a band on Work and a personal one on Life, reminders through lib/reminderSources.ts, repeats through A1.
+- **How:** A tasks table (or done_checks with a due date), a band on Work and a personal one on Life, reminders through lib/reminderSources.ts, repeats through A1. Built 1.0.57.8: Life > To-Do lens and a To-Do pill on Work, typed as a sentence through C9, one past its day stays open and is never late, repeats through A1, one reminder on the day.
 
 ### C17. Progress, made from the person's records
 - **Ships by:** Owner decision first · **Size:** L · **Tabs:** Home,all tabs
