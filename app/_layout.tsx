@@ -12,6 +12,7 @@ import { AppKeyboard } from '../components/AppKeyboard';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { KeyboardLiftProvider, KeyboardLiftReleaser, KeyboardLiftView } from '../components/KeyboardLift';
 import { DatabaseSetupScreen } from '../components/DatabaseSetupScreen';
+import { FirstLaunchAgreement } from '../components/FirstLaunchAgreement';
 import { GardenPlateOfferHost } from '../components/GardenPlateOfferHost';
 import { StartupFailureScreen } from '../components/StartupFailureScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
@@ -796,6 +797,16 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
+                {/* What This App Is and Is Not (X2), reached from Profile. */}
+                <Stack.Screen
+                  name="agreement"
+                  options={{
+                    headerShown: true,
+                    title: 'What This App Is and Is Not',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
               </Stack>
               </KeyboardLiftView>
               {/* Puts the content back down when the keyboard closes.
@@ -860,6 +871,9 @@ export default function RootLayout() {
           DatabaseSetupScreen.tsx's own header comment, for the full "why"
           this changed from an early-returned, mutually-exclusive screen
           into an overlay that coexists with the real app tree. */}
+      {/* The first-launch agreement (X2): over the whole app until agreed,
+          beneath the database setup screen so it is waiting when that ends. */}
+      {dbReady ? <FirstLaunchAgreement /> : null}
       {!referenceDbReady ? (
         <DatabaseSetupScreen
           isComplete={referenceImportResolved && homeDataReady}

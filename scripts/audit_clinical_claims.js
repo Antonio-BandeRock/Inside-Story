@@ -43,6 +43,7 @@ const ts = require('typescript');
 const ROOT = path.resolve(__dirname, '..');
 
 const NAMED = [
+  'lib/agreement.ts',
   'lib/exercisePlan.ts',
   'lib/recipeConditionLine.ts',
   'lib/onHand.ts',
@@ -170,8 +171,10 @@ const RULES = [
 // the rule being kept.
 const KEPT = /\b(?:never|don't|do not|without (?:talking|speaking|asking|checking)|talk to|ask your|check with|your (?:doctor|prescriber|clinician|pharmacist) (?:decides|sets|may))\b/i;
 
-// "file|excerpt": reason. Empty on purpose; add with a reason when needed.
-const ALLOWED = {};
+// "file|excerpt": reason. Add one with a reason when needed.
+const ALLOWED = {
+  'lib/agreement.ts|It does not replace your doctor or pharmacist': 'the first-launch agreement saying the app does not stand in for a clinician',
+};
 
 function readableText(file) {
   const source = fs.readFileSync(path.resolve(ROOT, file), 'utf8');

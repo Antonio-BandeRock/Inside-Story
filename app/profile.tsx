@@ -390,6 +390,7 @@ const ALL_CARD_SECTION_KEYS = [
   'appearance',
   // Device & Account
   'app-status',
+  'agreement',
   'connections',
   'backup',
   'app-updates',
@@ -4963,6 +4964,23 @@ export default function ProfileScreen() {
             </Text>
             <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/app-status')}>
               <Text style={styles.checkinButtonText}>See App Status</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+      </View>
+
+      {/* The first-launch agreement (X2), readable again with the day it
+          was agreed to. See lib/agreement.ts. */}
+      <View style={styles.card}>
+        {renderCardHeader('agreement', 'What This App Is and Is Not')}
+        {!collapsedSections.has('agreement') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              The points you agreed to when you first opened the app: general information and your records, not
+              medical advice, not a diagnosis, and never allergy-safe.
+            </Text>
+            <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/agreement')}>
+              <Text style={styles.checkinButtonText}>Read It Again</Text>
             </TouchableOpacity>
           </View>
         ) : null}
