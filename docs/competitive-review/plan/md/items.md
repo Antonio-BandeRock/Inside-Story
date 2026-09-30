@@ -553,7 +553,7 @@
 ### K1. Six months, a year, any range, since the last visit
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
 - **Answers:** Guava, Bearable, Visible · **Theme:** Reports
-- **How:** buildReport already takes any number of days.
+- **How:** buildReport already takes any number of days. Built 1.0.56.13: 6 months, 1 year and Since last visit pills on Reports (lib/reportRange.ts, calendar months back; since the day after the last visit that happened, same lastVisit rule as F19; pill only when there is one), checked by scripts/test_report_range.js.
 
 ### K2. At a glance front page
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Reports
