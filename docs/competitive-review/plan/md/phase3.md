@@ -11,7 +11,7 @@
 ### A7. Travel: keep home time or shift to local
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
 - **Answers:** Medisafe · **Theme:** Medication logistics
-- **How:** A per-treatment switch read by lib/reminderSchedule.ts when the phone's time zone changes.
+- **How:** A per-treatment switch read by lib/reminderSchedule.ts when the phone's time zone changes. Built 1.0.57.3: a per-med Move to local time or Keep home time switch in My Meds, a home zone taken from the phone and changeable, an Away from home band and home-time captions on Schedules > Meds, reminders moved onto the local clock at sync (lib/travelTime.ts, treatment_time_mode).
 
 ### A16. Caregiver or partner sees a missed dose
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Life,Schedules,Insights
