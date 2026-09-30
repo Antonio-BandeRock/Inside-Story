@@ -1,5 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
@@ -8,6 +8,7 @@ import { GatedTabContent } from '../../components/GatedTabContent';
 import { GardenCsvButtons } from '../../components/GardenCsvButtons';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { ReportCsvButtons } from '../../components/ReportCsvButtons';
+import { ReportHistoryBand } from '../../components/ReportHistoryBand';
 import { YourStoryMissingLine } from '../../components/YourStoryMissingLine';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
@@ -21,6 +22,8 @@ import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { buildReport, renderReportText, type ReportDocument } from '../../lib/reportGenerator';
+import { againRange, type ReportHistoryEntry, type ReportSentHow } from '../../lib/reportHistory';
+import { recordReportSent } from '../../lib/reportHistoryDb';
 import { REPORT_KINDS, type ReportKind } from '../../lib/reportKinds';
 import { exportReportAsPdf } from '../../lib/reportPdf';
 import { markYourStorySeen } from '../../lib/yourStoryDb';
@@ -49,6 +52,10 @@ const REPORTS_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'Three ways to share',
     body: 'Share as PDF lays the same summary out on a page, with each section as a table or a list, for handing over, printing, or attaching to a message. Share as text sends it as plain words, which pastes into any message or note. Save as a Spreadsheet makes CSV files for Excel, Google Sheets or any program that reads them: each table on its own, or the whole report in one file. All three are built on the device from the same data.',
+  },
+  {
+    heading: 'Report history',
+    body: 'Each report that leaves this device is listed at the bottom of the page: which report, the dates it covered, when and how it went out, and who it was for if you add a name. Only those facts are kept, never what the report said. Make it again opens the same report over the same length of time, ending today.',
   },
   {
     heading: 'What a clinician will see',
@@ -188,6 +195,40 @@ export default function ReportsScreen() {
   const [exporting, setExporting] = useState(false);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const reportText = report ? renderReportText(report) : null;
+  // K7, 2026-09-29: each report that leaves the device is kept as one line
+  // in Report history, and the line just kept is opened for a name.
+  const [historyKey, setHistoryKey] = useState(0);
+  const [askForId, setAskForId] = useState<string | null>(null);
+  const scrollRef = useRef<ScrollView>(null);
+
+  function noteSent(how: ReportSentHow) {
+    void markYourStorySeen('report');
+    if (!report) return;
+    recordReportSent({ kind: lens, rangeKey: String(range) as ReportHistoryEntry['rangeKey'], rangeLabel: report.rangeLabel, days: report.days, how })
+      .then((id) => {
+        if (!id) return;
+        setAskForId(id);
+        setHistoryKey((key) => key + 1);
+      })
+      .catch((error: unknown) => console.warn('[reports] could not keep the report in history', error));
+  }
+
+  function makeAgain(entry: ReportHistoryEntry) {
+    const kind = REPORT_KINDS.find((def) => def.key === entry.kind);
+    if (kind) setLens(kind.key);
+    const again = againRange(entry, localDateString(new Date()));
+    if (again.rangeKey === 'custom' && again.customStart) {
+      setCustomStart(again.customStart);
+      setRange('custom');
+    } else if (again.rangeKey === '7' || again.rangeKey === '30' || again.rangeKey === '90') {
+      setRange(Number(again.rangeKey) as 7 | 30 | 90);
+    } else if (again.rangeKey === 'visit') {
+      setRange(visit ? 'visit' : 30);
+    } else if (again.rangeKey === '6m' || again.rangeKey === '1y') {
+      setRange(again.rangeKey);
+    }
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  }
 
   const load = useCallback((forDays: number, forLens: ReportsLens) => {
     setLoading(true);
@@ -234,7 +275,7 @@ export default function ReportsScreen() {
       const outcome = await Share.share({ message: reportText });
       // Your Story's "Make a report" item holds once a report has left the
       // phone. A dismissed sheet is not a share, so it is not counted.
-      if (outcome.action !== Share.dismissedAction) void markYourStorySeen('report');
+      if (outcome.action !== Share.dismissedAction) noteSent('text');
     } catch {
       // Real share-sheet cancellation/dismissal throws too on some Android
       // versions -- silently ignored the same way this app already treats
@@ -250,7 +291,7 @@ export default function ReportsScreen() {
       const result = await exportReportAsPdf(report);
       // A PDF handed to the share sheet, or written where the person can
       // reach it, is a report made; Your Story's report item holds from here.
-      if (result.status !== 'failed') void markYourStorySeen('report');
+      if (result.status !== 'failed') noteSent('pdf');
       if (result.status === 'failed') {
         showInfoAlert('PDF not made', result.message);
       } else if (result.status === 'savedOnly') {
@@ -271,7 +312,7 @@ export default function ReportsScreen() {
           lens's content (with its own scrollable controls) is showing. */}
       <SwipeableTabScreen enabled={!revealed}>
         <GatedTabContent pageTitle="Reports" variant="reports" revealed={revealed}>
-          <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
+          <ScrollView ref={scrollRef} style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
             <View style={band.heading}>
               <Text style={band.headingText}>{activeLensLabel}</Text>
             </View>
@@ -384,10 +425,12 @@ export default function ReportsScreen() {
             {report && reportText && !loading ? (
               <View style={band.box}>
                 <Text style={styles.customLabel}>Save as a Spreadsheet</Text>
-                <ReportCsvButtons report={report} onSaved={() => void markYourStorySeen('report')} />
+                <ReportCsvButtons report={report} onSaved={() => noteSent('csv')} />
                 {lens === 'r-garden' ? <GardenCsvButtons caption="The garden's whole record, whatever the range above, one file each for plantings, harvests and what was done." /> : null}
               </View>
             ) : null}
+
+            <ReportHistoryBand tabColor={TAB_COLOR} refreshKey={historyKey} askForId={askForId} onMakeAgain={makeAgain} />
           </ScrollView>
         </GatedTabContent>
       </SwipeableTabScreen>

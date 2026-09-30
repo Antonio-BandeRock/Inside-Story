@@ -237,6 +237,7 @@ const AREAS: readonly Area[] = [
   { one: 'period day logged', many: 'period days logged', count: ['cycle_days'], quiet: [] },
   { one: 'tracker of your own', many: 'trackers of your own', count: ['custom_trackers'], quiet: [] },
   { one: 'tracker entry', many: 'tracker entries', count: ['custom_tracker_entries'], quiet: [] },
+  { one: 'report sent', many: 'reports sent', count: ['report_history'], quiet: [] },
   {
     one: 'piece of grow setup',
     many: 'pieces of grow setup',

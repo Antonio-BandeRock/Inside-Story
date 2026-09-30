@@ -9099,6 +9099,32 @@ async function runDatabaseInitialization() {
       CREATE INDEX IF NOT EXISTS idx_meal_packs_date ON meal_packs(date);
     `);
 
+    // Report history (K7, 2026-09-29): one row each time a report leaves
+    // the device, as text, a PDF or a spreadsheet file. Only the facts
+    // about the report are kept (which one, the dates it covered, when and
+    // how it went out, and who it was for if the person says), never its
+    // contents. range_key is the choice on the Reports tab (7, 30, 90, 6m,
+    // 1y, visit, custom), so Make it again can pick it back. Nothing refers
+    // to a row, so removing one deletes it (lib/reportHistoryDb.ts).
+    // Travels between one person's devices; never between people, since
+    // lib/peerRelationships.ts does not name it.
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS report_history (
+        id TEXT PRIMARY KEY,
+        kind TEXT NOT NULL,
+        range_key TEXT NOT NULL,
+        range_start TEXT NOT NULL,
+        range_end TEXT NOT NULL,
+        days INTEGER NOT NULL,
+        how TEXT NOT NULL,
+        for_whom TEXT,
+        made_at TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_report_history_made ON report_history(made_at);
+    `);
+
     // 2026-08-30, direct on-device report: "when I had the app create a 6 week
     // meal plan schedule, it seems to have made all of them a favorite
     // automatically. If that is the case, it definitely should not do that."
