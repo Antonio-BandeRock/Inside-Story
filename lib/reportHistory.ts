@@ -13,7 +13,7 @@
 // components/ReportHistoryBand.tsx shows it, and
 // scripts/test_report_history.js checks this without a phone.
 
-export type ReportSentHow = 'text' | 'pdf' | 'csv';
+export type ReportSentHow = 'text' | 'pdf' | 'csv' | 'print';
 
 /** The range choices on the Reports tab, stored as text. */
 export type ReportRangeKey = '7' | '30' | '90' | '6m' | '1y' | 'visit' | 'custom';
@@ -52,6 +52,7 @@ const HOW_WORDS: Record<ReportSentHow, string> = {
   text: 'shared as text',
   pdf: 'shared as a PDF',
   csv: 'saved as a spreadsheet',
+  print: 'printed',
 };
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -63,7 +64,7 @@ export function isRangeKey(value: string): value is ReportRangeKey {
 }
 
 export function isSentHow(value: string): value is ReportSentHow {
-  return value === 'text' || value === 'pdf' || value === 'csv';
+  return value === 'text' || value === 'pdf' || value === 'csv' || value === 'print';
 }
 
 /** "2026-08-31 to 2026-09-29", the report's rangeLabel, as its two dates. */

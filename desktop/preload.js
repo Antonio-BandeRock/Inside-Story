@@ -99,6 +99,10 @@ contextBridge.exposeInMainWorld('insideStoryDesktop', {
       };
     },
   },
+  print: {
+    html: (html) => ipcRenderer.invoke('print:html', html),
+    toPdf: (html, fileBase) => ipcRenderer.invoke('print:toPdf', html, fileBase),
+  },
   web: {
     fetchPage: (url) => ipcRenderer.invoke('web:fetchPage', url),
   },

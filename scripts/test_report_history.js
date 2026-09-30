@@ -100,7 +100,9 @@ same(
 
 // Keys
 same(['7', '30', '90', '6m', '1y', 'visit', 'custom', '14'].map(H.isRangeKey), [true, true, true, true, true, true, true, false], 'range keys');
-same(['text', 'pdf', 'csv', 'docx'].map(H.isSentHow), [true, true, true, false], 'ways a report goes out');
+same(['text', 'pdf', 'csv', 'print', 'docx'].map(H.isSentHow), [true, true, true, true, false], 'ways a report goes out');
+// K11: a printed copy is its own line in the history.
+same(H.historyCaption({ ...entry, how: 'print', forWhom: null }).startsWith('Printed on '), true, 'a printed copy reads as printed');
 
 // No verdicts in anything shown
 const shown = [H.REPORT_HISTORY_CAPTION, H.REPORT_HISTORY_EMPTY, H.historyCaption(entry)].join(' ');

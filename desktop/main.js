@@ -32,6 +32,7 @@ const files = require('./files');
 const cloudFolder = require('./cloudFolder');
 const zoom = require('./zoom');
 const stationListener = require('./stationListener');
+const print = require('./print');
 
 const APP_ID = 'com.insidestoryapp.app';
 const SCHEME = 'app';
@@ -165,6 +166,10 @@ function registerIpc() {
   // The two dialogs wait on the person, so they answer asynchronously.
   ipcMain.handle('files:pick', (_event, options) => files.pick(() => mainWindow, options));
   ipcMain.handle('files:saveAs', (_event, uri, options) => files.saveAs(() => mainWindow, uri, options));
+  // K11: a page of HTML to the printer, or laid out as a PDF file, in a
+  // hidden window of its own (print.js).
+  ipcMain.handle('print:html', (_event, html) => print.printHtml(files.folders(userData).cache, html));
+  ipcMain.handle('print:toPdf', (_event, html, fileBase) => print.htmlToPdf(files.folders(userData).cache, html, fileBase));
 
   ipcMain.handle('secrets:get', (_event, key) => secrets.get(userData, key));
   ipcMain.handle('secrets:set', (_event, key, value) => secrets.set(userData, key, value));

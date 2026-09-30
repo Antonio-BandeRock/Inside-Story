@@ -169,6 +169,15 @@ export type DesktopCloudFolderBridge = {
   moveFile(fromFolder: string, fileName: string, intoFolder: string): Promise<void>;
 };
 
+/** Printing and PDFs in a hidden window (K11), since expo-print on the
+ *  web target only prints the app window itself and makes no file. */
+export type DesktopPrintBridge = {
+  /** The system print dialog for the page: 'printed' or 'cancelled'; rejects when the printer refuses. */
+  html(html: string): Promise<'printed' | 'cancelled'>;
+  /** The page as a PDF in Cache/reports, named fileBase.pdf; answers its file:// URI. */
+  toPdf(html: string, fileBase: string): Promise<string>;
+};
+
 /** Reading a web page from the main process, where no CORS rule applies. */
 export type DesktopWebBridge = {
   /** Rejects with an Error carrying a sentence when the page cannot be read. */
@@ -196,6 +205,8 @@ export type DesktopBridge = {
   cloudFolder: DesktopCloudFolderBridge;
   /** Missing on an installer built before 1.0.53.12. */
   web?: DesktopWebBridge;
+  /** Missing on an installer built before 1.0.56.21. */
+  print?: DesktopPrintBridge;
   /** Missing on an installer built before 1.0.55.38. */
   stationListener?: DesktopStationListenerBridge;
 };

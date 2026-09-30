@@ -27,7 +27,7 @@ import { againRange, type ReportHistoryEntry, type ReportSentHow } from '../../l
 import { recordReportSent } from '../../lib/reportHistoryDb';
 import { cleanLeftOut, REPORT_KINDS, type ReportKind, type ReportSectionId } from '../../lib/reportKinds';
 import { getReportLeftOut, setReportLeftOut } from '../../lib/reportSectionsDb';
-import { exportReportAsPdf } from '../../lib/reportPdf';
+import { exportReportAsPdf, printReport } from '../../lib/reportPdf';
 import { markYourStorySeen } from '../../lib/yourStoryDb';
 import { describeRange, monthsBefore, sinceVisitStart, type LastVisitForRange } from '../../lib/reportRange';
 import { lastVisit } from '../../lib/sinceLastVisit';
@@ -52,8 +52,8 @@ const REPORTS_HELP_SECTIONS: HelpSection[] = [
     body: 'This generates entirely on your device, the same as the rest of this app. Nothing is sent anywhere unless you tap Share and choose where it goes yourself.',
   },
   {
-    heading: 'Three ways to share',
-    body: 'Share as PDF lays the same summary out on a page, with each section as a table or a list, for handing over, printing, or attaching to a message. Share as text sends it as plain words, which pastes into any message or note. Save as a Spreadsheet makes CSV files for Excel, Google Sheets or any program that reads them: each table on its own, or the whole report in one file. All three are built on the device from the same data.',
+    heading: 'Four ways to hand it over',
+    body: 'Share as PDF lays the same summary out on a page, with each section as a table or a list, for handing over or attaching to a message. Print sends that same page straight to a printer, with no file to share first; on a phone the print options also offer saving it as a PDF. Share as text sends it as plain words, which pastes into any message or note. Save as a Spreadsheet makes CSV files for Excel, Google Sheets or any program that reads them: each table on its own, or the whole report in one file. All four are built on the device from the same data, and Report history keeps each one, a printed copy included.',
   },
   {
     heading: 'Choosing the sections',
@@ -199,6 +199,7 @@ export default function ReportsScreen() {
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [printing, setPrinting] = useState(false);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const reportText = report ? renderReportText(report) : null;
   // K7, 2026-09-29: each report that leaves the device is kept as one line
@@ -327,6 +328,20 @@ export default function ReportsScreen() {
     }
   }
 
+  // K11, 2026-09-29: the PDF's page sent to the print dialog with no share
+  // step. A printed copy goes in Report history; a closed dialog does not.
+  async function handlePrint() {
+    if (!report || printing) return;
+    setPrinting(true);
+    try {
+      const result = await printReport(report);
+      if (result.status === 'printed') noteSent('print');
+      else if (result.status === 'failed') showInfoAlert('Not printed', result.message);
+    } finally {
+      setPrinting(false);
+    }
+  }
+
   async function handleSharePdf() {
     if (!report || exporting) return;
     setExporting(true);
@@ -334,7 +349,7 @@ export default function ReportsScreen() {
       const result = await exportReportAsPdf(report);
       // A PDF handed to the share sheet, or written where the person can
       // reach it, is a report made; Your Story's report item holds from here.
-      if (result.status !== 'failed') noteSent('pdf');
+      if (result.status === 'shared' || result.status === 'savedOnly') noteSent('pdf');
       if (result.status === 'failed') {
         showInfoAlert('PDF not made', result.message);
       } else if (result.status === 'savedOnly') {
@@ -461,6 +476,9 @@ export default function ReportsScreen() {
               <View style={[band.inset, styles.shareRow]}>
                 <TouchableOpacity style={[styles.shareButton, exporting && styles.shareButtonBusy]} onPress={handleSharePdf} disabled={exporting}>
                   <Text style={styles.shareButtonText}>{exporting ? 'Laying out the PDF…' : 'Share as PDF'}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.shareButtonSecondary, printing && styles.shareButtonBusy]} onPress={handlePrint} disabled={printing}>
+                  <Text style={styles.shareButtonSecondaryText}>{printing ? 'Opening the print dialog…' : 'Print'}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.shareButtonSecondary} onPress={handleShareText}>
                   <Text style={styles.shareButtonSecondaryText}>Share as text</Text>
