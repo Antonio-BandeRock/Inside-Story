@@ -18,6 +18,8 @@ import { FinanceGoalsSection } from '../../components/FinanceGoalsSection';
 import { FinanceMoneySection } from '../../components/FinanceMoneySection';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
+import { RecordPhotos } from '../../components/RecordPhotos';
+import { countMediaFor } from '../../lib/mediaDb';
 import { TabBand, makeTabBandStyles } from '../../components/TabBand';
 import { DaysUntilSection } from '../../components/DaysUntilSection';
 import { DidIDoItSection } from '../../components/DidIDoItSection';
@@ -1028,6 +1030,36 @@ export default function LifeScreen() {
     }
   }
 
+  // Removal stays one tap for a plain entry. One carrying a receipt photo
+  // asks first, since the photo goes with it (J4).
+  async function removeEntry(row: FinanceEntryRecord) {
+    const photos = await countMediaFor('money_entry', row.id).catch(() => 0);
+    if (photos === 0) {
+      await deleteEntry(row.id);
+      load();
+      return;
+    }
+    setConfirm({
+      title: `Remove ${row.description || financeCategoryLabel(row.category)}?`,
+      message:
+        photos === 1
+          ? 'Its photo is removed with it.'
+          : `Its ${photos} photos are removed with it.`,
+      actions: [
+        {
+          label: 'Remove',
+          destructive: true,
+          onPress: async () => {
+            setConfirm(null);
+            await deleteEntry(row.id);
+            load();
+          },
+        },
+        { label: 'Keep it', onPress: () => setConfirm(null) },
+      ],
+    });
+  }
+
   function confirmDeleteRecurring(row: FinanceRecurringRecord) {
     setConfirm({
       title: `Remove ${row.name}?`,
@@ -1787,6 +1819,12 @@ export default function LifeScreen() {
                   <Text style={styles.listMeta}>
                     {shortDate(row.occurredOn)} · {financeCategoryLabel(row.category)}
                   </Text>
+                  <RecordPhotos
+                    ownerKind="money_entry"
+                    ownerId={row.id}
+                    tabColor={TAB_COLOR}
+                    title={row.description || financeCategoryLabel(row.category)}
+                  />
                 </View>
                 <View style={styles.listRight}>
                   <Text style={[styles.listAmount, row.direction === 'income' && styles.statGood]}>
@@ -1794,9 +1832,8 @@ export default function LifeScreen() {
                     {formatFinanceMoney(row.amount)}
                   </Text>
                   <TouchableOpacity
-                    onPress={async () => {
-                      await deleteEntry(row.id);
-                      load();
+                    onPress={() => {
+                      void removeEntry(row);
                     }}
                   >
                     <Text style={styles.actionTextRemove}>Remove</Text>

@@ -312,6 +312,9 @@ export async function createEntry(input: {
 export async function deleteEntry(id: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM finance_entries WHERE id = ?', id);
+  // A receipt photo belongs to its entry (J4), so it goes with the entry
+  // rather than staying behind as a photo of nothing.
+  await (await import('./mediaDb')).removePhotosOf('money_entry', id);
 }
 
 /** Newest first. `month` is 'YYYY-MM' and matches on occurred_on's prefix. */

@@ -471,7 +471,7 @@
 ### J4. Receipt photo on an entry
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life
 - **Answers:** Monarch · **Theme:** Money, upkeep and places
-- **How:** Through X1.
+- **How:** Through X1. Built 1.0.56.10: a Photos row under every entry on Life > Finances; removing an entry with photos asks first and removes them with it.
 
 ### J6. Upkeep by room or area
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life
