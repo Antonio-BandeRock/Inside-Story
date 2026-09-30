@@ -46,6 +46,7 @@ const NAMED = [
   'lib/agreement.ts',
   'lib/taper.ts',
   'lib/injectionSites.ts',
+  'lib/travelTime.ts',
   'lib/exercisePlan.ts',
   'lib/recipeConditionLine.ts',
   'lib/onHand.ts',

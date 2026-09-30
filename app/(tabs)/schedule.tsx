@@ -285,6 +285,8 @@ import { stepOn, taperDoseLine, taperLastDay, taperRepeatNote, type TaperStep } 
 import { listTaperSteps } from '../../lib/taperDb';
 import { defaultRotation, isInjected, matchInjectable, nextSite, siteChoices, type InjectionSite, type SiteUse } from '../../lib/injectionSites';
 import { listInjectionSettings, listSiteHistory, localStamp, recordSite, type InjectionSetting } from '../../lib/injectionSitesDb';
+import { awayLine, currentZone, hereCaption, homeDoseHere, isAway, zoneName, type TravelMode } from '../../lib/travelTime';
+import { getHomeZone, listTravelModes, setHomeZoneToHere } from '../../lib/travelTimeDb';
 import { WEEKDAY_NAMES, sameWeekday, weekdayOf as targetWeekdayOf } from '../../lib/weekdayTargets';
 import {
   OPEN_MEAL_CHOICES,
@@ -5397,6 +5399,8 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
   const [tapersByTreatment, setTapersByTreatment] = useState<Map<string, TaperStep[]>>(new Map());
   const [injectionByTreatment, setInjectionByTreatment] = useState<Map<string, InjectionSetting>>(new Map());
   const [sitesByTreatment, setSitesByTreatment] = useState<Map<string, SiteUse[]>>(new Map());
+  const [travelByTreatment, setTravelByTreatment] = useState<Map<string, TravelMode>>(new Map());
+  const [homeZone, setHomeZone] = useState<string | null>(null);
   const [reminderPermissionGranted, setReminderPermissionGranted] = useState<boolean | null>(null);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
@@ -5418,10 +5422,14 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
           listTaperSteps(),
           listInjectionSettings(),
           listSiteHistory(),
+          listTravelModes(),
+          getHomeZone().catch(() => null),
         ]),
       )
-      .then(([loadedTreatments, doses, evaluation, reminderGranted, tapers, injection, sites]) => {
+      .then(([loadedTreatments, doses, evaluation, reminderGranted, tapers, injection, sites, travel, home]) => {
         setReminderPermissionGranted(reminderGranted);
+        setTravelByTreatment(travel);
+        setHomeZone(home);
         setTapersByTreatment(tapers);
         setInjectionByTreatment(injection);
         setSitesByTreatment(sites);
@@ -5561,6 +5569,35 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
     if (dose.status !== 'planned') return '';
     const next = nextSite(injection.rotation, injection.history);
     return next ? ` · Next site: ${next.label}` : '';
+  }
+
+  // A7: while away from home, a dose kept on home time says when that is on
+  // this phone's clock. The row's own time stays the home time it was set at.
+  const hereZone = currentZone();
+  const away = isAway(homeZone, hereZone, Date.now());
+  function travelCaption(dose: ScheduleItemRecord): string {
+    if (!away || !dose.linkedTreatmentId) return '';
+    const mode = travelByTreatment.get(dose.linkedTreatmentId) ?? 'local';
+    const here = homeDoseHere(dose.scheduledFor, mode, homeZone, hereZone, Date.now());
+    return here ? ` · home time${hereCaption(dose.scheduledFor, here)}` : '';
+  }
+  const homeTimeMeds = treatments.filter((treatment) => travelByTreatment.get(treatment.id) === 'home').length;
+
+  function askHomeZone() {
+    if (!homeZone || !hereZone) return;
+    setRemovePrompt({
+      title: `Home is ${zoneName(homeZone)}`,
+      message: 'Moving house, or was home set wrong? Each med chooses Move to local time or Keep home time in its Details on My Meds.',
+      actions: [
+        {
+          label: `Make ${zoneName(hereZone)} my home time zone`,
+          onPress: () => {
+            void setHomeZoneToHere().then(() => load());
+          },
+        },
+        { label: `Keep ${zoneName(homeZone)} as home`, onPress: () => {} },
+      ],
+    });
   }
 
   async function handleMarkDoseTaken(item: ScheduleItemRecord) {
@@ -5763,6 +5800,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
                           {describeStatus(dose.status) ?? 'Planned'}
                           {repeatCaption(dose)}
                           {siteCaption(dose)}
+                          {travelCaption(dose)}
                         </Text>
                         {renderDoseActions(dose)}
                       </View>
@@ -5805,6 +5843,18 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
         />
       </View>
       <ReminderPermissionBand granted={reminderPermissionGranted} onGranted={setReminderPermissionGranted} noun="dose time" />
+      {away && homeZone && hereZone ? (
+        <View style={styles.bandOut}>
+          <HomeSectionBand
+            kind="action"
+            title={`Away from home: ${zoneName(hereZone)} time`}
+            caption={awayLine(homeZone, hereZone, homeTimeMeds)}
+            icon="airplane-outline"
+            color={TAB_COLOR}
+            onPress={askHomeZone}
+          />
+        </View>
+      ) : null}
       {loading ? (
         <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
       ) : errorMessage ? (
@@ -5828,6 +5878,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
                           {describeStatus(dose.status) ?? 'Planned'}
                           {repeatCaption(dose)}
                           {siteCaption(dose)}
+                          {travelCaption(dose)}
                         </Text>
                       </View>
                     </View>

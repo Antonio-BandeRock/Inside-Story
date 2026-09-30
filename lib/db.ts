@@ -8637,6 +8637,19 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_dose_sites_treatment ON dose_sites(treatment_id, recorded_at);
 
+      -- A7, travelling. One row per med the person has answered for: 'home'
+      -- keeps its reminders on the home zone's clock while away, 'local'
+      -- (and no row at all) rings at the same clock time wherever the phone
+      -- is. The home zone itself is app_meta 'home_time_zone', which travels
+      -- between a person's devices because it is about the person.
+      CREATE TABLE IF NOT EXISTS treatment_time_mode (
+        treatment_id TEXT PRIMARY KEY,
+        mode TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (treatment_id) REFERENCES treatments(id) ON DELETE CASCADE
+      );
+
       -- C15, Phase 2: "Pick a few things for today". Each row says one Did I
       -- Do It check was picked for one local day ('YYYY-MM-DD'). Whether it
       -- happened is never stored here: it is read from done_check_marks, so
@@ -17485,6 +17498,9 @@ export type ReminderCandidate = {
   taperStepCount: number | null;
   unitsPerDay: number | null;
   servingUnitLabel: string | null;
+  // A7: 'home' when the med keeps home time while travelling; null for
+  // everything else, which rings on the local clock.
+  travelMode: string | null;
 };
 
 export async function listReminderCandidates(fromLocalDateTime: string, toDate: string): Promise<ReminderCandidate[]> {
@@ -17503,7 +17519,8 @@ export async function listReminderCandidates(fromLocalDateTime: string, toDate: 
            AND (SELECT ts.id FROM treatment_taper_steps ts WHERE ts.treatment_id = t.id AND substr(s.scheduled_for, 1, 10) BETWEEN ts.start_date AND ts.end_date LIMIT 1) IS NOT NULL) AS taperStepNumber,
         CASE WHEN (SELECT ts.id FROM treatment_taper_steps ts WHERE ts.treatment_id = t.id AND substr(s.scheduled_for, 1, 10) BETWEEN ts.start_date AND ts.end_date LIMIT 1) IS NOT NULL THEN (SELECT COUNT(*) FROM treatment_taper_steps tc WHERE tc.treatment_id = t.id) END AS taperStepCount,
         t.units_per_day AS unitsPerDay, t.serving_unit_label AS servingUnitLabel,
-        s.keep_reminding_minutes AS keepRemindingMinutes
+        s.keep_reminding_minutes AS keepRemindingMinutes,
+        (SELECT tm.mode FROM treatment_time_mode tm WHERE tm.treatment_id = t.id) AS travelMode
       FROM schedule_items s
       LEFT JOIN treatments t ON t.id = s.linked_treatment_id
       WHERE s.status = 'planned'
@@ -20177,6 +20194,7 @@ export async function deleteTreatment(treatmentId: string) {
   await db.runAsync('DELETE FROM treatment_taper_steps WHERE treatment_id = ?', treatmentId);
   await db.runAsync('DELETE FROM treatment_injection WHERE treatment_id = ?', treatmentId);
   await db.runAsync('DELETE FROM dose_sites WHERE treatment_id = ?', treatmentId);
+  await db.runAsync('DELETE FROM treatment_time_mode WHERE treatment_id = ?', treatmentId);
   await db.runAsync('DELETE FROM medicine_labels WHERE treatment_id = ?', treatmentId);
   await db.runAsync('DELETE FROM treatments WHERE id = ?', treatmentId);
   await (await import('./mediaDb')).removePhotosOf('treatment', treatmentId);

@@ -61,6 +61,8 @@ import { listExercisePlans, listPlanMarks } from './exercisePlanDb';
 import { listWorkouts } from './workoutsDb';
 import { planTitle, reminderBody, reminderMoments, reminderTitle, type ExercisePlan } from './exercisePlan';
 import { formatTime12 } from './timeOfDay';
+import { currentZone, homeDoseHere, homeTimeWords, parseTravelMode } from './travelTime';
+import { getHomeZone } from './travelTimeDb';
 import { quietDecision, SNOOZE_MINUTES } from './quietHours';
 import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
 import { YOUR_WEEK_NOTIFICATION_BODY, YOUR_WEEK_NOTIFICATION_TITLE } from './weeklySummary';
@@ -401,7 +403,37 @@ function mealTypeLabel(mealType: string | null): string | null {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 }
 
-function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotification | null {
+// A7: a dose kept on home time while away carries its home clock as words,
+// and its scheduledFor has already been moved onto this phone's clock.
+type TravelCandidate = ReminderCandidate & { homeClock?: string };
+
+// The schedule rows in the window, with every dose kept on home time moved
+// onto the local clock (A7). The read reaches a day past the window at both
+// ends, since a home-time dose can land on either side of it once moved, and
+// the window is applied after the move.
+async function listTravelAdjustedCandidates(lookback: Date, horizon: Date, now: Date): Promise<TravelCandidate[]> {
+  const DAY_MS = 24 * 60 * 60_000;
+  const [raw, homeZone] = await Promise.all([
+    listReminderCandidates(localDateTimeString(new Date(lookback.getTime() - DAY_MS)), localDateString(new Date(horizon.getTime() + DAY_MS))),
+    getHomeZone().catch(() => null),
+  ]);
+  const here = currentZone();
+  const from = localDateTimeString(lookback);
+  const lastDay = localDateString(horizon);
+  const result: TravelCandidate[] = [];
+  for (const candidate of raw) {
+    const moved = candidate.travelMode
+      ? homeDoseHere(candidate.scheduledFor, parseTravelMode(candidate.travelMode), homeZone, here, now.getTime())
+      : null;
+    const next: TravelCandidate =
+      moved && homeZone ? { ...candidate, scheduledFor: moved, homeClock: homeTimeWords(candidate.scheduledFor, homeZone) } : candidate;
+    if (next.scheduledFor < from || next.scheduledFor.slice(0, 10) > lastDay) continue;
+    result.push(next);
+  }
+  return result;
+}
+
+function buildPlanned(candidate: TravelCandidate, now: Date): PlannedNotification | null {
   const scheduledFor = parseLocalDateTime(candidate.scheduledFor);
   if (!scheduledFor) return null;
   // Every body says three things and nothing else (1.0.53.10, direct
@@ -529,7 +561,7 @@ function buildPlanned(candidate: ReminderCandidate, now: Date): PlannedNotificat
   return {
     identifier: `${IDENTIFIER_PREFIX}dose:${candidate.id}`,
     title: `Time for ${candidate.title}`,
-    body: saying(`${dose ? `${dose}, due` : 'Due'} ${due} on your Meds schedule.`, 'dose'),
+    body: saying(`${dose ? `${dose}, due` : 'Due'} ${due}${candidate.homeClock ? ` here, ${candidate.homeClock},` : ''} on your Meds schedule.`, 'dose'),
     fireAt: scheduledFor,
     payload: {
       kind: 'dose',
@@ -983,7 +1015,7 @@ async function runSync(): Promise<ReminderSyncResult> {
   // behind now gets follow-ups only, never a second first reminder.
   const lookback = new Date(now.getTime() - KEEP_REMINDING_LOOKBACK_MINUTES * 60_000);
   const [candidates, datedSources, routines, checks, preferences, checkinInputs, seriesInputs] = await Promise.all([
-    listReminderCandidates(localDateTimeString(lookback), localDateString(horizon)),
+    listTravelAdjustedCandidates(lookback, horizon, now),
     listDatedReminderSources(today),
     listRoutineReminders(),
     listCheckReminders(),

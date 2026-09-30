@@ -49,6 +49,9 @@ import { stepOn, taperDoseLine, type TaperStep } from '../lib/taper';
 import { listTaperSteps } from '../lib/taperDb';
 import { TaperPanel } from './TaperPanel';
 import { InjectionPanel } from './InjectionPanel';
+import { TravelTimePanel } from './TravelTimePanel';
+import { getHomeZone, listTravelModes } from '../lib/travelTimeDb';
+import type { TravelMode } from '../lib/travelTime';
 import { listInjectionSettings, listSiteHistory, type InjectionSetting } from '../lib/injectionSitesDb';
 import type { SiteUse } from '../lib/injectionSites';
 import type { SupplyReading } from '../lib/medSupply';
@@ -191,6 +194,8 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
   const [tapersByTreatment, setTapersByTreatment] = useState<Map<string, TaperStep[]>>(new Map());
   const [injectionByTreatment, setInjectionByTreatment] = useState<Map<string, InjectionSetting>>(new Map());
   const [sitesByTreatment, setSitesByTreatment] = useState<Map<string, SiteUse[]>>(new Map());
+  const [travelByTreatment, setTravelByTreatment] = useState<Map<string, TravelMode>>(new Map());
+  const [homeZone, setHomeZone] = useState<string | null>(null);
   const [supplyByTreatment, setSupplyByTreatment] = useState<Map<string, SupplyReading>>(new Map());
   const [labelIds, setLabelIds] = useState<Set<string>>(new Set());
   const [nutrients, setNutrients] = useState<TrackedNutrient[]>([]);
@@ -228,9 +233,13 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
           listTaperSteps(),
           listInjectionSettings(),
           listSiteHistory(),
+          listTravelModes(),
+          getHomeZone().catch(() => null),
         ]),
       )
-      .then(async ([loadedTreatments, loadedNutrients, loadedMeds, dailyAnalysis, evaluation, details, supply, withLabels, tapers, injection, sites]) => {
+      .then(async ([loadedTreatments, loadedNutrients, loadedMeds, dailyAnalysis, evaluation, details, supply, withLabels, tapers, injection, sites, travel, home]) => {
+        setTravelByTreatment(travel);
+        setHomeZone(home);
         setTreatments(loadedTreatments);
         setTapersByTreatment(tapers);
         setInjectionByTreatment(injection);
@@ -715,6 +724,14 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
                     setting={injectionByTreatment.get(treatment.id)}
                     history={sitesByTreatment.get(treatment.id) ?? []}
                     today={todayDateString()}
+                    tabColor={tabColor}
+                    onSaved={load}
+                    onProblem={showInfoAlert}
+                  />
+                  <TravelTimePanel
+                    treatmentId={treatment.id}
+                    mode={travelByTreatment.get(treatment.id) ?? 'local'}
+                    homeZone={homeZone}
                     tabColor={tabColor}
                     onSaved={load}
                     onProblem={showInfoAlert}
