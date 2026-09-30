@@ -1,5 +1,6 @@
+import { router, type Href } from 'expo-router';
 import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { TAB_ROUTES } from '../constants/tabs';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { resolveBackgroundStyle } from '../lib/visualPreferences';
@@ -72,6 +73,13 @@ import { ScreenBackground, type BackgroundVariant } from './ScreenBackground';
 // background applies, taking no touches, and decides for itself whether it
 // shows (lib/visualPreferences.ts, isProgressPictureShown).
 //
+// 2026-09-30 (C17, section 6 of docs/progress-design.md): a long press on
+// the empty resting screen opens Your Progress, so the whole of it can be
+// found from any tab whatever that tab's background is. Long press only:
+// a tap on the empty screen still does nothing, and a swipe between tabs
+// still wins, since the pan in SwipeableTabScreen cancels this press the
+// moment it moves.
+//
 // This component does NOT render the shared resting background itself --
 // that's a single, genuinely constant `<ScreenBackground variant="field"
 // sky />` mounted once in app/(tabs)/_layout.tsx, behind every screen. This
@@ -138,6 +146,13 @@ export function GatedTabContent({
       ) : (
         <>
           {restingIsShared ? null : <ScreenBackground variant={variant} routeKey={routeKey} />}
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            delayLongPress={600}
+            onLongPress={() => router.push('/progress' as Href)}
+            accessibilityLabel="Your Progress"
+            accessibilityHint="Long press to open what your records have built, tab by tab"
+          />
           <ProgressPicture routeKey={routeKey} />
         </>
       )}

@@ -189,6 +189,8 @@ Anything that needs a record of the app being used rather than a record of life:
 
 ## 8. What the owner decides before building
 
+**All four were approved as proposed** (on 2026-09-27, and confirmed again on 2026-09-30), and the build shipped in 919dc367: the registry, `lib/progress.ts` and `lib/progressDb.ts`, the Your Progress page at `app/progress.tsx`, the tab pictures in `lib/progressScene.ts` and `components/ProgressPicture.tsx`, and the ready-to-answer lines on Trends and Finances. The long press on a tab's empty screen was added in 1.0.57.10 (`components/GatedTabContent.tsx`).
+
 1. **Variety plus time, with repetition capped at one per week** (section 2). Proposed; it settles the open question from 2026-09-24.
 2. **A deleted record takes its piece with it, but a first stays** (section 3). Proposed; it matches how Your Story already behaves.
 3. **The pictures in section 4**: the pantry, the garden, the room, the night sky, the day arc, the sharpening lens and the lengthening timeline. Any can be swapped, since the sources underneath stay the same.
