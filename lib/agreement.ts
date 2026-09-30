@@ -51,12 +51,12 @@ export const AGREEMENT_BUTTON = 'I understand and agree';
 
 export const AGREEMENT_FOOTNOTE = 'You can read this again any time from Profile, under What This App Is and Is Not.';
 
-// The terms of use and privacy policy on insidestoryapp.com (X3). Kept
-// off until those pages are published, so no link here ever opens a page
-// that is not there.
-export const LEGAL_PAGES_LIVE = false;
-export const TERMS_URL = 'https://insidestoryapp.com/terms';
-export const PRIVACY_URL = 'https://insidestoryapp.com/privacy';
+// The terms of use and privacy policy on insidestoryapp.com (X3, published
+// 1.0.56.23 from docs/app-links/public/terms and /privacy). Working drafts
+// awaiting a lawyer's review before store release; the pages say so.
+export const LEGAL_PAGES_LIVE = true;
+export const TERMS_URL = 'https://insidestoryapp.com/terms/';
+export const PRIVACY_URL = 'https://insidestoryapp.com/privacy/';
 
 export type AgreementRecord = {
   /** Which wording was agreed to. */

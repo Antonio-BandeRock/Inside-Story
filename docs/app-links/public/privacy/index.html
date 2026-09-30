@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inside Story Privacy Policy</title>
+<meta name="description" content="What Inside Story keeps, where it keeps it, and the few things it sends.">
+<style>
+  :root { --bg: #f7f3ec; --text: #22313a; --muted: #5a6870; --accent: #244147; --band: #ffffff; --line: #e2dccf; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #1b2a2f; --text: #efe9df; --muted: #b5bfc2; --accent: #e7c9a0; --band: #233539; --line: #34494e; } }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Georgia, "Times New Roman", serif; line-height: 1.6; }
+  main { max-width: 44rem; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-weight: normal; font-size: 2rem; margin: 8px 0 4px; color: var(--accent); }
+  h2 { font-weight: normal; font-size: 1.35rem; margin: 32px 0 8px; color: var(--accent); }
+  p, li { font-size: 1.05rem; }
+  ul { padding-left: 1.2rem; }
+  li { margin-bottom: 6px; }
+  .meta { color: var(--muted); margin: 0 0 16px; }
+  .draft { background: var(--band); border-left: 4px solid var(--accent); padding: 12px 16px; margin: 16px 0 8px; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: .98rem; }
+  th, td { text-align: left; vertical-align: top; padding: 8px; border-bottom: 1px solid var(--line); }
+  th { color: var(--accent); font-weight: normal; }
+  .wrap { overflow-x: auto; }
+  a { color: var(--accent); }
+  nav { margin-top: 40px; color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Privacy Policy</h1>
+  <p class="meta">Inside Story. Version 1, 29 September 2026.</p>
+  <div class="draft">
+    <p><strong>Working draft.</strong> This policy describes how the app is built today. It is waiting for review by a lawyer before the app is released in the app stores, and the wording may change after that review. When it changes, the app shows its agreement screen again.</p>
+  </div>
+
+  <h2>The short version</h2>
+  <ul>
+    <li>Your health records, meals, symptoms, medicines, notes and everything else you enter stay on your device.</li>
+    <li>If you turn on backup or sync, an encrypted copy goes to a cloud folder you choose, in your account (for example your OneDrive). We never see that folder or hold the password that opens it.</li>
+    <li>There is no Inside Story account, no company server holding your health records, no advertising, no tracking and no selling or sharing of your data with anyone.</li>
+    <li>A few lookups go out to public services, and each sends only what it needs: a barcode, a medicine name or code, a postal code, or a web address you pasted. They are listed below.</li>
+  </ul>
+
+  <h2>Who is responsible</h2>
+  <p>Inside Story is made by an independent developer based in Mexico. Contact details for privacy questions and requests will be added here before the app is released in the stores.</p>
+
+  <h2>What stays on your device</h2>
+  <p>Everything you record lives in a database on the phone or computer you are using: food and meal logs, symptoms and flares, medicines and supplements, lab results, conditions you choose, notes, garden records, finances, routines, photos you attach, and your settings. Readings you allow from Android Health Connect (steps, sleep, weight and similar) are copied into that same database on the device. None of it is sent to us.</p>
+  <p>Deleting the app deletes this database. Because nothing is kept anywhere else unless you set up a backup, a lost device with no backup means lost records.</p>
+
+  <h2>Backup and syncing between your devices</h2>
+  <p>If you turn it on, the app saves an encrypted copy of your database to a folder you pick in your cloud storage. On a phone this goes through Microsoft's OneDrive service, signed in with your Microsoft account; on a computer it is the OneDrive folder on the disk. The copy is encrypted on your device with a password only you know, before it leaves. We cannot open it and cannot reset the password, which is why there is no "forgot password" option.</p>
+  <p>Beside the encrypted copy, a small plain file records which of your devices saved last and when. It holds no health information.</p>
+  <p>Your cloud provider's privacy terms apply to what is stored in your account.</p>
+
+  <h2>Sharing with other people</h2>
+  <p>You can connect with another person who uses the app, such as a partner, by sending an invitation they accept. Only what the connection is set up to share travels between you, and it is sealed on the sending device so that only the other person's device can open it. It can travel four ways:</p>
+  <ul>
+    <li>as a file you send yourself, through any app you choose;</li>
+    <li>through a shared cloud folder;</li>
+    <li>directly between two phones on the same Wi-Fi;</li>
+    <li>through our relay at insidestoryapp.com, described next.</li>
+  </ul>
+  <p><strong>The relay.</strong> The relay is a mailbox that holds a sealed message until the other person's device collects it. It cannot open what it holds. It stores the sealed message, two anonymous key fingerprints (who it is for and who sent it), its size and when it arrived. A message is deleted when it is collected or after 30 days, whichever comes first. The relay runs on Cloudflare, which, like any web host, handles the network address your device connects from in order to deliver the request.</p>
+
+  <h2>What the app sends to other services</h2>
+  <p>These happen only when you use the feature. None of them carries your name or an account identifier, and none carries your health records except the words you speak into voice input, as described in its row.</p>
+  <div class="wrap">
+  <table>
+    <tr><th>When</th><th>Sent to</th><th>What is sent</th></tr>
+    <tr><td>Scanning or typing a barcode</td><td>Open Food Facts (and its sister databases for other products); USDA FoodData Central if it is not found</td><td>The barcode number</td></tr>
+    <tr><td>Looking up a medicine label</td><td>openFDA, run by the US Food and Drug Administration</td><td>The code, name or document number you entered</td></tr>
+    <tr><td>Finding your growing zone, and local weather, sunrise and air quality on Home</td><td>phzmapi.org (US ZIP codes), OpenStreetMap's Nominatim (other postal codes), Open-Meteo</td><td>The postal code you entered, or the approximate coordinates of its area</td></tr>
+    <tr><td>Importing a recipe from a link</td><td>The website at that link</td><td>An ordinary request for that page</td></tr>
+    <tr><td>Speaking instead of typing</td><td>Your phone's speech recognition service (Google on Android, Apple on iPhone), only when the phone cannot turn speech into text on the device itself</td><td>The recording of what you say, while the microphone button is on</td></tr>
+    <tr><td>Reading a weather station on your home network</td><td>The station itself, inside your home network</td><td>A request for its current readings</td></tr>
+    <tr><td>Checking for app updates</td><td>Expo, which delivers updates to the app</td><td>The app's version, the device platform and a random installation number used to deliver the right update</td></tr>
+  </table>
+  </div>
+  <p>Each of these services receives your device's network address as part of any internet request, and their privacy terms apply.</p>
+
+  <h2>What we do not do</h2>
+  <ul>
+    <li>No analytics, crash reporting or advertising tools are built into the app.</li>
+    <li>No data is sold, rented or shared for marketing.</li>
+    <li>No data is used to train artificial intelligence models.</li>
+    <li>No health information is shared with employers, insurers or data brokers, because we never hold it.</li>
+  </ul>
+
+  <h2>Children</h2>
+  <p>The app is not directed at children under 13. Where a parent keeps records about their child, those records are the parent's, kept on the parent's device under this same policy.</p>
+
+  <h2>Your rights</h2>
+  <p>Because your records are on your device, you can see, correct, export and delete them yourself at any time, from inside the app or by deleting it. For anything that reaches us, which is limited to sealed relay messages we cannot read, you can ask us for access, correction or deletion using the contact details above.</p>
+
+  <h2>Laws this policy is written to meet</h2>
+  <p>This section summarises, in outline, the laws the app is designed around. It is not legal advice.</p>
+  <ul>
+    <li><strong>Mexico.</strong> Under the Federal Law on the Protection of Personal Data Held by Private Parties, health information is sensitive personal data and needs express consent. You have the rights of access, rectification, cancellation and opposition (the ARCO rights). The app asks for your agreement before first use, and the records it keeps are held by you, on your device.</li>
+    <li><strong>European Union and United Kingdom.</strong> Under the General Data Protection Regulation, health data is a special category. The app keeps it on your device and does not send it to us, so we do not process it. The little we could handle (relay messages we cannot open, and the network address that comes with any request) is kept to what delivery needs and deleted within 30 days.</li>
+    <li><strong>United States.</strong> The Federal Trade Commission's Health Breach Notification Rule applies to apps that hold personal health records. If health information we were responsible for were ever disclosed without your permission, we would tell you, the Federal Trade Commission and, where required, the media, within the time the rule sets. The app's design means we hold none, and some states (for example Washington and California) also have consumer health privacy laws, which the same design is meant to meet.</li>
+  </ul>
+
+  <h2>Changes to this policy</h2>
+  <p>A changed policy gets a new version number and date here. When the change matters to how the app handles your information, the app asks you to read and agree again before going on.</p>
+
+  <nav><a href="/terms/">Terms of Use</a> · <a href="/">Inside Story</a></nav>
+</main>
+</body>
+</html>

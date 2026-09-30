@@ -57,7 +57,8 @@ check('allergen-aware, never allergy-safe', /allergen-aware, never allergy-safe/
 check('check with a doctor before medical decisions', /check with your doctor before making any medical decision/i.test(all));
 check('no dashes', !/[–—]| -- | - /.test(all));
 check('no filler words', !/\b(real|genuine|genuinely)\b/i.test(all));
-check('legal links off until X3', A.LEGAL_PAGES_LIVE === false);
+check('legal links on since X3', A.LEGAL_PAGES_LIVE === true);
+check('legal links end in a slash', A.TERMS_URL.endsWith('/terms/') && A.PRIVACY_URL.endsWith('/privacy/'));
 check('six points', A.AGREEMENT_POINTS.length === 6);
 
 console.log(`${pass}/${pass + fail} passed`);

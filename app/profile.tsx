@@ -225,6 +225,8 @@ import { PICTURE_TABS } from '../lib/progressScene';
 import { homeGroupIdentity } from '../constants/homeGroups';
 import { useWalkMark } from '../components/WalkMark';
 import type { WalkMark } from '../lib/storyWalk';
+import * as Linking from 'expo-linking';
+import { PRIVACY_URL, TERMS_URL } from '../lib/agreement';
 
 // Whether a backup that has been reached is restored or only checked.
 type BackupUse = 'restore' | 'check';
@@ -4981,6 +4983,12 @@ export default function ProfileScreen() {
             </Text>
             <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/agreement')}>
               <Text style={styles.checkinButtonText}>Read It Again</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.checkinButton} onPress={() => void Linking.openURL(TERMS_URL)}>
+              <Text style={styles.checkinButtonText}>Terms of Use</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.checkinButton} onPress={() => void Linking.openURL(PRIVACY_URL)}>
+              <Text style={styles.checkinButtonText}>Privacy Policy</Text>
             </TouchableOpacity>
           </View>
         ) : null}

@@ -21,6 +21,12 @@ folder is the whole configuration:
 - `public/_headers`: forces `Content-Type: application/json` and a short
   cache on that one path.
 - `public/index.html`: a placeholder home page so the apex is not blank.
+- `public/terms/index.html` and `public/privacy/index.html` (X3, 2026-09-29):
+  the terms of use and privacy policy, linked from the app's first-launch
+  agreement, from Profile and from the home page. Working drafts awaiting a
+  lawyer's review before store release, and they say so. Indexable, unlike
+  the invite pages. Keep the privacy page's table of outside services in
+  step with every `fetch(` the app makes.
 - `public/connect/index.html` and `public/import-shared/index.html`: what a
   phone or desktop WITHOUT the app sees when it opens an invite link. The app
   puts the invite code in the URL fragment (`/connect#data=CODE`, see
