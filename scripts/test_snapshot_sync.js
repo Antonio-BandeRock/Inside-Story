@@ -122,13 +122,7 @@ check(
   'forced while clean: save',
 );
 
-// Timing (1.0.42.29, shortened 1.0.42.30): a periodic check while the app
-// sits open, quiet for a while after a write, and the save debounce
-// shorter than both.
-check(sync.CHECK_INTERVAL_MS >= 20 * 1000, 'periodic check is not so often it hammers the folder');
-check(sync.CHECK_INTERVAL_MS <= 60 * 1000, 'periodic check is at most a minute apart');
-check(sync.CHECK_QUIET_MS > sync.SAVE_DEBOUNCE_MS, 'the quiet period outlasts the save debounce');
-check(sync.CHECK_INTERVAL_MS > sync.CHECK_QUIET_MS, 'a check waits longer than the quiet period');
+// Timing moved to lib/syncSession.ts (1.0.57.11), checked by scripts/test_sync_session.js.
 
 // What never travels inside a snapshot (1.0.42.30). The shared folder is
 // addressed one way on a phone and another on a computer, so a copy

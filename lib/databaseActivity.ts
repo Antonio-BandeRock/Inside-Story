@@ -14,6 +14,8 @@
 // Only statements that change rows count. A PRAGMA, a CREATE TABLE at
 // startup or a SELECT is not something the other device needs.
 
+import { APP_META_TABLE, DEVICE_LOCAL_TABLES } from './snapshotSync';
+
 type WriteListener = (count: number) => void;
 
 let writeCount = 0;
@@ -42,6 +44,52 @@ const STAYS_ON_THIS_DEVICE =
 /** Whether a statement is a change the other device needs to hear about. */
 export function countsAsChange(sql: string): boolean {
   return isRowChangingSql(sql) && !STAYS_ON_THIS_DEVICE.test(sql);
+}
+
+// READ ONLY WHILE THE OTHER DEVICE HAS THE SESSION (lib/syncSession.ts).
+//
+// The watcher sets a guard while the other device has the session, and
+// every change the person could make is refused with a sentence saying
+// why, before it reaches the database. Three kinds of write still go
+// through: bringing the other device's copy in (tracking suspended), work
+// the app does on its own that a person is not there to redo, such as a
+// weather station's readings (withSessionGuardLifted), and rows that
+// never leave this device, which app_meta is counted among since what is
+// written there on its own is this device's bookkeeping. A setting
+// changed there in the meantime is merged the way everything was before
+// the lock, which is what the merge underneath is kept for.
+
+export class SessionReadOnlyError extends Error {}
+
+let guard: (() => string | null) | null = null;
+let liftDepth = 0;
+
+const LOCAL_TABLE_NAMES = [APP_META_TABLE, ...DEVICE_LOCAL_TABLES].join('|');
+const WRITES_ONLY_HERE = new RegExp(
+  '^\\s*(?:INSERT(?:\\s+OR\\s+\\w+)?\\s+INTO|REPLACE\\s+INTO|UPDATE|DELETE\\s+FROM)\\s+(?:' + LOCAL_TABLE_NAMES + ')\\b[^;]*;?\\s*$',
+  'i',
+);
+
+/** Sets or clears the guard. It answers the refusal sentence while writes are refused, or null. */
+export function setSessionWriteGuard(next: (() => string | null) | null): void {
+  guard = next;
+}
+
+/** Work the app does on its own, allowed while this device waits. */
+export async function withSessionGuardLifted<T>(work: () => Promise<T>): Promise<T> {
+  liftDepth += 1;
+  try {
+    return await work();
+  } finally {
+    liftDepth -= 1;
+  }
+}
+
+/** The sentence a statement is refused with right now, or null when it may run. */
+export function sessionRefusalFor(sql: string): string | null {
+  if (!guard || suspendDepth > 0 || liftDepth > 0) return null;
+  if (!countsAsChange(sql) || WRITES_ONLY_HERE.test(sql)) return null;
+  return guard();
 }
 
 /** Records one write. Silent while tracking is suspended (during a restore). */
@@ -104,11 +152,15 @@ export function attachWriteTracking<T extends TrackableDatabase>(db: T): T {
   const runAsync = db.runAsync.bind(db);
   const execAsync = db.execAsync.bind(db);
   db.runAsync = async (...args: any[]) => {
+    const refusal = typeof args[0] === 'string' ? sessionRefusalFor(args[0]) : null;
+    if (refusal) throw new SessionReadOnlyError(refusal);
     const result = await runAsync(...args);
     if (typeof args[0] === 'string' && countsAsChange(args[0])) noteDatabaseWrite();
     return result;
   };
   db.execAsync = async (source: string) => {
+    const refusal = sessionRefusalFor(source);
+    if (refusal) throw new SessionReadOnlyError(refusal);
     await execAsync(source);
     if (countsAsChange(source)) noteDatabaseWrite();
   };

@@ -15,6 +15,9 @@
 import { useEffect } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 
+// Readings keep arriving while the other device has the session
+// (lib/syncSession.ts): nobody is there to take them again later.
+import { withSessionGuardLifted } from '@/lib/databaseActivity';
 import { getDesktopBridge, isDesktopApp } from '@/lib/desktop/bridge';
 import { gatewaysReadHere, getListenPort, readDueGateways, receiveStationReport, workOutAllGateways } from '@/lib/ecowittDb';
 
@@ -33,7 +36,7 @@ export default function EcowittPoller() {
     const listener = stationListener();
     const unsubscribe = listener
       ? listener.onReport((report) => {
-          receiveStationReport(report).catch((error) => console.warn('[EcowittPoller] a station reading could not be kept', error));
+          withSessionGuardLifted(() => receiveStationReport(report)).catch((error) => console.warn('[EcowittPoller] a station reading could not be kept', error));
         })
       : null;
 
@@ -46,7 +49,7 @@ export default function EcowittPoller() {
           if (here.sent > 0) await listener.start(await getListenPort());
           else await listener.stop();
         }
-        if (here.asked > 0 || here.toWorkOut > 0) await readDueGateways();
+        if (here.asked > 0 || here.toWorkOut > 0) await withSessionGuardLifted(readDueGateways);
       } catch (error) {
         console.warn('[EcowittPoller] reading failed', error);
       } finally {
@@ -69,7 +72,7 @@ export default function EcowittPoller() {
         start();
       } else {
         stop();
-        workOutAllGateways().catch((error) => console.warn('[EcowittPoller] working out failed', error));
+        withSessionGuardLifted(workOutAllGateways).catch((error) => console.warn('[EcowittPoller] working out failed', error));
       }
     };
 

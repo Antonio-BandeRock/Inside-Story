@@ -5,8 +5,9 @@
 // and loads the other's when it is newer. This is the whole-snapshot design
 // CLAUDE.md decided under "Multi-device sync model": the copy in the folder
 // is the current state, a device pulls it, works against it, and pushes it
-// back. Step A, which this is, does the saving and loading; step B, the lock
-// file with takeover and a 30-minute lease, is not built.
+// back. Step A, which this is, does the saving and loading; step B, the
+// session note with Take over now and a 30-minute wait, is
+// lib/syncSession.ts (1.0.57.11).
 //
 // One person, two devices, not meant to be used at the same time, but
 // programmed as if they might be. Two guards follow from that, and every
@@ -74,6 +75,9 @@ export type SnapshotSyncState = {
   lastHash: string | null;
   /** A notice to show once after the restart that follows an automatic load. */
   pendingNotice: string | null;
+  /** True across a restart nobody asked for (a merge while nobody was using
+   *  this device), so the check that follows it does not claim the session. */
+  quietRestart?: boolean;
 };
 
 /**
@@ -178,36 +182,10 @@ export const EMPTY_SYNC_STATE: SnapshotSyncState = {
 export const SYNC_RECORD_FILE_NAME = 'inside-story-sync.json';
 const SNAPSHOT_FILE_PREFIX = 'inside-story-snapshot-';
 
-/** How long after the last write the save waits, so a burst of edits is one upload. */
-export const SAVE_DEBOUNCE_MS = 8000;
-
-/**
- * How often an app left open in front looks at the folder, since the
- * foreground event fires only when the app was put away first. A phone
- * left on the desk while the computer saves, or the desktop app sitting
- * open while the phone saves, would otherwise show the old data until it
- * was put away and brought back.
- *
- * Half a minute (1.0.42.30, "I waited several minutes. Nothing updated on
- * the computer app. This absolutely must work automatically"). It was two
- * minutes, which on top of the eight seconds the save waits and the time
- * the OneDrive client takes to carry the file made the whole trip feel
- * like nothing was happening. A listing of one folder is a small request,
- * and it only runs while the app is open in front.
- */
-export const CHECK_INTERVAL_MS = 30 * 1000;
-
-/**
- * A periodic check is skipped this soon after a write: a load restarts
- * the app, and a write this recent means the person is in the middle of
- * something. The foreground check has no such guard, since coming back is
- * the moment a restart costs least.
- *
- * Long enough to outlast the save debounce, and no longer: at a minute it
- * was possible for somebody working steadily to stop the check running at
- * all, which is the opposite of what it is for.
- */
-export const CHECK_QUIET_MS = 15 * 1000;
+// When a save and a check happen is lib/syncSession.ts since 1.0.57.11:
+// the device with the session saves when it is put away and a few
+// minutes after writing stops, and the other device reads the folder when
+// it opens rather than every half minute.
 
 // WHAT NEVER TRAVELS INSIDE A SNAPSHOT.
 //

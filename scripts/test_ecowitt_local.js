@@ -189,7 +189,7 @@ check('samples stored, not worked out each read', /storeDeviceSamples\(/.test(ed
 check('removing a gateway keeps readings', !/DELETE FROM garden_readings|DELETE FROM garden_device_samples/.test(edb));
 check('removed area is skipped', /archived_at IS NULL/.test(edb));
 check('poller mounted', /<EcowittPoller \/>/.test(read_('app/_layout.tsx')));
-check('poller works out on background', /workOutAllGateways\(\)/.test(read_('components/EcowittPoller.tsx')));
+check('poller works out on background', /withSessionGuardLifted\(workOutAllGateways\)/.test(read_('components/EcowittPoller.tsx')));
 check('band on Growing Conditions', /garden:conditions:gateways/.test(read_('components/GrowingConditionsLens.tsx')));
 check('reworking keeps rain apart from the averages', /measurement <> 'rainfall'/.test(read_('lib/growingConditionsDb.ts')) && read_('lib/growingConditionsDb.ts').includes('rainFromRunningTotals(') && (read_('lib/growingConditionsDb.ts')));
 check('Trends is told rain is a total', read_('lib/growingConditionsDb.ts').includes("total: aggregateFor(chosen) === 'total'"));

@@ -1,78 +1,64 @@
 // Keeps this device in step with the other one while the app runs.
 //
 // Mounted once in app/_layout.tsx after the database is ready. Renders
-// nothing of its own except the dialogs it needs. What it does, and when:
+// the dialogs it needs and, while the other device has the session, a
+// strip across the top of the screen with Take Over Now.
 //
-//   - At startup and every time the app comes to the foreground: reads the
-//     record in the shared folder (lib/snapshotSyncDevice.ts). A copy from
-//     the other device is brought together with what is here, row by row,
-//     keeping both devices' changes however many there are
-//     (lib/snapshotMerge.ts); the merged result is saved straight back so
-//     the other device gets it, and the app restarts only when the merge
-//     actually changed something here. The first check after sync was
-//     turned on asks instead, since two devices with no shared history
-//     have nothing to work changes out against. Then, if anything here is
-//     unsaved, saves.
-//   - Every half minute while the app sits open in front
-//     (CHECK_INTERVAL_MS): the same check, skipped within fifteen seconds
-//     of a write (CHECK_QUIET_MS) and skipped while a question is on
-//     screen. The foreground event fires only when the app was put away
-//     first, so without this a phone left on the desk, or the desktop app
-//     left open, showed the old data until it was put away and brought
-//     back. A copy the person declined is not asked about again from here.
-//   - Eight seconds after the last write (SAVE_DEBOUNCE_MS): saves.
-//   - When the app goes to the background: saves at once, since a phone
-//     may be put down for the day at that moment.
+// ONE DEVICE AT A TIME (1.0.57.11, lib/syncSession.ts). Until then this
+// looked at the folder every half minute and saved eight seconds after
+// every write, on both devices, all day: "That seems like quite a lot of
+// unnecessary traffic." Now one device has the session, and:
+//
+//   - At startup, and every time the app comes to the front (or, on the
+//     desktop app, its window gains focus): reads the session note. If
+//     the other device was used in the last half hour, this device waits:
+//     read only, with the strip, and nothing is taken in or saved. If
+//     not, this device takes in whatever the other one saved (the merge,
+//     lib/snapshotMerge.ts, exactly as before), claims the session and
+//     saves anything of its own that is unsaved.
+//   - While it has the session: writes that it is in use no more than
+//     every five minutes, and saves a few minutes after writing stops
+//     (SESSION_SAVE_QUIET_MS) and at once when the app is put away.
+//   - While it waits: a timer set for the moment the half hour is up
+//     reads the note once more. The desktop app also reads it every
+//     minute, which costs nothing there since the OneDrive client keeps
+//     the folder on the disk, so a takeover from the phone is seen
+//     without the window having to lose and regain focus. A phone never
+//     reads it on a timer of its own apart from that one.
+//   - Take Over Now claims the session at once and takes in the other
+//     device's latest copy.
+//
+// A device that notices the session has come free while nobody is
+// using it (the timer) takes in the other device's copy but does not
+// claim the session, since claiming is for somebody using this device,
+// and the restart that can follow a merge is marked quiet so the check
+// after it does not claim either. Otherwise a computer left open would
+// shut the phone out every half hour.
 //
 // A folder that cannot be reached is said once per run rather than left
-// on Profile's Backup & Restore card for somebody to find: a phone whose
-// shared folder had been taken out from under it by a snapshot went on
-// looking normal while nothing it recorded reached the computer
-// (1.0.42.30). Once per distinct sentence, since the check runs every
-// half minute and a dialog each time would be its own problem.
+// on Profile's Backup & Restore card for somebody to find (1.0.42.30).
+// The note being unreachable does not shut this device out: it goes on
+// as if nobody held the session, and the merge covers the rest.
 //
 // On the desktop app "foreground" and "background" come from the window
-// gaining and losing focus. react-native-web's AppState follows the
-// document's visibility, which changes only when the window is minimized
-// and brought back, so clicking over to another program and back, which
-// is how a computer is used, never reached the check or the save
-// (1.0.42.29, "I recorded a capture on the mobile and it isn't showing up
-// on the computer").
+// gaining and losing focus, since react-native-web's AppState follows the
+// document's visibility, which changes only on minimize (1.0.42.29).
 //
-// The first-time question says what changed on each side, since a person
-// asked to choose between two copies of their own database has nothing
-// else to go on ("it doesn't actually say what the change was that
-// caused this update to synchronize from the other device"). The words
-// come from lib/snapshotChanges.ts. Neither list is in hand the moment
-// the question is asked, so it goes up with what it has and gains the
-// rest as it arrives. Every merge after that happens quietly and goes to
-// the log instead (lib/syncLog.ts, read on app/sync-activity.tsx), which
-// is ANNOUNCE_MERGES in lib/snapshotSync.ts and the reason the notice
-// paths below are left standing rather than deleted.
-//
-// A save that finds a copy this device has not taken in merges first,
-// which is the same-time guard: nothing is ever written over that this
-// device has not seen, and nothing unsaved is ever thrown away. Every
-// decision behind that is in lib/snapshotSync.ts and covered by
-// scripts/test_snapshot_sync.js.
-// Checks and saves run one at a time, in the order they were asked for,
-// so a focus check and a timer save can never read and write the folder
-// over each other.
+// The first-time question says what changed on each side (the words come
+// from lib/snapshotChanges.ts); every merge after that goes to the log
+// quietly (lib/syncLog.ts, ANNOUNCE_MERGES in lib/snapshotSync.ts).
+// Checks and saves run one at a time, in the order they were asked for.
 
 import * as Updates from 'expo-updates';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AppState, Platform, type AppStateStatus } from 'react-native';
-import { addDatabaseWriteListener, getLastDatabaseWriteAt } from '../lib/databaseActivity';
+import { AppState, Platform, StyleSheet, Text, TouchableOpacity, View, type AppStateStatus } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors } from '../constants/colors';
+import { textShadow, typography } from '../constants/typography';
+import { addDatabaseWriteListener, setSessionWriteGuard } from '../lib/databaseActivity';
+import { isDesktopApp } from '../lib/desktop/bridge';
 import { syncPhotos } from '../lib/mediaSyncDevice';
-import {
-  CHECK_INTERVAL_MS,
-  CHECK_QUIET_MS,
-  conflictMessage,
-  SAVE_DEBOUNCE_MS,
-  type SnapshotRecord,
-  type SyncChangeNotes,
-  type SyncDevice,
-} from '../lib/snapshotSync';
+import { conflictMessage, sameDevice, type SnapshotRecord, type SyncChangeNotes, type SyncDevice } from '../lib/snapshotSync';
 import {
   checkForArrival,
   describeUnsavedChangesHere,
@@ -84,7 +70,18 @@ import {
   readSyncState,
   saveSnapshot,
   takePendingNotice,
+  updateSyncState,
 } from '../lib/snapshotSyncDevice';
+import {
+  describeWaiting,
+  planSession,
+  SESSION_SAVE_QUIET_MS,
+  shouldTouchSession,
+  waitingRefusal,
+  type SessionNote,
+  type SessionPlan,
+} from '../lib/syncSession';
+import { claimSession, readSessionNote } from '../lib/syncSessionDevice';
 import { AppActionSheet } from './AppActionSheet';
 import { useInfoAlert } from './InfoAlert';
 
@@ -94,8 +91,14 @@ type Question = {
   record: SnapshotRecord;
 };
 
-type CheckSource = 'startup' | 'foreground' | 'interval';
+type Waiting = Extract<SessionPlan, { mode: 'waiting' }>;
+
+/** Why a check runs. `timer` and `expiry` are nobody using this device. */
+type CheckSource = 'startup' | 'foreground' | 'timer' | 'expiry' | 'takeover';
 type SaveSource = 'timer' | 'background' | 'foreground';
+
+/** How often the desktop app reads the note off the disk. */
+const DESKTOP_NOTE_CHECK_MS = 60 * 1000;
 
 /** Restarts the app so every module-level cache reads the loaded data. */
 export async function restartAfterLoad(showNotice: (title: string, message: string) => void): Promise<void> {
@@ -108,21 +111,25 @@ export async function restartAfterLoad(showNotice: (title: string, message: stri
 }
 
 export function SnapshotSyncWatcher() {
+  const insets = useSafeAreaInsets();
   const [showNotice, noticeElement] = useInfoAlert();
   const [question, setQuestion] = useState<Question | null>(null);
   const questionRef = useRef<Question | null>(null);
   questionRef.current = question;
+  const [waiting, setWaiting] = useState<Waiting | null>(null);
+  const waitingRef = useRef<Waiting | null>(null);
   const meRef = useRef<SyncDevice | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const noteRef = useRef<SessionNote | null>(null);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const expiryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // A copy the person chose not to load or save over is not asked about
-  // again from the save timer or the periodic check; the next foreground
-  // asks once more.
+  // again from the save timer; the next foreground asks once more.
   const declinedRef = useRef<string | null>(null);
-  // One check or save at a time, in order.
   const queueRef = useRef<Promise<void>>(Promise.resolve());
-  // Sentences already said this run, so a folder that stays unreachable
-  // is reported once rather than every half minute.
   const toldRef = useRef<Set<string>>(new Set());
+  // Whether the refusal has been said out loud in this wait already.
+  const refusalSaidRef = useRef(false);
+  const claimingRef = useRef(false);
 
   const tellOnce = useCallback(
     (reason: string) => {
@@ -146,11 +153,65 @@ export function SnapshotSyncWatcher() {
     return meRef.current;
   }, []);
 
-  // Puts the question up at once, then fills in what changed on each
-  // side as it lands: what is unsaved here means reading every table,
-  // and what the other copy brings means downloading and decrypting it.
-  // Both happen behind the question rather than ahead of it, and a
-  // question the person has already answered is left alone.
+  const clearExpiryTimer = useCallback(() => {
+    if (expiryTimerRef.current) {
+      clearTimeout(expiryTimerRef.current);
+      expiryTimerRef.current = null;
+    }
+  }, []);
+
+  const cancelSaveTimer = useCallback(() => {
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    }
+  }, []);
+
+  // runCheck is declared below and needed by the expiry timer, so it is
+  // reached through a ref.
+  const runCheckRef = useRef<(source: CheckSource) => Promise<void>>(async () => {});
+
+  const leaveWaiting = useCallback(() => {
+    waitingRef.current = null;
+    setWaiting(null);
+    setSessionWriteGuard(null);
+    clearExpiryTimer();
+  }, [clearExpiryTimer]);
+
+  const enterWaiting = useCallback(
+    (plan: Waiting) => {
+      const first = waitingRef.current === null;
+      waitingRef.current = plan;
+      setWaiting(plan);
+      if (first) refusalSaidRef.current = false;
+      setSessionWriteGuard(() => {
+        const current = waitingRef.current;
+        if (!current) return null;
+        const sentence = waitingRefusal(current.holder);
+        if (!refusalSaidRef.current) {
+          refusalSaidRef.current = true;
+          // After the write has been refused, not inside it.
+          setTimeout(() => showNotice('Changes wait for now', sentence), 0);
+        }
+        return sentence;
+      });
+      clearExpiryTimer();
+      const wait = Math.max(1000, plan.freeAtMs - Date.now() + 1000);
+      expiryTimerRef.current = setTimeout(() => {
+        expiryTimerRef.current = null;
+        void runCheckRef.current('expiry');
+      }, wait);
+    },
+    [clearExpiryTimer, showNotice],
+  );
+
+  // Writes that this device has the session, now.
+  const claim = useCallback(async () => {
+    const claimed = await claimSession(await me(), noteRef.current);
+    if (claimed.ok) noteRef.current = claimed.value;
+    else if (claimed.reason !== 'Sync is off.') tellOnce(claimed.reason);
+  }, [me, tellOnce]);
+
   const ask = useCallback(
     (title: string, record: SnapshotRecord, message: (notes: SyncChangeNotes) => string) => {
       const notes: SyncChangeNotes = {};
@@ -182,17 +243,14 @@ export function SnapshotSyncWatcher() {
     [ask, me],
   );
 
-  // doSave asks for a merge and doMerge saves, so one of the two is
-  // reached through a ref rather than either being declared twice.
-  const mergeRef = useRef<(record: SnapshotRecord) => Promise<void>>(async () => {});
+  const mergeRef = useRef<(record: SnapshotRecord, quiet: boolean) => Promise<void>>(async () => {});
 
   // A save, and a merge first where the folder holds something this
-  // device has not taken in. `allowMerge` is false for the save that
-  // follows a merge: the other device saving again in those few seconds
-  // is the next check's to deal with, not a reason to go round again
-  // here.
+  // device has not taken in. Never while waiting: what this device has
+  // is taken to the other one once it has the session back.
   const doSave = useCallback(
     async (source: SaveSource, allowMerge = true) => {
+      if (waitingRef.current) return;
       const outcome = await saveSnapshot();
       if (outcome.status === 'problem') {
         tellOnce(outcome.reason);
@@ -200,12 +258,9 @@ export function SnapshotSyncWatcher() {
       }
       if (outcome.status === 'merge' && allowMerge) {
         if (source === 'timer' && declinedRef.current === outcome.record.latest.savedAt) return;
-        await mergeRef.current(outcome.record);
+        await mergeRef.current(outcome.record, false);
         return;
       }
-      // Photo files ride beside the snapshot (X1, lib/mediaSyncDevice.ts).
-      // Not awaited, so a slow pass never holds up the next save or check;
-      // a pass already running is joined rather than doubled.
       if (outcome.status !== 'skipped' || outcome.reason !== 'off') {
         void syncPhotos({ afterSave: outcome.status === 'saved' });
       }
@@ -214,11 +269,11 @@ export function SnapshotSyncWatcher() {
   );
 
   // Brings the other device's copy together with this one, saves the
-  // result straight back so the other device converges, and restarts only
-  // when the merge changed something here (the notice for after that
-  // restart is left in the sync state by mergeSnapshot).
+  // result straight back, and restarts only when the merge changed
+  // something here. `quiet` marks a restart nobody using this device
+  // caused, so the startup check after it leaves the session alone.
   const doMerge = useCallback(
-    async (record: SnapshotRecord) => {
+    async (record: SnapshotRecord, quiet: boolean) => {
       const outcome = await mergeSnapshot(record);
       if (outcome.status === 'problem') {
         tellOnce(outcome.reason);
@@ -230,6 +285,7 @@ export function SnapshotSyncWatcher() {
       }
       await doSave('foreground', false);
       if (outcome.restart) {
+        if (quiet) await updateSyncState({ quietRestart: true });
         await restartAfterLoad(showNotice);
         return;
       }
@@ -243,20 +299,45 @@ export function SnapshotSyncWatcher() {
 
   const doCheck = useCallback(
     async (source: CheckSource) => {
-      if (source === 'interval') {
-        // Not over a question already on screen, and not while the person
-        // is in the middle of something here.
-        if (questionRef.current) return;
-        const lastWrite = getLastDatabaseWriteAt();
-        if (lastWrite > 0 && Date.now() - lastWrite < CHECK_QUIET_MS) return;
+      const state = await readSyncState();
+      if (!state.enabled) {
+        leaveWaiting();
+        return;
       }
+      const mine = await me();
+      const quiet = source === 'timer' || source === 'expiry';
+      const wasWaiting = waitingRef.current !== null;
+
+      if (source !== 'takeover') {
+        const read = await readSessionNote();
+        if (!read.ok) tellOnce(read.reason);
+        noteRef.current = read.ok ? read.value : noteRef.current;
+        const plan: SessionPlan = read.ok ? planSession(read.value, mine, Date.now()) : { mode: 'free' };
+        if (plan.mode === 'waiting') {
+          enterWaiting(plan);
+          return;
+        }
+        // The desktop's minute timer while this device already has the
+        // session or nobody does: nothing to take in that the note would
+        // not have shown, so the folder is left alone.
+        if (source === 'timer' && !wasWaiting) return;
+      }
+      leaveWaiting();
+      // A question already on screen is answered before anything else is
+      // taken in, the way the half-minute check always left it.
+      if (quiet && questionRef.current) return;
+
+      // Claimed before the merge, so the restart a merge can bring finds
+      // this device holding the session rather than waiting again.
+      if (!quiet) await claim();
+
       const outcome = await checkForArrival();
       if (outcome.action === 'merge') {
-        await doMerge(outcome.record);
+        await doMerge(outcome.record, quiet);
         return;
       }
       if (outcome.action === 'conflict') {
-        if (source === 'interval' && declinedRef.current === outcome.record.latest.savedAt) return;
+        if (quiet && declinedRef.current === outcome.record.latest.savedAt) return;
         await askAboutArrival(outcome.record);
         return;
       }
@@ -264,20 +345,17 @@ export function SnapshotSyncWatcher() {
         tellOnce(outcome.reason);
         return;
       }
-      if (source === 'interval') {
-        // The save timer already covers anything unsaved here; a periodic
-        // check only looks for what the other device saved.
-        return;
-      }
-      await doSave('foreground');
+      if (!quiet) await doSave('foreground');
     },
-    [askAboutArrival, doMerge, doSave, tellOnce],
+    [askAboutArrival, claim, doMerge, doSave, enterWaiting, leaveWaiting, me, tellOnce],
   );
 
   const runCheck = useCallback((source: CheckSource) => enqueue(() => doCheck(source)), [doCheck, enqueue]);
+  runCheckRef.current = runCheck;
 
   // Startup: the notice from an automatic load before the restart, then
-  // the first check.
+  // the first check, which counts as nobody using the device when it
+  // follows a restart nobody asked for.
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -285,7 +363,8 @@ export function SnapshotSyncWatcher() {
       if (!state.enabled || cancelled) return;
       const notice = await takePendingNotice();
       if (notice && !cancelled) showNotice('Brought together with your other device', notice);
-      if (!cancelled) await runCheck('startup');
+      if (state.quietRestart) await updateSyncState({ quietRestart: false });
+      if (!cancelled) await runCheck(state.quietRestart ? 'expiry' : 'startup');
     })();
     return () => {
       cancelled = true;
@@ -294,79 +373,104 @@ export function SnapshotSyncWatcher() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const cancelSaveTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-  }, []);
+  // Put away: save, and write that this device was in use until now.
+  const onLeave = useCallback(() => {
+    cancelSaveTimer();
+    enqueue(async () => {
+      if (waitingRef.current) return;
+      await doSave('background');
+      const mine = await me();
+      if (noteRef.current && sameDevice(noteRef.current.holder, mine)) await claim();
+    });
+  }, [cancelSaveTimer, claim, doSave, enqueue, me]);
 
-  // Foreground and background.
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (next: AppStateStatus) => {
-      if (next === 'active') {
-        runCheck('foreground');
-      } else if (next === 'background' || next === 'inactive') {
-        cancelSaveTimer();
-        runSave('background');
-      }
+      if (next === 'active') runCheck('foreground');
+      else if (next === 'background' || next === 'inactive') onLeave();
     });
     return () => subscription.remove();
-  }, [cancelSaveTimer, runCheck, runSave]);
+  }, [onLeave, runCheck]);
 
-  // The desktop app: the window gaining and losing focus, which is what
-  // switching between programs on a computer looks like (see the note at
-  // the top). AppState above still covers minimize and restore there.
+  // The desktop app: the window gaining and losing focus.
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined') return;
     const onFocus = () => {
       runCheck('foreground');
     };
-    const onBlur = () => {
-      cancelSaveTimer();
-      runSave('background');
-    };
     window.addEventListener('focus', onFocus);
-    window.addEventListener('blur', onBlur);
+    window.addEventListener('blur', onLeave);
     return () => {
       window.removeEventListener('focus', onFocus);
-      window.removeEventListener('blur', onBlur);
+      window.removeEventListener('blur', onLeave);
     };
-  }, [cancelSaveTimer, runCheck, runSave]);
+  }, [onLeave, runCheck]);
 
-  // While the app sits open in front: look at the folder every so often,
-  // since neither listener above fires until the app is put away.
+  // The desktop app reads the note off the disk every minute (see the
+  // note at the top). Never on a phone, where it would be a request.
   useEffect(() => {
+    if (!isDesktopApp()) return;
     const interval = setInterval(() => {
-      if (AppState.currentState !== 'active') return;
-      runCheck('interval');
-    }, CHECK_INTERVAL_MS);
+      runCheck('timer');
+    }, DESKTOP_NOTE_CHECK_MS);
     return () => clearInterval(interval);
   }, [runCheck]);
 
-  // Every write: mark the unsaved period, and save once the writing pauses.
+  // Every write: mark the unsaved period, claim or touch the session, and
+  // save once writing has paused for a few minutes.
   useEffect(() => {
     return addDatabaseWriteListener(() => {
       markDatabaseDirty();
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        timerRef.current = null;
+      if (waitingRef.current) return;
+      const mine = meRef.current;
+      if (mine && !claimingRef.current && shouldTouchSession(noteRef.current, mine, Date.now())) {
+        claimingRef.current = true;
+        enqueue(async () => {
+          try {
+            if ((await readSyncState()).enabled) await claim();
+          } finally {
+            claimingRef.current = false;
+          }
+        });
+      }
+      cancelSaveTimer();
+      saveTimerRef.current = setTimeout(() => {
+        saveTimerRef.current = null;
         runSave('timer');
-      }, SAVE_DEBOUNCE_MS);
+      }, SESSION_SAVE_QUIET_MS);
     });
-  }, [runSave]);
+  }, [cancelSaveTimer, claim, enqueue, runSave]);
 
   useEffect(() => {
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      cancelSaveTimer();
+      clearExpiryTimer();
+      setSessionWriteGuard(null);
     };
-  }, []);
+  }, [cancelSaveTimer, clearExpiryTimer]);
 
   const record = question?.record ?? null;
   const otherTitle = record?.latest.device.kind === 'phone' ? 'Your Phone' : 'Your Computer';
 
   return (
     <>
+      {waiting ? (
+        <View style={[styles.strip, { top: insets.top + 6 }]} pointerEvents="box-none">
+          <View style={styles.stripCard}>
+            <Text style={styles.stripText}>{describeWaiting(waiting)}</Text>
+            <TouchableOpacity
+              style={styles.takeOver}
+              accessibilityRole="button"
+              onPress={() => {
+                leaveWaiting();
+                runCheck('takeover');
+              }}
+            >
+              <Text style={styles.takeOverText}>Take Over Now</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : null}
       {noticeElement}
       <AppActionSheet
         visible={question !== null}
@@ -411,3 +515,45 @@ export function SnapshotSyncWatcher() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  strip: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    alignItems: 'center',
+  },
+  // menuSurface, the same solid surface the notices use: this sits over
+  // whatever screen is open, so it cannot borrow a band's translucency.
+  stripCard: {
+    width: '100%',
+    maxWidth: 520,
+    backgroundColor: colors.menuSurface,
+    borderRadius: 12,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.accent,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+  stripText: {
+    ...typography.body,
+    color: colors.textPrimary,
+    ...textShadow,
+  },
+  takeOver: {
+    alignSelf: 'flex-start',
+    marginTop: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: colors.buttonColor,
+  },
+  takeOverText: {
+    ...typography.body,
+    color: colors.textOnButton,
+    // Dark text: cancel any shadow inherited from a base style it is
+    // composed with. See constants/typography.ts.
+    textShadowColor: 'transparent',
+    textShadowRadius: 0,
+  },
+});
