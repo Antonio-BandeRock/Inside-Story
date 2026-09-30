@@ -72,6 +72,8 @@ import { backupCheckSentence, lastCheckLine, summarizeBackup, type BackupCheckRe
 import { currentTableNames, getLastBackupCheck, saveBackupCheck } from '../lib/backupCheckDb';
 import { clearSeededTestData, seedHealthTestData, seedTest90Days } from '../lib/devSeed';
 import { summariseDevNotes } from '../lib/devNotes';
+import { describeLeaveOneOut } from '../lib/captureSuggest';
+import { checkSuggestionsAgainstSorted } from '../lib/captureSuggestDb';
 import type { DevNote } from '../lib/devNotes';
 import { clearShippedDevNotes, listDevNotes, syncDevNotes } from '../lib/devNotesDb';
 import { seedKitchenSources } from '../lib/testData';
@@ -1032,6 +1034,9 @@ export default function ProfileScreen() {
   const [devNotes, setDevNotes] = useState<DevNote[]>([]);
   const [devNotesMessage, setDevNotesMessage] = useState<string | null>(null);
   const [devNotesBusy, setDevNotesBusy] = useState(false);
+  // C8: how the capture sorting suggestions would have done on this
+  // person's own sorted notes, run on request.
+  const [suggestCheck, setSuggestCheck] = useState<string | null>(null);
 
   useEffect(() => {
     if (!visualPrefs.developerNotes) {
@@ -5522,6 +5527,22 @@ export default function ProfileScreen() {
                   ) : null}
                 </>
               ) : null}
+              {/* C8: the sorting suggestions checked against every note already
+                  sorted, each left out in turn. */}
+              <TouchableOpacity
+                style={styles.addAllergyButton}
+                onPress={async () => {
+                  try {
+                    setSuggestCheck(describeLeaveOneOut(await checkSuggestionsAgainstSorted()));
+                  } catch (error) {
+                    console.error('[captureSuggest] could not run the check', error);
+                    setSuggestCheck('Could not read the sorted notes.');
+                  }
+                }}
+              >
+                <Text style={styles.addAllergyButtonText}>Check Sorting Suggestions</Text>
+              </TouchableOpacity>
+              {suggestCheck ? <Text style={styles.helpText}>{suggestCheck}</Text> : null}
               <Text style={styles.helpText}>
                 Shown in development and on the preview channel, never in a store release. Everything
                 seeded here carries a [TEST] prefix. The 90-day span covers meals (60 past days already

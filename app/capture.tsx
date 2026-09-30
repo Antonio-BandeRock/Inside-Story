@@ -68,6 +68,8 @@ import { describeQuickReminderSet, quickReminderOptions, type QuickReminderOptio
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import type { KeepReminding } from '../lib/keepReminding';
 import { CaptureTurnInto, type CaptureTurnResult } from '../components/CaptureTurnInto';
+import { suggestDestinations, suggestionLine, type SuggestModel } from '../lib/captureSuggest';
+import { loadSuggestModel } from '../lib/captureSuggestDb';
 import { describePlainDate, plainDateToLocalDateTime, readPlainDates } from '../lib/plainDate';
 
 // A destination wears the colour and icon of the tab it hands off to, rather
@@ -125,11 +127,15 @@ export default function CaptureScreen() {
   // Whether the last thing typed came from the microphone, so the saved note
   // records how it arrived. Reset on every manual keystroke.
   const spokenRef = useRef(false);
+  // C8: what the suggestions reason from, reloaded with the notes so a sort
+  // just made teaches the next one straight away.
+  const [suggestModel, setSuggestModel] = useState<SuggestModel | null>(null);
 
   const refresh = useCallback(async () => {
     const rows = await listCaptureNotes();
     setNotes(rows);
     setLoading(false);
+    setSuggestModel(await loadSuggestModel().catch(() => null));
   }, []);
 
   // On focus rather than once, so a note thrown in with the camera shows its
@@ -270,6 +276,28 @@ export default function CaptureScreen() {
           <Text style={styles.noteMeta}>{describeCaptureAge(note.createdAt, now)}</Text>
         </View>
         <RecordPhotos ownerKind="capture_note" ownerId={note.id} tabColor={colors.accent} title={note.text} />
+        {/* C8: where it probably goes, only when the evidence is clear, with
+            the reason, and filed only when tapped. */}
+        {note.status === 'waiting' && !note.destination && suggestModel
+          ? suggestDestinations(note.text, suggestModel).map((suggestion) => {
+              const option = captureDestination(suggestion.key);
+              const color = option ? destinationColor(option) : colors.accent;
+              return (
+                <TouchableOpacity
+                  key={suggestion.key}
+                  style={[styles.suggestRow, { borderColor: color }]}
+                  onPress={() => void sortNote(note, suggestion.key)}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${suggestionLine(suggestion)} Tap to put it there.`}
+                >
+                  <Ionicons name={DESTINATION_ICONS[suggestion.key]} size={15} color={color} />
+                  <Text style={styles.suggestText}>
+                    <Text style={{ color }}>{suggestion.label}?</Text> {suggestion.reason}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })
+          : null}
         <View style={styles.noteActionRow}>
           {note.status !== 'done' ? (
             <TouchableOpacity
@@ -643,6 +671,17 @@ const styles = StyleSheet.create({
   noteTextDone: { color: colors.textMuted },
   noteMetaRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   noteMeta: { ...typography.caption, color: colors.textMuted, ...textShadow },
+  suggestRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderRadius: 10,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
+  },
+  suggestText: { ...typography.caption, color: colors.textSecondary, flex: 1, ...textShadow },
   noteActionRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 14 },
   noteAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   noteActionText: { ...typography.caption, color: colors.accent, ...textShadow },
