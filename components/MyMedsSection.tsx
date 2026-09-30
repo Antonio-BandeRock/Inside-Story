@@ -48,6 +48,9 @@ import { listSupplyReadings, listTreatmentDetails, type TreatmentDetails } from 
 import { stepOn, taperDoseLine, type TaperStep } from '../lib/taper';
 import { listTaperSteps } from '../lib/taperDb';
 import { TaperPanel } from './TaperPanel';
+import { InjectionPanel } from './InjectionPanel';
+import { listInjectionSettings, listSiteHistory, type InjectionSetting } from '../lib/injectionSitesDb';
+import type { SiteUse } from '../lib/injectionSites';
 import type { SupplyReading } from '../lib/medSupply';
 import type { NutrientGapEntry } from '../lib/nutrientAnalysis';
 import { useWalkMark } from '../components/WalkMark';
@@ -186,6 +189,8 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
   const [referenceOnlyRules, setReferenceOnlyRules] = useState<ReferenceOnlyRule[]>([]);
   const [detailsByTreatment, setDetailsByTreatment] = useState<Map<string, TreatmentDetails>>(new Map());
   const [tapersByTreatment, setTapersByTreatment] = useState<Map<string, TaperStep[]>>(new Map());
+  const [injectionByTreatment, setInjectionByTreatment] = useState<Map<string, InjectionSetting>>(new Map());
+  const [sitesByTreatment, setSitesByTreatment] = useState<Map<string, SiteUse[]>>(new Map());
   const [supplyByTreatment, setSupplyByTreatment] = useState<Map<string, SupplyReading>>(new Map());
   const [labelIds, setLabelIds] = useState<Set<string>>(new Set());
   const [nutrients, setNutrients] = useState<TrackedNutrient[]>([]);
@@ -221,11 +226,15 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
           listSupplyReadings(),
           getTreatmentIdsWithLabels(),
           listTaperSteps(),
+          listInjectionSettings(),
+          listSiteHistory(),
         ]),
       )
-      .then(async ([loadedTreatments, loadedNutrients, loadedMeds, dailyAnalysis, evaluation, details, supply, withLabels, tapers]) => {
+      .then(async ([loadedTreatments, loadedNutrients, loadedMeds, dailyAnalysis, evaluation, details, supply, withLabels, tapers, injection, sites]) => {
         setTreatments(loadedTreatments);
         setTapersByTreatment(tapers);
+        setInjectionByTreatment(injection);
+        setSitesByTreatment(sites);
         setLabelIds(withLabels);
         setDetailsByTreatment(details);
         setSupplyByTreatment(supply);
@@ -699,6 +708,17 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
                       onProblem={showInfoAlert}
                     />
                   ) : null}
+                  <InjectionPanel
+                    treatmentId={treatment.id}
+                    name={treatment.name}
+                    genericName={treatment.genericName}
+                    setting={injectionByTreatment.get(treatment.id)}
+                    history={sitesByTreatment.get(treatment.id) ?? []}
+                    today={todayDateString()}
+                    tabColor={tabColor}
+                    onSaved={load}
+                    onProblem={showInfoAlert}
+                  />
                   <MedDetailsPanel
                     treatmentId={treatment.id}
                     treatmentName={treatment.name}

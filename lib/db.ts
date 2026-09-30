@@ -8610,6 +8610,33 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_treatment_taper_steps_treatment ON treatment_taper_steps(treatment_id, start_date);
 
+      -- A4, injection site rotation. treatment_injection holds the person's
+      -- answer to whether a med is a shot (injected NULL until they answer,
+      -- so lib/injectionSites.ts can preset it from the med's name) and the
+      -- spots in its rotation as JSON. dose_sites is one row per shot,
+      -- keeping the spot's words beside its key so a spot later taken out of
+      -- the rotation still reads the same in the history.
+      CREATE TABLE IF NOT EXISTS treatment_injection (
+        treatment_id TEXT PRIMARY KEY,
+        injected INTEGER,
+        sites TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (treatment_id) REFERENCES treatments(id) ON DELETE CASCADE
+      );
+      CREATE TABLE IF NOT EXISTS dose_sites (
+        id TEXT PRIMARY KEY,
+        treatment_id TEXT NOT NULL,
+        schedule_item_id TEXT,
+        site_key TEXT NOT NULL,
+        site_label TEXT NOT NULL,
+        recorded_at TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        FOREIGN KEY (treatment_id) REFERENCES treatments(id) ON DELETE CASCADE
+      );
+      CREATE INDEX IF NOT EXISTS idx_dose_sites_treatment ON dose_sites(treatment_id, recorded_at);
+
       -- C15, Phase 2: "Pick a few things for today". Each row says one Did I
       -- Do It check was picked for one local day ('YYYY-MM-DD'). Whether it
       -- happened is never stored here: it is read from done_check_marks, so
@@ -20148,6 +20175,8 @@ export async function deleteTreatment(treatmentId: string) {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM treatment_details WHERE treatment_id = ?', treatmentId);
   await db.runAsync('DELETE FROM treatment_taper_steps WHERE treatment_id = ?', treatmentId);
+  await db.runAsync('DELETE FROM treatment_injection WHERE treatment_id = ?', treatmentId);
+  await db.runAsync('DELETE FROM dose_sites WHERE treatment_id = ?', treatmentId);
   await db.runAsync('DELETE FROM medicine_labels WHERE treatment_id = ?', treatmentId);
   await db.runAsync('DELETE FROM treatments WHERE id = ?', treatmentId);
   await (await import('./mediaDb')).removePhotosOf('treatment', treatmentId);

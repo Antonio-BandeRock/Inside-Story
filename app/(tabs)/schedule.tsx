@@ -283,6 +283,8 @@ import { modalAnimationType } from '../../lib/visualPreferences';
 import { describeRepeat, describeRepeatPattern, validateRepeatRule, weekdayOf, weekdaysFromColumn } from '../../lib/repeatRule';
 import { stepOn, taperDoseLine, taperLastDay, taperRepeatNote, type TaperStep } from '../../lib/taper';
 import { listTaperSteps } from '../../lib/taperDb';
+import { defaultRotation, isInjected, matchInjectable, nextSite, siteChoices, type InjectionSite, type SiteUse } from '../../lib/injectionSites';
+import { listInjectionSettings, listSiteHistory, localStamp, recordSite, type InjectionSetting } from '../../lib/injectionSitesDb';
 import { WEEKDAY_NAMES, sameWeekday, weekdayOf as targetWeekdayOf } from '../../lib/weekdayTargets';
 import {
   OPEN_MEAL_CHOICES,
@@ -5393,6 +5395,8 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
   const [doseFormTime, setDoseFormTime] = useState<TimeOfDayInput>({ hour: '', minute: '', ampm: '' });
   const [doseFormRepeat, setDoseFormRepeat] = useState<RepeatConfig>({ type: 'none' });
   const [tapersByTreatment, setTapersByTreatment] = useState<Map<string, TaperStep[]>>(new Map());
+  const [injectionByTreatment, setInjectionByTreatment] = useState<Map<string, InjectionSetting>>(new Map());
+  const [sitesByTreatment, setSitesByTreatment] = useState<Map<string, SiteUse[]>>(new Map());
   const [reminderPermissionGranted, setReminderPermissionGranted] = useState<boolean | null>(null);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
@@ -5412,11 +5416,15 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
           evaluateInteractionRules(today),
           hasReminderPermission(),
           listTaperSteps(),
+          listInjectionSettings(),
+          listSiteHistory(),
         ]),
       )
-      .then(([loadedTreatments, doses, evaluation, reminderGranted, tapers]) => {
+      .then(([loadedTreatments, doses, evaluation, reminderGranted, tapers, injection, sites]) => {
         setReminderPermissionGranted(reminderGranted);
         setTapersByTreatment(tapers);
+        setInjectionByTreatment(injection);
+        setSitesByTreatment(sites);
         // Every add, taken, skip and remove above ends here, so this one
         // call keeps the phone's pending reminders matched to the table.
         void syncReminderNotifications();
@@ -5496,7 +5504,67 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
     }
   }
 
+  // A4: a shot asks where it went before it is marked taken. The spot in
+  // the rotation used longest ago is first; the dose can still be marked
+  // without one.
+  function injectionFor(treatmentId: string | null | undefined): { rotation: InjectionSite[]; history: SiteUse[] } | null {
+    const treatment = treatmentId ? treatmentById.get(treatmentId) : undefined;
+    if (!treatment) return null;
+    const setting = injectionByTreatment.get(treatment.id);
+    if (!isInjected(setting?.injected ?? null, matchInjectable(treatment.name, treatment.genericName))) return null;
+    return { rotation: setting?.rotation ?? defaultRotation(), history: sitesByTreatment.get(treatment.id) ?? [] };
+  }
+
+  function askSite(item: ScheduleItemRecord, alsoMarkTaken: boolean) {
+    const injection = injectionFor(item.linkedTreatmentId);
+    if (!injection || !item.linkedTreatmentId) return false;
+    const treatmentId = item.linkedTreatmentId;
+    const recordedAt = alsoMarkTaken ? localStamp() : item.scheduledFor.slice(0, 16);
+    setRemovePrompt({
+      title: 'Where did this shot go?',
+      message: 'The first spot is the one in your rotation used longest ago.',
+      actions: [
+        ...siteChoices(injection.rotation, injection.history).map(({ site, label }) => ({
+          label,
+          onPress: () => {
+            void (async () => {
+              if (alsoMarkTaken) await markScheduledDoseTaken(item.id);
+              await recordSite({ treatmentId, site, scheduleItemId: item.id, recordedAt });
+              load();
+            })();
+          },
+        })),
+        ...(alsoMarkTaken
+          ? [
+              {
+                label: 'Taken, no site noted',
+                onPress: () => {
+                  void (async () => {
+                    await markScheduledDoseTaken(item.id);
+                    load();
+                  })();
+                },
+              },
+            ]
+          : []),
+        { label: 'Cancel', onPress: () => {} },
+      ],
+    });
+    return true;
+  }
+
+  function siteCaption(dose: ScheduleItemRecord): string {
+    const injection = injectionFor(dose.linkedTreatmentId);
+    if (!injection) return '';
+    const noted = injection.history.find((use) => use.scheduleItemId === dose.id);
+    if (noted) return ` · Site: ${noted.siteLabel}`;
+    if (dose.status !== 'planned') return '';
+    const next = nextSite(injection.rotation, injection.history);
+    return next ? ` · Next site: ${next.label}` : '';
+  }
+
   async function handleMarkDoseTaken(item: ScheduleItemRecord) {
+    if (askSite(item, true)) return;
     await markScheduledDoseTaken(item.id);
     load();
   }
@@ -5595,6 +5663,12 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
           <TouchableOpacity onPress={() => handleToggleDoseSkipped(dose)}>
             <Text style={styles.actionText}>Un-skip</Text>
           </TouchableOpacity>
+        ) : injectionFor(dose.linkedTreatmentId) ? (
+          <TouchableOpacity onPress={() => askSite(dose, false)}>
+            <Text style={styles.actionText}>
+              {(sitesByTreatment.get(dose.linkedTreatmentId ?? '') ?? []).some((use) => use.scheduleItemId === dose.id) ? 'Change the site' : 'Note the site'}
+            </Text>
+          </TouchableOpacity>
         ) : null}
         <TouchableOpacity onPress={() => handleRemoveDose(dose)}>
           <Text style={styles.actionTextRemove}>Remove</Text>
@@ -5688,6 +5762,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
                         <Text style={styles.doseRowStatus}>
                           {describeStatus(dose.status) ?? 'Planned'}
                           {repeatCaption(dose)}
+                          {siteCaption(dose)}
                         </Text>
                         {renderDoseActions(dose)}
                       </View>
@@ -5752,6 +5827,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
                         <Text style={styles.rowMeta}>
                           {describeStatus(dose.status) ?? 'Planned'}
                           {repeatCaption(dose)}
+                          {siteCaption(dose)}
                         </Text>
                       </View>
                     </View>
