@@ -6,7 +6,7 @@
 ### A4. Injection site rotation
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
 - **Answers:** MyTherapy · **Theme:** Medication logistics
-- **How:** dose_sites table, a body-site picker on the dose row, next-site suggestion from pure lib/injectionSites.ts with a test script.
+- **How:** dose_sites table, a body-site picker on the dose row, next-site suggestion from pure lib/injectionSites.ts with a test script. Built 1.0.57.2: treatment_injection and dose_sites, a site picker on Taken in Schedules > Meds, Next site on each dose row, and the switch, history and rotation in My Meds; which meds are shots is decided from the med by lib/injectionSites.ts (about 55 injectables tied to their conditions), scripts/test_injection_sites.js.
 
 ### A7. Travel: keep home time or shift to local
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
