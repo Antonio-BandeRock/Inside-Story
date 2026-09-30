@@ -588,7 +588,7 @@
 ### K10. Choose the sections
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Reports
 - **Answers:** Cronometer · **Theme:** Reports
-- **How:** Tick which sections a report carries.
+- **How:** Tick which sections a report carries. Built 1.0.56.20: Sections in this report on the Reports tab, a tick box per section, unticked ones never gathered, choice kept per report, count of left-out sections in the preface and Report history.
 
 ### K11. Print from the phone
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
