@@ -23,6 +23,9 @@ import { buildReport, renderReportText, type ReportDocument } from '../../lib/re
 import { REPORT_KINDS, type ReportKind } from '../../lib/reportKinds';
 import { exportReportAsPdf } from '../../lib/reportPdf';
 import { markYourStorySeen } from '../../lib/yourStoryDb';
+import { describeRange, monthsBefore, sinceVisitStart, type LastVisitForRange } from '../../lib/reportRange';
+import { lastVisit } from '../../lib/sinceLastVisit';
+import { listAllAppointments } from '../../lib/trendsMoreDb';
 
 const TAB_COLOR = colors.tabReports;
 const band = makeTabBandStyles(TAB_COLOR);
@@ -65,7 +68,15 @@ const DAY_RANGE_OPTIONS = [
   { value: 90, label: '90d' },
 ] as const;
 
-type DayRange = 7 | 30 | 90 | 'custom';
+// K1, 2026-09-29: six months, a year and since the last appointment beside
+// the short ranges. Each is a start date through today, worked out in
+// lib/reportRange.ts; buildReport still takes a number of days.
+const LONG_RANGE_OPTIONS = [
+  { value: '6m', label: '6 months' },
+  { value: '1y', label: '1 year' },
+] as const;
+
+type DayRange = 7 | 30 | 90 | '6m' | '1y' | 'visit' | 'custom';
 
 // A custom range (2026-09-27) starts on a picked day and runs to today,
 // so a report can cover a week, a season or a year. Three years back is
@@ -121,7 +132,20 @@ export default function ReportsScreen() {
   const [revealed, setRevealed] = useState(false);
   const [range, setRange] = useState<DayRange>(30);
   const [customStart, setCustomStart] = useState<string>(() => daysAgoString(13));
-  const days = range === 'custom' ? daysThroughToday(customStart) : range;
+  // The last appointment that has happened, read on focus so a visit added
+  // on Schedules shows here straight away. Null hides the pill.
+  const [visit, setVisit] = useState<LastVisitForRange | null>(null);
+  const today = localDateString(new Date());
+  const presetStart =
+    range === '6m' ? monthsBefore(today, 6) : range === '1y' ? monthsBefore(today, 12) : range === 'visit' && visit ? sinceVisitStart(visit) : null;
+  const days =
+    range === 'custom'
+      ? daysThroughToday(customStart)
+      : presetStart
+        ? daysThroughToday(presetStart)
+        : typeof range === 'number'
+          ? range
+          : 30;
   // Home's Make a Report card names the window it wants (1.0.39.7), the
   // same way Food and Garden already take a lens name. Without it a tap
   // from Home landed on this page’s resting picker, which is one more
@@ -184,6 +208,25 @@ export default function ReportsScreen() {
 
   useFocusEffect(useCallback(() => { if (revealed) load(days, lens); }, [revealed, days, lens, load]));
 
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      listAllAppointments()
+        .then((appointments) => {
+          if (cancelled) return;
+          const last = lastVisit(appointments, localDateString(new Date()));
+          setVisit(last ? { date: last.date, title: last.title, providerName: last.providerName } : null);
+        })
+        .catch((error: unknown) => console.warn('[reports] could not read appointments', error));
+      return () => {
+        cancelled = true;
+      };
+    }, []),
+  );
+  // A visit that was removed takes its pill with it; the report falls back
+  // to a month rather than a range nobody can see chosen.
+  if (range === 'visit' && !visit) setRange(30);
+
   async function handleShareText() {
     if (!reportText) return;
     try {
@@ -242,10 +285,30 @@ export default function ReportsScreen() {
                   <Text style={[styles.pillText, range === option.value && styles.pillTextActive]}>{option.label}</Text>
                 </TouchableOpacity>
               ))}
+              {LONG_RANGE_OPTIONS.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[styles.pill, range === option.value && styles.pillActive]}
+                  onPress={() => setRange(option.value)}
+                >
+                  <Text style={[styles.pillText, range === option.value && styles.pillTextActive]}>{option.label}</Text>
+                </TouchableOpacity>
+              ))}
+              {visit ? (
+                <TouchableOpacity style={[styles.pill, range === 'visit' && styles.pillActive]} onPress={() => setRange('visit')}>
+                  <Text style={[styles.pillText, range === 'visit' && styles.pillTextActive]}>Since last visit</Text>
+                </TouchableOpacity>
+              ) : null}
               <TouchableOpacity style={[styles.pill, range === 'custom' && styles.pillActive]} onPress={() => setRange('custom')}>
                 <Text style={[styles.pillText, range === 'custom' && styles.pillTextActive]}>Custom</Text>
               </TouchableOpacity>
             </View>
+
+            {presetStart ? (
+              <View style={band.box}>
+                <Text style={styles.presetCaption}>{describeRange(presetStart, today, range === 'visit' ? visit : null)}</Text>
+              </View>
+            ) : null}
 
             {range === 'custom' ? (
               <View style={band.box}>
@@ -363,6 +426,7 @@ const styles = StyleSheet.create({
   dateRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   dateFieldGroup: { alignItems: 'flex-start' },
   dateFieldLabel: { ...typography.eyebrow, color: colors.textSecondary, marginBottom: 4, ...textShadow },
+  presetCaption: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   customCaption: { ...typography.caption, color: colors.textSecondary, marginTop: 10, ...textShadow },
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
