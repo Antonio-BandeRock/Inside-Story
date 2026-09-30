@@ -44,6 +44,7 @@ const ROOT = path.resolve(__dirname, '..');
 
 const NAMED = [
   'lib/agreement.ts',
+  'lib/planSentence.ts',
   'lib/taper.ts',
   'lib/injectionSites.ts',
   'lib/travelTime.ts',

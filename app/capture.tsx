@@ -70,6 +70,7 @@ import type { KeepReminding } from '../lib/keepReminding';
 import { CaptureTurnInto, type CaptureTurnResult } from '../components/CaptureTurnInto';
 import { suggestDestinations, suggestionLine, type SuggestModel } from '../lib/captureSuggest';
 import { loadSuggestModel } from '../lib/captureSuggestDb';
+import { PlanSentencePanel } from '../components/PlanSentencePanel';
 import { describePlainDate, plainDateToLocalDateTime, readPlainDates } from '../lib/plainDate';
 
 // A destination wears the colour and icon of the tab it hands off to, rather
@@ -459,6 +460,20 @@ export default function CaptureScreen() {
             <Ionicons name="camera-outline" size={18} color={colors.accent} />
             <Text style={styles.photoButtonText}>Take a photo</Text>
           </TouchableOpacity>
+          {isCaptureTextUsable(draft) ? (
+            <PlanSentencePanel
+              text={cleanCaptureText(draft)}
+              now={now}
+              vocabulary={suggestModel?.vocabulary ?? {}}
+              keepReminding={keepReminding}
+              disabled={saving}
+              onSaved={(message) => {
+                setDraft('');
+                spokenRef.current = false;
+                setLastSet(message);
+              }}
+            />
+          ) : null}
           <Text style={styles.remindLabel}>Or have the phone say it later</Text>
           <View style={styles.remindRow}>
             {[...spokenDates, ...quickReminderOptions(new Date())].map((option) => (
