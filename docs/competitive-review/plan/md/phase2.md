@@ -526,7 +526,7 @@
 ### K9. Day-by-day food and symptom diary
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
 - **Answers:** mySymptoms · **Theme:** Reports
-- **How:** A section in the nutritionist report.
+- **How:** A section in the nutritionist report. Built 1.0.56.19: day-by-day food and symptom diary table in the Nutritionist report, empty runs as one row (lib/reportDiary.ts).
 
 ### K10. Choose the sections
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Reports
