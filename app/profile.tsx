@@ -7,6 +7,8 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { mediaStorageUsed } from '../lib/mediaDb';
 import { PEER_PHOTOS_WIFI_ONLY_LABEL, PEER_PHOTOS_WIFI_ONLY_WHAT } from '../lib/peerPhotos';
 import { getPeerPhotosWifiOnly, peerPhotoStorageUsed, setPeerPhotosWifiOnly } from '../lib/peerPhotosDb';
+import { STEP_TIMER_HELP, STEP_TIMER_RING_LABEL, STEP_TIMER_SIGNAL_HELP, STEP_TIMER_SIGNAL_LABEL } from '../lib/stepTimer';
+import { getStepTimerSettings, setStepTimerRing, setStepTimerSignal, type StepTimerSettings } from '../lib/stepTimerDb';
 import { AppTextInput } from '../components/AppTextInput';
 import { GenericBackground } from '../components/GenericBackground';
 import { HelpButton, type HelpSection } from '../components/HelpButton';
@@ -389,6 +391,7 @@ const ALL_CARD_SECTION_KEYS = [
   'garden-details',
   // How the App Looks
   'low-stimulation',
+  'routine-timer',
   'home-screen',
   'appearance',
   // Device & Account
@@ -1076,6 +1079,8 @@ export default function ProfileScreen() {
   const [backupFolder, setBackupFolder] = useState<DriveItemRef | null>(null);
   const [photoStorageLine, setPhotoStorageLine] = useState<string | null>(null);
   const [peerPhotosWifiOnly, setPeerPhotosWifiOnlyState] = useState(true);
+  // B5: the routine step timer's two switches, both off until turned on.
+  const [stepTimer, setStepTimerState] = useState<StepTimerSettings>({ ring: false, signal: false });
   const [oneDriveConnected, setOneDriveConnected] = useState(false);
   // Automatic snapshot sync with the other device (1.0.42.28), see
   // lib/snapshotSync.ts. Read from the secure store on every focus, the
@@ -1299,6 +1304,7 @@ export default function ProfileScreen() {
         .then(([mine, theirs]) => setPhotoStorageLine(photoStorageSentence(mine.photos, mine.bytes, theirs)))
         .catch(() => {});
       void getPeerPhotosWifiOnly().then(setPeerPhotosWifiOnlyState);
+      void getStepTimerSettings().then(setStepTimerState).catch(() => {});
     }, [refreshBackupFolder]),
   );
 
@@ -4470,6 +4476,56 @@ export default function ProfileScreen() {
               again whenever you want. Turning this back off leaves your folds alone rather than reopening
               them for you.
             </Text>
+          </View>
+        ) : null}
+      </View>
+
+      {/* Routine Timer (B5, 2026-09-30). Off unless somebody turns it on:
+          "It definitely shouldn't be turned on by default." The same ring
+          switch sits on the routine's step screen. The signal is its own
+          switch so the ring can be had without a sound. */}
+      <View style={styles.card}>
+        {renderCardHeader('routine-timer', 'Routine Timer')}
+        {!collapsedSections.has('routine-timer') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>{STEP_TIMER_HELP}</Text>
+            <Text style={styles.helpText}>{STEP_TIMER_RING_LABEL}</Text>
+            <View style={styles.pillRow}>
+              {[false, true].map((value) => {
+                const active = stepTimer.ring === value;
+                return (
+                  <TouchableOpacity
+                    key={value ? 'on' : 'off'}
+                    style={[styles.pill, active && styles.pillActive]}
+                    onPress={() => {
+                      setStepTimerState((current) => ({ ...current, ring: value }));
+                      void setStepTimerRing(value);
+                    }}
+                  >
+                    <Text style={[styles.pillText, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <Text style={styles.helpText}>{STEP_TIMER_SIGNAL_LABEL}</Text>
+            <View style={styles.pillRow}>
+              {[false, true].map((value) => {
+                const active = stepTimer.signal === value;
+                return (
+                  <TouchableOpacity
+                    key={value ? 'on' : 'off'}
+                    style={[styles.pill, active && styles.pillActive]}
+                    onPress={() => {
+                      setStepTimerState((current) => ({ ...current, signal: value }));
+                      void setStepTimerSignal(value);
+                    }}
+                  >
+                    <Text style={[styles.pillText, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <Text style={styles.helpText}>{STEP_TIMER_SIGNAL_HELP}</Text>
           </View>
         ) : null}
       </View>

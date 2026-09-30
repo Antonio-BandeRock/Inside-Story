@@ -32,6 +32,11 @@
 // aloud says each one as it comes up; and on Android a notification that
 // cannot be swiped away says which step is up and since when, taken down
 // when the walk finishes or this screen closes.
+//
+// B5: a timer ring on a timed step, off until somebody turns it on here or
+// in Profile, plus a separate signal when the time is up, also off. With the
+// ring off a timed step reads "About N minutes" as before. Nothing about the
+// timer is written down, and it never moves the walk on by itself.
 import { Ionicons } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -64,6 +69,21 @@ import { describeRoutineLength } from '../lib/dayTimeline';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { clearRoutineWalkNotice, routineWalkNotice, showRoutineWalkNotice } from '../lib/routineWalkNotice';
 import { isDesktopApp } from '../lib/desktop/bridge';
+import { StepTimerRing } from '../components/StepTimerRing';
+import {
+  endsAtMs,
+  pauseStepTimer,
+  resumeStepTimer,
+  startStepTimer,
+  type StepTimer,
+} from '../lib/stepTimer';
+import {
+  cancelStepTimerSignal,
+  getStepTimerSettings,
+  scheduleStepTimerSignal,
+  setStepTimerRing,
+  type StepTimerSettings,
+} from '../lib/stepTimerDb';
 
 export default function RoutineWalkScreen() {
   const params = useLocalSearchParams<{ id?: string }>();
@@ -83,6 +103,9 @@ export default function RoutineWalkScreen() {
   // from writing a second mark for one act.
   const [ticked, setTicked] = useState<Record<string, string>>({});
   const [finished, setFinished] = useState(false);
+  const [timerSettings, setTimerSettings] = useState<StepTimerSettings>({ ring: false, signal: false });
+  const [timer, setTimer] = useState<StepTimer | null>(null);
+  const [nowMs, setNowMs] = useState(() => Date.now());
 
   // The walk's own row, opened the moment the routine loads and moved
   // along as the walk goes, so a walk somebody puts down half way through
@@ -98,11 +121,13 @@ export default function RoutineWalkScreen() {
       setLoading(false);
       return;
     }
-    const [found, allChecks, allOccasions] = await Promise.all([
+    const [found, allChecks, allOccasions, settings] = await Promise.all([
       getRoutine(routineId),
       getDoneChecks(true),
       getRoutineOccasions(),
+      getStepTimerSettings().catch(() => ({ ring: false, signal: false })),
     ]);
+    setTimerSettings(settings);
     setRoutine(found);
     setChecks(allChecks);
     setOccasions(allOccasions);
@@ -157,6 +182,42 @@ export default function RoutineWalkScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stepId, routine?.id, finished]);
 
+  // The ring starts fresh on every step that has a time, and only when
+  // the setting is on. A step without a time, or the ring turned off, has
+  // no timer at all.
+  const stepMinutes = step?.minutes ?? null;
+  useEffect(() => {
+    if (!timerSettings.ring || !stepMinutes || finished) {
+      setTimer(null);
+      return;
+    }
+    const now = Date.now();
+    setNowMs(now);
+    setTimer(startStepTimer(stepMinutes, now));
+  }, [stepId, stepMinutes, timerSettings.ring, finished]);
+
+  // A tick a second while it runs, and none while paused.
+  const timerRunning = timer !== null && timer.runningSince !== null;
+  useEffect(() => {
+    if (!timerRunning) return;
+    const handle = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(handle);
+  }, [timerRunning]);
+
+  // The signal follows the timer: set for when the time runs out while it
+  // runs, taken away on a pause, a new step, the end of the walk, or with
+  // the signal switched off.
+  useEffect(() => {
+    const at = timer && timerSettings.signal ? endsAtMs(timer, Date.now()) : null;
+    if (at !== null && routine && step) {
+      void scheduleStepTimerSignal(at, routine.name, step.text);
+    } else {
+      void cancelStepTimerSignal();
+    }
+    // routine and step are named by the timer, which starts again per step.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timer, timerSettings.signal]);
+
   useEffect(() => {
     if (finished) {
       Speech.stop();
@@ -168,9 +229,27 @@ export default function RoutineWalkScreen() {
     () => () => {
       Speech.stop();
       void clearRoutineWalkNotice();
+      void cancelStepTimerSignal();
     },
     [],
   );
+
+  const anyTimedStep = steps.some((entry) => !!entry.minutes);
+
+  function pauseOrResume() {
+    const now = Date.now();
+    setNowMs(now);
+    setTimer((current) => {
+      if (!current) return current;
+      return current.runningSince === null ? resumeStepTimer(current, now) : pauseStepTimer(current, now);
+    });
+  }
+
+  async function toggleRing() {
+    const next = !timerSettings.ring;
+    setTimerSettings((current) => ({ ...current, ring: next }));
+    await setStepTimerRing(next);
+  }
 
   // What the finished card lists: what was actually written during this
   // walk, in the order the steps come, and nothing more.
@@ -320,7 +399,9 @@ export default function RoutineWalkScreen() {
             <View style={styles.stepCard}>
               <Text style={styles.stepText}>{step.text}</Text>
               {step.detail ? <Text style={styles.stepDetail}>{step.detail}</Text> : null}
-              {step.minutes ? (
+              {step.minutes && timer ? (
+                <StepTimerRing timer={timer} nowMs={nowMs} onPauseResume={pauseOrResume} />
+              ) : step.minutes ? (
                 <Text style={styles.stepDetail}>
                   {step.minutes === 1 ? 'About 1 minute' : `About ${step.minutes} minutes`}
                 </Text>
@@ -378,6 +459,21 @@ export default function RoutineWalkScreen() {
                 <Text style={styles.minorButtonText}>Skip this one</Text>
               </TouchableOpacity>
             </View>
+
+            {anyTimedStep ? (
+              <TouchableOpacity
+                style={styles.stopButton}
+                onPress={toggleRing}
+                accessibilityRole="switch"
+                accessibilityState={{ checked: timerSettings.ring }}
+              >
+                <Text style={styles.stopButtonText}>
+                  {timerSettings.ring
+                    ? 'Timer ring: on. Tap to turn it off.'
+                    : 'Timer ring: off. Tap to show a ring counting down on timed steps.'}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
 
             <TouchableOpacity style={styles.stopButton} onPress={() => router.back()}>
               <Text style={styles.stopButtonText}>
