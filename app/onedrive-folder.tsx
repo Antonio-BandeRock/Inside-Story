@@ -285,7 +285,12 @@ export default function OneDriveFolderScreen() {
           One folder in OneDrive holding everything this app keeps there. Set it up once, whether or not you ever add
           anyone, because backups need it too.
         </Text>
-        {chosen ? (
+        {/* Signed out, nothing is in use, whatever is remembered. The choice is
+            kept (a sign-in Microsoft stopped honouring leaves it in place) so
+            signing back in picks it up, and the sign-in card says so. */}
+        {signedIn === false ? (
+          <Text style={styles.hint}>Not signed in to OneDrive, so no folder is in use on this device.</Text>
+        ) : chosen ? (
           <>
             <Text style={styles.chosen}>Currently using: {chosen.name}</Text>
             {/* The full path, because two folders can be called Inside Story and
@@ -325,6 +330,9 @@ export default function OneDriveFolderScreen() {
             What this app does with it: list your folders so you can pick one, then read and write inside the one you
             pick. It never looks anywhere else.
           </Text>
+          {chosen ? (
+            <Text style={styles.hint}>Once you are signed in, the app goes back to the folder you used before.</Text>
+          ) : null}
           <TouchableOpacity style={styles.primaryButton} onPress={handleSignIn} disabled={busy}>
             <Ionicons name="cloud-outline" size={18} color={colors.textOnButton} />
             <Text style={styles.primaryButtonText}>Sign In to OneDrive</Text>
