@@ -18,7 +18,10 @@
 // a hook instance that never called start() (or already stopped) simply
 // stays silent no matter what the global native stream reports.
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Platform } from 'react-native';
 import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
+import { offerVoicePack } from '../lib/voicePackDevice';
+import { isLocaleInstalled } from '../lib/voicePack';
 
 export type VoiceDictationStatus = 'idle' | 'listening';
 
@@ -57,6 +60,15 @@ export function useVoiceDictation({ onResult, onError, lang = 'en-US' }: UseVoic
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
   const isActiveRef = useRef(false);
+  // False once the screen holding this hook has gone, so a speech pack
+  // question answered after that does not start a session with no owner.
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   useSpeechRecognitionEvent('result', (event) => {
     if (!isActiveRef.current) return;
@@ -112,13 +124,12 @@ export function useVoiceDictation({ onResult, onError, lang = 'en-US' }: UseVoic
     // Anything short of that falls back to exactly the previous behaviour,
     // which keeps voice working everywhere it worked before.
     let useOnDevice = false;
+    let supportsOnDevice = false;
     try {
-      if (ExpoSpeechRecognitionModule.supportsOnDeviceRecognition()) {
+      supportsOnDevice = ExpoSpeechRecognitionModule.supportsOnDeviceRecognition();
+      if (supportsOnDevice) {
         const locales = await ExpoSpeechRecognitionModule.getSupportedLocales({});
-        const normalized = lang.toLowerCase().replace('_', '-');
-        useOnDevice = (locales.installedLocales ?? []).some(
-          (installed) => installed.toLowerCase().replace('_', '-') === normalized,
-        );
+        useOnDevice = isLocaleInstalled(locales.installedLocales, lang);
       }
     } catch (error) {
       // A device that cannot answer the question is treated as a no, never as
@@ -127,6 +138,17 @@ export function useVoiceDictation({ onResult, onError, lang = 'en-US' }: UseVoic
       console.warn('[useVoiceDictation] Could not check for on-device recognition', error);
       useOnDevice = false;
     }
+
+    // With no pack, offer to download it before sending anything out
+    // (lib/voicePack.ts says when and in what words). Android 13 and later
+    // only, once per app run, and never after Don't Ask Again.
+    if (!useOnDevice && Platform.OS === 'android') {
+      const osVersion = typeof Platform.Version === 'number' ? Platform.Version : Number(Platform.Version) || 0;
+      const way = await offerVoicePack(lang, { platform: Platform.OS, osVersion, supportsOnDevice, installed: false });
+      if (way === 'cancel') return;
+      if (way === 'on-device') useOnDevice = true;
+    }
+    if (isActiveRef.current || !mountedRef.current) return;
 
     isActiveRef.current = true;
     setRecognitionMode(useOnDevice ? 'on-device' : 'network');

@@ -227,6 +227,7 @@ import { useWalkMark } from '../components/WalkMark';
 import type { WalkMark } from '../lib/storyWalk';
 import * as Linking from 'expo-linking';
 import { PRIVACY_URL, TERMS_URL } from '../lib/agreement';
+import { VoicePackPanel } from '../components/VoicePackPanel';
 
 // Whether a backup that has been reached is restored or only checked.
 type BackupUse = 'restore' | 'check';
@@ -393,6 +394,7 @@ const ALL_CARD_SECTION_KEYS = [
   // Device & Account
   'app-status',
   'agreement',
+  'voice-pack',
   'connections',
   'backup',
   'app-updates',
@@ -4993,6 +4995,23 @@ export default function ProfileScreen() {
           </View>
         ) : null}
       </View>
+
+      {/* Speech on This Phone: whether the offline speech pack is here, and
+          a way to get it. Android only; see lib/voicePack.ts. */}
+      {Platform.OS === 'android' ? (
+        <View style={styles.card}>
+          {renderCardHeader('voice-pack', 'Speech on This Phone')}
+          {!collapsedSections.has('voice-pack') ? (
+            <View style={styles.cardBody}>
+              <VoicePackPanel
+                textStyle={styles.helpText}
+                buttonStyle={styles.checkinButton}
+                buttonTextStyle={styles.checkinButtonText}
+              />
+            </View>
+          ) : null}
+        </View>
+      ) : null}
 
       {/* Step 4 of the device-pairing prerequisite list, 2026-08-15, see
           CLAUDE.md's "Sharing individual recipes between two people"

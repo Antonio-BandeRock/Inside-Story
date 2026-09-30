@@ -280,6 +280,9 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'gateway_reader_self',
   // The port this computer listens on for a station that sends (I22).
   'station_listener_port',
+  // Don't Ask Again for the speech pack offer (lib/voicePack.ts): it is
+  // about this phone's recognizer, and a computer has none.
+  'voice_pack_prompt',
   CHANGE_BASELINE_META_KEY,
 ];
 
