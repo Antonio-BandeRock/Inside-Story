@@ -186,13 +186,13 @@ J2|2|OTA|S|Life|Monarch|Spot repeating charges|Offer to make them bills. After J
 J3|2|OTA|S|Life|Monarch|Category rules|finance_rules applied on import.
 J4|2|OTA|S|Life|Monarch|Receipt photo on an entry|Through X1. Built 1.0.56.10: a Photos row under every entry on Life > Finances; removing an entry with photos asks first and removes them with it.
 J5|3|OTA|M|Life|YNAB|Give every dollar a job|A view over finance_budgets.
-J6|2|OTA|S|Life|Sweepy|Upkeep by room or area|An open list with counts and dates, never a score.
-J7|2|OTA|S|Life|Sweepy|"I have 20 minutes"|Optional minutes on upkeep and a filter.
-J8|3|OTA|M|Life|Sweepy|Shared chores|upkeep in the peer allowlist.
+J6|2|OTA|S|Life|Sweepy|Upkeep by room or area|An open list with counts and dates, never a score. Built 1.0.56.11: places on every item from an open alphabetical list (upkeep_places), removal moves what is in use first, Life > Upkeep grouped by place with a count and dates, and daily, weekly and fortnightly repeats.
+J7|2|OTA|S|Life|Sweepy|"I have 20 minutes"|Optional minutes on upkeep and a filter. Built 1.0.56.11: How long it takes on every item and an I Have Some Time band, soonest first, with items that have no minutes counted rather than guessed at, and ones somebody else is doing counted apart.
+J8|3|OTA|M|Life|Sweepy|Shared chores|upkeep in the peer allowlist. Built 1.0.56.11: chores left for anyone, taken, or given to yourself, family or a connection; Share with the household sends one through a chores area in lib/peerRelationships.ts, only household = 1 rows crossing through a per-table where.
 J9|2|OTA|S-M|Life|Sortly|Photo on an item or a place|Through X1.
 J10|3|OTA|M|Life|Sortly|Places inside places|A places table with a parent, as an open list; Where did I put it walks the path.
 J11|3|OTA|M|Life|Sortly|QR labels for boxes|Pure JS QR, printed through expo-print, scanned with the camera already there. The label carries an id only.
-J12|2|OTA|S|Life|AnyList|Check the shared folder more often|A shorter check interval. Instant needs M1.
+J12|2|OTA|S|Life|AnyList|Check the shared folder more often|Run the between-people mailbox exchange by itself through the existing allowlist: at startup, on return to the app, about every 30 seconds and about 15 seconds after a change, keeping the manual Send and Receive buttons. Instant delivery needs M1 and is not part of this.
 ## Reports
 K1|2|OTA|S|Reports|Guava, Bearable, Visible|Six months, a year, any range, since the last visit|buildReport already takes any number of days.
 K2|2|OTA|S-M|Reports|Guava|At a glance front page|Top symptoms by days, doses as words, latest weight and blood pressure, labs outside the lab's printed range.

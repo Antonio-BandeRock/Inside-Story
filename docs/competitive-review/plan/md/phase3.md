@@ -296,7 +296,7 @@
 ### J8. Shared chores
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life
 - **Answers:** Sweepy · **Theme:** Money, upkeep and places
-- **How:** upkeep in the peer allowlist.
+- **How:** upkeep in the peer allowlist. Built 1.0.56.11: chores left for anyone, taken, or given to yourself, family or a connection; Share with the household sends one through a chores area in lib/peerRelationships.ts, only household = 1 rows crossing through a per-table where.
 
 ### J10. Places inside places
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life

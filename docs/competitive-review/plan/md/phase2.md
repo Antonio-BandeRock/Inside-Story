@@ -476,12 +476,12 @@
 ### J6. Upkeep by room or area
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life
 - **Answers:** Sweepy · **Theme:** Money, upkeep and places
-- **How:** An open list with counts and dates, never a score.
+- **How:** An open list with counts and dates, never a score. Built 1.0.56.11: places on every item from an open alphabetical list (upkeep_places), removal moves what is in use first, Life > Upkeep grouped by place with a count and dates, and daily, weekly and fortnightly repeats.
 
 ### J7. "I have 20 minutes"
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life
 - **Answers:** Sweepy · **Theme:** Money, upkeep and places
-- **How:** Optional minutes on upkeep and a filter.
+- **How:** Optional minutes on upkeep and a filter. Built 1.0.56.11: How long it takes on every item and an I Have Some Time band, soonest first, with items that have no minutes counted rather than guessed at, and ones somebody else is doing counted apart.
 
 ### J9. Photo on an item or a place
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life
@@ -491,7 +491,7 @@
 ### J12. Check the shared folder more often
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life
 - **Answers:** AnyList · **Theme:** Money, upkeep and places
-- **How:** A shorter check interval. Instant needs M1.
+- **How:** Run the between-people mailbox exchange by itself through the existing allowlist: at startup, on return to the app, about every 30 seconds and about 15 seconds after a change, keeping the manual Send and Receive buttons. Instant delivery needs M1 and is not part of this.
 
 ### K1. Six months, a year, any range, since the last visit
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
