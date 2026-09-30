@@ -24926,3 +24926,28 @@ export async function getAchievedCriteriaDates(): Promise<Map<string, string>> {
   );
   return new Map(rows.map((row) => [row.criterion_key, row.achieved_at]));
 }
+
+// Where the day's reading on Home has got to (C20, lib/dailyReading.ts).
+// One app_meta row of JSON, which travels between the person's own devices
+// like any other setting, so the phone and the computer are on the same
+// entry.
+const DAILY_READING_META_KEY = 'daily_reading';
+
+export async function getDailyReadingStateText(): Promise<string | null> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ value: string }>('SELECT value FROM app_meta WHERE key = ?', DAILY_READING_META_KEY);
+  return row?.value ?? null;
+}
+
+export async function setDailyReadingStateText(value: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(
+    `
+      INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?)
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+    `,
+    DAILY_READING_META_KEY,
+    value,
+    new Date().toISOString(),
+  );
+}

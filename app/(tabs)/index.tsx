@@ -73,7 +73,16 @@ import { EMPTY_DAILY_SCALES, describeScales, hasAnyScale, localStamp, type Daily
 import { getMoonPhase, getUpcomingSeasonalMarker } from '../../lib/celestialEvents';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
 import { isTestDataPresent } from '../../lib/testData';
-import { ALL_DIGEST_ENTRIES, DIGEST_CATEGORY_META, isProblemFoodEntry, type DigestCategoryKey } from '../../lib/digest';
+import { ALL_DIGEST_ENTRIES, DIGEST_CATEGORY_META, findDigestEntryById, isProblemFoodEntry, type DigestCategoryKey } from '../../lib/digest';
+import { basicHealthAllGroups, groupEntriesForLens } from '../../lib/digest/categoryGrouping';
+import {
+  buildReadingOrder,
+  markReadingOpened,
+  parseDailyReadingState,
+  todaysReading,
+  type DailyReadingState,
+  type ReadingShelf,
+} from '../../lib/dailyReading';
 import { routeForDigestEntry, tabPathForDigestCategory } from '../../lib/digestNavigation';
 import { markHomeDataReady } from '../../lib/homeReadySignal';
 import { deleteMealPhotoFile, pickAndSaveMealPhoto } from '../../lib/mealPhotos';
@@ -93,7 +102,9 @@ import {
   createMealPhotoDraft,
   deleteMealPhotoDraft,
   getCheckinForDate,
+  getConditionStages,
   getCuriousAboutConditions,
+  getDailyReadingStateText,
   getDayMealAndDoseTimeline,
   getLastSeenAppVersion,
   getNutrientTotalsByDateRange,
@@ -102,6 +113,7 @@ import {
   getUserConditions,
   getUserProfile,
   listCheckins,
+  setDailyReadingStateText,
   listMealPhotoDrafts,
   listMealsForDate,
   listScheduledMealsForDate,
@@ -425,6 +437,43 @@ const ALWAYS_AVAILABLE_FLIP_CARD_GROUPS: DigestCategoryKey[] = [
 
 // How often each card swaps to a different entry from its own group.
 const FLIP_CARD_ROTATION_MS = 15 * 60 * 1000;
+
+// The day's reading (C20, lib/dailyReading.ts): the person's conditions in
+// the order the Conditions lens on Life lays them out, taking turns, or
+// Health Literacy when no condition is chosen. Recipes are left out, since
+// Meals You Can Eat is a list to choose from rather than something to read
+// through in order.
+function dailyReadingShelves(userConditionCodes: string[], stagedConditionCodes: string[]): ReadingShelf[] {
+  const shelves: ReadingShelf[] = [];
+  for (const code of userConditionCodes) {
+    const category = CONDITION_CODE_TO_DIGEST_KEY[code];
+    if (!category || shelves.some((shelf) => shelf.key === category)) continue;
+    const entries = ALL_DIGEST_ENTRIES.filter((entry) => entry.category === category);
+    if (entries.length === 0) continue;
+    const { topics, tyingTogether } = groupEntriesForLens(category, entries);
+    shelves.push({
+      key: category,
+      topics: topics
+        .filter((topic) => !topic.label.startsWith('Meals You Can Eat'))
+        .map((topic) => ({ label: topic.label, ids: topic.entries.map((entry) => entry.id) })),
+      closingId: tyingTogether?.id ?? null,
+      stageDeclared: stagedConditionCodes.includes(code),
+    });
+  }
+  if (shelves.length > 0) return shelves;
+  const literacy = ALL_DIGEST_ENTRIES.filter((entry) => entry.category === 'basicHealth');
+  return [
+    {
+      key: 'basicHealth',
+      topics: basicHealthAllGroups(literacy).map((group) => ({
+        label: group.label,
+        ids: group.entries.map((entry) => entry.id),
+      })),
+      closingId: null,
+      stageDeclared: false,
+    },
+  ];
+}
 
 type FlipCardGroup = { category: DigestCategoryKey; entries: FlipCardEntry[] };
 
@@ -1381,6 +1430,11 @@ export default function HomeScreen() {
   // before this loads still shows Basic Health content rather than an
   // empty or crashing pool.
   const [userConditionCodes, setUserConditionCodes] = useState<string[]>([]);
+  // Conditions with a declared healing stage, sorted and joined so a reload
+  // that finds the same stages does not rebuild the day's reading order.
+  const [stagedConditionKey, setStagedConditionKey] = useState('');
+  const [dailyReadingId, setDailyReadingId] = useState<string | null>(null);
+  const dailyReadingStateRef = useRef<DailyReadingState | null>(null);
   // Null while it is still being worked out, so the card cannot flash up on
   // somebody who set this up months ago.
   const [sharedFolderReady, setSharedFolderReady] = useState<boolean | null>(null);
@@ -1538,7 +1592,8 @@ export default function HomeScreen() {
   }, []);
 
   const loadDigestConditionScope = useCallback(() => {
-    return Promise.all([getUserConditions(), getCuriousAboutConditions()]).then(([owned, curious]) => {
+    return Promise.all([getUserConditions(), getCuriousAboutConditions(), getConditionStages()]).then(([owned, curious, stages]) => {
+      setStagedConditionKey(Object.keys(stages).sort().join('|'));
       // Written to the ref here as well as to state, 2026-09-12: the
       // ref's own mirroring effect only runs after the next render, and
       // load()/loadWeekTrend() below read the ref straight after this
@@ -2253,6 +2308,61 @@ export default function HomeScreen() {
     () => digestFlipCardGroups(userConditionCodes, curiousAboutConditionCodes),
     [userConditionCodes, curiousAboutConditionCodes],
   );
+
+  // Joined so a reload that returns the same conditions in a new array
+  // does not rebuild the order.
+  const userConditionKey = userConditionCodes.join('|');
+  const dailyReadingOrder = useMemo(
+    () =>
+      buildReadingOrder(
+        dailyReadingShelves(
+          userConditionKey ? userConditionKey.split('|') : [],
+          stagedConditionKey ? stagedConditionKey.split('|') : [],
+        ),
+      ),
+    [userConditionKey, stagedConditionKey],
+  );
+
+  // Worked out whenever Home comes into view, so the card moves on at the
+  // first look after midnight rather than only when the app restarts.
+  const refreshDailyReading = useCallback(async () => {
+    try {
+      const saved = parseDailyReadingState(await getDailyReadingStateText());
+      const result = todaysReading(dailyReadingOrder, saved, todayDateString());
+      dailyReadingStateRef.current = result.state;
+      setDailyReadingId(result.id);
+      if (result.changed && result.state) await setDailyReadingStateText(JSON.stringify(result.state));
+    } catch (error) {
+      console.error('[Home] Failed to work out the day\'s reading', error);
+    }
+  }, [dailyReadingOrder]);
+
+  useFocusEffect(
+    useCallback(() => {
+      void refreshDailyReading();
+    }, [refreshDailyReading]),
+  );
+
+  const dailyReadingCard = useMemo(() => {
+    const entry = dailyReadingId ? findDigestEntryById(dailyReadingId) : undefined;
+    return entry ? { ...toFlipCardEntry(entry), groupKey: entry.category } : null;
+  }, [dailyReadingId]);
+
+  async function openDailyReading(id: string) {
+    const state = dailyReadingStateRef.current;
+    if (state) {
+      const next = markReadingOpened(state, id);
+      dailyReadingStateRef.current = next;
+      if (next !== state) {
+        try {
+          await setDailyReadingStateText(JSON.stringify(next));
+        } catch (error) {
+          console.error('[Home] Failed to remember the day\'s reading was opened', error);
+        }
+      }
+    }
+    router.push(routeForDigestEntry(id));
+  }
 
   // One card per group, each holding a random entry from its own group.
   //
@@ -3327,6 +3437,25 @@ export default function HomeScreen() {
       // to the screen edge. The row adds a right inset so the last card is
       // not jammed against it.
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.flipRow}>
+        {dailyReadingCard
+          ? (() => {
+              const card = dailyReadingCard;
+              const tab = TAB_ROUTES.find((route) => route.path === tabPathForDigestCategory(card.groupKey));
+              const cardColor = tab?.color ?? colors.tabPurpleDigest;
+              return (
+                <FlipCard
+                  key={'daily-reading-' + card.id}
+                  icon={<Ionicons name={tab?.icon ?? 'newspaper'} size={18} color={cardColor} style={textShadow} />}
+                  header="Today's Reading"
+                  hook={card.hook}
+                  backTitle={card.backTitle}
+                  backBody={card.backBody}
+                  onReadMore={() => void openDailyReading(card.id)}
+                  borderColor={cardColor}
+                />
+              );
+            })()
+          : null}
         {visibleFlipCards.map((card) => {
           const tabPath = tabPathForDigestCategory(card.groupKey);
           const tab = TAB_ROUTES.find((route) => route.path === tabPath);
