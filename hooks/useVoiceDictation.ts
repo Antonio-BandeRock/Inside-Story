@@ -21,7 +21,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
 import { offerVoicePack } from '../lib/voicePackDevice';
-import { isLocaleInstalled } from '../lib/voicePack';
+import { findInstalledLocale } from '../lib/voicePack';
 
 export type VoiceDictationStatus = 'idle' | 'listening';
 
@@ -125,12 +125,21 @@ export function useVoiceDictation({ onResult, onError, lang = 'en-US' }: UseVoic
     // which keeps voice working everywhere it worked before.
     let useOnDevice = false;
     let supportsOnDevice = false;
+    let checked = false;
+    // The pack to listen with, which may be another variant of the same
+    // language (lib/voicePack.ts findInstalledLocale).
+    let listenLang = lang;
     try {
       supportsOnDevice = ExpoSpeechRecognitionModule.supportsOnDeviceRecognition();
       if (supportsOnDevice) {
         const locales = await ExpoSpeechRecognitionModule.getSupportedLocales({});
-        useOnDevice = isLocaleInstalled(locales.installedLocales, lang);
+        const found = findInstalledLocale(locales.installedLocales, lang);
+        if (found) {
+          useOnDevice = true;
+          listenLang = found;
+        }
       }
+      checked = true;
     } catch (error) {
       // A device that cannot answer the question is treated as a no, never as
       // a yes: falling back to network recognition still works, while asking
@@ -141,8 +150,9 @@ export function useVoiceDictation({ onResult, onError, lang = 'en-US' }: UseVoic
 
     // With no pack, offer to download it before sending anything out
     // (lib/voicePack.ts says when and in what words). Android 13 and later
-    // only, once per app run, and never after Don't Ask Again.
-    if (!useOnDevice && Platform.OS === 'android') {
+    // only, once per app run, and never after Don't Ask Again. Only when the
+    // phone answered: a failed check is unknown, never read as no pack.
+    if (!useOnDevice && checked && Platform.OS === 'android') {
       const osVersion = typeof Platform.Version === 'number' ? Platform.Version : Number(Platform.Version) || 0;
       const way = await offerVoicePack(lang, { platform: Platform.OS, osVersion, supportsOnDevice, installed: false });
       if (way === 'cancel') return;
@@ -154,7 +164,7 @@ export function useVoiceDictation({ onResult, onError, lang = 'en-US' }: UseVoic
     setRecognitionMode(useOnDevice ? 'on-device' : 'network');
     setStatus('listening');
     ExpoSpeechRecognitionModule.start({
-      lang,
+      lang: useOnDevice ? listenLang : lang,
       interimResults: true,
       requiresOnDeviceRecognition: useOnDevice,
       // Auto-stops once a final result comes back (or, on iOS 17 and

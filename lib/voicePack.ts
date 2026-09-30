@@ -75,8 +75,20 @@ export function normalizeLocale(lang: string): string {
 }
 
 export function isLocaleInstalled(installed: readonly string[] | null | undefined, lang: string): boolean {
+  return findInstalledLocale(installed, lang) !== null;
+}
+
+// The pack to listen with: the exact locale when it is there, otherwise
+// another pack of the same language (English (UK) for English (US)), so a
+// phone that has English is never told it has none. Returned as the phone
+// spells it, since that is what the recognizer accepts.
+export function findInstalledLocale(installed: readonly string[] | null | undefined, lang: string): string | null {
+  const list = installed ?? [];
   const want = normalizeLocale(lang);
-  return (installed ?? []).some((l) => normalizeLocale(l) === want);
+  const exact = list.find((l) => normalizeLocale(l) === want);
+  if (exact) return exact;
+  const base = want.split('-')[0];
+  return list.find((l) => normalizeLocale(l).split('-')[0] === base) ?? null;
 }
 
 export type VoicePackPrompt = {

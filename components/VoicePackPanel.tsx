@@ -22,12 +22,14 @@ type Props = {
 
 export function VoicePackPanel({ textStyle, buttonStyle, buttonTextStyle }: Props) {
   const [situation, setSituation] = useState<VoicePackSituation | null>(null);
+  const [unknown, setUnknown] = useState(false);
   const [neverAsk, setNeverAsk] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     const [s, never] = await Promise.all([getVoicePackSituation(LANG), getVoicePackNeverAsk().catch(() => false)]);
     setSituation(s);
+    setUnknown(s === null);
     setNeverAsk(never);
   }, []);
 
@@ -63,7 +65,14 @@ export function VoicePackPanel({ textStyle, buttonStyle, buttonTextStyle }: Prop
   }, []);
 
   if (!situation) {
-    return <Text style={textStyle}>{VOICE_PACK_CARD_LEAD}</Text>;
+    return (
+      <>
+        <Text style={textStyle}>{VOICE_PACK_CARD_LEAD}</Text>
+        {unknown ? (
+          <Text style={textStyle}>The phone did not say which speech packs it has, so this card cannot tell whether one is here.</Text>
+        ) : null}
+      </>
+    );
   }
   const downloadable = canDownloadVoicePack(situation) && !situation.installed;
 

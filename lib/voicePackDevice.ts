@@ -8,7 +8,7 @@ import { getDatabase } from './db';
 import {
   VOICE_PACK_META_KEY,
   afterVoicePackDownload,
-  isLocaleInstalled,
+  findInstalledLocale,
   parseVoicePackMeta,
   shouldOfferVoicePack,
   speechServiceName,
@@ -46,7 +46,9 @@ export function currentSpeechServiceName(): string {
   }
 }
 
-export async function getVoicePackSituation(lang: string): Promise<VoicePackSituation> {
+// Null when the phone could not say what it has: unknown is never read as
+// missing, so nobody is offered a download they may not need.
+export async function getVoicePackSituation(lang: string): Promise<VoicePackSituation | null> {
   const osVersion = typeof Platform.Version === 'number' ? Platform.Version : Number(Platform.Version) || 0;
   let supportsOnDevice = false;
   let installed = false;
@@ -54,10 +56,11 @@ export async function getVoicePackSituation(lang: string): Promise<VoicePackSitu
     supportsOnDevice = ExpoSpeechRecognitionModule.supportsOnDeviceRecognition();
     if (supportsOnDevice) {
       const locales = await ExpoSpeechRecognitionModule.getSupportedLocales({});
-      installed = isLocaleInstalled(locales.installedLocales, lang);
+      installed = findInstalledLocale(locales.installedLocales, lang) !== null;
     }
   } catch (error) {
     console.warn('[voicePack] Could not ask the recognizer what it has', error);
+    return null;
   }
   return { platform: Platform.OS, osVersion, supportsOnDevice, installed };
 }

@@ -42,6 +42,10 @@ check('meta off', V.parseVoicePackMeta('{"neverAsk":false}').neverAsk === false)
 check('installed match ignores case and underscore', V.isLocaleInstalled(['EN_us'], 'en-US'));
 check('installed no match', !V.isLocaleInstalled(['es-MX'], 'en-US'));
 check('installed null', !V.isLocaleInstalled(null, 'en-US'));
+check('exact locale preferred', V.findInstalledLocale(['en-GB', 'en-US'], 'en-US') === 'en-US');
+check('same language counts as a pack', V.findInstalledLocale(['en-GB'], 'en-US') === 'en-GB');
+check('bare language counts', V.findInstalledLocale(['en'], 'en-US') === 'en');
+check('other language does not', V.findInstalledLocale(['es-MX'], 'en-US') === null);
 
 check('language english', V.languageName('en-US') === 'English');
 check('language spanish', V.languageName('es_MX') === 'Spanish');
