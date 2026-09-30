@@ -7,6 +7,7 @@ import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { GardenCsvButtons } from '../../components/GardenCsvButtons';
 import { useInfoAlert } from '../../components/InfoAlert';
+import { ReportCsvButtons } from '../../components/ReportCsvButtons';
 import { YourStoryMissingLine } from '../../components/YourStoryMissingLine';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
@@ -46,8 +47,8 @@ const REPORTS_HELP_SECTIONS: HelpSection[] = [
     body: 'This generates entirely on your device, the same as the rest of this app. Nothing is sent anywhere unless you tap Share and choose where it goes yourself.',
   },
   {
-    heading: 'Two ways to share',
-    body: 'Share as PDF lays the same summary out on a page, with each section as a table or a list, for handing over, printing, or attaching to a message. Share as text sends it as plain words, which pastes into any message or note. Both are built on the phone from the same data.',
+    heading: 'Three ways to share',
+    body: 'Share as PDF lays the same summary out on a page, with each section as a table or a list, for handing over, printing, or attaching to a message. Share as text sends it as plain words, which pastes into any message or note. Save as a Spreadsheet makes CSV files for Excel, Google Sheets or any program that reads them: each table on its own, or the whole report in one file. All three are built on the device from the same data.',
   },
   {
     heading: 'What a clinician will see',
@@ -377,12 +378,14 @@ export default function ReportsScreen() {
               </View>
             ) : null}
 
-            {/* I15, 2026-09-28: under the Garden report, the garden's rows as
-                spreadsheet files, for somebody who wants their own charts. */}
-            {lens === 'r-garden' && !loading ? (
+            {/* K5, 2026-09-29: the report's tables as spreadsheet files, and
+                the whole report as one. I15, 2026-09-28: under the Garden
+                report, the garden's whole record as well, whatever the range. */}
+            {report && reportText && !loading ? (
               <View style={band.box}>
                 <Text style={styles.customLabel}>Save as a Spreadsheet</Text>
-                <GardenCsvButtons />
+                <ReportCsvButtons report={report} onSaved={() => void markYourStorySeen('report')} />
+                {lens === 'r-garden' ? <GardenCsvButtons caption="The garden's whole record, whatever the range above, one file each for plantings, harvests and what was done." /> : null}
               </View>
             ) : null}
           </ScrollView>
