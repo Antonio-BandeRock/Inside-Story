@@ -139,8 +139,9 @@ function build(grants, over = {}) {
   const nothing = build(NOTHING);
   check('with nothing granted, no conditions', nothing.conditionCodes, undefined);
   check('and no plan', nothing.plan, undefined);
-  check('what is left is only what identifies the message',
-    Object.keys(nothing).sort(), ['fromFingerprint', 'referenceDbVersion', 'sentAt', 'v']);
+  check('what is left is only what identifies the message, plus an empty doses answer',
+    Object.keys(nothing).sort(), ['doses', 'fromFingerprint', 'referenceDbVersion', 'sentAt', 'v']);
+  check('and that doses answer is null, which clears the other phone', nothing.doses, null);
 
   const mealsOff = build({ meals: false, shopping: true, conditions: true });
   check('meals off drops the plan and keeps the conditions', mealsOff.plan, undefined);
@@ -254,12 +255,20 @@ check('and a future timestamp never goes negative', daysSinceSent('2026-12-01T00
 
 {
   const serialised = JSON.stringify(build(ALL));
+  // A16: the doses key is always present on a partner link, as null unless
+  // the grant is on AND a part was read after a yes on the phone.
+  check('with doses not granted, the doses key is null', build(ALL).doses, null);
+  const handed = { items: [{ id: 'D1', name: 'Levothyroxine', dueAt: '2026-09-30T07:00:00.000Z', mark: 'unmarked', markedAt: null }] };
+  check('a part handed over without the grant still sends null', build(ALL, { doses: handed }).doses, null);
+  check('with the grant and a part, the part goes', build({ ...ALL, doses: true }, { doses: handed }).doses, handed);
+  const serialisedNoDoseKey = serialised.replace('"doses":null', '');
+  checkFalse('and without the grant nothing else about a dose appears', /dose/i.test(serialisedNoDoseKey));
   for (const word of ['symptom', 'flare', 'lab', 'weight', 'medication', 'stage', 'note', 'dose', 'blood']) {
-    checkFalse(`the payload carries no ${word} field`, new RegExp(`"[^"]*${word}`, 'i').test(serialised));
+    checkFalse(`the payload carries no ${word} field`, new RegExp(`"[^"]*${word}`, 'i').test(serialisedNoDoseKey));
   }
   check('the only keys are the declared ones',
     Object.keys(build(ALL)).sort(),
-    ['conditionCodes', 'fromFingerprint', 'plan', 'referenceDbVersion', 'sentAt', 'v']);
+    ['conditionCodes', 'doses', 'fromFingerprint', 'plan', 'referenceDbVersion', 'sentAt', 'v']);
 
   const wording = [
     describeSyncResult(readSyncPayload(serialised, { myReferenceDbVersion: DB }), 'Lisa'),
@@ -286,7 +295,7 @@ check('and a future timestamp never goes negative', daysSinceSent('2026-12-01T00
     Object.prototype.hasOwnProperty.call(smuggled.payload, 'secret'));
   check('and the result holds only the declared keys',
     Object.keys(smuggled.payload).sort(),
-    ['conditionCodes', 'fromFingerprint', 'plan', 'referenceDbVersion', 'sentAt', 'v']);
+    ['conditionCodes', 'doses', 'fromFingerprint', 'plan', 'referenceDbVersion', 'sentAt', 'v']);
 }
 
 // --- 8. THE ALLOWLIST HOLDS ON THE WAY OUT ---------------------------------
@@ -310,7 +319,7 @@ check('and a future timestamp never goes negative', daysSinceSent('2026-12-01T00
 
   const sent = build(ALL, { shared: everything }).shared;
   const allowed = tableNamesThatCross('partner', ALL);
-  check('only the tables this link carries are sent', Object.keys(sent).sort(), [...allowed].sort());
+  check('only the tables this link carries are sent', Object.keys(sent).sort(), [...allowed].filter((t) => t in everything).sort());
 
   for (const table of PERSONAL_HEALTH_TABLES) {
     checkFalse(table + ' cannot cross to a partner',

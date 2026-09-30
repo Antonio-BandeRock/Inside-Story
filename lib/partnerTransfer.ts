@@ -38,6 +38,7 @@ import { buildSyncPayload, readSyncPayload, type SyncPlanDay } from './partnerSy
 import { getMealPlanForSync, setPartnerMealPlan } from './mealPlanSync';
 import { PEER_PHOTO_BUDGET_DIRECT } from './peerPhotos';
 import { applyPeerPhotos, peerPhotoPartFor } from './peerPhotosDb';
+import { applyPeerDoses, peerDosePartFor } from './peerDosesDb';
 import { resolveSender } from './syncInbox';
 import {
   readInboxFromFolder,
@@ -130,6 +131,7 @@ export async function sendToPartners(options?: { plan?: SyncPlanDay[] }): Promis
         budget: PEER_PHOTO_BUDGET_DIRECT,
         allowFull: true,
       }),
+      doses: await peerDosePartFor(partner),
     });
 
     let sealed: string;
@@ -275,6 +277,7 @@ export async function receiveFromPartners(): Promise<{
       ? await mergeFromPeer(connection, result.payload.shared, result.payload.sentAt)
       : null;
     await applyPeerPhotos(connection.id, result.payload);
+    await applyPeerDoses(connection.id, result.payload);
 
     // The plan is reported on but not stored, because nothing reads a partner's
     // plan yet. Saying so is better than silently discarding it.
@@ -430,6 +433,7 @@ export async function buildWireForPartner(
       budget: options?.photoBudget ?? PEER_PHOTO_BUDGET_DIRECT,
       allowFull: options?.allowFullPhotos ?? true,
     }),
+    doses: await peerDosePartFor(partner),
   });
 
   let sealed: string;
@@ -601,6 +605,7 @@ export async function applySyncFileText(
     ? await mergeFromPeer(connection, result.payload.shared, result.payload.sentAt)
     : null;
   await applyPeerPhotos(connection.id, result.payload);
+  const dosesChanged = await applyPeerDoses(connection.id, result.payload);
 
   // The plan, stored rather than mentioned and dropped, 2026-09-15. Only when
   // readSyncPayload says it is usable: on a reference-database mismatch it has
@@ -631,7 +636,7 @@ export async function applySyncFileText(
   if (merge?.refused) parts.push(merge.refused);
 
   const merged = (merge?.result.entries.length ?? 0) > 0;
-  return { applied: codes.length > 0 || plan.length > 0 || merged, message: parts.join(' ') };
+  return { applied: codes.length > 0 || plan.length > 0 || merged || dosesChanged, message: parts.join(' ') };
 }
 /**
  * Reads a file a partner handed over, after the person picks it.

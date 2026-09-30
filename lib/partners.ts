@@ -114,7 +114,7 @@ export function isCareRole(role: ConnectionRole): boolean {
 // Absence of their data is absence of their grant, and the screen can say so
 // without keeping a second set of columns that could disagree with reality.
 
-export type ShareScope = 'meals' | 'shopping' | 'conditions' | 'photos';
+export type ShareScope = 'meals' | 'shopping' | 'conditions' | 'photos' | 'doses';
 
 export const SHARE_SCOPES: {
   code: ShareScope;
@@ -153,6 +153,15 @@ export const SHARE_SCOPES: {
     // of information, only a picture of something already shared.
     defaultOn: true,
   },
+  {
+    code: 'doses',
+    label: 'When a dose is not marked',
+    what: 'Permission to see the name of each med on your schedule, when it was due, and whether you marked it taken or skipped, so their phone can let them know when one has not been marked. Never the amount, your notes or anything else about your meds. Turning it on asks you first.',
+    // Off until asked for, and turning it on is a separate yes on this phone
+    // (the consent step from the Caregiver tier), since it is about the
+    // person's meds rather than the household.
+    defaultOn: false,
+  },
 ];
 
 export type ShareGrants = Record<ShareScope, boolean>;
@@ -161,7 +170,7 @@ export function defaultGrantsForRole(role: ConnectionRole): ShareGrants {
   // A recipe link votes on none of these, so it starts with nothing allowed.
   // The other three all plan and shop together, so they start where a
   // partner starts, with the condition list still off until it is asked for.
-  if (role === 'recipe') return { meals: false, shopping: false, conditions: false, photos: false };
+  if (role === 'recipe') return { meals: false, shopping: false, conditions: false, photos: false, doses: false };
   return SHARE_SCOPES.reduce((acc, scope) => {
     acc[scope.code] = scope.defaultOn;
     return acc;

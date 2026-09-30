@@ -105,7 +105,7 @@ const WORST_CASE = {
   fromName: 'Christopher',
   publicKeyBase64: 'BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=',
   role: 'partner',
-  grants: { meals: true, shopping: true, conditions: true, photos: true },
+  grants: { meals: true, shopping: true, conditions: true, photos: true, doses: false },
   alreadyHaveYou: true,
   conditionCodes: [
     'hashimotos',
@@ -124,7 +124,7 @@ const TYPICAL = {
   fromName: 'Lisa',
   publicKeyBase64: 'AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwM=',
   role: 'partner',
-  grants: { meals: true, shopping: true, conditions: false, photos: true },
+  grants: { meals: true, shopping: true, conditions: false, photos: true, doses: false },
   alreadyHaveYou: false,
 };
 

@@ -57,6 +57,7 @@ export type PeerAreaCode =
   | 'shopping'
   | 'chores'
   | 'conditions'
+  | 'doses'
   | 'schedule'
   | 'meds'
   | 'symptoms';
@@ -175,6 +176,18 @@ export const PEER_AREAS: readonly PeerArea[] = [
     ready: true,
   },
   {
+    code: 'doses',
+    label: 'When a dose is not marked',
+    what: 'The name of each med on their schedule, when it was due, and whether they marked it taken or skipped, so your phone can let you know when one has not been marked. Never the amount or their notes.',
+    // A16, 2026-09-30. Carried as a copy through lib/partnerSync.ts, like
+    // meals: their latest send is their state, and it lands in
+    // peer_dose_watch, which is a record of somebody else's day and never
+    // a dose on this schedule. Sent only after a yes given on the phone
+    // whose doses they are (dose_watch_consent, lib/peerDosesDb.ts).
+    tables: [],
+    ready: true,
+  },
+  {
     code: 'schedule',
     label: 'Their schedule',
     what: 'Appointments and doses on their day, which you can add to on their behalf.',
@@ -285,9 +298,9 @@ export const RELATIONSHIPS: readonly Relationship[] = [
     label: 'Partner',
     what: 'You plan meals together. You both see the same days, each with what those meals mean for your conditions, and you share one shopping list, one household meal calendar and the household chores.',
     shared: ['shopping', 'mealCalendar', 'chores'],
-    theirs: ['meals', 'conditions'],
+    theirs: ['meals', 'conditions', 'doses'],
     onTheirBehalf: [],
-    granted: ['meals', 'shopping', 'conditions'],
+    granted: ['meals', 'shopping', 'conditions', 'doses'],
     linkable: true,
   },
   {
@@ -295,9 +308,9 @@ export const RELATIONSHIPS: readonly Relationship[] = [
     label: 'Your child',
     what: 'You keep their side of things going and they see what you choose to let them see. Their meals, medicines and how they are doing stay theirs, recorded by you.',
     shared: ['shopping', 'mealCalendar', 'chores'],
-    theirs: ['meals', 'conditions'],
+    theirs: ['meals', 'conditions', 'doses'],
     onTheirBehalf: ['schedule', 'meds', 'symptoms'],
-    granted: ['meals', 'shopping', 'conditions'],
+    granted: ['meals', 'shopping', 'conditions', 'doses'],
     linkable: false,
     waitingOn:
       'a way to set up the link itself. The talking between the two phones works the same way it does between your own devices; what is missing is the setting-up, where you say which parts they can reach and at what pace.',
@@ -307,12 +320,15 @@ export const RELATIONSHIPS: readonly Relationship[] = [
     label: 'Someone who helps you',
     what: 'They can record meals, medicines, how you are doing and what is on your day, on your behalf. They never see anything you have not given them.',
     shared: ['shopping', 'mealCalendar', 'chores'],
-    theirs: ['meals', 'conditions'],
+    theirs: ['meals', 'conditions', 'doses'],
     onTheirBehalf: ['schedule', 'meds', 'symptoms'],
-    granted: ['meals', 'shopping', 'conditions'],
+    granted: ['meals', 'shopping', 'conditions', 'doses'],
     linkable: false,
+    // The yes, or the statement of acting for someone who cannot, exists
+    // now for doses (A16, dose_watch_consent). What is left is setting up
+    // the link itself and somewhere for their records to land.
     waitingOn:
-      'the step where the person being cared for says yes, or somebody states plainly that they are acting for someone who cannot. That step is the whole of this relationship and is not something to skip past.',
+      'a way to set up the link itself. The step where the person being cared for says yes, or somebody states plainly that they are acting for someone who cannot, is built for letting you know when a dose is not marked, and the same step will open everything else here.',
   },
 ];
 

@@ -266,6 +266,9 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'backup_last_check',
   'backup_last_saved',
   'peer_photos_wifi_only',
+  // A16: whether this phone raises an alert when somebody's dose is not
+  // marked. A setting about this phone's notifications.
+  'dose_watch_alerts',
   'emergency_lock_screen',
   'timeline_device_calendar',
   // Your Progress: what this device showed last time (lib/progressDb.ts).
@@ -314,6 +317,11 @@ export const DEVICE_LOCAL_TABLES: readonly string[] = [
   'sync_change_log',
   'peer_photo_out',
   'peer_photos',
+  // A16: somebody else's doses as their phone last sent them, and the alerts
+  // this phone has raised about them. An alert belongs to the phone that
+  // raises it, and the doses arrive again on whichever device is linked.
+  'peer_dose_watch',
+  'peer_dose_alerts',
   'daily_nutrient_totals_cache',
   // A lookup this device could not make (G21); the other device has its own signal.
   'pending_barcode_scans',

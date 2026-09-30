@@ -154,7 +154,7 @@ for (const role of roles) {
   }
 }
 ok(leaked.length === 0, 'no role and no permission carries a health table or schedule_items' + (leaked.length ? ' ' + leaked.join(',') : ''));
-ok(P.tableNamesThatCross('partner', NONE).length === 0, 'everything off carries nothing');
+ok(JSON.stringify(P.tableNamesThatCross('partner', NONE).sort()) === JSON.stringify(['upkeep_doings', 'upkeep_items']), 'everything off carries only the chores somebody marked for the household (J8: that mark is the permission)');
 clean(P.areaFor('mealCalendar').what);
 clean(P.describeWhatMerges('partner', ALL, 'Sam'));
 

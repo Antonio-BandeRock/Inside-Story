@@ -287,6 +287,8 @@ import { defaultRotation, isInjected, matchInjectable, nextSite, siteChoices, ty
 import { listInjectionSettings, listSiteHistory, localStamp, recordSite, type InjectionSetting } from '../../lib/injectionSitesDb';
 import { awayLine, currentZone, hereCaption, homeDoseHere, isAway, zoneName, type TravelMode } from '../../lib/travelTime';
 import { getHomeZone, listTravelModes, setHomeZoneToHere } from '../../lib/travelTimeDb';
+import { DOSE_WATCH_LIMIT, lastUpdateLine, watchRowLine } from '../../lib/doseWatch';
+import { getDoseWatchAlertsOn, listDoseWatch, setDoseWatchAlertsOn, type WatchedPerson } from '../../lib/peerDosesDb';
 import { WEEKDAY_NAMES, sameWeekday, weekdayOf as targetWeekdayOf } from '../../lib/weekdayTargets';
 import {
   OPEN_MEAL_CHOICES,
@@ -5401,6 +5403,10 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
   const [sitesByTreatment, setSitesByTreatment] = useState<Map<string, SiteUse[]>>(new Map());
   const [travelByTreatment, setTravelByTreatment] = useState<Map<string, TravelMode>>(new Map());
   const [homeZone, setHomeZone] = useState<string | null>(null);
+  // A16: the doses other people let this phone watch, and whether this
+  // phone raises an alert when one goes unmarked.
+  const [watched, setWatched] = useState<WatchedPerson[]>([]);
+  const [watchAlertsOn, setWatchAlertsOn] = useState(true);
   const [reminderPermissionGranted, setReminderPermissionGranted] = useState<boolean | null>(null);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
@@ -5424,9 +5430,13 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
           listSiteHistory(),
           listTravelModes(),
           getHomeZone().catch(() => null),
+          listDoseWatch().catch(() => [] as WatchedPerson[]),
+          getDoseWatchAlertsOn().catch(() => true),
         ]),
       )
-      .then(([loadedTreatments, doses, evaluation, reminderGranted, tapers, injection, sites, travel, home]) => {
+      .then(([loadedTreatments, doses, evaluation, reminderGranted, tapers, injection, sites, travel, home, watchList, alertsOn]) => {
+        setWatched(watchList);
+        setWatchAlertsOn(alertsOn);
         setReminderPermissionGranted(reminderGranted);
         setTravelByTreatment(travel);
         setHomeZone(home);
@@ -5888,6 +5898,46 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
               </View>
             )}
           </ScheduleBand>
+
+          {watched.length > 0 ? (
+            <ScheduleBand folds={folds} id="schedule:meds:watch" title="Doses you watch" icon="people-outline" count={watched.length}>
+              <View style={styles.table}>
+                {watched.map((person) => (
+                  <View key={person.connectionId} style={styles.row}>
+                    <Text style={styles.rowTitle}>{person.name}</Text>
+                    <Text style={styles.rowMeta}>{lastUpdateLine(person.name, person.sentAt, Date.now())}</Text>
+                    {person.doses.length === 0 ? (
+                      <Text style={styles.rowMeta}>No doses around now on their schedule.</Text>
+                    ) : (
+                      person.doses.map((dose) => (
+                        <Text key={dose.id} style={styles.rowMeta}>{watchRowLine(dose, Date.now())}</Text>
+                      ))
+                    )}
+                  </View>
+                ))}
+                <View style={styles.row}>
+                  <Text style={styles.rowMeta}>
+                    {watchAlertsOn
+                      ? 'This phone raises an alert when a dose here is not marked.'
+                      : 'Alerts are off. Doses still show here.'}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.secondaryButton}
+                    onPress={() => {
+                      const next = !watchAlertsOn;
+                      setWatchAlertsOn(next);
+                      void setDoseWatchAlertsOn(next);
+                    }}
+                  >
+                    <Text style={styles.secondaryButtonText}>{watchAlertsOn ? 'Turn alerts off' : 'Turn alerts on'}</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.row}>
+                  <Text style={styles.rowMeta}>{DOSE_WATCH_LIMIT}</Text>
+                </View>
+              </View>
+            </ScheduleBand>
+          ) : null}
 
           {interactionWarnings.length > 0 ? (
             <ScheduleBand folds={folds} id="schedule:meds:things-to-check" title="Things to check" icon="alert-circle-outline" count={interactionWarnings.length}>

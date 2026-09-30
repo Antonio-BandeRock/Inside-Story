@@ -94,6 +94,7 @@ type ConnectionRow = {
   share_shopping: number | null;
   share_conditions: number | null;
   share_photos: number | null;
+  share_doses: number | null;
   their_condition_codes_json: string | null;
   their_conditions_at: string | null;
 };
@@ -103,7 +104,7 @@ type ConnectionRow = {
 const CONNECTION_COLUMNS = `
   id, name, public_key_base64, encryption_public_key_base64, paired_at, role, they_have_me_at,
   mailbox_folder, outbox_file_uri, inbox_file_uri,
-  fingerprint_verified_at, share_meals, share_shopping, share_conditions, share_photos,
+  fingerprint_verified_at, share_meals, share_shopping, share_conditions, share_photos, share_doses,
   their_condition_codes_json, their_conditions_at
 `;
 
@@ -146,6 +147,7 @@ function fromRow(row: ConnectionRow): Connection {
       shopping: Number(row.share_shopping) === 1,
       conditions: Number(row.share_conditions) === 1,
       photos: Number(row.share_photos) === 1,
+      doses: Number(row.share_doses) === 1,
     },
     theirConditionCodes,
     theirConditionsAt: row.their_conditions_at,
@@ -169,8 +171,8 @@ export async function addConnection(
   // sharing meals and shopping and deliberately NOT conditions.
   const grants = options.grants ?? defaultGrantsForRole(role);
   await db.runAsync(
-    `INSERT INTO connections (id, name, public_key_base64, encryption_public_key_base64, role, share_meals, share_shopping, share_conditions, share_photos)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO connections (id, name, public_key_base64, encryption_public_key_base64, role, share_meals, share_shopping, share_conditions, share_photos, share_doses)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     id,
     trimmedName || 'Unnamed connection',
     publicKeyBase64,
@@ -180,6 +182,7 @@ export async function addConnection(
     grants.shopping ? 1 : 0,
     grants.conditions ? 1 : 0,
     grants.photos ? 1 : 0,
+    grants.doses ? 1 : 0,
   );
   const row = await db.getFirstAsync<ConnectionRow>(`SELECT ${CONNECTION_COLUMNS} FROM connections WHERE id = ?`, id);
   if (!row) throw new Error('Failed to save the new connection.');
@@ -239,6 +242,10 @@ export async function removeConnection(id: string): Promise<void> {
   // reads connections itself.
   const { clearPeerPhotos } = await import('./peerPhotosDb');
   await clearPeerPhotos(id);
+  // Their doses, any alert still queued about them, and the yes given for
+  // them (A16).
+  const { clearPeerDoses } = await import('./peerDosesDb');
+  await clearPeerDoses(id);
 }
 
 // --- Partner links -----------------------------------------------------
@@ -272,12 +279,13 @@ export async function setConnectionRole(id: string, role: ConnectionRole): Promi
   // granted, or the row would keep permissions its role no longer implies.
   const grants = defaultGrantsForRole(role);
   await db.runAsync(
-    'UPDATE connections SET role = ?, share_meals = ?, share_shopping = ?, share_conditions = ?, share_photos = ? WHERE id = ?',
+    'UPDATE connections SET role = ?, share_meals = ?, share_shopping = ?, share_conditions = ?, share_photos = ?, share_doses = ? WHERE id = ?',
     role,
     grants.meals ? 1 : 0,
     grants.shopping ? 1 : 0,
     grants.conditions ? 1 : 0,
     grants.photos ? 1 : 0,
+    grants.doses ? 1 : 0,
     id,
   );
   // Their conditions are dropped when the new role does not carry them.
@@ -296,11 +304,12 @@ export async function setConnectionRole(id: string, role: ConnectionRole): Promi
 export async function setConnectionGrants(id: string, grants: ShareGrants): Promise<void> {
   const db = await getDatabase();
   await db.runAsync(
-    'UPDATE connections SET share_meals = ?, share_shopping = ?, share_conditions = ?, share_photos = ? WHERE id = ?',
+    'UPDATE connections SET share_meals = ?, share_shopping = ?, share_conditions = ?, share_photos = ?, share_doses = ? WHERE id = ?',
     grants.meals ? 1 : 0,
     grants.shopping ? 1 : 0,
     grants.conditions ? 1 : 0,
     grants.photos ? 1 : 0,
+    grants.doses ? 1 : 0,
     id,
   );
 }
@@ -667,6 +676,9 @@ export function decodeConnectionInvite(raw: string): ConnectionInvite | null {
       shopping: rawGrants.shopping === true,
       conditions: rawGrants.conditions === true,
       photos: rawGrants.photos === true,
+      // Never from an invite: doses go only after a yes given on this phone
+      // (A16), so whatever the other side claims is read as off.
+      doses: false,
     };
     // Codes are kept only when they were actually granted. A payload claiming
     // no condition grant while carrying codes anyway is contradicting itself,

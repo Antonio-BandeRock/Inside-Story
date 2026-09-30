@@ -6580,6 +6580,7 @@ async function runDatabaseInitialization() {
         -- deciding something it has no business deciding.
         share_conditions INTEGER NOT NULL DEFAULT 0,
         share_photos INTEGER NOT NULL DEFAULT 0,
+        share_doses INTEGER NOT NULL DEFAULT 0,
         --
         -- CONDITION CODES ONLY, decided directly. The names of what they
         -- track, so meals can be planned around both people at once. Never a
@@ -8650,6 +8651,35 @@ async function runDatabaseInitialization() {
         FOREIGN KEY (treatment_id) REFERENCES treatments(id) ON DELETE CASCADE
       );
 
+      -- A16, a linked person sees when a dose is not marked. The yes given
+      -- on this phone for sending doses to one connection: 'self' when the
+      -- person this phone belongs to agreed, 'attested' when somebody acting
+      -- for them said they have the right to. Travels between the person's
+      -- own devices, since it is about the person.
+      CREATE TABLE IF NOT EXISTS dose_watch_consent (
+        connection_id TEXT PRIMARY KEY,
+        given_as TEXT NOT NULL,
+        given_at TEXT NOT NULL
+      );
+
+      -- A16, the watcher's side. The latest doses one connection sent, whole
+      -- (their send is their state), and every alert this phone has queued
+      -- or raised about them, so one dose is said once. Both device-local
+      -- (DEVICE_LOCAL_TABLES in lib/snapshotSync.ts): an alert belongs to
+      -- the phone that raises it.
+      CREATE TABLE IF NOT EXISTS peer_dose_watch (
+        connection_id TEXT PRIMARY KEY,
+        sent_at TEXT NOT NULL,
+        doses_json TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS peer_dose_alerts (
+        connection_id TEXT NOT NULL,
+        dose_id TEXT NOT NULL,
+        fire_at TEXT NOT NULL,
+        PRIMARY KEY (connection_id, dose_id)
+      );
+
       -- C15, Phase 2: "Pick a few things for today". Each row says one Did I
       -- Do It check was picked for one local day ('YYYY-MM-DD'). Whether it
       -- happened is never stored here: it is read from done_check_marks, so
@@ -8868,6 +8898,11 @@ async function runDatabaseInitialization() {
       if (!connectionColumns.some((entry) => entry.name === 'share_photos')) {
         await db.execAsync('ALTER TABLE connections ADD COLUMN share_photos INTEGER NOT NULL DEFAULT 0;');
         await db.execAsync("UPDATE connections SET share_photos = 1 WHERE role IN ('partner', 'child', 'caregiver');");
+      }
+      // share_doses, A16. Off on every existing link: turning it on needs a
+      // yes given on the phone whose doses they are.
+      if (!connectionColumns.some((entry) => entry.name === 'share_doses')) {
+        await db.execAsync('ALTER TABLE connections ADD COLUMN share_doses INTEGER NOT NULL DEFAULT 0;');
       }
     }
 

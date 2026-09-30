@@ -13,6 +13,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
 import { useConfirmSheet } from '../components/ConfirmSheet';
+import { AppActionSheet } from '../components/AppActionSheet';
+import { DOSE_CONSENT_CHOICES, DOSE_CONSENT_TITLE, consentLine, doseConsentMessage } from '../lib/doseWatch';
+import { getDoseConsents, giveDoseConsent, withdrawDoseConsent, type DoseConsent } from '../lib/peerDosesDb';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
@@ -129,6 +132,10 @@ export default function ConnectionsScreen() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const router = useRouter();
   const [confirmSheet, confirmSheetElement] = useConfirmSheet();
+  // A16: the yes given on this phone for sending doses, per connection, and
+  // the connection being asked about while the question is open.
+  const [doseConsents, setDoseConsents] = useState<Map<string, DoseConsent>>(new Map());
+  const [doseAsk, setDoseAsk] = useState<Connection | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -146,6 +153,7 @@ export default function ConnectionsScreen() {
       void getSharedFolder().then(setSharedFolderState);
       setConnections(list);
       setMyFingerprint(fingerprint);
+      setDoseConsents(await getDoseConsents().catch(() => new Map<string, DoseConsent>()));
     } catch (error) {
       console.error('[ConnectionsScreen] Failed to load connections', error);
     } finally {
@@ -241,8 +249,23 @@ export default function ConnectionsScreen() {
   // using them, so a withdrawn permission stops them being used immediately
   // whether or not the row still holds them.
   const handleToggleGrant = async (connection: Connection, code: ShareScope) => {
+    // Doses need a yes on this phone first (A16), and turning them off takes
+    // the yes back with them, so the next time asks again.
+    if (code === 'doses') {
+      if (!connection.grants.doses) {
+        setDoseAsk(connection);
+        return;
+      }
+      await withdrawDoseConsent(connection.id);
+    }
     const next = { ...connection.grants, [code]: !connection.grants[code] };
     await setConnectionGrants(connection.id, next);
+    load();
+  };
+
+  const handleDoseConsent = async (connection: Connection, kind: (typeof DOSE_CONSENT_CHOICES)[number]['kind']) => {
+    await giveDoseConsent(connection.id, kind);
+    await setConnectionGrants(connection.id, { ...connection.grants, doses: true });
     load();
   };
 
@@ -386,6 +409,20 @@ export default function ConnectionsScreen() {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
       {confirmSheetElement}
+      <AppActionSheet
+        visible={doseAsk !== null}
+        onClose={() => setDoseAsk(null)}
+        title={DOSE_CONSENT_TITLE}
+        message={doseAsk ? doseConsentMessage(doseAsk.name) : undefined}
+        actions={DOSE_CONSENT_CHOICES.map((choice) => ({
+          label: choice.label,
+          onPress: () => {
+            const connection = doseAsk;
+            setDoseAsk(null);
+            if (connection) void handleDoseConsent(connection, choice.kind);
+          },
+        }))}
+      />
       {myFingerprint ? (
         <View style={styles.fingerprintCard}>
           <Text style={styles.fingerprintLabel}>Your device ID</Text>
@@ -686,6 +723,15 @@ export default function ConnectionsScreen() {
                           <View style={styles.grantTextWrap}>
                             <Text style={styles.grantLabel}>{scope.label}</Text>
                             <Text style={styles.grantWhat}>{scope.what}</Text>
+                            {scope.code === 'doses' && connection.grants.doses && doseConsents.get(connection.id) ? (
+                              <Text style={styles.grantWhat}>
+                                {consentLine(
+                                  doseConsents.get(connection.id)!.kind,
+                                  doseConsents.get(connection.id)!.givenAt,
+                                  Date.now(),
+                                )}
+                              </Text>
+                            ) : null}
                           </View>
                         </TouchableOpacity>
                       ))}

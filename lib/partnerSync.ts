@@ -43,6 +43,8 @@
 import type { ShareGrants, ConnectionRole } from './partners';
 import { tablesToSend } from './peerMerge';
 import { cleanPeerPhotoPart, photosForPlan, type PeerPhotoPart } from './peerPhotos';
+import { cleanPeerDosePart, type PeerDosePart } from './doseWatch';
+import { holdOn } from './peerRelationships';
 import type { Row, Tables } from './snapshotMerge';
 
 export const SYNC_PAYLOAD_VERSION = 2;
@@ -85,6 +87,13 @@ export type SyncPayload = {
    * says crosses. Merged on arrival, never used to replace.
    */
   shared?: Tables;
+  /**
+   * Their doses around now, for letting this phone know when one is not
+   * marked (A16, lib/doseWatch.ts). Present only when they granted it and
+   * said yes on their phone; null when the link carries doses and they have
+   * not, so this phone clears what it held; absent from an older phone.
+   */
+  doses?: PeerDosePart | null;
 } & PeerPhotoPart;
 
 /**
@@ -172,6 +181,9 @@ export function buildSyncPayload(input: {
   /** Photos of dishes, and what this phone says about theirs
    *  (lib/peerPhotosDb.ts). Cut down here to what the grants allow. */
   photos?: PeerPhotoPart;
+  /** This phone's doses around now, already read only when a yes was
+   *  given (lib/peerDosesDb.ts). Sent only with Doses granted. */
+  doses?: PeerDosePart | null;
 }): SyncPayload {
   const payload: SyncPayload = {
     v: SYNC_PAYLOAD_VERSION,
@@ -208,6 +220,12 @@ export function buildSyncPayload(input: {
     if (photos.photoAcks?.length) payload.photoAcks = photos.photoAcks;
     if (photos.photoFullAcks?.length) payload.photoFullAcks = photos.photoFullAcks;
     if (photos.photoRequests?.length) payload.photoRequests = photos.photoRequests;
+  }
+  if (holdOn(input.role, 'doses')) {
+    // Granted and agreed: the part goes, even when it is empty, since an
+    // empty list is news too. Otherwise null, so a withdrawn yes clears the
+    // other phone's copy rather than leaving yesterday's doses on it.
+    payload.doses = input.grants.doses && input.doses ? input.doses : null;
   }
   return payload;
 }
@@ -270,6 +288,9 @@ export function readSyncPayload(
   if (shared) payload.shared = shared;
 
   Object.assign(payload, cleanPeerPhotoPart(parsed as Record<string, unknown>));
+
+  const doses = cleanPeerDosePart((parsed as Record<string, unknown>).doses);
+  if (doses !== undefined) payload.doses = doses;
 
   if (Array.isArray(p.conditionCodes)) {
     const codes = cleanCodes(p.conditionCodes);

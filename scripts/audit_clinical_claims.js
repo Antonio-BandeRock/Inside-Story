@@ -134,6 +134,7 @@ const NAMED = [
   'lib/exerciseLibrary.ts',
   'lib/workouts.ts',
   'lib/workoutSession.ts',
+  'lib/doseWatch.ts',
 ];
 
 function targets() {

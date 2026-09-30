@@ -63,6 +63,7 @@ import { planTitle, reminderBody, reminderMoments, reminderTitle, type ExerciseP
 import { formatTime12 } from './timeOfDay';
 import { currentZone, homeDoseHere, homeTimeWords, parseTravelMode } from './travelTime';
 import { getHomeZone } from './travelTimeDb';
+import { PEER_DOSE_PREFIX } from './doseWatch';
 import { quietDecision, SNOOZE_MINUTES } from './quietHours';
 import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
 import { YOUR_WEEK_NOTIFICATION_BODY, YOUR_WEEK_NOTIFICATION_TITLE } from './weeklySummary';
@@ -1368,6 +1369,9 @@ const DATED_LENSES: LifeReminderLens[] = ['finances', 'upkeep', 'work', 'daysUnt
 // send anybody.
 export function resolveReminderTap(response: Notifications.NotificationResponse | null): ReminderTapTarget | null {
   const request = response?.notification.request;
+  // A16: an alert about somebody else's dose opens Meds, where the band of
+  // doses you watch sits. Queued by lib/peerDosesDb.ts, not by this module.
+  if (request?.identifier.startsWith(PEER_DOSE_PREFIX)) return { pathname: '/schedule', params: { openScheduleLens: 'meds' } };
   if (!request || !(isOurs(request.identifier) || isSnoozed(request.identifier))) return null;
   const data = request.content.data as Partial<ReminderPayload> | undefined;
 

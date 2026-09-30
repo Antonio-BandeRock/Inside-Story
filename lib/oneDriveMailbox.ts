@@ -30,6 +30,7 @@ import { getMealPlanForSync } from './mealPlanSync';
 import { applySyncFileText, PARTNER_SYNC_FILE_KIND, planRecipeIdsOf } from './partnerTransfer';
 import { PEER_PHOTO_BUDGET_DIRECT } from './peerPhotos';
 import { peerPhotoPartFor } from './peerPhotosDb';
+import { peerDosePartFor } from './peerDosesDb';
 import { talksAutomatically } from './peerRelationships';
 import { readPeerTables } from './peerSyncDevice';
 import { REFERENCE_DB_VERSION } from './referenceDbVersion';
@@ -175,6 +176,7 @@ export async function sendViaOneDrive(options: { onlyWhenChanged?: boolean } = {
         budget: PEER_PHOTO_BUDGET_DIRECT,
         allowFull: true,
       }),
+      doses: await peerDosePartFor(partner),
     });
 
     // The digest leaves out the send time, which differs on every send.
