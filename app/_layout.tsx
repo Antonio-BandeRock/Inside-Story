@@ -16,6 +16,7 @@ import { GardenPlateOfferHost } from '../components/GardenPlateOfferHost';
 import { StartupFailureScreen } from '../components/StartupFailureScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
 import { SnapshotSyncWatcher } from '../components/SnapshotSyncWatcher';
+import { PeerMailboxWatcher } from '../components/PeerMailboxWatcher';
 import EcowittPoller from '../components/EcowittPoller';
 import { PendingScanWatcher } from '../components/PendingScanWatcher';
 import { StoryReturnHost } from '../components/StoryReturnHost';
@@ -807,6 +808,8 @@ export default function RootLayout() {
                   raises, mounted only once the database is ready, since
                   dbReady is true for everything rendered here. */}
               <SnapshotSyncWatcher />
+              {/* The between-people mailbox, checked and sent by itself (J12). */}
+              <PeerMailboxWatcher />
               {/* Ecowitt gateways read over the home network while the app is open (I20). */}
               <EcowittPoller />
               {/* Barcodes scanned with no signal (G21), looked up once there is one. */}

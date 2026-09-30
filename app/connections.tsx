@@ -434,6 +434,13 @@ export default function ConnectionsScreen() {
         </TouchableOpacity>
 
         {mailboxStatus?.state === 'ready' ? (
+          <Text style={styles.fingerprintHint}>
+            While the app is open it checks the folder about every 30 seconds and sends what changed about 15
+            seconds after you change it. The two buttons below do the same at once, for when you want it to go straight
+            away.
+          </Text>
+        ) : null}
+        {mailboxStatus?.state === 'ready' ? (
           <View style={styles.folderActions}>
             <TouchableOpacity onPress={handleSendViaOneDrive} hitSlop={8}>
               <Text style={styles.rowActionText}>Send Mine to Everyone</Text>

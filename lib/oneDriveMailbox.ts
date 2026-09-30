@@ -87,7 +87,27 @@ export type MailboxSendOutcome = {
   name: string;
   sent: boolean;
   reason?: string;
+  /** J12: left alone because nothing in it changed since the last send. */
+  unchanged?: boolean;
 };
+
+// J12: what was last put in the folder for each person, as a digest of the
+// payload without its send time. The automatic exchange sends after every
+// change here, and a merge of what somebody sent is itself a change, so
+// without this two phones would hand the same copy back and forth for ever.
+// Held for the run only: after a restart the first send goes out once more,
+// which the other side merges to nothing.
+const lastSentDigest = new Map<string, string>();
+
+/** A short digest of a string (FNV-1a, 32 bits). Tells copies apart; secures nothing. */
+export function contentDigest(text: string): string {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(16).padStart(8, '0') + ':' + text.length;
+}
 
 /**
  * Writes one sealed file per partner into the shared folder.
@@ -96,7 +116,7 @@ export type MailboxSendOutcome = {
  * must not stop another partner's file being written, so each gets its own
  * result and the caller reports all of them.
  */
-export async function sendViaOneDrive(): Promise<{
+export async function sendViaOneDrive(options: { onlyWhenChanged?: boolean } = {}): Promise<{
   status: MailboxStatus;
   outcomes: MailboxSendOutcome[];
 }> {
@@ -157,6 +177,13 @@ export async function sendViaOneDrive(): Promise<{
       }),
     });
 
+    // The digest leaves out the send time, which differs on every send.
+    const digest = contentDigest(JSON.stringify({ ...payload, sentAt: null }));
+    if (options.onlyWhenChanged && lastSentDigest.get(partner.id) === digest) {
+      outcomes.push({ connectionId: partner.id, name: partner.name, sent: false, unchanged: true });
+      continue;
+    }
+
     let sealed: string;
     try {
       sealed = await sealForRecipient(
@@ -182,6 +209,7 @@ export async function sendViaOneDrive(): Promise<{
     };
 
     const uploaded = await uploadText(status.folder, fileName, JSON.stringify(wire));
+    if (uploaded.ok) lastSentDigest.set(partner.id, digest);
     outcomes.push({
       connectionId: partner.id,
       name: partner.name,
@@ -250,7 +278,7 @@ export async function receiveViaOneDrive(): Promise<{
 export function describeMailboxSend(outcomes: readonly MailboxSendOutcome[]): string {
   if (outcomes.length === 0) return 'Nobody is set up as a partner yet, so there was nothing to send.';
   const sent = outcomes.filter((outcome) => outcome.sent);
-  const failed = outcomes.filter((outcome) => !outcome.sent);
+  const failed = outcomes.filter((outcome) => !outcome.sent && !outcome.unchanged);
   const parts: string[] = [];
   if (sent.length > 0) {
     parts.push(
