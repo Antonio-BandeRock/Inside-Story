@@ -593,7 +593,7 @@
 ### K11. Print from the phone
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
 - **Answers:** Cronometer · **Theme:** Reports
-- **How:** expo-print printAsync.
+- **How:** expo-print printAsync. Built 1.0.56.21: Print button beside Share as PDF (system print dialog, no share step), printed copies in Report history; desktop Share as PDF fixed through desktop/print.js.
 
 ### X2. A first-launch agreement screen
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** all
