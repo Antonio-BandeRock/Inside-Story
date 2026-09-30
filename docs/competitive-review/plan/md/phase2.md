@@ -521,7 +521,7 @@
 ### K8. Heart rate and HRV in reports
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
 - **Answers:** Visible · **Theme:** Reports
-- **How:** Health Connect already reads both with permission; no rebuild.
+- **How:** Health Connect already reads both with permission; no rebuild. Built 1.0.56.18: resting heart rate and HRV table against the usual range in Overview, Doctor and Trainer reports (lib/reportHeart.ts).
 
 ### K9. Day-by-day food and symptom diary
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
