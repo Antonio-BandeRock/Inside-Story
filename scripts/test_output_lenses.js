@@ -403,7 +403,7 @@ run('i-garden', I.buildGardenView, {
 run('i-garden empty', I.buildGardenView, { today, plantings: [], onHand: [], weekUses: [], nutrientShare: [], usesUncounted: 0 }, false);
 
 // Reports
-const CORE = ['glance', 'conditions', 'nutrients', 'flags', 'symptoms', 'noticed', 'meds', 'movement', 'body', 'rules', 'labs'];
+const CORE = ['glance', 'conditions', 'nutrients', 'flags', 'symptoms', 'noticed', 'meds', 'movement', 'body', 'heart', 'rules', 'labs'];
 check(R.REPORT_KINDS.length === 9, 'nine reports');
 check(R.REPORT_KINDS[0].key === 'overview', 'the Overview comes first');
 check(R.REPORT_KIND_BY_KEY.overview.core.length === CORE.length, 'the Overview carries every core section');

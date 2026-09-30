@@ -31,7 +31,7 @@ export type ReportKind =
 /** The sections the Overview has always carried, each one a named block so
  *  a narrower report can ask for the ones its reader needs and skip the
  *  work of the rest. */
-export type CoreSectionId = 'glance' | 'conditions' | 'nutrients' | 'flags' | 'symptoms' | 'noticed' | 'meds' | 'movement' | 'body' | 'rules' | 'labs';
+export type CoreSectionId = 'glance' | 'conditions' | 'nutrients' | 'flags' | 'symptoms' | 'noticed' | 'meds' | 'movement' | 'body' | 'heart' | 'rules' | 'labs';
 
 export type ReportKindDef = {
   key: ReportKind;
@@ -52,8 +52,8 @@ export const REPORT_KINDS: ReportKindDef[] = [
     icon: 'document-text-outline',
     title: 'Inside Story: Health Summary',
     preface: ['A plain summary of what was logged in the app during this window, as the person entered it.', SELF_REPORTED],
-    help: 'Everything logged over the range in one summary, opening with an at a glance page: nutrient intake, foods flagged for your conditions, symptoms and flares, what Pattern Finder noticed and any food experiments, active meds and supplements, movement and sleep, weight and blood pressure, personal rules, and the most recent lab results.',
-    core: ['glance', 'conditions', 'nutrients', 'flags', 'symptoms', 'noticed', 'meds', 'movement', 'body', 'rules', 'labs'],
+    help: 'Everything logged over the range in one summary, opening with an at a glance page: nutrient intake, foods flagged for your conditions, symptoms and flares, what Pattern Finder noticed and any food experiments, active meds and supplements, movement and sleep, weight and blood pressure, resting heart rate and heart rate variability against your usual range, personal rules, and the most recent lab results.',
+    core: ['glance', 'conditions', 'nutrients', 'flags', 'symptoms', 'noticed', 'meds', 'movement', 'body', 'heart', 'rules', 'labs'],
   },
   {
     key: 'r-doctor',
@@ -64,8 +64,8 @@ export const REPORT_KINDS: ReportKindDef[] = [
       'What changed since the last visit, and the records a clinician usually asks for, as the person entered them.',
       SELF_REPORTED,
     ],
-    help: 'Built for an appointment, opening with an at a glance page: what was recorded since the last appointment with anybody, the next visit and what changed since the last one with the same provider, symptoms and flares, what Pattern Finder noticed and any food experiments, blood pressure, doses as scheduled and as marked with how many days each was due and marked, active meds and supplements with the interaction notes that touch them and how each works, weight, personal rules and the most recent labs. Food detail is left to the Nutritionist report.',
-    core: ['glance', 'conditions', 'symptoms', 'noticed', 'meds', 'body', 'rules', 'labs'],
+    help: 'Built for an appointment, opening with an at a glance page: what was recorded since the last appointment with anybody, the next visit and what changed since the last one with the same provider, symptoms and flares, what Pattern Finder noticed and any food experiments, blood pressure, doses as scheduled and as marked with how many days each was due and marked, active meds and supplements with the interaction notes that touch them and how each works, weight, resting heart rate and heart rate variability against your usual range, personal rules and the most recent labs. Food detail is left to the Nutritionist report.',
+    core: ['glance', 'conditions', 'symptoms', 'noticed', 'meds', 'body', 'heart', 'rules', 'labs'],
   },
   {
     key: 'r-nutrition',
@@ -82,11 +82,11 @@ export const REPORT_KINDS: ReportKindDef[] = [
     icon: 'barbell-outline',
     title: 'Inside Story: For the Trainer',
     preface: [
-      'Movement, sleep, weight, blood pressure and hydration over the range. Conditions, medicines and symptoms are left out of this one on purpose; the Overview carries them.',
+      'Movement, sleep, weight, blood pressure, resting heart rate, heart rate variability and hydration over the range. Conditions, medicines and symptoms are left out of this one on purpose; the Overview carries them.',
       SELF_REPORTED,
     ],
-    help: 'Steps and sleep from the phone, weight and blood pressure, hydration, nights up, and how the work weeks went. Conditions, medicines and symptoms are left out on purpose.',
-    core: ['movement', 'body'],
+    help: 'Steps and sleep from the phone, weight and blood pressure, resting heart rate and heart rate variability against your usual range, hydration, nights up, and how the work weeks went. Conditions, medicines and symptoms are left out on purpose.',
+    core: ['movement', 'body', 'heart'],
   },
   {
     key: 'r-month',

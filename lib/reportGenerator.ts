@@ -37,7 +37,8 @@ import {
   type ReportKind,
 } from './reportKinds';
 import type { ReadingView } from './readingBands';
-import { listScheduledDoses, loadSinceLastVisitView, loadTrendsMoreView, type TrendsMoreLens } from './trendsMoreDb';
+import { heartSection } from './reportHeart';
+import { listBodySignalReadings, listScheduledDoses, loadSinceLastVisitView, loadTrendsMoreView, type TrendsMoreLens } from './trendsMoreDb';
 import { buildAtAGlance, type GlanceTag } from './reportGlance';
 import { addDays } from './eatingVariety';
 import { loadInsightsMoreView, type InsightsMoreLens } from './insightsMoreDb';
@@ -402,6 +403,16 @@ export async function buildReport(days: number, kind: ReportKind = 'overview'): 
       rows: bodyRows,
       empty: 'None logged yet.',
     });
+  }
+
+  // Resting heart rate and heart rate variability (K8, 2026-09-29), each
+  // beside the person's usual range, the same as Trends > Body Signals.
+  if (want.has('heart')) {
+    const readings = await listBodySignalReadings().catch((error: unknown) => {
+      console.warn('[reports] could not read body signals', error);
+      return null;
+    });
+    sections.push(heartSection(readings, rangeStart, rangeEnd));
   }
 
   // The person's own rules -- the personal half of the interaction rules
