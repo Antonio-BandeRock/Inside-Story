@@ -501,7 +501,7 @@
 ### K2. At a glance front page
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Reports
 - **Answers:** Guava · **Theme:** Reports
-- **How:** Top symptoms by days, doses as words, latest weight and blood pressure, labs outside the lab's printed range.
+- **How:** Top symptoms by days, doses as words, latest weight and blood pressure, labs outside the lab's printed range. Built 1.0.56.14: At a glance section opens the Overview, Doctor and Caregiver reports (lib/reportGlance.ts).
 
 ### K5. CSV export
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
