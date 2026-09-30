@@ -9,6 +9,7 @@ import {
   listCheckins,
   listLabResults,
   listPersonalRules,
+  listFoodTrials,
   getStoredMeasurementSystem,
   type LabResultRecord,
 } from './db';
@@ -48,6 +49,10 @@ import { getMealVarietySummary } from './mealVarietyDb';
 import { reportPhotoTextLine } from './reportPhotos';
 import { plantingPhotoSection, symptomPhotoSection } from './reportPhotosDb';
 import { evaluateInteractionRules } from './interactionRules';
+import { findFoodPatterns } from './patternFinder';
+import { readExperimentInput } from './foodExperimentDb';
+import { experimentResultLines } from './foodExperiment';
+import { experimentsSection, noticedSection, NOTICED_WINDOW_HOURS, type ExperimentForReport } from './reportNoticed';
 
 // Same real, small nutrient set app/(tabs)/index.tsx (Home) and
 // app/(tabs)/trends.tsx both already use, duplicated here rather than
@@ -285,6 +290,10 @@ export async function buildReport(days: number, kind: ReportKind = 'overview'): 
     });
   }
 
+  // K6: what Pattern Finder counted and the food experiments, each a
+  // hypothesis, right after the symptoms they were counted against.
+  if (want.has('noticed')) sections.push(...(await noticedSections(days, rangeStart, rangeEnd)));
+
   // Active meds/supplements/prescriptions -- reuses the exact real
   // registry My Meds & Interactions already reads (listAllActiveTreatments,
   // 2026-08-08), so this section can never drift from what's actually
@@ -519,6 +528,46 @@ async function glanceSection(rangeStart: string, rangeEnd: string): Promise<Repo
     console.warn('[reports] at a glance could not be read', error);
     return { kind: 'list', heading: 'At a glance', rows: [], empty: 'Could not be read for this report.' };
   }
+}
+
+// K6. Pattern Finder over the report's range in the window Trends opens
+// on, scoped to the tracked conditions the way Trends scopes it, and every
+// leave-it-out-then-bring-it-back experiment with its result. Each half
+// fails on its own, so one unreadable half does not cost the other.
+async function noticedSections(days: number, rangeStart: string, rangeEnd: string): Promise<ReportSection[]> {
+  const patterns = (async () => {
+    const [codes, conditions] = await Promise.all([getUserConditions(), listAllConditions()]);
+    const tracked = conditions
+      .filter((condition) => codes.includes(condition.code))
+      .map((condition) => ({ code: condition.code, name: condition.name }));
+    return findFoodPatterns(days, NOTICED_WINDOW_HOURS, tracked, 'flares');
+  })().catch((error) => {
+    console.warn('[reports] pattern finder could not be read', error);
+    return null;
+  });
+  const experiments = (async () => {
+    const trials = (await listFoodTrials(500)).filter((trial) => trial.design === 'remove_return');
+    const made: ExperimentForReport[] = [];
+    for (const trial of trials) {
+      const input = await readExperimentInput(trial);
+      if (!input) continue;
+      made.push({
+        foodName: trial.foodName,
+        status: trial.status,
+        removalStartedOn: input.removalStartedOn,
+        removalDays: input.removalDays,
+        returnedOn: input.returnedOn,
+        observationDays: input.observationDays,
+        lines: experimentResultLines(input),
+      });
+    }
+    return made;
+  })().catch((error) => {
+    console.warn('[reports] food experiments could not be read', error);
+    return null;
+  });
+  const [patternResult, experimentList] = await Promise.all([patterns, experiments]);
+  return [noticedSection(patternResult), experimentsSection(experimentList, rangeStart, rangeEnd)];
 }
 
 // The sections each narrower report adds after its core ones. A Trends or
