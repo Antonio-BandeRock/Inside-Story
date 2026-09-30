@@ -32,8 +32,11 @@ import {
   gardenYieldSections,
   insuranceSection,
   medicalBillsSection,
+  cleanLeftOut,
+  leftOutPrefaceLine,
   REPORT_KIND_BY_KEY,
   sectionsFromReading,
+  type ExtraSectionId,
   type ReportKind,
 } from './reportKinds';
 import type { ReadingView } from './readingBands';
@@ -169,9 +172,16 @@ function plural(count: number, singular: string, pluralWord = `${singular}s`): s
 // section; each narrower report names the core sections its reader needs
 // in lib/reportKinds.ts, and the ones it leaves out are never gathered, so
 // the Trainer report does not wait on a nutrient pass it will not show.
-export async function buildReport(days: number, kind: ReportKind = 'overview'): Promise<ReportDocument> {
+// K10: the person can leave any of a report's sections out of one copy,
+// and a section left out is skipped the same way, never gathered.
+export async function buildReport(
+  days: number,
+  kind: ReportKind = 'overview',
+  leftOutIds: readonly string[] = [],
+): Promise<ReportDocument> {
   const def = REPORT_KIND_BY_KEY[kind];
-  const want = new Set(def.core);
+  const leftOut = cleanLeftOut(kind, leftOutIds);
+  const want = new Set<string>(def.core.filter((id) => !leftOut.includes(id)));
   const sections: ReportSection[] = [];
   const rangeStart = rangeStartDate(days);
   const rangeEnd = isoDate(new Date());
@@ -483,14 +493,15 @@ export async function buildReport(days: number, kind: ReportKind = 'overview'): 
     });
   }
 
-  sections.push(...(await kindSections(kind, days)));
+  sections.push(...(await kindSections(kind, days, leftOut)));
 
+  const leftOutLine = leftOutPrefaceLine(leftOut.length);
   return {
     title: def.title,
     rangeLabel: formatDateRange(days),
     days,
     generatedAt: new Date().toISOString(),
-    preface: def.preface,
+    preface: leftOutLine ? [...def.preface, leftOutLine] : def.preface,
     sections,
     footer: `Generated on the phone by Inside Story ${APP_VERSION}. Nothing in this report left the phone until the person chose to share it.`,
     versionLine: reportVersionLine(APP_VERSION, REFERENCE_DB_VERSION),
@@ -652,86 +663,56 @@ function varietyBrief(start: string, end: string): Promise<ReportSection[]> {
     .catch(() => [eatingVarietyBrief(null)]);
 }
 
-async function kindSections(kind: ReportKind, days: number): Promise<ReportSection[]> {
+// Each extra section a report can carry, started only when called, so a
+// report's extras list says which run and in what order, and a section
+// the person left out is never read at all (K10).
+function extraSectionLoaders(days: number): Record<ExtraSectionId, () => Promise<ReportSection[]>> {
   const start = rangeStartDate(days);
   const end = isoDate(new Date());
-  const parts: Promise<ReportSection[]>[] = [];
-  switch (kind) {
-    case 'overview':
-      break;
-    case 'r-doctor':
-      parts.push(
-        readingSections('Since the last appointment', loadSinceLastVisitView),
-        insights('i-appointment', 'Appointments'),
-        trends('bloodPressure', 'Blood pressure', days),
-        trends('doses', 'Doses', days),
-        interactionSection(),
-        symptomPhotoSection(start, end).then((section) => [section]),
-      );
-      break;
-    case 'r-nutrition':
-      parts.push(
-        trends('hydration', 'Hydration', days),
-        trends('planned', 'Planned and eaten', days),
-        varietyBrief(start, end),
-        trends('reactions', 'After-meal reactions', days),
-      );
-      break;
-    case 'r-trainer':
-      parts.push(
-        trends('bloodPressure', 'Blood pressure', days),
-        trends('hydration', 'Hydration', days),
-        trends('nights', 'Nights', days),
-        trends('work', 'Work', days),
-      );
-      break;
-    case 'r-month':
-      parts.push(
-        trends('planned', 'Planned and eaten', days),
-        trends('doses', 'Doses', days),
-        trends('care', 'Appointments and care', days),
-        trends('work', 'Work', days),
-        trends('reactions', 'After-meal reactions', days),
-        trends('nights', 'Nights', days),
-        trends('ferments', 'Ferments', days),
-        varietyBrief(start, end),
-        getCostSummary(start, end)
-          .then((cost) => [eatingCostSection(cost)])
-          .catch(() => [eatingCostSection(null)]),
-      );
-      break;
-    case 'r-care':
-      parts.push(insights('i-today', 'Today'), trends('doses', 'Doses', days), trends('care', 'Appointments and care', days));
-      break;
-    case 'r-medical-costs':
-      parts.push(
-        (async () => {
-          const [bills, plan] = await Promise.all([listMedicalBills(1000), getActiveInsurancePlan()]);
-          return [medicalBillsSection(bills, start, end), insuranceSection(plan ? describePlanStanding(planStanding(plan, bills)) : null)];
-        })(),
-        getCostSummary(start, end)
-          .then(costSections)
-          .catch(() => costSections(null)),
-      );
-      break;
-    case 'r-variety':
-      parts.push(
-        getMealVarietySummary(start, end)
-          .then(eatingVarietySections)
-          .catch(() => [eatingVarietyBrief(null)]),
-      );
-      break;
-    case 'r-garden':
-      parts.push(
-        (async () => {
-          const system = (await getStoredMeasurementSystem()) === 'imperial' ? 'imperial' : 'metric';
-          return gardenYieldSections(await getHarvestYieldSummary(start, end, system));
-        })(),
-        insights('i-garden', 'On hand now'),
-        plantingPhotoSection(start, end).then((section) => [section]),
-      );
-      break;
-  }
+  return {
+    'since-visit': () => readingSections('Since the last appointment', loadSinceLastVisitView),
+    appointments: () => insights('i-appointment', 'Appointments'),
+    'blood-pressure': () => trends('bloodPressure', 'Blood pressure', days),
+    doses: () => trends('doses', 'Doses', days),
+    interactions: () => interactionSection(),
+    'symptom-photos': () => symptomPhotoSection(start, end).then((section) => [section]),
+    hydration: () => trends('hydration', 'Hydration', days),
+    planned: () => trends('planned', 'Planned and eaten', days),
+    variety: () => varietyBrief(start, end),
+    reactions: () => trends('reactions', 'After-meal reactions', days),
+    nights: () => trends('nights', 'Nights', days),
+    work: () => trends('work', 'Work', days),
+    care: () => trends('care', 'Appointments and care', days),
+    ferments: () => trends('ferments', 'Ferments', days),
+    'eating-cost': () =>
+      getCostSummary(start, end)
+        .then((cost) => [eatingCostSection(cost)])
+        .catch(() => [eatingCostSection(null)]),
+    today: () => insights('i-today', 'Today'),
+    bills: async () => {
+      const [bills, plan] = await Promise.all([listMedicalBills(1000), getActiveInsurancePlan()]);
+      return [medicalBillsSection(bills, start, end), insuranceSection(plan ? describePlanStanding(planStanding(plan, bills)) : null)];
+    },
+    costs: () =>
+      getCostSummary(start, end)
+        .then(costSections)
+        .catch(() => costSections(null)),
+    'variety-full': () =>
+      getMealVarietySummary(start, end)
+        .then(eatingVarietySections)
+        .catch(() => [eatingVarietyBrief(null)]),
+    'garden-yield': async () => {
+      const system = (await getStoredMeasurementSystem()) === 'imperial' ? 'imperial' : 'metric';
+      return gardenYieldSections(await getHarvestYieldSummary(start, end, system));
+    },
+    'on-hand': () => insights('i-garden', 'On hand now'),
+    'planting-photos': () => plantingPhotoSection(start, end).then((section) => [section]),
+  };
+}
+
+async function kindSections(kind: ReportKind, days: number, leftOut: readonly string[]): Promise<ReportSection[]> {
+  const loaders = extraSectionLoaders(days);
+  const parts = REPORT_KIND_BY_KEY[kind].extras.filter((id) => !leftOut.includes(id)).map((id) => loaders[id]());
   return (await Promise.all(parts)).flat();
 }
 

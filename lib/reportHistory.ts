@@ -28,6 +28,8 @@ export type ReportHistoryEntry = {
   days: number;
   how: ReportSentHow;
   forWhom: string | null;
+  /** Section ids left out of this copy (K10); empty when it carried all. */
+  leftOut: string[];
   /** ISO timestamp the report went out. */
   madeAt: string;
 };
@@ -97,19 +99,39 @@ export function historyTitle(entry: Pick<ReportHistoryEntry, 'rangeStart' | 'ran
   return `${name}, ${shortDate(entry.rangeStart)} to ${shortDate(entry.rangeEnd)}`;
 }
 
-/** "Shared as a PDF on Sep 29, 2026, for Dr. Ruiz" */
-export function historyCaption(entry: Pick<ReportHistoryEntry, 'how' | 'madeAt' | 'forWhom'>): string {
+/** "Shared as a PDF on Sep 29, 2026, for Dr. Ruiz, 2 sections left out" */
+export function historyCaption(entry: Pick<ReportHistoryEntry, 'how' | 'madeAt' | 'forWhom'> & { leftOut?: readonly string[] }): string {
   const how = HOW_WORDS[entry.how];
   const said = `${how.charAt(0).toUpperCase()}${how.slice(1)} on ${shortDate(localDayOf(entry.madeAt))}`;
-  return entry.forWhom ? `${said}, for ${entry.forWhom}` : said;
+  const withName = entry.forWhom ? `${said}, for ${entry.forWhom}` : said;
+  const count = entry.leftOut?.length ?? 0;
+  if (count === 0) return withName;
+  return `${withName}, ${count === 1 ? 'one section' : `${count} sections`} left out`;
+}
+
+/** A stored left_out value as a list; anything unreadable is none. */
+export function parseLeftOutColumn(value: string | null | undefined): string[] {
+  if (!value) return [];
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+function sameList(a: readonly string[] = [], b: readonly string[] = []): boolean {
+  return a.length === b.length && [...a].sort().join('|') === [...b].sort().join('|');
 }
 
 /** Whether a new sending is the same one as a line already kept. */
 export function isSameSending(
-  earlier: Pick<ReportHistoryEntry, 'kind' | 'rangeStart' | 'rangeEnd' | 'how' | 'madeAt'>,
-  next: Pick<ReportHistoryEntry, 'kind' | 'rangeStart' | 'rangeEnd' | 'how' | 'madeAt'>,
+  earlier: Pick<ReportHistoryEntry, 'kind' | 'rangeStart' | 'rangeEnd' | 'how' | 'madeAt'> & { leftOut?: readonly string[] },
+  next: Pick<ReportHistoryEntry, 'kind' | 'rangeStart' | 'rangeEnd' | 'how' | 'madeAt'> & { leftOut?: readonly string[] },
 ): boolean {
   if (earlier.kind !== next.kind || earlier.how !== next.how) return false;
+  // A copy with different sections left out is a different report.
+  if (!sameList(earlier.leftOut, next.leftOut)) return false;
   if (earlier.rangeStart !== next.rangeStart || earlier.rangeEnd !== next.rangeEnd) return false;
   const gap = Math.abs(new Date(next.madeAt).getTime() - new Date(earlier.madeAt).getTime());
   return Number.isFinite(gap) && gap <= SAME_SENDING_MINUTES * 60000;

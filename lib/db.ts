@@ -9949,6 +9949,14 @@ async function runDatabaseInitialization() {
         }
       }
     }
+    // Which sections a copy of a report left out (K10, 1.0.56.20), a JSON
+    // list of section ids; NULL on every earlier line, which carried all.
+    {
+      const columns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(report_history)');
+      if (!columns.some((existing) => existing.name === 'left_out')) {
+        await db.execAsync('ALTER TABLE report_history ADD COLUMN left_out TEXT;');
+      }
+    }
     // The person's symptom names, loaded once so every label lookup finds
     // them (D3). lib/customCheckinTagsDb.ts reloads after each change.
     setCustomCheckinTags(await readCustomCheckinTags(db));

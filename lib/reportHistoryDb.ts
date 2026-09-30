@@ -7,6 +7,7 @@ import {
   isRangeKey,
   isSameSending,
   isSentHow,
+  parseLeftOutColumn,
   rangeFromLabel,
   type ReportHistoryEntry,
   type ReportRangeKey,
@@ -22,6 +23,7 @@ type Row = {
   days: number;
   how: string;
   for_whom: string | null;
+  left_out: string | null;
   made_at: string;
 };
 
@@ -36,6 +38,7 @@ function toEntry(row: Row): ReportHistoryEntry | null {
     days: row.days,
     how: row.how,
     forWhom: row.for_whom,
+    leftOut: parseLeftOutColumn(row.left_out),
     madeAt: row.made_at,
   };
 }
@@ -44,7 +47,7 @@ function toEntry(row: Row): ReportHistoryEntry | null {
 export async function listReportHistory(limit = 200): Promise<ReportHistoryEntry[]> {
   const db = await getDatabase();
   const rows = await db.getAllAsync<Row>(
-    'SELECT id, kind, range_key, range_start, range_end, days, how, for_whom, made_at FROM report_history ORDER BY made_at DESC LIMIT ?',
+    'SELECT id, kind, range_key, range_start, range_end, days, how, for_whom, left_out, made_at FROM report_history ORDER BY made_at DESC LIMIT ?',
     limit,
   );
   return rows.map(toEntry).filter((entry): entry is ReportHistoryEntry => entry !== null);
@@ -58,14 +61,17 @@ export async function recordReportSent(input: {
   rangeLabel: string;
   days: number;
   how: ReportSentHow;
+  /** Section ids left out of this copy (K10). */
+  leftOut?: readonly string[];
 }): Promise<string | null> {
   const range = rangeFromLabel(input.rangeLabel);
   if (!range) return null;
   const db = await getDatabase();
   const madeAt = new Date().toISOString();
-  const candidate = { kind: input.kind, rangeStart: range.start, rangeEnd: range.end, how: input.how, madeAt };
+  const leftOut = [...(input.leftOut ?? [])];
+  const candidate = { kind: input.kind, rangeStart: range.start, rangeEnd: range.end, how: input.how, madeAt, leftOut };
   const latest = await db.getFirstAsync<Row>(
-    'SELECT id, kind, range_key, range_start, range_end, days, how, for_whom, made_at FROM report_history WHERE kind = ? AND how = ? ORDER BY made_at DESC LIMIT 1',
+    'SELECT id, kind, range_key, range_start, range_end, days, how, for_whom, left_out, made_at FROM report_history WHERE kind = ? AND how = ? ORDER BY made_at DESC LIMIT 1',
     input.kind,
     input.how,
   );
@@ -73,8 +79,8 @@ export async function recordReportSent(input: {
   if (earlier && isSameSending(earlier, candidate)) return earlier.id;
   const id = `report_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   await db.runAsync(
-    `INSERT INTO report_history (id, kind, range_key, range_start, range_end, days, how, for_whom, made_at, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?)`,
+    `INSERT INTO report_history (id, kind, range_key, range_start, range_end, days, how, for_whom, left_out, made_at, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?)`,
     id,
     input.kind,
     input.rangeKey,
@@ -82,6 +88,7 @@ export async function recordReportSent(input: {
     range.end,
     input.days,
     input.how,
+    leftOut.length > 0 ? JSON.stringify(leftOut) : null,
     madeAt,
     madeAt,
     madeAt,

@@ -9,6 +9,7 @@ import { GardenCsvButtons } from '../../components/GardenCsvButtons';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { ReportCsvButtons } from '../../components/ReportCsvButtons';
 import { ReportHistoryBand } from '../../components/ReportHistoryBand';
+import { ReportSectionChooser } from '../../components/ReportSectionChooser';
 import { YourStoryMissingLine } from '../../components/YourStoryMissingLine';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
@@ -24,7 +25,8 @@ import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { buildReport, renderReportText, type ReportDocument } from '../../lib/reportGenerator';
 import { againRange, type ReportHistoryEntry, type ReportSentHow } from '../../lib/reportHistory';
 import { recordReportSent } from '../../lib/reportHistoryDb';
-import { REPORT_KINDS, type ReportKind } from '../../lib/reportKinds';
+import { cleanLeftOut, REPORT_KINDS, type ReportKind, type ReportSectionId } from '../../lib/reportKinds';
+import { getReportLeftOut, setReportLeftOut } from '../../lib/reportSectionsDb';
 import { exportReportAsPdf } from '../../lib/reportPdf';
 import { markYourStorySeen } from '../../lib/yourStoryDb';
 import { describeRange, monthsBefore, sinceVisitStart, type LastVisitForRange } from '../../lib/reportRange';
@@ -54,8 +56,12 @@ const REPORTS_HELP_SECTIONS: HelpSection[] = [
     body: 'Share as PDF lays the same summary out on a page, with each section as a table or a list, for handing over, printing, or attaching to a message. Share as text sends it as plain words, which pastes into any message or note. Save as a Spreadsheet makes CSV files for Excel, Google Sheets or any program that reads them: each table on its own, or the whole report in one file. All three are built on the device from the same data.',
   },
   {
+    heading: 'Choosing the sections',
+    body: 'Open Sections in this report and untick any section this reader does not need to see. An unticked section is not read at all, and the report says how many sections were left out without naming them. Each report remembers its choice; All sections puts everything back.',
+  },
+  {
     heading: 'Report history',
-    body: 'Each report that leaves this device is listed at the bottom of the page: which report, the dates it covered, when and how it went out, and who it was for if you add a name. Only those facts are kept, never what the report said. Make it again opens the same report over the same length of time, ending today.',
+    body: 'Each report that leaves this device is listed at the bottom of the page: which report, the dates it covered, when and how it went out, who it was for if you add a name, and how many sections it left out. Only those facts are kept, never what the report said. Make it again opens the same report over the same length of time, ending today, with the same sections.',
   },
   {
     heading: 'What a clinician will see',
@@ -200,11 +206,37 @@ export default function ReportsScreen() {
   const [historyKey, setHistoryKey] = useState(0);
   const [askForId, setAskForId] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
+  // K10, 2026-09-29: the sections this kind of report leaves out, read for
+  // each kind before its report is built so the first build already has them.
+  const [leftOut, setLeftOut] = useState<ReportSectionId[]>([]);
+  const [leftOutFor, setLeftOutFor] = useState<ReportsLens | null>(null);
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      getReportLeftOut(lens)
+        .catch(() => [] as ReportSectionId[])
+        .then((saved) => {
+          if (cancelled) return;
+          setLeftOut(saved);
+          setLeftOutFor(lens);
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, [lens]),
+  );
+  const leftOutKey = leftOut.join('|');
+
+  function chooseSections(next: ReportSectionId[]) {
+    const clean = cleanLeftOut(lens, next);
+    setLeftOut(clean);
+    setReportLeftOut(lens, clean).catch((error: unknown) => console.warn('[reports] could not keep the section choice', error));
+  }
 
   function noteSent(how: ReportSentHow) {
     void markYourStorySeen('report');
     if (!report) return;
-    recordReportSent({ kind: lens, rangeKey: String(range) as ReportHistoryEntry['rangeKey'], rangeLabel: report.rangeLabel, days: report.days, how })
+    recordReportSent({ kind: lens, rangeKey: String(range) as ReportHistoryEntry['rangeKey'], rangeLabel: report.rangeLabel, days: report.days, how, leftOut })
       .then((id) => {
         if (!id) return;
         setAskForId(id);
@@ -215,7 +247,14 @@ export default function ReportsScreen() {
 
   function makeAgain(entry: ReportHistoryEntry) {
     const kind = REPORT_KINDS.find((def) => def.key === entry.kind);
-    if (kind) setLens(kind.key);
+    if (kind) {
+      // The same sections as that copy, kept as this report's choice.
+      const again = cleanLeftOut(kind.key, entry.leftOut);
+      setLens(kind.key);
+      setLeftOut(again);
+      setLeftOutFor(kind.key);
+      setReportLeftOut(kind.key, again).catch((error: unknown) => console.warn('[reports] could not keep the section choice', error));
+    }
     const again = againRange(entry, localDateString(new Date()));
     if (again.rangeKey === 'custom' && again.customStart) {
       setCustomStart(again.customStart);
@@ -230,10 +269,10 @@ export default function ReportsScreen() {
     scrollRef.current?.scrollTo({ y: 0, animated: true });
   }
 
-  const load = useCallback((forDays: number, forLens: ReportsLens) => {
+  const load = useCallback((forDays: number, forLens: ReportsLens, forLeftOut: readonly string[]) => {
     setLoading(true);
     setLoadError(null);
-    buildReport(forDays, forLens)
+    buildReport(forDays, forLens, forLeftOut)
       .then((doc) => {
         setReport(doc);
       })
@@ -248,7 +287,11 @@ export default function ReportsScreen() {
       .finally(() => setLoading(false));
   }, []);
 
-  useFocusEffect(useCallback(() => { if (revealed) load(days, lens); }, [revealed, days, lens, load]));
+  useFocusEffect(
+    useCallback(() => {
+      if (revealed && leftOutFor === lens) load(days, lens, leftOutKey ? leftOutKey.split('|') : []);
+    }, [revealed, days, lens, load, leftOutFor, leftOutKey]),
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -397,6 +440,12 @@ export default function ReportsScreen() {
                 below will say there is nothing in range; this names why and
                 where it fits, and disappears once the week is there. */}
             {!loading && !loadError ? <YourStoryMissingLine itemKey="trends" standaloneColor={TAB_COLOR} /> : null}
+
+            {leftOutFor === lens ? (
+              <View style={band.box}>
+                <ReportSectionChooser kind={lens} leftOut={leftOut} tabColor={TAB_COLOR} onChange={chooseSections} />
+              </View>
+            ) : null}
 
             {loading ? (
               <View style={band.boxMuted}><Text style={styles.loadingText}>Putting your report together…</Text></View>

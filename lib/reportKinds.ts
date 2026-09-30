@@ -33,6 +33,35 @@ export type ReportKind =
  *  work of the rest. */
 export type CoreSectionId = 'glance' | 'conditions' | 'nutrients' | 'flags' | 'diary' | 'symptoms' | 'noticed' | 'meds' | 'movement' | 'body' | 'heart' | 'rules' | 'labs';
 
+/** The sections a narrower report adds after its core ones, each read
+ *  from a Trends or Insights lens or a record of its own (K10 named them
+ *  so each can be ticked in or out). */
+export type ExtraSectionId =
+  | 'since-visit'
+  | 'appointments'
+  | 'blood-pressure'
+  | 'doses'
+  | 'interactions'
+  | 'symptom-photos'
+  | 'hydration'
+  | 'planned'
+  | 'variety'
+  | 'reactions'
+  | 'nights'
+  | 'work'
+  | 'care'
+  | 'ferments'
+  | 'eating-cost'
+  | 'today'
+  | 'bills'
+  | 'costs'
+  | 'variety-full'
+  | 'garden-yield'
+  | 'on-hand'
+  | 'planting-photos';
+
+export type ReportSectionId = CoreSectionId | ExtraSectionId;
+
 export type ReportKindDef = {
   key: ReportKind;
   label: string;
@@ -41,6 +70,7 @@ export type ReportKindDef = {
   preface: string[];
   help: string;
   core: CoreSectionId[];
+  extras: ExtraSectionId[];
 };
 
 const SELF_REPORTED = 'It is not a diagnosis. Every figure here is self-reported or read from the phone, and the sections say which.';
@@ -54,6 +84,7 @@ export const REPORT_KINDS: ReportKindDef[] = [
     preface: ['A plain summary of what was logged in the app during this window, as the person entered it.', SELF_REPORTED],
     help: 'Everything logged over the range in one summary, opening with an at a glance page: nutrient intake, foods flagged for your conditions, symptoms and flares, what Pattern Finder noticed and any food experiments, active meds and supplements, movement and sleep, weight and blood pressure, resting heart rate and heart rate variability against your usual range, personal rules, and the most recent lab results.',
     core: ['glance', 'conditions', 'nutrients', 'flags', 'symptoms', 'noticed', 'meds', 'movement', 'body', 'heart', 'rules', 'labs'],
+    extras: [],
   },
   {
     key: 'r-doctor',
@@ -66,6 +97,7 @@ export const REPORT_KINDS: ReportKindDef[] = [
     ],
     help: 'Built for an appointment, opening with an at a glance page: what was recorded since the last appointment with anybody, the next visit and what changed since the last one with the same provider, symptoms and flares, what Pattern Finder noticed and any food experiments, blood pressure, doses as scheduled and as marked with how many days each was due and marked, active meds and supplements with the interaction notes that touch them and how each works, weight, resting heart rate and heart rate variability against your usual range, personal rules and the most recent labs. Food detail is left to the Nutritionist report.',
     core: ['glance', 'conditions', 'symptoms', 'noticed', 'meds', 'body', 'heart', 'rules', 'labs'],
+    extras: ['since-visit', 'appointments', 'blood-pressure', 'doses', 'interactions', 'symptom-photos'],
   },
   {
     key: 'r-nutrition',
@@ -75,6 +107,7 @@ export const REPORT_KINDS: ReportKindDef[] = [
     preface: ['What was eaten and drunk over the range, day by day, what was planned, and what was noticed after meals, as the person entered it.', SELF_REPORTED],
     help: 'Nutrient intake against targets, foods flagged for your conditions, a day-by-day diary of meals beside flares and reactions, hydration, planned meals against what was eaten, after-meal reactions and food tests, what Pattern Finder noticed and any food experiments, and the supplements currently taken.',
     core: ['conditions', 'nutrients', 'flags', 'diary', 'symptoms', 'noticed', 'meds'],
+    extras: ['hydration', 'planned', 'variety', 'reactions'],
   },
   {
     key: 'r-trainer',
@@ -87,6 +120,7 @@ export const REPORT_KINDS: ReportKindDef[] = [
     ],
     help: 'Steps and sleep from the phone, weight and blood pressure, resting heart rate and heart rate variability against your usual range, hydration, nights up, and how the work weeks went. Conditions, medicines and symptoms are left out on purpose.',
     core: ['movement', 'body', 'heart'],
+    extras: ['blood-pressure', 'hydration', 'nights', 'work'],
   },
   {
     key: 'r-month',
@@ -96,6 +130,7 @@ export const REPORT_KINDS: ReportKindDef[] = [
     preface: ['How the range went across the parts of life the app follows, read from what was recorded. A stretch with nothing recorded is said as such, never as a zero.'],
     help: 'The range as a whole: meals planned and eaten, doses, appointments, work weeks, reactions, nights, ferments, and what eating and the conditions cost.',
     core: [],
+    extras: ['planned', 'doses', 'care', 'work', 'reactions', 'nights', 'ferments', 'variety', 'eating-cost'],
   },
   {
     key: 'r-care',
@@ -108,6 +143,7 @@ export const REPORT_KINDS: ReportKindDef[] = [
     ],
     help: 'An at a glance page, then what is on today, doses as scheduled and as marked over the range, appointments, the tracked conditions and every active medicine and supplement.',
     core: ['glance', 'conditions', 'meds'],
+    extras: ['today', 'doses', 'care'],
   },
   {
     key: 'r-medical-costs',
@@ -120,6 +156,7 @@ export const REPORT_KINDS: ReportKindDef[] = [
     ],
     help: 'Every medical bill in the range with what was billed, paid by insurance and owed, the plan’s deductible and out-of-pocket standing, and condition, supplement and prescription costs by kind.',
     core: [],
+    extras: ['bills', 'costs'],
   },
   {
     key: 'r-garden',
@@ -129,6 +166,7 @@ export const REPORT_KINDS: ReportKindDef[] = [
     preface: ['What the garden gave over the range, how long each crop took, compost made and used, and what was shared, from what was recorded.'],
     help: 'Harvests by crop and by area, how long each grow took against what was expected, compost, what was sold, traded or given, and what is ready or on hand now.',
     core: [],
+    extras: ['garden-yield', 'on-hand', 'planting-photos'],
   },
   {
     key: 'r-variety',
@@ -141,12 +179,104 @@ export const REPORT_KINDS: ReportKindDef[] = [
     ],
     help: 'Different foods and different plants week by week, the meals and foods that came back most and how many days they took, food groups not logged at all, meals made at home, from a package or eaten out, meals from the plan against meals decided on the day, and foods that feed the gut.',
     core: [],
+    extras: ['variety-full'],
   },
 ];
 
 export const REPORT_KIND_BY_KEY: Record<ReportKind, ReportKindDef> = Object.fromEntries(
   REPORT_KINDS.map((def) => [def.key, def]),
 ) as Record<ReportKind, ReportKindDef>;
+
+// K10, 2026-09-29: the sections of a report can be ticked in or out before
+// it is shared. Each is named here as the person sees it in the list; a
+// section left out is never gathered, and the report says how many were
+// left out of that copy without naming them.
+
+export const SECTION_LABELS: Record<ReportSectionId, string> = {
+  glance: 'At a glance',
+  conditions: 'Tracked conditions',
+  nutrients: 'Nutrient intake',
+  flags: 'Condition score flags',
+  diary: 'Food and symptom diary',
+  symptoms: 'Symptoms and flares',
+  noticed: 'What Pattern Finder noticed, and food experiments',
+  meds: 'Active medications and supplements',
+  movement: 'Movement and sleep',
+  body: 'Weight and blood pressure',
+  heart: 'Resting heart rate and heart rate variability',
+  rules: 'Personal notes and rules',
+  labs: 'Most recent lab results',
+  'since-visit': 'Since the last appointment',
+  appointments: 'Appointments',
+  'blood-pressure': 'Blood pressure',
+  doses: 'Doses',
+  interactions: 'Interaction notes for these meds',
+  'symptom-photos': 'Symptom photos',
+  hydration: 'Hydration',
+  planned: 'Planned and eaten',
+  variety: 'Eating variety in brief',
+  reactions: 'After-meal reactions',
+  nights: 'Nights',
+  work: 'Work',
+  care: 'Appointments and care',
+  ferments: 'Ferments',
+  'eating-cost': 'What eating cost',
+  today: 'Today',
+  bills: 'Medical bills and insurance',
+  costs: 'Condition, supplement and prescription costs',
+  'variety-full': 'Eating variety',
+  'garden-yield': 'Harvests, grows, compost and sharing',
+  'on-hand': 'On hand now',
+  'planting-photos': 'Planting photos',
+};
+
+export type ReportSectionChoice = { id: ReportSectionId; label: string };
+
+/** Every section a report can carry, in the order it carries them. */
+export function reportSectionChoices(kind: ReportKind): ReportSectionChoice[] {
+  const def = REPORT_KIND_BY_KEY[kind];
+  return [...def.core, ...def.extras].map((id) => ({ id, label: SECTION_LABELS[id] }));
+}
+
+/** The ids left out that this report carries, in its order, and never all
+ *  of them: a report with nothing in it is not a report, so a list that
+ *  would leave everything out leaves nothing out. */
+export function cleanLeftOut(kind: ReportKind, leftOut: readonly string[]): ReportSectionId[] {
+  const choices = reportSectionChoices(kind);
+  const out = choices.filter((choice) => leftOut.includes(choice.id)).map((choice) => choice.id);
+  return out.length >= choices.length ? [] : out;
+}
+
+/** Stored as one app_meta row per report, a JSON list of ids. */
+export function leftOutMetaKey(kind: ReportKind): string {
+  return `report_left_out:${kind}`;
+}
+
+export function parseLeftOut(kind: ReportKind, value: string | null | undefined): ReportSectionId[] {
+  if (!value) return [];
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return Array.isArray(parsed) ? cleanLeftOut(kind, parsed.filter((item): item is string => typeof item === 'string')) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** The line a copy with sections left out carries under its preface. */
+export function leftOutPrefaceLine(count: number): string | null {
+  if (count <= 0) return null;
+  return count === 1
+    ? 'One section this report usually carries was left out of this copy by the person who shared it.'
+    : `${count} sections this report usually carries were left out of this copy by the person who shared it.`;
+}
+
+/** "All 12 sections" or "9 of 12 sections" for the chooser's button. */
+export function sectionCountLabel(kind: ReportKind, leftOut: readonly string[]): string {
+  const total = reportSectionChoices(kind).length;
+  const shown = total - cleanLeftOut(kind, leftOut).length;
+  if (shown === total) return total === 1 ? 'The one section' : `All ${total} sections`;
+  return `${shown} of ${total} sections`;
+}
 
 /** One report section per band of a reading. A reading with nothing in it
  *  becomes one section that says so, under the heading the caller names. */

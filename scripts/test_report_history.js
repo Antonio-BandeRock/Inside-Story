@@ -56,7 +56,18 @@ same(H.cleanForWhom(null), null, 'null stays null');
 same(H.cleanForWhom('x'.repeat(200)).length, H.FOR_WHOM_MAX, 'a long name is cut to the limit');
 
 // Lines
-const entry = { id: 'a', kind: 'r-doctor', rangeKey: '30', rangeStart: '2026-08-31', rangeEnd: '2026-09-29', days: 30, how: 'pdf', forWhom: 'Dr. Ruiz', madeAt: '2026-09-29T15:00:00' };
+const entry = { id: 'a', kind: 'r-doctor', rangeKey: '30', rangeStart: '2026-08-31', rangeEnd: '2026-09-29', days: 30, how: 'pdf', forWhom: 'Dr. Ruiz', leftOut: [], madeAt: '2026-09-29T15:00:00' };
+
+// K10: a copy with sections left out says how many, and is its own sending.
+same(H.historyCaption({ ...entry, leftOut: ['labs'] }).endsWith(', for Dr. Ruiz, one section left out'), true, 'one section left out named in the line');
+same(H.historyCaption({ ...entry, forWhom: null, leftOut: ['labs', 'meds'] }).endsWith(', 2 sections left out'), true, 'several sections left out counted');
+same(H.historyCaption(entry).includes('left out'), false, 'a copy with every section says nothing about it');
+same(H.parseLeftOutColumn('["labs","meds"]'), ['labs', 'meds'], 'the stored list read back');
+same([H.parseLeftOutColumn(null), H.parseLeftOutColumn('nonsense'), H.parseLeftOutColumn('{"a":1}')], [[], [], []], 'anything unreadable is none left out');
+const later = { ...entry, madeAt: '2026-09-29T15:10:00' };
+same(H.isSameSending(entry, later), true, 'the same copy again within the half hour is one line');
+same(H.isSameSending(entry, { ...later, leftOut: ['labs'] }), false, 'a copy with different sections left out is another line');
+same(H.isSameSending({ ...entry, leftOut: ['meds', 'labs'] }, { ...later, leftOut: ['labs', 'meds'] }), true, 'order of the list does not matter');
 same(H.historyTitle(entry, 'For Your Doctor'), 'For Your Doctor, Aug 31, 2026 to Sep 29, 2026', 'title names the report and its dates');
 same(H.historyTitle(entry, null), 'A report no longer in the app, Aug 31, 2026 to Sep 29, 2026', 'a removed kind still reads');
 same(H.historyCaption(entry), 'Shared as a PDF on Sep 29, 2026, for Dr. Ruiz', 'caption says how, when and for whom');

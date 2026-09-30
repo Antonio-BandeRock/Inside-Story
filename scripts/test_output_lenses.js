@@ -416,6 +416,11 @@ for (const def of R.REPORT_KINDS) {
   check(Array.isArray(def.preface) && def.preface.length > 0, `${def.key}: has a preface`);
   check(typeof def.help === 'string' && def.help.length > 20, `${def.key}: has help`);
   for (const id of def.core) check(CORE.includes(id), `${def.key}: core section ${id} exists`);
+  // K10: every section a report carries has a name in the tick list.
+  check(Array.isArray(def.extras), `${def.key}: lists its extra sections`);
+  for (const id of [...def.core, ...def.extras]) check(typeof R.SECTION_LABELS[id] === 'string' && R.SECTION_LABELS[id].length > 0, `${def.key}: section ${id} has a label`);
+  check(new Set([...def.core, ...def.extras]).size === def.core.length + def.extras.length, `${def.key}: no section listed twice`);
+  check(def.core.length + def.extras.length > 0, `${def.key}: carries something`);
   check(R.REPORT_KIND_BY_KEY[def.key] === def, `${def.key}: found by key`);
   sweep(`report ${def.key}`, def);
 }
