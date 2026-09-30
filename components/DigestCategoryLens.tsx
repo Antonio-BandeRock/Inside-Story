@@ -408,15 +408,18 @@ export function DigestSearchLens({
   tabColor,
   tabTextColor = tabColor,
   onJumpElsewhere,
+  initialQuery = '',
 }: {
   tabColor: string;
   tabTextColor?: string;
   onJumpElsewhere?: (id: string) => void;
+  /** A search already asked, from Ask Your Records on Home. Read once. */
+  initialQuery?: string;
 }) {
   const router = useRouter();
   const styles = useMemo(() => makeStyles(tabColor, tabTextColor), [tabColor, tabTextColor]);
-  const [query, setQuery] = useState('');
-  const [searchActive, setSearchActive] = useState(false);
+  const [query, setQuery] = useState(initialQuery);
+  const [searchActive, setSearchActive] = useState(initialQuery.trim().length > 0);
   const [helpVisible, setHelpVisible] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -451,6 +454,7 @@ export function DigestSearchLens({
           placeholder="Search everything..."
           style={styles.searchField}
           tabColor={tabColor}
+          initialValue={initialQuery}
           onDebouncedChange={(text) => {
             setQuery(text);
             setExpandedId(null);

@@ -37,6 +37,9 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   // Somebody standing in front of an open cupboard will not go two taps
   // deep, which is the whole test this feature has to pass.
   whereIsIt: null,
+  // Ask Your Records, 2026-09-30 (C22). Null because a question can be
+  // about anything the person keeps, so it belongs to no one tab.
+  askRecords: null,
   // Your Story, 2026-09-24. Null because it spans every tab: its job is
   // to say where each one fits. A top-level row, like Capture.
   yourStory: null,

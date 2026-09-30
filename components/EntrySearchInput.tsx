@@ -43,6 +43,7 @@ export function EntrySearchInput({
   onDebouncedChange,
   onActiveChange,
   onPressInfo,
+  initialValue = '',
 }: {
   placeholder: string;
   style: TextStyle | TextStyle[];
@@ -58,9 +59,13 @@ export function EntrySearchInput({
   // tap target. Omit it where there is nothing to explain and no icon
   // renders at all.
   onPressInfo?: () => void;
+  // What the box holds when it first draws, for a caller opened with a
+  // search already asked (Ask Your Records on Home, 2026-09-30). Read once,
+  // like everything else here: a caller that wants it changed remounts.
+  initialValue?: string;
 }) {
-  const [localValue, setLocalValue] = useState('');
-  const wasActive = useRef(false);
+  const [localValue, setLocalValue] = useState(initialValue);
+  const wasActive = useRef(initialValue.trim().length > 0);
 
   // useCallback for a reason, not for tidiness. AppTextInput re-registers
   // itself with AppKeyboard whenever onChangeText's identity changes, so an

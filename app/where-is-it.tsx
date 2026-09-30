@@ -18,7 +18,7 @@
 // words, and confirming or correcting an answer is one tap on the answer
 // itself.
 import { Ionicons } from '@expo/vector-icons';
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -60,7 +60,10 @@ const KIND_COLORS: Record<PlaceRecordKind, string> = {
 
 export default function WhereIsItScreen() {
   const scrollPadding = useFloatingButtonScrollPadding();
-  const [query, setQuery] = useState('');
+  // q comes from Ask Your Records on Home (C22): the thing asked about is
+  // already in the box.
+  const { q } = useLocalSearchParams<{ q?: string }>();
+  const [query, setQuery] = useState(typeof q === 'string' ? q : '');
   const [records, setRecords] = useState<PlaceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   // The one row whose place is being rewritten. One at a time: a field under

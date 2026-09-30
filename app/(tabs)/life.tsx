@@ -748,7 +748,9 @@ export default function LifeScreen() {
   const walkMark = useWalkMark();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const folds = useBandFolds();
-  const { openLifeLens, focusTreatmentId, openEntryId, upkeepName } = useLocalSearchParams<{ openLifeLens?: string; focusTreatmentId?: string; openEntryId?: string; upkeepName?: string }>();
+  // searchQuery comes from Ask Your Records on Home (C22): Search Reading
+  // opens with the question's words already in the box.
+  const { openLifeLens, focusTreatmentId, openEntryId, upkeepName, searchQuery } = useLocalSearchParams<{ openLifeLens?: string; focusTreatmentId?: string; openEntryId?: string; upkeepName?: string; searchQuery?: string }>();
   // Conditions asks to scroll to a band it just opened from a link; its y
   // is relative to its own wrapper, so the wrapper's place in this scroll
   // is added on the way through.
@@ -2007,7 +2009,7 @@ export default function LifeScreen() {
                 />
               </View>
             ) : null}
-            {lens === 'searchReading' ? <DigestSearchLens tabColor={TAB_COLOR} onJumpElsewhere={jumpElsewhere} /> : null}
+            {lens === 'searchReading' ? <DigestSearchLens key={searchQuery ?? ''} tabColor={TAB_COLOR} onJumpElsewhere={jumpElsewhere} initialQuery={searchQuery ?? ''} /> : null}
 
             {lens === 'kitchen' ? <KitchenSection tabColor={TAB_COLOR} /> : null}
 

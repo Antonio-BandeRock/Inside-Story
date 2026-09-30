@@ -248,6 +248,11 @@ export type HomeSectionKey =
   // Capture because the two are halves of one habit, putting something
   // down somewhere and finding it again.
   | 'whereIsIt'
+  // Ask Your Records, 2026-09-30 (C22, lib/askRecords.ts). A question
+  // typed the way it would be said, sent by fixed rules to the Trends lens,
+  // Pattern Finder, Where Is It or reading that can answer it. Belongs to
+  // no tab, since a question can be about anything.
+  | 'askRecords'
   // Your Story, 2026-09-24 (lib/yourStory.ts). Belongs to no tab, since
   // its job is to say where each tab fits, so it is a top-level row like
   // Capture. The one card on Home that cannot be turned off: see
@@ -397,6 +402,8 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'captureInbox',
   // And finding it again, right behind it.
   'whereIsIt',
+  // Then asking anything else of what is kept.
+  'askRecords',
   // Home. 2026-09-16, direct correction: "You removed the Home group from
   // the Home screen. It should remain at the top in order of occurance in
   // the TabHub menu." Home leads TabHub’s own grid, so it leads the
@@ -483,6 +490,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   sharedFolderSetup: 'Shared Folder Setup',
   captureInbox: 'Capture',
   whereIsIt: 'Where Is It',
+  askRecords: 'Ask Your Records',
   yourStory: 'Your Story',
   today: 'Today',
   lowStimulation: 'Low Stimulation',
