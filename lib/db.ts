@@ -22475,6 +22475,25 @@ export async function listCheckinsBetween(types: CheckinType[], startDay: string
   return attachCheckinTags(db, rows);
 }
 
+/** The check-ins with these ids, whatever their kind, for a screen that
+ *  starts from something attached to them, such as Signals' symptom photos
+ *  lined up over time (D12). */
+export async function listCheckinsByIds(ids: string[]) {
+  if (ids.length === 0) return [];
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday' | 'bodyRegions'>>(
+    `
+      SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
+             related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,
+             mood, energy, stress, severity_ten AS severityTen, created_at AS createdAt
+      FROM wellbeing_checkins
+      WHERE id IN (${ids.map(() => '?').join(', ')})
+    `,
+    ...ids,
+  );
+  return attachCheckinTags(db, rows);
+}
+
 /** Every symptom the person named, retired ones included so old check-ins
  *  keep their names (D3). Also used by lib/customCheckinTagsDb.ts. */
 export async function readCustomCheckinTags(db: SQLite.SQLiteDatabase): Promise<CheckinTagDefinition[]> {

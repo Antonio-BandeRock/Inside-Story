@@ -21,6 +21,7 @@ import { TherapySessionsSection } from '../../components/TherapySessionsSection'
 import { textShadow, typography } from '../../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../../components/HomeSectionBand';
 import { RecordPhotos } from '../../components/RecordPhotos';
+import { SymptomPhotosOverTime } from '../../components/SymptomPhotosOverTime';
 import { BodyMap } from '../../components/BodyMap';
 import { regionsSentence } from '../../lib/bodyMap';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
@@ -975,6 +976,8 @@ function FlaresLens() {
         />
       )}
 
+      <SymptomPhotosOverTime tabColor={TAB_COLOR} />
+
       {loading ? (
         <View style={styles.panelStandalone}>
           <Text style={styles.emptyText}>Loading…</Text>
@@ -1101,6 +1104,8 @@ function FoodReactionsLens() {
           saveLabel="Save reaction"
         />
       )}
+
+      <SymptomPhotosOverTime tabColor={TAB_COLOR} />
 
       {loading ? (
         <View style={styles.panelStandalone}>
