@@ -26,7 +26,25 @@ function load(relPath) {
   return module.exports;
 }
 
+// The scale modules import each other, so they get a loader that follows
+// relative imports.
+function loadWithImports(relPath) {
+  const source = fs.readFileSync(path.join(__dirname, '..', relPath), 'utf8');
+  const { outputText } = ts.transpileModule(source, {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+    fileName: path.basename(relPath),
+  });
+  const module = { exports: {} };
+  new Function('exports', 'module', 'require', outputText)(module.exports, module, (name) =>
+    name.startsWith('.') ? loadWithImports(path.join(path.dirname(relPath), name + '.ts')) : {},
+  );
+  return module.exports;
+}
+
 const {
+  MORNING_BUTTON_VALUES,
+  MORNING_ENERGY_TITLE,
+  MORNING_ENERGY_BODY,
   ACTION_TEXT_INPUT,
   ALL_REMINDER_CATEGORY_KEYS,
   CATEGORY_ACTIONS,
@@ -46,12 +64,41 @@ function check(label, ok) {
   console.error('FAIL', label);
 }
 
-// Every set fits Android's three buttons and ends with Snooze.
+// Every set fits Android's three buttons and ends with Snooze, except the
+// two morning questions, whose three buttons are all answers (2026-10-01:
+// a question on a notification must be answerable on it).
+const ALL_ANSWERS = ['morning', 'energy'];
 for (const key of ALL_REMINDER_CATEGORY_KEYS) {
   const actions = CATEGORY_ACTIONS[key];
   check(`${key} has at most three buttons`, actions.length <= 3);
+  if (ALL_ANSWERS.includes(key)) continue;
   check(`${key} keeps Snooze`, actions[actions.length - 1] === 'snooze');
 }
+
+// The morning buttons say the scale's words for what they save.
+const { SLEEP_QUALITY_WORDS } = loadWithImports('lib/morningCheckin.ts');
+const { scaleOf } = loadWithImports('lib/dailyScales.ts');
+const energyWords = scaleOf('energy').words;
+for (const action of CATEGORY_ACTIONS.morning) {
+  const value = MORNING_BUTTON_VALUES[action];
+  check(`${action} title is the sleep word it saves`, reminderActionTitle(action, 15) === SLEEP_QUALITY_WORDS[value - 1]);
+  const plan = planReminderAction('morning', action);
+  check(`${action} saves sleep ${value}`, plan && plan.write === 'sleepQuality' && plan.value === value);
+}
+for (const action of CATEGORY_ACTIONS.energy) {
+  const value = MORNING_BUTTON_VALUES[action];
+  check(`${action} title is the energy word it saves`, reminderActionTitle(action, 15) === energyWords[value - 1]);
+  const plan = planReminderAction('morning', action);
+  check(`${action} saves energy ${value}`, plan && plan.write === 'morningEnergy' && plan.value === value);
+}
+check('a sleep button on a dose does nothing', planReminderAction('dose', 'sleptWell') === null);
+check('the energy question says what a press does', MORNING_ENERGY_TITLE.endsWith('?') && MORNING_ENERGY_BODY.length > 0);
+
+// Every reminder that asks something opens where it is answered on a tap.
+const notifier = fs.readFileSync(path.join(__dirname, '..', 'lib', 'reminderNotifications.ts'), 'utf8');
+check('the morning tap opens the check-in', notifier.includes("data?.kind === 'morning') return { pathname: '/daily-checkin' }"));
+check('Your week opens on its card', notifier.includes("openHomeSection: 'yourWeek'"));
+check('no reminder opens bare Home', !/return \{ pathname: '\/' \}/.test(notifier));
 check('plain keeps the old category id', REMINDER_CATEGORY_IDS.plain === 'inside-story-reminder');
 check('category ids are distinct', new Set(Object.values(REMINDER_CATEGORY_IDS)).size === ALL_REMINDER_CATEGORY_KEYS.length);
 
@@ -72,6 +119,7 @@ const expected = {
   countdown: 'plain',
   routine: 'plain',
   check: 'task',
+  morning: 'morning',
 };
 for (const [kind, key] of Object.entries(expected)) check(`${kind} -> ${key}`, categoryKeyFor(kind) === key);
 check('upkeep that expires gets Snooze only', categoryKeyFor('upkeep', false) === 'plain');
@@ -95,7 +143,7 @@ check('both check-in buttons take words', !!ACTION_TEXT_INPUT.howAreYou && !!ACT
 check('Taken does not take words', !ACTION_TEXT_INPUT.taken);
 
 // Each reminder says what its buttons record; a plain one has none to say.
-for (const kind of ['dose', 'hydration', 'meal', 'garden', 'reminder', 'check', 'upkeep', 'compost', 'checkin', 'afterMeal']) {
+for (const kind of ['dose', 'hydration', 'meal', 'garden', 'reminder', 'check', 'upkeep', 'compost', 'checkin', 'afterMeal', 'morning']) {
   check(`${kind} says what its buttons do`, typeof answerLine(kind) === 'string' && answerLine(kind).length > 0);
 }
 check('a bill says nothing about buttons', answerLine('bill') === null);

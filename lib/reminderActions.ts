@@ -39,6 +39,13 @@
 //     from and no button supplies any. A note with no words saves nothing;
 //     a flare with no words is still a flare, since pressing it was the
 //     answer.
+//   - The morning check-in asks how somebody slept with three of the sleep
+//     scale's own words (direct instruction, 2026-10-01: a question on a
+//     notification must be answerable on it, or its tap must open the place
+//     it is answered). A press saves the word and brings up the energy
+//     question with three of the energy scale's own words. Android shows
+//     three buttons at most, so neither carries Snooze; the tap opens the
+//     check-in on the sleep question, where all five words and a note are.
 //   - Appointments, bills, work benefits, Days Until counters and routines
 //     keep Snooze only. Nothing in the app records a bill as paid or a
 //     benefit as used, a counter is marked done where it lives, and a
@@ -53,9 +60,15 @@ export type ReminderActionId =
   | 'doneToday'
   | 'turned'
   | 'howAreYou'
-  | 'logFlare';
+  | 'logFlare'
+  | 'sleptPoorly'
+  | 'sleptOkay'
+  | 'sleptWell'
+  | 'energyLow'
+  | 'energySome'
+  | 'energyPlenty';
 
-export type ReminderCategoryKey = 'plain' | 'dose' | 'hydration' | 'meal' | 'task' | 'upkeep' | 'compost' | 'checkin';
+export type ReminderCategoryKey = 'plain' | 'dose' | 'hydration' | 'meal' | 'task' | 'upkeep' | 'compost' | 'checkin' | 'morning' | 'energy';
 
 // 'plain' keeps the identifier the single category always had, so a
 // Snooze-only reminder already queued is still correct and is left alone
@@ -69,6 +82,21 @@ export const REMINDER_CATEGORY_IDS: Record<ReminderCategoryKey, string> = {
   upkeep: 'inside-story-reminder-upkeep',
   compost: 'inside-story-reminder-compost',
   checkin: 'inside-story-reminder-checkin',
+  morning: 'inside-story-reminder-morning',
+  energy: 'inside-story-reminder-energy',
+};
+
+// The 1 to 5 value each morning button saves. Each title is that value's
+// word on its scale (SLEEP_QUALITY_WORDS in lib/morningCheckin.ts, the
+// energy words in lib/dailyScales.ts), which scripts/test_reminder_actions.js
+// checks, so a button never says one thing and saves another.
+export const MORNING_BUTTON_VALUES: Partial<Record<ReminderActionId, number>> = {
+  sleptPoorly: 2,
+  sleptOkay: 3,
+  sleptWell: 4,
+  energyLow: 2,
+  energySome: 3,
+  energyPlenty: 5,
 };
 
 export const ALL_REMINDER_CATEGORY_KEYS = Object.keys(REMINDER_CATEGORY_IDS) as ReminderCategoryKey[];
@@ -93,6 +121,18 @@ export function reminderActionTitle(action: ReminderActionId, snoozeMinutes: num
       return 'Add a note';
     case 'logFlare':
       return 'Log a flare';
+    case 'sleptPoorly':
+      return 'Poorly';
+    case 'sleptOkay':
+      return 'Okay';
+    case 'sleptWell':
+      return 'Well';
+    case 'energyLow':
+      return 'Low';
+    case 'energySome':
+      return 'Some';
+    case 'energyPlenty':
+      return 'Plenty';
   }
 }
 
@@ -106,6 +146,8 @@ export const CATEGORY_ACTIONS: Record<ReminderCategoryKey, ReminderActionId[]> =
   upkeep: ['doneToday', 'snooze'],
   compost: ['turned', 'snooze'],
   checkin: ['howAreYou', 'logFlare', 'snooze'],
+  morning: ['sleptPoorly', 'sleptOkay', 'sleptWell'],
+  energy: ['energyLow', 'energySome', 'energyPlenty'],
 };
 
 /**
@@ -133,6 +175,8 @@ export function categoryKeyFor(kind: string, markable = true): ReminderCategoryK
     case 'checkin':
     case 'afterMeal':
       return 'checkin';
+    case 'morning':
+      return 'morning';
     default:
       return 'plain';
   }
@@ -154,7 +198,9 @@ export type ReminderActionPlan =
   | { write: 'compostTurned' }
   | { write: 'todoDone' }
   | { write: 'checkinNote' }
-  | { write: 'flare' };
+  | { write: 'flare' }
+  | { write: 'sleepQuality'; value: number }
+  | { write: 'morningEnergy'; value: number };
 
 /**
  * What a pressed button does. Null for Snooze (handled on its own), for a
@@ -165,6 +211,12 @@ export type ReminderActionPlan =
 export function planReminderAction(kind: string, action: string): ReminderActionPlan | null {
   if (action === 'howAreYou' && (kind === 'checkin' || kind === 'afterMeal')) return { write: 'checkinNote' };
   if (action === 'logFlare' && (kind === 'checkin' || kind === 'afterMeal')) return { write: 'flare' };
+  // The energy question is a morning reminder too, raised by the sleep
+  // press with the energy buttons rather than planned on its own.
+  const morningValue = MORNING_BUTTON_VALUES[action as ReminderActionId];
+  if (kind === 'morning' && morningValue !== undefined) {
+    return action.startsWith('slept') ? { write: 'sleepQuality', value: morningValue } : { write: 'morningEnergy', value: morningValue };
+  }
   if (action === 'taken' && kind === 'dose') return { write: 'scheduleStatus', status: 'logged' };
   if (action === 'drank' && kind === 'hydration') return { write: 'scheduleStatus', status: 'logged' };
   if (action === 'ate' && kind === 'meal') return { write: 'scheduleStatus', status: 'logged' };
@@ -202,10 +254,16 @@ export function answerLine(kind: string, markable = true): string | null {
       return 'Turned it records a turn for today.';
     case 'checkin':
       return 'Add a note or log a flare right here, in your words.';
+    case 'morning':
+      return 'Pick one here and the energy question follows, or tap for every answer and a note.';
     default:
       return null;
   }
 }
+
+// The question a sleep press brings up, answered with the energy buttons.
+export const MORNING_ENERGY_TITLE = 'How much energy do you have?';
+export const MORNING_ENERGY_BODY = 'Pick one here and it is saved with how you slept, or tap to add a note.';
 
 // --- The two check-in reminders ---------------------------------------------
 

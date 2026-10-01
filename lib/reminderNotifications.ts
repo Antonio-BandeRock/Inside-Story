@@ -16,6 +16,8 @@ import {
   CATEGORY_ACTIONS,
   categoryKeyFor,
   localDay,
+  MORNING_ENERGY_BODY,
+  MORNING_ENERGY_TITLE,
   planAfterMealNudge,
   planDailyCheckins,
   planReminderAction,
@@ -67,6 +69,7 @@ import { PEER_DOSE_PREFIX } from './doseWatch';
 import { quietDecision, SNOOZE_MINUTES } from './quietHours';
 import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
 import { getTodo, markTodoDone } from './todosDb';
+import { getMorningCheckin, saveMorningCheckin } from './morningCheckinDb';
 import { YOUR_WEEK_NOTIFICATION_BODY, YOUR_WEEK_NOTIFICATION_TITLE } from './weeklySummary';
 import { buildWeekPlanBody, WEEK_PLAN_NOTIFICATION_TITLE, weekPlanDays } from './weekPlanNotice';
 import { buildGardenMonthBody, GARDEN_MONTH_NOTIFICATION_TITLE, nextGardenMonthFire, type GardenMonthPlace } from './gardenMonthNotice';
@@ -224,7 +227,7 @@ export type ReminderKind = ReminderKindKey;
 const NUDGEABLE_TIMED_KINDS: ReminderKind[] = ['dose', 'meal', 'hydration', 'garden', 'reminder', 'routine', 'check'];
 
 type ScheduleLens = 'meds' | 'appointments' | 'meals' | 'todaysMeals' | 'hydration' | 'exercise';
-type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine' | 'signals' | 'camera' | 'home' | 'workout';
+type ReminderTab = 'schedule' | 'garden' | 'life' | 'reconcile' | 'routine' | 'signals' | 'camera' | 'home' | 'workout' | 'checkinFlow';
 // The two check-in reminders land on Signals (C1).
 type SignalsReminderLens = 'generalNote' | 'flares';
 // 'plotsAndPlantings' is what a 1.0.42.13 payload says for a counter; it
@@ -244,7 +247,7 @@ type ReminderPayload = {
   /** Which tab a tap opens. Absent on anything queued before 1.0.39.8, and
    *  read back as 'schedule', which is the only thing it could have been. */
   tab?: ReminderTab;
-  lens: ScheduleLens | GardenReminderLens | LifeReminderLens | SignalsReminderLens | 'reconcile' | 'walk' | 'guide' | 'morningCheckin' | 'yourWeek';
+  lens: ScheduleLens | GardenReminderLens | LifeReminderLens | SignalsReminderLens | 'reconcile' | 'walk' | 'guide' | 'morningCheckin' | 'morningEnergy' | 'yourWeek';
   /** A Photo Series only: what the photo is of and its name, so a tap opens
    *  the camera on that owner without reading the database first. */
   ownerKind?: string;
@@ -709,22 +712,48 @@ function buildDailyCheckinPlanned(fireAt: Date, now: Date): PlannedNotification 
   };
 }
 
-// The morning check-in (D7). No buttons: its answer is two choices and a
-// note, which is a form rather than a reply, so a tap opens the card on Home.
+// The morning check-in (D7). Three of the sleep words as buttons, and the
+// energy question after a press (lib/reminderActions.ts). Until 1.0.58.1 it
+// had no buttons and a tap opened Home, where nothing asked anything (direct
+// report, 2026-10-01); a tap now opens the check-in on the sleep question.
 function buildMorningPlanned(fireAt: Date, now: Date): PlannedNotification {
   return {
     identifier: `${IDENTIFIER_PREFIX}morning:${localDateString(fireAt)}`,
     title: 'How did you sleep?',
-    body: `The morning check-in you asked for, with last night's readings beside your usual range. Check-ins as of ${describeFreshness(now, fireAt)}.`,
+    body: `${answerLine('morning')} Check-ins as of ${describeFreshness(now, fireAt)}.`,
     fireAt,
     payload: {
       kind: 'morning',
       scheduleItemId: localDateString(fireAt),
       fireAt: fireAt.toISOString(),
-      tab: 'home',
+      tab: 'checkinFlow',
       lens: 'morningCheckin',
     },
   };
+}
+
+// The energy question, shown at once after a sleep press. Shown rather than
+// queued, so a reconcile running at the same moment has nothing pending of
+// it to cancel.
+async function presentMorningEnergy(day: string): Promise<void> {
+  const payload: ReminderPayload = {
+    kind: 'morning',
+    scheduleItemId: day,
+    fireAt: new Date().toISOString(),
+    tab: 'checkinFlow',
+    lens: 'morningEnergy',
+  };
+  await Notifications.scheduleNotificationAsync({
+    identifier: `${IDENTIFIER_PREFIX}morningEnergy:${day}`,
+    content: {
+      title: MORNING_ENERGY_TITLE,
+      body: MORNING_ENERGY_BODY,
+      data: payload,
+      sound: false,
+      categoryIdentifier: REMINDER_CATEGORY_IDS.energy,
+    },
+    trigger: { channelId: channelFor('morning') },
+  });
 }
 
 // This week's meals (H10). The meals planned for the seven days starting
@@ -765,7 +794,8 @@ function buildGardenMonthPlanned(fireAt: Date, body: string): PlannedNotificatio
 }
 
 // Your week (F13). Word that the summary is on Home and nothing about what
-// it holds, since a notification can be read on a locked screen.
+// it holds, since a notification can be read on a locked screen. A tap
+// opens Home on the Your Week card itself.
 function buildWeekPlanned(fireAt: Date): PlannedNotification {
   return {
     identifier: `${IDENTIFIER_PREFIX}week:${localDateString(fireAt)}`,
@@ -1352,7 +1382,8 @@ export type ReminderTapTarget =
   | { pathname: '/workout'; params: { id: string; planId: string; on: string } }
   | { pathname: '/log'; params: { openSignalsLens: SignalsReminderLens } }
   | { pathname: '/reconcile' }
-  | { pathname: '/' }
+  | { pathname: '/daily-checkin' }
+  | { pathname: '/'; params: { openHomeSection: 'yourWeek' } }
   | { pathname: '/photo-camera'; params: { ownerKind: string; ownerId: string; guide: '1'; title: string } };
 
 const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'meals', 'todaysMeals', 'hydration', 'exercise'];
@@ -1378,8 +1409,11 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
   const data = request.content.data as Partial<ReminderPayload> | undefined;
 
   if (data?.tab === 'reconcile') return { pathname: '/reconcile' };
-  // The morning check-in (D7) and Your week (F13) are cards on Home.
-  if (data?.tab === 'home') return { pathname: '/' };
+  // The morning check-in opens the one-question-at-a-time check-in, which
+  // starts on how somebody slept; one queued before 1.0.58.1 says 'home'.
+  if (data?.tab === 'checkinFlow' || data?.kind === 'morning') return { pathname: '/daily-checkin' };
+  // Your week (F13) opens Home on its card, never on Home's top.
+  if (data?.tab === 'home') return { pathname: '/', params: { openHomeSection: 'yourWeek' } };
   // A Photo Series opens the camera on the thing with the last photo over
   // the view. A payload missing its owner lands on Garden instead, since
   // the camera cannot keep a photo of nothing.
@@ -1519,6 +1553,18 @@ async function recordAnswer(plan: ReminderActionPlan, id: string, words: string,
       notes: words || undefined,
       relatedMealId: kind === 'afterMeal' && id ? id : undefined,
     });
+    return;
+  }
+  if (plan.write === 'sleepQuality' || plan.write === 'morningEnergy') {
+    // The same row the card and the check-in write, one a morning, so a
+    // press after answering in the app changes that answer and keeps the
+    // rest of it. The energy question follows a sleep press only while
+    // energy has no answer yet.
+    const saved = await getMorningCheckin(now);
+    const sleepQuality = plan.write === 'sleepQuality' ? plan.value : saved?.sleepQuality ?? null;
+    const energy = plan.write === 'morningEnergy' ? plan.value : saved?.energy ?? null;
+    await saveMorningCheckin({ existingId: saved?.id ?? null, sleepQuality, energy, notes: saved?.notes ?? '' });
+    if (plan.write === 'sleepQuality' && energy === null) await presentMorningEnergy(today);
     return;
   }
   if (!id) return;
