@@ -739,6 +739,11 @@ export type VisualPreferences = {
   // place show on this device before the change ships. On by default, as
   // asked; off shows what the app itself says. See lib/wordingEdits.ts.
   developerNotesPreview: boolean;
+  // E4, 2026-09-30: period days logged in Signals > Cycle drawn as pale
+  // columns behind every line chart on Trends. Off until somebody turns
+  // it on from a chart lens, since not everybody logs a cycle and the
+  // ones who do may not want it on every chart. See lib/cycleShading.ts.
+  trendsCycleShading: boolean;
 };
 
 // Which background a given scope actually draws, once low stimulation has
@@ -915,6 +920,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   hasUsedTabHub: false,
   developerNotes: false,
   developerNotesPreview: true,
+  trendsCycleShading: false,
 };
 
 const VISUAL_PREFERENCES_KEY = 'visual_preferences';

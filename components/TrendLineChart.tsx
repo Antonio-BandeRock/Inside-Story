@@ -1,10 +1,11 @@
-import { Fragment, useState } from 'react';
+import { createContext, Fragment, useContext, useState } from 'react';
 import { type LayoutChangeEvent, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
 import { colors } from '../constants/colors';
 import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING } from './HomeSectionBand';
 import { textShadow, typography } from '../constants/typography';
 import { chartSeries, longRangeCaption, pointLabelPrefix } from '../lib/longRange';
+import { runsWithin, type CycleShading } from '../lib/cycleShading';
 
 const HEIGHT = 140;
 const TOP_Y = 16;
@@ -34,6 +35,13 @@ function daysBetween(a: string, b: string): number {
 }
 
 export type TrendLineChartPoint = { date: string; value: number; color?: string };
+
+// E4, 2026-09-30: logged period days as pale columns behind the line.
+// Handed down through context rather than a prop, so the Trends screen
+// sets it once for every chart it draws and a chart anywhere else (a
+// food's price history) never shows it. Null draws exactly as before.
+export const CycleShadingContext = createContext<CycleShading | null>(null);
+const CYCLE_SHADE_COLOR = colors.statusRedOnSurface;
 
 // A straight date/value trend line, generalizing DayArc's technique
 // (Svg Path + positioned Circle nodes, a raw-value -> {x,y} mapping
@@ -96,6 +104,7 @@ export function TrendLineChart({
   // moved to bands. The window figure only covers the first frame, before
   // onLayout has reported the container's width.
   const { width: windowWidth } = useWindowDimensions();
+  const shading = useContext(CycleShadingContext);
   const [containerWidth, setContainerWidth] = useState<number | null>(null);
   const availableWidth = containerWidth ?? windowWidth - 2 * (HOME_BAND_CONTENT_PADDING + HOME_BAND_ACCENT_WIDTH);
   const plotWidth = Math.max(160, availableWidth - SVG_RIGHT_MARGIN - NODE_RADIUS * 2 - Y_AXIS_LABEL_WIDTH);
@@ -187,6 +196,18 @@ export function TrendLineChart({
   const referenceY = referenceLine != null ? valueToY(referenceLine) : null;
   const usualTopY = usualBand ? valueToY(usualBand.high) : null;
   const usualBottomY = usualBand ? valueToY(usualBand.low) : null;
+  // Each run spans its days, half a day either side of the first and last
+  // date, so a one-day period still draws a column and two runs a day
+  // apart do not merge.
+  const plotLeftEdge = Y_AXIS_LABEL_WIDTH + NODE_RADIUS;
+  const halfDayWidth = (plotWidth * 43200000) / dateSpan;
+  const shadedColumns = shading
+    ? runsWithin(shading.runs, sorted[0].date, sorted[sorted.length - 1].date).map((run) => {
+        const left = Math.max(plotLeftEdge, dateToX(run.start) - halfDayWidth);
+        const right = Math.min(plotRightEdge, dateToX(run.end) + halfDayWidth);
+        return { key: run.start, x: left, width: Math.max(2, right - left) };
+      })
+    : [];
 
   return (
     <View style={styles.container} onLayout={onLayout}>
@@ -212,6 +233,18 @@ export function TrendLineChart({
         <SvgText x={0} y={BASE_Y + 4} fontSize={11} fill={colors.textMuted}>
           {valueFormatter(yMin)}
         </SvgText>
+
+        {shadedColumns.map((column) => (
+          <Rect
+            key={`shade-${column.key}`}
+            x={column.x}
+            y={TOP_Y}
+            width={column.width}
+            height={BASE_Y - TOP_Y}
+            fill={CYCLE_SHADE_COLOR}
+            fillOpacity={0.22}
+          />
+        ))}
 
         {usualTopY != null && usualBottomY != null ? (
           <Rect
@@ -281,6 +314,7 @@ export function TrendLineChart({
         <Text style={styles.labelText}>{formatShortDate(sorted[sorted.length - 1].date, crossesYear)}</Text>
       </View>
       {caption ? <Text style={styles.captionText}>{caption}</Text> : null}
+      {shadedColumns.length > 0 && shading ? <Text style={styles.captionText}>{shading.caption}</Text> : null}
     </View>
   );
 }

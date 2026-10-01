@@ -91,7 +91,7 @@
 ### E4. Cycle shading on any chart
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Trends
 - **Answers:** Oura · **Theme:** Cycle
-- **How:** Shaded columns behind TrendLineChart.
+- **How:** Shipped OTA in 1.0.57.26: a Shade period days switch on every Trends lens with a line chart (nutrients, Six Dimensions, variety, trackers, symptoms, eating window, weight, movement, groceries, labs) draws the period days logged in Signals > Cycle as pale columns behind the line, with a caption saying they sit side by side and say nothing about what changed what. Only logged days, never a predicted period; spotting alone is not shaded. Off by default, saved as a display setting (trendsCycleShading). Pure lib/cycleShading.ts, handed to TrendLineChart through CycleShadingContext so the food price chart never shades; scripts/test_cycle_shading.js.
 
 ### F2. Body readings as outcomes
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Trends

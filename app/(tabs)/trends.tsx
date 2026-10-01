@@ -1,7 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import type { HelpSection } from '../../components/HelpButton';
@@ -20,7 +20,11 @@ import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
-import { TrendLineChart } from '../../components/TrendLineChart';
+import { CycleShadingContext, TrendLineChart } from '../../components/TrendLineChart';
+import { listAllCycleDays } from '../../lib/cycleDb';
+import type { CycleDay } from '../../lib/cycle';
+import { CYCLE_SHADING_SWITCH_HELP, CYCLE_SHADING_SWITCH_LABEL, cycleShadingFor } from '../../lib/cycleShading';
+import { getVisualPreferences, setVisualPreferences, subscribeToVisualPreferences } from '../../lib/visualPreferences';
 import { summarizeSourceSplit } from '../../lib/supplementWindow';
 import { colors } from '../../constants/colors';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP } from '../../components/HomeSectionBand';
@@ -405,6 +409,10 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
         heading: 'Side by side',
         body: 'Nothing here says the cycle brought anything on. A few cycles of one person can look like a pattern when they are not, and cycles of different lengths are set together day by day.',
       },
+      {
+        heading: 'Shading on the charts',
+        body: 'On any lens with a line chart, Shade period days draws the period days you logged as pale columns behind the line, so a chart can be read beside your cycle. Only what you logged is shaded, never a predicted period.',
+      },
     ],
   },
   {
@@ -778,6 +786,12 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
 // lenses this range redesign doesn't apply to (Symptoms/Weight/Labs/Pattern
 // Finder are all sparse, real, already-happened events, none of which have
 // a genuine future-projection story the way scheduled meals do).
+// E4: the lenses that draw a TrendLineChart, which is where the period
+// shading switch shows. A lens of rows and bands has nothing to shade.
+const CYCLE_SHADED_LENSES = new Set<string>([
+  'nutrients', 'sixDs', 'variety', 'trackers', 'symptoms', 'eatingWindow', 'weight', 'movement', 'groceries', 'labs',
+]);
+
 const DAY_RANGE_OPTIONS = [
   { value: 7, label: 'Last 7d' },
   { value: 30, label: 'Last 30d' },
@@ -1046,6 +1060,17 @@ export default function TrendsScreen() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const folds = useBandFolds();
   const [moreView, setMoreView] = useState<ReadingView | null>(null);
+  // E4: logged period days, and whether they shade the charts. Read on
+  // every visit, since a day logged in Signals should show on return.
+  const [cycleDays, setCycleDays] = useState<CycleDay[]>([]);
+  const [shadeCycle, setShadeCycle] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      listAllCycleDays().then(setCycleDays).catch(() => setCycleDays([]));
+      getVisualPreferences().then((prefs) => setShadeCycle(prefs.trendsCycleShading));
+      return subscribeToVisualPreferences((prefs) => setShadeCycle(prefs.trendsCycleShading));
+    }, []),
+  );
   const autoOpenLensHub = useAutoOpenLensHubSignal();
   const [lens, setLens] = useState<TrendsLens>('nutrients');
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -1652,6 +1677,8 @@ export default function TrendsScreen() {
   }, [fiberSeries]);
 
   const showsRangePicker = lens === 'nutrients' || lens === 'sixDs';
+  const offersCycleShading = CYCLE_SHADED_LENSES.has(lens) && cycleDays.length > 0;
+  const cycleShading = useMemo(() => cycleShadingFor(shadeCycle && offersCycleShading, cycleDays), [shadeCycle, offersCycleShading, cycleDays]);
 
   return (
     <View style={styles.screen}>
@@ -1661,6 +1688,7 @@ export default function TrendsScreen() {
           lens's content (with its own scrollable controls) is showing. */}
       <SwipeableTabScreen enabled={!revealed}>
         <GatedTabContent pageTitle="Trends" variant="trends" revealed={revealed}>
+          <CycleShadingContext.Provider value={cycleShading}>
           <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
             <View style={band.heading}>
               <Text style={band.headingText}>{activeLensLabel}</Text>
@@ -1814,6 +1842,22 @@ export default function TrendsScreen() {
                 ))}
               </View>
             )}
+
+            {offersCycleShading ? (
+              <View style={[band.box, styles.shadeRow]}>
+                <View style={styles.patternRowText}>
+                  <Text style={styles.patternRowTitle}>{CYCLE_SHADING_SWITCH_LABEL}</Text>
+                  <Text style={styles.patternRowCaption}>{CYCLE_SHADING_SWITCH_HELP}</Text>
+                </View>
+                <Switch
+                  value={shadeCycle}
+                  onValueChange={(next) => {
+                    setShadeCycle(next);
+                    void setVisualPreferences({ trendsCycleShading: next });
+                  }}
+                />
+              </View>
+            ) : null}
 
             {lens === 'nutrients' ? (
               <>
@@ -3615,6 +3659,7 @@ export default function TrendsScreen() {
               </>
             )}
           </ScrollView>
+          </CycleShadingContext.Provider>
         </GatedTabContent>
       </SwipeableTabScreen>
 
@@ -3731,6 +3776,7 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   patternRowText: { flex: 1 },
+  shadeRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   weekRows: { gap: 6, marginTop: 8 },
   // F14: inside a centred chart card, so the rows stretch themselves.
   averageRows: { gap: 6, marginTop: 4, alignSelf: 'stretch' },
