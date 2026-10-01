@@ -32,6 +32,9 @@
 //     button, because renewing it needs the new expiry date, which a button
 //     cannot ask for.
 //   - A compost pile records a turn for today.
+//   - A crop in My Crops (2026-10-01): Prepped on the get-ready reminder and
+//     Sown on the sowing one record that step for that window, which is
+//     what quiets it, the same as the buttons on the crop's row.
 //   - The two check-in kinds take a typed reply on the notification itself:
 //     Add a note saves the words as a general note in Signals, Log a flare
 //     saves a flare with the words as its note. How somebody feels is
@@ -66,9 +69,23 @@ export type ReminderActionId =
   | 'sleptWell'
   | 'energyLow'
   | 'energySome'
-  | 'energyPlenty';
+  | 'energyPlenty'
+  | 'prepped'
+  | 'sown';
 
-export type ReminderCategoryKey = 'plain' | 'dose' | 'hydration' | 'meal' | 'task' | 'upkeep' | 'compost' | 'checkin' | 'morning' | 'energy';
+export type ReminderCategoryKey =
+  | 'plain'
+  | 'dose'
+  | 'hydration'
+  | 'meal'
+  | 'task'
+  | 'upkeep'
+  | 'compost'
+  | 'checkin'
+  | 'morning'
+  | 'energy'
+  | 'cropPrep'
+  | 'cropSow';
 
 // 'plain' keeps the identifier the single category always had, so a
 // Snooze-only reminder already queued is still correct and is left alone
@@ -84,6 +101,8 @@ export const REMINDER_CATEGORY_IDS: Record<ReminderCategoryKey, string> = {
   checkin: 'inside-story-reminder-checkin',
   morning: 'inside-story-reminder-morning',
   energy: 'inside-story-reminder-energy',
+  cropPrep: 'inside-story-reminder-crop-prep',
+  cropSow: 'inside-story-reminder-crop-sow',
 };
 
 // The 1 to 5 value each morning button saves. Each title is that value's
@@ -133,6 +152,10 @@ export function reminderActionTitle(action: ReminderActionId, snoozeMinutes: num
       return 'Some';
     case 'energyPlenty':
       return 'Plenty';
+    case 'prepped':
+      return 'Prepped';
+    case 'sown':
+      return 'Sown';
   }
 }
 
@@ -148,6 +171,8 @@ export const CATEGORY_ACTIONS: Record<ReminderCategoryKey, ReminderActionId[]> =
   checkin: ['howAreYou', 'logFlare', 'snooze'],
   morning: ['sleptPoorly', 'sleptOkay', 'sleptWell'],
   energy: ['energyLow', 'energySome', 'energyPlenty'],
+  cropPrep: ['prepped', 'snooze'],
+  cropSow: ['sown', 'snooze'],
 };
 
 /**
@@ -177,6 +202,10 @@ export function categoryKeyFor(kind: string, markable = true): ReminderCategoryK
       return 'checkin';
     case 'morning':
       return 'morning';
+    case 'cropPrep':
+      return 'cropPrep';
+    case 'cropSow':
+      return 'cropSow';
     default:
       return 'plain';
   }
@@ -197,6 +226,7 @@ export type ReminderActionPlan =
   | { write: 'upkeepDone' }
   | { write: 'compostTurned' }
   | { write: 'todoDone' }
+  | { write: 'cropStep'; step: 'prepped' | 'sown' }
   | { write: 'checkinNote' }
   | { write: 'flare' }
   | { write: 'sleepQuality'; value: number }
@@ -225,6 +255,8 @@ export function planReminderAction(kind: string, action: string): ReminderAction
   if (action === 'doneToday' && kind === 'upkeep') return { write: 'upkeepDone' };
   if (action === 'turned' && kind === 'compost') return { write: 'compostTurned' };
   if (action === 'done' && kind === 'todo') return { write: 'todoDone' };
+  if (action === 'prepped' && kind === 'cropPrep') return { write: 'cropStep', step: 'prepped' };
+  if (action === 'sown' && kind === 'cropSow') return { write: 'cropStep', step: 'sown' };
   return null;
 }
 
@@ -252,6 +284,10 @@ export function answerLine(kind: string, markable = true): string | null {
       return 'Done today records it in Upkeep.';
     case 'compost':
       return 'Turned it records a turn for today.';
+    case 'cropPrep':
+      return 'Prepped records it in My Crops.';
+    case 'cropSow':
+      return 'Sown records it in My Crops.';
     case 'checkin':
       return 'Add a note or log a flare right here, in your words.';
     case 'morning':

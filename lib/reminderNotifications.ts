@@ -74,6 +74,8 @@ import { getMorningCheckin, saveMorningCheckin } from './morningCheckinDb';
 import { YOUR_WEEK_NOTIFICATION_BODY, YOUR_WEEK_NOTIFICATION_TITLE } from './weeklySummary';
 import { buildWeekPlanBody, WEEK_PLAN_NOTIFICATION_TITLE, weekPlanDays } from './weekPlanNotice';
 import { buildGardenMonthBody, GARDEN_MONTH_NOTIFICATION_TITLE, nextGardenMonthFire, type GardenMonthPlace } from './gardenMonthNotice';
+import { listCropPlans, recordCropStep } from './cropPlanDb';
+import { parseCropStepSourceId } from './cropPlan';
 import { readCachedFrostDates } from './homeSky';
 import { frostAnchor } from './sowingWindows';
 
@@ -935,7 +937,9 @@ function channelFor(kind: ReminderKind): string {
     kind === 'compost' ||
     kind === 'refill' ||
     kind === 'useBy' ||
-    kind === 'todo'
+    kind === 'todo' ||
+    kind === 'cropPrep' ||
+    kind === 'cropSow'
   ) {
     return ANDROID_DATED_CHANNEL_ID;
   }
@@ -1239,9 +1243,11 @@ async function runSync(): Promise<ReminderSyncResult> {
   // started while the app went unopened for a week would otherwise pass
   // with nothing said. The frost dates are read from what My Zone and the
   // Sowing Calendar last worked out, never fetched here.
+  // Only the crops chosen in My Crops, and nothing at all when none are.
   if (isReminderKindEnabled(preferences, 'gardenMonth')) {
     const fireAt = nextGardenMonthFire(gardenMonthDayOf(preferences), gardenMonthTimeOf(preferences), now, 32);
-    if (fireAt) {
+    const chosen = fireAt ? new Set((await listCropPlans()).map((p) => p.cropKey)) : new Set<string>();
+    if (fireAt && chosen.size > 0) {
       try {
         const frost = await readCachedFrostDates();
         const place: GardenMonthPlace =
@@ -1255,7 +1261,7 @@ async function runSync(): Promise<ReminderSyncResult> {
             : frost.status === 'no-location'
               ? { status: 'no-location' }
               : { status: 'unread' };
-        const planned = buildGardenMonthPlanned(fireAt, buildGardenMonthBody(place, fireAt));
+        const planned = buildGardenMonthPlanned(fireAt, buildGardenMonthBody(place, fireAt, chosen));
         first.set(planned.identifier, planned);
       } catch (error) {
         console.warn('[reminderNotifications] could not read the frost dates for this month in the garden', error);
@@ -1663,6 +1669,13 @@ async function recordAnswer(plan: ReminderActionPlan, id: string, words: string,
     const todo = await getTodo(id);
     if (!todo || todo.doneAt) return;
     await markTodoDone(id, today);
+    return;
+  }
+  if (plan.write === 'cropStep') {
+    // The id names the crop and the window; a second press adds nothing.
+    const parsed = parseCropStepSourceId(id);
+    if (!parsed) return;
+    await recordCropStep(parsed.planId, parsed.action, parsed.windowStart, plan.step, today);
     return;
   }
   if (plan.write === 'compostTurned') {

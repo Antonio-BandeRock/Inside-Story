@@ -120,6 +120,8 @@ const expected = {
   routine: 'plain',
   check: 'task',
   morning: 'morning',
+  cropPrep: 'cropPrep',
+  cropSow: 'cropSow',
 };
 for (const [kind, key] of Object.entries(expected)) check(`${kind} -> ${key}`, categoryKeyFor(kind) === key);
 check('upkeep that expires gets Snooze only', categoryKeyFor('upkeep', false) === 'plain');
@@ -143,7 +145,10 @@ check('both check-in buttons take words', !!ACTION_TEXT_INPUT.howAreYou && !!ACT
 check('Taken does not take words', !ACTION_TEXT_INPUT.taken);
 
 // Each reminder says what its buttons record; a plain one has none to say.
-for (const kind of ['dose', 'hydration', 'meal', 'garden', 'reminder', 'check', 'upkeep', 'compost', 'checkin', 'afterMeal', 'morning']) {
+check('Prepped records the prep step', planReminderAction('cropPrep', 'prepped').step === 'prepped');
+check('Sown records the sowing step', planReminderAction('cropSow', 'sown').step === 'sown');
+check('Sown on a get-ready reminder does nothing', planReminderAction('cropPrep', 'sown') === null);
+for (const kind of ['dose', 'hydration', 'meal', 'garden', 'reminder', 'check', 'upkeep', 'compost', 'checkin', 'afterMeal', 'morning', 'cropPrep', 'cropSow']) {
   check(`${kind} says what its buttons do`, typeof answerLine(kind) === 'string' && answerLine(kind).length > 0);
 }
 check('a bill says nothing about buttons', answerLine('bill') === null);
@@ -152,7 +157,7 @@ check('an upkeep that cannot be marked says nothing', answerLine('upkeep', false
 // The words a reminder carries, checked for praise, dashes and filler.
 const said = [];
 for (const [id, input] of Object.entries(ACTION_TEXT_INPUT)) said.push(input.placeholder, input.submitButtonTitle, id);
-for (const kind of ['dose', 'hydration', 'meal', 'garden', 'reminder', 'upkeep', 'compost', 'checkin']) said.push(answerLine(kind));
+for (const kind of ['dose', 'hydration', 'meal', 'garden', 'reminder', 'upkeep', 'compost', 'checkin', 'cropPrep', 'cropSow']) said.push(answerLine(kind));
 const sentenceForbidden = /well done|good job|keep it up|great|you should|real|genuine|own|[—–]| -- /i;
 for (const line of said) check(`"${line}" has no praise, dashes or filler`, typeof line === 'string' && !sentenceForbidden.test(line));
 

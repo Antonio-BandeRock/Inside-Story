@@ -68,11 +68,24 @@ import { listKitchenInventory } from './kitchenDb';
 import { formatGroceryAmount } from './groceryList';
 import { isUseByDate } from './useBy';
 import { listOpenTodos } from './todosDb';
+import { cropPlanReminders } from './cropPlan';
+import { listCropPlanSteps, listCropPlans } from './cropPlanDb';
+import { readCachedFrostDates } from './homeSky';
+import { frostAnchor } from './sowingWindows';
 
 /** Where a tapped reminder lands, each a lens that already takes a deep
  *  link (openLifeLens in app/(tabs)/life.tsx, openGardenLens in
  *  app/(tabs)/garden.tsx). */
-export type DatedReminderLens = 'finances' | 'upkeep' | 'work' | 'daysUntil' | 'compost' | 'myMeds' | 'kitchen' | 'todos';
+export type DatedReminderLens =
+  | 'finances'
+  | 'upkeep'
+  | 'work'
+  | 'daysUntil'
+  | 'compost'
+  | 'myMeds'
+  | 'kitchen'
+  | 'todos'
+  | 'sowingCalendar';
 /** A garden counter and a compost pile land on Garden when tapped;
  *  everything else on Life. */
 export type DatedReminderTab = 'life' | 'garden';
@@ -298,6 +311,22 @@ export async function listDatedReminderSources(today: string): Promise<DatedRemi
       tab: 'life',
       lens: 'todos',
     });
+  }
+
+  // My Crops (2026-10-01): only the crops somebody chose, from the frost
+  // dates last worked out for the saved place, with no fetch. No crops or
+  // no worked-out place means nothing at all.
+  const plans = await listCropPlans();
+  if (plans.length > 0) {
+    const frost = await readCachedFrostDates();
+    const anchor = frost.status === 'ready' ? frostAnchor(frost.dates.frost, frost.dates.southern) : null;
+    if (anchor) {
+      const steps = await listCropPlanSteps();
+      for (const r of cropPlanReminders(plans, steps, anchor, today)) {
+        if (r.dueOn < today) continue;
+        sources.push({ ...r, tab: 'garden', lens: 'sowingCalendar', markable: true });
+      }
+    }
   }
 
   return sources;

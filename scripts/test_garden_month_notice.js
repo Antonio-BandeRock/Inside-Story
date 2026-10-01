@@ -98,6 +98,13 @@ const plantCount = ff.find((l) => l.label === 'Plant').crops.length;
 check('a long line names six and counts the rest',
   plantCount > X.NAMES_PER_LINE && plantLine.endsWith(`with ${plantCount - X.NAMES_PER_LINE} more on the calendar.`));
 
+// Only the crops chosen in My Crops (2026-10-01).
+const chosenFF = X.gardenMonthLines(frostFree, '2026-10-01', new Set(['lettuce']));
+check('a chosen crop is the only one named', chosenFF.every((l) => l.crops.every((c) => c === 'Lettuce')) && chosenFF.length > 0);
+check('nothing chosen names nothing', X.gardenMonthLines(frostFree, '2026-10-01', new Set()).length === 0);
+const chosenBody = X.buildGardenMonthBody({ status: 'ready', anchor: north, placeLabel: null, southern: false }, new Date(2027, 6, 1, 8, 0), new Set(['garlic']));
+check('a quiet month for the chosen crops says My Crops', chosenBody.startsWith('Nothing in My Crops opens') || chosenBody.includes('Garlic'));
+
 // 3. The sky.
 const sky = X.skyLine(new Date(2027, 2, 1, 8, 0), false);
 check('March 2027 has a full moon', /full moon March/.test(sky));
@@ -121,6 +128,8 @@ check('a label', prefs.includes("gardenMonth: 'This month in the garden'"));
 check('off by default', prefs.includes('gardenMonth: false,'));
 const notes = read('lib/reminderNotifications.ts');
 check('scheduled when on', notes.includes("isReminderKindEnabled(preferences, 'gardenMonth')"));
+check('nothing is sent while My Crops is empty', notes.includes('if (fireAt && chosen.size > 0)'));
+check('the body is given the chosen crops', notes.includes('buildGardenMonthBody(place, fireAt, chosen)'));
 check('the tap opens the Sowing Calendar', notes.includes("if (data.lens === 'sowingCalendar') return { pathname: '/garden', params: { openGardenLens: 'sowingCalendar' } };"));
 check('never fetched in the background', notes.includes('readCachedFrostDates()') && !/gardenMonth[\s\S]{0,1500}getFrostDates\(/.test(notes));
 const garden = read('app/(tabs)/garden.tsx');

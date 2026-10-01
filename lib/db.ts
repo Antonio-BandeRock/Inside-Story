@@ -9339,6 +9339,34 @@ async function runDatabaseInitialization() {
       );
     `);
 
+    // My Crops (2026-10-01, 1.0.58.3): the crops somebody intends to grow,
+    // the area each goes in, and each step done for a sowing window, which
+    // is what quiets that window's reminders. A crop with steps is retired
+    // rather than deleted, and an area a crop is planned for counts as
+    // holding records. Both travel between one person's devices. See
+    // lib/cropPlan.ts and lib/cropPlanDb.ts.
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS garden_crop_plans (
+        id TEXT PRIMARY KEY,
+        crop_key TEXT NOT NULL,
+        plot_id TEXT,
+        retired_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS garden_crop_plan_steps (
+        id TEXT PRIMARY KEY,
+        plan_id TEXT NOT NULL,
+        action TEXT NOT NULL,
+        window_start TEXT NOT NULL,
+        step TEXT NOT NULL,
+        done_on TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_garden_crop_plan_steps_plan ON garden_crop_plan_steps(plan_id);
+    `);
+
     // 2026-08-30, direct on-device report: "when I had the app create a 6 week
     // meal plan schedule, it seems to have made all of them a favorite
     // automatically. If that is the case, it definitely should not do that."
@@ -23961,9 +23989,9 @@ export async function deleteGardenPlot(id: string): Promise<boolean> {
 }
 
 /** Whether anything is recorded under an area: a planting, a harvest, a
- *  growing cost, a compost pile feeding it, a piece of its setup, or a
- *  Days Until counter. An area with any of these is documentation and is
- *  never deleted. */
+ *  growing cost, a compost pile feeding it, a piece of its setup, a Days
+ *  Until counter, or a crop in My Crops planned for it. An area with any
+ *  of these is documentation and is never deleted. */
 export async function gardenPlotHasRecords(id: string): Promise<boolean> {
   const db = await getDatabase();
   const row = await db.getFirstAsync<{ n: number }>(
@@ -23974,8 +24002,10 @@ export async function gardenPlotHasRecords(id: string): Promise<boolean> {
            + (SELECT COUNT(*) FROM compost_piles WHERE plot_id = ?)
            + (SELECT COUNT(*) FROM garden_equipment WHERE plot_id = ?)
            + (SELECT COUNT(*) FROM garden_countdowns WHERE plot_id = ?)
+           + (SELECT COUNT(*) FROM garden_crop_plans WHERE plot_id = ?)
            + (SELECT COUNT(*) FROM garden_plots WHERE inside_plot_id = ?) AS n
     `,
+    id,
     id,
     id,
     id,

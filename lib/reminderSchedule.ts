@@ -44,7 +44,20 @@ export const REMINDER_HOUR = 9;
 // H2 (2026-09-28): useBy, something in the kitchen with a use-by date, the
 // day before and on the day.
 // C10 (2026-09-30): todo, a to-do given a day, on that day only.
-export type DatedReminderKind = 'bill' | 'upkeep' | 'benefit' | 'countdown' | 'compost' | 'refill' | 'useBy' | 'todo';
+// 2026-10-01: cropPrep and cropSow, a crop chosen in My Crops (Garden >
+// Sowing Calendar), a week before a sowing window to get the area ready and
+// on the day it opens. See lib/cropPlan.ts.
+export type DatedReminderKind =
+  | 'bill'
+  | 'upkeep'
+  | 'benefit'
+  | 'countdown'
+  | 'compost'
+  | 'refill'
+  | 'useBy'
+  | 'todo'
+  | 'cropPrep'
+  | 'cropSow';
 
 export const ALL_DATED_REMINDER_KINDS: DatedReminderKind[] = [
   'bill',
@@ -55,6 +68,8 @@ export const ALL_DATED_REMINDER_KINDS: DatedReminderKind[] = [
   'refill',
   'useBy',
   'todo',
+  'cropPrep',
+  'cropSow',
 ];
 
 /**
@@ -97,6 +112,11 @@ export const LEAD_DAYS: Record<DatedReminderKind, number[]> = {
   // The day it was given, once. A to-do left open is not chased: it stays on
   // its list under From earlier, still open, where it can be done or let go.
   todo: [0],
+  // The week of warning is already in the due date (PREP_LEAD_DAYS in
+  // lib/cropPlan.ts), so each speaks once, on its day. Neither repeats:
+  // Prepped and Sown are what quiet them, and a window passes on its own.
+  cropPrep: [0],
+  cropSow: [0],
 };
 
 /**
@@ -286,6 +306,8 @@ export const DATED_KIND_PREFIX: Record<DatedReminderKind, string | null> = {
   refill: 'Refill',
   useBy: 'Kitchen',
   todo: 'To-do',
+  cropPrep: 'Get ready',
+  cropSow: 'Sowing time',
 };
 
 /**
@@ -305,6 +327,8 @@ export function describeDatedDue(kind: DatedReminderKind, lead: number): string 
   if (kind === 'refill') return lead < 0 ? `Ask for more, the day was ${when}` : `Ask for more ${when}`;
   // A to-do past its day is still open, never late or missed.
   if (kind === 'todo') return lead < 0 ? `Still open from ${when}` : lead === 0 ? 'For today' : `For ${when}`;
+  if (kind === 'cropPrep') return lead < 0 ? `Was a week ahead of ${when}` : 'A week to get the area ready';
+  if (kind === 'cropSow') return lead < 0 ? `The window opened ${when}` : 'The window opens today';
   if (kind === 'useBy') return lead < 0 ? `Its use-by date was ${when}` : lead === 0 ? 'Use it today' : `Use it by ${when}`;
   return lead < 0 ? `Was due ${when}` : `Due ${when}`;
 }

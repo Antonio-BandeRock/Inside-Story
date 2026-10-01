@@ -233,6 +233,8 @@ const AREAS: readonly Area[] = [
   // Both kinds of counter read as one thing here, 2026-09-22: somebody who
   // started three of them does not care which tab each was born on.
   { one: 'Days Until counter', many: 'Days Until counters', count: ['garden_countdowns', 'countdowns'], quiet: [] },
+  // My Crops, 2026-10-01. A step marked on a crop is part of the crop.
+  { one: 'crop in My Crops', many: 'crops in My Crops', count: ['garden_crop_plans'], quiet: ['garden_crop_plan_steps'] },
   { one: 'night logged', many: 'nights logged', count: ['nocturia_nights'], quiet: [] },
   { one: 'period day logged', many: 'period days logged', count: ['cycle_days'], quiet: [] },
   { one: 'bowel movement logged', many: 'bowel movements logged', count: ['bowel_movements'], quiet: [] },

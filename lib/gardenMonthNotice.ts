@@ -12,6 +12,13 @@
 // change only when the place does, so the list stays right however long it
 // waits; the last line names the place it was worked out for.
 //
+// Since 2026-10-01 it names only the crops chosen in My Crops (lib/cropPlan.ts),
+// and the reconcile sends nothing at all when none are chosen. Direct report:
+// "I have a notification about planting certain things right now, but I never
+// asked it to notify me about that because I don't have any crops built into
+// the app for me to follow." `chosen` null still means every crop, which is
+// what the test reads the calendar's shape with.
+//
 // Nothing here says a crop has to go in. A window is where a crop usually
 // does well, and the body says what is open, never what to do.
 
@@ -53,9 +60,10 @@ function cropName(key: string): string {
  *  one line per kind of work, in the order the work is done. A crop named
  *  under a special label (seed potatoes, garlic cloves) keeps that label,
  *  so a line is one label rather than one action. */
-export function gardenMonthLines(anchor: FrostAnchor, today: string): GardenMonthLine[] {
+export function gardenMonthLines(anchor: FrostAnchor, today: string, chosen: ReadonlySet<string> | null = null): GardenMonthLine[] {
   const groups = new Map<string, { order: number; crops: string[] }>();
   for (const w of SOWING_WINDOWS) {
+    if (chosen && !chosen.has(w.key)) continue;
     for (const d of windowsNear(w, anchor, today, GARDEN_MONTH_DAYS)) {
       const label = actionLabel(w, d.action);
       const group = groups.get(label) ?? { order: ACTION_ORDER.indexOf(d.action), crops: [] };
@@ -94,7 +102,7 @@ export function skyLine(fireAt: Date, southern: boolean | null): string | null {
   return `In the sky: ${text}.`;
 }
 
-export function buildGardenMonthBody(place: GardenMonthPlace, fireAt: Date): string {
+export function buildGardenMonthBody(place: GardenMonthPlace, fireAt: Date, chosen: ReadonlySet<string> | null = null): string {
   const today = localDate(fireAt.getTime());
   const until = addDaysToDate(today, GARDEN_MONTH_DAYS - 1);
   const lines: string[] = [];
@@ -107,9 +115,13 @@ export function buildGardenMonthBody(place: GardenMonthPlace, fireAt: Date): str
   } else if (place.anchor === null) {
     lines.push('The weather history for this place had too few days to work out its frost dates, so there are no windows to name.');
   } else {
-    const found = gardenMonthLines(place.anchor, today);
+    const found = gardenMonthLines(place.anchor, today, chosen);
     if (found.length === 0) {
-      lines.push(`Nothing on the sowing calendar opens between ${dateLabel(today)} and ${dateLabel(until)}.`);
+      lines.push(
+        chosen
+          ? `Nothing in My Crops opens between ${dateLabel(today)} and ${dateLabel(until)}.`
+          : `Nothing on the sowing calendar opens between ${dateLabel(today)} and ${dateLabel(until)}.`,
+      );
     } else {
       lines.push(`Open or opening ${dateLabel(today)} to ${dateLabel(until)}:`);
       for (const line of found) lines.push(lineText(line));

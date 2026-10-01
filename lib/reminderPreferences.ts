@@ -43,6 +43,8 @@ export type ReminderKindKey =
   | 'refill'
   | 'useBy'
   | 'todo'
+  | 'cropPrep'
+  | 'cropSow'
   | 'photoSeries'
   | 'reminder';
 
@@ -115,6 +117,10 @@ export const ALL_REMINDER_KIND_KEYS: ReminderKindKey[] = [
   'useBy',
   // C10 (2026-09-30). A to-do given a day, once on that day.
   'todo',
+  // 2026-10-01. A crop chosen in My Crops: a week before a sowing window to
+  // get the area ready, and the day it opens. Dated like the ones above it.
+  'cropPrep',
+  'cropSow',
   // 1.0.53.7. A Photo Series asking for today's photo, at the time it was
   // given, skipped on a day the photo is already in. Timed like a routine,
   // but a record of something, so it sits after the dated kinds.
@@ -150,6 +156,8 @@ export const REMINDER_KIND_LABELS: Record<ReminderKindKey, string> = {
   refill: 'Running low on a med',
   useBy: 'Use it before its date',
   todo: 'A to-do on its day',
+  cropPrep: 'Get an area ready for a crop',
+  cropSow: 'Time to sow a crop',
   photoSeries: 'Photo series',
   reminder: 'Things you noted down',
 };
@@ -169,7 +177,7 @@ export const REMINDER_KIND_CAPTIONS: Record<ReminderKindKey, string> = {
   weekPlan:
     'Once a week, on the day and at the time you pick below, the meals planned for the next seven days, one line a day. It names the meals, so they can be read on a locked screen. A meal planned after the app was last opened is not in it yet.',
   gardenMonth:
-    'Once a month, on the day and at the time you pick below, what Garden > Sowing Calendar has open or opening over the next 30 days, one line for each kind of work, with the full and new moons. It needs a place saved in Garden > My Zone to name crops.',
+    'Once a month, on the day and at the time you pick below, what is open or opening over the next 30 days for the crops you chose in Garden > Sowing Calendar > My Crops, one line for each kind of work, with the full and new moons. Nothing comes while My Crops is empty, and it needs a place saved in Garden > My Zone to name windows.',
   afterMeal:
     'About two hours after a meal you logged, the same two buttons. Only the latest meal asks, a drink on its own asks nothing, and nothing comes once you have checked in since eating.',
   garden: 'Anything planned in Garden > Upcoming Tasks, at the time it is set for.',
@@ -194,6 +202,10 @@ export const REMINDER_KIND_CAPTIONS: Record<ReminderKindKey, string> = {
   useBy:
     'Something in Life > Kitchen with a use-by date you gave it, the day before and on the day. Marking it used or gone clears the reminder.',
   todo: 'A to-do on Life > To-Do or Work that you gave a day to, once on that day. Done on the reminder marks it done; one left open stays on the list and is not chased.',
+  cropPrep:
+    'A week before a sowing window opens for a crop in Garden > Sowing Calendar > My Crops, word to get its area ready. Prepped on the reminder records it. Only crops you chose, and only once a place is saved in My Zone.',
+  cropSow:
+    'The day a sowing window opens for a crop in My Crops. Sown on the reminder records it, and nothing more comes for that window.',
   photoSeries:
     "A Photo Series asking for today's photo, at the time set on the series. Tapping it opens the camera with the last photo faintly over the view. Skipped on a day the photo is already in.",
   reminder:
@@ -257,6 +269,8 @@ const DEFAULT_REMINDER_KIND_ENABLED: Record<ReminderKindKey, boolean> = {
   useBy: true,
   // On. A to-do only has a day because somebody gave it one.
   todo: true,
+  cropPrep: true,
+  cropSow: true,
   // On. A series exists only because somebody started one to take a photo
   // a day, and the reminder can be switched off on the series itself.
   photoSeries: true,

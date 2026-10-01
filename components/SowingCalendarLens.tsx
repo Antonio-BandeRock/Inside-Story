@@ -51,6 +51,7 @@ import {
   type SowingTradition,
 } from '../lib/sowingTraditions';
 import { HOME_BAND_GAP } from './HomeSectionBand';
+import { MyCropsBand } from './MyCropsBand';
 import { useInfoAlert } from './InfoAlert';
 import { makeTabBandStyles, TabBand } from './TabBand';
 
@@ -178,9 +179,11 @@ function calendarDays(today: string, southern: boolean | null): CalendarDay[] {
 export function SowingCalendarLens({
   scrollBottomPadding,
   onOpenMyZone,
+  onOpenPlantings,
 }: {
   scrollBottomPadding: number;
   onOpenMyZone: () => void;
+  onOpenPlantings: () => void;
 }) {
   const folds = useBandFolds();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -298,6 +301,8 @@ export function SowingCalendarLens({
           </>
         )}
       </View>
+
+      <MyCropsBand folds={folds} color={TAB_COLOR} anchor={anchor} today={today} onOpenPlantings={onOpenPlantings} />
 
       {anchor ? (
         <TabBand folds={folds} color={TAB_COLOR} id="garden:sowing:now" title="What to Sow Now" icon="calendar-outline" count={nearCount}>

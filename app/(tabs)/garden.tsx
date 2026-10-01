@@ -543,7 +543,11 @@ export default function GardenScreen() {
           ) : lens === 'daysUntil' ? (
             <DaysUntilLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'sowingCalendar' ? (
-            <SowingCalendarLens scrollBottomPadding={scrollBottomPadding} onOpenMyZone={() => setLens('myZone')} />
+            <SowingCalendarLens
+              scrollBottomPadding={scrollBottomPadding}
+              onOpenMyZone={() => setLens('myZone')}
+              onOpenPlantings={() => setLens('plotsAndPlantings')}
+            />
           ) : lens === 'harvestLog' ? (
             <HarvestLogLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'upcomingTasks' ? (
