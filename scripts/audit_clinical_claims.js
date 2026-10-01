@@ -43,6 +43,7 @@ const ts = require('typescript');
 const ROOT = path.resolve(__dirname, '..');
 
 const NAMED = [
+  'lib/bowel.ts',
   'lib/agreement.ts',
   'lib/todos.ts',
   'lib/planSentence.ts',

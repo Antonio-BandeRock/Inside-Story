@@ -74,6 +74,19 @@ import { readExperimentResult } from '../../lib/foodExperimentDb';
 import { deleteNocturiaNight, listNocturiaNights, saveNocturiaNight, type NocturiaNight } from '../../lib/nocturiaDb';
 import { deleteCycleDay, listAllCycleDays, listCycleDays, saveCycleDay, type CycleDayRow } from '../../lib/cycleDb';
 import {
+  BLOOD_NOTE,
+  BLOOD_WORDS,
+  BRISTOL_TYPES,
+  PAIN_WORDS,
+  URGENCY_WORDS,
+  bristolWords,
+  entryDetail,
+  type BowelEntry,
+  type BristolType,
+} from '../../lib/bowel';
+import { addBowelEntry, listBowelEntries, removeBowelEntry } from '../../lib/bowelDb';
+import BristolPicture from '../../components/BristolPicture';
+import {
   FLOW_WORDS,
   NOT_FOR_CONTRACEPTION,
   TOO_FEW_CYCLES,
@@ -128,7 +141,20 @@ const TAB_COLOR = colors.tabBioCompass;
 // out. Nocturia added the same day as a new lens; since 1.0.52.7 its
 // nights are kept in nocturia_nights (lib/nocturiaDb.ts) and read on
 // Trends > Nights.
-type Lens = 'flares' | 'foodReactions' | 'newFoods' | 'exercise' | 'bloodPressure' | 'therapies' | 'generalNote' | 'nocturia' | 'cycle' | 'trackers';
+// Bowel Movements (D10, 2026-09-30): each one by its Bristol type, kept in
+// bowel_movements (lib/bowelDb.ts) and read on Trends > Symptoms & Flares.
+type Lens =
+  | 'flares'
+  | 'foodReactions'
+  | 'newFoods'
+  | 'exercise'
+  | 'bloodPressure'
+  | 'therapies'
+  | 'generalNote'
+  | 'nocturia'
+  | 'bowel'
+  | 'cycle'
+  | 'trackers';
 
 // Shared caveat, appended to every lens's help -- same pattern as
 // DRILLING_DOWN_HELP (insights.tsx), REPEATING_SCHEDULES_HELP (schedule.tsx),
@@ -246,6 +272,22 @@ const LENSES: LensOption<Lens>[] = [
     ],
   },
   {
+    key: 'bowel',
+    label: 'Bowel Movements',
+    icon: 'ellipse-outline',
+    help: [
+      {
+        heading: 'Bowel Movements',
+        body: 'Each bowel movement by its Bristol type, 1 to 7, pictured and described in plain words, with urgency, any blood, any pain and a note if you want them. No type is marked good or bad here: the scale records what it looked like, which is what a clinician will ask about. Trends > Symptoms & Flares shows the types day by day, a day with nothing logged reads as nothing logged rather than none, and Pattern Finder can count what came before the days with a type 1 or 2 or a type 6 or 7.',
+      },
+      {
+        heading: 'Blood',
+        body: BLOOD_NOTE,
+      },
+      LOG_PERSONAL_NOTES_HELP,
+    ],
+  },
+  {
     key: 'cycle',
     label: 'Cycle',
     icon: 'water-outline',
@@ -311,6 +353,10 @@ const LOG_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'Nocturia',
     body: 'Not built yet. Waking at night to urinate is a trackable symptom worth logging, added as a placeholder here, 2026-07-28, until logging (how many times, what time) gets designed and built.',
+  },
+  {
+    heading: 'Bowel Movements',
+    body: 'Each bowel movement by its Bristol type, 1 to 7, with urgency, any blood, any pain and a note. No type is marked good or bad, and blood is recorded without the app reading anything into it.',
   },
   {
     heading: 'Personal notes, not medical fact',
@@ -2308,6 +2354,167 @@ function NocturiaLens() {
   );
 }
 
+// Bowel Movements (D10, 2026-09-30). One entry per movement, never edited:
+// a mistaken one is removed and logged again. Every sentence about a type,
+// and the blood note, lives in lib/bowel.ts.
+function BowelLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const [entries, setEntries] = useState<BowelEntry[]>([]);
+  const [formOpen, setFormOpen] = useState(false);
+  const [bristol, setBristol] = useState<BristolType | null>(null);
+  const [urgency, setUrgency] = useState<number | null>(null);
+  const [blood, setBlood] = useState<number | null>(null);
+  const [pain, setPain] = useState<number | null>(null);
+  const [note, setNote] = useState('');
+  const [dateChoice, setDateChoice] = useState<DateChoice>('today');
+  const [customDate, setCustomDate] = useState('');
+  const [time, setTime] = useState<TimeOfDayInput>(() => splitTime24(nowTimeString24()));
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+
+  const load = useCallback(() => {
+    listBowelEntries(50).then(setEntries);
+  }, []);
+
+  useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  function resetForm() {
+    setBristol(null);
+    setUrgency(null);
+    setBlood(null);
+    setPain(null);
+    setNote('');
+    setDateChoice('today');
+    setCustomDate('');
+    setTime(splitTime24(nowTimeString24()));
+  }
+
+  async function handleSave() {
+    if (bristol === null) {
+      showInfoAlert('Almost there', 'Pick the type that comes closest, 1 to 7.');
+      return;
+    }
+    const occurredAt = resolveDateTime(dateChoice, customDate, time);
+    if (!occurredAt) {
+      showInfoAlert('Almost there', 'Enter a valid date and time.');
+      return;
+    }
+    await addBowelEntry({ occurredAt, bristolType: bristol, urgency, blood, pain, note });
+    setFormOpen(false);
+    resetForm();
+    load();
+  }
+
+  async function handleRemove(id: string) {
+    await removeBowelEntry(id);
+    load();
+  }
+
+  function renderChoices(words: readonly string[], value: number | null, onChange: (next: number | null) => void) {
+    return (
+      <View style={styles.pillRow}>
+        {words.map((word, index) => {
+          const active = value === index;
+          return (
+            <TouchableOpacity
+              key={word}
+              style={[styles.pillSmall, active && styles.pillActive]}
+              onPress={() => onChange(active ? null : index)}
+            >
+              <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{word}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
+      <View style={styles.sectionColumn}>
+        {!formOpen ? (
+          <TouchableOpacity style={styles.addButton} onPress={() => setFormOpen(true)}>
+            <Text style={styles.addButtonText}>+ Log a bowel movement</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.formCard}>
+            <Text style={styles.label}>Which type comes closest</Text>
+            {BRISTOL_TYPES.map(({ type, words }) => {
+              const active = bristol === type;
+              return (
+                <TouchableOpacity
+                  key={type}
+                  style={[styles.bristolRow, active && { borderColor: TAB_COLOR }]}
+                  onPress={() => setBristol(active ? null : type)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: active }}
+                  accessibilityLabel={`Type ${type}, ${words}`}
+                >
+                  <BristolPicture type={type} color={active ? TAB_COLOR : colors.textMuted} background={colors.surface} />
+                  <View style={styles.rowTextCol}>
+                    <Text style={styles.rowTitle}>{`Type ${type}`}</Text>
+                    <Text style={styles.rowMeta}>{words}</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+            <Text style={styles.label}>Urgency (optional)</Text>
+            {renderChoices(URGENCY_WORDS, urgency, setUrgency)}
+            <Text style={styles.label}>Blood (optional)</Text>
+            {renderChoices(BLOOD_WORDS, blood, setBlood)}
+            {blood === 1 || blood === 2 ? <Text style={styles.helperText}>{BLOOD_NOTE}</Text> : null}
+            <Text style={styles.label}>Pain (optional)</Text>
+            {renderChoices(PAIN_WORDS, pain, setPain)}
+            <Text style={styles.label}>When</Text>
+            <DateChoicePicker value={dateChoice} onChange={setDateChoice} customDate={customDate} onCustomDateChange={setCustomDate} />
+            <TimePicker value={time} onChange={setTime} />
+            <Text style={styles.label}>Note (optional)</Text>
+            <NotesInput style={styles.input} placeholder="Anything worth remembering" value={note} onChangeText={setNote} />
+            <View style={styles.formActions}>
+              <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
+                <Text style={styles.secondaryButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.primaryButton} onPress={handleSave}>
+                <Text style={styles.primaryButtonText}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+
+        {entries.length === 0 ? (
+          <View style={styles.panelStandalone}>
+            <Text style={styles.emptyText}>No bowel movements logged yet.</Text>
+          </View>
+        ) : (
+          <View style={styles.table}>
+            {entries.map((entry) => {
+              const [year, month, day] = entry.occurredAt.slice(0, 10).split('-').map(Number);
+              const detail = entryDetail(entry);
+              return (
+                <View key={entry.id} style={[styles.row, styles.bowelRow]}>
+                  <BristolPicture type={entry.bristolType} color={TAB_COLOR} background={colors.surface} />
+                  <View style={styles.rowTextCol}>
+                    <Text style={styles.rowTitle}>{`Type ${entry.bristolType}: ${bristolWords(entry.bristolType)}`}</Text>
+                    <Text style={styles.rowMeta}>
+                      {`${dateLabelFromParts(year, month, day)}, ${formatTime12(entry.occurredAt.slice(11, 16))}${detail ? ` · ${detail}` : ''}`}
+                    </Text>
+                    {entry.blood === 1 ? <Text style={styles.rowMeta}>{BLOOD_NOTE}</Text> : null}
+                  </View>
+                  <View style={styles.rowActions}>
+                    <TouchableOpacity onPress={() => handleRemove(entry.id)}>
+                      <Text style={styles.actionTextRemove}>Remove</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
+      </View>
+    </ScrollView>
+  );
+}
+
 // Cycle (E1 and E5, 2026-09-26): period days by hand, one row a day
 // (logging the same day again replaces it), and the average of past cycles
 // with the date it reaches. Pattern Finder reads the period starts for
@@ -2915,6 +3122,8 @@ export default function LogScreen() {
             <GeneralNoteLens />
           ) : lens === 'nocturia' ? (
             <NocturiaLens />
+          ) : lens === 'bowel' ? (
+            <BowelLens />
           ) : lens === 'cycle' ? (
             <CycleLens />
           ) : (
@@ -3134,4 +3343,6 @@ const styles = StyleSheet.create({
   clearedText: { color: colors.primary },
   flaggedText: { color: colors.danger },
   waitingText: { color: colors.textMuted },
+  bristolRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 6, paddingHorizontal: 8, borderWidth: 1, borderRadius: 8, borderColor: 'transparent' },
+  bowelRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
 });

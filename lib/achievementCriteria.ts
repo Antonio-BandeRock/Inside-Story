@@ -111,6 +111,7 @@ export type AchievementCriterionKey =
   | 'food_trial_finished'
   | 'therapy_session_logged'
   | 'period_day_recorded'
+  | 'bowel_movement_logged'
   | 'meal_logged'
   | 'supplement_dose_logged'
   | 'prescription_dose_logged'
@@ -239,6 +240,7 @@ const OTHER_CRITERIA: CriterionDefinition[] = [
   },
   { key: 'therapy_session_logged', label: 'Recorded a therapy session', tab: '/log', firstQuery: firstOf('therapy_sessions', 'performed_at') },
   { key: 'period_day_recorded', label: 'Recorded a period day', tab: '/log', firstQuery: firstOf('cycle_days', 'day') },
+  { key: 'bowel_movement_logged', label: 'Logged a bowel movement', tab: '/log', firstQuery: firstOf('bowel_movements', 'occurred_at') },
 
   // Schedules
   {

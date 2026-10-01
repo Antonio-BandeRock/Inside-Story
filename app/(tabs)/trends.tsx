@@ -71,6 +71,8 @@ import { contextCaveat } from '../../lib/patternContext';
 import { FACTOR_BAND_EMPTY_LINE, FACTOR_CAVEAT, factorComparisonSentence } from '../../lib/patternFactors';
 import { OUTCOME_WORDS, PATTERN_OUTCOMES, emptyOutcomeSentence, outcomeCountsSentence, type PatternOutcome } from '../../lib/patternOutcome';
 import { DAILY_SCALES, answeredSentence, scaleWord, type DailyScaleKey, type DailyScalePoint } from '../../lib/dailyScales';
+import { BLOOD_NOTE, bloodSeenLine, bowelPeriods, bowelRangeSentence, bowelTypeTally, type BowelEntry } from '../../lib/bowel';
+import { listBowelEntriesBetween } from '../../lib/bowelDb';
 import { USUAL_BAND_LABEL, usualBandFor, usualSentence } from '../../lib/yourUsual';
 import {
   averagesByMonth,
@@ -1082,6 +1084,7 @@ export default function TrendsScreen() {
   const [sixDsSeries, setSixDsSeries] = useState<TrendPoint[] | null>(null);
   const [symptomsSeries, setSymptomsSeries] = useState<CheckinSeverityPoint[] | null>(null);
   const [scaleSeries, setScaleSeries] = useState<Record<DailyScaleKey, DailyScalePoint[]> | null>(null);
+  const [bowelEntries, setBowelEntries] = useState<BowelEntry[]>([]);
   const [trackerSeries, setTrackerSeries] = useState<{ tracker: CustomTracker; points: TrackerPoint[] }[] | null>(null);
   const [eatingWindowTrend, setEatingWindowTrend] = useState<EatingWindowTrend | null>(null);
   // Null whenever fasting is off or either window time is unset -- which
@@ -1297,9 +1300,14 @@ export default function TrendsScreen() {
         setLoading(false);
       });
     } else if (lens === 'symptoms') {
-      Promise.all([getCheckinSeverityTrendSeries(['flare', 'post_meal'], days), getDailyScaleSeries(days)]).then(([points, scales]) => {
+      Promise.all([
+        getCheckinSeverityTrendSeries(['flare', 'post_meal'], days),
+        getDailyScaleSeries(days),
+        listBowelEntriesBetween(resolvedRange.startDate, resolvedRange.endDate),
+      ]).then(([points, scales, bowel]) => {
         setSymptomsSeries(points);
         setScaleSeries(scales);
+        setBowelEntries(bowel);
         setLoading(false);
       });
     } else if (lens === 'eatingWindow') {
@@ -2794,6 +2802,28 @@ export default function TrendsScreen() {
                     </TabBand>
                   );
                 })}
+                <TabBand folds={folds} color={TAB_COLOR} id="trends:symptoms:bowel" title="Bowel Movements" icon="ellipse-outline">
+                  <View style={styles.chartCard}>
+                    <Text style={styles.caption}>
+                      {bowelRangeSentence(bowelEntries, resolvedRange.startDate, resolvedRange.endDate)}
+                    </Text>
+                    {bowelEntries.length > 0 ? (
+                      <>
+                        <Text style={styles.caption}>
+                          {bowelTypeTally(bowelEntries)
+                            .map(({ type, count }) => `Type ${type}: ${count}`)
+                            .join(' · ')}
+                        </Text>
+                        {renderPeriodRows(bowelPeriods(bowelEntries, resolvedRange.startDate, resolvedRange.endDate))}
+                        {bloodSeenLine(bowelEntries) ? (
+                          <Text style={styles.caption}>{`${bloodSeenLine(bowelEntries)} ${BLOOD_NOTE}`}</Text>
+                        ) : null}
+                      </>
+                    ) : (
+                      <Text style={styles.caption}>Bowel movements go in Signals &gt; Bowel Movements.</Text>
+                    )}
+                  </View>
+                </TabBand>
                 </>
               )
             ) : lens === 'eatingWindow' ? (

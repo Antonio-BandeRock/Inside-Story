@@ -18,6 +18,8 @@ import { severityOnTen } from './severityScale';
 import { listPeriodStarts } from './cycleDb';
 import { OUTCOME_WORDS, scaleOutcomeEvents, type PatternOutcome } from './patternOutcome';
 import { listOutcomeEvents, noneTodayDays } from './dailyList';
+import { bowelOutcomeStamps } from './bowel';
+import { listBowelEntriesBetween } from './bowelDb';
 import { localStampOf } from './dailyScales';
 import { getNutrientTrendSeriesForRange, getSleepTrendPoints } from './trendAnalysis';
 import { getCheckinTagDefinition } from './checkinTags';
@@ -370,8 +372,16 @@ export async function findFoodPatterns(
   // answer (lib/patternOutcome.ts). Everything below counts whichever
   // population this is; only the words change.
   const generalCheckins = await listCheckins({ checkinType: 'general', limit: Math.max(1000, days * 6) });
-  const symptomCheckins =
-    outcome === 'flares'
+  type OutcomeMoment = Pick<Awaited<ReturnType<typeof listCheckins>>[number], 'loggedAt' | 'severity' | 'severityTen'>;
+  const symptomCheckins: OutcomeMoment[] =
+    outcome === 'bowelTypesOneTwo' || outcome === 'bowelTypesSixSeven'
+      ? // D10: the first entry of those types on each day, from the bowel log.
+        bowelOutcomeStamps(
+          await listBowelEntriesBetween(rangeStart, toLocalDateTimeString(new Date()).slice(0, 10)),
+          outcome === 'bowelTypesOneTwo' ? 'typesOneTwo' : 'typesSixSeven',
+          rangeStart,
+        ).map((stamp) => ({ loggedAt: stamp, severity: null, severityTen: null }))
+      : outcome === 'flares'
       ? await Promise.all([
           listCheckins({ checkinType: 'flare', limit: Math.max(200, days * 4) }),
           listCheckins({ checkinType: 'post_meal', limit: Math.max(200, days * 4) }),

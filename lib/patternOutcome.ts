@@ -9,8 +9,17 @@
 // rather than calling a low-mood day a flare.
 
 // D6 adds a fifth: days something on the daily list was rated Moderate or
-// worse (lib/dailyList.ts).
-export type PatternOutcome = 'flares' | 'lowMood' | 'lowEnergy' | 'highStress' | 'listSymptoms';
+// worse (lib/dailyList.ts). D10 adds two from the bowel log: days with a
+// Bristol type 1 or 2, and days with a type 6 or 7 (lib/bowel.ts), named by
+// the type numbers rather than called good or bad.
+export type PatternOutcome =
+  | 'flares'
+  | 'lowMood'
+  | 'lowEnergy'
+  | 'highStress'
+  | 'listSymptoms'
+  | 'bowelTypesOneTwo'
+  | 'bowelTypesSixSeven';
 export type ScaleOutcome = 'lowMood' | 'lowEnergy' | 'highStress';
 
 export type OutcomeWords = {
@@ -34,6 +43,8 @@ export const PATTERN_OUTCOMES: { key: PatternOutcome; label: string }[] = [
   { key: 'lowEnergy', label: 'Low energy days' },
   { key: 'highStress', label: 'High stress days' },
   { key: 'listSymptoms', label: 'Daily list days' },
+  { key: 'bowelTypesOneTwo', label: 'Bristol type 1 or 2 days' },
+  { key: 'bowelTypesSixSeven', label: 'Bristol type 6 or 7 days' },
 ];
 
 export const OUTCOME_WORDS: Record<PatternOutcome, OutcomeWords> = {
@@ -82,6 +93,24 @@ export const OUTCOME_WORDS: Record<PatternOutcome, OutcomeWords> = {
     logged: 'day I rated something on my daily list Moderate or worse',
     loggedMany: 'days I rated something on my daily list Moderate or worse',
   },
+  bowelTypesOneTwo: {
+    one: 'Bristol type 1 or 2 day',
+    many: 'Bristol type 1 or 2 days',
+    short: 'type 1 or 2 day',
+    shortMany: 'type 1 or 2 days',
+    owner: 'the',
+    logged: 'day I logged a Bristol type 1 or 2',
+    loggedMany: 'days I logged a Bristol type 1 or 2',
+  },
+  bowelTypesSixSeven: {
+    one: 'Bristol type 6 or 7 day',
+    many: 'Bristol type 6 or 7 days',
+    short: 'type 6 or 7 day',
+    shortMany: 'type 6 or 7 days',
+    owner: 'the',
+    logged: 'day I logged a Bristol type 6 or 7',
+    loggedMany: 'days I logged a Bristol type 6 or 7',
+  },
 };
 
 // Which answer counts. The two ends of each scale, and nothing in the
@@ -104,6 +133,10 @@ export function outcomeCountsSentence(outcome: PatternOutcome): string {
       return 'Counting each day you rated your stress 4 or 5, once per day, at the time of that answer.';
     case 'listSymptoms':
       return 'Counting each day you rated something on your daily list Moderate or worse, once per day, at the time of that answer.';
+    case 'bowelTypesOneTwo':
+      return 'Counting each day you logged a Bristol type 1 or 2 in Signals > Bowel Movements, once per day, at the time of the first one.';
+    case 'bowelTypesSixSeven':
+      return 'Counting each day you logged a Bristol type 6 or 7 in Signals > Bowel Movements, once per day, at the time of the first one.';
   }
 }
 
@@ -111,6 +144,10 @@ export function emptyOutcomeSentence(outcome: PatternOutcome): string {
   if (outcome === 'flares') return "Log a flare or food reaction in Signals first; there's nothing to look for a pattern in yet.";
   if (outcome === 'listSymptoms') {
     return "No day in this range has anything on your daily list rated Moderate or worse. The daily list is at the top of Home's Today's Check-In once you add a symptom to it.";
+  }
+  if (outcome === 'bowelTypesOneTwo' || outcome === 'bowelTypesSixSeven') {
+    const which = outcome === 'bowelTypesOneTwo' ? '1 or 2' : '6 or 7';
+    return `No day in this range has a Bristol type ${which} logged. Bowel movements go in Signals > Bowel Movements.`;
   }
   const scale = SCALE_OF[outcome].key;
   const which = outcome === 'highStress' ? '4 or 5' : '1 or 2';

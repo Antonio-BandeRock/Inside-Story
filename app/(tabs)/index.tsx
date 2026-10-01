@@ -2834,9 +2834,14 @@ export default function HomeScreen() {
         )}
         {feelingPickerOpen ? null : (
           // D8: the morning, feeling and flare questions in one sequence.
-          <TouchableOpacity onPress={() => router.push('/daily-checkin')} hitSlop={8}>
-            <Text style={[styles.feelingChangeLink, { color: tabColorFor('/log'), marginTop: 10 }]}>
-              Check in one question at a time: morning, feeling, any flare
+          <TouchableOpacity
+            style={[styles.feelingStartButton, { borderColor: tabColorFor('/log'), marginTop: 10 }]}
+            onPress={() => router.push('/daily-checkin')}
+            activeOpacity={0.85}
+          >
+            <Text style={[styles.feelingStartButtonText, { color: tabColorFor('/log') }]}>Check In One Question at a Time</Text>
+            <Text style={[styles.feelingChangeLink, { color: tabColorFor('/log'), textAlign: 'center' }]}>
+              Morning, feeling, any flare
             </Text>
           </TouchableOpacity>
         )}

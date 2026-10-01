@@ -7940,6 +7940,25 @@ async function runDatabaseInitialization() {
       );
       CREATE UNIQUE INDEX IF NOT EXISTS idx_cycle_days_day_source ON cycle_days(day, source);
 
+      -- Bowel movements (D10, 2026-09-30): one row per movement, written in
+      -- Signals > Bowel Movements and never edited afterwards (a mistaken
+      -- entry is removed and logged again). occurred_at is local time,
+      -- 'YYYY-MM-DDTHH:mm'. bristol_type is 1 to 7; urgency 0 to 2, blood
+      -- 0 none seen, 1 seen, 2 not sure, pain 0 to 3, each null when not
+      -- answered. Read by lib/bowel.ts for Trends and Pattern Finder. Not
+      -- on the between-people allowlist.
+      CREATE TABLE IF NOT EXISTS bowel_movements (
+        id TEXT PRIMARY KEY,
+        occurred_at TEXT NOT NULL,
+        bristol_type INTEGER NOT NULL,
+        urgency INTEGER,
+        blood INTEGER,
+        pain INTEGER,
+        note TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_bowel_movements_occurred ON bowel_movements(occurred_at);
+
       -- Trackers the person names (D2, 2026-09-26): something this app never
       -- thought to ask about, named by the person, with a kind that never
       -- changes once made (scale, count, duration or measurement; see
