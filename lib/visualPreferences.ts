@@ -288,6 +288,10 @@ export type HomeSectionKey =
   // F12 of the competitive build plan (2026-09-26): a reading outside the
   // usual range, and nothing at all on any other day.
   | 'outsideUsual'
+  // D16 of the competitive build plan (2026-09-30): today's steps and
+  // exercise beside the person's typical day, and yesterday's overload or
+  // crash tags. Never a limit set by the app.
+  | 'pacingToday'
   // F13 of the competitive build plan (2026-09-26): the last seven days
   // beside the seven before, with a weekly reminder on a chosen day.
   | 'yourWeek'
@@ -446,6 +450,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'varietyThisWeek',
   'keepingUp',
   'outsideUsual',
+  'pacingToday',
   'yourWeek',
   'gardenYield',
   // Reports.
@@ -503,6 +508,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   morningCheckin: 'Morning Check-In',
   oneAtATime: 'One Question at a Time',
   outsideUsual: 'Outside Your Usual',
+  pacingToday: 'Pacing Today',
   yourWeek: 'Your Week',
   todaysCheckin: "Today's Check-In",
   logAgain: 'Log a Meal',

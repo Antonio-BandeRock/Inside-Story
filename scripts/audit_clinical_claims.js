@@ -68,6 +68,7 @@ const NAMED = [
   'lib/cycle.ts',
   'lib/bestWorstDays.ts',
   'lib/outsideUsual.ts',
+  'lib/pacing.ts',
   'lib/usualMeal.ts',
   'lib/mealVariety.ts',
   'lib/mealPack.ts',

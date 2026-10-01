@@ -188,6 +188,7 @@ const MORE_LENSES: Record<TrendsMoreLens, { loadingLine: string; missingItem?: Y
   ferments: { loadingLine: 'Reading your ferments…' },
   planned: { loadingLine: 'Reading what was planned and eaten…', missingItem: 'meal' },
   workouts: { loadingLine: 'Reading your workouts…', missingItem: 'exercise' },
+  pacing: { loadingLine: 'Reading your days…', missingItem: 'exercise' },
 };
 
 function isMoreLens(lens: TrendsLens): lens is TrendsMoreLens {
@@ -351,6 +352,32 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       {
         heading: 'Reading it',
         body: 'The sets are shown side by side as they were done. Nothing here calls one better than another or counts days in a row.',
+      },
+    ],
+  },
+  // D16, 1.0.57.24. Steps, exercise, therapy sessions and the overload or
+  // crash tags on check-ins, against the person's typical day. The builder
+  // is lib/pacing.ts.
+  {
+    key: 'pacing',
+    label: 'Pacing',
+    icon: 'pulse-outline',
+    help: [
+      {
+        heading: 'Pacing',
+        body: 'Your typical day of steps and exercise, each day of the last fortnight with what else happened in it, the days that went past the top of your usual set beside what was tagged in the two days after, the overload and crash tags themselves, and any therapy sessions.',
+      },
+      {
+        heading: 'No limit from the app',
+        body: 'Your usual is the middle of the days shown, which is what your days have been, never what they should be. The app sets no limit. Where one goes, if you want one, is for you and whoever looks after your health to decide.',
+      },
+      {
+        heading: 'Which tags count',
+        body: 'Energy crash, fatigue, overstimulated, noise or light felt painful, meltdown, shutdown and brain fog, plus any symptom you named under Energy or Sensory & Regulation. A tag only counts when it was put on a check-in.',
+      },
+      {
+        heading: 'Side by side',
+        body: 'A bigger day and a crash after it are shown together and never linked. A few weeks of one person can look like a pattern when it is not. A day with nothing recorded is a gap, never a zero.',
       },
     ],
   },

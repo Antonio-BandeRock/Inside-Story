@@ -404,6 +404,7 @@ export const TOUR_LENS_NAMES: Record<string, Record<string, string>> = {
     ferments: 'Ferments',
     planned: 'Planned and Eaten',
     workouts: 'Workouts',
+    pacing: 'Pacing',
   },
   '/reports': {
     overview: 'Overview',
@@ -544,6 +545,7 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     ferments: 'Ferments started, finished and eaten, over time.',
     planned: 'Meals you planned beside meals you ate.',
     workouts: 'Exercise by week, planned days and how they went, and each exercise from a workout, first time beside latest.',
+    pacing: 'Steps, exercise, therapy sessions and overload or crash tags against your typical day, with no limit set by the app.',
   },
   '/reports': {
     overview: 'Everything you logged over the range, in one report.',
@@ -906,7 +908,7 @@ export const TOUR_TABS: TourTabDef[] = [
     ],
     groups: [
       { title: 'Eating', lenses: ['nutrients', 'sixDs', 'variety', 'eatingWindow', 'groceries', 'hydration', 'planned', 'reactions'] },
-      { title: 'Your body', lenses: ['symptoms', 'weight', 'bloodPressure', 'bodySignals', 'movement', 'workouts', 'nights', 'labs', 'therapyResponse', 'doses'] },
+      { title: 'Your body', lenses: ['symptoms', 'weight', 'bloodPressure', 'bodySignals', 'movement', 'workouts', 'pacing', 'nights', 'labs', 'therapyResponse', 'doses'] },
       { title: 'Daily living', lenses: ['keepingUp', 'care', 'work', 'cost'] },
       { title: 'Garden and kitchen', lenses: ['harvest', 'conditions', 'ferments'] },
       { title: 'What you name', lenses: ['trackers'] },

@@ -110,6 +110,7 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   // them, which is why it sits with Trends rather than with Life.
   keepingUp: '/trends',
   outsideUsual: '/trends',
+  pacingToday: '/trends',
   // F13, 2026-09-26. Reads meals, flares, sleep, steps and the scales, and
   // sits with Trends because setting two weeks side by side is Trends' job.
   yourWeek: '/trends',

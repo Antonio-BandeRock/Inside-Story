@@ -147,6 +147,8 @@ import type { KeepingUpHomeSummary } from '../../lib/keepingUp';
 import { getKeepingUpHomeSummary } from '../../lib/keepingUpDb';
 import { OUTSIDE_USUAL_CAPTION, outsideUsualLines, type OutsideUsualLine } from '../../lib/outsideUsual';
 import { getOutsideUsualInputs } from '../../lib/outsideUsualDb';
+import { PACING_TODAY_CAPTION, type PacingTodayLine } from '../../lib/pacing';
+import { getPacingHomeLines } from '../../lib/trendsMoreDb';
 import { buildYourWeek, nothingLoggedSentence, YOUR_WEEK_CAPTION, type YourWeek } from '../../lib/weeklySummary';
 import { getYourWeekInputs } from '../../lib/weeklySummaryDb';
 import {
@@ -630,6 +632,9 @@ type DashboardData = {
   // F12, 2026-09-26: only the readings that sat outside the usual range.
   // Usually none, and then the card is not drawn at all.
   outsideUsual: OutsideUsualLine[];
+  // D16, 2026-09-30: today's steps and exercise beside the typical day.
+  // Empty until there are enough days for a usual range, and then no card.
+  pacingToday: PacingTodayLine[];
   // F13, 2026-09-26: the last seven days beside the seven before.
   yourWeek: YourWeek;
   // G25, 2026-09-27: the meal usually logged in the slot the clock is near,
@@ -912,6 +917,12 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.tabTrends,
     href: { pathname: '/trends', params: { openTrendsLens: 'movement' } } as Href,
   },
+  pacingToday: {
+    label: 'Pacing Today',
+    icon: 'pulse',
+    color: colors.tabTrends,
+    href: { pathname: '/trends', params: { openTrendsLens: 'pacing' } } as Href,
+  },
   yourWeek: {
     label: 'Your Week',
     icon: 'calendar-number',
@@ -1065,6 +1076,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'varietyThisWeek',
   'keepingUp',
   'outsideUsual',
+  'pacingToday',
   'yourWeek',
   'gardenYield',
   'makeReport',
@@ -1484,6 +1496,7 @@ export default function HomeScreen() {
     if (key === 'sharedFolderSetup') return sharedFolderReady === false;
     if (key === 'weekTrend') return Boolean(weekTrend);
     if (key === 'outsideUsual') return (data?.outsideUsual.length ?? 0) > 0;
+    if (key === 'pacingToday') return (data?.pacingToday.length ?? 0) > 0;
     if (key === 'usualMeal') return Boolean(data?.usualMeal) || usualMealLogged != null || (data?.tomorrowPacks.length ?? 0) > 0;
     return true;
   }
@@ -1722,6 +1735,8 @@ export default function HomeScreen() {
       getOutsideUsualInputs(),
       // F13, 2026-09-26. Fourteen days of records, set side by side here.
       getYourWeekInputs(),
+      // D16, 2026-09-30. Thirty days of steps, exercise and tags.
+      getPacingHomeLines(date),
       // G25, 2026-09-27. Four weeks of meal names and times, one query.
       getUsualMealsCard(date, nowTimeString24()),
       getTomorrowSlots(date, nowTimeString24()),
@@ -1756,6 +1771,7 @@ export default function HomeScreen() {
         gardenYield,
         outsideUsualInputs,
         yourWeekInputs,
+        pacingToday,
         usualMeal,
         tomorrowPacks,
         gaugeChoice,
@@ -1821,6 +1837,7 @@ export default function HomeScreen() {
           gardenYield,
           outsideUsual: outsideUsualLines(outsideUsualInputs),
           yourWeek: buildYourWeek(yourWeekInputs),
+          pacingToday,
           usualMeal,
           tomorrowPacks,
           lastMealAt,
@@ -3348,6 +3365,28 @@ export default function HomeScreen() {
     );
   }
 
+  // D16, 2026-09-30: today so far beside the person's typical day, said as
+  // numbers. Nothing is called too much and the app sets no limit.
+  function renderPacingToday() {
+    if (!homeSectionHasContent('pacingToday') || !isHomeSectionVisible(visualPrefs, 'pacingToday')) return null;
+    if (!data) return null;
+    return renderBand(
+      'pacingToday',
+      'Pacing Today',
+      <TouchableOpacity
+        onPress={() => router.push({ pathname: '/trends', params: { openTrendsLens: 'pacing' } })}
+        activeOpacity={0.75}
+      >
+        {data.pacingToday.map((line) => (
+          <Text key={line.key} style={[styles.trendDelta, { color: tabColorFor('/trends') }]}>
+            {line.sentence}
+          </Text>
+        ))}
+        <Text style={[styles.trendCaption, { color: tabColorFor('/trends') }]}>{PACING_TODAY_CAPTION}</Text>
+      </TouchableOpacity>,
+    );
+  }
+
   // F13, 2026-09-26: the seven days that ended yesterday beside the seven
   // before, as numbers and nothing more. A week with nothing logged says
   // so rather than reading as a week of zeros.
@@ -4630,6 +4669,8 @@ export default function HomeScreen() {
         return renderOneAtATime();
       case 'outsideUsual':
         return renderOutsideUsual();
+      case 'pacingToday':
+        return renderPacingToday();
       case 'yourWeek':
         return renderYourWeek();
       case 'todaysCheckin':

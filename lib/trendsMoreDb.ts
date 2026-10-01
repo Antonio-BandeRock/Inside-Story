@@ -30,6 +30,9 @@ import type { ReadingView } from './readingBands';
 import { buildSinceLastVisitBand, buildSinceLastVisitView, type SinceLastVisitInputs } from './sinceLastVisit';
 import { listWorkCheckins } from './workDb';
 import { parseKeptSets } from './workoutSession';
+import { getCheckinTagDefinition, getCustomCheckinTags } from './checkinTags';
+import { buildPacingView, PACING_TAG_CODES, pacingTodayLines, type PacingInputs, type PacingTodayLine } from './pacing';
+import { therapyTypeLabel } from './therapyTypes';
 
 export type TrendsMoreLens =
   | 'hydration'
@@ -42,7 +45,8 @@ export type TrendsMoreLens =
   | 'ferments'
   | 'planned'
   | 'bodySignals'
-  | 'workouts';
+  | 'workouts'
+  | 'pacing';
 
 export const DOSE_ITEM_TYPES = ['supplement', 'prescription', 'otc'];
 
@@ -319,6 +323,72 @@ export async function listBodySignalReadings(): Promise<BodySignalReading[]> {
   return readings;
 }
 
+// D16, 1.0.57.24. The tags that count for pacing: the fixed ones, plus any
+// symptom the person named under Energy or Sensory & Regulation that points
+// the unwelcome way.
+export function pacingTagCodes(): string[] {
+  const own = getCustomCheckinTags()
+    .filter((tag) => (tag.category === 'energy' || tag.category === 'sensory_regulation') && tag.usualValence === 'negative')
+    .map((tag) => tag.code);
+  return [...PACING_TAG_CODES, ...own];
+}
+
+// Every record Pacing reads, for the range. Windows reach a day past each
+// end so a UTC stamp landing on a neighbouring local day is still read,
+// then each row is put on its local day and narrowed by the builder.
+// D16, Home's Pacing Today card: thirty days of the same records, so the
+// usual range has enough days behind it, and only today's lines kept.
+export async function getPacingHomeLines(today: string): Promise<PacingTodayLine[]> {
+  return pacingTodayLines(await loadPacingInputs(rangeForDays(30, today), today));
+}
+
+export async function loadPacingInputs(range: DayRange, today: string): Promise<PacingInputs> {
+  const db = await getDatabase();
+  const from = addDays(range.start, -1);
+  const through = addDays(range.end, 2);
+  const codes = pacingTagCodes();
+  const [stepRows, exerciseRows, therapyRows, tagRows] = await Promise.all([
+    db.getAllAsync<{ date: string; value: number }>(
+      `SELECT date, step_count AS value FROM daily_step_counts WHERE date >= ? AND date <= ? ORDER BY date ASC`,
+      range.start,
+      range.end,
+    ),
+    db.getAllAsync<{ loggedAt: string; name: string | null; minutes: number | null }>(
+      `SELECT logged_at AS loggedAt, exercise_type AS name, duration_minutes AS minutes
+       FROM exercise_logs WHERE logged_at >= ? AND logged_at < ? ORDER BY logged_at ASC`,
+      from,
+      through,
+    ),
+    db.getAllAsync<{ performedAt: string; therapyType: string; minutes: number | null }>(
+      `SELECT performed_at AS performedAt, therapy_type AS therapyType, duration_minutes AS minutes
+       FROM therapy_sessions WHERE performed_at >= ? AND performed_at < ? ORDER BY performed_at ASC`,
+      from,
+      through,
+    ),
+    db.getAllAsync<{ loggedAt: string; code: string }>(
+      `SELECT c.logged_at AS loggedAt, t.tag_code AS code
+       FROM checkin_tags t JOIN wellbeing_checkins c ON c.id = t.checkin_id
+       WHERE c.logged_at >= ? AND c.logged_at < ? AND t.tag_code IN (${codes.map(() => '?').join(', ')})
+       ORDER BY c.logged_at ASC`,
+      from,
+      through,
+      ...codes,
+    ),
+  ]);
+  return {
+    range,
+    today,
+    steps: stepRows.filter((row) => typeof row.value === 'number'),
+    exercise: exerciseRows.map((row) => ({ date: localDay(row.loggedAt), name: row.name ?? 'Exercise', minutes: row.minutes })),
+    therapy: therapyRows.map((row) => ({ date: localDay(row.performedAt), label: therapyTypeLabel(row.therapyType), minutes: row.minutes })),
+    tagged: tagRows.map((row) => ({
+      date: localDay(row.loggedAt),
+      code: row.code,
+      label: getCheckinTagDefinition(row.code)?.label ?? row.code,
+    })),
+  };
+}
+
 export async function loadTrendsMoreView(lens: TrendsMoreLens, days: number): Promise<ReadingView> {
   const today = todayString();
   const range = rangeForDays(days, today);
@@ -369,5 +439,7 @@ export async function loadTrendsMoreView(lens: TrendsMoreLens, days: number): Pr
       return buildBodySignalsView({ range, readings: await listBodySignalReadings() });
     case 'workouts':
       return buildWorkoutsView(await loadWorkoutsInputs(range, today));
+    case 'pacing':
+      return buildPacingView(await loadPacingInputs(range, today));
   }
 }

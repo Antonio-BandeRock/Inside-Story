@@ -81,7 +81,7 @@
 ### D16. Pacing view as a record
 - **Ships by:** Over the air (JS) · **Size:** M-L · **Tabs:** Trends,Home
 - **Answers:** Visible · **Theme:** Check-ins and signals
-- **How:** Exercise, steps, therapy sessions and overload tags against the person's typical day. Never a limit set by the app.
+- **How:** Shipped OTA in 1.0.57.24: Trends > Pacing reads steps, exercise minutes, therapy sessions and overload or crash tags against the person's typical day (bigger days beside the rest on whether a tag came within two days), and Home's Pacing Today card sets today so far beside it. Never a limit set by the app.
 
 ### E3. Trends > Cycle
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Trends
