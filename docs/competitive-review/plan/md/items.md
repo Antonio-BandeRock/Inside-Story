@@ -937,7 +937,7 @@
 ### D15. Relaxation and gut-directed audio
 - **Ships by:** Android rebuild R1 · **Size:** M · **Tabs:** Signals
 - **Answers:** Cara Care · **Theme:** Check-ins and signals
-- **How:** expo-audio and a player screen. The content has to be licensed or recorded, which is the larger job.
+- **How:** Pacer and spoken scripts shipped OTA in 1.0.57.22 (Signals > Calm). Left for R1: expo-audio, a document picker and expo-keep-awake, so the person can play recordings they already have in the Recordings You Have band, and the pacer can keep the screen on. No music or recordings ship with the app.
 
 ### G3. Mark up any web page as a recipe
 - **Ships by:** Android rebuild R1 · **Size:** L · **Tabs:** Food
