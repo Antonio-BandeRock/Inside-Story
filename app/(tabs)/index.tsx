@@ -867,6 +867,7 @@ const HOME_LENS_DESTINATIONS: Partial<
     href: '/assessment' as Href,
   },
   morningCheckin: { label: 'Morning Check-In', icon: 'sunny', color: colors.tabBioCompass, href: '/log' as Href },
+  oneAtATime: { label: 'One Question at a Time', icon: 'list-outline', color: colors.tabBioCompass, href: '/daily-checkin' as Href },
   todaysCheckin: { label: "Today's Check-In", icon: 'checkmark-circle', color: colors.tabBioCompass, href: '/log' as Href },
   howYoureFeeling: { label: "How You're Feeling", icon: 'heart', color: colors.tabBioCompass, href: '/log' as Href },
   logFlare: { label: 'Log a Flare', icon: 'flame', color: colors.tabBioCompass, href: '/log' as Href },
@@ -1050,6 +1051,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'todaysReminders',
   'symptomCheckinReminder',
   'morningCheckin',
+  'oneAtATime',
   'todaysCheckin',
   'howYoureFeeling',
   'logFlare',
@@ -2832,19 +2834,6 @@ export default function HomeScreen() {
             <Text style={[styles.feelingStartButtonText, { color: tabColorFor('/log') }]}>Log how you feel today</Text>
           </TouchableOpacity>
         )}
-        {feelingPickerOpen ? null : (
-          // D8: the morning, feeling and flare questions in one sequence.
-          <TouchableOpacity
-            style={[styles.feelingStartButton, { borderColor: tabColorFor('/log'), marginTop: 10 }]}
-            onPress={() => router.push('/daily-checkin')}
-            activeOpacity={0.85}
-          >
-            <Text style={[styles.feelingStartButtonText, { color: tabColorFor('/log') }]}>Check In One Question at a Time</Text>
-            <Text style={[styles.feelingChangeLink, { color: tabColorFor('/log'), textAlign: 'center' }]}>
-              Morning, feeling, any flare
-            </Text>
-          </TouchableOpacity>
-        )}
         {feelingPickerOpen ? null : <HealthConnectFilledIn />}
       </>,
     );
@@ -4216,6 +4205,32 @@ export default function HomeScreen() {
     );
   }
 
+  // D8: the morning, feeling and flare questions one after another, then a
+  // summary of where each answer went. A band of its own, so it shows on
+  // Home folded or open; the folded line says what it asks.
+  function renderOneAtATime() {
+    if (!isHomeSectionVisible(visualPrefs, 'oneAtATime')) return null;
+    const signalsColor = tabColorFor('/log');
+    return renderBand(
+      'oneAtATime',
+      'Check In, One Question at a Time',
+      <View style={styles.bandBody}>
+        <Text style={styles.bandCaption}>
+          How you slept, how you feel, and whether there is a flare, asked one after another. Skip any of them.
+        </Text>
+        <TouchableOpacity
+          style={[styles.logAgainSpeakButton, { borderColor: signalsColor }]}
+          onPress={() => router.push('/daily-checkin')}
+          activeOpacity={0.8}
+        >
+          <Ionicons name="list-outline" size={18} color={signalsColor} style={textShadow} />
+          <Text style={[styles.logAgainSpeakText, { color: signalsColor }]}>Start</Text>
+        </TouchableOpacity>
+      </View>,
+      { icon: 'list-outline', foldedCaption: 'Morning, feeling, any flare' },
+    );
+  }
+
   function renderCountdowns() {
     if (!isHomeSectionVisible(visualPrefs, 'countdowns')) return null;
     return renderBand(
@@ -4611,6 +4626,8 @@ export default function HomeScreen() {
         return renderSymptomCheckinReminder();
       case 'morningCheckin':
         return renderMorningCheckin();
+      case 'oneAtATime':
+        return renderOneAtATime();
       case 'outsideUsual':
         return renderOutsideUsual();
       case 'yourWeek':

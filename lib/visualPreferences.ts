@@ -281,6 +281,10 @@ export type HomeSectionKey =
   // D7 of the competitive build plan (2026-09-26): last night's readings
   // beside the usual range, how somebody slept and their energy.
   | 'morningCheckin'
+  // D8 (2026-09-30): the morning, feeling and flare questions one after
+  // another (app/daily-checkin.tsx). A band of its own since 1.0.57.18,
+  // after a button inside Today's Check-In went unseen with that band folded.
+  | 'oneAtATime'
   // F12 of the competitive build plan (2026-09-26): a reading outside the
   // usual range, and nothing at all on any other day.
   | 'outsideUsual'
@@ -428,6 +432,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   // Signals.
   'symptomCheckinReminder',
   'morningCheckin',
+  'oneAtATime',
   'todaysCheckin',
   'howYoureFeeling',
   'logFlare',
@@ -496,6 +501,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   lowStimulation: 'Low Stimulation',
   symptomCheckinReminder: 'Symptom Check-In',
   morningCheckin: 'Morning Check-In',
+  oneAtATime: 'One Question at a Time',
   outsideUsual: 'Outside Your Usual',
   yourWeek: 'Your Week',
   todaysCheckin: "Today's Check-In",
