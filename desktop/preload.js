@@ -88,6 +88,8 @@ contextBridge.exposeInMainWorld('insideStoryDesktop', {
     writeText: (folder, fileName, text) => ipcRenderer.invoke('cloud:writeText', folder, fileName, text),
     deleteFile: (folder, fileName) => ipcRenderer.invoke('cloud:deleteFile', folder, fileName),
     moveFile: (from, fileName, into) => ipcRenderer.invoke('cloud:moveFile', from, fileName, into),
+    copyFileIn: (folder, fileName, source) => ipcRenderer.invoke('cloud:copyFileIn', folder, fileName, source),
+    readBytes: (folder, fileName) => ipcRenderer.invoke('cloud:readBytes', folder, fileName),
   },
   zoom: {
     get: () => ipcRenderer.invoke('zoom:get'),

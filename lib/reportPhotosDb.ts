@@ -5,7 +5,7 @@
 
 import { getDatabase } from './db';
 import { mediaMimeType, type MediaItem } from './media';
-import { listMediaOfKind, mediaFile } from './mediaDb';
+import { ensureMediaHere, listMediaOfKind, mediaFile } from './mediaDb';
 import type { ReportPhotoSection } from './reportGenerator';
 import { choosePhotosForReport, reportPhotoCaption, reportPhotoNote } from './reportPhotos';
 
@@ -22,6 +22,7 @@ async function photoSection(
   let unreadable = 0;
   for (const item of chosen) {
     try {
+      await ensureMediaHere(item);
       const file = await mediaFile(item.fileName);
       if (!file.exists) {
         unreadable += 1;

@@ -10,6 +10,15 @@
 //   Shared Folder            what the person picks, once
 //   |- Mailbox               where every person's mailbox lives
 //   |- Backups               where backups are written
+//   |- Photos                every photo, encrypted, one file each
+//   |- Recordings            audio somebody brought in, one file each
+//   |- Videos                held for video, made only when the first is kept
+//
+// EACH KIND OF FILE HAS A FOLDER OF ITS OWN (2026-09-30, by direct
+// instruction: "keep each file type grouped accordingly"). The shared
+// folder is where photos and recordings live; a device keeps thumbnails and
+// a cache of what was opened lately (lib/media.ts), so neither device fills
+// up. Photos sat inside Backups before 1.0.57.23, and a pass moves them.
 //
 // MAILBOX IS A CONTAINER FOR EVERYBODY'S MAIL, not one person's inbox. Files in
 // it are already named for who they are addressed to and who they came from, so
@@ -39,6 +48,7 @@
 import { getOneDriveFolder, setOneDriveFolder, type StoredOneDriveFolder } from './db';
 import { isDesktopApp } from './desktop/bridge';
 import { folderFromPhonePath, isDiskFolder } from './desktop/cloudFolder';
+import { PHOTOS_FOLDER_NAME, RECORDINGS_FOLDER_NAME } from './media';
 import { isSignedIn } from './oneDriveAuth';
 import {
   checkFolder,
@@ -52,6 +62,9 @@ import {
 export const MAILBOX_FOLDER_NAME = 'Mailbox';
 export const BACKUPS_FOLDER_NAME = 'Backups';
 
+/** Every folder the app keeps under the shared folder. */
+export type ChildFolder = 'mailbox' | 'backups' | 'photos' | 'recordings';
+
 /**
  * Resolved children, kept only for the life of this app run.
  *
@@ -60,7 +73,7 @@ export const BACKUPS_FOLDER_NAME = 'Backups';
  * between runs should be found missing and made again, which is exactly what
  * starting from nothing each run gives.
  */
-let cache: { rootItemId: string; mailbox?: DriveItemRef; backups?: DriveItemRef } | null = null;
+let cache: { rootItemId: string; children: Partial<Record<ChildFolder, DriveItemRef>> } | null = null;
 
 export type SharedFolderState =
   | { state: 'notSignedIn' }
@@ -158,7 +171,7 @@ export function describeSharedFolderProblem(state: SharedFolderState): string {
 }
 
 async function resolveChild(
-  which: 'mailbox' | 'backups',
+  which: ChildFolder,
   name: string,
 ): Promise<GraphResult<DriveItemRef> | { ok: false; reason: string }> {
   const shared = await getSharedFolder();
@@ -167,17 +180,19 @@ async function resolveChild(
   }
 
   if (cache && cache.rootItemId === shared.folder.itemId) {
-    const hit = cache[which];
+    const hit = cache.children[which];
     if (hit) return { ok: true, value: hit };
   } else {
     // A different shared folder means every remembered child belongs to the old
     // one and none of it applies.
-    cache = { rootItemId: shared.folder.itemId };
+    cache = { rootItemId: shared.folder.itemId, children: {} };
   }
 
   const made = await ensureChildFolder(shared.folder, name);
   if (!made.ok) return made;
-  cache = { ...(cache ?? { rootItemId: shared.folder.itemId }), [which]: made.value };
+  const rootItemId = shared.folder.itemId;
+  const kept = cache && cache.rootItemId === rootItemId ? cache.children : {};
+  cache = { rootItemId, children: { ...kept, [which]: made.value } };
   return made;
 }
 
@@ -189,6 +204,16 @@ export async function getMailboxFolder(): Promise<GraphResult<DriveItemRef>> {
 /** Where backups are written, made inside the shared folder if it is missing. */
 export async function getBackupsFolder(): Promise<GraphResult<DriveItemRef>> {
   return resolveChild('backups', BACKUPS_FOLDER_NAME) as Promise<GraphResult<DriveItemRef>>;
+}
+
+/** Where every photo's encrypted copy lives, made if it is missing. */
+export async function getPhotosFolder(): Promise<GraphResult<DriveItemRef>> {
+  return resolveChild('photos', PHOTOS_FOLDER_NAME) as Promise<GraphResult<DriveItemRef>>;
+}
+
+/** Where recordings live, made if it is missing. */
+export async function getRecordingsFolder(): Promise<GraphResult<DriveItemRef>> {
+  return resolveChild('recordings', RECORDINGS_FOLDER_NAME) as Promise<GraphResult<DriveItemRef>>;
 }
 
 /**

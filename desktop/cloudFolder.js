@@ -33,6 +33,7 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { fileURLToPath } = require('node:url');
 const { dialog } = require('electron');
 
 /** A file being written, beside its final name until the rename. */
@@ -219,6 +220,52 @@ function deleteFile(folder, fileName) {
   fs.rmSync(path.join(target, fileName), { force: true });
 }
 
+/** A file:// URI or a bare path, as a path on this disk. */
+function sourcePath(source) {
+  if (typeof source !== 'string' || source.length === 0) throw new Error('A file needs a location.');
+  if (source.startsWith('file://')) {
+    try {
+      return path.normalize(fileURLToPath(source));
+    } catch {
+      return path.normalize(decodeURIComponent(source.replace(/^file:\/\/\/?/, '')));
+    }
+  }
+  return path.normalize(source);
+}
+
+/**
+ * Copies a file from anywhere this computer can read into a folder of the
+ * shared folder, whole: to a temporary name first, then renamed, so the
+ * OneDrive client never uploads half a recording (1.0.57.23).
+ */
+function copyFileIn(folder, fileName, source) {
+  assertFileName(fileName);
+  const target = normalizeFolder(folder);
+  assertWritable(target);
+  const from = sourcePath(source);
+  if (!fs.existsSync(from) || fs.statSync(from).isDirectory()) throw new Error('There is no file at ' + from);
+  const file = path.join(target, fileName);
+  const temp = file + TEMP_SUFFIX;
+  fs.copyFileSync(from, temp);
+  try {
+    fs.renameSync(temp, file);
+  } catch (error) {
+    try {
+      fs.rmSync(file, { force: true });
+      fs.renameSync(temp, file);
+    } catch {
+      fs.rmSync(temp, { force: true });
+      throw error;
+    }
+  }
+}
+
+/** A file's bytes, for playing a recording straight from the folder. */
+function readBytes(folder, fileName) {
+  assertFileName(fileName);
+  return fs.readFileSync(path.join(normalizeFolder(folder), fileName));
+}
+
 function moveFile(fromFolder, fileName, intoFolder) {
   assertFileName(fileName);
   const from = normalizeFolder(fromFolder);
@@ -239,4 +286,6 @@ module.exports = {
   writeText,
   deleteFile,
   moveFile,
+  copyFileIn,
+  readBytes,
 };

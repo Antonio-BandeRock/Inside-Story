@@ -1,7 +1,7 @@
 // Calm (D15, 2026-09-30): the bands on Signals > Calm. A breathing pacer, a
 // relaxation script read aloud by the voice already on the device, and the
-// place a player for the person's own recordings will go once expo-audio is
-// in the R1 build. Every pattern, script and sentence is in lib/calm.ts;
+// recordings the person brings in (components/RecordingsBand.tsx). Every pattern,
+// script and sentence is in lib/calm.ts;
 // this draws them, keeps the timing, and talks to expo-speech and
 // expo-haptics, both already installed.
 //
@@ -29,7 +29,6 @@ import {
   DIZZY_NOTE,
   fieldsFromPattern,
   NO_VOICE_LINE,
-  OWN_AUDIO_LATER,
   OWN_SCRIPT_HINT,
   ownPatternProblem,
   ownScriptProblem,
@@ -61,6 +60,7 @@ import { sortByLabel } from '../lib/choiceOrder';
 import { AppTextInput } from './AppTextInput';
 import { useConfirmSheet } from './ConfirmSheet';
 import { PopoverSelect } from './PopoverSelect';
+import { RecordingsBand } from './RecordingsBand';
 import { TabBand } from './TabBand';
 
 const EMPTY_PATTERN: PatternFields = { name: '', inSec: '', holdInSec: '', outSec: '', holdOutSec: '' };
@@ -120,11 +120,7 @@ export function CalmSection({ tabColor }: { tabColor: string }) {
         onChangeVoice={changeVoice}
         confirm={confirm}
       />
-      <TabBand folds={folds} color={tabColor} id="signals:calm-recordings" title="Recordings You Have" icon="musical-notes-outline">
-        <View style={styles.panel}>
-          <Text style={styles.body}>{OWN_AUDIO_LATER}</Text>
-        </View>
-      </TabBand>
+      <RecordingsBand tabColor={tabColor} folds={folds} confirm={confirm} />
     </>
   );
 }

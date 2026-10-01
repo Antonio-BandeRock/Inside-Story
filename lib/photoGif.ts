@@ -15,7 +15,7 @@
 import { Platform } from 'react-native';
 import { base64ToBytes, bytesToBase64 } from './deviceIdentity';
 import type { MediaItem } from './media';
-import { keepGeneratedFile, mediaDisplayUri, mediaFile } from './mediaDb';
+import { ensureMediaHere, keepGeneratedFile, mediaDisplayUri, mediaFile } from './mediaDb';
 import { frameDelayMs, gifFrameSize, pickGifFrames } from './photoSeries';
 import { SERIES_GIF_OWNER_KIND } from './photoSeriesDb';
 import { shareFileIfAvailable } from './nativeSharing';
@@ -28,6 +28,7 @@ export type GifResult =
   | { status: 'error'; message: string };
 
 async function framePixelsNative(item: MediaItem, width: number, height: number): Promise<Uint8Array | null> {
+  await ensureMediaHere(item);
   const file = await mediaFile(item.fileName);
   if (!file.exists) return null;
   const ImageManipulator = await import('expo-image-manipulator');
@@ -109,6 +110,7 @@ export async function makeSeriesGif(
  *  the desktop app. False when neither is available. */
 export async function shareSeriesGif(item: MediaItem): Promise<boolean> {
   try {
+    await ensureMediaHere(item);
     const file = await mediaFile(item.fileName);
     if (!file.exists) return false;
     return shareFileIfAvailable(file.uri, { mimeType: 'image/gif', dialogTitle: 'Share the GIF' });

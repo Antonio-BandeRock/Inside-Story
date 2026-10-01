@@ -9,11 +9,21 @@
 //
 // Where the files go. Kept small on save (MEDIA_MAX_DIMENSION,
 // MEDIA_MAX_FILE_SIZE_BYTES), under Paths.document/media on this device,
-// and copied into the Backups folder beside the encrypted snapshot, each
-// photo encrypted with the sync password (lib/mediaSyncDevice.ts). The
-// plaintext record there, inside-story-sync.json, never names a photo, and
-// the file names in the folder carry nothing but a random id. The desktop
-// app shows a photo from the copy that arrived that way.
+// and copied into the Photos folder under the shared folder, each photo
+// encrypted with the sync password (lib/mediaSyncDevice.ts). The plaintext
+// record, inside-story-sync.json, never names a photo, and the file names
+// in the folder carry nothing but a random id.
+//
+// The shared folder is the home, the device a cache (2026-09-30, by direct
+// instruction: photos, recordings and later videos live in the shared
+// folder, each kind in a folder of its own, so neither device fills up).
+// Every thumbnail stays on the device for good, since a row of photos has
+// to draw without waiting. The report size is kept while there is room
+// under the cache limit set in Profile (CACHE_LIMIT_CHOICES_MB), the
+// least lately opened going first, and only once its copy is confirmed in
+// the folder and its thumbnail is here (planCacheClearing). Opening a photo
+// that was cleared fetches it again. With sync off nothing is cleared,
+// since the folder is then not holding anything.
 //
 // Two sizes of every photo (2026-09-26, 1.0.53.7). Direct request: "Photos
 // taken into the app need to have two sizes, thumbnails, and reporting
@@ -78,8 +88,16 @@ export const MEDIA_THUMB_MAX_FILE_SIZE_BYTES = 50 * 1024;
 /** The folder under the app's document folder that holds the files. */
 export const MEDIA_FOLDER = 'media';
 
-/** The folder inside the Backups folder that holds the encrypted copies. */
-export const MEDIA_SYNC_FOLDER = 'Inside Story Photos';
+/** The folders under the shared folder, one per kind of file, beside
+ *  Mailbox and Backups (lib/oneDriveFolders.ts). Videos is held for when
+ *  video is kept and is made only then. */
+export const PHOTOS_FOLDER_NAME = 'Photos';
+export const RECORDINGS_FOLDER_NAME = 'Recordings';
+export const VIDEOS_FOLDER_NAME = 'Videos';
+
+/** Where the encrypted copies were kept before 1.0.57.23: a folder inside
+ *  the Backups folder. A pass moves anything still there into Photos. */
+export const LEGACY_PHOTO_FOLDER = 'Inside Story Photos';
 
 const PHOTO_COPY_SUFFIX = '.photo.json';
 
@@ -165,8 +183,13 @@ export function takenOnLabel(takenOn: string, today: string): string {
 export type PhotoSyncPlan = {
   /** Ids whose file is here and whose copy is not in the folder. */
   upload: string[];
-  /** Ids with a row here, no file here, and a copy in the folder. */
+  /** Ids with a row here, neither the photo nor its thumbnail here, and a
+   *  copy in the folder. A photo whose thumbnail is here and whose report
+   *  size was cleared is not fetched by a pass; opening it fetches it. */
   download: string[];
+  /** Ids whose copy is confirmed in the folder, the first of the two
+   *  things a report size needs before it may be cleared here. */
+  inFolder: string[];
   /** Ids with a row here and neither a file here nor a copy in the folder:
    *  the other device has not sent it yet. */
   waiting: string[];
@@ -190,11 +213,14 @@ export type PhotoSyncPlan = {
 export function planPhotoSync(input: {
   rowIds: readonly string[];
   localFileIds: readonly string[];
+  /** Ids whose thumbnail is here. */
+  localThumbIds?: readonly string[];
   folderNames: readonly string[];
   mayClearFolder: boolean;
 }): PhotoSyncPlan {
   const rows = new Set(input.rowIds);
   const local = new Set(input.localFileIds);
+  const thumbs = new Set(input.localThumbIds ?? []);
   const inFolder = new Set<string>();
   const folderOnly: string[] = [];
   for (const name of input.folderNames) {
@@ -206,9 +232,13 @@ export function planPhotoSync(input: {
   const upload: string[] = [];
   const download: string[] = [];
   const waiting: string[] = [];
+  const confirmed: string[] = [];
   for (const id of rows) {
+    if (inFolder.has(id)) confirmed.push(id);
     if (local.has(id)) {
       if (!inFolder.has(id)) upload.push(id);
+    } else if (thumbs.has(id)) {
+      // Cleared from the cache, or arrived as a thumbnail: nothing owed.
     } else if (inFolder.has(id)) {
       download.push(id);
     } else {
@@ -219,6 +249,7 @@ export function planPhotoSync(input: {
     upload: upload.sort(),
     download: download.sort(),
     waiting: waiting.sort(),
+    inFolder: confirmed.sort(),
     clearFromFolder: input.mayClearFolder ? folderOnly.sort() : [],
   };
 }
@@ -232,6 +263,115 @@ export function orphanedLocalFiles(rowFileNames: readonly string[], localFileNam
     kept.add(thumbFileName(name));
   }
   return localFileNames.filter((name) => (name.endsWith('.jpg') || name.endsWith('.gif')) && !kept.has(name)).sort();
+}
+
+// The cache of files opened lately ---------------------------------------
+
+/** What the device keeps of each kind, for the line in Profile. */
+export type MediaCacheGroup = 'photos' | 'recordings';
+
+export type CacheEntry = {
+  fileName: string;
+  group: MediaCacheGroup;
+  bytes: number;
+  /** When it was last opened or kept here; null when nobody recorded it,
+   *  which reads as the longest ago. */
+  usedAt: string | null;
+  /** True only when its copy is confirmed in the shared folder, plus, for
+   *  a photo, its thumbnail is here. Nothing else is ever cleared. */
+  clearable: boolean;
+};
+
+/** The room kept for files opened lately, in MB. One limit for the
+ *  device, chosen in Profile, since it is the device's room being
+ *  shared out. */
+export const CACHE_LIMIT_CHOICES_MB = [100, 250, 500, 1000] as const;
+export const DEFAULT_CACHE_LIMIT_MB = 250;
+export const MEDIA_CACHE_LIMIT_META_KEY = 'media_cache_limit_mb';
+
+export function parseCacheLimitMb(value: string | null | undefined): number {
+  const n = Number(value);
+  return (CACHE_LIMIT_CHOICES_MB as readonly number[]).includes(n) ? n : DEFAULT_CACHE_LIMIT_MB;
+}
+
+export function cacheLimitLabel(mb: number): string {
+  return mb >= 1000 ? `${mb / 1000} GB` : `${mb} MB`;
+}
+
+export function cacheLimitBytes(mb: number): number {
+  return mb * 1024 * 1024;
+}
+
+/**
+ * Which files to clear so the cache fits its limit: the least lately
+ * opened first, only those marked clearable, and no more than needed. A
+ * limit of 0 is Clear Now, which clears every clearable file. A file that
+ * is not clearable still counts toward the room used, so a device with
+ * many photos waiting to be copied can sit over its limit until they are.
+ */
+export function planCacheClearing(entries: readonly CacheEntry[], limitBytes: number): string[] {
+  let total = entries.reduce((sum, entry) => sum + Math.max(0, entry.bytes), 0);
+  if (limitBytes > 0 && total <= limitBytes) return [];
+  const order = entries
+    .filter((entry) => entry.clearable)
+    .sort((a, b) => {
+      const at = a.usedAt ?? '';
+      const bt = b.usedAt ?? '';
+      if (at !== bt) return at < bt ? -1 : 1;
+      return a.fileName.localeCompare(b.fileName);
+    });
+  const cleared: string[] = [];
+  for (const entry of order) {
+    if (limitBytes > 0 && total <= limitBytes) break;
+    cleared.push(entry.fileName);
+    total -= Math.max(0, entry.bytes);
+  }
+  return cleared;
+}
+
+export type CacheUse = {
+  thumbs: { count: number; bytes: number };
+  photos: { count: number; bytes: number };
+  recordings: { count: number; bytes: number };
+  limitMb: number;
+};
+
+/** The space line in Profile > Backup & Restore. */
+export function cacheUseSentence(use: CacheUse, syncOn: boolean): string {
+  const parts: string[] = [];
+  parts.push(
+    use.thumbs.count === 0
+      ? 'No photo thumbnails here yet.'
+      : `Thumbnails of ${plural(use.thumbs.count, 'photo', 'photos')} take ${bytesLabel(use.thumbs.bytes)} and always stay on this device.`,
+  );
+  const opened: string[] = [];
+  if (use.photos.count > 0) opened.push(`${plural(use.photos.count, 'photo', 'photos')} at full size take ${bytesLabel(use.photos.bytes)}`);
+  if (use.recordings.count > 0) opened.push(`${plural(use.recordings.count, 'recording', 'recordings')} take ${bytesLabel(use.recordings.bytes)}`);
+  if (opened.length > 0) parts.push(`${capitalize(opened.join(', and '))}.`);
+  if (!syncOn) {
+    parts.push('While automatic sync is off, every photo stays on this device at full size.');
+  } else {
+    parts.push(
+      `Up to ${cacheLimitLabel(use.limitMb)} is kept for files opened lately. Anything older stays in the shared folder and is fetched again when it is opened.`,
+    );
+  }
+  return parts.join(' ');
+}
+
+/** Said after Clear Now. */
+export function cacheClearedSentence(files: number, bytes: number): string {
+  if (files === 0) {
+    return 'Nothing to clear. Every file here is either still to be copied into the shared folder or not confirmed there yet.';
+  }
+  return `Cleared ${plural(files, 'file', 'files')}, ${bytesLabel(bytes)}. Each one is still in the shared folder and comes back when it is opened.`;
+}
+
+/** What a photo says when its full size is not here and the folder
+ *  cannot be reached right now. */
+export const PHOTO_NOT_REACHABLE = 'Only the thumbnail is on this device, and the shared folder could not be reached just now.';
+
+function capitalize(text: string): string {
+  return text.length === 0 ? text : text[0].toUpperCase() + text.slice(1);
 }
 
 /** A size in bytes the way Profile says it. */
@@ -275,7 +415,7 @@ export function photoSyncSentence(status: PhotoSyncStatus | null, syncOn: boolea
   if (status.problem) return `Photos could not be copied this time: ${status.problem}`;
   if (status.onDevice === 0 && status.waiting === 0) return 'No photos kept yet. Any you add are copied into the shared folder, encrypted.';
   const parts = [`${plural(status.onDevice, 'photo', 'photos')} on this device.`];
-  parts.push(status.toCopy === 0 ? 'Each one has an encrypted copy in the shared folder.' : `${plural(status.toCopy, 'photo is', 'photos are')} still to be copied.`);
+  parts.push(status.toCopy === 0 ? 'Each one has an encrypted copy in the Photos folder.' : `${plural(status.toCopy, 'photo is', 'photos are')} still to be copied.`);
   if (status.waiting > 0) {
     parts.push(`${plural(status.waiting, 'photo is', 'photos are')} on the way from your ${otherDevice}.`);
   }

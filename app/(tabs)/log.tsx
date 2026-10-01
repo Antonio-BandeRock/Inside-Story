@@ -6,7 +6,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { AppTextInput } from '../../components/AppTextInput';
 import { CalmSection } from '../../components/CalmSection';
 import { NotesInput } from '../../components/NotesInput';
-import { CALM_INTRO, OWN_AUDIO_LATER as CALM_OWN_AUDIO_LATER, PACER_NOTE as CALM_PACER_NOTE } from '../../lib/calm';
+import { CALM_INTRO, RECORDINGS_HELP as CALM_RECORDINGS_HELP, PACER_NOTE as CALM_PACER_NOTE } from '../../lib/calm';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { FoodLookup, type ResolvedFoodSelection } from '../../components/FoodLookup';
@@ -320,7 +320,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'Recordings you have',
-        body: CALM_OWN_AUDIO_LATER,
+        body: CALM_RECORDINGS_HELP,
       },
       LOG_PERSONAL_NOTES_HELP,
     ],

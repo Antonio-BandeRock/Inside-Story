@@ -273,6 +273,9 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   // Calm (D15): which voice reads the relaxation scripts. Voices differ
   // from one device to the next, so a name chosen on one means nothing on another.
   'calm_voice',
+  // How much room this device gives photos and recordings opened lately
+  // (lib/media.ts): a phone and a computer have different room to give.
+  'media_cache_limit_mb',
   CHANGE_BASELINE_META_KEY,
 ];
 
@@ -304,6 +307,10 @@ export const DEVICE_LOCAL_TABLES: readonly string[] = [
   'sync_change_log',
   'peer_photo_out',
   'peer_photos',
+  // When each photo or recording file here was last opened (1.0.57.23), for
+  // which leaves the cache first. Each device has its own files and its own
+  // limit.
+  'media_cache_use',
   // A16: somebody else's doses as their phone last sent them, and the alerts
   // this phone has raised about them. An alert belongs to the phone that
   // raises it, and the doses arrive again on whichever device is linked.

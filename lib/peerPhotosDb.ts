@@ -13,7 +13,7 @@ import type { Connection } from './connections';
 import { getDatabase } from './db';
 import { isDesktopApp } from './desktop/bridge';
 import { thumbFileName } from './media';
-import { mediaFile, mediaThumbUri } from './mediaDb';
+import { ensureMediaHere, mediaFile, mediaThumbUri } from './mediaDb';
 import {
   PEER_PHOTO_LIST_LIMIT,
   choosePeerPhotos,
@@ -201,6 +201,7 @@ export async function peerPhotoPartFor(
     if (options.allowFull) {
       for (const photo of photos) {
         if (!requested.has(photo.id)) continue;
+        await ensureMediaHere(photo);
         const data = await readBase64(await mediaFile(photo.fileName));
         if (!data) continue;
         fullData.set(photo.id, data);

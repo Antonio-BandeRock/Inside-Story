@@ -217,6 +217,25 @@ export async function downloadText(folder: DriveItemRef, fileName: string): Prom
   return attempt(() => bridge().readText(folder.itemId, fileName), fileName + ' could not be read.');
 }
 
+const OLD_INSTALLER = 'This needs the newest desktop installer. Install it, then try again.';
+
+/** Copies a file on this computer into a folder of the shared folder, whole. */
+export async function uploadFile(folder: DriveItemRef, fileName: string, localUri: string): Promise<GraphResult<null>> {
+  const copyIn = bridge().copyFileIn;
+  if (!copyIn) return { ok: false, reason: OLD_INSTALLER };
+  return attempt(async () => {
+    await copyIn(folder.itemId, fileName, localUri);
+    return null;
+  }, fileName + ' could not be copied into ' + folder.name + '.');
+}
+
+/** A file's bytes, read straight from the folder on this disk. */
+export async function readFileBytes(folder: DriveItemRef, fileName: string): Promise<GraphResult<Uint8Array>> {
+  const read = bridge().readBytes;
+  if (!read) return { ok: false, reason: OLD_INSTALLER };
+  return attempt(async () => new Uint8Array(await read(folder.itemId, fileName)), fileName + ' could not be read.');
+}
+
 export async function deleteFile(folder: DriveItemRef, fileName: string): Promise<GraphResult<null>> {
   return attempt(async () => {
     await bridge().deleteFile(folder.itemId, fileName);

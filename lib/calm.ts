@@ -647,5 +647,5 @@ export const SCRIPTS_INTRO =
 export const NO_VOICE_LINE =
   'This device has no voice to read with. On a phone, a voice can be added in the text-to-speech settings; on a computer, in its speech or narrator settings.';
 
-export const OWN_AUDIO_LATER =
-  'Playing a recording you already have, such as a guided relaxation, a hypnotherapy programme you bought or music you like, comes with the next full install of the app. It needs a part that cannot be added in the background. When it arrives, you will be able to pick a file from your phone and play it here, and the file stays on your phone.';
+export const RECORDINGS_HELP =
+  'Bring in audio you already have, such as a guided relaxation, a hypnotherapy programme you bought or music you like. Each recording is kept in the Recordings folder in your shared folder, so it takes no room on a device until it is played there, and any player can open it from the folder too. The computer plays it here. On a phone it opens in another app for now, and playing it inside this app comes with the next full install.';

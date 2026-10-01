@@ -58,6 +58,7 @@ import { textShadow, typography } from '../constants/typography';
 import { addDatabaseWriteListener, setSessionWriteGuard } from '../lib/databaseActivity';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { syncPhotos } from '../lib/mediaSyncDevice';
+import { syncRecordings } from '../lib/recordingsDb';
 import { conflictMessage, sameDevice, type SnapshotRecord, type SyncChangeNotes, type SyncDevice } from '../lib/snapshotSync';
 import {
   checkForArrival,
@@ -264,6 +265,8 @@ export function SnapshotSyncWatcher() {
       if (outcome.status !== 'skipped' || outcome.reason !== 'off') {
         void syncPhotos({ afterSave: outcome.status === 'saved' });
       }
+      // Recordings need only a shared folder, not automatic sync.
+      void syncRecordings({ afterSave: outcome.status === 'saved' });
     },
     [tellOnce],
   );

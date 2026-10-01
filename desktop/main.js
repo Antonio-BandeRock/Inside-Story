@@ -188,6 +188,8 @@ function registerIpc() {
   ipcMain.handle('cloud:writeText', (_event, folder, fileName, text) => cloudFolder.writeText(folder, fileName, text));
   ipcMain.handle('cloud:deleteFile', (_event, folder, fileName) => cloudFolder.deleteFile(folder, fileName));
   ipcMain.handle('cloud:moveFile', (_event, from, fileName, into) => cloudFolder.moveFile(from, fileName, into));
+  ipcMain.handle('cloud:copyFileIn', (_event, folder, fileName, source) => cloudFolder.copyFileIn(folder, fileName, source));
+  ipcMain.handle('cloud:readBytes', (_event, folder, fileName) => cloudFolder.readBytes(folder, fileName));
 
   ipcMain.handle('notifications:schedule', (_event, request) => notifications.schedule(request));
   ipcMain.handle('notifications:cancel', (_event, identifier) => notifications.cancel(identifier));

@@ -167,6 +167,10 @@ export type DesktopCloudFolderBridge = {
   writeText(folder: string, fileName: string, text: string): Promise<void>;
   deleteFile(folder: string, fileName: string): Promise<void>;
   moveFile(fromFolder: string, fileName: string, intoFolder: string): Promise<void>;
+  /** Copies a file (a file:// URI or a path) into the folder, whole. Missing on an installer built before 1.0.57.23. */
+  copyFileIn?(folder: string, fileName: string, source: string): Promise<void>;
+  /** A file's bytes. Missing on an installer built before 1.0.57.23. */
+  readBytes?(folder: string, fileName: string): Promise<Uint8Array>;
 };
 
 /** Printing and PDFs in a hidden window (K11), since expo-print on the

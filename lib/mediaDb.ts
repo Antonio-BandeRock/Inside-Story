@@ -27,6 +27,7 @@ import {
   type MediaOwnerKind,
 } from './media';
 import { shrinkPhotoFile } from './mealPhotos';
+import { forgetCacheUse, touchCacheUse } from './mediaCacheDb';
 import { saveOriginalToGallery } from './photoNative';
 
 const COLUMNS =
@@ -78,15 +79,32 @@ export async function listLocalMediaFileNames(): Promise<string[]> {
 }
 
 /**
- * Something an Image can show, or null when the file has not arrived from
- * the other device yet. On the phone that is the file itself. The desktop
- * app cannot show a file address (lib/desktop/phoneOnly.ts), so there it
- * is the bytes as a data address, read from the copy sync brought over.
+ * Makes sure a photo's report size is on this device, fetching it from the
+ * Photos folder when the cache had cleared it (lib/media.ts). True when it
+ * is here afterwards. Anything that reads a photo's bytes calls this first.
  */
-export async function mediaDisplayUri(item: Pick<MediaItem, 'fileName'>): Promise<string | null> {
+export async function ensureMediaHere(item: Pick<MediaItem, 'id' | 'fileName'>): Promise<boolean> {
   try {
     const file = await mediaFile(item.fileName);
-    if (!file.exists) return null;
+    if (file.exists) return true;
+    const { fetchPhotoFromFolder } = await import('./mediaSyncDevice');
+    return await fetchPhotoFromFolder(item);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Something an Image can show, or null when the file is neither here nor
+ * reachable in the Photos folder. On the phone that is the file itself. The
+ * desktop app cannot show a file address (lib/desktop/phoneOnly.ts), so
+ * there it is the bytes as a data address.
+ */
+export async function mediaDisplayUri(item: Pick<MediaItem, 'id' | 'fileName'>): Promise<string | null> {
+  try {
+    if (!(await ensureMediaHere(item))) return null;
+    const file = await mediaFile(item.fileName);
+    void touchCacheUse(item.fileName, 'photos');
     if (isDesktopApp()) return `data:${mediaMimeType(item.fileName)};base64,${await file.base64()}`;
     return file.uri;
   } catch {
@@ -101,13 +119,18 @@ export async function mediaDisplayUri(item: Pick<MediaItem, 'fileName'>): Promis
  * when a thumbnail cannot be made, and on the desktop app, which reads every
  * photo from the copy sync brought over.
  */
-export async function mediaThumbUri(item: Pick<MediaItem, 'fileName'>): Promise<string | null> {
-  if (isDesktopApp()) return mediaDisplayUri(item);
+export async function mediaThumbUri(item: Pick<MediaItem, 'id' | 'fileName'>): Promise<string | null> {
   try {
+    const thumb = await mediaFile(thumbFileName(item.fileName));
+    if (isDesktopApp()) {
+      if (thumb.exists) return `data:image/jpeg;base64,${await thumb.base64()}`;
+      return mediaDisplayUri(item);
+    }
+    // The thumbnail stays here for good, even when the cache has cleared
+    // the report size, so a row of photos draws without the folder.
+    if (thumb.exists) return thumb.uri;
     const main = await mediaFile(item.fileName);
     if (!main.exists) return null;
-    const thumb = await mediaFile(thumbFileName(item.fileName));
-    if (thumb.exists) return thumb.uri;
     if (await writeThumbnail(main.uri, item.fileName)) return thumb.uri;
     return main.uri;
   } catch {
@@ -137,8 +160,8 @@ async function writeThumbnail(sourceUri: string, fileName: string): Promise<bool
   }
 }
 
-/** How many photos this device keeps and the room both sizes take, for
- *  the line in Profile. */
+/** How many photos this device has a row for and the room their files
+ *  take here, both sizes. */
 export async function mediaStorageUsed(): Promise<{ photos: number; bytes: number }> {
   try {
     const rows = await listAllMedia();
@@ -234,6 +257,7 @@ export async function keepPhoto(
     }
 
     await writeThumbnail(destination.uri, fileName);
+    void touchCacheUse(fileName, 'photos');
     if (options.deleteSource) {
       try {
         new File(sourceUri).delete();
@@ -296,6 +320,7 @@ export async function keepGeneratedFile(
   const id = newMediaId(Date.now(), Math.random().toString(36).slice(2));
   const fileName = `${mediaFileName(id).slice(0, -4)}.${extension}`;
   (await mediaFile(fileName)).write(base64ToBytes(base64));
+  void touchCacheUse(fileName, 'photos');
   const now = new Date().toISOString();
   const takenOn = localDay(new Date());
   const caption = options.caption && options.caption.trim() ? options.caption.trim() : null;
@@ -344,6 +369,7 @@ export async function removePhoto(item: Pick<MediaItem, 'id' | 'fileName'>): Pro
     if (file.exists) file.delete();
     const thumb = await mediaFile(thumbFileName(item.fileName));
     if (thumb.exists) thumb.delete();
+    await forgetCacheUse([item.fileName]);
   } catch {
     // A file that could not be removed now is removed by the next sync
     // pass, which clears files no row refers to.

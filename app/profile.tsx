@@ -32,7 +32,17 @@ import type { DriveItemRef } from '../lib/oneDriveGraph';
 import { downloadText, listFiles, uploadText } from '../lib/oneDriveGraph';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { describeSyncStatus, EMPTY_SYNC_STATE, type SnapshotRecord, type SnapshotSyncState } from '../lib/snapshotSync';
-import { photoStorageSentence, photoSyncSentence } from '../lib/media';
+import {
+  CACHE_LIMIT_CHOICES_MB,
+  cacheClearedSentence,
+  cacheLimitLabel,
+  cacheUseSentence,
+  photoStorageSentence,
+  photoSyncSentence,
+  type CacheUse,
+} from '../lib/media';
+import { setCacheLimitMb } from '../lib/mediaCacheDb';
+import { clearCacheNow, getCacheUse, keepCacheUnderLimit } from '../lib/mediaCacheDevice';
 import { getPhotoSyncStatus } from '../lib/mediaSyncDevice';
 import {
   checkPasswordAgainstFolder,
@@ -1083,6 +1093,16 @@ export default function ProfileScreen() {
   // somewhere it cannot reach.
   const [backupFolder, setBackupFolder] = useState<DriveItemRef | null>(null);
   const [photoStorageLine, setPhotoStorageLine] = useState<string | null>(null);
+  const [cacheUse, setCacheUse] = useState<CacheUse | null>(null);
+  const [cacheBusy, setCacheBusy] = useState(false);
+  const [cacheMessage, setCacheMessage] = useState<string | null>(null);
+  const refreshCacheUse = useCallback(async () => {
+    try {
+      setCacheUse(await getCacheUse());
+    } catch {
+      setCacheUse(null);
+    }
+  }, []);
   const [peerPhotosWifiOnly, setPeerPhotosWifiOnlyState] = useState(true);
   // B5: the routine step timer's two switches, both off until turned on.
   const [stepTimer, setStepTimerState] = useState<StepTimerSettings>({ ring: false, signal: false });
@@ -1309,9 +1329,22 @@ export default function ProfileScreen() {
         .then(([mine, theirs]) => setPhotoStorageLine(photoStorageSentence(mine.photos, mine.bytes, theirs)))
         .catch(() => {});
       void getPeerPhotosWifiOnly().then(setPeerPhotosWifiOnlyState);
+      void refreshCacheUse();
       void getStepTimerSettings().then(setStepTimerState).catch(() => {});
-    }, [refreshBackupFolder]),
+    }, [refreshBackupFolder, refreshCacheUse]),
   );
+
+  async function handleClearCache() {
+    if (cacheBusy) return;
+    setCacheBusy(true);
+    try {
+      const cleared = await clearCacheNow();
+      setCacheMessage(cacheClearedSentence(cleared.files, cleared.bytes));
+      await refreshCacheUse();
+    } finally {
+      setCacheBusy(false);
+    }
+  }
 
   const otherDeviceKind = isDesktopApp() ? 'phone' : 'computer';
 
@@ -5154,6 +5187,32 @@ export default function ProfileScreen() {
                 : "Export everything on this device (meals, schedule, conditions, trials, connections, and more) into one file you can save wherever you like (a cloud drive, an email to yourself). Doesn't include the actual photo files a saved dish or recipe may reference, only their stored references."}
             </Text>
             {photoStorageLine ? <Text style={styles.helpText}>{photoStorageLine}</Text> : null}
+            {/* Files opened lately, 1.0.57.23. Photos and recordings live in
+                their own folders in the shared folder and this device keeps
+                the ones opened lately, up to the limit picked here. The
+                rules are planCacheClearing in lib/media.ts. */}
+            {backupFolder && cacheUse ? (
+              <View style={styles.concernRow}>
+                <Text style={styles.subLabel}>Room for photos and recordings opened lately</Text>
+                <Text style={styles.derivedText}>{cacheUseSentence(cacheUse, syncState.enabled)}</Text>
+                <PopoverSelect
+                  options={CACHE_LIMIT_CHOICES_MB.map((mb) => ({ label: cacheLimitLabel(mb), value: String(mb) }))}
+                  selected={String(cacheUse.limitMb)}
+                  tabColor={colors.menuIconMuted}
+                  groundSurface
+                  onSelect={(value) => {
+                    void setCacheLimitMb(Number(value))
+                      .then(() => keepCacheUnderLimit({}))
+                      .then(refreshCacheUse)
+                      .catch(() => {});
+                  }}
+                />
+                <TouchableOpacity style={styles.checkinButton} disabled={cacheBusy} onPress={handleClearCache}>
+                  <Text style={styles.checkinButtonText}>{cacheBusy ? 'Working…' : 'Clear Files Opened Lately'}</Text>
+                </TouchableOpacity>
+                {cacheMessage ? <Text style={styles.derivedText}>{cacheMessage}</Text> : null}
+              </View>
+            ) : null}
             {backupFolder ? (
               <>
                 <TouchableOpacity

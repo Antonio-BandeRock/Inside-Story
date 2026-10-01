@@ -93,6 +93,53 @@ check('clears a copy no row refers to after saving', afterSave.clearFromFolder.j
 check('never clears a copy a row refers to', !afterSave.clearFromFolder.includes('both'));
 check('nothing to do when in step', afterSave.upload.length === 0 && afterSave.download.length === 0);
 
+// The cache (1.0.57.23): a photo with only its thumbnail here is owed
+// nothing, and what is confirmed in the folder is reported.
+const cached = m.planPhotoSync({
+  rowIds: ['thumb-only', 'full', 'thumb-not-in-folder'],
+  localFileIds: ['full'],
+  localThumbIds: ['thumb-only', 'full', 'thumb-not-in-folder'],
+  folderNames: [copy('thumb-only'), copy('full')],
+  mayClearFolder: false,
+});
+check('a cleared photo is not fetched again by a pass', cached.download.length === 0);
+check('a cleared photo is not waited for', cached.waiting.length === 0);
+check('confirmed in the folder', cached.inFolder.join() === 'full,thumb-only');
+check('photos folder names', m.PHOTOS_FOLDER_NAME === 'Photos' && m.RECORDINGS_FOLDER_NAME === 'Recordings');
+
+check('limit read back', m.parseCacheLimitMb('500') === 500);
+check('unknown limit falls back', m.parseCacheLimitMb('7') === m.DEFAULT_CACHE_LIMIT_MB && m.parseCacheLimitMb(null) === m.DEFAULT_CACHE_LIMIT_MB);
+check('limit labels', m.cacheLimitLabel(250) === '250 MB' && m.cacheLimitLabel(1000) === '1 GB');
+const MB = 1024 * 1024;
+const entries = [
+  { fileName: 'old.jpg', group: 'photos', bytes: 100 * MB, usedAt: '2026-09-01T00:00:00Z', clearable: true },
+  { fileName: 'never.jpg', group: 'photos', bytes: 50 * MB, usedAt: null, clearable: true },
+  { fileName: 'new.mp3', group: 'recordings', bytes: 100 * MB, usedAt: '2026-09-29T00:00:00Z', clearable: true },
+  { fileName: 'waiting.jpg', group: 'photos', bytes: 100 * MB, usedAt: '2026-08-01T00:00:00Z', clearable: false },
+];
+check('under the limit clears nothing', m.planCacheClearing(entries, 1000 * MB).length === 0);
+check('clears least lately opened first, no more than needed', m.planCacheClearing(entries, 250 * MB).join() === 'never.jpg,old.jpg');
+check('never clears what is not confirmed', !m.planCacheClearing(entries, 1 * MB).includes('waiting.jpg'));
+check('clear now clears every clearable file', m.planCacheClearing(entries, 0).join() === 'never.jpg,old.jpg,new.mp3');
+const use = { thumbs: { count: 3, bytes: 90000 }, photos: { count: 2, bytes: 4 * MB }, recordings: { count: 1, bytes: 30 * MB }, limitMb: 250 };
+const useOn = m.cacheUseSentence(use, true);
+const useOff = m.cacheUseSentence(use, false);
+const useNone = m.cacheUseSentence({ thumbs: { count: 0, bytes: 0 }, photos: { count: 0, bytes: 0 }, recordings: { count: 0, bytes: 0 }, limitMb: 100 }, true);
+check(`use sentence names the limit (${useOn})`, useOn.includes('Up to 250 MB') && useOn.includes('1 recording'));
+check('use sentence with sync off', useOff.includes('every photo stays on this device'));
+const cleared = m.cacheClearedSentence(3, 12 * MB);
+const nothing = m.cacheClearedSentence(0, 0);
+check('cleared sentence', cleared.startsWith('Cleared 3 files'));
+
+// Device-local: the limit and the marks stay on the device that made them.
+{
+  const sync = fs.readFileSync(path.join(__dirname, '..', 'lib', 'snapshotSync.ts'), 'utf8');
+  const metaBlock = sync.slice(sync.indexOf('DEVICE_LOCAL_META_KEYS'), sync.indexOf('DEVICE_LOCAL_META_KEYS') + 4000);
+  const tableBlock = sync.slice(sync.indexOf('DEVICE_LOCAL_TABLES'), sync.indexOf('DEVICE_LOCAL_TABLES') + 2000);
+  check('cache limit is device-local', metaBlock.includes("'media_cache_limit_mb'"));
+  check('cache marks are device-local', tableBlock.includes("'media_cache_use'"));
+}
+
 // Local files.
 check(
   'orphaned files',
@@ -107,7 +154,7 @@ const inStep = m.photoSyncSentence({ onDevice: 1, waiting: 0, toCopy: 0, problem
 const behind = m.photoSyncSentence({ onDevice: 3, waiting: 2, toCopy: 1, problem: null, checkedAt: 'x' }, true, 'phone');
 const problem = m.photoSyncSentence({ onDevice: 3, waiting: 0, toCopy: 0, problem: 'The folder could not be reached.', checkedAt: 'x' }, true, 'phone');
 check('off says this device only', off.includes('this device only'));
-check('in step singular', inStep === '1 photo on this device. Each one has an encrypted copy in the shared folder.');
+check('in step singular', inStep === '1 photo on this device. Each one has an encrypted copy in the Photos folder.');
 check(`behind counts (${behind})`, behind.includes('3 photos on this device.') && behind.includes('1 photo is still to be copied.') && behind.includes('2 photos are on the way from your phone.'));
 check('problem said', problem.includes('could not be copied this time'));
 
@@ -207,6 +254,7 @@ const sentences = [
   m.photoStorageSentence(0, 0), m.photoStorageSentence(3, 3000000, { photos: 1, bytes: 40000 }),
   rp.reportPhotoNote(12, 20, 2), rp.reportPhotoNote(2, 2, 0), rp.reportPhotoTextLine(3),
   pp.PEER_PHOTO_TAP_LINE, pp.peerPhotoAskedLine('Sam'), pp.PEER_PHOTOS_WIFI_ONLY_LABEL, pp.PEER_PHOTOS_WIFI_ONLY_WHAT,
+  useOn, useOff, useNone, cleared, nothing, m.PHOTO_NOT_REACHABLE,
 ];
 for (const sentence of sentences) {
   const lower = ` ${String(sentence).toLowerCase()} `;

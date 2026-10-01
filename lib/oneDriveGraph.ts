@@ -416,6 +416,145 @@ export async function downloadText(
   return { ok: true, value: String(result.value ?? '') };
 }
 
+// Whole files: photos and recordings (2026-09-30, 1.0.57.23). A recording
+// can be tens of MB, so nothing here holds a file as text, and anything
+// past SIMPLE_UPLOAD_LIMIT goes up in pieces through an upload session,
+// which is the only way Graph takes a file that size.
+
+const SIMPLE_UPLOAD_LIMIT = 4 * 1024 * 1024;
+/** Graph asks for pieces in multiples of 320 KiB. 10 MiB is 32 of them. */
+const UPLOAD_PIECE = 320 * 1024 * 32;
+
+async function sendBytes(
+  url: string,
+  method: 'PUT' | 'POST',
+  body: Uint8Array,
+  headers: Record<string, string>,
+): Promise<{ ok: true; status: number; json: unknown } | { ok: false; reason: string }> {
+  try {
+    // expo/fetch rather than the global fetch, since it sends bytes as they
+    // are where the older one wants a string or a blob.
+    const { fetch: expoFetch } = await import('expo/fetch');
+    const response = await expoFetch(url, { method, headers, body: body as unknown as ArrayBuffer });
+    let json: unknown = null;
+    try {
+      json = await response.json();
+    } catch {
+      // An empty body, as a piece in the middle of an upload has.
+    }
+    if (!response.ok) {
+      const message = (json as { error?: { message?: string } } | null)?.error?.message ?? null;
+      return { ok: false, reason: graphErrorSentence(response.status, message) };
+    }
+    return { ok: true, status: response.status, json };
+  } catch {
+    return { ok: false, reason: 'OneDrive could not be reached. Check the connection and try again.' };
+  }
+}
+
+/**
+ * Copies a file on this device into a folder, replacing one of the same
+ * name. Small files go in one request; anything larger in pieces, read from
+ * the file a piece at a time so a long recording is never held in memory.
+ */
+export async function uploadFile(
+  folder: DriveItemRef,
+  fileName: string,
+  localUri: string,
+  mimeType: string,
+): Promise<GraphResult<null>> {
+  if (isDesktopApp()) return disk.uploadFile(folder, fileName, localUri);
+  const { File } = await import('expo-file-system');
+  const file = new File(localUri);
+  if (!file.exists) return { ok: false, reason: fileName + ' is not on this device.' };
+  const size = file.size ?? 0;
+  const address =
+    GRAPH + '/drives/' + folder.driveId + '/items/' + folder.itemId + ':/' + encodeURIComponent(fileName) + ':';
+
+  const token = await getAccessToken();
+  if (!token.ok) return { ok: false, reason: token.reason };
+
+  if (size <= SIMPLE_UPLOAD_LIMIT) {
+    const bytes = await file.bytes();
+    let sent = await sendBytes(address + '/content?@microsoft.graph.conflictBehavior=replace', 'PUT', bytes, {
+      Authorization: 'Bearer ' + token.token,
+      'Content-Type': mimeType,
+    });
+    if (!sent.ok && /sign-in/.test(sent.reason)) {
+      forgetAccessToken();
+      const again = await getAccessToken();
+      if (!again.ok) return { ok: false, reason: again.reason };
+      sent = await sendBytes(address + '/content?@microsoft.graph.conflictBehavior=replace', 'PUT', bytes, {
+        Authorization: 'Bearer ' + again.token,
+        'Content-Type': mimeType,
+      });
+    }
+    return sent.ok ? { ok: true, value: null } : sent;
+  }
+
+  const session = await graphFetch(
+    '/drives/' + folder.driveId + '/items/' + folder.itemId + ':/' + encodeURIComponent(fileName) + ':/createUploadSession',
+    {
+      method: 'POST',
+      contentType: 'application/json',
+      body: JSON.stringify({ item: { '@microsoft.graph.conflictBehavior': 'replace' } }),
+    },
+  );
+  if (!session.ok) return session;
+  const uploadUrl = (session.value as { uploadUrl?: string }).uploadUrl;
+  if (!uploadUrl) return { ok: false, reason: 'OneDrive did not say where to send ' + fileName + '.' };
+
+  const handle = file.open();
+  try {
+    let start = 0;
+    while (start < size) {
+      const length = Math.min(UPLOAD_PIECE, size - start);
+      handle.offset = start;
+      const piece = handle.readBytes(length);
+      // The upload address carries its own permission, so no sign-in goes
+      // with the pieces.
+      const sent = await sendBytes(uploadUrl, 'PUT', piece, {
+        'Content-Length': String(piece.length),
+        'Content-Range': 'bytes ' + start + '-' + (start + piece.length - 1) + '/' + size,
+      });
+      if (!sent.ok) return sent;
+      start += piece.length;
+    }
+  } finally {
+    handle.close();
+  }
+  return { ok: true, value: null };
+}
+
+/**
+ * Fetches a file from a folder onto this device at destUri, replacing
+ * anything there. Graph hands out a short-lived download address that
+ * needs no sign-in, and the file goes straight to disk from it.
+ */
+export async function downloadToFile(
+  folder: DriveItemRef,
+  fileName: string,
+  destUri: string,
+): Promise<GraphResult<null>> {
+  if (isDesktopApp()) return { ok: false, reason: 'A computer reads the folder on its disk directly.' };
+  const meta = await graphFetch(
+    '/drives/' + folder.driveId + '/items/' + folder.itemId + ':/' + encodeURIComponent(fileName) +
+      '?$select=id,size,@microsoft.graph.downloadUrl',
+  );
+  if (!meta.ok) return meta;
+  const url = (meta.value as { '@microsoft.graph.downloadUrl'?: string })['@microsoft.graph.downloadUrl'];
+  if (!url) return { ok: false, reason: 'OneDrive did not offer ' + fileName + ' for download.' };
+  try {
+    const { File } = await import('expo-file-system');
+    const dest = new File(destUri);
+    if (dest.exists) dest.delete();
+    await File.downloadFileAsync(url, dest, { idempotent: true });
+    return { ok: true, value: null };
+  } catch {
+    return { ok: false, reason: fileName + ' could not be fetched from OneDrive.' };
+  }
+}
+
 /** Removes a file, used to clear an inbox entry once it has been applied. */
 export async function deleteFile(
   folder: DriveItemRef,

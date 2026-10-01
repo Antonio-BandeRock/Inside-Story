@@ -1,12 +1,18 @@
 // One photo layer (X1): copying photo files between one person's devices
-// through the Backups folder, beside the encrypted snapshot. The rows travel
-// inside the snapshot like any other table; this moves the bytes the rows
-// name, which the snapshot deliberately leaves out so a save stays small.
+// through the Photos folder under the shared folder. The rows travel inside
+// the snapshot like any other table; this moves the bytes the rows name,
+// which the snapshot deliberately leaves out so a save stays small.
 //
-// Each photo goes into MEDIA_SYNC_FOLDER as its own file, encrypted with the
+// Each photo goes into the Photos folder as its own file, encrypted with the
 // sync password. One salt serves a whole pass, so the slow key derivation
 // runs once a pass rather than once a photo. The plaintext record,
-// inside-story-sync.json, never names a photo.
+// inside-story-sync.json, never names a photo. Before 1.0.57.23 the copies
+// sat in a folder inside Backups (LEGACY_PHOTO_FOLDER), and each pass moves
+// anything still there.
+//
+// The folder is the home and the device a cache (lib/media.ts): a pass
+// fetches only photos with nothing here at all, not even a thumbnail, and
+// opening a photo the cache cleared fetches it through fetchPhotoFromFolder.
 //
 // Every decision is planPhotoSync in lib/media.ts; this only reads, writes
 // and reports. A pass never throws: anything that goes wrong is kept as the
@@ -16,17 +22,28 @@ import { decryptBackupPayload, encryptBackupPayload, isEncryptedBackupWire, newB
 import { base64ToBytes } from './deviceIdentity';
 import {
   idFromPhotoCopyName,
-  MEDIA_SYNC_FOLDER,
+  LEGACY_PHOTO_FOLDER,
   orphanedLocalFiles,
   photoCopyName,
   planPhotoSync,
   thumbFileName,
+  type MediaItem,
   type PhotoSyncStatus,
 } from './media';
+import { touchCacheUse } from './mediaCacheDb';
 import { migrateLegacyDishPhotos } from './mealPhotos';
 import { listAllMedia, listLocalMediaFileNames, mediaFile } from './mediaDb';
-import { deleteFile, downloadText, ensureChildFolder, listFileNames, uploadText } from './oneDriveGraph';
-import { getBackupsFolder } from './oneDriveFolders';
+import {
+  deleteFile,
+  downloadText,
+  listChildFolders,
+  listFileNames,
+  listFiles,
+  moveFile,
+  uploadText,
+  type DriveItemRef,
+} from './oneDriveGraph';
+import { getBackupsFolder, getPhotosFolder } from './oneDriveFolders';
 import { sameDevice } from './snapshotSync';
 import { getMyDevice, readSyncRecord, readSyncState } from './snapshotSyncDevice';
 
@@ -92,16 +109,12 @@ async function runPass(afterSave: boolean): Promise<void> {
       }
     }
 
-    const backups = await getBackupsFolder();
-    if (!backups.ok) {
-      status = { onDevice: countHere(rows, localSet), waiting: 0, toCopy: 0, problem: backups.reason, checkedAt };
-      return;
-    }
-    const folder = await ensureChildFolder(backups.value, MEDIA_SYNC_FOLDER);
+    const folder = await getPhotosFolder();
     if (!folder.ok) {
       status = { onDevice: countHere(rows, localSet), waiting: 0, toCopy: 0, problem: folder.reason, checkedAt };
       return;
     }
+    await moveLegacyCopies(folder.value);
     const names = await listFileNames(folder.value);
     if (!names.ok) {
       status = { onDevice: countHere(rows, localSet), waiting: 0, toCopy: 0, problem: names.reason, checkedAt };
@@ -111,12 +124,14 @@ async function runPass(afterSave: boolean): Promise<void> {
     const plan = planPhotoSync({
       rowIds: rows.map((row) => row.id),
       localFileIds: rows.filter((row) => localSet.has(row.fileName)).map((row) => row.id),
+      localThumbIds: rows.filter((row) => localSet.has(thumbFileName(row.fileName))).map((row) => row.id),
       folderNames: names.value,
       mayClearFolder: afterSave && (await thisDeviceSavedLast(state.lastSavedAt)),
     });
 
     let problem: string | null = null;
     let failedUploads = 0;
+    const uploaded: string[] = [];
     let failedDownloads = 0;
     let salt: Uint8Array | null = null;
 
@@ -133,6 +148,8 @@ async function runPass(afterSave: boolean): Promise<void> {
         if (!sent.ok) {
           failedUploads += 1;
           problem = sent.reason;
+        } else {
+          uploaded.push(id);
         }
       } catch (error) {
         failedUploads += 1;
@@ -144,21 +161,10 @@ async function runPass(afterSave: boolean): Promise<void> {
       const row = byId.get(id);
       if (!row) continue;
       try {
-        const text = await downloadText(folder.value, photoCopyName(id));
-        if (!text.ok) {
+        const fetched = await fetchInto(folder.value, row, password);
+        if (fetched !== null) {
           failedDownloads += 1;
-          problem = text.reason;
-          continue;
-        }
-        const wire: unknown = JSON.parse(text.value);
-        if (!isEncryptedBackupWire(wire)) throw new Error('A photo copy in the shared folder could not be read.');
-        const plain = await decryptBackupPayload(wire, password);
-        if (plain === null) throw new Error('A photo copy did not open with this password.');
-        const copy = JSON.parse(plain) as Partial<PhotoCopy>;
-        if (copy.id !== id || typeof copy.base64 !== 'string') throw new Error('A photo copy did not match its name.');
-        (await mediaFile(row.fileName)).write(base64ToBytes(copy.base64));
-        if (typeof copy.thumbBase64 === 'string') {
-          (await mediaFile(thumbFileName(row.fileName))).write(base64ToBytes(copy.thumbBase64));
+          problem = fetched;
         }
       } catch (error) {
         failedDownloads += 1;
@@ -178,6 +184,16 @@ async function runPass(afterSave: boolean): Promise<void> {
       problem,
       checkedAt,
     };
+
+    // With every copy accounted for, the cache can be brought under its
+    // limit (lib/mediaCacheDevice.ts). Only photos confirmed in the folder
+    // can leave this device.
+    const confirmed = new Set(plan.inFolder);
+    for (const id of uploaded) confirmed.add(id);
+    const { keepCacheUnderLimit } = await import('./mediaCacheDevice');
+    await keepCacheUnderLimit({
+      photosInFolder: rows.filter((row) => confirmed.has(row.id)).map((row) => row.fileName),
+    }).catch(() => undefined);
   } catch (error) {
     status = {
       onDevice: status?.onDevice ?? 0,
@@ -190,7 +206,74 @@ async function runPass(afterSave: boolean): Promise<void> {
 }
 
 function countHere(rows: readonly { fileName: string }[], localSet: ReadonlySet<string>): number {
-  return rows.filter((row) => localSet.has(row.fileName)).length;
+  return rows.filter((row) => localSet.has(row.fileName) || localSet.has(thumbFileName(row.fileName))).length;
+}
+
+/**
+ * Reads one photo's encrypted copy from the folder and writes both sizes
+ * here. Null when it worked, otherwise what went wrong.
+ */
+async function fetchInto(folder: DriveItemRef, row: Pick<MediaItem, 'id' | 'fileName'>, password: string): Promise<string | null> {
+  const text = await downloadText(folder, photoCopyName(row.id));
+  if (!text.ok) return text.reason;
+  const wire: unknown = JSON.parse(text.value);
+  if (!isEncryptedBackupWire(wire)) return 'A photo copy in the shared folder could not be read.';
+  const plain = await decryptBackupPayload(wire, password);
+  if (plain === null) return 'A photo copy did not open with this password.';
+  const copy = JSON.parse(plain) as Partial<PhotoCopy>;
+  if (copy.id !== row.id || typeof copy.base64 !== 'string') return 'A photo copy did not match its name.';
+  (await mediaFile(row.fileName)).write(base64ToBytes(copy.base64));
+  if (typeof copy.thumbBase64 === 'string') {
+    const thumb = await mediaFile(thumbFileName(row.fileName));
+    if (!thumb.exists) thumb.write(base64ToBytes(copy.thumbBase64));
+  }
+  await touchCacheUse(row.fileName, 'photos');
+  return null;
+}
+
+/**
+ * Brings one photo's report size back from the Photos folder, for a photo
+ * opened after the cache cleared it. False when sync is off, the folder
+ * cannot be reached or the copy is not there yet.
+ */
+export async function fetchPhotoFromFolder(item: Pick<MediaItem, 'id' | 'fileName'>): Promise<boolean> {
+  try {
+    const state = await readSyncState();
+    if (!state.enabled || !state.password) return false;
+    const folder = await getPhotosFolder();
+    if (!folder.ok) return false;
+    return (await fetchInto(folder.value, item, state.password)) === null;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Moves copies left in the old folder inside Backups into Photos. A copy
+ * already in Photos is the same photo, so the old one is removed instead.
+ * Never throws; whatever is left is moved on the next pass.
+ */
+async function moveLegacyCopies(photos: DriveItemRef): Promise<void> {
+  try {
+    const backups = await getBackupsFolder();
+    if (!backups.ok) return;
+    const children = await listChildFolders(backups.value);
+    if (!children.ok) return;
+    const legacy = children.value.find((child) => child.name.toLowerCase() === LEGACY_PHOTO_FOLDER.toLowerCase());
+    if (!legacy) return;
+    const files = await listFiles(legacy);
+    if (!files.ok) return;
+    const already = await listFileNames(photos);
+    if (!already.ok) return;
+    const there = new Set(already.value);
+    for (const file of files.value) {
+      if (!idFromPhotoCopyName(file.name)) continue;
+      if (there.has(file.name)) await deleteFile(legacy, file.name);
+      else await moveFile(legacy, file, photos);
+    }
+  } catch {
+    // Tried again on the next pass.
+  }
 }
 
 /** Whether the record in the folder still names this device's own save as
@@ -201,4 +284,15 @@ async function thisDeviceSavedLast(lastSavedAt: string | null): Promise<boolean>
   if (!record.ok || !record.value) return false;
   const me = await getMyDevice();
   return sameDevice(record.value.latest.device, me) && record.value.latest.savedAt === lastSavedAt;
+}
+
+/** For recordings (lib/recordingsDb.ts), which follow the same rule about
+ *  when the folder may be cleared. */
+export async function savedLastFromHere(): Promise<boolean> {
+  try {
+    const state = await readSyncState();
+    return await thisDeviceSavedLast(state.lastSavedAt);
+  } catch {
+    return false;
+  }
 }

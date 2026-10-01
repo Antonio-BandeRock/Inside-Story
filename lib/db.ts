@@ -9312,6 +9312,33 @@ async function runDatabaseInitialization() {
       CREATE INDEX IF NOT EXISTS idx_todo_doings_todo ON todo_doings(todo_id);
     `);
 
+    // Recordings and the cache of files opened lately (2026-09-30,
+    // 1.0.57.23). A recording is audio somebody brought in for Signals >
+    // Calm; the file itself lives in the Recordings folder under the shared
+    // folder, and this device keeps a copy only while it is in the cache.
+    // The row travels between one person's devices and is not on the
+    // between-people allowlist. media_cache_use is device-local
+    // (DEVICE_LOCAL_TABLES): when each photo or recording file here was
+    // last opened, so the least lately opened goes first when the cache is
+    // over its limit. See lib/media.ts, lib/recordings.ts and
+    // lib/recordingsDb.ts.
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS recordings (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        file_name TEXT NOT NULL,
+        mime_type TEXT NOT NULL,
+        size_bytes INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS media_cache_use (
+        file_name TEXT PRIMARY KEY,
+        grp TEXT NOT NULL,
+        used_at TEXT NOT NULL
+      );
+    `);
+
     // 2026-08-30, direct on-device report: "when I had the app create a 6 week
     // meal plan schedule, it seems to have made all of them a favorite
     // automatically. If that is the case, it definitely should not do that."
