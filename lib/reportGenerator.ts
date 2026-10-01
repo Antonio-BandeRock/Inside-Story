@@ -597,6 +597,7 @@ async function noticedSections(days: number, rangeStart: string, rangeEnd: strin
         removalDays: input.removalDays,
         returnedOn: input.returnedOn,
         observationDays: input.observationDays,
+        subject: input.subject ?? null,
         lines: experimentResultLines(input),
       });
     }

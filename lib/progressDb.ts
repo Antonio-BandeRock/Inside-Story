@@ -196,7 +196,7 @@ export async function loadProgressInputs(): Promise<ProgressInputs> {
   )
     .filter((row) => row.name)
     .map((row) => ({ name: row.name!.trim(), count: Number(row.count) || 0 }));
-  const trials = named(await rows(db, 'SELECT food_name AS name, started_at AS at FROM food_trials'));
+  const trials = named(await rows(db, "SELECT food_name AS name, started_at AS at FROM food_trials WHERE (subject_kind IS NULL OR subject_kind = 'food')"));
   const cycleRows = await rows<CycleDay>(db, 'SELECT day, flow FROM cycle_days ORDER BY day ASC');
   const cycleCount = cycleRows.length > 0 ? cycleLengths(periodsFrom(cycleRows)).length : 0;
 

@@ -57,6 +57,7 @@ import {
   recordBodyMeasurement,
   recordCheckin,
   recordExercise,
+  markExperimentBack,
   reopenFoodTrial,
   resolveFoodTrial,
   scheduleFoodTrialCheckins,
@@ -68,11 +69,16 @@ import {
 } from '../../lib/db';
 import { buildTime24, formatTime12, splitTime24, type TimeOfDayInput } from '../../lib/timeOfDay';
 import {
+  awaitingReturnLine,
   DEFAULT_REMOVAL_DAYS,
   isInRemoval,
   MEASURE_OPTIONS,
   REMOVAL_DAY_OPTIONS,
   removalProgressLine,
+  SUBJECT_OPTIONS,
+  subjectLabel,
+  subjectOf,
+  type ExperimentSubject,
   type TrialDesign,
 } from '../../lib/foodExperiment';
 import { readExperimentResult } from '../../lib/foodExperimentDb';
@@ -197,12 +203,12 @@ const LENSES: LensOption<Lens>[] = [
   },
   {
     key: 'newFoods',
-    label: 'New Foods',
+    label: 'New Foods & Experiments',
     icon: 'add-circle-outline',
     help: [
       {
-        heading: 'New Foods',
-        body: "Reintroducing a food you've been avoiding, or trying something new for the first time? Start a trial here. Once your chosen watch window passes, mark it cleared or flagged, or mark it earlier if something happens right away.",
+        heading: 'New Foods & Experiments',
+        body: "Reintroducing a food you've been avoiding, or trying something new for the first time? Start a trial here. Once your chosen watch window passes, mark it cleared or flagged, or mark it earlier if something happens right away. An experiment can also be about something other than food: a bedtime, a supplement, a walk. Keep the change for a set number of days, go back to usual, and the result compares before, with the change and back.",
       },
       LOG_PERSONAL_NOTES_HELP,
     ],
@@ -361,8 +367,8 @@ const LOG_HELP_SECTIONS: HelpSection[] = [
     body: 'A specific food or drink that seems to have caused a problem. Different from Flares in that it starts from a food, not a symptom.',
   },
   {
-    heading: 'New Foods',
-    body: "Reintroducing a food you've been avoiding, or trying something new for the first time? Start a trial here. Once your chosen watch window passes, mark it cleared or flagged, or mark it earlier if something happens right away.",
+    heading: 'New Foods & Experiments',
+    body: "Reintroducing a food you've been avoiding, or trying something new for the first time? Start a trial here. Once your chosen watch window passes, mark it cleared or flagged, or mark it earlier if something happens right away. An experiment can also be about something other than food: a bedtime, a supplement, a walk. Keep the change for a set number of days, go back to usual, and the result compares before, with the change and back.",
   },
   {
     heading: 'Exercise',
@@ -1190,6 +1196,9 @@ function NewFoodsLens({
   const [design, setDesign] = useState<TrialDesign>('watch');
   const [removalDays, setRemovalDays] = useState<number>(DEFAULT_REMOVAL_DAYS);
   const [measure, setMeasure] = useState<string>(MEASURE_OPTIONS[0]);
+  // F5: what the open form is about. 'food' is the original trial form;
+  // anything else is an experiment about a change the person makes.
+  const [subject, setSubject] = useState<ExperimentSubject>('food');
   const [experimentResults, setExperimentResults] = useState<Record<string, string[]>>({});
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
@@ -1302,9 +1311,44 @@ function NewFoodsLens({
     setDesign('watch');
     setRemovalDays(DEFAULT_REMOVAL_DAYS);
     setMeasure(MEASURE_OPTIONS[0]);
+    setSubject('food');
+  }
+
+  // An experiment about something other than a food: always the
+  // make-a-change-then-go-back design, waiting until Back to Usual is
+  // pressed (markExperimentBack), so no check-ins are scheduled here.
+  async function handleSaveOtherExperiment() {
+    if (!foodName.trim()) {
+      showInfoAlert('Almost there', 'Describe the change you will make.');
+      return;
+    }
+    const days = Number(observationDays);
+    await createFoodTrial({
+      foodName,
+      startedAt: new Date().toISOString(),
+      observationDays: Number.isFinite(days) && days > 0 ? days : 3,
+      conditionCode: selectedConditionCode,
+      design: 'remove_return',
+      removalDays,
+      removalStartedOn: todayDateString(),
+      measure,
+      subjectKind: subject,
+    });
+    setFormOpen(false);
+    resetForm();
+    load();
+  }
+
+  async function handleBackToUsual(id: string) {
+    await markExperimentBack(id);
+    load();
   }
 
   async function handleSave() {
+    if (subject !== 'food') {
+      await handleSaveOtherExperiment();
+      return;
+    }
     if (!foodName.trim()) {
       showInfoAlert('Almost there', 'Enter the name of the food.');
       return;
@@ -1486,9 +1530,114 @@ function NewFoodsLens({
         </TouchableOpacity>
       ) : null}
       {!formOpen ? (
-        <TouchableOpacity style={styles.addButton} onPress={() => setFormOpen(true)}>
-          <Text style={styles.addButtonText}>+ Start a new food trial</Text>
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity style={styles.addButton} onPress={() => setFormOpen(true)}>
+            <Text style={styles.addButtonText}>+ Start a new food trial</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => {
+              setSubject(SUBJECT_OPTIONS[0].key);
+              setFormOpen(true);
+            }}
+          >
+            <Text style={styles.addButtonText}>+ Start an experiment about something else</Text>
+          </TouchableOpacity>
+        </>
+      ) : subject !== 'food' ? (
+        <View style={styles.formCard}>
+          <Text style={styles.label}>What are you testing?</Text>
+          <View style={styles.pillRow}>
+            {SUBJECT_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option.key}
+                style={[styles.pill, subject === option.key && styles.pillActive]}
+                onPress={() => setSubject(option.key)}
+              >
+                <Text style={[styles.pillText, subject === option.key && styles.pillTextActive]}>{option.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={styles.label}>What will you change?</Text>
+          <AppTextInput
+            onVoiceResult={setFoodName}
+            style={styles.input}
+            placeholder={`e.g. ${SUBJECT_OPTIONS.find((option) => option.key === subject)?.example ?? ''}`}
+            value={foodName}
+            onChangeText={setFoodName}
+          />
+          <Text style={styles.helperText}>
+            Starting today, make the change. Once the days are done, press Back to Usual on the experiment below when
+            you have gone back to how it was, and the days you choose last are watched from there. The same number of
+            days before today are read from what you already logged, so the result compares before, with the change
+            and back.
+          </Text>
+          {subject === 'supplement' ? (
+            <Text style={styles.helperText}>
+              Leaving out a prescription is a question for whoever prescribed it, so keep this to supplements you
+              choose for yourself.
+            </Text>
+          ) : null}
+          {trackedConditions.length > 0 ? (
+            <>
+              <Text style={styles.label}>Which condition or concern is this testing? (optional)</Text>
+              <View style={styles.pillRow}>
+                {trackedConditions.map((condition) => {
+                  const active = selectedConditionCode === condition.code;
+                  return (
+                    <TouchableOpacity
+                      key={condition.code}
+                      style={[styles.pill, active && styles.pillActive]}
+                      onPress={() => setSelectedConditionCode(active ? null : condition.code)}
+                    >
+                      <Text style={[styles.pillText, active && styles.pillTextActive]}>{condition.name}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </>
+          ) : null}
+          <Text style={styles.label}>Keep the change for how many days?</Text>
+          <View style={styles.pillRow}>
+            {REMOVAL_DAY_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option}
+                style={[styles.pill, removalDays === option && styles.pillActive]}
+                onPress={() => setRemovalDays(option)}
+              >
+                <Text style={[styles.pillText, removalDays === option && styles.pillTextActive]}>{option} days</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={styles.label}>What will you watch?</Text>
+          <View style={styles.pillRow}>
+            {MEASURE_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option}
+                style={[styles.pill, measure === option && styles.pillActive]}
+                onPress={() => setMeasure(option)}
+              >
+                <Text style={[styles.pillText, measure === option && styles.pillTextActive]}>{option}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={styles.label}>Once you are back to usual, watch for how many days?</Text>
+          <AppTextInput
+            style={[styles.input, styles.timeInput]}
+            keyboardType="number-pad"
+            maxLength={2}
+            value={observationDays}
+            onChangeText={setObservationDays}
+          />
+          <View style={styles.formActions}>
+            <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
+              <Text style={styles.secondaryButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.primaryButton} onPress={handleSave}>
+              <Text style={styles.primaryButtonText}>Start experiment</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       ) : (
         <View style={styles.formCard}>
           <Text style={styles.label}>What food are you introducing?</Text>
@@ -1513,8 +1662,8 @@ function NewFoodsLens({
           ) : null}
           {allergyMatch ? (
             <Text style={[styles.helperText, styles.flaggedText]}>
-              This may match your own declared allergy to {allergyMatch}. This feature is for testing a sensitivity
-              or reintroduction, not a real allergy -- talk to a doctor before testing a known allergen.
+              This may match your declared allergy to {allergyMatch}. This feature is for testing a sensitivity or
+              reintroduction, not an allergy, so talk to a doctor before testing a known allergen.
             </Text>
           ) : null}
           {foodHistory.length > 0 ? (
@@ -1623,7 +1772,7 @@ function NewFoodsLens({
           />
           {pickedFood && design === 'remove_return' ? null : pickedFood ? (
             <Text style={styles.helperText}>
-              This will start automatically once you log or schedule a meal with {foodName} -- or you can start it
+              This will start automatically once you log or schedule a meal with {foodName}, or you can start it
               right now from the trial list below once it&apos;s saved.
             </Text>
           ) : (
@@ -1653,7 +1802,7 @@ function NewFoodsLens({
         </View>
       ) : trials.length === 0 ? (
         <View style={styles.panelStandalone}>
-          <Text style={styles.emptyText}>No food trials yet.</Text>
+          <Text style={styles.emptyText}>No food trials or experiments yet.</Text>
         </View>
       ) : (
         <View style={styles.table}>
@@ -1662,10 +1811,14 @@ function NewFoodsLens({
             const daysLeft = trial.observationDays - daysElapsed;
             const todaysCheckin = todaysCheckinByTrial[trial.id];
             const isEscalating = escalatingTrialId === trial.id;
+            const trialSubject = subjectOf(trial.subjectKind);
             return (
               <View key={trial.id} style={styles.row}>
                 <View style={styles.rowTextCol}>
                   <Text style={styles.rowTitle}>{trial.foodName}</Text>
+                  {trialSubject !== 'food' ? (
+                    <Text style={styles.rowMeta}>Experiment about {subjectLabel(trial.subjectKind).toLowerCase()}</Text>
+                  ) : null}
                   {trial.status === 'waiting' ? (
                     // No real "Started" date to show yet -- startedAt on a
                     // 'waiting' trial is just the moment the form was
@@ -1677,12 +1830,10 @@ function NewFoodsLens({
                     trial.removalDays &&
                     isInRemoval(trial.removalStartedOn, trial.removalDays, todayDateString()) ? (
                       <Text style={[styles.rowMeta, styles.waitingText]}>
-                        {removalProgressLine(trial.removalStartedOn, trial.removalDays, todayDateString())}
+                        {removalProgressLine(trial.removalStartedOn, trial.removalDays, todayDateString(), trialSubject)}
                       </Text>
                     ) : trial.design === 'remove_return' ? (
-                      <Text style={[styles.rowMeta, styles.waitingText]}>
-                        The days without it are done. It comes back the next time you log or schedule a meal with it.
-                      </Text>
+                      <Text style={[styles.rowMeta, styles.waitingText]}>{awaitingReturnLine(trialSubject)}</Text>
                     ) : (
                       <Text style={[styles.rowMeta, styles.waitingText]}>
                         Waiting to start: will begin automatically once you log or schedule a meal with this food
@@ -1700,13 +1851,19 @@ function NewFoodsLens({
                       ) : trial.status === 'cleared' ? (
                         <Text style={[styles.rowMeta, styles.clearedText]}>No problems, cleared</Text>
                       ) : (
-                        <Text style={[styles.rowMeta, styles.flaggedText]}>Caused a problem</Text>
+                        <Text style={[styles.rowMeta, styles.flaggedText]}>
+                          {trialSubject === 'food' ? 'Caused a problem' : 'Flagged'}
+                        </Text>
                       )}
                     </>
                   )}
                 </View>
                 <View style={styles.rowActions}>
-                  {trial.status === 'waiting' ? (
+                  {trial.status === 'waiting' && trialSubject !== 'food' ? (
+                    <TouchableOpacity onPress={() => handleBackToUsual(trial.id)}>
+                      <Text style={styles.actionTextPrimary}>Back to Usual</Text>
+                    </TouchableOpacity>
+                  ) : trial.status === 'waiting' ? (
                     <TouchableOpacity onPress={() => handleReopen(trial.id)}>
                       <Text style={styles.actionTextPrimary}>Start now</Text>
                     </TouchableOpacity>

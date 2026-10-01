@@ -516,7 +516,7 @@ export const GUIDES: GuideDef[] = [
         key: 'experiment',
         record: 'experiment',
         when: 'onceThereIsData',
-        doThis: 'Test a food by leaving it out and bringing it back, from Test this in Pattern Finder or in Signals under New Foods.',
+        doThis: 'Test a food by leaving it out and bringing it back, from Test this in Pattern Finder or in Signals under New Foods & Experiments. An experiment there can also be about a bedtime, a supplement or a walk.',
         forYou: 'The app compares how you felt before, while it was out, and once it was back, and says plainly what one run can and cannot show.',
         takes: 'A few weeks, a minute a day',
         taps: ['Tap + Start a new food trial and choose the food.', 'Keep noting how you feel each day while it runs.'],
@@ -1473,7 +1473,7 @@ export const LENS_NAMES: Record<string, Record<string, string>> = {
   '/log': {
     flares: 'Flares',
     foodReactions: 'Food Reactions',
-    newFoods: 'New Foods',
+    newFoods: 'New Foods & Experiments',
     exercise: 'Exercise',
     bloodPressure: 'Blood Pressure',
     therapies: 'Hands-On Therapies',

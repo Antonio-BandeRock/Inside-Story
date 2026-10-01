@@ -189,11 +189,11 @@ export async function listMealReactions(range: DayRange): Promise<{ loggedAt: st
 }
 
 export async function listFoodTrialsForTrends(): Promise<
-  { foodName: string; status: string; startedAt: string; resolvedAt: string | null; design: string | null }[]
+  { foodName: string; status: string; startedAt: string; resolvedAt: string | null; design: string | null; subjectKind: string | null }[]
 > {
   const db = await getDatabase();
   return db.getAllAsync(
-    `SELECT food_name AS foodName, status, started_at AS startedAt, resolved_at AS resolvedAt, design
+    `SELECT food_name AS foodName, status, started_at AS startedAt, resolved_at AS resolvedAt, design, subject_kind AS subjectKind
      FROM food_trials ORDER BY started_at ASC`,
   );
 }

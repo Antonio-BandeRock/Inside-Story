@@ -109,6 +109,7 @@ export type AchievementCriterionKey =
   | 'tracker_named'
   | 'food_trial_logged'
   | 'food_trial_finished'
+  | 'experiment_tried'
   | 'therapy_session_logged'
   | 'period_day_recorded'
   | 'bowel_movement_logged'
@@ -231,12 +232,25 @@ const OTHER_CRITERIA: CriterionDefinition[] = [
   },
   { key: 'checkin_made', label: 'Made a check-in', tab: '/log', firstQuery: firstOf('wellbeing_checkins', 'logged_at') },
   { key: 'tracker_named', label: 'Named a tracker of your choosing', tab: '/log', firstQuery: firstOf('custom_trackers', 'created_at') },
-  { key: 'food_trial_logged', label: 'Started trying a new food', tab: '/log', firstQuery: firstOf('food_trials', 'started_at') },
+  // A food trial and an experiment about something else share food_trials
+  // since F5 (2026-10-01); subject_kind tells them apart.
+  {
+    key: 'food_trial_logged',
+    label: 'Started trying a new food',
+    tab: '/log',
+    firstQuery: firstOf('food_trials', 'started_at', "(subject_kind IS NULL OR subject_kind = 'food')"),
+  },
   {
     key: 'food_trial_finished',
     label: 'Finished trying a new food',
     tab: '/log',
-    firstQuery: firstOf('food_trials', 'resolved_at', "status IN ('cleared', 'flagged') AND resolved_at IS NOT NULL"),
+    firstQuery: firstOf('food_trials', 'resolved_at', "status IN ('cleared', 'flagged') AND resolved_at IS NOT NULL AND (subject_kind IS NULL OR subject_kind = 'food')"),
+  },
+  {
+    key: 'experiment_tried',
+    label: 'Tried a change other than food as an experiment',
+    tab: '/log',
+    firstQuery: firstOf('food_trials', 'created_at', "subject_kind IS NOT NULL AND subject_kind <> 'food'"),
   },
   { key: 'therapy_session_logged', label: 'Recorded a therapy session', tab: '/log', firstQuery: firstOf('therapy_sessions', 'performed_at') },
   { key: 'period_day_recorded', label: 'Recorded a period day', tab: '/log', firstQuery: firstOf('cycle_days', 'day') },

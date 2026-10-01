@@ -615,7 +615,7 @@ export type ReactionsInputs = {
   range: DayRange;
   mealDates: string[];
   reactions: { loggedAt: string; severity: number | null; mealName: string | null }[];
-  trials: { foodName: string; status: string; startedAt: string; resolvedAt: string | null; design: string | null }[];
+  trials: { foodName: string; status: string; startedAt: string; resolvedAt: string | null; design: string | null; subjectKind?: string | null }[];
 };
 
 // The same words the Signals check-in form offers (app/(tabs)/log.tsx).
@@ -638,14 +638,14 @@ export function buildReactionsView(input: ReactionsInputs): ReadingView {
     return (started <= input.range.end && (resolved === null || resolved >= input.range.start)) || (started >= input.range.start && started <= input.range.end);
   });
   if (reactions.length === 0 && trials.length === 0) {
-    return emptyView('Nothing yet. Reactions are logged after a meal on Signals, and a new food is tried on Signals > Food Trials.');
+    return emptyView('Nothing yet. Reactions are logged after a meal on Signals, and a new food or an experiment is tried on Signals > New Foods & Experiments.');
   }
   const bands: ReadingBand[] = [];
 
   if (trials.length > 0) {
     bands.push({
       id: 'trials',
-      title: 'New foods tried',
+      title: 'New foods and experiments',
       icon: 'flask-outline',
       count: trials.length,
       lines: [],
@@ -655,7 +655,11 @@ export function buildReactionsView(input: ReactionsInputs): ReadingView {
           key: `${t.foodName}-${t.startedAt}`,
           title: t.foodName,
           caption: [
-            t.design === 'remove_return' ? 'left out, then brought back' : 'tried',
+            t.subjectKind && t.subjectKind !== 'food'
+              ? 'a change, then back to usual'
+              : t.design === 'remove_return'
+                ? 'left out, then brought back'
+                : 'tried',
             `from ${shortDate(localDay(t.startedAt))}`,
             TRIAL_WORDS[t.status] ?? t.status,
           ].join(' · '),

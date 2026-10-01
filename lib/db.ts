@@ -20,7 +20,14 @@ import {
 import { analyzeNutrientIntake, NutrientGapEntry, sumFoodNutrientTotals } from './nutrientAnalysis';
 import { ACTIVITY_LEVELS, ActivityLevel } from './energyNeeds';
 import { isFlaggedTier, tierSeverity } from './sixDimensionsReference';
-import { isInRemoval, type TrialDesign } from './foodExperiment';
+import {
+  DEFAULT_REMOVAL_DAYS,
+  experimentCheckinTitle,
+  isInRemoval,
+  subjectOf,
+  type ExperimentSubject,
+  type TrialDesign,
+} from './foodExperiment';
 import { localDayOf } from './dailyScales';
 import { buildPerConditionSummaries, type ConditionDimensionSummary } from './conditionDimensions';
 import { convertToGrams, MASS_UNITS, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
@@ -10013,6 +10020,11 @@ async function runDatabaseInitialization() {
       ['removal_started_on', 'TEXT'],
       ['removal_days', 'INTEGER'],
       ['measure', 'TEXT'],
+      // F5, 2026-10-01: what the experiment is about. Null or 'food' is a
+      // food; 'bedtime', 'supplement', 'activity' and 'other' are a change
+      // described in food_name, which comes back by Back to Usual
+      // (markExperimentBack) rather than by a meal being logged.
+      ['subject_kind', 'TEXT'],
     ] as const) {
       if (!foodTrialColumns.some((existing) => existing.name === column)) {
         await db.execAsync(`ALTER TABLE food_trials ADD COLUMN ${column} ${type};`);
@@ -23311,6 +23323,9 @@ export type FoodTrialRecord = {
   removalStartedOn: string | null;
   removalDays: number | null;
   measure: string | null;
+  // F5: null on rows made before it, which are all foods (subjectOf in
+  // lib/foodExperiment.ts).
+  subjectKind: string | null;
 };
 
 // A new food being watched over time rather than a single moment-in-time
@@ -23345,21 +23360,26 @@ export async function createFoodTrial(input: {
   removalStartedOn?: string | null;
   removalDays?: number | null;
   measure?: string | null;
+  // F5: anything other than a food is always an experiment and always
+  // waits, since it comes back by Back to Usual rather than by a meal.
+  subjectKind?: ExperimentSubject | null;
 }): Promise<{ id: string; status: FoodTrialStatus }> {
   const db = await getDatabase();
   const id = `food_trial_${Date.now()}`;
   const now = new Date().toISOString();
-  const status: FoodTrialStatus = input.foodId != null && input.source ? 'waiting' : 'trialing';
-  // An experiment needs a food the app can recognize coming back, so it
+  const subject = subjectOf(input.subjectKind);
+  const status: FoodTrialStatus =
+    subject !== 'food' || (input.foodId != null && input.source) ? 'waiting' : 'trialing';
+  // A food experiment needs a food the app can recognize coming back, so it
   // only takes effect for a trial linked to a reference food.
-  const experiment = input.design === 'remove_return' && status === 'waiting' && !!input.removalDays;
+  const experiment = subject !== 'food' || (input.design === 'remove_return' && status === 'waiting' && !!input.removalDays);
 
   await db.runAsync(
     `
       INSERT INTO food_trials
         (id, food_name, started_at, observation_days, status, notes, food_id, source, prep_method, condition_code,
-         design, removal_started_on, removal_days, measure, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         design, removal_started_on, removal_days, measure, subject_kind, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.foodName.trim(),
@@ -23373,8 +23393,9 @@ export async function createFoodTrial(input: {
     input.conditionCode ?? null,
     experiment ? 'remove_return' : 'watch',
     experiment ? (input.removalStartedOn ?? input.startedAt.slice(0, 10)) : null,
-    experiment ? (input.removalDays ?? null) : null,
+    experiment ? (input.removalDays ?? DEFAULT_REMOVAL_DAYS) : null,
     input.measure?.trim() || null,
+    subject === 'food' ? null : subject,
     now,
     now,
   );
@@ -23390,7 +23411,7 @@ export async function listFoodTrials(limit = 100): Promise<FoodTrialRecord[]> {
              status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
              condition_code AS conditionCode, activated_by_schedule_item_id AS activatedByScheduleItemId,
              activated_by_meal_id AS activatedByMealId, design, removal_started_on AS removalStartedOn,
-             removal_days AS removalDays, measure, created_at AS createdAt, updated_at AS updatedAt
+             removal_days AS removalDays, measure, subject_kind AS subjectKind, created_at AS createdAt, updated_at AS updatedAt
       FROM food_trials
       ORDER BY started_at DESC
       LIMIT ?
@@ -23414,7 +23435,7 @@ export async function getFoodTrialHistory(foodId: number, source: string): Promi
              status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
              condition_code AS conditionCode, activated_by_schedule_item_id AS activatedByScheduleItemId,
              activated_by_meal_id AS activatedByMealId, design, removal_started_on AS removalStartedOn,
-             removal_days AS removalDays, measure, created_at AS createdAt, updated_at AS updatedAt
+             removal_days AS removalDays, measure, subject_kind AS subjectKind, created_at AS createdAt, updated_at AS updatedAt
       FROM food_trials
       WHERE food_id = ? AND source = ?
       ORDER BY started_at DESC
@@ -23465,8 +23486,8 @@ export async function resolveFoodTrial(id: string, status: 'cleared' | 'flagged'
 // any real edge case where they weren't.
 export async function reopenFoodTrial(id: string) {
   const db = await getDatabase();
-  const trial = await db.getFirstAsync<{ food_name: string; observation_days: number }>(
-    'SELECT food_name, observation_days FROM food_trials WHERE id = ?',
+  const trial = await db.getFirstAsync<{ food_name: string; observation_days: number; subject_kind: string | null }>(
+    'SELECT food_name, observation_days, subject_kind FROM food_trials WHERE id = ?',
     id,
   );
   if (!trial) return;
@@ -23484,6 +23505,36 @@ export async function reopenFoodTrial(id: string) {
     foodName: trial.food_name,
     firstScheduledFor: `${todayDateStringLocal()}T20:00`,
     observationDays: trial.observation_days,
+    subjectKind: trial.subject_kind,
+  });
+}
+
+// F5, 2026-10-01: Back to Usual on an experiment about something other
+// than a food. Nothing in the app can see a bedtime or a walk end, so this
+// press is what starts the Back period (returnedOn in lib/foodExperimentDb.ts
+// reads started_at) and its daily check-ins.
+export async function markExperimentBack(id: string): Promise<void> {
+  const db = await getDatabase();
+  const trial = await db.getFirstAsync<{ food_name: string; observation_days: number; subject_kind: string | null }>(
+    'SELECT food_name, observation_days, subject_kind FROM food_trials WHERE id = ?',
+    id,
+  );
+  if (!trial) return;
+  const today = todayDateStringLocal();
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `UPDATE food_trials SET status = 'trialing', started_at = ?, resolved_at = NULL, updated_at = ? WHERE id = ?`,
+    `${today}T${new Date().toTimeString().slice(0, 5)}`,
+    now,
+    id,
+  );
+  await cancelFoodTrialCheckins(id);
+  await scheduleFoodTrialCheckins({
+    foodTrialId: id,
+    foodName: trial.food_name,
+    firstScheduledFor: `${today}T20:00`,
+    observationDays: trial.observation_days,
+    subjectKind: trial.subject_kind,
   });
 }
 
@@ -23512,8 +23563,8 @@ export async function revertFoodTrialToWaiting(id: string): Promise<void> {
 // date instead of always "today."
 export async function correctFoodTrialStartDate(id: string, newStartedAt: string): Promise<void> {
   const db = await getDatabase();
-  const trial = await db.getFirstAsync<{ food_name: string; observation_days: number }>(
-    'SELECT food_name, observation_days FROM food_trials WHERE id = ?',
+  const trial = await db.getFirstAsync<{ food_name: string; observation_days: number; subject_kind: string | null }>(
+    'SELECT food_name, observation_days, subject_kind FROM food_trials WHERE id = ?',
     id,
   );
   if (!trial) return;
@@ -23527,6 +23578,7 @@ export async function correctFoodTrialStartDate(id: string, newStartedAt: string
     foodName: trial.food_name,
     firstScheduledFor: `${newStartedAt.slice(0, 10)}T20:00`,
     observationDays: trial.observation_days,
+    subjectKind: trial.subject_kind,
   });
 }
 
@@ -23657,7 +23709,7 @@ export async function getFoodTrialsForCondition(conditionCode: string): Promise<
              status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
              condition_code AS conditionCode, activated_by_schedule_item_id AS activatedByScheduleItemId,
              activated_by_meal_id AS activatedByMealId, design, removal_started_on AS removalStartedOn,
-             removal_days AS removalDays, measure, created_at AS createdAt, updated_at AS updatedAt
+             removal_days AS removalDays, measure, subject_kind AS subjectKind, created_at AS createdAt, updated_at AS updatedAt
       FROM food_trials
       WHERE condition_code = ?
       ORDER BY started_at DESC
@@ -24390,11 +24442,12 @@ export async function scheduleFoodTrialCheckins(input: {
   foodName: string;
   firstScheduledFor: string;
   observationDays: number;
+  subjectKind?: string | null;
 }): Promise<string> {
   const id = await insertScheduleSeries({
     itemType: 'foodTest',
     mealType: null,
-    title: `How did today go with ${input.foodName}?`,
+    title: experimentCheckinTitle(input.foodName, input.subjectKind),
     scheduledFor: input.firstScheduledFor,
     repeat: { type: 'daily', endType: 'count', count: Math.max(1, input.observationDays) },
   });

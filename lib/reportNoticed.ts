@@ -14,7 +14,7 @@
 
 import { basisSentence, comparisonSentence, delaySentence, thresholdSentence } from './patternBasis';
 import { contextCaveat } from './patternContext';
-import { EXPERIMENT_LIMIT, removalEndsOn } from './foodExperiment';
+import { EXPERIMENT_LIMIT, removalEndsOn, subjectLabel, subjectOf, type ExperimentSubject } from './foodExperiment';
 import type { PatternFinderResult } from './patternFinder';
 import type { ReportListSection } from './reportGenerator';
 
@@ -24,7 +24,7 @@ export const NOTICED_WINDOW_HOURS = 24;
 const WORDS = { one: 'flare or reaction', many: 'flares and reactions', short: 'flare', shortMany: 'flares' };
 
 export const NOTICED_HEADING = 'What I have noticed';
-export const EXPERIMENTS_HEADING = 'Food experiments';
+export const EXPERIMENTS_HEADING = 'Experiments';
 
 export const NOTICED_NOTE =
   'Possible patterns the app counted in one person’s records, each a hypothesis to test and never a finding. A food eaten before several flares can still have nothing to do with them.';
@@ -77,6 +77,8 @@ export type ExperimentForReport = {
   /** 'YYYY-MM-DD' the food came back, or null while it has not. */
   returnedOn: string | null;
   observationDays: number;
+  /** What it is about (subjectOf in lib/foodExperiment.ts); missing is a food. */
+  subject?: ExperimentSubject | null;
   /** From experimentResultLines; the one-run limit is said once in the note. */
   lines: string[];
 };
@@ -96,12 +98,14 @@ export function experimentInRange(experiment: ExperimentForReport, rangeStart: s
 }
 
 function experimentStage(experiment: ExperimentForReport, today: string): string {
+  const food = subjectOf(experiment.subject) === 'food';
   if (!experiment.returnedOn) {
-    return today < removalEndsOn(experiment.removalStartedOn, experiment.removalDays)
-      ? 'still being left out'
-      : 'left out, not brought back yet';
+    const during = today < removalEndsOn(experiment.removalStartedOn, experiment.removalDays);
+    if (food) return during ? 'still being left out' : 'left out, not brought back yet';
+    return during ? 'the change still being kept' : 'the change kept, not back to usual yet';
   }
-  return experiment.status === 'trialing' ? 'brought back, still being watched' : 'finished';
+  if (experiment.status !== 'trialing') return 'finished';
+  return food ? 'brought back, still being watched' : 'back to usual, still being watched';
 }
 
 export function experimentsSection(
@@ -116,11 +120,15 @@ export function experimentsSection(
     .sort((a, b) => a.removalStartedOn.localeCompare(b.removalStartedOn));
   return {
     ...base,
-    note: `Foods left out for a set number of days and then brought back, with the flares and reactions logged before, without and back. ${EXPERIMENT_LIMIT}`,
+    note: `Foods left out for a set number of days and then brought back, and other changes (a bedtime, a supplement, a walk) kept for a set number of days and then dropped, with the flares and reactions logged before, during and after. ${EXPERIMENT_LIMIT}`,
     rows: shown.map((experiment) => {
       const lines = experiment.lines.filter((line) => line !== EXPERIMENT_LIMIT);
-      return `${experiment.foodName}, left out from ${experiment.removalStartedOn}, ${experimentStage(experiment, rangeEnd)}. ${lines.join(' ')}`.trim();
+      const food = subjectOf(experiment.subject) === 'food';
+      const opening = food
+        ? `${experiment.foodName}, left out from ${experiment.removalStartedOn}`
+        : `${experiment.foodName} (${subjectLabel(experiment.subject).toLowerCase()}), from ${experiment.removalStartedOn}`;
+      return `${opening}, ${experimentStage(experiment, rangeEnd)}. ${lines.join(' ')}`.trim();
     }),
-    empty: 'No food was left out and brought back as an experiment in this range.',
+    empty: 'No food was left out and brought back, and no other change was tried, as an experiment in this range.',
   };
 }

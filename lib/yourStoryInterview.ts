@@ -313,7 +313,7 @@ export const TOUR_LENS_NAMES: Record<string, Record<string, string>> = {
   '/log': {
     flares: 'Flares',
     foodReactions: 'Food Reactions',
-    newFoods: 'New Foods',
+    newFoods: 'New Foods & Experiments',
     exercise: 'Exercise',
     bloodPressure: 'Blood Pressure',
     nocturia: 'Nocturia',

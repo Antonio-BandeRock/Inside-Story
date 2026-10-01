@@ -2,7 +2,7 @@
 // lib/foodExperiment.ts for what it says). Nothing here writes.
 
 import { getDatabase, listCheckins, type FoodTrialRecord } from './db';
-import { experimentResultLines, removalEndsOn, type ExperimentInput } from './foodExperiment';
+import { experimentResultLines, removalEndsOn, subjectOf, type ExperimentInput } from './foodExperiment';
 
 function localToday(): string {
   const now = new Date();
@@ -17,8 +17,9 @@ export async function readExperimentInput(trial: FoodTrialRecord): Promise<Exper
     listCheckins({ checkinType: 'post_meal', limit: 500 }),
   ]);
   const db = await getDatabase();
+  const subject = subjectOf(trial.subjectKind);
   const eaten =
-    trial.foodId != null && trial.source
+    subject === 'food' && trial.foodId != null && trial.source
       ? await db.getAllAsync<{ eatenAt: string }>(
           `SELECT m.eaten_at AS eatenAt FROM meal_items mi JOIN meals m ON m.id = mi.meal_id
            WHERE mi.food_id = ? AND m.eaten_at >= ? AND m.eaten_at < ?`,
@@ -36,6 +37,7 @@ export async function readExperimentInput(trial: FoodTrialRecord): Promise<Exper
     eventDates: [...flares, ...reactions].map((checkin) => checkin.loggedAt.slice(0, 10)),
     eatenDates: eaten.map((row) => row.eatenAt.slice(0, 10)),
     measure: trial.measure,
+    subject,
   };
 }
 
