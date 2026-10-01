@@ -21,6 +21,8 @@ import { TherapySessionsSection } from '../../components/TherapySessionsSection'
 import { textShadow, typography } from '../../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../../components/HomeSectionBand';
 import { RecordPhotos } from '../../components/RecordPhotos';
+import { BodyMap } from '../../components/BodyMap';
+import { regionsSentence } from '../../lib/bodyMap';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import {
   CHECKIN_TAG_CATEGORIES,
@@ -741,8 +743,13 @@ function CheckinForm({
   onSave,
   saveLabel,
   detail,
+  regions,
+  onRegionsChange,
 }: {
   detail?: SeverityDetail;
+  /** D11: areas marked on the body map. */
+  regions: string[];
+  onRegionsChange: (next: string[]) => void;
   foodNameField?: { value: string; onChange: (text: string) => void };
   severity: number | null;
   onSeverityChange: (value: number) => void;
@@ -806,6 +813,8 @@ function CheckinForm({
       ) : null}
       <Text style={styles.label}>What symptoms? (optional)</Text>
       <TagPicker selected={tags} onToggle={onToggleTag} detail={detail} />
+      <Text style={styles.label}>Where on the body? (optional)</Text>
+      <BodyMap selected={regions} onChange={onRegionsChange} color={TAB_COLOR} />
       {/* The mic is inside the field (NotesInput), and dictation adds to the notes. */}
       <Text style={styles.label}>Notes (optional)</Text>
       <NotesInput
@@ -849,6 +858,9 @@ function CheckinRow({ entry, onDelete }: { entry: WellbeingCheckin; onDelete: (i
               .join(', ')}
           </Text>
         ) : null}
+        {entry.bodyRegions.length > 0 ? (
+          <Text style={styles.rowMeta}>{`Where: ${regionsSentence(entry.bodyRegions)}`}</Text>
+        ) : null}
         {entry.noneToday.length > 0 ? (
           <Text style={styles.rowMeta}>{`None today: ${entry.noneToday.map(tagLabel).join(', ')}`}</Text>
         ) : null}
@@ -882,6 +894,7 @@ function FlaresLens() {
   const [time, setTime] = useState<TimeOfDayInput>(() => splitTime24(nowTimeString24()));
   const [severity, setSeverity] = useState<number | null>(null);
   const [tags, setTags] = useState<string[]>([]);
+  const [regions, setRegions] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
   const detail = useSeverityDetail();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -902,6 +915,7 @@ function FlaresLens() {
     setTime(splitTime24(nowTimeString24()));
     setSeverity(null);
     setTags([]);
+    setRegions([]);
     setNotes('');
     detail.reset();
   }
@@ -920,7 +934,7 @@ function FlaresLens() {
       showInfoAlert('Almost there', 'Select how severe this flare felt.');
       return;
     }
-    await recordCheckin({ loggedAt, checkinType: 'flare', valence: 'negative', severity, notes, tags, ...detailForSave(detail, tags) });
+    await recordCheckin({ loggedAt, checkinType: 'flare', valence: 'negative', severity, notes, tags, bodyRegions: regions, ...detailForSave(detail, tags) });
     setFormOpen(false);
     resetForm();
     load();
@@ -945,6 +959,8 @@ function FlaresLens() {
           onSeverityChange={setSeverity}
           tags={tags}
           onToggleTag={toggleTag}
+          regions={regions}
+          onRegionsChange={setRegions}
           notes={notes}
           onNotesChange={setNotes}
           dateChoice={dateChoice}
@@ -989,6 +1005,7 @@ function FoodReactionsLens() {
   const [time, setTime] = useState<TimeOfDayInput>(() => splitTime24(nowTimeString24()));
   const [severity, setSeverity] = useState<number | null>(null);
   const [tags, setTags] = useState<string[]>([]);
+  const [regions, setRegions] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
   const detail = useSeverityDetail();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -1010,6 +1027,7 @@ function FoodReactionsLens() {
     setTime(splitTime24(nowTimeString24()));
     setSeverity(null);
     setTags([]);
+    setRegions([]);
     setNotes('');
     detail.reset();
   }
@@ -1040,6 +1058,7 @@ function FoodReactionsLens() {
       notes,
       foodName,
       tags,
+      bodyRegions: regions,
       ...detailForSave(detail, tags),
     });
     setFormOpen(false);
@@ -1067,6 +1086,8 @@ function FoodReactionsLens() {
           onSeverityChange={setSeverity}
           tags={tags}
           onToggleTag={toggleTag}
+          regions={regions}
+          onRegionsChange={setRegions}
           notes={notes}
           onNotesChange={setNotes}
           dateChoice={dateChoice}
@@ -1155,6 +1176,7 @@ function NewFoodsLens({
   const [escalateSeverity, setEscalateSeverity] = useState<number | null>(null);
   const escalateDetail = useSeverityDetail();
   const [escalateTags, setEscalateTags] = useState<string[]>([]);
+  const [escalateRegions, setEscalateRegions] = useState<string[]>([]);
   const [escalateNotes, setEscalateNotes] = useState('');
   const [escalateDateChoice, setEscalateDateChoice] = useState<DateChoice>('today');
   const [escalateCustomDate, setEscalateCustomDate] = useState('');
@@ -1354,6 +1376,7 @@ function NewFoodsLens({
     setEscalateSeverity(null);
     escalateDetail.reset();
     setEscalateTags([]);
+    setEscalateRegions([]);
     setEscalateNotes('');
     setEscalateDateChoice('today');
     setEscalateCustomDate('');
@@ -1383,6 +1406,7 @@ function NewFoodsLens({
       foodName: trial.foodName,
       foodTrialId: trial.id,
       tags: escalateTags,
+      bodyRegions: escalateRegions,
       ...detailForSave(escalateDetail, escalateTags),
     });
     setEscalatingTrialId(null);
@@ -1718,6 +1742,8 @@ function NewFoodsLens({
                     severity={escalateSeverity}
                     onSeverityChange={setEscalateSeverity}
                     tags={escalateTags}
+                    regions={escalateRegions}
+                    onRegionsChange={setEscalateRegions}
                     onToggleTag={toggleEscalateTag}
                     notes={escalateNotes}
                     onNotesChange={setEscalateNotes}

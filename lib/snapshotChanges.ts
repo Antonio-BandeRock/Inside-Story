@@ -158,7 +158,7 @@ const AREAS: readonly Area[] = [
     count: ['symptom_assessments'],
     quiet: ['symptom_assessment_responses'],
   },
-  { one: 'check-in', many: 'check-ins', count: ['wellbeing_checkins'], quiet: ['checkin_tags'] },
+  { one: 'check-in', many: 'check-ins', count: ['wellbeing_checkins'], quiet: ['checkin_tags', 'checkin_body_regions'] },
   { one: 'health record', many: 'health records', count: ['health_records'], quiet: [] },
   { one: 'lab result', many: 'lab results', count: ['lab_results'], quiet: [] },
   { one: 'measurement', many: 'measurements', count: ['body_measurements'], quiet: [] },

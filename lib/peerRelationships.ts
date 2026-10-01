@@ -254,6 +254,7 @@ export const PERSONAL_HEALTH_TABLES: readonly string[] = [
   'meal_components',
   'food_trials',
   'checkin_tags',
+  'checkin_body_regions',
   'daily_step_counts',
   'exercise_logs',
   'therapy_sessions',

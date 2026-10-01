@@ -450,7 +450,7 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     exercise: 'When you plan to move, from the plans kept in Life > Movement.',
   },
   '/log': {
-    flares: 'When a flare started, how bad it was, and which symptoms came with it.',
+    flares: 'When a flare started, how bad it was, which symptoms came with it, and where on the body.',
     foodReactions: 'A food or drink that did not sit well, starting from the food rather than the symptom.',
     newFoods: 'A food tried for the first time, and how it went, including a food left out and brought back to see how it sits.',
     exercise: 'Movement you did, for how long and how hard.',
@@ -520,7 +520,7 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     variety: 'How many different foods you eat, week by week.',
     eatingWindow: 'The hours of the day you eat in.',
     groceries: 'What the foods you buy have cost over time.',
-    symptoms: 'Flares and symptoms over time, how bad they were, the daily scales and bowel movements by type.',
+    symptoms: 'Flares and symptoms over time, how bad they were, the daily scales and bowel movements by type, and which areas of the body were marked.',
     weight: 'Weight over time, beside the range your readings usually fall in.',
     movement: 'Movement, steps and sleep, week by week.',
     labs: 'Each lab result over time.',

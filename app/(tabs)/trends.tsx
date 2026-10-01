@@ -51,6 +51,7 @@ import {
   getStoredMeasurementSystem,
   getTherapyResponseInputs,
   getUserProfile,
+  listCheckinsBetween,
   type LabResultRecord,
   type LabTest,
 } from '../../lib/db';
@@ -73,6 +74,7 @@ import { OUTCOME_WORDS, PATTERN_OUTCOMES, emptyOutcomeSentence, outcomeCountsSen
 import { DAILY_SCALES, answeredSentence, scaleWord, type DailyScaleKey, type DailyScalePoint } from '../../lib/dailyScales';
 import { BLOOD_NOTE, bloodSeenLine, bowelPeriods, bowelRangeSentence, bowelTypeTally, type BowelEntry } from '../../lib/bowel';
 import { listBowelEntriesBetween } from '../../lib/bowelDb';
+import { markedSentence, regionDays, type MarkedEntry } from '../../lib/bodyMap';
 import { USUAL_BAND_LABEL, usualBandFor, usualSentence } from '../../lib/yourUsual';
 import {
   averagesByMonth,
@@ -1085,6 +1087,8 @@ export default function TrendsScreen() {
   const [symptomsSeries, setSymptomsSeries] = useState<CheckinSeverityPoint[] | null>(null);
   const [scaleSeries, setScaleSeries] = useState<Record<DailyScaleKey, DailyScalePoint[]> | null>(null);
   const [bowelEntries, setBowelEntries] = useState<BowelEntry[]>([]);
+  // D11: flares and food reactions in the range, with the areas marked.
+  const [bodyEntries, setBodyEntries] = useState<MarkedEntry[]>([]);
   const [trackerSeries, setTrackerSeries] = useState<{ tracker: CustomTracker; points: TrackerPoint[] }[] | null>(null);
   const [eatingWindowTrend, setEatingWindowTrend] = useState<EatingWindowTrend | null>(null);
   // Null whenever fasting is off or either window time is unset -- which
@@ -1304,10 +1308,18 @@ export default function TrendsScreen() {
         getCheckinSeverityTrendSeries(['flare', 'post_meal'], days),
         getDailyScaleSeries(days),
         listBowelEntriesBetween(resolvedRange.startDate, resolvedRange.endDate),
-      ]).then(([points, scales, bowel]) => {
+        listCheckinsBetween(['flare', 'post_meal', 'food_trial_daily'], resolvedRange.startDate, resolvedRange.endDate),
+      ]).then(([points, scales, bowel, checkins]) => {
         setSymptomsSeries(points);
         setScaleSeries(scales);
         setBowelEntries(bowel);
+        // A food trial's daily "nothing to report" is not a symptom entry, so
+        // only the ones where something felt off count here.
+        setBodyEntries(
+          checkins
+            .filter((checkin) => checkin.checkinType !== 'food_trial_daily' || checkin.valence === 'negative')
+            .map((checkin) => ({ loggedAt: checkin.loggedAt, regions: checkin.bodyRegions })),
+        );
         setLoading(false);
       });
     } else if (lens === 'eatingWindow') {
@@ -2824,6 +2836,20 @@ export default function TrendsScreen() {
                     )}
                   </View>
                 </TabBand>
+                <TabBand folds={folds} color={TAB_COLOR} id="trends:symptoms:body" title="Where on the Body" icon="body-outline">
+                  <View style={styles.chartCard}>
+                    <Text style={styles.caption}>{markedSentence(bodyEntries)}</Text>
+                    {regionDays(bodyEntries).map((region) => (
+                      <Text key={region.key} style={[styles.caption, styles.bodyRegionLine]}>
+                        {`${region.label}, ${region.display}`}
+                      </Text>
+                    ))}
+                    <Text style={styles.caption}>
+                      Areas are marked on a flare, a food reaction or a food trial day that felt off, in Signals. Each day counts once for an area, however many entries
+                      that day marked it.
+                    </Text>
+                  </View>
+                </TabBand>
                 </>
               )
             ) : lens === 'eatingWindow' ? (
@@ -3596,6 +3622,7 @@ const styles = StyleSheet.create({
   // legendText below ARE rendered inside a chart's band, so they follow
   // TAB_COLOR, 2026-07-27.
   caption: { ...typography.body, color: TAB_COLOR, marginTop: 8, textAlign: 'center', ...textShadow },
+  bodyRegionLine: { textAlign: 'left', alignSelf: 'stretch' },
   singleDayHeading: { ...typography.sectionTitle, fontSize: 26, textAlign: 'center', ...textShadow },
   // Added 2026-07-27: the chart itself used to float with no surrounding
   // box at all, the one page in this family with no "info box" anywhere --

@@ -87,7 +87,7 @@ check(B.bloodSeenLine([entries[0]]) === null, 'no blood, no line');
 // 5. Words.
 const code = source.replace(/^\s*\/\/.*$/gm, '').replace(/\/\*\*[\s\S]*?\*\//g, '');
 for (const word of ['normal', 'healthy', 'ideal', 'good', 'bad', 'worry', 'because', 'caused', 'streak', 'score']) {
-  check(!new RegExp('\b' + word + '\b', 'i').test(code), 'no "' + word + '" in the module');
+  check(!new RegExp('\\b' + word + '\\b', 'i').test(code), 'no "' + word + '" in the module');
 }
 
 console.log(`${checks - failures}/${checks} bowel log checks passed`);

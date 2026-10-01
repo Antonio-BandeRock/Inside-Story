@@ -10,6 +10,7 @@
 import { Stack, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BodyMap } from '../components/BodyMap';
 import { DailyList } from '../components/DailyList';
 import { DailyScalesPicker } from '../components/DailyScalesPicker';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
@@ -30,6 +31,7 @@ import {
   type FlowOutcome,
   type FlowStepKey,
 } from '../lib/checkinFlow';
+import { regionsSentence } from '../lib/bodyMap';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../lib/checkinTags';
 import { dailyRatingLabel, mergeDailyRatings, noneTodaySentence, ratingsFromSaved } from '../lib/dailyList';
 import { getDailyList, saveDailyList } from '../lib/dailyListDb';
@@ -89,6 +91,7 @@ export default function DailyCheckinScreen() {
   const [flareTen, setFlareTen] = useState<number | null>(null);
   const [flareTags, setFlareTags] = useState<string[]>([]);
   const [flareNote, setFlareNote] = useState('');
+  const [flareRegions, setFlareRegions] = useState<string[]>([]);
   const [flareWrittenId, setFlareWrittenId] = useState<string | null>(null);
 
   const [outcomes, setOutcomes] = useState<{ morning: FlowOutcome; feeling: FlowOutcome; flare: FlowOutcome }>({
@@ -200,9 +203,11 @@ export default function DailyCheckinScreen() {
       notes: flareNote,
       tags: flareTags,
       tagSeverity,
+      bodyRegions: flareRegions,
     });
     setFlareWrittenId(id);
     const lines = [flareLine(severityStepLabel(flareSeverity) ?? 'Flare', flareTen, flareTags.map(tagLabel))];
+    if (flareRegions.length > 0) lines.push(`Where: ${regionsSentence(flareRegions)}`);
     if (flareNote.trim()) lines.push(flareNote.trim());
     setOutcomes((current) => ({ ...current, flare: { saved: true, lines } }));
   }
@@ -407,6 +412,8 @@ export default function DailyCheckinScreen() {
                 </View>
               </View>
             ))}
+            <Text style={styles.label}>Where on the body? (optional)</Text>
+            <BodyMap selected={flareRegions} onChange={setFlareRegions} color={TAB_COLOR} />
             <NotesInput
               style={styles.input}
               placeholder="Anything about the flare (optional)"

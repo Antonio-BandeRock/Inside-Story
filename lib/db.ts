@@ -7959,6 +7959,18 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_bowel_movements_occurred ON bowel_movements(occurred_at);
 
+      -- Where on the body (D11, 2026-09-30): the areas marked on a flare or
+      -- a food reaction, one row per area, keys from lib/bodyMap.ts. The id
+      -- is checkin_id and region joined by a colon, so marking the same
+      -- area twice cannot make two rows. Removed with its check-in in
+      -- deleteCheckin. Not on the between-people allowlist.
+      CREATE TABLE IF NOT EXISTS checkin_body_regions (
+        id TEXT PRIMARY KEY,
+        checkin_id TEXT NOT NULL,
+        region TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_checkin_body_regions_checkin ON checkin_body_regions(checkin_id);
+
       -- Trackers the person names (D2, 2026-09-26): something this app never
       -- thought to ask about, named by the person, with a kind that never
       -- changes once made (scale, count, duration or measurement; see
@@ -22272,6 +22284,9 @@ export type WellbeingCheckin = {
   // with severity 0 and kept out of `tags`, so everything that reads tags as
   // "this was present" stays right.
   noneToday: string[];
+  // D11: where on the body, keys from lib/bodyMap.ts, in the order marked.
+  // Empty means not marked, never nothing there.
+  bodyRegions: string[];
   createdAt: string;
 };
 
@@ -22296,6 +22311,8 @@ export async function recordCheckin(input: {
   tagSeverity?: Record<string, number>;
   /** D5: the optional 0 to 10. */
   severityTen?: number | null;
+  /** D11: areas marked on the body map. */
+  bodyRegions?: string[];
 }) {
   const db = await getDatabase();
   const id = `checkin_${Date.now()}`;
@@ -22335,12 +22352,21 @@ export async function recordCheckin(input: {
     );
   }
 
+  for (const region of new Set(input.bodyRegions ?? [])) {
+    await db.runAsync(
+      'INSERT OR IGNORE INTO checkin_body_regions (id, checkin_id, region) VALUES (?, ?, ?)',
+      `${id}:${region}`,
+      id,
+      region,
+    );
+  }
+
   return id;
 }
 
 async function attachCheckinTags(
   db: SQLite.SQLiteDatabase,
-  checkins: Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday'>[],
+  checkins: Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday' | 'bodyRegions'>[],
 ): Promise<WellbeingCheckin[]> {
   if (checkins.length === 0) return [];
 
@@ -22368,8 +22394,18 @@ async function attachCheckinTags(
     }
   }
 
+  const regionRows = await db.getAllAsync<{ checkin_id: string; region: string }>(
+    `SELECT checkin_id, region FROM checkin_body_regions WHERE checkin_id IN (${placeholders}) ORDER BY rowid`,
+    ...checkins.map((checkin) => checkin.id),
+  );
+  const regionsByCheckin = new Map<string, string[]>();
+  for (const row of regionRows) {
+    regionsByCheckin.set(row.checkin_id, [...(regionsByCheckin.get(row.checkin_id) ?? []), row.region]);
+  }
+
   return checkins.map((checkin) => ({
     ...checkin,
+    bodyRegions: regionsByCheckin.get(checkin.id) ?? [],
     tags: tagsByCheckin.get(checkin.id) ?? [],
     tagSeverity: severityByCheckin.get(checkin.id) ?? {},
     noneToday: noneByCheckin.get(checkin.id) ?? [],
@@ -22402,7 +22438,7 @@ export async function listCheckins(
   const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
   const limit = filters.limit ?? 50;
 
-  const rows = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday'>>(
+  const rows = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday' | 'bodyRegions'>>(
     `
       SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
              related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,
@@ -22419,6 +22455,26 @@ export async function listCheckins(
   return attachCheckinTags(db, rows);
 }
 
+/** Check-ins of the given kinds from `startDay` to `endDay`, both local
+ *  dates, oldest first, with their tags and body areas (D11, Trends). */
+export async function listCheckinsBetween(types: CheckinType[], startDay: string, endDay: string) {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday' | 'bodyRegions'>>(
+    `
+      SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
+             related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,
+             mood, energy, stress, severity_ten AS severityTen, created_at AS createdAt
+      FROM wellbeing_checkins
+      WHERE checkin_type IN (${types.map(() => '?').join(', ')}) AND logged_at >= ? AND logged_at < ?
+      ORDER BY logged_at ASC
+    `,
+    ...types,
+    startDay,
+    `${endDay}T99`,
+  );
+  return attachCheckinTags(db, rows);
+}
+
 /** Every symptom the person named, retired ones included so old check-ins
  *  keep their names (D3). Also used by lib/customCheckinTagsDb.ts. */
 export async function readCustomCheckinTags(db: SQLite.SQLiteDatabase): Promise<CheckinTagDefinition[]> {
@@ -22431,6 +22487,7 @@ export async function readCustomCheckinTags(db: SQLite.SQLiteDatabase): Promise<
 export async function deleteCheckin(id: string) {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM wellbeing_checkins WHERE id = ?', id);
+  await db.runAsync('DELETE FROM checkin_body_regions WHERE checkin_id = ?', id);
   // Its photos go with it (1.0.53.7), so none is left pointing at nothing.
   await (await import('./mediaDb')).removePhotosOf('symptom', id);
 }
@@ -22617,7 +22674,7 @@ export async function getTherapyResponseInputs(days: number): Promise<{
 // todayDateString()).
 export async function getCheckinForDate(date: string, checkinType: CheckinType): Promise<WellbeingCheckin | null> {
   const db = await getDatabase();
-  const row = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday'>>(
+  const row = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday' | 'bodyRegions'>>(
     `
       SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
              related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,
