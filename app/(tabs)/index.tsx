@@ -2832,6 +2832,14 @@ export default function HomeScreen() {
             <Text style={[styles.feelingStartButtonText, { color: tabColorFor('/log') }]}>Log how you feel today</Text>
           </TouchableOpacity>
         )}
+        {feelingPickerOpen ? null : (
+          // D8: the morning, feeling and flare questions in one sequence.
+          <TouchableOpacity onPress={() => router.push('/daily-checkin')} hitSlop={8}>
+            <Text style={[styles.feelingChangeLink, { color: tabColorFor('/log'), marginTop: 10 }]}>
+              Check in one question at a time: morning, feeling, any flare
+            </Text>
+          </TouchableOpacity>
+        )}
         {feelingPickerOpen ? null : <HealthConnectFilledIn />}
       </>,
     );

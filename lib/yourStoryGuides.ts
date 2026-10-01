@@ -372,7 +372,11 @@ export const GUIDES: GuideDef[] = [
         {
           when: 'daily',
           takes: 'Under a minute',
-          taps: ['Tap Log how you feel today.', 'Answer the few questions and save.'],
+          taps: [
+            'Tap Log how you feel today.',
+            'Answer the few questions and save.',
+            'Or tap Check in one question at a time, for the morning, feeling and flare questions one after another.',
+          ],
         },
       ),
       fromItem(

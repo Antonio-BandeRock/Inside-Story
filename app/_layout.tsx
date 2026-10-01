@@ -671,6 +671,18 @@ export default function RootLayout() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
+                {/* One check-in, one step at a time (D8, 2026-09-30). The
+                    morning, feeling and flare questions in one sequence,
+                    reached from Home's Today's Check-In band. */}
+                <Stack.Screen
+                  name="daily-checkin"
+                  options={{
+                    headerShown: true,
+                    title: 'Check In',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
                 {/* Your usual meals, 2026-09-27. The short list per meal
                     the person chose, from home and eaten out, which Home
                     offers near a meal time. Reached from that Home card. */}
