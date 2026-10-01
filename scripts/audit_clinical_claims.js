@@ -46,6 +46,7 @@ const NAMED = [
   'lib/bowel.ts',
   'lib/bodyMap.ts',
   'lib/symptomPhotos.ts',
+  'lib/standardQuestionnaires.ts',
   'lib/agreement.ts',
   'lib/todos.ts',
   'lib/planSentence.ts',

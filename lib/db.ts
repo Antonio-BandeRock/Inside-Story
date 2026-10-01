@@ -5009,6 +5009,30 @@ export async function getAssessmentItems(domainCode?: string) {
   );
 }
 
+// Which standard questionnaires (lib/standardQuestionnaires.ts, D13) the
+// person has added to the check-in, stored as "phq9,gad7". None until they
+// pick one, so the check-in is no longer than it was unless they ask.
+const CHOSEN_QUESTIONNAIRES_KEY = 'checkin_questionnaires';
+
+export async function getChosenQuestionnaires(): Promise<string | null> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ value: string }>('SELECT value FROM app_meta WHERE key = ?', CHOSEN_QUESTIONNAIRES_KEY);
+  return row?.value ?? null;
+}
+
+export async function setChosenQuestionnaires(value: string) {
+  const db = await getDatabase();
+  await db.runAsync(
+    `
+      INSERT INTO app_meta (key, value, updated_at) VALUES (?, ?, ?)
+      ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+    `,
+    CHOSEN_QUESTIONNAIRES_KEY,
+    value,
+    new Date().toISOString(),
+  );
+}
+
 export async function getDatabase() {
   if (!databasePromise) {
     // Every write in the app goes through this one connection, which is

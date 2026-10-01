@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
@@ -10,9 +10,11 @@ import {
   AssessmentResponseType,
   getAssessmentDomains,
   getAssessmentItems,
+  getChosenQuestionnaires,
   getUserConditions,
   getSymptomAssessmentTrend,
   recordSymptomAssessment,
+  setChosenQuestionnaires,
 } from '../lib/db';
 import {
   AssessmentComparison,
@@ -21,6 +23,37 @@ import {
   compareAssessmentScores,
   scoreAssessment,
 } from '../lib/symptomAssessment';
+import {
+  bandNote,
+  choicesFor,
+  hasAnswers,
+  HELPLINE_LABEL,
+  HELPLINE_URL,
+  lastTimeLine,
+  needsSafetyLine,
+  parseChosen,
+  questionnaire,
+  QUESTIONNAIRES,
+  QUESTIONNAIRES_INTRO,
+  SAFETY_LINE,
+  scoreLine,
+  scoreQuestionnaire,
+  serializeChosen,
+  type QuestionnaireCode,
+} from '../lib/standardQuestionnaires';
+
+type QuestionnaireResult = {
+  code: QuestionnaireCode;
+  answers: AssessmentResponseValue[];
+  previous: { score: number | null; on: string } | null;
+};
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function shortDate(iso: string): string {
+  const d = new Date(iso);
+  return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
 
 // Original response-scale labels (not the licensed WHO-5/ThyPRO wording --
 // see the reference DB's assessment_domains.citation for what these are
@@ -64,17 +97,25 @@ export default function AssessmentScreen() {
   const [items, setItems] = useState<AssessmentItem[]>([]);
   const [responses, setResponses] = useState<Record<string, number>>({});
   const [submitting, setSubmitting] = useState(false);
-  const [results, setResults] = useState<{ scores: AssessmentScores; comparison: AssessmentComparison | null } | null>(
-    null,
-  );
+  const [chosen, setChosen] = useState<QuestionnaireCode[]>([]);
+  const [results, setResults] = useState<{
+    scores: AssessmentScores;
+    comparison: AssessmentComparison | null;
+    questionnaires: QuestionnaireResult[];
+  } | null>(null);
 
   useEffect(() => {
     let isMounted = true;
 
-    Promise.all([getUserConditions().then((codes) => getAssessmentDomains(codes)), getAssessmentItems()]).then(([loadedDomains, loadedItems]) => {
+    Promise.all([
+      getUserConditions().then((codes) => getAssessmentDomains(codes)),
+      getAssessmentItems(),
+      getChosenQuestionnaires().catch(() => null),
+    ]).then(([loadedDomains, loadedItems, storedChoice]) => {
       if (!isMounted) return;
       setDomains(loadedDomains);
       setItems(loadedItems);
+      setChosen(parseChosen(storedChoice));
       setLoading(false);
     });
 
@@ -93,7 +134,20 @@ export default function AssessmentScreen() {
     return map;
   }, [items]);
 
+  const chosenItemCount = chosen.reduce((total, code) => total + questionnaire(code).items.length, 0);
   const answeredCount = Object.keys(responses).length;
+
+  function toggleQuestionnaire(code: QuestionnaireCode) {
+    const next = chosen.includes(code) ? chosen.filter((each) => each !== code) : [...chosen, code];
+    const ordered = QUESTIONNAIRES.filter((q) => next.includes(q.code)).map((q) => q.code);
+    setChosen(ordered);
+    if (!next.includes(code)) {
+      // Answers to a scale taken back out of the check-in are not saved with it.
+      const dropped = new Set(questionnaire(code).items.map((item) => item.code));
+      setResponses((prev) => Object.fromEntries(Object.entries(prev).filter(([key]) => !dropped.has(key))));
+    }
+    void setChosenQuestionnaires(serializeChosen(ordered)).catch(() => undefined);
+  }
 
   function selectResponse(itemCode: string, value: number) {
     setResponses((prev) => ({ ...prev, [itemCode]: value }));
@@ -118,7 +172,23 @@ export default function AssessmentScreen() {
       const currentScores = scoreAssessment(responseList);
       const comparison = previousScores ? compareAssessmentScores(previousScores, currentScores) : null;
 
-      setResults({ scores: currentScores, comparison });
+      const questionnaires: QuestionnaireResult[] = chosen
+        .map((code) => {
+          const q = questionnaire(code);
+          let previous: QuestionnaireResult['previous'] = null;
+          for (let i = previousAssessments.length - 1; i >= 0; i -= 1) {
+            const earlier = previousAssessments[i].responses.map((r) => ({ itemCode: r.itemCode, value: r.responseValue }));
+            const earlierScore = scoreQuestionnaire(q, earlier);
+            if (earlierScore.score != null) {
+              previous = { score: earlierScore.score, on: shortDate(previousAssessments[i].completedAt) };
+              break;
+            }
+          }
+          return { code, answers: responseList, previous };
+        })
+        .filter((result) => hasAnswers(questionnaire(result.code), result.answers));
+
+      setResults({ scores: currentScores, comparison, questionnaires });
     } finally {
       setSubmitting(false);
     }
@@ -138,7 +208,15 @@ export default function AssessmentScreen() {
   }
 
   if (results) {
-    return <AssessmentResults domains={domains} scores={results.scores} comparison={results.comparison} onDone={startOver} />;
+    return (
+      <AssessmentResults
+        domains={domains}
+        scores={results.scores}
+        comparison={results.comparison}
+        questionnaires={results.questionnaires}
+        onDone={startOver}
+      />
+    );
   }
 
   return (
@@ -149,8 +227,29 @@ export default function AssessmentScreen() {
           this any time; that&apos;s what turns today&apos;s snapshot into a trend.
         </Text>
         <Text style={styles.progressText}>
-          {answeredCount} of {items.length} answered
+          {answeredCount} of {items.length + chosenItemCount} answered
         </Text>
+      </View>
+
+      <View style={styles.domainCard}>
+        <Text style={styles.domainTitle}>Published questionnaires</Text>
+        <Text style={styles.domainDescription}>{QUESTIONNAIRES_INTRO}</Text>
+        <View style={styles.scaleRow}>
+          {QUESTIONNAIRES.map((q) => {
+            const active = chosen.includes(q.code);
+            return (
+              <TouchableOpacity
+                key={q.code}
+                style={[styles.scalePill, active && styles.scalePillActive]}
+                onPress={() => toggleQuestionnaire(q.code)}
+                accessibilityRole="switch"
+                accessibilityState={{ checked: active }}
+              >
+                <Text style={[styles.scalePillText, active && styles.scalePillTextActive]}>{q.chip}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>
 
       {domains.map((domain) => (
@@ -179,6 +278,36 @@ export default function AssessmentScreen() {
           ))}
         </View>
       ))}
+
+      {chosen.map((code) => {
+        const q = questionnaire(code);
+        return (
+          <View key={q.code} style={styles.domainCard}>
+            <Text style={styles.domainTitle}>{q.title}</Text>
+            <Text style={styles.domainDescription}>{q.stem}</Text>
+            {q.items.map((item) => (
+              <View key={item.code} style={styles.itemBlock}>
+                <Text style={styles.itemPrompt}>{item.prompt}</Text>
+                <View style={styles.scaleRow}>
+                  {choicesFor(q, item).map((option) => {
+                    const active = responses[item.code] === option.value;
+                    return (
+                      <TouchableOpacity
+                        key={option.value}
+                        style={[styles.scalePill, active && styles.scalePillActive]}
+                        onPress={() => selectResponse(item.code, option.value)}
+                      >
+                        <Text style={[styles.scalePillText, active && styles.scalePillTextActive]}>{option.label}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            ))}
+            <Text style={styles.framingNote}>{q.source}</Text>
+          </View>
+        );
+      })}
 
       <TouchableOpacity
         style={[styles.submitButton, answeredCount === 0 && styles.submitButtonDisabled]}
@@ -212,11 +341,13 @@ function AssessmentResults({
   domains,
   scores,
   comparison,
+  questionnaires,
   onDone,
 }: {
   domains: AssessmentDomain[];
   scores: AssessmentScores;
   comparison: AssessmentComparison | null;
+  questionnaires: QuestionnaireResult[];
   onDone: () => void;
 }) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -289,6 +420,29 @@ function AssessmentResults({
           framingNote={wellbeingDomain.framingNote}
         />
       ) : null}
+
+      {questionnaires.map((result) => {
+        const q = questionnaire(result.code);
+        const score = scoreQuestionnaire(q, result.answers);
+        const last = lastTimeLine(q, result.previous);
+        return (
+          <View key={q.code} style={styles.domainCard}>
+            <Text style={styles.domainTitle}>{q.title}</Text>
+            <Text style={styles.resultSecondary}>{scoreLine(q, score)}</Text>
+            {last ? <Text style={styles.resultSecondary}>{last}</Text> : null}
+            {score.difficulty ? <Text style={styles.resultSecondary}>{`How difficult these made things: ${score.difficulty}.`}</Text> : null}
+            {q.code === 'phq9' && needsSafetyLine(result.answers) ? (
+              <View style={styles.safetyBox}>
+                <Text style={styles.safetyText}>{SAFETY_LINE}</Text>
+                <TouchableOpacity onPress={() => void Linking.openURL(HELPLINE_URL)} accessibilityRole="link">
+                  <Text style={styles.safetyLink}>{HELPLINE_LABEL}</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
+            <Text style={styles.framingNote}>{bandNote(q)}</Text>
+          </View>
+        );
+      })}
 
       <TouchableOpacity style={styles.submitButton} onPress={onDone}>
         <Text style={styles.submitButtonText}>Done</Text>
@@ -503,6 +657,25 @@ const styles = StyleSheet.create({
   },
   deltaWatch: {
     color: colors.statusRedOnSurface,
+  },
+  safetyBox: {
+    marginTop: 8,
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.statusRedOnSurface,
+    gap: 6,
+  },
+  safetyText: {
+    ...typography.body,
+    color: colors.textPrimary,
+    ...textShadow,
+  },
+  safetyLink: {
+    ...typography.bodyEmphasis,
+    color: colors.primary,
+    textDecorationLine: 'underline',
+    ...textShadow,
   },
   framingNote: {
     ...typography.caption,
