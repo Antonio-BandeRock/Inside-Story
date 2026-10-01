@@ -12,7 +12,14 @@
 // worse (lib/dailyList.ts). D10 adds two from the bowel log: days with a
 // Bristol type 1 or 2, and days with a type 6 or 7 (lib/bowel.ts), named by
 // the type numbers rather than called good or bad.
-export type PatternOutcome =
+//
+// F2 (2026-09-30) adds body readings from a watch, ring or meter: the days
+// a reading was above, or below, the person's usual range (lib/bodyOutcome.ts).
+// Those are keyed `body:<signal>:<side>`, so their words are built by
+// outcomeWords() rather than listed in OUTCOME_WORDS.
+import type { BodySignalKey } from './trendsMore';
+
+export type BaseOutcome =
   | 'flares'
   | 'lowMood'
   | 'lowEnergy'
@@ -20,6 +27,9 @@ export type PatternOutcome =
   | 'listSymptoms'
   | 'bowelTypesOneTwo'
   | 'bowelTypesSixSeven';
+export type BodyOutcomeSide = 'above' | 'below';
+export type BodyOutcome = `body:${BodySignalKey}:${BodyOutcomeSide}`;
+export type PatternOutcome = BaseOutcome | BodyOutcome;
 export type ScaleOutcome = 'lowMood' | 'lowEnergy' | 'highStress';
 
 export type OutcomeWords = {
@@ -37,7 +47,7 @@ export type OutcomeWords = {
   loggedMany: string;
 };
 
-export const PATTERN_OUTCOMES: { key: PatternOutcome; label: string }[] = [
+export const PATTERN_OUTCOMES: { key: BaseOutcome; label: string }[] = [
   { key: 'flares', label: 'Flares and reactions' },
   { key: 'lowMood', label: 'Low mood days' },
   { key: 'lowEnergy', label: 'Low energy days' },
@@ -47,7 +57,7 @@ export const PATTERN_OUTCOMES: { key: PatternOutcome; label: string }[] = [
   { key: 'bowelTypesSixSeven', label: 'Bristol type 6 or 7 days' },
 ];
 
-export const OUTCOME_WORDS: Record<PatternOutcome, OutcomeWords> = {
+export const OUTCOME_WORDS: Record<BaseOutcome, OutcomeWords> = {
   flares: {
     one: 'flare or reaction',
     many: 'flares and reactions',
@@ -113,6 +123,55 @@ export const OUTCOME_WORDS: Record<PatternOutcome, OutcomeWords> = {
   },
 };
 
+export const BODY_SIGNAL_NAMES: Record<BodySignalKey, string> = {
+  restingHeartRate: 'resting heart rate',
+  heartRate: 'average heart rate',
+  hrv: 'heart rate variability',
+  spo2: 'blood oxygen',
+  glucose: 'glucose',
+  skinTemperature: 'skin temperature',
+};
+
+// The pill labels for the second row once Body readings is picked.
+export const BODY_SIGNAL_LABELS: Record<BodySignalKey, string> = {
+  restingHeartRate: 'Resting heart rate',
+  heartRate: 'Average heart rate',
+  hrv: 'Heart rate variability',
+  spo2: 'Blood oxygen',
+  glucose: 'Glucose',
+  skinTemperature: 'Skin temperature',
+};
+
+export const BODY_SIDE_LABELS: Record<BodyOutcomeSide, string> = {
+  above: 'Above your usual range',
+  below: 'Below your usual range',
+};
+
+export function bodyOutcomeKey(signal: BodySignalKey, side: BodyOutcomeSide): BodyOutcome {
+  return `body:${signal}:${side}`;
+}
+
+export function parseBodyOutcome(outcome: PatternOutcome): { signal: BodySignalKey; side: BodyOutcomeSide } | null {
+  if (!outcome.startsWith('body:')) return null;
+  const [, signal, side] = outcome.split(':');
+  return { signal: signal as BodySignalKey, side: side as BodyOutcomeSide };
+}
+
+export function outcomeWords(outcome: PatternOutcome): OutcomeWords {
+  const body = parseBodyOutcome(outcome);
+  if (!body) return OUTCOME_WORDS[outcome as BaseOutcome];
+  const name = BODY_SIGNAL_NAMES[body.signal];
+  return {
+    one: `day with ${name} ${body.side} your usual range`,
+    many: `days with ${name} ${body.side} your usual range`,
+    short: `day ${body.side} your usual ${name}`,
+    shortMany: `days ${body.side} your usual ${name}`,
+    owner: 'the',
+    logged: `day my ${name} was ${body.side} my usual range`,
+    loggedMany: `days my ${name} was ${body.side} my usual range`,
+  };
+}
+
 // Which answer counts. The two ends of each scale, and nothing in the
 // middle, so a 3 is never read as a bad day.
 const SCALE_OF: Record<ScaleOutcome, { key: 'mood' | 'energy' | 'stress'; counts: (value: number) => boolean }> = {
@@ -122,7 +181,11 @@ const SCALE_OF: Record<ScaleOutcome, { key: 'mood' | 'energy' | 'stress'; counts
 };
 
 export function outcomeCountsSentence(outcome: PatternOutcome): string {
-  switch (outcome) {
+  const body = parseBodyOutcome(outcome);
+  if (body) {
+    return `Counting each day your ${BODY_SIGNAL_NAMES[body.signal]} averaged ${body.side} your usual range, once per day, at the time of that day's last reading. A day with no reading is left out, never counted as inside the range.`;
+  }
+  switch (outcome as BaseOutcome) {
     case 'flares':
       return 'Counting every flare and food reaction logged in Signals.';
     case 'lowMood':
@@ -141,6 +204,10 @@ export function outcomeCountsSentence(outcome: PatternOutcome): string {
 }
 
 export function emptyOutcomeSentence(outcome: PatternOutcome): string {
+  const body = parseBodyOutcome(outcome);
+  if (body) {
+    return `No day in this range has ${BODY_SIGNAL_NAMES[body.signal]} ${body.side} your usual range, or there are not yet enough days with a reading to draw that range from. Readings come in from a watch, ring or meter through Health Connect, set up in Profile.`;
+  }
   if (outcome === 'flares') return "Log a flare or food reaction in Signals first; there's nothing to look for a pattern in yet.";
   if (outcome === 'listSymptoms') {
     return "No day in this range has anything on your daily list rated Moderate or worse. The daily list is at the top of Home's Today's Check-In once you add a symptom to it.";
@@ -149,7 +216,7 @@ export function emptyOutcomeSentence(outcome: PatternOutcome): string {
     const which = outcome === 'bowelTypesOneTwo' ? '1 or 2' : '6 or 7';
     return `No day in this range has a Bristol type ${which} logged. Bowel movements go in Signals > Bowel Movements.`;
   }
-  const scale = SCALE_OF[outcome].key;
+  const scale = SCALE_OF[outcome as ScaleOutcome].key;
   const which = outcome === 'highStress' ? '4 or 5' : '1 or 2';
   return `No day in this range has a ${scale} answer of ${which}. Answer mood, energy and stress on Home's Today's Check-In or in Signals > General Note, and days that fit will show up here.`;
 }

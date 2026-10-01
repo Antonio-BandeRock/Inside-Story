@@ -97,7 +97,7 @@ check('three stays out of low energy', !outcome.scaleOutcomeEvents([row('2026-09
 check('three stays out of high stress', !outcome.scaleOutcomeEvents([row('2026-09-19T09:00', null, null, 3)], 'highStress', '2026-09-01', stamp).length);
 
 // Every outcome has its pill, its words and its sentences.
-check('five outcomes (D6 added the daily list)', outcome.PATTERN_OUTCOMES.length === 5);
+check('seven outcomes (D6 added the daily list, D10 the two Bristol ones)', outcome.PATTERN_OUTCOMES.length === 7);
 for (const { key } of outcome.PATTERN_OUTCOMES) {
   const w = outcome.OUTCOME_WORDS[key];
   check(

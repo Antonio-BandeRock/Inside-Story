@@ -96,7 +96,7 @@
 ### F2. Body readings as outcomes
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Trends
 - **Answers:** Welltory · **Theme:** Patterns and Trends
-- **How:** "On days after X, resting heart rate was in its usual range N of M times." Needs F1.
+- **How:** "On days after X, resting heart rate was in its usual range N of M times." Needs F1. Shipped OTA in 1.0.57.27: Pattern Finder offers Body readings as outcomes (resting heart rate, average heart rate, HRV, blood oxygen, glucose, skin temperature; above or below your usual range drawn from the days with a reading, and a day with no reading is left out, never counted as inside). Every candidate gains an after line saying what was read in the window after each day it was eaten or recorded. Pure lib/bodyOutcome.ts; scripts/test_body_outcome.js.
 
 ### F5. Experiments beyond food
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Signals

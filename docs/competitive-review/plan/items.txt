@@ -80,7 +80,7 @@ E5|2|OTA|S|Signals|Clue|Next period from the person's average|Said as an average
 E6|2|DOC|S|Signals,Life|Clue|Perimenopause|Tags (hot flushes, night sweats) and a Health Literacy entry.
 ## Patterns and Trends
 F1|1|OTA|M-L|Trends,Signals|Bearable, Exist, Welltory|Pattern Finder for any factor|Candidates from check-in tags, sleep, doses taken or skipped, steps, hydration, weather, cycle and D2 trackers, each turned into moments lib/patternBasis.ts already compares. "Shows up before", never "causes"; new generators added to NAMED in audit_clinical_claims.js.
-F2|3|OTA|M|Trends|Welltory|Body readings as outcomes|"On days after X, resting heart rate was in its usual range N of M times." Needs F1.
+F2|3|OTA|M|Trends|Welltory|Body readings as outcomes|"On days after X, resting heart rate was in its usual range N of M times." Needs F1. Shipped OTA in 1.0.57.27: Pattern Finder offers Body readings as outcomes (resting heart rate, average heart rate, HRV, blood oxygen, glucose, skin temperature; above or below your usual range drawn from the days with a reading, and a day with no reading is left out, never counted as inside). Every candidate gains an after line saying what was read in the window after each day it was eaten or recorded. Pure lib/bodyOutcome.ts; scripts/test_body_outcome.js.
 F3|2|OTA|S-M|Trends|mySymptoms|Typical delay from food to flare|Median hours with the count behind it on each candidate.
 F4|2|OTA|S-M|Trends|Cara Care|Best days beside worst days|Foods on the lowest-symptom days next to the highest, with counts.
 F5|3|OTA|M|Signals|Bearable, Exist|Experiments beyond food|subject_kind on food_trials: a bedtime, a supplement, a walk.

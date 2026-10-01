@@ -74,7 +74,19 @@ import { markPendingFoodTrialReturn } from '../../lib/pendingFoodTrialReturn';
 import { basisSentence, comparisonSentence, delaySentence, thresholdSentence } from '../../lib/patternBasis';
 import { contextCaveat } from '../../lib/patternContext';
 import { FACTOR_BAND_EMPTY_LINE, FACTOR_CAVEAT, factorComparisonSentence } from '../../lib/patternFactors';
-import { OUTCOME_WORDS, PATTERN_OUTCOMES, emptyOutcomeSentence, outcomeCountsSentence, type PatternOutcome } from '../../lib/patternOutcome';
+import {
+  BODY_SIDE_LABELS,
+  BODY_SIGNAL_LABELS,
+  PATTERN_OUTCOMES,
+  bodyOutcomeKey,
+  emptyOutcomeSentence,
+  outcomeCountsSentence,
+  outcomeWords as wordsForOutcome,
+  parseBodyOutcome,
+  type BodyOutcomeSide,
+  type PatternOutcome,
+} from '../../lib/patternOutcome';
+import type { BodySignalKey } from '../../lib/trendsMore';
 import { DAILY_SCALES, answeredSentence, scaleWord, type DailyScaleKey, type DailyScalePoint } from '../../lib/dailyScales';
 import { BLOOD_NOTE, bloodSeenLine, bowelPeriods, bowelRangeSentence, bowelTypeTally, type BowelEntry } from '../../lib/bowel';
 import { listBowelEntriesBetween } from '../../lib/bowelDb';
@@ -148,7 +160,7 @@ import { CORE_NUTRIENT_CODES } from './index';
 import { ReadingBandsView } from '../../components/ReadingBandsView';
 import type { ReadingView } from '../../lib/readingBands';
 import type { YourStoryItemKey } from '../../lib/yourStory';
-import { loadTrendsMoreView, type TrendsMoreLens } from '../../lib/trendsMoreDb';
+import { listRecordedBodySignals, loadTrendsMoreView, type TrendsMoreLens } from '../../lib/trendsMoreDb';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -1188,7 +1200,11 @@ export default function TrendsScreen() {
   // What Pattern Finder counts (D1, 2026-09-26): flares and reactions, or
   // the days mood or energy was rated 1 or 2, or stress 4 or 5.
   const [patternOutcome, setPatternOutcome] = useState<PatternOutcome>('flares');
-  const outcomeWords = OUTCOME_WORDS[patternOutcome];
+  const outcomeWords = wordsForOutcome(patternOutcome);
+  // F2, 2026-09-30: the body readings that have anything recorded, offered
+  // as outcomes, and which one and which side is picked.
+  const [recordedBodySignals, setRecordedBodySignals] = useState<BodySignalKey[]>([]);
+  const bodyPicked = parseBodyOutcome(patternOutcome);
   const [patternResult, setPatternResult] = useState<PatternFinderResult | null>(null);
   const [therapyResponse, setTherapyResponse] = useState<TherapyResponseResult | null>(null);
   const [startingTrialKey, setStartingTrialKey] = useState<string | null>(null);
@@ -1424,6 +1440,7 @@ export default function TrendsScreen() {
       // 2026-08-26 -- condition-scoped, same trackedConditions list every
       // other lens on this screen now uses; dimension candidates only
       // ever surface a concern relevant to one of these.
+      listRecordedBodySignals().then(setRecordedBodySignals).catch(() => setRecordedBodySignals([]));
       findFoodPatterns(days, patternWindow, personalizationProfile?.trackedConditions ?? [], patternOutcome).then((result) => {
         setPatternResult(result);
         setLoading(false);
@@ -3348,9 +3365,52 @@ export default function TrendsScreen() {
                       <Text style={[styles.pillText, patternOutcome === option.key && styles.pillTextActive]}>{option.label}</Text>
                     </TouchableOpacity>
                   ))}
+                  {recordedBodySignals.length > 0 || bodyPicked ? (
+                    <TouchableOpacity
+                      style={[styles.pill, bodyPicked && styles.pillActive]}
+                      onPress={() => {
+                        if (!bodyPicked) setPatternOutcome(bodyOutcomeKey(recordedBodySignals[0], 'above'));
+                      }}
+                    >
+                      <Text style={[styles.pillText, bodyPicked && styles.pillTextActive]}>Body readings</Text>
+                    </TouchableOpacity>
+                  ) : null}
                 </View>
+                {bodyPicked ? (
+                  <>
+                    <View style={[band.inset, styles.pillRow]}>
+                      {(recordedBodySignals.includes(bodyPicked.signal) ? recordedBodySignals : [bodyPicked.signal, ...recordedBodySignals]).map((signal) => (
+                        <TouchableOpacity
+                          key={signal}
+                          style={[styles.pill, bodyPicked.signal === signal && styles.pillActive]}
+                          onPress={() => setPatternOutcome(bodyOutcomeKey(signal, bodyPicked.side))}
+                        >
+                          <Text style={[styles.pillText, bodyPicked.signal === signal && styles.pillTextActive]}>{BODY_SIGNAL_LABELS[signal]}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                    <View style={[band.inset, styles.pillRow]}>
+                      {(['above', 'below'] as BodyOutcomeSide[]).map((side) => (
+                        <TouchableOpacity
+                          key={side}
+                          style={[styles.pill, bodyPicked.side === side && styles.pillActive]}
+                          onPress={() => setPatternOutcome(bodyOutcomeKey(bodyPicked.signal, side))}
+                        >
+                          <Text style={[styles.pillText, bodyPicked.side === side && styles.pillTextActive]}>{BODY_SIDE_LABELS[side]}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+                  </>
+                ) : null}
                 <View style={band.boxMuted}>
                   <Text style={styles.patternRowCaption}>{outcomeCountsSentence(patternOutcome)}</Text>
+                  {!loading && patternResult?.outcome === patternOutcome
+                    ? patternResult.bodyNotes.map((line) => (
+                        <Text key={line} style={styles.patternRowCaption}>
+                          {line}
+                        </Text>
+                      ))
+                    : null}
                 </View>
 
                 <View style={[band.inset, styles.pillRow]}>
@@ -3404,6 +3464,7 @@ export default function TrendsScreen() {
                                     {comparisonSentence(candidate.comparison, patternResult.basis.windowHours)}
                                     {candidate.delay ? ` ${delaySentence(candidate.delay, outcomeWords)}` : ''}
                                   </Text>
+                                  {candidate.after ? <Text style={styles.patternRowCaption}>{candidate.after}</Text> : null}
                                 </View>
                                 <View style={styles.patternRowActions}>
                                   <TouchableOpacity
@@ -3448,6 +3509,7 @@ export default function TrendsScreen() {
                                     {comparisonSentence(candidate.comparison, patternResult.basis.windowHours)}
                                     {candidate.delay ? ` ${delaySentence(candidate.delay, outcomeWords)}` : ''}
                                   </Text>
+                                  {candidate.after ? <Text style={styles.patternRowCaption}>{candidate.after}</Text> : null}
                                 </View>
                                 <TouchableOpacity
                                   style={[styles.trialButton, { borderColor: TAB_COLOR }]}
@@ -3499,6 +3561,7 @@ export default function TrendsScreen() {
                                     {comparisonSentence(candidate.comparison, patternResult.basis.windowHours)}
                                     {candidate.delay ? ` ${delaySentence(candidate.delay, outcomeWords)}` : ''}
                                   </Text>
+                                  {candidate.after ? <Text style={styles.patternRowCaption}>{candidate.after}</Text> : null}
                                 </View>
                                 <TouchableOpacity
                                   style={[styles.trialButton, { borderColor: TAB_COLOR }]}
@@ -3587,6 +3650,7 @@ export default function TrendsScreen() {
                               <Text style={styles.patternRowCaption}>
                                 {factorComparisonSentence(candidate.comparison, patternResult.basis.windowHours, candidate.noun)}
                               </Text>
+                              {candidate.after ? <Text style={styles.patternRowCaption}>{candidate.after}</Text> : null}
                             </View>
                           </View>
                         ))}

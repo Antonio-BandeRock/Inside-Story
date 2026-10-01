@@ -10,6 +10,7 @@ import { listNocturiaNights } from './nocturiaDb';
 import { getNutrientTrendSeriesForRange, getSleepTrendPoints } from './trendAnalysis';
 import {
   buildBloodPressureView,
+  BODY_SIGNAL_ORDER,
   buildBodySignalsView,
   buildCareView,
   buildDosesView,
@@ -324,6 +325,37 @@ export async function listBodySignalReadings(): Promise<BodySignalReading[]> {
     readings.push(reading);
   }
   return readings;
+}
+
+// F2, 1.0.57.27. Which body readings have anything recorded, so Pattern
+// Finder offers only those as outcomes.
+export async function listRecordedBodySignals(): Promise<BodySignalKey[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ recordType: string }>(
+    `SELECT DISTINCT record_type AS recordType FROM health_records
+     WHERE record_type IN (${Object.keys(BODY_SIGNAL_RECORD_TYPES).map(() => '?').join(', ')}) AND value IS NOT NULL`,
+    ...Object.keys(BODY_SIGNAL_RECORD_TYPES),
+  );
+  const found = new Set(rows.map((row) => BODY_SIGNAL_RECORD_TYPES[row.recordType]).filter(Boolean));
+  return BODY_SIGNAL_ORDER.filter((signal) => found.has(signal));
+}
+
+// F2: one signal's readings from a local day on, for Pattern Finder.
+export async function listBodySignalReadingsFrom(signal: BodySignalKey, fromDate: string): Promise<BodySignalReading[]> {
+  const recordTypes = Object.keys(BODY_SIGNAL_RECORD_TYPES).filter((type) => BODY_SIGNAL_RECORD_TYPES[type] === signal);
+  if (recordTypes.length === 0) return [];
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ localDate: string; startedAt: string; value: number | null }>(
+    `SELECT local_date AS localDate, started_at AS startedAt, value
+     FROM health_records
+     WHERE record_type IN (${recordTypes.map(() => '?').join(', ')}) AND local_date >= ?
+     ORDER BY started_at ASC`,
+    ...recordTypes,
+    fromDate,
+  );
+  return rows
+    .filter((row) => typeof row.value === 'number' && Number.isFinite(row.value))
+    .map((row) => ({ signal, date: row.localDate, at: row.startedAt, value: row.value as number }));
 }
 
 // D16, 1.0.57.24. The tags that count for pacing: the fixed ones, plus any

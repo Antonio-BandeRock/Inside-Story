@@ -58,6 +58,8 @@ export type FactorCandidate = {
   noun: string;
   occurrenceCount: number;
   comparison: PatternComparison;
+  /** F2: for a body reading outcome, what was read in the hours after each day it was recorded. */
+  after?: string | null;
 };
 
 export type FactorFamilyResult = {

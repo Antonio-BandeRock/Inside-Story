@@ -16,14 +16,16 @@ import { contextLines, type TreatmentDates } from './patternContext';
 import { bestWorstDays, type BestWorstResult } from './bestWorstDays';
 import { severityOnTen } from './severityScale';
 import { listPeriodStarts } from './cycleDb';
-import { OUTCOME_WORDS, scaleOutcomeEvents, type PatternOutcome } from './patternOutcome';
+import { outcomeWords, parseBodyOutcome, scaleOutcomeEvents, type PatternOutcome, type ScaleOutcome } from './patternOutcome';
+import { afterCounts, afterSentence, bodyDayFigures, bodyOutcomeNotes, readBodyOutcome, type PlacedFigure } from './bodyOutcome';
+import { MIN_USUAL_READINGS } from './yourUsual';
 import { listOutcomeEvents, noneTodayDays } from './dailyList';
 import { bowelOutcomeStamps } from './bowel';
 import { listBowelEntriesBetween } from './bowelDb';
 import { localStampOf } from './dailyScales';
 import { getNutrientTrendSeriesForRange, getSleepTrendPoints } from './trendAnalysis';
 import { getCheckinTagDefinition } from './checkinTags';
-import { listScheduledDoses, rangeForDays } from './trendsMoreDb';
+import { listBodySignalReadingsFrom, listScheduledDoses, rangeForDays } from './trendsMoreDb';
 import { localClock, localDay } from './trendsMore';
 import { trackerDailySeries } from './customTrackers';
 import { listCustomTrackers, listTrackerEntriesSince } from './customTrackersDb';
@@ -94,6 +96,8 @@ export type FoodPatternCandidate = {
   comparison: PatternComparison;
   /** F3: median hours from the last eating to the flare. */
   delay?: PatternDelay | null;
+  /** F2: for a body reading outcome, what was read in the hours after each day it was eaten. */
+  after?: string | null;
 };
 
 // 2026-08-26, rebuilt to be condition-scoped -- see this file's own
@@ -116,6 +120,7 @@ export type DimensionPatternCandidate = {
   occurrenceCount: number;
   comparison: PatternComparison;
   delay?: PatternDelay | null;
+  after?: string | null;
 };
 
 export type CategoryPatternCandidate = {
@@ -124,6 +129,7 @@ export type CategoryPatternCandidate = {
   occurrenceCount: number;
   comparison: PatternComparison;
   delay?: PatternDelay | null;
+  after?: string | null;
 };
 
 // Work strain, added 2026-09-05, and deliberately NOT a candidate array
@@ -170,6 +176,8 @@ export type PatternFinderResult = {
   /** F4: foods on the worst days beside the best, flares only, with each
    *  food key's name. Null for the kinds of day (D1). */
   bestWorst: { result: BestWorstResult; names: Record<string, string> } | null;
+  /** F2: the usual range a body reading outcome is drawn from, and what it leaves out. Empty otherwise. */
+  bodyNotes: string[];
 };
 
 // F1, 2026-09-26. Reads everything besides food that the app records and
@@ -184,6 +192,8 @@ async function findFactorFamilies(input: {
   outcomeEnds: (Date | null)[];
   words: { one: string; many: string };
   sleepPoints: { date: string; value: number }[];
+  /** F2: the after line for one factor, from the times it was recorded. */
+  afterLine?: (ats: string[]) => string | null;
 }): Promise<FactorFamilyResult[]> {
   const { days, rangeStart, today, now, windowHours } = input;
   const reachBack = dateStringDaysAgo(days + 1);
@@ -302,7 +312,16 @@ async function findFactorFamilies(input: {
     windowHours,
     label: (key) => labels.get(key) ?? key,
   });
-  return assembleFactorFamilies(groups, counted, input.outcomeEnds.length, windowHours, input.words);
+  const families = assembleFactorFamilies(groups, counted, input.outcomeEnds.length, windowHours, input.words);
+  const afterLine = input.afterLine;
+  if (!afterLine) return families;
+  return families.map((family) => ({
+    ...family,
+    candidates: family.candidates.map((candidate) => ({
+      ...candidate,
+      after: afterLine(moments.filter((moment) => moment.at.slice(0, 10) >= rangeStart && moment.keys.includes(candidate.key)).map((moment) => moment.at)),
+    })),
+  }));
 }
 
 // Same 'YYYY-MM-DD' local-time convention already duplicated across this
@@ -360,7 +379,32 @@ export async function findFoodPatterns(
   outcome: PatternOutcome = 'flares',
 ): Promise<PatternFinderResult> {
   const rangeStart = dateStringDaysAgo(days - 1);
-  const words = OUTCOME_WORDS[outcome];
+  const words = outcomeWords(outcome);
+  const body = parseBodyOutcome(outcome);
+  const now = new Date();
+  const today = toLocalDateTimeString(now).slice(0, 10);
+
+  // F2: a body reading outcome is the days whose figure sat on the chosen
+  // side of the usual range drawn from every day with a reading in the
+  // range. A day with no reading is not an outcome and not inside the range.
+  const bodyRead = body
+    ? readBodyOutcome(
+        bodyDayFigures(
+          (await listBodySignalReadingsFrom(body.signal, rangeStart)).map((reading) => ({
+            ...reading,
+            at: /[zZ]|[+-]\d\d:?\d\d$/.test(reading.at) ? localStampOf(reading.at) : reading.at.slice(0, 16),
+          })),
+          body.signal,
+        ),
+        body.side,
+        rangeStart,
+        today,
+      )
+    : null;
+  const bodyNotes = body && bodyRead ? bodyOutcomeNotes(bodyRead, body.signal, MIN_USUAL_READINGS) : [];
+  const placed: PlacedFigure[] = bodyRead?.placed ?? [];
+  const afterFor = (ats: string[], happened: string) =>
+    body && bodyRead?.range ? afterSentence(afterCounts(ats, placed, windowHours), body.signal, windowHours, happened) : null;
 
   // Flares and reactions are the two real checkin types Trends' own
   // Symptoms & Flares lens already charts (getCheckinSeverityTrendSeries)
@@ -374,7 +418,9 @@ export async function findFoodPatterns(
   const generalCheckins = await listCheckins({ checkinType: 'general', limit: Math.max(1000, days * 6) });
   type OutcomeMoment = Pick<Awaited<ReturnType<typeof listCheckins>>[number], 'loggedAt' | 'severity' | 'severityTen'>;
   const symptomCheckins: OutcomeMoment[] =
-    outcome === 'bowelTypesOneTwo' || outcome === 'bowelTypesSixSeven'
+    bodyRead
+      ? bodyRead.events.map((event) => ({ loggedAt: event.at, severity: null, severityTen: null }))
+      : outcome === 'bowelTypesOneTwo' || outcome === 'bowelTypesSixSeven'
       ? // D10: the first entry of those types on each day, from the bowel log.
         bowelOutcomeStamps(
           await listBowelEntriesBetween(rangeStart, toLocalDateTimeString(new Date()).slice(0, 10)),
@@ -392,7 +438,7 @@ export async function findFoodPatterns(
         )
       : outcome === 'listSymptoms'
         ? listOutcomeEvents(generalCheckins, rangeStart, localStampOf)
-        : scaleOutcomeEvents(generalCheckins, outcome, rangeStart, localStampOf);
+        : scaleOutcomeEvents(generalCheckins, outcome as ScaleOutcome, rangeStart, localStampOf);
 
   // D6: the days everything on the daily list was rated None today. Each
   // candidate also says how often it came before one of these, as a count.
@@ -404,8 +450,6 @@ export async function findFoodPatterns(
   // flares and its count on any day come from the same records. Reaching
   // back two days before the range lets a 48-hour window on the first day
   // see what came before it.
-  const now = new Date();
-  const today = toLocalDateTimeString(now).slice(0, 10);
   const items = await getMealItemsInWindow(`${dateStringDaysAgo(days + 1)}T00:00`, toLocalDateTimeString(now));
 
   const foodInfo = new Map<string, { foodName: string; category: string | null; foodId: number; source: string }>();
@@ -505,6 +549,9 @@ export async function findFoodPatterns(
   const counted = [...beforeCounts.entries()]
     .filter(([, count]) => count >= MIN_PATTERN_OCCURRENCES)
     .map(([key, count]) => ({ key, count, comparison: compareWindows(key, flareWindows, usualWindows, goodWindows) }));
+  // F2: when each key was eaten in the range, for the after lines.
+  const eatenAts = (key: string) => meals.filter((meal) => meal.eatenAt.slice(0, 10) >= rangeStart && meal.keys.includes(key)).map((meal) => meal.eatenAt);
+  const afterOf = (key: string, happened: string) => (body ? afterFor(eatenAts(key), happened) : null);
   const byStanding = (a: { count: number; comparison: PatternComparison }, b: { count: number; comparison: PatternComparison }) =>
     verdictRank(a.comparison.verdict) - verdictRank(b.comparison.verdict) || b.count - a.count;
 
@@ -522,17 +569,18 @@ export async function findFoodPatterns(
         occurrenceCount: entry.count,
         comparison: entry.comparison,
         delay: delayOf(entry.key),
+        after: afterOf(entry.key, 'it was eaten'),
       };
     });
 
   const dimensionCandidates: DimensionPatternCandidate[] = counted
     .filter((entry) => entry.key.startsWith('d:'))
-    .map((entry) => ({ kind: 'dimension' as const, ...dimensionInfo.get(entry.key)!, occurrenceCount: entry.count, comparison: entry.comparison, delay: delayOf(entry.key) }))
+    .map((entry) => ({ kind: 'dimension' as const, ...dimensionInfo.get(entry.key)!, occurrenceCount: entry.count, comparison: entry.comparison, delay: delayOf(entry.key), after: afterOf(entry.key, 'a food carrying it was eaten') }))
     .sort((a, b) => byStanding({ count: a.occurrenceCount, comparison: a.comparison }, { count: b.occurrenceCount, comparison: b.comparison }) || a.subCriterion.localeCompare(b.subCriterion));
 
   const categoryCandidates: CategoryPatternCandidate[] = counted
     .filter((entry) => entry.key.startsWith('c:'))
-    .map((entry) => ({ kind: 'category' as const, category: entry.key.slice(2), occurrenceCount: entry.count, comparison: entry.comparison, delay: delayOf(entry.key) }))
+    .map((entry) => ({ kind: 'category' as const, category: entry.key.slice(2), occurrenceCount: entry.count, comparison: entry.comparison, delay: delayOf(entry.key), after: afterOf(entry.key, 'something from it was eaten') }))
     .sort((a, b) => byStanding({ count: a.occurrenceCount, comparison: a.comparison }, { count: b.occurrenceCount, comparison: b.comparison }) || a.category.localeCompare(b.category));
 
   // Other things on record around the same flares (lib/patternContext.ts).
@@ -632,6 +680,7 @@ export async function findFoodPatterns(
           }),
           words: { one: words.one, many: words.many },
           sleepPoints,
+          afterLine: body ? (ats) => afterFor(ats, 'it was recorded') : undefined,
         });
 
   return {
@@ -655,5 +704,6 @@ export async function findFoodPatterns(
     factorFamilies,
     factorNotes: [NOT_RECORDED_LINE],
     bestWorst,
+    bodyNotes,
   };
 }
