@@ -5,7 +5,8 @@ import { getCheckinReminderInputs } from './checkinReminderDb';
 import { seriesReminderBody, seriesReminderTitle } from './photoSeries';
 import { listSeriesReminderInputs } from './photoSeriesDb';
 import { addCompostEvent, listCompostPilesToTurn } from './compostDb';
-import { getDailyNutrientAnalysis, listReminderCandidates, listScheduledMealsForDateRange, recordCheckin, setScheduleItemStatus, type ReminderCandidate } from './db';
+import { getDatabase, getDailyNutrientAnalysis, listReminderCandidates, listScheduledMealsForDateRange, recordCheckin, setScheduleItemStatus, type ReminderCandidate } from './db';
+import { withSessionGuardLifted } from './databaseActivity';
 import { getMovedWaterTarget } from './hydrationIndexDb';
 import { skipHydrationReminder, waterTargetReached } from './hydrationTarget';
 import {
@@ -997,6 +998,21 @@ async function cancelAllOurs(): Promise<number> {
 let inFlight: Promise<ReminderSyncResult> | null = null;
 let queued: Promise<ReminderSyncResult> | null = null;
 
+// Takes every pending reminder of ours off and queues them again. Android
+// keeps an alarm the way it was set, so reminders queued while on-time
+// alarms were not allowed stay the kind it may hold until the phone is
+// picked up, even after the person allows them (lib/reminderTiming.ts).
+export async function rescheduleAllReminders(): Promise<ReminderSyncResult> {
+  if (!supported) return { permission: 'unavailable', pending: 0 };
+  if (inFlight) await inFlight.catch(() => undefined);
+  try {
+    await cancelAllOurs();
+  } catch (error) {
+    console.error('[reminderNotifications] cancel before reschedule failed', error);
+  }
+  return syncReminderNotifications();
+}
+
 // Reconciles pending notifications with everything that has a date. Safe to
 // call from anywhere at any time. A call made while a run is going queues
 // one more run after it, shared by every call made in the meantime
@@ -1323,6 +1339,11 @@ async function runSync(): Promise<ReminderSyncResult> {
   let scheduled = unchanged.size;
   for (const planned of kept) {
     if (unchanged.has(planned.identifier)) continue;
+    // Android shows a reminder queued for a moment already gone the instant
+    // it is queued, and a reconcile runs as the app opens, so a time that
+    // went by while the app was closed would arrive the moment it opened
+    // (direct report, 2026-10-01). Its follow-ups, still ahead, are kept.
+    if (planned.fireAt.getTime() <= Date.now()) continue;
     try {
       await Notifications.scheduleNotificationAsync({
         identifier: planned.identifier,
@@ -1494,6 +1515,74 @@ async function snoozeReminder(response: Notifications.NotificationResponse): Pro
 // both report it, which they can on a launch the press itself caused.
 const answered = new Set<string>();
 
+// A press can also arrive twice across a restart: the background task
+// answers it with the app closed (lib/reminderBackgroundTask.ts), and the
+// same press is handed to the app again when it next opens. So a press is
+// written down on this device the first time it is handled, and a second
+// report of it does nothing. Taps are not written down, since a tap only
+// opens a screen. Kept two weeks, far past any copy still being reported.
+const ANSWER_KEEP_DAYS = 14;
+
+async function claimAnswer(key: string): Promise<boolean> {
+  try {
+    const db = await getDatabase();
+    await db.execAsync('CREATE TABLE IF NOT EXISTS notification_answers (key TEXT PRIMARY KEY, answered_at TEXT NOT NULL)');
+    const now = Date.now();
+    const result = await db.runAsync(
+      'INSERT OR IGNORE INTO notification_answers (key, answered_at) VALUES (?, ?)',
+      key,
+      new Date(now).toISOString(),
+    );
+    await db.runAsync(
+      'DELETE FROM notification_answers WHERE answered_at < ?',
+      new Date(now - ANSWER_KEEP_DAYS * 86_400_000).toISOString(),
+    );
+    return result.changes > 0;
+  } catch (error) {
+    // Better to answer twice than not at all; every write behind a button
+    // already checks whether its day or period is answered.
+    console.error('[reminderNotifications] could not note the press', error);
+    return true;
+  }
+}
+
+function responseKey(response: Notifications.NotificationResponse): string {
+  return `${response.notification.request.identifier}|${response.notification.date}|${response.actionIdentifier}`;
+}
+
+// What a button press writes, with the app open or closed. Written even
+// while the other device has the sync session: the press is somebody
+// answering on this phone, and the merge carries it across.
+async function answerPress(response: Notifications.NotificationResponse): Promise<void> {
+  const request = response.notification.request;
+  const ours = isOurs(request.identifier) || isSnoozed(request.identifier);
+  if (!ours) return;
+  if (!(await claimAnswer(responseKey(response)))) return;
+  const data = request.content.data as Partial<ReminderPayload> | undefined;
+  const kind = data?.kind ?? '';
+  if (response.actionIdentifier === SNOOZE_ACTION) {
+    await snoozeReminder(response);
+    return;
+  }
+  const plan = data?.kind ? planReminderAction(data.kind, response.actionIdentifier) : null;
+  if (!plan) return;
+  await Notifications.dismissNotificationAsync(request.identifier).catch(() => undefined);
+  const words = (response.userText ?? '').trim();
+  try {
+    await withSessionGuardLifted(() => recordAnswer(plan, data?.scheduleItemId ?? '', words, kind));
+  } finally {
+    await syncReminderNotifications();
+  }
+}
+
+// The background task's way in (lib/reminderBackgroundTask.ts). A tap is
+// left alone there, since it opens the app and the app answers it.
+export async function answerFromBackground(response: Notifications.NotificationResponse): Promise<void> {
+  if (!supported) return;
+  if (response.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) return;
+  await answerPress(response);
+}
+
 // A button does its work where it is pressed and never opens the app
 // (1.0.53.10): the record is written and the reminder is taken off the
 // screen. Nothing else is shown, since the press itself is the confirmation. Only a tap on the
@@ -1503,31 +1592,13 @@ function handleResponse(
   navigate: (target: ReminderTapTarget) => void,
 ): void {
   if (!response) return;
-  const request = response.notification.request;
-  const key = `${request.identifier}|${response.notification.date}|${response.actionIdentifier}`;
+  const key = responseKey(response);
   if (answered.has(key)) return;
   answered.add(key);
-  const ours = isOurs(request.identifier) || isSnoozed(request.identifier);
-  const data = request.content.data as Partial<ReminderPayload> | undefined;
-  const kind = data?.kind ?? '';
-  if (response.actionIdentifier === SNOOZE_ACTION) {
-    if (!ours) return;
-    snoozeReminder(response)
-      .catch((error) => console.error('[reminderNotifications] snooze failed', error));
+  if (response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) {
+    answerPress(response).catch((error) => console.error('[reminderNotifications] answer failed', error));
     return;
   }
-  const plan = data?.kind ? planReminderAction(data.kind, response.actionIdentifier) : null;
-  if (plan && ours) {
-    void Notifications.dismissNotificationAsync(request.identifier).catch(() => undefined);
-    const words = (response.userText ?? '').trim();
-    recordAnswer(plan, data?.scheduleItemId ?? '', words, kind)
-      .catch((error) => console.error('[reminderNotifications] answer failed', error))
-      .finally(() => {
-        void syncReminderNotifications();
-      });
-    return;
-  }
-  if (response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) return;
   const target = resolveReminderTap(response);
   if (target) navigate(target);
 }

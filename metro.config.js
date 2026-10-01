@@ -75,6 +75,7 @@ if (process.env.INSIDE_STORY_DESKTOP === '1') {
     'react-native-zeroconf': 'lib/desktop/unavailableModule.ts',
     '@dr.pogodin/react-native-static-server': 'lib/desktop/unavailableModule.ts',
     'rn-mlkit-ocr': 'lib/desktop/unavailableModule.ts',
+    'expo-task-manager': 'lib/desktop/unavailableModule.ts',
   };
   const defaultResolveRequest = config.resolver.resolveRequest;
   config.resolver.resolveRequest = (context, moduleName, platform) => {

@@ -31,6 +31,7 @@ import { getReferenceDatabase, initializeDatabase, settlePastScheduledMeals } fr
 import { handleIncomingIsFile } from '../lib/isFileLinking';
 import { refreshLockScreenNotice } from '../lib/emergencyLockScreen';
 import { listenForReminderTaps, syncReminderNotifications } from '../lib/reminderNotifications';
+import { checkReminderTiming } from '../lib/reminderTiming';
 
 // Kept visible until the header's own branding font finishes loading (see
 // ScreenHeader.tsx) -- without this, the native splash screen hides itself
@@ -155,7 +156,13 @@ export default function RootLayout() {
     // The emergency lines on the lock screen (A19) go back up after a phone
     // restart took them down, and pick up anything changed on the record.
     void refreshLockScreenNotice();
+    // Whether Android lets reminders arrive at their time (2026-10-01), read
+    // again on each return since the switch is in Settings.
+    void checkReminderTiming().catch((error) => console.error('[layout] reminder timing check failed', error));
     const subscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        void checkReminderTiming().catch((error) => console.error('[layout] reminder timing check failed', error));
+      }
       // On leaving too (C1, 2026-09-26): a meal logged just before the app
       // goes to the background is what the after-meal question is about,
       // and waiting for the next time the app opens would miss it.

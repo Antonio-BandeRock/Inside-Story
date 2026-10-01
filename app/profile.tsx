@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Updates from 'expo-updates';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, AppState, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { mediaStorageUsed } from '../lib/mediaDb';
@@ -57,6 +57,14 @@ import { AppActionSheet } from '../components/AppActionSheet';
 import { restartAfterLoad } from '../components/SnapshotSyncWatcher';
 import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreferences';
 import { useReminderPreferences } from '../hooks/useReminderPreferences';
+import {
+  canOpenReminderTimingSettings,
+  openBatterySettings,
+  openExactAlarmSettings,
+  reminderTimingLine,
+  reminderTimingStatus,
+  type ReminderTimingStatus,
+} from '../lib/reminderTiming';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { useDesktopTextSize } from '../hooks/useDesktopTextSize';
 import { announcePhoneOnly } from '../lib/desktop/phoneOnly';
@@ -1316,6 +1324,20 @@ export default function ProfileScreen() {
       isMounted = false;
     };
   }, []);
+
+  // Whether reminders can arrive at their time (2026-10-01). Both switches
+  // are in Android's Settings, so this is read again on coming back to the
+  // app as well as on focus.
+  const [reminderTiming, setReminderTiming] = useState<ReminderTimingStatus>(() => reminderTimingStatus());
+  useFocusEffect(
+    useCallback(() => {
+      setReminderTiming(reminderTimingStatus());
+      const subscription = AppState.addEventListener('change', (state) => {
+        if (state === 'active') setReminderTiming(reminderTimingStatus());
+      });
+      return () => subscription.remove();
+    }, []),
+  );
 
   // Re-read on every focus rather than only on mount: the folder is chosen on
   // a different screen, so coming back from it is exactly when this is stale.
@@ -3769,6 +3791,26 @@ export default function ProfileScreen() {
               allowed notifications for Inside Story, which Schedules &gt; Meds asks for the first time you set a
               dose time.
             </Text>
+            {canOpenReminderTimingSettings() && reminderTimingLine(reminderTiming) ? (
+              <>
+                <Text style={styles.helpText}>{reminderTimingLine(reminderTiming)}</Text>
+                {reminderTiming.exact === false ? (
+                  <TouchableOpacity style={styles.checkinButton} onPress={openExactAlarmSettings}>
+                    <Text style={styles.checkinButtonText}>Allow on-time reminders</Text>
+                  </TouchableOpacity>
+                ) : null}
+                {reminderTiming.battery === false ? (
+                  <TouchableOpacity style={styles.checkinButton} onPress={openBatterySettings}>
+                    <Text style={styles.checkinButtonText}>Battery: let it run unrestricted</Text>
+                  </TouchableOpacity>
+                ) : null}
+                {reminderTiming.battery === false ? (
+                  <Text style={styles.helpText}>
+                    On the screen that opens, choose App battery usage (or Battery), then Unrestricted.
+                  </Text>
+                ) : null}
+              </>
+            ) : null}
             <View style={styles.pillRow}>
               {ALL_REMINDER_KIND_KEYS.map((key) => {
                 const on = isReminderKindEnabled(reminderPrefs, key);

@@ -276,6 +276,9 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   // How much room this device gives photos and recordings opened lately
   // (lib/media.ts): a phone and a computer have different room to give.
   'media_cache_limit_mb',
+  // When this phone last asked to allow on-time reminders (lib/reminderTiming.ts):
+  // a question about this phone's Android settings.
+  'reminder_timing_asked',
   CHANGE_BASELINE_META_KEY,
 ];
 
@@ -311,6 +314,10 @@ export const DEVICE_LOCAL_TABLES: readonly string[] = [
   // which leaves the cache first. Each device has its own files and its own
   // limit.
   'media_cache_use',
+  // Which notification button presses this phone has already saved
+  // (lib/reminderNotifications.ts), so a press seen twice, once by the
+  // background task and again when the app opens, is saved once.
+  'notification_answers',
   // A16: somebody else's doses as their phone last sent them, and the alerts
   // this phone has raised about them. An alert belongs to the phone that
   // raises it, and the doses arrive again on whichever device is linked.

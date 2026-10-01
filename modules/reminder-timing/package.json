@@ -1,0 +1,7 @@
+{
+  "name": "reminder-timing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Whether Android lets Inside Story's reminders arrive on time, and the two settings screens that change it.",
+  "main": "index.ts"
+}
