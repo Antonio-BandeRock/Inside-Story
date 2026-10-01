@@ -695,7 +695,7 @@
 ### E3. Trends > Cycle
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Trends
 - **Answers:** Clue · **Theme:** Cycle
-- **How:** Symptoms by cycle day, a builder in lib/trendsMore.ts.
+- **How:** Shipped OTA in 1.0.57.25: Trends > Cycle numbers every day from the period start before it (60-day reach, spotting starts nothing) and lines up flares by cycle day, each check-in tag by week of the cycle, and mood, energy and stress by week, every count against the days checked in, a cycle day with no check-in a gap. Read over at least six months whatever range is picked; fewer than three cycles says chance can explain a difference. Built as a pure lib/cycleTrends.ts (the pacing.ts precedent) rather than in lib/trendsMore.ts, covered by scripts/test_cycle_trends.js and audit_clinical_claims NAMED.
 
 ### E4. Cycle shading on any chart
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Trends

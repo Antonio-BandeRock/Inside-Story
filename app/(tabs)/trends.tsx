@@ -189,6 +189,7 @@ const MORE_LENSES: Record<TrendsMoreLens, { loadingLine: string; missingItem?: Y
   planned: { loadingLine: 'Reading what was planned and eaten…', missingItem: 'meal' },
   workouts: { loadingLine: 'Reading your workouts…', missingItem: 'exercise' },
   pacing: { loadingLine: 'Reading your days…', missingItem: 'exercise' },
+  cycle: { loadingLine: 'Reading your cycles…' },
 };
 
 function isMoreLens(lens: TrendsLens): lens is TrendsMoreLens {
@@ -378,6 +379,31 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       {
         heading: 'Side by side',
         body: 'A bigger day and a crash after it are shown together and never linked. A few weeks of one person can look like a pattern when it is not. A day with nothing recorded is a gap, never a zero.',
+      },
+    ],
+  },
+  // E3, 1.0.57.25: what was recorded on each day of the cycle. The builder
+  // is lib/cycleTrends.ts; period days come from Signals > Cycle.
+  {
+    key: 'cycle',
+    label: 'Cycle',
+    icon: 'water-outline',
+    help: [
+      {
+        heading: 'Cycle',
+        body: 'Flares by cycle day, each check-in tag by week of the cycle, and mood, energy and stress by week of the cycle, across every cycle in the range. Day 1 is the day a period started, from the period days you log in Signals > Cycle.',
+      },
+      {
+        heading: 'At least six months',
+        body: 'A month holds one cycle at most, so this lens reads at least the last six months whatever range is picked. A year shows more.',
+      },
+      {
+        heading: 'What is counted',
+        body: 'Each count is taken against the days that had a check-in, since a day with nothing logged says nothing either way. A cycle day nobody checked in on is a gap, never a zero. Days more than 60 days after the last start logged are left out.',
+      },
+      {
+        heading: 'Side by side',
+        body: 'Nothing here says the cycle brought anything on. A few cycles of one person can look like a pattern when they are not, and cycles of different lengths are set together day by day.',
       },
     ],
   },
@@ -742,7 +768,7 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       },
       {
         heading: 'Before them, besides food',
-        body: "The same count for everything else the app records: check-in tags, sleep, doses marked skipped, steps, water and each tracker you made. A number only counts when it sat outside your usual range, and each one is counted only against the flares that had it recorded before them. Steps and water are whole days, so they count at the 24 and 48 hour windows. Weather and a menstrual cycle are not recorded in the app yet.",
+        body: "The same count for everything else the app records: check-in tags, sleep, doses marked skipped, steps, water and each tracker you made. A number only counts when it sat outside your usual range, and each one is counted only against the flares that had it recorded before them. Steps and water are whole days, so they count at the 24 and 48 hour windows. Weather is not recorded in the app yet. Cycle day is listed beside flares as context, never counted as a candidate, and Trends > Cycle lines symptoms up by cycle day.",
       },
     ],
   },

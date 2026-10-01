@@ -33,6 +33,8 @@ import { parseKeptSets } from './workoutSession';
 import { getCheckinTagDefinition, getCustomCheckinTags } from './checkinTags';
 import { buildPacingView, PACING_TAG_CODES, pacingTodayLines, type PacingInputs, type PacingTodayLine } from './pacing';
 import { therapyTypeLabel } from './therapyTypes';
+import { buildCycleTrendsView, CYCLE_TRENDS_MIN_DAYS, type CycleTrendsInputs } from './cycleTrends';
+import { listAllCycleDays } from './cycleDb';
 
 export type TrendsMoreLens =
   | 'hydration'
@@ -46,7 +48,8 @@ export type TrendsMoreLens =
   | 'planned'
   | 'bodySignals'
   | 'workouts'
-  | 'pacing';
+  | 'pacing'
+  | 'cycle';
 
 export const DOSE_ITEM_TYPES = ['supplement', 'prescription', 'otc'];
 
@@ -389,6 +392,44 @@ export async function loadPacingInputs(range: DayRange, today: string): Promise<
   };
 }
 
+// E3, 1.0.57.25. Every period day ever logged, so a start before the range
+// still numbers the days in it, and the check-ins and tags in the range.
+// A tag saved as None today (severity 0) is not a tag and is left out.
+export async function loadCycleTrendsInputs(range: DayRange, today: string): Promise<CycleTrendsInputs> {
+  const db = await getDatabase();
+  const from = addDays(range.start, -1);
+  const through = addDays(range.end, 2);
+  const [cycleDays, checkinRows, tagRows] = await Promise.all([
+    listAllCycleDays(),
+    db.getAllAsync<{ loggedAt: string; type: string; mood: number | null; energy: number | null; stress: number | null }>(
+      `SELECT logged_at AS loggedAt, checkin_type AS type, mood, energy, stress
+       FROM wellbeing_checkins WHERE logged_at >= ? AND logged_at < ? ORDER BY logged_at ASC`,
+      from,
+      through,
+    ),
+    db.getAllAsync<{ loggedAt: string; code: string }>(
+      `SELECT c.logged_at AS loggedAt, t.tag_code AS code
+       FROM checkin_tags t JOIN wellbeing_checkins c ON c.id = t.checkin_id
+       WHERE c.logged_at >= ? AND c.logged_at < ? AND (t.severity IS NULL OR t.severity > 0)
+       ORDER BY c.logged_at ASC`,
+      from,
+      through,
+    ),
+  ]);
+  const inRange = (date: string) => date >= range.start && date <= range.end;
+  return {
+    range,
+    today,
+    cycleDays,
+    checkins: checkinRows
+      .map((row) => ({ date: localDay(row.loggedAt), type: row.type, mood: row.mood, energy: row.energy, stress: row.stress }))
+      .filter((row) => inRange(row.date)),
+    tagged: tagRows
+      .map((row) => ({ date: localDay(row.loggedAt), label: getCheckinTagDefinition(row.code)?.label ?? row.code }))
+      .filter((row) => inRange(row.date)),
+  };
+}
+
 export async function loadTrendsMoreView(lens: TrendsMoreLens, days: number): Promise<ReadingView> {
   const today = todayString();
   const range = rangeForDays(days, today);
@@ -439,6 +480,10 @@ export async function loadTrendsMoreView(lens: TrendsMoreLens, days: number): Pr
       return buildBodySignalsView({ range, readings: await listBodySignalReadings() });
     case 'workouts':
       return buildWorkoutsView(await loadWorkoutsInputs(range, today));
+    case 'cycle':
+      return buildCycleTrendsView(
+        await loadCycleTrendsInputs(rangeForDays(Math.max(days, CYCLE_TRENDS_MIN_DAYS), today), today),
+      );
     case 'pacing':
       return buildPacingView(await loadPacingInputs(range, today));
   }
