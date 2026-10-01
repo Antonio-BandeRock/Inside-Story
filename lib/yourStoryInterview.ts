@@ -319,6 +319,7 @@ export const TOUR_LENS_NAMES: Record<string, Record<string, string>> = {
     nocturia: 'Nocturia',
     bowel: 'Bowel Movements',
     cycle: 'Cycle',
+    calm: 'Calm',
     trackers: 'My Trackers',
     therapies: 'Hands-On Therapies',
     generalNote: 'General Note',
@@ -458,6 +459,7 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     nocturia: 'Nights you woke to pass water, and how many times.',
     bowel: 'Each bowel movement by its Bristol type, with urgency, blood and pain if you want them.',
     cycle: 'Period days by hand, the average of your past cycles, and cycle day beside flares in Pattern Finder.',
+    calm: 'A breathing pacer and relaxation read aloud by your device, with patterns and scripts you can add. Nothing is recorded.',
     trackers: 'Anything else you want to follow, named by you and logged whenever you like.',
     therapies: 'Massage, physiotherapy, acupuncture and other hands-on sessions, and how you felt after.',
     generalNote: 'Anything else about your day worth writing down.',
@@ -712,7 +714,7 @@ export const TOUR_TABS: TourTabDef[] = [
     groups: [
       { title: 'How you feel', lenses: ['flares', 'foodReactions', 'newFoods'] },
       { title: 'Your body', lenses: ['exercise', 'bloodPressure', 'nocturia', 'bowel', 'cycle'] },
-      { title: 'What you tried', lenses: ['therapies', 'generalNote'] },
+      { title: 'What you tried', lenses: ['therapies', 'calm', 'generalNote'] },
       { title: 'What you name', lenses: ['trackers'] },
     ],
     steps: [

@@ -4,7 +4,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
+import { CalmSection } from '../../components/CalmSection';
 import { NotesInput } from '../../components/NotesInput';
+import { CALM_INTRO, OWN_AUDIO_LATER as CALM_OWN_AUDIO_LATER, PACER_NOTE as CALM_PACER_NOTE } from '../../lib/calm';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { FoodLookup, type ResolvedFoodSelection } from '../../components/FoodLookup';
@@ -157,6 +159,7 @@ type Lens =
   | 'nocturia'
   | 'bowel'
   | 'cycle'
+  | 'calm'
   | 'trackers';
 
 // Shared caveat, appended to every lens's help -- same pattern as
@@ -298,6 +301,26 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: 'Cycle',
         body: 'Period days logged by hand, with how heavy each day was if you want to say. Once two cycles are logged, start to start, this lens gives their average and the date it reaches. That is an average of past cycles, which vary, and never a way to judge when pregnancy can or cannot happen. Pattern Finder on Trends shows the cycle day at each flare beside the foods, as something that happened alongside rather than an explanation. Period days stay on your record and are never sent to anybody else, including a partner or caregiver you share with.',
+      },
+      LOG_PERSONAL_NOTES_HELP,
+    ],
+  },
+  {
+    key: 'calm',
+    label: 'Calm',
+    icon: 'leaf-outline',
+    help: [
+      {
+        heading: 'Calm',
+        body: 'A breathing pacer with a circle that grows as you breathe in and shrinks as you breathe out, with patterns you make up alongside the built-in ones, and relaxation scripts read aloud by the voice already on your device, including scripts you write. Nothing here is recorded, counted or scored; it is a tool for the moment. Leaving the lens stops the pacer and the voice.',
+      },
+      {
+        heading: 'What the evidence says',
+        body: CALM_PACER_NOTE,
+      },
+      {
+        heading: 'Recordings you have',
+        body: CALM_OWN_AUDIO_LATER,
       },
       LOG_PERSONAL_NOTES_HELP,
     ],
@@ -2550,6 +2573,22 @@ function BowelLens() {
 // (logging the same day again replaces it), and the average of past cycles
 // with the date it reaches. Pattern Finder reads the period starts for
 // cycle day beside flares (E2). See lib/cycle.ts for every sentence.
+// Calm (D15): the pacer, the spoken scripts and the recordings notice,
+// all in components/CalmSection.tsx.
+function CalmLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      <View style={styles.sectionColumn}>
+        <View style={styles.panelStandalone}>
+          <Text style={styles.emptyText}>{CALM_INTRO}</Text>
+        </View>
+        <CalmSection tabColor={TAB_COLOR} />
+      </View>
+    </ScrollView>
+  );
+}
+
 function CycleLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [days, setDays] = useState<CycleDayRow[]>([]);
@@ -3157,6 +3196,8 @@ export default function LogScreen() {
             <BowelLens />
           ) : lens === 'cycle' ? (
             <CycleLens />
+          ) : lens === 'calm' ? (
+            <CalmLens />
           ) : (
             <MyTrackersLens />
           )}

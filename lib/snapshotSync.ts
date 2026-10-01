@@ -270,6 +270,9 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   // Don't Ask Again for the speech pack offer (lib/voicePack.ts): it is
   // about this phone's recognizer, and a computer has none.
   'voice_pack_prompt',
+  // Calm (D15): which voice reads the relaxation scripts. Voices differ
+  // from one device to the next, so a name chosen on one means nothing on another.
+  'calm_voice',
   CHANGE_BASELINE_META_KEY,
 ];
 
