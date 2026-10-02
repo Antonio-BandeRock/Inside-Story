@@ -29,6 +29,7 @@ export type PhoneOnlyFeature =
   | 'photo'
   | 'voice'
   | 'readPrice'
+  | 'readMenu'
   | 'healthConnect'
   | 'wifiSync'
   | 'scanPairingCode'
@@ -53,6 +54,8 @@ const MESSAGES: Record<PhoneOnlyFeature, string> = {
     'Speaking to the app works on the phone, which listens on the device itself. This computer has no way to do that, so type it here, or say it on your phone.',
   readPrice:
     "Reading a price off a shelf label uses the phone's camera. On this computer, type the price in. On your phone, point the camera at the label.",
+  readMenu:
+    "Reading a menu from a photo is done on the phone, which reads the words on the device itself. On this computer, type or paste what the menu says into the box below and each dish is checked the same way.",
   healthConnect:
     'Steps, sleep and the rest come from Health Connect on an Android phone, and this computer has nothing to read them from. Connect from Inside Story on your phone.',
   wifiSync:

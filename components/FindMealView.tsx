@@ -42,6 +42,7 @@ import { useCallback, useEffect, useRef, useState, type ComponentProps } from 'r
 import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
 import { useInfoAlert } from '../components/InfoAlert';
+import { MenuScanBand } from './MenuScanBand';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
@@ -1091,6 +1092,7 @@ export function FindMealView({
             />
             {loading ? <ActivityIndicator color={colors.accent} /> : null}
           </View>
+          <MenuScanBand />
           {renderEatenOutBand()}
           {/* The meal being put together from ticked dishes, shown whole
               before it is built (2026-09-13: "show the entire meal to let
