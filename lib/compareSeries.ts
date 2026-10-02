@@ -15,6 +15,7 @@
 //     would read as a finding.
 //
 // The loader is lib/compareSeriesDb.ts, the chart components/CompareTwoChart.tsx.
+import { NUTRIENT_ANTAGONISM_RULES, NUTRIENT_SYNERGY_RULES, type NutrientPairRule } from './nutrientPairRules';
 
 export const COMPARE_RANGES = [30, 90, 180, 365] as const;
 export type CompareRange = (typeof COMPARE_RANGES)[number];
@@ -316,9 +317,40 @@ export const PAIR_TIER_WORDS: Record<PairTier, string> = {
   weak: 'A loose marker, so expect little to show.',
 };
 
-export type KnownPair = { a: string; b: string; why: string; tier: PairTier; source: string };
+// `kind` is set on a pair that comes from a nutrient pair rule
+// (lib/nutrientPairRules.ts): the intake of one nutrient against the lab
+// that holds the store of the nutrient it helps or competes with.
+export type PairKind = 'helps' | 'competes';
 
-export const KNOWN_PAIRS: readonly KnownPair[] = [
+export const PAIR_KIND_WORDS: Record<PairKind, string> = {
+  helps: 'Helps absorption',
+  competes: 'Competes for absorption',
+};
+
+export type KnownPair = { a: string; b: string; why: string; tier: PairTier; source: string; kind?: PairKind };
+
+const PAIR_RULES = [...NUTRIENT_SYNERGY_RULES, ...NUTRIENT_ANTAGONISM_RULES];
+
+function kindOf(rule: NutrientPairRule): PairKind {
+  return rule.kind === 'synergy' ? 'helps' : 'competes';
+}
+
+// Each rule's intake-against-lab pairs, so a rule added to
+// lib/nutrientPairRules.ts reaches Compare Two without being typed twice.
+const RULE_PAIRS: KnownPair[] = PAIR_RULES.flatMap((rule) =>
+  rule.compare.labs.map((lab) => ({
+    a: nutrientKey(rule.nutrientA),
+    b: `lab:${lab.lab}`,
+    why: lab.why,
+    tier: lab.tier,
+    source: lab.source,
+    kind: kindOf(rule),
+  })),
+);
+
+const HAND_PAIRS: readonly KnownPair[] = [
+
+
   {
     a: 'nutrient:iron',
     b: 'lab:ferritin',
@@ -326,20 +358,8 @@ export const KNOWN_PAIRS: readonly KnownPair[] = [
     tier: 'moderate',
     source: 'WHO guideline on use of ferritin concentrations to assess iron status in individuals and populations, 2020.',
   },
-  {
-    a: 'nutrient:vitamin_c',
-    b: 'lab:ferritin',
-    why: 'Vitamin C eaten in the same meal raises how much iron from plant foods is absorbed. Over months the effect on ferritin has been small in most studies.',
-    tier: 'moderate',
-    source: 'Hallberg L et al. Am J Clin Nutr 1989;49:140-144. Cook JD, Reddy MB. Am J Clin Nutr 2001;73:93-98.',
-  },
-  {
-    a: 'nutrient:calcium',
-    b: 'lab:ferritin',
-    why: 'Calcium in the same meal lowers iron absorption from that meal. Over months the effect on iron stores has been small in most studies.',
-    tier: 'moderate',
-    source: 'Lönnerdal B. Int J Vitam Nutr Res 2010;80:293-299.',
-  },
+
+
   {
     a: 'nutrient:vitamin_d',
     b: 'lab:vitamin_d_test',
@@ -460,6 +480,27 @@ export const KNOWN_PAIRS: readonly KnownPair[] = [
     source: 'Kredlow MA et al. J Behav Med 2015;38:427-449.',
   },
 ];
+
+export const KNOWN_PAIRS: readonly KnownPair[] = [...HAND_PAIRS, ...RULE_PAIRS];
+
+export type MealPair = { kind: PairKind; label: string; inAMeal: string; source: string };
+
+// Two nutrients a pair rule connects. Their effect on each other happens
+// inside one meal, so they are not a known pair to chart: two daily
+// totals side by side cannot show it. The lens says so and points to
+// Schedules > Today's Meals, which reads each meal.
+export function mealPairFor(keyA: string, keyB: string): MealPair | null {
+  if (!keyA.startsWith('nutrient:') || !keyB.startsWith('nutrient:')) return null;
+  const a = keyA.slice('nutrient:'.length);
+  const b = keyB.slice('nutrient:'.length);
+  const rule = PAIR_RULES.find(
+    (r) => (r.nutrientA === a && r.nutrientB.includes(b)) || (r.nutrientA === b && r.nutrientB.includes(a)),
+  );
+  return rule ? { kind: kindOf(rule), label: rule.label, inAMeal: rule.compare.inAMeal, source: rule.compare.source } : null;
+}
+
+export const MEAL_PAIR_LINE =
+  'This happens inside one meal, so two daily totals side by side cannot show it: a day can hold both without them ever meeting on one plate. Today’s Meals reads each meal for this.';
 
 export function pairFor(keyA: string, keyB: string): KnownPair | null {
   return KNOWN_PAIRS.find((p) => (p.a === keyA && p.b === keyB) || (p.a === keyB && p.b === keyA)) ?? null;

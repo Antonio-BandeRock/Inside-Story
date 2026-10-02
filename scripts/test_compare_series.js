@@ -29,7 +29,10 @@ function load(relPath) {
     fileName: path.basename(relPath),
   });
   const module = { exports: {} };
+  // Only the pure rule module may be pulled in; anything else is a sign the
+  // module reaches the database or React.
   new Function('exports', 'module', 'require', outputText)(module.exports, module, (name) => {
+    if (name === './nutrientPairRules') return load('lib/nutrientPairRules.ts');
     throw new Error(`${relPath} has a runtime import ${name}`);
   });
   return module.exports;
@@ -49,6 +52,7 @@ function check(label, ok) {
 }
 
 const END = '2026-10-01';
+const nutrientKeyOf = (code) => `nutrient:${code}`;
 const texts = [];
 
 // 1. The catalogue
@@ -263,6 +267,42 @@ const byKey = new Map(choices.map((c) => [c.key, c]));
   check('lens shows the reason for a known pair', lens.includes('pair.why') && lens.includes('pair.source') && lens.includes('PAIR_TIER_WORDS'));
   check('lens says when nothing known connects them', lens.includes('NO_KNOWN_LINK_LINE'));
   check('second picker lists partners first', lens.includes('secondOptions('));
+
+  // Pairs drawn from the meal generator's synergy and antagonism rules.
+  const R = load('lib/nutrientPairRules.ts');
+  const rules = [...R.NUTRIENT_SYNERGY_RULES, ...R.NUTRIENT_ANTAGONISM_RULES];
+  for (const rule of rules) {
+    check(`rule ${rule.id} says what happens in a meal`, rule.compare.inAMeal.length > 30 && rule.compare.inAMeal.endsWith('.'));
+    check(`rule ${rule.id} has a source`, rule.compare.source.length > 15);
+    texts.push(rule.compare.inAMeal);
+    for (const lab of rule.compare.labs) {
+      check(`rule ${rule.id} lab ${lab.lab} exists`, LABS.includes(lab.lab));
+      check(`rule ${rule.id} lab nutrient ${lab.nutrient} is one of its own`, rule.nutrientB.includes(lab.nutrient));
+      texts.push(lab.why);
+    }
+  }
+  const ruleIntakeLabs = C.KNOWN_PAIRS.filter((p) => p.kind);
+  check('every rule lab reaches Compare Two', ruleIntakeLabs.length === rules.reduce((n, r) => n + r.compare.labs.length, 0));
+  check('vitamin C with ferritin helps', C.pairFor('nutrient:vitamin_c', 'lab:ferritin')?.kind === 'helps');
+  check('calcium with ferritin competes', C.pairFor('lab:ferritin', 'nutrient:calcium')?.kind === 'competes');
+  check('a hand pair carries no kind', !C.pairFor('nutrient:iron', 'lab:ferritin')?.kind);
+  for (const words of Object.values(C.PAIR_KIND_WORDS)) texts.push(words);
+
+  check('vitamin C with iron helps, in a meal', C.mealPairFor('nutrient:vitamin_c', 'nutrient:iron')?.kind === 'helps');
+  check('iron with calcium competes, either order', C.mealPairFor('nutrient:iron', 'nutrient:calcium')?.kind === 'competes' && C.mealPairFor('nutrient:calcium', 'nutrient:iron')?.kind === 'competes');
+  check('zinc with copper competes', C.mealPairFor('nutrient:zinc', 'nutrient:copper')?.kind === 'competes');
+  check('vitamin D with fat is not offered, fat is no series', C.mealPairFor('nutrient:vitamin_d', 'nutrient:vitamin_a') === null);
+  check('a nutrient with a lab is no meal pair', C.mealPairFor('nutrient:iron', 'lab:ferritin') === null);
+  check('iron with zinc is no meal pair', C.mealPairFor('nutrient:iron', 'nutrient:zinc') === null);
+  for (const a of NUTRIENTS) for (const b of NUTRIENTS) {
+    if (C.mealPairFor(nutrientKeyOf(a), nutrientKeyOf(b)) && C.pairFor(nutrientKeyOf(a), nutrientKeyOf(b))) check(`${a} with ${b} is not both kinds`, false);
+  }
+  check('meal line says it happens in one meal', /inside one meal/.test(C.MEAL_PAIR_LINE) && /Today’s Meals/.test(C.MEAL_PAIR_LINE));
+  texts.push(C.MEAL_PAIR_LINE);
+  check('lens says when two nutrients meet in a meal', lens.includes('mealPairFor(') && lens.includes('MEAL_PAIR_LINE') && lens.includes('PAIR_KIND_WORDS'));
+  check('lens opens Today’s Meals', lens.includes("openScheduleLens: 'todaysMeals'"));
+  const plan = fs.readFileSync(path.join(ROOT, 'lib/dailyMealPlan.ts'), 'utf8');
+  check('meal generator reads the same rules', plan.includes("from './nutrientPairRules'") && plan.includes('NUTRIENT_SYNERGY_RULES') && plan.includes('NUTRIENT_ANTAGONISM_RULES'));
 }
 
 // 6. Words

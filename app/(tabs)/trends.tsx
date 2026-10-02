@@ -766,6 +766,10 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
         body: 'Once the first is picked, anything published research gives a reason to read with it comes first, with that reason, how much it rests on, and the source. Any other pair can still be picked, and is said to have nothing known connecting it.',
       },
       {
+        heading: 'Nutrients that meet in a meal',
+        body: 'Some nutrients help or compete with each other inside one meal, such as vitamin C helping iron be absorbed and calcium lowering it. Picking two of those says which it is and where that comes from. Two daily totals cannot show something that happens on one plate, so it points to Today’s Meals, which reads each meal. Where a lab shows the store over weeks, such as ferritin for iron, the intake against that lab is listed as a pair.',
+      },
+      {
         heading: 'Reading it',
         body: 'A day with no reading is left empty and no line joins one reading to the next. Under the chart it says how many days each has a reading and how many days have both. Two things moving together does not show that one is causing the other, and no figure here says how closely they move.',
       },

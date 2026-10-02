@@ -2,7 +2,7 @@
 // records and see them on one date axis, each on a separate scale
 // (lib/compareSeries.ts, lib/compareSeriesDb.ts, CompareTwoChart). Opened
 // from Insights > Nutrients with that nutrient already in the first picker.
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
@@ -14,8 +14,11 @@ import {
   choicesWithData,
   COMPARE_RANGES,
   DEFAULT_COMPARE_RANGE,
+  MEAL_PAIR_LINE,
+  mealPairFor,
   MOVING_TOGETHER_LINE,
   NO_KNOWN_LINK_LINE,
+  PAIR_KIND_WORDS,
   PAIR_TIER_WORDS,
   pairFor,
   partnerChoices,
@@ -104,6 +107,7 @@ export function CompareTwoLens({ folds, color, weightUnit, initialA }: Props) {
     shown.find((c) => c.key !== choiceA?.key) ??
     null;
   const pair = choiceA && choiceB ? pairFor(choiceA.key, choiceB.key) : null;
+  const mealPair = choiceA && choiceB && !pair ? mealPairFor(choiceA.key, choiceB.key) : null;
   const loadKey = choiceA && choiceB ? `${choiceA.key}|${choiceB.key}|${days}` : null;
 
   useEffect(() => {
@@ -238,8 +242,25 @@ export function CompareTwoLens({ folds, color, weightUnit, initialA }: Props) {
             {comparison.sameSeries ? null : pair ? (
               <>
                 <Text style={[styles.label, styles.spaced]}>Why these two are read together</Text>
+                {pair.kind ? <Text style={styles.caption}>{PAIR_KIND_WORDS[pair.kind]}</Text> : null}
                 <Text style={styles.caption}>{pair.why}</Text>
                 <Text style={[styles.caption, styles.spaced]}>{`${PAIR_TIER_WORDS[pair.tier]} Source: ${pair.source}`}</Text>
+              </>
+            ) : mealPair ? (
+              <>
+                <Text style={[styles.label, styles.spaced]}>{`${PAIR_KIND_WORDS[mealPair.kind]}, within a meal`}</Text>
+                <Text style={styles.caption}>{mealPair.inAMeal}</Text>
+                <Text style={[styles.caption, styles.spaced]}>{`Source: ${mealPair.source}`}</Text>
+                <Text style={[styles.caption, styles.spaced]}>{MEAL_PAIR_LINE}</Text>
+                <View style={styles.pillRow}>
+                  <TouchableOpacity
+                    style={styles.pill}
+                    onPress={() => router.push({ pathname: '/schedule', params: { openScheduleLens: 'todaysMeals' } })}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.pillText}>Open Today’s Meals</Text>
+                  </TouchableOpacity>
+                </View>
               </>
             ) : (
               <Text style={[styles.caption, styles.spaced]}>{NO_KNOWN_LINK_LINE}</Text>

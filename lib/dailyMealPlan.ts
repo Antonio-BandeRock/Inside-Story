@@ -95,6 +95,7 @@ import {
   type PlanEater,
   type PlanMeal,
 } from './householdPlan';
+import { NUTRIENT_ANTAGONISM_RULES, NUTRIENT_SYNERGY_RULES } from './nutrientPairRules';
 import { addDays, overridesForDate, weekdayTargetNotes, type WeekdayTargetOverride } from './weekdayTargets';
 
 /**
@@ -653,68 +654,7 @@ export const FREQUENCY_RULES: FrequencyRule[] = [
 // of an invented one.
 const MEANINGFUL_SOURCE_THRESHOLD_PERCENT = 10;
 
-export type NutrientPairRule = {
-  id: string;
-  label: string;
-  kind: 'synergy' | 'antagonism';
-  nutrientA: string;
-  // An array, not a single code -- the fat/fat-soluble-vitamin rule needs
-  // to check dietary fat against any of four real vitamins (A, D, E, K)
-  // at once, not just one.
-  nutrientB: string[];
-  citation: string;
-  mechanism: string;
-};
-
-export const NUTRIENT_SYNERGY_RULES: NutrientPairRule[] = [
-  {
-    id: 'vitamin-c-iron',
-    label: 'Vitamin C with iron',
-    kind: 'synergy',
-    nutrientA: 'vitamin_c',
-    nutrientB: ['iron'],
-    citation:
-      'Effect of ascorbic acid intake on nonheme-iron absorption from a complete diet, Cook & Reddy, Am J Clin Nutr 2001, PMID 11124756 -- iron absorption from a mixed meal rose 1.65x to 9.57x depending on how much vitamin C was added.',
-    mechanism:
-      'Vitamin C reduces iron to the form the body absorbs more easily and keeps it soluble through the small intestine, directly countering the same plant compounds (phytates, polyphenols) that make iron from plant foods harder to absorb on its own. This matters most for whichever specific meal is actually carrying the iron, not just the day\'s total intake of either.',
-  },
-  {
-    id: 'fat-fat-soluble-vitamins',
-    label: 'Dietary fat with fat-soluble vitamins',
-    kind: 'synergy',
-    nutrientA: 'fat_total',
-    nutrientB: ['vitamin_a', 'vitamin_d', 'vitamin_e', 'vitamin_k'],
-    citation:
-      'The same real fact already cited in this app\'s own interaction_rules table (vitamin_a_dietary_fat/vitamin_d_dietary_fat/vitamin_e_dietary_fat/vitamin_k_dietary_fat), reused here rather than cited a second time.',
-    mechanism:
-      'Vitamins A, D, E, and K are fat-soluble: the body needs some dietary fat present in the same meal to absorb them well, regardless of the dose.',
-  },
-];
-
-export const NUTRIENT_ANTAGONISM_RULES: NutrientPairRule[] = [
-  {
-    id: 'calcium-iron',
-    label: 'Calcium with iron',
-    kind: 'antagonism',
-    nutrientA: 'calcium',
-    nutrientB: ['iron'],
-    citation:
-      'Inhibition of haem-iron absorption in man by calcium, Hallberg et al., Br J Nutr 1993, PMID 8490006 -- a real, replicated finding (the exact transport-level mechanism is still debated; current thinking points to competition at the DMT1 transporter). The same real competition is already cited in this app\'s own interaction_rules table (calcium_iron_timing) for supplement timing specifically.',
-    mechanism:
-      'Calcium measurably reduces how much iron the body absorbs when both are present in the same meal, whether from food or a supplement.',
-  },
-  {
-    id: 'zinc-copper',
-    label: 'High zinc with copper',
-    kind: 'antagonism',
-    nutrientA: 'zinc',
-    nutrientB: ['copper'],
-    citation:
-      'Copper and zinc absorption in the rat: mechanism of mutual antagonism, PMID 3968585; Linus Pauling Institute\'s own summary names this as clinically relevant mainly at supplement-level zinc intake (50mg/day or more) sustained over weeks, named honestly here rather than overstated for ordinary food-level amounts in one meal.',
-    mechanism:
-      'High zinc intake induces an intestinal protein (metallothionein) that binds copper in preference to zinc, trapping it in gut cells rather than letting it pass into circulation.',
-  },
-];
+export { NUTRIENT_ANTAGONISM_RULES, NUTRIENT_SYNERGY_RULES, type NutrientPairRule } from './nutrientPairRules';
 
 // Whether a candidate's own real amount of one nutrient clears the
 // "meaningful source" bar above, relative to the person's own actual DRI
