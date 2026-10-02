@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
 import { CalmSection } from '../../components/CalmSection';
+import { YearInSquaresBand } from '../../components/YearInSquaresBand';
 import { NotesInput } from '../../components/NotesInput';
 import { CALM_INTRO, RECORDINGS_HELP as CALM_RECORDINGS_HELP, PACER_NOTE as CALM_PACER_NOTE } from '../../lib/calm';
 import type { HelpSection } from '../../components/HelpButton';
@@ -1046,6 +1047,7 @@ function FlaresLens() {
           ))}
         </View>
       )}
+      <YearInSquaresBand set="flares" color={TAB_COLOR} reloadKey={entries.length} />
     </ScrollView>
   );
 }
@@ -2816,6 +2818,7 @@ function ExerciseLens() {
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       <ExerciseSection />
+      <YearInSquaresBand set="exercise" color={TAB_COLOR} />
     </ScrollView>
   );
 }

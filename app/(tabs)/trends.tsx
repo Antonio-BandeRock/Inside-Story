@@ -158,6 +158,8 @@ import { summarizePlateShare, type PlateShareBand, type PlateValueBand } from '.
 import { getPlateUses, getPlateValueBand } from '../../lib/plateSourceDb';
 import { CORE_NUTRIENT_CODES } from './index';
 import { ReadingBandsView } from '../../components/ReadingBandsView';
+import { YearInSquaresBand } from '../../components/YearInSquaresBand';
+import type { YearSquareSet } from '../../lib/calendarHeat';
 import type { ReadingView } from '../../lib/readingBands';
 import type { YourStoryItemKey } from '../../lib/yourStory';
 import { listRecordedBodySignals, loadTrendsMoreView, type TrendsMoreLens } from '../../lib/trendsMoreDb';
@@ -169,6 +171,19 @@ import { listRecordedBodySignals, loadTrendsMoreView, type TrendsMoreLens } from
 // identity. Matches the same rule applied there, 2026-07-27.
 const TAB_COLOR = colors.tabTrends;
 const band = makeTabBandStyles(TAB_COLOR);
+
+// The year in squares (F15, 2026-10-01): the lenses with a figure per day
+// carry a year of them as a last band, a square per day.
+const YEAR_SQUARE_LENSES: Partial<Record<string, YearSquareSet>> = {
+  hydration: 'hydration',
+  nights: 'nights',
+  reactions: 'reactions',
+  workouts: 'workouts',
+  movement: 'movement',
+  symptoms: 'symptoms',
+  keepingUp: 'keepingUp',
+  trackers: 'trackers',
+};
 
 type TrendsLens =
   | 'nutrients'
@@ -3722,6 +3737,9 @@ export default function TrendsScreen() {
                 ) : null}
               </>
             )}
+            {YEAR_SQUARE_LENSES[lens] ? (
+              <YearInSquaresBand set={YEAR_SQUARE_LENSES[lens]} folds={folds} color={TAB_COLOR} idPrefix={`trends:${lens}`} />
+            ) : null}
           </ScrollView>
           </CycleShadingContext.Provider>
         </GatedTabContent>
