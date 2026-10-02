@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { APP_VERSION } from '../constants/version';
+import { restartApp } from '../lib/restartApp';
 
 // Shown when the database cannot be set up, so the app is not simply dead.
 //
@@ -47,6 +48,11 @@ export function StartupFailureScreen({ error, onContinueAnyway }: Props) {
   // The real error text, shown rather than hidden. Somebody reporting this needs
   // something to report, and a generic apology gives them nothing to say.
   const errorText = error instanceof Error ? error.message : String(error ?? 'Unknown error');
+  // "database is locked" (2026-10-02) is the one fault an update cannot
+  // clear: a connection left open in this same process by an earlier
+  // restart holds the file, and only ending the process lets it go. Read
+  // from the error text alone, with no database call.
+  const locked = errorText.includes('database is locked');
 
   async function handleCheckForUpdates() {
     setDetail(null);
@@ -68,7 +74,7 @@ export function StartupFailureScreen({ error, onContinueAnyway }: Props) {
       await Updates.fetchUpdateAsync();
       // Tears the JS context down and relaunches on the new bundle. If a fix is
       // published, this is the moment it takes effect.
-      await Updates.reloadAsync();
+      await restartApp();
     } catch (updateError) {
       setPhase('failed');
       setDetail(updateError instanceof Error ? updateError.message : String(updateError));
@@ -87,10 +93,18 @@ export function StartupFailureScreen({ error, onContinueAnyway }: Props) {
           empty or unresponsive until it is fixed. This is a fault in the app, not something you
           did, and nothing you have recorded has been lost.
         </Text>
-        <Text style={styles.text}>
-          The most likely fix is an update. If one has been published, the button below will fetch
-          it and restart.
-        </Text>
+        {locked ? (
+          <Text style={styles.text}>
+            This time the database is still held open by an earlier run of the app on this phone.
+            Close the app completely, by swiping it away from your recent apps, and open it again.
+            That lets go of it, and an update will not.
+          </Text>
+        ) : (
+          <Text style={styles.text}>
+            The most likely fix is an update. If one has been published, the button below will fetch
+            it and restart.
+          </Text>
+        )}
 
         <TouchableOpacity
           style={[styles.primaryButton, busy ? styles.primaryButtonDisabled : null]}

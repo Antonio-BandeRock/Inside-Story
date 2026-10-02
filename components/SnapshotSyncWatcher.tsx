@@ -49,7 +49,7 @@
 // quietly (lib/syncLog.ts, ANNOUNCE_MERGES in lib/snapshotSync.ts).
 // Checks and saves run one at a time, in the order they were asked for.
 
-import * as Updates from 'expo-updates';
+import { restartApp } from '../lib/restartApp';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, Platform, StyleSheet, Text, TouchableOpacity, View, type AppStateStatus } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -104,7 +104,7 @@ const DESKTOP_NOTE_CHECK_MS = 60 * 1000;
 /** Restarts the app so every module-level cache reads the loaded data. */
 export async function restartAfterLoad(showNotice: (title: string, message: string) => void): Promise<void> {
   try {
-    await Updates.reloadAsync();
+    await restartApp();
   } catch (error) {
     console.error('[snapshotSync] reloadAsync failed after a load', error);
     showNotice('Loaded', 'Close and reopen the app to see what was loaded.');

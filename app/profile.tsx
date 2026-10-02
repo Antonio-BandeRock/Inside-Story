@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Updates from 'expo-updates';
+import { restartApp } from '../lib/restartApp';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, AppState, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -1157,7 +1158,7 @@ export default function ProfileScreen() {
     showBusy('Applying...');
     await setVisualPreferences({ groundTheme: theme });
     try {
-      await Updates.reloadAsync();
+      await restartApp();
     } catch (error) {
       console.error('Updates.reloadAsync failed after ground theme change', error);
       hideBusy();
@@ -1279,7 +1280,7 @@ export default function ProfileScreen() {
       // (see announceAppliedUpdate in app/(tabs)/index.tsx), which is the
       // other half of this same report: confirmation that an update was
       // genuinely applied, and what was actually in it.
-      await Updates.reloadAsync();
+      await restartApp();
     } catch (error) {
       console.error('handleCheckForUpdates failed', error);
       hideBusy();
@@ -2054,7 +2055,7 @@ export default function ProfileScreen() {
       if (needsRestartOff) {
         showBusy('Applying...');
         try {
-          await Updates.reloadAsync();
+          await restartApp();
         } catch (error) {
           console.error('Updates.reloadAsync failed after a line spacing change', error);
           hideBusy();
@@ -2102,7 +2103,7 @@ export default function ProfileScreen() {
     if (needsRestart) {
       showBusy('Applying...');
       try {
-        await Updates.reloadAsync();
+        await restartApp();
       } catch (error) {
         console.error('Updates.reloadAsync failed after a line spacing change', error);
         hideBusy();
@@ -2126,7 +2127,7 @@ export default function ProfileScreen() {
     showBusy('Applying...');
     await setVisualPreferences({ lineSpacing: next });
     try {
-      await Updates.reloadAsync();
+      await restartApp();
     } catch (error) {
       console.error('Updates.reloadAsync failed after a line spacing change', error);
       hideBusy();
@@ -2145,7 +2146,7 @@ export default function ProfileScreen() {
     showBusy('Applying...');
     await setVisualPreferences({ letterSpacing: next });
     try {
-      await Updates.reloadAsync();
+      await restartApp();
     } catch (error) {
       console.error('Updates.reloadAsync failed after a letter spacing change', error);
       hideBusy();

@@ -1,7 +1,7 @@
 {
   "name": "hashimotos-app",
   "main": "index.js",
-  "version": "1.0.59.11",
+  "version": "1.0.59.12",
   "scripts": {
     "start": "node ./scripts/start-with-qr.js",
     "reset-project": "node ./scripts/reset-project.js",

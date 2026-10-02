@@ -5194,10 +5194,54 @@ export async function getDatabase() {
     // Every write in the app goes through this one connection, which is
     // how automatic snapshot sync hears about them without any screen
     // having to say so. See lib/databaseActivity.ts.
-    databasePromise = SQLite.openDatabaseAsync(DB_NAME).then(attachWriteTracking);
+    databasePromise = SQLite.openDatabaseAsync(DB_NAME).then(async (db) => {
+      // Waits up to five seconds for another connection's write to finish
+      // rather than failing at once with "database is locked" (2026-10-02).
+      // Set on the raw connection, before write tracking, since a pragma
+      // changes no rows and must never be refused as a write.
+      try {
+        await db.execAsync('PRAGMA busy_timeout = 5000;');
+      } catch (error) {
+        console.error('[db] could not set busy_timeout', error);
+      }
+      return attachWriteTracking(db);
+    });
   }
 
   return databasePromise;
+}
+
+/** True for SQLite's "database is locked" (SQLITE_BUSY). */
+export function isDatabaseLockedError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes('database is locked');
+}
+
+// Closes both connections before the app restarts itself in place
+// (lib/restartApp.ts). Reported 2026-10-02 on 1.0.59.11: the phone showed
+// the startup failure screen with "database is locked", and every Check for
+// Updates brought it straight back. Updates.reloadAsync() replaces the JS
+// context but keeps the process, and the old context's native connection
+// stayed open in that process holding a write lock, so each fresh start
+// found the file locked by a connection nothing could reach any more. Only
+// closing the app completely let it go. Closing here rolls back anything
+// left unfinished and releases the lock before the new context opens its
+// own. Each close is given three seconds, so a stuck statement cannot hold
+// the restart up.
+export async function closeDatabasesForRestart(): Promise<void> {
+  const pending = [databasePromise, referenceDatabasePromise];
+  databasePromise = null;
+  referenceDatabasePromise = null;
+  initializeDatabasePromise = null;
+  for (const promise of pending) {
+    if (!promise) continue;
+    try {
+      const db = await promise;
+      await Promise.race([db.closeAsync(), new Promise((resolve) => setTimeout(resolve, 3000))]);
+    } catch (error) {
+      console.error('[db] could not close before restart', error);
+    }
+  }
 }
 
 // 2026-08-27, direct on-device report the morning after a version-bump
