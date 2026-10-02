@@ -25,6 +25,30 @@ export async function recognizeTextFromImage(imageUri: string): Promise<string |
   }
 }
 
+// The lines of a photo with where each sits, for a lab sheet (G28), whose
+// table ML Kit often reads a column at a time; lib/labImport.ts puts the
+// lines back into rows by height on the page.
+export type OcrLine = { text: string; x: number; y: number; height: number };
+
+export async function recognizeLinesFromImage(imageUri: string): Promise<OcrLine[] | null> {
+  try {
+    const { recognizeText } = await import('rn-mlkit-ocr');
+    const result = await recognizeText(imageUri, 'latin');
+    const lines: OcrLine[] = [];
+    for (const block of result?.blocks ?? []) {
+      for (const line of block.lines ?? []) {
+        if (!line.text?.trim()) continue;
+        const frame = line.frame;
+        lines.push({ text: line.text, x: frame?.x ?? 0, y: frame?.y ?? lines.length * 20, height: frame?.height ?? 20 });
+      }
+    }
+    return lines.length > 0 ? lines : null;
+  } catch (error) {
+    console.error('[ocr] recognizeLinesFromImage failed', error);
+    return null;
+  }
+}
+
 // A real, honest legibility score for comparing several photos of the SAME
 // label taken from different angles (see app/scan-product.tsx's own
 // multi-angle capture flow, built specifically for curved/glossy packaging

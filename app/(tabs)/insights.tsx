@@ -140,6 +140,7 @@ import { ActiveRingCircle } from '../../components/ActiveRingCircle';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
+import { LabSheetBand } from '../../components/LabSheetBand';
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { ProgressRing } from '../../components/ProgressRing';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
@@ -466,6 +467,10 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: 'Labs',
         body: 'Your most recent result for every test you\'ve logged, plus how long ago it was drawn. Log a new result any time: pick the test, enter the value and date, and (optionally) your lab\'s reference range, since that varies by lab/assay and matters more than the educational typical range shown here.',
+      },
+      {
+        heading: 'Log a Whole Sheet',
+        body: 'Photograph a lab sheet, paste a table or a CSV from a patient portal, or fill in a whole panel at once. Each row read off a sheet shows the line as printed beside the test, value, unit and range it was read as, and is saved only after you confirm it matches. A test the app does not know can be saved as a test of your own, with Rename and Remove under Tests You Added. Units are kept as printed and never converted.',
       },
       {
         heading: "What isn't built yet",
@@ -3663,7 +3668,7 @@ function LabsView({
   const testByCode = new Map(labTests.map((test) => [test.code, test]));
   // See NutrientRankingView's own identical comment.
   const testOptions = useMemo(
-    () => labTests.map((test) => ({ label: test.displayName, value: test.code })),
+    () => labTests.filter((test) => !test.retiredAt).map((test) => ({ label: test.displayName, value: test.code })),
     [labTests],
   );
 
@@ -3732,9 +3737,15 @@ function LabsView({
         <View style={styles.table}>
           {recentResults.map((result) => {
             const test = testByCode.get(result.testCode);
-            const low = result.labRangeLow ?? test?.typicalRangeLow ?? null;
-            const high = result.labRangeHigh ?? test?.typicalRangeHigh ?? null;
-            const outsideRange = low != null && high != null && (result.value < low || result.value > high);
+            // The lab's printed range when the result carries one; the
+            // reference figure only when it is written in the same unit,
+            // since a sheet's unit is kept as printed and never converted.
+            const printedRange = result.labRangeLow != null || result.labRangeHigh != null;
+            const sameUnit = (test?.rangeUnit ?? '').trim().toLowerCase() === result.unit.trim().toLowerCase();
+            const low = printedRange ? result.labRangeLow : sameUnit ? (test?.typicalRangeLow ?? null) : null;
+            const high = printedRange ? result.labRangeHigh : sameUnit ? (test?.typicalRangeHigh ?? null) : null;
+            const beyond = (low != null && result.value < low) || (high != null && result.value > high);
+            const outsideRange = beyond && (printedRange || (low != null && high != null));
             return (
               <View key={result.testCode} style={styles.rankRow}>
                 <View style={styles.rankTextWrap}>
@@ -3743,7 +3754,7 @@ function LabsView({
                   </Text>
                   <Text style={styles.rankFoodCategory}>
                     {daysAgoLabel(result.testedAt)}
-                    {outsideRange ? ' · outside typical range' : ''}
+                    {outsideRange ? (printedRange ? " · outside the lab's printed range" : ' · outside typical range') : ''}
                   </Text>
                 </View>
                 <Text style={styles.rankAmount}>
@@ -3821,6 +3832,9 @@ function LabsView({
           <Text style={[styles.secondaryButtonText, { color: tabColor }]}>+ Log a Result</Text>
         </TouchableOpacity>
       )}
+      <View style={styles.rankSpaced}>
+        <LabSheetBand labTests={labTests} labResults={labResults} onSaved={onSaved} tabColor={tabColor} />
+      </View>
     </>
   );
 }

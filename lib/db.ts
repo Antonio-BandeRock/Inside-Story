@@ -4930,7 +4930,106 @@ export type LabTest = {
   selfAdvocacyNote: string | null;
   evidenceStrength: string;
   citation: string;
+  /** A test the person added (own_lab_tests), not one from the reference database. */
+  isOwn?: boolean;
+  retiredAt?: string | null;
 };
+
+export const OWN_LAB_TEST_CATEGORY = 'own';
+
+type OwnLabTestRow = { code: string; displayName: string; unit: string; retiredAt: string | null };
+
+function ownLabTestToLabTest(row: OwnLabTestRow): LabTest {
+  return {
+    code: row.code,
+    displayName: row.displayName,
+    categoryCode: OWN_LAB_TEST_CATEGORY,
+    aliases: null,
+    whatItMeasures: '',
+    whyItMattersHashimotos: '',
+    typicalRangeLow: null,
+    typicalRangeHigh: null,
+    rangeUnit: row.unit || null,
+    rangeCaveat: 'A test you added. The range that applies is the one your lab printed beside the result.',
+    isCommonlyOrdered: false,
+    selfAdvocacyNote: null,
+    evidenceStrength: '',
+    citation: '',
+    isOwn: true,
+    retiredAt: row.retiredAt,
+  };
+}
+
+async function listOwnLabTestRows(): Promise<OwnLabTestRow[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<OwnLabTestRow>(
+    `SELECT code, display_name AS displayName, unit, retired_at AS retiredAt FROM own_lab_tests ORDER BY display_name COLLATE NOCASE`,
+  );
+}
+
+/** The tests the person added, retired ones included so old results keep a name. */
+export async function listOwnLabTests(): Promise<LabTest[]> {
+  return (await listOwnLabTestRows()).map(ownLabTestToLabTest);
+}
+
+function slugForOwnTest(name: string): string {
+  const slug = name
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, 40);
+  return slug || 'test';
+}
+
+/**
+ * A test of the person's, by name. One with the same name already there is
+ * handed back (brought back if it was retired) rather than made twice.
+ */
+export async function addOwnLabTest(name: string, unit: string): Promise<string> {
+  const db = await getDatabase();
+  const displayName = name.trim().replace(/\s+/g, ' ');
+  const existing = await db.getFirstAsync<{ code: string }>(
+    'SELECT code FROM own_lab_tests WHERE display_name = ? COLLATE NOCASE',
+    displayName,
+  );
+  if (existing) {
+    await db.runAsync('UPDATE own_lab_tests SET retired_at = NULL WHERE code = ?', existing.code);
+    return existing.code;
+  }
+  const base = `own_${slugForOwnTest(displayName)}`;
+  let code = base;
+  for (let n = 2; await db.getFirstAsync('SELECT 1 FROM own_lab_tests WHERE code = ?', code); n++) code = `${base}_${n}`;
+  await db.runAsync(
+    'INSERT INTO own_lab_tests (code, display_name, unit, created_at) VALUES (?, ?, ?, ?)',
+    code,
+    displayName,
+    unit.trim(),
+    new Date().toISOString(),
+  );
+  return code;
+}
+
+export async function renameOwnLabTest(code: string, name: string) {
+  const db = await getDatabase();
+  await db.runAsync('UPDATE own_lab_tests SET display_name = ? WHERE code = ?', name.trim().replace(/\s+/g, ' '), code);
+}
+
+/**
+ * Removing a test of the person's: retired when it has results, so they
+ * keep their name on Insights, Trends and in reports; deleted when nothing
+ * refers to it. Hands back which happened.
+ */
+export async function removeOwnLabTest(code: string): Promise<'retired' | 'deleted'> {
+  const db = await getDatabase();
+  const used = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM lab_results WHERE test_code = ?', code);
+  if ((used?.n ?? 0) > 0) {
+    await db.runAsync('UPDATE own_lab_tests SET retired_at = ? WHERE code = ?', new Date().toISOString(), code);
+    return 'retired';
+  }
+  await db.runAsync('DELETE FROM own_lab_tests WHERE code = ?', code);
+  return 'deleted';
+}
 
 const LAB_TEST_SELECT_COLUMNS = `
   code, display_name AS displayName, category_code AS categoryCode, aliases,
@@ -4959,10 +5058,19 @@ export async function getLabTests(categoryCode?: string) {
     ...(categoryCode ? [categoryCode] : []),
   );
 
-  return rows.map((row) => ({ ...row, isCommonlyOrdered: Boolean(row.isCommonlyOrdered) }));
+  const reference = rows.map((row) => ({ ...row, isCommonlyOrdered: Boolean(row.isCommonlyOrdered) }));
+  // The person's own tests come after the reference ones, so a result
+  // logged against one keeps its name everywhere a test name is shown.
+  if (categoryCode && categoryCode !== OWN_LAB_TEST_CATEGORY) return reference;
+  const own = await listOwnLabTests();
+  return categoryCode ? own : [...reference, ...own];
 }
 
 export async function getLabTest(code: string): Promise<LabTest | null> {
+  if (code.startsWith('own_')) {
+    const own = (await listOwnLabTestRows()).find((row) => row.code === code);
+    if (own) return ownLabTestToLabTest(own);
+  }
   const db = await getReferenceDatabase();
   const row = await db.getFirstAsync<Omit<LabTest, 'isCommonlyOrdered'> & { isCommonlyOrdered: number }>(
     `SELECT ${LAB_TEST_SELECT_COLUMNS} FROM lab_tests WHERE code = ?`,
@@ -6698,6 +6806,18 @@ async function runDatabaseInitialization() {
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
       CREATE INDEX IF NOT EXISTS idx_lab_results_test_code ON lab_results(test_code, tested_at);
+
+      -- Tests the person adds when a lab sheet carries one the reference
+      -- database does not (G28, 2026-10-02). code is own_<slug>, stored in
+      -- lab_results.test_code the same way a reference code is. A test with
+      -- results is retired rather than deleted, so its history keeps a name.
+      CREATE TABLE IF NOT EXISTS own_lab_tests (
+        code TEXT PRIMARY KEY,
+        display_name TEXT NOT NULL,
+        unit TEXT NOT NULL DEFAULT '',
+        retired_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
 
       -- A periodic, retakeable multi-domain self-assessment (hypothyroid
       -- symptoms, digestive/IBS, wellbeing -- see assessment_domains/
@@ -22484,7 +22604,8 @@ export async function recordLabResult(input: {
   notes?: string;
 }) {
   const db = await getDatabase();
-  const id = `lab_result_${Date.now()}`;
+  // A random tail, since a whole sheet saves several results in the same millisecond.
+  const id = `lab_result_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const now = new Date().toISOString();
 
   await db.runAsync(
