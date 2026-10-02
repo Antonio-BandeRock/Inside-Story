@@ -11,15 +11,21 @@ import type { useBandFolds } from '../hooks/useBandFolds';
 import {
   buildComparison,
   choiceOptions,
+  choicesWithData,
   COMPARE_RANGES,
   DEFAULT_COMPARE_RANGE,
   MOVING_TOGETHER_LINE,
+  NO_KNOWN_LINK_LINE,
+  PAIR_TIER_WORDS,
+  pairFor,
+  partnerChoices,
+  secondOptions,
   shiftDate,
   type CompareRange,
   type ComparePoint,
   type SeriesChoice,
 } from '../lib/compareSeries';
-import { loadCompareChoices, loadSeriesPoints } from '../lib/compareSeriesDb';
+import { loadCompareChoices, loadKeysWithData, loadSeriesPoints } from '../lib/compareSeriesDb';
 import { CompareTwoChart } from './CompareTwoChart';
 import { PopoverSelect } from './PopoverSelect';
 import { makeTabBandStyles, TabBand } from './TabBand';
@@ -42,7 +48,9 @@ export function CompareTwoLens({ folds, color, weightUnit, initialA }: Props) {
   const band = makeTabBandStyles(color);
   const [choices, setChoices] = useState<SeriesChoice[] | null>(null);
   const [keyA, setKeyA] = useState<string | null>(initialA ?? null);
-  const [keyB, setKeyB] = useState<string>('severity');
+  // Null until somebody picks, so the default can follow what has data.
+  const [keyB, setKeyB] = useState<string | null>(null);
+  const [withData, setWithData] = useState<{ days: number; keys: Set<string> } | null>(null);
   const [days, setDays] = useState<CompareRange>(DEFAULT_COMPARE_RANGE);
   const [points, setPoints] = useState<{ key: string; a: ComparePoint[]; b: ComparePoint[] } | null>(null);
   const [end] = useState(todayString);
@@ -67,8 +75,35 @@ export function CompareTwoLens({ folds, color, weightUnit, initialA }: Props) {
     }, [weightUnit]),
   );
 
-  const choiceA = choices?.find((c) => c.key === keyA) ?? choices?.[0] ?? null;
-  const choiceB = choices?.find((c) => c.key === keyB) ?? null;
+  useEffect(() => {
+    if (!choices) return;
+    let live = true;
+    loadKeysWithData(choices, end, shiftDate(end, -(days - 1)), days)
+      .then((keys) => {
+        if (live) setWithData({ days, keys });
+      })
+      .catch(() => {
+        if (live) setWithData({ days, keys: new Set() });
+      });
+    return () => {
+      live = false;
+    };
+  }, [choices, end, days]);
+
+  // Only what has a reading in the range, plus anything already picked.
+  const shown = useMemo(
+    () => (choices && withData ? choicesWithData(choices, withData.keys, [keyA, keyB]) : []),
+    [choices, withData, keyA, keyB],
+  );
+  const choiceA = shown.find((c) => c.key === keyA) ?? shown[0] ?? null;
+  const partners = useMemo(() => partnerChoices(choices ?? [], shown, choiceA?.key ?? null), [choices, shown, choiceA]);
+  const choiceB =
+    shown.find((c) => c.key === keyB) ??
+    partners.ready[0] ??
+    shown.find((c) => c.key === 'severity' && c.key !== choiceA?.key) ??
+    shown.find((c) => c.key !== choiceA?.key) ??
+    null;
+  const pair = choiceA && choiceB ? pairFor(choiceA.key, choiceB.key) : null;
   const loadKey = choiceA && choiceB ? `${choiceA.key}|${choiceB.key}|${days}` : null;
 
   useEffect(() => {
@@ -94,12 +129,47 @@ export function CompareTwoLens({ folds, color, weightUnit, initialA }: Props) {
     return buildComparison(choiceA, points.a, choiceB, points.b, end, days);
   }, [choiceA, choiceB, points, loadKey, end, days]);
 
-  const options = useMemo(() => choiceOptions(choices ?? []), [choices]);
+  const optionsA = useMemo(() => choiceOptions(shown), [shown]);
+  const optionsB = useMemo(() => secondOptions(shown, choiceA?.key ?? null), [shown, choiceA]);
 
-  if (choices === null) {
+  if (choices === null || withData === null) {
     return (
       <View style={band.boxMuted}>
         <Text style={styles.caption}>Reading what you record…</Text>
+      </View>
+    );
+  }
+
+  if (shown.length === 0) {
+    return (
+      <>
+        <View style={band.box}>
+          <Text style={styles.caption}>
+            {`Nothing is recorded in the last ${days} days yet. Once two things you record have readings, they can be read side by side here.`}
+          </Text>
+          {rangePills()}
+        </View>
+      </>
+    );
+  }
+
+  function rangePills() {
+    return (
+      <View style={styles.pillRow}>
+        {COMPARE_RANGES.map((range) => {
+          const active = range === days;
+          return (
+            <TouchableOpacity
+              key={range}
+              style={[styles.pill, active && { backgroundColor: color, borderColor: color }]}
+              onPress={() => setDays(range)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+            >
+              <Text style={[styles.pillText, active && styles.pillTextActive]}>{`Last ${range} days`}</Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     );
   }
@@ -109,38 +179,49 @@ export function CompareTwoLens({ folds, color, weightUnit, initialA }: Props) {
       <View style={band.box}>
         <Text style={styles.label}>First, read off the left scale</Text>
         <PopoverSelect
-          options={options}
+          options={optionsA}
           selected={choiceA?.key ?? null}
           onSelect={(value) => setKeyA(value)}
           tabColor={color}
           searchable
           placeholder="Pick something to compare"
         />
+        {partners.ready.length > 0 ? (
+          <>
+            <Text style={[styles.caption, styles.spaced]}>Known to be read with this, so listed first:</Text>
+            <View style={styles.pillRow}>
+              {partners.ready.map((partner) => {
+                const active = partner.key === choiceB?.key;
+                return (
+                  <TouchableOpacity
+                    key={partner.key}
+                    style={[styles.pill, active && { backgroundColor: color, borderColor: color }]}
+                    onPress={() => setKeyB(partner.key)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: active }}
+                  >
+                    <Text style={[styles.pillText, active && styles.pillTextActive]}>{partner.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </>
+        ) : null}
+        {partners.notYet.length > 0 ? (
+          <Text style={[styles.caption, styles.spaced]}>
+            {`Also known to be read with this, once you have readings for it: ${partners.notYet.join(', ')}.`}
+          </Text>
+        ) : null}
         <Text style={[styles.label, styles.spaced]}>Second, read off the right scale</Text>
         <PopoverSelect
-          options={options}
+          options={optionsB}
           selected={choiceB?.key ?? null}
           onSelect={(value) => setKeyB(value)}
           tabColor={color}
           searchable
           placeholder="Pick something to compare"
         />
-        <View style={styles.pillRow}>
-          {COMPARE_RANGES.map((range) => {
-            const active = range === days;
-            return (
-              <TouchableOpacity
-                key={range}
-                style={[styles.pill, active && { backgroundColor: color, borderColor: color }]}
-                onPress={() => setDays(range)}
-                accessibilityRole="button"
-                accessibilityState={{ selected: active }}
-              >
-                <Text style={[styles.pillText, active && styles.pillTextActive]}>{`Last ${range} days`}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        {rangePills()}
       </View>
 
       <TabBand folds={folds} color={color} id="trends:compare:chart" title="The Two Side by Side" icon="git-compare-outline">
@@ -153,6 +234,15 @@ export function CompareTwoLens({ folds, color, weightUnit, initialA }: Props) {
               <View style={styles.chart}>
                 <CompareTwoChart comparison={comparison} colorA={color} />
               </View>
+            )}
+            {comparison.sameSeries ? null : pair ? (
+              <>
+                <Text style={[styles.label, styles.spaced]}>Why these two are read together</Text>
+                <Text style={styles.caption}>{pair.why}</Text>
+                <Text style={[styles.caption, styles.spaced]}>{`${PAIR_TIER_WORDS[pair.tier]} Source: ${pair.source}`}</Text>
+              </>
+            ) : (
+              <Text style={[styles.caption, styles.spaced]}>{NO_KNOWN_LINK_LINE}</Text>
             )}
             <Text style={[styles.caption, styles.spaced]}>{MOVING_TOGETHER_LINE}</Text>
             <Text style={[styles.caption, styles.spaced]}>

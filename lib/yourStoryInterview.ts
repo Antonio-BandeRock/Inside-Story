@@ -549,7 +549,7 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     workouts: 'Exercise by week, planned days and how they went, and each exercise from a workout, first time beside latest.',
     pacing: 'Steps, exercise, therapy sessions and overload or crash tags against your typical day, with no limit set by the app.',
     cycle: 'Flares, check-in tags, mood, energy and stress lined up by day of the cycle, across every cycle in the range.',
-    compare: 'Any two things you record on one date axis, each on a separate scale, with the days each has a reading and the days with both.',
+    compare: 'Two things you record on one date axis, each on a separate scale, with pairs research gives a reason to read together listed first and the reason beside them.',
   },
   '/reports': {
     overview: 'Everything you logged over the range, in one report.',

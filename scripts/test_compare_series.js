@@ -205,6 +205,66 @@ const byKey = new Map(choices.map((c) => [c.key, c]));
   texts.push(...(lens.match(/>([^<>{}]{12,})</g) || []).map((m) => m.slice(1, -1).trim()));
 }
 
+// 7. Pairs with a known reason
+{
+  // The codes the bundled reference database holds (dietary_reference_intakes
+  // and lab_tests, read 2026-10-01). A pair naming anything else would never
+  // be offered.
+  const NUTRIENTS = 'biotin_b7 calcium choline copper fiber_total folate_b9 iodine iron magnesium manganese niacin_b3 pantothenic_acid_b5 phosphorus potassium protein riboflavin_b2 selenium sodium thiamin_b1 vitamin_a vitamin_b12 vitamin_b6 vitamin_c vitamin_d vitamin_e vitamin_k water zinc'.split(' ');
+  const LABS = 'ferritin free_t3 free_t4 hscrp magnesium_test reverse_t3 selenium_test tg_ab thyroglobulin total_t3 total_t4 tpo_ab tsh tsi_trab urine_iodine vitamin_b12_test vitamin_d_test zinc_test'.split(' ');
+  const FIXED = ['weight', 'sleep', 'steps', 'severity', 'scale:mood', 'scale:energy', 'scale:stress'];
+  const valid = (key) =>
+    FIXED.includes(key) ||
+    (key.startsWith('nutrient:') && NUTRIENTS.includes(key.slice(9))) ||
+    (key.startsWith('lab:') && LABS.includes(key.slice(4)));
+  const seenPairs = new Set();
+  for (const pair of C.KNOWN_PAIRS) {
+    check(`pair key ${pair.a} exists`, valid(pair.a));
+    check(`pair key ${pair.b} exists`, valid(pair.b));
+    check(`pair ${pair.a} with ${pair.b} is two things`, pair.a !== pair.b);
+    const id = [pair.a, pair.b].sort().join('|');
+    check(`pair ${id} listed once`, !seenPairs.has(id));
+    seenPairs.add(id);
+    check(`pair ${id} has a tier`, pair.tier in C.PAIR_TIER_WORDS);
+    check(`pair ${id} has a source`, pair.source.length > 15);
+    check(`pair ${id} says what to expect`, pair.why.length > 40 && pair.why.endsWith('.'));
+    check(`pair ${id} reads both ways`, C.pairFor(pair.a, pair.b) === pair && C.pairFor(pair.b, pair.a) === pair);
+    texts.push(pair.why);
+  }
+  for (const words of Object.values(C.PAIR_TIER_WORDS)) texts.push(words);
+  texts.push(C.NO_KNOWN_LINK_LINE);
+  check('no pair for a disparate two', C.pairFor('steps', 'lab:tsh') === null);
+  check('no pair names a tracker', C.KNOWN_PAIRS.every((p) => !p.a.startsWith('tracker:') && !p.b.startsWith('tracker:')));
+  check('ferritin partners', C.partnersOf('lab:ferritin').join(',') === 'nutrient:iron,nutrient:vitamin_c,nutrient:calcium');
+  check('no known link line says so', /Nothing known connects these two/.test(C.NO_KNOWN_LINK_LINE));
+
+  // Only what has data, plus what is already picked.
+  const withData = new Set(['nutrient:iron', 'sleep', 'scale:mood']);
+  const shown = C.choicesWithData(choices, withData, ['steps', null]);
+  check('only series with readings', shown.map((c) => c.key).join(',') === 'nutrient:iron,sleep,steps,scale:mood');
+  check('nothing at all leaves nothing', C.choicesWithData(choices, new Set()).length === 0);
+
+  // Second picker: partners first.
+  const second = C.secondOptions(shown, 'sleep').map((o) => o.value);
+  check(`partners first: ${second.join(',')}`, second.join(',') === 'scale:mood,steps,nutrient:iron,sleep');
+  check('every choice still offered', second.length === shown.length);
+  check('no first pick, catalogue order', C.secondOptions(shown, null).map((o) => o.value).join(',') === shown.map((c) => c.key).join(','));
+
+  // Partners ready and not yet recorded.
+  const p = C.partnerChoices(choices, shown, 'nutrient:iron');
+  check('iron with no ferritin result: named as worth recording', p.ready.length === 0 && p.notYet.join(',') === 'Ferritin');
+  const q = C.partnerChoices(choices, shown, 'sleep');
+  check('sleep partners split', q.ready.map((c) => c.key).join(',') === 'scale:mood,steps' && q.notYet.join(',') === 'Energy, 1 to 5,Stress, 1 to 5');
+  check('no first pick, no partners', C.partnerChoices(choices, shown, null).ready.length === 0);
+  for (const name of [...p.notYet, ...q.notYet]) texts.push(name);
+
+  const lens = fs.readFileSync(path.join(ROOT, 'components/CompareTwoLens.tsx'), 'utf8');
+  check('lens offers only series with readings', lens.includes('choicesWithData(') && lens.includes('loadKeysWithData('));
+  check('lens shows the reason for a known pair', lens.includes('pair.why') && lens.includes('pair.source') && lens.includes('PAIR_TIER_WORDS'));
+  check('lens says when nothing known connects them', lens.includes('NO_KNOWN_LINK_LINE'));
+  check('second picker lists partners first', lens.includes('secondOptions('));
+}
+
 // 6. Words
 {
   const banned = [...READING_FORBIDDEN_WORDS, 'because of', 'correlat', 'linked to', 'caused', '—', '–', ' -- ', 'genuine', 'normal', 'healthy'];

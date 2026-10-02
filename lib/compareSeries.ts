@@ -297,3 +297,235 @@ export function describeDay(comparison: Comparison, date: string): string {
   };
   return `${sayDate(date)}: ${read(comparison.a)}; ${read(comparison.b)}.`;
 }
+
+// ---- pairs with a known reason ----
+//
+// Two series are offered first when something published says why one
+// would be read against the other. Everything else stays pickable, since
+// a person may be looking for a pattern of their own nobody has written
+// down, but such a pair is said to have no known link. The pairs read
+// both ways. A tier says how much the reason rests on, and the `why`
+// says what to expect on the chart, which for a slow marker is little
+// day to day. A tracker is named by the person and has no known partner.
+
+export type PairTier = 'strong' | 'moderate' | 'weak';
+
+export const PAIR_TIER_WORDS: Record<PairTier, string> = {
+  strong: 'Shown in trials or reviews of trials.',
+  moderate: 'Well established, though slow or loose from one day to the next.',
+  weak: 'A loose marker, so expect little to show.',
+};
+
+export type KnownPair = { a: string; b: string; why: string; tier: PairTier; source: string };
+
+export const KNOWN_PAIRS: readonly KnownPair[] = [
+  {
+    a: 'nutrient:iron',
+    b: 'lab:ferritin',
+    why: 'Ferritin is the body’s store of iron. Intake feeds it over months rather than days, and inflammation raises it too, so look for a slow drift between tests.',
+    tier: 'moderate',
+    source: 'WHO guideline on use of ferritin concentrations to assess iron status in individuals and populations, 2020.',
+  },
+  {
+    a: 'nutrient:vitamin_c',
+    b: 'lab:ferritin',
+    why: 'Vitamin C eaten in the same meal raises how much iron from plant foods is absorbed. Over months the effect on ferritin has been small in most studies.',
+    tier: 'moderate',
+    source: 'Hallberg L et al. Am J Clin Nutr 1989;49:140-144. Cook JD, Reddy MB. Am J Clin Nutr 2001;73:93-98.',
+  },
+  {
+    a: 'nutrient:calcium',
+    b: 'lab:ferritin',
+    why: 'Calcium in the same meal lowers iron absorption from that meal. Over months the effect on iron stores has been small in most studies.',
+    tier: 'moderate',
+    source: 'Lönnerdal B. Int J Vitam Nutr Res 2010;80:293-299.',
+  },
+  {
+    a: 'nutrient:vitamin_d',
+    b: 'lab:vitamin_d_test',
+    why: 'Vitamin D from food and supplements raises the blood level over weeks. Sun on the skin is usually the larger source, so a season can move the test more than a menu.',
+    tier: 'moderate',
+    source: 'Institute of Medicine. Dietary Reference Intakes for Calcium and Vitamin D, 2011.',
+  },
+  {
+    a: 'nutrient:vitamin_b12',
+    b: 'lab:vitamin_b12_test',
+    why: 'Intake feeds the blood level, though only when the gut can absorb it. Low stomach acid and autoimmune gastritis both stop that, whatever is eaten.',
+    tier: 'moderate',
+    source: 'NIH Office of Dietary Supplements, Vitamin B12 fact sheet for health professionals.',
+  },
+  {
+    a: 'nutrient:selenium',
+    b: 'lab:selenium_test',
+    why: 'Serum selenium follows intake over the weeks before the test, food and supplements both.',
+    tier: 'moderate',
+    source: 'NIH Office of Dietary Supplements, Selenium fact sheet for health professionals.',
+  },
+  {
+    a: 'nutrient:selenium',
+    b: 'lab:tpo_ab',
+    why: 'In trials in autoimmune thyroiditis, selenium supplements lowered TPO antibodies over three to twelve months. Food sources were not what those trials tested.',
+    tier: 'strong',
+    source: 'Wichman J et al. Thyroid 2016;26:1681-1692.',
+  },
+  {
+    a: 'nutrient:zinc',
+    b: 'lab:zinc_test',
+    why: 'Serum zinc moves only a little with intake and also drops with inflammation and after meals.',
+    tier: 'weak',
+    source: 'NIH Office of Dietary Supplements, Zinc fact sheet for health professionals.',
+  },
+  {
+    a: 'nutrient:magnesium',
+    b: 'lab:magnesium_test',
+    why: 'Almost all magnesium sits in bone and cells, and the serum level is held steady, so intake shows in it only weakly.',
+    tier: 'weak',
+    source: 'NIH Office of Dietary Supplements, Magnesium fact sheet for health professionals.',
+  },
+  {
+    a: 'nutrient:iodine',
+    b: 'lab:urine_iodine',
+    why: 'Urine iodine reflects the iodine of the last day or two, so one spot test swings with what was eaten just before it.',
+    tier: 'moderate',
+    source: 'WHO, UNICEF, ICCIDD. Assessment of iodine deficiency disorders and monitoring their elimination, 2007.',
+  },
+  {
+    a: 'nutrient:iodine',
+    b: 'lab:tsh',
+    why: 'The thyroid needs iodine to make its hormones, and both too little and too much can move TSH.',
+    tier: 'moderate',
+    source: 'NIH Office of Dietary Supplements, Iodine fact sheet for health professionals.',
+  },
+  {
+    a: 'lab:tsh',
+    b: 'lab:free_t4',
+    why: 'The pituitary raises TSH when free T4 falls and lowers it when free T4 rises, so the two usually move in opposite directions.',
+    tier: 'moderate',
+    source: 'Hadlow NC et al. J Clin Endocrinol Metab 2013;98:2936-2943.',
+  },
+  {
+    a: 'lab:tpo_ab',
+    b: 'lab:tsh',
+    why: 'TPO antibodies mark autoimmune thyroiditis, and people who carry them are more likely to see TSH rise over the years.',
+    tier: 'moderate',
+    source: 'Vanderpump MPJ et al. Clin Endocrinol 1995;43:55-68.',
+  },
+  {
+    a: 'lab:tsh',
+    b: 'weight',
+    why: 'A higher TSH has gone with a somewhat higher weight in population studies. On one person’s chart, weight moves for many other reasons too.',
+    tier: 'moderate',
+    source: 'Knudsen N et al. J Clin Endocrinol Metab 2005;90:4019-4024.',
+  },
+  {
+    a: 'lab:hscrp',
+    b: 'severity',
+    why: 'CRP rises with inflammation. It tracks flares in some conditions, such as Crohn’s disease and rheumatoid arthritis, and hardly at all in others.',
+    tier: 'moderate',
+    source: 'Vermeire S et al. Inflamm Bowel Dis 2004;10:661-665.',
+  },
+  {
+    a: 'nutrient:fiber_total',
+    b: 'severity',
+    why: 'In IBS, soluble fibre such as psyllium eased symptoms in trials while bran did not. For other conditions the link is less settled.',
+    tier: 'strong',
+    source: 'Moayyedi P et al. Am J Gastroenterol 2014;109:1367-1374.',
+  },
+  {
+    a: 'sleep',
+    b: 'scale:mood',
+    why: 'Of everything sleep loss was measured against in experiments, mood moved the most.',
+    tier: 'strong',
+    source: 'Pilcher JJ, Huffcutt AI. Sleep 1996;19:318-326.',
+  },
+  {
+    a: 'sleep',
+    b: 'scale:energy',
+    why: 'Too little sleep shows the next day as tiredness and less energy.',
+    tier: 'moderate',
+    source: 'National Heart, Lung, and Blood Institute, Sleep Deprivation and Deficiency.',
+  },
+  {
+    a: 'sleep',
+    b: 'scale:stress',
+    why: 'Stress and short or broken sleep go together in studies, and each can feed the other.',
+    tier: 'moderate',
+    source: 'Åkerstedt T. Scand J Work Environ Health 2006;32:493-501.',
+  },
+  {
+    a: 'steps',
+    b: 'sleep',
+    why: 'Regular activity has improved sleep by a small to moderate amount in trials, more over weeks than on any one night.',
+    tier: 'strong',
+    source: 'Kredlow MA et al. J Behav Med 2015;38:427-449.',
+  },
+];
+
+export function pairFor(keyA: string, keyB: string): KnownPair | null {
+  return KNOWN_PAIRS.find((p) => (p.a === keyA && p.b === keyB) || (p.a === keyB && p.b === keyA)) ?? null;
+}
+
+// The keys known to be read with this one, in the order listed above.
+export function partnersOf(key: string): string[] {
+  return KNOWN_PAIRS.filter((p) => p.a === key || p.b === key).map((p) => (p.a === key ? p.b : p.a));
+}
+
+export const NO_KNOWN_LINK_LINE =
+  'Nothing known connects these two, so if they rise and fall together, chance is the likelier reading. The pair stays here to look at, since a pattern of yours may be one nobody has written down.';
+
+// What the pickers hold once the records are read: only series with at
+// least one reading in the range. A series already picked is kept even
+// when it has none, so a picker never empties out under somebody.
+export function choicesWithData(
+  choices: readonly SeriesChoice[],
+  keysWithData: ReadonlySet<string>,
+  keep: readonly (string | null)[] = [],
+): SeriesChoice[] {
+  return choices.filter((c) => keysWithData.has(c.key) || keep.includes(c.key));
+}
+
+// The second picker's list: known partners of the first, then the rest.
+export function secondOptions(choices: readonly SeriesChoice[], keyA: string | null): { label: string; value: string }[] {
+  const partners = keyA ? partnersOf(keyA) : [];
+  const known = partners.map((k) => choices.find((c) => c.key === k)).filter((c): c is SeriesChoice => !!c);
+  const rest = choices.filter((c) => !partners.includes(c.key));
+  return choiceOptions([...known, ...rest]);
+}
+
+// A lab nobody has a result for is not in the catalogue, so its name
+// comes from here.
+const LAB_NAMES: Record<string, string> = {
+  ferritin: 'Ferritin',
+  vitamin_d_test: 'Vitamin D (25-hydroxyvitamin D)',
+  vitamin_b12_test: 'Vitamin B12',
+  selenium_test: 'Selenium (serum)',
+  tpo_ab: 'TPO antibodies',
+  zinc_test: 'Zinc (serum)',
+  magnesium_test: 'Magnesium (serum)',
+  urine_iodine: 'Urine iodine',
+  tsh: 'TSH',
+  free_t4: 'Free T4',
+  hscrp: 'hs-CRP',
+};
+
+// The first picker's known partners, split into those with readings in
+// the range and those with nothing recorded yet, which are named so the
+// person knows what would be worth recording.
+export function partnerChoices(
+  allChoices: readonly SeriesChoice[],
+  shown: readonly SeriesChoice[],
+  keyA: string | null,
+): { ready: SeriesChoice[]; notYet: string[] } {
+  if (!keyA) return { ready: [], notYet: [] };
+  const ready: SeriesChoice[] = [];
+  const notYet: string[] = [];
+  for (const key of partnersOf(keyA)) {
+    const choice = shown.find((c) => c.key === key);
+    if (choice) ready.push(choice);
+    else {
+      const known = allChoices.find((c) => c.key === key)?.label;
+      notYet.push(known ?? (key.startsWith('lab:') ? LAB_NAMES[key.slice(4)] ?? key.slice(4) : key));
+    }
+  }
+  return { ready, notYet };
+}

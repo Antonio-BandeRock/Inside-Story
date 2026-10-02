@@ -2,7 +2,7 @@
 // Every read goes through a reader the other Trends lenses already use, so a
 // figure here is the same figure that series shows on its home lens. Nothing writes.
 import { sortByLabel } from './choiceOrder';
-import { buildChoices, type ComparePoint, type SeriesChoice } from './compareSeries';
+import { buildChoices, nutrientKey, oneReadingPerDay, type ComparePoint, type SeriesChoice } from './compareSeries';
 import { dailyMode } from './customTrackers';
 import { listCustomTrackers } from './customTrackersDb';
 import { getDatabase, getDietaryReferenceIntakesForCurrentUser, getLabResultTrend, getLabTests } from './db';
@@ -11,6 +11,7 @@ import {
   getCheckinSeverityTrendSeries,
   getCustomTrackerSeries,
   getDailyScaleSeries,
+  getNutrientTrendSeriesForCodes,
   getNutrientTrendSeriesForRange,
   getSleepTrendPoints,
   getStepTrendPoints,
@@ -47,6 +48,27 @@ export async function loadCompareChoices(weightUnit: 'kg' | 'lb'): Promise<Serie
     scale: tracker.kind === 'scale',
   }));
   return buildChoices({ nutrients, labs, trackers: shownTrackers, weightUnit });
+}
+
+// Which series hold at least one reading in the range, so the pickers
+// offer only those. Every nutrient comes from one pass over the meals,
+// the same pass Reports uses for several nutrients at once, rather than
+// one pass per nutrient.
+export async function loadKeysWithData(choices: readonly SeriesChoice[], end: string, start: string, days: number): Promise<Set<string>> {
+  const nutrientCodes = choices.filter((c) => c.kind === 'nutrient').map((c) => c.key.slice('nutrient:'.length));
+  const others = choices.filter((c) => c.kind !== 'nutrient');
+  const [nutrients, otherPoints] = await Promise.all([
+    nutrientCodes.length > 0 ? getNutrientTrendSeriesForCodes(nutrientCodes, start, end) : Promise.resolve(new Map()),
+    Promise.all(others.map((choice) => loadSeriesPoints(choice, end, start, days).catch(() => [] as ComparePoint[]))),
+  ]);
+  const keys = new Set<string>();
+  for (const code of nutrientCodes) {
+    if (oneReadingPerDay(nutrients.get(code)?.points ?? [], 'average', start, end).length > 0) keys.add(nutrientKey(code));
+  }
+  others.forEach((choice, i) => {
+    if (oneReadingPerDay(otherPoints[i], choice.perDay, start, end).length > 0) keys.add(choice.key);
+  });
+  return keys;
 }
 
 // The readings for one series across the last `days` days to `end`.

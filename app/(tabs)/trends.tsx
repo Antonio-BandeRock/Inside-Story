@@ -759,7 +759,11 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
     help: [
       {
         heading: 'Compare Two',
-        body: 'Pick any two things the app records, such as a nutrient, your weight, a lab result, steps, sleep, how bad a flare was, mood or one of your trackers, and see them on one date axis. The first is read off the left edge as circles and the second off the right edge as squares, each on a separate scale.',
+        body: 'Pick two things you record, such as a nutrient, your weight, a lab result, steps, sleep, how bad a flare was, mood or one of your trackers, and see them on one date axis. Only what has readings in the range is offered. The first is read off the left edge as circles and the second off the right edge as squares, each on a separate scale.',
+      },
+      {
+        heading: 'Pairs with a known reason',
+        body: 'Once the first is picked, anything published research gives a reason to read with it comes first, with that reason, how much it rests on, and the source. Any other pair can still be picked, and is said to have nothing known connecting it.',
       },
       {
         heading: 'Reading it',

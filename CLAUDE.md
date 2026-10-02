@@ -95,6 +95,7 @@ These are behavior-changing and apply to every session:
   6. **Digest condition-specific content**: does a tracked condition this fact is relevant to deserve a cited research entry of its own explaining why?
   7. **Digest Basic Health content**: is this a general-population-relevant fact worth an entry of its own regardless of which conditions someone tracks?
   8. **Healing-stage advisories** (`lib/*StageAdvisory.ts`): does this matter differently at different stages of a staged condition's healing journey?
+  9. **Known pairs for Trends > Compare Two** (`KNOWN_PAIRS` in `lib/compareSeries.ts`, checked by `scripts/test_compare_series.js`): does this fact give a published reason to read one recorded series against another (an intake against its lab, sleep against mood)? Each pair carries what to expect on the chart, a tier and a source; a pair not listed stays pickable and is said to have nothing known connecting it.
 
   Not every new fact needs all eight; a purely narrative finding (a documentary fact-check) may only need 6-7, and a pure food property may only need 1-3. The discipline is running through the list deliberately every time, not defaulting to "just write the Digest entry" and calling it done. Update this list itself if a new kind of wiring point gets built.
 
