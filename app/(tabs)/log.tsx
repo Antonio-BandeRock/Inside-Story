@@ -5,6 +5,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
 import { CalmSection } from '../../components/CalmSection';
+import { MicrobiomeTestsSection } from '../../components/MicrobiomeTestsSection';
+import { MICROBIOME_INTRO, MICROBIOME_NOTE } from '../../lib/microbiome';
 import { YearInSquaresBand } from '../../components/YearInSquaresBand';
 import { NotesInput } from '../../components/NotesInput';
 import { CALM_INTRO, RECORDINGS_HELP as CALM_RECORDINGS_HELP, PACER_NOTE as CALM_PACER_NOTE } from '../../lib/calm';
@@ -189,6 +191,7 @@ type Lens =
   | 'generalNote'
   | 'nocturia'
   | 'bowel'
+  | 'microbiome'
   | 'cycle'
   | 'calm'
   | 'trackers';
@@ -320,6 +323,22 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: 'Blood',
         body: BLOOD_NOTE,
+      },
+      LOG_PERSONAL_NOTES_HELP,
+    ],
+  },
+  {
+    key: 'microbiome',
+    label: 'Microbiome Tests',
+    icon: 'flask-outline',
+    help: [
+      {
+        heading: 'Microbiome Tests',
+        body: 'A gut test you had done, such as a sequencing kit or a stool analysis, kept the way the report printed it: each result with its value or words, its unit, and the range and flag the report put beside it. Type the rows, paste them, or read them off a photo or screenshot; every row read waits for you to confirm it. The company, the kind of test and the groups are open lists. The same result on two or more tests is set side by side in the units printed, never converted, and a result from a different company is said to be not directly comparable. Each test shows what your food log holds for the four weeks before the sample, beside it and never as the reason for it.',
+      },
+      {
+        heading: 'What the evidence says',
+        body: MICROBIOME_NOTE,
       },
       LOG_PERSONAL_NOTES_HELP,
     ],
@@ -3164,6 +3183,22 @@ function CalmLens() {
   );
 }
 
+// Microbiome Tests (G30, 2026-10-02): everything in
+// components/MicrobiomeTestsSection.tsx.
+function MicrobiomeLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      <View style={styles.sectionColumn}>
+        <View style={styles.panelStandalone}>
+          <Text style={styles.emptyText}>{MICROBIOME_INTRO}</Text>
+        </View>
+        <MicrobiomeTestsSection tabColor={TAB_COLOR} />
+      </View>
+    </ScrollView>
+  );
+}
+
 function CycleLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [days, setDays] = useState<CycleDayRow[]>([]);
@@ -3771,6 +3806,8 @@ export default function LogScreen() {
             <BowelLens />
           ) : lens === 'cycle' ? (
             <CycleLens />
+          ) : lens === 'microbiome' ? (
+            <MicrobiomeLens />
           ) : lens === 'calm' ? (
             <CalmLens />
           ) : (

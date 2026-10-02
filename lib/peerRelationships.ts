@@ -243,6 +243,8 @@ export const PERSONAL_HEALTH_TABLES: readonly string[] = [
   'wellbeing_checkins',
   'lab_results',
   'own_lab_tests',
+  'microbiome_tests',
+  'microbiome_results',
   'health_records',
   'body_measurements',
   'user_condition_stages',

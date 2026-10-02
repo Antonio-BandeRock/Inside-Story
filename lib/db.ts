@@ -8171,6 +8171,40 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_bowel_movements_occurred ON bowel_movements(occurred_at);
 
+      -- Microbiome tests (G30, 2026-10-02): a gut test the person bought,
+      -- kept as the report printed it. microbiome_tests holds the sample
+      -- date (sampled_on, YYYY-MM-DD), the company and the kind, both open
+      -- lists read back from the values used before. microbiome_results
+      -- holds one row per printed result: value_text exactly as printed
+      -- ("Not detected", "<0.01"), value only when it has a number, the
+      -- printed range and the report's flag word. Nothing is graded and no
+      -- unit is converted. Removing a test removes its results. Read by
+      -- lib/microbiome.ts through lib/microbiomeDb.ts.
+      CREATE TABLE IF NOT EXISTS microbiome_tests (
+        id TEXT PRIMARY KEY,
+        sampled_on TEXT NOT NULL,
+        provider TEXT,
+        kind TEXT,
+        note TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_microbiome_tests_sampled ON microbiome_tests(sampled_on);
+      CREATE TABLE IF NOT EXISTS microbiome_results (
+        id TEXT PRIMARY KEY,
+        test_id TEXT NOT NULL,
+        group_name TEXT,
+        name TEXT NOT NULL,
+        value_text TEXT NOT NULL,
+        value REAL,
+        unit TEXT,
+        range_low REAL,
+        range_high REAL,
+        printed_flag TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_microbiome_results_test ON microbiome_results(test_id);
+
       -- Where on the body (D11, 2026-09-30): the areas marked on a flare or
       -- a food reaction, one row per area, keys from lib/bodyMap.ts. The id
       -- is checkin_id and region joined by a colon, so marking the same
