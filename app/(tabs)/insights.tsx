@@ -162,6 +162,7 @@ import { loadInsightsMoreView, type InsightsMoreLens } from '../../lib/insightsM
 import type { ReadingView } from '../../lib/readingBands';
 import type { YourStoryItemKey } from '../../lib/yourStory';
 import { modalAnimationType } from '../../lib/visualPreferences';
+import { nutrientKey } from '../../lib/compareSeries';
 
 // 'YYYY-MM-DD' in LOCAL time -- same reasoning as the rest of the app
 // (see lib/db.ts/app/(tabs)/index.tsx): UTC's calendar date is wrong for
@@ -1796,6 +1797,7 @@ export function NutrientsTable({
   const [mealsOpen, setMealsOpen] = useState(true);
   const [plantsOpen, setPlantsOpen] = useState(false);
   const [tableOpen, setTableOpen] = useState(true);
+  const router = useRouter();
   const isDayScope = scope.level === 'day';
   const scopeTotals = resolveScopeNutrientTotals(breakdown, scope);
   const entries = analyzeNutrientIntake(breakdown.driRows, scopeTotals, isDayScope ? breakdown.supplementTotals : {});
@@ -1942,6 +1944,17 @@ export function NutrientsTable({
                     <MineralAbsorption breakdown={breakdown} nutrient={entry.nutrientCode} unit={entry.unit} />
                   ) : null}
                   {shortfall ? <NutrientGapFoods entry={entry} shortfall={shortfall} /> : null}
+                  <TouchableOpacity
+                    accessibilityRole="link"
+                    onPress={() =>
+                      router.push({
+                        pathname: '/trends',
+                        params: { openTrendsLens: 'compare', openCompareA: nutrientKey(entry.nutrientCode) },
+                      })
+                    }
+                  >
+                    <Text style={styles.compareLink}>Compare with something else on Trends</Text>
+                  </TouchableOpacity>
                   {contributors.length === 0 ? (
                     <Text style={styles.detailText}>Nothing logged here actually contributed to this.</Text>
                   ) : (
@@ -4567,6 +4580,14 @@ const styles = StyleSheet.create({
   sourceBarSupplement: {
     height: '100%',
     backgroundColor: colors.statusYellowOnSurface,
+  },
+  // F16: from an opened nutrient row to Trends > Compare Two.
+  compareLink: {
+    ...typography.caption,
+    color: TAB_COLOR,
+    textDecorationLine: 'underline',
+    marginBottom: 6,
+    ...textShadow,
   },
   sourceSplitText: {
     ...typography.caption,

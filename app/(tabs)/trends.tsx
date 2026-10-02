@@ -21,6 +21,7 @@ import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { CycleShadingContext, TrendLineChart } from '../../components/TrendLineChart';
+import { CompareTwoLens } from '../../components/CompareTwoLens';
 import { listAllCycleDays } from '../../lib/cycleDb';
 import type { CycleDay } from '../../lib/cycle';
 import { CYCLE_SHADING_SWITCH_HELP, CYCLE_SHADING_SWITCH_LABEL, cycleShadingFor } from '../../lib/cycleShading';
@@ -202,6 +203,7 @@ type TrendsLens =
   | 'patterns'
   | 'therapyResponse'
   | 'trackers'
+  | 'compare'
   | TrendsMoreLens;
 
 // The nine lenses built from the inputs-to-outputs map (1.0.52.7) all read
@@ -751,6 +753,21 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
     ],
   },
   {
+    key: 'compare',
+    label: 'Compare Two',
+    icon: 'git-compare-outline',
+    help: [
+      {
+        heading: 'Compare Two',
+        body: 'Pick any two things the app records, such as a nutrient, your weight, a lab result, steps, sleep, how bad a flare was, mood or one of your trackers, and see them on one date axis. The first is read off the left edge as circles and the second off the right edge as squares, each on a separate scale.',
+      },
+      {
+        heading: 'Reading it',
+        body: 'A day with no reading is left empty and no line joins one reading to the next. Under the chart it says how many days each has a reading and how many days have both. Two things moving together does not show that one is causing the other, and no figure here says how closely they move.',
+      },
+    ],
+  },
+  {
     key: 'ferments',
     label: "Ferments",
     icon: 'flask-outline',
@@ -1129,7 +1146,12 @@ export default function TrendsScreen() {
   // resting picker. openTrendsRange='thisWeek' sets the exact seven days
   // Home summed (the last six days plus today) as a custom range, since no
   // fixed pill covers that: the 7d pill ends yesterday.
-  const { openTrendsLens, openTrendsRange } = useLocalSearchParams<{ openTrendsLens?: string; openTrendsRange?: string }>();
+  const { openTrendsLens, openTrendsRange, openCompareA } = useLocalSearchParams<{
+    openTrendsLens?: string;
+    openTrendsRange?: string;
+    // F16: a series key for Compare Two's first picker, from Insights.
+    openCompareA?: string;
+  }>();
   useFocusEffect(
     useCallback(() => {
       const requestedLens = TRENDS_LENSES.find((option) => option.key === openTrendsLens);
@@ -1479,6 +1501,9 @@ export default function TrendsScreen() {
         setGroceryPrices(prices);
         setLoading(false);
       });
+    } else if (lens === 'compare') {
+      // Compare Two loads both series itself (components/CompareTwoLens.tsx).
+      setLoading(false);
     } else if (!selectedTestCode) {
       // Labs with nothing picked yet -- nothing real to fetch, matches the
       // same "loading" -> real empty-state shape the other lenses use once
@@ -2844,6 +2869,13 @@ export default function TrendsScreen() {
                   </TabBand>
                 </>
               )
+            ) : lens === 'compare' ? (
+              <CompareTwoLens
+                folds={folds}
+                color={TAB_COLOR}
+                weightUnit={measurementSystem === 'imperial' ? 'lb' : 'kg'}
+                initialA={typeof openCompareA === 'string' ? openCompareA : undefined}
+              />
             ) : lens === 'trackers' ? (
               loading ? (
                 <View style={band.boxMuted}>
