@@ -194,7 +194,7 @@ const byKey = new Map(choices.map((c) => [c.key, c]));
   check('chart has no Path or Polyline', !/\b(Path|Polyline)\b/.test(chart));
   check('first series as circles', /comparison\.a\.points\.map[\s\S]*?<Circle/.test(chart));
   check('second series as squares', /comparison\.b\.points\.map[\s\S]*?<Rect/.test(chart));
-  check('every Line is an axis or the picked day', (chart.match(/<Line/g) || []).length === 4);
+  check('every Line is an axis, the picked day or a tag row baseline', (chart.match(/<Line/g) || []).length === 5);
   const lens = read('components/CompareTwoLens.tsx');
   check('lens pickers are PopoverSelect', (lens.match(/<PopoverSelect/g) || []).length === 2);
   check('lens shows the caption', lens.includes('MOVING_TOGETHER_LINE'));

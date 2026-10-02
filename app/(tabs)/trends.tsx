@@ -384,6 +384,10 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
         body: 'A week with nothing logged is a gap, never a zero. A planned day with nothing marked is left as it is, since it may have happened without being marked, and is never counted as missed.',
       },
       {
+        heading: 'Marking the days you tagged',
+        body: 'Under the chart, the check-in tags you logged in the range are listed with how many days each was logged. Pick up to three and each becomes a row of marks under the dates, one mark for each day it was logged, so a flare or a good night can be seen against both readings. Tap a day to see its tags with its readings. A mark shows when, and two things on the same day can still be chance.',
+      },
+      {
         heading: 'Reading it',
         body: 'The sets are shown side by side as they were done. Nothing here calls one better than another or counts days in a row.',
       },

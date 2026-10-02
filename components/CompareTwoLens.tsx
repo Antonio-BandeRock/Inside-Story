@@ -2,6 +2,8 @@
 // records and see them on one date axis, each on a separate scale
 // (lib/compareSeries.ts, lib/compareSeriesDb.ts, CompareTwoChart). Opened
 // from Insights > Nutrients with that nutrient already in the first picker.
+// Check-in tags can be marked under the chart on the days they were logged
+// (F18, lib/tagMarks.ts).
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -28,7 +30,16 @@ import {
   type ComparePoint,
   type SeriesChoice,
 } from '../lib/compareSeries';
-import { loadCompareChoices, loadKeysWithData, loadSeriesPoints } from '../lib/compareSeriesDb';
+import { loadCompareChoices, loadKeysWithData, loadSeriesPoints, loadTagDays } from '../lib/compareSeriesDb';
+import {
+  dayCountWords,
+  markRows,
+  MAX_TAG_MARK_ROWS,
+  MAX_TAGS_OFFERED,
+  TAG_MARKS_LINE,
+  togglePicked,
+  type TagMarkRow,
+} from '../lib/tagMarks';
 import { CompareTwoChart } from './CompareTwoChart';
 import { PopoverSelect } from './PopoverSelect';
 import { makeTabBandStyles, TabBand } from './TabBand';
@@ -57,6 +68,8 @@ export function CompareTwoLens({ folds, color, weightUnit, initialA }: Props) {
   const [days, setDays] = useState<CompareRange>(DEFAULT_COMPARE_RANGE);
   const [points, setPoints] = useState<{ key: string; a: ComparePoint[]; b: ComparePoint[] } | null>(null);
   const [end] = useState(todayString);
+  const [tags, setTags] = useState<{ days: number; rows: TagMarkRow[] } | null>(null);
+  const [pickedTags, setPickedTags] = useState<string[]>([]);
 
   useEffect(() => {
     if (initialA) setKeyA(initialA);
@@ -92,6 +105,23 @@ export function CompareTwoLens({ folds, color, weightUnit, initialA }: Props) {
       live = false;
     };
   }, [choices, end, days]);
+
+  useEffect(() => {
+    let live = true;
+    loadTagDays(shiftDate(end, -(days - 1)), end)
+      .then((rows) => {
+        if (live) setTags({ days, rows });
+      })
+      .catch(() => {
+        if (live) setTags({ days, rows: [] });
+      });
+    return () => {
+      live = false;
+    };
+  }, [end, days]);
+
+  const tagRows = useMemo(() => tags?.rows ?? [], [tags]);
+  const marks = useMemo(() => markRows(tagRows, pickedTags), [tagRows, pickedTags]);
 
   // Only what has a reading in the range, plus anything already picked.
   const shown = useMemo(
@@ -236,8 +266,37 @@ export function CompareTwoLens({ folds, color, weightUnit, initialA }: Props) {
             <Text style={styles.caption}>{comparison.summary}</Text>
             {comparison.sameSeries || (comparison.daysA === 0 && comparison.daysB === 0) ? null : (
               <View style={styles.chart}>
-                <CompareTwoChart comparison={comparison} colorA={color} />
+                <CompareTwoChart comparison={comparison} colorA={color} marks={marks} />
               </View>
+            )}
+            {comparison.sameSeries || (comparison.daysA === 0 && comparison.daysB === 0) ? null : tagRows.length === 0 ? (
+              <Text style={[styles.caption, styles.spaced]}>
+                {`No check-in tags logged in the last ${days} days. A tag picked in Signals can be marked under the chart on the days it was logged.`}
+              </Text>
+            ) : (
+              <>
+                <Text style={[styles.label, styles.spaced]}>{`Mark the days you tagged, up to ${MAX_TAG_MARK_ROWS}`}</Text>
+                <View style={[styles.pillRow, styles.pillRowTight]}>
+                  {tagRows.slice(0, MAX_TAGS_OFFERED).map((row) => {
+                    const active = pickedTags.includes(row.code);
+                    return (
+                      <TouchableOpacity
+                        key={row.code}
+                        style={[styles.pill, active && { backgroundColor: color, borderColor: color }]}
+                        onPress={() => setPickedTags((now) => togglePicked(markRows(tagRows, now).map((r) => r.code), row.code))}
+                        accessibilityRole="button"
+                        accessibilityState={{ selected: active }}
+                      >
+                        <Text style={[styles.pillText, active && styles.pillTextActive]}>{`${row.label}, ${dayCountWords(row.dates.length)}`}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+                {tagRows.length > MAX_TAGS_OFFERED ? (
+                  <Text style={[styles.caption, styles.spaced]}>{`The ${MAX_TAGS_OFFERED} tags logged on the most days are listed.`}</Text>
+                ) : null}
+                {marks.length > 0 ? <Text style={[styles.caption, styles.spaced]}>{TAG_MARKS_LINE}</Text> : null}
+              </>
             )}
             {comparison.sameSeries ? null : pair ? (
               <>
@@ -282,6 +341,7 @@ const styles = StyleSheet.create({
   spaced: { marginTop: 10 },
   chart: { marginTop: 10 },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
+  pillRowTight: { marginTop: 4 },
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: colors.surfaceMuted },
   pillText: { ...typography.caption, color: colors.textPrimary, ...textShadow },
   pillTextActive: { color: colors.textOnPrimary, textShadowColor: 'transparent', textShadowRadius: 0 },

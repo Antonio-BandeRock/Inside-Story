@@ -2,11 +2,13 @@
 // Every read goes through a reader the other Trends lenses already use, so a
 // figure here is the same figure that series shows on its home lens. Nothing writes.
 import { sortByLabel } from './choiceOrder';
-import { buildChoices, nutrientKey, oneReadingPerDay, type ComparePoint, type SeriesChoice } from './compareSeries';
+import { getCheckinTagDefinition } from './checkinTags';
+import { buildChoices, nutrientKey, oneReadingPerDay, shiftDate, type ComparePoint, type SeriesChoice } from './compareSeries';
 import { dailyMode } from './customTrackers';
 import { listCustomTrackers } from './customTrackersDb';
 import { getDatabase, getDietaryReferenceIntakesForCurrentUser, getLabResultTrend, getLabTests } from './db';
 import { kgToLb } from './measurement';
+import { tagDays, type TagMarkRow } from './tagMarks';
 import {
   getCheckinSeverityTrendSeries,
   getCustomTrackerSeries,
@@ -108,4 +110,21 @@ export async function loadSeriesPoints(choice: SeriesChoice, end: string, start:
       return series.find((entry) => entry.tracker.id === id)?.points ?? [];
     }
   }
+}
+
+// Every check-in tag logged from start to end (F18), for the marks under
+// the chart. logged_at is UTC, so the window reaches a day past the range
+// at both ends and lib/tagMarks.ts narrows it by the local day. A tag
+// marked as not present (severity 0) is left out, as Signals leaves it out.
+export async function loadTagDays(start: string, end: string): Promise<TagMarkRow[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ loggedAt: string; tagCode: string }>(
+    `SELECT c.logged_at AS loggedAt, t.tag_code AS tagCode
+       FROM checkin_tags t JOIN wellbeing_checkins c ON c.id = t.checkin_id
+      WHERE c.logged_at >= ? AND c.logged_at < ?
+        AND (t.severity IS NULL OR t.severity > 0)`,
+    shiftDate(start, -1),
+    shiftDate(end, 2),
+  );
+  return tagDays(rows, start, end, (code) => getCheckinTagDefinition(code)?.label);
 }

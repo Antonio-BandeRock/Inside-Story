@@ -3,13 +3,16 @@
 // second off the right edge as squares, each in a different colour, so the two
 // can be told apart without colour too. Dots only: no line is drawn between
 // two readings, since a line would draw readings onto the days between them
-// that nobody recorded. Tap a dot to read that day for both.
+// that nobody recorded. Tap a dot to read that day for both. Under the
+// date axis, each tag picked (F18, lib/tagMarks.ts) is a row of marks, one
+// for each day it was logged.
 import { useState } from 'react';
 import { StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
-import Svg, { Circle, Line, Rect, Text as SvgText } from 'react-native-svg';
+import Svg, { Circle, G, Line, Rect, Text as SvgText } from 'react-native-svg';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { dayIndex, describeDay, formatAxisValue, sayShortDate, shiftDate, type Comparison } from '../lib/compareSeries';
+import { taggedOn, type TagMarkRow } from '../lib/tagMarks';
 
 const HEIGHT = 190;
 const AXIS_WIDTH = 38;
@@ -17,10 +20,21 @@ const TOP = 8;
 const BOTTOM = 20;
 const DOT = 3.5;
 const HIT = 11;
+// Each tag row: its name on one line, its marks on the next.
+const MARK_ROW = 24;
+const MARK_HEIGHT = 8;
 
 export const COMPARE_COLOR_B = colors.accent;
 
-export function CompareTwoChart({ comparison, colorA }: { comparison: Comparison; colorA: string }) {
+export function CompareTwoChart({
+  comparison,
+  colorA,
+  marks = [],
+}: {
+  comparison: Comparison;
+  colorA: string;
+  marks?: readonly TagMarkRow[];
+}) {
   const [width, setWidth] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
   const onLayout = (event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width);
@@ -35,6 +49,14 @@ export function CompareTwoChart({ comparison, colorA }: { comparison: Comparison
     const height = range.yMax - range.yMin || 1;
     return TOP + plotHeight - ((value - range.yMin) / height) * plotHeight;
   };
+  const marksTop = HEIGHT + 4;
+  const svgHeight = HEIGHT + (marks.length > 0 ? marks.length * MARK_ROW + 4 : 0);
+  const marksLabel =
+    marks.length > 0 ? ` Marked under the dates: ${marks.map((row) => `${row.label} on ${row.dates.length} of the days`).join(', ')}.` : '';
+  const tagged = picked ? taggedOn(marks, picked) : null;
+  const hitDates = [
+    ...new Set([...comparison.a.points.map((p) => p.date), ...comparison.b.points.map((p) => p.date), ...marks.flatMap((row) => row.dates)]),
+  ];
   const dateTicks = [comparison.start, shiftDate(comparison.start, Math.round(span / 2)), comparison.end];
 
   return (
@@ -50,7 +72,7 @@ export function CompareTwoChart({ comparison, colorA }: { comparison: Comparison
         </View>
       </View>
       {width > 0 ? (
-        <Svg width={width} height={HEIGHT} accessibilityLabel={comparison.accessibilityLabel}>
+        <Svg width={width} height={svgHeight} accessibilityLabel={comparison.accessibilityLabel + marksLabel}>
           <Line x1={plotLeft} y1={TOP} x2={plotLeft} y2={TOP + plotHeight} stroke={colorA} strokeWidth={1} strokeOpacity={0.6} />
           <Line
             x1={plotLeft + plotWidth}
@@ -116,20 +138,50 @@ export function CompareTwoChart({ comparison, colorA }: { comparison: Comparison
               />
             );
           })}
-          {[...new Set([...comparison.a.points, ...comparison.b.points].map((p) => p.date))].map((date) => (
+          {marks.map((row, i) => {
+            const top = marksTop + i * MARK_ROW;
+            return (
+              <G key={`mark${row.code}`}>
+                <SvgText x={plotLeft} y={top + 9} fontSize={10} fill={colors.textPrimary} textAnchor="start">
+                  {row.label}
+                </SvgText>
+                <Line
+                  x1={plotLeft}
+                  y1={top + 12 + MARK_HEIGHT}
+                  x2={plotLeft + plotWidth}
+                  y2={top + 12 + MARK_HEIGHT}
+                  stroke={colors.border}
+                  strokeWidth={1}
+                />
+                {row.dates.map((date) => (
+                  <Rect
+                    key={date}
+                    x={xOf(date) - 1.5}
+                    y={top + 12}
+                    width={3}
+                    height={MARK_HEIGHT}
+                    fill={date === picked ? colorA : colors.textMuted}
+                  />
+                ))}
+              </G>
+            );
+          })}
+          {hitDates.map((date) => (
             <Rect
               key={`hit${date}`}
               x={xOf(date) - HIT / 2}
               y={TOP}
               width={HIT}
-              height={plotHeight}
+              height={svgHeight - TOP}
               fill="transparent"
               onPress={() => setPicked(date)}
             />
           ))}
         </Svg>
       ) : null}
-      <Text style={styles.caption}>{picked ? describeDay(comparison, picked) : 'Tap a dot to read that day for both.'}</Text>
+      <Text style={styles.caption}>
+        {picked ? [describeDay(comparison, picked), tagged].filter(Boolean).join(' ') : 'Tap a dot to read that day for both.'}
+      </Text>
     </View>
   );
 }
