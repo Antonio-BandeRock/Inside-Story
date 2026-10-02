@@ -44,6 +44,7 @@ const ROOT = path.resolve(__dirname, '..');
 
 const NAMED = [
   'lib/bowel.ts',
+  'lib/fuelGaugeGroups.ts',
   'lib/mealGlucose.ts',
   'lib/bodyOutcome.ts',
   'lib/bodyMap.ts',

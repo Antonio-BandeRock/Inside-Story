@@ -62,6 +62,7 @@ import { textShadow, typography } from '../../constants/typography';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/checkinTags';
 import { DailyList } from '../../components/DailyList';
 import { FuelGaugeChooser } from '../../components/FuelGaugeChooser';
+import { FuelGaugeGroups } from '../../components/FuelGaugeGroups';
 import { DEFAULT_FUEL_GAUGE_CODES, FUEL_GAUGE_EMPTY_LINE, pickFuelGauges } from '../../lib/fuelGaugeChoice';
 import { getFuelGaugeChoice, saveFuelGaugeChoice } from '../../lib/fuelGaugeChoiceDb';
 import { NO_WINDOW_LINE, SINCE_LAST_MEAL_CAPTION, sinceLastMeal, windowFromProfile, type EatingWindow } from '../../lib/sinceLastMeal';
@@ -3236,6 +3237,14 @@ export default function HomeScreen() {
             {`Over a safe upper limit today: ${overLimitNutrients.map((entry) => entry.displayName).join(', ')}. Tap through for the detail.`}
           </Text>
         ) : null}
+        {/* G32, 2026-10-02: every nutrient with a target, grouped by body
+            system or by the conditions chosen in Profile. */}
+        <FuelGaugeGroups
+          entries={data?.nutrientEntries ?? []}
+          conditionCodes={userConditionCodes}
+          accent={tabColorFor('/insights')}
+          showInfo={showInfoAlert}
+        />
         {renderGaugeChooser()}
       </>,
     );
