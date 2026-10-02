@@ -28,6 +28,7 @@ import {
   type ExperimentSubject,
   type TrialDesign,
 } from './foodExperiment';
+import { nextQueued, shouldQueueNext, type SeriesItem, type SeriesTrialStatus } from './trialSeries';
 import { localDayOf } from './dailyScales';
 import { buildPerConditionSummaries, type ConditionDimensionSummary } from './conditionDimensions';
 import { convertToGrams, MASS_UNITS, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
@@ -10030,6 +10031,37 @@ async function runDatabaseInitialization() {
         await db.execAsync(`ALTER TABLE food_trials ADD COLUMN ${column} ${type};`);
       }
     }
+
+    // F6, 2026-10-01: an elimination series (lib/trialSeries.ts). The plan
+    // lives here, apart from food_trials, so a planned food has no trial
+    // row until its turn. trial_id is set when it gets one. No foreign
+    // keys and no cascade: removing a series never touches a trial.
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS trial_series (
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        observation_days INTEGER NOT NULL DEFAULT 3,
+        condition_code TEXT,
+        stopped_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS trial_series_items (
+        id TEXT PRIMARY KEY,
+        series_id TEXT NOT NULL,
+        position INTEGER NOT NULL,
+        food_name TEXT NOT NULL,
+        food_id INTEGER,
+        source TEXT,
+        prep_method TEXT,
+        trial_id TEXT,
+        skipped_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_trial_series_items_series ON trial_series_items(series_id);
+      CREATE INDEX IF NOT EXISTS idx_trial_series_items_trial ON trial_series_items(trial_id);
+    `);
 
     // Ties a lightweight daily during-a-trial check-in (or its escalated
     // full symptom log -- same table either way, see recordCheckin's own
@@ -23465,6 +23497,8 @@ export async function resolveFoodTrial(id: string, status: 'cleared' | 'flagged'
   // exactly so a delayed second reaction still gets caught -- but an
   // explicit "I'm calling this done" here genuinely should).
   await cancelFoodTrialCheckins(id);
+  // F6: a trial in an elimination series hands over to the next food.
+  await advanceSeriesForTrial(id);
 }
 
 // Puts a resolved trial back into 'trialing' -- e.g. a symptom shows up a
@@ -23722,7 +23756,187 @@ export async function deleteFoodTrial(id: string) {
   await cancelFoodTrialCheckins(id);
   const db = await getDatabase();
   await db.runAsync('DELETE FROM food_trials WHERE id = ?', id);
+  // The series item keeps its trial_id and reads as removed
+  // (itemState in lib/trialSeries.ts), and the series moves on.
+  await advanceSeriesForTrial(id);
 }
+
+// ---------------------------------------------------------------------------
+// Elimination series, F6 (2026-10-01). See lib/trialSeries.ts.
+
+export type TrialSeriesFood = {
+  foodName: string;
+  foodId?: number | null;
+  source?: string | null;
+  prepMethod?: string | null;
+};
+
+export type TrialSeriesItemRecord = SeriesItem & {
+  foodId: number | null;
+  source: string | null;
+  prepMethod: string | null;
+};
+
+export type TrialSeriesRecord = {
+  id: string;
+  name: string | null;
+  observationDays: number;
+  conditionCode: string | null;
+  stoppedAt: string | null;
+  createdAt: string;
+  items: TrialSeriesItemRecord[];
+};
+
+export async function createTrialSeries(input: {
+  name?: string | null;
+  observationDays: number;
+  conditionCode?: string | null;
+  foods: TrialSeriesFood[];
+}): Promise<string> {
+  const db = await getDatabase();
+  const id = `trial_series_${Date.now()}`;
+  const now = new Date().toISOString();
+  await db.runAsync(
+    'INSERT INTO trial_series (id, name, observation_days, condition_code, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
+    id,
+    input.name?.trim() || null,
+    input.observationDays,
+    input.conditionCode ?? null,
+    now,
+    now,
+  );
+  for (const [index, food] of input.foods.entries()) {
+    await db.runAsync(
+      `INSERT INTO trial_series_items (id, series_id, position, food_name, food_id, source, prep_method, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `${id}_item_${index + 1}`,
+      id,
+      index + 1,
+      food.foodName.trim(),
+      food.foodId ?? null,
+      food.source ?? null,
+      food.prepMethod ?? null,
+      now,
+      now,
+    );
+  }
+  await advanceTrialSeries(id);
+  return id;
+}
+
+export async function listTrialSeries(): Promise<TrialSeriesRecord[]> {
+  const db = await getDatabase();
+  const series = await db.getAllAsync<Omit<TrialSeriesRecord, 'items'>>(
+    `SELECT id, name, observation_days AS observationDays, condition_code AS conditionCode,
+            stopped_at AS stoppedAt, created_at AS createdAt
+     FROM trial_series ORDER BY created_at DESC`,
+  );
+  if (series.length === 0) return [];
+  const items = await db.getAllAsync<TrialSeriesItemRecord & { seriesId: string }>(
+    `SELECT i.id, i.series_id AS seriesId, i.position, i.food_name AS foodName, i.food_id AS foodId,
+            i.source, i.prep_method AS prepMethod, i.trial_id AS trialId, i.skipped_at AS skippedAt,
+            t.status AS trialStatus
+     FROM trial_series_items i
+     LEFT JOIN food_trials t ON t.id = i.trial_id
+     ORDER BY i.series_id, i.position`,
+  );
+  return series.map((row) => ({
+    ...row,
+    items: items
+      .filter((item) => item.seriesId === row.id)
+      .map((item) => ({
+        id: item.id,
+        position: item.position,
+        foodName: item.foodName,
+        foodId: item.foodId,
+        source: item.source,
+        prepMethod: item.prepMethod,
+        trialId: item.trialId,
+        trialStatus: (item.trialStatus ?? null) as SeriesTrialStatus | null,
+        skippedAt: item.skippedAt,
+      })),
+  }));
+}
+
+// Gives the next planned food its trial when nothing in the series is open.
+// The trial waits: a food picked from the reference list starts the first
+// time a meal with it is logged (activateWaitingTrialsForComponents), and a
+// typed one starts with Start now (reopenFoodTrial). Either way no
+// check-ins are scheduled until it starts, since a check-in about a day the
+// food was not eaten would ask about nothing.
+export async function advanceTrialSeries(seriesId: string): Promise<string | null> {
+  const series = (await listTrialSeries()).find((row) => row.id === seriesId);
+  if (!series || !shouldQueueNext(series)) return null;
+  const next = nextQueued(series.items) as TrialSeriesItemRecord;
+  const db = await getDatabase();
+  const trialId = `food_trial_${Date.now()}`;
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `INSERT INTO food_trials
+       (id, food_name, started_at, observation_days, status, food_id, source, prep_method, condition_code, design, created_at, updated_at)
+     VALUES (?, ?, ?, ?, 'waiting', ?, ?, ?, ?, 'watch', ?, ?)`,
+    trialId,
+    next.foodName,
+    `${todayDateStringLocal()}T${new Date().toTimeString().slice(0, 5)}`,
+    series.observationDays,
+    next.foodId,
+    next.source,
+    next.prepMethod,
+    series.conditionCode,
+    now,
+    now,
+  );
+  await db.runAsync('UPDATE trial_series_items SET trial_id = ?, updated_at = ? WHERE id = ?', trialId, now, next.id);
+  return trialId;
+}
+
+async function advanceSeriesForTrial(trialId: string): Promise<void> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ series_id: string }>(
+    'SELECT series_id FROM trial_series_items WHERE trial_id = ?',
+    trialId,
+  );
+  if (row) await advanceTrialSeries(row.series_id);
+}
+
+// Skip a food whose turn has not come, or whose trial is still waiting. A
+// waiting trial has nothing logged against it, so it is deleted rather
+// than left behind as a trial nobody meant to run.
+export async function skipTrialSeriesItem(itemId: string): Promise<void> {
+  const db = await getDatabase();
+  const item = await db.getFirstAsync<{ series_id: string; trial_id: string | null }>(
+    'SELECT series_id, trial_id FROM trial_series_items WHERE id = ?',
+    itemId,
+  );
+  if (!item) return;
+  if (item.trial_id) {
+    const trial = await db.getFirstAsync<{ status: string }>('SELECT status FROM food_trials WHERE id = ?', item.trial_id);
+    if (trial && trial.status !== 'waiting') return;
+    if (trial) {
+      await cancelFoodTrialCheckins(item.trial_id);
+      await db.runAsync('DELETE FROM food_trials WHERE id = ?', item.trial_id);
+    }
+  }
+  const now = new Date().toISOString();
+  await db.runAsync('UPDATE trial_series_items SET skipped_at = ?, updated_at = ? WHERE id = ?', now, now, itemId);
+  await advanceTrialSeries(item.series_id);
+}
+
+// Stopping leaves every trial as it is, including one being watched.
+export async function stopTrialSeries(seriesId: string): Promise<void> {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  await db.runAsync('UPDATE trial_series SET stopped_at = ?, updated_at = ? WHERE id = ?', now, now, seriesId);
+}
+
+// Removes the plan only. Every trial the series started stays on the list
+// with its check-ins, since those are records of what happened.
+export async function deleteTrialSeries(seriesId: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM trial_series_items WHERE series_id = ?', seriesId);
+  await db.runAsync('DELETE FROM trial_series WHERE id = ?', seriesId);
+}
+
 
 export type SymptomAssessmentRecord = {
   id: string;

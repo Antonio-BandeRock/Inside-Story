@@ -54,6 +54,13 @@ import {
   listExerciseLogs,
   listFoodAllergies,
   listFoodTrials,
+  createTrialSeries,
+  deleteTrialSeries,
+  listTrialSeries,
+  skipTrialSeriesItem,
+  stopTrialSeries,
+  type TrialSeriesFood,
+  type TrialSeriesRecord,
   recordBodyMeasurement,
   recordCheckin,
   recordExercise,
@@ -81,6 +88,7 @@ import {
   type ExperimentSubject,
   type TrialDesign,
 } from '../../lib/foodExperiment';
+import { canSkip, isFinished, openItem, nextQueued, seriesProgressLine, seriesSummaryLines } from '../../lib/trialSeries';
 import { readExperimentResult } from '../../lib/foodExperimentDb';
 import { deleteNocturiaNight, listNocturiaNights, saveNocturiaNight, type NocturiaNight } from '../../lib/nocturiaDb';
 import { deleteCycleDay, listAllCycleDays, listCycleDays, saveCycleDay, type CycleDayRow } from '../../lib/cycleDb';
@@ -1200,6 +1208,17 @@ function NewFoodsLens({
   // anything else is an experiment about a change the person makes.
   const [subject, setSubject] = useState<ExperimentSubject>('food');
   const [experimentResults, setExperimentResults] = useState<Record<string, string[]>>({});
+  // F6: elimination series (lib/trialSeries.ts). The form's state lives
+  // here rather than in a child, since picking a food replaces the whole
+  // lens with FoodLookup and would otherwise unmount the form.
+  const [series, setSeries] = useState<TrialSeriesRecord[]>([]);
+  const [seriesFormOpen, setSeriesFormOpen] = useState(false);
+  const [pickingForSeries, setPickingForSeries] = useState(false);
+  const [seriesName, setSeriesName] = useState('');
+  const [seriesFoods, setSeriesFoods] = useState<TrialSeriesFood[]>([]);
+  const [seriesTyped, setSeriesTyped] = useState('');
+  const [seriesDays, setSeriesDays] = useState('3');
+  const [seriesConditionCode, setSeriesConditionCode] = useState<string | null>(null);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   // One real, live-fetched "did I already check in today" entry per active
@@ -1221,9 +1240,10 @@ function NewFoodsLens({
 
   const load = useCallback(() => {
     setLoading(true);
-    Promise.all([listFoodTrials(), getUserConditions(), listAllConditions(), listFoodAllergies()]).then(
-      async ([rows, selectedCodes, allConditions, allergies]) => {
+    Promise.all([listFoodTrials(), getUserConditions(), listAllConditions(), listFoodAllergies(), listTrialSeries()]).then(
+      async ([rows, selectedCodes, allConditions, allergies, seriesRows]) => {
         setTrials(rows);
+        setSeries(seriesRows);
         setTrackedConditions(allConditions.filter((condition) => selectedCodes.includes(condition.code)));
         setFoodAllergies(allergies);
         setLoading(false);
@@ -1411,6 +1431,63 @@ function NewFoodsLens({
     load();
   }
 
+  function resetSeriesForm() {
+    setSeriesName('');
+    setSeriesFoods([]);
+    setSeriesTyped('');
+    setSeriesDays('3');
+    setSeriesConditionCode(null);
+  }
+
+  function addTypedSeriesFood() {
+    const name = seriesTyped.trim();
+    if (!name) return;
+    setSeriesFoods((current) => [...current, { foodName: name }]);
+    setSeriesTyped('');
+  }
+
+  function moveSeriesFoodUp(index: number) {
+    if (index === 0) return;
+    setSeriesFoods((current) => {
+      const next = [...current];
+      [next[index - 1], next[index]] = [next[index], next[index - 1]];
+      return next;
+    });
+  }
+
+  async function handleSaveSeries() {
+    const foods = seriesTyped.trim() ? [...seriesFoods, { foodName: seriesTyped.trim() }] : seriesFoods;
+    if (foods.length < 2) {
+      showInfoAlert('Almost there', 'A series needs at least two foods. For one food, start a food trial instead.');
+      return;
+    }
+    const days = Number(seriesDays);
+    await createTrialSeries({
+      name: seriesName,
+      observationDays: Number.isFinite(days) && days > 0 ? days : 3,
+      conditionCode: seriesConditionCode,
+      foods,
+    });
+    setSeriesFormOpen(false);
+    resetSeriesForm();
+    load();
+  }
+
+  async function handleSkipSeriesItem(itemId: string) {
+    await skipTrialSeriesItem(itemId);
+    load();
+  }
+
+  async function handleStopSeries(seriesId: string) {
+    await stopTrialSeries(seriesId);
+    load();
+  }
+
+  async function handleRemoveSeries(seriesId: string) {
+    await deleteTrialSeries(seriesId);
+    load();
+  }
+
   async function handleResolve(trial: FoodTrialRecord, status: 'cleared' | 'flagged') {
     await resolveFoodTrial(trial.id, status);
     load();
@@ -1490,6 +1567,38 @@ function NewFoodsLens({
   // confirmed Android crash Garden's own harvest/planting pickers already
   // hit and fixed, 2026-08-13/14) -- so picking a food gets its own
   // dedicated, non-scrolling branch, the same established fix pattern.
+  const seriesByTrialId = new Map<string, string>();
+  for (const row of series) {
+    for (const item of row.items) {
+      if (item.trialId) seriesByTrialId.set(item.trialId, row.name ?? 'an elimination series');
+    }
+  }
+
+  if (pickingForSeries) {
+    return (
+      <View style={styles.pickerScreen}>
+        <FoodLookup
+          tabColor={TAB_COLOR}
+          title="Which food comes next in the series?"
+          showNutrients={false}
+          allowHarvestPick={false}
+          onFoodResolved={(resolved) => {
+            setSeriesFoods((current) => [
+              ...current,
+              {
+                foodName: `${resolved.baseName}${resolved.prepMethod ? ` (${resolved.prepMethod})` : ''}`,
+                foodId: resolved.foodId,
+                source: resolved.source,
+                prepMethod: resolved.prepMethod,
+              },
+            ]);
+            setPickingForSeries(false);
+          }}
+        />
+      </View>
+    );
+  }
+
   if (pickingFood) {
     return (
       <View style={styles.pickerScreen}>
@@ -1529,7 +1638,96 @@ function NewFoodsLens({
           </View>
         </TouchableOpacity>
       ) : null}
-      {!formOpen ? (
+      {seriesFormOpen ? (
+        <View style={styles.formCard}>
+          <Text style={styles.label}>Name this series (optional)</Text>
+          <AppTextInput
+            onVoiceResult={setSeriesName}
+            style={styles.input}
+            placeholder="e.g. After the elimination diet"
+            value={seriesName}
+            onChangeText={setSeriesName}
+          />
+          <Text style={styles.label}>Foods, in the order you will bring them back</Text>
+          {seriesFoods.map((food, index) => (
+            <View key={`${food.foodName}-${index}`} style={styles.rowActions}>
+              <Text style={styles.rowMeta}>
+                {index + 1}. {food.foodName}
+              </Text>
+              {index > 0 ? (
+                <TouchableOpacity onPress={() => moveSeriesFoodUp(index)}>
+                  <Text style={styles.actionText}>Move up</Text>
+                </TouchableOpacity>
+              ) : null}
+              <TouchableOpacity onPress={() => setSeriesFoods((current) => current.filter((_, i) => i !== index))}>
+                <Text style={styles.actionTextRemove}>Remove</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+          <AppTextInput
+            onVoiceResult={setSeriesTyped}
+            style={styles.input}
+            placeholder={seriesFoods.length === 0 ? 'e.g. Eggs' : 'The next food'}
+            value={seriesTyped}
+            onChangeText={setSeriesTyped}
+            onSubmitEditing={addTypedSeriesFood}
+          />
+          <View style={styles.formActions}>
+            <TouchableOpacity style={styles.secondaryButton} onPress={addTypedSeriesFood}>
+              <Text style={styles.secondaryButtonText}>Add this food</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.secondaryButton} onPress={() => setPickingForSeries(true)}>
+              <Text style={styles.secondaryButtonText}>Pick a specific food</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.helperText}>
+            One food at a time. When you mark one No problems or Flag it, the next becomes a waiting trial. A food
+            picked from the list starts by itself the first time you log a meal with it; a typed one starts when you
+            press Start now.
+          </Text>
+          {trackedConditions.length > 0 ? (
+            <>
+              <Text style={styles.label}>Which condition or concern is this testing? (optional)</Text>
+              <View style={styles.pillRow}>
+                {trackedConditions.map((condition) => {
+                  const active = seriesConditionCode === condition.code;
+                  return (
+                    <TouchableOpacity
+                      key={condition.code}
+                      style={[styles.pill, active && styles.pillActive]}
+                      onPress={() => setSeriesConditionCode(active ? null : condition.code)}
+                    >
+                      <Text style={[styles.pillText, active && styles.pillTextActive]}>{condition.name}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </>
+          ) : null}
+          <Text style={styles.label}>Watch each food for how many days?</Text>
+          <AppTextInput
+            style={[styles.input, styles.timeInput]}
+            keyboardType="number-pad"
+            maxLength={2}
+            value={seriesDays}
+            onChangeText={setSeriesDays}
+          />
+          <View style={styles.formActions}>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => {
+                setSeriesFormOpen(false);
+                resetSeriesForm();
+              }}
+            >
+              <Text style={styles.secondaryButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.primaryButton} onPress={handleSaveSeries}>
+              <Text style={styles.primaryButtonText}>Start series</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : !formOpen ? (
         <>
           <TouchableOpacity style={styles.addButton} onPress={() => setFormOpen(true)}>
             <Text style={styles.addButtonText}>+ Start a new food trial</Text>
@@ -1542,6 +1740,9 @@ function NewFoodsLens({
             }}
           >
             <Text style={styles.addButtonText}>+ Start an experiment about something else</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.addButton} onPress={() => setSeriesFormOpen(true)}>
+            <Text style={styles.addButtonText}>+ Plan a series of foods</Text>
           </TouchableOpacity>
         </>
       ) : subject !== 'food' ? (
@@ -1796,6 +1997,46 @@ function NewFoodsLens({
         </View>
       )}
 
+      {!loading && series.length > 0 ? (
+        <View style={styles.table}>
+          {series.map((row) => {
+            const current = openItem(row.items);
+            const skippable = [current, nextQueued(row.items)].find((item) => item && canSkip(item)) ?? null;
+            const finished = isFinished(row);
+            return (
+              <View key={row.id} style={styles.row}>
+                <View style={styles.rowTextCol}>
+                  <Text style={styles.rowTitle}>{row.name ?? 'Elimination series'}</Text>
+                  <Text style={styles.rowMeta}>{seriesProgressLine(row)}</Text>
+                </View>
+                <View style={{ marginTop: 6, gap: 4 }}>
+                  {seriesSummaryLines(row).map((line) => (
+                    <Text key={line} style={styles.rowMeta}>
+                      {line}
+                    </Text>
+                  ))}
+                </View>
+                <View style={[styles.rowActions, { marginTop: 10 }]}>
+                  {!row.stoppedAt && skippable ? (
+                    <TouchableOpacity onPress={() => handleSkipSeriesItem(skippable.id)}>
+                      <Text style={styles.actionText}>Skip {skippable.foodName}</Text>
+                    </TouchableOpacity>
+                  ) : null}
+                  {!row.stoppedAt && !finished ? (
+                    <TouchableOpacity onPress={() => handleStopSeries(row.id)}>
+                      <Text style={styles.actionTextRemove}>Stop the series</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <TouchableOpacity onPress={() => handleRemoveSeries(row.id)}>
+                      <Text style={styles.actionText}>Remove the plan (its trials stay)</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
+            );
+          })}
+        </View>
+      ) : null}
       {loading ? (
         <View style={styles.panelStandalone}>
           <Text style={styles.emptyText}>Loading…</Text>
@@ -1812,6 +2053,7 @@ function NewFoodsLens({
             const todaysCheckin = todaysCheckinByTrial[trial.id];
             const isEscalating = escalatingTrialId === trial.id;
             const trialSubject = subjectOf(trial.subjectKind);
+            const inSeries = seriesByTrialId.get(trial.id);
             return (
               <View key={trial.id} style={styles.row}>
                 <View style={styles.rowTextCol}>
@@ -1819,6 +2061,7 @@ function NewFoodsLens({
                   {trialSubject !== 'food' ? (
                     <Text style={styles.rowMeta}>Experiment about {subjectLabel(trial.subjectKind).toLowerCase()}</Text>
                   ) : null}
+                  {inSeries ? <Text style={styles.rowMeta}>Part of {inSeries}</Text> : null}
                   {trial.status === 'waiting' ? (
                     // No real "Started" date to show yet -- startedAt on a
                     // 'waiting' trial is just the moment the form was
@@ -1834,6 +2077,10 @@ function NewFoodsLens({
                       </Text>
                     ) : trial.design === 'remove_return' ? (
                       <Text style={[styles.rowMeta, styles.waitingText]}>{awaitingReturnLine(trialSubject)}</Text>
+                    ) : trial.foodId == null ? (
+                      <Text style={[styles.rowMeta, styles.waitingText]}>
+                        Waiting to start: press Start now on the day you first eat it
+                      </Text>
                     ) : (
                       <Text style={[styles.rowMeta, styles.waitingText]}>
                         Waiting to start: will begin automatically once you log or schedule a meal with this food
