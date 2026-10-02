@@ -97,6 +97,7 @@ import { PlantingEventsSection } from '../../components/PlantingEventsSection';
 import { MeasuringPlanSection } from '../../components/MeasuringPlanSection';
 import { SeedPacketSection } from '../../components/SeedPacketSection';
 import { WhatIsWrongSection } from '../../components/WhatIsWrongSection';
+import { CompanionNeighbours, CompanionSection } from '../../components/CompanionSection';
 import { CropCareSection } from '../../components/CropCareSection';
 import { careStillRuns } from '../../lib/cropCare';
 import { WhatPlantIsThis } from '../../components/WhatPlantIsThis';
@@ -1640,6 +1641,7 @@ function PlotsAndPlantingsLens({
                         expectedHarvestEnd={planting.expectedHarvestEnd}
                         refreshKey={planting.status}
                       />
+                      <CompanionSection plantingId={planting.id} foodName={planting.foodName} areaPlantings={plantingsByPlot[plot.id] ?? []} />
                       <WhatIsWrongSection
                         plantingId={planting.id}
                         plotId={plot.id}
@@ -1678,6 +1680,7 @@ function PlotsAndPlantingsLens({
                     {renderSeedPacketFields(pendingFoodName || pendingFood.baseName)}
                     {renderPlantingExpectations(pendingFoodName || pendingFood.baseName)}
                     {renderRotationNote(plot.id, pendingFoodName || pendingFood.baseName)}
+                    <CompanionNeighbours foodName={pendingFoodName || pendingFood.baseName} areaPlantings={plantingsByPlot[plot.id] ?? []} />
                     {renderSowAgain()}
                     <View style={styles.actionRow}>
                       <TouchableOpacity
