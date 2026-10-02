@@ -61,6 +61,7 @@ import type { TimelineDose, TimelineMeal } from './doseMealTiming';
 import type { WeekdayTargetOverride } from './weekdayTargets';
 import { customTagFromRow, setCustomCheckinTags, type CheckinTagDefinition, type CustomCheckinTagRow } from './checkinTags';
 import { gapFoodNameKey } from './nutrientGapFoods';
+import { eatenOutCaption, eatenOutOf, parseEatenOutNote, recentPlaces, type EatenOutHow } from './eatenOut';
 
 // Exported as of 2026-08-19 -- lib/visualPreferences.ts's own
 // getGroundThemeSync() needs to open this exact same file (by name, via
@@ -102,6 +103,11 @@ export type MealRecord = {
   notes: string | null;
   is_immediate: number;
   created_at: string;
+  // G9: a meal eaten out (lib/eatenOut.ts). Read through eatenOutOf, which
+  // also reads the older "Eaten out." note.
+  eaten_out?: number | null;
+  eaten_out_place?: string | null;
+  eaten_out_how?: string | null;
 };
 
 export type MealIngredientInput = {
@@ -9531,6 +9537,22 @@ async function runDatabaseInitialization() {
       await db.execAsync('ALTER TABLE meals ADD COLUMN photo_uri TEXT;');
     }
 
+    // G9, 2026-10-02: a meal eaten out, where, and how (lib/eatenOut.ts).
+    // Meals eaten out before these columns carried a note starting
+    // "Eaten out." with the place after it; they are marked from that note
+    // once, when the columns are added, and the note itself stays.
+    if (!mealColumns.some((column) => column.name === 'eaten_out')) {
+      await db.execAsync('ALTER TABLE meals ADD COLUMN eaten_out INTEGER NOT NULL DEFAULT 0;');
+      await db.execAsync('ALTER TABLE meals ADD COLUMN eaten_out_place TEXT;');
+      await db.execAsync('ALTER TABLE meals ADD COLUMN eaten_out_how TEXT;');
+      const noted = await db.getAllAsync<{ id: string; notes: string | null }>(`SELECT id, notes FROM meals WHERE notes LIKE 'Eaten out.%'`);
+      for (const row of noted) {
+        const parsed = parseEatenOutNote(row.notes);
+        if (!parsed) continue;
+        await db.runAsync('UPDATE meals SET eaten_out = 1, eaten_out_place = ? WHERE id = ?', parsed.place, row.id);
+      }
+    }
+
     const mealItemColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(meal_items)');
     const hasDishNameColumn = mealItemColumns.some((column) => column.name === 'dish_name');
 
@@ -14894,7 +14916,7 @@ export async function createMeal(input: {
 export async function getMeal(id: string): Promise<MealRecord | null> {
   const db = await getDatabase();
   const row = await db.getFirstAsync<MealRecord>(
-    'SELECT id, name, meal_type, eaten_at, notes, is_immediate, created_at FROM meals WHERE id = ?',
+    'SELECT id, name, meal_type, eaten_at, notes, is_immediate, created_at, eaten_out, eaten_out_place, eaten_out_how FROM meals WHERE id = ?',
     id,
   );
   return row ?? null;
@@ -14938,6 +14960,43 @@ export async function replaceMealItems(mealId: string, ingredients: MealIngredie
 
   await db.runAsync('DELETE FROM meal_items WHERE meal_id = ?', mealId);
   await insertMealItems(db, mealId, ingredients, now);
+}
+
+// G9: marks a meal as eaten out, with where and how. Called after whichever
+// way the meal was logged, so a stand-in recipe, a favorite or a voice log
+// all carry the same three columns.
+export async function markMealEatenOut(mealId: string, input: { place?: string | null; how?: EatenOutHow | null }) {
+  const db = await getDatabase();
+  await db.runAsync(
+    'UPDATE meals SET eaten_out = 1, eaten_out_place = ?, eaten_out_how = ?, updated_at = ? WHERE id = ?',
+    input.place?.trim() || null,
+    input.how ?? null,
+    new Date().toISOString(),
+    mealId,
+  );
+}
+
+// The places meals were eaten out at lately, newest first, for the chips
+// under the place field.
+export async function listRecentEatenOutPlaces(limit = 6): Promise<string[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ eaten_out_place: string | null }>(
+    `SELECT eaten_out_place FROM meals WHERE eaten_out = 1 AND eaten_out_place IS NOT NULL AND trim(eaten_out_place) <> ''
+      ORDER BY eaten_at DESC LIMIT 200`,
+  );
+  return recentPlaces(rows.map((row) => row.eaten_out_place), limit);
+}
+
+// Meals eaten out between two local minutes, by when they were eaten, read
+// by Pattern Finder whether or not anything in them was listed.
+export async function listEatenOutMealTimes(startLocal: string, endLocal: string): Promise<string[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ eaten_at: string }>(
+    `SELECT eaten_at FROM meals WHERE eaten_at BETWEEN ? AND ? AND (eaten_out = 1 OR notes LIKE 'Eaten out.%') ORDER BY eaten_at`,
+    startLocal,
+    endLocal,
+  );
+  return rows.map((row) => row.eaten_at);
 }
 
 export async function deleteMeal(mealId: string) {
@@ -16805,7 +16864,7 @@ export async function listMealsForDate(date: string) {
   const db = await getDatabase();
   return db.getAllAsync<MealRecord>(
     `
-      SELECT id, name, meal_type, eaten_at, notes, is_immediate, created_at
+      SELECT id, name, meal_type, eaten_at, notes, is_immediate, created_at, eaten_out, eaten_out_place, eaten_out_how
       FROM meals
       WHERE substr(eaten_at, 1, 10) = ?
       ORDER BY eaten_at ASC
@@ -18171,7 +18230,15 @@ export async function listLeftoversOf(
   );
 }
 
-export type RecentLoggedMeal = { id: string; name: string; mealType: string; eatenAt: string; leftoverCount: number };
+export type RecentLoggedMeal = {
+  id: string;
+  name: string;
+  mealType: string;
+  eatenAt: string;
+  leftoverCount: number;
+  // G9: the caption for a meal eaten out, or null (lib/eatenOut.ts).
+  eatenOutCaption: string | null;
+};
 
 /**
  * Meals logged since `sinceDate` that no schedule row stands for, meaning
@@ -18180,10 +18247,21 @@ export type RecentLoggedMeal = { id: string; name: string; mealType: string; eat
  */
 export async function listRecentUnscheduledMeals(sinceDate: string): Promise<RecentLoggedMeal[]> {
   const db = await getDatabase();
-  return db.getAllAsync<RecentLoggedMeal>(
+  type Row = Omit<RecentLoggedMeal, 'eatenOutCaption'> & {
+    notes: string | null;
+    eaten_out: number | null;
+    eaten_out_place: string | null;
+    eaten_out_how: string | null;
+    itemCount: number;
+    unmeasured: number;
+  };
+  const rows = await db.getAllAsync<Row>(
     `
       SELECT m.id, m.name, m.meal_type AS mealType, m.eaten_at AS eatenAt,
-             (SELECT COUNT(*) FROM schedule_items lo WHERE lo.leftover_of_meal = m.id AND lo.status != 'skipped') AS leftoverCount
+             (SELECT COUNT(*) FROM schedule_items lo WHERE lo.leftover_of_meal = m.id AND lo.status != 'skipped') AS leftoverCount,
+             m.notes, m.eaten_out, m.eaten_out_place, m.eaten_out_how,
+             (SELECT COUNT(*) FROM meal_items mi WHERE mi.meal_id = m.id) AS itemCount,
+             (SELECT COUNT(*) FROM meal_items mi WHERE mi.meal_id = m.id AND (mi.serving_size IS NULL OR mi.serving_size = 0)) AS unmeasured
       FROM meals m
       WHERE substr(m.eaten_at, 1, 10) >= ?
         AND NOT EXISTS (SELECT 1 FROM schedule_items s WHERE s.linked_meal_id = m.id)
@@ -18191,6 +18269,13 @@ export async function listRecentUnscheduledMeals(sinceDate: string): Promise<Rec
     `,
     sinceDate,
   );
+  return rows.map(({ notes, eaten_out, eaten_out_place, eaten_out_how, itemCount, unmeasured, ...meal }) => {
+    const out = eatenOutOf({ notes, eaten_out, eaten_out_place, eaten_out_how });
+    return {
+      ...meal,
+      eatenOutCaption: out.eatenOut ? eatenOutCaption({ place: out.place, how: out.how, itemCount, unmeasured }) : null,
+    };
+  });
 }
 
 /**
@@ -21163,6 +21248,9 @@ export type DailyNutrientBreakdown = {
   unresolvedItems: { mealItemId: string; foodName: string; reason: string }[];
   supplementSkipped: { treatmentId: string; treatmentName: string; nutrientCode: string; reason: string }[];
   profileComplete: boolean;
+  // G9: meals that day eaten out, whose foods are a stand-in. A food listed
+  // without an amount is counted here rather than among unresolvedItems.
+  eatenOutMeals?: { mealId: string; mealName: string; itemCount: number; unmeasured: number }[];
 };
 
 // Item -> side -> meal -> day nutrient breakdown for one date -- the
@@ -21229,9 +21317,12 @@ export async function getDailyNutrientBreakdown(date: string): Promise<DailyNutr
 
   const mealBreakdowns: DailyNutrientMealBreakdown[] = [];
   const dayTotals: Record<string, number> = {};
+  const eatenOutMeals: NonNullable<DailyNutrientBreakdown['eatenOutMeals']> = [];
 
   for (const meal of meals) {
     const items = itemsByMeal.get(meal.id) ?? [];
+    const eatenOut = eatenOutOf(meal).eatenOut;
+    let unmeasured = 0;
     const sideOrder: string[] = [];
     const sidesByKey = new Map<
       string,
@@ -21240,6 +21331,10 @@ export async function getDailyNutrientBreakdown(date: string): Promise<DailyNutr
     const mealTotals: Record<string, number> = {};
 
     for (const item of items) {
+      if (eatenOut && (item.servingSize == null || item.servingSize === 0)) {
+        unmeasured += 1;
+        continue;
+      }
       if (!item.foodId || item.servingSize == null || !item.servingUnit) {
         unresolvedItems.push({ mealItemId: item.id, foodName: item.foodName, reason: 'not_linked_to_a_food' });
         continue;
@@ -21311,6 +21406,7 @@ export async function getDailyNutrientBreakdown(date: string): Promise<DailyNutr
       totals: mealTotals,
       sides,
     });
+    if (eatenOut) eatenOutMeals.push({ mealId: meal.id, mealName: meal.name, itemCount: items.length, unmeasured });
   }
 
   const [supplementResult, driRows, profile] = await Promise.all([
@@ -21327,6 +21423,7 @@ export async function getDailyNutrientBreakdown(date: string): Promise<DailyNutr
     unresolvedItems,
     supplementSkipped: supplementResult.skipped,
     profileComplete: profile.sex != null && profile.birthDate != null,
+    eatenOutMeals,
   };
 }
 

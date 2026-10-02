@@ -163,6 +163,7 @@ import type { ReadingView } from '../../lib/readingBands';
 import type { YourStoryItemKey } from '../../lib/yourStory';
 import { modalAnimationType } from '../../lib/visualPreferences';
 import { nutrientKey } from '../../lib/compareSeries';
+import { eatenOutDayLine } from '../../lib/eatenOut';
 
 // 'YYYY-MM-DD' in LOCAL time -- same reasoning as the rest of the app
 // (see lib/db.ts/app/(tabs)/index.tsx): UTC's calendar date is wrong for
@@ -2051,6 +2052,9 @@ export function NutrientsTable({
             </View>
           ) : null}
           {table}
+          {isDayScope && eatenOutDayLine(breakdown.eatenOutMeals ?? []) ? (
+            <Text style={styles.bandCaption}>{eatenOutDayLine(breakdown.eatenOutMeals ?? [])}</Text>
+          ) : null}
           {isDayScope && breakdown.unresolvedItems.length > 0 ? (
             <Text style={styles.bandCaption}>
               {breakdown.unresolvedItems.length} ingredient{breakdown.unresolvedItems.length === 1 ? '' : 's'} couldn&apos;t be

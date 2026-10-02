@@ -56,6 +56,7 @@ import {
   resolveFoodOptionForBaseName,
   searchReferenceFoodNamesAcrossCategories,
   getUserProfile,
+  markMealEatenOut,
   type GlobalFoodMatch,
   type MealIngredientInput,
   type RecentMealSummary,
@@ -442,6 +443,7 @@ export default function VoiceLogScreen() {
         ingredients,
         photoUri: photoUri ?? null,
       });
+      if (ateOut) await markMealEatenOut(meal.id, {});
       await resolveReplacedMeal(meal.id);
       offerGardenUse(meal.id);
       await clearFinishedDraft();
@@ -467,6 +469,7 @@ export default function VoiceLogScreen() {
           showInfoAlert('That did not log', result.error);
           return;
         }
+        if (ateOut) await markMealEatenOut(result.id, {});
         await resolveReplacedMeal(result.id);
         offerGardenUse(result.id);
       } else {
@@ -489,6 +492,7 @@ export default function VoiceLogScreen() {
           showInfoAlert('That did not log', result.error);
           return;
         }
+        if (ateOut) await markMealEatenOut(result.id, {});
         await resolveReplacedMeal(result.id);
         offerGardenUse(result.id);
       }

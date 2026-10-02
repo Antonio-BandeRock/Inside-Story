@@ -3178,6 +3178,7 @@ function PastMealsLens() {
                       {formatPastMealDate(meal.eatenAt.replace(' ', 'T'))} · {capitalize(meal.mealType ?? '')}
                       {cookCaption(meal.leftoverCount) ? ` · ${cookCaption(meal.leftoverCount)}` : ''}
                     </Text>
+                    {meal.eatenOutCaption ? <Text style={styles.rowMeta}>{meal.eatenOutCaption}</Text> : null}
                   </View>
                 </View>
                 <View style={styles.rowActions}>

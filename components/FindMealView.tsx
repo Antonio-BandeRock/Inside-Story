@@ -50,7 +50,9 @@ import { ALL_DIGEST_ENTRIES } from '../lib/digest';
 import { offerGardenUse } from '../lib/gardenPlateOffer';
 import { isProblemFoodEntry } from '../lib/digest/types';
 import { encodeBuildMealHandoff, type BuildMealItem } from '../lib/mealBuilderHandoff';
+import { EATEN_OUT_HOWS, eatenOutMealName, type EatenOutHow } from '../lib/eatenOut';
 import {
+  createMeal,
   createMealFromComponents,
   deleteMealPhotoDraft,
   getMealFavorite,
@@ -61,14 +63,20 @@ import {
   listAllCuratedRecipes,
   listRecentDistinctMeals,
   listScheduledMealsForDate,
+  listRecentEatenOutPlaces,
   listScheduledMealsForDateRange,
+  markMealEatenOut,
   markScheduledMealLogged,
   logCuratedRecipeAsMeal,
   relogMeal,
+  resolveFoodOptionForBaseName,
+  searchReferenceFoodNamesAcrossCategories,
   scheduleCuratedRecipe,
   scheduleMeal,
   type BuilderFavoriteItemType,
   type CuratedRecipeListRow,
+  type GlobalFoodMatch,
+  type MealIngredientInput,
   type MealPickerDetail,
   type RecentMealSummary,
   type ScheduleItemRecord,
@@ -190,6 +198,10 @@ function nowLocalTime24(): string {
   const now = new Date();
   const pad = (value: number) => String(value).padStart(2, '0');
   return `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
+function lowerFirst(text: string): string {
+  return text.charAt(0).toLowerCase() + text.slice(1);
 }
 
 function dateStringDaysFromToday(days: number): string {
@@ -339,6 +351,132 @@ export function FindMealView({
   }
   const [loadingIngredientsKey, setLoadingIngredientsKey] = useState<string | null>(null);
 
+  // A meal eaten out, G9 (2026-10-02). Turned on, whatever gets logged from
+  // this screen is marked as eaten out with where and how: the closest meal
+  // picked below as a stand-in, or the foods ticked in the band itself, or
+  // nothing at all when what was in it is not known. Scheduling is hidden
+  // while it is on, since a meal eaten out is a record of something that
+  // happened. lib/eatenOut.ts holds every sentence it is read with later.
+  const [eatenOut, setEatenOut] = useState(false);
+  const [outPlace, setOutPlace] = useState('');
+  const [outHow, setOutHow] = useState<EatenOutHow>('restaurant');
+  const [recentOutPlaces, setRecentOutPlaces] = useState<string[]>([]);
+  const [outFoodQuery, setOutFoodQuery] = useState('');
+  const [outFoodMatches, setOutFoodMatches] = useState<GlobalFoodMatch[]>([]);
+  const [outFoods, setOutFoods] = useState<{ key: string; foodId: string; foodName: string; category: string; grams: string }[]>([]);
+  const [outMealType, setOutMealType] = useState<'breakfast' | 'lunch' | 'dinner' | 'snack'>('lunch');
+  const [outEarlier, setOutEarlier] = useState(false);
+
+  useEffect(() => {
+    if (!eatenOut) return;
+    listRecentEatenOutPlaces()
+      .then(setRecentOutPlaces)
+      .catch((error) => console.error('[FindMealScreen] Failed to load places eaten at', error));
+  }, [eatenOut]);
+
+  useEffect(() => {
+    const trimmed = outFoodQuery.trim();
+    if (!eatenOut || trimmed.length < 2) {
+      setOutFoodMatches([]);
+      return;
+    }
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      searchReferenceFoodNamesAcrossCategories(trimmed, undefined, 8)
+        .then((matches) => {
+          if (!cancelled) setOutFoodMatches(matches);
+        })
+        .catch((error) => console.error('[FindMealScreen] Failed to search foods', error));
+    }, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [outFoodQuery, eatenOut]);
+
+  function turnEatenOut(on: boolean) {
+    setEatenOut(on);
+    if (on) seedTimeToNow();
+  }
+
+  function seedTimeToNow() {
+    const [hour24, minute] = nowLocalTime24().split(':');
+    const hourNumber = Number(hour24);
+    const hour12 = hourNumber % 12 === 0 ? 12 : hourNumber % 12;
+    setTime({ hour: String(hour12), minute, ampm: hourNumber < 12 ? 'AM' : 'PM' });
+  }
+
+  async function addOutFood(match: GlobalFoodMatch) {
+    try {
+      const option = await resolveFoodOptionForBaseName(match.category, match.baseName);
+      if (!option) {
+        showInfoAlert('That food could not be added', 'It was found by name but could not be opened. Try another match.');
+        return;
+      }
+      setOutFoods((current) =>
+        current.some((food) => food.foodId === option.id)
+          ? current
+          : [...current, { key: `${option.id}_${Date.now()}`, foodId: option.id, foodName: match.baseName, category: match.category, grams: '' }],
+      );
+      setOutFoodQuery('');
+      setOutFoodMatches([]);
+    } catch (error) {
+      console.error('[FindMealScreen] Failed to add a food', error);
+    }
+  }
+
+  // Logs the meal eaten out from the band itself: the foods ticked there,
+  // or none. A food with no amount is stored at 0 grams, so it is listed
+  // and adds nothing to the day's totals, which every reader says.
+  async function logEatenOutDirect(eatenAt: string) {
+    const ingredients: MealIngredientInput[] = outFoods.map((food) => {
+      const grams = Number(food.grams.replace(',', '.'));
+      return {
+        foodId: food.foodId,
+        foodName: food.foodName,
+        category: food.category,
+        quantity: Number.isFinite(grams) && grams > 0 ? Math.round(grams) : 0,
+        unit: 'g',
+        dishServings: 1,
+        yourSharePercent: 100,
+      };
+    });
+    const place = outPlace.trim() || null;
+    const meal = await createMeal({
+      name: eatenOutMealName(place, outHow),
+      mealType: outMealType,
+      eatenAt,
+      isImmediate: true,
+      ingredients,
+      photoUri: photoUri ?? null,
+    });
+    await markMealEatenOut(meal.id, { place, how: outHow });
+    return meal.id;
+  }
+
+  async function handleLogEatenOutDirect() {
+    let eatenAt = capturedAt && capturedAt.length >= 16 ? capturedAt : `${todayLocalDateString()}T${nowLocalTime24()}`;
+    if (outEarlier) {
+      const time24 = buildTime24(time.hour, time.minute, time.ampm);
+      if (!time24) {
+        showInfoAlert('Almost there', describeTimeInputProblem(time.hour, time.minute, time.ampm));
+        return;
+      }
+      eatenAt = `${todayLocalDateString()}T${time24}`;
+    }
+    setBusy(true);
+    try {
+      await logEatenOutDirect(eatenAt);
+      await clearFinishedDraft();
+      onDone();
+    } catch (error) {
+      console.error('[FindMealScreen] Failed to log a meal eaten out', error);
+      showInfoAlert('That did not log', 'Something went wrong saving it. Check Past Meals before trying again.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const load = useCallback(async (search: string, currentScope: Scope) => {
     setLoading(true);
     try {
@@ -462,6 +600,13 @@ export function FindMealView({
   // meal is copied by relogMeal; a favorite is a template with no meal of its
   // own to copy, so it goes through createMealFromComponents.
   async function logSelectedAt(eatenAt: string): Promise<string | null> {
+    const id = await logPickedAt(eatenAt);
+    // The picked meal stands in for what was served, and is marked so.
+    if (id && eatenOut) await markMealEatenOut(id, { place: outPlace.trim() || null, how: outHow });
+    return id;
+  }
+
+  async function logPickedAt(eatenAt: string): Promise<string | null> {
     if (!selected) return null;
     if (selected.kind === 'curated') {
       // A curated recipe is reference content shared by everyone, so it becomes
@@ -544,7 +689,7 @@ export function FindMealView({
         capturedAt && capturedAt.length >= 16 ? capturedAt : `${todayLocalDateString()}T${nowLocalTime24()}`;
       const id = await logSelectedAt(eatenAt);
       if (!id) return;
-      offerGardenUse(id);
+      if (!eatenOut) offerGardenUse(id);
       await clearFinishedDraft();
       onDone();
     } catch (error) {
@@ -565,7 +710,7 @@ export function FindMealView({
     try {
       const id = await logSelectedAt(`${todayLocalDateString()}T${time24}`);
       if (!id) return;
-      offerGardenUse(id);
+      if (!eatenOut) offerGardenUse(id);
       await clearFinishedDraft();
       onDone();
     } catch (error) {
@@ -632,7 +777,7 @@ export function FindMealView({
       const eatenAt = planned.scheduledFor.length >= 16 ? planned.scheduledFor : `${todayLocalDateString()}T${nowLocalTime24()}`;
       const id = await logSelectedAt(eatenAt);
       if (!id) return;
-      offerGardenUse(id);
+      if (!eatenOut) offerGardenUse(id);
       try {
         await markScheduledMealLogged(planned.id, id);
       } catch (error) {
@@ -742,6 +887,149 @@ export function FindMealView({
     );
   }
 
+  function renderEatenOutBand() {
+    return (
+      <HomeSectionBand kind="static" title="I ate this out" icon="storefront-outline" color={colors.tabFood} contentStyle={styles.sectionBody}>
+        <TouchableOpacity style={styles.dishRow} activeOpacity={0.8} onPress={() => turnEatenOut(!eatenOut)}>
+          <Ionicons name={eatenOut ? 'checkbox' : 'square-outline'} size={20} color={colors.accent} />
+          <Text style={styles.dishRowName}>A restaurant, a takeaway, or a meal somebody else cooked</Text>
+        </TouchableOpacity>
+        {eatenOut ? (
+          <>
+            <AppTextInput
+              value={outPlace}
+              onChangeText={setOutPlace}
+              style={styles.searchInput}
+              placeholder={outHow === 'someone' ? 'Who cooked it (optional)' : 'Where (optional)'}
+              placeholderTextColor={colors.textMuted}
+            />
+            {recentOutPlaces.length > 0 ? (
+              <View style={styles.quickDateRow}>
+                {recentOutPlaces.map((place) => (
+                  <TouchableOpacity
+                    key={place}
+                    style={[styles.pill, outPlace.trim().toLowerCase() === place.toLowerCase() ? styles.pillActive : null]}
+                    activeOpacity={0.8}
+                    onPress={() => setOutPlace(place)}
+                  >
+                    <Text style={[styles.pillText, outPlace.trim().toLowerCase() === place.toLowerCase() ? styles.pillTextActive : null]}>
+                      {place}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : null}
+            <View style={styles.quickDateRow}>
+              {EATEN_OUT_HOWS.map((option) => (
+                <TouchableOpacity
+                  key={option.key}
+                  style={[styles.pill, outHow === option.key ? styles.pillActive : null]}
+                  activeOpacity={0.8}
+                  onPress={() => setOutHow(option.key)}
+                >
+                  <Text style={[styles.pillText, outHow === option.key ? styles.pillTextActive : null]}>{option.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <Text style={styles.muted}>
+              What was in it is never known the way a meal made at home is. Pick the closest meal or recipe below and it is logged as a stand-in, marked as eaten out. Or list what you can make out here, or nothing at all.
+            </Text>
+            <Text style={styles.sectionLabel}>What was in it</Text>
+            <AppTextInput
+              value={outFoodQuery}
+              onChangeText={setOutFoodQuery}
+              style={styles.searchInput}
+              placeholder="Search for a food to add"
+              placeholderTextColor={colors.textMuted}
+            />
+            {outFoodMatches.map((match) => (
+              <TouchableOpacity
+                key={`${match.category}::${match.baseName}`}
+                style={styles.dishRow}
+                activeOpacity={0.8}
+                onPress={() => void addOutFood(match)}
+              >
+                <Ionicons name="add-circle-outline" size={20} color={colors.accent} />
+                <Text style={styles.dishRowName} numberOfLines={2}>
+                  {match.baseName}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            {outFoods.map((food) => (
+              <View key={food.key} style={[styles.rowWrap, styles.row]}>
+                <Text style={[styles.rowName, styles.outFoodName]}>{food.foodName}</Text>
+                <AppTextInput
+                  value={food.grams}
+                  onChangeText={(text) =>
+                    setOutFoods((current) => current.map((item) => (item.key === food.key ? { ...item, grams: text } : item)))
+                  }
+                  style={styles.timeInput}
+                  keyboardType="decimal-pad"
+                  placeholder="g"
+                  placeholderTextColor={colors.textMuted}
+                />
+                <TouchableOpacity
+                  onPress={() => setOutFoods((current) => current.filter((item) => item.key !== food.key))}
+                  hitSlop={8}
+                >
+                  <Ionicons name="close-circle-outline" size={20} color={colors.textPrimary} />
+                </TouchableOpacity>
+              </View>
+            ))}
+            {outFoods.length > 0 ? (
+              <Text style={styles.muted}>Grams can only be a guess here. A food left without an amount is listed and adds nothing to the day&apos;s totals.</Text>
+            ) : null}
+            <View style={styles.quickDateRow}>
+              {(['breakfast', 'lunch', 'dinner', 'snack'] as const).map((type) => (
+                <TouchableOpacity
+                  key={type}
+                  style={[styles.pill, outMealType === type ? styles.pillActive : null]}
+                  activeOpacity={0.8}
+                  onPress={() => setOutMealType(type)}
+                >
+                  <Text style={[styles.pillText, outMealType === type ? styles.pillTextActive : null]}>
+                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <View style={styles.quickDateRow}>
+              {[
+                { value: false, label: 'Now' },
+                { value: true, label: 'Earlier today' },
+              ].map((option) => (
+                <TouchableOpacity
+                  key={option.label}
+                  style={[styles.pill, outEarlier === option.value ? styles.pillActive : null]}
+                  activeOpacity={0.8}
+                  onPress={() => setOutEarlier(option.value)}
+                >
+                  <Text style={[styles.pillText, outEarlier === option.value ? styles.pillTextActive : null]}>{option.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {outEarlier ? renderTimeFields() : null}
+            <TouchableOpacity
+              style={[styles.useButton, busy ? styles.disabled : null]}
+              activeOpacity={0.85}
+              onPress={handleLogEatenOutDirect}
+              disabled={busy}
+            >
+              <Ionicons name="checkmark-circle-outline" size={16} color={colors.background} />
+              <Text style={styles.useButtonText}>
+                {busy
+                  ? 'Saving…'
+                  : outFoods.length > 0
+                    ? `Log it with ${outFoods.length === 1 ? 'this food' : `these ${outFoods.length} foods`}`
+                    : 'Log just that I ate out'}
+              </Text>
+            </TouchableOpacity>
+          </>
+        ) : null}
+      </HomeSectionBand>
+    );
+  }
+
   function renderList() {
     return (
       <FlatList
@@ -803,6 +1091,7 @@ export function FindMealView({
             />
             {loading ? <ActivityIndicator color={colors.accent} /> : null}
           </View>
+          {renderEatenOutBand()}
           {/* The meal being put together from ticked dishes, shown whole
               before it is built (2026-09-13: "show the entire meal to let
               the user choose to create this combination of food as a
@@ -1067,10 +1356,16 @@ export function FindMealView({
           <Text style={styles.secondaryButtonText}>Log it earlier today</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => setMode('schedule')}>
-          <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
-          <Text style={styles.secondaryButtonText}>Schedule it</Text>
-        </TouchableOpacity>
+        {eatenOut ? (
+          <Text style={styles.muted}>
+            {`Logged as ${lowerFirst(eatenOutMealName(outPlace.trim() || null, outHow))}, with this meal standing in for what was served.`}
+          </Text>
+        ) : (
+          <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => setMode('schedule')}>
+            <Ionicons name="calendar-outline" size={18} color={colors.textSecondary} />
+            <Text style={styles.secondaryButtonText}>Schedule it</Text>
+          </TouchableOpacity>
+        )}
 
         {plannedToday.length > 0 ? (
           <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => setMode('replace')}>
@@ -1311,6 +1606,7 @@ const styles = StyleSheet.create({
   rowTextWrap: { flex: 1, gap: 2 },
   rowName: { ...typography.body, color: colors.textPrimary, ...textShadow },
   rowMeta: { ...typography.caption, color: colors.textSecondary, ...textShadow },
+  outFoodName: { flex: 1 },
   timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   timeInput: {
     width: 64,

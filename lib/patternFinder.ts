@@ -1,4 +1,5 @@
-import { getConditionScoresForFoodsBulk, getDatabase, getMealItemsInWindow, getStepCountTrend, listCheckins } from './db';
+import { getConditionScoresForFoodsBulk, getDatabase, getMealItemsInWindow, getStepCountTrend, listCheckins, listEatenOutMealTimes } from './db';
+import { eatenOutPatternLine, flaresAfterEatenOut } from './eatenOut';
 import {
   compareWindows,
   hoursBeforeEnd,
@@ -628,6 +629,19 @@ export async function findFoodPatterns(
     words,
     periodStarts,
   });
+  // G9: meals eaten out before some of these, whose contents are a stand-in
+  // or not known, so a food missing from the counts above may have been there.
+  const eatenOutLine = eatenOutPatternLine(
+    symptomCheckins.length,
+    flaresAfterEatenOut(
+      symptomCheckins.map((checkin) => checkin.loggedAt),
+      await listEatenOutMealTimes(`${dateStringDaysAgo(days + 1)}T00:00`, toLocalDateTimeString(now)),
+      windowHours,
+    ),
+    windowHours,
+    words.shortMany,
+  );
+  if (eatenOutLine) context.push(eatenOutLine);
 
   const weather = await patternWeather(flareDates, rangeStart, today, words);
 

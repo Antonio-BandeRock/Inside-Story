@@ -17,12 +17,12 @@ import {
   type PlantNotLately,
   type VarietyMeal,
 } from './mealVariety';
-import { EATEN_OUT_NOTE } from './usualMeal';
+import { eatenOutOf } from './eatenOut';
 
 export async function getVarietyMeals(startDate: string, endDate: string): Promise<VarietyMeal[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ id: string; name: string | null; meal_type: string | null; eaten_at: string; notes: string | null; planned: number }>(
-    `SELECT m.id, m.name, m.meal_type, m.eaten_at, m.notes,
+  const rows = await db.getAllAsync<{ id: string; name: string | null; meal_type: string | null; eaten_at: string; notes: string | null; eaten_out: number | null; planned: number }>(
+    `SELECT m.id, m.name, m.meal_type, m.eaten_at, m.notes, m.eaten_out,
             EXISTS (SELECT 1 FROM schedule_items s WHERE s.linked_meal_id = m.id) AS planned
        FROM meals m
       WHERE m.eaten_at BETWEEN ? AND ?
@@ -35,7 +35,7 @@ export async function getVarietyMeals(startDate: string, endDate: string): Promi
     date: row.eaten_at.slice(0, 10),
     mealType: row.meal_type,
     name: row.name ?? '',
-    eatenOut: (row.notes ?? '').startsWith(EATEN_OUT_NOTE),
+    eatenOut: eatenOutOf(row).eatenOut,
     planned: row.planned === 1,
   }));
 }

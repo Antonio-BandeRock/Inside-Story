@@ -37,7 +37,7 @@ export type VarietyMeal = {
   date: string; // 'YYYY-MM-DD', local
   mealType: string | null;
   name: string;
-  // The meal's notes start with EATEN_OUT_NOTE (lib/usualMeal.ts).
+  // Marked eaten out, or its notes start with "Eaten out." (lib/eatenOut.ts).
   eatenOut: boolean;
   // A scheduled meal was marked logged with this meal, so it came from the
   // plan or from a meal chosen ahead (Pack for tomorrow).
