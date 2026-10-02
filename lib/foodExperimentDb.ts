@@ -2,7 +2,9 @@
 // lib/foodExperiment.ts for what it says). Nothing here writes.
 
 import { getDatabase, listCheckins, type FoodTrialRecord } from './db';
-import { experimentResultLines, removalEndsOn, subjectOf, type ExperimentInput } from './foodExperiment';
+import { addDays } from './eatingVariety';
+import { experimentResultLines, isGlucoseMeasure, removalEndsOn, subjectOf, type ExperimentInput } from './foodExperiment';
+import { listMealGlucose } from './mealGlucoseDb';
 import {
   DEFAULT_STEP_DAYS,
   DEFAULT_WASHOUT_DAYS,
@@ -35,16 +37,22 @@ export async function readExperimentInput(trial: FoodTrialRecord): Promise<Exper
           removalEndsOn(trial.removalStartedOn, trial.removalDays),
         )
       : [];
+  // F8: glucose around meals from the first day before through today.
+  const today = localToday();
+  const mealGlucose = isGlucoseMeasure(trial.measure)
+    ? await listMealGlucose(addDays(trial.removalStartedOn, -trial.removalDays), today)
+    : undefined;
   return {
     removalStartedOn: trial.removalStartedOn,
     removalDays: trial.removalDays,
     returnedOn: trial.status === 'waiting' ? null : trial.startedAt.slice(0, 10),
     observationDays: trial.observationDays,
-    today: localToday(),
+    today,
     eventDates: [...flares, ...reactions].map((checkin) => checkin.loggedAt.slice(0, 10)),
     eatenDates: eaten.map((row) => row.eatenAt.slice(0, 10)),
     measure: trial.measure,
     subject,
+    mealGlucose,
   };
 }
 

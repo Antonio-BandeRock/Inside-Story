@@ -80,6 +80,8 @@ import { buildTime24, formatTime12, splitTime24, type TimeOfDayInput } from '../
 import {
   awaitingReturnLine,
   DEFAULT_REMOVAL_DAYS,
+  GLUCOSE_MEASURE_HINT,
+  isGlucoseMeasure,
   isInRemoval,
   MEASURE_OPTIONS,
   REMOVAL_DAY_OPTIONS,
@@ -1883,6 +1885,7 @@ function NewFoodsLens({
               </TouchableOpacity>
             ))}
           </View>
+          {isGlucoseMeasure(measure) ? <Text style={styles.helperText}>{GLUCOSE_MEASURE_HINT}</Text> : null}
           <Text style={styles.label}>Once you are back to usual, watch for how many days?</Text>
           <AppTextInput
             style={[styles.input, styles.timeInput]}
@@ -2082,6 +2085,7 @@ function NewFoodsLens({
                       </TouchableOpacity>
                     ))}
                   </View>
+                  {isGlucoseMeasure(measure) ? <Text style={styles.helperText}>{GLUCOSE_MEASURE_HINT}</Text> : null}
                 </>
               ) : null}
             </>

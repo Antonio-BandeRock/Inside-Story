@@ -1,6 +1,6 @@
 // Experiments: a trial set up as "make a change, then go back" (Phase B of
 // the 2026-09-24 gap review, item 21; extended past foods by F5,
-// 2026-10-01). Pure: no imports, no I/O.
+// 2026-10-01).
 //
 // A plain trial watches what happens after a food is eaten. An experiment
 // adds the part that makes a comparison possible: the same number of days
@@ -20,6 +20,16 @@
 // anything: one run on one person, with everything else in life also
 // changing, describes what happened. EXPERIMENT_LIMIT says so on every
 // result, and a second run is what makes a result worth leaning on.
+//
+// Since F8 (2026-10-01) glucose can be the measure: each period then also
+// says how many meals had readings before and after them and how far
+// glucose rose after them on average, read by lib/mealGlucose.ts (F10). A
+// period with no meal read says so rather than counting as no rise.
+//
+// Pure: no I/O and no runtime imports (scripts/test_phase_b_patterns.js
+// holds it to that), so the one thing taken from lib/mealGlucose.ts is a type.
+
+import type { MealGlucose } from './mealGlucose';
 
 // 'stepped' is F7, a food brought back in three amounts (lib/steppedReintroduction.ts).
 export type TrialDesign = 'watch' | 'remove_return' | 'stepped';
@@ -65,7 +75,19 @@ export const MEASURE_OPTIONS = [
   'Mood',
   'Skin',
   'Sleep',
+  'Glucose after meals',
 ] as const;
+
+// F8: the one measure the app reads for itself rather than leaving beside
+// the person's notes.
+export const GLUCOSE_MEASURE = 'Glucose after meals';
+
+export const GLUCOSE_MEASURE_HINT =
+  'Read from the glucose readings a meter or sensor sends through Health Connect. The result gives the rise after meals in each period, and a period with no readings says so.';
+
+export function isGlucoseMeasure(measure: string | null | undefined): boolean {
+  return measure === GLUCOSE_MEASURE;
+}
 
 export const EXPERIMENT_LIMIT =
   'One run on one person, while everything else in life also changed, so this describes what happened rather than showing a cause. Running it a second time is what makes a result worth leaning on.';
@@ -155,6 +177,9 @@ export type ExperimentInput = {
   measure: string | null;
   // Missing or null reads as a food.
   subject?: ExperimentSubject | null;
+  // F8: every meal with glucose readings near it across the experiment,
+  // loaded only when glucose is the measure.
+  mealGlucose?: MealGlucose[];
 };
 
 function periodOf(label: string, from: string, until: string, today: string, eventDates: string[]): ExperimentPeriod {
@@ -201,11 +226,81 @@ export function experimentResultLines(input: ExperimentInput): string[] {
   if (eaten > 0) {
     lines.push(`It was logged as eaten ${times(eaten)} during the days without it, which blurs the comparison.`);
   }
-  if (input.measure && input.measure !== MEASURE_OPTIONS[0]) {
+  if (isGlucoseMeasure(input.measure)) {
+    lines.push(...glucoseResultLines(input));
+  } else if (input.measure && input.measure !== MEASURE_OPTIONS[0]) {
     lines.push(
       `You set out to watch ${input.measure.toLowerCase()}. The counts above are every flare and reaction logged, so read them beside your notes on that.`,
     );
   }
   lines.push(EXPERIMENT_LIMIT);
+  return lines;
+}
+
+export type GlucosePeriod = {
+  label: string;
+  // Meals with a reading before and after them.
+  read: number;
+  // Meals with readings near them that could not be read.
+  unread: number;
+  // Average of the rises; null when no meal in the period was read.
+  averageRise: number | null;
+};
+
+// The rise after meals in each period. A rise below zero counts as it was,
+// so the average describes every meal read.
+export function glucosePeriods(input: ExperimentInput): GlucosePeriod[] {
+  const reads = input.mealGlucose ?? [];
+  return experimentPeriods(input).map((period) => {
+    const inside = reads.filter((r) => r.meal.day >= period.from && r.meal.day < period.until);
+    const rises = inside.flatMap((r) => (r.status === 'read' ? [r.rise] : []));
+    return {
+      label: period.label,
+      read: rises.length,
+      unread: inside.length - rises.length,
+      averageRise: rises.length ? rises.reduce((sum, rise) => sum + rise, 0) / rises.length : null,
+    };
+  });
+}
+
+export const GLUCOSE_EXPERIMENT_NOTE =
+  'Glucose is read around every meal logged in each period, whatever was in it, from the last reading in the hour before to the highest in the three hours after. Activity, sleep, stress, illness and medication move glucose too.';
+
+// The same as formatRise in lib/mealGlucose.ts, which
+// scripts/test_glucose_experiment.js checks: "2.1 mmol/L (38 mg/dL)".
+export function formatGlucoseRise(mmol: number): string {
+  const value = Math.abs(mmol);
+  return `${Math.round(value * 10) / 10} mmol/L (${Math.round(value * 18.016)} mg/dL)`;
+}
+
+function meals(n: number): string {
+  return `${n} ${n === 1 ? 'meal' : 'meals'}`;
+}
+
+export function glucoseResultLines(input: ExperimentInput): string[] {
+  const periods = glucosePeriods(input);
+  if (!periods.some((period) => period.read + period.unread > 0)) {
+    return [
+      'You set out to watch glucose after meals. No glucose readings came in around any meal in these periods, so there is nothing to compare yet.',
+    ];
+  }
+  const lines = periods.map((period) => {
+    const unread =
+      period.unread > 0
+        ? ` ${period.unread} more ${period.unread === 1 ? 'meal' : 'meals'} had readings that could not be read.`
+        : '';
+    if (period.averageRise === null) {
+      return `${period.label}, glucose: no meal with readings before and after.${unread}`;
+    }
+    const change =
+      period.averageRise <= 0
+        ? 'did not rise above the level before on average'
+        : `rose by ${formatGlucoseRise(period.averageRise)} on average`;
+    return `${period.label}, glucose: ${meals(period.read)} read; after them it ${change}.${unread}`;
+  });
+  if (periods.some((period) => period.read > 0 && period.read < 3)) {
+    lines.push('A period with only one or two meals read rests on very little.');
+  }
+  lines.push(GLUCOSE_EXPERIMENT_NOTE);
   return lines;
 }
