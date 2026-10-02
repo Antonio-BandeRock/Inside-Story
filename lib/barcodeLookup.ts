@@ -58,6 +58,11 @@ export type LookedUpProduct = {
   // lib/productProcessing.ts. USDA carries neither, so null and [].
   novaGroup: NovaGroup | null;
   additiveTags: string[];
+  // G22: what kind of product this is, read by lib/packagedSwap.ts to find
+  // home recipes and whole foods of the same kind. Open Food Facts'
+  // categories_tags ("en:breakfast-cereals"), or USDA's brandedFoodCategory
+  // as one entry. Empty when neither says.
+  categoryTags: string[];
 };
 
 // Every real OFF nutriments key this app can confidently map onto its own
@@ -137,6 +142,9 @@ async function lookupOpenFoodFacts(barcode: string): Promise<LookedUpProduct | n
     lookupSource: 'OpenFoodFacts',
     nutrients,
     ...readOpenFoodFactsProcessing(product),
+    categoryTags: Array.isArray(product.categories_tags)
+      ? product.categories_tags.filter((tag: unknown): tag is string => typeof tag === 'string')
+      : [],
   };
 }
 
@@ -192,6 +200,7 @@ async function lookupUsdaFdc(barcode: string): Promise<LookedUpProduct | null> {
     nutrients,
     novaGroup: null,
     additiveTags: [],
+    categoryTags: typeof food.brandedFoodCategory === 'string' && food.brandedFoodCategory.trim() ? [food.brandedFoodCategory.trim()] : [],
   };
 }
 

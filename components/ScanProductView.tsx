@@ -36,6 +36,7 @@ import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { useRouter } from 'expo-router';
 import { lookupProductByBarcode, type LookedUpProduct } from '../lib/barcodeLookup';
+import { MadeAtHomeBand } from './MadeAtHomeBand';
 import {
   QUEUED_TITLE,
   orderPendingScans,
@@ -243,6 +244,10 @@ function chunkIntoRows<T>(items: T[], columns: number): T[][] {
   }
   return rows;
 }
+
+// G22: a product with no categories on file (a repeat scan, or one typed
+// in by hand) is read by its name alone.
+const NO_CATEGORY_TAGS: string[] = [];
 
 export function ScanProductView({
   groceryListId,
@@ -1761,6 +1766,8 @@ export function ScanProductView({
             <Text style={[styles.flagDetail, styles.processingGap]}>{PROCESSING_SOURCE_CAPTION}</Text>
           </View>
         ) : null}
+
+        <MadeAtHomeBand categoryTags={lookedUp?.categoryTags ?? NO_CATEGORY_TAGS} productName={name} tabColor={colors.buttonColor} />
 
         <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={handleReadAloud}>
           <Ionicons name="volume-high-outline" size={18} color={colors.textSecondary} />

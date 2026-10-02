@@ -683,7 +683,13 @@ export default function InsightsScreen() {
   // Food Lookup owns its own separate layout instead (see FoodLookupView's
   // own opening comment for why) and no longer needs this at all.
   const scrollViewRef = useRef<ScrollView>(null);
-  const { openInsightsLens } = useLocalSearchParams<{ openInsightsLens?: string }>();
+  // lookupCategory and lookupSubcategory (G22): a whole food tapped under a
+  // scan's Made at Home Instead opens Food Lookup on its shelf.
+  const { openInsightsLens, lookupCategory, lookupSubcategory } = useLocalSearchParams<{
+    openInsightsLens?: string;
+    lookupCategory?: string;
+    lookupSubcategory?: string;
+  }>();
   const [lens, setLens] = useState<Lens>('nutrients');
   const router = useRouter();
   // Which lenses put the ScopeHub (the funnel) in the corner is decided in
@@ -1246,7 +1252,13 @@ export default function InsightsScreen() {
             // not this page-level wrapper -- that varies per caller (see
             // FoodLookup's own closing comment), so it's supplied here.
             <View style={styles.foodLookupActiveListContainer}>
-              <FoodLookup tabColor={TAB_COLOR} personalize={personalizationProfile ?? undefined} />
+              <FoodLookup
+                key={`${lookupCategory ?? ''}|${lookupSubcategory ?? ''}`}
+                tabColor={TAB_COLOR}
+                personalize={personalizationProfile ?? undefined}
+                initialCategory={lookupCategory ?? ''}
+                initialSubcategory={lookupSubcategory || null}
+              />
             </View>
           ) : lens === 'nutrientRanking' ? (
             // Also deliberately NOT inside the shared ScrollView below --

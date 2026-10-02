@@ -4255,6 +4255,39 @@ export async function listSafeFoods(category: string, limit = 200, conditionCode
     .slice(0, limit);
 }
 
+// G22, Made at Home Instead: the foods in each category whose name holds
+// one of the words, cleared the same way listSafeFoods clears them (scored,
+// nothing flagged for a tracked condition, and the person's own calls
+// having the last word), one row per base name. The scan report narrows
+// these further by eating style, allergies and restrictions, then
+// lib/packagedSwap.ts picks one per word.
+export async function listClearedFoodsMatching(
+  groups: { category: string; words: string[] }[],
+  conditionCodes: string[] = [],
+): Promise<SafeFood[]> {
+  if (groups.length === 0) return [];
+  const safeIds = await getPersonalizedSafeFoodIds(conditionCodes);
+  const calls = await getMySafeFoodCalls();
+  const db = await getReferenceDatabase();
+  const byName = new Map<string, SafeFood>();
+  for (const group of groups) {
+    if (group.words.length === 0) continue;
+    const likes = group.words.map(() => 'lower(base_name) LIKE ?').join(' OR ');
+    const rows = await db.getAllAsync<SafeFood>(
+      `SELECT food_id AS foodId, source, base_name AS baseName, category, subcategory FROM foods
+       WHERE category = ? AND hidden = 0 AND (${likes})`,
+      group.category,
+      ...group.words.map((word) => `%${word.toLowerCase()}%`),
+    );
+    for (const row of rows) {
+      if (!personSaysSafe(row.baseName, row.foodId, row.source, calls, safeIds)) continue;
+      const key = row.baseName.toLowerCase();
+      if (!byName.has(key)) byName.set(key, row);
+    }
+  }
+  return Array.from(byName.values());
+}
+
 // Insights' own Healing Stage Food Finder lens, 2026-08-08 -- "a lens that
 // identifies foods based on the Healing Stages." A real food-FINDER, not
 // the separate, larger, still-unbuilt Profile self-declaration + app-wide
