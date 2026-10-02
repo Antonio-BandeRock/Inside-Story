@@ -55,6 +55,7 @@ import {
   setGardenHarvestOnHand,
   scheduleGardenTask,
   setUserProfile,
+  stopPlantingSeries,
   updateGardenPlanting,
   updateGardenPlot,
   type GardenHarvest,
@@ -96,6 +97,8 @@ import { PlantingEventsSection } from '../../components/PlantingEventsSection';
 import { MeasuringPlanSection } from '../../components/MeasuringPlanSection';
 import { SeedPacketSection } from '../../components/SeedPacketSection';
 import { WhatIsWrongSection } from '../../components/WhatIsWrongSection';
+import { CropCareSection } from '../../components/CropCareSection';
+import { careStillRuns } from '../../lib/cropCare';
 import { WhatPlantIsThis } from '../../components/WhatPlantIsThis';
 import {
   identifiedLine,
@@ -1100,6 +1103,9 @@ function PlotsAndPlantingsLens({
     const option = PLANTING_STATUS_OPTIONS.find((entry) => entry.value === status);
     if (!option) return;
     await updateGardenPlanting(plantingId, { status: option.value });
+    // Care tasks still to come stop once a planting is harvested, failed or
+    // pulled out (I1); what was done under them stays.
+    if (!careStillRuns(option.value)) await stopPlantingSeries(plantingId);
     setPastBlockers((current) => ({ ...current, [plotId]: '' }));
     await loadPlantingsFor(plotId);
   }
@@ -1624,6 +1630,15 @@ function PlotsAndPlantingsLens({
                         varietyNote={planting.varietyNote}
                         packetDays={planting.packetDays}
                         onSaved={() => loadPlantingsFor(plot.id)}
+                      />
+                      <CropCareSection
+                        plantingId={planting.id}
+                        plotId={plot.id}
+                        status={planting.status}
+                        guide={guide}
+                        expectedHarvestStart={planting.expectedHarvestStart}
+                        expectedHarvestEnd={planting.expectedHarvestEnd}
+                        refreshKey={planting.status}
                       />
                       <WhatIsWrongSection
                         plantingId={planting.id}

@@ -17270,11 +17270,15 @@ async function insertScheduleSeries(input: {
     throw new Error('This repeat pattern never lands on a day.');
   }
   const repeats = input.repeat.type !== 'none';
-  const repeatGroupId = repeats ? `repeat_${Date.now()}` : null;
+  // A short random part beside the clock, so two series added in the same
+  // millisecond (Garden's care tasks are added several at a time) never
+  // share a group or an id.
+  const unique = Math.random().toString(36).slice(2, 8);
+  const repeatGroupId = repeats ? `repeat_${Date.now()}_${unique}` : null;
 
   let firstId = '';
   for (const [index, { date: occurrenceDate, index: position }] of occurrences.entries()) {
-    const id = `schedule_item_${Date.now()}_${index}`;
+    const id = `schedule_item_${Date.now()}_${unique}_${index}`;
     if (index === 0) {
       firstId = id;
     }
@@ -17446,9 +17450,19 @@ export async function ensureScheduleSeriesGenerated(): Promise<void> {
 // ('planned' status, today or later) -- logged/skipped history stays
 // intact, since stopping a recurring series shouldn't erase what already
 // happened under it.
+//
+// The rows left behind are ended on yesterday first (I1, 2026-10-02).
+// Before that, a series that never ended kept saying so on its past rows,
+// so the next top-up in ensureScheduleSeriesGenerated drew its future
+// straight back in after it had been removed.
 export async function deleteScheduleSeries(repeatGroupId: string): Promise<void> {
   const db = await getDatabase();
   const today = todayDateStringLocal();
+  await db.runAsync(
+    `UPDATE schedule_items SET repeat_end_type = 'until_date', repeat_until = ? WHERE repeat_group_id = ?`,
+    addDaysToDateString(today, -1),
+    repeatGroupId,
+  );
   const going = await db.getAllAsync<{ id: string }>(
     `SELECT id FROM schedule_items WHERE repeat_group_id = ? AND status = 'planned' AND substr(scheduled_for, 1, 10) >= ?`,
     repeatGroupId,
@@ -25053,6 +25067,46 @@ export async function scheduleGardenTask(input: {
   }
 
   return id;
+}
+
+// The repeating Garden tasks tied to one planting that still have a day to
+// come (I1, 2026-10-02): what the care band under a planting shows as
+// running. A series is tied through the garden_task_links row on its first
+// occurrence, so one whose first day is past is still found.
+export type PlantingSeries = { repeatGroupId: string; title: string; everyDays: number | null; nextOn: string };
+
+export async function listPlantingSeries(plantingId: string): Promise<PlantingSeries[]> {
+  const db = await getDatabase();
+  const today = todayDateStringLocal();
+  const rows = await db.getAllAsync<{ groupId: string; title: string; type: string | null; interval: number | null; nextOn: string | null }>(
+    `
+      SELECT s.repeat_group_id AS groupId, s.title AS title, s.repeat_type AS type, s.repeat_interval AS interval,
+        (SELECT MIN(substr(n.scheduled_for, 1, 10)) FROM schedule_items n
+          WHERE n.repeat_group_id = s.repeat_group_id AND n.status = 'planned' AND substr(n.scheduled_for, 1, 10) >= ?) AS nextOn
+      FROM garden_task_links l
+      JOIN schedule_items s ON s.id = l.schedule_item_id
+      WHERE l.planting_id = ? AND s.repeat_group_id IS NOT NULL
+    `,
+    today,
+    plantingId,
+  );
+  return rows
+    .filter((row): row is typeof row & { nextOn: string } => row.nextOn !== null)
+    .map((row) => ({
+      repeatGroupId: row.groupId,
+      title: row.title,
+      everyDays: row.type === 'every_n_days' ? row.interval ?? 1 : row.type === 'daily' ? 1 : null,
+      nextOn: row.nextOn,
+    }))
+    .sort((a, b) => a.title.localeCompare(b.title));
+}
+
+// Takes the days still to come off every repeating task tied to a planting,
+// when it is harvested, failed or pulled out. Days already done stay.
+export async function stopPlantingSeries(plantingId: string): Promise<number> {
+  const running = await listPlantingSeries(plantingId);
+  for (const series of running) await deleteScheduleSeries(series.repeatGroupId);
+  return running.length;
 }
 
 // A real, daily-repeating reminder series for the length of a food trial's
