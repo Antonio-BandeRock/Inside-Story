@@ -18,6 +18,8 @@ import { CROP_GUIDE_HELP, CropGuideSection } from '../../components/CropGuideSec
 import { findCropGuide } from '../../lib/cropGuides';
 import { ROTATION_WHY, rotationNote, rotationSources } from '../../lib/cropFamilies';
 import { GrowingConditionsLens } from '../../components/GrowingConditionsLens';
+import { SeedPacketChoice } from '../../components/SeedPacketChoice';
+import { SeedsLens } from '../../components/SeedsLens';
 import { GrowingCostsLens } from '../../components/GrowingCostsLens';
 import { AppTextInput } from '../../components/AppTextInput';
 import { FoodLookup, type ResolvedFoodSelection } from '../../components/FoodLookup';
@@ -111,6 +113,8 @@ import {
 } from '../../lib/plantIdentify';
 import { PhotoStrip } from '../../components/PhotoStrip';
 import { removePhotosOf } from '../../lib/mediaDb';
+import { readAmount } from '../../lib/seedInventory';
+import { addSeedUse } from '../../lib/seedInventoryDb';
 import { removeUnclaimedPacketPhotos } from '../../lib/seedPacketDb';
 import {
   packetDaysRangeLine,
@@ -193,6 +197,7 @@ type GardenLens =
   | 'upcomingTasks'
   | 'compost'
   | 'growingConditions'
+  | 'seeds'
   | 'growingCosts'
   | 'horticulture';
 
@@ -205,6 +210,7 @@ const GARDEN_LENS_FULL_NAMES: Record<GardenLens, string> = {
   upcomingTasks: 'Upcoming\nTasks',
   compost: 'Compost',
   growingConditions: 'Growing\nConditions',
+  seeds: 'Seeds',
   growingCosts: 'Growing\nCosts',
   horticulture: 'Horticulture',
 };
@@ -315,6 +321,20 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
         heading: 'Measuring the Light With Your Phone',
         body:
           "On an Android phone, Measure the Light Here, or Measure With This Phone once Light is picked, reads the light sensor at the top edge of the screen for a few seconds and keeps the middle figure, which is saved as coming from this phone. The phone reads lux. With the unit set to PPFD, the figure is worked out from the lux through a ratio for the kind of light it is under (sunlight, white LED, fluorescent, high-pressure sodium, metal halide and others, from published light measurement tables), which the form picks from the area and its Grow Setup until you pick another. It is an estimate, since the ratio is for that kind of light in general rather than your lamp, and under red and blue LEDs lux says too little about the light a leaf uses to convert at all. How far the lamp is from the plant is already in the figure, because the phone is held where the leaves are; the distance can be kept as a note so readings with the lamp at different heights can be told apart. Hold the phone where the leaves are, screen facing the way the plant faces. A phone is not a calibrated meter, so compare readings from the same phone. An iPhone does not let any app read its light sensor, and the computer version, Windows or Mac, has none, so on those the figure is typed in.",
+      },
+    ],
+  },
+  // I9, 2026-10-02: the seed packets on hand, before any goes in the
+  // ground. A planting sown from one takes what was sown off the packet.
+  {
+    key: 'seeds',
+    label: 'Seeds',
+    icon: 'albums-outline',
+    help: [
+      {
+        heading: 'Seeds',
+        body:
+          'The seed packets you have on hand. Add a packet by picking its crop, then record the variety, where it came from (a seller, a swap, seed you saved), the year or day it was packed for, how much is in it in seeds, grams or packets, its days to maturity, and a photo of the packet. Each packet says how old it is and about how long seed of that crop keeps in cool, dry storage, from the Colorado State University Extension table, given as a guide rather than a date it stops working; a crop the table does not name shows its age alone. A germination test records how many seeds were set to sprout on a damp paper towel and how many did, and says how many to sow for ten seedlings at that rate. On Plots & Plantings, Add a Planting offers your packets of that crop: picking one fills in the variety and the days to maturity, and the amount you sow comes off what the packet has left. Removing that planting puts the amount back. A packet with anything recorded against it is put away rather than deleted, and can be brought back.',
       },
     ],
   },
@@ -473,6 +493,7 @@ export default function GardenScreen() {
         openGardenLens === 'upcomingTasks' ||
         openGardenLens === 'compost' ||
         openGardenLens === 'growingConditions' ||
+        openGardenLens === 'seeds' ||
         openGardenLens === 'growingCosts' ||
         openGardenLens === 'horticulture'
       ) {
@@ -567,6 +588,8 @@ export default function GardenScreen() {
             />
           ) : lens === 'growingConditions' ? (
             <GrowingConditionsLens scrollBottomPadding={scrollBottomPadding} />
+          ) : lens === 'seeds' ? (
+            <SeedsLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'growingCosts' ? (
             <GrowingCostsLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'horticulture' ? (
@@ -940,6 +963,9 @@ function PlotsAndPlantingsLens({
   // Save Planting; Cancel removes that photo.
   const [pendingPlantingId, setPendingPlantingId] = useState(() => newGardenPlantingId());
   const [pendingVariety, setPendingVariety] = useState('');
+  // I9: the packet on hand this planting is sown from, and how much of it.
+  const [pendingSeedId, setPendingSeedId] = useState<string | null>(null);
+  const [pendingSeedAmountText, setPendingSeedAmountText] = useState('');
   const [pendingPacketDaysText, setPendingPacketDaysText] = useState('');
   // I24: the free app opened from What Plant Is This, and how sure it said.
   const [pendingIdentifiedWith, setPendingIdentifiedWith] = useState<IdentifyServiceId | null>(null);
@@ -1130,6 +1156,8 @@ function PlotsAndPlantingsLens({
     const expected = sowing && startedAs ? plantingExpected(sowing, plantedAt, startedAs) : null;
     const packet = readPacketDays(pendingPacketDaysText);
     if (packet.status === 'invalid') return;
+    const seedAmount = readAmount(pendingSeedAmountText);
+    if (pendingSeedId && seedAmount.status === 'invalid') return;
     // The packet's days are about this variety, so they stand in for the
     // crop's usual window (I17).
     const packetDays = packet.status === 'days' ? packet.days : null;
@@ -1156,6 +1184,16 @@ function PlotsAndPlantingsLens({
       plantedAt,
       ...harvestFor(plantedAt, expected),
     });
+    // Sown from a packet on hand (I9): what went in comes off the packet.
+    // Later sowings are not counted here, since none has gone in yet.
+    if (pendingSeedId) {
+      await addSeedUse({
+        seedId: pendingSeedId,
+        plantingId,
+        usedOn: plantedAt,
+        amount: seedAmount.status === 'amount' ? seedAmount.value : null,
+      });
+    }
     if (expected && pendingCountSprout && expected.sproutDays !== null) {
       await addGardenCountdown({ plotId, plantingId, name: `${foodName} coming up`, startedOn: plantedAt, days: expected.sproutDays });
     }
@@ -1348,6 +1386,8 @@ function PlotsAndPlantingsLens({
     setPendingCountSowings(true);
     setPendingVariety('');
     setPendingPacketDaysText('');
+    setPendingSeedId(null);
+    setPendingSeedAmountText('');
     setPendingIdentifiedWith(null);
     setPendingSureText('');
     setPendingPlantingId(newGardenPlantingId());
@@ -1397,6 +1437,23 @@ function PlotsAndPlantingsLens({
     const packet = readPacketDays(pendingPacketDaysText);
     return (
       <>
+        {pendingFood ? (
+          <SeedPacketChoice
+            foodId={pendingFood.foodId}
+            source={pendingFood.source}
+            foodName={foodName}
+            selectedSeedId={pendingSeedId}
+            onPick={(picked) => {
+              setPendingSeedId(picked ? picked.id : null);
+              if (picked) {
+                if (picked.variety) setPendingVariety(picked.variety);
+                if (picked.packetDays !== null) setPendingPacketDaysText(String(picked.packetDays));
+              }
+            }}
+            amountText={pendingSeedAmountText}
+            onAmountText={setPendingSeedAmountText}
+          />
+        ) : null}
         <Text style={styles.fieldLabel}>From the Seed Packet</Text>
         <Text style={styles.captionText}>{SEED_PACKET_CAPTION}</Text>
         <AppTextInput

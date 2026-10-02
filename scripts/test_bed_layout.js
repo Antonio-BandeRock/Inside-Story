@@ -128,7 +128,7 @@ const changes = fs.readFileSync(path.join(__dirname, '..', 'lib/snapshotChanges.
 ok('garden_layout counted quietly under plantings', /garden_plantings'\],\s*quiet:\s*\[[^\]]*'garden_layout'/.test(changes));
 const db = fs.readFileSync(path.join(__dirname, '..', 'lib/db.ts'), 'utf8');
 ok('garden_layout table exists', /CREATE TABLE IF NOT EXISTS garden_layout \(/.test(db));
-ok('deleting a planting clears its patch', /DELETE FROM garden_layout WHERE planting_id = \?', id\);\r?\n\s*await db\.runAsync\('DELETE FROM garden_plantings WHERE id = \?'/.test(db));
+ok('deleting a planting clears its patch', /DELETE FROM garden_layout WHERE planting_id = \?', id\);\r?\n(?:\s*await db\.runAsync\('DELETE FROM garden_seed_uses[^\n]*\n)?\s*await db\.runAsync\('DELETE FROM garden_plantings WHERE id = \?'/.test(db));
 
 if (failures) {
   console.log(`\n${failures} failure(s)`);

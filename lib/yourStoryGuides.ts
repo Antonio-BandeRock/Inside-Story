@@ -1453,6 +1453,7 @@ export const LENS_NAMES: Record<string, Record<string, string>> = {
     upcomingTasks: 'Upcoming Tasks',
     compost: 'Compost',
     growingConditions: 'Growing Conditions',
+    seeds: 'Seeds',
     growingCosts: 'Growing Costs',
     horticulture: 'Horticulture',
   },

@@ -224,6 +224,7 @@ const AREAS: readonly Area[] = [
   { one: 'imported recipe', many: 'imported recipes', count: ['recipe_imports'], quiet: [] },
   { one: 'garden area', many: 'garden areas', count: ['garden_plots'], quiet: ['garden_spaces'] },
   { one: 'planting', many: 'plantings', count: ['garden_plantings'], quiet: ['garden_task_links', 'garden_layout'] },
+  { one: 'seed packet', many: 'seed packets', count: ['garden_seeds'], quiet: ['garden_seed_uses', 'garden_seed_tests'] },
   // harvest_uses is quiet, 2026-09-23: marking a picking onto a plate is
   // not another harvest, and a count comes from one table per area.
   { one: 'harvest', many: 'harvests', count: ['garden_harvests'], quiet: ['harvest_uses'] },

@@ -7718,6 +7718,51 @@ async function runDatabaseInitialization() {
       );
       CREATE INDEX IF NOT EXISTS idx_garden_layout_plot ON garden_layout(plot_id);
 
+      -- Seed inventory (I9, 2026-10-02): the packets on hand, what was sown
+      -- from each, and germination tests. packed_on is the year, month or
+      -- day the packet was packed for, as typed. A packet with a use or a
+      -- test is put away (finished_at) rather than deleted. A use belongs to
+      -- the planting it went into and is deleted with that planting, so the
+      -- amount goes back to the packet. See lib/seedInventory.ts and
+      -- lib/seedInventoryDb.ts.
+      CREATE TABLE IF NOT EXISTS garden_seeds (
+        id TEXT PRIMARY KEY,
+        food_id INTEGER,
+        source TEXT,
+        food_name TEXT NOT NULL,
+        variety TEXT,
+        from_where TEXT,
+        packed_on TEXT,
+        amount REAL,
+        amount_unit TEXT,
+        packet_days INTEGER,
+        notes TEXT,
+        finished_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE TABLE IF NOT EXISTS garden_seed_uses (
+        id TEXT PRIMARY KEY,
+        seed_id TEXT NOT NULL,
+        planting_id TEXT,
+        used_on TEXT NOT NULL,
+        amount REAL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_garden_seed_uses_seed ON garden_seed_uses(seed_id);
+      CREATE INDEX IF NOT EXISTS idx_garden_seed_uses_planting ON garden_seed_uses(planting_id);
+      CREATE TABLE IF NOT EXISTS garden_seed_tests (
+        id TEXT PRIMARY KEY,
+        seed_id TEXT NOT NULL,
+        tested_on TEXT NOT NULL,
+        sown INTEGER NOT NULL,
+        sprouted INTEGER NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_garden_seed_tests_seed ON garden_seed_tests(seed_id);
+
       -- What is measured in each garden area (1.0.55.32): one row per
       -- measurement, with scope 'area' (one figure for the area or room as
       -- a whole) or 'planting' (one for each planting). A setting rather
@@ -24896,6 +24941,7 @@ export async function deleteGardenPlanting(id: string): Promise<void> {
   const done = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM garden_planting_events WHERE planting_id = ?', id);
   if ((done?.n ?? 0) > 0) return;
   await db.runAsync('DELETE FROM garden_layout WHERE planting_id = ?', id);
+  await db.runAsync('DELETE FROM garden_seed_uses WHERE planting_id = ?', id);
   await db.runAsync('DELETE FROM garden_plantings WHERE id = ?', id);
   // Its photos go with it (1.0.53.7), so none is left pointing at nothing,
   // and the seed packet's photos with them (I17).
