@@ -542,7 +542,7 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     care: 'What was recorded since the last appointment, then appointments kept, moved and coming up, over time.',
     work: 'How the work weeks went, from your check-ins.',
     reactions: 'After-meal reactions and new foods tried, over time.',
-    nights: 'Nights up and how you slept, week by week.',
+    nights: 'Nights up by week, and how sleep and heart rate went the night after a tag.',
     trackers: 'A chart for each tracker you named, a blank day left as a gap.',
     ferments: 'Ferments started, finished and eaten, over time.',
     planned: 'Meals you planned beside meals you ate.',

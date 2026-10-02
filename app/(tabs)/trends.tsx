@@ -634,6 +634,10 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
         heading: "Reading it",
         body: "Nothing here says one thing led to another. It sets what you logged side by side, and a week with nothing logged shows as a gap rather than as none.",
       },
+      {
+        heading: "The night after a tag",
+        body: "For each tag you picked on a check-in in Signals, the sleep, resting heart rate and heart rate variability recorded the night after the days you used it, with how many of those nights had a reading and how many sat below, inside or above your usual range. Usual is drawn from a year of your readings and means what they have been, not what they should be.",
+      },
     ],
   },
   {

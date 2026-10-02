@@ -7,7 +7,9 @@ import { addDays } from './eatingVariety';
 import { planDays } from './exercisePlan';
 import { listMealGlucose } from './mealGlucoseDb';
 import { listExercisePlans, listPlanMarks } from './exercisePlanDb';
+import { loadTagDays } from './compareSeriesDb';
 import { listNocturiaNights } from './nocturiaDb';
+import type { NightReading, TagNightsInputs } from './tagNights';
 import { getNutrientTrendSeriesForRange, getSleepTrendPoints } from './trendAnalysis';
 import {
   buildBloodPressureView,
@@ -299,6 +301,38 @@ function readMinMax(detailJson: string | null): { low: number | null; high: numb
   }
 }
 
+// F20. Check-in tags in the range, and a year of sleep, resting heart rate
+// and HRV up to the night after the range ends, one reading a morning:
+// sleep sessions on one morning added together, the other two averaged.
+export const TAG_NIGHTS_LOOKBACK_DAYS = 365;
+
+export async function loadTagNights(range: DayRange): Promise<TagNightsInputs> {
+  const db = await getDatabase();
+  const [tags, rows] = await Promise.all([
+    loadTagDays(range.start, range.end),
+    db.getAllAsync<{ recordType: string; localDate: string; value: number | null; value2: number | null }>(
+      `SELECT record_type AS recordType, local_date AS localDate, value, value2
+         FROM health_records
+        WHERE record_type IN ('sleep', 'resting_heart_rate', 'hrv') AND local_date >= ? AND local_date <= ?
+        ORDER BY local_date ASC`,
+      addDays(range.end, -TAG_NIGHTS_LOOKBACK_DAYS),
+      addDays(range.end, 1),
+    ),
+  ]);
+  const sums: Record<string, Map<string, { total: number; n: number }>> = { sleep: new Map(), resting_heart_rate: new Map(), hrv: new Map() };
+  for (const row of rows) {
+    const value = row.recordType === 'sleep' ? (row.value2 ?? row.value) : row.value;
+    if (typeof value !== 'number' || !Number.isFinite(value)) continue;
+    const day = sums[row.recordType]?.get(row.localDate) ?? { total: 0, n: 0 };
+    day.total += value;
+    day.n += 1;
+    sums[row.recordType]?.set(row.localDate, day);
+  }
+  const series = (type: string, add: boolean): NightReading[] =>
+    [...sums[type].entries()].map(([date, d]) => ({ date, value: add ? d.total : d.total / d.n }));
+  return { range, tags, sleep: series('sleep', true), restingHeartRate: series('resting_heart_rate', false), hrv: series('hrv', false) };
+}
+
 export async function listBodySignalReadings(): Promise<BodySignalReading[]> {
   const db = await getDatabase();
   const rows = await db.getAllAsync<{
@@ -500,8 +534,8 @@ export async function loadTrendsMoreView(lens: TrendsMoreLens, days: number): Pr
       return buildReactionsView({ range, mealDates: meals.map((m) => localDay(m.eatenAt)), reactions, trials });
     }
     case 'nights': {
-      const [nights, meals] = await Promise.all([listNocturiaNights(400), listMealsAround(range)]);
-      return buildNightsView({ range, nights, meals });
+      const [nights, meals, afterTags] = await Promise.all([listNocturiaNights(400), listMealsAround(range), loadTagNights(range)]);
+      return buildNightsView({ range, nights, meals, afterTags });
     }
     case 'ferments': {
       const [batches, harvests] = await Promise.all([listFermentBatches(), listFermentHarvests()]);

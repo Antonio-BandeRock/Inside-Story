@@ -27,6 +27,7 @@ import {
   mealGlucoseTitle,
   type MealGlucose,
 } from './mealGlucose';
+import { buildTagNightsBands, type TagNightsInputs } from './tagNights';
 import { formatTime12 } from './timeOfDay';
 import { usualSentence } from './yourUsual';
 import { SCALE_LABELS, WORK_DIMENSIONS, weekOf } from './workMeaning';
@@ -730,16 +731,21 @@ export type NightsInputs = {
   // meals logged and no drink after six is compared, and an evening with
   // nothing logged at all is left out of the comparison.
   meals: { eatenAt: string; mealType: string }[];
+  // F20: check-in tags beside the next night's sleep and heart rate. Shown
+  // even when no nights of getting up are logged.
+  afterTags?: TagNightsInputs;
 };
 
 export const EVENING_FROM_HOUR = 18;
 
 export function buildNightsView(input: NightsInputs): ReadingView {
   const nights = input.nights.filter((n) => n.nightOf >= input.range.start && n.nightOf <= input.range.end);
+  const tagBands = input.afterTags ? buildTagNightsBands(input.afterTags) : [];
   if (nights.length === 0) {
+    if (tagBands.length > 0) return { hasAnything: true, empty: '', bands: tagBands };
     return emptyView(
       input.nights.length === 0
-        ? 'No nights logged yet. How many times you got up goes in on Signals > Nocturia.'
+        ? 'No nights logged yet. How many times you got up goes in on Signals > Nocturia, and the night after a check-in tag shows here once sleep or heart rate readings come in.'
         : 'No nights logged in this range. Pick a longer one to see earlier nights.',
     );
   }
@@ -810,6 +816,7 @@ export function buildNightsView(input: NightsInputs): ReadingView {
       lines: [`On the ${plural(wakes.length, 'night')} with a time noted, the middle first waking was ${formatTime12(`${pad(Math.floor(minutes / 60))}:${pad(minutes % 60)}`)}.`],
     });
   }
+  bands.push(...tagBands);
   return { hasAnything: true, empty: '', bands };
 }
 
