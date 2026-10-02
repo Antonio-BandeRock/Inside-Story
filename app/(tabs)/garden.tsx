@@ -69,6 +69,7 @@ import { listGardenSpaces } from '../../lib/gardenSpacesDb';
 import { areaPath, insideAreaBlocker, insideChoices, nestedOrder, ON_ITS_OWN } from '../../lib/gardenAreaNesting';
 import { PLANTING_STATUS_OPTIONS, pastAreaBlocker, plantingStatusLabel } from '../../lib/gardenAreaLifecycle';
 import { GardenSpaceField } from '../../components/GardenSpaceField';
+import { BedLayoutSection } from '../../components/BedLayoutSection';
 import { DaysUntilSection } from '../../components/DaysUntilSection';
 import { SowingCalendarLens } from '../../components/SowingCalendarLens';
 import { addGardenCountdown, countRunningGardenCountdowns, listGardenCountdowns, setGardenCountdownDone } from '../../lib/gardenCountdownDb';
@@ -1562,6 +1563,9 @@ function PlotsAndPlantingsLens({
                 </View>
                 <View style={styles.pendingCard}>
                   <DaysUntilSection plot={plot} plantings={plantings} onChanged={() => loadPlantingsFor(plot.id)} />
+                </View>
+                <View style={styles.pendingCard}>
+                  <BedLayoutSection plot={plot} plantings={plantings} onSizeSaved={loadPlots} />
                 </View>
                 <RecordPhotos ownerKind="garden_area" ownerId={plot.id} tabColor={TAB_COLOR} title={plot.name} />
                 {plantings.length === 0 ? (

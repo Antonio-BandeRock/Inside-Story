@@ -7700,6 +7700,24 @@ async function runDatabaseInitialization() {
       CREATE INDEX IF NOT EXISTS idx_garden_planting_events_planting ON garden_planting_events(planting_id, occurred_on);
       CREATE INDEX IF NOT EXISTS idx_garden_planting_events_plot ON garden_planting_events(plot_id);
 
+      -- Where a planting sits on its area's plan (I8, 2026-10-02): one row
+      -- per planting given a patch, in centimetres from the area's top left
+      -- corner whatever unit the area is measured in. A planting with no row
+      -- is simply not on the plan. Kept when the planting is harvested or
+      -- pulled out, so the plan can show where earlier crops sat. See
+      -- lib/bedLayout.ts and lib/bedLayoutDb.ts.
+      CREATE TABLE IF NOT EXISTS garden_layout (
+        planting_id TEXT PRIMARY KEY,
+        plot_id TEXT NOT NULL,
+        x REAL NOT NULL,
+        y REAL NOT NULL,
+        w REAL NOT NULL,
+        h REAL NOT NULL,
+        updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (planting_id) REFERENCES garden_plantings(id) ON DELETE CASCADE
+      );
+      CREATE INDEX IF NOT EXISTS idx_garden_layout_plot ON garden_layout(plot_id);
+
       -- What is measured in each garden area (1.0.55.32): one row per
       -- measurement, with scope 'area' (one figure for the area or room as
       -- a whole) or 'planting' (one for each planting). A setting rather
@@ -24877,6 +24895,7 @@ export async function deleteGardenPlanting(id: string): Promise<void> {
   // is kept; the screen offers no Remove for it, and this holds the line.
   const done = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM garden_planting_events WHERE planting_id = ?', id);
   if ((done?.n ?? 0) > 0) return;
+  await db.runAsync('DELETE FROM garden_layout WHERE planting_id = ?', id);
   await db.runAsync('DELETE FROM garden_plantings WHERE id = ?', id);
   // Its photos go with it (1.0.53.7), so none is left pointing at nothing,
   // and the seed packet's photos with them (I17).
