@@ -66,6 +66,8 @@ import {
   recordExercise,
   markExperimentBack,
   reopenFoodTrial,
+  recordTrialStep,
+  listTrialSteps,
   resolveFoodTrial,
   scheduleFoodTrialCheckins,
   type BodyMeasurementRecord,
@@ -90,6 +92,18 @@ import {
 } from '../../lib/foodExperiment';
 import { canSkip, isFinished, openItem, nextQueued, seriesProgressLine, seriesSummaryLines } from '../../lib/trialSeries';
 import { readExperimentResult } from '../../lib/foodExperimentDb';
+import {
+  canStopEarly,
+  DEFAULT_STEP_DAYS,
+  DEFAULT_WASHOUT_DAYS,
+  nextStep,
+  nextStepButton,
+  STEP_DAY_OPTIONS,
+  steppedProgressLine,
+  WASHOUT_DAY_OPTIONS,
+  type RecordedStep,
+  type StepKey,
+} from '../../lib/steppedReintroduction';
 import { deleteNocturiaNight, listNocturiaNights, saveNocturiaNight, type NocturiaNight } from '../../lib/nocturiaDb';
 import { deleteCycleDay, listAllCycleDays, listCycleDays, saveCycleDay, type CycleDayRow } from '../../lib/cycleDb';
 import {
@@ -1208,6 +1222,13 @@ function NewFoodsLens({
   // anything else is an experiment about a change the person makes.
   const [subject, setSubject] = useState<ExperimentSubject>('food');
   const [experimentResults, setExperimentResults] = useState<Record<string, string[]>>({});
+  // F7: a stepped reintroduction (lib/steppedReintroduction.ts).
+  const [stepDays, setStepDays] = useState<number>(DEFAULT_STEP_DAYS);
+  const [washoutDays, setWashoutDays] = useState<number>(DEFAULT_WASHOUT_DAYS);
+  const [amountSmall, setAmountSmall] = useState('');
+  const [amountMedium, setAmountMedium] = useState('');
+  const [amountLarge, setAmountLarge] = useState('');
+  const [stepsByTrial, setStepsByTrial] = useState<Record<string, RecordedStep[]>>({});
   // F6: elimination series (lib/trialSeries.ts). The form's state lives
   // here rather than in a child, since picking a food replaces the whole
   // lens with FoodLookup and would otherwise unmount the form.
@@ -1240,15 +1261,25 @@ function NewFoodsLens({
 
   const load = useCallback(() => {
     setLoading(true);
-    Promise.all([listFoodTrials(), getUserConditions(), listAllConditions(), listFoodAllergies(), listTrialSeries()]).then(
-      async ([rows, selectedCodes, allConditions, allergies, seriesRows]) => {
+    Promise.all([
+      listFoodTrials(),
+      getUserConditions(),
+      listAllConditions(),
+      listFoodAllergies(),
+      listTrialSeries(),
+      listTrialSteps(),
+    ]).then(
+      async ([rows, selectedCodes, allConditions, allergies, seriesRows, stepRows]) => {
         setTrials(rows);
         setSeries(seriesRows);
+        const steps: Record<string, RecordedStep[]> = {};
+        for (const row of stepRows) (steps[row.trialId] ??= []).push({ step: row.step, startedOn: row.startedOn });
+        setStepsByTrial(steps);
         setTrackedConditions(allConditions.filter((condition) => selectedCodes.includes(condition.code)));
         setFoodAllergies(allergies);
         setLoading(false);
 
-        const experiments = rows.filter((trial) => trial.design === 'remove_return');
+        const experiments = rows.filter((trial) => trial.design === 'remove_return' || trial.design === 'stepped');
         const results = await Promise.all(
           experiments.map(async (trial) => [trial.id, (await readExperimentResult(trial)) ?? []] as const),
         );
@@ -1332,6 +1363,11 @@ function NewFoodsLens({
     setRemovalDays(DEFAULT_REMOVAL_DAYS);
     setMeasure(MEASURE_OPTIONS[0]);
     setSubject('food');
+    setStepDays(DEFAULT_STEP_DAYS);
+    setWashoutDays(DEFAULT_WASHOUT_DAYS);
+    setAmountSmall('');
+    setAmountMedium('');
+    setAmountLarge('');
   }
 
   // An experiment about something other than a food: always the
@@ -1359,6 +1395,11 @@ function NewFoodsLens({
     load();
   }
 
+  async function handleRecordStep(id: string, step: StepKey) {
+    await recordTrialStep(id, step);
+    load();
+  }
+
   async function handleBackToUsual(id: string) {
     await markExperimentBack(id);
     load();
@@ -1371,6 +1412,26 @@ function NewFoodsLens({
     }
     if (!foodName.trim()) {
       showInfoAlert('Almost there', 'Enter the name of the food.');
+      return;
+    }
+    if (design === 'stepped') {
+      // Waits until the first step is pressed, typed or picked, so there is
+      // no start date to ask for and no check-ins to schedule yet.
+      await createFoodTrial({
+        foodName,
+        startedAt: new Date().toISOString(),
+        foodId: pickedFood?.foodId ?? null,
+        source: pickedFood?.source ?? null,
+        prepMethod: pickedFood?.prepMethod ?? null,
+        conditionCode: selectedConditionCode,
+        design: 'stepped',
+        stepDays,
+        washoutDays,
+        amounts: { small: amountSmall, medium: amountMedium, large: amountLarge },
+      });
+      setFormOpen(false);
+      resetForm();
+      load();
       return;
     }
     const days = Number(observationDays);
@@ -1893,7 +1954,7 @@ function NewFoodsLens({
               </View>
             </>
           ) : null}
-          {!pickedFood ? (
+          {!pickedFood && design !== 'stepped' ? (
             <>
               <Text style={styles.label}>When did you start?</Text>
               <DateChoicePicker
@@ -1904,16 +1965,19 @@ function NewFoodsLens({
               />
             </>
           ) : null}
-          {pickedFood ? (
-            <>
-              <Text style={styles.label}>How do you want to test it?</Text>
-              <View style={styles.pillRow}>
-                {(
-                  [
-                    ['watch', 'Watch after eating it'],
-                    ['remove_return', 'Leave it out, then bring it back'],
-                  ] as const
-                ).map(([key, label]) => (
+          <Text style={styles.label}>How do you want to test it?</Text>
+          <View style={styles.pillRow}>
+            {(
+              [
+                ['watch', 'Watch after eating it'],
+                ['remove_return', 'Leave it out, then bring it back'],
+                ['stepped', 'Bring it back in steps'],
+              ] as const
+            )
+              // Leaving a food out needs one the app can recognize coming
+              // back in a meal, so it is offered for a picked food only.
+              .filter(([key]) => key !== 'remove_return' || pickedFood)
+              .map(([key, label]) => (
                   <TouchableOpacity
                     key={key}
                     style={[styles.pill, design === key && styles.pillActive]}
@@ -1922,7 +1986,68 @@ function NewFoodsLens({
                     <Text style={[styles.pillText, design === key && styles.pillTextActive]}>{label}</Text>
                   </TouchableOpacity>
                 ))}
+          </View>
+          {design === 'stepped' ? (
+            <>
+              <Text style={styles.helperText}>
+                A small amount first, then a medium one, then a large one, each kept for the days you choose, then a
+                washout with none of it. Press each step on the day you eat it. Each step is read on its own, beside
+                the same number of days before the first step as the washout.
+              </Text>
+              <Text style={styles.label}>What counts as each amount? (optional)</Text>
+              <AppTextInput
+                onVoiceResult={setAmountSmall}
+                style={styles.input}
+                placeholder="Small, e.g. 1/4 cup"
+                value={amountSmall}
+                onChangeText={setAmountSmall}
+              />
+              <AppTextInput
+                onVoiceResult={setAmountMedium}
+                style={styles.input}
+                placeholder="Medium, e.g. 1/2 cup"
+                value={amountMedium}
+                onChangeText={setAmountMedium}
+              />
+              <AppTextInput
+                onVoiceResult={setAmountLarge}
+                style={styles.input}
+                placeholder="Large, e.g. 1 cup"
+                value={amountLarge}
+                onChangeText={setAmountLarge}
+              />
+              <Text style={styles.label}>Keep each amount for how many days?</Text>
+              <View style={styles.pillRow}>
+                {STEP_DAY_OPTIONS.map((option) => (
+                  <TouchableOpacity
+                    key={option}
+                    style={[styles.pill, stepDays === option && styles.pillActive]}
+                    onPress={() => setStepDays(option)}
+                  >
+                    <Text style={[styles.pillText, stepDays === option && styles.pillTextActive]}>
+                      {option} {option === 1 ? 'day' : 'days'}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
               </View>
+              <Text style={styles.label}>Washout for how many days?</Text>
+              <View style={styles.pillRow}>
+                {WASHOUT_DAY_OPTIONS.map((option) => (
+                  <TouchableOpacity
+                    key={option}
+                    style={[styles.pill, washoutDays === option && styles.pillActive]}
+                    onPress={() => setWashoutDays(option)}
+                  >
+                    <Text style={[styles.pillText, washoutDays === option && styles.pillTextActive]}>
+                      {option} days
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </>
+          ) : null}
+          {pickedFood ? (
+            <>
               {design === 'remove_return' ? (
                 <>
                   <Text style={styles.helperText}>
@@ -1961,17 +2086,23 @@ function NewFoodsLens({
               ) : null}
             </>
           ) : null}
-          <Text style={styles.label}>
-            {pickedFood && design === 'remove_return' ? 'Once it is back, watch it for how many days?' : 'Watch it for how many days?'}
-          </Text>
-          <AppTextInput
-            style={[styles.input, styles.timeInput]}
-            keyboardType="number-pad"
-            maxLength={2}
-            value={observationDays}
-            onChangeText={setObservationDays}
-          />
-          {pickedFood && design === 'remove_return' ? null : pickedFood ? (
+          {design === 'stepped' ? null : (
+            <>
+              <Text style={styles.label}>
+                {pickedFood && design === 'remove_return'
+                  ? 'Once it is back, watch it for how many days?'
+                  : 'Watch it for how many days?'}
+              </Text>
+              <AppTextInput
+                style={[styles.input, styles.timeInput]}
+                keyboardType="number-pad"
+                maxLength={2}
+                value={observationDays}
+                onChangeText={setObservationDays}
+              />
+            </>
+          )}
+          {design === 'stepped' || (pickedFood && design === 'remove_return') ? null : pickedFood ? (
             <Text style={styles.helperText}>
               This will start automatically once you log or schedule a meal with {foodName}, or you can start it
               right now from the trial list below once it&apos;s saved.
@@ -1990,7 +2121,11 @@ function NewFoodsLens({
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={handleSave}>
               <Text style={styles.primaryButtonText}>
-                {pickedFood && design === 'remove_return' ? 'Start experiment' : 'Start trial'}
+                {design === 'stepped'
+                  ? 'Set it up'
+                  : pickedFood && design === 'remove_return'
+                    ? 'Start experiment'
+                    : 'Start trial'}
               </Text>
             </TouchableOpacity>
           </View>
@@ -2054,6 +2189,18 @@ function NewFoodsLens({
             const isEscalating = escalatingTrialId === trial.id;
             const trialSubject = subjectOf(trial.subjectKind);
             const inSeries = seriesByTrialId.get(trial.id);
+            const stepped = trial.design === 'stepped';
+            const trialSteps = stepsByTrial[trial.id] ?? [];
+            const steppedLine = stepped
+              ? steppedProgressLine({
+                  steps: trialSteps,
+                  stepDays: trial.stepDays ?? DEFAULT_STEP_DAYS,
+                  washoutDays: trial.washoutDays ?? DEFAULT_WASHOUT_DAYS,
+                  today: todayDateString(),
+                  amounts: { small: trial.amountSmall, medium: trial.amountMedium, large: trial.amountLarge },
+                })
+              : null;
+            const comingStep = stepped ? nextStep(trialSteps) : null;
             return (
               <View key={trial.id} style={styles.row}>
                 <View style={styles.rowTextCol}>
@@ -2068,7 +2215,9 @@ function NewFoodsLens({
                     // submitted, not a genuine start (see createFoodTrial's
                     // own comment), so showing it here would misrepresent
                     // exactly the thing this whole feature exists to fix.
-                    trial.design === 'remove_return' &&
+                    stepped ? (
+                      <Text style={[styles.rowMeta, styles.waitingText]}>{steppedLine}</Text>
+                    ) : trial.design === 'remove_return' &&
                     trial.removalStartedOn &&
                     trial.removalDays &&
                     isInRemoval(trial.removalStartedOn, trial.removalDays, todayDateString()) ? (
@@ -2089,7 +2238,9 @@ function NewFoodsLens({
                   ) : (
                     <>
                       <Text style={styles.rowMeta}>Started {formatEntryDate(trial.startedAt)}</Text>
-                      {trial.status === 'trialing' ? (
+                      {trial.status === 'trialing' && stepped ? (
+                        <Text style={styles.rowMeta}>{steppedLine}</Text>
+                      ) : trial.status === 'trialing' ? (
                         daysLeft > 0 ? (
                           <Text style={styles.rowMeta}>{daysLeft} day{daysLeft === 1 ? '' : 's'} left to watch</Text>
                         ) : (
@@ -2106,7 +2257,18 @@ function NewFoodsLens({
                   )}
                 </View>
                 <View style={styles.rowActions}>
-                  {trial.status === 'waiting' && trialSubject !== 'food' ? (
+                  {stepped && (trial.status === 'waiting' || trial.status === 'trialing') && comingStep ? (
+                    <>
+                      <TouchableOpacity onPress={() => handleRecordStep(trial.id, comingStep)}>
+                        <Text style={styles.actionTextPrimary}>{nextStepButton(comingStep)}</Text>
+                      </TouchableOpacity>
+                      {canStopEarly(trialSteps) ? (
+                        <TouchableOpacity onPress={() => handleRecordStep(trial.id, 'washout')}>
+                          <Text style={styles.actionText}>Stop here and start the washout</Text>
+                        </TouchableOpacity>
+                      ) : null}
+                    </>
+                  ) : trial.status === 'waiting' && trialSubject !== 'food' ? (
                     <TouchableOpacity onPress={() => handleBackToUsual(trial.id)}>
                       <Text style={styles.actionTextPrimary}>Back to Usual</Text>
                     </TouchableOpacity>
@@ -2136,7 +2298,9 @@ function NewFoodsLens({
                 {experimentResults[trial.id]?.length ? (
                   <View style={{ marginTop: 10, gap: 4 }}>
                     <Text style={styles.rowMeta}>
-                      Experiment{trial.measure ? `, watching ${trial.measure.toLowerCase()}` : ''}:
+                      {stepped
+                        ? 'Step by step:'
+                        : `Experiment${trial.measure ? `, watching ${trial.measure.toLowerCase()}` : ''}:`}
                     </Text>
                     {experimentResults[trial.id].map((line) => (
                       <Text key={line} style={styles.rowMeta}>

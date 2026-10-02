@@ -81,6 +81,12 @@ export type ExperimentForReport = {
   subject?: ExperimentSubject | null;
   /** From experimentResultLines; the one-run limit is said once in the note. */
   lines: string[];
+  /**
+   * F7: set on a stepped reintroduction, whose removalStartedOn is the first
+   * step, removalDays the washout length (the Before stretch), and
+   * returnedOn the last step once it is finished.
+   */
+  stepped?: { stage: string } | null;
 };
 
 /** An experiment whose before, without or back days touch the range. */
@@ -98,6 +104,7 @@ export function experimentInRange(experiment: ExperimentForReport, rangeStart: s
 }
 
 function experimentStage(experiment: ExperimentForReport, today: string): string {
+  if (experiment.stepped) return experiment.stepped.stage;
   const food = subjectOf(experiment.subject) === 'food';
   if (!experiment.returnedOn) {
     const during = today < removalEndsOn(experiment.removalStartedOn, experiment.removalDays);
@@ -120,15 +127,18 @@ export function experimentsSection(
     .sort((a, b) => a.removalStartedOn.localeCompare(b.removalStartedOn));
   return {
     ...base,
-    note: `Foods left out for a set number of days and then brought back, and other changes (a bedtime, a supplement, a walk) kept for a set number of days and then dropped, with the flares and reactions logged before, during and after. ${EXPERIMENT_LIMIT}`,
+    note: `Foods left out for a set number of days and then brought back, foods brought back in a small, a medium and a large amount followed by a washout, and other changes (a bedtime, a supplement, a walk) kept for a set number of days and then dropped, with the flares and reactions logged before, during and after. ${EXPERIMENT_LIMIT}`,
     rows: shown.map((experiment) => {
       const lines = experiment.lines.filter((line) => line !== EXPERIMENT_LIMIT);
       const food = subjectOf(experiment.subject) === 'food';
-      const opening = food
+      const opening = experiment.stepped
+        ? `${experiment.foodName}, brought back in steps from ${experiment.removalStartedOn}`
+        : food
         ? `${experiment.foodName}, left out from ${experiment.removalStartedOn}`
         : `${experiment.foodName} (${subjectLabel(experiment.subject).toLowerCase()}), from ${experiment.removalStartedOn}`;
       return `${opening}, ${experimentStage(experiment, rangeEnd)}. ${lines.join(' ')}`.trim();
     }),
-    empty: 'No food was left out and brought back, and no other change was tried, as an experiment in this range.',
+    empty:
+      'No food was left out and brought back or brought back in steps, and no other change was tried, as an experiment in this range.',
   };
 }

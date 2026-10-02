@@ -659,7 +659,9 @@ export function buildReactionsView(input: ReactionsInputs): ReadingView {
               ? 'a change, then back to usual'
               : t.design === 'remove_return'
                 ? 'left out, then brought back'
-                : 'tried',
+                : t.design === 'stepped'
+                  ? 'brought back in steps'
+                  : 'tried',
             `from ${shortDate(localDay(t.startedAt))}`,
             TRIAL_WORDS[t.status] ?? t.status,
           ].join(' · '),

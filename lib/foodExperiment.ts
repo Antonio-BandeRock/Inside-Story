@@ -21,7 +21,8 @@
 // changing, describes what happened. EXPERIMENT_LIMIT says so on every
 // result, and a second run is what makes a result worth leaning on.
 
-export type TrialDesign = 'watch' | 'remove_return';
+// 'stepped' is F7, a food brought back in three amounts (lib/steppedReintroduction.ts).
+export type TrialDesign = 'watch' | 'remove_return' | 'stepped';
 
 // What an experiment is about. Null on rows made before F5, which are all
 // foods, so subjectOf reads null as a food.

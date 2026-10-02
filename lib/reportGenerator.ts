@@ -56,8 +56,9 @@ import { reportPhotoTextLine } from './reportPhotos';
 import { plantingPhotoSection, symptomPhotoSection } from './reportPhotosDb';
 import { evaluateInteractionRules } from './interactionRules';
 import { findFoodPatterns } from './patternFinder';
-import { readExperimentInput } from './foodExperimentDb';
+import { readExperimentInput, readSteppedInput } from './foodExperimentDb';
 import { experimentResultLines } from './foodExperiment';
+import { orderedSteps, steppedResultLines, steppedStage } from './steppedReintroduction';
 import { experimentsSection, noticedSection, NOTICED_WINDOW_HOURS, type ExperimentForReport } from './reportNoticed';
 
 // Same real, small nutrient set app/(tabs)/index.tsx (Home) and
@@ -585,9 +586,29 @@ async function noticedSections(days: number, rangeStart: string, rangeEnd: strin
     return null;
   });
   const experiments = (async () => {
-    const trials = (await listFoodTrials(500)).filter((trial) => trial.design === 'remove_return');
+    const trials = (await listFoodTrials(500)).filter(
+      (trial) => trial.design === 'remove_return' || trial.design === 'stepped',
+    );
     const made: ExperimentForReport[] = [];
     for (const trial of trials) {
+      if (trial.design === 'stepped') {
+        const stepped = await readSteppedInput(trial);
+        if (!stepped) continue;
+        const ordered = orderedSteps(stepped.steps);
+        const finished = trial.status === 'cleared' || trial.status === 'flagged';
+        made.push({
+          foodName: trial.foodName,
+          status: trial.status,
+          removalStartedOn: ordered[0].startedOn,
+          removalDays: stepped.washoutDays,
+          returnedOn: finished ? ordered[ordered.length - 1].startedOn : null,
+          observationDays: stepped.washoutDays,
+          subject: 'food',
+          lines: steppedResultLines(stepped),
+          stepped: { stage: steppedStage(stepped.steps, stepped.washoutDays, stepped.today, trial.status) },
+        });
+        continue;
+      }
       const input = await readExperimentInput(trial);
       if (!input) continue;
       made.push({

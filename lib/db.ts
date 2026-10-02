@@ -29,6 +29,7 @@ import {
   type TrialDesign,
 } from './foodExperiment';
 import { nextQueued, shouldQueueNext, type SeriesItem, type SeriesTrialStatus } from './trialSeries';
+import { DEFAULT_STEP_DAYS, DEFAULT_WASHOUT_DAYS, type RecordedStep, type StepKey } from './steppedReintroduction';
 import { localDayOf } from './dailyScales';
 import { buildPerConditionSummaries, type ConditionDimensionSummary } from './conditionDimensions';
 import { convertToGrams, MASS_UNITS, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
@@ -10026,11 +10027,35 @@ async function runDatabaseInitialization() {
       // described in food_name, which comes back by Back to Usual
       // (markExperimentBack) rather than by a meal being logged.
       ['subject_kind', 'TEXT'],
+      // F7, 2026-10-01: a stepped reintroduction (design 'stepped',
+      // lib/steppedReintroduction.ts). Days per amount, washout days, and
+      // what the person called each amount. The steps themselves are rows
+      // in trial_steps.
+      ['step_days', 'INTEGER'],
+      ['washout_days', 'INTEGER'],
+      ['amount_small', 'TEXT'],
+      ['amount_medium', 'TEXT'],
+      ['amount_large', 'TEXT'],
     ] as const) {
       if (!foodTrialColumns.some((existing) => existing.name === column)) {
         await db.execAsync(`ALTER TABLE food_trials ADD COLUMN ${column} ${type};`);
       }
     }
+
+    // F7, 2026-10-01: each step of a stepped reintroduction, recorded when
+    // the person presses its button. started_on is the local date. No
+    // foreign key and no cascade; deleteFoodTrial removes a trial's steps.
+    await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS trial_steps (
+        id TEXT PRIMARY KEY,
+        trial_id TEXT NOT NULL,
+        step TEXT NOT NULL,
+        started_on TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      CREATE INDEX IF NOT EXISTS idx_trial_steps_trial ON trial_steps(trial_id);
+    `);
 
     // F6, 2026-10-01: an elimination series (lib/trialSeries.ts). The plan
     // lives here, apart from food_trials, so a planned food has no trial
@@ -16639,9 +16664,13 @@ export async function activateWaitingTrialsForComponents(
       // An experiment still in its days without the food is not started by
       // eating it: that meal is counted against the without period instead
       // (lib/foodExperiment.ts), and the trial waits until those days end.
+      // A stepped reintroduction starts only when its first step is
+      // pressed (recordTrialStep), never from a meal.
       const waitingTrial = trials.find(
         (trial) =>
-          trial.status === 'waiting' && !isInRemoval(trial.removalStartedOn, trial.removalDays, occurredAt.slice(0, 10)),
+          trial.status === 'waiting' &&
+          trial.design !== 'stepped' &&
+          !isInRemoval(trial.removalStartedOn, trial.removalDays, occurredAt.slice(0, 10)),
       );
       const db = await getDatabase();
       const now = new Date().toISOString();
@@ -23358,6 +23387,12 @@ export type FoodTrialRecord = {
   // F5: null on rows made before it, which are all foods (subjectOf in
   // lib/foodExperiment.ts).
   subjectKind: string | null;
+  // F7: set only on a stepped reintroduction.
+  stepDays: number | null;
+  washoutDays: number | null;
+  amountSmall: string | null;
+  amountMedium: string | null;
+  amountLarge: string | null;
 };
 
 // A new food being watched over time rather than a single moment-in-time
@@ -23395,39 +23430,54 @@ export async function createFoodTrial(input: {
   // F5: anything other than a food is always an experiment and always
   // waits, since it comes back by Back to Usual rather than by a meal.
   subjectKind?: ExperimentSubject | null;
+  // F7: a stepped reintroduction. Always a food, always waits, typed or
+  // picked, and starts when its first step is recorded.
+  stepDays?: number | null;
+  washoutDays?: number | null;
+  amounts?: { small?: string | null; medium?: string | null; large?: string | null };
 }): Promise<{ id: string; status: FoodTrialStatus }> {
   const db = await getDatabase();
   const id = `food_trial_${Date.now()}`;
   const now = new Date().toISOString();
   const subject = subjectOf(input.subjectKind);
+  const stepped = subject === 'food' && input.design === 'stepped';
   const status: FoodTrialStatus =
-    subject !== 'food' || (input.foodId != null && input.source) ? 'waiting' : 'trialing';
+    stepped || subject !== 'food' || (input.foodId != null && input.source) ? 'waiting' : 'trialing';
   // A food experiment needs a food the app can recognize coming back, so it
   // only takes effect for a trial linked to a reference food.
-  const experiment = subject !== 'food' || (input.design === 'remove_return' && status === 'waiting' && !!input.removalDays);
+  const experiment =
+    !stepped && (subject !== 'food' || (input.design === 'remove_return' && status === 'waiting' && !!input.removalDays));
+  const washoutDays = stepped ? (input.washoutDays ?? DEFAULT_WASHOUT_DAYS) : null;
+  const amount = (value: string | null | undefined) => (stepped ? value?.trim() || null : null);
 
   await db.runAsync(
     `
       INSERT INTO food_trials
         (id, food_name, started_at, observation_days, status, notes, food_id, source, prep_method, condition_code,
-         design, removal_started_on, removal_days, measure, subject_kind, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         design, removal_started_on, removal_days, measure, subject_kind,
+         step_days, washout_days, amount_small, amount_medium, amount_large, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.foodName.trim(),
     input.startedAt,
-    input.observationDays ?? 3,
+    stepped ? (washoutDays as number) : (input.observationDays ?? 3),
     status,
     input.notes?.trim() || null,
     input.foodId ?? null,
     input.source ?? null,
     input.prepMethod ?? null,
     input.conditionCode ?? null,
-    experiment ? 'remove_return' : 'watch',
+    stepped ? 'stepped' : experiment ? 'remove_return' : 'watch',
     experiment ? (input.removalStartedOn ?? input.startedAt.slice(0, 10)) : null,
     experiment ? (input.removalDays ?? DEFAULT_REMOVAL_DAYS) : null,
     input.measure?.trim() || null,
     subject === 'food' ? null : subject,
+    stepped ? (input.stepDays ?? DEFAULT_STEP_DAYS) : null,
+    washoutDays,
+    amount(input.amounts?.small),
+    amount(input.amounts?.medium),
+    amount(input.amounts?.large),
     now,
     now,
   );
@@ -23443,7 +23493,9 @@ export async function listFoodTrials(limit = 100): Promise<FoodTrialRecord[]> {
              status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
              condition_code AS conditionCode, activated_by_schedule_item_id AS activatedByScheduleItemId,
              activated_by_meal_id AS activatedByMealId, design, removal_started_on AS removalStartedOn,
-             removal_days AS removalDays, measure, subject_kind AS subjectKind, created_at AS createdAt, updated_at AS updatedAt
+             removal_days AS removalDays, measure, subject_kind AS subjectKind,
+             step_days AS stepDays, washout_days AS washoutDays, amount_small AS amountSmall,
+             amount_medium AS amountMedium, amount_large AS amountLarge, created_at AS createdAt, updated_at AS updatedAt
       FROM food_trials
       ORDER BY started_at DESC
       LIMIT ?
@@ -23467,7 +23519,9 @@ export async function getFoodTrialHistory(foodId: number, source: string): Promi
              status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
              condition_code AS conditionCode, activated_by_schedule_item_id AS activatedByScheduleItemId,
              activated_by_meal_id AS activatedByMealId, design, removal_started_on AS removalStartedOn,
-             removal_days AS removalDays, measure, subject_kind AS subjectKind, created_at AS createdAt, updated_at AS updatedAt
+             removal_days AS removalDays, measure, subject_kind AS subjectKind,
+             step_days AS stepDays, washout_days AS washoutDays, amount_small AS amountSmall,
+             amount_medium AS amountMedium, amount_large AS amountLarge, created_at AS createdAt, updated_at AS updatedAt
       FROM food_trials
       WHERE food_id = ? AND source = ?
       ORDER BY started_at DESC
@@ -23570,6 +23624,63 @@ export async function markExperimentBack(id: string): Promise<void> {
     observationDays: trial.observation_days,
     subjectKind: trial.subject_kind,
   });
+}
+
+// F7: records one step of a stepped reintroduction for today, starts the
+// trial on its first step, and replaces the daily check-ins with a run for
+// this step's days (the washout's days for the washout). A step already
+// recorded is not recorded twice.
+export async function recordTrialStep(trialId: string, step: StepKey): Promise<void> {
+  const db = await getDatabase();
+  const trial = await db.getFirstAsync<{
+    food_name: string;
+    status: string;
+    step_days: number | null;
+    washout_days: number | null;
+  }>('SELECT food_name, status, step_days, washout_days FROM food_trials WHERE id = ?', trialId);
+  if (!trial) return;
+  const existing = await db.getFirstAsync<{ id: string }>(
+    'SELECT id FROM trial_steps WHERE trial_id = ? AND step = ?',
+    trialId,
+    step,
+  );
+  if (existing) return;
+  const today = todayDateStringLocal();
+  const now = new Date().toISOString();
+  await db.runAsync(
+    'INSERT INTO trial_steps (id, trial_id, step, started_on, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
+    `trial_step_${Date.now()}_${step}`,
+    trialId,
+    step,
+    today,
+    now,
+    now,
+  );
+  if (trial.status === 'waiting') {
+    await db.runAsync(
+      `UPDATE food_trials SET status = 'trialing', started_at = ?, updated_at = ? WHERE id = ?`,
+      `${today}T${new Date().toTimeString().slice(0, 5)}`,
+      now,
+      trialId,
+    );
+  }
+  await cancelFoodTrialCheckins(trialId);
+  await scheduleFoodTrialCheckins({
+    foodTrialId: trialId,
+    foodName: trial.food_name,
+    firstScheduledFor: `${today}T20:00`,
+    observationDays:
+      step === 'washout' ? (trial.washout_days ?? DEFAULT_WASHOUT_DAYS) : (trial.step_days ?? DEFAULT_STEP_DAYS),
+  });
+}
+
+export type TrialStepRecord = RecordedStep & { trialId: string };
+
+export async function listTrialSteps(): Promise<TrialStepRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<TrialStepRecord>(
+    'SELECT trial_id AS trialId, step, started_on AS startedOn FROM trial_steps ORDER BY started_on, created_at',
+  );
 }
 
 // Part 5 of Past Meals, 2026-08-14 -- "This never actually happened, put
@@ -23743,7 +23854,9 @@ export async function getFoodTrialsForCondition(conditionCode: string): Promise<
              status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
              condition_code AS conditionCode, activated_by_schedule_item_id AS activatedByScheduleItemId,
              activated_by_meal_id AS activatedByMealId, design, removal_started_on AS removalStartedOn,
-             removal_days AS removalDays, measure, subject_kind AS subjectKind, created_at AS createdAt, updated_at AS updatedAt
+             removal_days AS removalDays, measure, subject_kind AS subjectKind,
+             step_days AS stepDays, washout_days AS washoutDays, amount_small AS amountSmall,
+             amount_medium AS amountMedium, amount_large AS amountLarge, created_at AS createdAt, updated_at AS updatedAt
       FROM food_trials
       WHERE condition_code = ?
       ORDER BY started_at DESC
@@ -23756,6 +23869,7 @@ export async function deleteFoodTrial(id: string) {
   await cancelFoodTrialCheckins(id);
   const db = await getDatabase();
   await db.runAsync('DELETE FROM food_trials WHERE id = ?', id);
+  await db.runAsync('DELETE FROM trial_steps WHERE trial_id = ?', id);
   // The series item keeps its trial_id and reads as removed
   // (itemState in lib/trialSeries.ts), and the series moves on.
   await advanceSeriesForTrial(id);
