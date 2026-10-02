@@ -5,6 +5,7 @@
 import { getDatabase, getLabTests, listLabResults } from './db';
 import { addDays } from './eatingVariety';
 import { planDays } from './exercisePlan';
+import { listMealGlucose } from './mealGlucoseDb';
 import { listExercisePlans, listPlanMarks } from './exercisePlanDb';
 import { listNocturiaNights } from './nocturiaDb';
 import { getNutrientTrendSeriesForRange, getSleepTrendPoints } from './trendAnalysis';
@@ -508,8 +509,15 @@ export async function loadTrendsMoreView(lens: TrendsMoreLens, days: number): Pr
     }
     case 'planned':
       return buildPlannedView({ range, today, planned: await listPlannedMeals(range) });
-    case 'bodySignals':
-      return buildBodySignalsView({ range, readings: await listBodySignalReadings() });
+    case 'bodySignals': {
+      // Ninety days before the range as well, so the usual rise after a
+      // meal can draw on more than the range itself.
+      const [readings, mealGlucose] = await Promise.all([
+        listBodySignalReadings(),
+        listMealGlucose(addDays(range.start, -90), range.end),
+      ]);
+      return buildBodySignalsView({ range, readings, mealGlucose });
+    }
     case 'workouts':
       return buildWorkoutsView(await loadWorkoutsInputs(range, today));
     case 'cycle':

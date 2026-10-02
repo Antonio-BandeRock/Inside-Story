@@ -31,6 +31,7 @@ import {
   type SignalCheckin,
 } from './insightsMore';
 import { listKitchenInventory } from './kitchenDb';
+import { listMealGlucose } from './mealGlucoseDb';
 import { buildMakePlan, type MakeIngredient } from './kitchenUsage';
 import { analyzeNutrientIntake } from './nutrientAnalysis';
 import { listOnHandHarvests } from './plateSourceDb';
@@ -300,12 +301,13 @@ export async function loadInsightsMoreView(lens: InsightsMoreLens): Promise<Read
       });
     }
     case 'i-signals': {
-      const [timeline, checkins, bloodPressure] = await Promise.all([
+      const [timeline, checkins, bloodPressure, mealGlucose] = await Promise.all([
         dayTimeline(today),
         listCheckinsAround(today),
         listBloodPressureReadings(),
+        listMealGlucose(today, today),
       ]);
-      return buildSignalsView({ today, timeline, checkins, bloodPressure });
+      return buildSignalsView({ today, timeline, checkins, bloodPressure, mealGlucose });
     }
     case 'i-appointment':
       return buildAppointmentView(await loadAppointmentInputs(today));

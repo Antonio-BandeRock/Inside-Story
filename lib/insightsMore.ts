@@ -30,6 +30,15 @@ import {
   type Routine,
 } from './routines';
 import { labLine, treatmentChanges } from './sinceLastVisit';
+import {
+  MEAL_GLUCOSE_HOW,
+  MEAL_GLUCOSE_LIMIT,
+  countMealGlucose,
+  countSentence,
+  mealGlucoseCaption,
+  mealGlucoseTitle,
+  type MealGlucose,
+} from './mealGlucose';
 import { formatTime12 } from './timeOfDay';
 import { localDay, localHour } from './trendsMore';
 import { describeUpkeepStanding, type UpkeepStanding } from './upkeep';
@@ -280,6 +289,8 @@ export type SignalsInputs = {
   timeline: TimelineEntry[];
   checkins: SignalCheckin[];
   bloodPressure: { loggedAt: string; systolic: number; diastolic: number; pulse: number | null }[];
+  // Today's meals with glucose readings around them (F10).
+  mealGlucose?: MealGlucose[];
 };
 
 const CHECKIN_TYPE_WORDS: Record<string, string> = {
@@ -328,8 +339,9 @@ function stampMinutes(stamp: string): number {
 export function buildSignalsView(input: SignalsInputs): ReadingView {
   const checkins = input.checkins.filter((checkin) => localDay(checkin.loggedAt) === input.today);
   const readings = input.bloodPressure.filter((reading) => localDay(reading.loggedAt) === input.today);
-  if (checkins.length === 0 && readings.length === 0) {
-    return emptyView('No check-ins or blood pressure readings today yet. Signals is where they go in, and they show here beside the meals and doses around them.');
+  const mealGlucose = (input.mealGlucose ?? []).filter((read) => read.meal.day === input.today);
+  if (checkins.length === 0 && readings.length === 0 && mealGlucose.length === 0) {
+    return emptyView('No check-ins, blood pressure or glucose readings today yet. Signals is where check-ins go in, and they show here beside the meals and doses around them.');
   }
 
   type Moment = { minutes: number; item: ReadingItem };
@@ -398,6 +410,25 @@ export function buildSignalsView(input: SignalsInputs): ReadingView {
         title: `${reading.systolic}/${reading.diastolic}${reading.pulse ? `, pulse ${reading.pulse}` : ''}`,
         caption: clockOf(reading.loggedAt) ?? undefined,
       })),
+    });
+  }
+
+  if (mealGlucose.length > 0) {
+    bands.push({
+      id: 'mealGlucose',
+      title: 'Glucose around meals today',
+      icon: 'restaurant-outline',
+      count: mealGlucose.length,
+      lines: [
+        countSentence(countMealGlucose(mealGlucose)),
+        'Trends > Body Signals has every meal read this way, week by week, beside your usual rise.',
+      ],
+      items: mealGlucose.map((read) => ({
+        key: `mg-${read.meal.id}`,
+        title: mealGlucoseTitle(read.meal),
+        caption: mealGlucoseCaption(read),
+      })),
+      notes: [MEAL_GLUCOSE_HOW, MEAL_GLUCOSE_LIMIT],
     });
   }
 

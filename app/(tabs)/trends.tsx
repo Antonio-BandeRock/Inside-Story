@@ -637,7 +637,7 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
     help: [
       {
         heading: "Body Signals",
-        body: "Resting heart rate, heart rate, heart rate variability, blood oxygen, glucose and skin temperature, as your watch, ring or meter wrote them to Health Connect. Each has its latest reading, your usual range and a figure for every week.",
+        body: "Resting heart rate, heart rate, heart rate variability, blood oxygen, glucose and skin temperature, as your watch, ring or meter wrote them to Health Connect. Each has its latest reading, your usual range and a figure for every week. With glucose, each logged meal also shows how far readings rose after it and how long they took to come back to the level before, beside your usual rise.",
       },
       {
         heading: "Getting them here",

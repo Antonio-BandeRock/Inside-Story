@@ -16,6 +16,17 @@
 // dose is advice about the dose.
 import { addDays, buildWeeks, daysBetween, shortDate, type VarietyWeek } from './eatingVariety';
 import { emptyView, gapNote, plural, type ReadingBand, type ReadingRow, type ReadingView } from './readingBands';
+import {
+  MEAL_GLUCOSE_HOW,
+  MEAL_GLUCOSE_LIMIT,
+  countMealGlucose,
+  countSentence,
+  describeMinutes,
+  formatRise,
+  mealGlucoseCaption,
+  mealGlucoseTitle,
+  type MealGlucose,
+} from './mealGlucose';
 import { formatTime12 } from './timeOfDay';
 import { usualSentence } from './yourUsual';
 import { SCALE_LABELS, WORK_DIMENSIONS, weekOf } from './workMeaning';
@@ -1021,6 +1032,8 @@ export type BodySignalsInputs = {
   // Every reading held, oldest first, so the usual range can draw on the
   // readings before the range as well as within it.
   readings: BodySignalReading[];
+  // Every logged meal with glucose readings around it, oldest first (F10).
+  mealGlucose?: MealGlucose[];
 };
 
 type SignalShape = {
@@ -1133,6 +1146,8 @@ export function buildBodySignalsView(input: BodySignalsInputs): ReadingView {
       notes: [shape.about],
     });
   }
+  const mealBand = mealGlucoseBand(input);
+  if (mealBand) bands.splice(bands.findIndex((band) => band.id === 'glucose') + 1, 0, mealBand);
   const missing = BODY_SIGNAL_ORDER.filter((key) => !inRange.some((r) => r.signal === key)).map((key) => BODY_SIGNALS[key].title);
   bands.push({
     id: 'about',
@@ -1145,6 +1160,56 @@ export function buildBodySignalsView(input: BodySignalsInputs): ReadingView {
     notes: ['Your usual range is what your readings have been, never what they should be. The numbers that matter for you are the ones your clinician gives you.'],
   });
   return { hasAnything: true, empty: '', bands };
+}
+
+// Glucose around each meal (F10): how far readings rose after each logged
+// meal and how long they took to come back, week by week, beside this
+// person's usual rise. Worded as what the readings did, never as what the
+// meal did.
+function mealGlucoseBand(input: BodySignalsInputs): ReadingBand | null {
+  const all = input.mealGlucose ?? [];
+  const these = all.filter((r) => r.meal.day >= input.range.start && r.meal.day <= input.range.end);
+  if (these.length === 0) return null;
+  const read = these.flatMap((r) => (r.status === 'read' ? [r] : []));
+  const riseOf = (r: Extract<MealGlucose, { status: 'read' }>) => Math.max(0, r.rise);
+  const lines = [countSentence(countMealGlucose(these))];
+  if (read.length > 0) {
+    const upTo = all.flatMap((r) => (r.status === 'read' && r.meal.at <= read[read.length - 1].meal.at ? [riseOf(r)] : []));
+    lines.push(usualSentence(upTo, formatRise).replace('The latest,', 'The latest rise,'));
+    const backTimes = read.flatMap((r) => (r.back === 'back' && r.backMinutes !== null ? [r.backMinutes] : []));
+    const middle = median(backTimes);
+    if (middle !== null) {
+      lines.push(
+        `Of the ${plural(backTimes.length, 'meal')} that rose and came back, the middle time back was ${describeMinutes(middle)}.`,
+      );
+    }
+  }
+  const weeks = buildWeeks(input.range.start, input.range.end, read.map((r) => r.meal.day));
+  const rows = weekRows(
+    weeks,
+    (week) => average(read.filter((r) => inWeek(r.meal.day, week)).map(riseOf)),
+    (value, week) => `rose ${formatRise(value)} on average, ${read.filter((r) => inWeek(r.meal.day, week)).length}×`,
+    'no meal read',
+  );
+  if (read.length > 0) lines.push("Each bar is the week's average rise after a meal, with how many meals went into it.");
+  const items = these
+    .slice(-10)
+    .reverse()
+    .map((r) => ({
+      key: `${r.meal.id}-${r.meal.at}`,
+      title: `${shortDate(r.meal.day)}, ${mealGlucoseTitle(r.meal)}`,
+      caption: mealGlucoseCaption(r),
+    }));
+  return {
+    id: 'mealGlucose',
+    title: 'Glucose around meals',
+    icon: 'restaurant-outline',
+    count: these.length,
+    lines: read.length > 0 ? withGapNote(lines, rows) : lines,
+    rows: read.length > 0 ? rows.map((row) => (row.value === null ? row : { ...row, value: round1(row.value) })) : undefined,
+    items,
+    notes: [MEAL_GLUCOSE_HOW, MEAL_GLUCOSE_LIMIT],
+  };
 }
 
 // ---------------------------------------------------------------------------

@@ -147,6 +147,16 @@ for (let n = 0; n < 12; n++) {
 signals.sort((a, b) => a.at.localeCompare(b.at));
 run('bodySignals', T.buildBodySignalsView, { range, readings: signals }, true);
 run('bodySignals empty', T.buildBodySignalsView, { range, readings: [] }, false);
+// F10: glucose around each meal, as a band inside Body Signals.
+const G = load('lib/mealGlucose.ts');
+const glucoseMeals = days.map((day, index) => {
+  const at0 = new Date(day + 'T12:00:00').getTime();
+  return { id: 'g' + index, name: 'Rice bowl', mealType: 'lunch', at: at0, day, clock: '12:00' };
+});
+const glucosePoints = glucoseMeals.flatMap((m) =>
+  [-20, 15, 45, 90, 150, 240].map((offset) => ({ at: m.at + offset * 60000, mmol: offset <= 0 ? 5.1 : offset === 45 ? 7.4 : 5.6 })),
+);
+run('bodySignals with meals', T.buildBodySignalsView, { range, readings: signals, mealGlucose: G.readMealsGlucose(glucoseMeals, glucosePoints) }, true);
 
 const doseStatuses = ['taken', 'skipped', 'planned', 'taken'];
 run('doses', T.buildDosesView, {

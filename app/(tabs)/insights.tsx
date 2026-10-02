@@ -227,7 +227,7 @@ type Lens =
 // same way Trends' nine do, so each needs only its line here.
 const MORE_LENSES: Record<InsightsMoreLens, { loadingLine: string; missingItem?: YourStoryItemKey }> = {
   'i-today': { loadingLine: 'Reading today…', missingItem: 'meal' },
-  'i-signals': { loadingLine: 'Reading today’s check-ins…', missingItem: 'checkin' },
+  'i-signals': { loadingLine: 'Reading today’s check-ins and readings…', missingItem: 'checkin' },
   'i-appointment': { loadingLine: 'Gathering what changed since the last visit…' },
   'i-money': { loadingLine: 'Reading this month’s money…', missingItem: 'spending' },
   'i-kitchen': { loadingLine: 'Reading what is on hand…', missingItem: 'kitchen' },
@@ -355,7 +355,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Signals Today',
-        body: "Today's check-ins, flares and blood pressure readings set on one clock beside the meals and doses around them, so you can see what came before what. Sitting near each other on the clock does not mean one caused the other, and this lens never says it did.",
+        body: "Today's check-ins, flares and blood pressure readings set on one clock beside the meals and doses around them, so you can see what came before what. When a meter or sensor sends glucose through Health Connect, each meal today shows how far readings rose after it and how long they took to come back to the level before. Sitting near each other on the clock does not mean one caused the other, and this lens never says it did.",
       },
     ],
   },
