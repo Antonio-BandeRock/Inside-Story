@@ -216,7 +216,7 @@ const byKey = new Map(choices.map((c) => [c.key, c]));
   // be offered.
   const NUTRIENTS = 'biotin_b7 calcium choline copper fiber_total folate_b9 iodine iron magnesium manganese niacin_b3 pantothenic_acid_b5 phosphorus potassium protein riboflavin_b2 selenium sodium thiamin_b1 vitamin_a vitamin_b12 vitamin_b6 vitamin_c vitamin_d vitamin_e vitamin_k water zinc'.split(' ');
   const LABS = 'ferritin free_t3 free_t4 hscrp magnesium_test reverse_t3 selenium_test tg_ab thyroglobulin total_t3 total_t4 tpo_ab tsh tsi_trab urine_iodine vitamin_b12_test vitamin_d_test zinc_test'.split(' ');
-  const FIXED = ['weight', 'sleep', 'steps', 'severity', 'scale:mood', 'scale:energy', 'scale:stress'];
+  const FIXED = ['weight', 'sleep', 'steps', 'severity', 'scale:mood', 'scale:energy', 'scale:stress', 'weather:pressure', 'weather:high', 'weather:humidity', 'weather:rain'];
   const valid = (key) =>
     FIXED.includes(key) ||
     (key.startsWith('nutrient:') && NUTRIENTS.includes(key.slice(9))) ||

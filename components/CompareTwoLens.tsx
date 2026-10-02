@@ -31,6 +31,7 @@ import {
   type SeriesChoice,
 } from '../lib/compareSeries';
 import { loadCompareChoices, loadKeysWithData, loadSeriesPoints, loadTagDays } from '../lib/compareSeriesDb';
+import { weatherCredit } from '../lib/weather';
 import {
   dayCountWords,
   markRows,
@@ -324,6 +325,9 @@ export function CompareTwoLens({ folds, color, weightUnit, initialA }: Props) {
             ) : (
               <Text style={[styles.caption, styles.spaced]}>{NO_KNOWN_LINK_LINE}</Text>
             )}
+            {choiceA?.kind === 'weather' || choiceB?.kind === 'weather' ? (
+              <Text style={[styles.caption, styles.spaced]}>{weatherCredit(null)}</Text>
+            ) : null}
             <Text style={[styles.caption, styles.spaced]}>{MOVING_TOGETHER_LINE}</Text>
             <Text style={[styles.caption, styles.spaced]}>
               A day with no reading is left empty, and no line joins one reading to the next, so a gap stays a gap.

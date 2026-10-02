@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
@@ -74,6 +74,8 @@ import {
 import { markPendingFoodTrialReturn } from '../../lib/pendingFoodTrialReturn';
 import { basisSentence, comparisonSentence, delaySentence, thresholdSentence } from '../../lib/patternBasis';
 import { contextCaveat } from '../../lib/patternContext';
+import { refreshWeather, setWeatherOn } from '../../lib/weatherDb';
+import { WEATHER_NO_PLACE, WEATHER_OFFER } from '../../lib/weather';
 import { FACTOR_BAND_EMPTY_LINE, FACTOR_CAVEAT, factorComparisonSentence } from '../../lib/patternFactors';
 import {
   BODY_SIDE_LABELS,
@@ -836,7 +838,7 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       },
       {
         heading: 'Before them, besides food',
-        body: "The same count for everything else the app records: check-in tags, sleep, doses marked skipped, steps, water and each tracker you made. A number only counts when it sat outside your usual range, and each one is counted only against the flares that had it recorded before them. Steps and water are whole days, so they count at the 24 and 48 hour windows. Weather is not recorded in the app yet. Cycle day is listed beside flares as context, never counted as a candidate, and Trends > Cycle lines symptoms up by cycle day.",
+        body: "The same count for everything else the app records: check-in tags, sleep, doses marked skipped, steps, water and each tracker you made. A number only counts when it sat outside your usual range, and each one is counted only against the flares that had it recorded before them. Steps and water are whole days, so they count at the 24 and 48 hour windows. Weather, once turned on, is listed beside flares in a separate band, from NASA's daily figures for your area, never counted as a candidate. Cycle day is listed beside flares as context, never counted as a candidate, and Trends > Cycle lines symptoms up by cycle day.",
       },
     ],
   },
@@ -1259,6 +1261,10 @@ export default function TrendsScreen() {
   const [recordedBodySignals, setRecordedBodySignals] = useState<BodySignalKey[]>([]);
   const bodyPicked = parseBodyOutcome(patternOutcome);
   const [patternResult, setPatternResult] = useState<PatternFinderResult | null>(null);
+  // F22: bumped to read Pattern Finder again once weather is turned on or off,
+  // or once NASA has filled in days that were missing.
+  const [weatherTick, setWeatherTick] = useState(0);
+  const [weatherBusy, setWeatherBusy] = useState(false);
   const [therapyResponse, setTherapyResponse] = useState<TherapyResponseResult | null>(null);
   const [startingTrialKey, setStartingTrialKey] = useState<string | null>(null);
   // 2026-09-23: the rule being drafted from a pattern, if any. One at a
@@ -1497,6 +1503,15 @@ export default function TrendsScreen() {
       findFoodPatterns(days, patternWindow, personalizationProfile?.trackedConditions ?? [], patternOutcome).then((result) => {
         setPatternResult(result);
         setLoading(false);
+        // Weather is read from what is stored, then any missing days are
+        // asked for once; the screen is read again only if some arrived.
+        if (result.weather.state === 'ready') {
+          refreshWeather(result.weather.rangeStart, new Date().toISOString().slice(0, 10))
+            .then((outcome) => {
+              if (outcome.state === 'added') setWeatherTick((n) => n + 1);
+            })
+            .catch(() => {});
+        }
       });
     } else if (lens === 'therapyResponse') {
       getTherapyResponseInputs(days)
@@ -1536,6 +1551,13 @@ export default function TrendsScreen() {
       });
     }
   }, [lens, days, harvestMonths, conditionMonths, pickedMeasurement, pickedDeviceSource, pickedDeviceDay, costMonths, measurementSystem, resolvedRange, selectedNutrient, selectedTestCode, selectedGroceryFood, patternWindow, patternOutcome, personalizationProfile]);
+
+  // F22: read again once weather is turned on or off, or new days arrive.
+  const loadRef = useRef(load);
+  loadRef.current = load;
+  useEffect(() => {
+    if (weatherTick > 0) loadRef.current();
+  }, [weatherTick]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
@@ -3661,6 +3683,66 @@ export default function TrendsScreen() {
                       </Text>
                     ))}
                     <Text style={styles.patternRowCaption}>{contextCaveat(outcomeWords)}</Text>
+                  </TabBand>
+                ) : null}
+
+                {!loading && patternResult && patternResult.outcome === 'flares' ? (
+                  <TabBand folds={folds} color={TAB_COLOR} id={'trends:patterns:weather'} title={`Weather around the same ${outcomeWords.shortMany}`} icon="partly-sunny-outline">
+                    {patternResult.weather.state === 'off' ? (
+                      <>
+                        <Text style={styles.patternRowCaption}>{WEATHER_OFFER}</Text>
+                        <View style={styles.patternRowActions}>
+                          <TouchableOpacity
+                            style={[styles.trialButton, { borderColor: TAB_COLOR }]}
+                            disabled={weatherBusy}
+                            onPress={() => {
+                              setWeatherBusy(true);
+                              setWeatherOn(true)
+                                .then(() => refreshWeather(patternResult.weather.rangeStart, new Date().toISOString().slice(0, 10)))
+                                .catch(() => null)
+                                .finally(() => {
+                                  setWeatherBusy(false);
+                                  setWeatherTick((n) => n + 1);
+                                });
+                            }}
+                          >
+                            <Text style={[styles.trialButtonText, { color: TAB_COLOR }]}>{weatherBusy ? 'Adding…' : 'Add the weather'}</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </>
+                    ) : (
+                      <>
+                        {patternResult.weather.state === 'no-place' ? <Text style={styles.patternRowCaption}>{WEATHER_NO_PLACE}</Text> : null}
+                        {patternResult.weather.state === 'ready' && patternResult.weather.lines.length === 0 ? (
+                          <Text style={styles.patternRowCaption}>
+                            {`Nothing to set beside the ${outcomeWords.shortMany} yet. It needs weather for at least two of them and three other days, and NASA’s figures arrive about two days late.`}
+                          </Text>
+                        ) : null}
+                        {patternResult.weather.lines.map((line) => (
+                          <Text key={line} style={styles.patternRowCaption}>
+                            {line}
+                          </Text>
+                        ))}
+                        {patternResult.weather.lines.length > 0 ? (
+                          <Text style={styles.patternRowCaption}>
+                            {`The weather where you live is not the weather you stood in all day, and a day’s weather is shared by everything else that happened on it. This shows what was around the ${outcomeWords.shortMany}, not why they came.`}
+                          </Text>
+                        ) : null}
+                        {patternResult.weather.credit ? <Text style={styles.patternRowCaption}>{patternResult.weather.credit}</Text> : null}
+                        <View style={styles.patternRowActions}>
+                          <TouchableOpacity
+                            style={[styles.trialButton, { borderColor: colors.border }]}
+                            onPress={() => {
+                              setWeatherOn(false)
+                                .catch(() => null)
+                                .finally(() => setWeatherTick((n) => n + 1));
+                            }}
+                          >
+                            <Text style={[styles.trialButtonText, { color: colors.textMuted }]}>Stop adding the weather</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </>
+                    )}
                   </TabBand>
                 ) : null}
 

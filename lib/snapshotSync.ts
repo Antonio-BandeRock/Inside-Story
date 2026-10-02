@@ -279,6 +279,8 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   // When this phone last asked to allow on-time reminders (lib/reminderTiming.ts):
   // a question about this phone's Android settings.
   'reminder_timing_asked',
+  // When this device last asked NASA for weather (F22, lib/weatherDb.ts).
+  'weather_last_fetch',
   CHANGE_BASELINE_META_KEY,
 ];
 
@@ -308,6 +310,9 @@ export function isDeviceLocalMetaKey(key: unknown): boolean {
  */
 export const DEVICE_LOCAL_TABLES: readonly string[] = [
   'sync_change_log',
+  // Weather where the person lives (F22, lib/weatherDb.ts): each device
+  // fetches its own, and a refetch is not a change to send.
+  'daily_weather',
   'peer_photo_out',
   'peer_photos',
   // When each photo or recording file here was last opened (1.0.57.23), for

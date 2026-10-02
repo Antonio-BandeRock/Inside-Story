@@ -281,7 +281,8 @@ export const FACTOR_CAVEAT =
 
 // Cycle day moved out of this line in E2 (2026-09-26): once period days are
 // logged in Signals > Cycle it shows among the context lines above.
-export const NOT_RECORDED_LINE = 'Weather is not recorded in the app yet, so it cannot be counted here.';
+export const NOT_RECORDED_LINE =
+  'Weather is not counted here, since one place’s weather is shared by every day around it. Once it is turned on it is listed beside the same flares under Other things around them.';
 
 export const FACTOR_BAND_EMPTY_LINE =
   'Nothing besides food has been recorded in this range yet: no check-in tags, sleep, marked doses, steps, water or tracker entries.';

@@ -9,6 +9,8 @@ import { listCustomTrackers } from './customTrackersDb';
 import { getDatabase, getDietaryReferenceIntakesForCurrentUser, getLabResultTrend, getLabTests } from './db';
 import { kgToLb } from './measurement';
 import { tagDays, type TagMarkRow } from './tagMarks';
+import { pressureIn, rainIn, tempIn } from './weather';
+import { getWeatherUnits, isWeatherOn, listWeatherDays, refreshWeather } from './weatherDb';
 import {
   getCheckinSeverityTrendSeries,
   getCustomTrackerSeries,
@@ -22,13 +24,14 @@ import {
 
 export async function loadCompareChoices(weightUnit: 'kg' | 'lb'): Promise<SeriesChoice[]> {
   const db = await getDatabase();
-  const [intakes, testedRows, tests, trackers] = await Promise.all([
+  const [intakes, testedRows, tests, trackers, weatherOn] = await Promise.all([
     getDietaryReferenceIntakesForCurrentUser(),
     db.getAllAsync<{ code: string; unit: string }>(
       `SELECT test_code AS code, unit FROM lab_results GROUP BY test_code ORDER BY MAX(tested_at) DESC`,
     ),
     getLabTests(),
     listCustomTrackers(),
+    isWeatherOn(),
   ]);
   const seen = new Set<string>();
   const nutrients = intakes
@@ -49,7 +52,8 @@ export async function loadCompareChoices(weightUnit: 'kg' | 'lb'): Promise<Serie
     perDay: dailyMode(tracker.kind),
     scale: tracker.kind === 'scale',
   }));
-  return buildChoices({ nutrients, labs, trackers: shownTrackers, weightUnit });
+  const weather = weatherOn ? await getWeatherUnits() : null;
+  return buildChoices({ nutrients, labs, trackers: shownTrackers, weightUnit, weather });
 }
 
 // Which series hold at least one reading in the range, so the pickers
@@ -59,6 +63,9 @@ export async function loadCompareChoices(weightUnit: 'kg' | 'lb'): Promise<Serie
 export async function loadKeysWithData(choices: readonly SeriesChoice[], end: string, start: string, days: number): Promise<Set<string>> {
   const nutrientCodes = choices.filter((c) => c.kind === 'nutrient').map((c) => c.key.slice('nutrient:'.length));
   const others = choices.filter((c) => c.kind !== 'nutrient');
+  // Missing weather days are asked for once before anything is read, so
+  // the weather series are offered as soon as NASA has them.
+  if (choices.some((c) => c.kind === 'weather')) await refreshWeather(shiftDate(start, -1), end).catch(() => null);
   const [nutrients, otherPoints] = await Promise.all([
     nutrientCodes.length > 0 ? getNutrientTrendSeriesForCodes(nutrientCodes, start, end) : Promise.resolve(new Map()),
     Promise.all(others.map((choice) => loadSeriesPoints(choice, end, start, days).catch(() => [] as ComparePoint[]))),
@@ -108,6 +115,21 @@ export async function loadSeriesPoints(choice: SeriesChoice, end: string, start:
       const series = await getCustomTrackerSeries(reach);
       const id = choice.key.slice('tracker:'.length);
       return series.find((entry) => entry.tracker.id === id)?.points ?? [];
+    }
+    case 'weather': {
+      const days = await listWeatherDays(shiftDate(start, -1), end);
+      const field = choice.key.slice('weather:'.length);
+      const read = (day: (typeof days)[number]): number | null => {
+        if (field === 'pressure') return day.pressureKpa === null ? null : pressureIn(choice.unit === 'inHg' ? 'inHg' : 'hPa', day.pressureKpa);
+        if (field === 'high') return day.tempMaxC === null ? null : tempIn(choice.unit === '°F' ? 'F' : 'C', day.tempMaxC);
+        if (field === 'humidity') return day.humidity;
+        if (field === 'rain') return day.rainMm === null ? null : rainIn(choice.unit === 'in' ? 'in' : 'mm', day.rainMm);
+        return null;
+      };
+      return days.flatMap((day) => {
+        const value = read(day);
+        return value === null ? [] : [{ date: day.date, value }];
+      });
     }
   }
 }

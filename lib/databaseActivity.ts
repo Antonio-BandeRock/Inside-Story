@@ -39,7 +39,7 @@ export function isRowChangingSql(sql: string): boolean {
 // save a snapshot that nothing in it changed. The hours and days worked out
 // from the samples go to tables that travel and are counted as usual.
 const STAYS_ON_THIS_DEVICE =
-  /^\s*(?:INSERT(?:\s+OR\s+\w+)?\s+INTO|REPLACE\s+INTO|UPDATE|DELETE\s+FROM)\s+(?:garden_device_samples|garden_gateway_polling)\b[^;]*;?\s*$/i;
+  /^\s*(?:INSERT(?:\s+OR\s+\w+)?\s+INTO|REPLACE\s+INTO|UPDATE|DELETE\s+FROM)\s+(?:garden_device_samples|garden_gateway_polling|daily_weather)\b[^;]*;?\s*$/i;
 
 /** Whether a statement is a change the other device needs to hear about. */
 export function countsAsChange(sql: string): boolean {

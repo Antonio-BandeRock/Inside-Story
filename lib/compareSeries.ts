@@ -21,7 +21,7 @@ export const COMPARE_RANGES = [30, 90, 180, 365] as const;
 export type CompareRange = (typeof COMPARE_RANGES)[number];
 export const DEFAULT_COMPARE_RANGE: CompareRange = 90;
 
-export type SeriesKind = 'nutrient' | 'weight' | 'steps' | 'sleep' | 'severity' | 'scale' | 'lab' | 'tracker';
+export type SeriesKind = 'nutrient' | 'weight' | 'steps' | 'sleep' | 'severity' | 'scale' | 'lab' | 'tracker' | 'weather';
 
 export type SeriesChoice = {
   key: string;
@@ -44,9 +44,11 @@ export type ChoiceSources = {
   labs: { code: string; label: string; unit: string }[];
   trackers: { id: string; name: string; unit: string; perDay: 'average' | 'total'; scale: boolean }[];
   weightUnit: 'kg' | 'lb';
+  // F22: offered only once weather is turned on, in the person's units.
+  weather?: { temp: 'C' | 'F'; pressure: 'hPa' | 'inHg'; rain: 'mm' | 'in' } | null;
 };
 
-export const COMPARE_GROUPS = ['Nutrients', 'Body', 'Sleep and movement', 'How you felt', 'Labs', 'Your trackers'] as const;
+export const COMPARE_GROUPS = ['Nutrients', 'Body', 'Sleep and movement', 'How you felt', 'Labs', 'Your trackers', 'Weather'] as const;
 
 export function nutrientKey(code: string): string {
   return `nutrient:${code}`;
@@ -110,6 +112,13 @@ export function buildChoices(sources: ChoiceSources): SeriesChoice[] {
       fixedRange: tracker.scale ? { yMin: 1, yMax: 5 } : undefined,
       perDay: tracker.perDay,
     });
+  }
+  if (sources.weather) {
+    const units = sources.weather;
+    choices.push({ key: 'weather:pressure', kind: 'weather', label: 'Air pressure', group: 'Weather', unit: units.pressure, decimals: units.pressure === 'inHg' ? 2 : 0, perDay: 'average' });
+    choices.push({ key: 'weather:high', kind: 'weather', label: 'The day’s high', group: 'Weather', unit: `°${units.temp}`, decimals: 1, perDay: 'average' });
+    choices.push({ key: 'weather:humidity', kind: 'weather', label: 'Humidity', group: 'Weather', unit: '%', decimals: 0, perDay: 'average' });
+    choices.push({ key: 'weather:rain', kind: 'weather', label: 'Rain', group: 'Weather', unit: units.rain, decimals: units.rain === 'in' ? 2 : 1, perDay: 'total' });
   }
   return choices;
 }
@@ -478,6 +487,21 @@ const HAND_PAIRS: readonly KnownPair[] = [
     why: 'Regular activity has improved sleep by a small to moderate amount in trials, more over weeks than on any one night.',
     tier: 'strong',
     source: 'Kredlow MA et al. J Behav Med 2015;38:427-449.',
+  },
+  // F22: weather where the person lives, beside how they felt.
+  {
+    a: 'weather:pressure',
+    b: 'severity',
+    why: 'In a study of people with migraine, attacks came more often on days air pressure fell. Studies of joint pain and other conditions disagree with each other, and many people notice nothing.',
+    tier: 'weak',
+    source: 'Kimoto K et al. Intern Med 2011;50:1923-1928.',
+  },
+  {
+    a: 'weather:high',
+    b: 'severity',
+    why: 'In multiple sclerosis a rise in body heat, a hot day included, can bring earlier symptoms back for a while (Uhthoff’s phenomenon), and they usually ease as the body cools.',
+    tier: 'moderate',
+    source: 'Davis SL et al. J Appl Physiol 2010;109:1531-1537.',
   },
 ];
 

@@ -7406,6 +7406,26 @@ async function runDatabaseInitialization() {
       CREATE INDEX IF NOT EXISTS idx_garden_readings_measurement ON garden_readings(measurement);
       CREATE INDEX IF NOT EXISTS idx_garden_readings_plot ON garden_readings(plot_id);
 
+      -- Weather where the person lives, one row a day (F22, lib/weather.ts),
+      -- from NASA's POWER project for a point rounded to the half degree.
+      -- Kept on the device that fetched it (DEVICE_LOCAL_TABLES): any device
+      -- can fetch it again, and a refetch is not a change to send. The key
+      -- carries the point, so moving postal code reads the new place's rows
+      -- rather than the old place's.
+      CREATE TABLE IF NOT EXISTS daily_weather (
+        date TEXT NOT NULL,
+        lat REAL NOT NULL,
+        lon REAL NOT NULL,
+        temp_mean_c REAL,
+        temp_min_c REAL,
+        temp_max_c REAL,
+        humidity REAL,
+        pressure_kpa REAL,
+        rain_mm REAL,
+        fetched_at TEXT NOT NULL,
+        PRIMARY KEY (date, lat, lon)
+      );
+
       -- Every row of a controller's history file (I19 rework, 1.0.55.35),
       -- one figure per measurement per moment, kept on the device that
       -- imported it (DEVICE_LOCAL_TABLES). The key is the area, planting

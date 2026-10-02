@@ -135,3 +135,71 @@ export function contextLines(input: {
   if (cycle) lines.push(cycle);
   return lines;
 }
+
+// Weather on the same days (F22, lib/weather.ts). Each flare is set beside
+// that day's weather where the person lives, against every day in the
+// range with no flare: how often air pressure had fallen from the day
+// before, the day's high and the humidity. Listed like sleep, never offered
+// as the explanation, and the weather of a place is not the weather a
+// person stood in all day.
+export type WeatherContextDay = {
+  date: string;
+  tempMaxC: number | null;
+  humidity: number | null;
+  pressureKpa: number | null;
+};
+
+export const MIN_FLARES_WITH_WEATHER = 2;
+export const MIN_OTHER_WEATHER_DAYS = 3;
+// A fall of 1 hPa or more, about the smallest change a weather report
+// would mention, so a day that moved by a few hundredths is not a fall.
+export const WEATHER_FALL_KPA = 0.1;
+
+export function weatherLines(
+  flareDates: string[],
+  days: WeatherContextDay[],
+  rangeStart: string,
+  sayTemp: (celsius: number) => string,
+  words: ContextWords = FLARE_WORDS,
+): string[] {
+  const byDate = new Map(days.map((day) => [day.date, day]));
+  const flareDays = new Set(flareDates);
+  const flares = flareDates.filter((date) => date >= rangeStart);
+  const others = days.filter((day) => day.date >= rangeStart && !flareDays.has(day.date));
+  const lines: string[] = [];
+
+  const fell = (date: string): boolean | null => {
+    const today = byDate.get(date)?.pressureKpa;
+    const before = byDate.get(addDays(date, -1))?.pressureKpa;
+    if (typeof today !== 'number' || typeof before !== 'number') return null;
+    return before - today >= WEATHER_FALL_KPA;
+  };
+  const flareFalls = flares.map(fell).filter((v): v is boolean => v !== null);
+  const otherFalls = others.map((day) => fell(day.date)).filter((v): v is boolean => v !== null);
+  if (flareFalls.length >= MIN_FLARES_WITH_WEATHER && otherFalls.length >= MIN_OTHER_WEATHER_DAYS) {
+    const a = flareFalls.filter(Boolean).length;
+    const b = otherFalls.filter(Boolean).length;
+    lines.push(
+      `Air pressure had fallen by 1 hPa or more from the day before for ${a} of ${flareFalls.length} ${words.shortMany}, against ${b} of ${otherFalls.length} other days.`,
+    );
+  }
+
+  const compare = (pick: (day: WeatherContextDay) => number | null, say: (value: number) => string, label: string) => {
+    const atFlares = flares.map((date) => byDate.get(date)).map((day) => (day ? pick(day) : null)).filter((v): v is number => v !== null);
+    const atOthers = others.map(pick).filter((v): v is number => v !== null);
+    if (atFlares.length < MIN_FLARES_WITH_WEATHER || atOthers.length < MIN_OTHER_WEATHER_DAYS) return;
+    lines.push(
+      `${label} averaged ${say(average(atFlares))} across ${atFlares.length} ${words.shortMany}, against ${say(average(atOthers))} across ${atOthers.length} other days.`,
+    );
+  };
+  compare((day) => day.tempMaxC, sayTemp, 'The day’s high');
+  compare((day) => day.humidity, (value) => `${Math.round(value)}%`, 'Humidity');
+
+  const without = flares.filter((date) => !byDate.has(date)).length;
+  if (without > 0 && flares.length > 0) {
+    lines.push(
+      `${without} of the ${flares.length} ${words.shortMany} have no weather yet. NASA’s figures arrive about two days late, and a day the service could not be reached is filled in next time.`,
+    );
+  }
+  return lines;
+}

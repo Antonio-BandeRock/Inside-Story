@@ -12,7 +12,9 @@ import {
   type PatternComparison,
   type PatternDelay,
 } from './patternBasis';
-import { contextLines, type TreatmentDates } from './patternContext';
+import { contextLines, weatherLines, type TreatmentDates } from './patternContext';
+import { isWeatherOn, listWeatherDays, weatherPoint, weatherReadOn, getWeatherUnits } from './weatherDb';
+import { sayTemp, shiftDay, weatherCredit } from './weather';
 import { bestWorstDays, type BestWorstResult } from './bestWorstDays';
 import { severityOnTen } from './severityScale';
 import { listPeriodStarts } from './cycleDb';
@@ -145,6 +147,13 @@ export type CategoryPatternCandidate = {
 // with its own name so nothing conflates the two. The arithmetic and every
 // refusal live in lib/workMeaning.ts, which is testable without a database;
 // this file only assembles the inputs.
+export type PatternWeather = {
+  state: 'off' | 'no-place' | 'ready';
+  lines: string[];
+  credit: string | null;
+  rangeStart: string;
+};
+
 export type PatternFinderResult = {
   /** What was counted: flares and reactions, or a kind of day (D1). */
   outcome: PatternOutcome;
@@ -156,6 +165,9 @@ export type PatternFinderResult = {
   basis: PatternBasis;
   /** Other things on record around the same flares (lib/patternContext.ts). */
   context: string[];
+  /** F22: the weather around the same flares, when it is turned on. Read
+   *  from what is stored; Trends asks NASA for missing days afterwards. */
+  weather: PatternWeather;
   foodCandidates: FoodPatternCandidate[];
   dimensionCandidates: DimensionPatternCandidate[];
   categoryCandidates: CategoryPatternCandidate[];
@@ -372,6 +384,22 @@ async function listTreatmentDates(): Promise<TreatmentDates[]> {
 // remove. Food and category candidates are untouched: "you logged this
 // before N flares" is a real correlation independent of any condition's
 // own scoring, not something that needs this same scoping.
+// F22: weather beside the same flares, read from daily_weather only.
+async function patternWeather(
+  flareDates: string[],
+  rangeStart: string,
+  today: string,
+  words: { short: string; shortMany: string },
+): Promise<PatternWeather> {
+  if (!(await isWeatherOn())) return { state: 'off', lines: [], credit: null, rangeStart };
+  const point = await weatherPoint();
+  if (!point) return { state: 'no-place', lines: [], credit: null, rangeStart };
+  // From the day before the range, so a fall in air pressure on its first day can be read.
+  const [days, units, readOn] = await Promise.all([listWeatherDays(shiftDay(rangeStart, -1), today, point), getWeatherUnits(), weatherReadOn(point)]);
+  const lines = weatherLines(flareDates, days, rangeStart, (c) => sayTemp(units.temp, c), words);
+  return { state: 'ready', lines, credit: days.length > 0 ? weatherCredit(readOn) : null, rangeStart };
+}
+
 export async function findFoodPatterns(
   days: number,
   windowHours: PatternWindowHours,
@@ -601,6 +629,8 @@ export async function findFoodPatterns(
     periodStarts,
   });
 
+  const weather = await patternWeather(flareDates, rangeStart, today, words);
+
   // Work strain. The symptom population is the same one every candidate above
   // was counted from, grouped into the weeks it fell in, so the two halves of
   // this screen are talking about the same flares.
@@ -694,6 +724,7 @@ export async function findFoodPatterns(
       daysWithMeals: daysWithMeals.size,
     },
     context,
+    weather,
     foodCandidates,
     dimensionCandidates,
     categoryCandidates,

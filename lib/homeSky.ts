@@ -119,7 +119,7 @@ async function writeAppMeta(key: string, value: unknown): Promise<void> {
 // Resolves once per real (country, postalCode) pair -- re-geocodes
 // automatically the moment someone changes their saved zone (a real cache
 // miss on the pair, not a manual "clear cache" step), and never otherwise.
-async function resolveHomeLocation(): Promise<CachedLocation | null> {
+export async function resolveHomeLocation(): Promise<CachedLocation | null> {
   const profile = await getUserProfile();
   const country = profile.growingZoneCountry;
   const postalCode = profile.growingZonePostalCode;
