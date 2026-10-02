@@ -849,6 +849,97 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['garden-natural-pest-management', 'garden-cover-crops-home', 'foodhistory-regen-rhizobia-nitrogen-fixation'],
   },
+  // I11, 2026-10-02: a Pests and Beneficial Insects shelf in Horticulture.
+  // The two pest entries above moved onto it from Growing Techniques, and
+  // these six fill in the order a gardener meets the problem: look and name
+  // it first, know who already eats it, feed those insects, keep the pest
+  // off, the slug question everyone asks, and why a broad spray tends to
+  // make the next round worse. Every source was fetched and read on the day.
+  {
+    id: 'garden-pests-watch-before-acting',
+    category: 'homeGardening',
+    title: 'Name the Insect and Count It Before Doing Anything About It',
+    teaser: 'Integrated pest management starts with looking: which insect it is, how many there are, and whether the damage matters, since seeing one pest is not a reason to act.',
+    summary:
+      "The approach extension services and the US Environmental Protection Agency teach for pests is called integrated pest management, and its first two steps happen before anything is sprayed, picked off or covered. The EPA lays out four tiers: set an action threshold, meaning the point at which the number of pests or the damage they do calls for action; monitor for pests and identify them accurately; prevent them through how the garden is grown, with methods like crop rotation and resistant varieties; and only then choose a control, weighing how well it works against its risks, with broad spraying as the last resort. Identification matters because many insects on a plant are harmless or are themselves eating the pest, and a ladybird larva or a hoverfly maggot looks nothing like the adult most people recognise. Rutgers Cooperative Extension makes the same point for home gardens: seeing a single pest does not mean action is needed, and a small number of pest insects and some minor damage can usually be tolerated. In practice that means walking the garden every few days, turning leaves over, noting what is there and whether it is growing in number, and deciding what level of damage is worth acting on for that crop. A few holes in a kale leaf cost nothing at the table; a whole seedling eaten overnight is a different matter. The threshold is the gardener's call, and writing down what was seen, and when, is what turns a hunch into a pattern from one season to the next.",
+    citations: [
+      { source: 'US Environmental Protection Agency: Integrated Pest Management (IPM) Principles', url: 'https://www.epa.gov/safepestcontrol/integrated-pest-management-ipm-principles' },
+      { source: 'Rutgers Cooperative Extension of Salem County: Principles of Integrated Pest Management for Home Gardens and Landscapes', url: 'https://salem.njaes.rutgers.edu/2025/11/23/principles-of-integrated-pest-management-for-home-gardens-and-landscapes/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['garden-pests-natural-enemies', 'garden-natural-pest-management', 'garden-pests-why-sprays-bring-pests-back'],
+  },
+  {
+    id: 'garden-pests-natural-enemies',
+    category: 'homeGardening',
+    title: 'Ladybirds, Lacewings, Hoverfly Larvae, Ground Beetles and Parasitic Wasps Already Eat Most Garden Pests',
+    teaser: 'An aphid that has turned crusty and golden brown has a parasitic wasp growing inside it, and seeing those mummies means the colony is already being brought down.',
+    summary:
+      "Most of the pest control in a garden that is not sprayed is done by other animals, which the University of California's integrated pest management program calls natural enemies: predators that eat pests outright, parasitoids that lay their eggs in or on them, and diseases that infect them. For aphids, the pest nearly every gardener meets first, the Royal Horticultural Society names ladybirds, parasitoid wasps, predatory bugs, lacewing larvae and hoverfly larvae as the main controls, with earwigs useful on fruit trees and birds such as blue tits feeding on aphids too. Several of these are easy to miss because the young look nothing like the adults: a ladybird larva is a small, dark, spiky crawler, a lacewing larva is a flattened hunter with sickle-shaped jaws, and a hoverfly larva is a green or brown maggot moving across the leaf, while the adult hoverfly is a nectar-feeding pollinator often mistaken for a wasp. A parasitised aphid swells and turns crusty and golden brown, which UC IPM calls a mummy, and a leaf scattered with them is a colony already in decline. On the soil surface, ground beetles hunt at night, and Colorado State University Extension notes that almost any pest spending part of its life on the soil surface may be their prey, slugs included. UC IPM also points out one complication: ants farm aphids for their honeydew and protect them from these enemies, so a stem crowded with both aphids and ants is a stem where the predators are being kept off. The RHS advice that follows from all of this is to tolerate some aphids, since predators arrive where there is food for them, and to avoid pesticides, which kill the predators along with the pest.",
+    citations: [
+      { source: 'Royal Horticultural Society: Aphid predators', url: 'https://www.rhs.org.uk/biodiversity/aphid-predators' },
+      { source: 'UC Statewide IPM Program: Aphids, Home and Landscape', url: 'https://ipm.ucanr.edu/home-and-landscape/aphids/' },
+      { source: 'UC Statewide IPM Program: Natural Enemies Gallery', url: 'https://ipm.ucanr.edu/natural-enemies/' },
+      { source: 'Colorado State University Extension: Beneficial Insects and Other Arthropods', url: 'https://extension.colostate.edu/resource/beneficial-insects-and-other-arthropods/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['garden-pests-flowers-for-natural-enemies', 'garden-pests-why-sprays-bring-pests-back', 'garden-pollinator-friendly-earth-matters-link'],
+  },
+  {
+    id: 'garden-pests-flowers-for-natural-enemies',
+    category: 'homeGardening',
+    title: 'Strips of Flowers Beside a Crop Raised Pest Control by 16% on Average Across 18 Studies',
+    teaser: 'A 2020 synthesis of field studies found flower strips planted beside crops improved natural pest control by 16% on average, while hedgerows showed no consistent effect.',
+    summary:
+      "Many of the insects that eat pests as larvae feed on nectar and pollen as adults: hoverflies, lacewings and the tiny parasitic wasps all need flowers to live long enough to lay their eggs where the pests are. That is the reasoning behind planting flowers in and around a vegetable garden, and it has been tested at field scale. A 2020 quantitative synthesis in Ecology Letters, led by Matthias Albrecht and drawing on studies from North America, Europe and New Zealand, pooled 18 studies of pest control and 17 of pollination in crops next to planted flower strips or hedgerows. Flower strips raised pest control in the neighbouring crop by 16% on average; hedgerows did not show a consistent effect. The effect on pollination and on yield was more variable, falling away with distance from the planting, and older perennial strips with a wider range of flowering plants supported pollination better than young or narrow ones. These are farm fields, and a back garden is far smaller, but the principle carries over: a mix of flowers that bloom across the season, kept within a few metres of the vegetables, gives the predators food between meals of aphids. The RHS gives the same advice for gardens, lots of flowering plants for adult hoverflies, and the University of Florida work on companion planting names dill, fennel and cosmos among the flowers that draw beneficial insects.",
+    citations: [
+      { source: 'Albrecht M, et al. The effectiveness of flower strips and hedgerows on pest control, pollination services and crop yield: a quantitative synthesis. Ecology Letters 2020;23(10):1488-1498', url: 'https://portal.research.lu.se/en/publications/the-effectiveness-of-flower-strips-and-hedgerows-on-pest-control-/' },
+      { source: 'Royal Horticultural Society: Aphid predators', url: 'https://www.rhs.org.uk/biodiversity/aphid-predators' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['garden-pests-natural-enemies', 'garden-natural-pest-management', 'garden-pollinator-friendly-earth-matters-link'],
+  },
+  {
+    id: 'garden-pests-covers-and-barriers',
+    category: 'homeGardening',
+    title: 'A Row Cover Put On at Planting Keeps Flea Beetles, Cabbage Caterpillars and Root Maggots Off the Crop',
+    teaser: 'Fine mesh or fabric held tight to the ground from the day of planting stops many insects from ever reaching the plant, as long as it comes off once a squash or cucumber starts to flower.',
+    summary:
+      "The simplest way to keep an insect from eating a plant is to stop it reaching the plant at all. University of Maryland Extension describes row cover, a lightweight fabric or insect mesh laid over hoops or directly over a crop, as an exceptional organic pest management tool, naming flea beetles, root maggots, Colorado potato beetles, the cabbage white butterfly whose caterpillars are the imported cabbageworm, harlequin bugs and Mexican bean beetles among the pests it keeps out. Two details decide whether it works. It has to go on soon after sowing or transplanting, before the pest finds the crop, and its edges have to be held tightly to the ground with pins, boards, bricks, sandbags, stones or soil, since a gap at one corner lets the insects walk in and then shelters them. And a cover only keeps out what is outside it: the same extension page warns that some pests spend the winter in the soil near their host plants and emerge the following spring under the cover, which is one more reason to rotate crops so a cabbage bed is not where cabbages grew last year. Leafy greens, cabbages grown for their leaves and green beans need no insect pollination and can stay covered until harvest. Squash, cucumbers, melons and pumpkins need bees to reach their flowers, so the cover comes off once they bloom. The same cover also shelters a spring crop from cold and wind, which is the other half of what that extension page covers.",
+    citations: [
+      { source: 'University of Maryland Extension: Row Covers', url: 'https://extension.umd.edu/resource/row-covers' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['garden-crop-rotation', 'garden-extending-the-season', 'garden-pests-watch-before-acting'],
+  },
+  {
+    id: 'garden-pests-slugs-and-snails',
+    category: 'homeGardening',
+    title: 'Copper Tape, Eggshells, Grit, Bark and Wool Pellets Made No Difference to Slug Damage in an RHS Trial',
+    teaser: 'The Royal Horticultural Society grew 108 lettuces with and without five popular slug barriers and found the same damage either way, though wool and bark mulch gave a bigger crop.',
+    summary:
+      "Slugs and snails are the pest home gardeners ask about most, and the barriers usually recommended for them have been tested. The Royal Horticultural Society grew 108 lettuces in pots and raised beds at its field research facility at Wisley, surrounded them with copper tape, sharp horticultural grit, pine bark mulch, wool pellets, eggshells or nothing, and measured leaf damage and yield after six weeks. None of the five barriers reduced damage compared with lettuces left unprotected. The researchers' explanation is that the thick mucus slugs and snails produce lets them glide over rough or sharp surfaces that look as if they should deter a soft body. One finding was useful anyway: lettuces with wool pellets or bark around them gave about half as much crop again, because those materials worked as a mulch and a slow feed. The RHS also points out that only a few of the many slug and snail species in a garden do much harm to plants, chiefly the netted field slug, the brown soil slug and the common garden snail, which go for soft leaves and seedlings, and that birds, frogs, toads, hedgehogs, slowworms and ground beetles all eat them. The RHS suggests picking them off by torchlight on mild, damp evenings, beer traps sunk near vulnerable plants and checked often. A nematode sold as a biological control works against slugs in the soil but is unlikely to reach snails, which rarely meet it.",
+    citations: [
+      { source: 'Royal Horticultural Society: Slugs and snails', url: 'https://www.rhs.org.uk/biodiversity/slugs-and-snails' },
+      { source: 'The Kitchen Garden: Popular deterrents slug it out, but to no avail (report of the RHS Wisley trial)', url: 'https://www.kitchengarden.co.uk/popular-deterrents-slug-it-out-but-to-no-avail-c602orc/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['garden-pests-natural-enemies', 'garden-mulching', 'garden-pests-watch-before-acting'],
+  },
+  {
+    id: 'garden-pests-why-sprays-bring-pests-back',
+    category: 'homeGardening',
+    title: 'A Broad-Spectrum Spray Kills the Predators Too, Which Is Why Spider Mites Often Flare Up After One',
+    teaser: 'UC IPM notes spider mites frequently become a problem after an insecticide is used, because the spray kills the predators that were keeping them down.',
+    summary:
+      "An insecticide that kills a wide range of insects does not choose between the aphid and the ladybird eating it, and that is the reason extension services treat it as a last resort rather than a first one. The University of California's integrated pest management program states it plainly for aphids: most insecticides destroy beneficial insects along with the pest, killing the natural enemies that provide long-term control of aphids and other pests. The clearest case is the spider mite. UC IPM's guide for home gardens says spider mites frequently become a problem after insecticides are applied, and that these outbreaks are commonly the result of the insecticide killing off the mites' natural enemies. It adds a second effect: carbaryl, some organophosphates and some pyrethroids appear to favour spider mites by raising the nitrogen level in the leaves, and mites exposed to carbaryl have been found to reproduce faster than untreated ones. More generally, pests usually recover from a spray faster than their predators do, because there are more of them and they breed faster, so the second generation meets a garden with fewer enemies than the first one did. For a home garden, the working order that follows is the one the rest of this shelf describes: look and name the pest, decide whether the damage matters, keep it off with covers, knock aphids off sturdy plants with a strong jet of water, feed the predators with flowers, and, if a product is still needed, choose a narrow one aimed at the pest in question, such as Bt for caterpillars, over one that kills everything it touches.",
+    citations: [
+      { source: 'UC Statewide IPM Program: Spider Mites, Pest Notes for Home and Landscape', url: 'https://ipm.ucanr.edu/PMG/PESTNOTES/pn7405.html' },
+      { source: 'UC Statewide IPM Program: Aphids, Home and Landscape', url: 'https://ipm.ucanr.edu/home-and-landscape/aphids/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['garden-organic-approved-pesticides', 'garden-pests-natural-enemies', 'foodhistory-regen-neonicotinoid-regulation-loophole'],
+  },
   {
     id: 'garden-tying-together',
     category: 'homeGardening',
@@ -874,6 +965,8 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
       'garden-organic-approved-pesticides',
       'garden-hot-composting',
       'garden-three-sisters-companion-planting',
+      'garden-pests-watch-before-acting',
+      'garden-pests-natural-enemies',
     ],
   },
 ];

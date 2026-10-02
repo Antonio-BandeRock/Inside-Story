@@ -920,6 +920,7 @@ export type HomeGardeningTopic =
   | 'Building Real Soil'
   | 'Your Garden & Your Microbiome'
   | 'Growing Techniques'
+  | 'Pests and Beneficial Insects'
   | 'Growing Indoors'
   | 'After the Harvest'
   | 'The Case for a Home Garden';
@@ -943,6 +944,9 @@ export const HOME_GARDENING_TOPIC_ORDER: HomeGardeningTopic[] = [
   'Building Real Soil',
   'Your Garden & Your Microbiome',
   'Growing Techniques',
+  // I11, 2026-10-02: what eats the crop and what eats that, after the
+  // techniques for growing it and before moving indoors.
+  'Pests and Beneficial Insects',
   // 2026-09-19: hydroponics, grow lights and water filtration were a
   // subgroup inside the closing "why bother" bucket, which is not where
   // anyone would look for them.
@@ -993,13 +997,14 @@ export function classifyHomeGardeningTopic(entry: AnyDigestEntry): HomeGardening
   ) {
     return 'Your Garden & Your Microbiome';
   }
+  if (id.startsWith('garden-pests-') || id.includes('natural-pest-management') || id.includes('organic-approved-pesticides')) {
+    return 'Pests and Beneficial Insects';
+  }
   if (
     id.includes('seed-starting-vs-transplants') ||
     id.includes('watering-efficiency') ||
-    id.includes('natural-pest-management') ||
     id.includes('vertical-trellising') ||
     id.includes('extending-the-season') ||
-    id.includes('organic-approved-pesticides') ||
     id.includes('three-sisters-companion-planting')
   ) {
     return 'Growing Techniques';

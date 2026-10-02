@@ -611,7 +611,8 @@ export const CONDITION_TOPIC_SUBGROUPS: Partial<Record<DigestCategoryKey, Partia
   // homeGardening has no subgroups since 2026-09-19: its indoor, soil and
   // technique entries moved to topics of their own in
   // classifyHomeGardeningTopic, and no Horticulture topic holds more than
-  // eight entries.
+  // eight entries (Pests and Beneficial Insects, added for I11, holds
+  // eight).
   lupus: {
     'Core Science': [
       { label: 'Terms & Definitions', ids: ['glossary-aps-antiphospholipid', 'glossary-sledai'] },
