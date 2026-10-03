@@ -190,6 +190,58 @@ export function rowText(row: Row): string {
   return parts.join(SEP);
 }
 
+/**
+ * A row's text with the times the app stamps on it left out, so two copies
+ * that say the same thing compare equal however far apart they were
+ * written. Each device rewrites some rows by itself with the same content
+ * (the day's reading when a new day starts), and read with their stamps the
+ * two copies were a clash every evening and restarted the phone after
+ * every merge (1.0.59.18).
+ */
+export function rowTextApartFromTouches(row: Row): string {
+  const kept: Row = {};
+  for (const [column, value] of Object.entries(row)) {
+    if (!TOUCH_COLUMNS.includes(column)) kept[column] = value;
+  }
+  return rowText(kept);
+}
+
+/** Whether two sets of rows say the same thing once the app's stamps are left out. */
+export function sameRowsApartFromTouches(mine: Row[], theirs: Row[]): boolean {
+  if (mine.length !== theirs.length) return false;
+  const left = mine.map(rowTextApartFromTouches).sort();
+  const right = theirs.map(rowTextApartFromTouches).sort();
+  for (let index = 0; index < left.length; index += 1) {
+    if (left[index] !== right[index]) return false;
+  }
+  return true;
+}
+
+/**
+ * Whether writing the merged tables over this device's copy calls for the
+ * app to start again. Only a change that says something new does: a table
+ * the app works out for itself is rebuilt on opening anyway, a row whose
+ * only difference is a stamp the app wrote holds nothing to show, and a
+ * row `quietRow` names is one the screens read afresh each time they come
+ * into view. Restarting for any of them pulled the app out from under
+ * somebody using it for nothing they could see.
+ */
+export function mergeNeedsRestart(
+  changed: Tables,
+  here: Tables,
+  options: { wholesale?: readonly string[]; quietRow?: (table: string, row: Row) => boolean } = {},
+): boolean {
+  const wholesale = options.wholesale ?? [];
+  const quiet = options.quietRow;
+  for (const [table, rows] of Object.entries(changed)) {
+    if (wholesale.includes(table)) continue;
+    const mine = Array.isArray(here[table]) ? here[table] : [];
+    const keep = (row: Row) => !quiet || !quiet(table, row);
+    if (!sameRowsApartFromTouches(rows.filter(keep), mine.filter(keep))) return true;
+  }
+  return false;
+}
+
 /** The identity of a row under its shape. Null when the shape does not fit it. */
 export function keyOf(row: Row, shape: TableShape | undefined): string | null {
   if (!shape || shape.key.length === 0) return rowText(row);
@@ -483,6 +535,12 @@ function mergeOneTable(
       }
       const winner = laterOf(mine, theirs, laterSide);
       rows.push(winner === 'here' ? mine : theirs);
+      // The same content written at two different times is still the same
+      // edit: one stamp stands and nobody lost anything.
+      if (rowTextApartFromTouches(mine) === rowTextApartFromTouches(theirs)) {
+        entries.push({ table, key, kind: was ? 'changed' : 'added', side: winner });
+        continue;
+      }
       entries.push({ table, key, kind: 'changed', side: winner, conflict: 'later' });
     }
     // Removed on both devices, with nothing left to say about it.

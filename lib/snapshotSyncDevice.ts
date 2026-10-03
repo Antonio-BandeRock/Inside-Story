@@ -45,6 +45,7 @@ import {
   clashedRows,
   conflictsIn,
   describeMerge,
+  mergeNeedsRestart,
   mergeTables,
   sameRows,
   type MergeSide,
@@ -72,6 +73,7 @@ import {
   buildSnapshotRecord,
   EMPTY_SYNC_STATE,
   fingerprintText,
+  isQuietMergeRow,
   loadedNotice,
   mergedNotice,
   parseSnapshotRecord,
@@ -853,7 +855,12 @@ export function mergeSnapshot(record: SnapshotRecord): Promise<MergeOutcome> {
     // the app: each device rebuilds them on opening, so a restart for one
     // would rebuild it, differ again at the next arrival, and restart
     // again (1.0.55.33).
-    const restart = Object.keys(changedTables).some((tableName) => !WORKED_OUT_TABLES.includes(tableName));
+    // Nor does a change only in a stamp, or in a row the screens read
+    // afresh (mergeNeedsRestart, 1.0.59.18).
+    const restart = mergeNeedsRestart(changedTables, here, {
+      wholesale: WORKED_OUT_TABLES,
+      quietRow: isQuietMergeRow,
+    });
     if (Object.keys(changedTables).length > 0) {
       try {
         await withDatabaseWriteTrackingSuspended(async () => {

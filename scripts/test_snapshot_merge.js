@@ -482,8 +482,48 @@ for (const line of source.split('\n')) {
   );
 }
 const device = fs.readFileSync(path.join(__dirname, '..', 'lib/snapshotSyncDevice.ts'), 'utf8');
-check(device.includes('!WORKED_OUT_TABLES.includes(tableName)'), 'a worked-out table never restarts the app');
+check(device.includes('wholesale: WORKED_OUT_TABLES'), 'a worked-out table never restarts the app');
 check(device.includes('sameRows(rows, mine)'), 'the restart check ignores row order');
+check(device.includes('mergeNeedsRestart(changedTables, here') && device.includes('quietRow: isQuietMergeRow'), 'the restart goes through mergeNeedsRestart');
+
+// The same row written by both devices with the same content at different
+// times (the day's reading when a new day starts, 1.0.59.18). It is the
+// same edit, never a clash, and never a reason to restart.
+{
+  const reading = (at) => ({ key: 'daily_reading', value: '{"day":"2026-10-02","id":"x","opened":[]}', updated_at: at });
+  const base = { app_meta: [{ key: 'daily_reading', value: '{"day":"2026-10-01","id":"w","opened":["w"]}', updated_at: '2026-10-01T15:00:00Z' }] };
+  const here = { app_meta: [reading('2026-10-02T14:00:00Z')] };
+  const there = { app_meta: [reading('2026-10-03T05:10:36Z')] };
+  const result = run(base, here, there);
+  check(merge.conflictsIn(result.entries).length === 0, 'same content at two times is not a clash');
+  check(result.tables.app_meta[0].updated_at === '2026-10-03T05:10:36Z', 'the later stamp stands');
+  check(merge.rowTextApartFromTouches(here.app_meta[0]) === merge.rowTextApartFromTouches(there.app_meta[0]), 'stamps are left out of the comparison');
+  check(merge.rowTextApartFromTouches({ a: 1 }) !== merge.rowTextApartFromTouches({ a: 2 }), 'content still counts');
+  check(!merge.mergeNeedsRestart(result.tables, here), 'a change only in a stamp does not restart');
+
+  // Different content on both sides is still a clash.
+  const other = { app_meta: [{ ...reading('2026-10-03T05:10:36Z'), value: '{"day":"2026-10-02","id":"y","opened":[]}' }] };
+  check(merge.conflictsIn(run(base, here, other).entries).length === 1, 'different content on both sides is still a clash');
+}
+
+// mergeNeedsRestart: what calls for the app to start again.
+{
+  const here = {
+    meals: [{ id: 1, name: 'Soup', updated_at: 'a' }],
+    app_meta: [{ key: 'daily_reading', value: 'old', updated_at: 'a' }, { key: 'visual_preferences', value: 'p', updated_at: 'a' }],
+    daily_nutrient_totals_cache: [{ id: 1, n: 1 }],
+  };
+  const quietRow = (table, row) => table === 'app_meta' && row.key === 'daily_reading';
+  const opts = { wholesale: ['daily_nutrient_totals_cache'], quietRow };
+  check(!merge.mergeNeedsRestart({}, here, opts), 'nothing changed, no restart');
+  check(merge.mergeNeedsRestart({ meals: [{ id: 1, name: 'Stew', updated_at: 'b' }] }, here, opts), 'a meal edited elsewhere restarts');
+  check(merge.mergeNeedsRestart({ meals: [...here.meals, { id: 2, name: 'Salad', updated_at: 'b' }] }, here, opts), 'a meal added elsewhere restarts');
+  check(!merge.mergeNeedsRestart({ meals: [{ id: 1, name: 'Soup', updated_at: 'b' }] }, here, opts), 'a meal touched but unchanged does not');
+  check(!merge.mergeNeedsRestart({ daily_nutrient_totals_cache: [{ id: 1, n: 2 }] }, here, opts), 'a worked-out table does not');
+  check(!merge.mergeNeedsRestart({ app_meta: [{ key: 'daily_reading', value: 'new', updated_at: 'b' }, here.app_meta[1]] }, here, opts), 'a quiet row does not');
+  check(merge.mergeNeedsRestart({ app_meta: [here.app_meta[0], { key: 'visual_preferences', value: 'q', updated_at: 'b' }] }, here, opts), 'a setting held in memory still restarts');
+  check(merge.mergeNeedsRestart({ new_table: [{ id: 1 }] }, here, opts), 'rows in a table this device holds none of restart');
+}
 
 if (failures > 0) {
   console.error(`${failures} of ${checks} checks failed`);

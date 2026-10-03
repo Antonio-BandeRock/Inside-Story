@@ -274,6 +274,14 @@ for (const sentence of [both, merged, sync.loadedNotice(record, ['3 more meals',
   check(!/ {2}/.test(sentence), 'sentence has no doubled space: ' + sentence.slice(0, 60));
 }
 
+// 1.0.59.18: the weather cache stays on each device, and the day's reading
+// travels but never restarts the app.
+check(sync.isDeviceLocalMetaKey('home_sky_weather'), 'the weather cache stays on the device');
+check(!sync.isDeviceLocalMetaKey('daily_reading'), 'the reading of the day still travels');
+check(sync.isQuietMergeRow('app_meta', { key: 'daily_reading' }), 'the reading of the day is a quiet row');
+check(!sync.isQuietMergeRow('app_meta', { key: 'visual_preferences' }), 'a setting held in memory is not');
+check(!sync.isQuietMergeRow('meals', { key: 'daily_reading' }), 'only app_meta rows are quiet');
+
 if (failures > 0) {
   console.error(`${failures} of ${checks} checks failed`);
   process.exit(1);

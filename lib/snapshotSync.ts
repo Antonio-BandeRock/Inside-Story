@@ -262,6 +262,10 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'garden_rain_forecast',
   // Last and first frost dates (lib/homeSky.ts), worked out on each device.
   'garden_frost_dates',
+  // The weather on Home (lib/homeSky.ts): a cache each device fills for
+  // itself. Carried over, both devices rewrote it and every evening merge
+  // held a clash over the weather (1.0.59.18).
+  'home_sky_weather',
   // Which device this is, for which one reads each Ecowitt gateway (I22,
   // lib/ecowittDb.ts): carried over, two devices would each be the reader.
   'gateway_reader_self',
@@ -294,6 +298,20 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'widget_hide_health',
   CHANGE_BASELINE_META_KEY,
 ];
+
+/**
+ * app_meta rows that travel but never call for a restart when a merge
+ * changes them, because the screen showing them reads them again every
+ * time it comes into view. daily_reading is written by each device when a
+ * new day starts, so nearly every evening merge carried it, and restarting
+ * for it restarted the phone right as it took over the session (1.0.59.18).
+ */
+export const META_KEYS_READ_FRESH: readonly string[] = ['daily_reading'];
+
+/** Whether a merged row is one the restart decision can leave out. */
+export function isQuietMergeRow(table: string, row: Record<string, unknown>): boolean {
+  return table === APP_META_TABLE && typeof row.key === 'string' && META_KEYS_READ_FRESH.includes(row.key);
+}
 
 export function isDeviceLocalMetaKey(key: unknown): boolean {
   return typeof key === 'string' && DEVICE_LOCAL_META_KEYS.includes(key);
