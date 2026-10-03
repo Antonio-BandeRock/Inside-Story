@@ -5,106 +5,153 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <title>Inside Story: Is It for You?</title>
-<meta name="description" content="What Inside Story does, told for the person reading: living with a chronic condition, keeping track of daily life, caring for someone, or growing food. This page collects nothing.">
+<meta name="description" content="Inside Story is still being built and is not available yet. Here is what it does: food and health worked out for your body, the details of daily life held for you, care for the people you look after, and a garden kept as a living record.">
 <!-- C21, 2026-10-02: a page somebody can read before installing anything.
-     It describes the app by who is reading, and collects nothing: no form,
-     no cookie, no analytics, no script, no font or image from anywhere
-     else. Everything it says is built; anything not built is left out
-     rather than promised. -->
+     It collects nothing: no form, no cookie, no analytics, no script, no
+     font or image from anywhere else. Everything it describes is built.
+     No database sizes are claimed until the unified food database is
+     finished and counted (direct instruction, 2026-10-02). -->
 <style>
   :root {
-    --bg: #f4efe6; --surface: #fffaf2; --text: #1f2a2c; --muted: #4f5d60; --accent: #244147; --line: #d8cfbf;
+    --bg: #f4efe6; --surface: #fffaf2; --text: #1f2a2c; --muted: #4f5d60; --accent: #244147; --line: #d8cfbf; --notice: #f3dfb4; --notice-text: #3d2f12;
   }
   @media (prefers-color-scheme: dark) {
-    :root { --bg: #172b2f; --surface: #20383d; --text: #f4efe6; --muted: #c9c2b6; --accent: #e6c98f; --line: #35545a; }
+    :root { --bg: #172b2f; --surface: #20383d; --text: #f4efe6; --muted: #c9c2b6; --accent: #e6c98f; --line: #35545a; --notice: #4a3b1c; --notice-text: #f7e6c0; }
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 Georgia, "Times New Roman", serif; }
-  main { max-width: 720px; margin: 0 auto; padding: 32px 16px 48px; }
-  h1 { font-weight: normal; font-size: 2.1rem; line-height: 1.2; margin: 0 0 8px; color: var(--accent); }
-  h2 { font-weight: normal; font-size: 1.35rem; margin: 0 0 6px; color: var(--accent); }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+  .notice { background: var(--notice); color: var(--notice-text); padding: 14px 16px; margin: 0 0 24px; border-radius: 6px; }
+  .notice .head { font-size: 1.15rem; display: block; margin-bottom: 2px; }
+  h1 { font-weight: normal; font-size: 2.3rem; line-height: 1.15; margin: 0 0 10px; color: var(--accent); }
+  h2 { font-weight: normal; font-size: 1.4rem; margin: 0 0 6px; color: var(--accent); }
+  h3 { font-weight: normal; font-size: 1.1rem; margin: 14px 0 4px; color: var(--accent); }
   p { margin: 0 0 12px; }
-  .lead { color: var(--muted); font-size: 1.05rem; }
-  nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 28px; }
+  .lead { font-size: 1.12rem; }
+  .muted { color: var(--muted); }
+  .name { color: var(--accent); }
+  nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 26px; }
   nav a { color: var(--accent); border: 1px solid var(--line); background: var(--surface); border-radius: 18px; padding: 4px 12px; text-decoration: none; font-size: .95rem; }
   section { background: var(--surface); border-left: 4px solid var(--accent); padding: 18px 16px 8px; margin: 0 0 14px; }
   ul { margin: 0 0 12px; padding-left: 20px; }
-  li { margin: 0 0 6px; }
-  .conditions { color: var(--muted); font-size: .95rem; }
+  li { margin: 0 0 7px; }
   footer { margin-top: 28px; color: var(--muted); font-size: .9rem; }
   footer a, section a { color: var(--accent); }
 </style>
 </head>
 <body>
 <main>
-  <h1>Inside Story</h1>
-  <p class="lead">An app for the details of a person’s life: what they eat and how it affects them, their medicines, their days, their garden, their money and the people they look after. It started with food and autoimmune health and goes deepest there. You do not need a diagnosis to use it.</p>
-  <p class="lead">Pick whichever sounds like you.</p>
+  <div class="notice" role="note">
+    <span class="head">Under construction</span>
+    Inside Story is still being built. It is not in any app store and cannot be downloaded yet. This page describes what is working today, so you can decide whether it is for you when it opens.
+  </div>
 
-  <nav aria-label="Who is reading">
-    <a href="#condition">I live with a condition</a>
-    <a href="#daily">I need help keeping track</a>
-    <a href="#caring">I look after someone</a>
-    <a href="#garden">I grow food</a>
-    <a href="#privacy">Where my data goes</a>
+  <h1>Everything has an inside story. Yours included.</h1>
+  <p class="lead">Inside Story keeps the whole of a person’s life in one place: what you eat and how your body answers, your medicines, your days, the people you look after, your money and your garden. Then it does the hard part for you. It connects the pieces, finds what your records are saying, and turns it into plain next steps.</p>
+  <p class="lead">It began with food and autoimmune health, and that is where it goes deepest. It has grown into a place for everything a person needs to keep track of, and you do not need a diagnosis to use it.</p>
+
+  <nav aria-label="Jump to">
+    <a href="#body">Food and your body</a>
+    <a href="#day">Your day, held for you</a>
+    <a href="#care">The people you care for</a>
+    <a href="#garden">Your garden</a>
+    <a href="#life">The rest of life</a>
+    <a href="#privacy">Your data stays yours</a>
   </nav>
 
-  <section id="condition">
-    <h2>If you live with a chronic condition</h2>
-    <p>Most food advice is general. The app works out what your records say about you.</p>
+  <section id="body">
+    <h2>Food, worked out for your body</h2>
+    <p>Food advice is written for everybody. You are one person. Inside Story learns from what you log and shows you what is true for you.</p>
+    <h3>It knows your conditions</h3>
     <ul>
-      <li>Every food is scored for the conditions you choose, from a reference list of about 22,000 whole foods drawn from seven national food databases.</li>
-      <li>Log meals, symptoms, flares, sleep and labs, and Pattern Finder lists the foods that tend to come before your flares. It says what it is counting against, and it never claims to know the cause.</li>
-      <li>Test a suspect food by leaving it out and bringing it back, and see the before, without and after side by side.</li>
-      <li>Your medicines and supplements sit on one timeline with your meals, so a dose that clashes with a meal says so (levothyroxine and calcium, for example).</li>
-      <li>The app aims to get your nutrients from food, and it shows how much came from food and how much from a supplement.</li>
-      <li>Your history becomes a report for your doctor, nutritionist or caregiver, made on your phone as a PDF.</li>
+      <li>Choose the conditions you live with, one or several, and every food you look up is scored and explained for them. Celiac and gout together? It weighs both at once.</li>
+      <li>Hundreds of recipes, each marked with what it means for your conditions, and a meal plan of up to six weeks built around them, with the shopping list made for you.</li>
+      <li>For conditions that heal in stages, the foods suited to where you are now come first. Nothing is hidden; everything is explained.</li>
     </ul>
-    <p class="conditions">Conditions covered in depth: Hashimoto’s, Graves’ disease, celiac disease, inflammatory bowel disease, irritable bowel syndrome, chronic kidney disease, rheumatoid arthritis, psoriasis and psoriatic arthritis, lupus, multiple sclerosis, type 1 and type 2 diabetes, PCOS, cardiovascular disease, fatty liver disease, migraine, gout, Sjögren’s syndrome and prostate health. You can track more than one at once.</p>
-    <p>Every claim comes with how strong the evidence behind it is. The app does not diagnose, and it never tells you to change a prescription.</p>
+    <h3>It finds your patterns</h3>
+    <ul>
+      <li>Log meals, symptoms, flares, sleep, mood and labs. Pattern Finder lists the foods that tend to come before your flares, says how often it has seen it, and compares that with an ordinary day so chance does not fool you.</li>
+      <li>Suspect a food? The app runs a leave-it-out-then-bring-it-back test with you and shows before, without and after side by side.</li>
+      <li>Trends lays your sleep, weight, steps, labs and intake out over time, shows your usual range, and can set the weather beside your symptoms.</li>
+      <li>Turn anything you discover into a rule of your own, and the app keeps it in mind from then on.</li>
+    </ul>
+    <h3>It gets your nutrients from food first</h3>
+    <ul>
+      <li>Fuel gauges show where you stand on every nutrient today, and say how much came from food and how much from a supplement.</li>
+      <li>Your medicines and supplements sit on the same clock as your meals. Take levothyroxine too close to a calcium-rich breakfast and it tells you, with how far apart they are.</li>
+      <li>Turn it on, and FDA recalls are checked against your medicines and the products you scan.</li>
+    </ul>
+    <h3>Logging takes seconds</h3>
+    <ul>
+      <li>Repeat a usual meal with one tap, scan a barcode, say it out loud, or photograph the label. Eating out? Read the menu in, or log it with a stand-in.</li>
+      <li>Builders for salads, smoothies, ferments and more show you a meal’s full picture before you save it.</li>
+    </ul>
+    <h3>Ready for your doctor</h3>
+    <ul>
+      <li>Eight reports, made on your phone as a PDF: for your doctor, nutritionist, trainer or caregiver, a look back, your medical costs, and your garden.</li>
+      <li>Every claim in the app says how strong the evidence behind it is. It never diagnoses and never tells you to change a prescription.</li>
+    </ul>
+    <p class="muted">Conditions covered in depth: Hashimoto’s, Graves’ disease, celiac disease, inflammatory bowel disease, irritable bowel syndrome, chronic kidney disease, rheumatoid arthritis, psoriasis and psoriatic arthritis, lupus, multiple sclerosis, type 1 and type 2 diabetes, PCOS, cardiovascular disease, fatty liver disease, migraine, gout, Sjögren’s syndrome and prostate health.</p>
   </section>
 
-  <section id="daily">
-    <h2>If you need a place to hold the details of your day</h2>
-    <p>Some people, including many with ADHD or autism and anyone carrying too much, do better with an outside place to keep what would otherwise sit in their head. That is reason enough to use the app, and you can skip the food side entirely.</p>
+  <section id="day">
+    <h2>Your day, held for you</h2>
+    <p>For many people, including many with ADHD or autism, and anyone recovering, grieving or simply carrying too much, the hardest part of a day is the hundred small things that have to be remembered. Inside Story holds them so your head does not have to. You can use it for this alone and never touch the food side.</p>
     <ul>
-      <li>Routines you walk through one step at a time, and Did I Do It for the things you can never remember doing (the stove, the door, the pill).</li>
-      <li>Reminders for medicines, appointments, bills and upkeep, plus counters for the days until anything.</li>
-      <li>Where Did I Put It: one search over where you said things are.</li>
-      <li>Quick capture by typing or voice, sorted later.</li>
-      <li>Keeping Up shows what you got done over the weeks. It never gives you a score, and a week you did not log stays blank rather than counting as a zero.</li>
+      <li><span class="name">Routines</span> you walk through one step at a time, morning, evening or anything in between.</li>
+      <li><span class="name">Did I Do It</span> for the things you can never remember doing: the stove, the door, the pill. One tap, and it is recorded with the time.</li>
+      <li><span class="name">Reminders you can answer</span> right from the notification: took it, skipped it, done.</li>
+      <li><span class="name">Where Did I Put It</span>: tell it once, find it later with one search.</li>
+      <li><span class="name">Days Until</span> counters for anything you are waiting on or working toward.</li>
+      <li><span class="name">Upkeep</span> for the house, the car and everything else that needs doing every so often.</li>
+      <li><span class="name">Quick capture</span> by typing or voice, sorted later when you have the room.</li>
+      <li><span class="name">Keeping Up</span> shows what you got done over the weeks, kindly. No scores, no streaks to break, and a week you did not log is left blank, never counted as a failure.</li>
     </ul>
+    <p>A guided tour called Your Story walks you through the app at your pace, one part of life at a time.</p>
   </section>
 
-  <section id="caring">
-    <h2>If you look after someone</h2>
+  <section id="care">
+    <h2>For the people you look after</h2>
     <ul>
-      <li>Keep family members’ conditions alongside your own, so the meal plan works for everyone at the table.</li>
-      <li>Share a shopping list with someone you have paired with. Pairing takes an invitation from inside the app, and nothing crosses unless you have named it.</li>
-      <li>An emergency card holds the medicines, conditions and contacts someone would need.</li>
-      <li>The caregiver report pulls together what another person needs to know.</li>
+      <li>Add family members and their conditions, and the meal plan works for everyone at the table.</li>
+      <li>Share a shopping list with a partner, checked off from either phone. Pairing takes an invitation from inside the app, and only what you choose is shared.</li>
+      <li>An emergency card with medicines, conditions and contacts, ready when someone needs it.</li>
+      <li>A caregiver report that pulls together what another person needs to know.</li>
     </ul>
   </section>
 
   <section id="garden">
-    <h2>If you grow food</h2>
+    <h2>A garden kept as a living record</h2>
+    <p>Grow your own food and Inside Story becomes your garden journal, planner and teacher.</p>
     <ul>
-      <li>Keep a record of your beds, plantings, seed packets, harvests, compost piles and what the garden costs, indoors or out.</li>
-      <li>Guides for 91 crops, each with problems you can put right from the soil and sources beyond the usual ones.</li>
-      <li>When a meal uses something you grew, the app takes it off what the garden still has.</li>
-      <li>The advice favours living soil, compost and the insects already doing the work. It argues against garden chemicals honestly, without mocking them.</li>
+      <li>Your beds drawn to scale with plantings placed, the seed packets on hand with how long each keeps, and germination tests.</li>
+      <li>Care reminders for each crop, companion planting with the evidence behind it, and crop guides that fix problems from the soil up.</li>
+      <li>Harvests, compost piles, indoor grow setups with their lights and electricity, readings from your weather station, and what the garden costs and gives back.</li>
+      <li>Cook with what you grew and the app takes it off what the garden still has.</li>
+      <li>It favours living soil, compost and the insects already working for you, and explains plainly why.</li>
+    </ul>
+  </section>
+
+  <section id="life">
+    <h2>And the rest of life</h2>
+    <ul>
+      <li>Finances, medical bills and what your health costs over time.</li>
+      <li>Work, movement and exercise, with your phone’s activity data brought in.</li>
+      <li>Your kitchen: what is in it and where it is.</li>
+      <li>A library to read: every condition explained with its sources, plus health literacy and the food system.</li>
+      <li>On your phone and on a Windows computer, kept in step through a folder you choose.</li>
     </ul>
   </section>
 
   <section id="privacy">
-    <h2>Where your data goes</h2>
-    <p>It stays on your phone or computer. No company server holds your health records and there is no account to create. To have the app on two devices, you pick a folder in your OneDrive, and the copy kept there is encrypted with a password only you know. That means nobody can reset the password for you.</p>
-    <p>When the app needs something from outside, such as the FDA recall list or the weather, it asks for the public list and does the matching on your device. Nothing about you goes with the request.</p>
+    <h2>Your data stays yours</h2>
+    <p>Your records live on your phone or computer. No company server holds your health information, and there is no account to create. To use two devices, you pick a folder in your OneDrive, and the copy kept there is encrypted with a password only you know.</p>
+    <p>When the app looks something up, such as the weather or the FDA recall list, it asks for the public information and does the matching on your device. Nothing about you goes with the request.</p>
     <p>This page collects nothing: no form, no cookies, no tracking.</p>
   </section>
 
   <footer>
-    <p>Inside Story runs on Android and on Windows. It is not in the app stores yet.</p>
+    <p>Inside Story is under construction and not available to download yet.</p>
     <p><a href="/">Home</a> · <a href="/terms/">Terms of Use</a> · <a href="/privacy/">Privacy Policy</a></p>
   </footer>
 </main>

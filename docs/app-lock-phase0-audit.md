@@ -93,3 +93,12 @@ Everything else runs only while the app is open:
 2. **The emergency card while locked?** Recommendation: offer it, off by default. When turned on, the card the person picks is kept as a small separate copy outside the encrypted database. It is refreshed each time they unlock, so first responders can read it without the key.
 3. **Every tier, including Free?** Recommendation: yes.
 4. **Partner and device sync while locked?** Recommendation: no, only while unlocked. Sync runs at unlock and saves before the lock takes the key away. With a whole-app lock, nothing can be read to send anyway.
+
+## Tony's answers (2026-10-02)
+
+"Go with your recommendations on all four."
+
+1. The whole app locks by default. Locking only the sensitive areas is offered as a choice, and it says what it does and does not protect.
+2. The emergency card can be shown without unlocking. The setting is off by default, and the card is a separate copy refreshed at each unlock.
+3. The lock comes with every tier, Free included.
+4. Partner and device sync run only while unlocked. They sync at unlock and save before the lock takes effect.
