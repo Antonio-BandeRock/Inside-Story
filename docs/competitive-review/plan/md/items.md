@@ -947,7 +947,7 @@
 ### G24. Photo gives a first guess at ingredients, on the phone
 - **Ships by:** Android rebuild R1 · **Size:** L · **Tabs:** Food
 - **Answers:** Cal AI · **Theme:** Food, scanning and Insights
-- **How:** ML Kit image labelling: broad items only, confirmed by the person, never saved unconfirmed. The cloud version is Z1.
+- **How:** DROPPED 2026-10-02 by direct instruction: ML Kit's built-in labeller has no ingredient labels (only Food, Fruit, Vegetable, Meal and about fifteen dishes), so it would say Food for almost every plate. Rely on the cloud version, Z1.
 
 ### I22. Receive the gateway's pushes
 - **Ships by:** Android rebuild R1 · **Size:** M-L · **Tabs:** Garden
