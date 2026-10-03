@@ -152,6 +152,7 @@ const AREAS: readonly Area[] = [
     quiet: ['treatment_nutrients'],
   },
   { one: 'personal rule', many: 'personal rules', count: ['personal_rules'], quiet: [] },
+  { one: 'recall set aside', many: 'recalls set aside', count: ['recall_checks'], quiet: [] },
   {
     one: 'assessment',
     many: 'assessments',

@@ -9,6 +9,7 @@ import { useInfoAlert } from './InfoAlert';
 import type { DropdownOption } from './Dropdown';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
 import { TabBand } from './TabBand';
+import { RecallsBand } from './RecallsBand';
 import { PopoverSelect } from './PopoverSelect';
 import { WhyExplainer } from './WhyExplainer';
 import { RuleSeverityTag } from './RuleSeverityTag';
@@ -1089,6 +1090,8 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
             </View>
             </TabBand>
           ) : null}
+
+          <RecallsBand folds={folds} tabColor={tabColor} reloadKey={treatments.length} />
 
           {treatments.length === 0 ? (
             <View style={styles.bandBox}><Text style={styles.emptyText}>Nothing here yet. Add a prescription, OTC drug, or supplement above, then tap Schedule it to set its times in Schedules.</Text></View>

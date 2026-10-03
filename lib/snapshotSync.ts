@@ -281,6 +281,11 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'reminder_timing_asked',
   // When this device last asked NASA for weather (F22, lib/weatherDb.ts).
   'weather_last_fetch',
+  // When this device last read the FDA recall list, and which matches it has
+  // already raised a notification for (A14, lib/recallsDb.ts). The list
+  // itself stays on each device, so these describe this device's copy.
+  'recalls_last_read',
+  'recalls_notified',
   CHANGE_BASELINE_META_KEY,
 ];
 
@@ -313,6 +318,9 @@ export const DEVICE_LOCAL_TABLES: readonly string[] = [
   // Weather where the person lives (F22, lib/weatherDb.ts): each device
   // fetches its own, and a refetch is not a change to send.
   'daily_weather',
+  // The FDA recall list (A14, lib/recallsDb.ts): a public list each device
+  // reads for itself. The person's set-aside decisions (recall_checks) travel.
+  'recalls',
   'peer_photo_out',
   'peer_photos',
   // When each photo or recording file here was last opened (1.0.57.23), for

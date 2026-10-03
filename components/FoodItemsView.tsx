@@ -41,6 +41,7 @@ import { DynamicEntryActions } from './DynamicEntryActions';
 import { EntryPhotoSection } from './EntryPhotoSection';
 import { RecipeBuildRow, RecipeDetailCard } from './RecipeDetailCard';
 import { useConfirmSheet, type ConfirmSheetRequest } from './ConfirmSheet';
+import { scannedProductIdsWithRecalls } from '../lib/recallsDb';
 import { useInfoAlert } from './InfoAlert';
 
 // A Food lens since 2026-09-13 (it was app/food-items.tsx, a Stack push
@@ -842,12 +843,14 @@ async function loadItems(itemType: string | undefined, status: string | undefine
   // FoodItemEntry's own id type -- food-product-detail.tsx converts it
   // back to a number on the way in.
   if (itemType === 'scannedProduct') {
-    const products = await listScannedProducts();
-    return products.map((product) => ({
-      id: String(product.id),
-      title: product.name,
-      subtitle: product.brand ?? undefined,
-    }));
+    const [products, recalled] = await Promise.all([listScannedProducts(), scannedProductIdsWithRecalls().catch(() => new Set<string>())]);
+    return products.map((product) => {
+      // A recall naming the product (A14) is said on its row, so it is seen
+      // without opening each one.
+      const note = recalled.has(String(product.id)) ? 'A recall may name this' : null;
+      const subtitle = [product.brand, note].filter(Boolean).join(' · ');
+      return { id: String(product.id), title: product.name, subtitle: subtitle || undefined };
+    });
   }
   return [];
 }

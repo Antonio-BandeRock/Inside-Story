@@ -20,6 +20,8 @@ import {
   type ScannedProductRecord,
 } from '../lib/db';
 import { formatAmount } from '../lib/nutrientAnalysis';
+import { classSentence, howMatchedSentence, recallNumberSentence, recallTitle, statusSentence, whatToDoSentence, type RecallMatch } from '../lib/recalls';
+import { getProductRecallMatches, isRecallCheckOn, setAsideRecalls } from '../lib/recallsDb';
 
 // A Food lens since 2026-09-13 (it was app/food-product-detail.tsx, a
 // Stack screen, from 2026-08-16 until then), for the same reason
@@ -57,6 +59,7 @@ export function FoodProductDetailView({ id, onClose }: { id: string; title?: str
   const [product, setProduct] = useState<ScannedProductRecord | null>(null);
   const [nutrients, setNutrients] = useState<NutrientRow[]>([]);
   const [priceHistory, setPriceHistory] = useState<ScannedProductPriceRecord[]>([]);
+  const [recalls, setRecalls] = useState<RecallMatch[]>([]);
 
   const [name, setName] = useState('');
   const [ingredientsText, setIngredientsText] = useState('');
@@ -75,6 +78,8 @@ export function FoodProductDetailView({ id, onClose }: { id: string; title?: str
     setProduct(record);
     setNutrients(nutrientRows);
     setPriceHistory(prices);
+    // Recalls that name this product (A14), only while the check is on.
+    setRecalls((await isRecallCheckOn()) ? await getProductRecallMatches(productId).catch(() => []) : []);
     if (record) {
       setName(record.name);
       setIngredientsText(record.ingredientsText ?? '');
@@ -198,6 +203,23 @@ export function FoodProductDetailView({ id, onClose }: { id: string; title?: str
           {product.brand ? <Text style={styles.caption}>{product.brand}</Text> : null}
           <Text style={styles.caption}>Scanned {product.scannedAt.slice(0, 10)} · {product.lookupSource}</Text>
         </View>
+
+        {recalls.map((match) => (
+          <View key={match.recall.recallNumber} style={styles.card}>
+            <Text style={styles.sectionLabel}>{recallTitle(match)}</Text>
+            <Text style={styles.text}>{match.recall.product}</Text>
+            {match.recall.reason ? <Text style={styles.text}>Why: {match.recall.reason}</Text> : null}
+            {match.recall.codeInfo ? <Text style={styles.caption}>Lots and codes: {match.recall.codeInfo}</Text> : null}
+            <Text style={styles.caption}>{howMatchedSentence(match)}</Text>
+            <Text style={styles.caption}>{classSentence(match.recall.classification)}</Text>
+            <Text style={styles.caption}>{statusSentence(match.recall)}</Text>
+            <Text style={styles.text}>{whatToDoSentence(match)}</Text>
+            <Text style={styles.caption}>{recallNumberSentence(match.recall)}</Text>
+            <TouchableOpacity accessibilityRole="button" onPress={() => void setAsideRecalls([match]).then(load)}>
+              <Text style={styles.sectionLabel}>Checked, not mine: set it aside</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
 
         {/* Ingredients -- the OCR'd/typed text from scan-product.tsx's own
             capture flow, still fully editable here for the exact same

@@ -20,6 +20,7 @@ import { SnapshotSyncWatcher } from '../components/SnapshotSyncWatcher';
 import { PeerMailboxWatcher } from '../components/PeerMailboxWatcher';
 import EcowittPoller from '../components/EcowittPoller';
 import { PendingScanWatcher } from '../components/PendingScanWatcher';
+import { RecallWatcher } from '../components/RecallWatcher';
 import { StoryReturnHost } from '../components/StoryReturnHost';
 import { StoryWalkHost } from '../components/StoryWalkHost';
 import { TellClaudeHost } from '../components/TellClaudeHost';
@@ -844,6 +845,7 @@ export default function RootLayout() {
               <EcowittPoller />
               {/* Barcodes scanned with no signal (G21), looked up once there is one. */}
               <PendingScanWatcher />
+              <RecallWatcher />
               {/* Tell Claude (1.0.49.8): the button and the sheet a note is
                   typed into. Renders nothing at all while the Profile switch
                   is off, which is every install but this one. Before

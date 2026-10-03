@@ -7629,6 +7629,38 @@ async function runDatabaseInitialization() {
         PRIMARY KEY (date, lat, lon)
       );
 
+      -- The past year of US FDA recalls from openFDA (A14, lib/recallsDb.ts),
+      -- read only when the person turns the recall check on. Kept on the
+      -- device that read it (DEVICE_LOCAL_TABLES): it is a public list any
+      -- device can read again. Matching to meds and scanned foods happens at
+      -- read time and is never stored.
+      CREATE TABLE IF NOT EXISTS recalls (
+        recall_number TEXT PRIMARY KEY NOT NULL,
+        kind TEXT NOT NULL,
+        firm TEXT NOT NULL DEFAULT '',
+        product TEXT NOT NULL DEFAULT '',
+        reason TEXT NOT NULL DEFAULT '',
+        classification TEXT NOT NULL DEFAULT '',
+        status TEXT NOT NULL DEFAULT '',
+        report_date TEXT NOT NULL,
+        code_info TEXT NOT NULL DEFAULT '',
+        ndcs_json TEXT NOT NULL DEFAULT '[]',
+        upcs_json TEXT NOT NULL DEFAULT '[]',
+        names_json TEXT NOT NULL DEFAULT '[]',
+        read_at TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_recalls_report_date ON recalls(report_date);
+
+      -- A recall the person checked and set aside for one med or product
+      -- ("not mine"). Their decision, so it travels.
+      CREATE TABLE IF NOT EXISTS recall_checks (
+        recall_number TEXT NOT NULL,
+        owner_kind TEXT NOT NULL,
+        owner_id TEXT NOT NULL,
+        checked_at TEXT NOT NULL,
+        PRIMARY KEY (recall_number, owner_kind, owner_id)
+      );
+
       -- Every row of a controller's history file (I19 rework, 1.0.55.35),
       -- one figure per measurement per moment, kept on the device that
       -- imported it (DEVICE_LOCAL_TABLES). The key is the area, planting

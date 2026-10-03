@@ -740,6 +740,12 @@ export default function FoodScreen() {
       // start from, 2026-09-18. They used to reach into the Digest for
       // this; the recipes live here now, so the links land on the two
       // lenses that hold them.
+      // A recall notification about a scanned food (A14) opens the list of
+      // scanned products, where the row says which one a recall may name.
+      if (openFoodLens === 'myFoodProducts') {
+        openMyFoodsList({ itemType: 'scannedProduct', status: 'saved', title: 'My Food Products' });
+        return;
+      }
       if (openFoodLens === 'myRecipes') {
         openMyRecipes();
         return;

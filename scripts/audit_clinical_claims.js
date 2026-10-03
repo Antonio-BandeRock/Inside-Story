@@ -92,6 +92,9 @@ const NAMED = [
   'lib/trendAnalysis.ts',
   'lib/therapyResponse.ts',
   'lib/doseMealTiming.ts',
+  // Recalls matched to meds and scanned foods (A14).
+  'lib/recalls.ts',
+  'components/RecallsBand.tsx',
   'lib/mineralAbsorption.ts',
   'lib/mealPlanBalance.ts',
   'lib/foodOneWord.ts',

@@ -67,6 +67,7 @@ import { formatTime12 } from './timeOfDay';
 import { currentZone, homeDoseHere, homeTimeWords, parseTravelMode } from './travelTime';
 import { getHomeZone } from './travelTimeDb';
 import { PEER_DOSE_PREFIX } from './doseWatch';
+import { RECALL_NOTIFICATION_PREFIX } from './recalls';
 import { quietDecision, SNOOZE_MINUTES } from './quietHours';
 import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
 import { getTodo, markTodoDone } from './todosDb';
@@ -1411,6 +1412,7 @@ export type ReminderTapTarget =
   | { pathname: '/reconcile' }
   | { pathname: '/daily-checkin' }
   | { pathname: '/'; params: { openHomeSection: 'yourWeek' } }
+  | { pathname: '/food'; params: { openFoodLens: 'myFoodProducts' } }
   | { pathname: '/photo-camera'; params: { ownerKind: string; ownerId: string; guide: '1'; title: string } };
 
 const SCHEDULE_LENSES: ScheduleLens[] = ['meds', 'appointments', 'meals', 'todaysMeals', 'hydration', 'exercise'];
@@ -1432,6 +1434,13 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
   // A16: an alert about somebody else's dose opens Meds, where the band of
   // doses you watch sits. Queued by lib/peerDosesDb.ts, not by this module.
   if (request?.identifier.startsWith(PEER_DOSE_PREFIX)) return { pathname: '/schedule', params: { openScheduleLens: 'meds' } };
+  // A14: a recall matching something kept opens the Recalls band on My Meds,
+  // or the scanned products list when every match was a food. Queued by
+  // lib/recallsDb.ts.
+  if (request?.identifier.startsWith(RECALL_NOTIFICATION_PREFIX)) {
+    const target = (request.content.data as { target?: unknown } | undefined)?.target;
+    return target === 'foods' ? { pathname: '/food', params: { openFoodLens: 'myFoodProducts' } } : { pathname: '/life', params: { openLifeLens: 'myMeds' } };
+  }
   if (!request || !(isOurs(request.identifier) || isSnoozed(request.identifier))) return null;
   const data = request.content.data as Partial<ReminderPayload> | undefined;
 
