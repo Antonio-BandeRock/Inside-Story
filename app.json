@@ -78,7 +78,10 @@
         "android.permission.health.WRITE_EXERCISE",
         "android.permission.CHANGE_WIFI_MULTICAST_STATE",
         "android.permission.ACCESS_WIFI_STATE",
-        "android.permission.SCHEDULE_EXACT_ALARM"
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.health.READ_RESPIRATORY_RATE",
+        "android.permission.health.READ_BODY_TEMPERATURE",
+        "android.permission.READ_CONTACTS"
       ],
       "intentFilters": [
         {
@@ -122,6 +125,11 @@
             }
           ]
         }
+      ],
+      "blockedPermissions": [
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_BACKGROUND_LOCATION",
+        "android.permission.WRITE_CONTACTS"
       ]
     },
     "androidNavigationBar": {
@@ -145,7 +153,12 @@
           }
         }
       ],
-      "expo-sqlite",
+      [
+        "expo-sqlite",
+        {
+          "useSQLCipher": true
+        }
+      ],
       "expo-asset",
       "expo-localization",
       "expo-font",
@@ -207,7 +220,131 @@
           "icon": "./assets/images/android-icon-monochrome.png",
           "color": "#244147"
         }
-      ]
+      ],
+      "expo-quick-actions",
+      "expo-audio",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Inside Story uses Face ID to unlock the app when you have turned App Lock on."
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Inside Story saves the full-size photos you take in the app to your gallery, when you have asked it to.",
+          "savePhotosPermission": "Inside Story saves the full-size photos you take in the app to your gallery, when you have asked it to.",
+          "granularPermissions": [
+            "photo"
+          ]
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Inside Story uses your approximate location, only when you ask, to fetch the weather for your area. It is rounded before anything is sent.",
+          "isAndroidBackgroundLocationEnabled": false,
+          "isAndroidForegroundServiceEnabled": false
+        }
+      ],
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "Inside Story lets you pick a person from your contacts for an emergency contact, a prescriber, a pharmacy or a family member. Nothing is copied out of your phone."
+        }
+      ],
+      [
+        "expo-share-intent",
+        {
+          "androidIntentFilters": [
+            "text/*",
+            "image/*"
+          ],
+          "disableIOS": true
+        }
+      ],
+      [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "NextThing",
+              "label": "Next thing",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "description": "What comes next in your day",
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "NextDose",
+              "label": "Next dose",
+              "minWidth": "180dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 3,
+              "targetCellHeight": 2,
+              "description": "Your next medicine or supplement",
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "Capture",
+              "label": "Capture",
+              "minWidth": "110dp",
+              "minHeight": "40dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 1,
+              "description": "Jot something down",
+              "resizeMode": "horizontal"
+            },
+            {
+              "name": "Grocery",
+              "label": "Grocery list",
+              "minWidth": "180dp",
+              "minHeight": "180dp",
+              "targetCellWidth": 3,
+              "targetCellHeight": 3,
+              "description": "What is still on the list",
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "FuelGauges",
+              "label": "Fuel gauges",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "description": "Where today stands on your key nutrients",
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "RoutineStep",
+              "label": "Routine step",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "description": "The step you are on in a routine",
+              "resizeMode": "horizontal|vertical"
+            },
+            {
+              "name": "Glass",
+              "label": "A glass of water",
+              "minWidth": "110dp",
+              "minHeight": "40dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 1,
+              "description": "Record a glass with one tap",
+              "resizeMode": "horizontal"
+            }
+          ]
+        }
+      ],
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true,
