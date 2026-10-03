@@ -1,7 +1,7 @@
 {
   "name": "hashimotos-app",
   "main": "index.js",
-  "version": "1.0.60.3",
+  "version": "1.0.60.4",
   "scripts": {
     "start": "node ./scripts/start-with-qr.js",
     "reset-project": "node ./scripts/reset-project.js",
@@ -10,7 +10,8 @@
     "web": "node ./scripts/start-with-qr.js --web",
     "lint": "expo lint",
     "deploy": "npx expo export -p web && wrangler deploy",
-    "preview": "npx expo export -p web && wrangler dev"
+    "preview": "npx expo export -p web && wrangler dev",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@dr.pogodin/react-native-static-server": "^0.28.0",
