@@ -1,0 +1,122 @@
+diff --git a/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/presentation/builders/ExpoNotificationBuilder.kt b/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/presentation/builders/ExpoNotificationBuilder.kt
+index 610d303..3021a7f 100644
+--- a/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/presentation/builders/ExpoNotificationBuilder.kt
++++ b/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/notifications/presentation/builders/ExpoNotificationBuilder.kt
+@@ -121,6 +121,14 @@ open class ExpoNotificationBuilder(
+       builder.setExtras(extras)
+     }
+ 
++    // Inside Story: reminders of one type share a group, so Android bundles
++    // them together in the notification shade. The group key travels in the
++    // data payload, since expo-notifications has no field for it.
++    content.body?.optString("androidGroup")?.takeIf { it.isNotEmpty() }?.let {
++      builder.setGroup(it)
++      builder.setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
++    }
++
+     // Save the notification request in extras for later usage
+     // eg. in ExpoPresentationDelegate when we fetch active notifications.
+     // Otherwise we'd have to create expo.Notification from android.Notification
+diff --git a/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/service/delegates/ExpoPresentationDelegate.kt b/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/service/delegates/ExpoPresentationDelegate.kt
+index 38f6fba..d05bb2c 100644
+--- a/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/service/delegates/ExpoPresentationDelegate.kt
++++ b/node_modules/expo-notifications/android/src/main/java/expo/modules/notifications/service/delegates/ExpoPresentationDelegate.kt
+@@ -1,6 +1,8 @@
+ package expo.modules.notifications.service.delegates
+ 
+ import android.app.NotificationManager
++import android.app.PendingIntent
++import android.content.Intent
+ import android.content.Context
+ import android.media.RingtoneManager
+ import android.net.Uri
+@@ -35,6 +37,8 @@ open class ExpoPresentationDelegate(
+ 
+   companion object {
+     protected const val ANDROID_NOTIFICATION_ID = 0
++    // Inside Story: marks a group summary this delegate posted.
++    const val GROUP_SUMMARY_EXTRA = "insideStoryGroupSummary"
+ 
+     protected const val INTERNAL_IDENTIFIER_SCHEME = "expo-notifications"
+     protected const val INTERNAL_IDENTIFIER_AUTHORITY = "foreign_notifications"
+@@ -110,9 +114,56 @@ open class ExpoPresentationDelegate(
+         getNotifyId(notification.notificationRequest),
+         androidNotification
+       )
++      postGroupSummary(notification, androidNotification)
+     }
+   }
+ 
++  // Inside Story: a notification carrying a group gets a summary for that
++  // group, which is what makes Android bundle the group in the shade. Posted
++  // here rather than from JS so it also happens when a scheduled reminder
++  // fires with the app closed. Tagged with the group key, so each group has
++  // exactly one summary and posting it again only updates it.
++  private fun postGroupSummary(notification: Notification, posted: android.app.Notification) {
++    val group = posted.group ?: return
++    if ((posted.flags and android.app.Notification.FLAG_GROUP_SUMMARY) != 0) return
++    val body = notification.notificationRequest.content.body ?: return
++    val title = body.optString("androidGroupTitle").takeIf { it.isNotEmpty() } ?: return
++    @Suppress("DEPRECATION")
++    val smallIcon = posted.icon
++    val builder = NotificationCompat.Builder(context, posted.channelId ?: "")
++      .setSmallIcon(smallIcon)
++      .setColor(posted.color)
++      .setContentTitle(title)
++      .setStyle(NotificationCompat.InboxStyle().setSummaryText(title))
++      .setGroup(group)
++      .setGroupSummary(true)
++      .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
++      .setSilent(true)
++      .setAutoCancel(true)
++      .addExtras(Bundle().apply { putString(GROUP_SUMMARY_EXTRA, group) })
++    body.optString("androidGroupLink").takeIf { it.isNotEmpty() }?.let { link ->
++      val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link)).setPackage(context.packageName)
++      builder.setContentIntent(
++        PendingIntent.getActivity(context, group.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
++      )
++    }
++    NotificationManagerCompat.from(context).notify(group, ANDROID_NOTIFICATION_ID, builder.build())
++  }
++
++  // Inside Story: a group summary left with nothing under it is taken away,
++  // so answering the last reminder of a type clears its heading too. The
++  // notifications just cancelled are left out by hand, since the list of
++  // active notifications can still hold them for a moment.
++  private fun cancelEmptyGroupSummaries(justCancelled: Set<Pair<String?, Int>>) {
++    val systemManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
++    val active = systemManager.activeNotifications.filter { !justCancelled.contains(Pair(it.tag, it.id)) }
++    val isSummary = { n: StatusBarNotification -> (n.notification.flags and android.app.Notification.FLAG_GROUP_SUMMARY) != 0 }
++    val withChildren = active.filter { !isSummary(it) }.map { it.notification.group }.filterNotNull().toSet<String?>()
++    active
++      .filter { isSummary(it) && it.notification.extras.getString(GROUP_SUMMARY_EXTRA) != null && it.notification.group !in withChildren }
++      .forEach { NotificationManagerCompat.from(context).cancel(it.tag, it.id) }
++  }
++
+   private fun getNotificationSoundUri(notification: Notification): Uri? {
+     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+       notification.notificationRequest.trigger.getNotificationChannel()?.let {
+@@ -141,17 +192,22 @@ open class ExpoPresentationDelegate(
+   }
+ 
+   override fun dismissNotifications(identifiers: Collection<String>) {
++    val justCancelled = mutableSetOf<Pair<String?, Int>>()
+     identifiers.forEach { identifier ->
+       val foreignNotification = parseNotificationIdentifier(identifier)
+       if (foreignNotification != null) {
+         // Foreign notification identified by us
+         NotificationManagerCompat.from(context).cancel(foreignNotification.first, foreignNotification.second)
++        justCancelled.add(Pair(foreignNotification.first, foreignNotification.second))
+       } else {
+         // If the notification exists, let's assume it's ours, we have no reason to believe otherwise
+         val existingNotification = this.getAllPresentedNotifications().find { it.notificationRequest.identifier == identifier }
+-        NotificationManagerCompat.from(context).cancel(identifier, getNotifyId(existingNotification?.notificationRequest))
++        val id = getNotifyId(existingNotification?.notificationRequest)
++        NotificationManagerCompat.from(context).cancel(identifier, id)
++        justCancelled.add(Pair(identifier, id))
+       }
+     }
++    cancelEmptyGroupSummaries(justCancelled)
+   }
+ 
+   override fun dismissAllNotifications() = NotificationManagerCompat.from(context).cancelAll()

@@ -111,6 +111,23 @@ const expected = {
 };
 for (const [kind, key] of Object.entries(expected)) check('group for ' + (kind || 'no kind'), w.waitingGroupFor(kind) === key);
 
+// --- Groups in Android's shade (1.0.60.4) ---
+const doseGroup = w.androidGroupFor('refill');
+check('a refill sits in the Doses group in the shade', doseGroup.androidGroup === 'inside-story-group:dose' && doseGroup.androidGroupTitle === 'Doses');
+check('an unknown kind sits under Everything Else', w.androidGroupFor('').androidGroup === 'inside-story-group:other');
+check('a group heading opens the list', doseGroup.androidGroupLink === 'hashimotosapp://waiting-answers');
+const deviceSource = fs.readFileSync(path.join(__dirname, '..', 'lib', 'reminderNotifications.ts'), 'utf8');
+check('queued reminders carry their group', /data: \{ \.\.\.planned\.payload, \.\.\.androidGroupFor\(planned\.payload\.kind\) \}/.test(deviceSource));
+check('the energy question carries its group', deviceSource.includes("...androidGroupFor('morning')"));
+check('a snooze carries its group', deviceSource.includes("...androidGroupFor(data.kind ?? '')"));
+check('a reminder queued without its group is queued again', deviceSource.includes('data?.androidGroup === androidGroupFor(want.payload.kind).androidGroup'));
+check('an empty group heading is taken away', deviceSource.includes('await dismissEmptyGroupSummaries(presented);'));
+const patchFile = path.join(__dirname, '..', 'patches', 'expo-notifications+0.32.17.patch');
+const patch = fs.existsSync(patchFile) ? fs.readFileSync(patchFile, 'utf8') : '';
+check('the expo-notifications patch is kept', patch.includes('androidGroup') && patch.includes('setGroupSummary(true)'));
+const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
+check('the patch is applied on every install', /patch-package/.test((pkg.scripts || {}).postinstall || ''));
+
 // --- Summary ---
 check('the summary starts at two', w.SUMMARY_FROM === 2);
 check('the summary counts', w.summaryTitle(4) === '4 reminders waiting for an answer');

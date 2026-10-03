@@ -107,6 +107,24 @@ export function waitingGroupFor(kind: string): WaitingGroupKey {
   }
 }
 
+// The fields that put a reminder into its group in Android's notification
+// shade (1.0.60.4). Read by the patched expo-notifications
+// (patches/expo-notifications+0.32.17.patch): androidGroup groups the
+// reminder, androidGroupTitle heads the group's summary, and a tap on the
+// summary opens androidGroupLink, which is the Waiting for an Answer list.
+// iOS ignores all three.
+export const ANDROID_GROUP_PREFIX = 'inside-story-group:';
+export const WAITING_LIST_LINK = 'hashimotosapp://waiting-answers';
+
+export function androidGroupFor(kind: string): { androidGroup: string; androidGroupTitle: string; androidGroupLink: string } {
+  const key = waitingGroupFor(kind);
+  return {
+    androidGroup: ANDROID_GROUP_PREFIX + key,
+    androidGroupTitle: WAITING_GROUP_LABELS[key],
+    androidGroupLink: WAITING_LIST_LINK,
+  };
+}
+
 /** The buttons a notification carries, read from the set it was given. */
 export function actionsForCategory(categoryIdentifier: string | null): ReminderActionId[] {
   const key = ALL_REMINDER_CATEGORY_KEYS.find(

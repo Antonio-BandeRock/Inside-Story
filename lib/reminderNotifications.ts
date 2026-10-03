@@ -74,7 +74,7 @@ import { getTodo, markTodoDone } from './todosDb';
 import { getMorningCheckin, saveMorningCheckin } from './morningCheckinDb';
 import { isLockedNow } from './appLockSession';
 import { keepAnswerForUnlock, takeWaitingAnswers } from './lockedAnswers';
-import { countWaiting, groupWaiting, SUMMARY_FROM, summaryBody, summaryTitle, type ShowingReminder, type WaitingGroup } from './waitingAnswers';
+import { ANDROID_GROUP_PREFIX, androidGroupFor, countWaiting, groupWaiting, SUMMARY_FROM, summaryBody, summaryTitle, type ShowingReminder, type WaitingGroup } from './waitingAnswers';
 import { YOUR_WEEK_NOTIFICATION_BODY, YOUR_WEEK_NOTIFICATION_TITLE } from './weeklySummary';
 import { buildWeekPlanBody, WEEK_PLAN_NOTIFICATION_TITLE, weekPlanDays } from './weekPlanNotice';
 import { buildGardenMonthBody, GARDEN_MONTH_NOTIFICATION_TITLE, nextGardenMonthFire, type GardenMonthPlace } from './gardenMonthNotice';
@@ -275,6 +275,12 @@ type ReminderPayload = {
    *  day of the plan it is for, so finishing it marks that day done. */
   workoutId?: string;
   onDate?: string;
+  /** Android only, 1.0.60.4: which group of the notification shade this
+   *  reminder sits in, read by the patched expo-notifications. Filled by
+   *  androidGroupFor in lib/waitingAnswers.ts as the reminder is queued. */
+  androidGroup?: string;
+  androidGroupTitle?: string;
+  androidGroupLink?: string;
 };
 
 type PlannedNotification = {
@@ -767,7 +773,7 @@ async function presentMorningEnergy(day: string): Promise<void> {
     content: {
       title: MORNING_ENERGY_TITLE,
       body: MORNING_ENERGY_BODY,
-      data: payload,
+      data: { ...payload, ...androidGroupFor('morning') },
       sound: false,
       categoryIdentifier: REMINDER_CATEGORY_IDS.energy,
     },
@@ -1356,7 +1362,9 @@ async function runSync(): Promise<ReminderSyncResult> {
       data?.fireAt === want.payload.fireAt &&
       request.content.title === want.title &&
       withoutFreshness(request.content.body) === withoutFreshness(want.body) &&
-      request.content.categoryIdentifier === categoryIdFor(want)
+      request.content.categoryIdentifier === categoryIdFor(want) &&
+      // Requeues, once, every reminder queued before it carried its group.
+      data?.androidGroup === androidGroupFor(want.payload.kind).androidGroup
     ) {
       unchanged.add(request.identifier);
       continue;
@@ -1378,7 +1386,7 @@ async function runSync(): Promise<ReminderSyncResult> {
         content: {
           title: planned.title,
           body: planned.body,
-          data: planned.payload,
+          data: { ...planned.payload, ...androidGroupFor(planned.payload.kind) },
           sound: true,
           categoryIdentifier: categoryIdFor(planned),
         },
@@ -1537,7 +1545,7 @@ async function snoozeReminder(response: Notifications.NotificationResponse): Pro
     content: {
       title: request.content.title ?? 'Reminder',
       body: request.content.body ?? '',
-      data: { ...data, fireAt: fireAt.toISOString() },
+      data: { ...data, ...androidGroupFor(data.kind ?? ''), fireAt: fireAt.toISOString() },
       sound: true,
       categoryIdentifier: request.content.categoryIdentifier ?? REMINDER_CATEGORY,
     },
@@ -1718,6 +1726,7 @@ async function updateWaitingSummary(): Promise<void> {
   const presented = await Notifications.getPresentedNotificationsAsync();
   const groups = groupWaiting(presented.filter(isWaitingReminder).map(toShowing), IDENTIFIER_PREFIX, SNOOZE_PREFIX);
   const count = countWaiting(groups);
+  await dismissEmptyGroupSummaries(presented);
   const showing = presented.find((candidate) => candidate.request.identifier === WAITING_SUMMARY_ID);
   if (count < SUMMARY_FROM) {
     if (showing) await Notifications.dismissNotificationAsync(WAITING_SUMMARY_ID).catch(() => undefined);
@@ -1732,6 +1741,27 @@ async function updateWaitingSummary(): Promise<void> {
     content: { title, body, data: { tab: 'waiting' }, sound: false },
     trigger: Platform.OS === 'android' ? { channelId: ANDROID_WAITING_CHANNEL_ID } : null,
   });
+}
+
+// A group heading in Android's shade with nothing left under it, which can
+// happen when a reminder leaves the screen some way the patched
+// expo-notifications does not see. Each heading is posted under its group
+// as its tag, so it comes back here as a foreign notification whose
+// identifier carries that tag.
+async function dismissEmptyGroupSummaries(presented: Notifications.Notification[]): Promise<void> {
+  if (Platform.OS !== 'android') return;
+  const withChildren = new Set<string>();
+  for (const notification of presented) {
+    const group = (notification.request.content.data as Partial<ReminderPayload> | undefined)?.androidGroup;
+    if (isWaitingReminder(notification) && group) withChildren.add(group);
+  }
+  for (const notification of presented) {
+    const id = notification.request.identifier;
+    const tag = /[?&]tag=([^&]*)/.exec(id)?.[1];
+    const group = tag ? decodeURIComponent(tag) : null;
+    if (!group || !group.startsWith(ANDROID_GROUP_PREFIX) || withChildren.has(group)) continue;
+    await Notifications.dismissNotificationAsync(id).catch(() => undefined);
+  }
 }
 
 // App Lock on and nobody unlocked: the database cannot be opened, so the
