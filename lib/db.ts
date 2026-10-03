@@ -3,6 +3,8 @@ import { File } from 'expo-file-system';
 import { REFERENCE_DB_VERSION } from './referenceDbVersion';
 import { toRuleSeverity, type RuleSeverity } from './ruleSeverity';
 import { attachWriteTracking } from './databaseActivity';
+import { dataKeyForOpening } from './appLockSession';
+import { keyPragma } from './appLock';
 import { ageFromBirthDate } from './profile';
 import { normalizeSupplementAmount } from './supplementUnits';
 import { mealServingFactor } from './makeItFor';
@@ -5194,7 +5196,18 @@ export async function getDatabase() {
     // Every write in the app goes through this one connection, which is
     // how automatic snapshot sync hears about them without any screen
     // having to say so. See lib/databaseActivity.ts.
-    databasePromise = SQLite.openDatabaseAsync(DB_NAME).then(async (db) => {
+    //
+    // With App Lock on, the file is SQLCipher and the key comes first: it
+    // has to be the very first statement on the connection. Without the
+    // key (locked, or a reminder press with the app closed) this refuses
+    // with AppLockedError before touching the file, and the promise is
+    // cleared so the next call after an unlock opens it properly.
+    databasePromise = (async () => {
+      const key = dataKeyForOpening();
+      const db = await SQLite.openDatabaseAsync(DB_NAME);
+      if (key) await db.execAsync(keyPragma(key));
+      return db;
+    })().then(async (db) => {
       // Waits up to five seconds for another connection's write to finish
       // rather than failing at once with "database is locked" (2026-10-02).
       // Set on the raw connection, before write tracking, since a pragma
@@ -5205,6 +5218,10 @@ export async function getDatabase() {
         console.error('[db] could not set busy_timeout', error);
       }
       return attachWriteTracking(db);
+    });
+    const opening = databasePromise;
+    opening.catch(() => {
+      if (databasePromise === opening) databasePromise = null;
     });
   }
 

@@ -18,6 +18,7 @@
 import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
 import { Platform } from 'react-native';
+import { isAppLockedError } from './appLockSession';
 import { answerFromBackground } from './reminderNotifications';
 
 export const REMINDER_ANSWER_TASK = 'inside-story-reminder-answer';
@@ -37,6 +38,10 @@ if (Platform.OS === 'android') {
       try {
         await answerFromBackground(data);
       } catch (answerError) {
+        // With App Lock on and nobody unlocked, the database cannot be
+        // opened from here. Keeping the press for the next unlock is a later
+        // step of App Lock; until then it is dropped without an error.
+        if (isAppLockedError(answerError)) return;
         console.error('[reminderBackgroundTask] answer failed', answerError);
       }
     });

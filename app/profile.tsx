@@ -32,6 +32,7 @@ import { getBackupsFolder, getSharedFolder } from '../lib/oneDriveFolders';
 import type { DriveItemRef } from '../lib/oneDriveGraph';
 import { downloadText, listFiles, uploadText } from '../lib/oneDriveGraph';
 import { isDesktopApp } from '../lib/desktop/bridge';
+import { AppLockSettings } from '../components/AppLockSettings';
 import { describeSyncStatus, EMPTY_SYNC_STATE, type SnapshotRecord, type SnapshotSyncState } from '../lib/snapshotSync';
 import {
   CACHE_LIMIT_CHOICES_MB,
@@ -422,6 +423,7 @@ const ALL_CARD_SECTION_KEYS = [
   'agreement',
   'voice-pack',
   'connections',
+  'applock',
   'backup',
   'app-updates',
   'developer',
@@ -5222,6 +5224,17 @@ export default function ProfileScreen() {
                 );
               })}
             </View>
+          </View>
+        ) : null}
+      </View>
+
+      {/* App Lock, 2026-10-02: setting it up and its settings, in
+          components/AppLockSettings.tsx. */}
+      <View style={styles.card}>
+        {renderCardHeader('applock', 'App Lock')}
+        {!collapsedSections.has('applock') ? (
+          <View style={styles.cardBody}>
+            <AppLockSettings />
           </View>
         ) : null}
       </View>

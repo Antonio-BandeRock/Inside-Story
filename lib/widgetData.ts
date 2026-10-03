@@ -3,6 +3,7 @@
 // through the same functions the screens use, so a widget never says
 // something its screen would not. Glass writes through createMeal, the
 // same drink the Hydration button logs.
+import { isAppLockedError, isLockedNow } from './appLockSession';
 import { analyzeNutrientIntake } from './nutrientAnalysis';
 import { createMeal, getDatabase, getNutrientTotalsByDateRange } from './db';
 import { loadDayTimeline } from './dayTimelineDb';
@@ -113,9 +114,19 @@ export async function logWidgetGlass(now: Date = new Date()): Promise<void> {
 
 /** What one widget shows right now. Never throws: a widget that cannot be
  *  read says so and still opens the app. */
+const LOCKED_CONTENT: WidgetContent = {
+  heading: 'Inside Story',
+  lines: ['Locked. Tap to open the app.'],
+  caption: null,
+  uri: 'hashimotosapp://',
+};
+
 export async function widgetContentFor(name: WidgetName, now: number = Date.now()): Promise<WidgetContent> {
   try {
     if (name === 'Capture') return captureContent();
+    // App Lock on and nobody unlocked: the records cannot be read, and the
+    // widget says only that, with nothing from them.
+    if (isLockedNow()) return LOCKED_CONTENT;
     if (name === 'Grocery') return groceryContent(await groceryList());
     if (name === 'RoutineStep') return routineStepContent(await latestRoutineRun(), now);
     if (name === 'Glass') return glassContent(await lastGlassAt(now), now);
@@ -125,6 +136,7 @@ export async function widgetContentFor(name: WidgetName, now: number = Date.now(
     if (name === 'NextDose') return nextDoseContent(items, now, hideHealth);
     return nextThingContent(items, now, hideHealth);
   } catch (error) {
+    if (isAppLockedError(error)) return LOCKED_CONTENT;
     console.error('[widgetData] could not read', name, error);
     return { heading: 'Inside Story', lines: ['Could not be read just now. Tap to open the app.'], caption: null, uri: 'hashimotosapp://' };
   }

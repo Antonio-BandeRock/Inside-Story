@@ -59,6 +59,9 @@ const SURFACE_COMPONENTS = new Set([
   // components/TabBand.tsx, 2026-09-19: the wrapper every converted lens builds
   // its fold bands with. Renders HomeSectionBand with its children inside.
   'TabBand',
+  // components/AppLockGate.tsx, 2026-10-02: every lock screen's wrapper. Puts
+  // its children inside styles.card, which paints colors.surface.
+  'GateScreen',
 ]);
 
 // Shared style objects a file holds in a local name rather than in its

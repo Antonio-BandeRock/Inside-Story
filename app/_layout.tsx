@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { AppState, Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ActiveInputProvider } from '../components/ActiveInputContext';
+import { AppLockGate } from '../components/AppLockGate';
 import { AppKeyboard } from '../components/AppKeyboard';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { KeyboardLiftProvider, KeyboardLiftReleaser, KeyboardLiftView } from '../components/KeyboardLift';
@@ -46,7 +47,19 @@ import { refreshWidgets } from '../lib/widgets/taskHandler';
 // first use.
 SplashScreen.preventAutoHideAsync();
 
+// App Lock (2026-10-02) wraps everything: while the app is locked, or while
+// the database is being moved into its encrypted file, nothing below mounts,
+// so nothing reads the database before the key is held. See
+// components/AppLockGate.tsx.
 export default function RootLayout() {
+  return (
+    <AppLockGate>
+      <UnlockedApp />
+    </AppLockGate>
+  );
+}
+
+function UnlockedApp() {
   const router = useRouter();
   const [fontsLoaded] = useFonts({ Nunito_600SemiBold });
   const [dbReady, setDbReady] = useState(false);
@@ -563,6 +576,15 @@ export default function RootLayout() {
                   options={{
                     headerShown: true,
                     title: 'Shared Folder',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
+                <Stack.Screen
+                  name="app-lock-setup"
+                  options={{
+                    headerShown: true,
+                    title: 'App Lock',
                     headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.textPrimary,
                   }}
