@@ -790,6 +790,18 @@ function UnlockedApp() {
                     headerTintColor: colors.textPrimary,
                   }}
                 />
+                {/* Every reminder still showing on the phone, grouped, with
+                    its buttons (1.0.60.2). Opened from the summary
+                    notification and from Profile > Reminders. */}
+                <Stack.Screen
+                  name="waiting-answers"
+                  options={{
+                    headerShown: true,
+                    title: 'Waiting for an Answer',
+                    headerStyle: { backgroundColor: colors.background },
+                    headerTintColor: colors.textPrimary,
+                  }}
+                />
                 {/* Which of two brands is actually cheaper, 2026-09-01. Reached
                     from a grocery list line, or on its own. */}
                 <Stack.Screen

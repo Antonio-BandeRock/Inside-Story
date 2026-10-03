@@ -4038,11 +4038,18 @@ export default function ProfileScreen() {
             <Text style={styles.helpText}>
               Buttons on the reminder: a dose has Taken, a drink Drank it, a planned meal Ate it, a garden
               task or something you noted down Done, upkeep Done today and a compost pile Turned it. Each
-              records the same thing as answering it where it is kept, then opens that place so you can
-              see it. Upkeep that expires, bills, work benefits, appointments, counters and routines keep
-              Snooze only, because a button cannot ask for a new expiry date and nothing here records a
-              bill as paid.
+              records the same thing as answering it where it is kept, without opening the app. Upkeep
+              that expires, bills, work benefits, appointments, counters and routines keep Snooze only,
+              because a button cannot ask for a new expiry date and nothing here records a bill as paid.
             </Text>
+            <Text style={styles.helpText}>
+              When two or more reminders are waiting, one quiet line on your phone says how many. Tap it,
+              or the button below, to see them all in one list grouped by what they are about, each with
+              its buttons, and answer them one after another.
+            </Text>
+            <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/waiting-answers')}>
+              <Text style={styles.checkinButtonText}>Waiting for an Answer</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/app-status')}>
               <Text style={styles.checkinButtonText}>A Reminder Did Not Come</Text>
             </TouchableOpacity>

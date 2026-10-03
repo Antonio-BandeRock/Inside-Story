@@ -74,6 +74,7 @@ import { getTodo, markTodoDone } from './todosDb';
 import { getMorningCheckin, saveMorningCheckin } from './morningCheckinDb';
 import { isLockedNow } from './appLockSession';
 import { keepAnswerForUnlock, takeWaitingAnswers } from './lockedAnswers';
+import { countWaiting, groupWaiting, SUMMARY_FROM, summaryBody, summaryTitle, type ShowingReminder, type WaitingGroup } from './waitingAnswers';
 import { YOUR_WEEK_NOTIFICATION_BODY, YOUR_WEEK_NOTIFICATION_TITLE } from './weeklySummary';
 import { buildWeekPlanBody, WEEK_PLAN_NOTIFICATION_TITLE, weekPlanDays } from './weekPlanNotice';
 import { buildGardenMonthBody, GARDEN_MONTH_NOTIFICATION_TITLE, nextGardenMonthFire, type GardenMonthPlace } from './gardenMonthNotice';
@@ -168,6 +169,13 @@ const IDENTIFIER_PREFIX = 'inside-story-reminder:';
 // would take a snooze away on the next foreground. A tap on one still lands
 // where the original would have.
 const SNOOZE_PREFIX = 'inside-story-snooze:';
+// The one notification saying how many reminders are waiting, whose tap
+// opens Waiting for an Answer (1.0.60.2). Outside both prefixes above, so
+// the reconcile never counts it as a reminder or cancels it, and kept on a
+// quiet channel of its own so it never makes a sound: everything it counts
+// already made one.
+export const WAITING_SUMMARY_ID = 'inside-story-waiting-summary';
+const ANDROID_WAITING_CHANNEL_ID = 'waiting';
 // The channel a line saying what a press recorded used to go out on
 // (1.0.53.10 to 1.0.54.6). Removed by direct instruction, 2026-09-27: the
 // person pressed the button, so a second notification saying so is one more
@@ -295,12 +303,17 @@ if (supported) {
   // Without a handler a notification arriving while the app is open is
   // dropped silently; a dose reminder is still worth a banner then.
   Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowBanner: true,
-      shouldShowList: true,
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-    }),
+    // The summary of what is waiting is never a banner: it only gathers
+    // reminders already on screen, and the app is open anyway.
+    handleNotification: async (notification) => {
+      const summary = notification.request.identifier === WAITING_SUMMARY_ID;
+      return {
+        shouldShowBanner: !summary,
+        shouldShowList: true,
+        shouldPlaySound: !summary,
+        shouldSetBadge: false,
+      };
+    },
   });
 }
 
@@ -919,6 +932,12 @@ async function ensureAndroidChannels(): Promise<void> {
     vibrationPattern: [0, 180],
     lightColor: '#244147',
   });
+  await Notifications.setNotificationChannelAsync(ANDROID_WAITING_CHANNEL_ID, {
+    name: 'Waiting for an answer',
+    description: 'One quiet line when two or more reminders are still waiting, which opens them all in one list.',
+    importance: Notifications.AndroidImportance.LOW,
+    lightColor: '#244147',
+  });
   await Notifications.deleteNotificationChannelAsync(ANDROID_ANSWER_CHANNEL_ID).catch(() => undefined);
 }
 
@@ -1374,6 +1393,7 @@ async function runSync(): Promise<ReminderSyncResult> {
       console.error(`[reminderNotifications] could not schedule ${planned.identifier}`, error);
     }
   }
+  await refreshWaitingSummary();
   return { permission: 'granted', pending: scheduled };
 }
 
@@ -1412,6 +1432,7 @@ export type ReminderTapTarget =
   | { pathname: '/workout'; params: { id: string; planId: string; on: string } }
   | { pathname: '/log'; params: { openSignalsLens: SignalsReminderLens } }
   | { pathname: '/reconcile' }
+  | { pathname: '/waiting-answers' }
   | { pathname: '/daily-checkin' }
   | { pathname: '/'; params: { openHomeSection: 'yourWeek' } }
   | { pathname: '/food'; params: { openFoodLens: 'myFoodProducts' } }
@@ -1433,6 +1454,7 @@ const DATED_LENSES: LifeReminderLens[] = ['finances', 'upkeep', 'work', 'daysUnt
 // send anybody.
 export function resolveReminderTap(response: Notifications.NotificationResponse | null): ReminderTapTarget | null {
   const request = response?.notification.request;
+  if (request?.identifier === WAITING_SUMMARY_ID) return { pathname: '/waiting-answers' };
   // A16: an alert about somebody else's dose opens Meds, where the band of
   // doses you watch sits. Queued by lib/peerDosesDb.ts, not by this module.
   if (request?.identifier.startsWith(PEER_DOSE_PREFIX)) return { pathname: '/schedule', params: { openScheduleLens: 'meds' } };
@@ -1576,6 +1598,7 @@ async function answerPress(response: Notifications.NotificationResponse): Promis
   if (!ours) return;
   if (isLockedNow()) {
     await answerWhileLocked(response);
+    await refreshWaitingSummary();
     return;
   }
   if (!(await claimAnswer(responseKey(response)))) return;
@@ -1583,6 +1606,7 @@ async function answerPress(response: Notifications.NotificationResponse): Promis
   const kind = data?.kind ?? '';
   if (response.actionIdentifier === SNOOZE_ACTION) {
     await snoozeReminder(response);
+    await refreshWaitingSummary();
     return;
   }
   const plan = data?.kind ? planReminderAction(data.kind, response.actionIdentifier) : null;
@@ -1594,6 +1618,120 @@ async function answerPress(response: Notifications.NotificationResponse): Promis
   } finally {
     await syncReminderNotifications();
   }
+}
+
+// Every reminder of this app still on screen, grouped for Waiting for an
+// Answer (lib/waitingAnswers.ts). The other notifications this app shows
+// (somebody else's dose, a recall, the summary itself) carry no buttons and
+// are left out. Empty wherever reminders are not shown by the phone.
+export async function listWaitingReminders(): Promise<WaitingGroup[]> {
+  if (!supported) return [];
+  const presented = await Notifications.getPresentedNotificationsAsync();
+  return groupWaiting(presented.filter(isWaitingReminder).map(toShowing), IDENTIFIER_PREFIX, SNOOZE_PREFIX);
+}
+
+function isWaitingReminder(notification: Notifications.Notification): boolean {
+  const id = notification.request.identifier;
+  return isOurs(id) || isSnoozed(id);
+}
+
+function toShowing(notification: Notifications.Notification): ShowingReminder {
+  const { request } = notification;
+  const data = request.content.data as Partial<ReminderPayload> | undefined;
+  return {
+    identifier: request.identifier,
+    shownAt: typeof notification.date === 'number' ? notification.date : 0,
+    title: request.content.title ?? 'Reminder',
+    body: request.content.body ?? '',
+    categoryIdentifier: request.content.categoryIdentifier ?? null,
+    kind: typeof data?.kind === 'string' ? data.kind : '',
+  };
+}
+
+/**
+ * A button pressed on Waiting for an Answer: the same as pressing it on the
+ * notification, then every other copy of that reminder (an earlier
+ * follow-up, a snooze) is taken away too. False when the reminder had
+ * already left the screen, answered somewhere else in the meantime.
+ */
+export async function answerFromList(
+  copies: string[],
+  actionIdentifier: string,
+  userText: string | null,
+): Promise<boolean> {
+  if (!supported || copies.length === 0) return false;
+  const presented = await Notifications.getPresentedNotificationsAsync();
+  const notification = presented.find((candidate) => candidate.request.identifier === copies[0]);
+  if (!notification) {
+    await refreshWaitingSummary();
+    return false;
+  }
+  const response = { notification, actionIdentifier, userText: userText ?? undefined } as Notifications.NotificationResponse;
+  // Noted as handled so the same press is never handled twice.
+  answered.add(responseKey(response));
+  await answerPress(response);
+  // A snooze keeps its new copy; the copies it replaces go.
+  for (const id of copies.slice(1)) await Notifications.dismissNotificationAsync(id).catch(() => undefined);
+  await refreshWaitingSummary();
+  return true;
+}
+
+/**
+ * Where a reminder on Waiting for an Answer opens when its words are
+ * tapped: the same place a tap on the notification opens, so its details
+ * are a tap away. Null once it has left the screen.
+ */
+export async function openWaitingReminder(identifier: string): Promise<ReminderTapTarget | null> {
+  if (!supported) return null;
+  const presented = await Notifications.getPresentedNotificationsAsync();
+  const notification = presented.find((candidate) => candidate.request.identifier === identifier);
+  if (!notification) return null;
+  return resolveReminderTap({
+    notification,
+    actionIdentifier: Notifications.DEFAULT_ACTION_IDENTIFIER,
+  } as Notifications.NotificationResponse);
+}
+
+let summaryRun: Promise<void> | null = null;
+
+/**
+ * Keeps the one summary in step with what is on screen: shown with the
+ * count once two or more reminders wait, replaced only when what it says
+ * has changed (so it never comes up again for nothing), and taken away at
+ * one or none. Runs whenever the app does anything with reminders: opening,
+ * every press (the background task included), and a reminder arriving
+ * while the app is open. With the app closed and nothing pressed, nothing
+ * of this app runs, so the summary catches up the next time it does.
+ */
+export function refreshWaitingSummary(): Promise<void> {
+  if (!supported) return Promise.resolve();
+  if (summaryRun) return summaryRun.then(() => refreshWaitingSummary());
+  summaryRun = updateWaitingSummary()
+    .catch((error) => console.error('[reminderNotifications] the waiting summary could not be updated', error))
+    .finally(() => {
+      summaryRun = null;
+    });
+  return summaryRun;
+}
+
+async function updateWaitingSummary(): Promise<void> {
+  const presented = await Notifications.getPresentedNotificationsAsync();
+  const groups = groupWaiting(presented.filter(isWaitingReminder).map(toShowing), IDENTIFIER_PREFIX, SNOOZE_PREFIX);
+  const count = countWaiting(groups);
+  const showing = presented.find((candidate) => candidate.request.identifier === WAITING_SUMMARY_ID);
+  if (count < SUMMARY_FROM) {
+    if (showing) await Notifications.dismissNotificationAsync(WAITING_SUMMARY_ID).catch(() => undefined);
+    return;
+  }
+  const title = summaryTitle(count);
+  const body = summaryBody(groups);
+  if (showing && showing.request.content.title === title && showing.request.content.body === body) return;
+  await ensureAndroidChannels();
+  await Notifications.scheduleNotificationAsync({
+    identifier: WAITING_SUMMARY_ID,
+    content: { title, body, data: { tab: 'waiting' }, sound: false },
+    trigger: Platform.OS === 'android' ? { channelId: ANDROID_WAITING_CHANNEL_ID } : null,
+  });
 }
 
 // App Lock on and nobody unlocked: the database cannot be opened, so the
@@ -1780,5 +1918,12 @@ export function listenForReminderTaps(navigate: (target: ReminderTapTarget) => v
   const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
     handleResponse(response, navigate);
   });
-  return () => subscription.remove();
+  // A reminder arriving while the app is open brings the summary up to date.
+  const arrivals = Notifications.addNotificationReceivedListener((notification) => {
+    if (isWaitingReminder(notification)) void refreshWaitingSummary();
+  });
+  return () => {
+    subscription.remove();
+    arrivals.remove();
+  };
 }
