@@ -398,7 +398,7 @@ async function patternWeather(
   // From the day before the range, so a fall in air pressure on its first day can be read.
   const [days, units, readOn] = await Promise.all([listWeatherDays(shiftDay(rangeStart, -1), today, point), getWeatherUnits(), weatherReadOn(point)]);
   const lines = weatherLines(flareDates, days, rangeStart, (c) => sayTemp(units.temp, c), words);
-  return { state: 'ready', lines, credit: days.length > 0 ? weatherCredit(readOn) : null, rangeStart };
+  return { state: 'ready', lines, credit: days.length > 0 ? weatherCredit(readOn, point.from) : null, rangeStart };
 }
 
 export async function findFoodPatterns(

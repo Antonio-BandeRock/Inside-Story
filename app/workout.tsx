@@ -16,8 +16,7 @@
 // Trends count it) plus a workout_sessions row holding every set as planned
 // and as done, which is where "Last time" comes from.
 //
-// Keeping the screen awake needs expo-keep-awake, a native module, and waits
-// for the next rebuild along with cook mode's (R1 in the build plan).
+// The screen stays on from the first set until the review (lib/keepScreenOn.ts, R1).
 import { Ionicons } from '@expo/vector-icons';
 import * as Notifications from 'expo-notifications';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
@@ -46,6 +45,7 @@ import {
   type Workout,
 } from '../lib/workouts';
 import { getWorkout, lastWorkoutSession, listCustomExercises, saveWorkoutSession } from '../lib/workoutsDb';
+import { useKeepScreenOn } from '../lib/keepScreenOn';
 import {
   PLAYER_FOOT,
   TIMER_FOOT,
@@ -130,6 +130,7 @@ export default function WorkoutPlayerScreen() {
   const [entry, setEntry] = useState<Entry>({ reps: null, seconds: null, weight: '' });
   const [startedAt, setStartedAt] = useState<string | null>(null);
   const [finishedAt, setFinishedAt] = useState<string | null>(null);
+  useKeepScreenOn(phase === 'set' || phase === 'rest' || phase === 'stopping', 'workout');
   const [restEndsAt, setRestEndsAt] = useState<number | null>(null);
   const [setTimerEndsAt, setSetTimerEndsAt] = useState<number | null>(null);
   const [setTimerStartedAt, setSetTimerStartedAt] = useState<number | null>(null);

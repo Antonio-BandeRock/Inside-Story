@@ -66,6 +66,8 @@ import {
   reminderTimingStatus,
   type ReminderTimingStatus,
 } from '../lib/reminderTiming';
+import { getWidgetHideHealth, setWidgetHideHealth } from '../lib/widgetData';
+import { refreshWidgets } from '../lib/widgets/taskHandler';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { useDesktopTextSize } from '../hooks/useDesktopTextSize';
 import { announcePhoneOnly } from '../lib/desktop/phoneOnly';
@@ -1339,6 +1341,22 @@ export default function ProfileScreen() {
       return () => subscription.remove();
     }, []),
   );
+
+  // Hide health details on widgets (L2): off until turned on.
+  const [widgetHideHealth, setWidgetHideHealthState] = useState(false);
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    getWidgetHideHealth()
+      .then(setWidgetHideHealthState)
+      .catch((error) => console.error('[profile] widget setting not read', error));
+  }, []);
+  const toggleWidgetHideHealth = useCallback(() => {
+    const next = !widgetHideHealth;
+    setWidgetHideHealthState(next);
+    setWidgetHideHealth(next)
+      .then(() => refreshWidgets())
+      .catch((error) => console.error('[profile] widget setting not saved', error));
+  }, [widgetHideHealth]);
 
   // Re-read on every focus rather than only on mount: the folder is chosen on
   // a different screen, so coming back from it is exactly when this is stale.
@@ -3997,6 +4015,24 @@ export default function ProfileScreen() {
               reminder also has a Snooze {SNOOZE_MINUTES} min button, which briefly opens the app so it
               works even when the app was closed.
             </Text>
+            {/* Home screen widgets (L2, rebuild R1). Kept on this phone only
+                (widget_hide_health in DEVICE_LOCAL_META_KEYS). */}
+            {Platform.OS === 'android' ? (
+              <>
+                <View style={styles.pillRow}>
+                  <TouchableOpacity style={[styles.pill, widgetHideHealth && styles.pillActive]} onPress={toggleWidgetHideHealth}>
+                    <Text style={[styles.pillText, widgetHideHealth && styles.pillTextActive]}>
+                      Hide health details on widgets
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.helpText}>
+                  Hide health details on widgets: anybody who picks this phone up sees its home screen, so with
+                  this on the Next thing and Next dose widgets say only A dose or An appointment, and the fuel
+                  gauges widget shows no amounts. Meals, the grocery list, routines and Capture stay as they are.
+                </Text>
+              </>
+            ) : null}
             <Text style={styles.helpText}>
               Buttons on the reminder: a dose has Taken, a drink Drank it, a planned meal Ate it, a garden
               task or something you noted down Done, upkeep Done today and a compost pile Turned it. Each

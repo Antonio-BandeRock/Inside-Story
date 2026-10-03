@@ -11,8 +11,7 @@
 // module-level store keyed by the recipe, so closing cook mode and opening
 // it again on the same recipe finds them still counting.
 //
-// Keeping the screen awake while cooking needs expo-keep-awake, a native
-// module, and waits for the next rebuild (R1 in the build plan).
+// The screen stays on while cook mode is open (lib/keepScreenOn.ts, R1).
 //
 // Opened from CookModeButton, which sits under a recipe's steps in
 // RecipeDetailCard (System Recipes), StepsEditor (every builder) and
@@ -36,6 +35,7 @@ import {
   type StepTimer,
 } from '../lib/stepTimers';
 import { modalAnimationType } from '../lib/visualPreferences';
+import { useKeepScreenOn } from '../lib/keepScreenOn';
 
 type CookTimer = {
   id: string;
@@ -140,6 +140,7 @@ export function CookMode({
   const [timers, setTimers] = useState<CookTimer[]>(() => timersByRecipe.get(key) ?? []);
   const [now, setNow] = useState(() => Date.now());
   const [canNotify, setCanNotify] = useState<boolean | null>(null);
+  useKeepScreenOn(visible, 'cook-mode');
 
   useEffect(() => {
     const listener = () => setTimers([...(timersByRecipe.get(key) ?? [])]);

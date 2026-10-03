@@ -75,7 +75,8 @@ import { markPendingFoodTrialReturn } from '../../lib/pendingFoodTrialReturn';
 import { basisSentence, comparisonSentence, delaySentence, thresholdSentence } from '../../lib/patternBasis';
 import { contextCaveat } from '../../lib/patternContext';
 import { refreshWeather, setWeatherOn } from '../../lib/weatherDb';
-import { WEATHER_NO_PLACE, WEATHER_OFFER } from '../../lib/weather';
+import { WEATHER_NO_PLACE, WEATHER_NO_PLACE_PHONE, WEATHER_OFFER } from '../../lib/weather';
+import { CAN_USE_ROUGH_LOCATION, takeRoughPoint } from '../../lib/roughLocation';
 import { FACTOR_BAND_EMPTY_LINE, FACTOR_CAVEAT, factorComparisonSentence } from '../../lib/patternFactors';
 import {
   BODY_SIDE_LABELS,
@@ -3712,7 +3713,35 @@ export default function TrendsScreen() {
                       </>
                     ) : (
                       <>
-                        {patternResult.weather.state === 'no-place' ? <Text style={styles.patternRowCaption}>{WEATHER_NO_PLACE}</Text> : null}
+                        {patternResult.weather.state === 'no-place' ? (
+                          <Text style={styles.patternRowCaption}>{CAN_USE_ROUGH_LOCATION ? WEATHER_NO_PLACE_PHONE : WEATHER_NO_PLACE}</Text>
+                        ) : null}
+                        {patternResult.weather.state === 'no-place' && CAN_USE_ROUGH_LOCATION ? (
+                          <View style={styles.patternRowActions}>
+                            <TouchableOpacity
+                              style={[styles.trialButton, { borderColor: TAB_COLOR }]}
+                              disabled={weatherBusy}
+                              onPress={() => {
+                                setWeatherBusy(true);
+                                takeRoughPoint()
+                                  .then(async (outcome) => {
+                                    if (!outcome.ok) {
+                                      showInfoAlert('No location', outcome.reason);
+                                      return;
+                                    }
+                                    await refreshWeather(patternResult.weather.rangeStart, new Date().toISOString().slice(0, 10));
+                                  })
+                                  .catch(() => null)
+                                  .finally(() => {
+                                    setWeatherBusy(false);
+                                    setWeatherTick((n) => n + 1);
+                                  });
+                              }}
+                            >
+                              <Text style={[styles.trialButtonText, { color: TAB_COLOR }]}>{weatherBusy ? 'Finding…' : 'Use this phone’s rough location'}</Text>
+                            </TouchableOpacity>
+                          </View>
+                        ) : null}
                         {patternResult.weather.state === 'ready' && patternResult.weather.lines.length === 0 ? (
                           <Text style={styles.patternRowCaption}>
                             {`Nothing to set beside the ${outcomeWords.shortMany} yet. It needs weather for at least two of them and three other days, and NASA’s figures arrive about two days late.`}

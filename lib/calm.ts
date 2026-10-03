@@ -262,7 +262,7 @@ export const DIZZY_NOTE =
   'If you feel dizzy, light-headed or short of breath, stop and breathe the way you usually do. Holding the breath is never required; the patterns without holds are there for that.';
 
 export const SCREEN_ON_NOTE =
-  'Keep the screen on while it runs. Until the next full install of the app, it cannot stop the phone dimming the screen by itself.';
+  'The screen stays on while the pacer runs, and goes back to dimming as usual when you stop.';
 
 // ---------------------------------------------------------------------------
 // The person's own breathing patterns
@@ -648,4 +648,4 @@ export const NO_VOICE_LINE =
   'This device has no voice to read with. On a phone, a voice can be added in the text-to-speech settings; on a computer, in its speech or narrator settings.';
 
 export const RECORDINGS_HELP =
-  'Bring in audio you already have, such as a guided relaxation, a hypnotherapy programme you bought or music you like. Each recording is kept in the Recordings folder in your shared folder, so it takes no room on a device until it is played there, and any player can open it from the folder too. The computer plays it here. On a phone it opens in another app for now, and playing it inside this app comes with the next full install.';
+  'Bring in audio you already have, such as a guided relaxation, a hypnotherapy programme you bought or music you like. Each recording is kept in the Recordings folder in your shared folder, so it takes no room on a device until it is played there, and any player can open it from the folder too. Play it here on the phone or the computer.';

@@ -538,6 +538,9 @@ export default function FoodScreen() {
     // list, and the line if one asked for it, so the product lands there.
     groceryListId,
     groceryItemId,
+    // A recipe link shared into the app from another one (C11,
+    // lib/shareIntake.ts), arriving with openFoodLens 'importRecipe'.
+    importRecipeUrl,
   } = useLocalSearchParams<{
     editMealId?: string;
     editSideId?: string;
@@ -586,6 +589,7 @@ export default function FoodScreen() {
     findMealCapturedAt?: string;
     groceryListId?: string;
     groceryItemId?: string;
+    importRecipeUrl?: string;
   }>();
   // Through the shared hook, switched off there on 2026-08-30. Until
   // 2026-09-13 this screen read the param directly, so Food alone still
@@ -748,6 +752,11 @@ export default function FoodScreen() {
       }
       if (openFoodLens === 'myRecipes') {
         openMyRecipes();
+        return;
+      }
+      if (openFoodLens === 'importRecipe') {
+        setLens('importRecipe');
+        setRevealed(true);
         return;
       }
       if (openFoodLens === 'systemRecipes') {
@@ -996,6 +1005,7 @@ export default function FoodScreen() {
       openHandheldRecipeId,
       openDessertRecipeId,
       openFoodLens,
+      importRecipeUrl,
     ]),
   );
 
@@ -1427,6 +1437,8 @@ export default function FoodScreen() {
             <MyWholeFoodsView onClose={() => setRevealed(false)} onChanged={loadMyFoodsCounts} />
           ) : lens === 'importRecipe' ? (
             <RecipeImportView
+              key={importRecipeUrl || 'typed'}
+              initialUrl={importRecipeUrl || undefined}
               onClose={() => setRevealed(false)}
               onOpenBuilder={(params) => router.push({ pathname: '/food', params })}
             />

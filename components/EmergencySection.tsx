@@ -49,6 +49,9 @@ import {
   setLockScreenParts,
 } from '../lib/emergencyLockScreen';
 import { exportHtmlAsPdf } from '../lib/reportPdf';
+import { dialable } from '../lib/medSupply';
+import { copyLine, textNumber } from '../lib/phoneReach';
+import { CAN_PICK_CONTACTS, pickContact } from '../lib/contactPick';
 
 // Emergency & Essentials: what someone else needs to know when you cannot tell
 // them. Life's fifth area, 2026-09-05.
@@ -141,6 +144,8 @@ export function EmergencySection({ tabColor }: Props) {
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState<Partial<EmergencyProfile> | null>(null);
   const [contactForm, setContactForm] = useState<ContactForm | null>(null);
+  // Which Medical ID line was copied last, so its button says Copied.
+  const [copiedField, setCopiedField] = useState<string | null>(null);
   const [showCard, setShowCard] = useState(false);
   const [lockParts, setLockParts] = useState<LockScreenPart[]>([]);
   const [lockPicking, setLockPicking] = useState<LockScreenPart[] | null>(null);
@@ -193,6 +198,37 @@ export function EmergencySection({ tabColor }: Props) {
     () => (profile && fromApp ? medicalIdEntries({ profile, fromApp, contacts, today: todayLocal() }) : []),
     [profile, fromApp, contacts],
   );
+
+  function callContact(phone: string) {
+    const number = dialable(phone);
+    if (!number) return;
+    Linking.openURL(`tel:${number}`).catch(() =>
+      showInfoAlert('Nothing to call with', `This device could not open a call. The number is ${phone}.`),
+    );
+  }
+
+  async function textContact(phone: string) {
+    const outcome = await textNumber(phone);
+    if (!outcome.ok) showInfoAlert('Nothing to text with', outcome.reason);
+  }
+
+  async function fillContactFromPhone() {
+    const outcome = await pickContact();
+    if (outcome.kind === 'problem') showInfoAlert('Could not open contacts', outcome.reason);
+    if (outcome.kind !== 'picked') return;
+    const picked = outcome.contact;
+    setContactForm((form) =>
+      form ? { ...form, name: picked.name || form.name, phone: picked.phone || form.phone } : form,
+    );
+  }
+
+  async function copyMedicalIdLine(field: string, value: string) {
+    if (await copyLine(value)) {
+      setCopiedField(field);
+    } else {
+      showInfoAlert('Could not copy', 'This device would not take the line. Share sends it to another app instead.');
+    }
+  }
 
   function openPhoneSettings() {
     const fallback = () => Linking.openSettings().catch(() => undefined);
@@ -356,6 +392,16 @@ export function EmergencySection({ tabColor }: Props) {
                 </Text>
                 {contact.notes ? <Text style={styles.rowMeta}>{contact.notes}</Text> : null}
                 <View style={styles.rowActions}>
+                  {Platform.OS !== 'web' && dialable(contact.phone) ? (
+                    <>
+                      <TouchableOpacity onPress={() => callContact(contact.phone)} accessibilityLabel={`Call ${contact.name}`}>
+                        <Text style={styles.actionText}>Call</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => void textContact(contact.phone)} accessibilityLabel={`Text ${contact.name}`}>
+                        <Text style={styles.actionText}>Text</Text>
+                      </TouchableOpacity>
+                    </>
+                  ) : null}
                   <TouchableOpacity
                     onPress={() =>
                       setContactForm({
@@ -399,6 +445,11 @@ export function EmergencySection({ tabColor }: Props) {
 
         {contactForm ? (
           <View style={styles.inlineForm}>
+            {CAN_PICK_CONTACTS ? (
+              <TouchableOpacity onPress={() => void fillContactFromPhone()} accessibilityLabel="Pick this person from contacts">
+                <Text style={styles.actionText}>Pick from contacts</Text>
+              </TouchableOpacity>
+            ) : null}
             <Text style={styles.label}>Name</Text>
             <View style={styles.inlineRow}>
               <AppTextInput
@@ -543,7 +594,7 @@ export function EmergencySection({ tabColor }: Props) {
         <Text style={styles.helperText}>
           Your phone has a screen for this that anyone can open from the lock screen, and this app
           cannot fill it in for you. Here is what goes in each of its fields, laid out under the
-          names the phone uses. Press and hold a line to copy it, then paste it across.
+          names the phone uses. Copy a line, then paste it across.
         </Text>
         <Text style={styles.helperText}>
           {medicalIdWhere(Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : 'other')}
@@ -557,6 +608,13 @@ export function EmergencySection({ tabColor }: Props) {
                 <Text style={styles.rowTitle}>{entry.field}</Text>
                 <Text style={styles.rowMeta} selectable>{entry.value}</Text>
               </View>
+              <TouchableOpacity
+                onPress={() => void copyMedicalIdLine(entry.field, entry.value)}
+                accessibilityLabel={`Copy the ${entry.field} line`}
+                style={styles.lineAction}
+              >
+                <Text style={styles.actionText}>{copiedField === entry.field ? 'Copied' : 'Copy'}</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => Share.share({ message: entry.value }).catch(() => undefined)}
                 accessibilityLabel={`Share the ${entry.field} line`}
@@ -705,6 +763,7 @@ function makeStyles(tabColor: string) {
     rowTitle: { ...typography.body, color: colors.textPrimary, ...textShadow },
     rowMeta: { ...typography.caption, color: colors.textMuted, marginTop: 2, ...textShadow },
     rowActions: { flexDirection: 'row', gap: 14, marginTop: 10, flexWrap: 'wrap' },
+    lineAction: { marginRight: 14 },
     actionText: { ...typography.caption, color: tabColor, ...textShadow },
     actionTextRemove: { ...typography.caption, color: colors.danger, ...textShadow },
 

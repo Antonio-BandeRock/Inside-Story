@@ -281,11 +281,17 @@ export const DEVICE_LOCAL_META_KEYS: readonly string[] = [
   'reminder_timing_asked',
   // When this device last asked NASA for weather (F22, lib/weatherDb.ts).
   'weather_last_fetch',
+  // This phone's rough location for weather (rebuild R1, lib/roughLocation.ts).
+  // Where one device is says nothing about where another is.
+  'weather_rough_point',
   // When this device last read the FDA recall list, and which matches it has
   // already raised a notification for (A14, lib/recallsDb.ts). The list
   // itself stays on each device, so these describe this device's copy.
   'recalls_last_read',
   'recalls_notified',
+  // Hide health details on widgets (L2, lib/widgetContent.ts): a widget sits
+  // on one phone's home screen, so the switch is about that phone.
+  'widget_hide_health',
   CHANGE_BASELINE_META_KEY,
 ];
 

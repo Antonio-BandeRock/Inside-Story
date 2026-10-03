@@ -8,7 +8,8 @@
 // for itself and a snapshot has no need to carry them.
 import { getDatabase, getStoredMeasurementSystem } from './db';
 import { resolveHomeLocation } from './homeSky';
-import { coarsenPoint, parsePowerResponse, powerUrl, spanToFetch, unitsFor, type WeatherDay, type WeatherUnits } from './weather';
+import { readRoughPoint } from './roughLocation';
+import { coarsenPoint, parsePowerResponse, powerUrl, spanToFetch, unitsFor, type WeatherDay, type WeatherPlaceSource, type WeatherUnits } from './weather';
 
 const WEATHER_ON_KEY = 'weather_beside_symptoms';
 const LAST_FETCH_KEY = 'weather_last_fetch';
@@ -46,17 +47,20 @@ export async function getWeatherUnits(): Promise<WeatherUnits> {
   return unitsFor(await getStoredMeasurementSystem());
 }
 
-export type WeatherPoint = { lat: number; lon: number };
+export type WeatherPoint = { lat: number; lon: number; from?: WeatherPlaceSource };
 
-// The coarsened point for the postal code in Garden > My Zone, or null
-// when there is none or it could not be placed.
+// The coarsened point for the postal code in Garden > My Zone, then the
+// phone's rough location if the person gave it, or null when there is
+// neither.
 export async function weatherPoint(): Promise<WeatherPoint | null> {
   try {
     const home = await resolveHomeLocation();
-    return home ? coarsenPoint(home.lat, home.lon) : null;
+    if (home) return { ...coarsenPoint(home.lat, home.lon), from: 'postal' };
   } catch {
-    return null;
+    // Fall through to the phone's point.
   }
+  const rough = await readRoughPoint();
+  return rough ? { ...coarsenPoint(rough.lat, rough.lon), from: 'phone' } : null;
 }
 
 type WeatherRow = {

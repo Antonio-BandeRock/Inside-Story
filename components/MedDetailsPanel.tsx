@@ -4,7 +4,10 @@
 // The count is taken once and drawn down by the doses marked taken, so the
 // form asks only for what is in the bottle now; the arithmetic and every
 // sentence are in lib/medSupply.ts. A phone number is shown as text as well
-// as a Call button, since a computer has nothing to dial with.
+// as a Call button, since a computer has nothing to dial with. Text opens
+// the phone's messaging app with the number filled in (lib/phoneReach.ts),
+// and for the pharmacy a first line asking for a refill, which the person
+// can change before sending.
 import { useEffect, useState } from 'react';
 import { Linking, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from './AppTextInput';
@@ -13,6 +16,8 @@ import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { saveTreatmentContacts, saveTreatmentSupply, type TreatmentDetails } from '../lib/medDetailsDb';
 import { dialable, type SupplyReading } from '../lib/medSupply';
+import { textNumber } from '../lib/phoneReach';
+import { CAN_PICK_CONTACTS, pickContact } from '../lib/contactPick';
 
 type Props = {
   treatmentId: string;
@@ -99,7 +104,29 @@ export function MedDetailsPanel({ treatmentId, treatmentName, details, reading, 
     );
   }
 
-  function renderContact(role: string, name: string | null | undefined, phone: string | null | undefined) {
+  async function fillFromContacts(setName: (v: string) => void, setPhone: (v: string) => void) {
+    const outcome = await pickContact();
+    if (outcome.kind === 'problem') onProblem('Could not open contacts', outcome.reason);
+    if (outcome.kind !== 'picked') return;
+    if (outcome.contact.name) setName(outcome.contact.name);
+    if (outcome.contact.phone) setPhone(outcome.contact.phone);
+  }
+
+  function pickButton(role: string, setName: (v: string) => void, setPhone: (v: string) => void) {
+    if (!CAN_PICK_CONTACTS) return null;
+    return (
+      <TouchableOpacity onPress={() => void fillFromContacts(setName, setPhone)} accessibilityLabel={`Pick the ${role} from contacts`}>
+        <Text style={styles.smallButtonText}>Pick from contacts</Text>
+      </TouchableOpacity>
+    );
+  }
+
+  async function text(phone: string | null | undefined, body: string) {
+    const outcome = await textNumber(phone, body);
+    if (!outcome.ok) onProblem('Nothing to text with', outcome.reason);
+  }
+
+  function renderContact(role: string, name: string | null | undefined, phone: string | null | undefined, body = '') {
     if (!name && !phone) return null;
     const canCall = Platform.OS !== 'web' && dialable(phone) !== null;
     return (
@@ -113,6 +140,11 @@ export function MedDetailsPanel({ treatmentId, treatmentName, details, reading, 
         {canCall ? (
           <TouchableOpacity style={styles.smallButton} onPress={() => call(phone)} accessibilityLabel={`Call ${role.toLowerCase()}`}>
             <Text style={styles.smallButtonText}>Call</Text>
+          </TouchableOpacity>
+        ) : null}
+        {canCall ? (
+          <TouchableOpacity style={styles.smallButton} onPress={() => void text(phone, body)} accessibilityLabel={`Text ${role.toLowerCase()}`}>
+            <Text style={styles.smallButtonText}>Text</Text>
           </TouchableOpacity>
         ) : null}
       </View>
@@ -188,7 +220,7 @@ export function MedDetailsPanel({ treatmentId, treatmentName, details, reading, 
         <Text style={styles.heading}>Pharmacy and prescriber</Text>
         {hasContacts ? (
           <>
-            {renderContact('Pharmacy', details?.pharmacyName, details?.pharmacyPhone)}
+            {renderContact('Pharmacy', details?.pharmacyName, details?.pharmacyPhone, `Hello, I would like to refill my ${treatmentName}.`)}
             {renderContact('Prescriber', details?.prescriberName, details?.prescriberPhone)}
           </>
         ) : !editingContacts ? (
@@ -197,6 +229,7 @@ export function MedDetailsPanel({ treatmentId, treatmentName, details, reading, 
         {editingContacts ? (
           <>
             <Text style={styles.label}>Pharmacy</Text>
+            {pickButton('pharmacy', setPharmacyName, setPharmacyPhone)}
             <AppTextInput style={styles.input} value={pharmacyName} onChangeText={setPharmacyName} placeholder="Name" />
             <AppTextInput
               style={[styles.input, styles.stacked]}
@@ -206,6 +239,7 @@ export function MedDetailsPanel({ treatmentId, treatmentName, details, reading, 
               keyboardType="phone-pad"
             />
             <Text style={styles.label}>Prescriber</Text>
+            {pickButton('prescriber', setPrescriberName, setPrescriberPhone)}
             <AppTextInput style={styles.input} value={prescriberName} onChangeText={setPrescriberName} placeholder="Name" />
             <AppTextInput
               style={[styles.input, styles.stacked]}

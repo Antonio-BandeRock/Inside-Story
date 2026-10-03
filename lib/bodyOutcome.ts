@@ -158,6 +158,10 @@ export function formatBodyValue(signal: BodySignalKey, value: number): string {
       return `${round(value, 1)}%`;
     case 'glucose':
       return `${round(value, 1)} mmol/L`;
+    case 'respiratoryRate':
+      return `${round(value, 1)} breaths a minute`;
+    case 'bodyTemperature':
+      return `${round(value, 1)} °C`;
     case 'skinTemperature': {
       const shown = round(value, 1);
       return `${shown > 0 ? '+' : ''}${shown} °C`;

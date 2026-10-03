@@ -62,6 +62,7 @@ import { useConfirmSheet } from './ConfirmSheet';
 import { PopoverSelect } from './PopoverSelect';
 import { RecordingsBand } from './RecordingsBand';
 import { TabBand } from './TabBand';
+import { useKeepScreenOn } from '../lib/keepScreenOn';
 
 const EMPTY_PATTERN: PatternFields = { name: '', inSec: '', holdInSec: '', outSec: '', holdOutSec: '' };
 const ADD_OWN = '__add_own__';
@@ -161,6 +162,7 @@ function BreathingPacer({
   const pattern = patterns.find((p) => p.id === patternId) ?? BUILT_IN_PATTERNS[0];
   const minutes = SESSION_LENGTHS[lengthIndex].minutes;
   const running = startedAt != null;
+  useKeepScreenOn(running, 'calm-pacer');
   const state = phaseAt(pattern, elapsed);
 
   const stop = useCallback(() => {

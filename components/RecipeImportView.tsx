@@ -99,12 +99,15 @@ function parseAmountDraft(text: string): number | null {
 export function RecipeImportView({
   onClose,
   onOpenBuilder,
+  initialUrl,
 }: {
   onClose: () => void;
   onOpenBuilder: (params: Record<string, string>) => void;
+  /** A link shared into the app (C11), put in the box and nothing fetched until Import is pressed. */
+  initialUrl?: string;
 }) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
-  const [url, setUrl] = useState('');
+  const [url, setUrl] = useState(initialUrl ?? '');
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [noRecipe, setNoRecipe] = useState<{ url: string; site: string } | null>(null);

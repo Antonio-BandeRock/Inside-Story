@@ -29,7 +29,7 @@ function toNote(row: CaptureRow): CaptureNote {
   return {
     id: row.id,
     text: row.text,
-    source: row.source === 'spoken' ? 'spoken' : row.source === 'photo' ? 'photo' : 'typed',
+    source: row.source === 'spoken' || row.source === 'photo' || row.source === 'shared' ? row.source : 'typed',
     status: row.status === 'sorted' || row.status === 'done' ? (row.status as CaptureStatus) : 'waiting',
     destination: (row.destination as CaptureDestinationKey | null) ?? null,
     createdAt: row.createdAt,

@@ -123,7 +123,7 @@ export function MovementSection({ tabColor }: Props) {
 
   const loadStored = useCallback(async (granted: GrantedHealthAccess) => {
     const today = localDateOf(new Date());
-    const [todaySteps, stepTrend, distance, sleep, heartRate, restingHeartRate, hrv, spo2, glucose, skinTemperature, cycle, weight, systolic, diastolic, workouts, system] =
+    const [todaySteps, stepTrend, distance, sleep, heartRate, restingHeartRate, hrv, spo2, glucose, skinTemperature, respiratoryRate, bodyTemperature, cycle, weight, systolic, diastolic, workouts, system] =
       await Promise.all([
         getStepCountForDate(today),
         getStepCountTrend(7),
@@ -135,6 +135,8 @@ export function MovementSection({ tabColor }: Props) {
         getLatestHealthRecord('spo2'),
         getLatestHealthRecord('glucose'),
         getLatestHealthRecord('skin_temperature'),
+        getLatestHealthRecord('respiratory_rate'),
+        getLatestHealthRecord('body_temperature'),
         getLatestHealthRecord('menstruation'),
         getLatestSyncedBodyMeasurement('weight'),
         getLatestSyncedBodyMeasurement('blood_pressure_systolic'),
@@ -215,6 +217,19 @@ export function MovementSection({ tabColor }: Props) {
         case 'skinTemperature':
           return skinTemperature && skinTemperature.value !== null
             ? { headline: `${skinTemperature.value > 0 ? '+' : ''}${skinTemperature.value.toFixed(2)} °C from baseline, ${formatDay(skinTemperature.startedAt)}`, caption: 'Overnight average, as the watch reported it.' }
+            : { headline: null, caption: '' };
+        case 'respiratoryRate':
+          return respiratoryRate && respiratoryRate.value !== null
+            ? { headline: `${Math.round(respiratoryRate.value * 10) / 10} breaths a minute on ${formatDay(respiratoryRate.startedAt)}`, caption: '' }
+            : { headline: null, caption: '' };
+        case 'bodyTemperature':
+          return bodyTemperature && bodyTemperature.value !== null
+            ? {
+                headline: useImperial && bodyTemperature.value2 !== null
+                  ? `${bodyTemperature.value2.toFixed(1)} °F on ${formatDay(bodyTemperature.startedAt)}`
+                  : `${bodyTemperature.value.toFixed(1)} °C on ${formatDay(bodyTemperature.startedAt)}`,
+                caption: '',
+              }
             : { headline: null, caption: '' };
         default:
           return { headline: null, caption: '' };

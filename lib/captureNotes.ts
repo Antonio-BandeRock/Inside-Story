@@ -20,8 +20,10 @@
 // carries whatever the recognizer heard, so a person re-reading a strange line
 // deserves to know a microphone wrote it rather than their own thumbs. A
 // photo note (1.0.53.7) is one thrown in with the camera, its words whatever
-// was in the box at the time or PHOTO_CAPTURE_TEXT when nothing was.
-export type CaptureSource = 'typed' | 'spoken' | 'photo';
+// was in the box at the time or PHOTO_CAPTURE_TEXT when nothing was. A
+// shared note (C11, 2026-10-02) came in from another app's Share sheet, so
+// its words are that app's rather than the person's (lib/shareIntake.ts).
+export type CaptureSource = 'typed' | 'spoken' | 'photo' | 'shared';
 
 /** The words on a photo thrown in with nothing typed. */
 export const PHOTO_CAPTURE_TEXT = 'A photo';

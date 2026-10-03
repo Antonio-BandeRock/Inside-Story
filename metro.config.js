@@ -76,6 +76,13 @@ if (process.env.INSIDE_STORY_DESKTOP === '1') {
     '@dr.pogodin/react-native-static-server': 'lib/desktop/unavailableModule.ts',
     'rn-mlkit-ocr': 'lib/desktop/unavailableModule.ts',
     'expo-task-manager': 'lib/desktop/unavailableModule.ts',
+    // Rebuild R1 (2026-10-02): Android home screen widgets.
+    'react-native-android-widget': 'lib/desktop/unavailableModule.ts',
+    'expo-quick-actions': 'lib/desktop/unavailableModule.ts',
+    'expo-quick-actions/router': 'lib/desktop/unavailableModule.ts',
+    'expo-share-intent': 'lib/desktop/unavailableModule.ts',
+    'expo-contacts': 'lib/desktop/unavailableModule.ts',
+    'expo-location': 'lib/desktop/unavailableModule.ts',
   };
   const defaultResolveRequest = config.resolver.resolveRequest;
   config.resolver.resolveRequest = (context, moduleName, platform) => {

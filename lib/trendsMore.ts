@@ -1020,7 +1020,15 @@ export function buildPlannedView(input: PlannedInputs): ReadingView {
 // figure: usual is what this person's readings have been, and a number to
 // aim for is a clinician's.
 
-export type BodySignalKey = 'restingHeartRate' | 'heartRate' | 'hrv' | 'spo2' | 'glucose' | 'skinTemperature';
+export type BodySignalKey =
+  | 'restingHeartRate'
+  | 'heartRate'
+  | 'hrv'
+  | 'spo2'
+  | 'respiratoryRate'
+  | 'glucose'
+  | 'skinTemperature'
+  | 'bodyTemperature';
 
 export type BodySignalReading = {
   signal: BodySignalKey;
@@ -1053,7 +1061,16 @@ type SignalShape = {
   timed: boolean;
 };
 
-export const BODY_SIGNAL_ORDER: BodySignalKey[] = ['restingHeartRate', 'heartRate', 'hrv', 'spo2', 'glucose', 'skinTemperature'];
+export const BODY_SIGNAL_ORDER: BodySignalKey[] = [
+  'restingHeartRate',
+  'heartRate',
+  'hrv',
+  'spo2',
+  'respiratoryRate',
+  'glucose',
+  'skinTemperature',
+  'bodyTemperature',
+];
 
 function signedCelsius(value: number): string {
   const rounded = Math.round(value * 100) / 100;
@@ -1108,6 +1125,22 @@ const BODY_SIGNALS: Record<BodySignalKey, SignalShape> = {
     format: signedCelsius,
     about: "Each night's change from the device's baseline for you, not a body temperature.",
     timed: false,
+  },
+  respiratoryRate: {
+    title: 'Breathing rate',
+    icon: 'leaf-outline',
+    unitWord: 'reading',
+    format: (v) => `${Math.round(v * 10) / 10} breaths a minute`,
+    about: 'Breaths a minute as the watch or ring worked it out, most often while you slept.',
+    timed: true,
+  },
+  bodyTemperature: {
+    title: 'Body temperature',
+    icon: 'thermometer-outline',
+    unitWord: 'reading',
+    format: (v) => `${Math.round(v * 10) / 10} °C (${Math.round((v * 9) / 5 * 10 + 320) / 10} °F)`,
+    about: 'A thermometer reading, with its time. Where it was taken (mouth, ear, forehead, armpit) changes the figure, so compare readings taken the same way.',
+    timed: true,
   },
 };
 

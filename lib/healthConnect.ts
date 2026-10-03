@@ -83,7 +83,9 @@ export type HealthSignalKey =
   | 'restingHeartRate'
   | 'hrv'
   | 'spo2'
-  | 'skinTemperature';
+  | 'skinTemperature'
+  | 'respiratoryRate'
+  | 'bodyTemperature';
 
 export type HealthSignal = {
   key: HealthSignalKey;
@@ -109,6 +111,9 @@ export const HEALTH_SIGNALS: HealthSignal[] = [
   { key: 'hrv', label: 'Heart rate variability', recordTypes: ['HeartRateVariabilityRmssd'], usualSource: 'watch', feeds: 'Kept, not interpreted.' },
   { key: 'spo2', label: 'Blood oxygen', recordTypes: ['OxygenSaturation'], usualSource: 'watch', feeds: 'Kept as read.' },
   { key: 'skinTemperature', label: 'Skin temperature', recordTypes: ['SkinTemperature'], usualSource: 'watch', feeds: 'Overnight change from baseline, kept as read.' },
+  // L4, rebuild R1 (2026-10-02): two more a ring or watch often records.
+  { key: 'respiratoryRate', label: 'Breathing rate', recordTypes: ['RespiratoryRate'], usualSource: 'watch', feeds: 'Breaths a minute, kept as read.' },
+  { key: 'bodyTemperature', label: 'Body temperature', recordTypes: ['BodyTemperature'], usualSource: 'device', feeds: 'A thermometer reading, kept with its time.' },
 ];
 
 export function isHealthConnectPlatform(): boolean {

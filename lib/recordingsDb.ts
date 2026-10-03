@@ -214,9 +214,29 @@ export async function recordingPlayUrl(item: Recording): Promise<PlayableResult>
 }
 
 /**
- * The phone's way for now: fetches the recording here if the cache cleared
- * it, then hands it to another app through the share sheet. Null when it
- * opened, otherwise what to say.
+ * The phone's way to play (R1): the recording as a file on this device,
+ * fetched from the folder first if the cache cleared it.
+ */
+export async function recordingLocalUri(item: Recording): Promise<{ ok: true; uri: string } | { ok: false; reason: string }> {
+  try {
+    const file = await recordingFile(item.fileName);
+    if (!file.exists) {
+      const folder = await getRecordingsFolder();
+      if (!folder.ok) return { ok: false, reason: RECORDING_NOT_REACHABLE };
+      const fetched = await downloadToFile(folder.value, item.fileName, file.uri);
+      if (!fetched.ok) return { ok: false, reason: RECORDING_ON_THE_WAY };
+    }
+    await touchCacheUse(item.fileName, 'recordings');
+    return { ok: true, uri: file.uri };
+  } catch (error) {
+    return { ok: false, reason: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+/**
+ * Hands a recording to another app through the share sheet, fetching it
+ * here first if the cache cleared it. Null when it opened, otherwise what
+ * to say. The phone's only way to play before R1.
  */
 export async function openRecordingElsewhere(item: Recording): Promise<string | null> {
   try {

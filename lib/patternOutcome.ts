@@ -130,6 +130,8 @@ export const BODY_SIGNAL_NAMES: Record<BodySignalKey, string> = {
   spo2: 'blood oxygen',
   glucose: 'glucose',
   skinTemperature: 'skin temperature',
+  respiratoryRate: 'breathing rate',
+  bodyTemperature: 'body temperature',
 };
 
 // The pill labels for the second row once Body readings is picked.
@@ -140,6 +142,8 @@ export const BODY_SIGNAL_LABELS: Record<BodySignalKey, string> = {
   spo2: 'Blood oxygen',
   glucose: 'Glucose',
   skinTemperature: 'Skin temperature',
+  respiratoryRate: 'Breathing rate',
+  bodyTemperature: 'Body temperature',
 };
 
 export const BODY_SIDE_LABELS: Record<BodyOutcomeSide, string> = {

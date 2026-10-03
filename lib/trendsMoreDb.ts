@@ -286,6 +286,8 @@ const BODY_SIGNAL_RECORD_TYPES: Record<string, BodySignalKey> = {
   spo2: 'spo2',
   glucose: 'glucose',
   skin_temperature: 'skinTemperature',
+  respiratory_rate: 'respiratoryRate',
+  body_temperature: 'bodyTemperature',
 };
 
 function readMinMax(detailJson: string | null): { low: number | null; high: number | null } {

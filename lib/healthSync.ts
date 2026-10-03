@@ -342,6 +342,45 @@ async function syncGlucose(fromIso: string, toIso: string): Promise<number> {
   return rows.length;
 }
 
+async function syncRespiratoryRate(fromIso: string, toIso: string): Promise<number> {
+  const records = await readAllRecords('RespiratoryRate', fromIso, toIso);
+  const rows = records.map((record, index) =>
+    recordRow(
+      'respiratory_rate',
+      metaId(record.metadata, `${record.time}_${index}`),
+      record.time,
+      null,
+      record.rate,
+      null,
+      'breaths/min',
+      null,
+      metaSource(record.metadata),
+    ),
+  );
+  await upsertHealthRecords(rows);
+  return rows.length;
+}
+
+// Celsius stored, Fahrenheit kept beside it the way glucose keeps mg/dL.
+async function syncBodyTemperature(fromIso: string, toIso: string): Promise<number> {
+  const records = await readAllRecords('BodyTemperature', fromIso, toIso);
+  const rows = records.map((record, index) =>
+    recordRow(
+      'body_temperature',
+      metaId(record.metadata, `${record.time}_${index}`),
+      record.time,
+      null,
+      record.temperature.inCelsius,
+      record.temperature.inFahrenheit,
+      'celsius',
+      record.measurementLocation != null ? { measurementLocation: record.measurementLocation } : null,
+      metaSource(record.metadata),
+    ),
+  );
+  await upsertHealthRecords(rows);
+  return rows.length;
+}
+
 // One row per night's reading: the average delta from baseline, with the
 // baseline kept in detail when the watch reported one.
 async function syncSkinTemperature(fromIso: string, toIso: string): Promise<number> {
@@ -473,6 +512,8 @@ const SYNCERS: { key: HealthSignalKey; run: (fromIso: string, toIso: string) => 
   { key: 'hrv', run: syncHrv },
   { key: 'spo2', run: syncSpo2 },
   { key: 'skinTemperature', run: syncSkinTemperature },
+  { key: 'respiratoryRate', run: syncRespiratoryRate },
+  { key: 'bodyTemperature', run: syncBodyTemperature },
 ];
 
 let inFlight: Promise<HealthSyncResult> | null = null;
@@ -512,7 +553,7 @@ async function runSync(access: GrantedHealthAccess): Promise<HealthSyncResult> {
 // area to say "nothing in the last 90 days" honestly.
 export async function countStoredHealthRecords(): Promise<Partial<Record<HealthRecordType, number>>> {
   const types: HealthRecordType[] = [
-    'distance', 'sleep', 'heart_rate', 'resting_heart_rate', 'hrv', 'spo2', 'glucose', 'skin_temperature', 'menstruation', 'exercise',
+    'distance', 'sleep', 'heart_rate', 'resting_heart_rate', 'hrv', 'spo2', 'glucose', 'skin_temperature', 'respiratory_rate', 'body_temperature', 'menstruation', 'exercise',
   ];
   const result: Partial<Record<HealthRecordType, number>> = {};
   for (const type of types) result[type] = await countHealthRecords(type);

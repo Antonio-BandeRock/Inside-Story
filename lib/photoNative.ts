@@ -3,12 +3,10 @@
 // (expo-media-library) and telling Wi-Fi from mobile data (expo-network).
 // Both are added in the R1 rebuild (docs/competitive-review/BUILD-PLAN.md).
 //
-// Neither package is installed in this repo until then, because installing
-// one changes the app's runtime fingerprint and would strand every update
-// sent over the air to the phones already running this build. So each is
-// reached through requireOptionalNativeModule, which hands back null while
-// the native side is missing and the module itself once R1 is installed. No
-// change here is needed at R1: the same code starts working.
+// Both were installed with R1 (2026-10-02). Each is still reached through
+// requireOptionalNativeModule, which hands back null wherever the native
+// side is missing: an older install that has not taken R1 yet, and the
+// desktop build, which needs no stand-in for this file as a result.
 //
 // Every call is guarded and never throws. A gallery save that cannot happen
 // is reported as not having happened, and PhotoStrip says so once; the photo

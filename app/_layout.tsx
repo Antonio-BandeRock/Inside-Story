@@ -33,6 +33,7 @@ import { handleIncomingIsFile } from '../lib/isFileLinking';
 import { refreshLockScreenNotice } from '../lib/emergencyLockScreen';
 import { listenForReminderTaps, syncReminderNotifications } from '../lib/reminderNotifications';
 import { checkReminderTiming } from '../lib/reminderTiming';
+import { refreshWidgets } from '../lib/widgets/taskHandler';
 
 // Kept visible until the header's own branding font finishes loading (see
 // ScreenHeader.tsx) -- without this, the native splash screen hides itself
@@ -169,6 +170,9 @@ export default function RootLayout() {
       // and waiting for the next time the app opens would miss it.
       if (state === 'active' || state === 'background') void syncReminderNotifications();
       if (state === 'active') void refreshLockScreenNotice();
+      // Home screen widgets (L2) redraw as the app is put away, so what was
+      // just logged shows there without waiting for Android's half hour.
+      if (state === 'background') void refreshWidgets();
     });
     return () => subscription.remove();
   }, [dbReady]);

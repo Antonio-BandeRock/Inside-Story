@@ -2,6 +2,8 @@ import { Tabs } from 'expo-router';
 import { Platform, StyleSheet, View } from 'react-native';
 import { enableScreens } from 'react-native-screens';
 import { CurrentPageHelpProvider } from '../../components/CurrentPageHelp';
+import { QuickActionRouter } from '../../components/QuickActionRouter';
+import { ShareIntentHandler } from '../../components/ShareIntentHandler';
 import { ScreenBackground } from '../../components/ScreenBackground';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { TabHub } from '../../components/TabHub';
@@ -133,6 +135,9 @@ export default function TabLayout() {
           </Tabs>
         </View>
         <TabHub />
+        {/* App icon shortcuts (C12): set here, and followed from here. */}
+        <QuickActionRouter />
+        <ShareIntentHandler />
       </View>
     </CurrentPageHelpProvider>
   );

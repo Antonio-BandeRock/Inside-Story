@@ -18,9 +18,9 @@
 // only in the row; the file in the folder is named by a random id.
 //
 // PLAYING. The computer plays a recording in the app, from the folder on
-// its disk. The phone has no audio player in this build, so for now it
-// opens the recording in another app on the phone; playing inside the app
-// comes with the next app build (R1).
+// its disk. The phone plays it in the app too since R1 (lib/phoneAudio.ts),
+// from its cache, fetching it from the folder first when the cache had
+// cleared it.
 
 export type Recording = {
   id: string;
@@ -217,7 +217,7 @@ export function recordingsLead(onComputer: boolean, hasFolder: boolean): string 
     : 'Each one stays on this device until a shared folder is set up in Profile > Backup & Restore, then moves into its Recordings folder.';
   const play = onComputer
     ? 'Play one here, or open the folder in any player.'
-    : 'On this phone a recording opens in another app for now. Playing it inside Inside Story comes with the next app build.';
+    : 'Play one here. It stops when you leave this lens.';
   return `Audio of your own: a relaxation track, a session somebody recorded for you, rain. ${where} ${play}`;
 }
 

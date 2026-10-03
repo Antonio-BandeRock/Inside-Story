@@ -23559,6 +23559,8 @@ export type HealthRecordType =
   | 'spo2'
   | 'glucose'
   | 'skin_temperature'
+  | 'respiratory_rate'
+  | 'body_temperature'
   | 'menstruation'
   | 'exercise';
 

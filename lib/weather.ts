@@ -12,8 +12,10 @@
 //
 // Only a coarsened point leaves the device: the postal code centre from
 // Garden > My Zone, rounded to the nearest half degree (about 55 km), which
-// is also about the size of POWER's own weather grid, so nothing is lost
-// by rounding. Fetching starts only once the person turns it on.
+// is also about the size of POWER's weather grid, so nothing is lost by
+// rounding. With no postal code, the phone can give its rough location
+// instead (rebuild R1, lib/roughLocation.ts), rounded the same way before it
+// is even kept. Fetching starts only once the person turns it on.
 
 export const WEATHER_GRID_DEGREES = 0.5;
 export const POWER_FILL_VALUE = -999;
@@ -158,9 +160,12 @@ export function sayPressureChange(unit: PressureUnit, kpa: number): string {
   return unit === 'inHg' ? `${pressureIn(unit, kpa).toFixed(2)} inHg` : `${(Math.round(pressureIn(unit, kpa) * 10) / 10).toFixed(1)} hPa`;
 }
 
-export function weatherCredit(readOn: string | null): string {
+export type WeatherPlaceSource = 'postal' | 'phone';
+
+export function weatherCredit(readOn: string | null, from: WeatherPlaceSource = 'postal'): string {
   const read = readOn ? `, read ${readOn}` : '';
-  return `Weather from NASA Langley Research Center's POWER project (daily point API version ${POWER_API_VERSION}${read}), for an area about 55 km across around the postal code in Garden > My Zone. It arrives about two days late.`;
+  const around = from === 'phone' ? "this phone's rough location" : 'the postal code in Garden > My Zone';
+  return `Weather from NASA Langley Research Center's POWER project (daily point API version ${POWER_API_VERSION}${read}), for an area about 55 km across around ${around}. It arrives about two days late.`;
 }
 
 export const WEATHER_OFFER =
@@ -168,3 +173,7 @@ export const WEATHER_OFFER =
 
 export const WEATHER_NO_PLACE =
   'Weather needs a place. Set a postal code in Garden > My Zone and it will be added here.';
+
+// On the phone, which can also give its rough location.
+export const WEATHER_NO_PLACE_PHONE =
+  'Weather needs a place. Set a postal code in Garden > My Zone, or use this phone’s rough location. Either way the point is rounded to about 55 km before it is kept or sent.';

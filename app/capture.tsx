@@ -273,6 +273,8 @@ export default function CaptureScreen() {
             <Ionicons name="mic-outline" size={13} color={colors.textMuted} />
           ) : note.source === 'photo' ? (
             <Ionicons name="camera-outline" size={13} color={colors.textMuted} />
+          ) : note.source === 'shared' ? (
+            <Ionicons name="share-social-outline" size={13} color={colors.textMuted} />
           ) : null}
           <Text style={styles.noteMeta}>{describeCaptureAge(note.createdAt, now)}</Text>
         </View>

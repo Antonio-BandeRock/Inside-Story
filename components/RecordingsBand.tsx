@@ -3,8 +3,8 @@
 // reading, writing and the folder are lib/recordingsDb.ts.
 //
 // The computer plays a recording here, through the browser's Audio element,
-// from the folder on its disk. The phone has no audio player in this build,
-// so it opens the recording in another app until the R1 build adds one.
+// from the folder on its disk. The phone plays it here too since R1, through
+// expo-audio behind the same shape (lib/phoneAudio.ts), from its cache.
 // Leaving the lens stops whatever is playing.
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -26,13 +26,14 @@ import {
 import {
   addRecordingFromPicker,
   listRecordings,
-  openRecordingElsewhere,
+  recordingLocalUri,
   recordingPlaces,
   recordingPlayUrl,
   removeRecording,
   renameRecording,
   syncRecordings,
 } from '../lib/recordingsDb';
+import { phoneAudio } from '../lib/phoneAudio';
 import { AppTextInput } from './AppTextInput';
 import type { useConfirmSheet } from './ConfirmSheet';
 import { TabBand } from './TabBand';
@@ -126,9 +127,14 @@ export function RecordingsBand({ tabColor, folds, confirm }: { tabColor: string;
     stop();
     if (!onComputer) {
       setBusy(true);
-      const said = await openRecordingElsewhere(item);
+      const local = await recordingLocalUri(item);
       setBusy(false);
-      if (said) setMessage(said);
+      if (!local.ok) {
+        setMessage(local.reason);
+        return;
+      }
+      const made = phoneAudio(local.uri);
+      await begin(item, made.audio, made.release);
       await load();
       return;
     }
@@ -145,9 +151,12 @@ export function RecordingsBand({ tabColor, folds, confirm }: { tabColor: string;
       setMessage('This device has no way to play audio inside the app.');
       return;
     }
-    const audio = new AudioCtor(ready.url);
+    await begin(item, new AudioCtor(ready.url), ready.release);
+  }
+
+  async function begin(item: Recording, audio: WebAudio, release: () => void) {
     audio.onended = () => stop();
-    playing.current = { id: item.id, audio, release: ready.release, paused: false };
+    playing.current = { id: item.id, audio, release, paused: false };
     setPlayingId(item.id);
     setPaused(false);
     try {
@@ -209,7 +218,7 @@ export function RecordingsBand({ tabColor, folds, confirm }: { tabColor: string;
               <View style={styles.linkRow}>
                 <TouchableOpacity onPress={() => void play(item)} disabled={busy && !isPlaying}>
                   <Text style={[styles.link, { color: tabColor }]}>
-                    {!onComputer ? 'Open in another app' : isPlaying ? (paused ? 'Carry on' : 'Pause') : 'Play'}
+                    {isPlaying ? (paused ? 'Carry on' : 'Pause') : 'Play'}
                   </Text>
                 </TouchableOpacity>
                 {isPlaying ? (
