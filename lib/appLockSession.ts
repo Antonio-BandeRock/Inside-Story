@@ -79,3 +79,14 @@ export function heldDataKey(): Uint8Array | null {
 export function isLockedNow(): boolean {
   return readLockStateSync() !== null && heldKey === null;
 }
+
+/**
+ * Whether a reminder queued now names only its kind (R9). True whenever the
+ * lock is set up, locked or not, since a reminder's words are fixed when it
+ * is queued and shown later on the lock screen; false only when the person
+ * chose full detail.
+ */
+export function reminderDetailHidden(): boolean {
+  const state = readLockStateSync();
+  return state !== null && state.reminderDetail !== 'full';
+}

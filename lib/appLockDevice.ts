@@ -30,6 +30,9 @@ import {
   keyToHex,
   passcodeWrappingKey,
   planMigration,
+  planUnlockMigration,
+  waitRemainingMs,
+  wrongTryWaitMs,
   quoteIdentifier,
   RECOVERY_KEY_BYTES,
   recoveryKeyGroups,
@@ -43,12 +46,14 @@ import {
   type AutoLockMinutes,
   type FileKind,
   type PasscodeKind,
+  type ReminderDetail,
   type TableCount,
 } from './appLock';
 import { dropDataKey, holdDataKey, LOCK_FILE_NAME, readLockStateSync } from './appLockSession';
 import { restartApp } from './restartApp';
 import { bytesToBase64Fast } from './localSeal';
 import { closeDatabasesForRestart, DB_NAME } from './db';
+import { unsealWaitingAnswersForTurnOff } from './lockedAnswers';
 
 const PASSCODE_ITEM = 'inside_story_app_lock_passcode_v1';
 const BIOMETRIC_ITEM = 'inside_story_app_lock_biometric_v1';
@@ -57,6 +62,11 @@ const MIGRATION_ITEM = 'inside_story_app_lock_migrating_v1';
 const PARTIAL_NAME = `${DB_NAME}.locking`;
 const BEFORE_NAME = `${DB_NAME}.before-lock`;
 const UNOPENED_NAME = `${DB_NAME}.locked-unopened`;
+// Turning the lock off (1.0.60.6) uses names of its own, so a file left by
+// one direction is never mistaken for the other's.
+const UNLOCK_PARTIAL_NAME = `${DB_NAME}.unlocking`;
+const UNLOCK_BEFORE_NAME = `${DB_NAME}.before-unlock`;
+const UNLOCK_UNOPENED_NAME = `${DB_NAME}.unlocked-unopened`;
 const SIDE_FILES = ['-wal', '-shm', '-journal'];
 
 const BIOMETRIC_PROMPT = 'Unlock Inside Story';
@@ -85,7 +95,7 @@ function deleteLockState(): void {
 }
 
 export function updateLockSettings(
-  patch: Partial<Pick<AppLockState, 'autoLockMinutes' | 'allowScreenshots'>>,
+  patch: Partial<Pick<AppLockState, 'autoLockMinutes' | 'allowScreenshots' | 'reminderDetail'>>,
 ): AppLockState | null {
   const state = readLockStateSync();
   if (!state) return null;
@@ -183,6 +193,9 @@ export async function turnOnAppLock(options: {
     recoveryWrapped: await wrapForRecovery(dataKey, options.recovery),
     setUpAt: new Date().toISOString(),
     answerBoxPublicKey: bytesToBase64Fast(answerBoxKeyPair(dataKey).publicKey),
+    failedTries: 0,
+    lastFailedAt: 0,
+    reminderDetail: 'private',
   });
   return { biometric };
 }
@@ -197,6 +210,50 @@ export async function unlockWithPasscode(passcode: string): Promise<Uint8Array |
   const wrapped = await SecureStore.getItemAsync(PASSCODE_ITEM);
   const wrapping = await passcodeWrappingKey(passcode, state.kdf);
   return unwrapKey(wrapped, wrapping);
+}
+
+export type PasscodeCheck =
+  | { kind: 'key'; key: Uint8Array }
+  | { kind: 'wrong'; waitMs: number }
+  | { kind: 'wait'; waitMs: number };
+
+/**
+ * Every passcode typed anywhere goes through here, so the wait after five
+ * wrong tries (R6) holds on the lock screen, in settings and before a
+ * backup alike. The count lives in the lock file, so closing the app does
+ * not reset it. A try during a wait is refused before scrypt runs.
+ */
+export async function checkPasscode(passcode: string): Promise<PasscodeCheck> {
+  const state = readLockStateSync();
+  if (!state) return { kind: 'wrong', waitMs: 0 };
+  const remaining = waitRemainingMs(state.failedTries, state.lastFailedAt, Date.now());
+  if (remaining > 0) return { kind: 'wait', waitMs: remaining };
+  const key = await unlockWithPasscode(passcode);
+  // Read again: scrypt takes a moment and a setting may have changed.
+  const now = readLockStateSync() ?? state;
+  if (key) {
+    if (now.failedTries || now.lastFailedAt) writeLockState({ ...now, failedTries: 0, lastFailedAt: 0 });
+    return { kind: 'key', key };
+  }
+  const failedTries = now.failedTries + 1;
+  writeLockState({ ...now, failedTries, lastFailedAt: Date.now() });
+  return { kind: 'wrong', waitMs: wrongTryWaitMs(failedTries) };
+}
+
+/** How long before another passcode can be tried, in milliseconds. */
+export function passcodeWaitRemaining(): number {
+  const state = readLockStateSync();
+  return state ? waitRemainingMs(state.failedTries, state.lastFailedAt, Date.now()) : 0;
+}
+
+/** A fingerprint or the recovery key opening it clears the wrong tries too. */
+export function clearWrongTries(): void {
+  const state = readLockStateSync();
+  if (state && (state.failedTries || state.lastFailedAt)) writeLockState({ ...state, failedTries: 0, lastFailedAt: 0 });
+}
+
+export function setReminderDetail(detail: ReminderDetail): void {
+  updateLockSettings({ reminderDetail: detail });
 }
 
 export type BiometricResult = { kind: 'key'; key: Uint8Array } | { kind: 'cancelled' } | { kind: 'needs-passcode' };
@@ -338,9 +395,7 @@ async function countRows(db: SQLite.SQLiteDatabase, schema: string, tables: stri
   return counts;
 }
 
-async function exportToPartial(key: Uint8Array, onProgress: (progress: MigrationProgress) => void): Promise<void> {
-  deleteWithSideFiles(PARTIAL_NAME);
-
+function checkRoomForCopy(onProgress: (progress: MigrationProgress) => void, what: string): void {
   onProgress({ stage: 'checking-space' });
   const size = databaseFile(DB_NAME).size ?? 0;
   let free = Number.POSITIVE_INFINITY;
@@ -351,9 +406,14 @@ async function exportToPartial(key: Uint8Array, onProgress: (progress: Migration
   }
   if (free < size * 1.2 + 50 * 1024 * 1024) {
     throw new Error(
-      `The phone needs about ${Math.ceil((size * 1.2) / (1024 * 1024)) + 50} MB free to make the locked copy. Free some room and try again.`,
+      `The phone needs about ${Math.ceil((size * 1.2) / (1024 * 1024)) + 50} MB free to make the ${what}. Free some room and try again.`,
     );
   }
+}
+
+async function exportToPartial(key: Uint8Array, onProgress: (progress: MigrationProgress) => void): Promise<void> {
+  deleteWithSideFiles(PARTIAL_NAME);
+  checkRoomForCopy(onProgress, 'locked copy');
 
   const plain = await SQLite.openDatabaseAsync(DB_NAME, { useNewConnection: true });
   try {
@@ -460,6 +520,158 @@ export async function runMigration(onProgress: (progress: MigrationProgress) => 
     }
     return { ok: false, problem: error instanceof Error ? error.message : String(error) };
   }
+}
+
+// ---------------------------------------------------------------------------
+// Turning the lock off (1.0.60.6, R12)
+
+/**
+ * Starts turning the lock off. The caller has just checked the passcode or
+ * fingerprint, so the data key is in hand; it is kept bare in secure store
+ * for the move only, the same as while the lock was being set up, and the
+ * caller restarts the app so the move runs with nothing else open.
+ */
+export async function startTurningOff(dataKey: Uint8Array): Promise<void> {
+  const state = readLockStateSync();
+  if (!state || state.phase !== 'on') throw new Error('App Lock is not on.');
+  const SecureStore = await secureStore();
+  await SecureStore.setItemAsync(MIGRATION_ITEM, keyToBase64(dataKey));
+  writeLockState({ ...state, phase: 'decrypting' });
+}
+
+async function exportToPlain(key: Uint8Array, onProgress: (progress: MigrationProgress) => void): Promise<void> {
+  deleteWithSideFiles(UNLOCK_PARTIAL_NAME);
+  checkRoomForCopy(onProgress, 'unlocked copy');
+
+  const locked = await SQLite.openDatabaseAsync(DB_NAME, { useNewConnection: true });
+  try {
+    await locked.execAsync(keyPragma(key));
+    const tables = (
+      await locked.getAllAsync<{ name: string }>(
+        "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name",
+      )
+    ).map((row) => row.name);
+
+    onProgress({ stage: 'copying' });
+    const path = databasePath(UNLOCK_PARTIAL_NAME).replace(/'/g, "''");
+    // An empty key attaches a plain SQLite file.
+    await locked.execAsync(`ATTACH DATABASE '${path}' AS plain KEY '';`);
+    try {
+      await locked.getFirstAsync("SELECT sqlcipher_export('plain')");
+      const before: TableCount[] = [];
+      const after: TableCount[] = [];
+      for (let i = 0; i < tables.length; i += 1) {
+        onProgress({ stage: 'counting', done: i, total: tables.length });
+        before.push(...(await countRows(locked, 'main', [tables[i]])));
+        after.push(...(await countRows(locked, 'plain', [tables[i]])));
+      }
+      onProgress({ stage: 'counting', done: tables.length, total: tables.length });
+      const wrong = countMismatches(before, after);
+      if (wrong.length) throw new Error(`The unlocked copy did not match in ${wrong.slice(0, 3).join(', ')}.`);
+    } finally {
+      await locked.execAsync('DETACH DATABASE plain;').catch(() => {});
+    }
+  } finally {
+    await locked.closeAsync();
+  }
+}
+
+async function opensPlain(): Promise<boolean> {
+  if (kindOf(DB_NAME) !== 'plain') return false;
+  try {
+    const db = await SQLite.openDatabaseAsync(DB_NAME, { useNewConnection: true });
+    try {
+      await db.getFirstAsync('SELECT count(*) AS n FROM sqlite_master');
+      return true;
+    } finally {
+      await db.closeAsync();
+    }
+  } catch (error) {
+    console.error('[appLock] the unlocked file did not open', error);
+    return false;
+  }
+}
+
+/**
+ * Moves the database back into a plain file and takes the lock away. Safe
+ * to run again after a kill at any point (planUnlockMigration): the
+ * encrypted file is only set aside, never deleted, until the plain one has
+ * opened, and the lock file and keys go last, so a kill before the end
+ * comes back here at the next start.
+ */
+export async function runUnlockMigration(onProgress: (progress: MigrationProgress) => void): Promise<MigrationResult> {
+  try {
+    const SecureStore = await secureStore();
+    const key = keyFromBase64(await SecureStore.getItemAsync(MIGRATION_ITEM));
+    if (!key) return { ok: false, problem: 'The key kept for turning the lock off could not be found.' };
+    await closeDatabasesForRestart();
+
+    let step = planUnlockMigration({
+      main: kindOf(DB_NAME),
+      partial: databaseFile(UNLOCK_PARTIAL_NAME).exists,
+      before: databaseFile(UNLOCK_BEFORE_NAME).exists,
+    });
+    if (step.kind === 'restore-before') {
+      moveWithSideFiles(UNLOCK_BEFORE_NAME, DB_NAME);
+      step = { kind: 'export' };
+    }
+    if (step.kind === 'export') {
+      await exportToPlain(key, onProgress);
+      onProgress({ stage: 'swapping' });
+      moveWithSideFiles(DB_NAME, UNLOCK_BEFORE_NAME);
+      moveWithSideFiles(UNLOCK_PARTIAL_NAME, DB_NAME);
+    }
+
+    onProgress({ stage: 'opening' });
+    if (step.kind !== 'no-database' && !(await opensPlain())) {
+      if (databaseFile(UNLOCK_BEFORE_NAME).exists) {
+        moveWithSideFiles(DB_NAME, UNLOCK_UNOPENED_NAME);
+        moveWithSideFiles(UNLOCK_BEFORE_NAME, DB_NAME);
+      }
+      return { ok: false, problem: 'The unlocked copy did not open, so your records were left locked.' };
+    }
+
+    // Presses made on a reminder while the lock was on are still sealed;
+    // open them now, while the key is in hand, so the next start applies them.
+    unsealWaitingAnswersForTurnOff(key);
+    deleteWithSideFiles(UNLOCK_BEFORE_NAME);
+    deleteWithSideFiles(UNLOCK_PARTIAL_NAME);
+    deleteLockState();
+    for (const item of [PASSCODE_ITEM, BIOMETRIC_ITEM, MIGRATION_ITEM]) {
+      await SecureStore.deleteItemAsync(item).catch(() => {});
+    }
+    key.fill(0);
+    await applyScreenCapturePolicy(null);
+    onProgress({ stage: 'done' });
+    return { ok: true };
+  } catch (error) {
+    console.error('[appLock] turning the lock off did not finish', error);
+    try {
+      deleteWithSideFiles(UNLOCK_PARTIAL_NAME);
+    } catch {
+      // Left for the next try, which deletes it first.
+    }
+    return { ok: false, problem: error instanceof Error ? error.message : String(error) };
+  }
+}
+
+/**
+ * Keeps the lock on after turning it off failed. Only while the database is
+ * still the encrypted file, so nothing written plain is ever left behind a
+ * lock that would not cover it.
+ */
+export async function keepLockOn(): Promise<boolean> {
+  const state = readLockStateSync();
+  if (!state || state.phase !== 'decrypting') return false;
+  if (kindOf(DB_NAME) === 'missing' && databaseFile(UNLOCK_BEFORE_NAME).exists) {
+    moveWithSideFiles(UNLOCK_BEFORE_NAME, DB_NAME);
+  }
+  if (kindOf(DB_NAME) !== 'encrypted') return false;
+  deleteWithSideFiles(UNLOCK_PARTIAL_NAME);
+  const SecureStore = await secureStore();
+  await SecureStore.deleteItemAsync(MIGRATION_ITEM).catch(() => {});
+  writeLockState({ ...state, phase: 'on' });
+  return true;
 }
 
 /**

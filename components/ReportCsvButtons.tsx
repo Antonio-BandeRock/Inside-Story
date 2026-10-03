@@ -4,6 +4,7 @@
 // gives them a surface. Contents are in lib/reportCsv.ts.
 
 import { useState } from 'react';
+import { confirmItsYou } from '../lib/freshAuth';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -27,6 +28,7 @@ export function ReportCsvButtons({ report, onSaved }: Props) {
 
   async function handleSave(key: string) {
     if (busy) return;
+    if (!(await confirmItsYou('Before the file is made'))) return;
     setBusy(key);
     try {
       const outcome = await exportReportCsv(report, key === WHOLE ? null : key);

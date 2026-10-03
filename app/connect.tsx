@@ -38,6 +38,7 @@ import {
 import { computeKeyFingerprint, getDeviceIdentity } from '../lib/deviceIdentity';
 import { SHARE_SCOPES, defaultGrantsForRole, type ShareGrants } from '../lib/partners';
 import { canEncryptTo } from '../lib/partnerCrypto';
+import { confirmItsYou } from '../lib/freshAuth';
 
 type Status = 'checking' | 'preview' | 'self-invite' | 'already-connected' | 'accepting' | 'accepted' | 'error';
 
@@ -108,6 +109,7 @@ export default function ConnectScreen() {
 
   async function handleAccept() {
     if (!invite) return;
+    if (!(await confirmItsYou('Before this connection is made'))) return;
     setStatus('accepting');
     try {
       const role = isPartnerInvite ? 'partner' : 'recipe';

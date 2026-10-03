@@ -18,6 +18,10 @@ import { heldDataKey, LOCK_FILE_NAME, readLockStateSync } from './appLockSession
 import { base64ToBytesFast, bytesToBase64Fast } from './localSeal';
 
 const WAITING_FILE_NAME = 'reminder-answers-waiting.txt';
+// Turning the lock off (1.0.60.6) opens the sealed presses into this file,
+// since the key that opens them is thrown away with the lock. The database
+// is a plain file from then on, so a plain file of presses adds nothing.
+const UNSEALED_FILE_NAME = 'reminder-answers-unlocked.json';
 
 export type WaitingAnswer = {
   identifier: string;
@@ -83,7 +87,8 @@ function parseWaiting(text: string): WaitingAnswer | null {
 export function takeWaitingAnswers(): WaitingAnswer[] {
   const key = heldDataKey();
   const state = readLockStateSync();
-  if (!key || !state) return [];
+  if (!state) return takeUnsealedAnswers();
+  if (!key) return [];
   if (!state.answerBoxPublicKey) {
     try {
       new File(Paths.document, LOCK_FILE_NAME).write(
@@ -111,4 +116,47 @@ export function takeWaitingAnswers(): WaitingAnswer[] {
     if (answer) answers.push(answer);
   }
   return answers.sort((a, b) => a.pressedAt.localeCompare(b.pressedAt));
+}
+
+/**
+ * Turning the lock off: every sealed press opened with the key and kept in
+ * a plain file for the next start, which applies them as an unlock would.
+ */
+export function unsealWaitingAnswersForTurnOff(key: Uint8Array): void {
+  const file = waitingFile();
+  if (!file.exists) return;
+  try {
+    const answers: WaitingAnswer[] = [];
+    for (const line of file.textSync().split('\n')) {
+      if (!line.trim()) continue;
+      const opened = openSealedForUnlock(line, key);
+      const answer = opened ? parseWaiting(opened) : null;
+      if (answer) answers.push(answer);
+    }
+    if (answers.length) {
+      const kept = new File(Paths.document, UNSEALED_FILE_NAME);
+      const before = kept.exists ? (JSON.parse(kept.textSync()) as unknown[]) : [];
+      kept.write(JSON.stringify([...before, ...answers]));
+    }
+    file.delete();
+  } catch (error) {
+    console.error('[lockedAnswers] the waiting answers could not be opened for turning the lock off', error);
+  }
+}
+
+function takeUnsealedAnswers(): WaitingAnswer[] {
+  const file = new File(Paths.document, UNSEALED_FILE_NAME);
+  if (!file.exists) return [];
+  try {
+    const raw = JSON.parse(file.textSync()) as unknown;
+    file.delete();
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .map((entry) => parseWaiting(JSON.stringify(entry)))
+      .filter((answer): answer is WaitingAnswer => answer !== null)
+      .sort((a, b) => a.pressedAt.localeCompare(b.pressedAt));
+  } catch (error) {
+    console.error('[lockedAnswers] the opened answers could not be read', error);
+    return [];
+  }
 }

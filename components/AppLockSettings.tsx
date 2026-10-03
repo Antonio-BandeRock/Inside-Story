@@ -12,6 +12,7 @@ import {
   updateLockSettings,
 } from '../lib/appLockDevice';
 import { isDesktopApp } from '../lib/desktop/bridge';
+import { syncReminderNotifications } from '../lib/reminderNotifications';
 
 // The body of Profile > App Lock. Setting the lock up and the changes that
 // need the passcode open app/app-lock-setup.tsx; the settings that do not
@@ -54,6 +55,9 @@ export function AppLockSettings() {
     );
   }
 
+  if (state.phase === 'decrypting') {
+    return <Text style={styles.help}>App Lock is being turned off. It finishes the next time the app starts.</Text>;
+  }
   if (state.phase !== 'on') {
     return <Text style={styles.help}>App Lock is still being set up. It finishes the next time the app starts.</Text>;
   }
@@ -128,6 +132,33 @@ export function AppLockSettings() {
         ))}
       </View>
 
+      <Text style={styles.subLabel}>What reminders show on the lock screen</Text>
+      <View style={styles.pillRow}>
+        {(['private', 'full'] as const).map((detail) => (
+          <TouchableOpacity
+            key={detail}
+            style={[styles.pill, state.reminderDetail === detail ? styles.pillActive : null]}
+            activeOpacity={0.85}
+            onPress={() => {
+              if (detail === state.reminderDetail) return;
+              setState(updateLockSettings({ reminderDetail: detail }));
+              // Reminders already queued carry their words, so they are
+              // queued again with the new ones.
+              void syncReminderNotifications();
+            }}
+          >
+            <Text style={[styles.pillText, state.reminderDetail === detail ? styles.pillTextActive : null]}>
+              {detail === 'private' ? 'Only the Kind' : 'Full Detail'}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <Text style={styles.caption}>
+        {state.reminderDetail === 'private'
+          ? 'A reminder says only what kind it is, such as "Time for your scheduled dose", so nobody holding the phone sees which medicine, meal or note it is about.'
+          : 'A reminder shows its whole text, including medicine names and notes, to anybody who can see the phone.'}
+      </Text>
+
       <TouchableOpacity
         style={styles.button}
         activeOpacity={0.85}
@@ -144,6 +175,13 @@ export function AppLockSettings() {
       </TouchableOpacity>
       <TouchableOpacity style={styles.button} activeOpacity={0.85} onPress={() => void lockNow()}>
         <Text style={styles.buttonText}>Lock Now</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.quietButton}
+        activeOpacity={0.85}
+        onPress={() => router.push({ pathname: '/app-lock-setup', params: { mode: 'off' } })}
+      >
+        <Text style={styles.quietButtonText}>Turn Off App Lock</Text>
       </TouchableOpacity>
     </>
   );
@@ -178,4 +216,14 @@ const styles = StyleSheet.create({
     textShadowColor: 'transparent',
     textShadowRadius: 0,
   },
+  quietButton: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 14,
+  },
+  quietButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary, ...textShadow },
 });

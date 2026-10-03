@@ -1,5 +1,6 @@
-// App Lock setup, and the three changes that need the passcode first:
-// a new passcode, a new recovery key, and turning on fingerprint or face.
+// App Lock setup, and the four changes that need the passcode first:
+// a new passcode, a new recovery key, turning on fingerprint or face, and
+// turning the lock off (which restarts into the move back to a plain file).
 // Reached from Profile > App Lock. Phone only for now.
 //
 // Setting up ends by restarting the app, and the gate
@@ -19,7 +20,7 @@ import {
   View,
 } from "react-native";
 import { ChoosePasscode } from "../components/AppLockGate";
-import { PasscodeEntry } from "../components/PasscodeEntry";
+import { ConfirmItsYou } from "../components/ConfirmItsYou";
 import { HOME_BAND_GAP } from "../components/HomeSectionBand";
 import { BUTTON_SHADOW, colors } from "../constants/colors";
 import { textShadow, typography } from "../constants/typography";
@@ -35,14 +36,14 @@ import {
   replaceRecoveryKey,
   setBiometricUnlock,
   setNewPasscode,
+  startTurningOff,
   turnOnAppLock,
-  unlockWithPasscode,
   type RecoveryKey,
 } from "../lib/appLockDevice";
 import { shareFileIfAvailable } from "../lib/nativeSharing";
 import { restartApp } from "../lib/restartApp";
 
-type Mode = "setup" | "passcode" | "recovery" | "biometric";
+type Mode = "setup" | "passcode" | "recovery" | "biometric" | "off";
 
 type Step =
   | "intro"
@@ -52,12 +53,14 @@ type Step =
   | "recovery-show"
   | "recovery-confirm"
   | "final"
+  | "off-warning"
   | "working";
 
 function titleFor(mode: Mode): string {
   if (mode === "passcode") return "Change Passcode";
   if (mode === "recovery") return "New Recovery Key";
   if (mode === "biometric") return "Fingerprint or Face";
+  if (mode === "off") return "Turn Off App Lock";
   return "Set Up App Lock";
 }
 
@@ -90,7 +93,8 @@ export default function AppLockSetupScreen() {
   const mode: Mode =
     params.mode === "passcode" ||
     params.mode === "recovery" ||
-    params.mode === "biometric"
+    params.mode === "biometric" ||
+    params.mode === "off"
       ? params.mode
       : "setup";
   const lockState = readLockStateSync();
@@ -208,6 +212,22 @@ export default function AppLockSetupScreen() {
     }
   }
 
+  async function turnOff() {
+    if (!heldKey.current) return;
+    setStep("working");
+    setProblem(null);
+    try {
+      await startTurningOff(heldKey.current);
+      await restartApp();
+    } catch (error) {
+      console.error("[appLockSetup] turning off failed", error);
+      setProblem(
+        "App Lock could not be turned off. Nothing has changed. Try again.",
+      );
+      setStep("off-warning");
+    }
+  }
+
   // ------------------------------------------------------------------
 
   let content: ReactNode = null;
@@ -239,25 +259,53 @@ export default function AppLockSetupScreen() {
     );
   } else if (step === "verify") {
     content = (
-      <VerifyPasscode
-        kind={lockState?.passcodeKind ?? "digits"}
-        onVerified={async (key) => {
-          heldKey.current = key;
-          if (mode === "passcode") setStep("choose");
-          else if (mode === "recovery") await startRecoveryStep();
-          else {
-            setStep("working");
-            const kept = await setBiometricUnlock(key, true);
-            if (kept) router.back();
+      <View style={styles.card}>
+        <ConfirmItsYou
+          kind={lockState?.passcodeKind ?? "digits"}
+          title="Enter your passcode"
+          biometric={mode === "off" && (lockState?.biometric ?? false)}
+          onVerified={async (key) => {
+            heldKey.current = key;
+            if (mode === "off") setStep("off-warning");
+            else if (mode === "passcode") setStep("choose");
+            else if (mode === "recovery") await startRecoveryStep();
             else {
-              setProblem(
-                "The fingerprint or face unlock could not be set up. Your passcode still opens the app.",
-              );
-              setStep("verify");
+              setStep("working");
+              const kept = await setBiometricUnlock(key, true);
+              if (kept) router.back();
+              else {
+                setProblem(
+                  "The fingerprint or face unlock could not be set up. Your passcode still opens the app.",
+                );
+                setStep("verify");
+              }
             }
-          }
-        }}
-      />
+          }}
+        />
+      </View>
+    );
+  } else if (step === "off-warning") {
+    content = (
+      <View style={styles.card}>
+        <Ionicons name="lock-open-outline" size={40} color={colors.textMuted} />
+        <Text style={styles.title}>Turn off App Lock?</Text>
+        <Text style={styles.text}>
+          Your records go back into a plain file on this phone. Nothing you have
+          recorded is lost, and nothing is deleted.
+        </Text>
+        <Text style={styles.text}>
+          Without the lock, anybody who can open this phone can open the app and
+          read everything in it, and a copy of the phone&apos;s files can be
+          read without any passcode. Reminders show their full text again.
+        </Text>
+        <Text style={styles.text}>
+          The app restarts now and moves your records back. Keep it open until
+          that finishes. Your passcode and recovery key stop working, and
+          turning the lock on again later makes new ones.
+        </Text>
+        <PrimaryButton label="Turn Off App Lock" onPress={turnOff} />
+        <SecondaryButton label="Keep It On" onPress={() => router.back()} />
+      </View>
     );
   } else if (step === "choose") {
     content = (
@@ -444,47 +492,6 @@ export default function AppLockSetupScreen() {
   );
 }
 
-function VerifyPasscode({
-  kind,
-  onVerified,
-}: {
-  kind: PasscodeKind;
-  onVerified: (key: Uint8Array) => void;
-}) {
-  const [value, setValue] = useState("");
-  const [checking, setChecking] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  return (
-    <View style={styles.card}>
-      <Text style={styles.title}>Enter your passcode</Text>
-      {message ? <Text style={styles.warning}>{message}</Text> : null}
-      <PasscodeEntry
-        kind={kind}
-        value={value}
-        onChange={setValue}
-        disabled={checking}
-        submitLabel="Next"
-        onSubmit={async () => {
-          if (!value || checking) return;
-          setChecking(true);
-          setMessage(null);
-          try {
-            const key = await unlockWithPasscode(value);
-            if (key) onVerified(key);
-            else {
-              setValue("");
-              setMessage("That passcode is not the one in use. Try again.");
-            }
-          } finally {
-            setChecking(false);
-          }
-        }}
-      />
-      {checking ? <Text style={styles.note}>Checking</Text> : null}
-    </View>
-  );
-}
-
 function PrimaryButton({
   label,
   onPress,
@@ -555,12 +562,6 @@ const styles = StyleSheet.create({
   warning: {
     ...typography.body,
     color: colors.statusYellowStandalone,
-    textAlign: "center",
-    ...textShadow,
-  },
-  note: {
-    ...typography.caption,
-    color: colors.textMuted,
     textAlign: "center",
     ...textShadow,
   },

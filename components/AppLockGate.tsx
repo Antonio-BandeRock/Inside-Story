@@ -23,17 +23,22 @@ import { textShadow, typography } from "../constants/typography";
 import {
   passcodeProblem,
   shouldLockOnReturn,
+  waitLabel,
   type AppLockState,
   type PasscodeKind,
 } from "../lib/appLock";
 import {
   abandonLockSetup,
   applyScreenCapturePolicy,
+  checkPasscode,
+  clearWrongTries,
+  keepLockOn,
+  passcodeWaitRemaining,
   runMigration,
+  runUnlockMigration,
   setNewPasscode,
   storeBiometricCopy,
   unlockWithBiometric,
-  unlockWithPasscode,
   unlockWithRecovery,
   type MigrationProgress,
 } from "../lib/appLockDevice";
@@ -55,6 +60,7 @@ import { PasscodeEntry } from "./PasscodeEntry";
 //   no lock file              the app, as before
 //   phase "encrypting"        the move into the encrypted file, with progress
 //   phase "on", no key held   the lock screen
+//   phase "decrypting"        the move back to a plain file, with progress
 //
 // Locking again after time away works by restarting the app (lib/restartApp
 // closes the database first), which throws away the JS context and the key
@@ -67,6 +73,8 @@ type View_ =
   | { kind: "locked" }
   | { kind: "migrating"; progress: MigrationProgress | null }
   | { kind: "migration-failed"; problem: string }
+  | { kind: "unlocking"; progress: MigrationProgress | null }
+  | { kind: "unlock-failed"; problem: string }
   | { kind: "recovery" }
   | { kind: "new-passcode"; key: Uint8Array };
 
@@ -74,22 +82,29 @@ function initialView(state: AppLockState | null): View_ {
   if (!state) return { kind: "open" };
   if (state.phase === "encrypting")
     return { kind: "migrating", progress: null };
+  if (state.phase === "decrypting")
+    return { kind: "unlocking", progress: null };
   return isUnlocked() ? { kind: "open" } : { kind: "locked" };
 }
 
-function progressText(progress: MigrationProgress | null): string {
+function progressText(
+  progress: MigrationProgress | null,
+  copy: "locked" | "unlocked" = "locked",
+): string {
   if (!progress) return "Getting ready";
   switch (progress.stage) {
     case "checking-space":
       return "Checking there is room on the phone";
     case "copying":
-      return "Writing the locked copy of your records";
+      return `Writing the ${copy} copy of your records`;
     case "counting":
       return `Checking every record came across (${progress.done} of ${progress.total} tables)`;
     case "swapping":
-      return "Putting the locked copy in place";
+      return `Putting the ${copy} copy in place`;
     case "opening":
-      return "Opening the locked copy with its key";
+      return copy === "locked"
+        ? "Opening the locked copy with its key"
+        : "Opening the unlocked copy";
     case "done":
       return "Done";
   }
@@ -133,6 +148,28 @@ export function AppLockGate({ children }: { children: ReactNode }) {
       void migrate();
     }
   }, [view.kind, migrate]);
+
+  // The move back to a plain file after the lock was turned off.
+  const unlock = useCallback(async () => {
+    setView({ kind: "unlocking", progress: null });
+    const result = await runUnlockMigration((progress) =>
+      setView({ kind: "unlocking", progress }),
+    );
+    if (result.ok) {
+      setLockState(null);
+      setView({ kind: "open" });
+    } else {
+      setView({ kind: "unlock-failed", problem: result.problem });
+    }
+  }, []);
+
+  const startedUnlock = useRef(false);
+  useEffect(() => {
+    if (view.kind === "unlocking" && !startedUnlock.current) {
+      startedUnlock.current = true;
+      void unlock();
+    }
+  }, [view.kind, unlock]);
 
   // Locking again after time away.
   const awaySince = useRef<number | null>(null);
@@ -178,6 +215,42 @@ export function AppLockGate({ children }: { children: ReactNode }) {
     );
   }
 
+  if (view.kind === "unlocking") {
+    return (
+      <GateScreen icon="lock-open-outline" title="Turning App Lock off">
+        <ActivityIndicator size="large" color={colors.textPrimary} />
+        <Text style={styles.text}>
+          {progressText(view.progress, "unlocked")}
+        </Text>
+        <Text style={styles.note}>
+          Keep the app open until this finishes. If the phone turns off or the
+          app closes, it starts again from where it is safe the next time the
+          app opens, and your records stay locked until the unlocked copy has
+          opened.
+        </Text>
+      </GateScreen>
+    );
+  }
+
+  if (view.kind === "unlock-failed") {
+    return (
+      <UnlockFailed
+        problem={view.problem}
+        onTryAgain={() => {
+          startedUnlock.current = true;
+          void unlock();
+        }}
+        onKeepOn={async () => {
+          if (!(await keepLockOn())) return false;
+          setLockState(readLockStateSync());
+          // The key used for the move is gone, so the lock screen asks again.
+          restartApp().catch(() => setView({ kind: "locked" }));
+          return true;
+        }}
+      />
+    );
+  }
+
   if (view.kind === "migration-failed") {
     return (
       <MigrationFailed
@@ -203,6 +276,7 @@ export function AppLockGate({ children }: { children: ReactNode }) {
       <RecoveryEntry
         onBack={() => setView({ kind: "locked" })}
         onUnlocked={(key) => {
+          clearWrongTries();
           holdDataKey(key);
           setView({ kind: "new-passcode", key });
         }}
@@ -275,6 +349,15 @@ function LockScreen({
   const [passcode, setPasscode] = useState("");
   const [checking, setChecking] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  // Milliseconds left before another passcode can be tried (R6), read again
+  // from the lock file each second while a wait runs.
+  const [waitMs, setWaitMs] = useState(() => passcodeWaitRemaining());
+  const waiting = waitMs > 0;
+  useEffect(() => {
+    if (!waiting) return;
+    const timer = setInterval(() => setWaitMs(passcodeWaitRemaining()), 1000);
+    return () => clearInterval(timer);
+  }, [waiting]);
   // Set when the fingerprint copy turned out to be gone, so a passcode
   // unlock makes it again (R8).
   const remakeBiometric = useRef(false);
@@ -284,6 +367,7 @@ function LockScreen({
     setMessage(null);
     const result = await unlockWithBiometric();
     if (result.kind === "key") {
+      clearWrongTries();
       onUnlocked(result.key);
     } else if (result.kind === "needs-passcode") {
       remakeBiometric.current = true;
@@ -301,16 +385,23 @@ function LockScreen({
   }, [askBiometric]);
 
   const submit = async () => {
-    if (!passcode || checking) return;
+    if (!passcode || checking || waiting) return;
     setChecking(true);
     setMessage(null);
     try {
-      const key = await unlockWithPasscode(passcode);
-      if (!key) {
+      const result = await checkPasscode(passcode);
+      if (result.kind !== "key") {
         setPasscode("");
-        setMessage("That passcode did not open it. Try again.");
+        setWaitMs(result.waitMs);
+        if (result.kind === "wrong")
+          setMessage(
+            result.waitMs > 0
+              ? "That passcode did not open it. After five wrong tries there is a wait before each next one."
+              : "That passcode did not open it. Try again.",
+          );
         return;
       }
+      const key = result.key;
       if (remakeBiometric.current && state?.biometric)
         await storeBiometricCopy(key);
       onUnlocked(key);
@@ -325,12 +416,17 @@ function LockScreen({
   return (
     <GateScreen icon="lock-closed-outline" title="Inside Story is locked">
       {message ? <Text style={styles.text}>{message}</Text> : null}
+      {waiting ? (
+        <Text style={styles.warning}>
+          {`Try the passcode again in ${waitLabel(waitMs)}. Nothing is deleted however many times it is tried.`}
+        </Text>
+      ) : null}
       <PasscodeEntry
         kind={kind}
         value={passcode}
         onChange={setPasscode}
         onSubmit={submit}
-        disabled={checking}
+        disabled={checking || waiting}
         submitLabel="Unlock"
       />
       {checking ? <Text style={styles.note}>Checking</Text> : null}
@@ -580,6 +676,47 @@ function MigrationFailed({
         <Text style={styles.note}>
           Your records are already in the locked file, so the lock has to stay
           on. Try Again finishes it.
+        </Text>
+      ) : null}
+    </GateScreen>
+  );
+}
+
+function UnlockFailed({
+  problem,
+  onTryAgain,
+  onKeepOn,
+}: {
+  problem: string;
+  onTryAgain: () => void;
+  onKeepOn: () => Promise<boolean>;
+}) {
+  const [keepOnRefused, setKeepOnRefused] = useState(false);
+  return (
+    <GateScreen
+      icon="alert-circle-outline"
+      title="App Lock could not be turned off"
+    >
+      <Text style={styles.text}>{problem}</Text>
+      <Text style={styles.text}>Nothing you have recorded was lost.</Text>
+      <TouchableOpacity
+        style={styles.primaryButton}
+        activeOpacity={0.85}
+        onPress={onTryAgain}
+      >
+        <Text style={styles.primaryButtonText}>Try Again</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.secondaryButton}
+        activeOpacity={0.85}
+        onPress={async () => setKeepOnRefused(!(await onKeepOn()))}
+      >
+        <Text style={styles.secondaryButtonText}>Keep the Lock On</Text>
+      </TouchableOpacity>
+      {keepOnRefused ? (
+        <Text style={styles.note}>
+          Your records are already in the unlocked file, so the lock has to
+          come off. Try Again finishes it.
         </Text>
       ) : null}
     </GateScreen>

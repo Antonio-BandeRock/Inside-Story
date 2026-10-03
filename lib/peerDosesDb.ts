@@ -18,6 +18,8 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import type { Connection } from './connections';
 import { getDatabase } from './db';
+import { reminderDetailHidden } from './appLockSession';
+import { reminderWords } from './lockedReminderText';
 import {
   DOSE_WATCH_AHEAD_HOURS,
   DOSE_WATCH_BACK_HOURS,
@@ -244,8 +246,12 @@ export async function reconcileDoseAlerts(): Promise<void> {
       if (!dose) continue;
       const identifier = identifierFor(person.connectionId, doseId);
       const content = {
-        title: alertTitle(person.name, dose),
-        body: alertBody(person.name, dose, person.sentAt, now),
+        ...reminderWords(
+          'peerDose',
+          alertTitle(person.name, dose),
+          alertBody(person.name, dose, person.sentAt, now),
+          reminderDetailHidden(),
+        ),
         data: { kind: 'peerDose', connectionId: person.connectionId },
         sound: true,
       };

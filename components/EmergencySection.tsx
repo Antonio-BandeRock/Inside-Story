@@ -49,6 +49,7 @@ import {
   setLockScreenParts,
 } from '../lib/emergencyLockScreen';
 import { exportHtmlAsPdf } from '../lib/reportPdf';
+import { confirmItsYou } from '../lib/freshAuth';
 import { dialable } from '../lib/medSupply';
 import { copyLine, textNumber } from '../lib/phoneReach';
 import { CAN_PICK_CONTACTS, pickContact } from '../lib/contactPick';
@@ -241,6 +242,7 @@ export function EmergencySection({ tabColor }: Props) {
 
   async function printWalletCard() {
     if (!profile || !fromApp) return;
+    if (!(await confirmItsYou('Before the card is made'))) return;
     setPrinting(true);
     try {
       const html = buildWalletCardHtml({ profile, fromApp, contacts, today: todayLocal() });

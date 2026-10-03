@@ -25,6 +25,7 @@ import { RecallWatcher } from '../components/RecallWatcher';
 import { StoryReturnHost } from '../components/StoryReturnHost';
 import { StoryWalkHost } from '../components/StoryWalkHost';
 import { TellClaudeHost } from '../components/TellClaudeHost';
+import { FreshAuthHost } from '../components/FreshAuthHost';
 import { WordingEditProvider } from '../components/EditableText';
 import { VersionLabel } from '../components/VersionLabel';
 import { colors } from '../constants/colors';
@@ -891,6 +892,9 @@ function UnlockedApp() {
                   has a text box, and the drawn keyboard has to paint on top
                   of it. */}
               <TellClaudeHost />
+              {/* App Lock (1.0.60.6): the passcode asked for again before
+                  records leave the phone, lib/freshAuth.ts. */}
+              <FreshAuthHost />
               {/* From your garden (1.0.50.11): the sheet that offers to take
                   what a meal just used off what the garden has on hand. Saving
                   a meal happens on five screens and each of them calls one

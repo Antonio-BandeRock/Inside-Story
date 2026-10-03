@@ -46,6 +46,7 @@ import {
 } from '../lib/partners';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
+import { confirmItsYou } from '../lib/freshAuth';
 
 // Big enough that each module lands on several physical pixels at any normal
 // phone density, which is what actually decides whether a code scans on the
@@ -82,7 +83,23 @@ export default function PairScreen() {
   // this the screen would push the accept route dozens of times over.
   const handledScan = useRef(false);
 
+  // App Lock asks again before a new pairing (R10): the code on this screen
+  // is what lets somebody link to this phone, so nothing is built until then.
+  const [cleared, setCleared] = useState(false);
   useEffect(() => {
+    let cancelled = false;
+    void confirmItsYou('Before a new pairing').then((ok) => {
+      if (cancelled) return;
+      if (ok) setCleared(true);
+      else router.back();
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
+
+  useEffect(() => {
+    if (!cleared) return;
     let cancelled = false;
     (async () => {
       try {
@@ -103,7 +120,7 @@ export default function PairScreen() {
     return () => {
       cancelled = true;
     };
-  }, [isPartner, alreadyHaveYou, grants]);
+  }, [cleared, isPartner, alreadyHaveYou, grants]);
 
   useEffect(() => {
     if (mode === 'scan' && permission && !permission.granted && permission.canAskAgain) {

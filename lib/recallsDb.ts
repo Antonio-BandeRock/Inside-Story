@@ -13,6 +13,8 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { getDatabase, listAllActiveTreatments, listCommonMedications, listScannedProducts } from './db';
 import type { LabelDocument } from './medicineLabel';
+import { reminderDetailHidden } from './appLockSession';
+import { reminderWords } from './lockedReminderText';
 import {
   addDays,
   matchKey,
@@ -383,8 +385,7 @@ async function notifyMatches(matches: RecallMatch[]): Promise<void> {
     await Notifications.scheduleNotificationAsync({
       identifier: `${RECALL_NOTIFICATION_PREFIX}-${Date.now()}`,
       content: {
-        title: notificationTitle(matches),
-        body: notificationBody(matches),
+        ...reminderWords('recall', notificationTitle(matches), notificationBody(matches), reminderDetailHidden()),
         data: { kind: 'recall', target: onlyFoods ? 'foods' : 'meds' },
         sound: true,
       },

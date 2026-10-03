@@ -20,6 +20,7 @@ import { usePasswordPrompt } from '../components/PasswordPrompt';
 import { useBusyOverlay } from '../components/BusyOverlay';
 import { useConfirmSheet } from '../components/ConfirmSheet';
 import { useInfoAlert } from '../components/InfoAlert';
+import { confirmItsYou } from '../lib/freshAuth';
 import { BUTTON_SHADOW, colors, GROUND_THEME_LABELS, GROUND_THEMES, type GroundTheme } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
@@ -1531,6 +1532,7 @@ export default function ProfileScreen() {
       showBackupAlert('No shared folder yet', 'Set up your shared folder first, then both devices have somewhere to meet.');
       return;
     }
+    if (!(await confirmItsYou('Before syncing begins'))) return;
     const password = await promptPassword(
       'set',
       'Set a Sync Password',
@@ -2432,6 +2434,7 @@ export default function ProfileScreen() {
       showBackupAlert('No shared folder yet', 'Set up your shared folder first, then backups have somewhere to go.');
       return;
     }
+    if (!(await confirmItsYou('Before the backup is made'))) return;
     const password = await promptPassword(
       'set',
       'Set a Backup Password',
@@ -2526,6 +2529,7 @@ export default function ProfileScreen() {
 
   async function handleExportBackup() {
     if (backupBusy) return;
+    if (!(await confirmItsYou('Before the backup is made'))) return;
     const password = await promptPassword(
       'set',
       'Set a Backup Password',
@@ -2654,6 +2658,7 @@ export default function ProfileScreen() {
   }
 
   async function runRestore(content: string) {
+    if (!(await confirmItsYou('Before a backup is restored'))) return;
     const envelope = await resolveBackupEnvelope(content);
     if (envelope === 'cancelled') return;
     if (!envelope) {

@@ -138,6 +138,9 @@ const same = (a, b) => !!a && !!b && a.length === b.length && a.every((v, i) => 
     recoveryWrapped: wrapped,
     setUpAt: '2026-10-02T00:00:00.000Z',
     answerBoxPublicKey: 'cHVibGljIGtleQ==',
+    failedTries: 0,
+    lastFailedAt: 0,
+    reminderDetail: 'private',
   };
   const parsed = L.parseLockState(L.serializeLockState(good));
   check('a lock file round-trips', JSON.stringify(parsed) === JSON.stringify(good));

@@ -46,7 +46,13 @@ export const DEFAULT_AUTO_LOCK_MINUTES: AutoLockMinutes = 1;
 
 export type PasscodeKind = 'digits' | 'phrase';
 
-export type LockPhase = 'encrypting' | 'on';
+// decrypting (1.0.60.6): the person asked to turn the lock off and the
+// database is being moved back into a plain file. The data key is held bare
+// in secure store for that move only, exactly as it is while encrypting.
+export type LockPhase = 'encrypting' | 'on' | 'decrypting';
+
+/** What a reminder says while the lock is set up (R9). */
+export type ReminderDetail = 'private' | 'full';
 
 export type AppLockState = {
   version: 1;
@@ -66,6 +72,12 @@ export type AppLockState = {
    * file from before 1.0.59.20 until the next unlock writes it.
    */
   answerBoxPublicKey: string | null;
+  /** Wrong passcodes in a row since the last one that opened it (R6). */
+  failedTries: number;
+  /** When the last wrong passcode was typed, in milliseconds, or 0. */
+  lastFailedAt: number;
+  /** private: a reminder says only what kind it is. full: its whole text. */
+  reminderDetail: ReminderDetail;
 };
 
 // ---------------------------------------------------------------------------
@@ -82,7 +94,7 @@ export function parseLockState(text: string | null): AppLockState | null {
   if (typeof raw !== 'object' || raw === null) return null;
   const r = raw as Record<string, unknown>;
   if (r.version !== 1) return null;
-  if (r.phase !== 'encrypting' && r.phase !== 'on') return null;
+  if (r.phase !== 'encrypting' && r.phase !== 'on' && r.phase !== 'decrypting') return null;
   if (r.passcodeKind !== 'digits' && r.passcodeKind !== 'phrase') return null;
   if (typeof r.recoveryWrapped !== 'string' || !r.recoveryWrapped) return null;
   const kdf = r.kdf as Record<string, unknown> | undefined;
@@ -111,7 +123,14 @@ export function parseLockState(text: string | null): AppLockState | null {
     setUpAt: typeof r.setUpAt === 'string' ? r.setUpAt : '',
     answerBoxPublicKey:
       typeof r.answerBoxPublicKey === 'string' && r.answerBoxPublicKey ? r.answerBoxPublicKey : null,
+    failedTries: wholeNumber(r.failedTries),
+    lastFailedAt: wholeNumber(r.lastFailedAt),
+    reminderDetail: r.reminderDetail === 'full' ? 'full' : 'private',
   };
+}
+
+function wholeNumber(value: unknown): number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? Math.floor(value) : 0;
 }
 
 export function serializeLockState(state: AppLockState): string {
@@ -144,6 +163,46 @@ export function passcodeProblem(passcode: string, kind: PasscodeKind): PasscodeP
 /** The same passphrase typed on two keyboards gives the same bytes. */
 export function normalizePasscode(passcode: string): string {
   return passcode.normalize('NFC');
+}
+
+// ---------------------------------------------------------------------------
+// Wrong passcodes (R6)
+//
+// Five tries free, then a wait that grows with every wrong one after: 30
+// seconds, a minute, five minutes, then fifteen minutes for each try after
+// that. Nothing is ever wiped, by direct instruction, so the wait is the
+// whole defence against somebody guessing at a phone in their hand. The
+// recovery key is never made to wait: it is 160 random bits, and the person
+// reaching for it is usually the one who forgot.
+
+export const FREE_TRIES = 5;
+const WAITS_MS = [30_000, 60_000, 5 * 60_000, 15 * 60_000];
+
+/** How long the next try has to wait after this many wrong ones in a row. */
+export function wrongTryWaitMs(failures: number): number {
+  if (failures < FREE_TRIES) return 0;
+  return WAITS_MS[Math.min(failures - FREE_TRIES, WAITS_MS.length - 1)];
+}
+
+/**
+ * How much of the wait is left. A clock that moved backwards restarts the
+ * whole wait, since the time that passed is unknown; the same rule
+ * shouldLockOnReturn follows.
+ */
+export function waitRemainingMs(failedTries: number, lastFailedAt: number, now: number): number {
+  const wait = wrongTryWaitMs(failedTries);
+  if (wait === 0 || lastFailedAt === 0) return 0;
+  const passed = now - lastFailedAt;
+  if (passed < 0) return wait;
+  return Math.max(0, wait - passed);
+}
+
+/** "30 seconds", "1 minute", "4 minutes", rounded up so it never reads 0. */
+export function waitLabel(ms: number): string {
+  const seconds = Math.max(1, Math.ceil(ms / 1000));
+  if (seconds < 60) return seconds === 1 ? '1 second' : `${seconds} seconds`;
+  const minutes = Math.ceil(seconds / 60);
+  return minutes === 1 ? '1 minute' : `${minutes} minutes`;
 }
 
 // ---------------------------------------------------------------------------
@@ -336,6 +395,20 @@ export type MigrationStep =
  */
 export function planMigration(files: MigrationFiles): MigrationStep {
   if (files.main === 'encrypted') return { kind: 'verify-then-finish' };
+  if (files.main === 'missing') return files.before ? { kind: 'restore-before' } : { kind: 'no-database' };
+  return { kind: 'export' };
+}
+
+/**
+ * Turning the lock off (1.0.60.6, R12) is the same move backwards: the
+ * encrypted file is copied out to a plain one beside it
+ * (inside_story.db.unlocking), the encrypted one is set aside
+ * (inside_story.db.before-unlock) and the plain one takes its name. A kill
+ * at any point lands on a safe next step for the same reasons as above,
+ * with plain and encrypted trading places.
+ */
+export function planUnlockMigration(files: MigrationFiles): MigrationStep {
+  if (files.main === 'plain') return { kind: 'verify-then-finish' };
   if (files.main === 'missing') return files.before ? { kind: 'restore-before' } : { kind: 'no-database' };
   return { kind: 'export' };
 }

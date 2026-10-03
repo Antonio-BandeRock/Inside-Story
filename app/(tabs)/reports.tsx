@@ -28,6 +28,7 @@ import { recordReportSent } from '../../lib/reportHistoryDb';
 import { cleanLeftOut, REPORT_KINDS, type ReportKind, type ReportSectionId } from '../../lib/reportKinds';
 import { getReportLeftOut, setReportLeftOut } from '../../lib/reportSectionsDb';
 import { exportReportAsPdf, printReport } from '../../lib/reportPdf';
+import { confirmItsYou } from '../../lib/freshAuth';
 import { markYourStorySeen } from '../../lib/yourStoryDb';
 import { describeRange, monthsBefore, sinceVisitStart, type LastVisitForRange } from '../../lib/reportRange';
 import { lastVisit } from '../../lib/sinceLastVisit';
@@ -332,6 +333,7 @@ export default function ReportsScreen() {
   // step. A printed copy goes in Report history; a closed dialog does not.
   async function handlePrint() {
     if (!report || printing) return;
+    if (!(await confirmItsYou('Before the report is printed'))) return;
     setPrinting(true);
     try {
       const result = await printReport(report);
@@ -344,6 +346,7 @@ export default function ReportsScreen() {
 
   async function handleSharePdf() {
     if (!report || exporting) return;
+    if (!(await confirmItsYou('Before the PDF is made'))) return;
     setExporting(true);
     try {
       const result = await exportReportAsPdf(report);

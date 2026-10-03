@@ -72,7 +72,8 @@ import { quietDecision, SNOOZE_MINUTES } from './quietHours';
 import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
 import { getTodo, markTodoDone } from './todosDb';
 import { getMorningCheckin, saveMorningCheckin } from './morningCheckinDb';
-import { isLockedNow } from './appLockSession';
+import { isLockedNow, reminderDetailHidden } from './appLockSession';
+import { reminderWords } from './lockedReminderText';
 import { keepAnswerForUnlock, takeWaitingAnswers } from './lockedAnswers';
 import { ANDROID_GROUP_PREFIX, androidGroupFor, countWaiting, groupWaiting, SUMMARY_FROM, summaryBody, summaryTitle, type ShowingReminder, type WaitingGroup } from './waitingAnswers';
 import { YOUR_WEEK_NOTIFICATION_BODY, YOUR_WEEK_NOTIFICATION_TITLE } from './weeklySummary';
@@ -1341,9 +1342,17 @@ async function runSync(): Promise<ReminderSyncResult> {
   }
 
   const byTime = (a: PlannedNotification, b: PlannedNotification) => a.fireAt.getTime() - b.fireAt.getTime();
-  const kept = [...first.values()].sort(byTime).slice(0, MAX_PENDING);
-  const room = MAX_PENDING - kept.length;
-  if (room > 0) kept.push(...[...followUps.values()].sort(byTime).slice(0, room));
+  const chosen = [...first.values()].sort(byTime).slice(0, MAX_PENDING);
+  const room = MAX_PENDING - chosen.length;
+  if (room > 0) chosen.push(...[...followUps.values()].sort(byTime).slice(0, room));
+  // With App Lock set up, the phone is handed only the kind of reminder
+  // (R9, lib/lockedReminderText.ts). Done here, before the comparison below,
+  // so turning full detail on or off replaces every queued reminder once.
+  const hide = reminderDetailHidden();
+  const kept = chosen.map((planned) => ({
+    ...planned,
+    ...reminderWords(planned.payload.kind, planned.title, planned.body, hide),
+  }));
   const keptById = new Map(kept.map((planned) => [planned.identifier, planned]));
 
   const pending = await Notifications.getAllScheduledNotificationsAsync();
