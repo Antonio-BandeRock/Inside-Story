@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Inside Story: Is It for You?</title>
+<meta name="description" content="What Inside Story does, told for the person reading: living with a chronic condition, keeping track of daily life, caring for someone, or growing food. This page collects nothing.">
+<!-- C21, 2026-10-02: a page somebody can read before installing anything.
+     It describes the app by who is reading, and collects nothing: no form,
+     no cookie, no analytics, no script, no font or image from anywhere
+     else. Everything it says is built; anything not built is left out
+     rather than promised. -->
+<style>
+  :root {
+    --bg: #f4efe6; --surface: #fffaf2; --text: #1f2a2c; --muted: #4f5d60; --accent: #244147; --line: #d8cfbf;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #172b2f; --surface: #20383d; --text: #f4efe6; --muted: #c9c2b6; --accent: #e6c98f; --line: #35545a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 Georgia, "Times New Roman", serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-weight: normal; font-size: 2.1rem; line-height: 1.2; margin: 0 0 8px; color: var(--accent); }
+  h2 { font-weight: normal; font-size: 1.35rem; margin: 0 0 6px; color: var(--accent); }
+  p { margin: 0 0 12px; }
+  .lead { color: var(--muted); font-size: 1.05rem; }
+  nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 28px; }
+  nav a { color: var(--accent); border: 1px solid var(--line); background: var(--surface); border-radius: 18px; padding: 4px 12px; text-decoration: none; font-size: .95rem; }
+  section { background: var(--surface); border-left: 4px solid var(--accent); padding: 18px 16px 8px; margin: 0 0 14px; }
+  ul { margin: 0 0 12px; padding-left: 20px; }
+  li { margin: 0 0 6px; }
+  .conditions { color: var(--muted); font-size: .95rem; }
+  footer { margin-top: 28px; color: var(--muted); font-size: .9rem; }
+  footer a, section a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Inside Story</h1>
+  <p class="lead">An app for the details of a person’s life: what they eat and how it affects them, their medicines, their days, their garden, their money and the people they look after. It started with food and autoimmune health and goes deepest there. You do not need a diagnosis to use it.</p>
+  <p class="lead">Pick whichever sounds like you.</p>
+
+  <nav aria-label="Who is reading">
+    <a href="#condition">I live with a condition</a>
+    <a href="#daily">I need help keeping track</a>
+    <a href="#caring">I look after someone</a>
+    <a href="#garden">I grow food</a>
+    <a href="#privacy">Where my data goes</a>
+  </nav>
+
+  <section id="condition">
+    <h2>If you live with a chronic condition</h2>
+    <p>Most food advice is general. The app works out what your records say about you.</p>
+    <ul>
+      <li>Every food is scored for the conditions you choose, from a reference list of about 22,000 whole foods drawn from seven national food databases.</li>
+      <li>Log meals, symptoms, flares, sleep and labs, and Pattern Finder lists the foods that tend to come before your flares. It says what it is counting against, and it never claims to know the cause.</li>
+      <li>Test a suspect food by leaving it out and bringing it back, and see the before, without and after side by side.</li>
+      <li>Your medicines and supplements sit on one timeline with your meals, so a dose that clashes with a meal says so (levothyroxine and calcium, for example).</li>
+      <li>The app aims to get your nutrients from food, and it shows how much came from food and how much from a supplement.</li>
+      <li>Your history becomes a report for your doctor, nutritionist or caregiver, made on your phone as a PDF.</li>
+    </ul>
+    <p class="conditions">Conditions covered in depth: Hashimoto’s, Graves’ disease, celiac disease, inflammatory bowel disease, irritable bowel syndrome, chronic kidney disease, rheumatoid arthritis, psoriasis and psoriatic arthritis, lupus, multiple sclerosis, type 1 and type 2 diabetes, PCOS, cardiovascular disease, fatty liver disease, migraine, gout, Sjögren’s syndrome and prostate health. You can track more than one at once.</p>
+    <p>Every claim comes with how strong the evidence behind it is. The app does not diagnose, and it never tells you to change a prescription.</p>
+  </section>
+
+  <section id="daily">
+    <h2>If you need a place to hold the details of your day</h2>
+    <p>Some people, including many with ADHD or autism and anyone carrying too much, do better with an outside place to keep what would otherwise sit in their head. That is reason enough to use the app, and you can skip the food side entirely.</p>
+    <ul>
+      <li>Routines you walk through one step at a time, and Did I Do It for the things you can never remember doing (the stove, the door, the pill).</li>
+      <li>Reminders for medicines, appointments, bills and upkeep, plus counters for the days until anything.</li>
+      <li>Where Did I Put It: one search over where you said things are.</li>
+      <li>Quick capture by typing or voice, sorted later.</li>
+      <li>Keeping Up shows what you got done over the weeks. It never gives you a score, and a week you did not log stays blank rather than counting as a zero.</li>
+    </ul>
+  </section>
+
+  <section id="caring">
+    <h2>If you look after someone</h2>
+    <ul>
+      <li>Keep family members’ conditions alongside your own, so the meal plan works for everyone at the table.</li>
+      <li>Share a shopping list with someone you have paired with. Pairing takes an invitation from inside the app, and nothing crosses unless you have named it.</li>
+      <li>An emergency card holds the medicines, conditions and contacts someone would need.</li>
+      <li>The caregiver report pulls together what another person needs to know.</li>
+    </ul>
+  </section>
+
+  <section id="garden">
+    <h2>If you grow food</h2>
+    <ul>
+      <li>Keep a record of your beds, plantings, seed packets, harvests, compost piles and what the garden costs, indoors or out.</li>
+      <li>Guides for 91 crops, each with problems you can put right from the soil and sources beyond the usual ones.</li>
+      <li>When a meal uses something you grew, the app takes it off what the garden still has.</li>
+      <li>The advice favours living soil, compost and the insects already doing the work. It argues against garden chemicals honestly, without mocking them.</li>
+    </ul>
+  </section>
+
+  <section id="privacy">
+    <h2>Where your data goes</h2>
+    <p>It stays on your phone or computer. No company server holds your health records and there is no account to create. To have the app on two devices, you pick a folder in your OneDrive, and the copy kept there is encrypted with a password only you know. That means nobody can reset the password for you.</p>
+    <p>When the app needs something from outside, such as the FDA recall list or the weather, it asks for the public list and does the matching on your device. Nothing about you goes with the request.</p>
+    <p>This page collects nothing: no form, no cookies, no tracking.</p>
+  </section>
+
+  <footer>
+    <p>Inside Story runs on Android and on Windows. It is not in the app stores yet.</p>
+    <p><a href="/">Home</a> · <a href="/terms/">Terms of Use</a> · <a href="/privacy/">Privacy Policy</a></p>
+  </footer>
+</main>
+</body>
+</html>

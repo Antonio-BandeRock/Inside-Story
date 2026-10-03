@@ -9,3 +9,6 @@
 /import-shared/*
   Cache-Control: max-age=300
   X-Robots-Tag: noindex
+
+/try/*
+  Cache-Control: max-age=300
