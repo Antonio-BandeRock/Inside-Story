@@ -46,6 +46,7 @@ import { NotesInput } from './NotesInput';
 import { HOME_BAND_GAP } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 import { RecordPhotos } from './RecordPhotos';
+import { usePhotoRemovalConfirm } from './usePhotoRemovalConfirm';
 import { makeTabBandStyles, TabBand } from './TabBand';
 
 // Compost, a lens of Garden.
@@ -325,6 +326,7 @@ function PileBand({
   const [error, setError] = useState<string | null>(null);
 
   const [showAll, setShowAll] = useState(false);
+  const { confirmRemoval, photoRemovalSheet } = usePhotoRemovalConfirm();
 
   const summary = useMemo(() => summarizeCompostPile(pile, events, today), [pile, events, today]);
   const turnDueOn = useMemo(() => {
@@ -444,9 +446,16 @@ function PileBand({
     await onChanged();
   }
 
+  // A pile with photos asks first, since they go with it (I13).
   async function handleDeletePile() {
-    await deleteCompostPile(pile.id);
-    await onChanged();
+    await confirmRemoval({
+      owners: [{ kind: 'compost_pile', id: pile.id }],
+      title: `Delete ${pile.name} and its record?`,
+      onRemove: async () => {
+        await deleteCompostPile(pile.id);
+        await onChanged();
+      },
+    });
   }
 
   async function handleDeleteEvent(id: string) {
@@ -716,6 +725,7 @@ function PileBand({
           <Text style={styles.captionText}>Nothing recorded for this pile yet.</Text>
         )}
 
+        {photoRemovalSheet}
         <TouchableOpacity onPress={handleDeletePile}>
           <Text style={[styles.linkText, { color: colors.danger }]}>Delete this pile and its record</Text>
         </TouchableOpacity>

@@ -96,6 +96,7 @@ import type { CustomGardenTerm } from '../../lib/growSetup';
 import { addGrowEquipment, listGardenTerms } from '../../lib/growSetupDb';
 import { useWalkMark } from '../../components/WalkMark';
 import { RecordPhotos } from '../../components/RecordPhotos';
+import { usePhotoRemovalConfirm } from '../../components/usePhotoRemovalConfirm';
 import { PlantingEventsSection } from '../../components/PlantingEventsSection';
 import { MeasuringPlanSection } from '../../components/MeasuringPlanSection';
 import { SeedPacketSection } from '../../components/SeedPacketSection';
@@ -883,6 +884,8 @@ function PlotsAndPlantingsLens({
 }) {
   // The outline on a button a Your Story walk line names (components/WalkMark.ts).
   const walkMark = useWalkMark();
+  // Removing a planting or an area with photos asks first (I13).
+  const { confirmRemoval, photoRemovalSheet } = usePhotoRemovalConfirm();
   const [plots, setPlots] = useState<GardenPlot[]>([]);
   const [plantingsByPlot, setPlantingsByPlot] = useState<Record<string, GardenPlanting[]>>({});
   // I10: whether Why gardeners rotate is open under the rotation note.
@@ -1119,12 +1122,19 @@ function PlotsAndPlantingsLens({
   // Delete is offered only for an area with nothing recorded under it, and
   // deleteGardenPlot refuses anything else, so a record is never lost.
   async function handleDeletePlot(id: string) {
-    const deleted = await deleteGardenPlot(id);
-    if (!deleted) {
-      await loadPlantingsFor(id);
-      return;
-    }
-    await loadPlots();
+    const name = plots.find((plot) => plot.id === id)?.name ?? 'this area';
+    await confirmRemoval({
+      owners: [{ kind: 'garden_area', id }],
+      title: `Delete ${name}?`,
+      onRemove: async () => {
+        const deleted = await deleteGardenPlot(id);
+        if (!deleted) {
+          await loadPlantingsFor(id);
+          return;
+        }
+        await loadPlots();
+      },
+    });
   }
 
   async function handlePlantingStatus(plotId: string, plantingId: string, status: string) {
@@ -1508,9 +1518,21 @@ function PlotsAndPlantingsLens({
 
   // Only for a planting with no harvest logged; one with a harvest is a
   // record, and its status says what became of it instead.
+  // Its photos, and any of its seed packet, go with it, so one with photos
+  // asks first (I13).
   async function handleRemovePlanting(plotId: string, plantingId: string) {
-    await deleteGardenPlanting(plantingId);
-    await loadPlantingsFor(plotId);
+    const name = plantingsByPlot[plotId]?.find((planting) => planting.id === plantingId)?.foodName ?? 'this planting';
+    await confirmRemoval({
+      owners: [
+        { kind: 'planting', id: plantingId },
+        { kind: SEED_PACKET_OWNER_KIND, id: plantingId },
+      ],
+      title: `Remove ${name}?`,
+      onRemove: async () => {
+        await deleteGardenPlanting(plantingId);
+        await loadPlantingsFor(plotId);
+      },
+    });
   }
 
   // Actively picking a food for a planting: the same real "picker screen"
@@ -1551,6 +1573,7 @@ function PlotsAndPlantingsLens({
 
   return (
     <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
+      {photoRemovalSheet}
       {plots.length === 0 ? (
         <View style={band.boxMuted}>
           <Text style={styles.emptyText}>No garden areas yet. Add one below to start tracking what you&apos;re growing.</Text>
@@ -2087,6 +2110,7 @@ function PlotsAndPlantingsLens({
 
 function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
   const folds = useBandFolds();
+  const { confirmRemoval, photoRemovalSheet } = usePhotoRemovalConfirm();
   const [harvests, setHarvests] = useState<GardenHarvest[]>([]);
   const [plantings, setPlantings] = useState<GardenPlanting[]>([]);
   const [plotNameById, setPlotNameById] = useState<Record<string, string>>({});
@@ -2181,13 +2205,22 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
     await load();
   }
 
+  // A harvest with photos asks first, since they go with it (I13).
   async function handleDelete(id: string) {
-    await deleteGardenHarvest(id);
-    await load();
+    const name = harvests.find((harvest) => harvest.id === id)?.foodName ?? 'this harvest';
+    await confirmRemoval({
+      owners: [{ kind: 'harvest', id }],
+      title: `Delete the ${name} harvest?`,
+      onRemove: async () => {
+        await deleteGardenHarvest(id);
+        await load();
+      },
+    });
   }
 
   return (
     <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
+      {photoRemovalSheet}
       <View style={[band.box, styles.card]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Log a Harvest</Text>
         {justSaved ? (

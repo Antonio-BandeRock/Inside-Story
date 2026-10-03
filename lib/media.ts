@@ -435,3 +435,11 @@ export const PHOTO_ORIGINAL_NOT_KEPT =
 export function photoRemovalSentence(): string {
   return 'This photo is removed here, and from your other device the next time the two come into step.';
 }
+
+/** Said before removing a record that carries photos (J4, I13), since the
+ *  photos go with it. Null when there is none, and the removal stays one
+ *  tap. */
+export function photosGoWithItSentence(count: number): string | null {
+  if (!(count > 0)) return null;
+  return count === 1 ? 'Its photo is removed with it.' : `Its ${count} photos are removed with it.`;
+}

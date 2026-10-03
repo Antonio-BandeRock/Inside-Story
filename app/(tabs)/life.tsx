@@ -19,6 +19,7 @@ import { FinanceMoneySection } from '../../components/FinanceMoneySection';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { RecordPhotos } from '../../components/RecordPhotos';
+import { photosGoWithItSentence } from '../../lib/media';
 import { countMediaFor } from '../../lib/mediaDb';
 import { TabBand, makeTabBandStyles } from '../../components/TabBand';
 import { DaysUntilSection } from '../../components/DaysUntilSection';
@@ -1071,10 +1072,7 @@ export default function LifeScreen() {
     }
     setConfirm({
       title: `Remove ${row.description || financeCategoryLabel(row.category)}?`,
-      message:
-        photos === 1
-          ? 'Its photo is removed with it.'
-          : `Its ${photos} photos are removed with it.`,
+      message: photosGoWithItSentence(photos) ?? undefined,
       actions: [
         {
           label: 'Remove',
