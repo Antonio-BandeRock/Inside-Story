@@ -22,6 +22,7 @@ import { PopoverSelect } from '../../components/PopoverSelect';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { CycleShadingContext, TrendLineChart } from '../../components/TrendLineChart';
 import { CompareTwoLens } from '../../components/CompareTwoLens';
+import { LifeInSquares } from '../../components/LifeInSquares';
 import { listAllCycleDays } from '../../lib/cycleDb';
 import type { CycleDay } from '../../lib/cycle';
 import { CYCLE_SHADING_SWITCH_HELP, CYCLE_SHADING_SWITCH_LABEL, cycleShadingFor } from '../../lib/cycleShading';
@@ -207,6 +208,7 @@ type TrendsLens =
   | 'therapyResponse'
   | 'trackers'
   | 'compare'
+  | 'squares'
   | TrendsMoreLens;
 
 // The nine lenses built from the inputs-to-outputs map (1.0.52.7) all read
@@ -783,6 +785,29 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
       {
         heading: 'Reading it',
         body: 'A day with no reading is left empty and no line joins one reading to the next. Under the chart it says how many days each has a reading and how many days have both. Two things moving together does not show that one is causing the other, and no figure here says how closely they move.',
+      },
+    ],
+  },
+  {
+    key: 'squares',
+    label: 'Your Life in Squares',
+    icon: 'apps-outline',
+    help: [
+      {
+        heading: 'Your Life in Squares',
+        body: 'Everything you have recorded anywhere in the app, on one timeline. Each square is coloured by the tab the record lives on, with the icon of its lens on top, so you can see at a glance which parts of your life you wrote down and when.',
+      },
+      {
+        heading: 'Going in and out',
+        body: 'Tap a month to see its days, a day to see its quarter hours, and a square to see what is in that hour. At the Hour level each record opens where it is kept. The path across the top takes you back out to the week, month or year.',
+      },
+      {
+        heading: 'Moving sideways',
+        body: 'Swipe, or use the arrows, to move to the period before or after. Only the period you are looking at is read, so a year with years of records behind it opens as quickly as an empty one. Nothing after now is drawn.',
+      },
+      {
+        heading: 'What it does not say',
+        body: 'It shows which parts of life were recorded, never how much or how well. An empty square only means nothing was written down. A record with a date and no time sits in a That Day row rather than at a time nobody chose.',
       },
     ],
   },
@@ -1533,7 +1558,8 @@ export default function TrendsScreen() {
         setGroceryPrices(prices);
         setLoading(false);
       });
-    } else if (lens === 'compare') {
+    } else if (lens === 'compare' || lens === 'squares') {
+      // Compare Two and Your Life in Squares each read for themselves.
       // Compare Two loads both series itself (components/CompareTwoLens.tsx).
       setLoading(false);
     } else if (!selectedTestCode) {
@@ -1790,7 +1816,7 @@ export default function TrendsScreen() {
               <Text style={band.headingText}>{activeLensLabel}</Text>
             </View>
 
-            {showsRangePicker ? (
+            {lens === 'squares' ? null : showsRangePicker ? (
               <>
                 <ScrollView
                   horizontal
@@ -2908,6 +2934,10 @@ export default function TrendsScreen() {
                   </TabBand>
                 </>
               )
+            ) : lens === 'squares' ? (
+              <View style={band.box}>
+                <LifeInSquares />
+              </View>
             ) : lens === 'compare' ? (
               <CompareTwoLens
                 folds={folds}

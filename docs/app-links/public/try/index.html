@@ -37,6 +37,10 @@
   li { margin: 0 0 7px; }
   footer { margin-top: 28px; color: var(--muted); font-size: .9rem; }
   footer a, section a { color: var(--accent); }
+  .who { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin: 0 0 14px; }
+  .who a { display: block; background: var(--surface); border-left: 4px solid var(--accent); padding: 12px 14px; color: var(--text); text-decoration: none; }
+  .who a strong { display: block; color: var(--accent); font-weight: normal; font-size: 1.05rem; margin-bottom: 4px; }
+  .who a span { color: var(--muted); font-size: .95rem; }
 </style>
 </head>
 <body>
@@ -49,6 +53,20 @@
   <h1>Everything has an inside story. Yours included.</h1>
   <p class="lead">Inside Story keeps the whole of a person’s life in one place: what you eat and how your body answers, your medicines, your days, the people you look after, your money and your garden. Then it does the hard part for you. It connects the pieces, finds what your records are saying, and turns it into plain next steps.</p>
   <p class="lead">It began with food and autoimmune health, and that is where it goes deepest. It has grown into a place for everything a person needs to keep track of, and you do not need a diagnosis to use it.</p>
+
+  <h2 id="who">Who it is for</h2>
+  <p>Find yourself below. Each one opens the part of the page written for you.</p>
+  <div class="who">
+    <a href="#body"><strong>You were just diagnosed</strong><span>and nobody told you what to eat now. Every food is scored and explained for your condition, with recipes and a meal plan ready to follow.</span></a>
+    <a href="#body"><strong>You live with more than one condition</strong><span>and the advice for one fights the advice for the other. Inside Story weighs them all at once, so one plate works for every one of them.</span></a>
+    <a href="#body"><strong>You think food is behind how you feel</strong><span>but cannot pin it down. Log what you eat and how you feel, and the app looks for what tends to come before a bad day, then helps you test it.</span></a>
+    <a href="#day"><strong>Your head is too full</strong><span>with ADHD, autism, grief, recovery or just too much. Routines, reminders you answer from the notification, and one tap to record that the stove is off.</span></a>
+    <a href="#care"><strong>You look after other people</strong><span>a family at the table, a partner, a parent. Meal plans that work for everyone, a shared shopping list, an emergency card and a caregiver report.</span></a>
+    <a href="#body"><strong>You juggle medicines and supplements</strong><span>and never know when to take what. They sit on the same clock as your meals, and the app says when one is too close to a food that gets in its way.</span></a>
+    <a href="#body"><strong>You see doctors often</strong><span>and lose track between visits. Eight ready-made reports, for your doctor, nutritionist, trainer or caregiver, made on your phone or computer and sent nowhere.</span></a>
+    <a href="#body"><strong>You want to eat well, no diagnosis needed</strong><span>and would rather get nutrients from food than a pill. Fuel gauges show where you stand today and what food can supply.</span></a>
+    <a href="#garden"><strong>You grow your own food</strong><span>or want to start. Beds drawn to scale, seed packets, care reminders and crop guides that fix problems from the soil up.</span></a>
+  </div>
 
   <nav aria-label="Jump to">
     <a href="#body">Food and your body</a>

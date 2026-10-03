@@ -341,6 +341,52 @@ function asNumberIfNumeric(text: string, was: unknown): string | number {
   return text;
 }
 
+/**
+ * The other device running an older version (1.0.59.16, direct approval
+ * 2026-10-02). When a newer version adds a column to a table both devices
+ * have, the older device's rows arrive without it, and so does the agreed
+ * copy, which is what that device last sent. Read as they stand, the
+ * missing column says the other device cleared it: an edit to any other
+ * field of the row on the older device would win and blank the new detail,
+ * and every row here would look edited and be sent back on every merge.
+ *
+ * So a column this device has and the other side's rows do not carry at
+ * all is taken as one that device does not know yet, and this device's
+ * value for it is filled in before anything is compared. What the other
+ * side knows is read off its rows, or off the agreed copy when it sent no
+ * rows. A column that device knows and set to blank is untouched, since
+ * it is present in its rows with a null.
+ */
+export function fillColumnsUnknownThere(
+  here: Row[],
+  there: Row[],
+  base: Row[] | undefined,
+  shape: TableShape | undefined,
+): { there: Row[]; base: Row[] | undefined } {
+  const knownThere = new Set<string>();
+  const sample = there.length > 0 ? there : base ?? [];
+  if (sample.length === 0) return { there, base };
+  for (const row of sample) for (const column of Object.keys(row)) knownThere.add(column);
+  const unknown = new Set<string>();
+  for (const row of here) {
+    for (const column of Object.keys(row)) if (!knownThere.has(column)) unknown.add(column);
+  }
+  if (unknown.size === 0) return { there, base };
+
+  const hereRows = indexRows(here, shape);
+  const fill = (row: Row): Row => {
+    const key = keyOf(row, shape);
+    const mine = key === null ? undefined : hereRows.get(key);
+    const filled: Row = { ...row };
+    for (const column of unknown) {
+      if (column in filled) continue;
+      filled[column] = mine && column in mine ? mine[column] : null;
+    }
+    return filled;
+  };
+  return { there: there.map(fill), base: Array.isArray(base) ? base.map(fill) : base };
+}
+
 type TableMerge = { rows: Row[]; entries: MergeEntry[] };
 
 function mergeOneTable(
@@ -496,10 +542,13 @@ export function mergeTables(
       continue;
     }
 
-    const merged = mergeOneTable(table, base?.[table], mine, theirs, shapes[table], laterSide);
+    // A column the other device does not know yet carries this device's
+    // value, and is not something to send back for (fillColumnsUnknownThere).
+    const filled = fillColumnsUnknownThere(mine, theirs, base?.[table], shapes[table]);
+    const merged = mergeOneTable(table, filled.base, mine, filled.there, shapes[table], laterSide);
     tables[table] = merged.rows;
     for (const entry of merged.entries) entries.push(entry);
-    if (!sameRows(merged.rows, theirs)) matchesThere = false;
+    if (!sameRows(merged.rows, filled.there)) matchesThere = false;
   }
 
   return { tables, entries, wholesale: takenWhole, sendsBack: !matchesThere, incoming };

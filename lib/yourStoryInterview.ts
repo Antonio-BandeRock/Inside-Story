@@ -409,6 +409,7 @@ export const TOUR_LENS_NAMES: Record<string, Record<string, string>> = {
     pacing: 'Pacing',
     cycle: 'Cycle',
     compare: 'Compare Two',
+    squares: 'Your Life in Squares',
   },
   '/reports': {
     overview: 'Overview',
@@ -554,6 +555,7 @@ export const TOUR_LENS_LINES: Record<string, Record<string, string>> = {
     pacing: 'Steps, exercise, therapy sessions and overload or crash tags against your typical day, with no limit set by the app.',
     cycle: 'Flares, check-in tags, mood, energy and stress lined up by day of the cycle, across every cycle in the range.',
     compare: 'Two things you record on one date axis, each on a separate scale, with pairs research gives a reason to read together listed first and the reason beside them.',
+    squares: 'Everything you recorded anywhere, on one timeline you go into from a year down to an hour, each square in the colour of its tab with the icon of its lens.',
   },
   '/reports': {
     overview: 'Everything you logged over the range, in one report.',
@@ -920,7 +922,7 @@ export const TOUR_TABS: TourTabDef[] = [
       { title: 'Daily living', lenses: ['keepingUp', 'care', 'work', 'cost'] },
       { title: 'Garden and kitchen', lenses: ['harvest', 'conditions', 'ferments'] },
       { title: 'What you name', lenses: ['trackers'] },
-      { title: 'Looking for patterns', lenses: ['patterns', 'compare'] },
+      { title: 'Looking for patterns', lenses: ['patterns', 'compare', 'squares'] },
     ],
     steps: [
       {

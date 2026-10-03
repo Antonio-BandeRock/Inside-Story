@@ -445,6 +445,42 @@ for (const line of source.split('\n')) {
   same(run({ meals: [noStamp] }, { meals: [{ id: 'n1', name: 'B' }] }, { meals: [noStamp] }).tables.meals, [{ id: 'n1', name: 'B' }], 'with no stamps the three-way rule stands');
   check(merge.sameRows([old, fresh], [fresh, old]), 'the same rows in another order are the same');
 }
+// The other device a version behind (1.0.59.16): a column added by the
+// newer version is missing from its rows and from the agreed copy it sent.
+{
+  const oldBase = { id: 'p1', name: 'Tomato', updated_at: '2026-10-01T00:00:00Z' };
+  const mineNew = { ...oldBase, row_spacing_cm: 45 };
+  const theirEdit = { ...oldBase, name: 'Cherry tomato', updated_at: '2026-10-02T00:00:00Z' };
+  const result = run({ upkeep_items: [oldBase] }, { upkeep_items: [mineNew] }, { upkeep_items: [theirEdit] });
+  same(result.tables.upkeep_items, [{ ...theirEdit, row_spacing_cm: 45 }], 'an edit on the older device keeps the detail it does not know');
+  const quiet = run({ upkeep_items: [oldBase] }, { upkeep_items: [mineNew] }, { upkeep_items: [oldBase] });
+  same(quiet.tables.upkeep_items, [mineNew], 'an untouched row keeps the new detail');
+  check(quiet.entries.length === 0, 'a column the other device lacks is not an edit here');
+  check(!quiet.sendsBack, 'nor something to send back');
+  const mineEdited = { ...mineNew, row_spacing_cm: 60, updated_at: '2026-10-03T00:00:00Z' };
+  same(
+    run({ upkeep_items: [oldBase] }, { upkeep_items: [mineEdited] }, { upkeep_items: [theirEdit] }).tables.upkeep_items,
+    [mineEdited],
+    'a later edit here still wins over the older device',
+  );
+  const cleared = { ...mineNew, row_spacing_cm: null, updated_at: '2026-10-04T00:00:00Z' };
+  same(
+    run({ upkeep_items: [mineNew] }, { upkeep_items: [mineNew] }, { upkeep_items: [cleared] }).tables.upkeep_items,
+    [cleared],
+    'a device that knows the column can still clear it',
+  );
+  const added = { id: 'p2', name: 'Basil', updated_at: '2026-10-02T00:00:00Z' };
+  same(
+    run({ upkeep_items: [oldBase] }, { upkeep_items: [mineNew] }, { upkeep_items: [oldBase, added] }).tables.upkeep_items,
+    [mineNew, { ...added, row_spacing_cm: null }],
+    'a row added on the older device arrives with the new column blank',
+  );
+  same(
+    run({ upkeep_items: [oldBase] }, { upkeep_items: [mineNew] }, { upkeep_items: [] }).tables.upkeep_items,
+    [],
+    'a removal on the older device is still a removal',
+  );
+}
 const device = fs.readFileSync(path.join(__dirname, '..', 'lib/snapshotSyncDevice.ts'), 'utf8');
 check(device.includes('!WORKED_OUT_TABLES.includes(tableName)'), 'a worked-out table never restarts the app');
 check(device.includes('sameRows(rows, mine)'), 'the restart check ignores row order');

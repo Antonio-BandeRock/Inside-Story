@@ -18,6 +18,7 @@ import {
 import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DayTimeline } from '../../components/DayTimeline';
+import { LifeInSquares } from '../../components/LifeInSquares';
 import { GroceryQuickAdd } from '../../components/GroceryQuickAdd';
 import { TodayPicks } from '../../components/TodayPicks';
 import { DaysUntilSection } from '../../components/DaysUntilSection';
@@ -930,6 +931,12 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.tabTrends,
     href: '/trends' as Href,
   },
+  lifeSquares: {
+    label: 'Your Life in Squares',
+    icon: 'apps',
+    color: colors.tabTrends,
+    href: { pathname: '/trends', params: { openTrendsLens: 'squares' } } as Href,
+  },
   gardenYield: {
     label: 'Garden Yield',
     icon: 'basket',
@@ -1079,6 +1086,7 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'outsideUsual',
   'pacingToday',
   'yourWeek',
+  'lifeSquares',
   'gardenYield',
   'makeReport',
   'gardenTasks',
@@ -4204,6 +4212,20 @@ export default function HomeScreen() {
   // The same strip as Schedules > Timeline and /timeline, opening with Now
   // in the middle and sliding freely either way. It reads on focus, so the
   // Home load carries nothing for it.
+  // Your Life in Squares (2026-10-02): opens on today's Day every time,
+  // and reads on focus, so the Home load carries nothing for it. The full
+  // lens on Trends opens wherever the person last was.
+  function renderLifeSquares() {
+    if (!isHomeSectionVisible(visualPrefs, 'lifeSquares')) return null;
+    return renderBand(
+      'lifeSquares',
+      'Your Life in Squares',
+      <View style={styles.bandBody}>
+        <LifeInSquares startAt="today" />
+      </View>,
+    );
+  }
+
   function renderDayTimeline() {
     if (!isHomeSectionVisible(visualPrefs, 'dayTimeline')) return null;
     return renderBand(
@@ -4682,6 +4704,8 @@ export default function HomeScreen() {
         return renderPacingToday();
       case 'yourWeek':
         return renderYourWeek();
+      case 'lifeSquares':
+        return renderLifeSquares();
       case 'todaysCheckin':
         return renderTodaysCheckin();
       case 'logAgain':

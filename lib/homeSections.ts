@@ -114,6 +114,9 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   // F13, 2026-09-26. Reads meals, flares, sleep, steps and the scales, and
   // sits with Trends because setting two weeks side by side is Trends' job.
   yourWeek: '/trends',
+  // Your Life in Squares, 2026-10-02. Reads every tab's records and sits
+  // with Trends, where its full lens is.
+  lifeSquares: '/trends',
   // Garden Yield, 2026-09-23. Trends rather than Garden on purpose: the
   // picking is recorded on Garden > Harvest Log and the timeline over
   // months is read on Trends, so the card is a window into Trends and

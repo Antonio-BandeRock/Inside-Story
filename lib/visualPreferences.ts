@@ -295,6 +295,8 @@ export type HomeSectionKey =
   // F13 of the competitive build plan (2026-09-26): the last seven days
   // beside the seven before, with a weekly reminder on a chosen day.
   | 'yourWeek'
+  // Your Life in Squares (2026-10-02): today's Day in squares, read on focus.
+  | 'lifeSquares'
   | 'todaysCheckin'
   // Quick-log, 2026-08-30 -- see Home's own renderLogAgain for why this sits
   // high in the default order: it exists to get a meal logged in seconds, and
@@ -452,6 +454,7 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'outsideUsual',
   'pacingToday',
   'yourWeek',
+  'lifeSquares',
   'gardenYield',
   // Reports.
   'makeReport',
@@ -510,6 +513,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   outsideUsual: 'Outside Your Usual',
   pacingToday: 'Pacing Today',
   yourWeek: 'Your Week',
+  lifeSquares: 'Your Life in Squares',
   todaysCheckin: "Today's Check-In",
   logAgain: 'Log a Meal',
   usualMeal: 'Your Usual Meals',
