@@ -167,6 +167,7 @@
       "./plugins/withAutofillDisabled.js",
       "./plugins/withNoCompressDb.js",
       "./plugins/withCleartextLan.js",
+      "./plugins/withCaptureTile.js",
       [
         "expo-calendar",
         {
