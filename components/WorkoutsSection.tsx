@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { DragReorderList } from './DragReorderList';
+import { ExerciseVideo } from './ExerciseVideo';
 import { NotesInput } from './NotesInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
@@ -60,6 +61,7 @@ import {
   type StepDraft,
   type Workout,
   type WorkoutStep,
+  isVideoFileLink,
 } from '../lib/workouts';
 import {
   EXERCISE_PHOTO_OWNER,
@@ -132,6 +134,7 @@ export function WorkoutsSection({ tabColor, onDragChange }: Props) {
   const [exerciseForm, setExerciseForm] = useState<ExerciseForm | null>(null);
   const [stepForm, setStepForm] = useState<StepForm | null>(null);
   const [openExercise, setOpenExercise] = useState<string | null>(null);
+  const [playingVideo, setPlayingVideo] = useState<string | null>(null);
   const [filter, setFilter] = useState<ExerciseFilter>(NO_FILTER);
   const [confirm, setConfirm] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
@@ -332,7 +335,14 @@ export function WorkoutsSection({ tabColor, onDragChange }: Props) {
             <Text style={styles.linkText}>See it done: {view.demo.source}</Text>
           </TouchableOpacity>
         ) : null}
-        {view.videoUrl ? (
+        {view.videoUrl && isVideoFileLink(view.videoUrl) ? (
+          <>
+            <TouchableOpacity onPress={() => setPlayingVideo(playingVideo === view.id ? null : view.id)} activeOpacity={0.7}>
+              <Text style={styles.linkText}>{playingVideo === view.id ? 'Close your video' : 'Play your video here'}</Text>
+            </TouchableOpacity>
+            {playingVideo === view.id ? <ExerciseVideo url={view.videoUrl} /> : null}
+          </>
+        ) : view.videoUrl ? (
           <TouchableOpacity onPress={() => Linking.openURL(view.videoUrl!)} activeOpacity={0.7}>
             <Text style={styles.linkText}>Your video link</Text>
           </TouchableOpacity>
@@ -440,7 +450,7 @@ maxLength={80}
 
         <Text style={styles.label}>A video link (optional)</Text>
         <AppTextInput style={styles.input} value={draft.videoUrl} onChangeText={(videoUrl) => set({ videoUrl })} autoCapitalize="none" keyboardType="url" placeholder="https://" placeholderTextColor={colors.textMuted} />
-        <Text style={styles.helperText}>Paste the address of a video that shows it being done. Photos can be added once it is saved.</Text>
+        <Text style={styles.helperText}>Paste the address of a video that shows it being done. A link straight to a video file (one ending in .mp4, for example) plays here; a page such as YouTube opens in its app. Photos can be added once it is saved.</Text>
 
         <Text style={styles.label}>Notes (optional)</Text>
         <NotesInput style={[styles.input, styles.multiline]} value={draft.notes} onChangeText={(notes) => set({ notes })} multiline placeholder="What my physio said" placeholderTextColor={colors.textMuted} />

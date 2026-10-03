@@ -229,6 +229,15 @@ export function isVideoLink(text: string): boolean {
   return /^https?:\/\/\S+\.\S+/i.test(text.trim());
 }
 
+// A link straight to a video file plays inside the exercise (expo-video,
+// rebuild R1). A page that holds a video, such as YouTube, cannot be played
+// that way and opens in its own app or the browser, as it always has.
+export function isVideoFileLink(text: string): boolean {
+  if (!isVideoLink(text)) return false;
+  const path = text.trim().split(/[?#]/)[0].toLowerCase();
+  return /\.(mp4|m4v|webm|mov|m3u8)$/.test(path);
+}
+
 export function exerciseDraftProblem(draft: CustomExerciseDraft): string | null {
   if (!draft.name.trim()) return 'Give the exercise a name.';
   const sets = wholeNumber(draft.sets);

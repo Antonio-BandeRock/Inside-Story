@@ -122,6 +122,12 @@ ok(L.equipmentLine(['none']) === 'No equipment', 'no equipment');
 ok(L.equipmentLine(['dumbbells', 'band']) === `${L.EQUIPMENT_LABELS.dumbbells} or ${L.EQUIPMENT_LABELS.band}`, 'two kinds of equipment read as either');
 
 // 4. Views, drafts and custom exercises.
+// A link straight to a video file plays in the app; a page opens elsewhere.
+ok(W.isVideoFileLink('https://example.org/clips/squat.mp4'), 'an mp4 link plays in the app');
+ok(W.isVideoFileLink('https://example.org/a/stream.M3U8?token=1'), 'a stream link with a query plays in the app');
+ok(!W.isVideoFileLink('https://www.youtube.com/watch?v=abc'), 'a YouTube page opens in its app');
+ok(!W.isVideoFileLink('squat.mp4'), 'a bare file name is not a link');
+ok(fs.readFileSync(path.join(ROOT, 'components/WorkoutsSection.tsx'), 'utf8').includes('<ExerciseVideo url={view.videoUrl}'), 'the exercise card plays a file link');
 const views = W.allExerciseViews([]);
 ok(views.length === L.LIBRARY_EXERCISES.length, 'every library exercise has a view');
 ok(views.every((v, i) => i === 0 || views[i - 1].name.localeCompare(v.name) <= 0), 'views read alphabetically');

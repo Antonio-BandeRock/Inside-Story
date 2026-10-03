@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
@@ -13,6 +13,7 @@ import {
   noRecipeFoundSentence,
   splitPastedIngredients,
   type ImportUnit,
+  type ImportedRecipe,
   type RecipeImportLine,
 } from '../lib/recipeImport';
 import {
@@ -32,6 +33,13 @@ import { AppTextInput } from './AppTextInput';
 import { CookModeButton } from './CookMode';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
+import { RecipeMarkupView } from './RecipeMarkupView';
+import { isDesktopApp } from '../lib/desktop/bridge';
+import type { Marked } from '../lib/recipeMarkup';
+
+// Opening a page inside the app to read or mark its recipe (G3) needs the
+// phone's web view, which the desktop build does not have.
+const CAN_MARK_UP = Platform.OS !== 'web' && !isDesktopApp();
 
 // Import a Recipe (G1, 1.0.53.12): a recipe from a web link, or a pasted
 // ingredient list, turned into a dish one of the builders can open.
@@ -114,6 +122,10 @@ export function RecipeImportView({
   const [pasting, setPasting] = useState(false);
   const [pasteTitle, setPasteTitle] = useState('');
   const [pasteText, setPasteText] = useState('');
+  // Steps marked on a page (G3); the paste form has no box for them, so they
+  // ride along until the lines are read.
+  const [pasteSteps, setPasteSteps] = useState<string[]>([]);
+  const [markingUrl, setMarkingUrl] = useState<string | null>(null);
   const [record, setRecord] = useState<RecipeImportRecord | null>(null);
   const [amountDrafts, setAmountDrafts] = useState<Record<number, string>>({});
   const [servingsDraft, setServingsDraft] = useState('');
@@ -168,24 +180,53 @@ export function RecipeImportView({
         setPasteTitle(fetched.pageTitle);
         return;
       }
-      const { recipe } = fetched;
-      const created = await createRecipeImport({
-        sourceUrl: recipe.sourceUrl,
-        sourceSite: recipe.sourceSite,
-        title: recipe.name,
-        author: recipe.author,
-        yieldText: recipe.yieldText,
-        servings: recipe.servings,
-        instructions: recipe.instructions,
-        ingredientLines: recipe.ingredientLines,
-      });
-      setUrl('');
-      await matchAndShow(created);
+      await importFound(fetched.recipe);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'The page could not be read.');
     } finally {
       setBusy(null);
     }
+  }
+
+  async function importFound(recipe: ImportedRecipe) {
+    const created = await createRecipeImport({
+      sourceUrl: recipe.sourceUrl,
+      sourceSite: recipe.sourceSite,
+      title: recipe.name,
+      author: recipe.author,
+      yieldText: recipe.yieldText,
+      servings: recipe.servings,
+      instructions: recipe.instructions,
+      ingredientLines: recipe.ingredientLines,
+    });
+    setUrl('');
+    await matchAndShow(created);
+  }
+
+  function openMarkup() {
+    const target = (noRecipe?.url ?? url).trim();
+    if (!target) return;
+    setError(null);
+    setMarkingUrl(/^https?:\/\//i.test(target) ? target : `https://${target}`);
+  }
+
+  function takeFoundOnPage(recipe: ImportedRecipe) {
+    setMarkingUrl(null);
+    setPasting(false);
+    setNoRecipe(null);
+    setBusy('Reading the recipe');
+    importFound(recipe)
+      .catch((caught) => setError(caught instanceof Error ? caught.message : 'The recipe could not be read.'))
+      .finally(() => setBusy(null));
+  }
+
+  function takeMarked(marked: Marked, page: { url: string; site: string }) {
+    setMarkingUrl(null);
+    setNoRecipe({ url: page.url, site: page.site });
+    setPasting(true);
+    if (marked.title) setPasteTitle(marked.title);
+    setPasteText(marked.ingredients.join('\n'));
+    setPasteSteps(marked.steps);
   }
 
   async function readPasted() {
@@ -203,11 +244,12 @@ export function RecipeImportView({
         author: null,
         yieldText: null,
         servings: null,
-        instructions: [],
+        instructions: pasteSteps,
         ingredientLines: lines,
       });
       setPasting(false);
       setPasteText('');
+      setPasteSteps([]);
       setPasteTitle('');
       setNoRecipe(null);
       await matchAndShow(created);
@@ -375,6 +417,9 @@ export function RecipeImportView({
 
   return (
     <View style={styles.wrapper}>
+      {markingUrl ? (
+        <RecipeMarkupView url={markingUrl} onClose={() => setMarkingUrl(null)} onRecipe={takeFoundOnPage} onMarked={takeMarked} />
+      ) : null}
       <ScrollView contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
         <TouchableOpacity onPress={onClose} activeOpacity={0.7}>
           <Text style={styles.backLink}>‹ Back</Text>
@@ -411,11 +456,21 @@ export function RecipeImportView({
               </TouchableOpacity>
             )}
           </View>
+          {CAN_MARK_UP && (url.trim() !== '' || noRecipe) ? (
+            <TouchableOpacity onPress={openMarkup} activeOpacity={0.7} disabled={busy !== null}>
+              <Text style={styles.linkText}>Open the page here and mark the recipe</Text>
+            </TouchableOpacity>
+          ) : null}
           {busy ? <Text style={styles.rowMeta}>{busy}.</Text> : null}
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
           {pasting ? (
             <View style={styles.formCard}>
-              {noRecipe ? <Text style={styles.rowMeta}>{noRecipeFoundSentence(noRecipe.site)}</Text> : null}
+              {noRecipe && pasteSteps.length === 0 ? <Text style={styles.rowMeta}>{noRecipeFoundSentence(noRecipe.site)}</Text> : null}
+              {pasteSteps.length > 0 ? (
+                <Text style={styles.rowMeta}>
+                  {`Marked on the page: ${pasteSteps.length === 1 ? '1 step' : `${pasteSteps.length} steps`}, kept with the recipe. Check the ingredient lines below.`}
+                </Text>
+              ) : null}
               <Text style={styles.fieldLabel}>Name</Text>
               <AppTextInput style={styles.textInput} value={pasteTitle} onChangeText={setPasteTitle} placeholder="What the recipe is called" />
               <Text style={styles.fieldLabel}>Ingredients, one per line</Text>
@@ -435,6 +490,7 @@ export function RecipeImportView({
                   onPress={() => {
                     setPasting(false);
                     setNoRecipe(null);
+                    setPasteSteps([]);
                   }}
                   activeOpacity={0.7}
                 >

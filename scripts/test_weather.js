@@ -146,6 +146,21 @@ const credit = W.weatherCredit('2026-10-01');
 check('credit names NASA, POWER, the version and the date', /NASA/.test(credit) && /POWER/.test(credit) && credit.includes('version 2') && credit.includes('2026-10-01'));
 texts.push(credit, W.weatherCredit(null), W.WEATHER_OFFER, W.WEATHER_NO_PLACE);
 check('the offer says what is sent', W.WEATHER_OFFER.includes('about 55 km') && W.WEATHER_OFFER.includes('never your exact place'));
+// The phone's rough location (rebuild R1, lib/roughLocation.ts).
+const phoneCredit = W.weatherCredit('2026-10-02', 'phone');
+check('a phone point is credited as the phone', phoneCredit.includes("this phone's rough location") && !phoneCredit.includes('postal code'));
+texts.push(phoneCredit, W.WEATHER_NO_PLACE_PHONE);
+check('the phone offer says it is rounded', W.WEATHER_NO_PLACE_PHONE.includes('about 55 km'));
+const rough = read('lib/roughLocation.ts');
+check('rough location asks for the lowest accuracy', rough.includes('Location.Accuracy.Lowest'));
+check('rough location is rounded before it is kept', rough.indexOf('coarsenPoint(here.coords.latitude') > -1 && rough.indexOf('coarsenPoint(here.coords.latitude') < rough.indexOf('JSON.stringify(point)'));
+check('rough location never follows', !/watchPosition|startLocationUpdates|requestBackgroundPermissions/.test(rough));
+check('the rough point stays on this device', read('lib/snapshotSync.ts').includes("'weather_rough_point'"));
+check('desktop swaps expo-location', read('metro.config.js').includes("'expo-location': 'lib/desktop/unavailableModule.ts'"));
+const blockedPerms = JSON.parse(read('app.json')).expo.android.blockedPermissions;
+check('fine and background location are blocked', blockedPerms.includes('android.permission.ACCESS_FINE_LOCATION') && blockedPerms.includes('android.permission.ACCESS_BACKGROUND_LOCATION'));
+const wdbText = read('lib/weatherDb.ts');
+check('the postal code comes first', wdbText.indexOf('if (home) return') > -1 && wdbText.indexOf('if (home) return') < wdbText.indexOf('readRoughPoint()'));
 
 const sync = read('lib/snapshotSync.ts');
 check('the table stays on this device', /DEVICE_LOCAL_TABLES[\s\S]{0,800}'daily_weather'/.test(sync));

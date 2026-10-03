@@ -83,6 +83,7 @@ if (process.env.INSIDE_STORY_DESKTOP === '1') {
     'expo-share-intent': 'lib/desktop/unavailableModule.ts',
     'expo-contacts': 'lib/desktop/unavailableModule.ts',
     'expo-location': 'lib/desktop/unavailableModule.ts',
+    'react-native-webview': 'lib/desktop/unavailableModule.ts',
   };
   const defaultResolveRequest = config.resolver.resolveRequest;
   config.resolver.resolveRequest = (context, moduleName, platform) => {
