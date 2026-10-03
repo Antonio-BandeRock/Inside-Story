@@ -35,6 +35,7 @@ import { AppActionSheet } from '../../components/AppActionSheet';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { YourStorySection, useStoryGo, useYourStory } from '../../components/YourStorySection';
 import { NextThing } from '../../components/NextThing';
+import { WaitingAnswersList } from '../../components/WaitingAnswersList';
 import { nextLine, type StoryDestination } from '../../lib/yourStory';
 import { buildTabGuide, tabGuideLine } from '../../lib/yourStoryTabs';
 import { interviewLine } from '../../lib/yourStoryInterview';
@@ -222,6 +223,8 @@ import {
 import { homeGroupIdentity } from '../../constants/homeGroups';
 import { HomeArrangeList } from '../../components/HomeArrangeList';
 import { useVisualPreferences } from '../../hooks/useVisualPreferences';
+import { useWaitingReminders } from '../../hooks/useWaitingReminders';
+import { countWaiting } from '../../lib/waitingAnswers';
 import { useBandFolds } from '../../hooks/useBandFolds';
 import { useWalkMark } from '../../components/WalkMark';
 
@@ -1025,6 +1028,12 @@ const HOME_LENS_DESTINATIONS: Partial<
   // scrolling to the card, since the card shows one section and the page
   // shows them all. A book rather than the newspaper, which is the Digest
   // cards' mark.
+  waitingAnswers: {
+    label: 'Waiting for an Answer',
+    icon: 'notifications-outline',
+    color: colors.primary,
+    href: '/waiting-answers' as Href,
+  },
   nextThing: {
     label: 'One Next Thing',
     icon: 'arrow-forward-circle-outline',
@@ -1056,6 +1065,7 @@ const HOME_LENS_DESTINATIONS: Partial<
 // page. Object key order would work today and would break silently the first
 // time someone reordered the literal above, so it is stated.
 const HOME_LENS_ORDER: HomeSectionKey[] = [
+  'waitingAnswers',
   'today',
   'nextThing',
   'yourStory',
@@ -1278,6 +1288,7 @@ export default function HomeScreen() {
   // want" reasoning. Read the same live way every other visual preference
   // already is, so a toggle flipped on Profile reaches Home immediately.
   const visualPrefs = useVisualPreferences();
+  const waiting = useWaitingReminders();
   // Which of Home's per-tab groups are open, kept under "homeTab:/food"
   // and the rest (see HOME_TAB_GROUP_BAND_KEY_PREFIX). A group is a band
   // like any other, so it remembers its fold the same way.
@@ -4406,6 +4417,31 @@ export default function HomeScreen() {
   // is nothing left to set up. No badge and no count. Open, it lists every
   // tab with what it gives back and what it needs first (1.0.52.3,
   // lib/yourStoryTabs.ts).
+  // Waiting for an Answer, 1.0.60.3. Direct request, 2026-10-03: "It
+  // should be at the top when there are reminders waiting for answers."
+  // Drawn only while something waits, so it never sits on Home empty. The
+  // list is the same one the full screen shows (components/
+  // WaitingAnswersList.tsx), with a switch for each kind of reminder in it.
+  function renderWaitingAnswers() {
+    if (!isHomeSectionVisible(visualPrefs, 'waitingAnswers')) return null;
+    const groups = waiting.groups;
+    if (!groups) return null;
+    const count = countWaiting(groups);
+    if (count === 0) return null;
+    return renderBand(
+      'waitingAnswers',
+      count === 1 ? '1 Reminder Waiting for an Answer' : count + ' Reminders Waiting for an Answer',
+      <View style={styles.bandBody}>
+        <WaitingAnswersList groups={groups} now={waiting.now} reload={waiting.reload} tabColor={colors.primary} nested />
+      </View>,
+      {
+        icon: 'notifications-outline',
+        color: colors.primary,
+        foldedCaption: groups.map((group) => group.label + ': ' + group.items.length).join(', '),
+      },
+    );
+  }
+
   // C16 and C18: one sentence, one button. See components/NextThing.tsx.
   function renderNextThing() {
     if (!isHomeSectionVisible(visualPrefs, 'nextThing')) return null;
@@ -4760,6 +4796,8 @@ export default function HomeScreen() {
         return renderDoneChecks();
       case 'nextThing':
         return renderNextThing();
+      case 'waitingAnswers':
+        return renderWaitingAnswers();
       case 'todayPicks':
         return renderTodayPicks();
       case 'countdowns':

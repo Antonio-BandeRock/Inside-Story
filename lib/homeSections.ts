@@ -44,6 +44,9 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   // to say where each one fits. A top-level row, like Capture.
   yourStory: null,
   nextThing: null,
+  // Waiting for an Answer, 1.0.60.3. Null because the reminders waiting
+  // come from every tab at once.
+  waitingAnswers: null,
   // Home, since 1.0.39.10. 1.0.39.7 left Home with no group at all, by
   // moving its one member (Low Stimulation) under Profile where the
   // switch actually lives, and the comment written here at the time

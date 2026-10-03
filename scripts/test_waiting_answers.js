@@ -1,4 +1,4 @@
-// Checks Waiting for an Answer (1.0.60.2, lib/waitingAnswers.ts): how the
+// Checks Waiting for an Answer (1.0.60.2, Home card 1.0.60.3, lib/waitingAnswers.ts): how the
 // reminders still showing are grouped, that each reminder appears once
 // however many copies of it are showing, that every row carries the buttons
 // its notification carries, and the summary's words. Then reads the device
@@ -142,16 +142,25 @@ check('a reminder arriving while open brings the summary up to date', device.inc
 check('the reconcile brings the summary up to date', /await refreshWaitingSummary\(\);\s*return \{ permission: 'granted', pending: scheduled \}/.test(device));
 
 const screen = fs.readFileSync(path.join(__dirname, '..', 'app', 'waiting-answers.tsx'), 'utf8');
-check('the screen answers through answerFromList', screen.includes('answerFromList(item.copies, action, text)'));
-check('the screen uses the notification button words', screen.includes('reminderActionTitle(action, SNOOZE_MINUTES)'));
-check('a note with no words cannot be saved', screen.includes("box.action === 'howAreYou' && !words.trim()"));
-check('the screen reads the list again on focus', screen.includes('useFocusEffect'));
+const list = fs.readFileSync(path.join(__dirname, '..', 'components', 'WaitingAnswersList.tsx'), 'utf8');
+const hook = fs.readFileSync(path.join(__dirname, '..', 'hooks', 'useWaitingReminders.ts'), 'utf8');
+check('the list answers through answerFromList', list.includes('answerFromList(item.copies, action, text)'));
+check('the list uses the notification button words', list.includes('reminderActionTitle(action, SNOOZE_MINUTES)'));
+check('a note with no words cannot be saved', list.includes("box.action === 'howAreYou' && !words.trim()"));
+check('the list is read again on focus', hook.includes('useFocusEffect'));
+check('the list is read again when a reminder arrives', hook.includes('addNotificationReceivedListener'));
+check('the screen draws the shared list', screen.includes('<WaitingAnswersList'));
 check('the screen says where the list is on a computer', screen.includes('Reminders show up on your phone'));
 
 const layout = fs.readFileSync(path.join(__dirname, '..', 'app', '_layout.tsx'), 'utf8');
 check('the screen is registered', layout.includes('name="waiting-answers"'));
 const profile = fs.readFileSync(path.join(__dirname, '..', 'app', 'profile.tsx'), 'utf8');
-check('Profile opens the list', profile.includes("router.push('/waiting-answers')"));
+check('Profile no longer opens the list', !profile.includes("router.push('/waiting-answers')"));
+const home = fs.readFileSync(path.join(__dirname, '..', 'app', '(tabs)', 'index.tsx'), 'utf8');
+check('Home draws the list', home.includes('<WaitingAnswersList') && home.includes("case 'waitingAnswers':"));
+check('Home draws it only while something waits', /const count = countWaiting\(groups\);\s*if \(count === 0\) return null;/.test(home));
+const prefs = fs.readFileSync(path.join(__dirname, '..', 'lib', 'visualPreferences.ts'), 'utf8');
+check('the card is first after the weather', /ALL_HOME_SECTION_KEYS: HomeSectionKey\[\] = \[\s*'weather',[\s\S]*?'waitingAnswers',\s*'sharedFolderSetup'/.test(prefs));
 
 console.log(failures === 0 ? 'All ' + checks + ' checks passed.' : failures + ' of ' + checks + ' checks failed.');
 process.exit(failures === 0 ? 0 : 1);

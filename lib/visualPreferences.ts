@@ -390,7 +390,11 @@ export type HomeSectionKey =
   | 'todayPicks'
   // C16 and C18, 2026-09-26: one sentence and one button, the welcome-back
   // line after a gap or the first Your Story item not done.
-  | 'nextThing';
+  | 'nextThing'
+  // 1.0.60.3, direct request 2026-10-03: the reminders still showing on
+  // the phone, answerable in one list. At the very top, and drawn only
+  // while something is waiting.
+  | 'waitingAnswers';
 
 // The default order, 2026-09-12: grouped by the tab each section is a
 // window into (see lib/homeSections.ts), in the same order TabHub's own
@@ -400,6 +404,11 @@ export type HomeSectionKey =
 // default is only ever a starting point, not the one arrangement.
 export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   'weather',
+  // Waiting for an Answer, 1.0.60.3: "It should be at the top when there
+  // are reminders waiting for answers." Placed straight after weather, so
+  // a saved order gains it at the top too (getOrderedHomeSectionKeys puts
+  // a new key after its nearest neighbour above).
+  'waitingAnswers',
   'sharedFolderSetup',
   // One next thing, ahead of everything that asks more of a person.
   'nextThing',
@@ -546,6 +555,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   groceryQuickAdd: 'Add to the Grocery List',
   todayPicks: 'Today I Want To',
   nextThing: 'One Next Thing',
+  waitingAnswers: 'Waiting for an Answer',
 };
 
 export type VisualPreferences = {
@@ -879,6 +889,9 @@ export const BANDS_OPEN_UNTIL_CLOSED: ReadonlySet<string> = new Set([
   // has the most to say, and folded to its one line once somebody closes
   // it.
   'yourStory',
+  // Waiting for an Answer, 1.0.60.3: drawn only when something waits, so
+  // it opens on its list until somebody closes it.
+  'waitingAnswers',
   `${HOME_TAB_GROUP_BAND_KEY_PREFIX}/`,
 ]);
 

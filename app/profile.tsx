@@ -1,10 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Updates from 'expo-updates';
 import { restartApp } from '../lib/restartApp';
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { ActivityIndicator, AppState, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { mediaStorageUsed } from '../lib/mediaDb';
 import { PEER_PHOTOS_WIFI_ONLY_LABEL, PEER_PHOTOS_WIFI_ONLY_WHAT } from '../lib/peerPhotos';
 import { getPeerPhotosWifiOnly, peerPhotoStorageUsed, setPeerPhotosWifiOnly } from '../lib/peerPhotosDb';
@@ -128,6 +128,7 @@ import {
   weekTimeOf,
   setWeekSchedule,
 } from '../lib/reminderPreferences';
+import { groupReminderKinds } from '../lib/reminderKindGroups';
 import { DEFAULT_QUIET_HOURS, quietTimeOptions, SNOOZE_MINUTES, type QuietHours } from '../lib/quietHours';
 import {
   ALL_NEURO_PROFILE_KEYS,
@@ -668,6 +669,24 @@ export default function ProfileScreen() {
   const [collapsedSections, setCollapsedSections] = useState<Set<CardSectionKey>>(
     () => new Set(ALL_CARD_SECTION_KEYS),
   );
+  // Opened straight onto Reminders (1.0.60.3) by Choose Which Reminders
+  // Come in the Waiting for an Answer list, so the switches are in view
+  // rather than folded away somewhere down the page.
+  const { section: openSection } = useLocalSearchParams<{ section?: string }>();
+  const scrollRef = useRef<ScrollView>(null);
+  const remindersCardY = useRef<number | null>(null);
+  useEffect(() => {
+    if (openSection !== 'reminders') return;
+    setCollapsedSections((current) => {
+      const next = new Set(current);
+      next.delete('reminders');
+      return next;
+    });
+    const timer = setTimeout(() => {
+      if (remindersCardY.current != null) scrollRef.current?.scrollTo({ y: remindersCardY.current, animated: true });
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [openSection]);
   function toggleSection(key: CardSectionKey) {
     setCollapsedSections((current) => {
       const next = new Set(current);
@@ -676,6 +695,121 @@ export default function ProfileScreen() {
       return next;
     });
   }
+  // The time pickers that belong to one reminder switch, drawn under it
+  // while it is on (1.0.60.3: each picker moved beside its own switch when
+  // the list was laid out by tab and lens).
+  function renderReminderTimes(key: ReminderKindKey) {
+    switch (key) {
+      case 'checkin':
+        return (
+          <View style={styles.dateRow}>
+            <PickerField label="Ask how you are at">
+              <PopoverSelect
+                options={QUIET_TIME_OPTIONS}
+                selected={checkinTimeOf(reminderPrefs)}
+                minWidth={110}
+                tabColor={colors.menuIconMuted}
+                groundSurface
+                onSelect={saveCheckinTime}
+              />
+            </PickerField>
+          </View>
+        );
+      case 'morning':
+        return (
+          <View style={styles.dateRow}>
+            <PickerField label="Ask about last night at">
+              <PopoverSelect
+                options={QUIET_TIME_OPTIONS}
+                selected={morningTimeOf(reminderPrefs)}
+                minWidth={110}
+                tabColor={colors.menuIconMuted}
+                groundSurface
+                onSelect={saveMorningTime}
+              />
+            </PickerField>
+          </View>
+        );
+      case 'week':
+        return (
+          <View style={styles.dateRow}>
+            <PickerField label="Your week on">
+              <PopoverSelect
+                options={WEEK_DAY_OPTIONS}
+                selected={String(weekDayOf(reminderPrefs))}
+                minWidth={130}
+                tabColor={colors.menuIconMuted}
+                groundSurface
+                onSelect={saveWeekDay}
+              />
+            </PickerField>
+            <PickerField label="At">
+              <PopoverSelect
+                options={QUIET_TIME_OPTIONS}
+                selected={weekTimeOf(reminderPrefs)}
+                minWidth={110}
+                tabColor={colors.menuIconMuted}
+                groundSurface
+                onSelect={saveWeekTime}
+              />
+            </PickerField>
+          </View>
+        );
+      case 'weekPlan':
+        return (
+          <View style={styles.dateRow}>
+            <PickerField label="This week's meals on">
+              <PopoverSelect
+                options={WEEK_DAY_OPTIONS}
+                selected={String(weekPlanDayOf(reminderPrefs))}
+                minWidth={130}
+                tabColor={colors.menuIconMuted}
+                groundSurface
+                onSelect={saveWeekPlanDay}
+              />
+            </PickerField>
+            <PickerField label="At">
+              <PopoverSelect
+                options={QUIET_TIME_OPTIONS}
+                selected={weekPlanTimeOf(reminderPrefs)}
+                minWidth={110}
+                tabColor={colors.menuIconMuted}
+                groundSurface
+                onSelect={saveWeekPlanTime}
+              />
+            </PickerField>
+          </View>
+        );
+      case 'gardenMonth':
+        return (
+          <View style={styles.dateRow}>
+            <PickerField label="This month in the garden on">
+              <PopoverSelect
+                options={MONTH_DAY_OPTIONS}
+                selected={String(gardenMonthDayOf(reminderPrefs))}
+                minWidth={130}
+                tabColor={colors.menuIconMuted}
+                groundSurface
+                onSelect={saveGardenMonthDay}
+              />
+            </PickerField>
+            <PickerField label="At">
+              <PopoverSelect
+                options={QUIET_TIME_OPTIONS}
+                selected={gardenMonthTimeOf(reminderPrefs)}
+                minWidth={110}
+                tabColor={colors.menuIconMuted}
+                groundSurface
+                onSelect={saveGardenMonthTime}
+              />
+            </PickerField>
+          </View>
+        );
+      default:
+        return null;
+    }
+  }
+
   // Shared by every card below: a tappable header (title + chevron)
   // replacing the old plain `<Text style={styles.label}>` line, so the
   // whole header row (not just the text) is the tap target. Every card's
@@ -3054,6 +3188,7 @@ export default function ProfileScreen() {
       </View>
     </View>
     <ScrollView
+      ref={scrollRef}
       style={[styles.screen, showGenericBackground && styles.transparentBackground]}
       contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}
     >
@@ -3802,7 +3937,7 @@ export default function ProfileScreen() {
           so garden tasks, bills, upkeep and work benefits arrived with
           the list. What did need adding is the nudge switch below, which
           is not a kind and governs all of them at once. */}
-      <View style={styles.card}>
+      <View style={styles.card} onLayout={(event) => (remindersCardY.current = event.nativeEvent.layout.y)}>
         {renderCardHeader('reminders', 'Reminders')}
         {!collapsedSections.has('reminders') ? (
           <View style={styles.cardBody}>
@@ -3832,125 +3967,35 @@ export default function ProfileScreen() {
                 ) : null}
               </>
             ) : null}
-            <View style={styles.pillRow}>
-              {ALL_REMINDER_KIND_KEYS.map((key) => {
-                const on = isReminderKindEnabled(reminderPrefs, key);
-                return (
-                  <TouchableOpacity
-                    key={key}
-                    style={[styles.pill, on && styles.pillActive]}
-                    onPress={() => toggleReminderKind(key)}
-                  >
-                    <Text style={[styles.pillText, on && styles.pillTextActive]}>{REMINDER_KIND_LABELS[key]}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-            {ALL_REMINDER_KIND_KEYS.map((key) => (
-              <Text key={key} style={styles.helpText}>
-                {REMINDER_KIND_LABELS[key]}: {REMINDER_KIND_CAPTIONS[key]}
-              </Text>
+            <Text style={styles.helpText}>
+              Laid out by the tab each reminder belongs to, then by lens. The same switches are in the
+              Waiting for an Answer list on Home, beside the reminders they send.
+            </Text>
+            {groupReminderKinds(ALL_REMINDER_KIND_KEYS, REMINDER_KIND_LABELS).map((tabGroup) => (
+              <View key={tabGroup.tab}>
+                <Text style={styles.subLabelDivided}>{tabGroup.tab}</Text>
+                {tabGroup.lenses.map((lensGroup) => (
+                  <View key={lensGroup.lens}>
+                    <Text style={styles.subLabel}>{lensGroup.lens}</Text>
+                    {lensGroup.keys.map((key) => {
+                      const on = isReminderKindEnabled(reminderPrefs, key);
+                      return (
+                        <View key={key}>
+                          <View style={styles.pillRow}>
+                            <TouchableOpacity style={[styles.pill, on && styles.pillActive]} onPress={() => toggleReminderKind(key)}>
+                              <Text style={[styles.pillText, on && styles.pillTextActive]}>{REMINDER_KIND_LABELS[key]}</Text>
+                            </TouchableOpacity>
+                          </View>
+                          <Text style={styles.helpText}>{REMINDER_KIND_CAPTIONS[key]}</Text>
+                          {on ? renderReminderTimes(key) : null}
+                        </View>
+                      );
+                    })}
+                  </View>
+                ))}
+              </View>
             ))}
-            {isReminderKindEnabled(reminderPrefs, 'checkin') ? (
-              <View style={styles.dateRow}>
-                <PickerField label="Ask how you are at">
-                  <PopoverSelect
-                    options={QUIET_TIME_OPTIONS}
-                    selected={checkinTimeOf(reminderPrefs)}
-                    minWidth={110}
-                    tabColor={colors.menuIconMuted}
-                    groundSurface
-                    onSelect={saveCheckinTime}
-                  />
-                </PickerField>
-              </View>
-            ) : null}
-            {isReminderKindEnabled(reminderPrefs, 'morning') ? (
-              <View style={styles.dateRow}>
-                <PickerField label="Ask about last night at">
-                  <PopoverSelect
-                    options={QUIET_TIME_OPTIONS}
-                    selected={morningTimeOf(reminderPrefs)}
-                    minWidth={110}
-                    tabColor={colors.menuIconMuted}
-                    groundSurface
-                    onSelect={saveMorningTime}
-                  />
-                </PickerField>
-              </View>
-            ) : null}
-            {isReminderKindEnabled(reminderPrefs, 'week') ? (
-              <View style={styles.dateRow}>
-                <PickerField label="Your week on">
-                  <PopoverSelect
-                    options={WEEK_DAY_OPTIONS}
-                    selected={String(weekDayOf(reminderPrefs))}
-                    minWidth={130}
-                    tabColor={colors.menuIconMuted}
-                    groundSurface
-                    onSelect={saveWeekDay}
-                  />
-                </PickerField>
-                <PickerField label="At">
-                  <PopoverSelect
-                    options={QUIET_TIME_OPTIONS}
-                    selected={weekTimeOf(reminderPrefs)}
-                    minWidth={110}
-                    tabColor={colors.menuIconMuted}
-                    groundSurface
-                    onSelect={saveWeekTime}
-                  />
-                </PickerField>
-              </View>
-            ) : null}
-            {isReminderKindEnabled(reminderPrefs, 'weekPlan') ? (
-              <View style={styles.dateRow}>
-                <PickerField label="This week's meals on">
-                  <PopoverSelect
-                    options={WEEK_DAY_OPTIONS}
-                    selected={String(weekPlanDayOf(reminderPrefs))}
-                    minWidth={130}
-                    tabColor={colors.menuIconMuted}
-                    groundSurface
-                    onSelect={saveWeekPlanDay}
-                  />
-                </PickerField>
-                <PickerField label="At">
-                  <PopoverSelect
-                    options={QUIET_TIME_OPTIONS}
-                    selected={weekPlanTimeOf(reminderPrefs)}
-                    minWidth={110}
-                    tabColor={colors.menuIconMuted}
-                    groundSurface
-                    onSelect={saveWeekPlanTime}
-                  />
-                </PickerField>
-              </View>
-            ) : null}
-            {isReminderKindEnabled(reminderPrefs, 'gardenMonth') ? (
-              <View style={styles.dateRow}>
-                <PickerField label="This month in the garden on">
-                  <PopoverSelect
-                    options={MONTH_DAY_OPTIONS}
-                    selected={String(gardenMonthDayOf(reminderPrefs))}
-                    minWidth={130}
-                    tabColor={colors.menuIconMuted}
-                    groundSurface
-                    onSelect={saveGardenMonthDay}
-                  />
-                </PickerField>
-                <PickerField label="At">
-                  <PopoverSelect
-                    options={QUIET_TIME_OPTIONS}
-                    selected={gardenMonthTimeOf(reminderPrefs)}
-                    minWidth={110}
-                    tabColor={colors.menuIconMuted}
-                    groundSurface
-                    onSelect={saveGardenMonthTime}
-                  />
-                </PickerField>
-              </View>
-            ) : null}
+            <Text style={styles.subLabelDivided}>Every reminder</Text>
             <View style={styles.pillRow}>
               <TouchableOpacity
                 style={[styles.pill, isNudgeUntilDoneEnabled(reminderPrefs) && styles.pillActive]}
@@ -4043,13 +4088,9 @@ export default function ProfileScreen() {
               because a button cannot ask for a new expiry date and nothing here records a bill as paid.
             </Text>
             <Text style={styles.helpText}>
-              When two or more reminders are waiting, one quiet line on your phone says how many. Tap it,
-              or the button below, to see them all in one list grouped by what they are about, each with
-              its buttons, and answer them one after another.
+              When two or more reminders are waiting, one quiet line on your phone says how many. Tap it to
+              answer them all in one list. The same list is at the top of Home whenever anything is waiting.
             </Text>
-            <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/waiting-answers')}>
-              <Text style={styles.checkinButtonText}>Waiting for an Answer</Text>
-            </TouchableOpacity>
             <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/app-status')}>
               <Text style={styles.checkinButtonText}>A Reminder Did Not Come</Text>
             </TouchableOpacity>
