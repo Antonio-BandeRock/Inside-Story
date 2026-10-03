@@ -4712,6 +4712,27 @@ export default function HomeScreen() {
   // drawn inside the Today card rather than being a card of its own, so there
   // is nothing to give it a position), so the default branch below covering
   // 'weather' is a deliberate safety net, not a case expected to fire.
+  // A card belonging to no tab, in a bare View, no style: React Native does
+  // not collapse margins, so wrapping changes nothing about the layout, and
+  // it is what gives each section a y to scroll to. Nothing at all when the
+  // card draws nothing, since an empty View still takes a place in the
+  // column's gap (1.0.60.5: Waiting for an Answer with nothing waiting left
+  // a space at the top of Home).
+  function renderSoloSection(key: HomeSectionKey) {
+    const node = renderHomeSection(key);
+    if (node == null) return null;
+    return (
+      <View
+        key={key}
+        onLayout={(event) => {
+          sectionOffsets.current[key] = event.nativeEvent.layout.y;
+        }}
+      >
+        {node}
+      </View>
+    );
+  }
+
   function renderHomeSection(key: HomeSectionKey) {
     switch (key) {
       case 'sharedFolderSetup':
@@ -4950,6 +4971,11 @@ export default function HomeScreen() {
                 })
               }
               hasContent={homeSectionHasContent}
+              restingCaption={(key) =>
+                key === 'waitingAnswers' && waiting.groups && countWaiting(waiting.groups) === 0
+                  ? 'Nothing waiting now. Shows here when a reminder needs an answer.'
+                  : null
+              }
               openFor={arrangeOpenKey}
               onReveal={(y) => scrollRef.current?.scrollTo({ y: Math.max(0, y - 12), animated: false })}
               onDragChange={setArrangeDragging}
@@ -4965,17 +4991,7 @@ export default function HomeScreen() {
                 group.kind === 'tab' ? (
                   renderHomeTabGroup(group)
                 ) : (
-                  // A bare View, no style: React Native does not collapse
-                  // margins, so wrapping changes nothing about the layout, and
-                  // it is what gives each section a y to scroll to.
-                  <View
-                    key={group.key}
-                    onLayout={(event) => {
-                      sectionOffsets.current[group.key] = event.nativeEvent.layout.y;
-                    }}
-                  >
-                    {renderHomeSection(group.key)}
-                  </View>
+                  renderSoloSection(group.key)
                 ),
               )}
             </>

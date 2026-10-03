@@ -127,6 +127,10 @@ type Props = {
   // question from whether it is switched on. Home is the only thing that
   // knows, so Home answers it.
   hasContent: (key: HomeSectionKey) => boolean;
+  // A line under a card that is on the list but not on the page right now
+  // for a reason that comes and goes, such as Waiting for an Answer with
+  // nothing waiting (1.0.60.5). Without it the row reads as showing.
+  restingCaption?: (key: HomeSectionKey) => string | null;
   // The card that was being held when this list came up, if it was a card
   // rather than a group name. Its group opens straight away, so the cards
   // inside are what the hold actually produces. Read once, when the list
@@ -153,6 +157,7 @@ export function HomeArrangeList({
   onToggleGroup,
   onToggleSection,
   hasContent,
+  restingCaption,
   openFor,
   onReveal,
   onDragChange,
@@ -471,7 +476,7 @@ export function HomeArrangeList({
               visible,
               inset: false,
               caption: solo
-                ? undefined
+                ? (restingCaption?.(members[0]) ?? undefined)
                 : `${members.length} ${members.length === 1 ? 'card' : 'cards'}${
                     hiddenCount > 0 ? `, ${hiddenCount} turned off` : ''
                   }`,
@@ -501,6 +506,7 @@ export function HomeArrangeList({
                     color,
                     visible: isHomeSectionVisible(prefs, key),
                     inset: true,
+                    caption: restingCaption?.(key) ?? undefined,
                     onToggleVisible: HOME_SECTIONS_ALWAYS_SHOWN.has(key) ? undefined : () => onToggleSection(key),
                   }),
                 )
