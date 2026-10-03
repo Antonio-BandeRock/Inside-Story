@@ -45,7 +45,7 @@ export function AppLockSettings() {
       <>
         <Text style={styles.help}>
           Keeps everything you have recorded in an encrypted file on this phone that opens only with your passcode, or
-          your fingerprint or face. Reminders still arrive while it is locked, and widgets show only that it is locked.
+          your fingerprint or face. Reminders still arrive while it is locked and their buttons still work, and widgets show only that it is locked.
         </Text>
         <TouchableOpacity style={styles.button} activeOpacity={0.85} onPress={() => router.push('/app-lock-setup')}>
           <Text style={styles.buttonText}>Set Up App Lock</Text>
@@ -62,7 +62,7 @@ export function AppLockSettings() {
     <>
       <Text style={styles.help}>
         App Lock is on. Your records are encrypted on this phone and open with your passcode
-        {state.biometric ? ' or your fingerprint or face' : ''}.
+        {state.biometric ? ' or your fingerprint or face' : ''}. A button pressed on a reminder while it is locked is kept sealed and saved, with the time you pressed it, the next time you unlock.
       </Text>
 
       <Text style={styles.subLabel}>Lock again after the app has been away for</Text>

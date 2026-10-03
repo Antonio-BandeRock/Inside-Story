@@ -70,6 +70,11 @@ export function dataKeyForOpening(): Uint8Array | null {
   return heldKey;
 }
 
+/** The held key, or null when nobody has unlocked (or the lock is off). */
+export function heldDataKey(): Uint8Array | null {
+  return heldKey;
+}
+
 /** True when the lock is on and nobody has unlocked in this run of the app. */
 export function isLockedNow(): boolean {
   return readLockStateSync() !== null && heldKey === null;

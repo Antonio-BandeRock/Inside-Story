@@ -137,6 +137,7 @@ const same = (a, b) => !!a && !!b && a.length === b.length && a.every((v, i) => 
     kdf,
     recoveryWrapped: wrapped,
     setUpAt: '2026-10-02T00:00:00.000Z',
+    answerBoxPublicKey: 'cHVibGljIGtleQ==',
   };
   const parsed = L.parseLockState(L.serializeLockState(good));
   check('a lock file round-trips', JSON.stringify(parsed) === JSON.stringify(good));
@@ -146,10 +147,33 @@ const same = (a, b) => !!a && !!b && a.length === b.length && a.every((v, i) => 
   check('an unknown phase is no lock', L.parseLockState(JSON.stringify({ ...good, phase: 'maybe' })) === null);
   check('no recovery copy is no lock', L.parseLockState(JSON.stringify({ ...good, recoveryWrapped: '' })) === null);
   check('no salt is no lock', L.parseLockState(JSON.stringify({ ...good, kdf: { ...kdf, salt: undefined } })) === null);
+  const older = { ...good };
+  delete older.answerBoxPublicKey;
+  check('a lock file from before answers were kept reads with no answer key', L.parseLockState(JSON.stringify(older)).answerBoxPublicKey === null);
   check(
     'an unknown auto-lock time falls back to the default',
     L.parseLockState(JSON.stringify({ ...good, autoLockMinutes: 7 })).autoLockMinutes === L.DEFAULT_AUTO_LOCK_MINUTES,
   );
+
+  // 5b. Reminders answered while locked
+  {
+    const dataKey = random(L.DATA_KEY_BYTES);
+    const pair = L.answerBoxKeyPair(dataKey);
+    check('the answer key pair is stable for one data key', same(pair.publicKey, L.answerBoxKeyPair(dataKey).publicKey));
+    check('another data key gives another pair', !same(pair.publicKey, L.answerBoxKeyPair(random(L.DATA_KEY_BYTES)).publicKey));
+    const message = JSON.stringify({ identifier: 'reminder:abc', actionIdentifier: 'done', pressedAt: '2026-10-03T07:00:00.000Z' });
+    const sealed = L.sealForUnlock(message, pair.publicKey, random(32), random(24));
+    check('a sealed press opens with the data key', L.openSealedForUnlock(sealed, dataKey) === message);
+    check('a sealed press does not show what it says', !sealed.includes('reminder') && !Buffer.from(sealed, 'base64').toString('latin1').includes('reminder'));
+    check('the wrong data key opens nothing', L.openSealedForUnlock(sealed, random(L.DATA_KEY_BYTES)) === null);
+    const bytes = Buffer.from(sealed, 'base64');
+    bytes[bytes.length - 1] ^= 1;
+    check('a flipped byte opens nothing', L.openSealedForUnlock(bytes.toString('base64'), dataKey) === null);
+    check('a cut line opens nothing', L.openSealedForUnlock(sealed.slice(0, 40), dataKey) === null);
+    check('garbage opens nothing', L.openSealedForUnlock('not base64 at all!!', dataKey) === null);
+    const twice = L.sealForUnlock(message, pair.publicKey, random(32), random(24));
+    check('the same press sealed twice reads differently', twice !== sealed);
+  }
 
   // 6. Moving the database
   const header = new Uint8Array(16);
@@ -219,6 +243,15 @@ const same = (a, b) => !!a && !!b && a.length === b.length && a.every((v, i) => 
   check('the widget catch knows locked', widget.includes('if (isAppLockedError(error)) return LOCKED_CONTENT;'));
   const task = fs.readFileSync(path.join(LIB, 'reminderBackgroundTask.ts'), 'utf8');
   check('the reminder task is quiet when locked', task.includes('if (isAppLockedError(answerError)) return;'));
+  const reminders = fs.readFileSync(path.join(LIB, 'reminderNotifications.ts'), 'utf8');
+  const lockedAt = reminders.indexOf('if (isLockedNow()) {');
+  const claimAt = reminders.indexOf('if (!(await claimAnswer(responseKey(response)))) return;');
+  check('a locked press is kept before anything opens the database', lockedAt > 0 && claimAt > lockedAt);
+  const drainAt = reminders.indexOf('// Presses kept while locked go in first');
+  const lastAt = reminders.indexOf('.then(() => Notifications.getLastNotificationResponseAsync())');
+  check('kept presses are written before the last press is read', drainAt > 0 && lastAt > drainAt);
+  check('a kept press is written with the time it was pressed', reminders.includes('new Date(answer.pressedAt)'));
+  check('the setup gives the lock file its answer key', fs.readFileSync(path.join(LIB, 'appLockDevice.ts'), 'utf8').includes('answerBoxPublicKey: bytesToBase64Fast(answerBoxKeyPair(dataKey).publicKey)'));
   const device = fs.readFileSync(path.join(LIB, 'appLockDevice.ts'), 'utf8');
   check('the move keeps the plain file until the locked one opens', device.indexOf('deleteWithSideFiles(BEFORE_NAME)') > device.indexOf('opensWithKey(key)'));
   check('the bare key item is deleted after the move', device.includes('await SecureStore.deleteItemAsync(MIGRATION_ITEM);'));

@@ -72,6 +72,8 @@ import { quietDecision, SNOOZE_MINUTES } from './quietHours';
 import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
 import { getTodo, markTodoDone } from './todosDb';
 import { getMorningCheckin, saveMorningCheckin } from './morningCheckinDb';
+import { isLockedNow } from './appLockSession';
+import { keepAnswerForUnlock, takeWaitingAnswers } from './lockedAnswers';
 import { YOUR_WEEK_NOTIFICATION_BODY, YOUR_WEEK_NOTIFICATION_TITLE } from './weeklySummary';
 import { buildWeekPlanBody, WEEK_PLAN_NOTIFICATION_TITLE, weekPlanDays } from './weekPlanNotice';
 import { buildGardenMonthBody, GARDEN_MONTH_NOTIFICATION_TITLE, nextGardenMonthFire, type GardenMonthPlace } from './gardenMonthNotice';
@@ -1572,6 +1574,10 @@ async function answerPress(response: Notifications.NotificationResponse): Promis
   const request = response.notification.request;
   const ours = isOurs(request.identifier) || isSnoozed(request.identifier);
   if (!ours) return;
+  if (isLockedNow()) {
+    await answerWhileLocked(response);
+    return;
+  }
   if (!(await claimAnswer(responseKey(response)))) return;
   const data = request.content.data as Partial<ReminderPayload> | undefined;
   const kind = data?.kind ?? '';
@@ -1588,6 +1594,60 @@ async function answerPress(response: Notifications.NotificationResponse): Promis
   } finally {
     await syncReminderNotifications();
   }
+}
+
+// App Lock on and nobody unlocked: the database cannot be opened, so the
+// press does everything it can without it now (a snooze is set, the
+// reminder leaves the screen, the energy question follows a sleep answer)
+// and is sealed for the next unlock, which writes it with the time it was
+// pressed (applyWaitingAnswers). No passcode is asked for, since a button
+// that needed one would not be worth having.
+async function answerWhileLocked(response: Notifications.NotificationResponse): Promise<void> {
+  const request = response.notification.request;
+  const data = request.content.data as Partial<ReminderPayload> | undefined;
+  const pressedAt = new Date();
+  const snooze = response.actionIdentifier === SNOOZE_ACTION;
+  const plan = !snooze && data?.kind ? planReminderAction(data.kind, response.actionIdentifier) : null;
+  if (!snooze && !plan) return;
+  if (snooze) await snoozeReminder(response);
+  else await Notifications.dismissNotificationAsync(request.identifier).catch(() => undefined);
+  if (plan?.write === 'sleepQuality') await presentMorningEnergy(localDateString(pressedAt));
+  const kept = await keepAnswerForUnlock({
+    identifier: request.identifier,
+    date: response.notification.date,
+    actionIdentifier: response.actionIdentifier,
+    userText: response.userText ?? null,
+    data: (request.content.data ?? null) as Record<string, unknown> | null,
+    pressedAt: pressedAt.toISOString(),
+    handled: snooze ? 'snoozed' : null,
+  });
+  if (!kept) console.error('[reminderNotifications] a press while locked could not be kept');
+}
+
+// Every press kept while locked, written now that the key is held, each
+// with the time it was pressed. Claimed the same way as any press, so the
+// same press handed over again by Android afterwards does nothing.
+async function applyWaitingAnswers(): Promise<void> {
+  const waiting = takeWaitingAnswers();
+  if (waiting.length === 0) return;
+  for (const answer of waiting) {
+    try {
+      const key = `${answer.identifier}|${answer.date}|${answer.actionIdentifier}`;
+      if (!(await claimAnswer(key))) continue;
+      if (answer.handled === 'snoozed') continue;
+      const data = (answer.data ?? {}) as Partial<ReminderPayload>;
+      const kind = data.kind ?? '';
+      const plan = kind ? planReminderAction(kind, answer.actionIdentifier) : null;
+      if (!plan) continue;
+      const words = (answer.userText ?? '').trim();
+      await withSessionGuardLifted(() =>
+        recordAnswer(plan, data.scheduleItemId ?? '', words, kind, new Date(answer.pressedAt)),
+      );
+    } catch (error) {
+      console.error('[reminderNotifications] a press kept while locked could not be written', error);
+    }
+  }
+  await syncReminderNotifications();
 }
 
 // The background task's way in (lib/reminderBackgroundTask.ts). A tap is
@@ -1623,8 +1683,13 @@ function handleResponse(
 // the pile, a check-in in Signals. Upkeep and compost check first whether
 // today is already recorded, so a second press from a copy still on screen
 // adds nothing. A note with no words is not a note, so nothing is written.
-async function recordAnswer(plan: ReminderActionPlan, id: string, words: string, kind: string): Promise<void> {
-  const now = new Date();
+async function recordAnswer(
+  plan: ReminderActionPlan,
+  id: string,
+  words: string,
+  kind: string,
+  now: Date = new Date(),
+): Promise<void> {
   const today = localDateString(now);
   if (plan.write === 'checkinNote') {
     if (!words) return;
@@ -1649,8 +1714,10 @@ async function recordAnswer(plan: ReminderActionPlan, id: string, words: string,
     const saved = await getMorningCheckin(now);
     const sleepQuality = plan.write === 'sleepQuality' ? plan.value : saved?.sleepQuality ?? null;
     const energy = plan.write === 'morningEnergy' ? plan.value : saved?.energy ?? null;
-    await saveMorningCheckin({ existingId: saved?.id ?? null, sleepQuality, energy, notes: saved?.notes ?? '' });
-    if (plan.write === 'sleepQuality' && energy === null) await presentMorningEnergy(today);
+    await saveMorningCheckin({ existingId: saved?.id ?? null, sleepQuality, energy, notes: saved?.notes ?? '', at: now });
+    // A press kept while locked asked the energy question when it was pressed.
+    const answeredJustNow = Date.now() - now.getTime() < 60_000;
+    if (plan.write === 'sleepQuality' && energy === null && answeredJustNow) await presentMorningEnergy(today);
     return;
   }
   if (!id) return;
@@ -1663,7 +1730,7 @@ async function recordAnswer(plan: ReminderActionPlan, id: string, words: string,
     // second press writes nothing, since the period is already answered.
     const check = (await listCheckReminders()).find((candidate) => candidate.id === id);
     if (check && checkReminderTimes(check, { time: check.reminderTime, days: [], on: true }, now, 0).length === 0) return;
-    await markDoneCheck(id, 'tap');
+    await markDoneCheck(id, 'tap', null, now.toISOString());
     return;
   }
   if (plan.write === 'upkeepDone') {
@@ -1700,7 +1767,11 @@ async function recordAnswer(plan: ReminderActionPlan, id: string, words: string,
 // not pressed again on every later start.
 export function listenForReminderTaps(navigate: (target: ReminderTapTarget) => void): () => void {
   if (!supported) return () => {};
-  Notifications.getLastNotificationResponseAsync()
+  // Presses kept while locked go in first, so the same press handed over
+  // again just below finds itself already answered.
+  applyWaitingAnswers()
+    .catch((error) => console.error('[reminderNotifications] kept presses not written', error))
+    .then(() => Notifications.getLastNotificationResponseAsync())
     .then((response) => {
       handleResponse(response, navigate);
       if (response) Notifications.clearLastNotificationResponse();

@@ -38,9 +38,10 @@ if (Platform.OS === 'android') {
       try {
         await answerFromBackground(data);
       } catch (answerError) {
-        // With App Lock on and nobody unlocked, the database cannot be
-        // opened from here. Keeping the press for the next unlock is a later
-        // step of App Lock; until then it is dropped without an error.
+        // With App Lock on and nobody unlocked the press is sealed for the
+        // next unlock before anything opens the database (answerWhileLocked
+        // in lib/reminderNotifications.ts). A locked error here means the
+        // lock came on partway through, and the press is let go quietly.
         if (isAppLockedError(answerError)) return;
         console.error('[reminderBackgroundTask] answer failed', answerError);
       }

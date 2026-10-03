@@ -83,9 +83,12 @@ export async function saveMorningCheckin(input: {
   sleepQuality: number | null;
   energy: number | null;
   notes: string;
+  /** When it was answered, for a reminder answered while locked; now otherwise. */
+  at?: Date;
 }): Promise<void> {
   const db = await getDatabase();
   const now = new Date();
+  const answeredAt = input.at ?? now;
   const stamp = now.toISOString();
   const notes = input.notes.trim() || null;
   if (input.existingId) {
@@ -103,7 +106,7 @@ export async function saveMorningCheckin(input: {
     `INSERT INTO wellbeing_checkins (id, logged_at, checkin_type, valence, notes, energy, sleep_quality, created_at, updated_at)
      VALUES (?, ?, 'sleep', 'neutral', ?, ?, ?, ?, ?)`,
     `checkin_${Date.now()}`,
-    localStamp(now),
+    localStamp(answeredAt),
     notes,
     input.energy,
     input.sleepQuality,

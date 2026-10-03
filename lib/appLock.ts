@@ -60,6 +60,12 @@ export type AppLockState = {
   /** The data key, secretboxed under the recovery key. */
   recoveryWrapped: string;
   setUpAt: string;
+  /**
+   * Where a reminder answered while locked is sealed to (base64). Anybody
+   * can seal to it; only the data key opens what was sealed. Null on a lock
+   * file from before 1.0.59.20 until the next unlock writes it.
+   */
+  answerBoxPublicKey: string | null;
 };
 
 // ---------------------------------------------------------------------------
@@ -103,6 +109,8 @@ export function parseLockState(text: string | null): AppLockState | null {
     kdf: { name: 'scrypt', N: kdf.N, r: kdf.r, p: kdf.p, salt: kdf.salt },
     recoveryWrapped: r.recoveryWrapped,
     setUpAt: typeof r.setUpAt === 'string' ? r.setUpAt : '',
+    answerBoxPublicKey:
+      typeof r.answerBoxPublicKey === 'string' && r.answerBoxPublicKey ? r.answerBoxPublicKey : null,
   };
 }
 
@@ -373,4 +381,64 @@ export function autoLockLabel(minutes: AutoLockMinutes): string {
 export function isBiometricCancel(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
   return /cancel/i.test(message);
+}
+
+// ---------------------------------------------------------------------------
+// Reminders answered while locked
+//
+// A button on a reminder has to work without a passcode, which is the whole
+// point of a button. While locked the database cannot be opened, so the
+// answer is sealed to a public key and kept beside it until the next unlock.
+// The key pair comes from the data key, so the private half is never stored
+// anywhere: the locked app can add answers and cannot read them back.
+
+const ANSWER_BOX_LABEL = 'inside-story-locked-answers-v1';
+
+export function answerBoxKeyPair(dataKey: Uint8Array): nacl.BoxKeyPair {
+  const label = new TextEncoder().encode(ANSWER_BOX_LABEL);
+  const input = new Uint8Array(dataKey.length + label.length);
+  input.set(dataKey, 0);
+  input.set(label, dataKey.length);
+  return nacl.box.keyPair.fromSecretKey(nacl.hash(input).slice(0, nacl.box.secretKeyLength));
+}
+
+/** Randomness comes in from the caller, the same way wrapKey takes its nonce. */
+export function sealForUnlock(
+  text: string,
+  publicKey: Uint8Array,
+  ephemeralSecret: Uint8Array,
+  nonce: Uint8Array,
+): string {
+  const ephemeral = nacl.box.keyPair.fromSecretKey(ephemeralSecret);
+  const box = nacl.box(new TextEncoder().encode(text), nonce, publicKey, ephemeral.secretKey);
+  const out = new Uint8Array(ephemeral.publicKey.length + nonce.length + box.length);
+  out.set(ephemeral.publicKey, 0);
+  out.set(nonce, ephemeral.publicKey.length);
+  out.set(box, ephemeral.publicKey.length + nonce.length);
+  return bytesToBase64Fast(out);
+}
+
+/** Null for anything not sealed to this data key, cut short or altered. */
+export function openSealedForUnlock(sealed: string, dataKey: Uint8Array): string | null {
+  let bytes: Uint8Array | null;
+  try {
+    bytes = base64ToBytesFast(sealed.trim());
+  } catch {
+    return null;
+  }
+  if (!bytes) return null;
+  const head = nacl.box.publicKeyLength + nacl.box.nonceLength;
+  if (bytes.length <= head + nacl.box.overheadLength) return null;
+  const opened = nacl.box.open(
+    bytes.slice(head),
+    bytes.slice(nacl.box.publicKeyLength, head),
+    bytes.slice(0, nacl.box.publicKeyLength),
+    answerBoxKeyPair(dataKey).secretKey,
+  );
+  if (!opened) return null;
+  try {
+    return new TextDecoder().decode(opened);
+  } catch {
+    return null;
+  }
 }

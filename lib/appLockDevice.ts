@@ -38,6 +38,7 @@ import {
   unwrapKey,
   WRAP_NONCE_BYTES,
   wrapKey,
+  answerBoxKeyPair,
   type AppLockState,
   type AutoLockMinutes,
   type FileKind,
@@ -181,6 +182,7 @@ export async function turnOnAppLock(options: {
     kdf,
     recoveryWrapped: await wrapForRecovery(dataKey, options.recovery),
     setUpAt: new Date().toISOString(),
+    answerBoxPublicKey: bytesToBase64Fast(answerBoxKeyPair(dataKey).publicKey),
   });
   return { biometric };
 }
