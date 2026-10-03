@@ -11,6 +11,13 @@
 //                   the moment the move is done.
 // Expo's secure store keeps each in the Android Keystore, so none of them
 // is in a copy of the app's files.
+//
+// On the computer (1.0.60.7) the same file runs with three differences,
+// each behind isDesktopApp(): the records are a sealed file the main process
+// opens into memory (desktop/sealedDb.js) rather than a SQLCipher file, so
+// the move is one call over the bridge; BIOMETRIC_ITEM holds a copy only
+// Windows Hello can open (desktop/hello.js), since the desktop secure store
+// has no prompt of its own; and secure store is Electron's safeStorage.
 
 import * as SQLite from 'expo-sqlite';
 import { File, Paths } from 'expo-file-system';
@@ -54,6 +61,7 @@ import { restartApp } from './restartApp';
 import { bytesToBase64Fast } from './localSeal';
 import { closeDatabasesForRestart, DB_NAME } from './db';
 import { unsealWaitingAnswersForTurnOff } from './lockedAnswers';
+import { getDesktopBridge, isDesktopApp, type DesktopSqliteBridge } from './desktop/bridge';
 
 const PASSCODE_ITEM = 'inside_story_app_lock_passcode_v1';
 const BIOMETRIC_ITEM = 'inside_story_app_lock_biometric_v1';
@@ -73,6 +81,22 @@ const BIOMETRIC_PROMPT = 'Unlock Inside Story';
 
 async function secureStore() {
   return import('expo-secure-store');
+}
+
+type SealingBridge = Required<Pick<DesktopSqliteBridge, 'seal' | 'unseal' | 'keepSealed' | 'abandonSeal'>>;
+
+/** The main process's sealing calls, which every installer from 1.0.60.7 has. */
+function desktopSealing(): SealingBridge {
+  const sqlite = getDesktopBridge().sqlite;
+  if (!sqlite.seal || !sqlite.unseal || !sqlite.keepSealed || !sqlite.abandonSeal) {
+    throw new Error('This installer is too old for App Lock. Install the newest one and try again.');
+  }
+  return sqlite as SealingBridge;
+}
+
+async function removeHelloKey(): Promise<void> {
+  if (!isDesktopApp()) return;
+  await getDesktopBridge().hello?.remove().catch(() => {});
 }
 
 async function randomBytes(count: number): Promise<Uint8Array> {
@@ -128,6 +152,13 @@ export async function newRecoveryKey(): Promise<RecoveryKey> {
 }
 
 export async function canUseBiometrics(): Promise<boolean> {
+  if (isDesktopApp()) {
+    try {
+      return (await getDesktopBridge().hello?.available()) ?? false;
+    } catch {
+      return false;
+    }
+  }
   try {
     const SecureStore = await secureStore();
     return SecureStore.canUseBiometricAuthentication();
@@ -155,6 +186,14 @@ async function wrapForRecovery(dataKey: Uint8Array, recovery: Uint8Array): Promi
 export async function storeBiometricCopy(dataKey: Uint8Array): Promise<boolean> {
   try {
     const SecureStore = await secureStore();
+    if (isDesktopApp()) {
+      // Windows asks for Hello here; what is stored opens only with it.
+      const hello = getDesktopBridge().hello;
+      const wrapped = hello ? await hello.wrapKey(keyToBase64(dataKey)) : null;
+      if (!wrapped) return false;
+      await SecureStore.setItemAsync(BIOMETRIC_ITEM, wrapped);
+      return true;
+    }
     await SecureStore.setItemAsync(BIOMETRIC_ITEM, keyToBase64(dataKey), {
       requireAuthentication: true,
       authenticationPrompt: BIOMETRIC_PROMPT,
@@ -266,6 +305,15 @@ export type BiometricResult = { kind: 'key'; key: Uint8Array } | { kind: 'cancel
 export async function unlockWithBiometric(): Promise<BiometricResult> {
   try {
     const SecureStore = await secureStore();
+    if (isDesktopApp()) {
+      const stored = await SecureStore.getItemAsync(BIOMETRIC_ITEM);
+      const hello = getDesktopBridge().hello;
+      if (!stored || !hello) return { kind: 'needs-passcode' };
+      const opened = await hello.unwrapKey(stored);
+      if (opened.kind !== 'key') return opened;
+      const key = keyFromBase64(opened.key);
+      return key ? { kind: 'key', key } : { kind: 'needs-passcode' };
+    }
     const stored = await SecureStore.getItemAsync(BIOMETRIC_ITEM, {
       requireAuthentication: true,
       authenticationPrompt: BIOMETRIC_PROMPT,
@@ -313,6 +361,7 @@ export async function setBiometricUnlock(dataKey: Uint8Array | null, on: boolean
     try {
       const SecureStore = await secureStore();
       await SecureStore.deleteItemAsync(BIOMETRIC_ITEM);
+      await removeHelloKey();
     } catch (error) {
       console.error('[appLock] the fingerprint copy could not be removed', error);
     }
@@ -463,6 +512,20 @@ async function opensWithKey(key: Uint8Array): Promise<boolean> {
   }
 }
 
+async function finishLockingOn(
+  key: Uint8Array,
+  SecureStore: Awaited<ReturnType<typeof secureStore>>,
+  onProgress: (progress: MigrationProgress) => void,
+): Promise<MigrationResult> {
+  const state = readLockStateSync();
+  if (!state) return { ok: false, problem: 'The lock settings could not be read.' };
+  writeLockState({ ...state, phase: 'on' });
+  await SecureStore.deleteItemAsync(MIGRATION_ITEM);
+  holdDataKey(key);
+  onProgress({ stage: 'done' });
+  return { ok: true };
+}
+
 /**
  * Moves the database into the encrypted file. Safe to run again after a
  * kill at any point: see planMigration in lib/appLock.ts. On success the key
@@ -474,6 +537,12 @@ export async function runMigration(onProgress: (progress: MigrationProgress) => 
     const key = keyFromBase64(await SecureStore.getItemAsync(MIGRATION_ITEM));
     if (!key) return { ok: false, problem: 'The key made when the lock was set up could not be found.' };
     await closeDatabasesForRestart();
+    if (isDesktopApp()) {
+      onProgress({ stage: 'copying' });
+      const sealed = await desktopSealing().seal(DB_NAME, keyToBase64(key));
+      if (!sealed.ok) return { ok: false, problem: `${sealed.problem} Your records were left as they were.` };
+      return finishLockingOn(key, SecureStore, onProgress);
+    }
 
     let step = planMigration({
       main: kindOf(DB_NAME),
@@ -504,13 +573,7 @@ export async function runMigration(onProgress: (progress: MigrationProgress) => 
 
     deleteWithSideFiles(BEFORE_NAME);
     deleteWithSideFiles(PARTIAL_NAME);
-    const state = readLockStateSync();
-    if (!state) return { ok: false, problem: 'The lock settings could not be read.' };
-    writeLockState({ ...state, phase: 'on' });
-    await SecureStore.deleteItemAsync(MIGRATION_ITEM);
-    holdDataKey(key);
-    onProgress({ stage: 'done' });
-    return { ok: true };
+    return finishLockingOn(key, SecureStore, onProgress);
   } catch (error) {
     console.error('[appLock] the move did not finish', error);
     try {
@@ -592,6 +655,25 @@ async function opensPlain(): Promise<boolean> {
   }
 }
 
+async function finishTurningOff(
+  key: Uint8Array,
+  SecureStore: Awaited<ReturnType<typeof secureStore>>,
+  onProgress: (progress: MigrationProgress) => void,
+): Promise<MigrationResult> {
+  // Presses made on a reminder while the lock was on are still sealed;
+  // open them now, while the key is in hand, so the next start applies them.
+  unsealWaitingAnswersForTurnOff(key);
+  deleteLockState();
+  for (const item of [PASSCODE_ITEM, BIOMETRIC_ITEM, MIGRATION_ITEM]) {
+    await SecureStore.deleteItemAsync(item).catch(() => {});
+  }
+  await removeHelloKey();
+  key.fill(0);
+  await applyScreenCapturePolicy(null);
+  onProgress({ stage: 'done' });
+  return { ok: true };
+}
+
 /**
  * Moves the database back into a plain file and takes the lock away. Safe
  * to run again after a kill at any point (planUnlockMigration): the
@@ -605,6 +687,12 @@ export async function runUnlockMigration(onProgress: (progress: MigrationProgres
     const key = keyFromBase64(await SecureStore.getItemAsync(MIGRATION_ITEM));
     if (!key) return { ok: false, problem: 'The key kept for turning the lock off could not be found.' };
     await closeDatabasesForRestart();
+    if (isDesktopApp()) {
+      onProgress({ stage: 'copying' });
+      const unsealed = await desktopSealing().unseal(DB_NAME, keyToBase64(key));
+      if (!unsealed.ok) return { ok: false, problem: `${unsealed.problem} Your records were left locked.` };
+      return finishTurningOff(key, SecureStore, onProgress);
+    }
 
     let step = planUnlockMigration({
       main: kindOf(DB_NAME),
@@ -631,19 +719,9 @@ export async function runUnlockMigration(onProgress: (progress: MigrationProgres
       return { ok: false, problem: 'The unlocked copy did not open, so your records were left locked.' };
     }
 
-    // Presses made on a reminder while the lock was on are still sealed;
-    // open them now, while the key is in hand, so the next start applies them.
-    unsealWaitingAnswersForTurnOff(key);
     deleteWithSideFiles(UNLOCK_BEFORE_NAME);
     deleteWithSideFiles(UNLOCK_PARTIAL_NAME);
-    deleteLockState();
-    for (const item of [PASSCODE_ITEM, BIOMETRIC_ITEM, MIGRATION_ITEM]) {
-      await SecureStore.deleteItemAsync(item).catch(() => {});
-    }
-    key.fill(0);
-    await applyScreenCapturePolicy(null);
-    onProgress({ stage: 'done' });
-    return { ok: true };
+    return finishTurningOff(key, SecureStore, onProgress);
   } catch (error) {
     console.error('[appLock] turning the lock off did not finish', error);
     try {
@@ -663,6 +741,13 @@ export async function runUnlockMigration(onProgress: (progress: MigrationProgres
 export async function keepLockOn(): Promise<boolean> {
   const state = readLockStateSync();
   if (!state || state.phase !== 'decrypting') return false;
+  if (isDesktopApp()) {
+    if (!(await desktopSealing().keepSealed(DB_NAME))) return false;
+    const SecureStore = await secureStore();
+    await SecureStore.deleteItemAsync(MIGRATION_ITEM).catch(() => {});
+    writeLockState({ ...state, phase: 'on' });
+    return true;
+  }
   if (kindOf(DB_NAME) === 'missing' && databaseFile(UNLOCK_BEFORE_NAME).exists) {
     moveWithSideFiles(UNLOCK_BEFORE_NAME, DB_NAME);
   }
@@ -682,13 +767,18 @@ export async function keepLockOn(): Promise<boolean> {
 export async function abandonLockSetup(): Promise<boolean> {
   const state = readLockStateSync();
   if (!state || state.phase !== 'encrypting') return false;
-  if (kindOf(DB_NAME) === 'encrypted') return false;
-  if (databaseFile(BEFORE_NAME).exists && kindOf(DB_NAME) === 'missing') moveWithSideFiles(BEFORE_NAME, DB_NAME);
-  deleteWithSideFiles(PARTIAL_NAME);
+  if (isDesktopApp()) {
+    if (!(await desktopSealing().abandonSeal(DB_NAME))) return false;
+  } else {
+    if (kindOf(DB_NAME) === 'encrypted') return false;
+    if (databaseFile(BEFORE_NAME).exists && kindOf(DB_NAME) === 'missing') moveWithSideFiles(BEFORE_NAME, DB_NAME);
+    deleteWithSideFiles(PARTIAL_NAME);
+  }
   const SecureStore = await secureStore();
   for (const item of [PASSCODE_ITEM, BIOMETRIC_ITEM, MIGRATION_ITEM]) {
     await SecureStore.deleteItemAsync(item).catch(() => {});
   }
+  await removeHelloKey();
   deleteLockState();
   return true;
 }

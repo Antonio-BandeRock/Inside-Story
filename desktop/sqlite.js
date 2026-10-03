@@ -14,7 +14,12 @@ const { DatabaseSync } = require('node:sqlite');
 const fs = require('node:fs');
 const path = require('node:path');
 
+const sealed = require('./sealedDb');
+
 const STATEMENT_CACHE_LIMIT = 256;
+// How long after a change the sealed copy is written (App Lock, 1.0.60.7).
+// Short, since a crash loses whatever was not yet written.
+const SEAL_DELAY_MS = 500;
 
 /** @type {Map<string, { db: import('node:sqlite').DatabaseSync, statements: Map<string, any> }>} */
 const open = new Map();
@@ -29,6 +34,12 @@ function connection(userDataPath, name) {
   let entry = open.get(name);
   if (!entry) {
     const file = path.join(databaseFolder(userDataPath), name);
+    // With App Lock on the records are in <name>.sealed and open only with
+    // the key (unlock below). Opening the bare name here would make an
+    // empty plain file beside them, so it is refused instead.
+    if (fs.existsSync(sealed.sealedFile(file))) {
+      throw new Error('Inside Story is locked.');
+    }
     // Foreign keys are left to the app: lib/db.ts turns them on with a
     // PRAGMA at startup and lib/dataBackup.ts turns them off around a
     // restore, and node:sqlite's default of enforcing them would make the
@@ -77,8 +88,129 @@ function bindArgs(params) {
   return [];
 }
 
+// ---------------------------------------------------------------------------
+// App Lock: a sealed database lives in memory and is written back sealed.
+
+function writeSealedNow(entry) {
+  if (entry.timer) {
+    clearTimeout(entry.timer);
+    entry.timer = null;
+  }
+  if (!entry.dirty) return;
+  // A transaction still open would seal half of it; wait for it to end.
+  if (entry.db.isTransaction) {
+    scheduleSeal(entry);
+    return;
+  }
+  sealed.writeSealed(entry.sealed.file, entry.db.serialize(), entry.sealed.key);
+  entry.dirty = false;
+}
+
+function scheduleSeal(entry) {
+  if (entry.timer) return;
+  entry.timer = setTimeout(() => {
+    entry.timer = null;
+    try {
+      writeSealedNow(entry);
+    } catch (error) {
+      console.error('[sqlite] the sealed copy could not be written', error);
+      scheduleSeal(entry);
+    }
+  }, SEAL_DELAY_MS);
+}
+
+function changed(entry) {
+  if (!entry.sealed) return;
+  entry.dirty = true;
+  scheduleSeal(entry);
+}
+
+/** Opens a sealed database with its key. A wrong key throws and opens nothing. */
+function unlock(userDataPath, name, keyBase64) {
+  const existing = open.get(name);
+  if (existing && existing.sealed) return;
+  const file = path.join(databaseFolder(userDataPath), name);
+  if (!fs.existsSync(sealed.sealedFile(file))) {
+    throw new Error('There are no sealed records to open.');
+  }
+  const key = sealed.keyFromBase64(keyBase64);
+  const db = sealed.openBytes(sealed.readSealed(file, key));
+  open.set(name, { db, statements: new Map(), sealed: { file, key }, dirty: false, timer: null });
+}
+
+/** Writes a sealed database back and closes it, which drops its key. A plain one stays open. */
+function close(name) {
+  const entry = open.get(name);
+  if (!entry || !entry.sealed) return;
+  try {
+    writeSealedNow(entry);
+  } finally {
+    if (entry.timer) clearTimeout(entry.timer);
+    entry.db.close();
+    entry.sealed.key.fill(0);
+    open.delete(name);
+  }
+}
+
+/** Closes every sealed database: the app is reloading, which is how it locks. */
+function closeSealed() {
+  for (const [name, entry] of [...open.entries()]) {
+    if (!entry.sealed) continue;
+    try {
+      close(name);
+    } catch (error) {
+      console.error('[sqlite] a sealed database did not close cleanly', error);
+    }
+  }
+}
+
+/** Closes a plain connection so its file can be moved. */
+function closePlain(name) {
+  const entry = open.get(name);
+  if (!entry || entry.sealed) return;
+  entry.db.close();
+  open.delete(name);
+}
+
+/** Turns the lock on for this database (sealedDb.sealDatabase). */
+function seal(userDataPath, name, keyBase64) {
+  closePlain(name);
+  const key = sealed.keyFromBase64(keyBase64);
+  try {
+    return sealed.sealDatabase(path.join(databaseFolder(userDataPath), name), key);
+  } finally {
+    key.fill(0);
+  }
+}
+
+/** Turns the lock off for this database (sealedDb.unsealDatabase). */
+function unseal(userDataPath, name, keyBase64) {
+  close(name);
+  const key = sealed.keyFromBase64(keyBase64);
+  try {
+    return sealed.unsealDatabase(path.join(databaseFolder(userDataPath), name), key);
+  } finally {
+    key.fill(0);
+  }
+}
+
+function keepSealed(userDataPath, name) {
+  return sealed.keepSealed(path.join(databaseFolder(userDataPath), name));
+}
+
+function abandonSeal(userDataPath, name) {
+  return sealed.abandonSeal(path.join(databaseFolder(userDataPath), name));
+}
+
+/** Which files are on disk: the plain one, the sealed one, both or neither. */
+function filesOnDisk(userDataPath, name) {
+  return sealed.filesOnDisk(path.join(databaseFolder(userDataPath), name));
+}
+
 function run(userDataPath, name, sql, params) {
-  const result = statement(connection(userDataPath, name), sql).run(...bindArgs(params));
+  const entry = connection(userDataPath, name);
+  const result = statement(entry, sql).run(...bindArgs(params));
+  if (result.changes) changed(entry);
   return { changes: Number(result.changes), lastInsertRowId: Number(result.lastInsertRowid) };
 }
 
@@ -92,10 +224,16 @@ function get(userDataPath, name, sql, params) {
 }
 
 function exec(userDataPath, name, sql) {
-  connection(userDataPath, name).db.exec(sql);
+  const entry = connection(userDataPath, name);
+  entry.db.exec(sql);
+  changed(entry);
 }
 
 function openDatabase(userDataPath, name) {
+  // A sealed database waits for its key (unlock), which lib/db.ts sends
+  // straight after opening, the way SQLCipher takes PRAGMA key.
+  const file = path.join(databaseFolder(userDataPath), name);
+  if (!open.has(name) && fs.existsSync(sealed.sealedFile(file))) return;
   connection(userDataPath, name);
 }
 
@@ -133,6 +271,7 @@ function importReference(userDataPath, name, shippedFile) {
 }
 
 function closeAll() {
+  closeSealed();
   for (const entry of open.values()) {
     try {
       entry.db.close();
@@ -143,4 +282,20 @@ function closeAll() {
   open.clear();
 }
 
-module.exports = { openDatabase, run, all, get, exec, importReference, closeAll };
+module.exports = {
+  openDatabase,
+  run,
+  all,
+  get,
+  exec,
+  importReference,
+  closeAll,
+  unlock,
+  close,
+  closeSealed,
+  seal,
+  unseal,
+  keepSealed,
+  abandonSeal,
+  filesOnDisk,
+};

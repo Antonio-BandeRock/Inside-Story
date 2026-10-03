@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { colors } from "../constants/colors";
 import { textShadow, typography } from "../constants/typography";
 import { waitLabel, type PasscodeKind } from "../lib/appLock";
+import { biometricTitle } from "../lib/appLockWords";
 import {
   checkPasscode,
   clearWrongTries,
@@ -113,7 +114,7 @@ export function ConfirmItsYou({
           onPress={() => void askBiometric()}
         >
           <Text style={styles.secondaryButtonText}>
-            Use Fingerprint or Face
+            {`Use ${biometricTitle()}`}
           </Text>
         </TouchableOpacity>
       ) : null}

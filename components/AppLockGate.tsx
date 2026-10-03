@@ -48,6 +48,8 @@ import {
   isUnlocked,
   readLockStateSync,
 } from "../lib/appLockSession";
+import { biometricTitle, deviceWord } from "../lib/appLockWords";
+import { isDesktopApp } from "../lib/desktop/bridge";
 import { restartApp } from "../lib/restartApp";
 import { PasscodeEntry } from "./PasscodeEntry";
 
@@ -94,7 +96,7 @@ function progressText(
   if (!progress) return "Getting ready";
   switch (progress.stage) {
     case "checking-space":
-      return "Checking there is room on the phone";
+      return `Checking there is room on the ${deviceWord()}`;
     case "copying":
       return `Writing the ${copy} copy of your records`;
     case "counting":
@@ -207,9 +209,7 @@ export function AppLockGate({ children }: { children: ReactNode }) {
         <ActivityIndicator size="large" color={colors.textPrimary} />
         <Text style={styles.text}>{progressText(view.progress)}</Text>
         <Text style={styles.note}>
-          Keep the app open until this finishes. If the phone turns off or the
-          app closes, it starts again from where it is safe the next time the
-          app opens, and your records stay as they were.
+          {`Keep the app open until this finishes. If the ${deviceWord()} turns off or the app closes, it starts again from where it is safe the next time the app opens, and your records stay as they were.`}
         </Text>
       </GateScreen>
     );
@@ -223,10 +223,7 @@ export function AppLockGate({ children }: { children: ReactNode }) {
           {progressText(view.progress, "unlocked")}
         </Text>
         <Text style={styles.note}>
-          Keep the app open until this finishes. If the phone turns off or the
-          app closes, it starts again from where it is safe the next time the
-          app opens, and your records stay locked until the unlocked copy has
-          opened.
+          {`Keep the app open until this finishes. If the ${deviceWord()} turns off or the app closes, it starts again from where it is safe the next time the app opens, and your records stay locked until the unlocked copy has opened.`}
         </Text>
       </GateScreen>
     );
@@ -372,7 +369,9 @@ function LockScreen({
     } else if (result.kind === "needs-passcode") {
       remakeBiometric.current = true;
       setMessage(
-        "The fingerprint or face unlock needs your passcode once, which happens when a new fingerprint or face is added to the phone.",
+        isDesktopApp()
+          ? "Windows Hello needs your passcode once, which happens when Windows Hello is set up again on this computer."
+          : "The fingerprint or face unlock needs your passcode once, which happens when a new fingerprint or face is added to the phone.",
       );
     }
   }, [state?.biometric, onUnlocked]);
@@ -437,7 +436,7 @@ function LockScreen({
           onPress={() => void askBiometric()}
         >
           <Text style={styles.secondaryButtonText}>
-            Use Fingerprint or Face
+            {`Use ${biometricTitle()}`}
           </Text>
         </TouchableOpacity>
       ) : null}

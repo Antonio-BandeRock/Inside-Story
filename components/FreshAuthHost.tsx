@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Modal, ScrollView, StyleSheet, View } from "react-native";
 import { colors } from "../constants/colors";
+import { deviceWord } from "../lib/appLockWords";
 import { readLockStateSync } from "../lib/appLockSession";
 import { listenForFreshAuth, type FreshAuthRequest } from "../lib/freshAuth";
 import { ConfirmItsYou } from "./ConfirmItsYou";
@@ -30,7 +31,7 @@ export function FreshAuthHost() {
             <ConfirmItsYou
               kind={state?.passcodeKind ?? "digits"}
               title={request.reason}
-              intro="App Lock asks again before your records leave the phone."
+              intro={`App Lock asks again before your records leave the ${deviceWord()}.`}
               biometric={state?.biometric ?? false}
               onVerified={(key) => {
                 key.fill(0);

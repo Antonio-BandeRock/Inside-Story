@@ -11,6 +11,7 @@ import {
   setBiometricUnlock,
   updateLockSettings,
 } from '../lib/appLockDevice';
+import { biometricTitle, biometricWords, deviceWord } from '../lib/appLockWords';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 
@@ -33,20 +34,15 @@ export function AppLockSettings() {
     void canUseBiometrics().then(setBiometricAvailable);
   }, []);
 
-  if (isDesktopApp()) {
-    return (
-      <Text style={styles.help}>
-        App Lock is on the phone for now. Locking the records on the computer comes in a later version.
-      </Text>
-    );
-  }
-
   if (!state) {
     return (
       <>
         <Text style={styles.help}>
-          Keeps everything you have recorded in an encrypted file on this phone that opens only with your passcode, or
-          your fingerprint or face. Reminders still arrive while it is locked and their buttons still work, and widgets show only that it is locked.
+          {`Keeps everything you have recorded in an encrypted file on this ${deviceWord()} that opens only with your passcode, or ${
+            isDesktopApp() ? 'Windows Hello where this computer has it set up' : 'your fingerprint or face'
+          }. Reminders still arrive while it is locked${
+            isDesktopApp() ? '.' : ' and their buttons still work, and widgets show only that it is locked.'
+          }`}
         </Text>
         <TouchableOpacity style={styles.button} activeOpacity={0.85} onPress={() => router.push('/app-lock-setup')}>
           <Text style={styles.buttonText}>Set Up App Lock</Text>
@@ -65,8 +61,13 @@ export function AppLockSettings() {
   return (
     <>
       <Text style={styles.help}>
-        App Lock is on. Your records are encrypted on this phone and open with your passcode
-        {state.biometric ? ' or your fingerprint or face' : ''}. A button pressed on a reminder while it is locked is kept sealed and saved, with the time you pressed it, the next time you unlock.
+        {`App Lock is on. Your records are encrypted on this ${deviceWord()} and open with your passcode${
+          state.biometric ? (isDesktopApp() ? ' or Windows Hello' : ' or your fingerprint or face') : ''
+        }.${
+          isDesktopApp()
+            ? ''
+            : ' A button pressed on a reminder while it is locked is kept sealed and saved, with the time you pressed it, the next time you unlock.'
+        }`}
       </Text>
 
       <Text style={styles.subLabel}>Lock again after the app has been away for</Text>
@@ -91,7 +92,7 @@ export function AppLockSettings() {
 
       {biometricAvailable || state.biometric ? (
         <>
-          <Text style={styles.subLabel}>Fingerprint or face</Text>
+          <Text style={styles.subLabel}>{isDesktopApp() ? biometricTitle() : biometricWords().replace(/^f/, 'F')}</Text>
           <View style={styles.pillRow}>
             {[true, false].map((on) => (
               <TouchableOpacity
@@ -116,21 +117,27 @@ export function AppLockSettings() {
         </>
       ) : null}
 
-      <Text style={styles.subLabel}>Screenshots and the recent apps preview</Text>
-      <View style={styles.pillRow}>
-        {[false, true].map((allow) => (
-          <TouchableOpacity
-            key={String(allow)}
-            style={[styles.pill, state.allowScreenshots === allow ? styles.pillActive : null]}
-            activeOpacity={0.85}
-            onPress={() => setState(updateLockSettings({ allowScreenshots: allow }))}
-          >
-            <Text style={[styles.pillText, state.allowScreenshots === allow ? styles.pillTextActive : null]}>
-              {allow ? 'Allowed' : 'Blocked'}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      {/* Windows and macOS give an app no way to keep its window out of a
+          screenshot or the task switcher here, so the choice is the phone's. */}
+      {isDesktopApp() ? null : (
+        <>
+          <Text style={styles.subLabel}>Screenshots and the recent apps preview</Text>
+          <View style={styles.pillRow}>
+            {[false, true].map((allow) => (
+              <TouchableOpacity
+                key={String(allow)}
+                style={[styles.pill, state.allowScreenshots === allow ? styles.pillActive : null]}
+                activeOpacity={0.85}
+                onPress={() => setState(updateLockSettings({ allowScreenshots: allow }))}
+              >
+                <Text style={[styles.pillText, state.allowScreenshots === allow ? styles.pillTextActive : null]}>
+                  {allow ? 'Allowed' : 'Blocked'}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </>
+      )}
 
       <Text style={styles.subLabel}>What reminders show on the lock screen</Text>
       <View style={styles.pillRow}>
@@ -155,8 +162,8 @@ export function AppLockSettings() {
       </View>
       <Text style={styles.caption}>
         {state.reminderDetail === 'private'
-          ? 'A reminder says only what kind it is, such as "Time for your scheduled dose", so nobody holding the phone sees which medicine, meal or note it is about.'
-          : 'A reminder shows its whole text, including medicine names and notes, to anybody who can see the phone.'}
+          ? `A reminder says only what kind it is, such as "Time for your scheduled dose", so nobody near the ${deviceWord()} sees which medicine, meal or note it is about.`
+          : `A reminder shows its whole text, including medicine names and notes, to anybody who can see the ${deviceWord()}.`}
       </Text>
 
       <TouchableOpacity

@@ -29,6 +29,32 @@ export type DesktopSqliteBridge = {
    * copied last time. Resolves true when a copy happened.
    */
   importReference(name: string): Promise<boolean>;
+  /**
+   * App Lock (1.0.60.7). Missing on an installer built before 1.0.60.7.
+   * unlock opens a sealed database into memory with its key (a wrong key
+   * rejects); close writes it back sealed and drops the key.
+   */
+  unlock?(name: string, keyBase64: string): Promise<void>;
+  close?(name: string): Promise<void>;
+  /** Turns the lock on or off for one database file, checked table by table. */
+  seal?(name: string, keyBase64: string): Promise<DesktopSealResult>;
+  unseal?(name: string, keyBase64: string): Promise<DesktopSealResult>;
+  keepSealed?(name: string): Promise<boolean>;
+  abandonSeal?(name: string): Promise<boolean>;
+  filesOnDisk?(name: string): Promise<{ plain: boolean; sealed: boolean }>;
+};
+
+export type DesktopSealResult =
+  | { ok: true; step: 'copy' | 'finish' | 'no-database' }
+  | { ok: false; problem: string };
+
+/** Windows Hello holding a copy of the App Lock key (desktop/hello.js). */
+export type DesktopHelloBridge = {
+  available(): Promise<boolean>;
+  /** What to store, or null when the person cancelled. */
+  wrapKey(keyBase64: string): Promise<string | null>;
+  unwrapKey(stored: string): Promise<{ kind: 'key'; key: string } | { kind: 'cancelled' } | { kind: 'needs-passcode' }>;
+  remove(): Promise<void>;
 };
 
 export type DesktopSecretsBridge = {
@@ -203,6 +229,8 @@ export type DesktopBridge = {
   paths: DesktopPaths;
   sqlite: DesktopSqliteBridge;
   secrets: DesktopSecretsBridge;
+  /** Missing on an installer built before 1.0.60.7. */
+  hello?: DesktopHelloBridge;
   files: DesktopFilesBridge;
   notifications: DesktopNotificationsBridge;
   zoom: DesktopZoomBridge;

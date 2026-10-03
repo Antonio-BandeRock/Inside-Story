@@ -1,7 +1,7 @@
 // App Lock setup, and the four changes that need the passcode first:
 // a new passcode, a new recovery key, turning on fingerprint or face, and
 // turning the lock off (which restarts into the move back to a plain file).
-// Reached from Profile > App Lock. Phone only for now.
+// Reached from Profile > App Lock, on the phone and the computer.
 //
 // Setting up ends by restarting the app, and the gate
 // (components/AppLockGate.tsx) moves the database into its encrypted file
@@ -40,6 +40,8 @@ import {
   turnOnAppLock,
   type RecoveryKey,
 } from "../lib/appLockDevice";
+import { biometricTitle, deviceWord } from "../lib/appLockWords";
+import { isDesktopApp } from "../lib/desktop/bridge";
 import { shareFileIfAvailable } from "../lib/nativeSharing";
 import { restartApp } from "../lib/restartApp";
 
@@ -59,7 +61,7 @@ type Step =
 function titleFor(mode: Mode): string {
   if (mode === "passcode") return "Change Passcode";
   if (mode === "recovery") return "New Recovery Key";
-  if (mode === "biometric") return "Fingerprint or Face";
+  if (mode === "biometric") return biometricTitle();
   if (mode === "off") return "Turn Off App Lock";
   return "Set Up App Lock";
 }
@@ -70,8 +72,8 @@ function recoveryText(key: RecoveryKey): string {
     "",
     key.groups.join(" "),
     "",
-    "This opens Inside Story on your phone if you forget your passcode.",
-    "Keep it somewhere safe and away from the phone. Anybody holding it and the phone can open your records.",
+    `This opens Inside Story on your ${deviceWord()} if you forget your passcode.`,
+    `Keep it somewhere safe and away from the ${deviceWord()}. Anybody holding it and the ${deviceWord()} can open your records.`,
     `Made ${new Date().toLocaleDateString()}.`,
   ].join("\n");
 }
@@ -81,8 +83,8 @@ function recoveryHtml(key: RecoveryKey): string {
   return `<html><body style="font-family: sans-serif; padding: 40px;">
 <h2>Inside Story recovery key</h2>
 <p style="font-family: monospace; font-size: 24px; letter-spacing: 2px; word-spacing: 12px;">${groups}</p>
-<p>This opens Inside Story on your phone if you forget your passcode.</p>
-<p>Keep it somewhere safe and away from the phone. Anybody holding it and the phone can open your records.</p>
+<p>This opens Inside Story on your ${deviceWord()} if you forget your passcode.</p>
+<p>Keep it somewhere safe and away from the ${deviceWord()}. Anybody holding it and the ${deviceWord()} can open your records.</p>
 <p>Made ${new Date().toLocaleDateString()}.</p>
 </body></html>`;
 }
@@ -237,10 +239,9 @@ export default function AppLockSetupScreen() {
       <View style={styles.card}>
         <Text style={styles.title}>Lock your records, not only the screen</Text>
         <Text style={styles.text}>
-          With App Lock on, everything you have recorded is kept in an encrypted
-          file on this phone. It opens only with your passcode, or your
-          fingerprint or face if you choose, and a copy of the phone&apos;s
-          files is no use to anybody without it.
+          {`With App Lock on, everything you have recorded is kept in an encrypted file on this ${deviceWord()}. It opens only with your passcode, or ${
+            isDesktopApp() ? "Windows Hello" : "your fingerprint or face"
+          } if you choose, and a copy of the ${deviceWord()}'s files is no use to anybody without it.`}
         </Text>
         <Text style={styles.text}>
           You will choose a passcode, then be given a recovery key to keep
@@ -248,8 +249,9 @@ export default function AppLockSetupScreen() {
           takes a moment and shows its progress.
         </Text>
         <Text style={styles.text}>
-          Reminders still arrive while the app is locked. Widgets show that the
-          app is locked rather than what is in it.
+          {isDesktopApp()
+            ? "Reminders still arrive while the app is locked."
+            : "Reminders still arrive while the app is locked. Widgets show that the app is locked rather than what is in it."}
         </Text>
         <PrimaryButton
           label="Choose a Passcode"
@@ -275,7 +277,7 @@ export default function AppLockSetupScreen() {
               if (kept) router.back();
               else {
                 setProblem(
-                  "The fingerprint or face unlock could not be set up. Your passcode still opens the app.",
+                  `${isDesktopApp() ? "Windows Hello" : "The fingerprint or face unlock"} could not be set up. Your passcode still opens the app.`,
                 );
                 setStep("verify");
               }
@@ -290,12 +292,10 @@ export default function AppLockSetupScreen() {
         <Ionicons name="lock-open-outline" size={40} color={colors.textMuted} />
         <Text style={styles.title}>Turn off App Lock?</Text>
         <Text style={styles.text}>
-          Your records go back into a plain file on this phone. Nothing you have
-          recorded is lost, and nothing is deleted.
+          {`Your records go back into a plain file on this ${deviceWord()}. Nothing you have recorded is lost, and nothing is deleted.`}
         </Text>
         <Text style={styles.text}>
-          Without the lock, anybody who can open this phone can open the app and
-          read everything in it, and a copy of the phone&apos;s files can be
+          {`Without the lock, anybody who can open this ${deviceWord()} can open the app and read everything in it, and a copy of the ${deviceWord()}'s files can be`}
           read without any passcode. Reminders show their full text again.
         </Text>
         <Text style={styles.text}>
@@ -351,14 +351,14 @@ export default function AppLockSetupScreen() {
           size={40}
           color={colors.textMuted}
         />
-        <Text style={styles.title}>Open it with your fingerprint or face?</Text>
+        <Text style={styles.title}>{`Open it with ${isDesktopApp() ? "Windows Hello" : "your fingerprint or face"}?`}</Text>
         <Text style={styles.text}>
-          The passcode always works too. If a new fingerprint or face is added
-          to the phone later, the app asks for the passcode once before your
-          fingerprint or face opens it again.
+          {isDesktopApp()
+            ? "The passcode always works too. Windows asks for your face, fingerprint or Windows Hello PIN to open it. If Windows Hello is set up again on this computer, the app asks for the passcode once."
+            : "The passcode always works too. If a new fingerprint or face is added to the phone later, the app asks for the passcode once before your fingerprint or face opens it again."}
         </Text>
         <PrimaryButton
-          label="Yes, Use Fingerprint or Face"
+          label={`Yes, Use ${biometricTitle()}`}
           onPress={async () => {
             setUseBiometric(true);
             await startRecoveryStep();
@@ -381,7 +381,7 @@ export default function AppLockSetupScreen() {
         <Text style={styles.text}>
           If you forget your passcode, this is the only other way in. Nobody
           else has a copy, not even the people who make the app. Write it down,
-          print it, or save it somewhere away from this phone.
+          {`print it, or save it somewhere away from this ${deviceWord()}.`}
         </Text>
         <View style={styles.keyBox}>
           <View style={styles.keyGrid}>

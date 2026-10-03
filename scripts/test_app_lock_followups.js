@@ -84,8 +84,11 @@ check('anything else hides', L.parseLockState(JSON.stringify({ ...base, reminder
 const device = read('lib/appLockDevice.ts');
 const run = device.slice(device.indexOf('export async function runUnlockMigration'), device.indexOf('export async function keepLockOn'));
 check('the encrypted file is kept until the plain one opens', run.indexOf('deleteWithSideFiles(UNLOCK_BEFORE_NAME)') > run.indexOf('opensPlain()'));
-check('the lock file goes after the plain file opens', run.indexOf('deleteLockState()') > run.indexOf('opensPlain()'));
-check('presses kept while locked are opened before the keys go', run.indexOf('unsealWaitingAnswersForTurnOff(key)') < run.indexOf('deleteLockState()'));
+// Since 1.0.60.7 the last steps live in finishTurningOff, which the phone
+// reaches only after the plain file has opened and the desktop after unseal.
+const finishOff = device.slice(device.indexOf('async function finishTurningOff'), device.indexOf('export async function runUnlockMigration'));
+check('the lock file goes after the plain file opens', run.lastIndexOf('return finishTurningOff(') > run.indexOf('opensPlain()') && finishOff.includes('deleteLockState()'));
+check('presses kept while locked are opened before the keys go', finishOff.indexOf('unsealWaitingAnswersForTurnOff(key)') >= 0 && finishOff.indexOf('unsealWaitingAnswersForTurnOff(key)') < finishOff.indexOf('deleteLockState()'));
 check('the gate runs the move back on a decrypting start', read('components/AppLockGate.tsx').includes('state.phase === "decrypting"'));
 
 // 2. The wait after wrong passcodes

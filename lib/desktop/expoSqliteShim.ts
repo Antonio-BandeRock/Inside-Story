@@ -65,6 +65,16 @@ export class SQLiteDatabase {
   }
 
   async execAsync(source: string): Promise<void> {
+    // App Lock (1.0.60.7): on the phone this statement gives SQLCipher its
+    // key. Here the records are a sealed file (desktop/sealedDb.js), and the
+    // same statement opens it into memory in the main process instead.
+    const key = KEY_PRAGMA.exec(source.trim());
+    if (key) {
+      const unlock = getDesktopBridge().sqlite.unlock;
+      if (!unlock) throw new Error('This installer is too old to open locked records.');
+      await unlock(this.databaseName, hexToBase64(key[1]));
+      return;
+    }
     await getDesktopBridge().sqlite.exec(this.databaseName, source);
   }
 
@@ -80,11 +90,24 @@ export class SQLiteDatabase {
   }
 
   async closeAsync(): Promise<void> {
-    // The main process keeps its connections open for the life of the app.
+    // The main process keeps plain connections open for the life of the
+    // app. Locked records are written back sealed and their key dropped.
+    await getDesktopBridge().sqlite.close?.(this.databaseName);
   }
 }
 
-export async function openDatabaseAsync(databaseName: string): Promise<SQLiteDatabase> {
+const KEY_PRAGMA = /^PRAGMA key = "x'([0-9a-f]{64})'";?$/;
+
+function hexToBase64(hex: string): string {
+  let binary = '';
+  for (let i = 0; i < hex.length; i += 2) binary += String.fromCharCode(parseInt(hex.slice(i, i + 2), 16));
+  return btoa(binary);
+}
+
+export async function openDatabaseAsync(
+  databaseName: string,
+  _options?: { useNewConnection?: boolean },
+): Promise<SQLiteDatabase> {
   await getDesktopBridge().sqlite.open(databaseName);
   return new SQLiteDatabase(databaseName);
 }

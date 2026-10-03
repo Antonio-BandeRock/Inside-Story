@@ -15,7 +15,6 @@
 
 import { File, Paths } from 'expo-file-system';
 import { parseLockState, type AppLockState } from './appLock';
-import { isDesktopApp } from './desktop/bridge';
 
 export const LOCK_FILE_NAME = 'app-lock.json';
 
@@ -45,9 +44,8 @@ export function isUnlocked(): boolean {
   return heldKey !== null;
 }
 
-/** The lock file as it is on disk, or null when the lock is off. Never on the computer yet. */
+/** The lock file as it is on disk, or null when the lock is off. */
 export function readLockStateSync(): AppLockState | null {
-  if (isDesktopApp()) return null;
   try {
     const file = new File(Paths.document, LOCK_FILE_NAME);
     if (!file.exists) return null;

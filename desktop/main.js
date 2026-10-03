@@ -33,6 +33,7 @@ const cloudFolder = require('./cloudFolder');
 const zoom = require('./zoom');
 const stationListener = require('./stationListener');
 const print = require('./print');
+const hello = require('./hello');
 
 const APP_ID = 'com.insidestoryapp.app';
 const SCHEME = 'app';
@@ -132,6 +133,19 @@ function registerIpc() {
   ipcMain.handle('sqlite:importReference', (_event, name) =>
     sqlite.importReference(userData, name, shippedReferenceDatabase()),
   );
+  // App Lock (1.0.60.7): the records sealed on disk (sealedDb.js) and
+  // opened into memory with the key, and Windows Hello holding a copy of it.
+  ipcMain.handle('sqlite:unlock', (_event, name, keyBase64) => sqlite.unlock(userData, name, keyBase64));
+  ipcMain.handle('sqlite:close', (_event, name) => sqlite.close(name));
+  ipcMain.handle('sqlite:seal', (_event, name, keyBase64) => sqlite.seal(userData, name, keyBase64));
+  ipcMain.handle('sqlite:unseal', (_event, name, keyBase64) => sqlite.unseal(userData, name, keyBase64));
+  ipcMain.handle('sqlite:keepSealed', (_event, name) => sqlite.keepSealed(userData, name));
+  ipcMain.handle('sqlite:abandonSeal', (_event, name) => sqlite.abandonSeal(userData, name));
+  ipcMain.handle('sqlite:filesOnDisk', (_event, name) => sqlite.filesOnDisk(userData, name));
+  ipcMain.handle('hello:available', () => hello.available());
+  ipcMain.handle('hello:wrapKey', (_event, keyBase64) => hello.wrapKey(keyBase64));
+  ipcMain.handle('hello:unwrapKey', (_event, stored) => hello.unwrapKey(stored));
+  ipcMain.handle('hello:remove', () => hello.remove());
 
   ipcMain.on('app:version', (event) => {
     event.returnValue = app.getVersion();
@@ -262,6 +276,11 @@ function createWindow() {
     },
   });
   zoom.attach(mainWindow);
+
+  // App Lock: the page reloading is how the app locks and restarts, so the
+  // key to sealed records goes with the page that held it.
+  mainWindow.webContents.on('did-start-loading', () => sqlite.closeSealed());
+  mainWindow.webContents.on('render-process-gone', () => sqlite.closeSealed());
 
   notifications.setDeliver((response) => {
     if (mainWindow && !mainWindow.isDestroyed()) {
