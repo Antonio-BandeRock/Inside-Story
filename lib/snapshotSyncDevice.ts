@@ -15,6 +15,8 @@
 import { File, Paths } from 'expo-file-system';
 import { isDesktopApp } from './desktop/bridge';
 import { getMyKeyFingerprint } from './deviceIdentity';
+import { isSealedText } from './localSeal';
+import { openFromThisDevice, sealForThisDevice } from './localSealKey';
 import {
   buildBackupEnvelope,
   parseBackupEnvelope,
@@ -374,14 +376,14 @@ async function downloadSnapshot(
   }
 
   for (let attempt = 0; attempt < 2; attempt += 1) {
-    const kept = attempt === 0 ? readReceivedWhole(record.latest.device, base.savedAt) : null;
+    const kept = attempt === 0 ? await readReceivedWhole(record.latest.device, base.savedAt) : null;
     let baseTables = kept ? kept.tables : null;
     if (!baseTables) {
       const downloaded = await downloadWhole(folder, base.fileName, password);
       if (!downloaded.ok) return downloaded;
       if (downloaded.value.envelope.exportedAt !== base.savedAt) return { ok: false, reason: IN_FLIGHT_REASON };
       baseTables = downloaded.value.envelope.tables as Tables;
-      writeReceivedWhole(record.latest.device, base.savedAt, baseTables);
+      await writeReceivedWhole(record.latest.device, base.savedAt, baseTables);
     }
     const tables = applyDelta(baseTables, delta);
     if (tables) {
@@ -413,17 +415,43 @@ async function downloadSnapshot(
 // beside the merge base, for the same reasons. Either one missing costs a
 // whole copy, never a wrong one: no SENT file means the next save is
 // whole, and no RECEIVED file means the whole copy is downloaded.
+//
+// All three files are sealed with this device's key (lib/localSealKey.ts)
+// since App Lock step 1, so a copy of the app's files reads nothing from
+// them. A file from before that opens as it is and is sealed when next
+// written; one that will not open counts as missing.
 
 const SENT_WHOLE_FILE_NAME = 'inside-story-sync-sent-whole.json';
 const RECEIVED_WHOLE_FILE_NAME = 'inside-story-sync-received-whole.json';
 
 type KeptWhole = { device?: SyncDevice; savedAt: string; tables: Tables };
 
-function readKeptWhole(name: string): KeptWhole | null {
+async function readSealedFile(name: string): Promise<string | null> {
+  const file = new File(Paths.document, name);
+  if (!file.exists) return null;
+  const stored = await file.text();
+  const text = await openFromThisDevice(stored);
+  // A plain file from before sealing is sealed the moment it is read,
+  // rather than left readable until it happens to be written again.
+  if (text !== null && !isSealedText(stored)) {
+    try {
+      await writeSealedFile(name, text);
+    } catch (error) {
+      console.error('[snapshotSync] could not seal a kept copy', error);
+    }
+  }
+  return text;
+}
+
+async function writeSealedFile(name: string, text: string): Promise<void> {
+  new File(Paths.document, name).write(await sealForThisDevice(text));
+}
+
+async function readKeptWhole(name: string): Promise<KeptWhole | null> {
   try {
-    const file = new File(Paths.document, name);
-    if (!file.exists) return null;
-    const parsed = JSON.parse(file.textSync()) as Partial<KeptWhole> | null;
+    const text = await readSealedFile(name);
+    if (text === null) return null;
+    const parsed = JSON.parse(text) as Partial<KeptWhole> | null;
     if (!parsed || typeof parsed.savedAt !== 'string' || !parsed.tables || typeof parsed.tables !== 'object') {
       return null;
     }
@@ -434,9 +462,9 @@ function readKeptWhole(name: string): KeptWhole | null {
   }
 }
 
-function writeKeptWhole(name: string, kept: KeptWhole): void {
+async function writeKeptWhole(name: string, kept: KeptWhole): Promise<void> {
   try {
-    new File(Paths.document, name).write(JSON.stringify(kept));
+    await writeSealedFile(name, JSON.stringify(kept));
   } catch (error) {
     console.error('[snapshotSync] could not keep a copy', error);
     // Better none than a stale one, which would only cost a retry.
@@ -453,14 +481,14 @@ function forgetKeptWhole(name: string): void {
   }
 }
 
-function readReceivedWhole(device: SyncDevice, savedAt: string): KeptWhole | null {
-  const kept = readKeptWhole(RECEIVED_WHOLE_FILE_NAME);
+async function readReceivedWhole(device: SyncDevice, savedAt: string): Promise<KeptWhole | null> {
+  const kept = await readKeptWhole(RECEIVED_WHOLE_FILE_NAME);
   if (!kept || kept.savedAt !== savedAt || !kept.device || !sameDevice(kept.device, device)) return null;
   return kept;
 }
 
-function writeReceivedWhole(device: SyncDevice, savedAt: string, tables: Tables): void {
-  writeKeptWhole(RECEIVED_WHOLE_FILE_NAME, { device, savedAt, tables });
+async function writeReceivedWhole(device: SyncDevice, savedAt: string, tables: Tables): Promise<void> {
+  await writeKeptWhole(RECEIVED_WHOLE_FILE_NAME, { device, savedAt, tables });
 }
 
 function forgetKeptWholes(): void {
@@ -531,7 +559,7 @@ export function saveSnapshot(options: { force?: boolean } = {}): Promise<SaveOut
     // folder, when there is one and the changes come to half of it or
     // less. A forced save is always whole, since it answers the first-time
     // question.
-    const sent = options.force ? null : readKeptWhole(SENT_WHOLE_FILE_NAME);
+    const sent = options.force ? null : await readKeptWhole(SENT_WHOLE_FILE_NAME);
     let deltaText: string | null = null;
     if (sent) {
       try {
@@ -572,7 +600,7 @@ export function saveSnapshot(options: { force?: boolean } = {}): Promise<SaveOut
       // Kept as soon as the whole copy is in the folder rather than after
       // the record, so the next changes file is worked out against what
       // the folder holds even if the record below does not go through.
-      writeKeptWhole(SENT_WHOLE_FILE_NAME, { savedAt, tables: envelope.tables as Tables });
+      await writeKeptWhole(SENT_WHOLE_FILE_NAME, { savedAt, tables: envelope.tables as Tables });
       const recorded = await uploadText(
         folder.value,
         SYNC_RECORD_FILE_NAME,
@@ -585,7 +613,7 @@ export function saveSnapshot(options: { force?: boolean } = {}): Promise<SaveOut
     // Only for a pair with no history yet, where the other device reads
     // this copy whole. After that the base is what arrived, since sending
     // says nothing about what the other device has read.
-    seedMergeBase(envelope.tables as Tables);
+    await seedMergeBase(envelope.tables as Tables);
 
     await updateSyncState({
       loadedSavedAt: savedAt,
@@ -639,7 +667,7 @@ export function loadSnapshot(record: SnapshotRecord): Promise<LoadOutcome> {
     // app_meta, so this lands after it rather than inside it.
     const loaded = withoutDeviceLocalRows(envelope.tables) as Tables;
     await writeChangeBaseline(stampTables(loaded, fingerprintText));
-    writeMergeBase(loaded);
+    await writeMergeBase(loaded);
     peeked = null;
     const now = new Date().toISOString();
     await updateSyncState({
@@ -701,9 +729,9 @@ function mergeBaseFile(): File {
 
 async function readMergeBase(): Promise<Tables | null> {
   try {
-    const file = mergeBaseFile();
-    if (!file.exists) return null;
-    const parsed: unknown = JSON.parse(await file.text());
+    const text = await readSealedFile(MERGE_BASE_FILE_NAME);
+    if (text === null) return null;
+    const parsed: unknown = JSON.parse(text);
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
     return parsed as Tables;
   } catch (error) {
@@ -712,9 +740,9 @@ async function readMergeBase(): Promise<Tables | null> {
   }
 }
 
-function writeMergeBase(tables: Tables): void {
+async function writeMergeBase(tables: Tables): Promise<void> {
   try {
-    mergeBaseFile().write(JSON.stringify(tables));
+    await writeSealedFile(MERGE_BASE_FILE_NAME, JSON.stringify(tables));
   } catch (error) {
     // The next merge asks instead, which is where this was before.
     console.error('[snapshotSync] could not write the agreed copy', error);
@@ -726,14 +754,14 @@ function writeMergeBase(tables: Tables): void {
  * the copy this device just published: the other device reads it whole
  * the first time. Does nothing once there is a base to go on.
  */
-function seedMergeBase(tables: Tables): void {
+async function seedMergeBase(tables: Tables): Promise<void> {
   try {
     if (mergeBaseFile().exists) return;
   } catch (error) {
     console.error('[snapshotSync] could not look for the agreed copy', error);
     return;
   }
-  writeMergeBase(tables);
+  await writeMergeBase(tables);
 }
 
 function forgetMergeBase(): void {
@@ -846,7 +874,7 @@ export function mergeSnapshot(record: SnapshotRecord): Promise<MergeOutcome> {
     // What arrived, not what the merge made of it. The other device has
     // not been handed the merged copy yet, and until it has, these are the
     // rows it holds.
-    writeMergeBase(merged.incoming);
+    await writeMergeBase(merged.incoming);
     await writeChangeBaseline(stampTables(merged.tables, fingerprintText));
     await recordMerge(merged.entries, { here: me.kind, there: record.latest.device.kind });
     peeked = null;
