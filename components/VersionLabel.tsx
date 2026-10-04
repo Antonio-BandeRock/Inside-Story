@@ -1,13 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
-import { Animated, StyleSheet, Text } from 'react-native';
+import { Animated, StyleSheet, Text, useWindowDimensions } from 'react-native';
 import { colors } from '../constants/colors';
-import { FLOATING_BUTTON_BOTTOM_OFFSET } from '../constants/floatingButton';
+import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE } from '../constants/floatingButton';
+import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
 import { textShadow } from '../constants/typography';
 import { APP_VERSION } from '../constants/version';
 import { usePlayfulWording } from '../hooks/usePlayfulWording';
 import { useReducedMotion } from '../hooks/useReducedMotion';
-import { usePageIdentityBoxSpan } from './PageIdentityLabel';
+import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // A small, always-on-screen version number, 2026-08-23, direct request:
@@ -23,6 +24,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // usePageIdentityBoxSpan, the exact same hook that box positions itself with,
 // and centres inside it. Same span rather than a second copy of the math, so
 // the two cannot drift apart when the TabHub icon changes size.
+//
+// 1.0.60.11, direct request: "Move the version so that it is centered under
+// the TabHub icon at the same level as it is now." So it no longer takes the
+// box's span: it is a fixed width centered on the window, which is where
+// TabHub is on a phone and on the computer, at the same height as before.
 //
 // It keeps its own vertical position rather than hanging off the box's, since
 // the box only renders once a lens is actually selected and this label shows
@@ -48,12 +54,23 @@ const DROP_BELOW_BUTTON = 5;
 // and only the mug: no words with it. A long press reaches it only while
 // Playful wording is on, so with it off the label is the plain number it
 // always was and lets every touch through. The mug goes away by itself.
+//
+// 1.0.60.11, direct request: "Have the coffee cup appear to the right of the
+// TabHub menu icon." It stands just past the right edge of whichever TabHub
+// artwork is chosen, level with the button.
+const LABEL_WIDTH = 80;
+const MUG_GAP = 6;
 const MUG_SIZE = 26;
 const MUG_SHOWN_MS = 2500;
 
 export function VersionLabel() {
   const insets = useSafeAreaInsets();
-  const { left, right } = usePageIdentityBoxSpan();
+  const { width: windowWidth } = useWindowDimensions();
+  const { tabHubIcon } = useVisualPreferences();
+  const { width: tabHubIconWidth } = getTabHubIconRenderSize(tabHubIcon);
+  const left = windowWidth / 2 - LABEL_WIDTH / 2;
+  const mugLeft = windowWidth / 2 + tabHubIconWidth / 2 + MUG_GAP;
+  const mugBottom = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET + (FLOATING_BUTTON_SIZE - MUG_SIZE) / 2;
   const bottom = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET - GAP_BELOW_BUTTON - LABEL_LINE_HEIGHT - DROP_BELOW_BUTTON;
   const playful = usePlayfulWording();
   const reducedMotion = useReducedMotion();
@@ -87,14 +104,14 @@ export function VersionLabel() {
           pointerEvents="none"
           style={[
             styles.mug,
-            { bottom: bottom + LABEL_LINE_HEIGHT + 2, left, right, opacity: pop, transform: [{ scale: pop }] },
+            { bottom: mugBottom, left: mugLeft, opacity: pop, transform: [{ scale: pop }] },
           ]}
         >
           <Ionicons name="cafe-outline" size={MUG_SIZE} color={colors.textSecondary} style={styles.mugIcon} />
         </Animated.View>
       ) : null}
       <Text
-        style={[styles.text, { bottom, left, right }]}
+        style={[styles.text, { bottom, left, width: LABEL_WIDTH }]}
         pointerEvents={playful ? 'auto' : 'none'}
         onLongPress={playful ? showMug : undefined}
         allowFontScaling={false}

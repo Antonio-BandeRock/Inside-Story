@@ -6,7 +6,6 @@ import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_SIZE, useBottomLeftHubPosition } from '../constants/floatingButton';
 import { MENU_MAX_FONT_SCALE, typography } from '../constants/typography';
 import { lockNow, readLockStateSync } from '../lib/appLockDevice';
-import { usePageIdentityBoxSpan } from './PageIdentityLabel';
 
 // Lock Now on Home, 2026-10-03, direct request: "A lock now button, maybe on
 // the Home screen in the bottom right corner to the right of the TabHub menu
@@ -14,9 +13,13 @@ import { usePageIdentityBoxSpan } from './PageIdentityLabel';
 // instead of annoying that they have to go search for it."
 //
 // Home is the one tab without the corner box that says where you are, so the
-// bottom right is free there. The button stands in that box's span (the same
-// hook the box and the version number use), level with the corner menu button
-// on the other side and drawn the same way: an icon with its name under it.
+// bottom right is free there. The button is the mirror image of the corner
+// menu button on the left, 1.0.60.11, direct request: "the same distance from
+// the TabHub menu icon as the left side Tab icons." TabHub is centered, so
+// standing as far in from the right edge as that button stands from the left
+// puts it the same distance from TabHub, on a phone and on the computer alike.
+// It is level with that button and drawn the same way: an icon with its name
+// under it.
 // It shows only while App Lock is on, and is read again whenever Home comes
 // back into view, so turning the lock on or off in Profile is reflected
 // without a restart. Profile > App Lock keeps its own Lock Now as well.
@@ -34,8 +37,7 @@ function lockIsOn(): boolean {
 
 export function LockNowButton() {
   const [shown, setShown] = useState(lockIsOn);
-  const { bottom } = useBottomLeftHubPosition();
-  const { left, right } = usePageIdentityBoxSpan();
+  const { bottom, left: cornerInset } = useBottomLeftHubPosition();
 
   useFocusEffect(
     useCallback(() => {
@@ -45,7 +47,7 @@ export function LockNowButton() {
 
   if (!shown) return null;
   return (
-    <View style={[styles.row, { bottom, left, right }]} pointerEvents="box-none">
+    <View style={[styles.row, { bottom, right: cornerInset }]} pointerEvents="box-none">
       <TouchableOpacity
         style={styles.button}
         activeOpacity={0.85}
@@ -66,6 +68,7 @@ export function LockNowButton() {
 const styles = StyleSheet.create({
   row: {
     position: 'absolute',
+    width: FLOATING_BUTTON_SIZE,
     height: FLOATING_BUTTON_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
