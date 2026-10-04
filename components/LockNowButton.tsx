@@ -20,7 +20,11 @@ import { lockNow, readLockStateSync } from '../lib/appLockDevice';
 // puts it the same distance from TabHub, on a phone and on the computer alike.
 // It is level with that button and drawn the same way: an icon with its name
 // under it, the name on two lines ("Lock", then "Now") by direct request,
-// 1.0.60.12, which is why the icon is a little smaller than the left one.
+// 1.0.60.12. 1.0.60.13, direct request: "make the lock icon the same size as
+// the left one, but reduce the text size for Lock Now, and drop it down some,
+// more like the Tab icons." So it is built the way LensHub's corner button
+// is: a 32 icon in a slot the size of the whole button, with the name hanging
+// below the button's box rather than squeezed inside it.
 // It shows only while App Lock is on, and is read again whenever Home comes
 // back into view, so turning the lock on or off in Profile is reflected
 // without a restart. Profile > App Lock keeps its own Lock Now as well.
@@ -57,7 +61,9 @@ export function LockNowButton() {
         accessibilityLabel="Lock Now"
         accessibilityHint="Locks the app until the passcode or fingerprint opens it again"
       >
-        <Ionicons name="lock-closed" size={24} color={colors.textSecondary} style={CORNER_ICON_SHADOW} />
+        <View style={styles.iconSlot}>
+          <Ionicons name="lock-closed" size={32} color={colors.textSecondary} style={CORNER_ICON_SHADOW} />
+        </View>
         <Text style={styles.label} numberOfLines={2} maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}>
           {'Lock\nNow'}
         </Text>
@@ -76,25 +82,35 @@ const styles = StyleSheet.create({
     elevation: 10,
     zIndex: 10,
   },
-  // A fill of its own, the same colour as the footer strip under it, so the
-  // label never depends on what is behind it (the no-bare-text rule).
+  // The same box LensHub's corner button is: the icon slot fills it and the
+  // name hangs past its bottom edge, which nothing reads as a boundary.
   button: {
-    minWidth: FLOATING_BUTTON_SIZE,
-    minHeight: FLOATING_BUTTON_SIZE,
-    paddingHorizontal: 6,
-    borderRadius: 12,
-    backgroundColor: colors.background,
+    width: FLOATING_BUTTON_SIZE,
+    height: FLOATING_BUTTON_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconSlot: {
+    width: FLOATING_BUTTON_SIZE,
+    height: FLOATING_BUTTON_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
   },
   label: {
     ...typography.caption,
-    fontSize: 11,
-    marginTop: 1,
-    lineHeight: menuLineHeight(11),
+    fontSize: 9,
+    lineHeight: menuLineHeight(9),
+    marginTop: 2,
+    // The box centres icon and name together, so a taller name would lift the
+    // icon above the left one. Taking back the height this two-line name has
+    // over LensHub's one line of 11 keeps the two icons level.
+    marginBottom: menuLineHeight(11) - 2 * menuLineHeight(9),
     textAlign: 'center',
     flexShrink: 0,
     color: colors.textSecondary,
+    // A fill of its own, the same colour as the footer strip under it, so the
+    // name never depends on what is behind it (the no-bare-text rule).
+    backgroundColor: colors.background,
     ...CORNER_ICON_SHADOW,
   },
 });
