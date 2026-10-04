@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_SIZE, useBottomLeftHubPosition } from '../constants/floatingButton';
-import { MENU_MAX_FONT_SCALE, typography } from '../constants/typography';
+import { MENU_MAX_FONT_SCALE, menuLineHeight, typography } from '../constants/typography';
 import { lockNow, readLockStateSync } from '../lib/appLockDevice';
 
 // Lock Now on Home, 2026-10-03, direct request: "A lock now button, maybe on
@@ -19,7 +19,8 @@ import { lockNow, readLockStateSync } from '../lib/appLockDevice';
 // standing as far in from the right edge as that button stands from the left
 // puts it the same distance from TabHub, on a phone and on the computer alike.
 // It is level with that button and drawn the same way: an icon with its name
-// under it.
+// under it, the name on two lines ("Lock", then "Now") by direct request,
+// 1.0.60.12, which is why the icon is a little smaller than the left one.
 // It shows only while App Lock is on, and is read again whenever Home comes
 // back into view, so turning the lock on or off in Profile is reflected
 // without a restart. Profile > App Lock keeps its own Lock Now as well.
@@ -56,9 +57,9 @@ export function LockNowButton() {
         accessibilityLabel="Lock Now"
         accessibilityHint="Locks the app until the passcode or fingerprint opens it again"
       >
-        <Ionicons name="lock-closed" size={28} color={colors.textSecondary} style={CORNER_ICON_SHADOW} />
-        <Text style={styles.label} numberOfLines={1} maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}>
-          Lock Now
+        <Ionicons name="lock-closed" size={24} color={colors.textSecondary} style={CORNER_ICON_SHADOW} />
+        <Text style={styles.label} numberOfLines={2} maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}>
+          {'Lock\nNow'}
         </Text>
       </TouchableOpacity>
     </View>
@@ -79,7 +80,7 @@ const styles = StyleSheet.create({
   // label never depends on what is behind it (the no-bare-text rule).
   button: {
     minWidth: FLOATING_BUTTON_SIZE,
-    height: FLOATING_BUTTON_SIZE,
+    minHeight: FLOATING_BUTTON_SIZE,
     paddingHorizontal: 6,
     borderRadius: 12,
     backgroundColor: colors.background,
@@ -89,7 +90,9 @@ const styles = StyleSheet.create({
   label: {
     ...typography.caption,
     fontSize: 11,
-    marginTop: 2,
+    marginTop: 1,
+    lineHeight: menuLineHeight(11),
+    textAlign: 'center',
     flexShrink: 0,
     color: colors.textSecondary,
     ...CORNER_ICON_SHADOW,
