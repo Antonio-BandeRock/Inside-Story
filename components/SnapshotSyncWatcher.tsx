@@ -48,6 +48,18 @@
 // from lib/snapshotChanges.ts); every merge after that goes to the log
 // quietly (lib/syncLog.ts, ANNOUNCE_MERGES in lib/snapshotSync.ts).
 // Checks and saves run one at a time, in the order they were asked for.
+//
+// WHEN A MERGE RESTARTS THE APP (1.0.60.14). Reported from the computer:
+// "after about 2 minutes of being open, it restarted itself again." The
+// phone's half hour ran out while the computer sat open, the expiry check
+// took in the phone's changes, and the app restarted under the person's
+// hands; with App Lock on, every such restart also asks to be unlocked
+// again. So a merge restarts at once only at startup and on Take Over Now,
+// when nothing is on screen yet worth keeping. Any other time a strip says
+// what came in, with Refresh Now, and the restart waits for the app to be
+// put away. With App Lock on it waits for the app to lock instead, since
+// locking reloads the app anyway and a restart on leaving would greet the
+// person with the lock screen.
 
 import { restartApp } from '../lib/restartApp';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -55,6 +67,7 @@ import { AppState, Platform, StyleSheet, Text, TouchableOpacity, View, type AppS
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
+import { readLockStateSync } from '../lib/appLockDevice';
 import { addDatabaseWriteListener, setSessionWriteGuard } from '../lib/databaseActivity';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { syncPhotos } from '../lib/mediaSyncDevice';
@@ -132,6 +145,10 @@ export function SnapshotSyncWatcher() {
   // Whether the refusal has been said out loud in this wait already.
   const refusalSaidRef = useRef(false);
   const claimingRef = useRef(false);
+  // A merge that needs a restart, held until the app is put away (see the
+  // note at the top). Which device the changes came from, for the strip.
+  const [refreshFrom, setRefreshFrom] = useState<SyncDevice['kind'] | null>(null);
+  const refreshRef = useRef<{ quiet: boolean } | null>(null);
 
   const tellOnce = useCallback(
     (reason: string) => {
@@ -247,7 +264,7 @@ export function SnapshotSyncWatcher() {
     [ask, me],
   );
 
-  const mergeRef = useRef<(record: SnapshotRecord, quiet: boolean) => Promise<void>>(async () => {});
+  const mergeRef = useRef<(record: SnapshotRecord, quiet: boolean, now?: boolean) => Promise<void>>(async () => {});
 
   // A save, and a merge first where the folder holds something this
   // device has not taken in. Never while waiting: what this device has
@@ -278,8 +295,9 @@ export function SnapshotSyncWatcher() {
   // result straight back, and restarts only when the merge changed
   // something here. `quiet` marks a restart nobody using this device
   // caused, so the startup check after it leaves the session alone.
+  // `now` restarts at once; otherwise the restart waits (see the top).
   const doMerge = useCallback(
-    async (record: SnapshotRecord, quiet: boolean) => {
+    async (record: SnapshotRecord, quiet: boolean, now = false) => {
       const outcome = await mergeSnapshot(record);
       if (outcome.status === 'problem') {
         tellOnce(outcome.reason);
@@ -291,6 +309,12 @@ export function SnapshotSyncWatcher() {
       }
       await doSave('foreground', false);
       if (outcome.restart) {
+        if (!now) {
+          refreshRef.current = { quiet: (refreshRef.current?.quiet ?? true) && quiet };
+          setRefreshFrom(record.latest.device.kind);
+          return;
+        }
+        refreshRef.current = null;
         if (quiet) await updateSyncState({ quietRestart: true });
         await restartAfterLoad(showNotice);
         return;
@@ -339,7 +363,7 @@ export function SnapshotSyncWatcher() {
 
       const outcome = await checkForArrival();
       if (outcome.action === 'merge') {
-        await doMerge(outcome.record, quiet);
+        await doMerge(outcome.record, quiet, source === 'startup' || source === 'takeover');
         return;
       }
       if (outcome.action === 'conflict') {
@@ -357,6 +381,16 @@ export function SnapshotSyncWatcher() {
   );
 
   const runCheck = useCallback((source: CheckSource) => enqueue(() => doCheck(source)), [doCheck, enqueue]);
+
+  // The restart a merge left waiting, now.
+  const refreshNow = useCallback(async () => {
+    const held = refreshRef.current;
+    if (!held) return;
+    refreshRef.current = null;
+    setRefreshFrom(null);
+    if (held.quiet) await updateSyncState({ quietRestart: true });
+    await restartAfterLoad(showNotice);
+  }, [showNotice]);
   runCheckRef.current = runCheck;
 
   // Startup: the notice from an automatic load before the restart, then
@@ -387,8 +421,10 @@ export function SnapshotSyncWatcher() {
       await doSave('background');
       const mine = await me();
       if (noteRef.current && sameDevice(noteRef.current.holder, mine)) await claim();
+      // With App Lock on, locking reloads the app and brings the changes in.
+      if (refreshRef.current && readLockStateSync()?.phase !== 'on') await refreshNow();
     });
-  }, [cancelSaveTimer, claim, doSave, enqueue, me]);
+  }, [cancelSaveTimer, claim, doSave, enqueue, me, refreshNow]);
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (next: AppStateStatus) => {
@@ -473,6 +509,27 @@ export function SnapshotSyncWatcher() {
               }}
             >
               <Text style={styles.takeOverText}>Take Over Now</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : null}
+      {refreshFrom && !waiting ? (
+        <View style={[styles.strip, { top: insets.top + 6 }]} pointerEvents="box-none">
+          <View style={styles.stripCard}>
+            <Text style={styles.stripText}>
+              {refreshFrom === 'phone' ? 'Changes from your phone came in.' : 'Changes from your computer came in.'}{' '}
+              {readLockStateSync()?.phase === 'on'
+                ? 'They show once the app refreshes, which asks you to unlock it again, or the next time it locks.'
+                : 'They show once the app refreshes, or the next time you put it away.'}
+            </Text>
+            <TouchableOpacity
+              style={styles.takeOver}
+              accessibilityRole="button"
+              onPress={() => {
+                enqueue(refreshNow);
+              }}
+            >
+              <Text style={styles.takeOverText}>Refresh Now</Text>
             </TouchableOpacity>
           </View>
         </View>
