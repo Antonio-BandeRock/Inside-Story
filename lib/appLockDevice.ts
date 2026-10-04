@@ -59,6 +59,7 @@ import {
 import { dropDataKey, holdDataKey, LOCK_FILE_NAME, readLockStateSync } from './appLockSession';
 import { restartApp } from './restartApp';
 import { bytesToBase64Fast } from './localSeal';
+import { runBeforeRestart } from './beforeRestart';
 import { closeDatabasesForRestart, DB_NAME } from './db';
 import { unsealWaitingAnswersForTurnOff } from './lockedAnswers';
 import { getDesktopBridge, isDesktopApp, type DesktopSqliteBridge } from './desktop/bridge';
@@ -895,8 +896,13 @@ export async function bringRecordsBackFromSharedFolder(): Promise<RecordsBackOut
   return { ok: true, setAside };
 }
 
-/** Locks straight away: the key goes and the app starts again at the lock screen. */
+/**
+ * Locks straight away: the key goes and the app starts again at the lock
+ * screen. Whatever sync was still waiting to send goes first, since nothing
+ * can be read to send once the key has gone (1.0.60.17).
+ */
 export async function lockNow(): Promise<void> {
+  await runBeforeRestart();
   dropDataKey();
   await restartApp();
 }

@@ -12,8 +12,10 @@
 //   - At startup, and every time the app comes to the front (or, on the
 //     desktop app, its window gains focus): reads the session note. If
 //     the other device was used in the last half hour, this device waits:
-//     read only, with the strip, and nothing is taken in or saved. If
-//     not, this device takes in whatever the other one saved (the merge,
+//     read only, with the strip, and nothing of its own is saved. What
+//     the other device saves is still taken in (1.0.60.17), so the copy
+//     being read is the latest one rather than one from before the other
+//     device picked the session up. If not, this device takes in whatever the other one saved (the merge,
 //     lib/snapshotMerge.ts, exactly as before), claims the session and
 //     saves anything of its own that is unsaved.
 //   - While it has the session: writes that it is in use no more than
@@ -61,6 +63,7 @@
 // locking reloads the app anyway and a restart on leaving would greet the
 // person with the lock screen.
 
+import { setBeforeRestart } from '../lib/beforeRestart';
 import { restartApp } from '../lib/restartApp';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, Platform, StyleSheet, Text, TouchableOpacity, View, type AppStateStatus } from 'react-native';
@@ -345,6 +348,13 @@ export function SnapshotSyncWatcher() {
         const plan: SessionPlan = read.ok ? planSession(read.value, mine, Date.now()) : { mode: 'free' };
         if (plan.mode === 'waiting') {
           enterWaiting(plan);
+          // Read only, but showing what the device with the session has
+          // saved: a garden area made on the phone reached the computer
+          // only half an hour after the phone was put down (1.0.60.17).
+          // Nothing is saved back from here, and a restart the merge needs
+          // waits behind Refresh Now as it does anywhere else.
+          const arrival = await checkForArrival();
+          if (arrival.action === 'merge') await doMerge(arrival.record, true, false);
           return;
         }
         // The desktop's minute timer while this device already has the
@@ -483,6 +493,17 @@ export function SnapshotSyncWatcher() {
     });
   }, [cancelSaveTimer, claim, enqueue, runSave]);
 
+  // A restart on purpose (locking, Refresh Now) sends what is waiting
+  // first, since the restart would take the save timer with it
+  // (lib/beforeRestart.ts).
+  useEffect(() => {
+    setBeforeRestart(async () => {
+      cancelSaveTimer();
+      await enqueue(() => doSave('background'));
+    });
+    return () => setBeforeRestart(null);
+  }, [cancelSaveTimer, doSave, enqueue]);
+
   useEffect(() => {
     return () => {
       cancelSaveTimer();
@@ -510,6 +531,23 @@ export function SnapshotSyncWatcher() {
             >
               <Text style={styles.takeOverText}>Take Over Now</Text>
             </TouchableOpacity>
+            {refreshFrom ? (
+              <>
+                <Text style={[styles.stripText, styles.stripSecond]}>
+                  {refreshFrom === 'phone' ? 'Changes from your phone came in.' : 'Changes from your computer came in.'}{' '}
+                  They show once the app refreshes.
+                </Text>
+                <TouchableOpacity
+                  style={styles.takeOver}
+                  accessibilityRole="button"
+                  onPress={() => {
+                    enqueue(refreshNow);
+                  }}
+                >
+                  <Text style={styles.takeOverText}>Refresh Now</Text>
+                </TouchableOpacity>
+              </>
+            ) : null}
           </View>
         </View>
       ) : null}
@@ -602,6 +640,9 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
     ...textShadow,
+  },
+  stripSecond: {
+    marginTop: 10,
   },
   takeOver: {
     alignSelf: 'flex-start',

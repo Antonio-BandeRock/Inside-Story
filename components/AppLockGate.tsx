@@ -52,6 +52,7 @@ import {
 import { biometricTitle, deviceWord } from "../lib/appLockWords";
 import { isDesktopApp } from "../lib/desktop/bridge";
 import { wording } from "../lib/playfulCopy";
+import { runBeforeRestart } from "../lib/beforeRestart";
 import { restartApp } from "../lib/restartApp";
 import { getPlayfulWordingSync } from "../lib/visualPreferences";
 import { PasscodeEntry } from "./PasscodeEntry";
@@ -196,13 +197,19 @@ export function AppLockGate({ children }: { children: ReactNode }) {
       if (!current || current.phase !== "on" || !isUnlocked()) return;
       if (!shouldLockOnReturn(since, Date.now(), current.autoLockMinutes))
         return;
-      dropDataKey();
-      restartApp().catch((error) => {
-        // A refused reload still locks: the app tree comes down and the
-        // lock screen goes up, and the database opens again after unlocking.
-        console.error("[appLock] restart to lock failed", error);
-        setView({ kind: "locked" });
-      });
+      // Send what sync still has waiting before the key goes (1.0.60.17).
+      runBeforeRestart()
+        .then(() => {
+          dropDataKey();
+          return restartApp();
+        })
+        .catch((error) => {
+          // A refused reload still locks: the app tree comes down and the
+          // lock screen goes up, and the database opens again after unlocking.
+          console.error("[appLock] restart to lock failed", error);
+          dropDataKey();
+          setView({ kind: "locked" });
+        });
     });
     return () => subscription.remove();
   }, [lockState]);
