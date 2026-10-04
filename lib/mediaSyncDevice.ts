@@ -4,8 +4,9 @@
 // which the snapshot deliberately leaves out so a save stays small.
 //
 // Each photo goes into the Photos folder as its own file, encrypted with the
-// sync password. One salt serves a whole pass, so the slow key derivation
-// runs once a pass rather than once a photo. The plaintext record,
+// sync password. Every copy uses the salt snapshot sync already holds a
+// key for (lib/syncKeyMemory.ts), so the slow key derivation does not run
+// for a photo at all once sync has opened one file. The plaintext record,
 // inside-story-sync.json, never names a photo. Before 1.0.57.23 the copies
 // sat in a folder inside Backups (LEGACY_PHOTO_FOLDER), and each pass moves
 // anything still there.
@@ -18,7 +19,8 @@
 // and reports. A pass never throws: anything that goes wrong is kept as the
 // status line Profile shows, and the next pass tries again.
 
-import { decryptBackupPayload, encryptBackupPayload, isEncryptedBackupWire, newBackupSalt } from './backupEncryption';
+import { decryptBackupPayload, encryptBackupPayload, isEncryptedBackupWire } from './backupEncryption';
+import { syncKeyMemory } from './syncKeyMemory';
 import { base64ToBytes } from './deviceIdentity';
 import {
   idFromPhotoCopyName,
@@ -133,7 +135,6 @@ async function runPass(afterSave: boolean): Promise<void> {
     let failedUploads = 0;
     const uploaded: string[] = [];
     let failedDownloads = 0;
-    let salt: Uint8Array | null = null;
 
     for (const id of plan.upload) {
       const row = byId.get(id);
@@ -142,8 +143,8 @@ async function runPass(afterSave: boolean): Promise<void> {
         const base64 = await (await mediaFile(row.fileName)).base64();
         const thumb = await mediaFile(thumbFileName(row.fileName));
         const copy: PhotoCopy = { v: 2, id, base64, thumbBase64: thumb.exists ? await thumb.base64() : undefined };
-        salt = salt ?? (await newBackupSalt());
-        const wire = await encryptBackupPayload(JSON.stringify(copy), password, salt);
+        // One salt for every copy, the one sync already holds a key for.
+        const wire = await encryptBackupPayload(JSON.stringify(copy), password, null, syncKeyMemory);
         const sent = await uploadText(folder.value, photoCopyName(id), JSON.stringify(wire));
         if (!sent.ok) {
           failedUploads += 1;
@@ -218,7 +219,7 @@ async function fetchInto(folder: DriveItemRef, row: Pick<MediaItem, 'id' | 'file
   if (!text.ok) return text.reason;
   const wire: unknown = JSON.parse(text.value);
   if (!isEncryptedBackupWire(wire)) return 'A photo copy in the shared folder could not be read.';
-  const plain = await decryptBackupPayload(wire, password);
+  const plain = await decryptBackupPayload(wire, password, syncKeyMemory);
   if (plain === null) return 'A photo copy did not open with this password.';
   const copy = JSON.parse(plain) as Partial<PhotoCopy>;
   if (copy.id !== row.id || typeof copy.base64 !== 'string') return 'A photo copy did not match its name.';

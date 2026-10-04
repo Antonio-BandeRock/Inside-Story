@@ -30,11 +30,15 @@ export const WRAP_NONCE_BYTES = nacl.secretbox.nonceLength;
 export const RECOVERY_KEY_BYTES = 20;
 export const KDF_SALT_BYTES = 16;
 
-// scrypt at 16 MB of memory. The wrapped copy sits behind the Keystore
-// anyway, so this is a second wall rather than the only one, and it keeps
-// an unlock under a couple of seconds on a mid-range phone. The numbers
-// are kept in the lock file, so a later version can raise them.
-export const DEFAULT_KDF = { name: 'scrypt' as const, N: 2 ** 14, r: 8, p: 1 };
+// scrypt at 4 MB of memory. The wrapped copy sits behind the Keystore, so
+// this is a second wall rather than the only one, and a six-digit code has
+// only a million possibilities whatever the stretch. scrypt runs in plain
+// JavaScript on the phone with no JIT, where 2^14 took about three seconds a
+// try and made every unlock wait five (2026-10-03, reported from the phone);
+// 2^12 takes under one. The numbers are kept in the lock file, so a later
+// version can raise them, and a lock made at other numbers is wrapped again
+// at these the next time its passcode opens it (checkPasscode).
+export const DEFAULT_KDF = { name: 'scrypt' as const, N: 2 ** 12, r: 8, p: 1 };
 
 export const MIN_PASSCODE_DIGITS = 6;
 export const MAX_PASSCODE_DIGITS = 12;

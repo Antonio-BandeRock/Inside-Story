@@ -202,6 +202,7 @@ import { deleteMeal, reresolveSavedDishCookingMethods } from '../../lib/db';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { dateStringOffsetFrom } from '../../lib/trendAnalysis';
 import { LensHub, type LensOption } from '../../components/LensHub';
+import { LockNowButton } from '../../components/LockNowButton';
 import {
   getOrderedHomeSectionKeys,
   HOME_SECTION_LABELS,
@@ -5076,6 +5077,9 @@ export default function HomeScreen() {
           revealHomeSection(key);
         }}
       />
+
+      {/* Bottom right, across from the menu button: shown only while App Lock is on. */}
+      <LockNowButton />
 
       <Modal visible={selectedItem != null} transparent animationType={modalAnimationType('fade')} onRequestClose={() => setSelectedItem(null)}>
           <View style={styles.modalBackdrop}>

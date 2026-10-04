@@ -272,11 +272,20 @@ export async function checkPasscode(passcode: string): Promise<PasscodeCheck> {
   const now = readLockStateSync() ?? state;
   if (key) {
     if (now.failedTries || now.lastFailedAt) writeLockState({ ...now, failedTries: 0, lastFailedAt: 0 });
+    // A lock made at an older stretch is wrapped again at today's, after
+    // the person is in, so the next unlock is the faster one.
+    if (stretchIsOutdated(now.kdf)) {
+      setNewPasscode(key, passcode, now.passcodeKind).catch(() => {});
+    }
     return { kind: 'key', key };
   }
   const failedTries = now.failedTries + 1;
   writeLockState({ ...now, failedTries, lastFailedAt: Date.now() });
   return { kind: 'wrong', waitMs: wrongTryWaitMs(failedTries) };
+}
+
+function stretchIsOutdated(kdf: { N: number; r: number; p: number }): boolean {
+  return kdf.N !== DEFAULT_KDF.N || kdf.r !== DEFAULT_KDF.r || kdf.p !== DEFAULT_KDF.p;
 }
 
 /** How long before another passcode can be tried, in milliseconds. */

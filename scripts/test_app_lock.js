@@ -124,7 +124,7 @@ const same = (a, b) => !!a && !!b && a.length === b.length && a.every((v, i) => 
   const nfd = await L.passcodeWrappingKey('café blue sky', kdf);
   const nfc = await L.passcodeWrappingKey('café blue sky', kdf);
   check('the same phrase from two keyboards stretches the same', same(nfd, nfc));
-  check('default stretch is scrypt at 2^14', L.DEFAULT_KDF.N === 16384 && L.DEFAULT_KDF.r === 8);
+  check('default stretch is scrypt at 2^12', L.DEFAULT_KDF.N === 4096 && L.DEFAULT_KDF.r === 8);
 
   // 5. Lock file
   const good = {

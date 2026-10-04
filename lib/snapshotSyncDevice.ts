@@ -29,6 +29,7 @@ import {
   forgetDerivedKeys,
   isEncryptedBackupWire,
 } from './backupEncryption';
+import { forgetSyncKeys, syncKeyMemory } from './syncKeyMemory';
 import { getDatabaseWriteCount, withDatabaseWriteTrackingSuspended } from './databaseActivity';
 import { downloadText, listFiles, uploadText, type DriveItemRef } from './oneDriveGraph';
 import { getBackupsFolder } from './oneDriveFolders';
@@ -316,7 +317,7 @@ async function downloadOpened(
   if (!isEncryptedBackupWire(wire)) {
     return { ok: false, reason: 'The copy in your shared folder is not an encrypted snapshot.' };
   }
-  const json = await decryptBackupPayload(wire, password);
+  const json = await decryptBackupPayload(wire, password, syncKeyMemory);
   if (json === null) {
     return {
       ok: false,
@@ -584,7 +585,7 @@ export function saveSnapshot(options: { force?: boolean } = {}): Promise<SaveOut
     }
 
     if (sent && deltaText !== null) {
-      const wire = await encryptBackupPayload(deltaText, state.password);
+      const wire = await encryptBackupPayload(deltaText, state.password, null, syncKeyMemory);
       const uploaded = await uploadText(folder.value, changesFileName(me), JSON.stringify(wire));
       if (!uploaded.ok) return problem(uploaded.reason);
       const recorded = await uploadText(
@@ -596,7 +597,7 @@ export function saveSnapshot(options: { force?: boolean } = {}): Promise<SaveOut
       );
       if (!recorded.ok) return problem(recorded.reason);
     } else {
-      const wire = await encryptBackupPayload(wholeText, state.password);
+      const wire = await encryptBackupPayload(wholeText, state.password, null, syncKeyMemory);
       const uploaded = await uploadText(folder.value, snapshotFileName(me), JSON.stringify(wire));
       if (!uploaded.ok) return problem(uploaded.reason);
       // Kept as soon as the whole copy is in the folder rather than after
@@ -982,6 +983,7 @@ export async function disableSnapshotSync(): Promise<void> {
   await updateSyncState({ ...EMPTY_SYNC_STATE });
   // Nothing of the password, or of the other device, is kept once sync is off.
   forgetDerivedKeys();
+  await forgetSyncKeys();
   forgetMergeBase();
   forgetKeptWholes();
   peeked = null;

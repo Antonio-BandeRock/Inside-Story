@@ -160,27 +160,59 @@ async function deriveKey(password: string, salt: Uint8Array): Promise<Uint8Array
 const KEY_CACHE_LIMIT = 6;
 const keyCache = new Map<string, Uint8Array>();
 
-function cacheKeyFor(password: string, salt: Uint8Array): string {
+/** A short tag for a password, so a stored key can say which password it came from without holding it. */
+export function passwordTag(password: string): string {
   // The password is hashed rather than used as the key of the map, so a
   // heap dump of the cache alone does not read it back.
-  return bytesToBase64(nacl.hash(utf8Bytes(password)).slice(0, 16)) + '|' + bytesToBase64(salt);
+  return bytesToBase64(nacl.hash(utf8Bytes(password)).slice(0, 16));
 }
 
-async function deriveKeyCached(password: string, salt: Uint8Array): Promise<Uint8Array> {
-  const cacheKey = cacheKeyFor(password, salt);
-  const found = keyCache.get(cacheKey);
-  if (found) {
-    keyCache.delete(cacheKey);
-    keyCache.set(cacheKey, found);
-    return found;
-  }
-  const key = await deriveKey(password, salt);
+function cacheKeyFor(password: string, salt: Uint8Array): string {
+  return passwordTag(password) + '|' + bytesToBase64(salt);
+}
+
+function keepInCache(cacheKey: string, key: Uint8Array): void {
+  keyCache.delete(cacheKey);
   keyCache.set(cacheKey, key);
   while (keyCache.size > KEY_CACHE_LIMIT) {
     const oldest = keyCache.keys().next();
     if (oldest.done) break;
     keyCache.delete(oldest.value);
   }
+}
+
+// Keys kept past the end of a run, 2026-10-03. The phone was slow for the
+// first five to ten seconds after every start because snapshot sync paid
+// the 100,000 hashes again to open the other device's copy, and again for
+// every save, since each save drew a fresh salt. A caller whose password
+// already sits in the device's secure store (snapshot sync and its photos)
+// hands one of these in, the key is kept beside the password, and a save
+// reuses a salt it already has a key for. A typed password for a one-off
+// backup or restore never passes one, so nothing of it is written down.
+export type DerivedKeyMemory = {
+  recall(password: string, salt: Uint8Array): Promise<Uint8Array | null>;
+  keep(password: string, salt: Uint8Array, key: Uint8Array): Promise<void>;
+  /** The salt most recently used with this password, so a save needs no new key. */
+  lastSalt(password: string): Promise<Uint8Array | null>;
+};
+
+async function deriveKeyCached(password: string, salt: Uint8Array, memory?: DerivedKeyMemory): Promise<Uint8Array> {
+  const cacheKey = cacheKeyFor(password, salt);
+  const found = keyCache.get(cacheKey);
+  if (found) {
+    keepInCache(cacheKey, found);
+    return found;
+  }
+  if (memory) {
+    const recalled = await memory.recall(password, salt).catch(() => null);
+    if (recalled) {
+      keepInCache(cacheKey, recalled);
+      return recalled;
+    }
+  }
+  const key = await deriveKey(password, salt);
+  keepInCache(cacheKey, key);
+  if (memory) await memory.keep(password, salt, key).catch(() => {});
   return key;
 }
 
@@ -203,11 +235,17 @@ export async function newBackupSalt(): Promise<Uint8Array> {
 export async function encryptBackupPayload(
   plaintextJson: string,
   password: string,
-  reuseSalt?: Uint8Array,
+  reuseSalt?: Uint8Array | null,
+  memory?: DerivedKeyMemory,
 ): Promise<EncryptedBackupWire> {
-  const salt = reuseSalt ?? (await Crypto.getRandomBytesAsync(SALT_LENGTH));
+  // The nonce stays fresh per file, which is what secretbox needs, so one
+  // salt (and so one key) across many saves is safe.
+  const salt =
+    reuseSalt ??
+    (memory ? await memory.lastSalt(password).catch(() => null) : null) ??
+    (await Crypto.getRandomBytesAsync(SALT_LENGTH));
   const nonce = await Crypto.getRandomBytesAsync(nacl.secretbox.nonceLength);
-  const key = await deriveKeyCached(password, salt);
+  const key = await deriveKeyCached(password, salt, memory);
   const ciphertext = nacl.secretbox(utf8Bytes(plaintextJson), nonce, key);
   return {
     encrypted: true,
@@ -224,12 +262,16 @@ export async function encryptBackupPayload(
 // apart; that inability is exactly the point of authenticated encryption,
 // not a gap in this wrapper. Genuinely async now, per deriveKey's own real
 // yielding above -- every real caller has to await it.
-export async function decryptBackupPayload(wire: EncryptedBackupWire, password: string): Promise<string | null> {
+export async function decryptBackupPayload(
+  wire: EncryptedBackupWire,
+  password: string,
+  memory?: DerivedKeyMemory,
+): Promise<string | null> {
   try {
     const salt = base64ToBytes(wire.salt);
     const nonce = base64ToBytes(wire.nonce);
     const ciphertext = base64ToBytes(wire.ciphertext);
-    const key = await deriveKeyCached(password, salt);
+    const key = await deriveKeyCached(password, salt, memory);
     const opened = nacl.secretbox.open(ciphertext, nonce, key);
     return opened ? bytesToUtf8(opened) : null;
   } catch {
