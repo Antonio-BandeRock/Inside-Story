@@ -44,8 +44,6 @@ const SYNC_EMPTY_PLAIN =
 const WHERE_EMPTY_PLAIN =
   'Nothing has a place written down yet. Add one to a kitchen item, or throw a note into Capture and sort it to Where it is.';
 
-const CAMERA_TAIL = 'The camera lives on your phone. Your computer is jealous, but it is coping.';
-
 export const PLAYFUL_COPY = {
   // ---------------------------------------------------------------- about
   aboutLede: {
@@ -64,9 +62,15 @@ export const PLAYFUL_COPY = {
     playful:
       'And no, this is not ghosting. Ghosting is leaving people. A ghostead app leaves no trace of the people who use it. One of them is a red flag. The other one is us.',
   },
-  aboutTrailerLink: {
+  // The trailer button is two lines, 2026-10-03: the title, then the aside
+  // under it in smaller type.
+  aboutTrailerTitle: {
     plain: 'Read about Ghostead',
-    playful: 'Watch the trailer (it is words, read in your head, very loudly)',
+    playful: 'Watch the trailer',
+  },
+  aboutTrailerAside: {
+    plain: null,
+    playful: '(it is words, read in your head, very loudly)',
   },
 
   // -------------------------------------------------------------- privacy
@@ -80,7 +84,7 @@ export const PLAYFUL_COPY = {
     plain: NO_RESET_PLAIN_SYNC_TAIL,
     playful:
       NO_RESET_PLAIN_SYNC_TAIL +
-      " We can't reset it, because we never had it. We checked. Twice. It's just the mug in here.",
+      ' Both devices will ask you for it. Neither one will remind you what it was.',
   },
   appLockLocked: {
     plain: null,
@@ -90,7 +94,7 @@ export const PLAYFUL_COPY = {
     plain:
       'If both the passcode and the recovery key are lost, your records cannot be opened by anybody, and that includes the people who make the app. There is no reset.',
     playful:
-      "If both the passcode and the recovery key are lost, your records cannot be opened by anybody, and that includes the people who make the app. There is no reset. Locked means locked. Even we can't get in. Especially we can't get in.",
+      "If both the passcode and the recovery key are lost, your records cannot be opened by anybody, and that includes the people who make the app. There is no reset. A back door for us would be a back door for anyone, so there isn't one.",
   },
   syncActivityEmpty: {
     plain: SYNC_EMPTY_PLAIN,
@@ -100,59 +104,60 @@ export const PLAYFUL_COPY = {
   // --------------------------------------------------------- empty states
   gardenEmpty: {
     plain: "No garden areas yet. Add one below to start tracking what you're growing.",
-    playful: "No garden areas yet. Even the tomatoes are waiting. Add one below to start tracking what you're growing.",
+    playful: "No garden areas yet. The soil is in no hurry. Add one below to start tracking what you're growing.",
   },
   whereIsItEmpty: {
     plain: WHERE_EMPTY_PLAIN,
     playful:
-      "Nothing has a place written down yet, so you haven't lost anything yet. Statistically, this won't last. Add a place to a kitchen item, or throw a note into Capture and sort it to Where it is.",
+      WHERE_EMPTY_PLAIN + ' The best moment to add one is right after putting something away, while you still know.',
   },
   daysUntilNoneCompactLead: {
     plain: 'No counters running.',
-    playful: 'No counters running. Suspiciously calm.',
+    playful: 'No counters running. The calendar is quiet.',
   },
   daysUntilNoneLead: {
     plain: null,
-    playful: 'Nothing to count down to yet. Suspiciously calm.',
+    playful: 'Nothing to count down to yet. Add a date and this starts doing arithmetic.',
   },
 
   // ------------------------------------------------- the desktop's limits
-  phoneOnlyCamera: { plain: null, playful: CAMERA_TAIL },
+  phoneOnlyCamera: {
+    plain: null,
+    playful: 'A webcam pointed at a plate has never gone well, so this one stays with the phone.',
+  },
   phoneOnlyVoice: {
     plain: null,
-    playful: 'The listening happens on your phone. Your computer is a good listener in every way but this one.',
+    playful: 'The speech recognition this uses is built into the phone, and the computer was not issued one.',
   },
   phoneOnlyHealthConnect: {
     plain: null,
-    playful: 'Your computer has never taken a step in its life. It is not going to start now.',
+    playful: 'Computers rarely leave the desk, so there would be very little to count.',
   },
   phoneOnlyWifiSync: {
     plain: null,
-    playful: "Your computer wasn't invited. It says it's fine. It's fine.",
+    playful: 'It is a conversation between two phones in one room, and the computer has the sense to stay out of it.',
   },
   phoneOnlyCalendar: {
     plain: null,
-    playful: 'Your phone keeps its calendar to itself. Fair enough, really.',
+    playful: 'The calendar belongs to the phone, and the phone is not lending it out.',
   },
   phoneOnlyLightMeter: {
     plain: null,
-    playful: 'Your computer has never seen the sun. Be gentle with it.',
+    playful: 'The light sensor is on the phone. Holding a laptop up to a tomato plant is not advised.',
   },
 
   // ----------------------------------------------- when something fails
   folderUnreachableTail: {
     plain: null,
-    playful: 'Everything you recorded is safe on this device. The folder just is not answering the door right now.',
+    playful: 'Everything you recorded is safe on this device. It will knock again later.',
   },
 
   // ------------------------------------------------------ hidden touches
-  versionMug: {
-    plain: null,
-    playful: "Please don't take the mug.",
-  },
+  // The mug on the corner version number is an icon with no words, so it is
+  // not here: components/VersionLabel.tsx shows it only while this is on.
   tellClaudeSaved: {
     plain: 'Written down.',
-    playful: 'Written down for the developer. Nobody else. Not even the toaster.',
+    playful: 'Written down for the developer, and for nobody else.',
   },
 
   // ---------------------------------------- the offer to turn it all off

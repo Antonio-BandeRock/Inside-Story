@@ -1,8 +1,12 @@
-import { StyleSheet, Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, StyleSheet, Text } from 'react-native';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET } from '../constants/floatingButton';
 import { textShadow } from '../constants/typography';
 import { APP_VERSION } from '../constants/version';
+import { usePlayfulWording } from '../hooks/usePlayfulWording';
+import { useReducedMotion } from '../hooks/useReducedMotion';
 import { usePageIdentityBoxSpan } from './PageIdentityLabel';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -39,15 +43,65 @@ const LABEL_LINE_HEIGHT = 14;
 // first tuned on-device, moved up by 5 on 2026-08-30 by direct request.
 const DROP_BELOW_BUTTON = 5;
 
+// The mug, 2026-10-03, direct request: "Can just the mug pop up when you long
+// press the version on the outside of Profile?" The Ghostead trailer's mug,
+// and only the mug: no words with it. A long press reaches it only while
+// Playful wording is on, so with it off the label is the plain number it
+// always was and lets every touch through. The mug goes away by itself.
+const MUG_SIZE = 26;
+const MUG_SHOWN_MS = 2500;
+
 export function VersionLabel() {
   const insets = useSafeAreaInsets();
   const { left, right } = usePageIdentityBoxSpan();
   const bottom = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET - GAP_BELOW_BUTTON - LABEL_LINE_HEIGHT - DROP_BELOW_BUTTON;
+  const playful = usePlayfulWording();
+  const reducedMotion = useReducedMotion();
+  const [mugShown, setMugShown] = useState(false);
+  const pop = useRef(new Animated.Value(0)).current;
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (hideTimer.current) clearTimeout(hideTimer.current);
+    },
+    [],
+  );
+
+  const showMug = () => {
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    setMugShown(true);
+    if (reducedMotion) {
+      pop.setValue(1);
+    } else {
+      pop.setValue(0);
+      Animated.spring(pop, { toValue: 1, friction: 4, tension: 120, useNativeDriver: true }).start();
+    }
+    hideTimer.current = setTimeout(() => setMugShown(false), MUG_SHOWN_MS);
+  };
 
   return (
-    <Text style={[styles.text, { bottom, left, right }]} pointerEvents="none" allowFontScaling={false}>
-      v{APP_VERSION}
-    </Text>
+    <>
+      {playful && mugShown ? (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.mug,
+            { bottom: bottom + LABEL_LINE_HEIGHT + 2, left, right, opacity: pop, transform: [{ scale: pop }] },
+          ]}
+        >
+          <Ionicons name="cafe-outline" size={MUG_SIZE} color={colors.textSecondary} style={styles.mugIcon} />
+        </Animated.View>
+      ) : null}
+      <Text
+        style={[styles.text, { bottom, left, right }]}
+        pointerEvents={playful ? 'auto' : 'none'}
+        onLongPress={playful ? showMug : undefined}
+        allowFontScaling={false}
+      >
+        v{APP_VERSION}
+      </Text>
+    </>
   );
 }
 
@@ -65,6 +119,13 @@ const styles = StyleSheet.create({
     lineHeight: LABEL_LINE_HEIGHT,
     color: colors.textMuted,
     opacity: 0.75,
+    ...textShadow,
+  },
+  mug: {
+    position: 'absolute',
+    alignItems: 'center',
+  },
+  mugIcon: {
     ...textShadow,
   },
 });

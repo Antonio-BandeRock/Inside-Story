@@ -61,7 +61,10 @@ for (const [key, line] of Object.entries(PLAYFUL_COPY)) {
 // Rule 4 and 5 walk the source folders.
 const FOLDERS = ['app', 'components', 'lib', 'hooks', 'constants'];
 const HEALTH_FILE =
-  /(symptom|flare|labs?(?=[A-Z._]|$)|lab[_-]|\bmeds?\b|^meds?|medic|emergency|condition|pattern|advisor|grief|family|diary)/i;
+  /(symptom|flare|lab[_-]|\bmeds?\b|^meds?|medic|emergency|condition|pattern|advisor|grief|family|diary)/i;
+// Labs is matched with case kept, since under /i the capital-letter lookahead
+// also matches a lowercase one and read VersionLabel as a labs screen.
+const LABS_FILE = /[Ll]abs?(?=[A-Z._]|$)/;
 const IMPORTS_PLAYFUL = /from ['"][^'"]*(playfulCopy|usePlayfulWording)['"]/;
 
 function walk(dir, out) {
@@ -92,7 +95,8 @@ for (const file of files) {
   const source = fs.readFileSync(file, 'utf8');
   if (IMPORTS_PLAYFUL.test(source)) {
     importers += 1;
-    if (HEALTH_FILE.test(path.basename(file, path.extname(file)))) {
+    const base = path.basename(file, path.extname(file));
+    if (HEALTH_FILE.test(base) || LABS_FILE.test(base)) {
       problems.push(`${rel}: a health screen takes playful wording`);
     }
   }

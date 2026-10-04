@@ -1010,7 +1010,6 @@ export default function ProfileScreen() {
   const playful = visualPrefs.playfulWording;
   // The hidden touch on the version line in App Updates: a long press shows
   // the mug from the Ghostead trailer. Nothing at all with plain wording.
-  const [mugShown, setMugShown] = useState(false);
 
   // Live, app-wide (lib/generalHealthPreferences.ts), 2026-08-14, direct
   // requirement: "Make the muting granular, per topic, not sweeping." One
@@ -5292,12 +5291,14 @@ export default function ProfileScreen() {
             <Text style={styles.helpText}>{wording('aboutLede', playful)}</Text>
             <Text style={styles.helpText}>
               {"We can't lose your data, because we never have it."}
-              {playful ? " It's the one breakup we planned ahead for." : ''}
             </Text>
             <Text style={styles.helpText}>{wording('aboutBreakIn', playful)}</Text>
             {playful ? <Text style={styles.helpText}>{wording('aboutNotGhosting', playful)}</Text> : null}
             <TouchableOpacity style={styles.checkinButton} onPress={() => void Linking.openURL(GHOSTEAD_URL)}>
-              <Text style={styles.checkinButtonText}>{wording('aboutTrailerLink', playful)}</Text>
+              <Text style={[styles.checkinButtonText, playful ? styles.trailerTitle : null]}>
+                {wording('aboutTrailerTitle', playful)}
+              </Text>
+              {playful ? <Text style={styles.trailerAside}>{wording('aboutTrailerAside', playful)}</Text> : null}
             </TouchableOpacity>
             <TouchableOpacity style={styles.checkinButton} onPress={() => void Linking.openURL(TERMS_URL)}>
               <Text style={styles.checkinButtonText}>Terms of Use</Text>
@@ -5684,19 +5685,10 @@ export default function ProfileScreen() {
               already running. If you know an update was just sent out, check here instead of closing and
               reopening the app.
             </Text>
-            <Text
-              style={[styles.helpText, styles.derivedText]}
-              onLongPress={playful ? () => setMugShown((shown) => !shown) : undefined}
-            >
+            <Text style={[styles.helpText, styles.derivedText]}>
               You&apos;re on version {APP_VERSION}. Checking is safe: if there&apos;s nothing new, nothing happens.
               If there is, you&apos;ll be told what will happen and asked before anything restarts.
             </Text>
-            {playful && mugShown ? (
-              <View style={styles.mugRow}>
-                <Ionicons name="cafe-outline" size={28} color={colors.textSecondary} />
-                <Text style={styles.helpText}>{wording('versionMug', playful)}</Text>
-              </View>
-            ) : null}
             <TouchableOpacity style={styles.checkinButton} disabled={updateCheckBusy} onPress={handleCheckForUpdates}>
               <Text style={styles.checkinButtonText}>{updateCheckBusy ? 'Working…' : 'Check for Updates'}</Text>
             </TouchableOpacity>
@@ -6588,12 +6580,6 @@ const styles = StyleSheet.create({
     ...textShadow,
 
   },
-  mugRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    marginTop: 8,
-  },
   derivedText: {
     ...typography.caption,
     color: colors.textSecondary,
@@ -6649,6 +6635,20 @@ const styles = StyleSheet.create({
   // checkinButton's own alignItems: 'center' centers the Text box itself,
   // but says nothing about how the lines inside that box align to each
   // other, so a wrapped label reads left-aligned without this.
+  // The trailer button, 2026-10-03: "Watch the trailer" a little larger,
+  // then the aside on a line of its own under it.
+  trailerTitle: {
+    ...typography.sectionTitle,
+  },
+  trailerAside: {
+    ...typography.caption,
+    color: colors.textOnPrimary,
+    textAlign: 'center',
+    marginTop: 2,
+    paddingHorizontal: 12,
+    textShadowColor: 'transparent',
+    textShadowRadius: 0,
+  },
   checkinButtonTextMultiline: {
     textAlign: 'center',
   },
