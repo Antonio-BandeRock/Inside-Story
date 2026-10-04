@@ -215,6 +215,10 @@ export async function turnOnAppLock(options: {
   biometric: boolean;
   recovery: Uint8Array;
 }): Promise<{ biometric: boolean }> {
+  // 1.0.60.15: a second setup over a lock that is on, or still moving,
+  // wrote a new key over the only one that opened the records already
+  // locked. Refused here whatever screen asks.
+  if (readLockStateSync()) throw new Error('App Lock is already set up on this device.');
   const SecureStore = await secureStore();
   const dataKey = await randomBytes(DATA_KEY_BYTES);
   const { wrapped, kdf } = await wrapForPasscode(dataKey, options.passcode);
@@ -394,7 +398,12 @@ export type MigrationProgress =
   | { stage: 'opening' }
   | { stage: 'done' };
 
-export type MigrationResult = { ok: true } | { ok: false; problem: string };
+/**
+ * unopenable: the computer already holds sealed records this key does not
+ * open, which only a second setup over a finished one leaves behind
+ * (1.0.60.15). Trying again cannot help; bringRecordsBackFromSharedFolder can.
+ */
+export type MigrationResult = { ok: true } | { ok: false; problem: string; unopenable?: boolean };
 
 function databaseDirectory(): string {
   return SQLite.defaultDatabaseDirectory.replace(/^file:\/\//, '');
@@ -548,7 +557,20 @@ export async function runMigration(onProgress: (progress: MigrationProgress) => 
     await closeDatabasesForRestart();
     if (isDesktopApp()) {
       onProgress({ stage: 'copying' });
-      const sealed = await desktopSealing().seal(DB_NAME, keyToBase64(key));
+      let sealed;
+      try {
+        sealed = await desktopSealing().seal(DB_NAME, keyToBase64(key));
+      } catch (error) {
+        if (error instanceof Error && /WrongKeyError/.test(error.message)) {
+          return {
+            ok: false,
+            unopenable: true,
+            problem:
+              'This computer already holds records locked with an earlier key, and that key is no longer here, so the new one cannot open them.',
+          };
+        }
+        throw error;
+      }
       if (!sealed.ok) return { ok: false, problem: `${sealed.problem} Your records were left as they were.` };
       return finishLockingOn(key, SecureStore, onProgress);
     }
@@ -790,6 +812,87 @@ export async function abandonLockSetup(): Promise<boolean> {
   await removeHelloKey();
   deleteLockState();
   return true;
+}
+
+export type RecordsBackOutcome =
+  | { ok: true; setAside: string }
+  | { ok: false; problem: string; syncTurnedOff?: boolean };
+
+/**
+ * Brings the records back on a computer whose sealed file no key here opens
+ * (1.0.60.15). That happened when a reload after the first setup landed on
+ * the setup screen again and a second setup wrote a new key over the only
+ * one that opened the records.
+ *
+ * Nothing is deleted. The sealed file is renamed beside where it was, the
+ * lock is cleared, and the copy this computer last saved to the shared
+ * folder is loaded into a fresh database, the same as Load the Other
+ * Device's Copy would. Refused, with nothing changed, unless sync is on with
+ * its password and the folder can be found. If anything after the rename
+ * fails, sync is turned off before returning, because an empty computer
+ * left syncing would tell the phone that every record had been removed.
+ */
+export async function bringRecordsBackFromSharedFolder(): Promise<RecordsBackOutcome> {
+  if (!isDesktopApp()) return { ok: false, problem: 'This is only for the computer.' };
+  const state = readLockStateSync();
+  if (!state || state.phase !== 'encrypting') {
+    return { ok: false, problem: 'The lock is not partway through being set up, so there is nothing to bring back.' };
+  }
+  const sqlite = getDesktopBridge().sqlite;
+  if (!sqlite.setAsideSealed || !sqlite.filesOnDisk) {
+    return { ok: false, problem: 'This installer is too old for this. Install the newest one and try again.' };
+  }
+  const onDisk = await sqlite.filesOnDisk(DB_NAME);
+  if (onDisk.plain || !onDisk.sealed) {
+    return { ok: false, problem: 'The records on this computer are not in the state this was made for, so nothing was changed.' };
+  }
+  const { readSyncState, readSyncRecord, loadSnapshot, disableSnapshotSync } = await import('./snapshotSyncDevice');
+  const sync = await readSyncState();
+  if (!sync.enabled || !sync.password) {
+    return {
+      ok: false,
+      problem: 'Sync with the shared folder was not on here, so there is no copy to bring back from. Nothing was changed.',
+    };
+  }
+  const cloud = await import('./desktop/cloudFolder');
+  let folder = await cloud.findSharedFolderOnDisk();
+  if (!folder) {
+    const picked = await cloud.pickFolder();
+    if (!picked.ok) return { ok: false, problem: picked.reason };
+    if (!picked.value) return { ok: false, problem: 'No folder was picked, so nothing was changed.' };
+    folder = picked.value;
+  }
+
+  await closeDatabasesForRestart();
+  const setAside = await sqlite.setAsideSealed(DB_NAME);
+  if (!setAside) return { ok: false, problem: 'The locked file could not be moved aside, so nothing was changed.' };
+
+  // The lock goes first: until it does, opening the database is refused.
+  const SecureStore = await secureStore();
+  for (const item of [PASSCODE_ITEM, BIOMETRIC_ITEM, MIGRATION_ITEM]) {
+    await SecureStore.deleteItemAsync(item).catch(() => {});
+  }
+  await removeHelloKey();
+  deleteLockState();
+
+  const turnSyncOff = async (problem: string): Promise<RecordsBackOutcome> => {
+    await disableSnapshotSync().catch(() => {});
+    return { ok: false, syncTurnedOff: true, problem };
+  };
+  try {
+    const { initializeDatabase, setOneDriveFolder } = await import('./db');
+    const { withSessionGuardLifted } = await import('./databaseActivity');
+    await initializeDatabase();
+    await setOneDriveFolder(folder);
+    const record = await readSyncRecord();
+    if (!record.ok) return turnSyncOff(record.reason);
+    if (!record.value) return turnSyncOff('There is no saved copy in that folder.');
+    const loaded = await withSessionGuardLifted(() => loadSnapshot(record.value!));
+    if (loaded.status !== 'loaded') return turnSyncOff(loaded.reason);
+  } catch (error) {
+    return turnSyncOff(error instanceof Error ? error.message : String(error));
+  }
+  return { ok: true, setAside };
 }
 
 /** Locks straight away: the key goes and the app starts again at the lock screen. */

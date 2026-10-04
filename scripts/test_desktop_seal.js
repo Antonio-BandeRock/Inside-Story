@@ -172,6 +172,18 @@ async function main() {
     fs.writeFileSync(sealed.sealedFile(file2), 'records');
     check('abandonSeal refuses when only the sealed file is left', sealed.abandonSeal(file2) === false);
     check('and leaves that sealed file alone', fs.existsSync(sealed.sealedFile(file2)));
+
+    // setAsideSealed (1.0.60.15): renames, never deletes, never beside a plain file.
+    const before = fs.readFileSync(sealed.sealedFile(file2));
+    const asideName = sealed.setAsideSealed(file2);
+    check('setAsideSealed answers the new name', typeof asideName === 'string' && asideName.includes('.could-not-open-'));
+    check('setAsideSealed moves the sealed file out of the way', !fs.existsSync(sealed.sealedFile(file2)));
+    check('and keeps every byte of it', asideName !== null && fs.readFileSync(path.join(temp, asideName)).equals(before));
+    check('setAsideSealed refuses with nothing sealed', sealed.setAsideSealed(file2) === null);
+    makePlain(file2, 1);
+    fs.writeFileSync(sealed.sealedFile(file2), 'records');
+    check('setAsideSealed refuses beside a plain file', sealed.setAsideSealed(file2) === null);
+    check('and leaves both files alone', fs.existsSync(file2) && fs.existsSync(sealed.sealedFile(file2)));
   }
 
   // --- sqlite.js: locked, unlock, write back -------------------------------

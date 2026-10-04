@@ -7,11 +7,25 @@
 //
 // If the reload itself is refused, the caller's catch runs as before, and
 // the next database call opens fresh connections.
+//
+// On the computer a reload keeps the address it is on, where the phone
+// starts again at Home. Turning App Lock on restarts from the setup screen,
+// so the computer came back to setup and a second setup wrote a new key
+// over the one that opened the records (1.0.60.15). Every restart there
+// now starts from Home, the same as on the phone.
 
+import { Platform } from 'react-native';
 import * as Updates from 'expo-updates';
 import { closeDatabasesForRestart } from './db';
 
 export async function restartApp(): Promise<void> {
   await closeDatabasesForRestart();
+  if (Platform.OS === 'web' && typeof window !== 'undefined') {
+    try {
+      window.history.replaceState(null, '', '/');
+    } catch {
+      // A reload from where it is beats no reload.
+    }
+  }
   await Updates.reloadAsync();
 }

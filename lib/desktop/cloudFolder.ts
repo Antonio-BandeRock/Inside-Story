@@ -158,6 +158,51 @@ export async function listRoots(): Promise<GraphResult<DriveItemRef[]>> {
   }, 'The OneDrive folder on this computer could not be found.');
 }
 
+/**
+ * The shared folder, found by what sync keeps in it rather than by what this
+ * computer remembers, for when that memory is inside records that cannot be
+ * opened (1.0.60.15). Looks three folders deep under each OneDrive folder for
+ * one whose Backups folder holds inside-story-sync.json. Null when none is
+ * found, which the caller answers with the folder dialog.
+ */
+export async function findSharedFolderOnDisk(): Promise<DriveItemRef | null> {
+  const MAX_DEPTH = 3;
+  const MAX_LOOKS = 800;
+  let looks = 0;
+  const holdsSync = async (folderPath: string): Promise<boolean> => {
+    looks += 1;
+    const separator = folderPath.includes('\\') ? '\\' : '/';
+    try {
+      const info = await bridge().stat(`${folderPath}${separator}Backups${separator}inside-story-sync.json`);
+      return info.exists && !info.isDirectory;
+    } catch {
+      return false;
+    }
+  };
+  let roots: { name: string; path: string }[] = [];
+  try {
+    roots = await bridge().roots();
+  } catch {
+    return null;
+  }
+  let level = roots.map((root) => ({ path: root.path, name: root.name }));
+  for (let depth = 0; depth <= MAX_DEPTH && level.length > 0; depth += 1) {
+    const next: { path: string; name: string }[] = [];
+    for (const folder of level) {
+      if (looks >= MAX_LOOKS) return null;
+      if (await holdsSync(folder.path)) return refFor(folder.path, folder.name);
+      if (depth === MAX_DEPTH) continue;
+      try {
+        next.push(...(await bridge().listFolders(folder.path)));
+      } catch {
+        // A folder that cannot be read is not the one.
+      }
+    }
+    level = next;
+  }
+  return null;
+}
+
 /** The operating system's own folder dialog; null when closed without a choice. */
 export async function pickFolder(): Promise<GraphResult<DriveItemRef | null>> {
   return attempt(async () => {

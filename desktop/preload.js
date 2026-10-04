@@ -63,6 +63,7 @@ contextBridge.exposeInMainWorld('insideStoryDesktop', {
     unseal: (name, keyBase64) => ipcRenderer.invoke('sqlite:unseal', name, keyBase64),
     keepSealed: (name) => ipcRenderer.invoke('sqlite:keepSealed', name),
     abandonSeal: (name) => ipcRenderer.invoke('sqlite:abandonSeal', name),
+    setAsideSealed: (name) => ipcRenderer.invoke('sqlite:setAsideSealed', name),
     filesOnDisk: (name) => ipcRenderer.invoke('sqlite:filesOnDisk', name),
   },
   hello: {

@@ -42,6 +42,12 @@ export type DesktopSqliteBridge = {
   keepSealed?(name: string): Promise<boolean>;
   abandonSeal?(name: string): Promise<boolean>;
   filesOnDisk?(name: string): Promise<{ plain: boolean; sealed: boolean }>;
+  /**
+   * Renames a sealed file that no key here opens, never deleting it, and
+   * answers the new name, or null when a plain file is beside it. Missing on
+   * an installer built before 1.0.60.15.
+   */
+  setAsideSealed?(name: string): Promise<string | null>;
 };
 
 export type DesktopSealResult =

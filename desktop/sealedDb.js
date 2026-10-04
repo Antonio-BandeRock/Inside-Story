@@ -264,6 +264,22 @@ function abandonSeal(file) {
   return true;
 }
 
+/**
+ * Moves a sealed file that no key here opens out of the way, renamed and
+ * never deleted, so the records can start again from another copy
+ * (1.0.60.15). Refused while a plain file sits beside it. Answers the new
+ * file name, or null when it was refused.
+ */
+function setAsideSealed(file) {
+  const from = sealedFile(file);
+  if (fs.existsSync(file) || !fs.existsSync(from)) return null;
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..*$/, '').replace('T', '-');
+  const to = `${from}.could-not-open-${stamp}`;
+  fs.renameSync(from, to);
+  fs.rmSync(`${from}.writing`, { force: true });
+  return path.basename(to);
+}
+
 module.exports = {
   MAGIC,
   WrongKeyError,
@@ -281,4 +297,5 @@ module.exports = {
   unsealDatabase,
   keepSealed,
   abandonSeal,
+  setAsideSealed,
 };

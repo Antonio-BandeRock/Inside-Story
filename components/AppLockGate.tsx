@@ -30,6 +30,7 @@ import {
 import {
   abandonLockSetup,
   applyScreenCapturePolicy,
+  bringRecordsBackFromSharedFolder,
   checkPasscode,
   clearWrongTries,
   keepLockOn,
@@ -76,7 +77,7 @@ type View_ =
   | { kind: "open" }
   | { kind: "locked" }
   | { kind: "migrating"; progress: MigrationProgress | null }
-  | { kind: "migration-failed"; problem: string }
+  | { kind: "migration-failed"; problem: string; unopenable?: boolean }
   | { kind: "unlocking"; progress: MigrationProgress | null }
   | { kind: "unlock-failed"; problem: string }
   | { kind: "recovery" }
@@ -141,7 +142,11 @@ export function AppLockGate({ children }: { children: ReactNode }) {
       setLockState(readLockStateSync());
       setView({ kind: "open" });
     } else {
-      setView({ kind: "migration-failed", problem: result.problem });
+      setView({
+        kind: "migration-failed",
+        problem: result.problem,
+        unopenable: result.unopenable,
+      });
     }
   }, []);
 
@@ -248,6 +253,10 @@ export function AppLockGate({ children }: { children: ReactNode }) {
         }}
       />
     );
+  }
+
+  if (view.kind === "migration-failed" && view.unopenable) {
+    return <RecordsUnopenable problem={view.problem} />;
   }
 
   if (view.kind === "migration-failed") {
@@ -683,6 +692,53 @@ function MigrationFailed({
           on. Try Again finishes it.
         </Text>
       ) : null}
+    </GateScreen>
+  );
+}
+
+// 1.0.60.15: the sealed records were left by an earlier setup whose key a
+// second setup replaced, so Try Again can never open them and Leave the Lock
+// Off has no plain file to go back to. The way out is the copy this computer
+// last saved to the shared folder. The sealed file is renamed and kept.
+function RecordsUnopenable({ problem }: { problem: string }) {
+  const [working, setWorking] = useState(false);
+  const [outcome, setOutcome] = useState<string | null>(null);
+  const bringBack = async () => {
+    setWorking(true);
+    setOutcome(null);
+    const result = await bringRecordsBackFromSharedFolder();
+    if (result.ok) {
+      restartApp().catch(() =>
+        setOutcome("Your records are back. Close Inside Story and open it again."),
+      );
+      return;
+    }
+    setWorking(false);
+    setOutcome(
+      result.syncTurnedOff
+        ? `${result.problem} Sync with the shared folder was turned off on this computer so nothing empty reaches your other device. Close Inside Story, open it again, and turn sync back on in Profile > Backup & Restore to bring the records over.`
+        : result.problem,
+    );
+  };
+  return (
+    <GateScreen icon="alert-circle-outline" title="The lock could not be finished">
+      <Text style={styles.text}>{problem}</Text>
+      <Text style={styles.text}>
+        Your records are in the copy this computer last saved to the shared
+        folder. Bring them back from there, then set App Lock up again. The
+        locked file is kept, renamed, beside where it was.
+      </Text>
+      <TouchableOpacity
+        style={styles.primaryButton}
+        activeOpacity={0.85}
+        disabled={working}
+        onPress={() => void bringBack()}
+      >
+        <Text style={styles.primaryButtonText}>
+          {working ? "Bringing Them Back" : "Bring My Records Back from the Shared Folder"}
+        </Text>
+      </TouchableOpacity>
+      {outcome ? <Text style={styles.note}>{outcome}</Text> : null}
     </GateScreen>
   );
 }

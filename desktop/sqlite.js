@@ -202,6 +202,12 @@ function abandonSeal(userDataPath, name) {
   return sealed.abandonSeal(path.join(databaseFolder(userDataPath), name));
 }
 
+/** Renames a sealed file no key here opens, so the records can start again (sealedDb.setAsideSealed). */
+function setAsideSealed(userDataPath, name) {
+  close(name);
+  return sealed.setAsideSealed(path.join(databaseFolder(userDataPath), name));
+}
+
 /** Which files are on disk: the plain one, the sealed one, both or neither. */
 function filesOnDisk(userDataPath, name) {
   return sealed.filesOnDisk(path.join(databaseFolder(userDataPath), name));
@@ -297,5 +303,6 @@ module.exports = {
   unseal,
   keepSealed,
   abandonSeal,
+  setAsideSealed,
   filesOnDisk,
 };

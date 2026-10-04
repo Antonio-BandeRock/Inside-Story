@@ -119,6 +119,13 @@ export default function AppLockSetupScreen() {
     void canUseBiometrics().then(setBiometricAvailable);
   }, []);
 
+  // Setup over a lock already set up would write a new key over the one
+  // that opens the records (1.0.60.15), so this screen is left at once.
+  const alreadyLocked = mode === "setup" && lockState !== null;
+  useEffect(() => {
+    if (alreadyLocked) router.replace("/");
+  }, [alreadyLocked, router]);
+
   // The saved-for-sharing copy of the recovery key goes once it has been handed over.
   useEffect(
     () => () => {

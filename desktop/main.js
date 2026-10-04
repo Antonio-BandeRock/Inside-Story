@@ -141,6 +141,7 @@ function registerIpc() {
   ipcMain.handle('sqlite:unseal', (_event, name, keyBase64) => sqlite.unseal(userData, name, keyBase64));
   ipcMain.handle('sqlite:keepSealed', (_event, name) => sqlite.keepSealed(userData, name));
   ipcMain.handle('sqlite:abandonSeal', (_event, name) => sqlite.abandonSeal(userData, name));
+  ipcMain.handle('sqlite:setAsideSealed', (_event, name) => sqlite.setAsideSealed(userData, name));
   ipcMain.handle('sqlite:filesOnDisk', (_event, name) => sqlite.filesOnDisk(userData, name));
   ipcMain.handle('hello:available', () => hello.available());
   ipcMain.handle('hello:wrapKey', (_event, keyBase64) => hello.wrapKey(keyBase64));
