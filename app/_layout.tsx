@@ -24,6 +24,7 @@ import { PendingScanWatcher } from '../components/PendingScanWatcher';
 import { RecallWatcher } from '../components/RecallWatcher';
 import { StoryReturnHost } from '../components/StoryReturnHost';
 import { StoryWalkHost } from '../components/StoryWalkHost';
+import { NotYetHost } from '../components/NotYetHost';
 import { TellClaudeHost } from '../components/TellClaudeHost';
 import { FreshAuthHost } from '../components/FreshAuthHost';
 import { WordingEditProvider } from '../components/EditableText';
@@ -908,6 +909,9 @@ function UnlockedApp() {
                   top of every screen while one guide step is being done. */}
               <StoryWalkHost />
               <GardenPlateOfferHost />
+              {/* Always say why (1.0.60.16): the reason a button cannot do
+                  its job yet, lib/notYet.ts. */}
+              <NotYetHost />
               {/* Before AppKeyboard, deliberately -- see OverlayContext.tsx's own
                   comment: the keyboard must always paint on top of an open
                   dropdown's backdrop/menu, never the other way around. */}

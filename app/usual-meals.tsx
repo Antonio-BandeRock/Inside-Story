@@ -36,6 +36,7 @@ import {
 } from '../lib/usualMeal';
 import { standingPhrase, takenWeekdays, type TomorrowSlot } from '../lib/mealPack';
 import { getTomorrowSlots } from '../lib/mealPackDb';
+import { explainNotYet } from '../lib/notYet';
 import { WEEKDAY_NAMES, WEEKDAY_SHORT } from '../lib/openMeals';
 import {
   addUsualMeal,
@@ -160,7 +161,7 @@ export default function UsualMealsScreen() {
 
   function addTyped() {
     const trimmed = name.trim();
-    if (!trimmed) return;
+    if (!trimmed) return explainNotYet(`Give this ${slot} a name first.`);
     const foods = parseFoods(foodsText);
     void run(async () => {
       await addUsualMeal({
@@ -408,7 +409,7 @@ export default function UsualMealsScreen() {
             <TouchableOpacity
               style={[styles.addButton, { borderColor: TINT }, !name.trim() && styles.addButtonOff]}
               onPress={addTyped}
-              disabled={busy || !name.trim()}
+              disabled={busy}
             >
               <Ionicons name="add-circle-outline" size={18} color={TINT} />
               <Text style={[styles.addButtonText, { color: TINT }]}>{`Add this ${slot}`}</Text>

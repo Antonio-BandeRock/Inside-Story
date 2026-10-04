@@ -43,6 +43,7 @@ import {
 import { biometricTitle, deviceWord } from "../lib/appLockWords";
 import { isDesktopApp } from "../lib/desktop/bridge";
 import { shareFileIfAvailable } from "../lib/nativeSharing";
+import { explainNotYet } from "../lib/notYet";
 import { restartApp } from "../lib/restartApp";
 import { wording } from "../lib/playfulCopy";
 import { usePlayfulWording } from "../hooks/usePlayfulWording";
@@ -445,8 +446,16 @@ export default function AppLockSetupScreen() {
         ))}
         <PrimaryButton
           label="Next"
-          onPress={finishRecoveryStep}
-          disabled={!ready}
+          onPress={() => {
+            if (!ready) {
+              explainNotYet(
+                `Those do not match the key yet. Type group ${confirmGroups[0]} and group ${confirmGroups[1]} exactly as they are on the key you saved.`,
+              );
+              return;
+            }
+            void finishRecoveryStep();
+          }}
+          dimmed={!ready}
         />
         <SecondaryButton
           label="Show the Key Again"
@@ -501,18 +510,18 @@ export default function AppLockSetupScreen() {
 function PrimaryButton({
   label,
   onPress,
-  disabled,
+  dimmed,
 }: {
   label: string;
   onPress: () => void;
-  disabled?: boolean;
+  /** Looks unavailable but still answers a press, so it can say why. */
+  dimmed?: boolean;
 }) {
   return (
     <TouchableOpacity
-      style={[styles.primaryButton, disabled ? styles.disabled : null]}
+      style={[styles.primaryButton, dimmed ? styles.disabled : null]}
       activeOpacity={0.85}
       onPress={onPress}
-      disabled={disabled}
     >
       <Text style={styles.primaryButtonText}>{label}</Text>
     </TouchableOpacity>

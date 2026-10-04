@@ -84,6 +84,7 @@ import {
   type MeasurePlanRow,
 } from '../lib/measuringPlan';
 import { listMeasurePlans } from '../lib/measuringPlanDb';
+import { explainNotYet } from '../lib/notYet';
 import { AppTextInput } from './AppTextInput';
 import { MeasuringPlanSection } from './MeasuringPlanSection';
 import { QuickAreaForm } from './QuickAreaForm';
@@ -965,8 +966,8 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                     <View style={styles.actionRow}>
                       <TouchableOpacity
                         style={[styles.primaryButton, { backgroundColor: newUnit.trim() ? PRIMARY_BUTTON_BACKGROUND : colors.border }]}
-                        disabled={!newUnit.trim()}
                         onPress={() => {
+                          if (!newUnit.trim()) return explainNotYet('Type the unit first, for example kPa.');
                           setDraft({ ...draft, unit: newUnit.trim() });
                           setNewUnit(null);
                         }}

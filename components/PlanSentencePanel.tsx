@@ -20,6 +20,7 @@ import {
   type PlanKind,
   type PlanVocabulary,
 } from '../lib/planSentence';
+import { explainNotYet } from '../lib/notYet';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 
 type Props = {
@@ -49,7 +50,8 @@ export function PlanSentencePanel({ text, now, vocabulary, keepReminding, disabl
       : `Changed to ${PLAN_KIND_LABELS[kind].toLowerCase()} by you.`;
 
   async function save() {
-    if (!canSave || !scheduledFor) return;
+    if (!scheduledFor) return explainNotYet('No day or time was found in those words yet. Add one, for example "Thursday at 3" or "next week".');
+    if (!canSave) return;
     setSaving(true);
     try {
       if (kind === 'appointment') {
@@ -126,7 +128,7 @@ export function PlanSentencePanel({ text, now, vocabulary, keepReminding, disabl
         <TouchableOpacity
           style={[styles.saveButton, !canSave ? styles.saveButtonOff : null]}
           onPress={() => void save()}
-          disabled={!canSave}
+          disabled={saving || disabled}
           activeOpacity={0.8}
         >
           <Ionicons name="calendar-outline" size={18} color={colors.accent} />

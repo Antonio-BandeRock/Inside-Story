@@ -32,6 +32,7 @@ import { setCaptureNoteDestination, setCaptureNoteDone } from '../lib/captureNot
 import { addCountdown } from '../lib/countdownDb';
 import { scheduleReminder } from '../lib/db';
 import { addNamesToActiveGroceryList } from '../lib/groceryDb';
+import { explainNotYet } from '../lib/notYet';
 import {
   dateKey,
   daysFromToday,
@@ -58,6 +59,7 @@ type Props = {
 export type CaptureTurnResult = { message: string; open?: { label: string; href: Href } };
 
 const REMINDER_FALLBACK_TIME = '09:00';
+const NOTHING_KEPT = 'Every line has been taken out, so there is nothing to make. Tap a line to put it back first.';
 
 const MENU: { mode: Mode | 'upkeep'; label: string; icon: ComponentProps<typeof Ionicons>['name'] }[] = [
   { mode: 'day', label: 'On a day', icon: 'calendar-outline' },
@@ -153,7 +155,8 @@ export function CaptureTurnInto({ note, onChanged, onFinished }: Props) {
   }
 
   async function addToGrocery() {
-    if (busy || kept.length === 0) return;
+    if (busy) return;
+    if (kept.length === 0) return explainNotYet(NOTHING_KEPT);
     setBusy(true);
     const count = await addNamesToActiveGroceryList(kept);
     await setCaptureNoteDestination(note.id, 'shopping');
@@ -165,7 +168,9 @@ export function CaptureTurnInto({ note, onChanged, onFinished }: Props) {
 
   async function makeRoutine() {
     const name = nameForRoutine.trim();
-    if (busy || kept.length === 0 || name.length < 2) return;
+    if (busy) return;
+    if (kept.length === 0) return explainNotYet(NOTHING_KEPT);
+    if (name.length < 2) return explainNotYet('Give the routine a name first, for example "Morning".');
     setBusy(true);
     const id = await createRoutine(name, 'other');
     if (!id) {
@@ -180,7 +185,8 @@ export function CaptureTurnInto({ note, onChanged, onFinished }: Props) {
   }
 
   async function makeChecks() {
-    if (busy || kept.length === 0) return;
+    if (busy) return;
+    if (kept.length === 0) return explainNotYet(NOTHING_KEPT);
     setBusy(true);
     for (const item of kept) await createDoneCheck(item, 'daily');
     await finish({
@@ -303,7 +309,7 @@ export function CaptureTurnInto({ note, onChanged, onFinished }: Props) {
         <TouchableOpacity
           style={[styles.fillButton, kept.length === 0 ? styles.off : null]}
           onPress={() => void addToGrocery()}
-          disabled={busy || kept.length === 0}
+          disabled={busy}
         >
           <Ionicons name="cart-outline" size={16} color={colors.background} />
           <Text style={styles.fillButtonText}>Add to the grocery list</Text>
@@ -321,7 +327,7 @@ export function CaptureTurnInto({ note, onChanged, onFinished }: Props) {
           <TouchableOpacity
             style={[styles.fillButton, kept.length === 0 || nameForRoutine.trim().length < 2 ? styles.off : null]}
             onPress={() => void makeRoutine()}
-            disabled={busy || kept.length === 0 || nameForRoutine.trim().length < 2}
+            disabled={busy}
           >
             <Ionicons name="walk-outline" size={16} color={colors.background} />
             <Text style={styles.fillButtonText}>A new routine with these steps</Text>
@@ -329,7 +335,7 @@ export function CaptureTurnInto({ note, onChanged, onFinished }: Props) {
           <TouchableOpacity
             style={[styles.outlineButton, kept.length === 0 ? styles.off : null]}
             onPress={() => void makeChecks()}
-            disabled={busy || kept.length === 0}
+            disabled={busy}
           >
             <Ionicons name="checkmark-done-outline" size={16} color={colors.accent} />
             <Text style={styles.outlineButtonText}>Did I Do It checks, one each</Text>

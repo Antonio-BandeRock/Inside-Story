@@ -56,6 +56,7 @@ import {
   removeMicrobiomeTest,
   updateMicrobiomeTest,
 } from '../lib/microbiomeDb';
+import { explainNotYet } from '../lib/notYet';
 import { recognizeLinesFromImage } from '../lib/ocr';
 
 const YEAR_OPTIONS = Array.from({ length: 10 }, (_, i) => String(new Date().getFullYear() - i));
@@ -535,8 +536,14 @@ export function MicrobiomeTestsSection({ tabColor }: { tabColor: string }) {
         <TouchableOpacity
           style={[styles.button, saving || (!editingId && saves.length === 0 && drafts.length > 0) ? styles.disabled : null]}
           activeOpacity={0.8}
-          disabled={saving || (!editingId && saves.length === 0 && drafts.length > 0)}
-          onPress={() => void save()}
+          disabled={saving}
+          onPress={() => {
+            if (!editingId && saves.length === 0 && drafts.length > 0) {
+              explainNotYet('No row is confirmed yet. Confirm each row you want kept, and fill in anything a row says it needs, then save.');
+              return;
+            }
+            void save();
+          }}
         >
           <Ionicons name="save-outline" size={18} color={colors.textOnButton} />
           <Text style={styles.buttonText}>{saving ? 'Saving…' : describeSaveButton(drafts, Boolean(editingId))}</Text>

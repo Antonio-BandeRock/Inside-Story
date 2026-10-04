@@ -13,6 +13,7 @@ import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import type { DoneCheck } from '../lib/routines';
 import { getDoneChecks } from '../lib/routinesDb';
+import { explainNotYet } from '../lib/notYet';
 import {
   MAX_TODAY_PICKS,
   TODAY_PICKS_EMPTY,
@@ -148,9 +149,10 @@ export function TodayPicks({ tabColor }: Props) {
             />
             <TouchableOpacity
               style={[styles.button, { borderColor: tabColor }, newName.trim() ? null : styles.off]}
-              disabled={busy || !newName.trim()}
+              disabled={busy}
               onPress={() => {
                 const name = newName.trim();
+                if (!name) return explainNotYet('Type something new to add first.');
                 setNewName('');
                 void run(() => pickNewForToday(day, name));
               }}

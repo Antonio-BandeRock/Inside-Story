@@ -49,6 +49,7 @@ import {
   type LabDraft,
   type SheetDate,
 } from '../lib/labImport';
+import { explainNotYet } from '../lib/notYet';
 import { recognizeLinesFromImage } from '../lib/ocr';
 
 const YEAR_OPTIONS = Array.from({ length: 6 }, (_, i) => String(new Date().getFullYear() - i));
@@ -177,7 +178,10 @@ export function LabSheetBand({
   }
 
   async function save() {
-    if (saves.length === 0) return;
+    if (saving) return;
+    if (saves.length === 0) {
+      return explainNotYet('No result is confirmed yet. Confirm each row you want kept, and fix any marked as needing it, then save.');
+    }
     setSaving(true);
     try {
       const ownCodes = new Map<string, string>();
@@ -430,7 +434,7 @@ export function LabSheetBand({
           <TouchableOpacity
             style={[styles.button, saves.length === 0 || saving ? styles.disabled : null]}
             activeOpacity={0.8}
-            disabled={saves.length === 0 || saving}
+            disabled={saving}
             onPress={() => void save()}
           >
             <Ionicons name="save-outline" size={18} color={colors.textOnButton} />

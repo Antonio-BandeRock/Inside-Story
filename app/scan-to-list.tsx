@@ -34,6 +34,7 @@ import {
   readBarcode,
   type HouseholdProduct,
 } from '../lib/scanToList';
+import { explainNotYet } from '../lib/notYet';
 import { findHouseholdProduct, putHouseholdOnList } from '../lib/scanToListDb';
 
 const TAB = colors.tabLife;
@@ -113,6 +114,7 @@ export default function ScanToListScreen() {
   }, []);
 
   function lookUpTyped() {
+    if (!codeText.trim()) return explainNotYet('Type the numbers under the barcode first.');
     const barcode = readBarcode(codeText);
     if (!barcode) {
       setDraft(null);
@@ -150,7 +152,10 @@ export default function ScanToListScreen() {
   const canAdd = !!draft && draft.name.trim().length > 0 && draft.group.trim().length > 0 && quantity > 0;
 
   async function putOnList() {
-    if (!draft || !canAdd) return;
+    if (!draft) return;
+    if (!draft.name.trim()) return explainNotYet('Give it a name first, for example "Dish soap".');
+    if (!draft.group.trim()) return explainNotYet('Pick the group it goes under on the list first.');
+    if (!(quantity > 0)) return explainNotYet('Put how many you need first. It has to be more than 0.');
     setBusy(true);
     try {
       const name = draft.name.replace(/\s+/g, ' ').trim();
@@ -292,7 +297,7 @@ export default function ScanToListScreen() {
           onChangeText={setCodeText}
           onSubmitEditing={lookUpTyped}
         />
-        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} disabled={busy || !codeText.trim()} onPress={lookUpTyped}>
+        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} disabled={busy} onPress={lookUpTyped}>
           <Text style={styles.secondaryButtonText}>Look Up These Numbers</Text>
         </TouchableOpacity>
       </View>
@@ -369,7 +374,7 @@ export default function ScanToListScreen() {
           <TouchableOpacity
             style={[styles.primaryButton, !canAdd || busy ? styles.disabled : null]}
             activeOpacity={0.85}
-            disabled={!canAdd || busy}
+            disabled={busy}
             onPress={putOnList}
           >
             <Ionicons name="cart-outline" size={18} color={colors.textOnButton} />

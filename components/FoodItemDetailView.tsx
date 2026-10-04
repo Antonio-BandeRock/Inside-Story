@@ -439,8 +439,15 @@ export function FoodItemDetailView({
                 <TouchableOpacity
                   style={styles.madeButton}
                   activeOpacity={0.85}
-                  disabled={making || ingredients.length === 0}
+                  disabled={making}
                   onPress={async () => {
+                    if (ingredients.length === 0) {
+                      showInfoAlert(
+                        'Nothing to take out of stock',
+                        'This has no ingredients listed, so making it would not move anything in the kitchen. Add its ingredients first.',
+                      );
+                      return;
+                    }
                     setMaking(true);
                     try {
                       // Recomputed rather than reusing the readout's plan:

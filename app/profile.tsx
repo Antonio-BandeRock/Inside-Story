@@ -33,6 +33,7 @@ import { getBackupsFolder, getSharedFolder } from '../lib/oneDriveFolders';
 import type { DriveItemRef } from '../lib/oneDriveGraph';
 import { downloadText, listFiles, uploadText } from '../lib/oneDriveGraph';
 import { isDesktopApp } from '../lib/desktop/bridge';
+import { explainNotYet } from '../lib/notYet';
 import { AppLockSettings } from '../components/AppLockSettings';
 import { describeSyncStatus, EMPTY_SYNC_STATE, type SnapshotRecord, type SnapshotSyncState } from '../lib/snapshotSync';
 import {
@@ -2073,7 +2074,7 @@ export default function ProfileScreen() {
   // Food tab's ingredient-add flow resets after each add).
   async function addAllergy(rawName: string) {
     const trimmed = rawName.trim();
-    if (!trimmed) return;
+    if (!trimmed) return explainNotYet('Type the food you are allergic to first.');
     await addFoodAllergy(trimmed);
     const updated = await listFoodAllergies();
     setFoodAllergies(updated);

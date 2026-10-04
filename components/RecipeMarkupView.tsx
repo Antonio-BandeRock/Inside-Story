@@ -12,6 +12,7 @@ import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
+import { explainNotYet } from '../lib/notYet';
 import { extractRecipeFromHtml, siteNameFromUrl, type ImportedRecipe } from '../lib/recipeImport';
 import {
   EMPTY_MARKED,
@@ -64,7 +65,9 @@ export function RecipeMarkupView({ url, onClose, onRecipe, onMarked }: Props) {
   }
 
   function mark(field: MarkField) {
-    if (!selectionRef.current.trim()) return;
+    if (!selectionRef.current.trim()) {
+      return explainNotYet('Select some words on the page first, by pressing and dragging over them, then tap what they are.');
+    }
     setMarked((current) => applyMark(current, field, selectionRef.current));
   }
 
@@ -136,8 +139,13 @@ export function RecipeMarkupView({ url, onClose, onRecipe, onMarked }: Props) {
           <Text style={styles.panelMuted}>{markedSummary(marked)}</Text>
           <TouchableOpacity
             style={[styles.primaryAction, marked.ingredients.length === 0 && styles.disabled]}
-            disabled={marked.ingredients.length === 0}
-            onPress={() => onMarked(marked, page)}
+            onPress={() => {
+              if (marked.ingredients.length === 0) {
+                explainNotYet('Mark at least one ingredient first: select its line on the page, then tap Ingredients.');
+                return;
+              }
+              onMarked(marked, page);
+            }}
           >
             <Text style={styles.primaryActionText}>{anythingMarked ? 'Done, Check These Lines' : 'Mark the Ingredients First'}</Text>
           </TouchableOpacity>

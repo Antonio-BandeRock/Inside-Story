@@ -76,6 +76,7 @@ import {
 import { useVoiceDictation, type VoiceRecognitionMode } from '../hooks/useVoiceDictation';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { offerGardenUse } from '../lib/gardenPlateOffer';
+import { explainNotYet } from '../lib/notYet';
 
 // meals.eaten_at's own stored format: 'YYYY-MM-DDTHH:mm', local time. See
 // listMealsForDate in lib/db.ts for why a UTC toISOString() would break every
@@ -417,7 +418,10 @@ export default function VoiceLogScreen() {
   }
 
   async function handleLogItems() {
-    if (usableItems.length === 0) return;
+    if (phase === 'saving') return;
+    if (usableItems.length === 0) {
+      return explainNotYet('Nothing here has both a food and an amount yet. Pick the food and put an amount on at least one line first.');
+    }
     setPhase('saving');
     try {
       const ingredients: MealIngredientInput[] = usableItems.map((item) => ({
@@ -733,7 +737,7 @@ export default function VoiceLogScreen() {
           style={[styles.inset, styles.primaryButton, usableItems.length === 0 ? styles.disabled : null]}
           activeOpacity={0.85}
           onPress={handleLogItems}
-          disabled={usableItems.length === 0 || phase === 'saving'}
+          disabled={phase === 'saving'}
         >
           <Ionicons name="checkmark-circle-outline" size={18} color={colors.background} />
           <Text style={styles.primaryButtonText}>

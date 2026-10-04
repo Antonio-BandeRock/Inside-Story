@@ -110,6 +110,7 @@ import {
   type StepKey,
 } from '../../lib/steppedReintroduction';
 import { deleteNocturiaNight, listNocturiaNights, saveNocturiaNight, type NocturiaNight } from '../../lib/nocturiaDb';
+import { explainNotYet } from '../../lib/notYet';
 import { deleteCycleDay, listAllCycleDays, listCycleDays, saveCycleDay, type CycleDayRow } from '../../lib/cycleDb';
 import {
   BLOOD_NOTE,
@@ -666,7 +667,7 @@ function OwnSymptoms({ onAdded }: { onAdded: (code: string) => void }) {
   const own = sortByLabel(getCustomCheckinTags().filter((tag) => !tag.retired));
 
   async function save() {
-    if (!name.trim()) return;
+    if (!name.trim()) return explainNotYet('Type the name of the symptom first.');
     if (renaming) {
       await renameCustomCheckinTag(renaming, name);
       setRenaming(null);
@@ -1525,7 +1526,7 @@ function NewFoodsLens({
 
   function addTypedSeriesFood() {
     const name = seriesTyped.trim();
-    if (!name) return;
+    if (!name) return explainNotYet('Type the food first, then tap Add.');
     setSeriesFoods((current) => [...current, { foodName: name }]);
     setSeriesTyped('');
   }

@@ -46,6 +46,7 @@ import { textShadow, typography } from '../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import { getOneDriveFolder, setMailboxFolderName, setOneDriveFolder } from '../lib/db';
 import { isDesktopApp } from '../lib/desktop/bridge';
+import { explainNotYet } from '../lib/notYet';
 import { pickFolder } from '../lib/desktop/cloudFolder';
 import { isOneDriveConfigured, isSignedIn, signIn, signOut } from '../lib/oneDriveAuth';
 import {
@@ -248,7 +249,7 @@ export default function OneDriveFolderScreen() {
 
   const handleCreate = async () => {
     const name = newFolderName.trim();
-    if (!name) return;
+    if (!name) return explainNotYet('Type a name for the new folder first.');
     if (!current) {
       // A root listing is not a folder, so there is nowhere to put a new one.
       // Shared with me especially is a view rather than a place.

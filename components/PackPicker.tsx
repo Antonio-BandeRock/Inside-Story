@@ -20,6 +20,7 @@ import {
   type TomorrowSlot,
 } from '../lib/mealPack';
 import { getTonightsDinner, packMeal, setPackPrepReminder, unpackMeal } from '../lib/mealPackDb';
+import { explainNotYet } from '../lib/notYet';
 import { TYPED_FOODS_NOTE, orderUsualMeals, parseFoods, type UsualMeal, type UsualMealKind } from '../lib/usualMeal';
 import { listSavedMealsForUsual, listUsualMeals } from '../lib/usualMealDb';
 import { AppTextInput } from './AppTextInput';
@@ -85,7 +86,7 @@ export function PackPicker({ entry, today, nowTime, tint, onChanged }: Props) {
 
   function chooseTyped() {
     const trimmed = name.trim();
-    if (!trimmed) return;
+    if (!trimmed) return explainNotYet('Give the meal a name first.');
     choose({ source: 'typed', name: trimmed, kind, place: kind === 'out' ? place : null, foods: parseFoods(foodsText) });
     setName('');
     setPlace('');
@@ -243,7 +244,7 @@ export function PackPicker({ entry, today, nowTime, tint, onChanged }: Props) {
               )}
               <Text style={styles.caption}>{TYPED_FOODS_NOTE}</Text>
               <View style={styles.row}>
-                <TouchableOpacity style={[button, !name.trim() && styles.off]} onPress={chooseTyped} disabled={busy || !name.trim()}>
+                <TouchableOpacity style={[button, !name.trim() && styles.off]} onPress={chooseTyped} disabled={busy}>
                   <Ionicons name="checkmark" size={16} color={tint} style={textShadow} />
                   <Text style={buttonText}>Choose this</Text>
                 </TouchableOpacity>

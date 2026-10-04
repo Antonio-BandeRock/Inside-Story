@@ -134,6 +134,7 @@ import { dateKey } from '../../lib/plainDate';
 import { getFrostDates, getRainForecast, type FrostDatesResult, type RainForecastResult } from '../../lib/homeSky';
 import { describeFrost, FROST_DATES_LIMITS, FROST_DATES_SOURCE, FROST_YEARS, thresholdLabel } from '../../lib/frostDates';
 import { detectMeasurementSystemFromLocale } from '../../lib/measurement';
+import { explainNotYet } from '../../lib/notYet';
 import { anyWateringSoon, rainNoteForTask } from '../../lib/rainForecast';
 
 // This page's own identity color -- see constants/colors.ts's own comment
@@ -678,7 +679,9 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
   }
 
   async function handleLookup() {
-    if (!country || !postalCode.trim() || lookupBusy) return;
+    if (lookupBusy) return;
+    if (!country) return explainNotYet('Pick your country first, so the zone comes from the right map.');
+    if (!postalCode.trim()) return explainNotYet('Type your ZIP or postal code first. The zone is looked up from it.');
     setLookupBusy(true);
     setLookupResult(null);
     const result = await lookupGrowingZone(country, postalCode);
@@ -693,7 +696,7 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
 
   if (loading) return null;
 
-  const lookupDisabled = !country || !postalCode.trim() || lookupBusy;
+  const lookupDisabled = !country || !postalCode.trim();
 
   return (
     <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
@@ -729,7 +732,7 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
             lookupDisabled ? styles.disabledButton : null,
           ]}
           onPress={handleLookup}
-          disabled={lookupDisabled}
+          disabled={lookupBusy}
         >
           {lookupBusy ? (
             <ActivityIndicator size="small" color={colors.background} />
@@ -1027,7 +1030,9 @@ function PlotsAndPlantingsLens({
   }
 
   async function handleZoneLookup() {
-    if (!newAreaZoneCountry || !newAreaZonePostal.trim() || zoneLookupBusy) return;
+    if (zoneLookupBusy) return;
+    if (!newAreaZoneCountry) return explainNotYet('Pick the country this area is in first, so the zone comes from the right map.');
+    if (!newAreaZonePostal.trim()) return explainNotYet('Type the ZIP or postal code for this area first. The zone is looked up from it.');
     setZoneLookupBusy(true);
     setZoneLookupResult(null);
     const result = await lookupGrowingZone(newAreaZoneCountry, newAreaZonePostal);
@@ -1039,7 +1044,9 @@ function PlotsAndPlantingsLens({
   }
 
   async function handleAddGardenArea() {
-    if (!newAreaName.trim()) return;
+    if (!newAreaName.trim()) {
+      return explainNotYet('Give this area a name first, at the top of the form, so you can tell it apart from your other areas.');
+    }
     const asksForLight = newAreaLocationType === 'indoor' || (newAreaLocationType === 'greenhouse' && newAreaGreenhouseLit);
     const plotId = await createGardenPlot({
       name: newAreaName,
@@ -2058,7 +2065,7 @@ function PlotsAndPlantingsLens({
               !newAreaZoneCountry || !newAreaZonePostal.trim() || zoneLookupBusy ? styles.disabledButton : null,
             ]}
             onPress={handleZoneLookup}
-            disabled={!newAreaZoneCountry || !newAreaZonePostal.trim() || zoneLookupBusy}
+            disabled={zoneLookupBusy}
           >
             {zoneLookupBusy ? (
               <ActivityIndicator size="small" color={TAB_COLOR} />
@@ -2406,7 +2413,7 @@ function UpcomingTasksLens({ scrollBottomPadding }: { scrollBottomPadding: numbe
   );
 
   async function handleAddTask() {
-    if (!taskTitle.trim()) return;
+    if (!taskTitle.trim()) return explainNotYet('Type what the task is first, for example "Water the tomatoes".');
     const now = new Date();
     now.setDate(now.getDate() + 1);
     await scheduleGardenTask({ title: taskTitle, scheduledFor: `${now.toISOString().slice(0, 10)}T09:00` });

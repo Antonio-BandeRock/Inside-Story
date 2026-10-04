@@ -48,6 +48,7 @@ import {
 } from '../lib/medicineLabel';
 import { getSavedLabel, removeSavedLabel, saveLabel, type SavedLabel } from '../lib/medicineLabelDb';
 import { lookUpLabel } from '../lib/medicineLabelLookup';
+import { explainNotYet } from '../lib/notYet';
 
 const TAB = colors.tabLife;
 
@@ -127,6 +128,7 @@ export default function MedicineLabelScreen() {
   }, []);
 
   function lookUpCode() {
+    if (!codeText.trim()) return explainNotYet('Type the code from the box or the pharmacy label first.');
     const reading = readTypedCode(codeText);
     if (reading.kind !== 'ndc') {
       setFound(null);
@@ -138,7 +140,7 @@ export default function MedicineLabelScreen() {
   }
 
   function searchName() {
-    if (!nameText.trim()) return;
+    if (!nameText.trim()) return explainNotYet("Type the medicine's brand or generic name first.");
     runLookup({ kind: 'name', name: nameText });
   }
 
@@ -430,7 +432,7 @@ export default function MedicineLabelScreen() {
           onChangeText={setCodeText}
           onSubmitEditing={lookUpCode}
         />
-        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} disabled={busy || !codeText.trim()} onPress={lookUpCode}>
+        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} disabled={busy} onPress={lookUpCode}>
           <Text style={styles.secondaryButtonText}>Look Up This Code</Text>
         </TouchableOpacity>
         <Text style={styles.label}>Or the medicine&apos;s name</Text>
@@ -441,7 +443,7 @@ export default function MedicineLabelScreen() {
           onChangeText={setNameText}
           onSubmitEditing={searchName}
         />
-        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} disabled={busy || !nameText.trim()} onPress={searchName}>
+        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} disabled={busy} onPress={searchName}>
           <Text style={styles.secondaryButtonText}>Search by Name</Text>
         </TouchableOpacity>
       </View>

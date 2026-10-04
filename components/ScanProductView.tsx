@@ -91,6 +91,7 @@ import { parseIngredientsForDisplay } from '../lib/ingredientsParsing';
 import { formatTime12 } from '../lib/timeOfDay';
 import { countRecognizedLetters, extractPriceGuess, recognizeTextFromImage } from '../lib/ocr';
 import { pickAndSaveMealPhoto, saveCapturedPhoto } from '../lib/mealPhotos';
+import { explainNotYet } from '../lib/notYet';
 import {
   flagAdditivesInIngredients,
   flagConditionConcernsForConditions,
@@ -974,8 +975,9 @@ export function ScanProductView({
   }
 
   async function handleLogThis() {
+    if (loggingMeal) return;
     const grams = Number(logAmountText);
-    if (!Number.isFinite(grams) || grams <= 0) return;
+    if (!Number.isFinite(grams) || grams <= 0) return explainNotYet('Put how much you had first, in grams. It has to be more than 0.');
     setLoggingMeal(true);
     setLogError(null);
     try {
@@ -1061,7 +1063,7 @@ export function ScanProductView({
     const productId = savedProductId ?? existingProductId;
     if (productId == null) return;
     const parsed = parseFloat(priceText);
-    if (Number.isNaN(parsed) || parsed <= 0) return;
+    if (Number.isNaN(parsed) || parsed <= 0) return explainNotYet('Type the price you paid first. It has to be more than 0.');
     setSavingPrice(true);
     try {
       await recordScannedProductPrice({ scannedProductId: productId, price: parsed, photoUri: pricePhotoUri });
@@ -1830,7 +1832,7 @@ export function ScanProductView({
               style={[styles.primaryButton, loggingMeal || !logAmountIsValid ? styles.disabled : null]}
               activeOpacity={0.85}
               onPress={handleLogThis}
-              disabled={loggingMeal || !logAmountIsValid}
+              disabled={loggingMeal}
             >
               <Ionicons name="checkmark-circle-outline" size={18} color={colors.background} />
               <Text style={styles.primaryButtonText}>{loggingMeal ? `Logging…` : `Log It`}</Text>
@@ -1906,7 +1908,7 @@ export function ScanProductView({
           style={[styles.primaryButton, savingPrice ? styles.disabled : null]}
           activeOpacity={0.85}
           onPress={handleSavePrice}
-          disabled={savingPrice || !priceText}
+          disabled={savingPrice}
         >
           <Text style={styles.primaryButtonText}>{savingPrice ? 'Saving…' : 'Save Price'}</Text>
         </TouchableOpacity>

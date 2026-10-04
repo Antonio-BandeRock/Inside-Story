@@ -42,6 +42,7 @@ import {
   saveGroceryAisleOrder,
   type GroceryStoreRecord,
 } from '../lib/groceryDb';
+import { explainNotYet } from '../lib/notYet';
 
 const OWN_HEADING = '__own_heading__';
 
@@ -110,7 +111,7 @@ export default function GroceryStoresScreen() {
 
   async function handleAddStore() {
     const name = newStore.trim();
-    if (!name) return;
+    if (!name) return explainNotYet('Type the name of the store first.');
     await run(async () => {
       const id = await addGroceryStore(name);
       setSelectedId(id);
@@ -245,7 +246,7 @@ export default function GroceryStoresScreen() {
                 activeOpacity={0.85}
                 onPress={() => {
                   const name = storeRename.trim();
-                  if (!name) return;
+                  if (!name) return explainNotYet('Type the new name for this store first.');
                   void run(async () => {
                     await renameGroceryStore(selected.id, name);
                     setStoreRename('');
@@ -321,7 +322,7 @@ export default function GroceryStoresScreen() {
                           activeOpacity={0.85}
                           onPress={() => {
                             const name = aisleRename.trim();
-                            if (!name) return;
+                            if (!name) return explainNotYet('Type the new name for this aisle first.');
                             void run(async () => {
                               await renameGroceryAisle(aisle.id, name);
                               setEditingAisleId(null);
@@ -354,7 +355,7 @@ export default function GroceryStoresScreen() {
                 activeOpacity={0.85}
                 onPress={() => {
                   const name = newAisle.trim();
-                  if (!name) return;
+                  if (!name) return explainNotYet('Type the aisle name first, for example Produce.');
                   void run(async () => {
                     await addGroceryAisle(selected.id, name);
                     setNewAisle('');

@@ -61,6 +61,7 @@ import {
   sendViaRelay,
 } from '../lib/relayMailbox';
 import { isDesktopApp } from '../lib/desktop/bridge';
+import { explainNotYet } from '../lib/notYet';
 import { phoneOnlyNotice } from '../lib/desktop/phoneOnly';
 import { getMyKeyFingerprint } from '../lib/deviceIdentity';
 import {
@@ -214,8 +215,8 @@ export default function ConnectionsScreen() {
 
   async function saveRename(id: string) {
     const trimmed = editingName.trim();
+    if (!trimmed) return explainNotYet('Type a name for this connection first.');
     setEditingId(null);
-    if (!trimmed) return;
     await renameConnection(id, trimmed);
     load();
   }

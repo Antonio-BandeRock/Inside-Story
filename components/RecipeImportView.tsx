@@ -5,6 +5,7 @@ import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { getStoredMeasurementSystem } from '../lib/db';
 import { detectMeasurementSystemFromLocale } from '../lib/measurement';
+import { explainNotYet } from '../lib/notYet';
 import {
   attributionLine,
   describeAmount,
@@ -169,6 +170,8 @@ export function RecipeImportView({
   }
 
   async function readLink() {
+    if (busy !== null) return;
+    if (url.trim() === '') return explainNotYet('Paste the link to the recipe page first.');
     setError(null);
     setNoRecipe(null);
     setBusy('Reading the page');
@@ -205,7 +208,7 @@ export function RecipeImportView({
 
   function openMarkup() {
     const target = (noRecipe?.url ?? url).trim();
-    if (!target) return;
+    if (!target) return explainNotYet('Paste the link to the recipe page first.');
     setError(null);
     setMarkingUrl(/^https?:\/\//i.test(target) ? target : `https://${target}`);
   }
@@ -446,7 +449,7 @@ export function RecipeImportView({
               onPress={() => void readLink()}
               activeOpacity={0.7}
               style={[styles.primaryAction, (busy !== null || url.trim() === '') && styles.disabled]}
-              disabled={busy !== null || url.trim() === ''}
+              disabled={busy !== null}
             >
               <Text style={styles.primaryActionText}>Read the Recipe</Text>
             </TouchableOpacity>

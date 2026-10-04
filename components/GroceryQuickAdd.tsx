@@ -11,6 +11,7 @@ import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { groceryItemsFromNote } from '../lib/captureNotes';
 import { addNamesToActiveGroceryList } from '../lib/groceryDb';
+import { explainNotYet } from '../lib/notYet';
 import { AppTextInput } from './AppTextInput';
 
 type Props = {
@@ -55,8 +56,14 @@ export function GroceryQuickAdd({ tabColor, onOpenList }: Props) {
         <TouchableOpacity
           style={[styles.button, { borderColor: tabColor }, items.length === 0 ? styles.off : null]}
           activeOpacity={0.8}
-          onPress={() => void add()}
-          disabled={items.length === 0 || saving}
+          onPress={() => {
+            if (items.length === 0) {
+              explainNotYet('Type what to add first, for example "eggs, milk and bread".');
+              return;
+            }
+            void add();
+          }}
+          disabled={saving}
         >
           <Ionicons name="add-circle-outline" size={18} color={tabColor} />
           <Text style={[styles.buttonText, { color: tabColor }]}>Add</Text>

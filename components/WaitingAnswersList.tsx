@@ -27,6 +27,7 @@ import {
   type ReminderKindKey,
 } from '../lib/reminderPreferences';
 import { SNOOZE_MINUTES } from '../lib/quietHours';
+import { explainNotYet } from '../lib/notYet';
 import { actionTakesWords, waitingFor, type WaitingGroup, type WaitingItem } from '../lib/waitingAnswers';
 import { AppTextInput } from './AppTextInput';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP } from './HomeSectionBand';
@@ -158,8 +159,14 @@ export function WaitingAnswersList({ groups, now, reload, tabColor, nested = fal
                       />
                       <TouchableOpacity
                         style={[styles.button, styles.buttonFilled, box.action === 'howAreYou' && !words.trim() ? styles.buttonOff : null]}
-                        onPress={() => void answer(item, box.action, words.trim())}
-                        disabled={isBusy || (box.action === 'howAreYou' && !words.trim())}
+                        onPress={() => {
+                          if (box.action === 'howAreYou' && !words.trim()) {
+                            explainNotYet('Type a few words about how you are first.');
+                            return;
+                          }
+                          void answer(item, box.action, words.trim());
+                        }}
+                        disabled={isBusy}
                         activeOpacity={0.8}
                         accessibilityRole="button"
                       >

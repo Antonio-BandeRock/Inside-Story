@@ -41,6 +41,7 @@ import { arrangeByAisle, type GroceryStoreLayout } from '../lib/groceryAisles';
 import { groceryListAsText, groceryListFileName, NOTHING_LEFT_TO_SEND } from '../lib/groceryListText';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { shareFileIfAvailable } from '../lib/nativeSharing';
+import { explainNotYet } from '../lib/notYet';
 import {
   addGroceryListItem,
   addGroceryStore,
@@ -334,7 +335,7 @@ export default function GroceryListScreen() {
 
   async function handleAddStore() {
     const name = newStoreName.trim();
-    if (!name) return;
+    if (!name) return explainNotYet('Type the name of the store first.');
     try {
       await addGroceryStore(name);
       setStores(await listGroceryStores());
@@ -644,7 +645,7 @@ export default function GroceryListScreen() {
   async function handleAddItem() {
     if (!list) return;
     const name = newName.trim();
-    if (!name) return;
+    if (!name) return explainNotYet('Type what to add to the list first.');
     setBusy(true);
     try {
       await addGroceryListItem(list.id, {
@@ -1373,7 +1374,7 @@ export default function GroceryListScreen() {
               placeholderTextColor={colors.textMuted}
             />
           </View>
-          <TouchableOpacity style={[styles.primaryButton, (busy || !newName.trim()) && styles.disabled]} activeOpacity={0.85} onPress={handleAddItem} disabled={busy || !newName.trim()}>
+          <TouchableOpacity style={[styles.primaryButton, (busy || !newName.trim()) && styles.disabled]} activeOpacity={0.85} onPress={handleAddItem} disabled={busy}>
             <Ionicons name="add" size={18} color={colors.textOnButton} />
             <Text style={styles.primaryButtonText}>Add to List</Text>
           </TouchableOpacity>
