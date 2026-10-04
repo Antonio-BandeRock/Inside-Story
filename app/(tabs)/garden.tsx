@@ -34,6 +34,8 @@ import { sortByLabel } from '../../lib/choiceOrder';
 import { listCompostPiles } from '../../lib/compostDb';
 import { listGrowingCosts } from '../../lib/gardenMoneyDb';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
+import { usePlayfulWording } from '../../hooks/usePlayfulWording';
+import { wording } from '../../lib/playfulCopy';
 import { USDA_ZONES, zoneBandInfo } from '../../lib/gardenZones';
 import { lookupGrowingZone, type GrowingZoneLookupResult } from '../../lib/gardenZoneLookup';
 import {
@@ -886,6 +888,7 @@ function PlotsAndPlantingsLens({
   const walkMark = useWalkMark();
   // Removing a planting or an area with photos asks first (I13).
   const { confirmRemoval, photoRemovalSheet } = usePhotoRemovalConfirm();
+  const playful = usePlayfulWording();
   const [plots, setPlots] = useState<GardenPlot[]>([]);
   const [plantingsByPlot, setPlantingsByPlot] = useState<Record<string, GardenPlanting[]>>({});
   // I10: whether Why gardeners rotate is open under the rotation note.
@@ -1576,7 +1579,7 @@ function PlotsAndPlantingsLens({
       {photoRemovalSheet}
       {plots.length === 0 ? (
         <View style={band.boxMuted}>
-          <Text style={styles.emptyText}>No garden areas yet. Add one below to start tracking what you&apos;re growing.</Text>
+          <Text style={styles.emptyText}>{wording('gardenEmpty', playful)}</Text>
         </View>
       ) : (
         nestedOrder(plots).map((plot) => {

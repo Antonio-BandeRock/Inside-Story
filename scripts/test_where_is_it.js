@@ -38,6 +38,8 @@ function loadModule(relPath) {
   });
   const module = { exports: {} };
   new Function('exports', 'module', 'require', outputText)(module.exports, module, (name) => {
+    // The empty line's wording comes from the playful copy file, which is pure.
+    if (name === './playfulCopy') return loadModule('lib/playfulCopy.ts');
     throw new Error(`unexpected import ${name}`);
   });
   return module.exports;
@@ -200,6 +202,7 @@ checkTrue(
   describeNoResults('batteries', 12).includes('name of the place'),
 );
 check('an empty query over a full store says nothing', describeNoResults('', 12), '');
+checkTrue('the playful empty line still says how to fill it', describeNoResults('batteries', 0, true).includes('Capture'));
 check('nothing stored reads plainly', describeWhereIsItRow(0), 'Nothing has a place written down yet.');
 check('one reads singular', describeWhereIsItRow(1), '1 thing has a place written down.');
 check('many read plural', describeWhereIsItRow(14), '14 things have a place written down.');

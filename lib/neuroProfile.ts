@@ -65,6 +65,7 @@ export type NeuroSupportKey =
   | 'lowStimulation'
   | 'captureInbox'
   | 'roomyText'
+  | 'plainWording'
   | 'routineReminders'
   | 'noteReminders'
   | 'datedReminders';
@@ -76,12 +77,14 @@ export const ALL_NEURO_SUPPORT_KEYS: NeuroSupportKey[] = [
   'datedReminders',
   'lowStimulation',
   'roomyText',
+  'plainWording',
 ];
 
 export const NEURO_SUPPORT_LABELS: Record<NeuroSupportKey, string> = {
   lowStimulation: 'Low Stimulation',
   captureInbox: 'Somewhere to put a thought',
   roomyText: 'Roomier line spacing',
+  plainWording: 'Plain, direct wording',
   routineReminders: 'Reminders for routines',
   noteReminders: 'Reminders for things you noted down',
   datedReminders: 'Reminders for bills, upkeep and benefits',
@@ -98,6 +101,8 @@ export const NEURO_SUPPORT_DETAILS: Record<NeuroSupportKey, string> = {
     'Puts one control on Home that takes a thought by voice or by typing, with no category to pick at the time. It leaves your head straight away, and sorting it is a later job.',
   roomyText:
     'Opens the lines up so the words stop running together. This is separate from text size, which your phone already sets for every app including this one.',
+  plainWording:
+    'Takes out the light jokes that follow the facts on a few empty screens and notices, so every line says what it means and nothing else. What the app tells you does not change.',
   routineReminders:
     'A routine you have given a time to will speak at that time, and tapping it opens the walk at the first step.',
   noteReminders: 'Anything you threw into the inbox and gave a day to will come back on that day.',
@@ -123,10 +128,16 @@ export const NEURO_SUPPORT_REMINDER_KINDS: Partial<Record<NeuroSupportKey, Remin
 // which is the load it is named for. Dyslexia gets the text work and
 // nothing else, because it changes how words sit on a page and not what
 // anybody needs reminding of.
+//
+// All three are offered plain wording, 2026-10-03, by direct instruction:
+// "If the user tells the app from the start they have a neurodivergent mind,
+// we can offer to be more direct, without the playful stuff." A joke is
+// something to decode before the sentence is finished, whichever of the
+// three somebody listed.
 const SUPPORTS_BY_PROFILE: Record<NeuroProfileKey, NeuroSupportKey[]> = {
-  autism: ['lowStimulation', 'captureInbox', 'routineReminders'],
-  adhd: ['captureInbox', 'routineReminders', 'noteReminders', 'datedReminders'],
-  dyslexia: ['roomyText'],
+  autism: ['lowStimulation', 'captureInbox', 'routineReminders', 'plainWording'],
+  adhd: ['captureInbox', 'routineReminders', 'noteReminders', 'datedReminders', 'plainWording'],
+  dyslexia: ['roomyText', 'plainWording'],
 };
 
 // The union of what the listed profiles ask for, in ALL_NEURO_SUPPORT_KEYS
@@ -260,6 +271,7 @@ export const NEURO_SUPPORT_OFF_DETAILS: Partial<Record<NeuroSupportKey, string>>
     'Home comes back to its full self. Anything you folded shut stays folded until you open it, the same as any other day.',
   roomyText:
     'Line spacing goes back to Normal. Your phone\'s text size is untouched, because this app never set it.',
+  plainWording: 'The light jokes after the facts come back. The facts themselves are the same either way.',
   routineReminders:
     'A routine with a time on it stops speaking. The routine itself, and its time, stay exactly where they are.',
   noteReminders:

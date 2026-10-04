@@ -84,6 +84,8 @@ import {
 } from '../lib/countdownDb';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { areaPath } from '../lib/gardenAreaNesting';
+import { usePlayfulWording } from '../hooks/usePlayfulWording';
+import { wording } from '../lib/playfulCopy';
 import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
 import { RecordPhotos } from './RecordPhotos';
@@ -133,6 +135,7 @@ export function DaysUntilSection({
   showHeading = true,
 }: Props) {
   const router = useRouter();
+  const playful = usePlayfulWording();
   // Garden scope with no plot is the whole garden: every counter under an
   // area still in use, and the areas themselves read here for the form.
   const wholeGarden = scope === 'garden' && !plot;
@@ -299,6 +302,11 @@ export function DaysUntilSection({
   // scopes always have somewhere, since Anything needs nothing to exist
   // first.
   const noAreaYet = wholeGarden && plotOptions.length === 0;
+  // With nothing running, the line opens with a lead: "No counters running."
+  // on the compact Home card, nothing on the full lens, and a light aside on
+  // both when Playful wording is on (lib/playfulCopy.ts).
+  const noneLead = wording(compact ? 'daysUntilNoneCompactLead' : 'daysUntilNoneLead', playful);
+  const withLead = (text: string) => (noneLead ? `${noneLead} ${text}` : text);
   const seeAllWhere = scope === 'garden' ? 'Garden > Days Until' : 'Life > Days Until';
 
   function openSeeAll() {
@@ -315,11 +323,11 @@ export function DaysUntilSection({
             ? 'A garden counter lives under an area. Add an area on Plots & Plantings first, then count the days to germination, transplanting out, the first harvest, or the cover coming off here.'
             : offersFree
               ? compact
-                ? 'No counters running. Name anything and count the days to it: a passport in the post, a course starting, a cast coming off. The phone reminds you on the day.'
-                : 'Name anything and count the days to it: a passport in the post, a course starting, a cast coming off, a batch of cider. The phone reminds you on the day, and a counter keeps counting past its day until you mark it done.'
+                ? withLead('Name anything and count the days to it: a passport in the post, a course starting, a cast coming off. The phone reminds you on the day.')
+                : withLead('Name anything and count the days to it: a passport in the post, a course starting, a cast coming off, a batch of cider. The phone reminds you on the day, and a counter keeps counting past its day until you mark it done.')
               : compact
-                ? 'No counters running. Name something and count the days to it: germination, transplanting out, the first harvest. The phone reminds you on the day.'
-                : 'Name something and count the days to it: germination, transplanting out, the first harvest, the cover coming off. The phone reminds you on the day, and a counter keeps counting past its day until you mark it done.'}
+                ? withLead('Name something and count the days to it: germination, transplanting out, the first harvest. The phone reminds you on the day.')
+                : withLead('Name something and count the days to it: germination, transplanting out, the first harvest, the cover coming off. The phone reminds you on the day, and a counter keeps counting past its day until you mark it done.')}
         </Text>
       ) : null}
       {ordered.map((item) => {

@@ -255,6 +255,8 @@ import { useWalkMark } from '../components/WalkMark';
 import type { WalkMark } from '../lib/storyWalk';
 import * as Linking from 'expo-linking';
 import { PRIVACY_URL, TERMS_URL } from '../lib/agreement';
+import { GHOSTEAD_URL } from '../lib/ghostead';
+import { wording } from '../lib/playfulCopy';
 import { VoicePackPanel } from '../components/VoicePackPanel';
 
 // Whether a backup that has been reached is restored or only checked.
@@ -418,11 +420,13 @@ const ALL_CARD_SECTION_KEYS = [
   // How the App Looks
   'low-stimulation',
   'routine-timer',
+  'playful-wording',
   'home-screen',
   'appearance',
   // Device & Account
   'app-status',
   'agreement',
+  'about-ghostead',
   'voice-pack',
   'connections',
   'applock',
@@ -1003,6 +1007,10 @@ export default function ProfileScreen() {
   // background and each tab's own revealed background immediately, with no
   // extra local state to keep in sync.
   const visualPrefs = useVisualPreferences();
+  const playful = visualPrefs.playfulWording;
+  // The hidden touch on the version line in App Updates: a long press shows
+  // the mug from the Ghostead trailer. Nothing at all with plain wording.
+  const [mugShown, setMugShown] = useState(false);
 
   // Live, app-wide (lib/generalHealthPreferences.ts), 2026-08-14, direct
   // requirement: "Make the muting granular, per topic, not sweeping." One
@@ -1537,7 +1545,7 @@ export default function ProfileScreen() {
       'set',
       'Set a Sync Password',
       'Every copy saved to your shared folder is encrypted with this password, and your ' + otherDeviceKind +
-        ' needs the same one to read it. Choose something you will remember; there is no way to reset it later.',
+        ' needs the same one to read it.' + wording('syncNoResetTail', playful),
     );
     if (password === null) return;
     setSyncBusy(true);
@@ -2112,6 +2120,10 @@ export default function ProfileScreen() {
       await setVisualPreferences({ homeSectionVisibility: { captureInbox: true } });
     }
 
+    if (supports.includes('plainWording')) {
+      await setVisualPreferences({ playfulWording: false });
+    }
+
     if (supports.includes('roomyText') && visualPrefs.lineSpacing === 'normal') {
       // Only when it is still at the default. Somebody already on Roomier
       // should not be quietly moved back down a step.
@@ -2142,6 +2154,7 @@ export default function ProfileScreen() {
   // listing and no settings, and should see no sheet at all when they unlist.
   function neuroSupportIsOn(support: NeuroSupportKey): boolean {
     if (support === 'roomyText') return visualPrefs.lineSpacing !== 'normal';
+    if (support === 'plainWording') return !visualPrefs.playfulWording;
     if (support === 'lowStimulation') return visualPrefs.lowStimulation;
     if (support === 'captureInbox') return isHomeSectionVisible(visualPrefs, 'captureInbox');
     return (NEURO_SUPPORT_REMINDER_KINDS[support] ?? []).some((kind) =>
@@ -2161,6 +2174,10 @@ export default function ProfileScreen() {
       // sheet named this before it happened.
       await setVisualPreferences({ lineSpacing: 'normal' });
       needsRestart = true;
+    }
+
+    if (supports.includes('plainWording')) {
+      await setVisualPreferences({ playfulWording: true });
     }
 
     let touchedReminders = false;
@@ -2438,7 +2455,7 @@ export default function ProfileScreen() {
     const password = await promptPassword(
       'set',
       'Set a Backup Password',
-      "This encrypts your backup so only someone who has this password can ever read it: not a text editor, not an AI tool, nothing. Choose something you'll remember; there's no way to reset it later.",
+      wording('backupNoReset', playful) ?? '',
     );
     if (password === null) return;
     setBackupBusy(true);
@@ -2533,7 +2550,7 @@ export default function ProfileScreen() {
     const password = await promptPassword(
       'set',
       'Set a Backup Password',
-      "This encrypts your backup so only someone who has this password can ever read it: not a text editor, not an AI tool, nothing. Choose something you'll remember; there's no way to reset it later.",
+      wording('backupNoReset', playful) ?? '',
     );
     if (password === null) return; // a cancel: nothing was exported
     setBackupBusy(true);
@@ -4652,6 +4669,43 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
+      {/* Playful Wording, 2026-10-03. On by default, as asked: a light joke
+          after the facts on a few empty screens, privacy notices and desktop
+          limits, each with a plain twin in lib/playfulCopy.ts. Listing a
+          neurodivergent profile offers to turn it off. */}
+      <View style={styles.card}>
+        {renderCardHeader('playful-wording', 'Playful Wording')}
+        {!collapsedSections.has('playful-wording') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              A few empty screens and notices carry a light joke after the facts, about the app, the technology or
+              the data industry and never about you. Off keeps every line plain and direct. What the app tells you
+              is the same either way.
+            </Text>
+            <View style={styles.pillRow}>
+              {[true, false].map((value) => {
+                const active = visualPrefs.playfulWording === value;
+                return (
+                  <TouchableOpacity
+                    key={value ? 'on' : 'off'}
+                    style={[styles.pill, active && styles.pillActive]}
+                    onPress={() => {
+                      void setVisualPreferences({ playfulWording: value });
+                    }}
+                  >
+                    <Text style={[styles.pillText, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <Text style={styles.helpText}>
+              Never in anything about your health: symptoms, flares, labs, medications, the emergency card,
+              conditions, patterns and advice all stay plain whatever this is set to.
+            </Text>
+          </View>
+        ) : null}
+      </View>
+
       {/* Routine Timer (B5, 2026-09-30). Off unless somebody turns it on:
           "It definitely shouldn't be turned on by default." The same ring
           switch sits on the routine's step screen. The signal is its own
@@ -5224,6 +5278,37 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
+      {/* About Ghostead, 2026-10-03: who makes the app and why nothing about
+          the person is collected, in the voice of ghostead.com when Playful
+          wording is on. */}
+      <View style={styles.card}>
+        {renderCardHeader('about-ghostead', 'About Ghostead')}
+        {!collapsedSections.has('about-ghostead') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Ghostead, a noun. From ghost, leaving no trace, and homestead, land you live on and keep for yourself.
+              Ghostead apps live with you and nowhere else.
+            </Text>
+            <Text style={styles.helpText}>{wording('aboutLede', playful)}</Text>
+            <Text style={styles.helpText}>
+              {"We can't lose your data, because we never have it."}
+              {playful ? " It's the one breakup we planned ahead for." : ''}
+            </Text>
+            <Text style={styles.helpText}>{wording('aboutBreakIn', playful)}</Text>
+            {playful ? <Text style={styles.helpText}>{wording('aboutNotGhosting', playful)}</Text> : null}
+            <TouchableOpacity style={styles.checkinButton} onPress={() => void Linking.openURL(GHOSTEAD_URL)}>
+              <Text style={styles.checkinButtonText}>{wording('aboutTrailerLink', playful)}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.checkinButton} onPress={() => void Linking.openURL(TERMS_URL)}>
+              <Text style={styles.checkinButtonText}>Terms of Use</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.checkinButton} onPress={() => void Linking.openURL(PRIVACY_URL)}>
+              <Text style={styles.checkinButtonText}>Privacy Policy</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+      </View>
+
       {/* Speech on This Phone: whether the offline speech pack is here, and
           a way to get it. Android only; see lib/voicePack.ts. */}
       {Platform.OS === 'android' ? (
@@ -5599,10 +5684,19 @@ export default function ProfileScreen() {
               already running. If you know an update was just sent out, check here instead of closing and
               reopening the app.
             </Text>
-            <Text style={[styles.helpText, styles.derivedText]}>
+            <Text
+              style={[styles.helpText, styles.derivedText]}
+              onLongPress={playful ? () => setMugShown((shown) => !shown) : undefined}
+            >
               You&apos;re on version {APP_VERSION}. Checking is safe: if there&apos;s nothing new, nothing happens.
               If there is, you&apos;ll be told what will happen and asked before anything restarts.
             </Text>
+            {playful && mugShown ? (
+              <View style={styles.mugRow}>
+                <Ionicons name="cafe-outline" size={28} color={colors.textSecondary} />
+                <Text style={styles.helpText}>{wording('versionMug', playful)}</Text>
+              </View>
+            ) : null}
             <TouchableOpacity style={styles.checkinButton} disabled={updateCheckBusy} onPress={handleCheckForUpdates}>
               <Text style={styles.checkinButtonText}>{updateCheckBusy ? 'Working…' : 'Check for Updates'}</Text>
             </TouchableOpacity>
@@ -6493,6 +6587,12 @@ const styles = StyleSheet.create({
 
     ...textShadow,
 
+  },
+  mugRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 8,
   },
   derivedText: {
     ...typography.caption,

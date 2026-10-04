@@ -30,11 +30,13 @@ function load(relPath) {
   const module = { exports: {} };
   new Function('exports', 'module', 'require', outputText)(module.exports, module, (name) => {
     if (name === './bridge') return { isDesktopApp: () => desktop };
+    if (name === '../playfulCopy') return playfulCopy;
     throw new Error(`${relPath} must stay free of runtime imports (asked for ${name})`);
   });
   return module.exports;
 }
 
+const playfulCopy = load('lib/playfulCopy.ts');
 const phoneOnly = load('lib/desktop/phoneOnly.ts');
 
 let checks = 0;

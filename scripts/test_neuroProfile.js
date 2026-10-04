@@ -68,18 +68,22 @@ function check(name, actual, expected) {
 
 // ------------------------------------------------------------ what each one asks for
 
-check('autism asks for a quieter screen, somewhere to put a thought, and routines', supportsFor(['autism']), [
+check('autism asks for a quieter screen, somewhere to put a thought, routines, and plain wording', supportsFor(['autism']), [
   'captureInbox',
   'routineReminders',
   'lowStimulation',
+  'plainWording',
 ]);
 check('ADHD asks for everything that carries a date, and not for a quieter screen', supportsFor(['adhd']), [
   'captureInbox',
   'routineReminders',
   'noteReminders',
   'datedReminders',
+  'plainWording',
 ]);
-check('dyslexia asks for the text and nothing else', supportsFor(['dyslexia']), ['roomyText']);
+check('dyslexia asks for the text and plain wording, nothing else', supportsFor(['dyslexia']), ['roomyText', 'plainWording']);
+// 2026-10-03: every profile is offered plain wording.
+check('all three offer plain wording', ['autism', 'adhd', 'dyslexia'].every((key) => supportsFor([key]).includes('plainWording')), true);
 check('nothing listed asks for nothing', supportsFor([]), []);
 
 // The union, not a concatenation: both ask for the capture inbox and it
@@ -90,6 +94,7 @@ check('two of them asking for the same thing name it once', supportsFor(['autism
   'noteReminders',
   'datedReminders',
   'lowStimulation',
+  'plainWording',
 ]);
 check(
   'all three together reach every setting there is',
@@ -168,7 +173,7 @@ check('an empty table is nobody', normalizeNeuroProfileKeys([]), []);
 // ------------------------------------------------------------ nothing goes unnamed
 
 check('three are listed', ALL_NEURO_PROFILE_KEYS.length, 3);
-check('six settings are listed', ALL_NEURO_SUPPORT_KEYS.length, 6);
+check('seven settings are listed', ALL_NEURO_SUPPORT_KEYS.length, 7);
 
 for (const key of ALL_NEURO_PROFILE_KEYS) {
   check(`${key} has a label`, (NEURO_PROFILE_LABELS[key] ?? '').length > 0, true);
@@ -215,8 +220,10 @@ check('no two settings switch on the same reminder kind', (() => {
 // 2026-09-18, reported directly: "Right now, the dyslexia function doesn't
 // seem to actually get turned off when the pill is deselected." Dyslexia is
 // the simple case, since nothing else asks for the text work.
-check('unlisting Dyslexia drops the text work', supportsDroppedBy('dyslexia', ['dyslexia']), ['roomyText']);
-check('and it is switched off, not just dropped', supportsTurnedOffBy('dyslexia', ['dyslexia']), ['roomyText']);
+check('unlisting Dyslexia drops the text work', supportsDroppedBy('dyslexia', ['dyslexia']), ['roomyText', 'plainWording']);
+check('and it is switched off, not just dropped', supportsTurnedOffBy('dyslexia', ['dyslexia']), ['roomyText', 'plainWording']);
+// Plain wording is shared by all three, so it stays while any is listed.
+check('plain wording stays while another profile asks for it', supportsDroppedBy('dyslexia', ['adhd', 'dyslexia']), ['roomyText']);
 check('with the others listed it still only drops its own', supportsDroppedBy('dyslexia', ['autism', 'adhd', 'dyslexia']), ['roomyText']);
 
 // The case the whole function exists for: two profiles asking for the same

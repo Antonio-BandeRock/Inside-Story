@@ -44,6 +44,8 @@ import { biometricTitle, deviceWord } from "../lib/appLockWords";
 import { isDesktopApp } from "../lib/desktop/bridge";
 import { shareFileIfAvailable } from "../lib/nativeSharing";
 import { restartApp } from "../lib/restartApp";
+import { wording } from "../lib/playfulCopy";
+import { usePlayfulWording } from "../hooks/usePlayfulWording";
 
 type Mode = "setup" | "passcode" | "recovery" | "biometric" | "off";
 
@@ -91,6 +93,7 @@ function recoveryHtml(key: RecoveryKey): string {
 
 export default function AppLockSetupScreen() {
   const router = useRouter();
+  const playful = usePlayfulWording();
   const params = useLocalSearchParams<{ mode?: string }>();
   const mode: Mode =
     params.mode === "passcode" ||
@@ -453,11 +456,7 @@ export default function AppLockSetupScreen() {
           color={colors.textMuted}
         />
         <Text style={styles.title}>Ready to lock</Text>
-        <Text style={styles.text}>
-          If both the passcode and the recovery key are lost, your records
-          cannot be opened by anybody, and that includes the people who make the
-          app. There is no reset.
-        </Text>
+        <Text style={styles.text}>{wording("appLockNoReset", playful)}</Text>
         <Text style={styles.text}>
           The app restarts now and locks your records. Keep it open until that
           finishes.

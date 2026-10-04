@@ -19,6 +19,8 @@
   .draft { background: var(--band); border-left: 4px solid var(--accent); padding: 12px 16px; margin: 16px 0 8px; }
   a { color: var(--accent); }
   nav { margin-top: 40px; color: var(--muted); }
+  .aside { color: var(--muted); font-style: italic; border-left: 2px dashed var(--line); padding: 2px 12px; margin: 8px 0 16px; }
+  .aside::before { content: "Aside: "; font-style: normal; }
 </style>
 </head>
 <body>
@@ -27,6 +29,7 @@
   <p class="meta">Inside Story. Version 1, 29 September 2026.</p>
   <div class="draft">
     <p><strong>Working draft.</strong> These terms describe how the app works today. They are waiting for review by a lawyer before the app is released in the app stores, and the wording may change after that review. When it changes, the app shows its agreement screen again.</p>
+  <p>Lines marked <em>Aside</em> are light remarks about how the app is built. They are not part of these terms and change nothing it says.</p>
   </div>
 
   <h2>1. What Inside Story is</h2>
@@ -53,6 +56,7 @@
     <li>You are responsible for keeping a backup. Without one, a lost or broken device means lost records.</li>
     <li>The password that protects your backup is known only to you. It cannot be recovered or reset by anyone, and a lost password means the backup cannot be opened.</li>
   </ul>
+  <p class="aside">Locked means locked. Even we can't get in. Especially we can't get in.</p>
 
   <h2>6. Sharing with other people</h2>
   <p>You can connect with other people who use the app and share parts of your records with them. Share only what you are comfortable with them seeing, and only records about other people that you have their permission to keep and share. Once shared, what the other person does with it is between the two of you.</p>
@@ -69,12 +73,14 @@
     <li>Do not try to break into the relay or other parts of the service, disrupt them, or use them to send anything other than the app's sealed messages.</li>
     <li>Do not copy the app or its written content to sell or publish as your own.</li>
   </ul>
+  <p class="aside">Anyone who did break into the relay would find sealed envelopes nobody there can open. As heists go, it is a letdown.</p>
 
   <h2>10. Plans and payments</h2>
   <p>If paid plans are offered, they will be sold through the app store you installed the app from, under that store's payment and refund terms, and the price and what each plan includes will be shown before you buy.</p>
 
   <h2>11. Changes to the app and these terms</h2>
   <p>The app is updated often. Features may be added, changed or removed. When these terms change in a way that matters, they get a new version number and date here, and the app asks you to read and agree again before going on.</p>
+  <p class="aside">Often means often. The version number has been busy.</p>
 
   <h2>12. No guarantee, and limits on responsibility</h2>
   <p>The app is provided as it is. We work to keep it accurate and working, but cannot promise it will be free of errors, always available, or right for your situation. To the extent the law allows, we are not responsible for decisions made or harm that follows from relying on the app instead of a qualified professional, or for records lost when there was no backup. Nothing here takes away rights you have under the consumer protection law where you live.</p>

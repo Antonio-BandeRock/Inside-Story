@@ -35,6 +35,7 @@ import type { GroundTheme } from '../constants/colors';
 import type { DigestCategoryKey } from './digest';
 import { getDatabase } from './db';
 import { groupHomeSectionKeysByTab } from './homeSections';
+import { setPlayfulWordingEnabled } from './playfulCopy';
 import {
   DEFAULT_LETTER_SPACING,
   DEFAULT_LINE_SPACING,
@@ -758,6 +759,12 @@ export type VisualPreferences = {
   // it on from a chart lens, since not everybody logs a cycle and the
   // ones who do may not want it on every chart. See lib/cycleShading.ts.
   trendsCycleShading: boolean;
+  // 2026-10-03: a light joke after the facts on a few empty screens,
+  // privacy notices and desktop limits. On by default, as asked, with the
+  // plain twin of every line in lib/playfulCopy.ts. Listing a
+  // neurodivergent profile offers to turn it off (plainWording in
+  // lib/neuroProfile.ts).
+  playfulWording: boolean;
 };
 
 // Which background a given scope actually draws, once low stimulation has
@@ -938,6 +945,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   developerNotes: false,
   developerNotesPreview: true,
   trendsCycleShading: false,
+  playfulWording: true,
 };
 
 const VISUAL_PREFERENCES_KEY = 'visual_preferences';
@@ -1080,6 +1088,32 @@ export function getLineSpacingSync(): LineSpacingKey {
     // Falls back below, same as every other not-yet-loaded case here.
   }
   return DEFAULT_LINE_SPACING;
+}
+
+// Playful wording, mirrored for the one screen that draws before the
+// database can be read: the App Lock screen, whose records are still
+// locked. Whether somebody wants jokes is not a health record, so it can sit
+// in a plain file. Missing or unreadable reads as the default, on.
+export function getPlayfulWordingSync(): boolean {
+  try {
+    const file = playfulMirrorFile();
+    if (file.exists) return file.textSync().trim() !== 'off';
+  } catch {
+    // Falls back to the default below.
+  }
+  return true;
+}
+
+function playfulMirrorFile(): File {
+  return new File(Paths.document, 'playful_wording_mirror.txt');
+}
+
+function writePlayfulMirror(on: boolean) {
+  try {
+    playfulMirrorFile().write(on ? 'on' : 'off');
+  } catch {
+    // The lock screen falls back to the default for one launch.
+  }
 }
 
 const LINE_SPACING_MIRROR_FILE_NAME = 'line_spacing_mirror.txt';
@@ -1234,6 +1268,8 @@ export async function getVisualPreferences(): Promise<VisualPreferences> {
     }
 
     cached = loaded;
+    setPlayfulWordingEnabled(loaded.playfulWording);
+    writePlayfulMirror(loaded.playfulWording);
     // 2026-08-27 -- see getGroundThemeSync's own header comment. Keeps
     // the sync-read mirror file current every time real preferences are
     // actually loaded, not just when they're changed, so a device that
@@ -1287,6 +1323,8 @@ export async function setVisualPreferences(update: Partial<VisualPreferences>): 
   };
 
   cached = merged;
+  setPlayfulWordingEnabled(merged.playfulWording);
+  writePlayfulMirror(merged.playfulWording);
   // 2026-08-27 -- see getGroundThemeSync's own header comment.
   writeGroundThemeMirror(merged.groundTheme);
   writeLineSpacingMirror(merged.lineSpacing);

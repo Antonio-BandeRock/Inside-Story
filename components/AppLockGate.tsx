@@ -50,7 +50,9 @@ import {
 } from "../lib/appLockSession";
 import { biometricTitle, deviceWord } from "../lib/appLockWords";
 import { isDesktopApp } from "../lib/desktop/bridge";
+import { wording } from "../lib/playfulCopy";
 import { restartApp } from "../lib/restartApp";
+import { getPlayfulWordingSync } from "../lib/visualPreferences";
 import { PasscodeEntry } from "./PasscodeEntry";
 
 // App Lock's gate (step 4 of docs/app-lock-phase0-audit.md). Wraps the whole
@@ -346,6 +348,9 @@ function LockScreen({
   const [passcode, setPasscode] = useState("");
   const [checking, setChecking] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  // Read from the mirror file, because the setting itself is inside the
+  // records this screen is guarding.
+  const [lockedAside] = useState(() => wording("appLockLocked", getPlayfulWordingSync()));
   // Milliseconds left before another passcode can be tried (R6), read again
   // from the lock file each second while a wait runs.
   const [waitMs, setWaitMs] = useState(() => passcodeWaitRemaining());
@@ -414,6 +419,7 @@ function LockScreen({
 
   return (
     <GateScreen icon="lock-closed-outline" title="Inside Story is locked">
+      {lockedAside ? <Text style={styles.text}>{lockedAside}</Text> : null}
       {message ? <Text style={styles.text}>{message}</Text> : null}
       {waiting ? (
         <Text style={styles.warning}>

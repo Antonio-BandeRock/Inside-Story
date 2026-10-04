@@ -63,6 +63,9 @@ import {
 } from '../lib/yourStoryInterview';
 import { clearYourStoryAnswer, setYourStoryAnswer } from '../lib/yourStoryInterviewDb';
 import { BeatPicker } from './BeatPicker';
+import { usePlayfulWording } from '../hooks/usePlayfulWording';
+import { wording } from '../lib/playfulCopy';
+import { setVisualPreferences } from '../lib/visualPreferences';
 import { HOME_BAND_CONTENT_PADDING, homeBandStyle } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 
@@ -99,6 +102,7 @@ export function YourStoryInterview({ mode, interview, onChanged, go }: Props) {
   // The question held open while choices are being made, or reopened with
   // Change. Null means the next unanswered one.
   const [holding, setHolding] = useState<string | null>(null);
+  const playful = usePlayfulWording();
   const [allergyText, setAllergyText] = useState('');
   const [sex, setSex] = useState<'male' | 'female' | null>(null);
   const [year, setYear] = useState<string | null>(null);
@@ -214,6 +218,19 @@ export function YourStoryInterview({ mode, interview, onChanged, go }: Props) {
               })}
             </View>
             <Text style={styles.caption}>{NEURO_PROFILE_NOTE}</Text>
+            {/* 2026-10-03, direct request: "If the user tells the app from the
+                start they have a neurodivergent mind, we can offer to be more
+                direct, without the playful stuff." Offered, never switched
+                silently; Profile > Playful Wording changes it later. */}
+            {facts.neuro.length > 0 ? (
+              <>
+                <Text style={styles.caption}>{wording('plainWordingOffer', playful)}</Text>
+                <View style={styles.pills}>
+                  {pill('Plain wording', !playful, () => void setVisualPreferences({ playfulWording: false }), 'plain-wording')}
+                  {pill('Keep the jokes', playful, () => void setVisualPreferences({ playfulWording: true }), 'keep-jokes')}
+                </View>
+              </>
+            ) : null}
             <View style={styles.links}>
               {facts.neuro.length > 0
                 ? link(DONE_LABEL, () => finishMulti(question, facts.neuro.length))

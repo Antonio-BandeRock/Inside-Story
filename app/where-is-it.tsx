@@ -42,6 +42,7 @@ import {
 import { listPlaceRecords } from '../lib/whereIsItDb';
 import { confirmKitchenItemLocation, setKitchenItemLocation } from '../lib/kitchenDb';
 import { RecordPhotos } from '../components/RecordPhotos';
+import { usePlayfulWording } from '../hooks/usePlayfulWording';
 
 // Where the answer came from, so a result carries its source at a glance: a
 // garden bed reads differently from a cupboard, and a sentence somebody spoke
@@ -60,6 +61,7 @@ const KIND_COLORS: Record<PlaceRecordKind, string> = {
 
 export default function WhereIsItScreen() {
   const scrollPadding = useFloatingButtonScrollPadding();
+  const playful = usePlayfulWording();
   // q comes from Ask Your Records on Home (C22): the thing asked about is
   // already in the box.
   const { q } = useLocalSearchParams<{ q?: string }>();
@@ -101,7 +103,7 @@ export default function WhereIsItScreen() {
   const today = new Date().toISOString().slice(0, 10);
   const hits = searchPlaces(records, query);
   const chips = suggestPlaces(records);
-  const nothingToSay = describeNoResults(query, records.length);
+  const nothingToSay = describeNoResults(query, records.length, playful);
 
   // A photo of where something was left is often the quickest answer, and
   // it is the same photo the record shows wherever else it is read: a

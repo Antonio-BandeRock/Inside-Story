@@ -23,6 +23,8 @@
   .wrap { overflow-x: auto; }
   a { color: var(--accent); }
   nav { margin-top: 40px; color: var(--muted); }
+  .aside { color: var(--muted); font-style: italic; border-left: 2px dashed var(--line); padding: 2px 12px; margin: 8px 0 16px; }
+  .aside::before { content: "Aside: "; font-style: normal; }
 </style>
 </head>
 <body>
@@ -31,6 +33,7 @@
   <p class="meta">Inside Story. Version 1, 29 September 2026.</p>
   <div class="draft">
     <p><strong>Working draft.</strong> This policy describes how the app is built today. It is waiting for review by a lawyer before the app is released in the app stores, and the wording may change after that review. When it changes, the app shows its agreement screen again.</p>
+  <p>Lines marked <em>Aside</em> are light remarks about how the app is built. They are not part of this policy and change nothing it says.</p>
   </div>
 
   <h2>The short version</h2>
@@ -40,6 +43,7 @@
     <li>There is no Inside Story account, no company server holding your health records, no advertising, no tracking and no selling or sharing of your data with anyone.</li>
     <li>A few lookups go out to public services, and each sends only what it needs: a barcode, a medicine name or code, a postal code, or a web address you pasted. They are listed below.</li>
   </ul>
+  <p class="aside">We built it so we could not look at your records even if we wanted to. We don't want to. Now we can't, which is better.</p>
 
   <h2>Who is responsible</h2>
   <p>Inside Story is made by an independent developer based in Mexico. Contact details for privacy questions and requests will be added here before the app is released in the stores.</p>
@@ -51,6 +55,7 @@
   <h2>Backup and syncing between your devices</h2>
   <p>If you turn it on, the app saves an encrypted copy of your database to a folder you pick in your cloud storage. On a phone this goes through Microsoft's OneDrive service, signed in with your Microsoft account; on a computer it is the OneDrive folder on the disk. The copy is encrypted on your device with a password only you know, before it leaves. We cannot open it and cannot reset the password, which is why there is no "forgot password" option.</p>
   <p>Beside the encrypted copy, a small plain file records which of your devices saved last and when. It holds no health information.</p>
+  <p class="aside">We can't reset your password, because we never had it. We checked. Twice. It's just the mug in here.</p>
   <p>Your cloud provider's privacy terms apply to what is stored in your account.</p>
 
   <h2>Sharing with other people</h2>
@@ -62,6 +67,7 @@
     <li>through our relay at insidestoryapp.com, described next.</li>
   </ul>
   <p><strong>The relay.</strong> The relay is a mailbox that holds a sealed message until the other person's device collects it. It cannot open what it holds. It stores the sealed message, two anonymous key fingerprints (who it is for and who sent it), its size and when it arrived. A message is deleted when it is collected or after 30 days, whichever comes first. The relay runs on Cloudflare, which, like any web host, handles the network address your device connects from in order to deliver the request.</p>
+  <p class="aside">Think of a mail carrier who cannot read postcards. That is the only kind of mail carrier we wanted to be.</p>
 
   <h2>What the app sends to other services</h2>
   <p>These happen only when you use the feature. None of them carries your name or an account identifier, and none carries your health records except the words you speak into voice input, as described in its row.</p>
@@ -86,6 +92,7 @@
     <li>No data is used to train artificial intelligence models.</li>
     <li>No health information is shared with employers, insurers or data brokers, because we never hold it.</li>
   </ul>
+  <p class="aside">No "anonymized" usage file either, which is usually about as anonymous as a name tag.</p>
 
   <h2>Children</h2>
   <p>The app is not directed at children under 13. Where a parent keeps records about their child, those records are the parent's, kept on the parent's device under this same policy.</p>

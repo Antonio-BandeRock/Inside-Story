@@ -83,6 +83,7 @@ import {
   type SessionPlan,
 } from '../lib/syncSession';
 import { claimSession, readSessionNote } from '../lib/syncSessionDevice';
+import { withPlayfulTail } from '../lib/playfulCopy';
 import { AppActionSheet } from './AppActionSheet';
 import { useInfoAlert } from './InfoAlert';
 
@@ -136,7 +137,9 @@ export function SnapshotSyncWatcher() {
     (reason: string) => {
       if (toldRef.current.has(reason)) return;
       toldRef.current.add(reason);
-      showNotice('Sync could not reach your shared folder', reason);
+      // The reason first, plainly; with Playful wording on, a line after it
+      // that everything recorded is still safe here.
+      showNotice('Sync could not reach your shared folder', withPlayfulTail(reason, 'folderUnreachableTail'));
     },
     [showNotice],
   );

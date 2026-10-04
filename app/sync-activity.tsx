@@ -33,6 +33,8 @@ import { textShadow, typography } from '../constants/typography';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { howYouAreLinked } from '../lib/peerRelationships';
 import { describeMoment } from '../lib/snapshotSync';
+import { wording } from '../lib/playfulCopy';
+import { usePlayfulWording } from '../hooks/usePlayfulWording';
 import {
   clearSyncLog,
   describeLogRow,
@@ -56,6 +58,7 @@ function whoChangedIt(row: SyncLogRow, hereIsComputer: boolean): string {
 }
 
 export default function SyncActivityScreen() {
+  const playful = usePlayfulWording();
   const scrollPadding = useFloatingButtonScrollPadding();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [merges, setMerges] = useState<SyncLogMerge[] | null>(null);
@@ -130,8 +133,7 @@ export default function SyncActivityScreen() {
             {merges == null
               ? 'Reading what has been kept.'
               : merges.length === 0
-                ? 'Once your other device saves something while automatic sync is on, or somebody you share with ' +
-                  'does, what came over shows up here.'
+                ? wording('syncActivityEmpty', playful)
                 : lineCount + (lineCount === 1 ? ' change' : ' changes') + ' in all. Tap for how this is kept.'}
           </Text>
         </TouchableOpacity>

@@ -23,6 +23,7 @@
 // list once and every notice for it goes with it. No React and no bridge
 // call in here, so scripts/test_phone_only.js covers the wording.
 import { isDesktopApp } from './bridge';
+import { withPlayfulTail, type PlayfulKey } from '../playfulCopy';
 
 export type PhoneOnlyFeature =
   | 'scanProduct'
@@ -77,8 +78,28 @@ const MESSAGES: Record<PhoneOnlyFeature, string> = {
 
 export const PHONE_ONLY_FEATURES: readonly PhoneOnlyFeature[] = Object.keys(MESSAGES) as PhoneOnlyFeature[];
 
+// With Playful wording on, a light aside follows the plain instructions,
+// which always come first and are unchanged. Every camera feature shares one.
+const PLAYFUL_TAILS: Record<PhoneOnlyFeature, PlayfulKey> = {
+  scanProduct: 'phoneOnlyCamera',
+  photo: 'phoneOnlyCamera',
+  readPrice: 'phoneOnlyCamera',
+  readMenu: 'phoneOnlyCamera',
+  readLabSheet: 'phoneOnlyCamera',
+  scanPairingCode: 'phoneOnlyCamera',
+  scanMedicineCode: 'phoneOnlyCamera',
+  scanHouseholdCode: 'phoneOnlyCamera',
+  voice: 'phoneOnlyVoice',
+  healthConnect: 'phoneOnlyHealthConnect',
+  wifiSync: 'phoneOnlyWifiSync',
+  phoneCalendar: 'phoneOnlyCalendar',
+  lightMeter: 'phoneOnlyLightMeter',
+};
+
 export function phoneOnlyNotice(feature: PhoneOnlyFeature): PhoneOnlyNotice {
-  return { title: PHONE_ONLY_TITLE, message: MESSAGES[feature] };
+  const plain = MESSAGES[feature];
+  const tail = PLAYFUL_TAILS[feature];
+  return { title: PHONE_ONLY_TITLE, message: plain && tail ? withPlayfulTail(plain, tail) : plain };
 }
 
 /**

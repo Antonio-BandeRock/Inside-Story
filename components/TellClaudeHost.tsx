@@ -63,6 +63,7 @@ import {
 import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
 import { PlainTextZone } from './EditableText';
+import { wording } from '../lib/playfulCopy';
 import { useKeyboardLift } from './KeyboardLift';
 
 type Open = {
@@ -135,7 +136,7 @@ export function TellClaudeHost() {
       // error here: the note is in the table either way, and the next sync
       // publishes whatever never reached the file.
       const result = await syncDevNotes();
-      setSaved(result.problem ? 'Written down here. It will go out when the folder is reachable.' : 'Written down.');
+      setSaved(result.problem ? 'Written down here. It will go out when the folder is reachable.' : (wording('tellClaudeSaved') ?? 'Written down.'));
     } catch (error) {
       console.error('[tellClaude] could not write the note', error);
       setSaved('Could not write that down.');

@@ -24,6 +24,8 @@
 
 // Which record a hit came out of. Kitchen rows can be confirmed and moved
 // from the results; the other two are read where they are.
+import { wording } from './playfulCopy';
+
 export type PlaceRecordKind = 'kitchen' | 'note' | 'garden';
 
 export type PlaceRecord = {
@@ -212,9 +214,9 @@ export function suggestPlaces(records: PlaceRecord[], limit = 6): string[] {
 // What the screen says when a search finds nothing. Two different situations
 // and two different sentences: an empty store needs telling how to fill it,
 // and a full store that missed needs telling how to search it better.
-export function describeNoResults(query: string, totalRecords: number): string {
+export function describeNoResults(query: string, totalRecords: number, playful = false): string {
   if (totalRecords === 0) {
-    return 'Nothing has a place written down yet. Add one to a kitchen item, or throw a note into Capture and sort it to Where it is.';
+    return wording('whereIsItEmpty', playful) ?? '';
   }
   const words = searchWords(query);
   if (words.length === 0) return '';
