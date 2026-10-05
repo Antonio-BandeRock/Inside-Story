@@ -930,7 +930,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   customBackgroundImages: {},
   genericPalette: 'ocean',
   tabHubIcon: 'seedTall',
-  groundTheme: 'teal',
+  groundTheme: 'ghostead',
   homeSectionVisibility: {},
   homeGroupVisibility: {},
   growthVineEnabled: true,
@@ -1056,7 +1056,7 @@ export function getGroundThemeSync(): GroundTheme {
   return DEFAULT_VISUAL_PREFERENCES.groundTheme;
 }
 
-// The 5 real GroundTheme keys, duplicated by hand from constants/
+// The real GroundTheme keys, duplicated by hand from constants/
 // colors.ts's own literal union rather than imported as a value -- that
 // file imports getGroundThemeSync FROM this one (its own module-top-level
 // `GROUND_THEMES[getGroundThemeSync()]` call), so importing GROUND_THEMES
@@ -1065,7 +1065,7 @@ export function getGroundThemeSync(): GroundTheme {
 // erased at compile time and carries no such risk). Flagged directly
 // rather than silently duplicated: keep this list in sync by hand if a
 // new ground theme is ever added.
-const GROUND_THEME_KEYS: readonly GroundTheme[] = ['navy', 'teal', 'purple', 'charcoal', 'burgundy'];
+const GROUND_THEME_KEYS: readonly GroundTheme[] = ['navy', 'teal', 'purple', 'charcoal', 'burgundy', 'ghostead'];
 function isGroundTheme(value: string): value is GroundTheme {
   return (GROUND_THEME_KEYS as readonly string[]).includes(value);
 }

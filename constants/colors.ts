@@ -45,7 +45,7 @@ import { getGroundThemeSync } from '../lib/visualPreferences';
 // it's intentionally desaturated toward neutral specifically so it doesn't
 // compete with whichever hue is active, and that reasoning holds regardless
 // of which ground theme is selected.
-export type GroundTheme = 'navy' | 'teal' | 'purple' | 'charcoal' | 'burgundy';
+export type GroundTheme = 'navy' | 'teal' | 'purple' | 'charcoal' | 'burgundy' | 'ghostead';
 
 export const GROUND_THEME_LABELS: Record<GroundTheme, string> = {
   navy: 'Deep Navy',
@@ -53,6 +53,7 @@ export const GROUND_THEME_LABELS: Record<GroundTheme, string> = {
   purple: 'Deep Purple',
   charcoal: 'Deep Charcoal',
   burgundy: 'Deep Burgundy',
+  ghostead: 'Ghostead',
 };
 
 type GroundFamily = {
@@ -96,7 +97,7 @@ export const GROUND_THEMES: Record<GroundTheme, GroundFamily> = {
     keySurface: '#7E97C4',
     buttonColor: '#8D9EC4',
   },
-  // The new shipped default as of 2026-08-19. Landed on via the Ground
+  // The shipped default from 2026-08-19 to 2026-10-05. Landed on via the Ground
   // Color Lab explorer artifact: started from a "Deep Teal" preset (H190
   // S32 L25, Navy's own S/L exactly) and settled a touch darker (H190 S32
   // L21) after seeing it live on-device.
@@ -147,6 +148,21 @@ export const GROUND_THEMES: Record<GroundTheme, GroundFamily> = {
     textMuted: '#B6727D',
     keySurface: '#C46474',
     buttonColor: '#C77F8A',
+  },
+  // H189 S17 L15, the background of ghostead.com and insidestoryapp.com, so
+  // the app, its site and the company's site share one ground. The shipped
+  // default since 2026-10-05. Generated at the same offsets as every family
+  // above (that method reproduces Teal's values exactly); buttonColor is
+  // lighten(background, 0.55), 5.81:1 against textOnButton and 5.89:1
+  // against this background.
+  ghostead: {
+    background: '#1F2A2C',
+    surface: 'rgba(58, 67, 68, 0.85)',
+    surfaceMuted: 'rgba(46, 62, 64, 0.85)',
+    border: '#566365',
+    textMuted: '#7B8E92',
+    keySurface: '#6B99A1',
+    buttonColor: '#8CA9AE',
   },
 };
 
