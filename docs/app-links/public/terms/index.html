@@ -21,6 +21,9 @@
   nav { margin-top: 40px; color: var(--muted); }
   .aside { color: var(--muted); font-style: italic; border-left: 2px dashed var(--line); padding: 2px 12px; margin: 8px 0 16px; }
   .aside::before { content: "Aside: "; font-style: normal; }
+  .maker { display: flex; flex-direction: column; align-items: center; width: max-content; margin: 36px auto 8px; color: var(--muted); text-decoration: none; font-size: .85rem; }
+  .maker img { display: block; width: 56px; height: 56px; margin-bottom: 4px; }
+  .maker:hover { color: var(--text); }
 </style>
 </head>
 <body>
@@ -89,6 +92,7 @@
   <p>Inside Story is made by an independent developer based in Mexico. Contact details, and the law and courts that govern these terms, will be added here after legal review and before the app is released in the stores.</p>
 
   <nav><a href="/privacy/">Privacy Policy</a> · <a href="/">Inside Story</a></nav>
+  <a class="maker" href="https://ghostead.com"><picture><source srcset="/ghostead-icon-dark.svg" media="(prefers-color-scheme: dark)"><img src="/ghostead-icon-light.svg" alt="" width="56" height="56"></picture>Made by Ghostead</a>
 </main>
 </body>
 </html>
