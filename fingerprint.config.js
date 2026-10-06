@@ -49,6 +49,8 @@
 // happened), after which .gitignore edits no longer strand OTA updates.
 module.exports = {
   sourceSkips: ['ExpoConfigVersions', 'GitIgnore', 'PackageJsonScriptsAll'],
+  // 2026-10-06: Gradle output a local compile leaves inside a package. See the note at the end.
+  ignorePaths: ['node_modules/**/android/build/**', 'node_modules/**/android-expo/build/**'],
 };
 
 // 2026-09-14, later the same day, the third source of drift: package.json's
@@ -75,3 +77,14 @@ module.exports = {
 // from .gitignore (see node_modules/eas-cli/build/vcs/local.js). Both files
 // are hashed on the build server and locally, so keeping .easignore
 // committed and the Firebase file in place keeps the two in step.
+
+//
+// 2026-10-06, the fourth source of drift, and the first to fail a build
+// rather than strand an update. A local Android compile left Gradle output
+// in node_modules/react-native-health-connect/android-expo/build, which this
+// tool hashed as part of that package. EAS installs node_modules fresh, so
+// its fingerprint had no such folder: build 465b00dd waited 2 h 48 min in
+// the queue and then failed in CONFIGURE_EXPO_UPDATES on "Runtime version
+// mismatch" (local 1390dedf, EAS d997c72f). Generated Gradle output can
+// never be what a fresh install compiles from, so ignorePaths leaves it out.
+// With the folders deleted the hash was d997c72f before and after adding it.
