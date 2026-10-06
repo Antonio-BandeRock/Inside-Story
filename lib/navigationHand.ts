@@ -68,3 +68,24 @@ function subscribe(listener: () => void): () => void {
 export function useNavigationHand(): NavigationHand {
   return useSyncExternalStore(subscribe, getNavigationHand, getNavigationHand);
 }
+
+// Where a form's main button goes, 1.0.61.14 (2026-10-05). Direct request:
+// Save on the thumb side, Cancel and the other ways out on the far side. A
+// row's buttons keep their order in the source, and `primary` says which end
+// of it the main button is written at; the row is then laid out so that
+// button lands nearest the edge the thumb rests on, with the rest packed in
+// beside it toward the far side. Pure, so a test can check it without a phone.
+export type ThumbRowPrimary = 'first' | 'last';
+
+export function thumbRowLayout(
+  hand: NavigationHand,
+  primary: ThumbRowPrimary,
+): { flexDirection: 'row' | 'row-reverse'; justifyContent: 'flex-start' | 'flex-end' } {
+  // 'row' fills from the left, 'row-reverse' from the right. Written first,
+  // the main button leads from the thumb's edge; written last, it closes the
+  // row against that edge.
+  if (primary === 'first') {
+    return { flexDirection: hand === 'left' ? 'row' : 'row-reverse', justifyContent: 'flex-start' };
+  }
+  return { flexDirection: hand === 'left' ? 'row-reverse' : 'row', justifyContent: 'flex-end' };
+}

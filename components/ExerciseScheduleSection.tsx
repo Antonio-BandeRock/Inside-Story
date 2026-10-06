@@ -42,6 +42,7 @@ import { listWorkouts } from '../lib/workoutsDb';
 import { describeWorkout, type Workout } from '../lib/workouts';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { buildTime24, describeTimeInputProblem, splitTime24, type TimeOfDayInput } from '../lib/timeOfDay';
+import { ThumbRow } from './ThumbRow';
 
 // Schedules > Exercise, H11 part 3. A plan is a workout from Life >
 // Workouts or a plain activity by name, on a first day, at a time or any
@@ -444,14 +445,14 @@ export function ExerciseScheduleSection({ tabColor, RepeatRulePicker }: Props) {
             onChangeText={(text) => patch({ note: text })}
           />
 
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => setForm(null)}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={handleSave}>
               <Text style={styles.primaryButtonText}>{form.editingId ? 'Save changes' : 'Save plan'}</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       )}
 

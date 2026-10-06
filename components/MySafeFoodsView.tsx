@@ -28,6 +28,7 @@ import { FoodMarkButtons, foodAppLine, foodTrialLine } from './FoodSafetyMarks';
 import { categoryLabel } from './FoodLookup';
 import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HomeSectionBand } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
+import { ThumbRow } from './ThumbRow';
 
 // My Safe Foods: the person's list, kept by the person.
 //
@@ -363,14 +364,14 @@ export function MySafeFoodsView({ onClose, onChanged }: { onClose: () => void; o
                 maxLength={140}
               />
 
-              <View style={styles.draftActions}>
+              <ThumbRow primary="last" style={styles.draftActions}>
                 <TouchableOpacity style={styles.secondaryButton} onPress={() => setDraft(null)} activeOpacity={0.7}>
                   <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.primaryButton} onPress={() => save(draft)} activeOpacity={0.7}>
                   <Text style={styles.primaryButtonText}>{draft.isExisting ? 'Save' : 'Add to my list'}</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </View>
           ) : (
             <>

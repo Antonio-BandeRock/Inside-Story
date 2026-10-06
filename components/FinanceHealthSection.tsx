@@ -35,6 +35,7 @@ import {
 import { monthlyFactor, parseDueRule } from '../lib/financeSchedule';
 import { LEGACY_CADENCE_MONTHLY } from '../lib/financeCore';
 import { parsePriceInput } from '../lib/groceryList';
+import { ThumbRow } from './ThumbRow';
 
 // The health-money half of Finances, 2026-09-05. Pulled into its own
 // component rather than added to app/(tabs)/life.tsx because it is a
@@ -301,14 +302,14 @@ export function FinanceHealthSection({ tabColor }: Props) {
             Read these off your insurer’s site if you are starting partway through the year, so the bars start where you
             actually are rather than at zero.
           </Text>
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => setOpenForm(null)}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={savePlan}>
               <Text style={styles.primaryButtonText}>Save plan</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : null}
 
@@ -364,14 +365,14 @@ export function FinanceHealthSection({ tabColor }: Props) {
           ) : (
             <Text style={styles.helperText}>An HSA has no deadline. The money is yours and rolls over indefinitely.</Text>
           )}
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => setOpenForm(null)}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={saveAccount}>
               <Text style={styles.primaryButtonText}>Save</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : null}
 
@@ -502,14 +503,14 @@ export function FinanceHealthSection({ tabColor }: Props) {
             value={billForm.appliedDeductible} onChangeText={(t) => setBillForm({ ...billForm, appliedDeductible: t })} />
           <Text style={styles.helperText}>The EOB states this. It is read off rather than worked out, because which services count is plan-specific.</Text>
 
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => setOpenForm(null)}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={saveBill}>
               <Text style={styles.primaryButtonText}>Add bill</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : null}
     </View>

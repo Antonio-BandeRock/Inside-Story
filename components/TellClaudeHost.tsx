@@ -66,6 +66,7 @@ import { NotesInput } from './NotesInput';
 import { PlainTextZone } from './EditableText';
 import { wording } from '../lib/playfulCopy';
 import { useKeyboardLift } from './KeyboardLift';
+import { ThumbRow } from './ThumbRow';
 
 type Open = {
   tab: string | null;
@@ -248,14 +249,14 @@ export function TellClaudeHost() {
                   autoFocus
                 />
                 {problem ? <Text style={styles.error}>{problem}</Text> : null}
-                <View style={styles.buttonRow}>
+                <ThumbRow primary="last" style={styles.buttonRow}>
                   <TouchableOpacity style={styles.cancelButton} onPress={() => setOpen(null)} hitSlop={8}>
                     <Text style={styles.cancelButtonText}>Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.okButton} onPress={save} disabled={saving} hitSlop={8}>
                     <Text style={styles.okButtonText}>{saving ? 'Saving' : 'Save'}</Text>
                   </TouchableOpacity>
-                </View>
+                </ThumbRow>
               </>
             )}
           </View>

@@ -11,6 +11,7 @@ import { CookModeButton } from './CookMode';
 import { useInfoAlert } from './InfoAlert';
 import { VoiceInputButton } from './VoiceInputButton';
 import { useNavigationHand } from '../lib/navigationHand';
+import { ThumbRow } from './ThumbRow';
 
 // A real, reusable, controlled add/edit/remove list-of-steps editor --
 // 2026-08-17, extracted from what used to be SideBuilder.tsx's own
@@ -235,7 +236,7 @@ export function StepsEditor({
               </>
             )}
           </View>
-          <View style={styles.buttonRow}>
+          <ThumbRow primary="last" style={styles.buttonRow}>
             <TouchableOpacity style={styles.splitButton} onPress={cancelStepEditor}>
               <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
             </TouchableOpacity>
@@ -245,7 +246,7 @@ export function StepsEditor({
             >
               <Text style={[styles.primaryButtonText, !stepDraft.trim() && styles.primaryButtonTextMuted]}>Save Step</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : steps.length === 0 ? (
         <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]} onPress={openAddStep}>

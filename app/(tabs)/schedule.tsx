@@ -330,6 +330,7 @@ import type { UsualMeal } from '../../lib/usualMeal';
 import { getOpenMealRules, listUsualMeals, saveOpenMealRules } from '../../lib/usualMealDb';
 import { useWalkMark } from '../../components/WalkMark';
 import { ExerciseScheduleSection } from '../../components/ExerciseScheduleSection';
+import { ThumbRow } from '../../components/ThumbRow';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -1931,14 +1932,14 @@ function MealsLens() {
                   />
                 ) : null}
 
-                <View style={styles.formActions}>
+                <ThumbRow primary="last" style={styles.formActions}>
                   <TouchableOpacity style={styles.secondaryButton} onPress={closeForm}>
                     <Text style={styles.secondaryButtonText}>Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.primaryButton} onPress={handleSaveForm}>
                     <Text style={styles.primaryButtonText}>{form.editingId ? 'Save changes' : 'Add to schedule'}</Text>
                   </TouchableOpacity>
-                </View>
+                </ThumbRow>
               </View>
             )}
 
@@ -2101,14 +2102,14 @@ function MealsLens() {
             ))}
           </ScrollView>
 
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={closeRotateSheet}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={handleSaveRotation}>
               <Text style={styles.primaryButtonText}>Save</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       </View>
     </Modal>
@@ -2385,14 +2386,14 @@ function MoveMealSheet({
             ) : null}
             {message ? <Text style={styles.errorText}>{message}</Text> : null}
           </ScrollView>
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={onClose}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={() => void handleMove()}>
               <Text style={styles.primaryButtonText}>Move it</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       </View>
     </Modal>
@@ -2608,7 +2609,7 @@ function CalendarNotesBand({
           />
           <Text style={styles.label}>Time (optional, like 18:30 or 6:30 pm)</Text>
           <AppTextInput style={styles.input} value={draft.time} onChangeText={(time) => setDraft({ ...draft, time })} placeholder="Any time" />
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity
               style={styles.secondaryButton}
               onPress={() => {
@@ -2621,7 +2622,7 @@ function CalendarNotesBand({
             <TouchableOpacity style={styles.primaryButton} onPress={() => void handleSave()}>
               <Text style={styles.primaryButtonText}>{draft.id ? 'Save changes' : 'Add the note'}</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : (
         <TouchableOpacity
@@ -2734,14 +2735,14 @@ function SavedWeeksBand({
         <View style={styles.formCard}>
           <Text style={styles.label}>Name for {formatWeekRangeLabel(weekStart)}</Text>
           <AppTextInput style={styles.input} value={name} onChangeText={setName} placeholder={defaultWeekName(weekStart)} />
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => setSaving(false)}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={() => void handleSave()}>
               <Text style={styles.primaryButtonText}>Save</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : (
         <TouchableOpacity
@@ -2992,7 +2993,7 @@ function HouseholdMealCalendarBand({
           <AppTextInput style={styles.input} value={draft.cook} onChangeText={(cook) => setDraft({ ...draft, cook })} />
           <Text style={styles.label}>Note (optional)</Text>
           <NotesInput style={styles.input} value={draft.note} onChangeText={(note) => setDraft({ ...draft, note })} multiline />
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity
               style={styles.secondaryButton}
               onPress={() => {
@@ -3006,7 +3007,7 @@ function HouseholdMealCalendarBand({
             <TouchableOpacity style={styles.primaryButton} onPress={() => void handleSaveDraft()}>
               <Text style={styles.primaryButtonText}>{editingId ? 'Save changes' : 'Add to the calendar'}</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : (
         <TouchableOpacity style={styles.addButton} onPress={startAdding}>
@@ -5297,14 +5298,14 @@ function HydrationLens() {
                 <RepeatPicker repeat={form.repeat} onChange={(repeat) => setForm((current) => ({ ...current, repeat }))} />
               ) : null}
 
-              <View style={styles.formActions}>
+              <ThumbRow primary="last" style={styles.formActions}>
                 <TouchableOpacity style={styles.secondaryButton} onPress={closeForm}>
                   <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.primaryButton} onPress={handleSaveForm}>
                   <Text style={styles.primaryButtonText}>{form.editingId ? 'Save changes' : 'Add to schedule'}</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </View>
           )}
 
@@ -5762,14 +5763,14 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
           <Text style={styles.helperText}>{activeTaperNote(tapersByTreatment.get(treatment.id) ?? [])}</Text>
         ) : null}
         <RepeatPicker repeat={doseFormRepeat} onChange={setDoseFormRepeat} />
-        <View style={styles.formActions}>
+        <ThumbRow primary="last" style={styles.formActions}>
           <TouchableOpacity style={styles.secondaryButton} onPress={closeDoseForm}>
             <Text style={styles.secondaryButtonText}>Cancel</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.primaryButton} onPress={() => handleSaveDose(treatment)}>
             <Text style={styles.primaryButtonText}>Add reminder</Text>
           </TouchableOpacity>
-        </View>
+        </ThumbRow>
       </View>
     );
   }
@@ -6599,14 +6600,14 @@ function AppointmentsLens() {
                 <Text style={styles.helperText}>Importing from your phone calendar; will stay linked to that event.</Text>
               ) : null}
 
-              <View style={styles.formActions}>
+              <ThumbRow primary="last" style={styles.formActions}>
                 <TouchableOpacity style={styles.secondaryButton} onPress={closeForm}>
                   <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.primaryButton} onPress={handleSaveForm}>
                   <Text style={styles.primaryButtonText}>{form.editingId ? 'Save changes' : 'Schedule appointment'}</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </View>
           ) : null}
 

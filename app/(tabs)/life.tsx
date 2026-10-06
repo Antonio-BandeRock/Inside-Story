@@ -111,6 +111,7 @@ import {
 import { parsePriceInput } from '../../lib/groceryList';
 import { useWalkMark } from '../../components/WalkMark';
 import type { WalkMark } from '../../lib/storyWalk';
+import { ThumbRow } from '../../components/ThumbRow';
 
 // The 10th tab, added 2026-09-04, and its first real area, added
 // 2026-09-05. Direct request: "Let's start with Finances... Finances is
@@ -1574,14 +1575,14 @@ export default function LifeScreen() {
           </View>
         ) : null}
 
-        <View style={styles.formActions}>
+        <ThumbRow primary="last" style={styles.formActions}>
           <TouchableOpacity style={styles.secondaryButton} onPress={() => setRecurringForm(null)}>
             <Text style={styles.secondaryButtonText}>Cancel</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.primaryButton} onPress={saveRecurring}>
             <Text style={styles.primaryButtonText}>{form.editingId ? 'Save changes' : 'Add it'}</Text>
           </TouchableOpacity>
-        </View>
+        </ThumbRow>
       </View>
     );
   }
@@ -1717,14 +1718,14 @@ export default function LifeScreen() {
               onChangeText={(text) => setEntryForm({ ...entryForm, description: text })}
             />
 
-            <View style={styles.formActions}>
+            <ThumbRow primary="last" style={styles.formActions}>
               <TouchableOpacity style={styles.secondaryButton} onPress={() => setEntryForm(null)}>
                 <Text style={styles.secondaryButtonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.primaryButton} onPress={saveEntry}>
                 <Text style={styles.primaryButtonText}>Record it</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </View>
         ) : null}
 
@@ -1800,7 +1801,7 @@ export default function LifeScreen() {
                 value={budgetForm.limit}
                 onChangeText={(text) => setBudgetForm({ ...budgetForm, limit: text })}
               />
-              <View style={styles.formActions}>
+              <ThumbRow primary="last" style={styles.formActions}>
                 <TouchableOpacity style={styles.secondaryButton} onPress={() => setBudgetForm(null)}>
                   <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
@@ -1819,7 +1820,7 @@ export default function LifeScreen() {
                 >
                   <Text style={styles.primaryButtonText}>Set it</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </>
           ) : (
             <TouchableOpacity style={styles.secondaryButton} onPress={() => setBudgetForm({ category: 'groceries', limit: '' })}>

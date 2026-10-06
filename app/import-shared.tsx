@@ -54,6 +54,7 @@ import { textShadow, typography } from '../constants/typography';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
 import { getConnectionByPublicKey } from '../lib/connections';
 import { decodeShareEnvelope, stageSharedItem, type ShareEnvelope } from '../lib/sharing';
+import { ThumbRow } from '../components/ThumbRow';
 
 function previewIngredientLines(envelope: ShareEnvelope): string[] {
   if (envelope.payload.kind === 'component') {
@@ -192,7 +193,7 @@ export default function ImportSharedScreen() {
         </View>
       ) : null}
 
-      <View style={styles.actionRow}>
+      <ThumbRow primary="first" style={styles.actionRow}>
         <TouchableOpacity
           style={[styles.primaryButton, styles.actionButton, status === 'saving' ? styles.primaryButtonDisabled : null]}
           activeOpacity={0.85}
@@ -208,7 +209,7 @@ export default function ImportSharedScreen() {
         >
           <Text style={styles.secondaryButtonText}>Discard</Text>
         </TouchableOpacity>
-      </View>
+      </ThumbRow>
     </ScrollView>
   );
 }

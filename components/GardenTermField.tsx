@@ -32,6 +32,7 @@ import { countRecordsUnderTerm, createGardenTerm, removeGardenTerm, renameGarden
 import { useState } from 'react';
 import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
+import { ThumbRow } from './ThumbRow';
 
 const TAB_COLOR = colors.tabGarden;
 const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
@@ -144,14 +145,14 @@ export function GardenTermField({ list, label, selected, onSelect, terms, onTerm
           />
           <Text style={styles.captionText}>{termSaveNote(list)}</Text>
           {formError ? <Text style={styles.errorText}>{formError}</Text> : null}
-          <View style={styles.actionRow}>
+          <ThumbRow primary="first" style={styles.actionRow}>
             <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSave}>
               <Text style={styles.primaryButtonText}>Save</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setForm(null)}>
               <Text style={styles.linkText}>Back</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : null}
       {removal ? (
@@ -169,7 +170,7 @@ export function GardenTermField({ list, label, selected, onSelect, terms, onTerm
               placeholder={`Pick a ${words.singular}`}
             />
           </View>
-          <View style={styles.actionRow}>
+          <ThumbRow primary="first" style={styles.actionRow}>
             <TouchableOpacity
               style={[styles.primaryButton, { backgroundColor: removal.moveTo ? PRIMARY_BUTTON_BACKGROUND : colors.border }]}
               disabled={!removal.moveTo}
@@ -180,7 +181,7 @@ export function GardenTermField({ list, label, selected, onSelect, terms, onTerm
             <TouchableOpacity onPress={() => setRemoval(null)}>
               <Text style={styles.linkText}>Keep it</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : null}
     </View>

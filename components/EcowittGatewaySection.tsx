@@ -44,6 +44,7 @@ import { areaPath } from '../lib/gardenAreaNesting';
 import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
 import { QuickAreaForm } from './QuickAreaForm';
+import { ThumbRow } from './ThumbRow';
 
 // Garden > Growing Conditions > Sensors on Your Network (I20, 2026-09-28):
 // an Ecowitt gateway read over the home network while the app is open.
@@ -398,7 +399,7 @@ export function EcowittGatewaySection(props: {
             : 'Only the address: no http, no password, nothing after it.'}
         </Text>
         {problem ? <Text style={styles.errorText}>{problem}</Text> : null}
-        <View style={styles.actionRow}>
+        <ThumbRow primary="first" style={styles.actionRow}>
           <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={() => void handleSave()}>
             <Text style={styles.primaryButtonText}>{sends ? 'Save' : 'Save and Read It'}</Text>
           </TouchableOpacity>
@@ -410,7 +411,7 @@ export function EcowittGatewaySection(props: {
           >
             <Text style={styles.linkText}>Cancel</Text>
           </TouchableOpacity>
-        </View>
+        </ThumbRow>
       </View>
     );
   }
@@ -448,7 +449,7 @@ export function EcowittGatewaySection(props: {
               confirmingId === gateway.id ? (
                 <View style={styles.confirmBox}>
                   <Text style={styles.bodyText}>{reader.takeOverConfirm}</Text>
-                  <View style={styles.actionRow}>
+                  <ThumbRow primary="first" style={styles.actionRow}>
                     <TouchableOpacity
                       style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
                       onPress={() => void handleTakeOver(gateway.id)}
@@ -458,7 +459,7 @@ export function EcowittGatewaySection(props: {
                     <TouchableOpacity onPress={() => setConfirmingId(null)}>
                       <Text style={styles.linkText}>Cancel</Text>
                     </TouchableOpacity>
-                  </View>
+                  </ThumbRow>
                 </View>
               ) : (
                 <TouchableOpacity onPress={() => (reader.takeOverConfirm ? setConfirmingId(gateway.id) : void handleTakeOver(gateway.id))}>

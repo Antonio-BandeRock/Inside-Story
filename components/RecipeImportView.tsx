@@ -37,6 +37,7 @@ import { PopoverSelect } from './PopoverSelect';
 import { RecipeMarkupView } from './RecipeMarkupView';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import type { Marked } from '../lib/recipeMarkup';
+import { ThumbRow } from './ThumbRow';
 
 // Opening a page inside the app to read or mark its recipe (G3) needs the
 // phone's web view, which the desktop build does not have.
@@ -485,7 +486,7 @@ export function RecipeImportView({
                 multiline
                 textAlignVertical="top"
               />
-              <View style={styles.fieldRow}>
+              <ThumbRow primary="first" style={styles.fieldRow}>
                 <TouchableOpacity onPress={() => void readPasted()} activeOpacity={0.7} style={styles.primaryAction}>
                   <Text style={styles.primaryActionText}>Read These Lines</Text>
                 </TouchableOpacity>
@@ -499,7 +500,7 @@ export function RecipeImportView({
                 >
                   <Text style={styles.linkText}>Cancel</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </View>
           ) : null}
         </HomeSectionBand>

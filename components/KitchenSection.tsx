@@ -70,6 +70,7 @@ import {
   type RecordedPrice,
 } from '../lib/harvestTrade';
 import { getLastPaidPrices, recordDisposition } from '../lib/harvestTradeDb';
+import { ThumbRow } from './ThumbRow';
 
 type DispositionForm = {
   itemId: string;
@@ -981,7 +982,7 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
                               </>
                             ) : null}
 
-                            <View style={styles.actionRow}>
+                            <ThumbRow primary="first" style={styles.actionRow}>
                               <TouchableOpacity
                                 style={[styles.smallButton, { backgroundColor: tabColor }]}
                                 activeOpacity={0.85}
@@ -997,7 +998,7 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
                               >
                                 <Text style={styles.secondaryButtonText}>Cancel</Text>
                               </TouchableOpacity>
-                            </View>
+                            </ThumbRow>
                           </View>
                         ) : (
                           <TouchableOpacity

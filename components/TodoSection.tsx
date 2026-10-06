@@ -39,6 +39,7 @@ import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { describeRepeat } from '../lib/repeatRule';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
+import { ThumbRow } from './ThumbRow';
 
 const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 
@@ -213,14 +214,14 @@ export function TodoSection({ tabColor, scope }: Props) {
         />
         {scope === 'everything' ? renderAreaPills(editing.area, (value) => setEditing({ ...editing, area: value })) : null}
         {editError ? <Text style={styles.errorText}>{editError}</Text> : null}
-        <View style={styles.actionRow}>
+        <ThumbRow primary="first" style={styles.actionRow}>
           <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={saveEdit}>
             <Text style={styles.primaryButtonText}>Save</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setEditing(null)}>
             <Text style={styles.linkText}>Cancel</Text>
           </TouchableOpacity>
-        </View>
+        </ThumbRow>
       </View>
     );
   }

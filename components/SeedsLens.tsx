@@ -51,6 +51,7 @@ import { HOME_BAND_ACCENT_WIDTH, HomeSectionBand } from './HomeSectionBand';
 import { PhotoStrip } from './PhotoStrip';
 import { PopoverSelect } from './PopoverSelect';
 import { makeTabBandStyles } from './TabBand';
+import { ThumbRow } from './ThumbRow';
 
 const TAB_COLOR = colors.tabGarden;
 // 1.0.61.7, extended to every Garden lens in 1.0.61.8: the calm look
@@ -295,14 +296,14 @@ function PacketForm({
       <AppTextInput style={styles.textInput} value={draft.notes} onChangeText={(t) => set({ notes: t })} placeholder="Notes" multiline />
       <PhotoStrip ownerKind={SEED_STOCK_OWNER_KIND} ownerId={draft.id} tabColor={TAB_COLOR} addLabel="Photo of the Packet" title={`${draft.foodName} seed packet`} />
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
-      <View style={styles.row}>
+      <ThumbRow primary="first" style={styles.row}>
         <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]} onPress={save}>
           <Text style={styles.primaryButtonText}>Save Packet</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={onCancel}>
           <Text style={styles.linkText}>Cancel</Text>
         </TouchableOpacity>
-      </View>
+      </ThumbRow>
     </View>
   );
 }
@@ -432,14 +433,14 @@ function TestSection({ seedId, tests, onChanged }: { seedId: string; tests: Seed
             <Text style={styles.bodyText}>sprouted</Text>
           </View>
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          <View style={styles.row}>
+          <ThumbRow primary="first" style={styles.row}>
             <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]} onPress={save}>
               <Text style={styles.primaryButtonText}>Save Test</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setAdding(false)}>
               <Text style={styles.linkText}>Cancel</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </>
       ) : (
         <TouchableOpacity onPress={() => setAdding(true)}>

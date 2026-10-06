@@ -95,6 +95,7 @@ import { GardenTermField } from './GardenTermField';
 import { HOME_BAND_ACCENT_WIDTH } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 import { makeTabBandStyles, TabBand } from './TabBand';
+import { ThumbRow } from './ThumbRow';
 
 // Growing Conditions, a lens of Garden (2026-09-23).
 //
@@ -652,7 +653,7 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
               <Text style={styles.captionText}>{planSummary(areaPlan, measurementLabel, pickedArea.locationType, pickedNested)}.</Text>
             ) : null}
             {addingArea ? null : (
-              <View style={styles.actionRow}>
+              <ThumbRow primary="first" style={styles.actionRow}>
                 <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleWhereNext}>
                 <Text style={styles.primaryButtonText}>
                   {lightNext && METER_ON_THIS_DEVICE ? 'Measure the Light' : 'Next'}
@@ -667,7 +668,7 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
               >
                 <Text style={styles.linkText}>Cancel</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
             )}
           </>
         ) : recording ? (
@@ -966,7 +967,7 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                       in one unit are never turned into another unless the two mean the same quantity, so a reading in a
                       unit of your own is charted on its own terms.
                     </Text>
-                    <View style={styles.actionRow}>
+                    <ThumbRow primary="first" style={styles.actionRow}>
                       <TouchableOpacity
                         style={[styles.primaryButton, { backgroundColor: newUnit.trim() ? PRIMARY_BUTTON_BACKGROUND : colors.border }]}
                         onPress={() => {
@@ -980,7 +981,7 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
                       <TouchableOpacity onPress={() => setNewUnit(null)}>
                         <Text style={styles.linkText}>Back</Text>
                       </TouchableOpacity>
-                    </View>
+                    </ThumbRow>
                   </View>
                 ) : null}
               </>

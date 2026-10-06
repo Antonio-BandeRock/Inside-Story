@@ -27,6 +27,7 @@ import { StoryWalkHost } from '../components/StoryWalkHost';
 import { NotYetHost } from '../components/NotYetHost';
 import { TellClaudeHost } from '../components/TellClaudeHost';
 import { HandSwitchButton } from '../components/HandSwitchButton';
+import { QuickCaptureButton } from '../components/QuickCaptureButton';
 import { FreshAuthHost } from '../components/FreshAuthHost';
 import { WordingEditProvider } from '../components/EditableText';
 import { VersionLabel } from '../components/VersionLabel';
@@ -897,6 +898,9 @@ function UnlockedApp() {
               {/* The navigation switch (1.0.61.13): the edge tab above the footer
                   on the far side from the hubs, components/HandSwitchButton.tsx. */}
               <HandSwitchButton />
+              {/* The quick voice note (1.0.61.14): the edge tab on the thumb side,
+                  saving what is said to Capture, components/QuickCaptureButton.tsx. */}
+              <QuickCaptureButton />
               {/* App Lock (1.0.60.6): the passcode asked for again before
                   records leave the phone, lib/freshAuth.ts. */}
               <FreshAuthHost />

@@ -53,6 +53,7 @@ import { confirmItsYou } from '../lib/freshAuth';
 import { dialable } from '../lib/medSupply';
 import { copyLine, textNumber } from '../lib/phoneReach';
 import { CAN_PICK_CONTACTS, pickContact } from '../lib/contactPick';
+import { ThumbRow } from './ThumbRow';
 
 // Emergency & Essentials: what someone else needs to know when you cannot tell
 // them. Life's fifth area, 2026-09-05.
@@ -496,14 +497,14 @@ export function EmergencySection({ tabColor }: Props) {
               Only one person can be first, so choosing this moves it off whoever had it. A card
               that names two people to try first has not answered the question.
             </Text>
-            <View style={styles.formActions}>
+            <ThumbRow primary="last" style={styles.formActions}>
               <TouchableOpacity style={styles.secondaryButton} onPress={() => setContactForm(null)}>
                 <Text style={styles.secondaryButtonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.primaryButton} onPress={saveContact}>
                 <Text style={styles.primaryButtonText}>Save</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </View>
         ) : (
           <TouchableOpacity style={[styles.primaryButton, walkMark('emergency.addPerson')]} onPress={() => setContactForm(blankContact())}>
@@ -543,14 +544,14 @@ export function EmergencySection({ tabColor }: Props) {
         })}
 
         {editing ? (
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => setEditing(null)}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.primaryButton, walkMark('emergency.save')]} onPress={saveProfile}>
               <Text style={styles.primaryButtonText}>Save</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         ) : (
           <TouchableOpacity style={styles.primaryButton} onPress={() => setEditing({ ...profile })}>
             <Text style={styles.primaryButtonText}>Edit these</Text>
@@ -673,7 +674,7 @@ export function EmergencySection({ tabColor }: Props) {
                   </TouchableOpacity>
                 );
               })}
-              <View style={styles.rowActions}>
+              <ThumbRow primary="last" style={styles.rowActions}>
                 <TouchableOpacity style={styles.secondaryButton} onPress={() => setLockPicking(null)}>
                   <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
@@ -682,7 +683,7 @@ export function EmergencySection({ tabColor }: Props) {
                     {lockPicking.length > 0 ? 'Show these on the lock screen' : 'Turn it off'}
                   </Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </View>
           ) : (
             <View style={styles.rowActions}>

@@ -53,6 +53,7 @@ import { HelpButton, type HelpSection } from './HelpButton';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { RecipeDepthReport } from './RecipeDepthReport';
+import { ThumbRow } from './ThumbRow';
 
 // Deliberately last of the ten Food-tab builders, per this app's own build
 // order (see CLAUDE.md's Next steps) -- this is the only one that assembles
@@ -1722,7 +1723,7 @@ export function MealBuilder({
             </Text>
             <Text style={[styles.formLabel, styles.formLabelSpaced, { color: tabColor }]}>How much did you have?</Text>
             <PopoverSelect options={SHARE_PICKER_VALUES} selected={pendingAmount} onSelect={setPendingAmount} tabColor={tabColor} minWidth={80} />
-            <View style={styles.buttonRow}>
+            <ThumbRow primary="last" style={styles.buttonRow}>
               <TouchableOpacity style={[styles.secondaryButton, { flex: 1 }]} onPress={cancelPendingSelection}>
                 <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
               </TouchableOpacity>
@@ -1733,7 +1734,7 @@ export function MealBuilder({
               >
                 {confirmingPending ? <ActivityIndicator color={colors.textOnButton} /> : <Text style={styles.primaryButtonText}>Add to Meal</Text>}
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </View>
         </ScrollView>
       </>
@@ -1797,7 +1798,7 @@ export function MealBuilder({
                 </View>
               </View>
             </View>
-            <View style={styles.buttonRow}>
+            <ThumbRow primary="last" style={styles.buttonRow}>
               <TouchableOpacity style={[styles.secondaryButton, { flex: 1 }]} onPress={cancelScheduleForLater} disabled={scheduling}>
                 <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
               </TouchableOpacity>
@@ -1808,7 +1809,7 @@ export function MealBuilder({
               >
                 {scheduling ? <ActivityIndicator color={colors.textOnButton} /> : <Text style={styles.primaryButtonText}>Schedule It</Text>}
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </View>
         </ScrollView>
       </>
@@ -1877,7 +1878,7 @@ export function MealBuilder({
                 </View>
               </View>
             </View>
-            <View style={styles.buttonRow}>
+            <ThumbRow primary="last" style={styles.buttonRow}>
               <TouchableOpacity style={[styles.secondaryButton, { flex: 1 }]} onPress={cancelAddToRoutine} disabled={savingToRoutine}>
                 <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
               </TouchableOpacity>
@@ -1888,7 +1889,7 @@ export function MealBuilder({
               >
                 {savingToRoutine ? <ActivityIndicator color={colors.textOnButton} /> : <Text style={styles.primaryButtonText}>Add to Routine</Text>}
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </View>
         </ScrollView>
       </>
@@ -1986,7 +1987,7 @@ export function MealBuilder({
                 </View>
               </View>
             </View>
-            <View style={styles.buttonRow}>
+            <ThumbRow primary="last" style={styles.buttonRow}>
               <TouchableOpacity style={[styles.secondaryButton, { flex: 1 }]} onPress={cancelTrialDateCorrection} disabled={correcting}>
                 <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Back</Text>
               </TouchableOpacity>
@@ -1997,7 +1998,7 @@ export function MealBuilder({
               >
                 {correcting ? <ActivityIndicator color={colors.textOnButton} /> : <Text style={styles.primaryButtonText}>Save Correction</Text>}
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </View>
         </ScrollView>
       </>

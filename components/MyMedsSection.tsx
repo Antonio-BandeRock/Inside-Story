@@ -58,6 +58,7 @@ import type { SiteUse } from '../lib/injectionSites';
 import type { SupplyReading } from '../lib/medSupply';
 import type { NutrientGapEntry } from '../lib/nutrientAnalysis';
 import { useWalkMark } from '../components/WalkMark';
+import { ThumbRow } from './ThumbRow';
 
 // My Meds, the registry of everything a person takes: prescriptions, OTC
 // drugs and supplements, each with its dose, form, timing rules, interactions
@@ -887,14 +888,14 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
                 onChangeText={(text) => setSupplementForm((current) => ({ ...current, notes: text }))}
               />
 
-              <View style={styles.formActions}>
+              <ThumbRow primary="last" style={styles.formActions}>
                 <TouchableOpacity style={styles.secondaryButton} onPress={closeAddForm}>
                   <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.primaryButton} onPress={handleSaveSupplement}>
                   <Text style={styles.primaryButtonText}>Add supplement</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </View>
           ) : (
             <View style={styles.formCard}>
@@ -1008,14 +1009,14 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
                 onChangeText={(text) => setMedForm((current) => ({ ...current, notes: text }))}
               />
 
-              <View style={styles.formActions}>
+              <ThumbRow primary="last" style={styles.formActions}>
                 <TouchableOpacity style={styles.secondaryButton} onPress={closeAddForm}>
                   <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.primaryButton} onPress={handleSaveMed}>
                   <Text style={styles.primaryButtonText}>{medForm.category === 'prescription' ? 'Add prescription' : 'Add OTC drug'}</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </View>
           )}
 

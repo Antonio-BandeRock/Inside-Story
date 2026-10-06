@@ -57,6 +57,7 @@ import { parsePriceInput } from '../lib/groceryList';
 import { useWalkMark } from './WalkMark';
 import { RecordPhotos } from './RecordPhotos';
 import { describePlainDate, readPlainDateField, readPlainDates, type Lean } from '../lib/plainDate';
+import { ThumbRow } from './ThumbRow';
 
 // Upkeep: things that need doing again, and things that run out.
 //
@@ -506,14 +507,14 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
                 value={placeEdit.name}
                 onChangeText={(t) => setPlaceEdit({ ...placeEdit, name: t })}
               />
-              <View style={styles.formActions}>
+              <ThumbRow primary="last" style={styles.formActions}>
                 <TouchableOpacity style={styles.secondaryButton} onPress={() => setPlaceEdit(null)}>
                   <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.primaryButton} onPress={saveNewPlaceName}>
                   <Text style={styles.primaryButtonText}>{placeEdit.id ? 'Rename it' : 'Add the place'}</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </View>
           ) : null}
           {(() => {
@@ -546,14 +547,14 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
                 tabColor={tabColor}
                 searchable
               />
-              <View style={styles.formActions}>
+              <ThumbRow primary="last" style={styles.formActions}>
                 <TouchableOpacity style={styles.secondaryButton} onPress={() => setPlaceRemoval(null)}>
                   <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.primaryButton} onPress={finishPlaceRemoval}>
                   <Text style={styles.primaryButtonText}>Move and remove</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </View>
           ) : null}
 
@@ -708,14 +709,14 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
             </>
           ) : null}
 
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => setForm(null)}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={save}>
               <Text style={styles.primaryButtonText}>{form.id ? 'Save changes' : 'Add it'}</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : null}
 
@@ -830,7 +831,7 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
                         value={renewForm.date}
                         onChangeText={(t) => setRenewForm({ ...renewForm, date: t })}
                       />
-                      <View style={styles.formActions}>
+                      <ThumbRow primary="last" style={styles.formActions}>
                         <TouchableOpacity style={styles.secondaryButton} onPress={() => setRenewForm(null)}>
                           <Text style={styles.secondaryButtonText}>Cancel</Text>
                         </TouchableOpacity>
@@ -848,7 +849,7 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
                         >
                           <Text style={styles.primaryButtonText}>Renewed</Text>
                         </TouchableOpacity>
-                      </View>
+                      </ThumbRow>
                     </View>
                   ) : null}
 

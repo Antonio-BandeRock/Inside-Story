@@ -165,6 +165,7 @@ import type { YourStoryItemKey } from '../../lib/yourStory';
 import { modalAnimationType } from '../../lib/visualPreferences';
 import { nutrientKey } from '../../lib/compareSeries';
 import { eatenOutDayLine } from '../../lib/eatenOut';
+import { ThumbRow } from '../../components/ThumbRow';
 
 // 'YYYY-MM-DD' in LOCAL time -- same reasoning as the rest of the app
 // (see lib/db.ts/app/(tabs)/index.tsx): UTC's calendar date is wrong for
@@ -3807,7 +3808,7 @@ function LabsView({
             placeholder="e.g. Quest Diagnostics"
             placeholderTextColor={colors.textMuted}
           />
-          <View style={styles.buttonRow}>
+          <ThumbRow primary="last" style={styles.buttonRow}>
             <TouchableOpacity
               style={[styles.secondaryButton, { flex: 1 }]}
               onPress={() => {
@@ -3824,7 +3825,7 @@ function LabsView({
             >
               <Text style={styles.primaryButtonText}>{saving ? 'Saving…' : 'Save Result'}</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : (
         <TouchableOpacity
@@ -4188,7 +4189,7 @@ function MyMedsView({
               </>
             ) : null}
 
-            <View style={styles.buttonRow}>
+            <ThumbRow primary="last" style={styles.buttonRow}>
               <TouchableOpacity
                 style={[styles.secondaryButton, { flex: 1 }]}
                 onPress={() => {
@@ -4205,7 +4206,7 @@ function MyMedsView({
               >
                 <Text style={styles.primaryButtonText}>{saving ? 'Saving…' : 'Save Rule'}</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </View>
         ) : (
           <TouchableOpacity

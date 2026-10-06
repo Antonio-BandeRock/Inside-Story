@@ -35,6 +35,7 @@ import { formatTradeMoney } from '../lib/harvestTrade';
 import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
 import { TabBand } from './TabBand';
+import { ThumbRow } from './ThumbRow';
 
 type Folds = ReturnType<typeof useBandFolds>;
 
@@ -212,14 +213,14 @@ export function ElectricityBand({ folds, plotOptions, noPlotValue, groupPrefix, 
               <Text style={beforeGrow ? styles.pillTextActive : { color: TAB_COLOR }}>This bill is from before the grow</Text>
             </TouchableOpacity>
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
-            <View style={styles.actionRow}>
+            <ThumbRow primary="first" style={styles.actionRow}>
               <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSave}>
                 <Text style={styles.primaryButtonText}>Save Bill</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => { setAdding(false); setError(null); }}>
                 <Text style={styles.linkText}>Cancel</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </View>
         ) : (
           <View style={styles.actionRow}>
@@ -248,14 +249,14 @@ export function ElectricityBand({ folds, plotOptions, noPlotValue, groupPrefix, 
               <PopoverSelect options={plotOptions} selected={recordPlot} onSelect={setRecordPlot} tabColor={TAB_COLOR} width={220} />
             </View>
             {recordError ? <Text style={styles.errorText}>{recordError}</Text> : null}
-            <View style={styles.actionRow}>
+            <ThumbRow primary="first" style={styles.actionRow}>
               <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleRecord}>
                 <Text style={styles.primaryButtonText}>Record</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setRecording(false)}>
                 <Text style={styles.linkText}>Cancel</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </View>
         ) : null}
       </View>

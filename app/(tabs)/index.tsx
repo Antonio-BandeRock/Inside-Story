@@ -237,6 +237,7 @@ import { useWaitingReminders } from '../../hooks/useWaitingReminders';
 import { countWaiting } from '../../lib/waitingAnswers';
 import { useBandFolds } from '../../hooks/useBandFolds';
 import { useWalkMark } from '../../components/WalkMark';
+import { ThumbRow } from '../../components/ThumbRow';
 
 // 'YYYY-MM-DD' in LOCAL time -- same helper (and same reasoning) duplicated
 // in food.tsx/insights.tsx/schedule.tsx/log.tsx: UTC's calendar date is
@@ -2830,7 +2831,7 @@ export default function HomeScreen() {
                 </View>
               </View>
             ))}
-            <View style={styles.feelingActionsRow}>
+            <ThumbRow primary="last" style={styles.feelingActionsRow}>
               <TouchableOpacity style={styles.feelingCancelButton} onPress={() => setFeelingPickerOpen(false)}>
                 <Text style={styles.feelingCancelButtonText}>Cancel</Text>
               </TouchableOpacity>
@@ -2845,7 +2846,7 @@ export default function HomeScreen() {
               >
                 <Text style={styles.feelingSaveButtonText}>{feelingSaving ? 'Saving…' : 'Save'}</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </>
         ) : data?.feelingCheckin ? (
           <TouchableOpacity onPress={openFeelingPicker} activeOpacity={0.75}>
@@ -5165,14 +5166,14 @@ export default function HomeScreen() {
                     />
                     <Text style={styles.modalMeta}>BPM (optional)</Text>
                   </View>
-                  <View style={styles.modalActions}>
+                  <ThumbRow primary="last" style={styles.modalActions}>
                     <TouchableOpacity style={styles.secondaryButton} onPress={closeQuickLogModal}>
                       <Text style={styles.secondaryButtonText}>Cancel</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.primaryButton} onPress={handleSaveBP}>
                       <Text style={styles.primaryButtonText}>Save</Text>
                     </TouchableOpacity>
-                  </View>
+                  </ThumbRow>
                 </>
               ) : quickLogModal === 'exercise' ? (
                 <>
@@ -5209,14 +5210,14 @@ export default function HomeScreen() {
                       ))}
                     </View>
                   </View>
-                  <View style={styles.modalActions}>
+                  <ThumbRow primary="last" style={styles.modalActions}>
                     <TouchableOpacity style={styles.secondaryButton} onPress={closeQuickLogModal}>
                       <Text style={styles.secondaryButtonText}>Cancel</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.primaryButton} onPress={handleSaveExercise}>
                       <Text style={styles.primaryButtonText}>Save</Text>
                     </TouchableOpacity>
-                  </View>
+                  </ThumbRow>
                 </>
               ) : null}
             </View>

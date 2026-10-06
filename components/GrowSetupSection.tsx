@@ -50,6 +50,7 @@ import { NotesInput } from './NotesInput';
 import { GardenTermField } from './GardenTermField';
 import { PopoverSelect } from './PopoverSelect';
 import { RecordPhotos } from './RecordPhotos';
+import { ThumbRow } from './ThumbRow';
 
 const TAB_COLOR = colors.tabGarden;
 const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
@@ -485,14 +486,14 @@ export function GrowSetupSection({ plot, onChanged }: Props) {
             </>
           ) : null}
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          <View style={styles.actionRow}>
+          <ThumbRow primary="first" style={styles.actionRow}>
             <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSave}>
               <Text style={styles.primaryButtonText}>Save to the Setup</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => { setAdding(false); setError(null); }}>
               <Text style={styles.linkText}>Cancel</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : (
         <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={() => setAdding(true)}>

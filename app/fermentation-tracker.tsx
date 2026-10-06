@@ -27,6 +27,7 @@ import {
   type FermentationRecord,
 } from '../lib/db';
 import { parseAmountValue } from '../lib/measurement';
+import { ThumbRow } from '../components/ThumbRow';
 
 // The Fermentation Tracker, 2026-08-20 -- "a tracker for the entire
 // process... with triggers and reminders for keeping the fermentation
@@ -346,7 +347,7 @@ export default function FermentationTrackerScreen() {
                       tabColor={colors.tabFood}
                     />
                   </View>
-                  <View style={styles.harvestFormRow}>
+                  <ThumbRow primary="first" style={styles.harvestFormRow}>
                     <TouchableOpacity
                       style={[styles.primaryButton, styles.harvestFormButton, recordingHarvest ? styles.disabled : null]}
                       onPress={() => handleRecordHarvest(batch)}
@@ -360,7 +361,7 @@ export default function FermentationTrackerScreen() {
                     >
                       <Text style={styles.secondaryButtonText}>Cancel</Text>
                     </TouchableOpacity>
-                  </View>
+                  </ThumbRow>
                 </View>
               ) : null}
             </View>

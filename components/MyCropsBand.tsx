@@ -35,6 +35,7 @@ import { SOWING_WINDOWS, type FrostAnchor } from '../lib/sowingWindows';
 import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
 import { useTabBandStyles, TabBand } from './TabBand';
+import { ThumbRow } from './ThumbRow';
 
 type Folds = ReturnType<typeof useBandFolds>;
 
@@ -207,14 +208,14 @@ export function MyCropsBand({
           </>
         ) : null}
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
-        <View style={styles.actionRow}>
+        <ThumbRow primary="first" style={styles.actionRow}>
           <TouchableOpacity style={styles.primaryButton} onPress={() => void handleSave()}>
             <Text style={styles.primaryButtonText}>{editing ? 'Save Area' : 'Add to My Crops'}</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setFormFor(null)}>
             <Text style={[styles.linkText, { color }]}>Cancel</Text>
           </TouchableOpacity>
-        </View>
+        </ThumbRow>
       </View>
     );
   }

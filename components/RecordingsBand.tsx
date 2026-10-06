@@ -37,6 +37,7 @@ import { phoneAudio } from '../lib/phoneAudio';
 import { AppTextInput } from './AppTextInput';
 import type { useConfirmSheet } from './ConfirmSheet';
 import { TabBand } from './TabBand';
+import { ThumbRow } from './ThumbRow';
 
 type Folds = ReturnType<typeof useBandFolds>;
 type Confirm = ReturnType<typeof useConfirmSheet>[0];
@@ -250,7 +251,7 @@ export function RecordingsBand({ tabColor, folds, confirm }: { tabColor: string;
                 <View style={styles.form}>
                   <AppTextInput style={styles.input} value={renaming.name} onChangeText={(name) => setRenaming({ ...renaming, name })} placeholder="Name" />
                   {problem ? <Text style={[styles.caption, { color: colors.statusRedOnSurface }]}>{problem}</Text> : null}
-                  <View style={styles.actions}>
+                  <ThumbRow primary="last" style={styles.actions}>
                     <TouchableOpacity
                       style={styles.secondaryButton}
                       onPress={() => {
@@ -263,7 +264,7 @@ export function RecordingsBand({ tabColor, folds, confirm }: { tabColor: string;
                     <TouchableOpacity style={styles.primaryButton} onPress={() => void saveName()}>
                       <Text style={styles.primaryButtonText}>Save</Text>
                     </TouchableOpacity>
-                  </View>
+                  </ThumbRow>
                 </View>
               ) : null}
             </View>

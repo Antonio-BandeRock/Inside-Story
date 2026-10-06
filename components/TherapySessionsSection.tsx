@@ -19,6 +19,7 @@ import {
 } from '../lib/db';
 import { getTherapyTypesByCategory, therapyTypeLabel } from '../lib/therapyTypes';
 import { buildTime24, describeTimeInputProblem, formatTime12, splitTime24, type TimeOfDayInput } from '../lib/timeOfDay';
+import { ThumbRow } from './ThumbRow';
 
 function todayDateString(): string {
   const now = new Date();
@@ -391,14 +392,14 @@ export function TherapySessionsSection({ tabColor }: Props) {
                 onChangeText={(text) => setForm((current) => ({ ...current, notes: text }))}
               />
 
-              <View style={styles.formActions}>
+              <ThumbRow primary="last" style={styles.formActions}>
                 <TouchableOpacity style={styles.secondaryButton} onPress={closeForm}>
                   <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.primaryButton} onPress={handleSaveForm}>
                   <Text style={styles.primaryButtonText}>{form.editingId ? 'Save changes' : 'Log session'}</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </View>
           ) : null}
 

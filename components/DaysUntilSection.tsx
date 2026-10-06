@@ -89,6 +89,7 @@ import { wording } from '../lib/playfulCopy';
 import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
 import { RecordPhotos } from './RecordPhotos';
+import { ThumbRow } from './ThumbRow';
 
 const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 const WHOLE_AREA = '__whole_area__';
@@ -402,14 +403,14 @@ export function DaysUntilSection({
             </View>
           ) : null}
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          <View style={styles.actionRow}>
+          <ThumbRow primary="first" style={styles.actionRow}>
             <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSave}>
               <Text style={styles.primaryButtonText}>Start Counting</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => { setAdding(false); setError(null); }}>
               <Text style={styles.linkText}>Cancel</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : (
         <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={() => setAdding(true)}>

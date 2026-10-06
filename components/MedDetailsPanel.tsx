@@ -18,6 +18,7 @@ import { saveTreatmentContacts, saveTreatmentSupply, type TreatmentDetails } fro
 import { dialable, type SupplyReading } from '../lib/medSupply';
 import { textNumber } from '../lib/phoneReach';
 import { CAN_PICK_CONTACTS, pickContact } from '../lib/contactPick';
+import { ThumbRow } from './ThumbRow';
 
 type Props = {
   treatmentId: string;
@@ -248,14 +249,14 @@ export function MedDetailsPanel({ treatmentId, treatmentName, details, reading, 
               placeholder="Phone"
               keyboardType="phone-pad"
             />
-            <View style={styles.actions}>
+            <ThumbRow primary="last" style={styles.actions}>
               <TouchableOpacity style={styles.secondaryButton} onPress={() => setEditingContacts(false)}>
                 <Text style={styles.secondaryButtonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.primaryButton} onPress={saveContacts}>
                 <Text style={styles.primaryButtonText}>Save</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </>
         ) : (
           <TouchableOpacity onPress={() => setEditingContacts(true)}>

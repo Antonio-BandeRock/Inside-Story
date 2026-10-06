@@ -44,6 +44,7 @@ import {
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { useWalkMark } from './WalkMark';
 import { RecordPhotos } from './RecordPhotos';
+import { ThumbRow } from './ThumbRow';
 
 // Did I Do It: one question, asked later.
 //
@@ -353,14 +354,14 @@ export function DidIDoItSection({ tabColor }: Props) {
             </>
           ) : null}
 
-          <View style={styles.formActions}>
+          <ThumbRow primary="first" style={styles.formActions}>
             <TouchableOpacity style={styles.primaryButton} onPress={saveCheck}>
               <Text style={styles.primaryButtonText}>Save</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => setForm(null)}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : null}
 

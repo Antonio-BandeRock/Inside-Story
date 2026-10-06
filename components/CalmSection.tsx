@@ -63,6 +63,7 @@ import { PopoverSelect } from './PopoverSelect';
 import { RecordingsBand } from './RecordingsBand';
 import { TabBand } from './TabBand';
 import { useKeepScreenOn } from '../lib/keepScreenOn';
+import { ThumbRow } from './ThumbRow';
 
 const EMPTY_PATTERN: PatternFields = { name: '', inSec: '', holdInSec: '', outSec: '', holdOutSec: '' };
 const ADD_OWN = '__add_own__';
@@ -310,14 +311,14 @@ function BreathingPacer({
             </View>
             <Text style={[styles.caption, styles.muted]}>Seconds for each. Leave a hold empty for none.</Text>
             {problem ? <Text style={[styles.caption, { color: colors.statusRedOnSurface }]}>{problem}</Text> : null}
-            <View style={styles.actions}>
+            <ThumbRow primary="last" style={styles.actions}>
               <TouchableOpacity style={styles.secondaryButton} onPress={() => { setForm(null); setProblem(null); }}>
                 <Text style={[styles.buttonText, { color: tabColor }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.primaryButton} onPress={savePattern}>
                 <Text style={styles.primaryButtonText}>Save</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </View>
         ) : null}
 
@@ -518,14 +519,14 @@ function SpokenRelaxation({
             />
             <Text style={[styles.caption, styles.muted]}>{OWN_SCRIPT_HINT}</Text>
             {problem ? <Text style={[styles.caption, { color: colors.statusRedOnSurface }]}>{problem}</Text> : null}
-            <View style={styles.actions}>
+            <ThumbRow primary="last" style={styles.actions}>
               <TouchableOpacity style={styles.secondaryButton} onPress={() => { setForm(null); setProblem(null); }}>
                 <Text style={[styles.buttonText, { color: tabColor }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.primaryButton} onPress={saveScript}>
                 <Text style={styles.primaryButtonText}>Save</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </View>
         ) : null}
 

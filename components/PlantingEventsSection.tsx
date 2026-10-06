@@ -26,6 +26,7 @@ import { addPlantingEvent, deletePlantingEvent, listPlantingEvents } from '../li
 import { AppTextInput } from './AppTextInput';
 import { GardenTermField } from './GardenTermField';
 import { NotesInput } from './NotesInput';
+import { ThumbRow } from './ThumbRow';
 
 const TAB_COLOR = colors.tabGarden;
 const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
@@ -149,14 +150,14 @@ export function PlantingEventsSection({ plantingId, plotId, terms, onTermsChange
                 placeholder="What, how much, how many (optional)"
               />
               {error ? <Text style={styles.errorText}>{error}</Text> : null}
-              <View style={styles.actionRow}>
+              <ThumbRow primary="first" style={styles.actionRow}>
                 <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSave}>
                   <Text style={styles.primaryButtonText}>Save</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={reset}>
                   <Text style={styles.linkText}>Cancel</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </View>
           ) : (
             <TouchableOpacity onPress={() => setAdding(true)}>

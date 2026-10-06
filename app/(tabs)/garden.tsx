@@ -136,6 +136,7 @@ import { describeFrost, FROST_DATES_LIMITS, FROST_DATES_SOURCE, FROST_YEARS, thr
 import { detectMeasurementSystemFromLocale } from '../../lib/measurement';
 import { explainNotYet } from '../../lib/notYet';
 import { anyWateringSoon, rainNoteForTask } from '../../lib/rainForecast';
+import { ThumbRow } from '../../components/ThumbRow';
 
 // This page's own identity color -- see constants/colors.ts's own comment
 // on tabGarden for how it was chosen.
@@ -1781,7 +1782,7 @@ function PlotsAndPlantingsLens({
                     {renderRotationNote(plot.id, pendingFoodName || pendingFood.baseName)}
                     <CompanionNeighbours foodName={pendingFoodName || pendingFood.baseName} areaPlantings={plantingsByPlot[plot.id] ?? []} />
                     {renderSowAgain()}
-                    <View style={styles.actionRow}>
+                    <ThumbRow primary="first" style={styles.actionRow}>
                       <TouchableOpacity
                         style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
                         onPress={() => handleAddPlanting(plot.id)}
@@ -1791,7 +1792,7 @@ function PlotsAndPlantingsLens({
                       <TouchableOpacity onPress={handleCancelPlanting}>
                         <Text style={styles.linkText}>Cancel</Text>
                       </TouchableOpacity>
-                    </View>
+                    </ThumbRow>
                   </View>
                 ) : (
                   <TouchableOpacity
@@ -2093,7 +2094,7 @@ function PlotsAndPlantingsLens({
             area is somewhere else.
           </Text>
 
-          <View style={styles.actionRow}>
+          <ThumbRow primary="first" style={styles.actionRow}>
             <TouchableOpacity
               style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
               onPress={handleAddGardenArea}
@@ -2103,7 +2104,7 @@ function PlotsAndPlantingsLens({
             <TouchableOpacity onPress={() => setShowAddPlot(false)}>
               <Text style={styles.linkText}>Cancel</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : (
         <View style={band.inset}>
@@ -2272,14 +2273,14 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
               <PopoverSelect options={QUANTITY_OPTIONS} selected={quantity} onSelect={setQuantity} tabColor={TAB_COLOR} />
               <PopoverSelect options={HARVEST_UNIT_OPTIONS} selected={unit} onSelect={setUnit} tabColor={TAB_COLOR} />
             </View>
-            <View style={styles.actionRow}>
+            <ThumbRow primary="first" style={styles.actionRow}>
               <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleRecordHarvest}>
                 <Text style={styles.primaryButtonText}>Save Harvest</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setSelectedPlanting(null)}>
                 <Text style={styles.linkText}>Cancel</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </>
         ) : pickingPlanting ? (
           <>

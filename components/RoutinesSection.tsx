@@ -61,6 +61,7 @@ import {
 } from '../lib/routinesDb';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { useWalkMark } from './WalkMark';
+import { ThumbRow } from './ThumbRow';
 
 // Routines: an order you do not want to hold in your head.
 //
@@ -485,14 +486,14 @@ export function RoutinesSection({ tabColor }: Props) {
                   'Leave the hours alone for something that is about a place rather than a time. Give it hours and routines listed under it come to the top of the list while the clock is inside them.'}
               </Text>
 
-              <View style={styles.formActions}>
+              <ThumbRow primary="first" style={styles.formActions}>
                 <TouchableOpacity style={styles.primaryButton} onPress={saveOccasion}>
                   <Text style={styles.primaryButtonText}>Save</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.secondaryButton} onPress={() => setOccasionForm(null)}>
                   <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </View>
           ) : null}
 
@@ -584,7 +585,7 @@ export function RoutinesSection({ tabColor }: Props) {
             doing. It speaks in the phone&apos;s voice, and only while the walk is open.
           </Text>
 
-          <View style={styles.formActions}>
+          <ThumbRow primary="first" style={styles.formActions}>
             <TouchableOpacity style={styles.primaryButton} onPress={saveRoutine}>
               <Text style={styles.primaryButtonText}>Save</Text>
             </TouchableOpacity>
@@ -597,7 +598,7 @@ export function RoutinesSection({ tabColor }: Props) {
             >
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : null}
 
@@ -805,18 +806,18 @@ export function RoutinesSection({ tabColor }: Props) {
                         <Text style={styles.helperText}>
                           {CHECK_CADENCES.find((entry) => entry.key === checkForm.cadence)?.example}
                         </Text>
-                        <View style={styles.formActions}>
+                        <ThumbRow primary="first" style={styles.formActions}>
                           <TouchableOpacity style={styles.primaryButton} onPress={saveCheck}>
                             <Text style={styles.primaryButtonText}>Save</Text>
                           </TouchableOpacity>
                           <TouchableOpacity style={styles.secondaryButton} onPress={() => setCheckForm(null)}>
                             <Text style={styles.secondaryButtonText}>Cancel</Text>
                           </TouchableOpacity>
-                        </View>
+                        </ThumbRow>
                       </View>
                     ) : null}
 
-                    <View style={styles.formActions}>
+                    <ThumbRow primary="first" style={styles.formActions}>
                       <TouchableOpacity style={styles.primaryButton} onPress={saveStep}>
                         <Text style={styles.primaryButtonText}>Save</Text>
                       </TouchableOpacity>
@@ -829,7 +830,7 @@ export function RoutinesSection({ tabColor }: Props) {
                       >
                         <Text style={styles.secondaryButtonText}>Cancel</Text>
                       </TouchableOpacity>
-                    </View>
+                    </ThumbRow>
                   </View>
                 ) : (
                   <TouchableOpacity

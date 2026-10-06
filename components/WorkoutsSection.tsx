@@ -78,6 +78,7 @@ import {
   updateWorkoutStep,
   workoutsUsingExercise,
 } from '../lib/workoutsDb';
+import { ThumbRow } from './ThumbRow';
 
 // Life > Workouts (H11, 1.0.55.1). Direct request, 2026-09-28: "there needs
 // to be a workout builder to add exercises and everything about the
@@ -455,14 +456,14 @@ maxLength={80}
         <Text style={styles.label}>Notes (optional)</Text>
         <NotesInput style={[styles.input, styles.multiline]} value={draft.notes} onChangeText={(notes) => set({ notes })} multiline placeholder="What my physio said" placeholderTextColor={colors.textMuted} />
 
-        <View style={styles.formActions}>
+        <ThumbRow primary="first" style={styles.formActions}>
           <TouchableOpacity style={styles.primaryButton} onPress={saveExerciseForm}>
             <Text style={styles.primaryButtonText}>Save</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.secondaryButton} onPress={() => setExerciseForm(null)}>
             <Text style={styles.secondaryButtonText}>Cancel</Text>
           </TouchableOpacity>
-        </View>
+        </ThumbRow>
       </View>
     );
   }
@@ -506,14 +507,14 @@ maxLength={80}
         <AppTextInput style={styles.input} value={draft.restSeconds} onChangeText={(restSeconds) => set({ restSeconds: restSeconds.replace(/[^0-9]/g, '') })} keyboardType="number-pad" maxLength={4} placeholder="60" placeholderTextColor={colors.textMuted} />
         <Text style={styles.label}>A note for this workout (optional)</Text>
         <NotesInput style={styles.input} value={draft.note} onChangeText={(note) => set({ note })} placeholder="Slow on the way down" placeholderTextColor={colors.textMuted} maxLength={200} />
-        <View style={styles.formActions}>
+        <ThumbRow primary="first" style={styles.formActions}>
           <TouchableOpacity style={styles.primaryButton} onPress={saveStepForm}>
             <Text style={styles.primaryButtonText}>Save</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.secondaryButton} onPress={() => setStepForm(null)}>
             <Text style={styles.secondaryButtonText}>Cancel</Text>
           </TouchableOpacity>
-        </View>
+        </ThumbRow>
       </View>
     );
   }
@@ -561,14 +562,14 @@ maxLength={80}
           <Text style={styles.label}>A note (optional)</Text>
           <NotesInput style={styles.input} value={workoutForm.note} onChangeText={(note) => setWorkoutForm({ ...workoutForm, note })} placeholder="Warm up with a walk first" placeholderTextColor={colors.textMuted} maxLength={200} />
           <Text style={styles.helperText}>Save it, then open it to add exercises from the list below or from your own.</Text>
-          <View style={styles.formActions}>
+          <ThumbRow primary="first" style={styles.formActions}>
             <TouchableOpacity style={styles.primaryButton} onPress={saveWorkoutForm}>
               <Text style={styles.primaryButtonText}>Save</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => setWorkoutForm(null)}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : null}
 

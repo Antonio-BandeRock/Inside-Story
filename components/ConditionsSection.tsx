@@ -53,6 +53,7 @@ import {
 } from '../lib/householdPlan';
 import { routeForDigestEntry } from '../lib/digestNavigation';
 import { useWalkMark } from './WalkMark';
+import { ThumbRow } from './ThumbRow';
 
 // The 19 conditions, on the Life tab. Direct instruction, 2026-09-19:
 // "move Conditions from Digest to Life, all condition icons be changed to
@@ -904,14 +905,14 @@ export function ConditionsSection({
                 A scan, a recipe and Food Lookup show a line for each person, checked against these. None of it
                 touches your scores or advisories.
               </Text>
-              <View style={styles.formActions}>
+              <ThumbRow primary="first" style={styles.formActions}>
                 <TouchableOpacity style={styles.primaryButton} onPress={saveFamilyMember}>
                   <Text style={styles.primaryButtonText}>Save</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.secondaryButton} onPress={() => setFamilyForm(null)}>
                   <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </View>
           ) : null}
 

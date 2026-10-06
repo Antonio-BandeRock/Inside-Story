@@ -33,6 +33,7 @@ import {
 import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
 import { QuickAreaForm } from './QuickAreaForm';
+import { ThumbRow } from './ThumbRow';
 
 // Garden > Growing Conditions > Import Readings from a File (I19,
 // 2026-09-28): a controller's history file read into garden_readings with
@@ -233,14 +234,14 @@ export function ReadingImportForm(props: {
   return (
     <View style={styles.formCard}>
       <Text style={styles.captionText}>{IMPORT_HOW}</Text>
-      <View style={styles.actionRow}>
+      <ThumbRow primary="first" style={styles.actionRow}>
         <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handlePick}>
           <Text style={styles.primaryButtonText}>{loaded ? 'Pick a Different File' : 'Pick a File'}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={props.onCancel}>
           <Text style={styles.linkText}>Cancel</Text>
         </TouchableOpacity>
-      </View>
+      </ThumbRow>
       {problem ? <Text style={styles.errorText}>{problem}</Text> : null}
 
       {loaded ? (

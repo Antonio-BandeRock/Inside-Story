@@ -17,6 +17,7 @@ import { listPurchasableFoods, type PurchasableFood } from '../lib/kitchenDb';
 import { AppTextInput } from './AppTextInput';
 import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HomeSectionBand } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
+import { ThumbRow } from './ThumbRow';
 
 // My Whole Foods: what the person has on hand from their own garden, and
 // from other people's.
@@ -305,14 +306,14 @@ export function MyWholeFoodsView({ onClose, onChanged }: { onClose: () => void; 
                     </TouchableOpacity>
                   </View>
                   {giftError ? <Text style={styles.errorText}>{giftError}</Text> : null}
-                  <View style={styles.fieldRow}>
+                  <ThumbRow primary="first" style={styles.fieldRow}>
                     <TouchableOpacity onPress={saveGift} activeOpacity={0.7} style={styles.primaryAction}>
                       <Text style={styles.primaryActionText}>Add It</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => setAddingGift(false)}>
                       <Text style={styles.linkText}>Cancel</Text>
                     </TouchableOpacity>
-                  </View>
+                  </ThumbRow>
                 </View>
               ) : (
                 <TouchableOpacity onPress={() => setAddingGift(true)} activeOpacity={0.7} style={styles.primaryAction}>

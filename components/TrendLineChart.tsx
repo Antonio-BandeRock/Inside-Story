@@ -1,11 +1,13 @@
 import { createContext, Fragment, useContext, useState } from 'react';
 import { type LayoutChangeEvent, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import Svg, { Circle, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
+import Svg, { Circle, G, Line, Path, Rect, Text as SvgText } from 'react-native-svg';
 import { colors } from '../constants/colors';
 import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING } from './HomeSectionBand';
 import { textShadow, typography } from '../constants/typography';
 import { chartSeries, longRangeCaption, pointLabelPrefix } from '../lib/longRange';
 import { runsWithin, type CycleShading } from '../lib/cycleShading';
+import { placeReadout, READOUT_HEIGHT, readoutWidth } from '../lib/chartReadout';
+import { useNavigationHand } from '../lib/navigationHand';
 
 const HEIGHT = 140;
 const TOP_Y = 16;
@@ -132,6 +134,7 @@ export function TrendLineChart({
   const drawn: TrendLineChartPoint[] = grouped ? grouped.points : points;
   const pointsSignature = drawn.map((point) => `${point.date}:${point.value}`).join('|');
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const hand = useNavigationHand();
   const [lastSignature, setLastSignature] = useState(pointsSignature);
   if (pointsSignature !== lastSignature) {
     setLastSignature(pointsSignature);
@@ -308,6 +311,34 @@ export function TrendLineChart({
             />
           </Fragment>
         ))}
+
+        {/* The tapped dot's value beside it, on the far side from the
+            navigation hand so the thumb that tapped it does not cover it
+            (lib/chartReadout.ts). Only once a dot has been tapped: the
+            headline above already reads the latest point. */}
+        {selectedIndex != null
+          ? (() => {
+              const label = valueFormatter(selectedPoint.value);
+              const width = readoutWidth(label);
+              const spot = placeReadout({
+                hand,
+                dotX: dateToX(selectedPoint.date),
+                dotY: valueToY(selectedPoint.value),
+                width,
+                minX: plotLeftEdge,
+                maxX: plotRightEdge + NODE_RADIUS + SVG_RIGHT_MARGIN,
+                minY: 0,
+              });
+              return (
+                <G pointerEvents="none">
+                  <Rect x={spot.x} y={spot.y} width={width} height={READOUT_HEIGHT} rx={6} fill={colors.surface} stroke={lineColor} strokeWidth={1} />
+                  <SvgText x={spot.x + width / 2} y={spot.y + 13} fontSize={11} fill={colors.textPrimary} textAnchor="middle">
+                    {label}
+                  </SvgText>
+                </G>
+              );
+            })()
+          : null}
       </Svg>
       <View style={[styles.labelRow, { paddingLeft: Y_AXIS_LABEL_WIDTH }]}>
         <Text style={styles.labelText}>{formatShortDate(sorted[0].date, crossesYear)}</Text>

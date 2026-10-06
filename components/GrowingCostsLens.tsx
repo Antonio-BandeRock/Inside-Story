@@ -45,6 +45,7 @@ import { HOME_BAND_ACCENT_WIDTH } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 import { QuickAreaForm } from './QuickAreaForm';
 import { makeTabBandStyles, TabBand } from './TabBand';
+import { ThumbRow } from './ThumbRow';
 
 // Growing Costs, a lens of Garden.
 //
@@ -505,14 +506,14 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
                   Saving picks it for the cost you are entering, and it is on the list for every cost after this one. Removing a kind later asks which kind to move its costs to, and deletes none of them.
                 </Text>
                 {kindError ? <Text style={styles.errorText}>{kindError}</Text> : null}
-                <View style={styles.actionRow}>
+                <ThumbRow primary="first" style={styles.actionRow}>
                   <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSaveKind}>
                     <Text style={styles.primaryButtonText}>Save Kind</Text>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => setKindForm(null)}>
                     <Text style={styles.linkText}>Back to the cost</Text>
                   </TouchableOpacity>
-                </View>
+                </ThumbRow>
               </View>
             ) : kindRemoval ? (
               <View style={styles.nestedForm}>
@@ -531,7 +532,7 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
                     placeholder="Pick a kind"
                   />
                 </View>
-                <View style={styles.actionRow}>
+                <ThumbRow primary="first" style={styles.actionRow}>
                   <TouchableOpacity
                     style={[styles.primaryButton, { backgroundColor: kindRemoval.moveTo ? PRIMARY_BUTTON_BACKGROUND : colors.border }]}
                     disabled={!kindRemoval.moveTo}
@@ -542,7 +543,7 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
                   <TouchableOpacity onPress={() => setKindRemoval(null)}>
                     <Text style={styles.linkText}>Keep it</Text>
                   </TouchableOpacity>
-                </View>
+                </ThumbRow>
               </View>
             ) : kindHelp ? (
               <Text style={styles.captionText}>{kindHelp}</Text>
@@ -598,14 +599,14 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
               </Text>
             )}
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
-            <View style={styles.actionRow}>
+            <ThumbRow primary="first" style={styles.actionRow}>
               <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSave}>
                 <Text style={styles.primaryButtonText}>Save Cost</Text>
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setAdding(false)}>
                 <Text style={styles.linkText}>Cancel</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </>
         ) : (
           <>
@@ -674,14 +675,14 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
                 );
               })}
               {groupError ? <Text style={styles.errorText}>{groupError}</Text> : null}
-              <View style={styles.actionRow}>
+              <ThumbRow primary="first" style={styles.actionRow}>
                 <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSaveGroup}>
                   <Text style={styles.primaryButtonText}>Save Group</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setGroupEditing(false)}>
                   <Text style={styles.linkText}>Cancel</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </>
           ) : plots.length < 2 ? (
             <Text style={styles.captionText}>Add at least two areas under Plots &amp; Plantings before combining them.</Text>

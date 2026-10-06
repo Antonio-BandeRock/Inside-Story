@@ -49,6 +49,7 @@ import {
 } from '../lib/gardenSpacesDb';
 import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
+import { ThumbRow } from './ThumbRow';
 
 const TAB_COLOR = colors.tabGarden;
 const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
@@ -172,14 +173,14 @@ export function GardenSpaceField({ label, selected, onSelect, width = 220 }: Pro
             Saving picks it for this area, and it is on the list for every area after this one. Removing a space later asks where to move the areas recorded under it, and deletes none of them.
           </Text>
           {formError ? <Text style={styles.errorText}>{formError}</Text> : null}
-          <View style={styles.actionRow}>
+          <ThumbRow primary="first" style={styles.actionRow}>
             <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleSave}>
               <Text style={styles.primaryButtonText}>Save Space</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setForm(null)}>
               <Text style={styles.linkText}>Back to the area</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : null}
       {removal ? (
@@ -200,7 +201,7 @@ export function GardenSpaceField({ label, selected, onSelect, width = 220 }: Pro
               placeholder="Pick a space"
             />
           </View>
-          <View style={styles.actionRow}>
+          <ThumbRow primary="first" style={styles.actionRow}>
             <TouchableOpacity
               style={[styles.primaryButton, { backgroundColor: removal.moveTo ? PRIMARY_BUTTON_BACKGROUND : colors.border }]}
               disabled={!removal.moveTo}
@@ -211,7 +212,7 @@ export function GardenSpaceField({ label, selected, onSelect, width = 220 }: Pro
             <TouchableOpacity onPress={() => setRemoval(null)}>
               <Text style={styles.linkText}>Keep it</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : null}
     </View>

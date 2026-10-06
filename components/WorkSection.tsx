@@ -50,6 +50,7 @@ import {
 } from '../lib/workDb';
 import { parsePriceInput } from '../lib/groceryList';
 import { useWalkMark } from './WalkMark';
+import { ThumbRow } from './ThumbRow';
 
 // Work: what it gives you, and how it is actually going.
 //
@@ -386,14 +387,14 @@ export function WorkSection({ tabColor }: Props) {
                 </>
               ) : null}
 
-              <View style={styles.formActions}>
+              <ThumbRow primary="last" style={styles.formActions}>
                 <TouchableOpacity style={styles.secondaryButton} onPress={() => setBenefitForm(null)}>
                   <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.primaryButton} onPress={saveBenefit}>
                   <Text style={styles.primaryButtonText}>{benefitForm.id ? 'Save changes' : 'Add it'}</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </View>
           ) : null}
 
@@ -443,14 +444,14 @@ export function WorkSection({ tabColor }: Props) {
                       value={useForm.amount}
                       onChangeText={(t) => setUseForm({ ...useForm, amount: t })}
                     />
-                    <View style={styles.formActions}>
+                    <ThumbRow primary="last" style={styles.formActions}>
                       <TouchableOpacity style={styles.secondaryButton} onPress={() => setUseForm(null)}>
                         <Text style={styles.secondaryButtonText}>Cancel</Text>
                       </TouchableOpacity>
                       <TouchableOpacity style={styles.primaryButton} onPress={saveUse}>
                         <Text style={styles.primaryButtonText}>Record it</Text>
                       </TouchableOpacity>
-                    </View>
+                    </ThumbRow>
                   </View>
                 ) : null}
 
@@ -632,14 +633,14 @@ export function WorkSection({ tabColor }: Props) {
                 onChangeText={(t) => setCheckinForm({ ...checkinForm, note: t })}
               />
 
-              <View style={styles.formActions}>
+              <ThumbRow primary="last" style={styles.formActions}>
                 <TouchableOpacity style={styles.secondaryButton} onPress={() => setCheckinForm(null)}>
                   <Text style={styles.secondaryButtonText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.primaryButton, walkMark('work.saveWeek')]} onPress={saveCheckin}>
                   <Text style={styles.primaryButtonText}>Save this week</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbRow>
             </View>
           ) : null}
 

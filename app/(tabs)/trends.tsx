@@ -168,6 +168,7 @@ import type { YearSquareSet } from '../../lib/calendarHeat';
 import type { ReadingView } from '../../lib/readingBands';
 import type { YourStoryItemKey } from '../../lib/yourStory';
 import { listRecordedBodySignals, loadTrendsMoreView, type TrendsMoreLens } from '../../lib/trendsMoreDb';
+import { ThumbRow } from '../../components/ThumbRow';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -1710,7 +1711,7 @@ export default function TrendsScreen() {
             'Starts from the count in your logged data. Edit it to whatever you actually want to be told, and it saves as something you noticed yourself.'
           }
         </Text>
-        <View style={styles.ruleDraftButtons}>
+        <ThumbRow primary="last" style={styles.ruleDraftButtons}>
           <TouchableOpacity style={[styles.trialButton, { borderColor: colors.border }]} onPress={() => setRuleDraft(null)}>
             <Text style={[styles.trialButtonText, { color: colors.textMuted }]}>Cancel</Text>
           </TouchableOpacity>
@@ -1721,7 +1722,7 @@ export default function TrendsScreen() {
           >
             <Text style={[styles.trialButtonText, { color: TAB_COLOR }]}>{savingRule ? 'Saving…' : 'Save this rule'}</Text>
           </TouchableOpacity>
-        </View>
+        </ThumbRow>
       </View>
     );
   }

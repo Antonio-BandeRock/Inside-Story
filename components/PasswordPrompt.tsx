@@ -3,7 +3,7 @@ import { Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View }
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { modalAnimationType } from '../lib/visualPreferences';
-import { useNavigationHand } from '../lib/navigationHand';
+import { ThumbRow } from './ThumbRow';
 
 export type PasswordPromptMode = 'set' | 'enter';
 
@@ -42,7 +42,6 @@ export function usePasswordPrompt(): [
   (mode: PasswordPromptMode, title: string, message: string) => Promise<string | null>,
   ReactNode,
 ] {
-  const navigationHand = useNavigationHand();
   const [request, setRequest] = useState<PasswordPromptRequest | null>(null);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -124,14 +123,14 @@ export function usePasswordPrompt(): [
             </Text>
           ) : null}
           {error ? <Text style={styles.error}>{error}</Text> : null}
-          <View style={[styles.buttonRow, { justifyContent: navigationHand === 'left' ? 'flex-start' : 'flex-end' }]}>
+          <ThumbRow primary="last" style={styles.buttonRow}>
             <TouchableOpacity style={styles.cancelButton} onPress={() => close(null)} hitSlop={8}>
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.okButton} onPress={handleSubmit} hitSlop={8}>
               <Text style={styles.okButtonText}>{request?.mode === 'set' ? 'Set Password' : 'Unlock'}</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       </View>
     </Modal>

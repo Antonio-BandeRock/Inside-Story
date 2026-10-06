@@ -158,6 +158,7 @@ import {
   restoreCustomTracker,
   updateCustomTracker,
 } from '../../lib/customTrackersDb';
+import { ThumbRow } from '../../components/ThumbRow';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -899,14 +900,14 @@ function CheckinForm({
         value={notes}
         onChangeText={onNotesChange}
       />
-      <View style={styles.formActions}>
+      <ThumbRow primary="last" style={styles.formActions}>
         <TouchableOpacity style={styles.secondaryButton} onPress={onCancel}>
           <Text style={styles.secondaryButtonText}>Cancel</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.primaryButton} onPress={onSave}>
           <Text style={styles.primaryButtonText}>{saveLabel}</Text>
         </TouchableOpacity>
-      </View>
+      </ThumbRow>
     </View>
   );
 }
@@ -1797,7 +1798,7 @@ function NewFoodsLens({
             value={seriesDays}
             onChangeText={setSeriesDays}
           />
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity
               style={styles.secondaryButton}
               onPress={() => {
@@ -1810,7 +1811,7 @@ function NewFoodsLens({
             <TouchableOpacity style={styles.primaryButton} onPress={handleSaveSeries}>
               <Text style={styles.primaryButtonText}>Start series</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : !formOpen ? (
         <>
@@ -1916,14 +1917,14 @@ function NewFoodsLens({
             value={observationDays}
             onChangeText={setObservationDays}
           />
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={handleSave}>
               <Text style={styles.primaryButtonText}>Start experiment</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : (
         <View style={styles.formCard}>
@@ -2141,7 +2142,7 @@ function NewFoodsLens({
               you&apos;d rather not wait.
             </Text>
           )}
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
@@ -2154,7 +2155,7 @@ function NewFoodsLens({
                     : 'Start trial'}
               </Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       )}
 
@@ -2483,14 +2484,14 @@ function ExerciseSection() {
           </View>
           <Text style={styles.label}>When?</Text>
           <DateChoicePicker value={dateChoice} onChange={setDateChoice} customDate={customDate} onCustomDateChange={setCustomDate} />
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={handleSave}>
               <Text style={styles.primaryButtonText}>Save</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       )}
 
@@ -2666,14 +2667,14 @@ function BloodPressureSection() {
           </View>
           <Text style={styles.label}>When?</Text>
           <DateChoicePicker value={dateChoice} onChange={setDateChoice} customDate={customDate} onCustomDateChange={setCustomDate} />
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={handleSave}>
               <Text style={styles.primaryButtonText}>Save</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       )}
 
@@ -2789,14 +2790,14 @@ function GeneralNoteSection() {
           <DailyScalesPicker values={scales} onChange={setScales} accent={TAB_COLOR} />
           <Text style={styles.label}>When?</Text>
           <DateChoicePicker value={dateChoice} onChange={setDateChoice} customDate={customDate} onCustomDateChange={setCustomDate} />
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={handleSave}>
               <Text style={styles.primaryButtonText}>Save</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       )}
 
@@ -2955,14 +2956,14 @@ function NocturiaLens() {
             <DateChoicePicker value={dateChoice} onChange={setDateChoice} customDate={customDate} onCustomDateChange={setCustomDate} />
             <Text style={styles.label}>Notes (optional)</Text>
             <NotesInput style={styles.input} placeholder="Anything worth remembering" value={notes} onChangeText={setNotes} />
-            <View style={styles.formActions}>
+            <ThumbRow primary="last" style={styles.formActions}>
               <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
                 <Text style={styles.secondaryButtonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.primaryButton} onPress={handleSave}>
                 <Text style={styles.primaryButtonText}>Save</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </View>
         )}
 
@@ -3119,14 +3120,14 @@ function BowelLens() {
             <TimePicker value={time} onChange={setTime} />
             <Text style={styles.label}>Note (optional)</Text>
             <NotesInput style={styles.input} placeholder="Anything worth remembering" value={note} onChangeText={setNote} />
-            <View style={styles.formActions}>
+            <ThumbRow primary="last" style={styles.formActions}>
               <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
                 <Text style={styles.secondaryButtonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.primaryButton} onPress={handleSave}>
                 <Text style={styles.primaryButtonText}>Save</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </View>
         )}
 
@@ -3283,14 +3284,14 @@ function CycleLens() {
             <DateChoicePicker value={dateChoice} onChange={setDateChoice} customDate={customDate} onCustomDateChange={setCustomDate} />
             <Text style={styles.label}>Notes (optional)</Text>
             <NotesInput style={styles.input} placeholder="Anything worth remembering" value={notes} onChangeText={setNotes} />
-            <View style={styles.formActions}>
+            <ThumbRow primary="last" style={styles.formActions}>
               <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
                 <Text style={styles.secondaryButtonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.primaryButton} onPress={handleSave}>
                 <Text style={styles.primaryButtonText}>Save</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </View>
         )}
 
@@ -3531,14 +3532,14 @@ function MyTrackersLens() {
                 </TouchableOpacity>
               )
             ) : null}
-            <View style={styles.formActions}>
+            <ThumbRow primary="last" style={styles.formActions}>
               <TouchableOpacity style={styles.secondaryButton} onPress={() => setTrackerForm('closed')}>
                 <Text style={styles.secondaryButtonText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.primaryButton} onPress={handleSaveTracker}>
                 <Text style={styles.primaryButtonText}>Save</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbRow>
           </View>
         )}
 
@@ -3633,14 +3634,14 @@ function MyTrackersLens() {
                 <TimePicker value={time} onChange={setTime} />
                 <Text style={styles.label}>Notes (optional)</Text>
                 <NotesInput style={styles.input} placeholder="Anything worth remembering" value={entryNotes} onChangeText={setEntryNotes} />
-                <View style={styles.formActions}>
+                <ThumbRow primary="last" style={styles.formActions}>
                   <TouchableOpacity style={styles.secondaryButton} onPress={() => { setEntryOpen(false); resetEntryForm(); }}>
                     <Text style={styles.secondaryButtonText}>Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.primaryButton} onPress={handleSaveEntry}>
                     <Text style={styles.primaryButtonText}>Save</Text>
                   </TouchableOpacity>
-                </View>
+                </ThumbRow>
               </View>
             )}
 

@@ -41,6 +41,7 @@ import {
   type NetWorthPoint,
 } from '../lib/financeAccountsDb';
 import { parsePriceInput } from '../lib/groceryList';
+import { ThumbRow } from './ThumbRow';
 
 // Accounts, net worth and debt payoff, 2026-09-05, pass 2 of the Finances
 // rebuild. These are the parts every mainstream finance app has and the
@@ -310,14 +311,14 @@ export function FinanceMoneySection({ tabColor }: Props) {
             </>
           ) : null}
 
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => setForm(null)}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={save}>
               <Text style={styles.primaryButtonText}>{form.id ? 'Save changes' : 'Add it'}</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : null}
 

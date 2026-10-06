@@ -36,6 +36,7 @@ import {
   type GoalWithProgress,
 } from '../lib/financeGoalsDb';
 import { parsePriceInput } from '../lib/groceryList';
+import { ThumbRow } from './ThumbRow';
 
 // Goals, 2026-09-05, pass 3 of the Finances rebuild.
 //
@@ -232,14 +233,14 @@ export function FinanceGoalsSection({ tabColor }: Props) {
             invent a figure.
           </Text>
 
-          <View style={styles.formActions}>
+          <ThumbRow primary="last" style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => setGoalForm(null)}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={saveGoal}>
               <Text style={styles.primaryButtonText}>Add it</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
         </View>
       ) : null}
 
@@ -368,14 +369,14 @@ export function FinanceGoalsSection({ tabColor }: Props) {
                     <Text style={styles.pillTextSmall}>Today</Text>
                   </TouchableOpacity>
                 </View>
-                <View style={styles.formActions}>
+                <ThumbRow primary="last" style={styles.formActions}>
                   <TouchableOpacity style={styles.secondaryButton} onPress={() => setContribForm(null)}>
                     <Text style={styles.secondaryButtonText}>Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.primaryButton} onPress={saveContribution}>
                     <Text style={styles.primaryButtonText}>Record it</Text>
                   </TouchableOpacity>
-                </View>
+                </ThumbRow>
               </View>
             ) : null}
 
@@ -431,14 +432,14 @@ export function FinanceGoalsSection({ tabColor }: Props) {
                   </Text>
                 ) : null}
 
-                <View style={styles.formActions}>
+                <ThumbRow primary="last" style={styles.formActions}>
                   <TouchableOpacity style={styles.secondaryButton} onPress={() => setCostForm(null)}>
                     <Text style={styles.secondaryButtonText}>Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.primaryButton} onPress={saveCost}>
                     <Text style={styles.primaryButtonText}>Add this cost</Text>
                   </TouchableOpacity>
-                </View>
+                </ThumbRow>
               </View>
             ) : null}
 

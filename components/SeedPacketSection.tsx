@@ -26,6 +26,7 @@ import {
 } from '../lib/seedPacket';
 import { AppTextInput } from './AppTextInput';
 import { PhotoStrip } from './PhotoStrip';
+import { ThumbRow } from './ThumbRow';
 
 const TAB_COLOR = colors.tabGarden;
 
@@ -126,14 +127,14 @@ export function SeedPacketSection({ plantingId, foodName, plantedAt, varietyNote
             <Text style={styles.captionText}>With the days cleared, the expected harvest stays as it is now.</Text>
           ) : null}
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          <View style={styles.actionRow}>
+          <ThumbRow primary="first" style={styles.actionRow}>
             <TouchableOpacity style={[styles.primaryButton, { backgroundColor: colors.buttonColor }]} onPress={handleSave}>
               <Text style={styles.primaryButtonText}>Save</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={toggle}>
               <Text style={styles.linkText}>Cancel</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbRow>
           <PhotoStrip
             ownerKind={SEED_PACKET_OWNER_KIND}
             ownerId={plantingId}

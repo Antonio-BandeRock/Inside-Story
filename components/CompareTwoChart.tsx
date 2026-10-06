@@ -71,6 +71,12 @@ export function CompareTwoChart({
           <Text style={styles.legendText}>{comparison.b.choice.label}, right scale</Text>
         </View>
       </View>
+      {/* The day read out above the chart rather than under it, 1.0.61.14:
+          the hand that taps a dot comes up from below and covers whatever
+          sits there. */}
+      <Text style={styles.caption}>
+        {picked ? [describeDay(comparison, picked), tagged].filter(Boolean).join(' ') : 'Tap a dot to read that day for both.'}
+      </Text>
       {width > 0 ? (
         <Svg width={width} height={svgHeight} accessibilityLabel={comparison.accessibilityLabel + marksLabel}>
           <Line x1={plotLeft} y1={TOP} x2={plotLeft} y2={TOP + plotHeight} stroke={colorA} strokeWidth={1} strokeOpacity={0.6} />
@@ -179,9 +185,6 @@ export function CompareTwoChart({
           ))}
         </Svg>
       ) : null}
-      <Text style={styles.caption}>
-        {picked ? [describeDay(comparison, picked), tagged].filter(Boolean).join(' ') : 'Tap a dot to read that day for both.'}
-      </Text>
     </View>
   );
 }
@@ -192,5 +195,5 @@ const styles = StyleSheet.create({
   legendCircle: { width: 10, height: 10, borderRadius: 5 },
   legendSquare: { width: 10, height: 10 },
   legendText: { ...typography.caption, color: colors.textPrimary, flexShrink: 1, ...textShadow },
-  caption: { ...typography.caption, color: colors.textMuted, marginTop: 6, ...textShadow },
+  caption: { ...typography.caption, color: colors.textMuted, marginBottom: 6, ...textShadow },
 });
