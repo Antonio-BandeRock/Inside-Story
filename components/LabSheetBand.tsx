@@ -51,6 +51,7 @@ import {
 } from '../lib/labImport';
 import { explainNotYet } from '../lib/notYet';
 import { recognizeLinesFromImage } from '../lib/ocr';
+import { ThumbEndRow } from './ThumbEndRow';
 
 const YEAR_OPTIONS = Array.from({ length: 6 }, (_, i) => String(new Date().getFullYear() - i));
 const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => String(i + 1));
@@ -452,7 +453,7 @@ export function LabSheetBand({
         <>
           <Text style={styles.label}>Tests you added</Text>
           {ownTests.map((test) => (
-            <View key={test.code} style={styles.ownRow}>
+            <ThumbEndRow key={test.code} style={styles.ownRow}>
               {renaming?.code === test.code ? (
                 <AppTextInput
                   value={renaming.name}
@@ -468,16 +469,16 @@ export function LabSheetBand({
                   {test.rangeUnit ? <Text style={styles.caption}> · {test.rangeUnit}</Text> : null}
                 </Text>
               )}
+              <TouchableOpacity activeOpacity={0.7} onPress={() => void remove(test)}>
+                <Text style={[styles.link, { color: tabColor }]}>Remove</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={0.7}
                 onPress={() => (renaming?.code === test.code ? void finishRename() : setRenaming({ code: test.code, name: test.displayName }))}
               >
                 <Text style={[styles.link, { color: tabColor }]}>{renaming?.code === test.code ? 'Done' : 'Rename'}</Text>
               </TouchableOpacity>
-              <TouchableOpacity activeOpacity={0.7} onPress={() => void remove(test)}>
-                <Text style={[styles.link, { color: tabColor }]}>Remove</Text>
-              </TouchableOpacity>
-            </View>
+            </ThumbEndRow>
           ))}
         </>
       ) : null}

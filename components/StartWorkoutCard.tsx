@@ -20,6 +20,7 @@ import { localDate, type PlanEntry } from '../lib/exercisePlan';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { startWorkoutCard, type StartWorkoutCardModel } from '../lib/startWorkout';
 import { lastSessionTimes, listWorkouts } from '../lib/workoutsDb';
+import { ThumbEndRow } from './ThumbEndRow';
 
 type Props = { tabColor: string };
 
@@ -141,7 +142,7 @@ export function StartWorkoutCard({ tabColor }: Props) {
         <Text style={styles.groupLabel}>{model.today.length > 0 ? 'Or another workout' : 'Your workouts'}</Text>
       ) : null}
       {model.others.map((workout) => (
-        <View key={workout.id} style={styles.row}>
+        <ThumbEndRow key={workout.id} style={styles.row}>
           <View style={styles.rowText}>
             <Text style={styles.rowTitle}>{workout.name}</Text>
             <Text style={styles.rowMeta}>{workout.line}</Text>
@@ -149,7 +150,7 @@ export function StartWorkoutCard({ tabColor }: Props) {
           <TouchableOpacity style={styles.primaryButton} onPress={() => start(workout.id)}>
             <Text style={styles.primaryButtonText}>Start</Text>
           </TouchableOpacity>
-        </View>
+        </ThumbEndRow>
       ))}
 
       {model.emptyLine ? <Text style={styles.captionText}>{model.emptyLine}</Text> : null}

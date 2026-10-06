@@ -43,6 +43,7 @@ import { describeWorkout, type Workout } from '../lib/workouts';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { buildTime24, describeTimeInputProblem, splitTime24, type TimeOfDayInput } from '../lib/timeOfDay';
 import { ThumbRow } from './ThumbRow';
+import { ThumbEndRow } from './ThumbEndRow';
 
 // Schedules > Exercise, H11 part 3. A plan is a workout from Life >
 // Workouts or a plain activity by name, on a first day, at a time or any
@@ -350,7 +351,7 @@ export function ExerciseScheduleSection({ tabColor, RepeatRulePicker }: Props) {
           )}
 
           <Text style={styles.label}>First day</Text>
-          <View style={styles.timeRow}>
+          <ThumbEndRow style={styles.timeRow}>
             <AppTextInput
               style={[styles.input, styles.grow]}
               placeholder="YYYY-MM-DD"
@@ -360,7 +361,7 @@ export function ExerciseScheduleSection({ tabColor, RepeatRulePicker }: Props) {
             <TouchableOpacity style={styles.pillSmall} onPress={() => patch({ startsOn: today })}>
               <Text style={styles.pillTextSmall}>Today</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbEndRow>
 
           <Text style={styles.label}>Time</Text>
           <View style={styles.pillRow}>

@@ -238,6 +238,7 @@ import { countWaiting } from '../../lib/waitingAnswers';
 import { useBandFolds } from '../../hooks/useBandFolds';
 import { useWalkMark } from '../../components/WalkMark';
 import { ThumbRow } from '../../components/ThumbRow';
+import { ThumbEndRow } from '../../components/ThumbEndRow';
 
 // 'YYYY-MM-DD' in LOCAL time -- same helper (and same reasoning) duplicated
 // in food.tsx/insights.tsx/schedule.tsx/log.tsx: UTC's calendar date is
@@ -3759,7 +3760,7 @@ export default function HomeScreen() {
           <>
             <Text style={[styles.usualMealName, { color: foodColor }]}>{logged.sentence}</Text>
             {logged.undoable ? null : <Text style={styles.logAgainCaption}>{USUAL_MEAL_TRIAL_NOTE}</Text>}
-            <View style={styles.usualMealActions}>
+            <ThumbEndRow style={styles.usualMealActions}>
               {logged.undoable ? (
                 <TouchableOpacity style={button} activeOpacity={0.8} onPress={() => void handleUndoUsualMeal()} disabled={usualMealBusy}>
                   <Ionicons name="arrow-undo-outline" size={18} color={foodColor} style={textShadow} />
@@ -3770,7 +3771,7 @@ export default function HomeScreen() {
                 <Ionicons name="checkmark" size={18} color={foodColor} style={textShadow} />
                 <Text style={buttonText}>Done</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbEndRow>
             {logged.slot && homeVariety && homeVariety.slot === logged.slot ? (
               <>
                 {(logged.added ?? []).map((key) => {

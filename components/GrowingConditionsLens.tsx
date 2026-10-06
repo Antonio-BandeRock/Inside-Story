@@ -96,6 +96,7 @@ import { HOME_BAND_ACCENT_WIDTH } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 import { makeTabBandStyles, TabBand } from './TabBand';
 import { ThumbRow } from './ThumbRow';
+import { ThumbEndRow } from './ThumbEndRow';
 
 // Growing Conditions, a lens of Garden (2026-09-23).
 //
@@ -673,7 +674,7 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
           </>
         ) : recording ? (
           <>
-            <View style={styles.fieldRow}>
+            <ThumbEndRow style={styles.fieldRow}>
               <Text style={styles.bodyText}>{whereLine(pickedPath, plantingName, pickedArea?.locationType ?? null, pickedNested)}</Text>
               <TouchableOpacity
                 onPress={() => {
@@ -684,7 +685,7 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
               >
                 <Text style={styles.linkText}>Change</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbEndRow>
             {planned.length > 0 ? (
               <>
                 <Text style={styles.fieldLabel}>Measured here</Text>

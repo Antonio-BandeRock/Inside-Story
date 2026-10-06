@@ -28,6 +28,7 @@ import { NotYetHost } from '../components/NotYetHost';
 import { TellClaudeHost } from '../components/TellClaudeHost';
 import { HandSwitchButton } from '../components/HandSwitchButton';
 import { QuickCaptureButton } from '../components/QuickCaptureButton';
+import { ThumbSearchButton } from '../components/ThumbSearchButton';
 import { FreshAuthHost } from '../components/FreshAuthHost';
 import { WordingEditProvider } from '../components/EditableText';
 import { VersionLabel } from '../components/VersionLabel';
@@ -901,6 +902,9 @@ function UnlockedApp() {
               {/* The quick voice note (1.0.61.14): the edge tab on the thumb side,
                   saving what is said to Capture, components/QuickCaptureButton.tsx. */}
               <QuickCaptureButton />
+              {/* Search near the thumb (1.0.61.15): above the voice note tab while
+                  the screen has a lens search box, components/ThumbSearchButton.tsx. */}
+              <ThumbSearchButton />
               {/* App Lock (1.0.60.6): the passcode asked for again before
                   records leave the phone, lib/freshAuth.ts. */}
               <FreshAuthHost />

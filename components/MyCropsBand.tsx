@@ -36,6 +36,7 @@ import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
 import { useTabBandStyles, TabBand } from './TabBand';
 import { ThumbRow } from './ThumbRow';
+import { ThumbEndRow } from './ThumbEndRow';
 
 type Folds = ReturnType<typeof useBandFolds>;
 
@@ -241,7 +242,7 @@ export function MyCropsBand({
               <Text style={styles.captionText}>{areaLine(plan)}</Text>
               <Text style={styles.bodyText}>{state.line}</Text>
               {state.kind === 'next' ? (
-                <View style={styles.actionRow}>
+                <ThumbEndRow style={styles.actionRow}>
                   {!state.sown ? (
                     <TouchableOpacity onPress={() => void toggleStep(plan, state.window.action, state.window.start, 'prepped', state.prepped)}>
                       <Text style={[styles.linkText, { color }]}>{state.prepped ? 'Not prepped yet' : 'Prepped'}</Text>
@@ -250,7 +251,7 @@ export function MyCropsBand({
                   <TouchableOpacity onPress={() => void toggleStep(plan, state.window.action, state.window.start, 'sown', state.sown)}>
                     <Text style={[styles.linkText, { color }]}>{state.sown ? 'Not sown yet' : 'Sown'}</Text>
                   </TouchableOpacity>
-                </View>
+                </ThumbEndRow>
               ) : null}
               {state.kind === 'next' && state.sown ? (
                 <TouchableOpacity onPress={onOpenPlantings}>

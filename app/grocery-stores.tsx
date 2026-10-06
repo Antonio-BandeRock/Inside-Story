@@ -43,6 +43,7 @@ import {
   type GroceryStoreRecord,
 } from '../lib/groceryDb';
 import { explainNotYet } from '../lib/notYet';
+import { ThumbEndRow } from '../components/ThumbEndRow';
 
 const OWN_HEADING = '__own_heading__';
 
@@ -216,7 +217,7 @@ export default function GroceryStoresScreen() {
             );
           })}
           <Text style={styles.label}>Add a store of your own</Text>
-          <View style={styles.inlineRow}>
+          <ThumbEndRow style={styles.inlineRow}>
             <AppTextInput
               style={[styles.input, styles.flex]}
               value={newStore}
@@ -227,13 +228,13 @@ export default function GroceryStoresScreen() {
             <TouchableOpacity style={styles.smallButton} activeOpacity={0.85} onPress={handleAddStore}>
               <Text style={styles.smallButtonText}>Add</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbEndRow>
         </View>
 
         {selected && layout ? (
           <View style={styles.card}>
             <Text style={styles.sectionLabel}>{selected.name}</Text>
-            <View style={styles.inlineRow}>
+            <ThumbEndRow style={styles.inlineRow}>
               <AppTextInput
                 style={[styles.input, styles.flex]}
                 value={storeRename}
@@ -255,7 +256,7 @@ export default function GroceryStoresScreen() {
               >
                 <Text style={styles.smallButtonText}>Rename</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbEndRow>
             <TouchableOpacity style={styles.textButton} activeOpacity={0.85} onPress={() => setConfirmStoreRemove(true)}>
               <Ionicons name="trash-outline" size={16} color={colors.danger} />
               <Text style={[styles.textButtonLabel, { color: colors.danger }]}>Remove this store</Text>
@@ -309,7 +310,7 @@ export default function GroceryStoresScreen() {
                   </View>
                   {editing ? (
                     <View style={styles.editor}>
-                      <View style={styles.inlineRow}>
+                      <ThumbEndRow style={styles.inlineRow}>
                         <AppTextInput
                           style={[styles.input, styles.flex]}
                           value={aisleRename}
@@ -331,7 +332,7 @@ export default function GroceryStoresScreen() {
                         >
                           <Text style={styles.smallButtonText}>Rename</Text>
                         </TouchableOpacity>
-                      </View>
+                      </ThumbEndRow>
                       <TouchableOpacity style={styles.textButton} activeOpacity={0.85} onPress={() => setRemovingAisleId(aisle.id)}>
                         <Ionicons name="trash-outline" size={16} color={colors.danger} />
                         <Text style={[styles.textButtonLabel, { color: colors.danger }]}>Remove this aisle</Text>
@@ -342,7 +343,7 @@ export default function GroceryStoresScreen() {
               );
             })}
             <Text style={styles.label}>Add an aisle of your own</Text>
-            <View style={styles.inlineRow}>
+            <ThumbEndRow style={styles.inlineRow}>
               <AppTextInput
                 style={[styles.input, styles.flex]}
                 value={newAisle}
@@ -364,7 +365,7 @@ export default function GroceryStoresScreen() {
               >
                 <Text style={styles.smallButtonText}>Add</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbEndRow>
           </View>
         ) : null}
 

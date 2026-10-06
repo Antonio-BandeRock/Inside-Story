@@ -79,6 +79,7 @@ import {
   workoutsUsingExercise,
 } from '../lib/workoutsDb';
 import { ThumbRow } from './ThumbRow';
+import { ThumbEndRow } from './ThumbEndRow';
 
 // Life > Workouts (H11, 1.0.55.1). Direct request, 2026-09-28: "there needs
 // to be a workout builder to add exercises and everything about the
@@ -679,12 +680,12 @@ maxLength={80}
             <PopoverSelect options={EQUIPMENT_OPTIONS} selected={filter.equipment} onSelect={(value) => setFilter({ ...filter, equipment: value as ExerciseFilter['equipment'] })} tabColor={tabColor} />
           </View>
         </View>
-        <View style={styles.pillRow}>
+        <ThumbEndRow style={styles.pillRow}>
           {renderPill(GENTLE_FILTER_LABEL, filter.gentleOnly, () => setFilter({ ...filter, gentleOnly: !filter.gentleOnly }))}
           <TouchableOpacity onPress={() => showInfoAlert(GENTLE_FILTER_LABEL, GENTLE_FILTER_HELP)} activeOpacity={0.7} style={styles.pillHelp}>
             <Text style={styles.actionText}>What this means</Text>
           </TouchableOpacity>
-        </View>
+        </ThumbEndRow>
         <Text style={styles.rowMeta}>{libraryCountLine(shown.length, views.length)}</Text>
 
         {shown.map((view) => {

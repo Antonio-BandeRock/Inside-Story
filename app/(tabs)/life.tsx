@@ -112,6 +112,7 @@ import { parsePriceInput } from '../../lib/groceryList';
 import { useWalkMark } from '../../components/WalkMark';
 import type { WalkMark } from '../../lib/storyWalk';
 import { ThumbRow } from '../../components/ThumbRow';
+import { ThumbEndRow } from '../../components/ThumbEndRow';
 
 // The 10th tab, added 2026-09-04, and its first real area, added
 // 2026-09-05. Direct request: "Let's start with Finances... Finances is
@@ -1420,7 +1421,7 @@ export default function LifeScreen() {
               tabColor={TAB_COLOR}
             />
             <Text style={styles.label}>A date it landed on</Text>
-            <View style={styles.inlineRow}>
+            <ThumbEndRow style={styles.inlineRow}>
               <AppTextInput
                 style={[styles.input, styles.shortInput]}
                 placeholder="YYYY-MM-DD"
@@ -1430,7 +1431,7 @@ export default function LifeScreen() {
               <TouchableOpacity style={styles.pillSmall} onPress={() => setRecurringForm({ ...form, weekAnchor: todayLocal() })}>
                 <Text style={styles.pillTextSmall}>Today</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbEndRow>
             <Text style={styles.helperText}>
               {form.frequency === 'w1'
                 ? 'Any recent one will do, since it happens every week.'
@@ -1639,7 +1640,7 @@ export default function LifeScreen() {
             />
 
             <Text style={styles.label}>Date</Text>
-            <View style={styles.inlineRow}>
+            <ThumbEndRow style={styles.inlineRow}>
               <AppTextInput
                 style={[styles.input, styles.shortInput]}
                 placeholder="YYYY-MM-DD"
@@ -1649,7 +1650,7 @@ export default function LifeScreen() {
               <TouchableOpacity style={styles.pillSmall} onPress={() => setEntryForm({ ...entryForm, occurredOn: todayLocal() })}>
                 <Text style={styles.pillTextSmall}>Today</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbEndRow>
 
             {entryForm.direction === 'income' && variableIncomeStreams.length > 0 ? (
               <>

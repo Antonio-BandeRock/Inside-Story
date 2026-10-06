@@ -26,6 +26,7 @@ import {
   type SiteUse,
 } from '../lib/injectionSites';
 import { recordSite, removeSiteUse, saveInjectionSetting, type InjectionSetting } from '../lib/injectionSitesDb';
+import { ThumbEndRow } from './ThumbEndRow';
 
 type Props = {
   treatmentId: string;
@@ -106,12 +107,12 @@ export function InjectionPanel({ treatmentId, name, genericName, setting, histor
           {nextSiteLine(rotation, history) ? <Text style={styles.bodyEmphasis}>{nextSiteLine(rotation, history)}</Text> : null}
           <Text style={styles.bodyText}>{lastSiteLine(history, today)}</Text>
           {history.slice(0, RECENT_SHOWN).map((use) => (
-            <View key={use.id} style={styles.inlineRow}>
+            <ThumbEndRow key={use.id} style={styles.inlineRow}>
               <Text style={styles.stepText}>{`${siteDate(use.recordedAt)}: ${use.siteLabel}`}</Text>
               <TouchableOpacity onPress={() => void takeBack(use)} accessibilityLabel={`Take back the shot noted ${siteDate(use.recordedAt)}`}>
                 <Text style={styles.smallAction}>Take back</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbEndRow>
           ))}
           {mode === 'record' ? (
             <>
@@ -147,12 +148,12 @@ export function InjectionPanel({ treatmentId, name, genericName, setting, histor
                 })}
               </View>
               <Text style={styles.label}>Add a spot of your own</Text>
-              <View style={styles.inlineRow}>
+              <ThumbEndRow style={styles.inlineRow}>
                 <AppTextInput style={[styles.input, styles.flexInput]} value={ownText} onChangeText={setOwnText} placeholder="Lower belly, left of the scar" />
                 <TouchableOpacity style={styles.smallButton} onPress={addOwn}>
                   <Text style={styles.smallButtonText}>Add</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbEndRow>
               <TouchableOpacity onPress={() => setMode('view')}>
                 <Text style={styles.actionText}>Done</Text>
               </TouchableOpacity>

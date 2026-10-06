@@ -159,6 +159,7 @@ import {
   updateCustomTracker,
 } from '../../lib/customTrackersDb';
 import { ThumbRow } from '../../components/ThumbRow';
+import { ThumbEndRow } from '../../components/ThumbEndRow';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -710,8 +711,15 @@ function OwnSymptoms({ onAdded }: { onAdded: (code: string) => void }) {
         ) : null}
       </View>
       {own.map((tag) => (
-        <View key={tag.code} style={styles.ownSymptomRow}>
+        <ThumbEndRow key={tag.code} style={styles.ownSymptomRow}>
           <Text style={styles.ownSymptomName}>{tag.label}</Text>
+          <TouchableOpacity
+            onPress={() => {
+              void removeCustomCheckinTag(tag.code).then(() => setVersion((v) => v + 1));
+            }}
+          >
+            <Text style={styles.actionTextRemove}>Remove</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
               setRenaming(tag.code);
@@ -720,14 +728,7 @@ function OwnSymptoms({ onAdded }: { onAdded: (code: string) => void }) {
           >
             <Text style={styles.ownSymptomAction}>Rename</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              void removeCustomCheckinTag(tag.code).then(() => setVersion((v) => v + 1));
-            }}
-          >
-            <Text style={styles.actionTextRemove}>Remove</Text>
-          </TouchableOpacity>
-        </View>
+        </ThumbEndRow>
       ))}
     </View>
   );

@@ -1,11 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useIsFocused } from '@react-navigation/native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View, type TextStyle } from 'react-native';
+import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
 import { VoiceInputButton } from './VoiceInputButton';
 import { colors } from '../constants/colors';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useNavigationHand } from '../lib/navigationHand';
+import { registerThumbSearch } from '../lib/thumbSearch';
 
 // The app's one search box for a list of entries: a text field with the mic
 // inside it on the hand's own side and an optional information icon pinned to
@@ -67,6 +70,16 @@ export function EntrySearchInput({
   const navigationHand = useNavigationHand();
   const [localValue, setLocalValue] = useState(initialValue);
   const wasActive = useRef(initialValue.trim().length > 0);
+  const isFocused = useIsFocused();
+  const [atThumb, setAtThumb] = useState(false);
+
+  // Search near the thumb, 1.0.61.15: while this box's screen is the one
+  // showing, the edge tab on the thumb side can move its typing down into the
+  // app keyboard's search row (lib/thumbSearch.ts).
+  useEffect(() => {
+    if (!isFocused) return;
+    return registerThumbSearch(() => setAtThumb(true));
+  }, [isFocused]);
 
   // useCallback for a reason, not for tidiness. AppTextInput re-registers
   // itself with AppKeyboard whenever onChangeText's identity changes, so an
@@ -103,6 +116,14 @@ export function EntrySearchInput({
 
   return (
     <View style={styles.searchInputWrap}>
+      {atThumb ? (
+        <ThumbSearchBridge
+          value={localValue}
+          placeholder={placeholder}
+          onChangeText={handleChangeText}
+          onFinished={() => setAtThumb(false)}
+        />
+      ) : null}
       {/* Both sides need clearance whenever the information icon renders,
           since it is pinned right regardless of the navigation hand while the
           mic sits left today. With no icon, only the mic's side needs it. */}
@@ -137,6 +158,41 @@ export function EntrySearchInput({
       ) : null}
     </View>
   );
+}
+
+// Mounted only while the search is at the thumb, so the box above re-renders
+// on focus changes only then. It hands the keyboard's search row this box's
+// text and its change handler, the way a searchable Dropdown does, and lets go
+// once the keyboard closes (the field it raised has gone) or the box unmounts.
+function ThumbSearchBridge({
+  value,
+  placeholder,
+  onChangeText,
+  onFinished,
+}: {
+  value: string;
+  placeholder: string;
+  onChangeText: (text: string) => void;
+  onFinished: () => void;
+}) {
+  const { setSearchRequest } = useActiveInputControls();
+  const activeField = useActiveField();
+  const raised = useRef(false);
+
+  useEffect(() => {
+    setSearchRequest({ value, onChangeText, placeholder });
+  }, [value, onChangeText, placeholder, setSearchRequest]);
+
+  useEffect(() => {
+    if (activeField) raised.current = true;
+    else if (raised.current) {
+      setSearchRequest(null);
+      onFinished();
+    }
+  }, [activeField, onFinished, setSearchRequest]);
+
+  useEffect(() => () => setSearchRequest(null), [setSearchRequest]);
+  return null;
 }
 
 const styles = StyleSheet.create({

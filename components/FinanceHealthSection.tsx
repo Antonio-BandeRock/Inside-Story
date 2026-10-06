@@ -36,6 +36,7 @@ import { monthlyFactor, parseDueRule } from '../lib/financeSchedule';
 import { LEGACY_CADENCE_MONTHLY } from '../lib/financeCore';
 import { parsePriceInput } from '../lib/groceryList';
 import { ThumbRow } from './ThumbRow';
+import { ThumbEndRow } from './ThumbEndRow';
 
 // The health-money half of Finances, 2026-09-05. Pulled into its own
 // component rather than added to app/(tabs)/life.tsx because it is a
@@ -463,13 +464,13 @@ export function FinanceHealthSection({ tabColor }: Props) {
             onChangeText={(t) => setBillForm({ ...billForm, provider: t })} />
 
           <Text style={styles.label}>Date of service</Text>
-          <View style={styles.inlineRow}>
+          <ThumbEndRow style={styles.inlineRow}>
             <AppTextInput style={[styles.input, styles.shortInput]} placeholder="YYYY-MM-DD" value={billForm.serviceDate}
               onChangeText={(t) => setBillForm({ ...billForm, serviceDate: t })} />
             <TouchableOpacity style={styles.pillSmall} onPress={() => setBillForm({ ...billForm, serviceDate: todayLocal() })}>
               <Text style={styles.pillTextSmall}>Today</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbEndRow>
 
           <Text style={styles.label}>What it was for</Text>
           <NotesInput style={styles.input} placeholder="e.g. thyroid panel" value={billForm.description}

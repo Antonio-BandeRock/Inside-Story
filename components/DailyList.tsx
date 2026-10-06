@@ -11,6 +11,7 @@ import { textShadow, typography } from '../constants/typography';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../lib/checkinTags';
 import { DAILY_RATINGS } from '../lib/dailyList';
 import { PopoverSelect } from './PopoverSelect';
+import { ThumbEndRow } from './ThumbEndRow';
 
 type Props = {
   list: string[];
@@ -36,7 +37,7 @@ export function DailyList({ list, ratings, onRate, onListChange, accent }: Props
       ) : (
         list.map((code) => (
           <View key={code} style={styles.item}>
-            <View style={styles.itemHead}>
+            <ThumbEndRow style={styles.itemHead}>
               <Text style={styles.itemName}>{getCheckinTagDefinition(code)?.label ?? code}</Text>
               <TouchableOpacity
                 onPress={() => {
@@ -47,7 +48,7 @@ export function DailyList({ list, ratings, onRate, onListChange, accent }: Props
               >
                 <Text style={styles.caption}>Take off the list</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbEndRow>
             <View style={styles.ratingRow}>
               {DAILY_RATINGS.map((rating) => {
                 const active = ratings[code] === rating.value;

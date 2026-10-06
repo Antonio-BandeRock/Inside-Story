@@ -54,6 +54,7 @@ import { dialable } from '../lib/medSupply';
 import { copyLine, textNumber } from '../lib/phoneReach';
 import { CAN_PICK_CONTACTS, pickContact } from '../lib/contactPick';
 import { ThumbRow } from './ThumbRow';
+import { ThumbEndRow } from './ThumbEndRow';
 
 // Emergency & Essentials: what someone else needs to know when you cannot tell
 // them. Life's fifth area, 2026-09-05.
@@ -394,7 +395,7 @@ export function EmergencySection({ tabColor }: Props) {
                   {contact.primary ? ' · try first' : ''}
                 </Text>
                 {contact.notes ? <Text style={styles.rowMeta}>{contact.notes}</Text> : null}
-                <View style={styles.rowActions}>
+                <ThumbEndRow style={styles.rowActions}>
                   {Platform.OS !== 'web' && dialable(contact.phone) ? (
                     <>
                       <TouchableOpacity onPress={() => callContact(contact.phone)} accessibilityLabel={`Call ${contact.name}`}>
@@ -405,20 +406,6 @@ export function EmergencySection({ tabColor }: Props) {
                       </TouchableOpacity>
                     </>
                   ) : null}
-                  <TouchableOpacity
-                    onPress={() =>
-                      setContactForm({
-                        id: contact.id,
-                        name: contact.name,
-                        relationship: contact.relationship ?? '',
-                        phone: contact.phone,
-                        primary: contact.primary,
-                        notes: contact.notes ?? '',
-                      })
-                    }
-                  >
-                    <Text style={styles.actionText}>Edit</Text>
-                  </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() =>
                       setConfirm({
@@ -440,7 +427,21 @@ export function EmergencySection({ tabColor }: Props) {
                   >
                     <Text style={styles.actionTextRemove}>Remove</Text>
                   </TouchableOpacity>
-                </View>
+                  <TouchableOpacity
+                    onPress={() =>
+                      setContactForm({
+                        id: contact.id,
+                        name: contact.name,
+                        relationship: contact.relationship ?? '',
+                        phone: contact.phone,
+                        primary: contact.primary,
+                        notes: contact.notes ?? '',
+                      })
+                    }
+                  >
+                    <Text style={styles.actionText}>Edit</Text>
+                  </TouchableOpacity>
+                </ThumbEndRow>
               </View>
             </View>
           ))

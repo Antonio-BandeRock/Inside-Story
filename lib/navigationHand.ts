@@ -89,3 +89,13 @@ export function thumbRowLayout(
   }
   return { flexDirection: hand === 'left' ? 'row-reverse' : 'row', justifyContent: 'flex-end' };
 }
+
+// The thumb's end of a row, 1.0.61.15 (2026-10-05). Direct request: the
+// chevron, Done check or one small action at the end of a list row goes at
+// the thumb's end, and a stepper's plus goes nearest the thumb, since it is
+// pressed far more often than minus. The row is written in the right-handed
+// order, the everyday thing last, and for a left hand it is mirrored. Only the
+// direction changes, so a row's own spacing (space-between, gap) carries over.
+export function thumbEndDirection(hand: NavigationHand): 'row' | 'row-reverse' {
+  return hand === 'left' ? 'row-reverse' : 'row';
+}

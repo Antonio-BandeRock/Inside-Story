@@ -71,6 +71,7 @@ import {
 } from '../lib/harvestTrade';
 import { getLastPaidPrices, recordDisposition } from '../lib/harvestTradeDb';
 import { ThumbRow } from './ThumbRow';
+import { ThumbEndRow } from './ThumbEndRow';
 
 type DispositionForm = {
   itemId: string;
@@ -431,13 +432,13 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
             </Text>
             {picked ? (
               <>
-                <View style={styles.pickedRow}>
+                <ThumbEndRow style={styles.pickedRow}>
                   <Text style={styles.pickedName}>{picked.name}</Text>
                   <TouchableOpacity onPress={() => setPicked(null)} activeOpacity={0.85}>
                     <Text style={styles.changeLink}>Change</Text>
                   </TouchableOpacity>
-                </View>
-                <View style={styles.row}>
+                </ThumbEndRow>
+                <ThumbEndRow style={styles.row}>
                   <AppTextInput
                     style={[styles.input, styles.rowGrow]}
                     value={newQuantity}
@@ -453,7 +454,7 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
                   >
                     <Text style={styles.smallButtonText}>Add</Text>
                   </TouchableOpacity>
-                </View>
+                </ThumbEndRow>
 
                 <Text style={styles.fieldLabel}>Where is it? (you can leave this blank)</Text>
                 <AppTextInput
@@ -758,7 +759,7 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
                       </View>
                     )}
                     <Text style={styles.fieldLabel}>Used how much?</Text>
-                    <View style={styles.row}>
+                    <ThumbEndRow style={styles.row}>
                       <AppTextInput
                         style={[styles.input, styles.rowGrow]}
                         value={useAmount}
@@ -774,7 +775,7 @@ export function KitchenSection({ tabColor }: { tabColor: string }) {
                       >
                         <Text style={styles.smallButtonText}>Use</Text>
                       </TouchableOpacity>
-                    </View>
+                    </ThumbEndRow>
 
                     <View style={styles.actionRow}>
                       <TouchableOpacity

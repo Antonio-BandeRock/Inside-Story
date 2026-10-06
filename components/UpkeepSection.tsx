@@ -58,6 +58,7 @@ import { useWalkMark } from './WalkMark';
 import { RecordPhotos } from './RecordPhotos';
 import { describePlainDate, readPlainDateField, readPlainDates, type Lean } from '../lib/plainDate';
 import { ThumbRow } from './ThumbRow';
+import { ThumbEndRow } from './ThumbEndRow';
 
 // Upkeep: things that need doing again, and things that run out.
 //
@@ -211,12 +212,12 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
     const found = readPlainDateField(value, now, lean);
     if (!found) return null;
     return (
-      <View style={styles.inlineRow}>
+      <ThumbEndRow style={styles.inlineRow}>
         <Text style={styles.helperText}>{`Reads as ${describePlainDate({ ...found, time: null }, now)}.`}</Text>
         <TouchableOpacity style={styles.pillSmall} onPress={() => onUse(found.date)}>
           <Text style={styles.pillTextSmall}>Use it</Text>
         </TouchableOpacity>
-      </View>
+      </ThumbEndRow>
     );
   }
 
@@ -230,7 +231,7 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
     if (!found || !found.matched) return null;
     const label = describePlainDate({ ...found, time: null }, now);
     return (
-      <View style={styles.inlineRow}>
+      <ThumbEndRow style={styles.inlineRow}>
         <Text style={styles.helperText}>
           {expires ? `The name mentions ${label}. Runs out then?` : `The name mentions ${label}. Last done then?`}
         </Text>
@@ -240,7 +241,7 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
         >
           <Text style={styles.pillTextSmall}>Use it</Text>
         </TouchableOpacity>
-      </View>
+      </ThumbEndRow>
     );
   }
 
@@ -597,7 +598,7 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
               />
 
               <Text style={styles.label}>Last done (optional)</Text>
-              <View style={styles.inlineRow}>
+              <ThumbEndRow style={styles.inlineRow}>
                 <AppTextInput
                   style={[styles.input, styles.shortInput]}
                   placeholder="YYYY-MM-DD or in words"
@@ -607,7 +608,7 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
                 <TouchableOpacity style={styles.pillSmall} onPress={() => setForm({ ...form, lastDoneOn: todayLocal() })}>
                   <Text style={styles.pillTextSmall}>Today</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbEndRow>
               {renderDateOffer(form.lastDoneOn, 'past', (date) => setForm({ ...form, lastDoneOn: date }))}
               {renderNameDateOffer(form)}
               <Text style={styles.helperText}>
@@ -853,7 +854,7 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
                     </View>
                   ) : null}
 
-                  <View style={styles.rowActions}>
+                  <ThumbEndRow style={styles.rowActions}>
                     {item.cadence === 'recurring' ? (
                       <TouchableOpacity onPress={() => confirmDone(item)}>
                         <Text style={styles.actionText}>Done today</Text>
@@ -873,9 +874,6 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
                         <Text style={styles.actionText}>Leave it for anyone</Text>
                       </TouchableOpacity>
                     ) : null}
-                    <TouchableOpacity onPress={() => setForm(formFor(item))}>
-                      <Text style={styles.actionText}>Edit</Text>
-                    </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() =>
                         setConfirm({
@@ -898,7 +896,10 @@ export function UpkeepSection({ tabColor, prefillName }: Props) {
                     >
                       <Text style={styles.actionTextRemove}>Remove</Text>
                     </TouchableOpacity>
-                  </View>
+                    <TouchableOpacity onPress={() => setForm(formFor(item))}>
+                      <Text style={styles.actionText}>Edit</Text>
+                    </TouchableOpacity>
+                  </ThumbEndRow>
                 </View>
               </View>
             );

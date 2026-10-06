@@ -37,6 +37,7 @@ import {
 } from '../lib/financeGoalsDb';
 import { parsePriceInput } from '../lib/groceryList';
 import { ThumbRow } from './ThumbRow';
+import { ThumbEndRow } from './ThumbEndRow';
 
 // Goals, 2026-09-05, pass 3 of the Finances rebuild.
 //
@@ -217,7 +218,7 @@ export function FinanceGoalsSection({ tabColor }: Props) {
           </Text>
 
           <Text style={styles.label}>By when (optional)</Text>
-          <View style={styles.inlineRow}>
+          <ThumbEndRow style={styles.inlineRow}>
             <AppTextInput
               style={[styles.input, styles.shortInput]}
               placeholder="YYYY-MM-DD"
@@ -227,7 +228,7 @@ export function FinanceGoalsSection({ tabColor }: Props) {
             <TouchableOpacity style={styles.pillSmall} onPress={() => setGoalForm({ ...goalForm, targetDate: '' })}>
               <Text style={styles.pillTextSmall}>No date</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbEndRow>
           <Text style={styles.helperText}>
             With a date the app can work out what each cost means per month. Without one it will say so rather than
             invent a figure.
@@ -355,7 +356,7 @@ export function FinanceGoalsSection({ tabColor }: Props) {
                   onChangeText={(t) => setContribForm({ ...contribForm, amount: t })}
                 />
                 <Text style={styles.label}>When</Text>
-                <View style={styles.inlineRow}>
+                <ThumbEndRow style={styles.inlineRow}>
                   <AppTextInput
                     style={[styles.input, styles.shortInput]}
                     placeholder="YYYY-MM-DD"
@@ -368,7 +369,7 @@ export function FinanceGoalsSection({ tabColor }: Props) {
                   >
                     <Text style={styles.pillTextSmall}>Today</Text>
                   </TouchableOpacity>
-                </View>
+                </ThumbEndRow>
                 <ThumbRow primary="last" style={styles.formActions}>
                   <TouchableOpacity style={styles.secondaryButton} onPress={() => setContribForm(null)}>
                     <Text style={styles.secondaryButtonText}>Cancel</Text>

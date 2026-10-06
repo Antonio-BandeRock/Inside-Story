@@ -72,6 +72,7 @@ import { suggestDestinations, suggestionLine, type SuggestModel } from '../lib/c
 import { loadSuggestModel } from '../lib/captureSuggestDb';
 import { PlanSentencePanel } from '../components/PlanSentencePanel';
 import { describePlainDate, plainDateToLocalDateTime, readPlainDates } from '../lib/plainDate';
+import { ThumbEndRow } from '../components/ThumbEndRow';
 
 // A destination wears the colour and icon of the tab it hands off to, rather
 // than a palette invented here, so "In the garden" reads as Garden before the
@@ -239,7 +240,7 @@ export default function CaptureScreen() {
     return (
       <View key={note.id} style={styles.noteCard}>
         {editing ? (
-          <View style={styles.editRow}>
+          <ThumbEndRow style={styles.editRow}>
             <NotesInput
               style={styles.editField}
               value={editingText}
@@ -250,13 +251,13 @@ export default function CaptureScreen() {
               placeholder="What was it?"
               placeholderTextColor={colors.textMuted}
             />
-            <TouchableOpacity onPress={() => void saveEdit(note)} hitSlop={10} accessibilityLabel="Keep this wording">
-              <Ionicons name="checkmark" size={20} color={colors.primary} />
-            </TouchableOpacity>
             <TouchableOpacity onPress={() => setEditingId(null)} hitSlop={10} accessibilityLabel="Leave it as it was">
               <Ionicons name="close" size={20} color={colors.textMuted} />
             </TouchableOpacity>
-          </View>
+            <TouchableOpacity onPress={() => void saveEdit(note)} hitSlop={10} accessibilityLabel="Keep this wording">
+              <Ionicons name="checkmark" size={20} color={colors.primary} />
+            </TouchableOpacity>
+          </ThumbEndRow>
         ) : (
           <TouchableOpacity
             activeOpacity={0.7}

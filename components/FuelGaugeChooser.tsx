@@ -18,6 +18,7 @@ import {
   removeFuelGauge,
 } from '../lib/fuelGaugeChoice';
 import { PopoverSelect } from './PopoverSelect';
+import { ThumbEndRow } from './ThumbEndRow';
 
 type Props = {
   codes: string[];
@@ -67,7 +68,7 @@ export function FuelGaugeChooser({ codes, nutrients, onChange, onDone, accent }:
           width={240}
         />
       ) : null}
-      <View style={styles.footer}>
+      <ThumbEndRow style={styles.footer}>
         {!isDefaultFuelGaugeChoice(codes) ? (
           <TouchableOpacity
             style={styles.button}
@@ -79,7 +80,7 @@ export function FuelGaugeChooser({ codes, nutrients, onChange, onDone, accent }:
         <TouchableOpacity style={[styles.button, { backgroundColor: accent, borderColor: accent }]} onPress={onDone}>
           <Text style={[styles.buttonText, styles.buttonTextOnAccent]}>Done</Text>
         </TouchableOpacity>
-      </View>
+      </ThumbEndRow>
     </View>
   );
 }

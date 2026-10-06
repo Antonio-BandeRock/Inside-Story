@@ -62,6 +62,7 @@ import {
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { useWalkMark } from './WalkMark';
 import { ThumbRow } from './ThumbRow';
+import { ThumbEndRow } from './ThumbEndRow';
 
 // Routines: an order you do not want to hold in your head.
 //
@@ -691,7 +692,7 @@ export function RoutinesSection({ tabColor }: Props) {
                           </Text>
                         ) : null}
                         {attached ? <Text style={styles.rowMeta}>Check off here: {attached}</Text> : null}
-                        <View style={styles.rowActions}>
+                        <ThumbEndRow style={styles.rowActions}>
                           {index > 0 ? (
                             <TouchableOpacity onPress={() => shiftStep(routine, index, -1)}>
                               <Text style={styles.actionText}>Up</Text>
@@ -702,6 +703,9 @@ export function RoutinesSection({ tabColor }: Props) {
                               <Text style={styles.actionText}>Down</Text>
                             </TouchableOpacity>
                           ) : null}
+                          <TouchableOpacity onPress={async () => { await deleteRoutineStep(step.id); load(); }}>
+                            <Text style={styles.actionTextRemove}>Remove</Text>
+                          </TouchableOpacity>
                           <TouchableOpacity
                             onPress={() => {
                               setCheckForm(null);
@@ -717,10 +721,7 @@ export function RoutinesSection({ tabColor }: Props) {
                           >
                             <Text style={styles.actionText}>Edit</Text>
                           </TouchableOpacity>
-                          <TouchableOpacity onPress={async () => { await deleteRoutineStep(step.id); load(); }}>
-                            <Text style={styles.actionTextRemove}>Remove</Text>
-                          </TouchableOpacity>
-                        </View>
+                        </ThumbEndRow>
                       </View>
                     </View>
                   );

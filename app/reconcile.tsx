@@ -86,6 +86,7 @@ import {
   type ReconcileKind,
   type ReconcileOutcome,
 } from '../lib/reconciliation';
+import { ThumbEndRow } from '../components/ThumbEndRow';
 
 // Same resolution app/capture.tsx makes: a destination wears the colour and
 // the icon of the tab it hands off to, so the pills read as the place before
@@ -303,7 +304,7 @@ export default function ReconcileScreen() {
     return (
       <View key={note.id} style={styles.itemCard}>
         {editing ? (
-          <View style={styles.editRow}>
+          <ThumbEndRow style={styles.editRow}>
             <NotesInput
               style={styles.editField}
               value={editingText}
@@ -314,13 +315,13 @@ export default function ReconcileScreen() {
               placeholder="What was it?"
               placeholderTextColor={colors.textMuted}
             />
-            <TouchableOpacity onPress={() => void saveEdit(note)} hitSlop={10} accessibilityLabel="Keep this wording">
-              <Ionicons name="checkmark" size={20} color={colors.primary} />
-            </TouchableOpacity>
             <TouchableOpacity onPress={() => setEditingId(null)} hitSlop={10} accessibilityLabel="Leave it as it was">
               <Ionicons name="close" size={20} color={colors.textMuted} />
             </TouchableOpacity>
-          </View>
+            <TouchableOpacity onPress={() => void saveEdit(note)} hitSlop={10} accessibilityLabel="Keep this wording">
+              <Ionicons name="checkmark" size={20} color={colors.primary} />
+            </TouchableOpacity>
+          </ThumbEndRow>
         ) : (
           // Tapping the words is how a note gets named properly, which is the
           // first of the three things asked for. No separate edit button: the

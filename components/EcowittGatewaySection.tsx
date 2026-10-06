@@ -45,6 +45,7 @@ import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
 import { QuickAreaForm } from './QuickAreaForm';
 import { ThumbRow } from './ThumbRow';
+import { ThumbEndRow } from './ThumbEndRow';
 
 // Garden > Growing Conditions > Sensors on Your Network (I20, 2026-09-28):
 // an Ecowitt gateway read over the home network while the app is open.
@@ -533,7 +534,7 @@ export function EcowittGatewaySection(props: {
                 <Text style={styles.captionText}>{PUSH_ADDRESS_TIP}</Text>
               </>
             ) : null}
-            <View style={styles.actionRow}>
+            <ThumbEndRow style={styles.actionRow}>
               {entry.readsHere && !sends ? (
                 <TouchableOpacity
                   style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
@@ -548,13 +549,13 @@ export function EcowittGatewaySection(props: {
                   <Text style={styles.linkText}>Stop Reading It Here</Text>
                 </TouchableOpacity>
               ) : null}
-              <TouchableOpacity onPress={() => startForm(entry)}>
-                <Text style={styles.linkText}>Change</Text>
-              </TouchableOpacity>
               <TouchableOpacity onPress={() => void handleRemove(gateway.id)}>
                 <Text style={[styles.linkText, { color: colors.danger }]}>Remove</Text>
               </TouchableOpacity>
-            </View>
+              <TouchableOpacity onPress={() => startForm(entry)}>
+                <Text style={styles.linkText}>Change</Text>
+              </TouchableOpacity>
+            </ThumbEndRow>
             {saved.length > 0 || waiting.length > 0 ? <Text style={styles.fieldLabel}>Sensors</Text> : null}
             {saved.map((setting) => renderSensor(entry, read?.sensors.find((sensor) => sensor.key === setting.sensorKey) ?? null, setting))}
             {waiting.map((sensor) => renderSensor(entry, sensor, null))}

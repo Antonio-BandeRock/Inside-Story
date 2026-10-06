@@ -331,6 +331,7 @@ import { getOpenMealRules, listUsualMeals, saveOpenMealRules } from '../../lib/u
 import { useWalkMark } from '../../components/WalkMark';
 import { ExerciseScheduleSection } from '../../components/ExerciseScheduleSection';
 import { ThumbRow } from '../../components/ThumbRow';
+import { ThumbEndRow } from '../../components/ThumbEndRow';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -3032,12 +3033,15 @@ function HouseholdMealCalendarBand({
                     {entry.note ? <Text style={styles.rowMeta}>{entry.note}</Text> : null}
                   </View>
                 </View>
-                <View style={styles.rowActions}>
+                <ThumbEndRow style={styles.rowActions}>
                   {state !== 'copied' ? (
                     <TouchableOpacity onPress={() => void handlePut(entry)}>
                       <Text style={styles.actionTextPrimary}>{PUT_ON_MY_SCHEDULE_LABEL}</Text>
                     </TouchableOpacity>
                   ) : null}
+                  <TouchableOpacity onPress={() => void handleRemove(entry)}>
+                    <Text style={styles.actionTextRemove}>Remove</Text>
+                  </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => {
                       setDraft(draftFromEntry(entry));
@@ -3047,10 +3051,7 @@ function HouseholdMealCalendarBand({
                   >
                     <Text style={styles.actionText}>Edit</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => void handleRemove(entry)}>
-                    <Text style={styles.actionTextRemove}>Remove</Text>
-                  </TouchableOpacity>
-                </View>
+                </ThumbEndRow>
               </View>
             );
           })}
@@ -5163,12 +5164,12 @@ function HydrationLens() {
               ))}
             </View>
             {lastQuick ? (
-              <View style={styles.quickDrinkLoggedRow}>
+              <ThumbEndRow style={styles.quickDrinkLoggedRow}>
                 <Text style={styles.quickDrinkLogged}>{lastQuick.line}</Text>
                 <TouchableOpacity onPress={() => void handleUndoQuickDrink()} accessibilityLabel="Take back the drink just logged">
                   <Text style={styles.quickDrinkUndo}>Take it back</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbEndRow>
             ) : null}
             <Text style={styles.hydrationSummaryMeta}>{QUICK_DRINKS_CAPTION}</Text>
             <Text style={styles.quickDrinkCaffeine}>{caffeineLine(caffeineMg)}</Text>
@@ -6508,7 +6509,7 @@ function AppointmentsLens() {
               </View>
 
               <Text style={styles.label}>Date</Text>
-              <View style={styles.timeRow}>
+              <ThumbEndRow style={styles.timeRow}>
                 <AppTextInput
                   style={[styles.input, styles.dateInput]}
                   placeholder="YYYY-MM-DD"
@@ -6521,7 +6522,7 @@ function AppointmentsLens() {
                 >
                   <Text style={styles.pillTextSmall}>Today</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbEndRow>
 
               <Text style={styles.label}>Time</Text>
               <View style={styles.timeRow}>

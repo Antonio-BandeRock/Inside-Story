@@ -20,6 +20,7 @@ import {
 import { getTherapyTypesByCategory, therapyTypeLabel } from '../lib/therapyTypes';
 import { buildTime24, describeTimeInputProblem, formatTime12, splitTime24, type TimeOfDayInput } from '../lib/timeOfDay';
 import { ThumbRow } from './ThumbRow';
+import { ThumbEndRow } from './ThumbEndRow';
 
 function todayDateString(): string {
   const now = new Date();
@@ -298,7 +299,7 @@ export function TherapySessionsSection({ tabColor }: Props) {
               {selectedTherapy ? <Text style={styles.helperText}>{selectedTherapy.description}</Text> : null}
 
               <Text style={styles.label}>Date</Text>
-              <View style={styles.timeRow}>
+              <ThumbEndRow style={styles.timeRow}>
                 <AppTextInput
                   style={[styles.input, styles.dateInput]}
                   placeholder="YYYY-MM-DD"
@@ -311,7 +312,7 @@ export function TherapySessionsSection({ tabColor }: Props) {
                 >
                   <Text style={styles.pillTextSmall}>Today</Text>
                 </TouchableOpacity>
-              </View>
+              </ThumbEndRow>
 
               <Text style={styles.label}>Time</Text>
               <View style={styles.timeRow}>

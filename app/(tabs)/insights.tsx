@@ -166,6 +166,7 @@ import { modalAnimationType } from '../../lib/visualPreferences';
 import { nutrientKey } from '../../lib/compareSeries';
 import { eatenOutDayLine } from '../../lib/eatenOut';
 import { ThumbRow } from '../../components/ThumbRow';
+import { ThumbEndRow } from '../../components/ThumbEndRow';
 
 // 'YYYY-MM-DD' in LOCAL time -- same reasoning as the rest of the app
 // (see lib/db.ts/app/(tabs)/index.tsx): UTC's calendar date is wrong for
@@ -3289,7 +3290,7 @@ function NutrientRankingView({
           )
         ) : !rankingFood ? null : (
           <>
-            <View style={[styles.rankFoodSummaryRow, styles.rankSpaced]}>
+            <ThumbEndRow style={[styles.rankFoodSummaryRow, styles.rankSpaced]}>
               <View style={styles.rankTextWrap}>
                 <Text style={styles.rankFoodSummaryText}>
                   {rankingFood.baseName} · {categoryLabel(rankingFood.category)}
@@ -3308,7 +3309,7 @@ function NutrientRankingView({
               <TouchableOpacity style={styles.pill} onPress={onClearFood}>
                 <Text style={styles.pillText}>Change food</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbEndRow>
             {foodRankingsLoading ? (
               <Text style={[styles.emptyText, styles.rankSpaced, styles.panelStandalone]}>Loading…</Text>
             ) : foodRankings.length === 0 && prepGroup && classifyPrepStateGroup(rankingFood.prepMethod) !== prepGroup ? (

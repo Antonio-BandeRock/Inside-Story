@@ -48,6 +48,7 @@ import { computeConditionChecks, computeDietTags } from '../lib/recipeDepth';
 import { getPhotoForTarget } from '../lib/mealPhotos';
 import { shareFileIfAvailable } from '../lib/nativeSharing';
 import { encodeShareLinkFromCuratedRecipe, writeIsFileForCuratedRecipe } from '../lib/sharing';
+import { ThumbEndRow } from './ThumbEndRow';
 
 // A recipe's linkedBuilderType maps onto one param per builder in
 // app/(tabs)/food.tsx (openSideRecipeId, openSaladRecipeId, and so on),
@@ -519,7 +520,7 @@ export function RecipeBuildRow({
     const caption = makeForCaption(makeFor);
     return (
       <View style={styles.makeForWrap}>
-        <View style={styles.makeForRow}>
+        <ThumbEndRow style={styles.makeForRow}>
           <TouchableOpacity
             style={[styles.makeForStep, makeFor <= 1 ? styles.buildRecipeButtonDisabled : null]}
             onPress={() => setMakeFor((value) => clampMakeFor(value - 1))}
@@ -537,7 +538,7 @@ export function RecipeBuildRow({
           >
             <Ionicons name="add" size={18} color={tabColor} />
           </TouchableOpacity>
-        </View>
+        </ThumbEndRow>
         {caption ? <Text style={styles.makeForCaption}>{caption}</Text> : null}
         {buttonRow}
       </View>

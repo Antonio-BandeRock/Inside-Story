@@ -137,6 +137,7 @@ import { detectMeasurementSystemFromLocale } from '../../lib/measurement';
 import { explainNotYet } from '../../lib/notYet';
 import { anyWateringSoon, rainNoteForTask } from '../../lib/rainForecast';
 import { ThumbRow } from '../../components/ThumbRow';
+import { ThumbEndRow } from '../../components/ThumbEndRow';
 
 // This page's own identity color -- see constants/colors.ts's own comment
 // on tabGarden for how it was chosen.
@@ -2464,7 +2465,7 @@ function UpcomingTasksLens({ scrollBottomPadding }: { scrollBottomPadding: numbe
             Set a place in My Zone and a watering task shows the rain forecast for its day.
           </Text>
         ) : null}
-        <View style={styles.fieldRow}>
+        <ThumbEndRow style={styles.fieldRow}>
           <AppTextInput
             onVoiceResult={(transcript) => setTaskTitle(transcript)}
             micColor={TAB_COLOR}
@@ -2476,7 +2477,7 @@ function UpcomingTasksLens({ scrollBottomPadding }: { scrollBottomPadding: numbe
           <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleAddTask}>
             <Text style={styles.primaryButtonText}>Add</Text>
           </TouchableOpacity>
-        </View>
+        </ThumbEndRow>
         <Text style={styles.captionText}>
           Creates a Schedule entry for tomorrow morning. A dedicated lens for these inside the Schedules tab itself
           isn&apos;t built yet, so this is the way to see and add them for now.

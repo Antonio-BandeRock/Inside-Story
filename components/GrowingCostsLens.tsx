@@ -46,6 +46,7 @@ import { PopoverSelect } from './PopoverSelect';
 import { QuickAreaForm } from './QuickAreaForm';
 import { makeTabBandStyles, TabBand } from './TabBand';
 import { ThumbRow } from './ThumbRow';
+import { ThumbEndRow } from './ThumbEndRow';
 
 // Growing Costs, a lens of Garden.
 //
@@ -632,20 +633,20 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
             keeps its areas and its costs.
           </Text>
           {groups.map((group) => (
-            <View key={group.id} style={styles.row}>
+            <ThumbEndRow key={group.id} style={styles.row}>
               <View style={styles.rowText}>
                 <Text style={styles.bodyText}>{group.name}</Text>
                 <Text style={styles.captionText}>
                   {group.memberNames.length > 0 ? group.memberNames.join(', ') : 'No areas in it yet'}
                 </Text>
               </View>
-              <TouchableOpacity onPress={() => startGroup(group)}>
-                <Text style={styles.linkText}>Edit</Text>
-              </TouchableOpacity>
               <TouchableOpacity onPress={() => handleDeleteGroup(group.id)}>
                 <Text style={[styles.linkText, { color: colors.danger }]}>Delete</Text>
               </TouchableOpacity>
-            </View>
+              <TouchableOpacity onPress={() => startGroup(group)}>
+                <Text style={styles.linkText}>Edit</Text>
+              </TouchableOpacity>
+            </ThumbEndRow>
           ))}
           {groupEditing ? (
             <>

@@ -89,6 +89,7 @@ import {
   type GroceryPriceUnit,
   type KitchenCoverage,
 } from '../lib/groceryList';
+import { ThumbEndRow } from '../components/ThumbEndRow';
 
 const DEFAULT_DAYS = 3;
 
@@ -365,7 +366,7 @@ export default function GroceryListScreen() {
           tabColor={colors.tabLife}
         />
         {addingStore ? (
-          <View style={styles.addAmountRow}>
+          <ThumbEndRow style={styles.addAmountRow}>
             <AppTextInput
               style={[styles.input, styles.unitInput]}
               value={newStoreName}
@@ -376,7 +377,7 @@ export default function GroceryListScreen() {
             <TouchableOpacity style={[styles.secondaryButton, styles.storeAddButton]} activeOpacity={0.85} onPress={handleAddStore}>
               <Text style={styles.secondaryButtonText}>Add</Text>
             </TouchableOpacity>
-          </View>
+          </ThumbEndRow>
         ) : null}
         <Text style={styles.muted}>{caption}</Text>
         <TouchableOpacity style={styles.linkRow} activeOpacity={0.85} onPress={() => void openStoreLayout()}>
@@ -925,7 +926,7 @@ export default function GroceryListScreen() {
                 <Ionicons name="information-circle-outline" size={20} color={colors.textMuted} />
               </TouchableOpacity>
             </View>
-            <View style={styles.stepperRow}>
+            <ThumbEndRow style={styles.stepperRow}>
               <TouchableOpacity
                 style={styles.stepperButton}
                 activeOpacity={0.85}
@@ -943,7 +944,7 @@ export default function GroceryListScreen() {
               >
                 <Ionicons name="add" size={20} color={colors.textOnButton} />
               </TouchableOpacity>
-            </View>
+            </ThumbEndRow>
             <Text style={styles.muted}>Recipes here are written for one person, so this multiplies every amount.</Text>
           </View>
 

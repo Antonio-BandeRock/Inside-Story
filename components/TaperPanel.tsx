@@ -18,6 +18,7 @@ import {
   type TaperStep,
 } from '../lib/taper';
 import { clearTaperSteps, saveTaperSteps } from '../lib/taperDb';
+import { ThumbEndRow } from './ThumbEndRow';
 
 type Props = {
   treatmentId: string;
@@ -122,12 +123,12 @@ export function TaperPanel({ treatmentId, steps, defaultUnit, afterDose, today, 
           <Text style={styles.label}>First day of the taper</Text>
           <AppTextInput style={styles.input} value={startDate} onChangeText={setStartDate} placeholder="2026-10-01" />
           {readDate ? (
-            <View style={styles.inlineRow}>
+            <ThumbEndRow style={styles.inlineRow}>
               <Text style={styles.bodyText}>{`Reads as ${describePlainDate({ ...readDate, time: null }, now)}.`}</Text>
               <TouchableOpacity style={styles.smallButton} onPress={() => setStartDate(readDate.date)}>
                 <Text style={styles.smallButtonText}>Use it</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbEndRow>
           ) : null}
           {drafts.map((draft, index) => (
             <View key={index} style={styles.stepBlock}>

@@ -268,6 +268,7 @@ import { GHOSTEAD_URL } from '../lib/ghostead';
 import { wording } from '../lib/playfulCopy';
 import { VoicePackPanel } from '../components/VoicePackPanel';
 import { setNavigationHand, useNavigationHand } from '../lib/navigationHand';
+import { ThumbEndRow } from '../components/ThumbEndRow';
 
 // Whether a backup that has been reached is restored or only checked.
 type BackupUse = 'restore' | 'check';
@@ -3749,7 +3750,7 @@ export default function ProfileScreen() {
                 );
               })}
             </View>
-            <View style={styles.dateRow}>
+            <ThumbEndRow style={styles.dateRow}>
               <AppTextInput
                 onVoiceResult={(transcript) => setAllergyInput(transcript)}
                 style={[styles.input, styles.nameInput]}
@@ -3760,7 +3761,7 @@ export default function ProfileScreen() {
               <TouchableOpacity style={styles.addAllergyButton} onPress={() => addAllergy(allergyInput)}>
                 <Text style={styles.addAllergyButtonText}>Add</Text>
               </TouchableOpacity>
-            </View>
+            </ThumbEndRow>
             {foodAllergies.filter((name) => !COMMON_ALLERGENS.includes(name)).length > 0 ? (
               <View style={[styles.pillRow, { marginTop: 8 }]}>
                 {foodAllergies

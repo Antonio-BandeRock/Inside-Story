@@ -33,6 +33,7 @@ import { deleteScheduleSeries, listPlantingSeries, scheduleGardenTask, type Plan
 import { dateLabel } from '../lib/moonSky';
 import { dateKey } from '../lib/plainDate';
 import { AppTextInput } from './AppTextInput';
+import { ThumbEndRow } from './ThumbEndRow';
 
 const TAB_COLOR = colors.tabGarden;
 
@@ -188,14 +189,14 @@ export function CropCareSection({ plantingId, plotId, status, guide, expectedHar
                 <View style={styles.group}>
                   <Text style={styles.fieldLabel}>On the schedule</Text>
                   {running.map((series) => (
-                    <View key={series.repeatGroupId} style={styles.runningRow}>
+                    <ThumbEndRow key={series.repeatGroupId} style={styles.runningRow}>
                       <Text style={[styles.bodyText, styles.taskText]}>
                         {`${series.title}. ${series.everyDays ? describeCadence(series.everyDays) : 'Repeating'}, next ${dateLabel(series.nextOn)}.`}
                       </Text>
                       <TouchableOpacity onPress={() => handleStop(series)} accessibilityRole="button" hitSlop={6}>
                         <Text style={styles.linkText}>Stop</Text>
                       </TouchableOpacity>
-                    </View>
+                    </ThumbEndRow>
                   ))}
                   <Text style={styles.captionText}>{CARE_STOPPED_NOTE}</Text>
                 </View>

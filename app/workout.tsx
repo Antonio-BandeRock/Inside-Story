@@ -69,6 +69,7 @@ import {
   type KeptSet,
   type SetResult,
 } from '../lib/workoutSession';
+import { ThumbEndRow } from '../components/ThumbEndRow';
 
 type Phase = 'ready' | 'set' | 'rest' | 'stopping' | 'review' | 'saved';
 
@@ -512,7 +513,7 @@ export default function WorkoutPlayerScreen() {
               {current.measure === 'reps' ? (
                 <View style={styles.counterBlock}>
                   <Text style={styles.label}>Times done</Text>
-                  <View style={styles.counterRow}>
+                  <ThumbEndRow style={styles.counterRow}>
                     <TouchableOpacity
                       style={styles.counterButton}
                       onPress={() => setEntry((value) => ({ ...value, reps: Math.max(0, (value.reps ?? 0) - 1) }))}
@@ -528,7 +529,7 @@ export default function WorkoutPlayerScreen() {
                     >
                       <Ionicons name="add" size={26} color={colors.textPrimary} />
                     </TouchableOpacity>
-                  </View>
+                  </ThumbEndRow>
                 </View>
               ) : (
                 <View style={styles.counterBlock}>
@@ -536,7 +537,7 @@ export default function WorkoutPlayerScreen() {
                   {setTimerEndsAt != null && setTimerLeft != null ? (
                     <Text style={styles.bigClock}>{setTimerLeft > 0 ? clockText(setTimerLeft) : 'Time'}</Text>
                   ) : (
-                    <View style={styles.counterRow}>
+                    <ThumbEndRow style={styles.counterRow}>
                       <TouchableOpacity
                         style={styles.counterButton}
                         onPress={() => setEntry((value) => ({ ...value, seconds: Math.max(0, (value.seconds ?? 0) - 5) }))}
@@ -552,7 +553,7 @@ export default function WorkoutPlayerScreen() {
                       >
                         <Ionicons name="add" size={26} color={colors.textPrimary} />
                       </TouchableOpacity>
-                    </View>
+                    </ThumbEndRow>
                   )}
                   {setTimerEndsAt == null && current.plannedSeconds ? (
                     <TouchableOpacity style={styles.timerButton} onPress={startSetTimer}>
