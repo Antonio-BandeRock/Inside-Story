@@ -43,7 +43,7 @@ import { AppTextInput } from '../components/AppTextInput';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
+import { CalmBands, HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, homeBandNoHairlines, homeBandStyle } from '../components/HomeSectionBand';
 import { getOneDriveFolder, setMailboxFolderName, setOneDriveFolder } from '../lib/db';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { explainNotYet } from '../lib/notYet';
@@ -279,198 +279,201 @@ export default function OneDriveFolderScreen() {
   }
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
-      <View style={styles.card}>
-        <Text style={styles.label}>Your shared folder</Text>
-        <Text style={styles.hint}>
-          One folder in OneDrive holding everything this app keeps there. Set it up once, whether or not you ever add
-          anyone, because backups need it too.
-        </Text>
-        {/* Signed out, nothing is in use, whatever is remembered. The choice is
-            kept (a sign-in Microsoft stopped honouring leaves it in place) so
-            signing back in picks it up, and the sign-in card says so. */}
-        {signedIn === false ? (
-          <Text style={styles.hint}>Not signed in to OneDrive, so no folder is in use on this device.</Text>
-        ) : chosen ? (
-          <>
-            <Text style={styles.chosen}>Currently using: {chosen.name}</Text>
-            {/* The full path, because two folders can be called Inside Story and
-                a name on its own cannot tell them apart. */}
-            <Text style={styles.pathText}>{chosen.path ?? 'OneDrive, in a folder shared with you.'}</Text>
-            {/* What the app puts inside it, named plainly rather than left to be
-                discovered in OneDrive. */}
-            <Text style={styles.hint}>
-              Inside it: {MAILBOX_FOLDER_NAME}, where everyone&apos;s mail lives, and {BACKUPS_FOLDER_NAME}, where your
-              backups are written. The app makes both.
-            </Text>
-            {/* Said once, plainly, because it is the consequence somebody is
-                least likely to have thought through. */}
-            <Text style={styles.warning}>
-              Anything in this folder is visible to whoever you share it with in OneDrive, and that includes your
-              backups.
-            </Text>
-          </>
-        ) : (
-          <Text style={styles.hint}>Nothing set up yet.</Text>
-        )}
-      </View>
-
-      {signedIn === false ? (
+    <CalmBands>
+      <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
         <View style={styles.card}>
-          <Text style={styles.label}>Sign in to OneDrive</Text>
-          {/* Said before sending anybody to the consent screen rather than
-              leaving Microsoft's wording to explain it. Asking for access to
-              everything and using one folder is a real gap between what is
-              granted and what is used, and it should be stated by the side
-              doing the asking. */}
+          <Text style={styles.label}>Your shared folder</Text>
           <Text style={styles.hint}>
-            Microsoft will ask you to allow access to your files. It has no narrower permission that can reach a folder
-            somebody else shared with you, and a folder only you can see cannot hold a mailbox.
+            One folder in OneDrive holding everything this app keeps there. Set it up once, whether or not you ever add
+            anyone, because backups need it too.
           </Text>
-          <Text style={styles.hint}>
-            What this app does with it: list your folders so you can pick one, then read and write inside the one you
-            pick. It never looks anywhere else.
-          </Text>
-          {chosen ? (
-            <Text style={styles.hint}>Once you are signed in, the app goes back to the folder you used before.</Text>
-          ) : null}
-          <TouchableOpacity style={styles.primaryButton} onPress={handleSignIn} disabled={busy}>
-            <Ionicons name="cloud-outline" size={18} color={colors.textOnButton} />
-            <Text style={styles.primaryButtonText}>Sign In to OneDrive</Text>
-          </TouchableOpacity>
-        </View>
-      ) : null}
-
-      {signedIn ? (
-        <>
-          <View style={styles.card}>
-            {desktop ? (
-              <>
-                <Text style={styles.label}>OneDrive on this computer</Text>
-                <Text style={styles.hint}>
-                  The folder OneDrive keeps on this computer, already signed in. A folder somebody shared with you is
-                  in here once you add it to your OneDrive. Open one and tap Use, make one below, or choose any folder
-                  with the button.
-                </Text>
-              </>
-            ) : (
-              <>
-                <View style={styles.rootRow}>
-                  <TouchableOpacity onPress={() => handleSwitchRoot('shared')} hitSlop={8}>
-                    <Text style={root === 'shared' ? styles.rootActive : styles.rootInactive}>Shared with me</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleSwitchRoot('mine')} hitSlop={8}>
-                    <Text style={root === 'mine' ? styles.rootActive : styles.rootInactive}>My files</Text>
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.hint}>
-                  {root === 'shared'
-                    ? 'Folders other people have shared with you. Look here if they made the folder.'
-                    : 'Folders in your OneDrive. Look here if you made the folder, or make one below.'}
-                </Text>
-              </>
-            )}
-
-            {trail.length > 0 ? (
-              <View style={styles.trailRow}>
-                <TouchableOpacity onPress={handleBack} hitSlop={8}>
-                  <Text style={styles.action}>Back</Text>
-                </TouchableOpacity>
-                <Text style={styles.trailText} numberOfLines={2}>
-                  {current?.path ?? trail.map((entry) => entry.name).join(' / ')}
-                </Text>
-              </View>
-            ) : null}
-
-            {busy ? <ActivityIndicator color={colors.accent} /> : null}
-
-            {!busy && folders.length === 0 ? (
+          {/* Signed out, nothing is in use, whatever is remembered. The choice is
+              kept (a sign-in Microsoft stopped honouring leaves it in place) so
+              signing back in picks it up, and the sign-in card says so. */}
+          {signedIn === false ? (
+            <Text style={styles.hint}>Not signed in to OneDrive, so no folder is in use on this device.</Text>
+          ) : chosen ? (
+            <>
+              <Text style={styles.chosen}>Currently using: {chosen.name}</Text>
+              {/* The full path, because two folders can be called Inside Story and
+                  a name on its own cannot tell them apart. */}
+              <Text style={styles.pathText}>{chosen.path ?? 'OneDrive, in a folder shared with you.'}</Text>
+              {/* What the app puts inside it, named plainly rather than left to be
+                  discovered in OneDrive. */}
               <Text style={styles.hint}>
-                {trail.length > 0
-                  ? 'Nothing but files in here. You can still use this folder, or make one inside it.'
-                  : desktop
-                    ? 'OneDrive was not found on this computer. Install it and sign in, or choose a folder with the button below.'
-                    : root === 'shared'
-                      ? 'Nobody has shared a folder with you yet. Ask them to share one, or switch to My files and make one.'
-                      : 'No folders at the top of your OneDrive.'}
+                Inside it: {MAILBOX_FOLDER_NAME}, where everyone&apos;s mail lives, and {BACKUPS_FOLDER_NAME}, where your
+                backups are written. The app makes both.
               </Text>
-            ) : null}
+              {/* Said once, plainly, because it is the consequence somebody is
+                  least likely to have thought through. */}
+              <Text style={styles.warning}>
+                Anything in this folder is visible to whoever you share it with in OneDrive, and that includes your
+                backups.
+              </Text>
+            </>
+          ) : (
+            <Text style={styles.hint}>Nothing set up yet.</Text>
+          )}
+        </View>
 
-            {folders.map((folder) => (
-              <TouchableOpacity
-                key={folder.driveId + ':' + folder.itemId}
-                style={styles.folderRow}
-                onPress={() => handleOpen(folder)}
-              >
-                <Ionicons name="folder-outline" size={18} color={colors.accent} />
-                <Text style={styles.folderName} numberOfLines={1}>
-                  {folder.name}
-                </Text>
-                <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
-              </TouchableOpacity>
-            ))}
-
-            {current ? (
-              <TouchableOpacity style={styles.primaryButton} onPress={handleUse} disabled={busy}>
-                <Ionicons name="checkmark" size={18} color={colors.textOnButton} />
-                <Text style={styles.primaryButtonText}>Use {current.name}</Text>
-              </TouchableOpacity>
-            ) : null}
-
-            {desktop ? (
-              <TouchableOpacity style={styles.primaryButton} onPress={handleChooseFolder} disabled={busy}>
-                <Ionicons name="folder-open-outline" size={18} color={colors.textOnButton} />
-                <Text style={styles.primaryButtonText}>Choose a Folder</Text>
-              </TouchableOpacity>
-            ) : null}
-          </View>
-
+        {signedIn === false ? (
           <View style={styles.card}>
-            <Text style={styles.label}>Make a new folder</Text>
+            <Text style={styles.label}>Sign in to OneDrive</Text>
+            {/* Said before sending anybody to the consent screen rather than
+                leaving Microsoft's wording to explain it. Asking for access to
+                everything and using one folder is a real gap between what is
+                granted and what is used, and it should be stated by the side
+                doing the asking. */}
             <Text style={styles.hint}>
-              Goes inside whichever folder you have open. The app can make it, but only OneDrive can share it: make it
-              here, then share it with them from the OneDrive app.
+              Microsoft will ask you to allow access to your files. It has no narrower permission that can reach a folder
+              somebody else shared with you, and a folder only you can see cannot hold a mailbox.
             </Text>
-            <AppTextInput
-              style={styles.input}
-              value={newFolderName}
-              onChangeText={setNewFolderName}
-              placeholder="What should it be called?"
-              placeholderTextColor={colors.textMuted}
-            />
-            <TouchableOpacity onPress={handleCreate} hitSlop={8} disabled={busy}>
-              <Text style={styles.action}>Make It</Text>
+            <Text style={styles.hint}>
+              What this app does with it: list your folders so you can pick one, then read and write inside the one you
+              pick. It never looks anywhere else.
+            </Text>
+            {chosen ? (
+              <Text style={styles.hint}>Once you are signed in, the app goes back to the folder you used before.</Text>
+            ) : null}
+            <TouchableOpacity style={styles.primaryButton} onPress={handleSignIn} disabled={busy}>
+              <Ionicons name="cloud-outline" size={18} color={colors.textOnButton} />
+              <Text style={styles.primaryButtonText}>Sign In to OneDrive</Text>
             </TouchableOpacity>
           </View>
+        ) : null}
 
-          {desktop ? null : (
+        {signedIn ? (
+          <>
             <View style={styles.card}>
-              <TouchableOpacity onPress={handleSignOut} hitSlop={8}>
-                <Text style={styles.action}>Sign Out of OneDrive</Text>
+              {desktop ? (
+                <>
+                  <Text style={styles.label}>OneDrive on this computer</Text>
+                  <Text style={styles.hint}>
+                    The folder OneDrive keeps on this computer, already signed in. A folder somebody shared with you is
+                    in here once you add it to your OneDrive. Open one and tap Use, make one below, or choose any folder
+                    with the button.
+                  </Text>
+                </>
+              ) : (
+                <>
+                  <View style={styles.rootRow}>
+                    <TouchableOpacity onPress={() => handleSwitchRoot('shared')} hitSlop={8}>
+                      <Text style={root === 'shared' ? styles.rootActive : styles.rootInactive}>Shared with me</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleSwitchRoot('mine')} hitSlop={8}>
+                      <Text style={root === 'mine' ? styles.rootActive : styles.rootInactive}>My files</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={styles.hint}>
+                    {root === 'shared'
+                      ? 'Folders other people have shared with you. Look here if they made the folder.'
+                      : 'Folders in your OneDrive. Look here if you made the folder, or make one below.'}
+                  </Text>
+                </>
+              )}
+
+              {trail.length > 0 ? (
+                <View style={styles.trailRow}>
+                  <TouchableOpacity onPress={handleBack} hitSlop={8}>
+                    <Text style={styles.action}>Back</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.trailText} numberOfLines={2}>
+                    {current?.path ?? trail.map((entry) => entry.name).join(' / ')}
+                  </Text>
+                </View>
+              ) : null}
+
+              {busy ? <ActivityIndicator color={colors.accent} /> : null}
+
+              {!busy && folders.length === 0 ? (
+                <Text style={styles.hint}>
+                  {trail.length > 0
+                    ? 'Nothing but files in here. You can still use this folder, or make one inside it.'
+                    : desktop
+                      ? 'OneDrive was not found on this computer. Install it and sign in, or choose a folder with the button below.'
+                      : root === 'shared'
+                        ? 'Nobody has shared a folder with you yet. Ask them to share one, or switch to My files and make one.'
+                        : 'No folders at the top of your OneDrive.'}
+                </Text>
+              ) : null}
+
+              {folders.map((folder) => (
+                <TouchableOpacity
+                  key={folder.driveId + ':' + folder.itemId}
+                  style={styles.folderRow}
+                  onPress={() => handleOpen(folder)}
+                >
+                  <Ionicons name="folder-outline" size={18} color={colors.accent} />
+                  <Text style={styles.folderName} numberOfLines={1}>
+                    {folder.name}
+                  </Text>
+                  <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+                </TouchableOpacity>
+              ))}
+
+              {current ? (
+                <TouchableOpacity style={styles.primaryButton} onPress={handleUse} disabled={busy}>
+                  <Ionicons name="checkmark" size={18} color={colors.textOnButton} />
+                  <Text style={styles.primaryButtonText}>Use {current.name}</Text>
+                </TouchableOpacity>
+              ) : null}
+
+              {desktop ? (
+                <TouchableOpacity style={styles.primaryButton} onPress={handleChooseFolder} disabled={busy}>
+                  <Ionicons name="folder-open-outline" size={18} color={colors.textOnButton} />
+                  <Text style={styles.primaryButtonText}>Choose a Folder</Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+
+            <View style={styles.card}>
+              <Text style={styles.label}>Make a new folder</Text>
+              <Text style={styles.hint}>
+                Goes inside whichever folder you have open. The app can make it, but only OneDrive can share it: make it
+                here, then share it with them from the OneDrive app.
+              </Text>
+              <AppTextInput
+                style={styles.input}
+                value={newFolderName}
+                onChangeText={setNewFolderName}
+                placeholder="What should it be called?"
+                placeholderTextColor={colors.textMuted}
+              />
+              <TouchableOpacity onPress={handleCreate} hitSlop={8} disabled={busy}>
+                <Text style={styles.action}>Make It</Text>
               </TouchableOpacity>
             </View>
-          )}
-        </>
-      ) : null}
 
-      {note ? (
-        <View style={styles.card}>
-          <Text style={styles.hint}>{note}</Text>
-        </View>
-      ) : null}
+            {desktop ? null : (
+              <View style={styles.card}>
+                <TouchableOpacity onPress={handleSignOut} hitSlop={8}>
+                  <Text style={styles.action}>Sign Out of OneDrive</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </>
+        ) : null}
 
-      <TouchableOpacity style={styles.card} onPress={() => router.back()} hitSlop={8}>
-        <Text style={styles.action}>Go Back</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        {note ? (
+          <View style={styles.card}>
+            <Text style={styles.hint}>{note}</Text>
+          </View>
+        ) : null}
+
+        <TouchableOpacity style={styles.card} onPress={() => router.back()} hitSlop={8}>
+          <Text style={styles.action}>Go Back</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </CalmBands>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { gap: HOME_BAND_GAP },
+  content: { gap: HOME_BAND_ACCENT_WIDTH },
   card: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: colors.tabProfile,
     padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,

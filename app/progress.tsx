@@ -20,7 +20,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { router, Stack } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
+import { CalmBands, HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, homeBandNoHairlines, homeBandStyle } from '../components/HomeSectionBand';
 import { ProgressSceneSvg } from '../components/ProgressPicture';
 import { TabBand } from '../components/TabBand';
 import { colors } from '../constants/colors';
@@ -84,40 +84,42 @@ export default function ProgressScreen() {
   const sinceLine = since ? sinceLastLookedSentence(since) : null;
 
   return (
-    <View style={styles.screen}>
-      <Stack.Screen options={{ title: 'Your Progress' }} />
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
-        <View style={styles.introBox}>
-          <Text style={styles.introTitle}>Made of what you have recorded</Text>
-          <Text style={styles.caption}>
-            Everything here is read from your records as they stand today, so it only ever grows as they do. Each tab below
-            says what you have started, how many different things, the weeks you came back to it, what you are keeping
-            alive, and what each part of the app needs before it can answer you.
-          </Text>
-        </View>
+    <CalmBands>
+      <View style={styles.screen}>
+        <Stack.Screen options={{ title: 'Your Progress' }} />
+        <ScrollView contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+          <View style={styles.introBox}>
+            <Text style={styles.introTitle}>Made of what you have recorded</Text>
+            <Text style={styles.caption}>
+              Everything here is read from your records as they stand today, so it only ever grows as they do. Each tab below
+              says what you have started, how many different things, the weeks you came back to it, what you are keeping
+              alive, and what each part of the app needs before it can answer you.
+            </Text>
+          </View>
 
-        <View style={styles.introBox}>
-          <Text style={styles.sectionLabel}>Since you last looked</Text>
-          {since == null ? (
-            <Text style={styles.caption}>{failed ? 'Your records could not be read just now.' : 'Reading your records.'}</Text>
-          ) : (
-            <>
-              {since.lines.map((line) => (
-                <View key={line} style={styles.lineRow}>
-                  <Ionicons name="add-circle-outline" size={15} color={colors.tabProfile} style={textShadow} />
-                  <Text style={styles.lineText}>{line}</Text>
-                </View>
-              ))}
-              {sinceLine ? <Text style={styles.caption}>{sinceLine}</Text> : null}
-            </>
-          )}
-        </View>
+          <View style={styles.introBox}>
+            <Text style={styles.sectionLabel}>Since you last looked</Text>
+            {since == null ? (
+              <Text style={styles.caption}>{failed ? 'Your records could not be read just now.' : 'Reading your records.'}</Text>
+            ) : (
+              <>
+                {since.lines.map((line) => (
+                  <View key={line} style={styles.lineRow}>
+                    <Ionicons name="add-circle-outline" size={15} color={colors.tabProfile} style={textShadow} />
+                    <Text style={styles.lineText}>{line}</Text>
+                  </View>
+                ))}
+                {sinceLine ? <Text style={styles.caption}>{sinceLine}</Text> : null}
+              </>
+            )}
+          </View>
 
-        {inputs && bands
-          ? bands.map((band) => <TabProgressBand key={band.tab} band={band} inputs={inputs} bands={bands} folds={folds} />)
-          : null}
-      </ScrollView>
-    </View>
+          {inputs && bands
+            ? bands.map((band) => <TabProgressBand key={band.tab} band={band} inputs={inputs} bands={bands} folds={folds} />)
+            : null}
+        </ScrollView>
+      </View>
+    </CalmBands>
   );
 }
 
@@ -228,9 +230,10 @@ function TabProgressBand({
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { gap: HOME_BAND_GAP },
+  content: { gap: HOME_BAND_ACCENT_WIDTH },
   introBox: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: colors.tabProfile,
     padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,
@@ -242,7 +245,7 @@ const styles = StyleSheet.create({
   dateText: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   lineRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
   pairRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 12 },
-  bandColumn: { gap: HOME_BAND_GAP },
+  bandColumn: { gap: HOME_BAND_ACCENT_WIDTH },
   row: { backgroundColor: colors.surfaceMuted, borderRadius: 10, padding: 12, gap: 6 },
   pictureBox: { height: 190, backgroundColor: '#1d2a33', borderRadius: 10, overflow: 'hidden', padding: 8 },
   goButton: {

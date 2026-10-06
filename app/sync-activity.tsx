@@ -25,7 +25,7 @@ import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet } from '../components/AppActionSheet';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
+import { CalmBands, HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, homeBandNoHairlines, homeBandStyle } from '../components/HomeSectionBand';
 import { useInfoAlert } from '../components/InfoAlert';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -99,94 +99,97 @@ export default function SyncActivityScreen() {
   }
 
   return (
-    <View style={styles.screen}>
-      <Stack.Screen options={{ title: 'Sync Activity' }} />
-      {infoAlertElement}
-      <AppActionSheet
-        visible={askClear}
-        onClose={() => setAskClear(false)}
-        title="Clear this log?"
-        message="The record of what was brought together is removed from this device. Nothing you have recorded is touched, and the log starts filling again the next time anything comes into step."
-        actions={[
-          {
-            label: 'Clear the Log',
-            destructive: true,
-            onPress: () => {
-              // clearSyncLog reports its own problems and never throws.
-              void clearSyncLog().then(() => setMerges([]));
+    <CalmBands>
+      <View style={styles.screen}>
+        <Stack.Screen options={{ title: 'Sync Activity' }} />
+        {infoAlertElement}
+        <AppActionSheet
+          visible={askClear}
+          onClose={() => setAskClear(false)}
+          title="Clear this log?"
+          message="The record of what was brought together is removed from this device. Nothing you have recorded is touched, and the log starts filling again the next time anything comes into step."
+          actions={[
+            {
+              label: 'Clear the Log',
+              destructive: true,
+              onPress: () => {
+                // clearSyncLog reports its own problems and never throws.
+                void clearSyncLog().then(() => setMerges([]));
+              },
             },
-          },
-        ]}
-      />
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
-        <TouchableOpacity style={styles.summaryCard} onPress={explain} activeOpacity={0.8} accessibilityRole="button">
-          <Text style={styles.summaryNumber}>
-            {merges == null
-              ? '…'
-              : merges.length === 0
-                ? 'Nothing brought together yet'
-                : merges.length === 1
-                  ? '1 time ' + cameIntoStep
-                  : merges.length + ' times ' + cameIntoStep}
-          </Text>
-          <Text style={styles.summaryCaption}>
-            {merges == null
-              ? 'Reading what has been kept.'
-              : merges.length === 0
-                ? wording('syncActivityEmpty', playful)
-                : lineCount + (lineCount === 1 ? ' change' : ' changes') + ' in all. Tap for how this is kept.'}
-          </Text>
-        </TouchableOpacity>
-
-        {merges?.map((merge) => (
-          <View key={merge.mergedAt} style={styles.card}>
-            <Text style={styles.whenHeading}>{describeMoment(merge.mergedAt)}</Text>
-            {merge.rows.map((row) => (
-              <View key={row.id} style={styles.row}>
-                <Ionicons
-                  name={
-                    row.person
-                      ? 'person-outline'
-                      : row.deviceKind === 'computer'
-                        ? 'desktop-outline'
-                        : 'phone-portrait-outline'
-                  }
-                  size={16}
-                  color={colors.tabProfile}
-                  style={textShadow}
-                />
-                <View style={styles.rowMain}>
-                  <Text style={styles.rowTitle}>{describeLogRow(row)}</Text>
-                  <Text style={styles.rowCaption}>
-                    {whoChangedIt(row, hereIsComputer)}
-                    {row.conflict
-                      ? row.person
-                        ? ', where you had both changed the same record and this change was later'
-                        : ', where both devices had changed the same record and this change was later'
-                      : ''}
-                  </Text>
-                </View>
-              </View>
-            ))}
-          </View>
-        ))}
-
-        {merges != null && merges.length > 0 ? (
-          <TouchableOpacity style={styles.clearButton} onPress={() => setAskClear(true)} activeOpacity={0.8}>
-            <Ionicons name="trash-outline" size={16} color={colors.textMuted} style={textShadow} />
-            <Text style={styles.clearButtonText}>Clear This Log</Text>
+          ]}
+        />
+        <ScrollView contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+          <TouchableOpacity style={styles.summaryCard} onPress={explain} activeOpacity={0.8} accessibilityRole="button">
+            <Text style={styles.summaryNumber}>
+              {merges == null
+                ? '…'
+                : merges.length === 0
+                  ? 'Nothing brought together yet'
+                  : merges.length === 1
+                    ? '1 time ' + cameIntoStep
+                    : merges.length + ' times ' + cameIntoStep}
+            </Text>
+            <Text style={styles.summaryCaption}>
+              {merges == null
+                ? 'Reading what has been kept.'
+                : merges.length === 0
+                  ? wording('syncActivityEmpty', playful)
+                  : lineCount + (lineCount === 1 ? ' change' : ' changes') + ' in all. Tap for how this is kept.'}
+            </Text>
           </TouchableOpacity>
-        ) : null}
-      </ScrollView>
-    </View>
+
+          {merges?.map((merge) => (
+            <View key={merge.mergedAt} style={styles.card}>
+              <Text style={styles.whenHeading}>{describeMoment(merge.mergedAt)}</Text>
+              {merge.rows.map((row) => (
+                <View key={row.id} style={styles.row}>
+                  <Ionicons
+                    name={
+                      row.person
+                        ? 'person-outline'
+                        : row.deviceKind === 'computer'
+                          ? 'desktop-outline'
+                          : 'phone-portrait-outline'
+                    }
+                    size={16}
+                    color={colors.tabProfile}
+                    style={textShadow}
+                  />
+                  <View style={styles.rowMain}>
+                    <Text style={styles.rowTitle}>{describeLogRow(row)}</Text>
+                    <Text style={styles.rowCaption}>
+                      {whoChangedIt(row, hereIsComputer)}
+                      {row.conflict
+                        ? row.person
+                          ? ', where you had both changed the same record and this change was later'
+                          : ', where both devices had changed the same record and this change was later'
+                        : ''}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          ))}
+
+          {merges != null && merges.length > 0 ? (
+            <TouchableOpacity style={styles.clearButton} onPress={() => setAskClear(true)} activeOpacity={0.8}>
+              <Ionicons name="trash-outline" size={16} color={colors.textMuted} style={textShadow} />
+              <Text style={styles.clearButtonText}>Clear This Log</Text>
+            </TouchableOpacity>
+          ) : null}
+        </ScrollView>
+      </View>
+    </CalmBands>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { gap: HOME_BAND_GAP },
+  content: { gap: HOME_BAND_ACCENT_WIDTH },
   summaryCard: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: colors.tabProfile,
     padding: HOME_BAND_CONTENT_PADDING,
     gap: 6,
@@ -195,6 +198,7 @@ const styles = StyleSheet.create({
   summaryCaption: { ...typography.caption, color: colors.textSecondary, lineHeight: 17, ...textShadow },
   card: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: colors.tabProfile,
     padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,

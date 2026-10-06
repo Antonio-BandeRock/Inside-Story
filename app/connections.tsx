@@ -19,7 +19,7 @@ import { getDoseConsents, giveDoseConsent, withdrawDoseConsent, type DoseConsent
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
+import { CalmBands, HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, homeBandNoHairlines, homeBandStyle } from '../components/HomeSectionBand';
 import {
   listConnections,
   removeConnection,
@@ -408,522 +408,525 @@ export default function ConnectionsScreen() {
   };
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
-      {confirmSheetElement}
-      <AppActionSheet
-        visible={doseAsk !== null}
-        onClose={() => setDoseAsk(null)}
-        title={DOSE_CONSENT_TITLE}
-        message={doseAsk ? doseConsentMessage(doseAsk.name) : undefined}
-        actions={DOSE_CONSENT_CHOICES.map((choice) => ({
-          label: choice.label,
-          onPress: () => {
-            const connection = doseAsk;
-            setDoseAsk(null);
-            if (connection) void handleDoseConsent(connection, choice.kind);
-          },
-        }))}
-      />
-      {myFingerprint ? (
-        <View style={styles.fingerprintCard}>
-          <Text style={styles.fingerprintLabel}>Your device ID</Text>
-          <Text style={styles.fingerprintValue}>{myFingerprint}</Text>
-          <Text style={styles.fingerprintHint}>
-            Shown here so you can read it out loud to someone you&apos;re pairing with directly, for extra confidence.
-            Never required.
-          </Text>
-        </View>
-      ) : null}
-
-      {/* THE MAILBOX, AS A REAL ADDRESS RATHER THAN A NAME SOMEBODY TYPED.
-
-          What was here before asked for the folder's name and stored the
-          string. That told the app nothing it could open, which is exactly
-          what it was called out as: pretending a choice had been made. This
-          shows the folder actually picked out of the account, and every
-          button here reaches it.
-
-          Not gated any more. A gate that only checks somebody typed something
-          proves nothing, and a real folder can be chosen before or after
-          pairing without either one being wrong. */}
-      <View style={styles.fingerprintCard}>
-        <Text style={styles.fingerprintLabel}>Your shared folder</Text>
-        {sharedFolderState === null ? (
-          <Text style={styles.fingerprintHint}>Checking OneDrive...</Text>
-        ) : sharedFolderState.state === 'ready' ? (
-          <>
-            <Text style={styles.fingerprintValueName}>{sharedFolderState.folder.name}</Text>
-            <Text style={styles.fingerprintPath}>
-              {sharedFolderState.folder.path ?? 'OneDrive, in a folder shared with you.'}
-            </Text>
-          </>
-        ) : (
-          <Text style={styles.fingerprintHint}>{describeSharedFolderProblem(sharedFolderState)}</Text>
-        )}
-        <Text style={styles.fingerprintHint}>
-          One folder in OneDrive holding everything this app keeps there. Share it with them and what you send
-          each other passes through the {MAILBOX_FOLDER_NAME} folder inside it. Every partner and, later, every
-          child uses the same one.
-        </Text>
-        <TouchableOpacity onPress={() => router.push('/onedrive-folder')} hitSlop={8}>
-          <Text style={styles.rowActionText}>
-            {mailboxStatus?.state === 'ready' ? 'Change the Folder' : 'Choose the Folder'}
-          </Text>
-        </TouchableOpacity>
-
-        {mailboxStatus?.state === 'ready' ? (
-          <Text style={styles.fingerprintHint}>
-            While the app is open it checks the folder about every 30 seconds and sends what changed about 15
-            seconds after you change it. The two buttons below do the same at once, for when you want it to go straight
-            away.
-          </Text>
-        ) : null}
-        {mailboxStatus?.state === 'ready' ? (
-          <View style={styles.folderActions}>
-            <TouchableOpacity onPress={handleSendViaOneDrive} hitSlop={8}>
-              <Text style={styles.rowActionText}>Send Mine to Everyone</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleCheckOneDrive} hitSlop={8}>
-              <Text style={styles.rowActionText}>Check the Folder</Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
-      </View>
-
-      {/* HOW A CONDITION LIST ACTUALLY CROSSES BETWEEN TWO PHONES.
-
-          Three carriers were investigated and ruled out on evidence before this
-          one. A cloud API needs BOTH people to grant full read and write access
-          to their entire OneDrive, because Graph's createLink will not work at
-          the narrow scope and /shares needs a token on the reading side too. A
-          shared folder needs a storage app that supports folder selection, and
-          most cloud apps do not: OneDrive does not appear in the picker at all.
-          A QR code fits condition codes but not a plan of any length.
-
-          So the default is handing the file over through whatever the two people
-          already use. No account, no permission from anyone, works when they are
-          apart, and every byte of it is sealed so only the recipient can open it.
-          The cost is that it is a deliberate act rather than a background poll,
-          which is said plainly rather than hidden. */}
-      <View style={styles.fingerprintCard}>
-        <Text style={styles.fingerprintLabel}>Sharing with a partner</Text>
-        <Text style={styles.fingerprintHint}>
-          Send what you share as a file, through whatever you already use to send each other things: a message, an
-          email, or a folder in OneDrive that you both have. No account and no sign-in anywhere. Only the person you
-          sent it to can open it, so it stays private even passing through a messaging app.
-        </Text>
-        {/* Spelled out because the two system pickers behave differently and
-            nothing on screen would tell you which one you are looking at. The
-            file picker lists cloud apps; the folder picker below does not. */}
-        <Text style={styles.fingerprintHint}>
-          To use OneDrive: send it there from your share sheet, then on the other phone tap Get What They Sent and
-          choose OneDrive under Browse files in other apps.
-        </Text>
-
-        <TouchableOpacity onPress={handleImportFile} hitSlop={8} disabled={transferBusy !== null}>
-          <Text style={styles.rowActionText}>
-            {transferBusy === 'check' ? 'Opening…' : 'Get What They Sent'}
-          </Text>
-        </TouchableOpacity>
-
-        {transferNote ? <Text style={styles.fingerprintHint}>{transferNote}</Text> : null}
-
-        {/* Same sealed file, no carrier in between: when both phones are on
-            one Wi-Fi each serves its files for a few minutes and fetches the
-            other's. Both people tap, because each phone can only pull; nothing
-            is pushed onto a phone that did not ask. */}
-        {lanSyncAvailable ? (
-          <View style={styles.lanSyncBlock}>
+    <CalmBands>
+      <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        {confirmSheetElement}
+        <AppActionSheet
+          visible={doseAsk !== null}
+          onClose={() => setDoseAsk(null)}
+          title={DOSE_CONSENT_TITLE}
+          message={doseAsk ? doseConsentMessage(doseAsk.name) : undefined}
+          actions={DOSE_CONSENT_CHOICES.map((choice) => ({
+            label: choice.label,
+            onPress: () => {
+              const connection = doseAsk;
+              setDoseAsk(null);
+              if (connection) void handleDoseConsent(connection, choice.kind);
+            },
+          }))}
+        />
+        {myFingerprint ? (
+          <View style={styles.fingerprintCard}>
+            <Text style={styles.fingerprintLabel}>Your device ID</Text>
+            <Text style={styles.fingerprintValue}>{myFingerprint}</Text>
             <Text style={styles.fingerprintHint}>
-              In the same place? Tap Sync over Wi-Fi on both phones while they are on the same Wi-Fi and keep this
-              screen open. Each phone fetches what the other has for it, sealed the same way as a file.
+              Shown here so you can read it out loud to someone you&apos;re pairing with directly, for extra confidence.
+              Never required.
             </Text>
-            <TouchableOpacity onPress={handleLanSync} hitSlop={8} disabled={lanSync.phase === 'starting'}>
-              <Text style={styles.rowActionText}>
-                {lanSync.phase === 'starting'
-                  ? 'Starting…'
-                  : lanSync.phase === 'listening'
-                    ? 'Done Syncing'
-                    : 'Sync over Wi-Fi'}
-              </Text>
-            </TouchableOpacity>
-            {lanSync.phase === 'listening' ? (
-              <Text style={styles.fingerprintHint}>
-                Listening on this Wi-Fi{lanSync.origin ? ` at ${lanSync.origin.replace(/^https?:\/\//, '')}` : ''}.
-                Tap Done Syncing once both phones say what they got.
-              </Text>
-            ) : null}
-            {lanSync.phase === 'listening' || lanSync.phase === 'stopped' || lanSync.phase === 'failed'
-              ? lanSync.partners.map((partner) => (
-                  <Text
-                    key={partner.connectionId}
-                    style={partner.state === 'received' ? styles.lanSyncGood : partner.state === 'failed' || partner.state === 'noKey' ? styles.folderMismatch : styles.fingerprintHint}
-                  >
-                    {partner.name}: {partner.message ?? partner.state}
-                  </Text>
-                ))
-              : null}
-            {lanSync.error ? <Text style={styles.folderMismatch}>{lanSync.error}</Text> : null}
-          </View>
-        ) : isDesktopApp() ? (
-          // The computer cannot join it, and says so rather than leaving the
-          // block out as if the feature did not exist (lib/desktop/phoneOnly.ts).
-          <View style={styles.lanSyncBlock}>
-            <Text style={styles.fingerprintHint}>{phoneOnlyNotice('wifiSync').message}</Text>
           </View>
         ) : null}
 
-        {/* Named rather than left to be discovered: what crosses is decided
-            per partner by the switches on their row, not by the carrier. */}
-        <Text style={styles.fingerprintHint}>
-          What crosses is which conditions each of you tracks and, if you allow it, the meal plan built around both
-          of you. Each of you chooses that separately on the other person’s row above.
-        </Text>
-      </View>
+        {/* THE MAILBOX, AS A REAL ADDRESS RATHER THAN A NAME SOMEBODY TYPED.
 
-      {/* THE ONE CARRIER THAT PUTS A MACHINE OF OURS IN THE PATH.
+            What was here before asked for the folder's name and stored the
+            string. That told the app nothing it could open, which is exactly
+            what it was called out as: pretending a choice had been made. This
+            shows the folder actually picked out of the account, and every
+            button here reaches it.
 
-          Every other way of sending here moves bytes between the two phones
-          or through storage the person already pays for. This one leaves a
-          sealed message on a server at insidestoryapp.com until the other
-          phone asks for it, which is what makes it work when the two people
-          are apart and neither is awake at the same moment.
-
-          The card says what that server holds and what it can work out, in
-          the same words used in the code that runs it, because a carrier that
-          describes itself as private and stops there is not telling anyone
-          enough to choose it or avoid it. */}
-      <View style={styles.fingerprintCard}>
-        <Text style={styles.fingerprintLabel}>Through the relay</Text>
-        <Text style={styles.fingerprintHint}>
-          Leaves a sealed message waiting at insidestoryapp.com until the other phone picks it up. Nothing to sign
-          in to, no folder to share, and you do not both have to be here at once. Tap Send on one phone and Check
-          on the other whenever it suits.
-        </Text>
-        <Text style={styles.fingerprintHint}>
-          What sits there is the same sealed message every other way of sending here uses, addressed by the two
-          codes above. Nothing on that server can open it, and no name, email or account is attached to either
-          code. It does see that one code sent something to another code, and how big it was.
-        </Text>
-        <Text style={styles.fingerprintHint}>
-          A message is deleted as soon as the other phone has used it, and after 30 days whether anyone collected
-          it or not.
-        </Text>
-        <View style={styles.folderActions}>
-          <TouchableOpacity onPress={handleSendViaRelay} hitSlop={8} disabled={relayBusy !== null}>
+            Not gated any more. A gate that only checks somebody typed something
+            proves nothing, and a real folder can be chosen before or after
+            pairing without either one being wrong. */}
+        <View style={styles.fingerprintCard}>
+          <Text style={styles.fingerprintLabel}>Your shared folder</Text>
+          {sharedFolderState === null ? (
+            <Text style={styles.fingerprintHint}>Checking OneDrive...</Text>
+          ) : sharedFolderState.state === 'ready' ? (
+            <>
+              <Text style={styles.fingerprintValueName}>{sharedFolderState.folder.name}</Text>
+              <Text style={styles.fingerprintPath}>
+                {sharedFolderState.folder.path ?? 'OneDrive, in a folder shared with you.'}
+              </Text>
+            </>
+          ) : (
+            <Text style={styles.fingerprintHint}>{describeSharedFolderProblem(sharedFolderState)}</Text>
+          )}
+          <Text style={styles.fingerprintHint}>
+            One folder in OneDrive holding everything this app keeps there. Share it with them and what you send
+            each other passes through the {MAILBOX_FOLDER_NAME} folder inside it. Every partner and, later, every
+            child uses the same one.
+          </Text>
+          <TouchableOpacity onPress={() => router.push('/onedrive-folder')} hitSlop={8}>
             <Text style={styles.rowActionText}>
-              {relayBusy === 'send' ? 'Sending…' : 'Send Mine to Everyone'}
+              {mailboxStatus?.state === 'ready' ? 'Change the Folder' : 'Choose the Folder'}
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleCheckRelay} hitSlop={8} disabled={relayBusy !== null}>
+
+          {mailboxStatus?.state === 'ready' ? (
+            <Text style={styles.fingerprintHint}>
+              While the app is open it checks the folder about every 30 seconds and sends what changed about 15
+              seconds after you change it. The two buttons below do the same at once, for when you want it to go straight
+              away.
+            </Text>
+          ) : null}
+          {mailboxStatus?.state === 'ready' ? (
+            <View style={styles.folderActions}>
+              <TouchableOpacity onPress={handleSendViaOneDrive} hitSlop={8}>
+                <Text style={styles.rowActionText}>Send Mine to Everyone</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleCheckOneDrive} hitSlop={8}>
+                <Text style={styles.rowActionText}>Check the Folder</Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
+        </View>
+
+        {/* HOW A CONDITION LIST ACTUALLY CROSSES BETWEEN TWO PHONES.
+
+            Three carriers were investigated and ruled out on evidence before this
+            one. A cloud API needs BOTH people to grant full read and write access
+            to their entire OneDrive, because Graph's createLink will not work at
+            the narrow scope and /shares needs a token on the reading side too. A
+            shared folder needs a storage app that supports folder selection, and
+            most cloud apps do not: OneDrive does not appear in the picker at all.
+            A QR code fits condition codes but not a plan of any length.
+
+            So the default is handing the file over through whatever the two people
+            already use. No account, no permission from anyone, works when they are
+            apart, and every byte of it is sealed so only the recipient can open it.
+            The cost is that it is a deliberate act rather than a background poll,
+            which is said plainly rather than hidden. */}
+        <View style={styles.fingerprintCard}>
+          <Text style={styles.fingerprintLabel}>Sharing with a partner</Text>
+          <Text style={styles.fingerprintHint}>
+            Send what you share as a file, through whatever you already use to send each other things: a message, an
+            email, or a folder in OneDrive that you both have. No account and no sign-in anywhere. Only the person you
+            sent it to can open it, so it stays private even passing through a messaging app.
+          </Text>
+          {/* Spelled out because the two system pickers behave differently and
+              nothing on screen would tell you which one you are looking at. The
+              file picker lists cloud apps; the folder picker below does not. */}
+          <Text style={styles.fingerprintHint}>
+            To use OneDrive: send it there from your share sheet, then on the other phone tap Get What They Sent and
+            choose OneDrive under Browse files in other apps.
+          </Text>
+
+          <TouchableOpacity onPress={handleImportFile} hitSlop={8} disabled={transferBusy !== null}>
             <Text style={styles.rowActionText}>
-              {relayBusy === 'check' ? 'Checking…' : 'Check the Relay'}
+              {transferBusy === 'check' ? 'Opening…' : 'Get What They Sent'}
             </Text>
           </TouchableOpacity>
-        </View>
-        {relayNote ? <Text style={styles.fingerprintHint}>{relayNote}</Text> : null}
-      </View>
 
-      {/* A partner link is its own invitation rather than a setting applied
-          afterwards, because what it shares has to be chosen before it is sent
-          rather than switched on behind someone. */}
-      {/* The gate that used to be here is gone. It checked that a name had been
-          typed, which proves nothing: the app cannot see the folder, cannot
-          confirm it exists and cannot confirm it was shared. A lock that verifies
-          nothing is theatre. */}
-      {/* The three ways to pair, with what each one does, on one band. */}
-      <View style={styles.fingerprintCard}>
-        <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={() => openPairing('partner')}>
-          <Ionicons name="people-outline" size={18} color={colors.textOnButton} />
-          <Text style={styles.primaryButtonText}>Pair With a Partner</Text>
-        </TouchableOpacity>
-        <Text style={styles.partnerHint}>
-          Sets up the link between two phones and records what each of you allows the other to see. You can change it, or undo it, here at any time.
-        </Text>
+          {transferNote ? <Text style={styles.fingerprintHint}>{transferNote}</Text> : null}
 
-        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => openPairing('recipe')}>
-          <Ionicons name="person-add-outline" size={18} color={colors.textPrimary} />
-          <Text style={styles.secondaryButtonText}>Pair for Sharing Recipes</Text>
-        </TouchableOpacity>
+          {/* Same sealed file, no carrier in between: when both phones are on
+              one Wi-Fi each serves its files for a few minutes and fetches the
+              other's. Both people tap, because each phone can only pull; nothing
+              is pushed onto a phone that did not ask. */}
+          {lanSyncAvailable ? (
+            <View style={styles.lanSyncBlock}>
+              <Text style={styles.fingerprintHint}>
+                In the same place? Tap Sync over Wi-Fi on both phones while they are on the same Wi-Fi and keep this
+                screen open. Each phone fetches what the other has for it, sealed the same way as a file.
+              </Text>
+              <TouchableOpacity onPress={handleLanSync} hitSlop={8} disabled={lanSync.phase === 'starting'}>
+                <Text style={styles.rowActionText}>
+                  {lanSync.phase === 'starting'
+                    ? 'Starting…'
+                    : lanSync.phase === 'listening'
+                      ? 'Done Syncing'
+                      : 'Sync over Wi-Fi'}
+                </Text>
+              </TouchableOpacity>
+              {lanSync.phase === 'listening' ? (
+                <Text style={styles.fingerprintHint}>
+                  Listening on this Wi-Fi{lanSync.origin ? ` at ${lanSync.origin.replace(/^https?:\/\//, '')}` : ''}.
+                  Tap Done Syncing once both phones say what they got.
+                </Text>
+              ) : null}
+              {lanSync.phase === 'listening' || lanSync.phase === 'stopped' || lanSync.phase === 'failed'
+                ? lanSync.partners.map((partner) => (
+                    <Text
+                      key={partner.connectionId}
+                      style={partner.state === 'received' ? styles.lanSyncGood : partner.state === 'failed' || partner.state === 'noKey' ? styles.folderMismatch : styles.fingerprintHint}
+                    >
+                      {partner.name}: {partner.message ?? partner.state}
+                    </Text>
+                  ))
+                : null}
+              {lanSync.error ? <Text style={styles.folderMismatch}>{lanSync.error}</Text> : null}
+            </View>
+          ) : isDesktopApp() ? (
+            // The computer cannot join it, and says so rather than leaving the
+            // block out as if the feature did not exist (lib/desktop/phoneOnly.ts).
+            <View style={styles.lanSyncBlock}>
+              <Text style={styles.fingerprintHint}>{phoneOnlyNotice('wifiSync').message}</Text>
+            </View>
+          ) : null}
 
-        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={openScanner}>
-          <Ionicons name="qr-code-outline" size={18} color={colors.textPrimary} />
-          <Text style={styles.secondaryButtonText}>Scan Their Code</Text>
-        </TouchableOpacity>
-        <Text style={styles.partnerHint}>
-          Pairing happens face to face: one phone shows a code and the other reads it with the camera. Nothing is sent
-          over the internet, and nothing has to be typed or pasted.
-        </Text>
-      </View>
-
-      <View style={styles.headingBand}>
-        <Text style={styles.sectionLabel}>Your connections</Text>
-      </View>
-
-      {loading ? (
-        <View style={styles.fingerprintCard}>
-          <Text style={styles.emptyText}>Loading…</Text>
-        </View>
-      ) : connections.length === 0 ? (
-        <View style={styles.fingerprintCard}>
-          <Text style={styles.emptyText}>
-            No connections yet. Pair with someone above, in person, and they will appear here.
+          {/* Named rather than left to be discovered: what crosses is decided
+              per partner by the switches on their row, not by the carrier. */}
+          <Text style={styles.fingerprintHint}>
+            What crosses is which conditions each of you tracks and, if you allow it, the meal plan built around both
+            of you. Each of you chooses that separately on the other person’s row above.
           </Text>
         </View>
-      ) : (
-        connections.map((connection) => (
-          <View key={connection.id} style={styles.row}>
-            {editingId === connection.id ? (
-              <View style={styles.editRow}>
-                <AppTextInput
-                  onVoiceResult={setEditingName}
-                  value={editingName}
-                  onChangeText={setEditingName}
-                  style={styles.editInput}
-                  autoFocus
-                  selectAllOnMount
-                  placeholder="Name"
-                />
-                <TouchableOpacity onPress={() => saveRename(connection.id)} hitSlop={8}>
-                  <Text style={styles.rowActionText}>Save</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => setEditingId(null)} hitSlop={8}>
-                  <Text style={styles.rowActionTextMuted}>Cancel</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <>
-                <View style={styles.rowInfo}>
-                  <Text style={styles.rowName}>{connection.name}</Text>
-                  <Text style={styles.rowMeta}>Connected {new Date(connection.pairedAt).toLocaleDateString()}</Text>
-                  {connection.role === 'partner' ? (
-                    <>
-                      <Text style={styles.rowBadge}>Partner</Text>
-                      {/* Never claims a two-way link without evidence for one.
-                          The alternative is a screen that reads as finished
-                          while nothing this person sends can land. */}
-                      <Text style={styles.rowMeta}>
-                        {describeLinkState(linkState(connection.theyHaveMeAt), connection.name)}
-                      </Text>
-                      <Text style={styles.rowMeta}>{describeGrants(connection.grants)}</Text>
-                      {/* Editable here rather than only at pairing, because what
-                          somebody is willing to share changes, and unpairing to
-                          change it would throw away the keys and the history. */}
-                      {SHARE_SCOPES.map((scope) => (
-                        <TouchableOpacity
-                          key={scope.code}
-                          style={styles.grantRow}
-                          activeOpacity={0.8}
-                          onPress={() => handleToggleGrant(connection, scope.code)}
-                        >
-                          <View
-                            style={[styles.checkBox, connection.grants[scope.code] ? styles.checkBoxOn : null]}
-                          >
-                            {connection.grants[scope.code] ? <Text style={styles.checkMark}>✓</Text> : null}
-                          </View>
-                          <View style={styles.grantTextWrap}>
-                            <Text style={styles.grantLabel}>{scope.label}</Text>
-                            <Text style={styles.grantWhat}>{scope.what}</Text>
-                            {scope.code === 'doses' && connection.grants.doses && doseConsents.get(connection.id) ? (
-                              <Text style={styles.grantWhat}>
-                                {consentLine(
-                                  doseConsents.get(connection.id)!.kind,
-                                  doseConsents.get(connection.id)!.givenAt,
-                                  Date.now(),
-                                )}
-                              </Text>
-                            ) : null}
-                          </View>
-                        </TouchableOpacity>
-                      ))}
-                      {/* Said on the row itself rather than left for someone to
-                          discover. A partner card that lists what is shared,
-                          while nothing can actually travel between the phones,
-                          reads as a working feature. */}
-                      <Text style={styles.rowPending}>{PARTNER_SHARING_STATE}</Text>
-                      {/* The sentence above describes a link with
-                          everything switched on. Somebody who has turned
-                          the shopping list off would be reading something
-                          untrue of their link, so that case says its own
-                          piece rather than being left to the standing
-                          wording. */}
-                      {areasThatMerge(connection.role, connection.grants).length === 0 ? (
+
+        {/* THE ONE CARRIER THAT PUTS A MACHINE OF OURS IN THE PATH.
+
+            Every other way of sending here moves bytes between the two phones
+            or through storage the person already pays for. This one leaves a
+            sealed message on a server at insidestoryapp.com until the other
+            phone asks for it, which is what makes it work when the two people
+            are apart and neither is awake at the same moment.
+
+            The card says what that server holds and what it can work out, in
+            the same words used in the code that runs it, because a carrier that
+            describes itself as private and stops there is not telling anyone
+            enough to choose it or avoid it. */}
+        <View style={styles.fingerprintCard}>
+          <Text style={styles.fingerprintLabel}>Through the relay</Text>
+          <Text style={styles.fingerprintHint}>
+            Leaves a sealed message waiting at insidestoryapp.com until the other phone picks it up. Nothing to sign
+            in to, no folder to share, and you do not both have to be here at once. Tap Send on one phone and Check
+            on the other whenever it suits.
+          </Text>
+          <Text style={styles.fingerprintHint}>
+            What sits there is the same sealed message every other way of sending here uses, addressed by the two
+            codes above. Nothing on that server can open it, and no name, email or account is attached to either
+            code. It does see that one code sent something to another code, and how big it was.
+          </Text>
+          <Text style={styles.fingerprintHint}>
+            A message is deleted as soon as the other phone has used it, and after 30 days whether anyone collected
+            it or not.
+          </Text>
+          <View style={styles.folderActions}>
+            <TouchableOpacity onPress={handleSendViaRelay} hitSlop={8} disabled={relayBusy !== null}>
+              <Text style={styles.rowActionText}>
+                {relayBusy === 'send' ? 'Sending…' : 'Send Mine to Everyone'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleCheckRelay} hitSlop={8} disabled={relayBusy !== null}>
+              <Text style={styles.rowActionText}>
+                {relayBusy === 'check' ? 'Checking…' : 'Check the Relay'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {relayNote ? <Text style={styles.fingerprintHint}>{relayNote}</Text> : null}
+        </View>
+
+        {/* A partner link is its own invitation rather than a setting applied
+            afterwards, because what it shares has to be chosen before it is sent
+            rather than switched on behind someone. */}
+        {/* The gate that used to be here is gone. It checked that a name had been
+            typed, which proves nothing: the app cannot see the folder, cannot
+            confirm it exists and cannot confirm it was shared. A lock that verifies
+            nothing is theatre. */}
+        {/* The three ways to pair, with what each one does, on one band. */}
+        <View style={styles.fingerprintCard}>
+          <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={() => openPairing('partner')}>
+            <Ionicons name="people-outline" size={18} color={colors.textOnButton} />
+            <Text style={styles.primaryButtonText}>Pair With a Partner</Text>
+          </TouchableOpacity>
+          <Text style={styles.partnerHint}>
+            Sets up the link between two phones and records what each of you allows the other to see. You can change it, or undo it, here at any time.
+          </Text>
+
+          <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={() => openPairing('recipe')}>
+            <Ionicons name="person-add-outline" size={18} color={colors.textPrimary} />
+            <Text style={styles.secondaryButtonText}>Pair for Sharing Recipes</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={openScanner}>
+            <Ionicons name="qr-code-outline" size={18} color={colors.textPrimary} />
+            <Text style={styles.secondaryButtonText}>Scan Their Code</Text>
+          </TouchableOpacity>
+          <Text style={styles.partnerHint}>
+            Pairing happens face to face: one phone shows a code and the other reads it with the camera. Nothing is sent
+            over the internet, and nothing has to be typed or pasted.
+          </Text>
+        </View>
+
+        <View style={styles.headingBand}>
+          <Text style={styles.sectionLabel}>Your connections</Text>
+        </View>
+
+        {loading ? (
+          <View style={styles.fingerprintCard}>
+            <Text style={styles.emptyText}>Loading…</Text>
+          </View>
+        ) : connections.length === 0 ? (
+          <View style={styles.fingerprintCard}>
+            <Text style={styles.emptyText}>
+              No connections yet. Pair with someone above, in person, and they will appear here.
+            </Text>
+          </View>
+        ) : (
+          connections.map((connection) => (
+            <View key={connection.id} style={styles.row}>
+              {editingId === connection.id ? (
+                <View style={styles.editRow}>
+                  <AppTextInput
+                    onVoiceResult={setEditingName}
+                    value={editingName}
+                    onChangeText={setEditingName}
+                    style={styles.editInput}
+                    autoFocus
+                    selectAllOnMount
+                    placeholder="Name"
+                  />
+                  <TouchableOpacity onPress={() => saveRename(connection.id)} hitSlop={8}>
+                    <Text style={styles.rowActionText}>Save</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setEditingId(null)} hitSlop={8}>
+                    <Text style={styles.rowActionTextMuted}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <>
+                  <View style={styles.rowInfo}>
+                    <Text style={styles.rowName}>{connection.name}</Text>
+                    <Text style={styles.rowMeta}>Connected {new Date(connection.pairedAt).toLocaleDateString()}</Text>
+                    {connection.role === 'partner' ? (
+                      <>
+                        <Text style={styles.rowBadge}>Partner</Text>
+                        {/* Never claims a two-way link without evidence for one.
+                            The alternative is a screen that reads as finished
+                            while nothing this person sends can land. */}
                         <Text style={styles.rowMeta}>
-                          {describeWhatMerges(connection.role, connection.grants, connection.name)}
+                          {describeLinkState(linkState(connection.theyHaveMeAt), connection.name)}
                         </Text>
-                      ) : null}
-                      {/* SHOWING A CODE AGAIN IS HOW CONDITIONS ACTUALLY CROSS,
-                          and this was gated behind the missing-key case, so for
-                          anyone already holding a key it was invisible.
+                        <Text style={styles.rowMeta}>{describeGrants(connection.grants)}</Text>
+                        {/* Editable here rather than only at pairing, because what
+                            somebody is willing to share changes, and unpairing to
+                            change it would throw away the keys and the history. */}
+                        {SHARE_SCOPES.map((scope) => (
+                          <TouchableOpacity
+                            key={scope.code}
+                            style={styles.grantRow}
+                            activeOpacity={0.8}
+                            onPress={() => handleToggleGrant(connection, scope.code)}
+                          >
+                            <View
+                              style={[styles.checkBox, connection.grants[scope.code] ? styles.checkBoxOn : null]}
+                            >
+                              {connection.grants[scope.code] ? <Text style={styles.checkMark}>✓</Text> : null}
+                            </View>
+                            <View style={styles.grantTextWrap}>
+                              <Text style={styles.grantLabel}>{scope.label}</Text>
+                              <Text style={styles.grantWhat}>{scope.what}</Text>
+                              {scope.code === 'doses' && connection.grants.doses && doseConsents.get(connection.id) ? (
+                                <Text style={styles.grantWhat}>
+                                  {consentLine(
+                                    doseConsents.get(connection.id)!.kind,
+                                    doseConsents.get(connection.id)!.givenAt,
+                                    Date.now(),
+                                  )}
+                                </Text>
+                              ) : null}
+                            </View>
+                          </TouchableOpacity>
+                        ))}
+                        {/* Said on the row itself rather than left for someone to
+                            discover. A partner card that lists what is shared,
+                            while nothing can actually travel between the phones,
+                            reads as a working feature. */}
+                        <Text style={styles.rowPending}>{PARTNER_SHARING_STATE}</Text>
+                        {/* The sentence above describes a link with
+                            everything switched on. Somebody who has turned
+                            the shopping list off would be reading something
+                            untrue of their link, so that case says its own
+                            piece rather than being left to the standing
+                            wording. */}
+                        {areasThatMerge(connection.role, connection.grants).length === 0 ? (
+                          <Text style={styles.rowMeta}>
+                            {describeWhatMerges(connection.role, connection.grants, connection.name)}
+                          </Text>
+                        ) : null}
+                        {/* SHOWING A CODE AGAIN IS HOW CONDITIONS ACTUALLY CROSS,
+                            and this was gated behind the missing-key case, so for
+                            anyone already holding a key it was invisible.
 
-                          The mechanism was there the whole time: app/pair.tsx
-                          rebuilds the invite fresh from current conditions every
-                          time it opens, and app/connect.tsx applies incoming
-                          codes to a connection that already exists. Nothing new
-                          was needed to make partners share conditions, only a way
-                          to reach what already worked. A day was spent building
-                          three carriers before that was checked. */}
-                      <View style={styles.rowFix}>
-                        <Text style={styles.rowFixText}>
-                          {canEncryptTo(connection.encryptionPublicKeyBase64)
-                            ? 'Show each other your codes again whenever your conditions change. Scanning updates what each of you knows about the other. Nothing else about the connection changes.'
-                            : 'You paired before this app could seal something so only they can read it. Show each other your codes once more and it fills itself in. Nothing else about the connection changes.'}
-                        </Text>
-                        <TouchableOpacity
-                          style={styles.rowFixButton}
-                          activeOpacity={0.85}
-                          onPress={() => openPairing('partner')}
-                        >
-                          <Ionicons name="qr-code-outline" size={16} color={colors.textOnButton} />
-                          <Text style={styles.rowFixButtonText}>Show My Code Again</Text>
-                        </TouchableOpacity>
-                      </View>
-                      {/* THE MAILBOX FOR THIS PAIRING.
-
-                          Linked, both directions run with nothing to navigate.
-                          Unlinked, sending and getting still work by hand, which
-                          is what the setup steps below use to create the files in
-                          the first place. */}
+                            The mechanism was there the whole time: app/pair.tsx
+                            rebuilds the invite fresh from current conditions every
+                            time it opens, and app/connect.tsx applies incoming
+                            codes to a connection that already exists. Nothing new
+                            was needed to make partners share conditions, only a way
+                            to reach what already worked. A day was spent building
+                            three carriers before that was checked. */}
                         <View style={styles.rowFix}>
                           <Text style={styles.rowFixText}>
-                            {connection.outboxFileUri && connection.inboxFileUri
-                              ? 'Mailbox is set up. Sending and getting go straight to the files, with nothing to navigate.'
-                              : connection.outboxFileUri || connection.inboxFileUri
-                                ? 'Half set up. Link the other direction and neither of you has to navigate again.'
-                                : `Your mailbox folder is ${connection.mailboxFolder ?? mailboxFolderName ?? 'not set'}. Send once into it, then link what you sent. Do the same with theirs.`}
+                            {canEncryptTo(connection.encryptionPublicKeyBase64)
+                              ? 'Show each other your codes again whenever your conditions change. Scanning updates what each of you knows about the other. Nothing else about the connection changes.'
+                              : 'You paired before this app could seal something so only they can read it. Show each other your codes once more and it fills itself in. Nothing else about the connection changes.'}
                           </Text>
-                          {connection.mailboxFolder &&
-                          mailboxFolderName &&
-                          connection.mailboxFolder !== mailboxFolderName ? (
-                            <Text style={styles.folderMismatch}>
-                              They named a different folder ({connection.mailboxFolder}) than you did (
-                              {mailboxFolderName}). If those are not the same folder, nothing either of you sends will
-                              reach the other.
+                          <TouchableOpacity
+                            style={styles.rowFixButton}
+                            activeOpacity={0.85}
+                            onPress={() => openPairing('partner')}
+                          >
+                            <Ionicons name="qr-code-outline" size={16} color={colors.textOnButton} />
+                            <Text style={styles.rowFixButtonText}>Show My Code Again</Text>
+                          </TouchableOpacity>
+                        </View>
+                        {/* THE MAILBOX FOR THIS PAIRING.
+
+                            Linked, both directions run with nothing to navigate.
+                            Unlinked, sending and getting still work by hand, which
+                            is what the setup steps below use to create the files in
+                            the first place. */}
+                          <View style={styles.rowFix}>
+                            <Text style={styles.rowFixText}>
+                              {connection.outboxFileUri && connection.inboxFileUri
+                                ? 'Mailbox is set up. Sending and getting go straight to the files, with nothing to navigate.'
+                                : connection.outboxFileUri || connection.inboxFileUri
+                                  ? 'Half set up. Link the other direction and neither of you has to navigate again.'
+                                  : `Your mailbox folder is ${connection.mailboxFolder ?? mailboxFolderName ?? 'not set'}. Send once into it, then link what you sent. Do the same with theirs.`}
                             </Text>
-                          ) : null}
-                          <View style={styles.folderActions}>
-                            <TouchableOpacity
-                              onPress={() => handleLinkOutbox(connection.id)}
-                              hitSlop={8}
-                              disabled={transferBusy !== null}
-                            >
-                              <Text style={styles.rowActionText}>
-                                {connection.outboxFileUri ? 'Relink What I Send' : 'Link What I Send'}
+                            {connection.mailboxFolder &&
+                            mailboxFolderName &&
+                            connection.mailboxFolder !== mailboxFolderName ? (
+                              <Text style={styles.folderMismatch}>
+                                They named a different folder ({connection.mailboxFolder}) than you did (
+                                {mailboxFolderName}). If those are not the same folder, nothing either of you sends will
+                                reach the other.
                               </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                              onPress={() => handleLinkInbox(connection.id)}
-                              hitSlop={8}
-                              disabled={transferBusy !== null}
-                            >
-                              <Text style={styles.rowActionText}>
-                                {connection.inboxFileUri ? 'Relink What They Send' : 'Link What They Send'}
-                              </Text>
-                            </TouchableOpacity>
-                            {connection.outboxFileUri || connection.inboxFileUri ? (
+                            ) : null}
+                            <View style={styles.folderActions}>
                               <TouchableOpacity
-                                onPress={() => handleUnlink(connection.id)}
+                                onPress={() => handleLinkOutbox(connection.id)}
                                 hitSlop={8}
                                 disabled={transferBusy !== null}
                               >
-                                <Text style={styles.rowActionText}>Unlink</Text>
+                                <Text style={styles.rowActionText}>
+                                  {connection.outboxFileUri ? 'Relink What I Send' : 'Link What I Send'}
+                                </Text>
                               </TouchableOpacity>
-                            ) : null}
-                          </View>
-                          {connection.outboxFileUri || connection.inboxFileUri ? (
-                            <View style={styles.folderActions}>
-                              {connection.outboxFileUri ? (
+                              <TouchableOpacity
+                                onPress={() => handleLinkInbox(connection.id)}
+                                hitSlop={8}
+                                disabled={transferBusy !== null}
+                              >
+                                <Text style={styles.rowActionText}>
+                                  {connection.inboxFileUri ? 'Relink What They Send' : 'Link What They Send'}
+                                </Text>
+                              </TouchableOpacity>
+                              {connection.outboxFileUri || connection.inboxFileUri ? (
                                 <TouchableOpacity
-                                  onPress={() => handleSendLinked(connection.id)}
+                                  onPress={() => handleUnlink(connection.id)}
                                   hitSlop={8}
                                   disabled={transferBusy !== null}
                                 >
-                                  <Text style={styles.rowActionText}>
-                                    {transferBusy === 'send' ? 'Sending...' : 'Send Now'}
-                                  </Text>
-                                </TouchableOpacity>
-                              ) : null}
-                              {connection.inboxFileUri ? (
-                                <TouchableOpacity
-                                  onPress={() => handleCheckLinked(connection.id)}
-                                  hitSlop={8}
-                                  disabled={transferBusy !== null}
-                                >
-                                  <Text style={styles.rowActionText}>
-                                    {transferBusy === 'check' ? 'Checking...' : 'Check Theirs Now'}
-                                  </Text>
+                                  <Text style={styles.rowActionText}>Unlink</Text>
                                 </TouchableOpacity>
                               ) : null}
                             </View>
-                          ) : null}
-                        </View>
+                            {connection.outboxFileUri || connection.inboxFileUri ? (
+                              <View style={styles.folderActions}>
+                                {connection.outboxFileUri ? (
+                                  <TouchableOpacity
+                                    onPress={() => handleSendLinked(connection.id)}
+                                    hitSlop={8}
+                                    disabled={transferBusy !== null}
+                                  >
+                                    <Text style={styles.rowActionText}>
+                                      {transferBusy === 'send' ? 'Sending...' : 'Send Now'}
+                                    </Text>
+                                  </TouchableOpacity>
+                                ) : null}
+                                {connection.inboxFileUri ? (
+                                  <TouchableOpacity
+                                    onPress={() => handleCheckLinked(connection.id)}
+                                    hitSlop={8}
+                                    disabled={transferBusy !== null}
+                                  >
+                                    <Text style={styles.rowActionText}>
+                                      {transferBusy === 'check' ? 'Checking...' : 'Check Theirs Now'}
+                                    </Text>
+                                  </TouchableOpacity>
+                                ) : null}
+                              </View>
+                            ) : null}
+                          </View>
 
-                      {connection.theirConditionCodes.length > 0 ? (
-                        <Text style={styles.rowMeta}>
-                          They share {connection.theirConditionCodes.length}{' '}
-                          {connection.theirConditionCodes.length === 1 ? 'condition' : 'conditions'} with you.
-                        </Text>
-                      ) : (
-                        <Text style={styles.rowMeta}>
-                          They have not shared which conditions they track.
-                        </Text>
-                      )}
-                      {!fingerprintStanding('partner', connection.fingerprintVerifiedAt).verified ? (
-                        <Text style={styles.rowWarn}>
-                          {fingerprintStanding('partner', connection.fingerprintVerifiedAt).message}
-                        </Text>
-                      ) : null}
-                    </>
-                  ) : null}
-                </View>
-                <View style={styles.rowActions}>
-                  <TouchableOpacity onPress={() => startRename(connection)} hitSlop={8}>
-                    <Text style={styles.rowActionText}>Rename</Text>
-                  </TouchableOpacity>
-                  {connection.role === 'partner' ? (
-                    <TouchableOpacity
-                      onPress={async () => {
-                        // Demoting resets the grants and drops their condition
-                        // list, since holding a diagnosis list for someone you
-                        // no longer plan meals with has no remaining reason.
-                        await setConnectionRole(connection.id, 'recipe');
-                        load();
-                      }}
-                      hitSlop={8}
-                    >
-                      <Text style={styles.rowActionText}>Stop Sharing</Text>
+                        {connection.theirConditionCodes.length > 0 ? (
+                          <Text style={styles.rowMeta}>
+                            They share {connection.theirConditionCodes.length}{' '}
+                            {connection.theirConditionCodes.length === 1 ? 'condition' : 'conditions'} with you.
+                          </Text>
+                        ) : (
+                          <Text style={styles.rowMeta}>
+                            They have not shared which conditions they track.
+                          </Text>
+                        )}
+                        {!fingerprintStanding('partner', connection.fingerprintVerifiedAt).verified ? (
+                          <Text style={styles.rowWarn}>
+                            {fingerprintStanding('partner', connection.fingerprintVerifiedAt).message}
+                          </Text>
+                        ) : null}
+                      </>
+                    ) : null}
+                  </View>
+                  <View style={styles.rowActions}>
+                    <TouchableOpacity onPress={() => startRename(connection)} hitSlop={8}>
+                      <Text style={styles.rowActionText}>Rename</Text>
                     </TouchableOpacity>
-                  ) : null}
-                  {/* On the row rather than in the card above, because a share
-                      sheet sends one thing to one person and a button that had
-                      to guess which partner it meant would be worse. */}
-                  {connection.role === 'partner' ? (
-                    <TouchableOpacity
-                      onPress={() => handleSendFile(connection.id)}
-                      hitSlop={8}
-                      disabled={transferBusy !== null}
-                    >
-                      <Text style={styles.rowActionText}>Send Mine to Them</Text>
+                    {connection.role === 'partner' ? (
+                      <TouchableOpacity
+                        onPress={async () => {
+                          // Demoting resets the grants and drops their condition
+                          // list, since holding a diagnosis list for someone you
+                          // no longer plan meals with has no remaining reason.
+                          await setConnectionRole(connection.id, 'recipe');
+                          load();
+                        }}
+                        hitSlop={8}
+                      >
+                        <Text style={styles.rowActionText}>Stop Sharing</Text>
+                      </TouchableOpacity>
+                    ) : null}
+                    {/* On the row rather than in the card above, because a share
+                        sheet sends one thing to one person and a button that had
+                        to guess which partner it meant would be worse. */}
+                    {connection.role === 'partner' ? (
+                      <TouchableOpacity
+                        onPress={() => handleSendFile(connection.id)}
+                        hitSlop={8}
+                        disabled={transferBusy !== null}
+                      >
+                        <Text style={styles.rowActionText}>Send Mine to Them</Text>
+                      </TouchableOpacity>
+                    ) : null}
+                    <TouchableOpacity onPress={() => handleRemove(connection)} hitSlop={8} disabled={busyId === connection.id}>
+                      <Text style={styles.rowActionTextDanger}>{busyId === connection.id ? 'Removing…' : 'Remove'}</Text>
                     </TouchableOpacity>
-                  ) : null}
-                  <TouchableOpacity onPress={() => handleRemove(connection)} hitSlop={8} disabled={busyId === connection.id}>
-                    <Text style={styles.rowActionTextDanger}>{busyId === connection.id ? 'Removing…' : 'Remove'}</Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
-          </View>
-        ))
-      )}
-    </ScrollView>
+                  </View>
+                </>
+              )}
+            </View>
+          ))
+        )}
+      </ScrollView>
+    </CalmBands>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { gap: HOME_BAND_GAP },
+  content: { gap: HOME_BAND_ACCENT_WIDTH },
   fingerprintCard: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: colors.tabProfile,
     padding: HOME_BAND_CONTENT_PADDING,
     gap: 6,
@@ -960,6 +963,7 @@ const styles = StyleSheet.create({
   // makeTabBandStyles gives every tab's lens headings.
   headingBand: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: colors.tabProfile,
     backgroundColor: colors.surfaceMuted,
     paddingVertical: 10,
@@ -1005,6 +1009,7 @@ const styles = StyleSheet.create({
   // strip beside three links.
   row: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: colors.tabProfile,
     padding: HOME_BAND_CONTENT_PADDING,
     gap: 10,

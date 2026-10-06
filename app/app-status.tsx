@@ -10,7 +10,7 @@ import { Stack } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
+import { CalmBands, HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, homeBandNoHairlines, homeBandStyle } from '../components/HomeSectionBand';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
@@ -82,83 +82,86 @@ export default function AppStatusScreen() {
     : [];
 
   return (
-    <View style={styles.screen}>
-      <Stack.Screen options={{ title: 'App Status' }} />
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
-        <View style={styles.card}>
-          <Text style={styles.heading}>This device</Text>
-          {problem ? <Text style={styles.caption}>{problem}</Text> : null}
-          {!facts && !problem ? <Text style={styles.caption}>Reading…</Text> : null}
-          {lines.map((line) => (
-            <View key={line.label} style={styles.row}>
-              <Ionicons name={TONE_ICON[line.tone]} size={18} color={toneColor(line.tone)} style={textShadow} />
-              <View style={styles.rowMain}>
-                <Text style={styles.rowTitle}>{line.label}</Text>
-                <Text style={styles.caption}>{line.value}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
-
-        {facts ? (
+    <CalmBands>
+      <View style={styles.screen}>
+        <Stack.Screen options={{ title: 'App Status' }} />
+        <ScrollView contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
           <View style={styles.card}>
-            <Text style={styles.heading}>If a reminder did not come</Text>
-            <Text style={styles.caption}>
-              The phone keeps no record of what it showed, so this cannot say why one reminder was missed. These are
-              the reasons it could have been, worth checking in this order.
-            </Text>
-            {reminderDiagnosis(facts.reminders).map((reason) => (
-              <View key={reason} style={styles.row}>
-                <Ionicons name="ellipse-outline" size={10} color={colors.textSecondary} style={textShadow} />
-                <Text style={[styles.caption, styles.rowMain]}>{reason}</Text>
+            <Text style={styles.heading}>This device</Text>
+            {problem ? <Text style={styles.caption}>{problem}</Text> : null}
+            {!facts && !problem ? <Text style={styles.caption}>Reading…</Text> : null}
+            {lines.map((line) => (
+              <View key={line.label} style={styles.row}>
+                <Ionicons name={TONE_ICON[line.tone]} size={18} color={toneColor(line.tone)} style={textShadow} />
+                <View style={styles.rowMain}>
+                  <Text style={styles.rowTitle}>{line.label}</Text>
+                  <Text style={styles.caption}>{line.value}</Text>
+                </View>
               </View>
             ))}
           </View>
-        ) : null}
 
-        {facts && facts.reminders.phone ? (
-          <View style={styles.card}>
-            <Text style={styles.heading}>Queued right now</Text>
-            {facts.queued.length === 0 ? (
-              <Text style={styles.caption}>Nothing is queued with the phone.</Text>
-            ) : (
-              <>
-                {facts.queued.slice(0, QUEUED_SHOWN).map((queued, index) => (
-                  <View key={`${queued.fireAt.getTime()}-${index}`} style={styles.row}>
-                    <Ionicons
-                      name={queued.snoozed ? 'alarm-outline' : 'notifications-outline'}
-                      size={16}
-                      color={colors.tabProfile}
-                      style={textShadow}
-                    />
-                    <View style={styles.rowMain}>
-                      <Text style={styles.rowTitle}>{queued.title}</Text>
-                      <Text style={styles.caption}>
-                        {queued.fireAt.toLocaleString()}
-                        {queued.snoozed ? ', snoozed' : ''}
-                      </Text>
+          {facts ? (
+            <View style={styles.card}>
+              <Text style={styles.heading}>If a reminder did not come</Text>
+              <Text style={styles.caption}>
+                The phone keeps no record of what it showed, so this cannot say why one reminder was missed. These are
+                the reasons it could have been, worth checking in this order.
+              </Text>
+              {reminderDiagnosis(facts.reminders).map((reason) => (
+                <View key={reason} style={styles.row}>
+                  <Ionicons name="ellipse-outline" size={10} color={colors.textSecondary} style={textShadow} />
+                  <Text style={[styles.caption, styles.rowMain]}>{reason}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
+
+          {facts && facts.reminders.phone ? (
+            <View style={styles.card}>
+              <Text style={styles.heading}>Queued right now</Text>
+              {facts.queued.length === 0 ? (
+                <Text style={styles.caption}>Nothing is queued with the phone.</Text>
+              ) : (
+                <>
+                  {facts.queued.slice(0, QUEUED_SHOWN).map((queued, index) => (
+                    <View key={`${queued.fireAt.getTime()}-${index}`} style={styles.row}>
+                      <Ionicons
+                        name={queued.snoozed ? 'alarm-outline' : 'notifications-outline'}
+                        size={16}
+                        color={colors.tabProfile}
+                        style={textShadow}
+                      />
+                      <View style={styles.rowMain}>
+                        <Text style={styles.rowTitle}>{queued.title}</Text>
+                        <Text style={styles.caption}>
+                          {queued.fireAt.toLocaleString()}
+                          {queued.snoozed ? ', snoozed' : ''}
+                        </Text>
+                      </View>
                     </View>
-                  </View>
-                ))}
-                {facts.queued.length > QUEUED_SHOWN ? (
-                  <Text style={styles.caption}>
-                    And {facts.queued.length - QUEUED_SHOWN} more after these.
-                  </Text>
-                ) : null}
-              </>
-            )}
-          </View>
-        ) : null}
-      </ScrollView>
-    </View>
+                  ))}
+                  {facts.queued.length > QUEUED_SHOWN ? (
+                    <Text style={styles.caption}>
+                      And {facts.queued.length - QUEUED_SHOWN} more after these.
+                    </Text>
+                  ) : null}
+                </>
+              )}
+            </View>
+          ) : null}
+        </ScrollView>
+      </View>
+    </CalmBands>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { gap: HOME_BAND_GAP },
+  content: { gap: HOME_BAND_ACCENT_WIDTH },
   card: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: colors.tabProfile,
     padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,

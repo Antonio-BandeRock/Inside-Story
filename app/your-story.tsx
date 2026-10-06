@@ -22,7 +22,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
+import { CalmBands, HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandNoHairlines, homeBandStyle } from '../components/HomeSectionBand';
 import { YourStoryGuides } from '../components/YourStoryGuides';
 import { YourStoryInterview } from '../components/YourStoryInterview';
 import { YourStorySection, useStoryGo, useYourStory } from '../components/YourStorySection';
@@ -54,51 +54,53 @@ export default function YourStoryScreen() {
   const initiallyOpen = ready ? asked ?? currentGuideKey(view, guides) : null;
 
   return (
-    <View style={styles.screen}>
-      <Stack.Screen options={{ title: 'Your Story' }} />
-      <ScrollView ref={scrollRef} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
-        <View style={styles.leadBox}>
-          <Text style={styles.heading}>{view?.heading ?? 'Your Story'}</Text>
-          <Text style={styles.lead}>
-            The app asks what it needs first, then shows what each tab is for and how to get started with it. Below
-            those are the guides, one for each part of your life, and then your paper section by section. Every line
-            takes you straight there.
-          </Text>
-        </View>
-        <YourStoryInterview mode="page" interview={interview} onChanged={() => void reload()} go={go} />
-        {switchedOn.length > 0 ? (
+    <CalmBands>
+      <View style={styles.screen}>
+        <Stack.Screen options={{ title: 'Your Story' }} />
+        <ScrollView ref={scrollRef} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
           <View style={styles.leadBox}>
-            <Text style={styles.heading}>{SWITCHED_ON_HEADING}</Text>
-            {switchedOn.map((item) => (
-              <Text key={item.key} style={styles.lead}>
-                {item.line}
-              </Text>
-            ))}
+            <Text style={styles.heading}>{view?.heading ?? 'Your Story'}</Text>
+            <Text style={styles.lead}>
+              The app asks what it needs first, then shows what each tab is for and how to get started with it. Below
+              those are the guides, one for each part of your life, and then your paper section by section. Every line
+              takes you straight there.
+            </Text>
           </View>
-        ) : null}
-        {interview ? <YourStoryTour tour={interview.tour} go={go} /> : null}
-        {ready ? (
-          <YourStoryGuides
-            guides={guides}
-            initiallyOpen={initiallyOpen}
-            go={go}
-            onChanged={() => void reload()}
-            onGuideLayout={onGuideLayout}
-          />
-        ) : null}
-        <View style={styles.leadBox}>
-          <Text style={styles.heading}>Your paper, section by section</Text>
-        </View>
-        <YourStorySection mode="page" view={view} onChanged={() => void reload()} />
-      </ScrollView>
-    </View>
+          <YourStoryInterview mode="page" interview={interview} onChanged={() => void reload()} go={go} />
+          {switchedOn.length > 0 ? (
+            <View style={styles.leadBox}>
+              <Text style={styles.heading}>{SWITCHED_ON_HEADING}</Text>
+              {switchedOn.map((item) => (
+                <Text key={item.key} style={styles.lead}>
+                  {item.line}
+                </Text>
+              ))}
+            </View>
+          ) : null}
+          {interview ? <YourStoryTour tour={interview.tour} go={go} /> : null}
+          {ready ? (
+            <YourStoryGuides
+              guides={guides}
+              initiallyOpen={initiallyOpen}
+              go={go}
+              onChanged={() => void reload()}
+              onGuideLayout={onGuideLayout}
+            />
+          ) : null}
+          <View style={styles.leadBox}>
+            <Text style={styles.heading}>Your paper, section by section</Text>
+          </View>
+          <YourStorySection mode="page" view={view} onChanged={() => void reload()} />
+        </ScrollView>
+      </View>
+    </CalmBands>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  content: { gap: HOME_BAND_GAP },
-  leadBox: { ...homeBandStyle, borderColor: colors.primary, padding: HOME_BAND_CONTENT_PADDING, gap: 6 },
+  content: { gap: HOME_BAND_ACCENT_WIDTH },
+  leadBox: { ...homeBandStyle, ...homeBandNoHairlines, borderColor: colors.primary, padding: HOME_BAND_CONTENT_PADDING, gap: 6 },
   heading: { ...typography.sectionTitle, color: colors.textPrimary, ...textShadow },
   lead: { ...typography.body, color: colors.textSecondary, ...textShadow },
 });

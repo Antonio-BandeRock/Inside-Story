@@ -3,7 +3,7 @@ import { ActivityIndicator, Linking, ScrollView, StyleSheet, Text, TouchableOpac
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
+import { CalmBands, HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, homeBandNoHairlines, homeBandStyle } from '../components/HomeSectionBand';
 import {
   AssessmentDomain,
   AssessmentItem,
@@ -220,76 +220,49 @@ export default function AssessmentScreen() {
   }
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
-      <View style={styles.introBox}>
-        <Text style={styles.intro}>
-          Answer as many as feel relevant; you don&apos;t have to finish every question for this to be useful. Retake
-          this any time; that&apos;s what turns today&apos;s snapshot into a trend.
-        </Text>
-        <Text style={styles.progressText}>
-          {answeredCount} of {items.length + chosenItemCount} answered
-        </Text>
-      </View>
-
-      <View style={styles.domainCard}>
-        <Text style={styles.domainTitle}>Published questionnaires</Text>
-        <Text style={styles.domainDescription}>{QUESTIONNAIRES_INTRO}</Text>
-        <View style={styles.scaleRow}>
-          {QUESTIONNAIRES.map((q) => {
-            const active = chosen.includes(q.code);
-            return (
-              <TouchableOpacity
-                key={q.code}
-                style={[styles.scalePill, active && styles.scalePillActive]}
-                onPress={() => toggleQuestionnaire(q.code)}
-                accessibilityRole="switch"
-                accessibilityState={{ checked: active }}
-              >
-                <Text style={[styles.scalePillText, active && styles.scalePillTextActive]}>{q.chip}</Text>
-              </TouchableOpacity>
-            );
-          })}
+    <CalmBands>
+      <ScrollView style={styles.screen} contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
+        <View style={styles.introBox}>
+          <Text style={styles.intro}>
+            Answer as many as feel relevant; you don&apos;t have to finish every question for this to be useful. Retake
+            this any time; that&apos;s what turns today&apos;s snapshot into a trend.
+          </Text>
+          <Text style={styles.progressText}>
+            {answeredCount} of {items.length + chosenItemCount} answered
+          </Text>
         </View>
-      </View>
 
-      {domains.map((domain) => (
-        <View key={domain.code} style={styles.domainCard}>
-          <Text style={styles.domainTitle}>{domain.displayName}</Text>
-          <Text style={styles.domainDescription}>{domain.description}</Text>
-
-          {(itemsByDomain.get(domain.code) ?? []).map((item) => (
-            <View key={item.code} style={styles.itemBlock}>
-              <Text style={styles.itemPrompt}>{item.prompt}</Text>
-              <View style={styles.scaleRow}>
-                {optionsForResponseType(item.responseType).map((option) => {
-                  const active = responses[item.code] === option.value;
-                  return (
-                    <TouchableOpacity
-                      key={option.value}
-                      style={[styles.scalePill, active && styles.scalePillActive]}
-                      onPress={() => selectResponse(item.code, option.value)}
-                    >
-                      <Text style={[styles.scalePillText, active && styles.scalePillTextActive]}>{option.label}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </View>
-          ))}
+        <View style={styles.domainCard}>
+          <Text style={styles.domainTitle}>Published questionnaires</Text>
+          <Text style={styles.domainDescription}>{QUESTIONNAIRES_INTRO}</Text>
+          <View style={styles.scaleRow}>
+            {QUESTIONNAIRES.map((q) => {
+              const active = chosen.includes(q.code);
+              return (
+                <TouchableOpacity
+                  key={q.code}
+                  style={[styles.scalePill, active && styles.scalePillActive]}
+                  onPress={() => toggleQuestionnaire(q.code)}
+                  accessibilityRole="switch"
+                  accessibilityState={{ checked: active }}
+                >
+                  <Text style={[styles.scalePillText, active && styles.scalePillTextActive]}>{q.chip}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
-      ))}
 
-      {chosen.map((code) => {
-        const q = questionnaire(code);
-        return (
-          <View key={q.code} style={styles.domainCard}>
-            <Text style={styles.domainTitle}>{q.title}</Text>
-            <Text style={styles.domainDescription}>{q.stem}</Text>
-            {q.items.map((item) => (
+        {domains.map((domain) => (
+          <View key={domain.code} style={styles.domainCard}>
+            <Text style={styles.domainTitle}>{domain.displayName}</Text>
+            <Text style={styles.domainDescription}>{domain.description}</Text>
+
+            {(itemsByDomain.get(domain.code) ?? []).map((item) => (
               <View key={item.code} style={styles.itemBlock}>
                 <Text style={styles.itemPrompt}>{item.prompt}</Text>
                 <View style={styles.scaleRow}>
-                  {choicesFor(q, item).map((option) => {
+                  {optionsForResponseType(item.responseType).map((option) => {
                     const active = responses[item.code] === option.value;
                     return (
                       <TouchableOpacity
@@ -304,19 +277,48 @@ export default function AssessmentScreen() {
                 </View>
               </View>
             ))}
-            <Text style={styles.framingNote}>{q.source}</Text>
           </View>
-        );
-      })}
+        ))}
 
-      <TouchableOpacity
-        style={[styles.submitButton, answeredCount === 0 && styles.submitButtonDisabled]}
-        onPress={handleSubmit}
-        disabled={answeredCount === 0 || submitting}
-      >
-        <Text style={styles.submitButtonText}>{submitting ? 'Saving…' : 'Save check-in'}</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        {chosen.map((code) => {
+          const q = questionnaire(code);
+          return (
+            <View key={q.code} style={styles.domainCard}>
+              <Text style={styles.domainTitle}>{q.title}</Text>
+              <Text style={styles.domainDescription}>{q.stem}</Text>
+              {q.items.map((item) => (
+                <View key={item.code} style={styles.itemBlock}>
+                  <Text style={styles.itemPrompt}>{item.prompt}</Text>
+                  <View style={styles.scaleRow}>
+                    {choicesFor(q, item).map((option) => {
+                      const active = responses[item.code] === option.value;
+                      return (
+                        <TouchableOpacity
+                          key={option.value}
+                          style={[styles.scalePill, active && styles.scalePillActive]}
+                          onPress={() => selectResponse(item.code, option.value)}
+                        >
+                          <Text style={[styles.scalePillText, active && styles.scalePillTextActive]}>{option.label}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </View>
+              ))}
+              <Text style={styles.framingNote}>{q.source}</Text>
+            </View>
+          );
+        })}
+
+        <TouchableOpacity
+          style={[styles.submitButton, answeredCount === 0 && styles.submitButtonDisabled]}
+          onPress={handleSubmit}
+          disabled={answeredCount === 0 || submitting}
+        >
+          <Text style={styles.submitButtonText}>{submitting ? 'Saving…' : 'Save check-in'}</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </CalmBands>
   );
 }
 
@@ -517,11 +519,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.background,
   },
-  container: { gap: HOME_BAND_GAP },
+  container: { gap: HOME_BAND_ACCENT_WIDTH },
   // The intro sits on a band of its own, with the answered count under it,
   // since nothing sits on the screen without a surface.
   introBox: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: colors.tabProfile,
     padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,
@@ -541,6 +544,7 @@ const styles = StyleSheet.create({
   // makeTabBandStyles gives every tab's lens headings.
   headingBand: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: colors.tabProfile,
     backgroundColor: colors.surfaceMuted,
     paddingVertical: 10,
@@ -548,6 +552,7 @@ const styles = StyleSheet.create({
   },
   domainCard: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: colors.tabProfile,
     padding: HOME_BAND_CONTENT_PADDING,
   },
