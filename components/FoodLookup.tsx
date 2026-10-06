@@ -3,7 +3,7 @@ import { SectionList, StyleSheet, Text, TouchableOpacity, View, useWindowDimensi
 import { useRouter } from 'expo-router';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors } from '../constants/colors';
-import { NAVIGATION_HAND, useFooterBandHeight } from '../constants/floatingButton';
+import { useFooterBandHeight } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import {
   getConditionStages,
@@ -66,6 +66,7 @@ import { InlineSearchSelectList } from './InlineSearchSelectList';
 import { InlineSelectList } from './InlineSelectList';
 import { useScreenHeaderHeight } from './ScreenHeader';
 import { VoiceInputButton } from './VoiceInputButton';
+import { useNavigationHand } from '../lib/navigationHand';
 
 const NUTRIENT_GROUP_LABELS: Record<string, string> = {
   macro: 'Macronutrients',
@@ -690,6 +691,7 @@ export function FoodLookup({
   // unrequested duplication, not a fix.
   personalize?: PersonalizationProfile;
 }) {
+  const navigationHand = useNavigationHand();
   const [categories, setCategories] = useState<string[]>([]);
   // Which real "food group" tile (see FOOD_CATEGORY_GROUPS above) is
   // currently opened, revealing its own real categories as the next
@@ -1614,7 +1616,7 @@ export function FoodLookup({
               navigation setting, and closest to the right hand for right
               hand navigation." Same real reasoning
               useReorderedLabeledFields already applies elsewhere in this
-              app -- the mic sits nearest wherever NAVIGATION_HAND says the
+              app -- the mic sits nearest wherever the navigation hand says the
               person's own thumb naturally rests. */}
           <View style={styles.voiceFoodHeaderRow}>
             {/* autoStart, 2026-08-17, direct report: "instead of the
@@ -1631,7 +1633,7 @@ export function FoodLookup({
                 harvest logging) leaves restrictToSource unset, so this stays
                 false there -- the mic never starts listening on its own
                 without a real, explicit choice behind it. */}
-            {NAVIGATION_HAND === 'left' ? (
+            {navigationHand === 'left' ? (
               <>
                 <VoiceInputButton
                   onResult={handleGlobalVoiceResult}

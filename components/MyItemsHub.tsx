@@ -6,6 +6,7 @@ import { colors } from '../constants/colors';
 import {
   FLOATING_BUTTON_BOTTOM_OFFSET,
   FLOATING_BUTTON_SIZE,
+  mirrorForHand,
   useBottomLeftHubPosition,
   useMenuCardBottom,
   useMenuCardFit,
@@ -14,6 +15,7 @@ import {
 import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
 import { MENU_MAX_FONT_SCALE, textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
+import { useNavigationHand } from '../lib/navigationHand';
 import { ActiveRingCircle } from './ActiveRingCircle';
 import { useHubHandoff } from './HubHandoff';
 import { modalAnimationType } from '../lib/visualPreferences';
@@ -151,7 +153,12 @@ export function MyItemsHub({
     }
     previousOpenRef.current = open;
   });
-  const { left: lensHubLeft } = useBottomLeftHubPosition();
+  const { left: placedLensHubLeft } = useBottomLeftHubPosition();
+  // Worked out on the left-hand layout and mirrored at the end, so the
+  // button stays centered in the gap between LensHub and TabHub on either
+  // hand.
+  const hand = useNavigationHand();
+  const lensHubLeft = mirrorForHand(placedLensHubLeft, FLOATING_BUTTON_SIZE, windowWidth, hand);
   const cardBottom = useMenuCardBottom();
   // The phone's left margin, or over LensHub's button on desktop, the same
   // left as LensHub's card: see useSecondaryHubCardLeft in
@@ -187,7 +194,7 @@ export function MyItemsHub({
   // width, so half of it is its real edge.
   const tabHubLeft = windowWidth / 2 - tabHubIconWidth / 2;
   const gapMidpointX = (lensHubRight + tabHubLeft) / 2;
-  const buttonLeft = gapMidpointX - TOUCH_SIZE / 2;
+  const buttonLeft = mirrorForHand(gapMidpointX - TOUCH_SIZE / 2, TOUCH_SIZE, windowWidth, hand);
   // Vertically centered within the same 60px-tall row LensHub/TabHub's own
   // buttons occupy, rather than sharing their `bottom` directly (this
   // button is shorter than that row, so bottom-aligning it would sit its

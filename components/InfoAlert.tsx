@@ -1,9 +1,9 @@
 import { useCallback, useState, type ReactNode } from 'react';
 import { Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/colors';
-import { NAVIGATION_HAND } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { modalAnimationType } from '../lib/visualPreferences';
+import { useNavigationHand } from '../lib/navigationHand';
 
 type InfoAlertRequest = { title: string; message: string };
 
@@ -48,7 +48,7 @@ export function linkifyText(text: string, linkStyle: object = styles.link): Reac
 // is meant to be the template every future lookup-style screen on other
 // tabs reuses, not a one-off. Unlike the OS's own Alert.alert, this is a
 // real <Modal> drawn by the app itself, which is what lets its OK button be
-// hand-aware -- mirrored to whichever side NAVIGATION_HAND says the
+// hand-aware -- mirrored to whichever side the navigation hand says the
 // person's thumb rests on, the same idea as AppKeyboard's own Next/Done
 // row -- something a real system alert's own button placement can never be
 // told to do.
@@ -57,6 +57,7 @@ export function linkifyText(text: string, linkStyle: object = styles.link): Reac
 // call showInfoAlert(title, message) from any onPress, and render
 // {infoAlertElement} once, anywhere, in that same component's JSX.
 export function useInfoAlert(): [(title: string, message: string) => void, ReactNode] {
+  const navigationHand = useNavigationHand();
   const [request, setRequest] = useState<InfoAlertRequest | null>(null);
 
   // useCallback with empty deps -- setRequest is React's own stable
@@ -84,10 +85,10 @@ export function useInfoAlert(): [(title: string, message: string) => void, React
             <Text style={styles.message}>{request ? linkifyText(request.message) : null}</Text>
           </ScrollView>
           {/* Mirrors AppKeyboard's own Next/Done row -- whichever side
-              NAVIGATION_HAND says the person's thumb rests on is where OK
+              the navigation hand says the person's thumb rests on is where OK
               sits, rather than a fixed corner every hand has to reach
               across for. */}
-          <View style={[styles.buttonRow, { justifyContent: NAVIGATION_HAND === 'left' ? 'flex-start' : 'flex-end' }]}>
+          <View style={[styles.buttonRow, { justifyContent: navigationHand === 'left' ? 'flex-start' : 'flex-end' }]}>
             <Pressable style={styles.okButton} onPress={close} hitSlop={8}>
               <Text style={styles.okButtonText}>OK</Text>
             </Pressable>

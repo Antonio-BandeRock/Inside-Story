@@ -6,13 +6,13 @@ import { colors } from '../constants/colors';
 import {
   FLOATING_BUTTON_BOTTOM_OFFSET,
   FLOATING_BUTTON_SIZE,
-  NAVIGATION_HAND,
   SECONDARY_HUB_CARD_LEFT_MARGIN,
 } from '../constants/floatingButton';
 import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
 import { pinnedLineHeight, textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
+import { useNavigationHand } from '../lib/navigationHand';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { pageIdentityBoxSpan } from '../lib/menuFit';
 import { reportTellClaudeScreen } from '../lib/tellClaude';
@@ -64,10 +64,10 @@ import { TabRouteIcon } from './TabRouteIcon';
 //   `bodyContent: { padding: 16 }`) -- this box's far edge reaches
 //   exactly as far as any of those already do, no further.
 //
-// Left/right sides swap with NAVIGATION_HAND, not hardcoded to the right
+// Left/right sides swap with the navigation hand, not hardcoded to the right
 // -- today (hand: 'left') the hub buttons cluster left of the butterfly
 // and this box sits on the right, same as it always has. If that deferred
-// handedness toggle (see NAVIGATION_HAND's own comment) ever actually
+// handedness toggle (see lib/navigationHand.ts's comment) ever actually
 // flips to 'right', the buttons would cluster right of the butterfly
 // instead, and this box needs to become a true mirror image on the left
 // -- not just re-centered, its near/far edges swap sides too.
@@ -82,7 +82,7 @@ import { TabRouteIcon } from './TabRouteIcon';
 //
 // TabHub's own button is alignSelf: 'center' with no other horizontal inset in
 // play, so it (and whichever icon is centered around it, symmetrically wider on
-// both sides) sits centered on windowWidth/2, regardless of NAVIGATION_HAND --
+// both sides) sits centered on windowWidth/2, regardless of the navigation hand --
 // only which SIDE the hub buttons cluster on (and which side this box mirrors
 // to) depends on that.
 //
@@ -95,6 +95,7 @@ import { TabRouteIcon } from './TabRouteIcon';
 // it; a phone's span is unchanged.
 export function usePageIdentityBoxSpan(): { left: number; right: number } {
   const { width: windowWidth } = useWindowDimensions();
+  const hand = useNavigationHand();
   const { tabHubIcon } = useVisualPreferences();
   const { width: buttonIconWidth, bottomOverhang } = getTabHubIconRenderSize(tabHubIcon);
   const buttonIconOverhangY = Math.max(0, Math.ceil(bottomOverhang));
@@ -107,7 +108,7 @@ export function usePageIdentityBoxSpan(): { left: number; right: number } {
     desktop: isDesktopApp(),
   });
   // The mirror image for the other hand: the near and far edges swap sides.
-  return NAVIGATION_HAND === 'left' ? span : { left: span.right, right: span.left };
+  return hand === 'left' ? span : { left: span.right, right: span.left };
 }
 
 // 2026-09-18, direct: "The lower right corner box that tells you where you

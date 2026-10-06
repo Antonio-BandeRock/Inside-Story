@@ -10,6 +10,7 @@ import {
   type HubMenuCardSpan,
   type MenuCardFit,
 } from '@/lib/menuFit';
+import { useNavigationHand } from '@/lib/navigationHand';
 
 // Shared sizing/position for the app's bottom-center floating buttons --
 // TabHub's own button and HelpSheet's close button both anchor to the
@@ -146,9 +147,18 @@ export const SECONDARY_HUB_CARD_LEFT_MARGIN = 16;
 export function useSecondaryHubPosition(slotIndex: number): { bottom: number; left: number } {
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
+  const hand = useNavigationHand();
   const bottom = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET;
   const left = windowWidth / 2 - FLOATING_BUTTON_SIZE / 2 - (slotIndex + 1) * (SECONDARY_HUB_GAP + FLOATING_BUTTON_SIZE);
-  return { bottom, left };
+  return { bottom, left: mirrorForHand(left, FLOATING_BUTTON_SIZE, windowWidth, hand) };
+}
+
+// Where a box at `left` with width `width` belongs for the hand working
+// the navigation: unchanged for the left hand, and the same distance from
+// the right edge for the right hand. Every hub position goes through this,
+// so the whole cluster moves across together.
+export function mirrorForHand(left: number, width: number, windowWidth: number, hand: 'left' | 'right'): number {
+  return hand === 'left' ? left : windowWidth - left - width;
 }
 
 // A hub anchored to the screen's true bottom-LEFT corner (not just "one
@@ -171,6 +181,7 @@ export function useSecondaryHubPosition(slotIndex: number): { bottom: number; le
 export function useBottomLeftHubPosition(): { bottom: number; left: number } {
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
+  const hand = useNavigationHand();
   const bottom = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET;
   const left = cornerHubLeft({
     windowWidth,
@@ -179,7 +190,7 @@ export function useBottomLeftHubPosition(): { bottom: number; left: number } {
     cornerMargin: SECONDARY_HUB_CARD_LEFT_MARGIN,
     nearTabHub: isDesktopApp(),
   });
-  return { bottom, left };
+  return { bottom, left: mirrorForHand(left, FLOATING_BUTTON_SIZE, windowWidth, hand) };
 }
 
 // Where a hub menu card (TabHub's, LensHub's) sets its `left` and `width`:
@@ -200,26 +211,26 @@ export function useHubMenuCardSpan(): HubMenuCardSpan {
 // 1.0.42.22, when it took the hub menu span above.
 export function useSecondaryHubCardLeft(cardWidth: number): number {
   const { width: windowWidth } = useWindowDimensions();
-  const { left: buttonLeft } = useBottomLeftHubPosition();
-  return secondaryHubCardLeft({
+  const hand = useNavigationHand();
+  const { left: placedLeft } = useBottomLeftHubPosition();
+  // Worked out on the left-hand layout, then mirrored, so the card opens
+  // over its button from whichever corner that button is in.
+  const buttonLeft = mirrorForHand(placedLeft, FLOATING_BUTTON_SIZE, windowWidth, hand);
+  const left = secondaryHubCardLeft({
     windowWidth,
     cardWidth,
     buttonLeft,
     leftMargin: SECONDARY_HUB_CARD_LEFT_MARGIN,
     nearTabHub: isDesktopApp(),
   });
+  return mirrorForHand(left, cardWidth, windowWidth, hand);
 }
 
-// The deferred left/right-handed layout toggle (see CLAUDE.md's Next
-// Steps -- "revisit left/right-handed layout switching... toward the end
-// of the project") doesn't exist yet as a real setting. Hardcoded to
-// 'left' for now, matching the floating hubs' actual current behavior
-// (TabHub/LensHub/ScopeHub cluster toward the left edge for a left thumb's
-// sweep -- see LensHub's own comment). This is the one flag anything that
-// needs to know "which side are the buttons on" should read, so that when
-// a real handedness setting eventually exists, it's a single value to wire
-// up rather than a search-and-replace across every position calculation.
-export const NAVIGATION_HAND: 'left' | 'right' = 'left';
+// Which hand works the navigation is a live, per-device setting since
+// 1.0.61.13: lib/navigationHand.ts (getNavigationHand, useNavigationHand),
+// switched by components/HandSwitchButton.tsx. It replaced the
+// NAVIGATION_HAND constant that stood here. Anything that needs to know
+// which side the buttons are on reads the hook, so it redraws on a switch.
 
 // How much room to leave below the LAST piece of real content on any
 // scrollable screen, so it can always be scrolled clear of whichever

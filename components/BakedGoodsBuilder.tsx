@@ -6,7 +6,7 @@ import Animated, { LinearTransition } from 'react-native-reanimated';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { BAKED_GOODS_BUILDER_CATEGORIES } from '../constants/foodBuilderCategories';
-import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
+import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, homeBandNoHairlines, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
 import { textShadow, typography } from '../constants/typography';
 import {
@@ -56,6 +56,7 @@ import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { StepsEditor } from './StepsEditor';
 import { ConditionNoteRow } from './ConditionNoteRow';
+import { useNavigationHand } from '../lib/navigationHand';
 
 // Common home-cooking units -- a plain pill row, not InlineSelectList's own
 // scrollable-box treatment, since this is a short, fixed set (unlike
@@ -292,7 +293,7 @@ type LabeledPickerField = {
 // person filling several of these in on the same row doesn't have to keep
 // moving their thumb to wherever the next still-blank one happens to sit.
 // As each field is filled in, it slides to the far end of the row -- away
-// from wherever NAVIGATION_HAND says the person's thumb naturally rests --
+// from wherever the navigation hand says the person's thumb naturally rests --
 // so whatever's still blank stays clustered at the near side. Once every
 // field in the row has a value, the whole row snaps back to its original,
 // declared order (there's nothing left to reach for at that point, so the
@@ -308,6 +309,7 @@ type LabeledPickerField = {
 // by construction (the `includes` guard below), so this is safe even
 // under React StrictMode's dev-only double-render.
 function useReorderedLabeledFields(fields: LabeledPickerField[]): LabeledPickerField[] {
+  const navigationHand = useNavigationHand();
   const completionOrderRef = useRef<string[]>([]);
 
   // Appends any field that's newly selected since the last render: never
@@ -335,11 +337,11 @@ function useReorderedLabeledFields(fields: LabeledPickerField[]): LabeledPickerF
     .map((label) => fields.find((field) => field.label === label))
     .filter((field): field is LabeledPickerField => field !== undefined);
 
-  // Left hand rests toward the left edge (see NAVIGATION_HAND's own
+  // Left hand rests toward the left edge (see lib/navigationHand.ts's
   // comment), so completed fields move OUT toward the right, keeping
   // still-blank ones on the left, closer to the thumb -- and the reverse
   // for right-handed nav.
-  return NAVIGATION_HAND === 'left'
+  return navigationHand === 'left'
     ? [...notYetSelected, ...selectedInCompletionOrder]
     : [...selectedInCompletionOrder, ...notYetSelected];
 }
@@ -443,6 +445,7 @@ export function BakedGoodsBuilder({
   fromFavoriteId?: string;
   openRecipeId?: string;
 }) {
+  const navigationHand = useNavigationHand();
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const activeField = useActiveField();
@@ -1708,7 +1711,7 @@ export function BakedGoodsBuilder({
     }
 
     // Nothing chosen yet -- the collapsed baked good/ingredients card
-    // (point 2) plus a real, NAVIGATION_HAND-aware "Add Ingredients" button
+    // (point 2) plus a real, hand-aware "Add Ingredients" button
     // (points 3/5) opening the 3-way source chooser.
     return (
       <View style={styles.pickerScreen}>
@@ -1725,7 +1728,7 @@ export function BakedGoodsBuilder({
           style={[
             styles.addIngredientsButton,
             { borderColor: tabColor },
-            NAVIGATION_HAND === 'left' ? styles.addIngredientsButtonLeft : styles.addIngredientsButtonRight,
+            navigationHand === 'left' ? styles.addIngredientsButtonLeft : styles.addIngredientsButtonRight,
           ]}
           onPress={openIngredientSourceChooser}
         >
@@ -1823,7 +1826,7 @@ export function BakedGoodsBuilder({
               (via formInput) now live on the outer wrap instead;
               dishNameInputEmbedded strips them back off the input so
               nothing doubles up. This also makes the field's own left edge
-              genuinely constant regardless of NAVIGATION_HAND (the mic now
+              genuinely constant regardless of the navigation hand (the mic now
               only reorders WITHIN the box, it no longer sits outside it
               pushing the box itself over) -- so the label above no longer
               needs its own hand-computed left offset the prior fix required;
@@ -2671,7 +2674,7 @@ const styles = StyleSheet.create({
   // fixed frame), but the reasoning -- keep the row's own real width
   // trimmed rather than device-checking a breakpoint -- still holds.
   // space-between lived here 2026-07-31 to 2026-08-01 -- explicitly
-  // reverted the same day the fields themselves gained NAVIGATION_HAND-
+  // reverted the same day the fields themselves gained hand-
   // aware reordering (see useReorderedLabeledFields, this file's own
   // top). Spreading fields evenly across the row fought that reordering
   // visually: a field that just slid to the "away" end still needs to
@@ -2744,7 +2747,7 @@ const styles = StyleSheet.create({
   },
   // "Add Ingredients," 2026-08-17 (points 3/5) -- half the width of the
   // collapsible baked-good/ingredients card above it, and pinned to
-  // whichever side NAVIGATION_HAND says the person's own thumb naturally
+  // whichever side the navigation hand says the person's own thumb naturally
   // rests, the same real hand-awareness reasoning
   // useReorderedLabeledFields already applies to the picker fields
   // elsewhere in this file.

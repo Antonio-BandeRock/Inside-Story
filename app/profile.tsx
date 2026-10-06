@@ -267,6 +267,7 @@ import { PRIVACY_URL, TERMS_URL } from '../lib/agreement';
 import { GHOSTEAD_URL } from '../lib/ghostead';
 import { wording } from '../lib/playfulCopy';
 import { VoicePackPanel } from '../components/VoicePackPanel';
+import { setNavigationHand, useNavigationHand } from '../lib/navigationHand';
 
 // Whether a backup that has been reached is restored or only checked.
 type BackupUse = 'restore' | 'check';
@@ -1081,6 +1082,7 @@ export default function ProfileScreen() {
   // background and each tab's own revealed background immediately, with no
   // extra local state to keep in sync.
   const visualPrefs = useVisualPreferences();
+  const navigationHand = useNavigationHand();
   const playful = visualPrefs.playfulWording;
   // The hidden touch on the version line in App Updates: a long press shows
   // the mug from the Ghostead trailer. Nothing at all with plain wording.
@@ -5032,6 +5034,27 @@ export default function ProfileScreen() {
             >
               <Text style={styles.replayWelcomeButtonText}>Show the Welcome Again</Text>
             </TouchableOpacity>
+
+            {/* 1.0.61.13: the same choice the navigation switch button makes
+                (components/HandSwitchButton.tsx), for anybody who would rather
+                pick it here than hold a button. Kept on this device only. */}
+            <View style={styles.subLabelDivided}>
+              <Text style={styles.subLabel}>Navigation Hand</Text>
+            </View>
+            <Text style={styles.helpText}>
+              Which thumb works the menu buttons. They sit in the bottom corner on that side, and the small switch
+              tab just above the footer sits on the other side. Holding that tab switches sides from any screen.
+            </Text>
+            <PickerField label="Navigation hand">
+              <PopoverSelect
+                options={['Left Hand', 'Right Hand']}
+                selected={navigationHand === 'left' ? 'Left Hand' : 'Right Hand'}
+                minWidth={150}
+                tabColor={colors.menuIconMuted}
+                groundSurface
+                onSelect={(label) => setNavigationHand(label === 'Right Hand' ? 'right' : 'left')}
+              />
+            </PickerField>
 
             {renderAppearanceSubsectionHeader('tabHubIcon', 'TabHub Icon', true)}
             {!collapsedAppearanceSubsections.has('tabHubIcon') ? (

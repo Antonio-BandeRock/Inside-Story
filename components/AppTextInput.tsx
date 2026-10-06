@@ -3,9 +3,9 @@ import { StyleSheet, TextInput, View, type TextInput as TextInputType, type Text
 import { useActiveInputControls, type AppKeyboardType } from './ActiveInputContext';
 import { useKeyboardLift } from './KeyboardLift';
 import { VoiceInputButton } from './VoiceInputButton';
-import { NAVIGATION_HAND } from '../constants/floatingButton';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { appendDictatedText, parseVoiceCommands } from '../lib/voiceCommandParsing';
+import { useNavigationHand } from '../lib/navigationHand';
 
 // Drop-in replacement for RN's own TextInput -- same prop surface, so every
 // existing call site (all controlled value/onChangeText fields, see this
@@ -72,7 +72,7 @@ export type AppTextInputProps = TextInputProps & {
   micColor?: string;
 };
 
-// Room left inside the box for the mic, on whichever side NAVIGATION_HAND
+// Room left inside the box for the mic, on whichever side the navigation hand
 // favors, the same flag the floating hubs and the search boxes read, so
 // flipping it moves every mic at once.
 const MIC_ROOM = 40;
@@ -90,6 +90,7 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
   { voice, voiceJoin = 'space', onVoiceResult, micColor, ...props },
   ref,
 ) {
+  const navigationHand = useNavigationHand();
   const isTextField =
     props.keyboardType !== 'number-pad' &&
     props.keyboardType !== 'decimal-pad' &&
@@ -109,7 +110,7 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
   if (!showMic) return <AppTextInputField ref={ref} {...props} />;
 
   const { style, value, onChangeText, multiline, maxLength } = props;
-  const micOnLeft = NAVIGATION_HAND === 'left';
+  const micOnLeft = navigationHand === 'left';
   const field: Record<string, unknown> = { ...(StyleSheet.flatten(style) ?? {}) };
   const outer: Record<string, unknown> = {};
   for (const key of OUTER_KEYS) {

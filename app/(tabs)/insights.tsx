@@ -1282,7 +1282,7 @@ export default function InsightsScreen() {
             // button, specifically because reaching the Nutrient field at
             // the TOP of the screen worked against this app's own
             // one-handed-operation goal (the floating hub buttons already
-            // cluster low for exactly this reason -- see NAVIGATION_HAND's
+            // cluster low for exactly this reason -- see the navigation hand's
             // own comment in constants/floatingButton.ts). Moved back to
             // the top the same day, as a real, deliberate diagnostic test
             // (see NutrientRankingView's own header comment): on-device

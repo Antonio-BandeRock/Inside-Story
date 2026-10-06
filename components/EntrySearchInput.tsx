@@ -4,8 +4,8 @@ import { Pressable, StyleSheet, View, type TextStyle } from 'react-native';
 import { AppTextInput } from './AppTextInput';
 import { VoiceInputButton } from './VoiceInputButton';
 import { colors } from '../constants/colors';
-import { NAVIGATION_HAND } from '../constants/floatingButton';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
+import { useNavigationHand } from '../lib/navigationHand';
 
 // The app's one search box for a list of entries: a text field with the mic
 // inside it on the hand's own side and an optional information icon pinned to
@@ -64,6 +64,7 @@ export function EntrySearchInput({
   // like everything else here: a caller that wants it changed remounts.
   initialValue?: string;
 }) {
+  const navigationHand = useNavigationHand();
   const [localValue, setLocalValue] = useState(initialValue);
   const wasActive = useRef(initialValue.trim().length > 0);
 
@@ -93,17 +94,17 @@ export function EntrySearchInput({
   }, [debouncedValue]);
 
   // 2026-08-19, direct request: the mic sits inside the field, on whichever
-  // side NAVIGATION_HAND favors, read from the same shared flag that decides
+  // side the navigation hand favors, read from the same shared flag that decides
   // which side the floating hubs cluster on rather than a second notion of
   // handedness. A control that gets held while dictating belongs on the
   // hand's side; when a handedness setting exists, flipping that flag moves
   // this too with no change here.
-  const micOnLeft = NAVIGATION_HAND === 'left';
+  const micOnLeft = navigationHand === 'left';
 
   return (
     <View style={styles.searchInputWrap}>
       {/* Both sides need clearance whenever the information icon renders,
-          since it is pinned right regardless of NAVIGATION_HAND while the
+          since it is pinned right regardless of the navigation hand while the
           mic sits left today. With no icon, only the mic's side needs it. */}
       <AppTextInput
         voice={false}
@@ -153,7 +154,7 @@ const styles = StyleSheet.create({
   searchInputMicButton: { position: 'absolute', top: 0, bottom: 4, justifyContent: 'center' },
   searchInputMicButtonLeft: { left: 6 },
   searchInputMicButtonRight: { right: 6 },
-  // Same vertical centering as the mic, fixed right whatever NAVIGATION_HAND
+  // Same vertical centering as the mic, fixed right whatever the navigation hand
   // says. An informational tap target does not need to track hand preference
   // the way a dictation button being held does.
   searchInputInfoButton: { position: 'absolute', top: 0, bottom: 4, right: 6, justifyContent: 'center' },

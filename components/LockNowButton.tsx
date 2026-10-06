@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { colors } from '../constants/colors';
-import { FLOATING_BUTTON_SIZE, useBottomLeftHubPosition } from '../constants/floatingButton';
+import { FLOATING_BUTTON_SIZE, mirrorForHand, useBottomLeftHubPosition } from '../constants/floatingButton';
 import { MENU_MAX_FONT_SCALE, menuLineHeight, typography } from '../constants/typography';
 import { lockNow, readLockStateSync } from '../lib/appLockDevice';
+import { useNavigationHand } from '../lib/navigationHand';
 
 // Lock Now on Home, 2026-10-03, direct request: "A lock now button, maybe on
 // the Home screen in the bottom right corner to the right of the TabHub menu
@@ -42,7 +43,12 @@ function lockIsOn(): boolean {
 
 export function LockNowButton() {
   const [shown, setShown] = useState(lockIsOn);
-  const { bottom, left: cornerInset } = useBottomLeftHubPosition();
+  const { bottom, left: placedLeft } = useBottomLeftHubPosition();
+  const { width: windowWidth } = useWindowDimensions();
+  const hand = useNavigationHand();
+  // The same distance in from the far edge as the corner hub sits from the
+  // near one, so Lock Now stays across from the thumb on either hand.
+  const cornerInset = mirrorForHand(placedLeft, FLOATING_BUTTON_SIZE, windowWidth, hand);
 
   useFocusEffect(
     useCallback(() => {
@@ -52,7 +58,7 @@ export function LockNowButton() {
 
   if (!shown) return null;
   return (
-    <View style={[styles.row, { bottom, right: cornerInset }]} pointerEvents="box-none">
+    <View style={[styles.row, hand === 'left' ? { bottom, right: cornerInset } : { bottom, left: cornerInset }]} pointerEvents="box-none">
       <TouchableOpacity
         style={styles.button}
         activeOpacity={0.85}

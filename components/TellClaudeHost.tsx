@@ -35,6 +35,7 @@ import { useFooterBandHeight } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { isDesktopApp } from '../lib/desktop/bridge';
+import { useNavigationHand } from '../lib/navigationHand';
 import {
   DEV_NOTE_CAPTIONS,
   DEV_NOTE_KINDS,
@@ -79,6 +80,8 @@ const WORDS_GAP = 12;
 const EDITOR_HEIGHT_GUESS = 220;
 
 export function TellClaudeHost() {
+  const hand = useNavigationHand();
+  const edge = hand === 'right' ? styles.buttonRightEdge : null;
   const { developerNotes, developerNotesPreview } = useVisualPreferences();
   const [open, setOpen] = useState<Open | null>(null);
   const [choosing, setChoosing] = useState(false);
@@ -149,7 +152,7 @@ export function TellClaudeHost() {
     <PlainTextZone>
       {open || choosing ? null : editing ? (
         <TouchableOpacity
-          style={[styles.button, styles.doneButton]}
+          style={[styles.button, edge, styles.doneButton]}
           onPress={() => setWordingEditMode(false)}
           accessibilityLabel="Stop editing words"
           hitSlop={8}
@@ -159,7 +162,7 @@ export function TellClaudeHost() {
         </TouchableOpacity>
       ) : (
         <TouchableOpacity
-          style={styles.button}
+          style={[styles.button, edge]}
           onPress={() => setChoosing(true)}
           accessibilityLabel="Tell Claude about this screen"
           hitSlop={8}
@@ -424,6 +427,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderLeftWidth: 0,
     borderColor: colors.border,
+  },
+  // On the thumb side with the hubs, so it moves to the right edge when
+  // the right hand works the navigation (lib/navigationHand.ts).
+  buttonRightEdge: {
+    left: undefined,
+    right: 0,
+    paddingLeft: 8,
+    paddingRight: 6,
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12,
+    borderLeftWidth: 1,
+    borderRightWidth: 0,
   },
   // The same spot while words are being edited, filled so it reads as the
   // way out rather than as the way in.

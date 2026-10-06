@@ -1,9 +1,9 @@
 import { useCallback, useRef, useState, type ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
-import { NAVIGATION_HAND } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { modalAnimationType } from '../lib/visualPreferences';
+import { useNavigationHand } from '../lib/navigationHand';
 
 export type PasswordPromptMode = 'set' | 'enter';
 
@@ -42,6 +42,7 @@ export function usePasswordPrompt(): [
   (mode: PasswordPromptMode, title: string, message: string) => Promise<string | null>,
   ReactNode,
 ] {
+  const navigationHand = useNavigationHand();
   const [request, setRequest] = useState<PasswordPromptRequest | null>(null);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -123,7 +124,7 @@ export function usePasswordPrompt(): [
             </Text>
           ) : null}
           {error ? <Text style={styles.error}>{error}</Text> : null}
-          <View style={[styles.buttonRow, { justifyContent: NAVIGATION_HAND === 'left' ? 'flex-start' : 'flex-end' }]}>
+          <View style={[styles.buttonRow, { justifyContent: navigationHand === 'left' ? 'flex-start' : 'flex-end' }]}>
             <TouchableOpacity style={styles.cancelButton} onPress={() => close(null)} hitSlop={8}>
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>

@@ -19,9 +19,10 @@ import {
   KEY_ROW_HEIGHT,
   SEARCH_ROW_HEIGHT,
 } from '../constants/appKeyboard';
-import { NAVIGATION_HAND, useFooterBandHeight } from '../constants/floatingButton';
+import { useFooterBandHeight } from '../constants/floatingButton';
 import { TAB_REVEAL_DURATION_MS } from '../constants/tabReveal';
 import { textShadow, typography } from '../constants/typography';
+import { useNavigationHand } from '../lib/navigationHand';
 
 // 2026-08-21, a real, reported gap: there was no way to type an apostrophe
 // anywhere on this keyboard at all -- not in this letters layout, not in
@@ -86,6 +87,7 @@ type Mode = 'letters' | 'numbers' | 'accents';
 // the same shared TAB_REVEAL_DURATION_MS, translateY-ed by (1 - progress) *
 // its own height.
 export function AppKeyboard() {
+  const navigationHand = useNavigationHand();
   const { activeField, searchRequest } = useActiveInputValue();
   const { forceClear, focusNextField } = useActiveInputControls();
   const footerBandHeight = useFooterBandHeight();
@@ -350,7 +352,7 @@ export function AppKeyboard() {
 
   // A fixed accessory row above the main key grid -- always present (Next/
   // Done never disappear, even with no search box, see this row's own
-  // styles.searchBoxSlot below), pinned to whichever side NAVIGATION_HAND
+  // styles.searchBoxSlot below), pinned to whichever side the navigation hand
   // says the person's thumb rests on. Replaces the 2026-07-27 side-column
   // attempt (reverted the same day -- it shrank every main key by stealing a
   // whole column's width). When a searchable Dropdown is open, its own
@@ -358,7 +360,7 @@ export function AppKeyboard() {
   // searchRequest comment) -- autoFocus fires the moment it mounts, which
   // registers it as the activeField and raises this keyboard, cursor ready.
   const searchRow = (
-    <View style={[styles.searchRow, { flexDirection: NAVIGATION_HAND === 'left' ? 'row' : 'row-reverse' }]}>
+    <View style={[styles.searchRow, { flexDirection: navigationHand === 'left' ? 'row' : 'row-reverse' }]}>
       <Pressable onPress={next} style={styles.accessoryButton}>
         <Ionicons name="arrow-forward-outline" size={16} color={colors.textPrimary} />
       </Pressable>

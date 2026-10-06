@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
-import { NAVIGATION_HAND } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { appendDictatedText, parseVoiceCommands } from '../lib/voiceCommandParsing';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
@@ -11,6 +10,7 @@ import { useConfirmSheet } from './ConfirmSheet';
 import { CookModeButton } from './CookMode';
 import { useInfoAlert } from './InfoAlert';
 import { VoiceInputButton } from './VoiceInputButton';
+import { useNavigationHand } from '../lib/navigationHand';
 
 // A real, reusable, controlled add/edit/remove list-of-steps editor --
 // 2026-08-17, extracted from what used to be SideBuilder.tsx's own
@@ -71,6 +71,7 @@ export function StepsEditor({
   // (G4, 2026-09-26). Cook mode is offered whenever there are steps.
   cookTitle?: string | null;
 }) {
+  const navigationHand = useNavigationHand();
   const activeField = useActiveField();
   const { forceClear } = useActiveInputControls();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -202,7 +203,7 @@ export function StepsEditor({
               so it reads as part of the field itself. See that field's own
               comment for the fuller reasoning behind this shape. */}
           <View style={[styles.stepFieldWrap, { backgroundColor: inputBackground(tabColor) }]}>
-            {NAVIGATION_HAND === 'left' ? (
+            {navigationHand === 'left' ? (
               <>
                 <VoiceInputButton onResult={handleStepVoiceResult} size={16} />
                 <AppTextInput

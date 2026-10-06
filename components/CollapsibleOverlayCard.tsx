@@ -43,10 +43,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLayoutEffect, useRef, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
-import { NAVIGATION_HAND } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { useOverlay } from './OverlayContext';
 import { useScreenHeaderHeight } from './ScreenHeader';
+import { useNavigationHand } from '../lib/navigationHand';
 
 export function CollapsibleOverlayCard({
   collapsedLabel,
@@ -63,6 +63,7 @@ export function CollapsibleOverlayCard({
   onCollapse: () => void;
   children: ReactNode;
 }) {
+  const navigationHand = useNavigationHand();
   const { showOverlay, hideOverlay } = useOverlay();
   // A real, stable per-instance identity -- see OverlayContext.tsx's own
   // OverlayOwner comment for why this exists. Genuinely needed here, not
@@ -99,8 +100,8 @@ export function CollapsibleOverlayCard({
               children AND switches to flex-start so the button sits
               directly beside the label, at the left, rather than jumping
               to the far right edge of an otherwise-empty row. */}
-          <View style={[styles.headerRow, NAVIGATION_HAND === 'left' ? styles.headerRowLeftHand : null]}>
-            {NAVIGATION_HAND === 'left' ? (
+          <View style={[styles.headerRow, navigationHand === 'left' ? styles.headerRowLeftHand : null]}>
+            {navigationHand === 'left' ? (
               <>
                 {/* The "obvious collapse symbol" the request itself names
                     directly -- a real, large, clearly-a-close-button
@@ -170,11 +171,11 @@ export function CollapsibleOverlayCard({
   // far right.
   return (
     <TouchableOpacity
-      style={[styles.collapsedCard, { borderColor: tabColor }, NAVIGATION_HAND === 'left' ? styles.collapsedCardLeftHand : null]}
+      style={[styles.collapsedCard, { borderColor: tabColor }, navigationHand === 'left' ? styles.collapsedCardLeftHand : null]}
       onPress={onExpand}
       activeOpacity={0.8}
     >
-      {NAVIGATION_HAND === 'left' ? (
+      {navigationHand === 'left' ? (
         <>
           <Ionicons name="chevron-down-circle-outline" size={22} color={tabColor} />
           <Text style={[styles.collapsedLabel, { color: tabColor }]} numberOfLines={1}>
