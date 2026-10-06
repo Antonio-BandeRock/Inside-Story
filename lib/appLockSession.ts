@@ -79,12 +79,12 @@ export function isLockedNow(): boolean {
 }
 
 /**
- * Whether a reminder queued now names only its kind (R9). True whenever the
- * lock is set up, locked or not, since a reminder's words are fixed when it
- * is queued and shown later on the lock screen; false only when the person
- * chose full detail.
+ * Whether a reminder queued now names only its kind (R9). True only when the
+ * lock is set up and the person chose to hide reminder words, locked or not,
+ * since a reminder's words are fixed when it is queued and shown later on the
+ * lock screen.
  */
 export function reminderDetailHidden(): boolean {
   const state = readLockStateSync();
-  return state !== null && state.reminderDetail !== 'full';
+  return state !== null && state.reminderDetail === 'kind';
 }

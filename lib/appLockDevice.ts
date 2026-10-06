@@ -240,7 +240,7 @@ export async function turnOnAppLock(options: {
     answerBoxPublicKey: bytesToBase64Fast(answerBoxKeyPair(dataKey).publicKey),
     failedTries: 0,
     lastFailedAt: 0,
-    reminderDetail: 'private',
+    reminderDetail: 'full',
   });
   return { biometric };
 }

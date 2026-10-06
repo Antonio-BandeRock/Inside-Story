@@ -140,7 +140,7 @@ const same = (a, b) => !!a && !!b && a.length === b.length && a.every((v, i) => 
     answerBoxPublicKey: 'cHVibGljIGtleQ==',
     failedTries: 0,
     lastFailedAt: 0,
-    reminderDetail: 'private',
+    reminderDetail: 'kind',
   };
   const parsed = L.parseLockState(L.serializeLockState(good));
   check('a lock file round-trips', JSON.stringify(parsed) === JSON.stringify(good));

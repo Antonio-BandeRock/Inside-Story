@@ -190,7 +190,7 @@ export function AppLockSettings() {
 
       <Text style={styles.subLabel}>What reminders show on the lock screen</Text>
       <View style={styles.pillRow}>
-        {(['private', 'full'] as const).map((detail) => (
+        {(['full', 'kind'] as const).map((detail) => (
           <TouchableOpacity
             key={detail}
             style={[styles.pill, state.reminderDetail === detail ? styles.pillActive : null]}
@@ -204,15 +204,15 @@ export function AppLockSettings() {
             }}
           >
             <Text style={[styles.pillText, state.reminderDetail === detail ? styles.pillTextActive : null]}>
-              {detail === 'private' ? 'Only the Kind' : 'Full Detail'}
+              {detail === 'kind' ? 'Only the Kind' : 'Full Detail'}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
       <Text style={styles.caption}>
-        {state.reminderDetail === 'private'
-          ? `A reminder says only what kind it is, such as "Time for your scheduled dose", so nobody near the ${deviceWord()} sees which medicine, meal or note it is about.`
-          : `A reminder shows its whole text, including medicine names and notes, to anybody who can see the ${deviceWord()}.`}
+        {state.reminderDetail === 'kind'
+          ? `A reminder says only what kind it is, such as "Time for your scheduled dose", so nobody near the ${deviceWord()} sees which medicine, meal or note it is about. Its buttons still answer it without unlocking.`
+          : `A reminder shows its whole text, including medicine names and notes, to anybody who can see the ${deviceWord()}, and its buttons answer it without unlocking.`}
       </Text>
 
       <ShadeButtonsSetting />

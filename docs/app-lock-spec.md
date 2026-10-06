@@ -84,7 +84,8 @@ Stop after Phase 0 and present findings and a recommended approach before writin
 ### R9. Notifications and background work
 
 - Local reminders must still fire while locked.
-- Reminder text shown on the lock screen must not reveal sensitive detail by default. Example: "Time for your scheduled dose" in place of the medication name. Add a setting to show full detail.
+- Reminder text shows full detail by default (changed 2026-10-06 by direct instruction: reminders that hide what they are about cannot be answered with a tap, and people will not keep an app whose many reminders all need an unlock). A setting hides the words to the kind only, for example "Time for your scheduled dose" in place of the medication name.
+- Every answer button on a reminder works while the app is closed or locked. The press is sealed to the lock's public key, the reminder and its follow-ups are cleared at once, and the answer is written with the time it was pressed at the next unlock.
 - Any background task that needs data must be reviewed in Phase 0. Preferred approach: schedule reminders while unlocked so they need no data access later.
 
 ### R10. Backup, sharing and partner pairing

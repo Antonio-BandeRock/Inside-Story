@@ -55,8 +55,15 @@ export type PasscodeKind = 'digits' | 'phrase';
 // in secure store for that move only, exactly as it is while encrypting.
 export type LockPhase = 'encrypting' | 'on' | 'decrypting';
 
-/** What a reminder says while the lock is set up (R9). */
-export type ReminderDetail = 'private' | 'full';
+/**
+ * What a reminder says while the lock is set up (R9). Full detail is the
+ * default since 1.0.62.3, by direct instruction: a reminder that hides what it
+ * is about cannot be answered with a tap, and the many reminders this app
+ * sends have to be answerable from the shade without unlocking. 'kind' is the
+ * person's choice to hide the words. Lock files written before 1.0.62.3 said
+ * 'private' for the old default, and read as full detail now.
+ */
+export type ReminderDetail = 'kind' | 'full';
 
 export type AppLockState = {
   version: 1;
@@ -80,7 +87,7 @@ export type AppLockState = {
   failedTries: number;
   /** When the last wrong passcode was typed, in milliseconds, or 0. */
   lastFailedAt: number;
-  /** private: a reminder says only what kind it is. full: its whole text. */
+  /** kind: a reminder says only what kind it is. full: its whole text. */
   reminderDetail: ReminderDetail;
 };
 
@@ -129,7 +136,7 @@ export function parseLockState(text: string | null): AppLockState | null {
       typeof r.answerBoxPublicKey === 'string' && r.answerBoxPublicKey ? r.answerBoxPublicKey : null,
     failedTries: wholeNumber(r.failedTries),
     lastFailedAt: wholeNumber(r.lastFailedAt),
-    reminderDetail: r.reminderDetail === 'full' ? 'full' : 'private',
+    reminderDetail: r.reminderDetail === 'kind' ? 'kind' : 'full',
   };
 }
 

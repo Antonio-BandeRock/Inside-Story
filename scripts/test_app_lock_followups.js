@@ -76,10 +76,11 @@ const base = {
 const decrypting = L.parseLockState(JSON.stringify(base));
 check('the decrypting phase reads', decrypting && decrypting.phase === 'decrypting');
 check('an older lock file reads with no wrong tries', decrypting.failedTries === 0 && decrypting.lastFailedAt === 0);
-check('an older lock file hides reminder detail', decrypting.reminderDetail === 'private');
+check('an older lock file shows reminder detail', decrypting.reminderDetail === 'full');
+check('the old private default reads as full detail', L.parseLockState(JSON.stringify({ ...base, reminderDetail: 'private' })).reminderDetail === 'full');
 check('a damaged try count reads as none', L.parseLockState(JSON.stringify({ ...base, failedTries: -3 })).failedTries === 0);
-check('full detail is kept only when chosen', L.parseLockState(JSON.stringify({ ...base, reminderDetail: 'full' })).reminderDetail === 'full');
-check('anything else hides', L.parseLockState(JSON.stringify({ ...base, reminderDetail: 'loud' })).reminderDetail === 'private');
+check('hiding is kept only when chosen', L.parseLockState(JSON.stringify({ ...base, reminderDetail: 'kind' })).reminderDetail === 'kind');
+check('anything else shows full detail', L.parseLockState(JSON.stringify({ ...base, reminderDetail: 'loud' })).reminderDetail === 'full');
 
 const device = read('lib/appLockDevice.ts');
 const run = device.slice(device.indexOf('export async function runUnlockMigration'), device.indexOf('export async function keepLockOn'));

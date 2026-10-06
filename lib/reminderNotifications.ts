@@ -1779,9 +1779,43 @@ async function dismissEmptyGroupSummaries(presented: Notifications.Notification[
   }
 }
 
+// The reminder a notification belongs to, whether it is the first one, a
+// nudge after it, or a snoozed copy of either.
+function reminderRoot(identifier: string): string {
+  const unsnoozed = isSnoozed(identifier) ? identifier.slice(SNOOZE_PREFIX.length).split('@')[0] : identifier;
+  return unsnoozed.split('#nudge')[0];
+}
+
+// Answered while locked: the reminder leaves the screen with every copy of
+// it, and the nudges queued to repeat it are cancelled. Unlocked, the re-plan
+// after the answer is written drops them; locked, that re-plan has to wait
+// for the database, and an answered reminder asking again later reads as the
+// button having done nothing.
+async function clearAnsweredWhileLocked(identifier: string): Promise<void> {
+  const root = reminderRoot(identifier);
+  await Notifications.dismissNotificationAsync(identifier).catch(() => undefined);
+  try {
+    const presented = await Notifications.getPresentedNotificationsAsync();
+    for (const notification of presented) {
+      const id = notification.request.identifier;
+      if (id !== identifier && reminderRoot(id) === root) {
+        await Notifications.dismissNotificationAsync(id).catch(() => undefined);
+      }
+    }
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    for (const queued of scheduled) {
+      if (queued.identifier !== root && reminderRoot(queued.identifier) === root) {
+        await Notifications.cancelScheduledNotificationAsync(queued.identifier).catch(() => undefined);
+      }
+    }
+  } catch (error) {
+    console.warn('[reminderNotifications] the follow-ups of a press while locked could not all be cleared', error);
+  }
+}
+
 // App Lock on and nobody unlocked: the database cannot be opened, so the
 // press does everything it can without it now (a snooze is set, the
-// reminder leaves the screen, the energy question follows a sleep answer)
+// reminder and its queued nudges go, the energy question follows a sleep answer)
 // and is sealed for the next unlock, which writes it with the time it was
 // pressed (applyWaitingAnswers). No passcode is asked for, since a button
 // that needed one would not be worth having.
@@ -1793,7 +1827,7 @@ async function answerWhileLocked(response: Notifications.NotificationResponse): 
   const plan = !snooze && data?.kind ? planReminderAction(data.kind, response.actionIdentifier) : null;
   if (!snooze && !plan) return;
   if (snooze) await snoozeReminder(response);
-  else await Notifications.dismissNotificationAsync(request.identifier).catch(() => undefined);
+  else await clearAnsweredWhileLocked(request.identifier);
   if (plan?.write === 'sleepQuality') await presentMorningEnergy(localDateString(pressedAt));
   const kept = await keepAnswerForUnlock({
     identifier: request.identifier,
