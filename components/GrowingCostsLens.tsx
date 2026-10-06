@@ -41,7 +41,7 @@ import { formatTradeMoney } from '../lib/harvestTrade';
 import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
 import { ElectricityBand } from './ElectricityBand';
-import { HOME_BAND_GAP } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 import { QuickAreaForm } from './QuickAreaForm';
 import { makeTabBandStyles, TabBand } from './TabBand';
@@ -104,7 +104,10 @@ import { makeTabBandStyles, TabBand } from './TabBand';
 // through recordGrowingCost, tied to that area.
 
 const TAB_COLOR = colors.tabGarden;
-const band = makeTabBandStyles(TAB_COLOR);
+// 1.0.61.7, extended to every Garden lens in 1.0.61.8: the calm look
+// (CalmBands in components/HomeSectionBand.tsx), bands a left-accent width
+// apart with no hairlines.
+const band = makeTabBandStyles(TAB_COLOR, { calm: true });
 const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 
 const ADD_KIND = '__add_kind__';
@@ -735,7 +738,7 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
 }
 
 const styles = StyleSheet.create({
-  body: { paddingBottom: 32, gap: HOME_BAND_GAP },
+  body: { paddingBottom: 32, gap: HOME_BAND_ACCENT_WIDTH },
   card: { gap: 8 },
   cardTitle: { ...typography.sectionTitle, ...textShadow },
   bodyText: { ...typography.body, color: colors.textPrimary, ...textShadow },

@@ -50,7 +50,7 @@ import {
   TRADITIONS_INTRO,
   type SowingTradition,
 } from '../lib/sowingTraditions';
-import { HOME_BAND_GAP } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH } from './HomeSectionBand';
 import { MyCropsBand } from './MyCropsBand';
 import { useInfoAlert } from './InfoAlert';
 import { makeTabBandStyles, TabBand } from './TabBand';
@@ -72,7 +72,10 @@ import { makeTabBandStyles, TabBand } from './TabBand';
 // it on tap. A window is where a crop usually does well, never a rule.
 
 const TAB_COLOR = colors.tabGarden;
-const band = makeTabBandStyles(TAB_COLOR);
+// 1.0.61.7, extended to every Garden lens in 1.0.61.8: the calm look
+// (CalmBands in components/HomeSectionBand.tsx), bands a left-accent width
+// apart with no hairlines.
+const band = makeTabBandStyles(TAB_COLOR, { calm: true });
 const DAY_MS = 86400000;
 const NEAR_DAYS = 28;
 
@@ -431,7 +434,7 @@ function quarterNow(ms: number): string {
 }
 
 const styles = StyleSheet.create({
-  body: { paddingBottom: 32, gap: HOME_BAND_GAP },
+  body: { paddingBottom: 32, gap: HOME_BAND_ACCENT_WIDTH },
   card: { gap: 8 },
   group: { gap: 6 },
   cropRow: { gap: 2, paddingVertical: 2 },

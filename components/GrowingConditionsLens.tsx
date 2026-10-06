@@ -92,7 +92,7 @@ import { ReadingImportForm } from './ReadingImportForm';
 import { EcowittGatewaySection } from './EcowittGatewaySection';
 import { NotesInput } from './NotesInput';
 import { GardenTermField } from './GardenTermField';
-import { HOME_BAND_GAP } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 import { makeTabBandStyles, TabBand } from './TabBand';
 
@@ -123,7 +123,10 @@ import { makeTabBandStyles, TabBand } from './TabBand';
 // text on the reading, so there is nothing to orphan.
 
 const TAB_COLOR = colors.tabGarden;
-const band = makeTabBandStyles(TAB_COLOR);
+// 1.0.61.7, extended to every Garden lens in 1.0.61.8: the calm look
+// (CalmBands in components/HomeSectionBand.tsx), bands a left-accent width
+// apart with no hairlines.
+const band = makeTabBandStyles(TAB_COLOR, { calm: true });
 const PRIMARY_BUTTON_BACKGROUND = colors.buttonColor;
 const NO_PLOT = '__none__';
 const NO_PLANTING = '__none__';
@@ -1194,7 +1197,7 @@ export function GrowingConditionsLens({ scrollBottomPadding }: { scrollBottomPad
 }
 
 const styles = StyleSheet.create({
-  body: { paddingBottom: 32, gap: HOME_BAND_GAP },
+  body: { paddingBottom: 32, gap: HOME_BAND_ACCENT_WIDTH },
   card: { gap: 8 },
   cardTitle: { ...typography.sectionTitle, ...textShadow },
   bodyText: { ...typography.body, color: colors.textPrimary, ...textShadow },

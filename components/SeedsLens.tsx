@@ -47,13 +47,16 @@ import {
 import { packetDaysRangeLine, readPacketDays } from '../lib/seedPacket';
 import { AppTextInput } from './AppTextInput';
 import { FoodLookup } from './FoodLookup';
-import { HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HomeSectionBand } from './HomeSectionBand';
 import { PhotoStrip } from './PhotoStrip';
 import { PopoverSelect } from './PopoverSelect';
 import { makeTabBandStyles } from './TabBand';
 
 const TAB_COLOR = colors.tabGarden;
-const band = makeTabBandStyles(TAB_COLOR);
+// 1.0.61.7, extended to every Garden lens in 1.0.61.8: the calm look
+// (CalmBands in components/HomeSectionBand.tsx), bands a left-accent width
+// apart with no hairlines.
+const band = makeTabBandStyles(TAB_COLOR, { calm: true });
 
 type Draft = {
   id: string;
@@ -508,7 +511,7 @@ function PutAwayRow({ packet, uses, onChanged }: { packet: SeedPacket; uses: See
 }
 
 const styles = StyleSheet.create({
-  body: { paddingBottom: 32, gap: HOME_BAND_GAP },
+  body: { paddingBottom: 32, gap: HOME_BAND_ACCENT_WIDTH },
   card: { gap: 8 },
   pickerScreen: { flex: 1, padding: 16, gap: 8 },
   chip: { backgroundColor: colors.surface, borderRadius: 10, paddingVertical: 8, paddingHorizontal: 12, alignSelf: 'flex-start' },

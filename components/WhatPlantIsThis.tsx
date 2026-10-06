@@ -23,7 +23,10 @@ import {
 import { makeTabBandStyles } from './TabBand';
 
 const TAB_COLOR = colors.tabGarden;
-const band = makeTabBandStyles(TAB_COLOR);
+// 1.0.61.7, extended to every Garden lens in 1.0.61.8: the calm look
+// (CalmBands in components/HomeSectionBand.tsx), bands a left-accent width
+// apart with no hairlines.
+const band = makeTabBandStyles(TAB_COLOR, { calm: true });
 
 const PLATFORM: IdentifyPlatform = Platform.OS === 'android' ? 'android' : Platform.OS === 'ios' ? 'ios' : 'computer';
 

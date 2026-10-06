@@ -6,7 +6,7 @@ import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DIGEST_READING_HELP, DigestCategoryLens } from '../../components/DigestCategoryLens';
 import { GatedTabContent } from '../../components/GatedTabContent';
-import { CalmBands, HOME_BAND_ACCENT_WIDTH, HOME_BAND_GAP, HomeSectionBand } from '../../components/HomeSectionBand';
+import { CalmBands, HOME_BAND_ACCENT_WIDTH, HomeSectionBand } from '../../components/HomeSectionBand';
 import { makeTabBandStyles, TabBand } from '../../components/TabBand';
 import { useBandFolds } from '../../hooks/useBandFolds';
 import { LensHub, type LensOption } from '../../components/LensHub';
@@ -141,7 +141,10 @@ import { anyWateringSoon, rainNoteForTask } from '../../lib/rainForecast';
 // on tabGarden for how it was chosen.
 const ON_ITS_OWN_VALUE = '__own__';
 const TAB_COLOR = colors.tabGarden;
-const band = makeTabBandStyles(TAB_COLOR);
+// 1.0.61.7, extended to every Garden lens in 1.0.61.8: the calm look
+// (CalmBands in components/HomeSectionBand.tsx), bands a left-accent width
+// apart with no hairlines.
+const band = makeTabBandStyles(TAB_COLOR, { calm: true });
 
 // A real, deliberately soft fill for every "primary action" button and the
 // active-toggle pill in this file, 2026-08-13, direct report: "make the
@@ -559,6 +562,7 @@ export default function GardenScreen() {
             of its own yet (a real, named gap, same as Digest before
             it), so this falls back to the shared wildflower scene every
             tab rests on before its own art exists. */}
+        <CalmBands>
         <GatedTabContent pageTitle="Garden" variant="field" revealed={revealed}>
           {lens === 'myZone' ? (
             <MyZoneLens scrollBottomPadding={scrollBottomPadding} />
@@ -600,6 +604,7 @@ export default function GardenScreen() {
             <HorticultureLens scrollBottomPadding={scrollBottomPadding} openEntryId={openEntryId ?? readEntryId} openCropKey={readCropKey} />
           ) : null}
         </GatedTabContent>
+        </CalmBands>
       </SwipeableTabScreen>
 
       <PageIdentityLabel title="Garden" activeLensLabel={revealed ? activeLensLabel : undefined} />
@@ -866,15 +871,12 @@ function HorticultureLens({
     scrollRef.current?.scrollTo({ y: guidesTop.current + y, animated: true });
   }, []);
   return (
-    // 1.0.61.7: Horticulture is reading, so it takes the calm look.
-    <CalmBands>
-    <ScrollView ref={scrollRef} contentContainerStyle={[styles.body, styles.bodyCalm, { paddingBottom: scrollBottomPadding }]}>
+    <ScrollView ref={scrollRef} contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
       <View onLayout={(event) => { guidesTop.current = event.nativeEvent.layout.y; }}>
         <CropGuideSection tabColor={TAB_COLOR} openCropKey={openCropKey} scrollToY={scrollToGuide} />
       </View>
       <DigestCategoryLens categoryKey="homeGardening" tabColor={TAB_COLOR} openEntryId={openEntryId} scrollToY={scrollTo} />
     </ScrollView>
-    </CalmBands>
   );
 }
 
@@ -2487,8 +2489,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   // No side inset, 2026-09-19: every top-level element is a band that
   // reaches both edges, and a lone button takes band.inset instead.
-  body: { paddingBottom: 32, gap: HOME_BAND_GAP },
-  bodyCalm: { gap: HOME_BAND_ACCENT_WIDTH },
+  body: { paddingBottom: 32, gap: HOME_BAND_ACCENT_WIDTH },
   // A plain, non-scrolling container for a lens' own "actively picking a
   // food" state -- see PlotsAndPlantingsLens's own addingPlantingToPlot
   // comment for why this can never be inside a ScrollView (Harvest Log no
