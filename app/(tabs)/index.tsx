@@ -30,7 +30,14 @@ import { EDGE_SHADOW_HEIGHT, EdgeShadow } from '../../components/EdgeShadow';
 import { EnergyOrb } from '../../components/EnergyOrb';
 import { FlipCard } from '../../components/FlipCard';
 import type { HelpSection } from '../../components/HelpButton';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from '../../components/HomeSectionBand';
+import {
+  HOME_BAND_CONTENT_PADDING,
+  HOME_BAND_GAP,
+  HomeBandHairlinesContext,
+  HomeSectionBand,
+  homeBandNoHairlines,
+  homeBandStyle,
+} from '../../components/HomeSectionBand';
 import { AppActionSheet } from '../../components/AppActionSheet';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { YourStorySection, useStoryGo, useYourStory } from '../../components/YourStorySection';
@@ -4988,13 +4995,16 @@ export default function HomeScreen() {
             />
           ) : (
             <>
-              {groupHomeSectionsForDisplay(getOrderedHomeSectionKeys(visualPrefs)).map((group) =>
-                group.kind === 'tab' ? (
-                  renderHomeTabGroup(group)
-                ) : (
-                  renderSoloSection(group.key)
-                ),
-              )}
+              {/* No hairlines on Home, 1.0.61.4: see HomeBandHairlinesContext. */}
+              <HomeBandHairlinesContext.Provider value={false}>
+                {groupHomeSectionsForDisplay(getOrderedHomeSectionKeys(visualPrefs)).map((group) =>
+                  group.kind === 'tab' ? (
+                    renderHomeTabGroup(group)
+                  ) : (
+                    renderSoloSection(group.key)
+                  ),
+                )}
+              </HomeBandHairlinesContext.Provider>
             </>
           )}
 
@@ -5267,18 +5277,21 @@ const styles = StyleSheet.create({
   // right side... with the padding in effect for the text or anything else
   // that is present, but not for the boxes." Each band carries its own
   // inner padding (HOME_BAND_CONTENT_PADDING); the page itself no longer
-  // insets anything. The gap between bands is HOME_BAND_GAP, the app-wide
-  // standard since 2026-09-12 (see its own comment in HomeSectionBand).
-  content: { paddingHorizontal: 0, paddingTop: 12, paddingBottom: 32, gap: HOME_BAND_GAP },
+  // insets anything. Home's bands stack with no gap since 1.0.61.4, direct
+  // request: "remove the space between color grouped entities on the Home
+  // screen". The left accent alone says where one ends and the next begins.
+  // HOME_BAND_GAP stays the standard on every other screen.
+  content: { paddingHorizontal: 0, paddingTop: 12, paddingBottom: 32, gap: 0 },
   // Shared by every band's expanded content that is a stack of things
   // (caption, buttons, a photo strip) rather than one widget.
   bandBody: { gap: HOME_BAND_GAP },
   // A tab group's contents: the cards inside keep the full width on their
   // right, the way every band on Home does, and are inset on the left so
   // the group’s accent bar and theirs read as two levels rather than one
-  // thick line.
+  // thick line. No gap between the cards since 1.0.61.4, same request:
+  // "remove the space between each item".
   homeTabGroupBody: {
-    gap: HOME_BAND_GAP,
+    gap: 0,
     paddingLeft: HOME_BAND_CONTENT_PADDING,
     paddingRight: 0,
   },
@@ -5331,6 +5344,7 @@ const styles = StyleSheet.create({
     ...homeBandStyle,
     padding: HOME_BAND_CONTENT_PADDING,
     borderColor: colors.border,
+    ...homeBandNoHairlines,
   },
   loadingText: { ...typography.body, ...textShadow, color: colors.textSecondary },
 
@@ -5341,6 +5355,7 @@ const styles = StyleSheet.create({
     ...homeBandStyle,
     padding: HOME_BAND_CONTENT_PADDING,
     borderColor: colors.border,
+    ...homeBandNoHairlines,
     marginTop: 12,
   },
   allSectionsHiddenText: { ...typography.body, ...textShadow, color: colors.textSecondary },

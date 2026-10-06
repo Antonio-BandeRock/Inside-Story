@@ -48,7 +48,7 @@
 // Purely presentational: no data, no navigation, so it stays reusable if
 // another tab ever wants the same treatment.
 import { Ionicons } from '@expo/vector-icons';
-import type { ComponentProps, ReactNode } from 'react';
+import { createContext, useContext, type ComponentProps, type ReactNode } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -75,6 +75,26 @@ export const HOME_BAND_CONTENT_PADDING = 16;
 // its explainer's gap to what follows), so the spacing cannot drift
 // again as more lenses take this shape.
 export const HOME_BAND_GAP = 10;
+
+// Whether a band draws its two hairlines, top and bottom. 1.0.61.4,
+// direct request about Home: "remove the space between color grouped
+// entities on the Home screen, and remove the horizontal lines between them
+// so really the only color for the tab it represents is the thicker line on
+// the left side... Keep them all still the same height as what they are
+// now." Home's page provides false, so every band on Home (the tab groups,
+// the cards inside them, the sections standing alone) keeps only its left
+// accent. The hairlines turn transparent rather than going to zero width, so
+// each band keeps the 2px they took and stays exactly as tall; the band's
+// own surface shows through where they were. Every other screen gets the
+// default and keeps both lines.
+export const HomeBandHairlinesContext = createContext(true);
+
+// For a box on Home styled with homeBandStyle by hand rather than drawn by
+// HomeSectionBand: the same transparent hairlines, same height.
+export const homeBandNoHairlines: ViewStyle = {
+  borderTopColor: 'transparent',
+  borderBottomColor: 'transparent',
+};
 
 // How long a hold has to last before it counts as one. React Native
 // defaults to 500ms; 400 is enough to be deliberate and short enough that
@@ -143,6 +163,8 @@ type StaticProps = CommonProps & {
 export function HomeSectionBand(props: FoldProps | ActionProps | StaticProps) {
   const { title, icon, color } = props;
   const textColor = props.textColor ?? color;
+  const hairlines = useContext(HomeBandHairlinesContext);
+  const bandStyle = [styles.band, { borderColor: color }, hairlines ? null : homeBandNoHairlines];
   const glyph = props.renderIcon ? (
     props.renderIcon(16, color)
   ) : (
@@ -150,7 +172,7 @@ export function HomeSectionBand(props: FoldProps | ActionProps | StaticProps) {
   );
   if (props.kind === 'action') {
     return (
-      <View style={[styles.band, { borderColor: color }]}>
+      <View style={bandStyle}>
         <TouchableOpacity
           style={styles.header}
           onPress={props.onPress}
@@ -183,7 +205,7 @@ export function HomeSectionBand(props: FoldProps | ActionProps | StaticProps) {
   }
   if (props.kind === 'static') {
     return (
-      <View style={[styles.band, { borderColor: color }]}>
+      <View style={bandStyle}>
         <View style={styles.header} accessibilityRole="header">
           {glyph}
           <Text style={[styles.title, { color: textColor }]} numberOfLines={1}>
@@ -196,7 +218,7 @@ export function HomeSectionBand(props: FoldProps | ActionProps | StaticProps) {
   }
   const { expanded, onToggle, contentStyle, children } = props;
   return (
-    <View style={[styles.band, { borderColor: color }]}>
+    <View style={bandStyle}>
       <TouchableOpacity
         style={styles.header}
         onPress={onToggle}
