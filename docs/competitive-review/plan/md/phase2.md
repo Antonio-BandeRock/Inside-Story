@@ -562,3 +562,8 @@
 - **Ships by:** Reading content · **Size:** S · **Tabs:** none
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
 - **How:** Platform scope still says the desktop is a PWA through PWABuilder (it is Electron); the Architecture intro says sync is not implemented (it is); nine tabs will be ten; the Free row is out of date (P3). Archive first, since the file is at the 100 KB limit. Notion: https://app.notion.com/p/3f153652f27281b1ac2fd6ecc12df8f2
+
+### P13. The right measures for where the person lives, everywhere
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** all
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Today lib/measurement.ts picks only metric or imperial by region, and lib/unitConversion.ts has one cup and one pint (US). Add a measures profile from the region, changeable in Profile: US 237 ml, metric 250 ml and Japanese 200 ml cups, the Australian 20 ml tablespoon, UK pints and gallons, stones, gas marks and fan ovens, kJ or kcal and salt or sodium on labels, lab units (P18), date, decimal and clock formats. Stored in one base unit underneath so a change never alters a record. Notion: https://app.notion.com/p/3f153652f272816fba7de26c85f22d8e

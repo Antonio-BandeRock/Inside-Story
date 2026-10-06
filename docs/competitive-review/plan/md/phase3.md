@@ -342,3 +342,63 @@
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Food,Schedules,Life
 - **Answers:** AnyList, Paprika · **Theme:** Brainstorm review 2026-10-06
 - **How:** Extend the allowlist in lib/peerRelationships.ts area by area (meal plan, schedule) with a per-category choice screen (meals and shopping shared by default; symptoms, labs and notes private; medications chosen at setup), carried by the relay (M1). Household read-only seats follow. The Partner tier's main reason to pay. Notion: https://app.notion.com/p/3f153652f272811db0d1ecb5862b72c0
+
+### P15. Conversions: the kitchen
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Food
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Measures by country, a cup of this food in grams from the reference database's density, oven temperatures and gas marks, recipe scaling to measurable amounts, pan sizes, dry to cooked grains and pulses, fresh to dried herbs and yeast, egg sizes by country, butter, sweetener swaps, gelatine and agar. Notion: https://app.notion.com/p/3f153652f272817e8aadd08135114698
+
+### P16. Conversions: food safety, fermenting and preserving
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Food
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Safe inside temperatures, brine and salt by percentage (linked from the Fermentation builder), kombucha and kefir ratios, boiling point and canning times at altitude, safe storage times, canning headspace and jar sizes, each with its source. Notion: https://app.notion.com/p/3f153652f2728113ab3ce31f4950413a
+
+### P17. Conversions: food labels and supplement labels
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Insights
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Salt and sodium, kcal and kJ, per 100 g against per serving, vitamin D, A, E and folate units (IU, mcg RAE, mg, mcg DFE) with why they depend on the form, elemental mineral in a salt (magnesium in citrate, iron in ferrous sulfate). Never suggests a dose. Notion: https://app.notion.com/p/3f153652f2728182837edc5e8687eb18
+
+### P18. Conversions: lab results across countries
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Signals,Trends
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Glucose, HbA1c, lipids, creatinine, urea, uric acid, vitamin D, B12, ferritin, folate, calcium, free T4 and T3 between conventional and SI units, factor and why shown, never in or out of range, saved into labs so Trends draws one line wherever the test was done. Add to audit_clinical_claims NAMED. Notion: https://app.notion.com/p/3f153652f27281cbbb31f26b091b54a4
+
+### P19. Conversions: the body and everyday health
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Height and weight including stones, body temperature with no verdict, drinks toward hydration, a standard drink by country (reuses lib/alcoholCalculator.ts), dose times across time zones beside A7, distance and pace. Notion: https://app.notion.com/p/3f153652f2728184876fd564ee68882b
+
+### P20. Conversions: garden, soil, water and bees
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Garden
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Area, compost and mulch volume for a bed into litres and bags, rainwater caught from a roof, watering by area, spacing to plant count, seeds per gram, KNF and compost-tea dilutions, bee syrup by weight and volume, germination and frost temperatures. Notion: https://app.notion.com/p/3f153652f27281688607df46a2c6dcfb
+
+### P21. Conversions: money and the home
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Price per unit across pack sizes (reading recorded prices), currency at a dated rate the person enters, what an appliance costs to run, fuel economy in L/100 km and US and UK mpg, gas against electric cooking, paper sizes. Notion: https://app.notion.com/p/3f153652f27281c89a55e76103309686
+
+### P22. The kitchen goes down when a meal is saved
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Food,Life
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Saving a meal offers to take what it used off Life > Kitchen, the way offerGardenUse does for the garden; only matching units are taken off and the rest said so; running low goes to the grocery list in one tap. Builds on H1 and H2. Notion: https://app.notion.com/p/3f153652f272814f94a7f6deb88695fe
+
+### P23. What can I make with what I have
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Food
+- **Answers:** SuperCook, Paprika · **Theme:** Brainstorm review 2026-10-06
+- **How:** Recipes ranked by how much of them the kitchen and garden hold now, filtered by conditions, allergies and diet, each showing what is missing. H1 does this inside the generator; this lets a person ask. Notion: https://app.notion.com/p/3f153652f27281eb836ecee0c38b2148
+
+### P24. What is in season where I live
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden,Food
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** One calendar by region and hemisphere of what is in season to eat and what to sow, kitchen and garden reading the same months, local and native first, region chosen by the person, sourced per region. Notion: https://app.notion.com/p/3f153652f27281afbd0deba11a5f6af2
+
+### P25. Questions for the pharmacist when a med is added
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** On adding a med or supplement, offer questions built from what the app knows (timing rules from A8, other meds on the list, the person's conditions), saved to visit questions (K4) or shared as text. Questions only, nothing about the dose. Notion: https://app.notion.com/p/3f153652f27281f983f5f33f2db82d33
+
+### P26. An evening wind-down for the second audience
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Home,Life
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** An optional prompt at a time the person sets: tomorrow's first things, anything to put in Capture, and a wind-down routine from Routines. Done or not, never scored. Notion: https://app.notion.com/p/3f153652f27281e28a54dcd52f85778a
