@@ -112,3 +112,8 @@
 - **Ships by:** Cloudflare Worker · **Size:** L · **Tabs:** Food,Insights
 - **Answers:** Yuka · **Theme:** Asked of you: these meet a standing rule or need a company server
 - **How:** A country subset of Open Food Facts is still large; the Worker cache plus G21 covers most of it.
+
+### P33. Into the clinic's records system directly, much later
+- **Ships by:** Needs a company server · **Size:** L · **Tabs:** Reports
+- **Answers:** (your question) · **Theme:** Asked of you: these meet a standing rule or need a company server
+- **How:** SMART on FHIR with Epic, Oracle Health and others: vendor certification per system, likely a server holding health data, and a HIPAA business associate agreement in the US, each meeting the no-company-server rule. P29 covers the need without it. Notion: https://app.notion.com/p/3f153652f2728159927ce6fe1f2e6c06

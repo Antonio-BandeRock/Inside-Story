@@ -52,3 +52,18 @@
 - **Ships by:** Android rebuild R1 · **Size:** S · **Tabs:** Life
 - **Answers:** (your question) · **Theme:** Talking to people
 - **How:** expo-sms opens the phone's texting app with the message filled in; calling already works through Linking.
+
+### P30. A child's records handed over at adulthood
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Profile,Life
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Handover age follows the country; both told ahead what changes; on the day the young person holds their records and decides what the parent still sees. Before then, categories teenagers have a legal right to keep private (reproductive and sexual health, mental health) can be marked private to the child, following the country's rules. Nothing deleted at handover. Notion: https://app.notion.com/p/3f153652f2728104bc20fc99bae8737e
+
+### P31. A caregiver's changes are logged where both people can read them
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Every record a caregiver adds, changes or removes is written to an append-only log (what, when, by whom) readable by both, on the sync_change_log pattern. Notion: https://app.notion.com/p/3f153652f27281f49d0cc31ce4fbf59c
+
+### P32. When a shared relationship ends
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Profile
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Partner, household, guardian or caregiver link ended by either person: syncing stops, each keeps their records in full, shared records are copied to both sides, the connection's keys are retired, the other is told it ended and never why. Ties to If something happens to me. Notion: https://app.notion.com/p/3f153652f2728189bd50e76926d4d5e6

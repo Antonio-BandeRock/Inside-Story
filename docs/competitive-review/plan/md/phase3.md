@@ -402,3 +402,8 @@
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Home,Life
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
 - **How:** An optional prompt at a time the person sets: tomorrow's first things, anything to put in Capture, and a wind-down routine from Routines. Done or not, never scored. Notion: https://app.notion.com/p/3f153652f27281e28a54dcd52f85778a
+
+### P29. Sealed visit share: a doctor opens it in a browser with a code
+- **Ships by:** Cloudflare Worker · **Size:** L · **Tabs:** Reports,Schedules
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** The person picks what goes in (usually K4's visit page); the doctor opens a link on insidestoryapp.com with a code and it decrypts on their screen, the Worker never seeing the contents. Expires after the appointment by default and can be withdrawn sooner, saying plainly it cannot reach a copy the doctor saved; offers a PDF for the portal or chart. No install or account for the doctor. Notion: https://app.notion.com/p/3f153652f27281e590c9fe4cad6ce01b

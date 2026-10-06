@@ -17,3 +17,8 @@
 - **Ships by:** Owner decision first · **Size:** S · **Tabs:** Life
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
 - **How:** Index and rules for P15 to P21: every answer shows the arithmetic and why the measures differ; never across kinds unless the thing supplies the link (a food's density, a substance's molar mass), unknown said as unknown; offline, nothing sent; health conversions never interpret or suggest a dose; answers can be saved into a record; a Convert button beside number fields elsewhere. Decided 2026-10-06: a lens on Life. Notion: https://app.notion.com/p/3f153652f27281d599c9e908f66f60a7
+
+### P28. Safety is never behind a paywall
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** all
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Proposed: the emergency card, med and supplement timing warnings from the interaction rules, allergy cautions and the clinical-claims protections are on every tier including Free. The current tier table puts the rules engine on paid only. Free useful on its own; paying adds depth, people and time saved. On confirmation the CLAUDE.md tier table changes. Notion: https://app.notion.com/p/3f153652f27281928fe4f7fbfb9ac019

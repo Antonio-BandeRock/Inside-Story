@@ -567,3 +567,8 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** all
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
 - **How:** Today lib/measurement.ts picks only metric or imperial by region, and lib/unitConversion.ts has one cup and one pint (US). Add a measures profile from the region, changeable in Profile: US 237 ml, metric 250 ml and Japanese 200 ml cups, the Australian 20 ml tablespoon, UK pints and gallons, stones, gas marks and fan ovens, kJ or kcal and salt or sodium on labels, lab units (P18), date, decimal and clock formats. Stored in one base unit underneath so a change never alters a record. Notion: https://app.notion.com/p/3f153652f272816fba7de26c85f22d8e
+
+### P27. One entitlement gate every feature checks
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** all
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Tiers are not decided yet, so build the mechanism now: one table maps features to tiers and every screen asks one function. Deciding or changing tiers becomes an edit to the table. A gated feature names the tier that includes it through explainNotYet; Developer Tools can switch tiers; store billing feeds it later. Notion: https://app.notion.com/p/3f153652f272812e8721f0bee87e8dc0

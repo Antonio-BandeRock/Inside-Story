@@ -1,4 +1,4 @@
-## Phase 0. Decisions only the owner can make (4 items)
+## Phase 0. Decisions only the owner can make (5 items)
 
 ### P2. A small beta outside the house
 - **Ships by:** Owner decision first · **Size:** M · **Tabs:** none
@@ -19,6 +19,11 @@
 - **Ships by:** Owner decision first · **Size:** S · **Tabs:** Life
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
 - **How:** Index and rules for P15 to P21: every answer shows the arithmetic and why the measures differ; never across kinds unless the thing supplies the link (a food's density, a substance's molar mass), unknown said as unknown; offline, nothing sent; health conversions never interpret or suggest a dose; answers can be saved into a record; a Convert button beside number fields elsewhere. Decided 2026-10-06: a lens on Life. Notion: https://app.notion.com/p/3f153652f27281d599c9e908f66f60a7
+
+### P28. Safety is never behind a paywall
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** all
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Proposed: the emergency card, med and supplement timing warnings from the interaction rules, allergy cautions and the clinical-claims protections are on every tier including Free. The current tier table puts the rules engine on paid only. Free useful on its own; paying adds depth, people and time saved. On confirmation the CLAUDE.md tier table changes. Notion: https://app.notion.com/p/3f153652f27281928fe4f7fbfb9ac019
 
 ## Phase 1. Foundations (10 items)
 
@@ -72,7 +77,7 @@
 - **Answers:** Gardenize, Sortly, Monarch, Guava, Medisafe · **Theme:** Shared foundations
 - **How:** A media table (owner kind, owner id, file, taken_on), shrink on save, stored under the app folder, copied into the Backups folder and restored beside the encrypted snapshot, never in the plaintext record, shown on desktop from the synced copy. Serves A5, D12, I13, J4, J9.
 
-## Phase 2. Quick wins over the air (114 items)
+## Phase 2. Quick wins over the air (115 items)
 
 ### A3. Pills on hand and refill reminder
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life,Schedules,Signals,Insights
@@ -644,7 +649,12 @@
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
 - **How:** Today lib/measurement.ts picks only metric or imperial by region, and lib/unitConversion.ts has one cup and one pint (US). Add a measures profile from the region, changeable in Profile: US 237 ml, metric 250 ml and Japanese 200 ml cups, the Australian 20 ml tablespoon, UK pints and gallons, stones, gas marks and fan ovens, kJ or kcal and salt or sodium on labels, lab units (P18), date, decimal and clock formats. Stored in one base unit underneath so a change never alters a record. Notion: https://app.notion.com/p/3f153652f272816fba7de26c85f22d8e
 
-## Phase 3. Larger builds over the air (81 items)
+### P27. One entitlement gate every feature checks
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** all
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Tiers are not decided yet, so build the mechanism now: one table maps features to tiers and every screen asks one function. Deciding or changing tiers becomes an edit to the table. A gated feature names the tier that includes it through explainNotYet; Developer Tools can switch tiers; store billing feeds it later. Notion: https://app.notion.com/p/3f153652f272812e8721f0bee87e8dc0
+
+## Phase 3. Larger builds over the air (82 items)
 
 ### A2. Tapering doses
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
@@ -1051,7 +1061,12 @@
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
 - **How:** An optional prompt at a time the person sets: tomorrow's first things, anything to put in Capture, and a wind-down routine from Routines. Done or not, never scored. Notion: https://app.notion.com/p/3f153652f27281e28a54dcd52f85778a
 
-## Phase 4. The Android rebuild (R1) (11 items)
+### P29. Sealed visit share: a doctor opens it in a browser with a code
+- **Ships by:** Cloudflare Worker · **Size:** L · **Tabs:** Reports,Schedules
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** The person picks what goes in (usually K4's visit page); the doctor opens a link on insidestoryapp.com with a code and it decrypts on their screen, the Worker never seeing the contents. Expires after the appointment by default and can be withdrawn sooner, saying plainly it cannot reach a copy the doctor saved; offers a PDF for the portal or chart. No install or account for the doctor. Notion: https://app.notion.com/p/3f153652f27281e590c9fe4cad6ce01b
+
+## Phase 4. The Android rebuild (R1) (14 items)
 
 ### C11. Share into Inside Story from any app
 - **Ships by:** Android rebuild R1 · **Size:** M · **Tabs:** Life,Home,Food
@@ -1108,6 +1123,21 @@
 - **Answers:** (your question) · **Theme:** Talking to people
 - **How:** expo-sms opens the phone's texting app with the message filled in; calling already works through Linking.
 
+### P30. A child's records handed over at adulthood
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Profile,Life
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Handover age follows the country; both told ahead what changes; on the day the young person holds their records and decides what the parent still sees. Before then, categories teenagers have a legal right to keep private (reproductive and sexual health, mental health) can be marked private to the child, following the country's rules. Nothing deleted at handover. Notion: https://app.notion.com/p/3f153652f2728104bc20fc99bae8737e
+
+### P31. A caregiver's changes are logged where both people can read them
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Every record a caregiver adds, changes or removes is written to an append-only log (what, when, by whom) readable by both, on the sync_change_log pattern. Notion: https://app.notion.com/p/3f153652f27281f49d0cc31ce4fbf59c
+
+### P32. When a shared relationship ends
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Profile
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Partner, household, guardian or caregiver link ended by either person: syncing stops, each keeps their records in full, shared records are copied to both sides, the connection's keys are retired, the other is told it ended and never why. Ties to If something happens to me. Notion: https://app.notion.com/p/3f153652f2728189bd50e76926d4d5e6
+
 ## Phase 5. The Worker and the relay (6 items)
 
 ### A14. Recalls matched to My Meds and scanned foods
@@ -1152,7 +1182,7 @@
 - **Answers:** Tiimo, Medisafe · **Theme:** Phones, widgets and devices
 - **How:** WidgetKit through a config plugin, same content and switch.
 
-## Phase 7. Opt-in, server and ruled-out items (23 items)
+## Phase 7. Opt-in, server and ruled-out items (24 items)
 
 ### A15. Pill identifier
 - **Ships by:** Owner decision first · **Size:** L · **Tabs:** Life
@@ -1268,4 +1298,9 @@
 - **Ships by:** Cloudflare Worker · **Size:** L · **Tabs:** Food,Insights
 - **Answers:** Yuka · **Theme:** Asked of you: these meet a standing rule or need a company server
 - **How:** A country subset of Open Food Facts is still large; the Worker cache plus G21 covers most of it.
+
+### P33. Into the clinic's records system directly, much later
+- **Ships by:** Needs a company server · **Size:** L · **Tabs:** Reports
+- **Answers:** (your question) · **Theme:** Asked of you: these meet a standing rule or need a company server
+- **How:** SMART on FHIR with Epic, Oracle Health and others: vendor certification per system, likely a server holding health data, and a HIPAA business associate agreement in the US, each meeting the no-company-server rule. P29 covers the need without it. Notion: https://app.notion.com/p/3f153652f2728159927ce6fe1f2e6c06
 
