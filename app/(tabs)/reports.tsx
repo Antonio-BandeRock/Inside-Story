@@ -16,7 +16,7 @@ import { MyItemsHub } from '../../components/MyItemsHub';
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
-import { HOME_BAND_GAP } from '../../components/HomeSectionBand';
+import { CalmBands, HOME_BAND_ACCENT_WIDTH } from '../../components/HomeSectionBand';
 import { makeTabBandStyles } from '../../components/TabBand';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
@@ -35,7 +35,7 @@ import { lastVisit } from '../../lib/sinceLastVisit';
 import { listAllAppointments } from '../../lib/trendsMoreDb';
 
 const TAB_COLOR = colors.tabReports;
-const band = makeTabBandStyles(TAB_COLOR);
+const band = makeTabBandStyles(TAB_COLOR, { calm: true });
 
 // Eight reports since 1.0.52.7: the Overview plus the seven marked Build on
 // the inputs-to-outputs map, each a different reader's view over the same
@@ -372,6 +372,7 @@ export default function ReportsScreen() {
           change-tab only works from a lens's own picker, not once a real
           lens's content (with its own scrollable controls) is showing. */}
       <SwipeableTabScreen enabled={!revealed}>
+        <CalmBands>
         <GatedTabContent pageTitle="Reports" variant="reports" revealed={revealed}>
           <ScrollView ref={scrollRef} style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
             <View style={band.heading}>
@@ -503,6 +504,7 @@ export default function ReportsScreen() {
             <ReportHistoryBand tabColor={TAB_COLOR} refreshKey={historyKey} askForId={askForId} onMakeAgain={makeAgain} />
           </ScrollView>
         </GatedTabContent>
+        </CalmBands>
       </SwipeableTabScreen>
       {infoAlertElement}
 
@@ -534,7 +536,7 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   // No side inset, 2026-09-19: the page is a column of edge-to-edge bands
   // (components/TabBand.tsx), spaced by the one standing band gap.
-  content: { paddingBottom: 32, gap: HOME_BAND_GAP },
+  content: { paddingBottom: 32, gap: HOME_BAND_ACCENT_WIDTH },
   loadingText: { ...typography.body, color: colors.textSecondary, ...textShadow },
 
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

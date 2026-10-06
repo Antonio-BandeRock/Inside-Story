@@ -273,7 +273,7 @@ import { RuleSeverityTag } from '../../components/RuleSeverityTag';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
-import { CalmBands, HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandNoHairlines, homeBandStyle } from '../../components/HomeSectionBand';
+import { CalmBands, HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HomeSectionBand, homeBandNoHairlines, homeBandStyle } from '../../components/HomeSectionBand';
 import { useBandFolds } from '../../hooks/useBandFolds';
 import { describeUpkeepStanding, DUE_SOON_DAYS, upkeepCategoryLabel, upkeepStanding, type UpkeepItem, type UpkeepStanding } from '../../lib/upkeep';
 import { listUpkeepItems, markUpkeepDone } from '../../lib/upkeepDb';
@@ -6947,11 +6947,12 @@ export default function ScheduleScreen() {
           change-tab only works from a lens's own picker, not once a real
           lens's content (with its own scrollable controls) is showing. */}
       <SwipeableTabScreen enabled={!revealed}>
+        <CalmBands>
         <GatedTabContent pageTitle="Schedules" variant="schedule" revealed={revealed}>
           {lens === 'meals' ? (
             <MealsLens />
           ) : lens === 'todaysMeals' ? (
-            <CalmBands><TodaysMealsLens /></CalmBands>
+            <TodaysMealsLens />
           ) : lens === 'pastMeals' ? (
             <PastMealsLens />
           ) : lens === 'dailyMealPlan' ? (
@@ -6959,7 +6960,7 @@ export default function ScheduleScreen() {
           ) : lens === 'hydration' ? (
             <HydrationLens />
           ) : lens === 'meds' ? (
-            <CalmBands><MedsLens scheduleTreatmentId={scheduleTreatmentId} /></CalmBands>
+            <MedsLens scheduleTreatmentId={scheduleTreatmentId} />
           ) : lens === 'appointments' ? (
             <AppointmentsLens />
           ) : lens === 'upkeep' ? (
@@ -6970,6 +6971,7 @@ export default function ScheduleScreen() {
             <ExerciseLens />
           )}
         </GatedTabContent>
+        </CalmBands>
       </SwipeableTabScreen>
 
       <PageIdentityLabel title="Schedules" activeLensLabel={revealed ? activeLensLabel : undefined} />
@@ -7014,19 +7016,21 @@ const styles = StyleSheet.create({
   // same as every Food screen: the column keeps its 16px so the loose
   // buttons between bands stay inset, every band cancels it to run edge
   // to edge, and the standard gap separates everything.
-  bodyContent: { padding: 16, paddingTop: 5, paddingBottom: 32, gap: HOME_BAND_GAP },
+  bodyContent: { padding: 16, paddingTop: 5, paddingBottom: 32, gap: HOME_BAND_ACCENT_WIDTH },
   bandOut: { marginHorizontal: -16 },
   // Rows inside a band, the standard gap apart.
-  bandRows: { gap: HOME_BAND_GAP },
+  bandRows: { gap: HOME_BAND_ACCENT_WIDTH },
   // 1.0.61.7, the calm look on the two clock-ordered lenses (Today's Meals
   // and Meds): bands and rows a left-accent width apart with no hairlines,
   // so a day reads as one continuous run. See CalmBands in
-  // components/HomeSectionBand.tsx.
+  // components/HomeSectionBand.tsx. Since 1.0.61.10 the whole tab is calm,
+  // so these now repeat what bodyContent and bandBox already carry.
   calmGap: { gap: HOME_BAND_ACCENT_WIDTH },
   calmEdges: homeBandNoHairlines,
   // A headerless band box: a form, a reading, a notice.
   bandBox: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: TAB_COLOR,
     marginHorizontal: -16,
     padding: HOME_BAND_CONTENT_PADDING,
@@ -7076,6 +7080,7 @@ const styles = StyleSheet.create({
   // every other card on this page (a TAB_COLOR border, TAB_COLOR text).
   weekStripCard: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: TAB_COLOR,
     marginHorizontal: -16,
     padding: HOME_BAND_CONTENT_PADDING,
@@ -7133,6 +7138,7 @@ const styles = StyleSheet.create({
   // 2026-07-27.
   formCard: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: TAB_COLOR,
     marginHorizontal: -16,
     padding: HOME_BAND_CONTENT_PADDING,
@@ -7143,6 +7149,7 @@ const styles = StyleSheet.create({
   // "reading" this box exists to show.
   hydrationSummaryCard: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: TAB_COLOR,
     marginHorizontal: -16,
     padding: HOME_BAND_CONTENT_PADDING,
@@ -7283,7 +7290,7 @@ const styles = StyleSheet.create({
   // sitting on it. Giving the group the card fixes that whole cluster at
   // once rather than chipping each line inside it. overflow hidden so the
   // rows' full-bleed top borders stay inside the rounded corners.
-  myMedsGroup: { gap: HOME_BAND_GAP },
+  myMedsGroup: { gap: HOME_BAND_ACCENT_WIDTH },
   // The researched-content card shown once a nutrient/form (or a matched
   // common medication) is picked -- deliberately a lighter, dashed-border
   // look, distinct from formCard/interactionCard's own solid TAB_COLOR
@@ -7368,7 +7375,7 @@ const styles = StyleSheet.create({
   // 2026-07-27.
   // A list inside a band: rows as inset boxes at the standard gap (a band
   // inside a band would put its accent 16px in).
-  table: { gap: HOME_BAND_GAP },
+  table: { gap: HOME_BAND_ACCENT_WIDTH },
   row: {
     borderRadius: 10,
     backgroundColor: colors.surfaceMuted,
@@ -7393,7 +7400,7 @@ const styles = StyleSheet.create({
   doseRowStatus: { ...typography.caption, color: TAB_COLOR, flex: 1, ...textShadow },
   doseRowActions: { flexDirection: 'row', gap: 14 },
   doseForm: { marginTop: 8 },
-  appointmentTopActions: { gap: HOME_BAND_GAP },
+  appointmentTopActions: { gap: HOME_BAND_ACCENT_WIDTH },
   secondaryButtonFull: {
     borderWidth: 1,
     borderColor: colors.border,

@@ -6,7 +6,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HomeSectionBand, homeBandNoHairlines, homeBandStyle } from './HomeSectionBand';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -532,11 +532,12 @@ function makeStyles(tabColor: string) {
     addButtonText: { ...typography.bodyEmphasis, color: colors.primary, ...textShadow },
     bandBox: {
       ...homeBandStyle,
+      ...homeBandNoHairlines,
       borderColor: tabColor,
       marginHorizontal: -CONTENT_INSET,
       padding: HOME_BAND_CONTENT_PADDING,
     },
-    bodyContent: { gap: HOME_BAND_GAP },
+    bodyContent: { gap: HOME_BAND_ACCENT_WIDTH },
     dayBlock: { gap: 8 },
     dayHeading: {
       ...typography.label,
@@ -554,6 +555,7 @@ function makeStyles(tabColor: string) {
     formActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12, marginTop: 16 },
     formCard: {
       ...homeBandStyle,
+      ...homeBandNoHairlines,
       borderColor: tabColor,
       marginHorizontal: -CONTENT_INSET,
       padding: HOME_BAND_CONTENT_PADDING,
@@ -572,7 +574,7 @@ function makeStyles(tabColor: string) {
       ...textShadow,
     },
     label: { ...typography.label, color: tabColor, marginBottom: 6, marginTop: 12, ...textShadow },
-    list: { gap: HOME_BAND_GAP },
+    list: { gap: HOME_BAND_ACCENT_WIDTH },
     panelStandalone: {
       backgroundColor: colors.surfaceMuted,
       borderRadius: 10,
