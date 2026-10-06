@@ -3766,3 +3766,10 @@ Checks, limits and what is still open:
 - Checked by `scripts/test_desktop_seal.js` (111 checks). The new modules are listed in `electron-builder.yml`'s `files:`.
 - Limits: Mac is passcode only, the window is not blanked in the task switcher, and screenshots cannot be blocked.
 - Followed by fixes in other sessions (1.0.60.10: scrypt 2^12 rewrap and a Lock Now button; 1.0.60.15: desktop setup URL fix and Bring My Records Back). Tony confirmed App Lock working on the PC on 2026-10-03.
+
+
+## Removed from CLAUDE.md on 2026-10-06
+
+Removed from Open next steps to keep CLAUDE.md under 100 KB when item 37 (Learn) was added. Verbatim:
+
+15, 16, 19, 20 and 21. **CLOSED**, each accounted for in `docs/CLAUDE-ARCHIVE-2026-09-14.md`: soy-free vegan breakfasts, then Hashimoto's vegan, vegetarian, paleo and AIP lunch and dinner coverage (15 and 19); a structural, condition-agnostic breakfast shortage across AIP, Mediterranean and paleo, closed in four batches so all 570 (diet tag, condition, meal) combinations clear the 30-minimum bar, checked by `scripts/audit_meal_plan_recipe_coverage.js` (20); quick-log by one-tap repeat, barcode, voice and photo, where automatic food recognition from a photo was deliberately NOT built, since it needs an off-device vision model and would have to ship as an explicit opt-in with a stated boundary (21); and adjustable personal nutrient targets for protein, fiber and sodium, which are whole-day targets, since a per-meal split would have to be invented and cannot be cited (16).
