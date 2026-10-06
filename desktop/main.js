@@ -279,8 +279,15 @@ function createWindow() {
   zoom.attach(mainWindow);
 
   // App Lock: the page reloading is how the app locks and restarts, so the
-  // key to sealed records goes with the page that held it.
-  mainWindow.webContents.on('did-start-loading', () => sqlite.closeSealed());
+  // key to sealed records goes with the page that held it. Only a new page
+  // counts. 'did-start-loading' also fires on history.pushState, which is
+  // every change of screen, so for three days (1.0.60.7 to 1.0.62.3) the
+  // first tap after unlocking sealed the records again under a page that
+  // still looked open: Profile would not open, settings and reminders never
+  // loaded, and sync stopped at its first read.
+  mainWindow.webContents.on('did-start-navigation', (details) => {
+    if (details.isMainFrame && !details.isSameDocument) sqlite.closeSealed();
+  });
   mainWindow.webContents.on('render-process-gone', () => sqlite.closeSealed());
 
   notifications.setDeliver((response) => {
