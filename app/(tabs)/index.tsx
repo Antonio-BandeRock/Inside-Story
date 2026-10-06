@@ -35,6 +35,7 @@ import {
   HOME_BAND_CONTENT_PADDING,
   HOME_BAND_GAP,
   HomeBandHairlinesContext,
+  HomeBandInGroupContext,
   HomeSectionBand,
   homeBandNoHairlines,
   homeBandStyle,
@@ -4628,9 +4629,11 @@ export default function HomeScreen() {
           onLongPress={() => beginArranging()}
           contentStyle={styles.homeTabGroupBody}
         >
-          {shown.map((member) => (
-            <Fragment key={member.key}>{member.node}</Fragment>
-          ))}
+          <HomeBandInGroupContext.Provider value>
+            {shown.map((member) => (
+              <Fragment key={member.key}>{member.node}</Fragment>
+            ))}
+          </HomeBandInGroupContext.Provider>
         </HomeSectionBand>
       </View>
     );

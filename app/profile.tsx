@@ -26,7 +26,13 @@ import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonS
 import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../components/HomeSectionBand';
+import {
+  HOME_BAND_ACCENT_WIDTH,
+  HOME_BAND_CONTENT_PADDING,
+  homeBandDivided,
+  homeBandNoHairlines,
+  homeBandStyle,
+} from '../components/HomeSectionBand';
 import { APP_VERSION } from '../constants/version';
 import { isSignedIn as isOneDriveSignedIn } from '../lib/oneDriveAuth';
 import { getBackupsFolder, getSharedFolder } from '../lib/oneDriveFolders';
@@ -6032,8 +6038,16 @@ const styles = StyleSheet.create({
   // HOME_BAND_GAP between stacked surfaces in place of the margins each
   // card and heading used to carry. The bottom padding is set inline from
   // useFloatingButtonScrollPadding, a full window of run-out.
+  // 1.0.61.6, direct request: "close up each section so there are no gaps
+  // between the headers and their subsections, but the same idea for
+  // separation between subsections using a darker line, and a small gap
+  // between the sections of Profile." So the column has no gap of its own:
+  // each card sits straight under the one above it with a dark line along
+  // its top, and every block that starts something new (a group heading,
+  // the two intro panels, the Saved flash) carries the small gap above it,
+  // the left accent's width, the same gap Home's sections have.
   container: {
-    gap: HOME_BAND_GAP,
+    gap: 0,
   },
   // 2026-08-21, the sticky bar profileTitleRow now sits inside, replacing
   // the native header removed the same day (see app/_layout.tsx's profile
@@ -6064,7 +6078,9 @@ const styles = StyleSheet.create({
   introBox: {
     ...homeBandStyle,
     borderColor: colors.tabProfile,
+    ...homeBandNoHairlines,
     padding: HOME_BAND_CONTENT_PADDING,
+    marginTop: HOME_BAND_ACCENT_WIDTH,
   },
   intro: {
     ...typography.body,
@@ -6078,6 +6094,8 @@ const styles = StyleSheet.create({
     ...homeBandStyle,
     backgroundColor: colors.surfaceMuted,
     borderColor: colors.tabProfile,
+    ...homeBandNoHairlines,
+    marginTop: HOME_BAND_ACCENT_WIDTH,
     paddingVertical: 10,
     paddingHorizontal: HOME_BAND_CONTENT_PADDING,
   },
@@ -6099,10 +6117,14 @@ const styles = StyleSheet.create({
   // does not read as another empty card.
   // Since 2026-09-19 a full-width heading band on the muted surface, the
   // same shape makeTabBandStyles gives every tab's lens headings.
+  // surfaceMuted is darker than surface on every ground, which keeps a
+  // heading darker than the cards under it (1.0.61.6, same request).
   groupHeadingChip: {
     ...homeBandStyle,
     backgroundColor: colors.surfaceMuted,
     borderColor: colors.tabProfile,
+    ...homeBandNoHairlines,
+    marginTop: HOME_BAND_ACCENT_WIDTH,
     paddingVertical: 10,
     paddingHorizontal: HOME_BAND_CONTENT_PADDING,
   },
@@ -6118,9 +6140,12 @@ const styles = StyleSheet.create({
   },
   // Since 2026-09-19 an edge-to-edge band in the Profile colour, the
   // same shape as every tab's boxes; the column's gap spaces them.
+  // The dark line along each card's top is what separates one card from
+  // the next, and the first from its heading, 1.0.61.6.
   card: {
     ...homeBandStyle,
     borderColor: colors.tabProfile,
+    ...homeBandDivided,
     padding: HOME_BAND_CONTENT_PADDING,
   },
   label: {
@@ -6147,7 +6172,10 @@ const styles = StyleSheet.create({
   // Text itself; cardBody's marginTop below is what actually spaces the
   // header row from the content underneath it, only while a section is
   // expanded (a collapsed card has no body to space against).
+  // paddingLeft 8 since 1.0.61.6, same request: "Indent the subsection
+  // words by a tiny amount just to cause visible subsection breaks."
   cardHeaderRow: {
+    paddingLeft: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

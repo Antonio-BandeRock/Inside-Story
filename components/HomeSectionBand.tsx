@@ -96,6 +96,31 @@ export const homeBandNoHairlines: ViewStyle = {
   borderBottomColor: 'transparent',
 };
 
+// A band drawn inside another band, 1.0.61.6, direct request about Home's
+// tab groups: "Make the background color of the sub items ... the same
+// color as the quicklaunch tab backgrounds, then put a dark line between
+// them for visual separation." A band inside a group has no surface of its
+// own, so the group's shows through and the two read as one colour (two
+// translucent surfaces stacked read darker than one), and its top edge
+// becomes a dark line, which also sets the first card off from the group's
+// name. The band resets this for its own contents, so only the group's
+// direct cards take it.
+export const HomeBandInGroupContext = createContext(false);
+
+// The dark line between stacked bands that otherwise touch (Home's group
+// cards, Profile's cards). Black at partial strength rather than a token,
+// so it reads as a shadow line on every ground colour.
+export const HOME_BAND_DIVIDER_COLOR = 'rgba(0, 0, 0, 0.45)';
+
+// A band whose only line is a dark one along its top: hairline widths kept,
+// so the height does not change.
+export const homeBandDivided: ViewStyle = {
+  borderTopColor: HOME_BAND_DIVIDER_COLOR,
+  borderBottomColor: 'transparent',
+};
+
+const IN_GROUP_STYLE: ViewStyle = { backgroundColor: 'transparent', ...homeBandDivided };
+
 // How long a hold has to last before it counts as one. React Native
 // defaults to 500ms; 400 is enough to be deliberate and short enough that
 // somebody who meant it does not let go first thinking nothing happened.
@@ -164,7 +189,13 @@ export function HomeSectionBand(props: FoldProps | ActionProps | StaticProps) {
   const { title, icon, color } = props;
   const textColor = props.textColor ?? color;
   const hairlines = useContext(HomeBandHairlinesContext);
-  const bandStyle = [styles.band, { borderColor: color }, hairlines ? null : homeBandNoHairlines];
+  const inGroup = useContext(HomeBandInGroupContext);
+  const bandStyle = [
+    styles.band,
+    { borderColor: color },
+    hairlines ? null : homeBandNoHairlines,
+    inGroup ? IN_GROUP_STYLE : null,
+  ];
   const glyph = props.renderIcon ? (
     props.renderIcon(16, color)
   ) : (
@@ -212,7 +243,9 @@ export function HomeSectionBand(props: FoldProps | ActionProps | StaticProps) {
             {title}
           </Text>
         </View>
-        <View style={[styles.content, props.contentStyle]}>{props.children}</View>
+        <HomeBandInGroupContext.Provider value={false}>
+          <View style={[styles.content, props.contentStyle]}>{props.children}</View>
+        </HomeBandInGroupContext.Provider>
       </View>
     );
   }
@@ -244,7 +277,11 @@ export function HomeSectionBand(props: FoldProps | ActionProps | StaticProps) {
         )}
         <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={color} style={textShadow} />
       </TouchableOpacity>
-      {expanded ? <View style={[styles.content, contentStyle]}>{children}</View> : null}
+      {expanded ? (
+        <HomeBandInGroupContext.Provider value={false}>
+          <View style={[styles.content, contentStyle]}>{children}</View>
+        </HomeBandInGroupContext.Provider>
+      ) : null}
     </View>
   );
 }
