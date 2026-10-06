@@ -8,7 +8,6 @@ import { colors } from '../constants/colors';
 import { EDGE_SHADOW_HEIGHT, EdgeShadow } from './EdgeShadow';
 import { GENERIC_BACKGROUND_PALETTES } from './GenericBackground';
 
-import { TAB_MARK_ROW_HEIGHT, TabPositionMark } from './TabPositionMark';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { getUserProfile } from '../lib/db';
 
@@ -19,49 +18,19 @@ import { getUserProfile } from '../lib/db';
 // can't drift out of sync.
 const ROW_HORIZONTAL_PADDING = 4;
 
-// 2026-08-21, Phase 0 of the header growth vine/Timeline plan: the tab-
-// position mark row (TabPositionMark) needs vertical space of its own,
-// carved out of the title text's own existing budget rather than added on
-// top. See HEADER_ROW_HEIGHT's own comment below for why the total must
-// stay exactly what it was before this. It is imported rather than declared
-// here as of 1.0.39.13, when the row of dots became one tab glyph: the row
-// and the glyph inside it now have to agree about the height, so one file
-// owns the number and this one reads it.
-// 14px that was reserved on 2026-08-21 for a second band under the tab
-// mark, holding one small growing mark per tab (GrowthMarksRow, Phase 2 of
-// the header growth vine plan). Nothing renders there as of 1.0.39.14.
-// Direct instruction: "The reward concept, yes it stays, but not the dots,
-// and not under Inside Story as it is. Remove them. I think we need to take
-// advantage of as much screenspace as we can without things cluttering the
-// data." The recognition itself moves to Profile as milestones plus
-// occasional short animations tied to actual events; the criteria registry
-// and the vine state it feeds (lib/achievementCriteria.ts,
-// lib/growthVine.ts) are untouched and waiting for it.
-//
-// The number survives as a constant for one reason: it is subtracted from
-// HEADER_TEXT_HEIGHT below and deliberately absent from HEADER_ROW_HEIGHT.
-// So the title's box is exactly the size it has been since 2026-08-21, and
-// the 14px leaves the header altogether rather than being handed back to
-// the title, which is what turns it into content space on every screen.
-const RETIRED_GROWTH_MARKS_HEIGHT = 14;
-// 2026-08-21, same-day on-device correction: the previous pass carved the
-// dots/growth rows entirely out of the title's own box and left the
-// header's outer padding untouched, which made the title read as too
-// small -- direct report: "we need to add size back to it again as it is
-// too small now." The actual fix is a different lever: `row`'s own
-// paddingVertical (6+6=12, already the "biggest lever available" per this
-// file's own 2026-07-25 history) drops to 0, and the wrapper's own
-// paddingTop drops from 12 to 4 (kept as a small residual margin, not
-// zeroed, rather than guess that touching the very top edge reads well
-// without seeing it on-device) -- see `styles.wrapper`/`styles.row` below,
-// and SCREEN_HEADER_WRAPPER_TOP_PADDING's own comment for why that
-// constant has to move in lockstep with `styles.wrapper.paddingTop`. That
-// reclaims 20px (12 + 8) that was previously just padding, handed back to
-// the title's own box instead of the dots/growth rows, which already have
-// what they need. Direct instruction: "let's move the Title up as far as
-// we can. Then, we need to add size back to it" -- reclaiming dead padding
-// rather than the header growing is what makes both true at once.
-const HEADER_TEXT_HEIGHT = 60 + 20 - TAB_MARK_ROW_HEIGHT - RETIRED_GROWTH_MARKS_HEIGHT;
+// 1.0.61.3: the header holds the name and nothing else. Direct
+// instruction: "we won't be doing any of the rewarding for the user from
+// the header area. And, I don't think we need the little selected tab icon
+// to be up there anymore. Let's shrink the header height, leaving just the
+// User's first name and "Inside Story" centered both horizontally and
+// vertically in the header space, giving more room on the tab screens."
+// So the tab glyph (TabPositionMark, 16px) and the 14px once kept for growth
+// marks are both gone, and the title's box is cut to what the full-size
+// text plus its deepest shadow layer needs: about 38px of Nunito at 28 with
+// the shadow stack reaching 8px below it. The corner box (PageIdentityLabel)
+// still says which tab is showing. The whole header went from 80px under
+// the status bar to 54.
+const HEADER_TEXT_HEIGHT = 44;
 // The *maximum* size -- a long first name (e.g. "Alexandria's Inside
 // Story") shrinks down from here to actually fit, same idea as native
 // Text's adjustsFontSizeToFit, just done by hand since SVG text has no
@@ -109,38 +78,20 @@ const SHADOW_LAYERS: readonly { offset: number; opacity: number }[] = [
 ];
 const HIGHLIGHT_OFFSET = -1.5;
 
-// row's own paddingVertical (6+6) + the text SVG's own height + the tab-
-// position dots row + the rounded-edge shadow strip below it (EdgeShadow,
-// see its own header comment) -- every piece of this header's fixed
-// vertical footprint, added up once here instead of re-measured. The title
-// text's width auto-shrinks (see fontSize above) but its height never
-// does, so this is a true constant per device, not an estimate. 2026-08-21:
-// the flat divider line (1px) and its two shadow-fade bars (2px+2px, 5px
-// total) are gone, replaced by EdgeShadow's own taller EDGE_SHADOW_HEIGHT.
-// Same day: TAB_MARK_ROW_HEIGHT and the growth-marks band both joined this
-// sum during Phase 0, carved out of HEADER_TEXT_HEIGHT so the total stayed
-// unchanged -- direct requirement at the time: "the header area is not to
-// become bigger than it is." The growth-marks band left this sum again in
-// 1.0.39.14 without being added back to the title's box, so the header is
-// now 14px shorter than it has been since 2026-08-21 and every screen gets
-// those 14px as content (see getScreenHeaderHeight below, which is what
-// each tab pads its own scroll view by). A later same-day pass (see
-// HEADER_TEXT_HEIGHT's own comment) reclaims real outer padding instead
-// (row's own paddingVertical, previously the leading `12` here, is now 0)
-// and hands it to the title's box rather than growing the header -- so
-// this constant is no longer literally identical to before Phase 0, it's
-// actually a little smaller, which is the direct point of "move the title
-// up as far as we can," not a violation of the "don't grow" rule, growing
-// was never asked for, only shrinking the dead space was.
-const HEADER_ROW_HEIGHT = HEADER_TEXT_HEIGHT + TAB_MARK_ROW_HEIGHT + EDGE_SHADOW_HEIGHT;
+// The title's box plus the rounded-edge shadow strip below it (EdgeShadow),
+// every piece of this header's fixed vertical footprint. The title's width
+// auto-shrinks (see fontSize below) but its height never does, so this is a
+// true constant per device. Each tab pads its scroll view by it through
+// useScreenHeaderHeight.
+const HEADER_ROW_HEIGHT = HEADER_TEXT_HEIGHT + EDGE_SHADOW_HEIGHT;
 
-// Mirrors `styles.wrapper.paddingTop` below (they have to move together --
-// both were 12, both are now 4, see that style's own 2026-08-21 comment
-// for why) -- included here so the one shared persistent background layer
+// Mirrors `styles.wrapper.paddingTop` below (they have to move together;
+// 12, then 4, now 0 since 1.0.61.3 so the name sits centered between the
+// status bar and the edge shadow), included here so the one shared persistent background layer
 // (app/(tabs)/_layout.tsx) can start exactly where a screen's real,
 // rendered header ends, without duplicating this number a second place it
 // could quietly drift out of sync with.
-const SCREEN_HEADER_WRAPPER_TOP_PADDING = 4;
+const SCREEN_HEADER_WRAPPER_TOP_PADDING = 0;
 
 // The true on-screen height of "a screen's own header," top of device to
 // where the header's divider line ends -- safe-area inset plus this
@@ -333,17 +284,6 @@ export function ScreenHeader() {
           </Svg>
           </View>
         </Pressable>
-        {/* Always-on "you are here" indicator: the glyph of whichever tab
-            you are standing on, in that tab's colour. See
-            TabPositionMark.tsx's own header comment for why it is a
-            discrete snap to the current route rather than a live
-            drag-follow, and for why it stopped being ten dots. It carries
-            its own height (TAB_MARK_ROW_HEIGHT, in the sum above), so it is
-            rendered bare here rather than inside a fixed-height box. It is
-            the last thing in the header now: the growth-marks band that sat
-            under it from 2026-08-21 to 1.0.39.14 is gone, and so is its
-            14px (see RETIRED_GROWTH_MARKS_HEIGHT's own comment above). */}
-        <TabPositionMark />
       {/* The flat divider line + two shadow-fade bars that used to render
           here are replaced outright, 2026-08-21, direct request: "the
           bottom edge of the header... to look shaded for depth so it
@@ -367,9 +307,10 @@ const styles = StyleSheet.create({
   // this sits above insets.top's own real safe-area clearance, so it's
   // genuinely trimmable, but going all the way to 0 without seeing it
   // on-device risked the title reading as flush against the status bar.
+  // 1.0.61.3: 4 to 0, so the name is centered in the header's space.
   // Must stay in sync with SCREEN_HEADER_WRAPPER_TOP_PADDING above.
   wrapper: {
-    paddingTop: 4,
+    paddingTop: 0,
     backgroundColor: colors.background,
   },
   // 2026-07-25: reduced roughly a quarter overall, now that this text is

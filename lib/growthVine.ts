@@ -29,8 +29,8 @@ export type GrowthVineState = {
   // doesn't need to be represented in the top." The dots themselves took
   // Home back on 2026-09-05 and became a single tab glyph in 1.0.39.13.
   // Worth revisiting whenever this state finds its next home: nothing has
-  // rendered it since 1.0.39.14, when the marks left the header (see
-  // RETIRED_GROWTH_MARKS_HEIGHT in components/ScreenHeader.tsx). This file
+  // rendered it since 1.0.39.14, when the marks left the header, and since
+  // 1.0.61.3 nothing rewards from the header at all. This file
   // and the criteria registry it reads are kept intact on purpose, because
   // the recognition itself stays: "The reward concept, yes it stays, but
   // not the dots, and not under Inside Story as it is."
