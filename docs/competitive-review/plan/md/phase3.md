@@ -308,10 +308,10 @@
 - **Answers:** Sortly · **Theme:** Money, upkeep and places
 - **How:** Pure JS QR, printed through expo-print, scanned with the camera already there. The label carries an id only.
 
-### K4. Visit prep questions
-- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Reports,Insights
+### K4. Visit prep: questions and one page for the appointment
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Reports,Insights,Schedules
 - **Answers:** Guava · **Theme:** Reports
-- **How:** visit_questions tied to an appointment, reorder and tick off, in the person's words.
+- **How:** visit_questions tied to an appointment, reorder and tick off, in the person's words. Widened 2026-10-06: Capture notes and P25's pharmacist questions can be sent here; what changed since the last visit (meds, supplements, labs, conditions, K1's window); one printed page and PDF per appointment with room for answers; answers recorded after against each question. Notion: https://app.notion.com/p/3f153652f27281aba8e2fdd40d683fb3
 
 ### P1. The first week, for someone with no condition and no patience
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Home,Profile

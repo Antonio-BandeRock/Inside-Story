@@ -18,7 +18,7 @@
 ### P14. Conversions, a lens of tools people actually need
 - **Ships by:** Owner decision first · **Size:** S · **Tabs:** Life
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
-- **How:** Index and rules for P15 to P21: every answer shows the arithmetic and why the measures differ; never across kinds unless the thing supplies the link (a food's density, a substance's molar mass), unknown said as unknown; offline, nothing sent; health conversions never interpret or suggest a dose; answers can be saved into a record; a Convert button beside number fields elsewhere. Owner decides which tab. Notion: https://app.notion.com/p/3f153652f27281d599c9e908f66f60a7
+- **How:** Index and rules for P15 to P21: every answer shows the arithmetic and why the measures differ; never across kinds unless the thing supplies the link (a food's density, a substance's molar mass), unknown said as unknown; offline, nothing sent; health conversions never interpret or suggest a dose; answers can be saved into a record; a Convert button beside number fields elsewhere. Decided 2026-10-06: a lens on Life. Notion: https://app.notion.com/p/3f153652f27281d599c9e908f66f60a7
 
 ## Phase 1. Foundations (10 items)
 
@@ -956,10 +956,10 @@
 - **Answers:** Sortly · **Theme:** Money, upkeep and places
 - **How:** Pure JS QR, printed through expo-print, scanned with the camera already there. The label carries an id only.
 
-### K4. Visit prep questions
-- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Reports,Insights
+### K4. Visit prep: questions and one page for the appointment
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Reports,Insights,Schedules
 - **Answers:** Guava · **Theme:** Reports
-- **How:** visit_questions tied to an appointment, reorder and tick off, in the person's words.
+- **How:** visit_questions tied to an appointment, reorder and tick off, in the person's words. Widened 2026-10-06: Capture notes and P25's pharmacist questions can be sent here; what changed since the last visit (meds, supplements, labs, conditions, K1's window); one printed page and PDF per appointment with room for answers; answers recorded after against each question. Notion: https://app.notion.com/p/3f153652f27281aba8e2fdd40d683fb3
 
 ### P1. The first week, for someone with no condition and no patience
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Home,Profile
