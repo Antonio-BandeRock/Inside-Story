@@ -73,6 +73,7 @@ import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
 import { getTodo, markTodoDone } from './todosDb';
 import { getMorningCheckin, saveMorningCheckin } from './morningCheckinDb';
 import { isLockedNow, reminderDetailHidden } from './appLockSession';
+import { isRelayWake } from './relayWake';
 import { reminderWords } from './lockedReminderText';
 import { keepAnswerForUnlock, takeWaitingAnswers } from './lockedAnswers';
 import { ANDROID_GROUP_PREFIX, androidGroupFor, countWaiting, groupWaiting, SUMMARY_FROM, summaryBody, summaryTitle, type ShowingReminder, type WaitingGroup } from './waitingAnswers';
@@ -313,6 +314,11 @@ if (supported) {
     // The summary of what is waiting is never a banner: it only gathers
     // reminders already on screen, and the app is open anyway.
     handleNotification: async (notification) => {
+      // A relay wake-up (M1) is never shown; lib/reminderBackgroundTask.ts
+      // collects what it says is waiting.
+      if (isRelayWake(notification.request)) {
+        return { shouldShowBanner: false, shouldShowList: false, shouldPlaySound: false, shouldSetBadge: false };
+      }
       const summary = notification.request.identifier === WAITING_SUMMARY_ID;
       return {
         shouldShowBanner: !summary,

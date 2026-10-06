@@ -395,6 +395,16 @@ export type PartnerSyncFile = {
   sealed: string;
 };
 
+/** A short digest of a string (FNV-1a, 32 bits). Tells copies apart; secures nothing. */
+export function contentDigest(text: string): string {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(16).padStart(8, '0') + ':' + text.length;
+}
+
 /**
  * Builds the sealed wire for one partner, whatever is going to carry it.
  *
@@ -415,8 +425,16 @@ export async function buildWireForPartner(
   // How much room photos get. The relay carries a small body, so it passes
   // PEER_PHOTO_BUDGET_RELAY and no larger photos; a file or the home network
   // takes the direct budget.
-  options?: { photoBudget?: number; allowFullPhotos?: boolean },
-): Promise<{ ok: true; wire: PartnerSyncFile } | { ok: false; reason: 'noKey' | 'sealFailed' }> {
+  //
+  // skipWhenDigest (M1): the digest of what this carrier last delivered to
+  // this partner. When the payload, send time aside, still matches it, nothing
+  // is sealed and 'unchanged' comes back, so an automatic carrier can ask
+  // after every change without resending the same copy.
+  options?: { photoBudget?: number; allowFullPhotos?: boolean; skipWhenDigest?: string },
+): Promise<
+  | { ok: true; wire: PartnerSyncFile; digest: string }
+  | { ok: false; reason: 'noKey' | 'sealFailed' | 'unchanged' }
+> {
   if (!partner.encryptionPublicKeyBase64) return { ok: false, reason: 'noKey' };
 
   const plan = await getMealPlanForSync();
@@ -436,6 +454,10 @@ export async function buildWireForPartner(
     doses: await peerDosePartFor(partner),
   });
 
+  // The send time differs on every send, so it is left out.
+  const digest = contentDigest(JSON.stringify({ ...payload, sentAt: null }));
+  if (options?.skipWhenDigest === digest) return { ok: false, reason: 'unchanged' };
+
   let sealed: string;
   try {
     sealed = await sealForRecipient(
@@ -448,6 +470,7 @@ export async function buildWireForPartner(
 
   return {
     ok: true,
+    digest,
     wire: {
       kind: PARTNER_SYNC_FILE_KIND,
       v: 1,

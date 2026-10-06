@@ -163,8 +163,17 @@ export type RelaySendOutcome = {
   connectionId: string;
   name: string;
   sent: boolean;
+  /** Nothing went because the same copy is already waiting for them. */
+  unchanged?: boolean;
   reason?: string;
 };
+
+// M1: what this phone last put at the relay for each person, as a digest of
+// the payload without its send time. The automatic exchange sends after every
+// change, and a merge of what somebody sent is itself a change, so without
+// this two phones would hand the same copy back and forth through the relay
+// for ever. Held for the run only, the same as the OneDrive mailbox's.
+const lastRelayDigest = new Map<string, string>();
 
 /**
  * Posts one sealed blob per partner into that partner's mailbox.
@@ -173,7 +182,9 @@ export type RelaySendOutcome = {
  * must not stop another partner's message being posted, so each gets its own
  * result and the caller reports all of them.
  */
-export async function sendViaRelay(): Promise<{ outcomes: RelaySendOutcome[] }> {
+export async function sendViaRelay(
+  options: { onlyWhenChanged?: boolean } = {},
+): Promise<{ outcomes: RelaySendOutcome[] }> {
   const [connections, myFingerprintRaw, myConditions] = await Promise.all([
     listConnections(),
     getMyKeyFingerprint(),
@@ -210,7 +221,12 @@ export async function sendViaRelay(): Promise<{ outcomes: RelaySendOutcome[] }> 
     const built = await buildWireForPartner(partner, myFingerprintRaw, myConditions, {
       photoBudget: PEER_PHOTO_BUDGET_RELAY,
       allowFullPhotos: false,
+      skipWhenDigest: options.onlyWhenChanged ? lastRelayDigest.get(partner.id) : undefined,
     });
+    if (!built.ok && built.reason === 'unchanged') {
+      outcomes.push({ connectionId: partner.id, name: partner.name, sent: false, unchanged: true });
+      continue;
+    }
     if (!built.ok) {
       outcomes.push({
         connectionId: partner.id,
@@ -238,6 +254,7 @@ export async function sendViaRelay(): Promise<{ outcomes: RelaySendOutcome[] }> 
       ...signed,
     });
 
+    if (result.status === 200 && result.body.ok === true) lastRelayDigest.set(partner.id, built.digest);
     outcomes.push({
       connectionId: partner.id,
       name: partner.name,
@@ -252,17 +269,49 @@ export async function sendViaRelay(): Promise<{ outcomes: RelaySendOutcome[] }> 
   return { outcomes };
 }
 
+/**
+ * Tells the relay where this phone can be woken when mail arrives, or, with
+ * an empty token, to forget it (M1). Signed with this phone's key over the
+ * token, so only the holder of a mailbox can point its wake-ups anywhere.
+ */
+export async function registerPushAddress(token: string): Promise<{ ok: boolean; reason?: string }> {
+  const mailbox = compactFingerprint(await getMyKeyFingerprint());
+  if (!mailbox) return { ok: false, reason: 'This phone has no key fingerprint yet.' };
+  const result = await postToRelay('register', {
+    mailbox,
+    token,
+    ...(await credentials('register', mailbox, await sha256Hex(token))),
+  });
+  if (result.status === 200 && result.body.ok === true) return { ok: true };
+  return { ok: false, reason: describeRelayHttpFailure(result.status, result.body.reason) };
+}
+
 export type RelayReceiveOutcome = {
   fromFingerprint: string;
   applied: boolean;
   message: string;
 };
 
-/** Collects whatever is addressed to this phone, applies it, and clears what was used. */
-export async function receiveViaRelay(): Promise<{
-  outcomes: RelayReceiveOutcome[];
-  reason?: string;
-}> {
+type RelayReceived = { outcomes: RelayReceiveOutcome[]; reason?: string };
+
+let receiving: Promise<RelayReceived> | null = null;
+
+/**
+ * Collects whatever is addressed to this phone, applies it, and clears what
+ * was used. One collect at a time: a wake-up landing while the automatic
+ * exchange is already checking joins that check rather than applying the
+ * same mail a second time beside it.
+ */
+export function receiveViaRelay(): Promise<RelayReceived> {
+  if (!receiving) {
+    receiving = receiveNow().finally(() => {
+      receiving = null;
+    });
+  }
+  return receiving;
+}
+
+async function receiveNow(): Promise<RelayReceived> {
   const mailbox = compactFingerprint(await getMyKeyFingerprint());
   if (!mailbox) return { outcomes: [], reason: 'This phone has no key fingerprint yet.' };
 
@@ -319,7 +368,7 @@ export async function receiveViaRelay(): Promise<{
 export function describeRelaySend(outcomes: readonly RelaySendOutcome[]): string {
   if (outcomes.length === 0) return 'Nobody is set up as a partner yet, so there was nothing to send.';
   const sent = outcomes.filter((outcome) => outcome.sent);
-  const failed = outcomes.filter((outcome) => !outcome.sent);
+  const failed = outcomes.filter((outcome) => !outcome.sent && !outcome.unchanged);
   const parts: string[] = [];
   if (sent.length > 0) {
     parts.push('Waiting at the relay for ' + sent.map((outcome) => outcome.name).join(', ') + '.');

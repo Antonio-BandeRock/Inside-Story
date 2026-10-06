@@ -39,7 +39,7 @@ export const RELAY_PROTOCOL = 'inside-story/relay/v1';
 export const RELAY_BASE_URL = 'https://insidestoryapp.com/relay/v1';
 
 /** What a request can ask for. The verb is signed, so these are not interchangeable. */
-export type RelayVerb = 'send' | 'collect' | 'ack';
+export type RelayVerb = 'send' | 'collect' | 'ack' | 'register';
 
 /** Stands in for the body hash on a request that has no body. */
 export const NO_BODY_HASH = '-';

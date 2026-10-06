@@ -38,6 +38,19 @@
 // tomorrow, an attacker would be holding ciphertext they cannot open. Depth,
 // not the wall.
 //
+// WAKING THE OTHER PHONE (M1, 1.0.62.2). Mail that sits here until somebody
+// opens the app is only half a carrier. A phone that holds a mailbox can leave
+// its Firebase Cloud Messaging address here (the register verb, signed with the
+// mailbox's key like everything else), and when mail is put in that mailbox
+// this Worker asks Google to wake that phone. The wake-up says one thing, that
+// mail is waiting, with no sender, no size and nothing from the body. The phone
+// then collects it the ordinary signed way. What this adds to what the relay
+// knows: that a fingerprint belongs to an Android phone Google can reach.
+//
+// The Firebase key lives only as the Worker secret FCM_SERVICE_ACCOUNT, never
+// in this repository. Without it, mail is still held and collected; nothing
+// wakes, and the phone finds it the next time the app is opened.
+//
 // See lib/relayProtocol.ts in the app for the canonical signed-message format
 // this file has to agree with byte for byte.
 
@@ -69,6 +82,13 @@ const MAX_TOTAL_ROWS = 5000;
 const MAX_ITEMS_PER_COLLECT = 10;
 
 const COMPACT_FINGERPRINT = /^[0-9A-F]{16}$/;
+
+// An FCM registration token is a few hundred characters of URL-safe text. This
+// is a sanity bound, not a format Google publishes.
+const PUSH_TOKEN = /^[A-Za-z0-9_:-]{20,4096}$/;
+
+// What the wake-up carries. The app's background task looks for exactly this.
+const WAKE_KIND = 'inside-story-mail';
 
 const JSON_HEADERS = {
   'content-type': 'application/json; charset=utf-8',
@@ -210,7 +230,7 @@ async function sweepExpired(env) {
     .run();
 }
 
-async function handleSend(env, payload) {
+async function handleSend(env, payload, ctx) {
   const to = compact(payload.to);
   const from = compact(payload.from);
   if (!to || !from) return fail(400, 'That message was not addressed properly.');
@@ -238,20 +258,25 @@ async function handleSend(env, payload) {
 
   await sweepExpired(env);
 
-  // Two ceilings, both checked before the write. The first bounds one mailbox,
-  // the second bounds the whole relay.
-  const existing = await env.RELAY_DB.prepare(
-    'SELECT COUNT(*) AS n FROM mail WHERE to_fp = ? AND from_fp <> ?',
-  )
+  // Two ceilings, checked only when this sender has nothing already waiting in
+  // this mailbox. A resend replaces a row and adds none, so it cannot push
+  // either count past its limit, and skipping the counts for it keeps the
+  // common case to one lookup by primary key rather than a read of the table.
+  const already = await env.RELAY_DB.prepare('SELECT 1 AS n FROM mail WHERE to_fp = ? AND from_fp = ?')
     .bind(to, from)
     .first();
-  if ((existing && existing.n ? existing.n : 0) >= MAX_SENDERS_PER_MAILBOX) {
-    return fail(409, 'That mailbox is full.');
-  }
+  if (!already) {
+    const existing = await env.RELAY_DB.prepare('SELECT COUNT(*) AS n FROM mail WHERE to_fp = ?')
+      .bind(to)
+      .first();
+    if ((existing && existing.n ? existing.n : 0) >= MAX_SENDERS_PER_MAILBOX) {
+      return fail(409, 'That mailbox is full.');
+    }
 
-  const total = await env.RELAY_DB.prepare('SELECT COUNT(*) AS n FROM mail').first();
-  if ((total && total.n ? total.n : 0) >= MAX_TOTAL_ROWS) {
-    return fail(503, 'The relay is full right now. Try again later, or send it another way.');
+    const total = await env.RELAY_DB.prepare('SELECT COUNT(*) AS n FROM mail').first();
+    if ((total && total.n ? total.n : 0) >= MAX_TOTAL_ROWS) {
+      return fail(503, 'The relay is full right now. Try again later, or send it another way.');
+    }
   }
 
   const now = new Date();
@@ -267,6 +292,10 @@ async function handleSend(env, payload) {
   )
     .bind(to, from, payload.body, bytes, now.toISOString(), expires.toISOString())
     .run();
+
+  // After the answer, never before it: a slow Google must not make a send look
+  // slow, and a failed wake-up is not a failed send.
+  if (ctx && typeof ctx.waitUntil === 'function') ctx.waitUntil(wakeMailbox(env, to));
 
   return json({ ok: true, storedAt: now.toISOString(), expiresAt: expires.toISOString() });
 }
@@ -358,11 +387,166 @@ async function handlePeek(env, url) {
   return json({ ok: true, waiting: row ? row.n : 0, newest: row ? row.newest : null });
 }
 
-async function handleRelay(request, env, url) {
+/**
+ * Records, replaces or forgets where a mailbox's phone can be woken.
+ *
+ * Signed by the mailbox's own key, with the token as the signed body, so a
+ * token can only be pointed at a mailbox by the phone that holds it. An empty
+ * token forgets the row.
+ */
+async function handleRegister(env, payload) {
+  const mailbox = compact(payload.mailbox);
+  if (!mailbox) return fail(400, 'That is not a mailbox address.');
+  const token = typeof payload.token === 'string' ? payload.token : null;
+  if (token === null) return fail(400, 'That request could not be read.');
+  if (token !== '' && !PUSH_TOKEN.test(token)) return fail(400, 'That is not an address this relay can wake.');
+
+  const check = await verifyRequest({
+    verb: 'register',
+    mailbox,
+    sentAt: payload.sentAt,
+    nonce: payload.nonce,
+    bodyHash: await sha256Hex(token),
+    publicKeyBase64: payload.publicKey,
+    signatureBase64: payload.signature,
+    expectedFingerprint: mailbox,
+  });
+  if (!check.ok) return fail(check.status, check.reason);
+
+  if (token === '') {
+    await env.RELAY_DB.prepare('DELETE FROM push_tokens WHERE mailbox = ?').bind(mailbox).run();
+    return json({ ok: true, registered: false });
+  }
+  await env.RELAY_DB.prepare(
+    'INSERT INTO push_tokens (mailbox, token, updated_at) VALUES (?, ?, ?) ' +
+      'ON CONFLICT (mailbox) DO UPDATE SET token = excluded.token, updated_at = excluded.updated_at',
+  )
+    .bind(mailbox, token, new Date().toISOString())
+    .run();
+  return json({ ok: true, registered: true });
+}
+
+function base64UrlFromBytes(bytes) {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += 1) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function base64UrlFromText(text) {
+  return base64UrlFromBytes(new TextEncoder().encode(text));
+}
+
+function pemToBytes(pem) {
+  return base64ToBytes(pem.replace(/-----[^-]+-----/g, '').replace(/\s+/g, ''));
+}
+
+// A Google access token lasts an hour. One is kept for as long as this Worker
+// instance lives, with a few minutes' margin, so a burst of sends asks Google
+// for one token rather than one each.
+let cachedAccess = null;
+
+async function googleAccessToken(account) {
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  if (cachedAccess && cachedAccess.expiresAt - 300 > nowSeconds) return cachedAccess.token;
+
+  const header = base64UrlFromText(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const claims = base64UrlFromText(
+    JSON.stringify({
+      iss: account.client_email,
+      scope: 'https://www.googleapis.com/auth/firebase.messaging',
+      aud: 'https://oauth2.googleapis.com/token',
+      iat: nowSeconds,
+      exp: nowSeconds + 3600,
+    }),
+  );
+  const key = await crypto.subtle.importKey(
+    'pkcs8',
+    pemToBytes(account.private_key),
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
+  const signature = await crypto.subtle.sign(
+    { name: 'RSASSA-PKCS1-v1_5' },
+    key,
+    new TextEncoder().encode(header + '.' + claims),
+  );
+  const assertion = header + '.' + claims + '.' + base64UrlFromBytes(new Uint8Array(signature));
+
+  const response = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    body:
+      'grant_type=' +
+      encodeURIComponent('urn:ietf:params:oauth:grant-type:jwt-bearer') +
+      '&assertion=' +
+      assertion,
+  });
+  if (!response.ok) throw new Error('google token ' + response.status);
+  const granted = await response.json();
+  cachedAccess = { token: granted.access_token, expiresAt: nowSeconds + (granted.expires_in || 3600) };
+  return cachedAccess.token;
+}
+
+/**
+ * Asks Google to wake the phone behind a mailbox, if it left an address.
+ *
+ * A data-only message, so Android shows nothing; the app's background task
+ * collects the mail. Collapsed under one key, so ten sends while the phone is
+ * off arrive as one wake-up. An address Google says is gone is forgotten.
+ * Every failure here is logged and swallowed: the mail is already stored.
+ */
+async function wakeMailbox(env, mailbox) {
+  try {
+    if (!env.FCM_SERVICE_ACCOUNT) return;
+    const row = await env.RELAY_DB.prepare('SELECT token FROM push_tokens WHERE mailbox = ?')
+      .bind(mailbox)
+      .first();
+    if (!row || !row.token) return;
+
+    const account = JSON.parse(env.FCM_SERVICE_ACCOUNT);
+    const access = await googleAccessToken(account);
+    const response = await fetch(
+      'https://fcm.googleapis.com/v1/projects/' + account.project_id + '/messages:send',
+      {
+        method: 'POST',
+        headers: { authorization: 'Bearer ' + access, 'content-type': 'application/json' },
+        body: JSON.stringify({
+          message: {
+            token: row.token,
+            data: { kind: WAKE_KIND },
+            android: { priority: 'HIGH', collapse_key: WAKE_KIND, ttl: '86400s' },
+          },
+        }),
+      },
+    );
+    if (response.ok) return;
+
+    const text = await response.text();
+    if (response.status === 404 || text.includes('UNREGISTERED')) {
+      await env.RELAY_DB.prepare('DELETE FROM push_tokens WHERE mailbox = ? AND token = ?')
+        .bind(mailbox, row.token)
+        .run();
+      return;
+    }
+    if (response.status === 401) cachedAccess = null;
+    console.error('relay wake', response.status);
+  } catch (error) {
+    console.error('relay wake', error && error.message ? error.message : error);
+  }
+}
+
+async function handleRelay(request, env, url, ctx) {
   const route = url.pathname.replace(/^\/relay\/v1\/?/, '');
 
   if (route === 'health') {
-    return json({ ok: true, protocol: PROTOCOL, ttlDays: TTL_DAYS, maxBodyBytes: MAX_BODY_BYTES });
+    return json({
+      ok: true,
+      protocol: PROTOCOL,
+      ttlDays: TTL_DAYS,
+      maxBodyBytes: MAX_BODY_BYTES,
+      wakes: Boolean(env.FCM_SERVICE_ACCOUNT),
+    });
   }
   if (route === 'peek' && request.method === 'GET') {
     return handlePeek(env, url);
@@ -379,19 +563,20 @@ async function handleRelay(request, env, url) {
     return fail(400, 'That request could not be read.');
   }
 
-  if (route === 'send') return handleSend(env, payload);
+  if (route === 'send') return handleSend(env, payload, ctx);
+  if (route === 'register') return handleRegister(env, payload);
   if (route === 'collect') return handleCollect(env, payload);
   if (route === 'ack') return handleAck(env, payload);
   return fail(404, 'That is not something this relay does.');
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     if (url.pathname.startsWith('/relay/')) {
       try {
-        return await handleRelay(request, env, url);
+        return await handleRelay(request, env, url, ctx);
       } catch (error) {
         // Never hand a stack trace or a D1 error string back to the caller. The
         // phone cannot act on it, and this is the one place internals could show.

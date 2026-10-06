@@ -27,7 +27,7 @@ import { listConnections } from './connections';
 import { getUserConditions } from './db';
 import { buildSyncPayload } from './partnerSync';
 import { getMealPlanForSync } from './mealPlanSync';
-import { applySyncFileText, PARTNER_SYNC_FILE_KIND, planRecipeIdsOf } from './partnerTransfer';
+import { applySyncFileText, contentDigest, PARTNER_SYNC_FILE_KIND, planRecipeIdsOf } from './partnerTransfer';
 import { PEER_PHOTO_BUDGET_DIRECT } from './peerPhotos';
 import { peerPhotoPartFor } from './peerPhotosDb';
 import { peerDosePartFor } from './peerDosesDb';
@@ -99,16 +99,6 @@ export type MailboxSendOutcome = {
 // Held for the run only: after a restart the first send goes out once more,
 // which the other side merges to nothing.
 const lastSentDigest = new Map<string, string>();
-
-/** A short digest of a string (FNV-1a, 32 bits). Tells copies apart; secures nothing. */
-export function contentDigest(text: string): string {
-  let hash = 0x811c9dc5;
-  for (let index = 0; index < text.length; index += 1) {
-    hash ^= text.charCodeAt(index);
-    hash = Math.imul(hash, 0x01000193) >>> 0;
-  }
-  return hash.toString(16).padStart(8, '0') + ':' + text.length;
-}
 
 /**
  * Writes one sealed file per partner into the shared folder.

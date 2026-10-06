@@ -25,3 +25,18 @@ CREATE TABLE IF NOT EXISTS mail (
 
 -- The sweep on every request orders by this, so it is worth having.
 CREATE INDEX IF NOT EXISTS mail_expires_at ON mail (expires_at);
+
+-- Where to send a wake-up when mail arrives (M1, 1.0.62.2).
+--
+-- One row per mailbox: the Firebase Cloud Messaging address of the phone that
+-- holds that key. Written only by a request signed with the mailbox's own key,
+-- so nobody can point somebody else's wake-ups at their own phone. The wake-up
+-- this enables carries nothing but the word that mail is waiting: no sender, no
+-- size, no content. It is one more thing the relay knows (that a fingerprint
+-- belongs to some Android phone Google can reach), and it is written down here
+-- rather than glossed over.
+CREATE TABLE IF NOT EXISTS push_tokens (
+  mailbox    TEXT PRIMARY KEY,
+  token      TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);

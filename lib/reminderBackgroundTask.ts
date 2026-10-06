@@ -12,6 +12,11 @@
 // again on its next start is recognised there and does nothing a second
 // time (claimAnswer in lib/reminderNotifications.ts).
 //
+// The same task receives the relay's wake-up (M1, 1.0.62.2): a data-only
+// message from Google saying mail is waiting for this phone at
+// insidestoryapp.com. It shows nothing; lib/pushWake.ts collects the mail,
+// and does nothing at all while App Lock is locked.
+//
 // Android only: on iOS a button press already wakes the app for it, and
 // the desktop has no reminders with buttons.
 
@@ -20,6 +25,7 @@ import * as TaskManager from 'expo-task-manager';
 import { Platform } from 'react-native';
 import { isAppLockedError } from './appLockSession';
 import { answerFromBackground } from './reminderNotifications';
+import { isRelayWake } from './relayWake';
 
 export const REMINDER_ANSWER_TASK = 'inside-story-reminder-answer';
 
@@ -34,7 +40,13 @@ if (Platform.OS === 'android') {
         console.error('[reminderBackgroundTask] task error', error);
         return;
       }
-      if (!isResponse(data)) return;
+      if (!isResponse(data)) {
+        if (isRelayWake(data)) {
+          const { collectAfterWake } = await import('./pushWake');
+          await collectAfterWake();
+        }
+        return;
+      }
       try {
         await answerFromBackground(data);
       } catch (answerError) {

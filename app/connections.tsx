@@ -598,8 +598,13 @@ export default function ConnectionsScreen() {
           <Text style={styles.fingerprintLabel}>Through the relay</Text>
           <Text style={styles.fingerprintHint}>
             Leaves a sealed message waiting at insidestoryapp.com until the other phone picks it up. Nothing to sign
-            in to, no folder to share, and you do not both have to be here at once. Tap Send on one phone and Check
-            on the other whenever it suits.
+            in to, no folder to share, and you do not both have to be here at once. It works by itself: whenever
+            something you share changes, a sealed copy goes, and on Android the other phone is woken to collect it,
+            even with the app closed. The buttons below are there for when you want it now.
+          </Text>
+          <Text style={styles.fingerprintHint}>
+            The wake-up goes through Google, the same way every Android app is woken. It carries one word and nothing
+            from what you sent. With App Lock on, a locked phone leaves the message waiting until it is unlocked.
           </Text>
           <Text style={styles.fingerprintHint}>
             What sits there is the same sealed message every other way of sending here uses, addressed by the two
