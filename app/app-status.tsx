@@ -38,7 +38,7 @@ const TONE_ICON = {
 } as const;
 
 function toneColor(tone: StatusLine['tone']): string {
-  return tone === 'attention' ? colors.danger : tone === 'ok' ? colors.tabProfile : colors.textSecondary;
+  return tone === 'attention' ? colors.danger : tone === 'ok' ? colors.tabProfileText : colors.textSecondary;
 }
 
 export default function AppStatusScreen() {
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,
   },
-  heading: { ...typography.sectionTitle, color: colors.tabProfile, fontWeight: '400', ...textShadow },
+  heading: { ...typography.sectionTitle, color: colors.tabProfileText, fontWeight: '400', ...textShadow },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

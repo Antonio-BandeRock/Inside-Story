@@ -95,10 +95,10 @@ const styles = StyleSheet.create({
     padding: HOME_BAND_CONTENT_PADDING,
     gap: 10,
   },
-  title: { ...typography.sectionTitle, fontSize: 22, color: colors.tabProfile, ...textShadow },
+  title: { ...typography.sectionTitle, fontSize: 22, color: colors.tabProfileText, ...textShadow },
   caption: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   button: {
-    backgroundColor: colors.tabProfile,
+    backgroundColor: colors.tabProfileText,
     borderRadius: 999,
     paddingVertical: 14,
     alignItems: 'center',

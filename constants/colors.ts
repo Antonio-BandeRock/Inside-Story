@@ -45,7 +45,8 @@ import { getGroundThemeSync } from '../lib/visualPreferences';
 // it's intentionally desaturated toward neutral specifically so it doesn't
 // compete with whichever hue is active, and that reasoning holds regardless
 // of which ground theme is selected.
-export type GroundTheme = 'navy' | 'teal' | 'purple' | 'charcoal' | 'burgundy' | 'ghostead';
+export type GroundTheme = 'navy' | 'teal' | 'purple' | 'charcoal' | 'burgundy' | 'ghostead'
+  | 'pineCopper' | 'indigoAmber' | 'plumOlive' | 'slateCoral' | 'mossLavender' | 'oxbloodSage';
 
 export const GROUND_THEME_LABELS: Record<GroundTheme, string> = {
   navy: 'Deep Navy',
@@ -54,6 +55,12 @@ export const GROUND_THEME_LABELS: Record<GroundTheme, string> = {
   charcoal: 'Deep Charcoal',
   burgundy: 'Deep Burgundy',
   ghostead: 'Ghostead',
+  pineCopper: 'Pine and Copper',
+  indigoAmber: 'Indigo and Amber',
+  plumOlive: 'Plum and Olive',
+  slateCoral: 'Slate and Coral',
+  mossLavender: 'Moss and Lavender',
+  oxbloodSage: 'Oxblood and Sage',
 };
 
 type GroundFamily = {
@@ -85,69 +92,67 @@ type GroundFamily = {
 };
 
 export const GROUND_THEMES: Record<GroundTheme, GroundFamily> = {
-  // The app's original ground, sampled from the commissioned butterfly
-  // artwork -- kept as a real, selectable option (not just deleted) so
-  // switching back is always a two-tap Profile action, never a code change.
+  // 1.0.61.2, by direct instruction: "I like the darkness of Ghostead ground
+  // colors. Please use it as a barometer and recreate all of the others using
+  // the same color levels from Ghostead." Every one-hue ground below is its
+  // hue at Ghostead's S17 L15, with the family at the same offsets as
+  // always (surface S-9/L+10, surfaceMuted S-1/L+7, border S-9/L+22,
+  // textMuted S-8/L+38, keySurface S+5/L+38) and buttonColor at the hue's
+  // L61, Ghostead's own button lightness. Charcoal keeps its near-zero
+  // saturation (S6), since a neutral is what it is for. Button text
+  // (textOnButton) clears 4.5:1 on every one. Generated, not hand-typed.
+  //
+  // Teal at these levels sits one degree of hue from Ghostead and reads as
+  // the same colour; both stay so a saved preference still resolves.
+  // H222 S17 L15.
   navy: {
-    background: '#2B3753',
-    surface: 'rgba(69, 84, 111, 0.85)',
-    surfaceMuted: 'rgba(56, 69, 106, 0.85)',
-    border: '#5C6F94',
-    textMuted: '#8B9BB8',
-    keySurface: '#7E97C4',
-    buttonColor: '#8D9EC4',
+    background: '#20242D',
+    surface: 'rgba(59, 62, 69, 0.85)',
+    surfaceMuted: 'rgba(47, 53, 65, 0.85)',
+    border: '#575B66',
+    textMuted: '#7C8392',
+    keySurface: '#6D7DA2',
+    buttonColor: '#8B95AC',
   },
-  // The shipped default from 2026-08-19 to 2026-10-05. Landed on via the Ground
-  // Color Lab explorer artifact: started from a "Deep Teal" preset (H190
-  // S32 L25, Navy's own S/L exactly) and settled a touch darker (H190 S32
-  // L21) after seeing it live on-device.
+  // H190 S17 L15.
   teal: {
-    background: '#244147',
-    surface: 'rgba(61, 91, 97, 0.85)',
-    surfaceMuted: 'rgba(49, 86, 94, 0.85)',
-    border: '#547F87',
-    textMuted: '#7DA7B0',
-    keySurface: '#70B0BD',
-    buttonColor: '#87B8C2',
+    background: '#202B2D',
+    surface: 'rgba(59, 67, 69, 0.85)',
+    surfaceMuted: 'rgba(47, 62, 65, 0.85)',
+    border: '#576366',
+    textMuted: '#7C8E92',
+    keySurface: '#6D99A2',
+    buttonColor: '#8BA7AC',
   },
-  // H280 S30 L21 -- kept a real distance from tabPurpleDigest's own hue
-  // (262) and tabProfile's (330) so this ground is never confusable with
-  // either of those identity colors; also deliberately clear of the
-  // 275-280 "reads as pink, not purple" boundary tabPurpleDigest's own
-  // comment documents, which only actually bit at that color's much higher
-  // saturation/lightness -- at this dark a ground, that boundary doesn't
-  // apply the same way.
+  // H280 S17 L15.
   purple: {
-    background: '#3B2546',
-    surface: 'rgba(85, 62, 96, 0.85)',
-    surfaceMuted: 'rgba(78, 51, 92, 0.85)',
-    border: '#755785',
-    textMuted: '#9E7FAD',
-    keySurface: '#A372BB',
-    buttonColor: '#AE88C0',
+    background: '#28202D',
+    surface: 'rgba(65, 59, 69, 0.85)',
+    surfaceMuted: 'rgba(59, 47, 65, 0.85)',
+    border: '#615766',
+    textMuted: '#8B7C92',
+    keySurface: '#906DA2',
+    buttonColor: '#A18BAC',
   },
-  // H222 S6 L20 -- Navy's own hue at near-zero saturation, so this reads as
-  // a true neutral gray rather than a colored dark, the one ground option
-  // that isn't a hue choice at all.
+  // H222 S6 L15, the neutral.
   charcoal: {
-    background: '#303236',
-    surface: 'rgba(77, 77, 77, 0.85)',
-    surfaceMuted: 'rgba(65, 67, 72, 0.85)',
-    border: '#6B6B6B',
-    textMuted: '#949494',
-    keySurface: '#888FA0',
-    buttonColor: '#9EA1A9',
+    background: '#242529',
+    surface: 'rgba(64, 64, 64, 0.85)',
+    surfaceMuted: 'rgba(53, 55, 59, 0.85)',
+    border: '#5E5E5E',
+    textMuted: '#878787',
+    keySurface: '#7A8294',
+    buttonColor: '#9699A2',
   },
-  // H350 S40 L20 -- see this const's own header comment for why the
-  // saturation bump over the 30-32 every other hued theme uses.
+  // H350 S17 L15.
   burgundy: {
-    background: '#471F25',
-    surface: 'rgba(100, 53, 61, 0.85)',
-    surfaceMuted: 'rgba(96, 42, 51, 0.85)',
-    border: '#8C4A55',
-    textMuted: '#B6727D',
-    keySurface: '#C46474',
-    buttonColor: '#C77F8A',
+    background: '#2D2022',
+    surface: 'rgba(69, 59, 60, 0.85)',
+    surfaceMuted: 'rgba(65, 47, 50, 0.85)',
+    border: '#665759',
+    textMuted: '#927C80',
+    keySurface: '#A26D76',
+    buttonColor: '#AC8B90',
   },
   // H189 S17 L15, the background of ghostead.com and insidestoryapp.com, so
   // the app, its site and the company's site share one ground. The shipped
@@ -163,6 +168,73 @@ export const GROUND_THEMES: Record<GroundTheme, GroundFamily> = {
     textMuted: '#7B8E92',
     keySurface: '#6B99A1',
     buttonColor: '#8CA9AE',
+  },
+  // The six two-hue grounds, 1.0.61.2: "create 6 more color palets that use
+  // variations of complimentary colors that aren't all within the same base
+  // color." The ground side (background, surfaces, border, textMuted) is
+  // its hue at Ghostead's levels exactly; keySurface and buttonColor take
+  // the complementary or split-complementary hue at L53 and about L64, with
+  // saturation raised so the second hue reads at all. Button text clears
+  // 5:1 on each, and every button clears 5:1 against its own ground.
+  // Pine H155 with copper H22.
+  pineCopper: {
+    background: '#202D27',
+    surface: 'rgba(59, 69, 65, 0.85)',
+    surfaceMuted: 'rgba(47, 65, 58, 0.85)',
+    border: '#576660',
+    textMuted: '#7C9289',
+    keySurface: '#B97A55',
+    buttonColor: '#C49A82',
+  },
+  // Indigo H228 with amber H42.
+  indigoAmber: {
+    background: '#20222D',
+    surface: 'rgba(59, 61, 69, 0.85)',
+    surfaceMuted: 'rgba(47, 51, 65, 0.85)',
+    border: '#575A66',
+    textMuted: '#7C8192',
+    keySurface: '#C19E4E',
+    buttonColor: '#CAB37D',
+  },
+  // Plum H300 with olive H80.
+  plumOlive: {
+    background: '#2D202D',
+    surface: 'rgba(69, 59, 69, 0.85)',
+    surfaceMuted: 'rgba(65, 47, 65, 0.85)',
+    border: '#665766',
+    textMuted: '#927C92',
+    keySurface: '#95B05E',
+    buttonColor: '#ACBD89',
+  },
+  // Slate blue H205 with coral H12.
+  slateCoral: {
+    background: '#20272D',
+    surface: 'rgba(59, 65, 69, 0.85)',
+    surfaceMuted: 'rgba(47, 58, 65, 0.85)',
+    border: '#576066',
+    textMuted: '#7C8992',
+    keySurface: '#C56249',
+    buttonColor: '#CD8A79',
+  },
+  // Moss H95 with lavender H265.
+  mossLavender: {
+    background: '#252D20',
+    surface: 'rgba(63, 69, 59, 0.85)',
+    surfaceMuted: 'rgba(55, 65, 47, 0.85)',
+    border: '#5D6657',
+    textMuted: '#85927C',
+    keySurface: '#8161AE',
+    buttonColor: '#AA98C3',
+  },
+  // Oxblood H355 with sage H150.
+  oxbloodSage: {
+    background: '#2D2021',
+    surface: 'rgba(69, 59, 59, 0.85)',
+    surfaceMuted: 'rgba(65, 47, 49, 0.85)',
+    border: '#665758',
+    textMuted: '#927C7E',
+    keySurface: '#68A687',
+    buttonColor: '#91B6A3',
   },
 };
 
@@ -590,7 +662,16 @@ export const colors = {
   // placed relative to it) and Signals (25, orange); 330 sits in the
   // middle of that gap, a rose/pink no other tab is using. Verified at
   // ~3.23:1 against `menuSurface`, in line with the rest of the set.
-  tabProfile: '#E29CBF',
+  //
+  // Grey since 1.0.61.2, by direct instruction: "In Profile we have some
+  // pink color around all the sections. Please replace the pink with the
+  // grey from Home screen." Home already wore menuIconMuted for Profile
+  // (constants/homeGroups.ts), so this is that same value, and every screen
+  // that reads tabProfile follows. The grey is a mark, not a font, over a
+  // photograph, so words in Profile's colour use tabProfileText instead,
+  // the same near-white Home gives the Profile group's words.
+  tabProfile: '#6C7A93',
+  tabProfileText: '#BFBFBF',
   // The Digest's own identity color -- the new autoimmune learning/
   // news area (see the 2026-07-27 conversation this was named and designed
   // in -- "Field Notes" and "Autoimmune Intelligence"/AI and "Autoimmune

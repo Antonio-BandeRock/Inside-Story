@@ -1065,7 +1065,7 @@ export function getGroundThemeSync(): GroundTheme {
 // erased at compile time and carries no such risk). Flagged directly
 // rather than silently duplicated: keep this list in sync by hand if a
 // new ground theme is ever added.
-const GROUND_THEME_KEYS: readonly GroundTheme[] = ['navy', 'teal', 'purple', 'charcoal', 'burgundy', 'ghostead'];
+const GROUND_THEME_KEYS: readonly GroundTheme[] = ['navy', 'teal', 'purple', 'charcoal', 'burgundy', 'ghostead', 'pineCopper', 'indigoAmber', 'plumOlive', 'slateCoral', 'mossLavender', 'oxbloodSage'];
 function isGroundTheme(value: string): value is GroundTheme {
   return (GROUND_THEME_KEYS as readonly string[]).includes(value);
 }

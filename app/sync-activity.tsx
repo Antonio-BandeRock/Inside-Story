@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     padding: HOME_BAND_CONTENT_PADDING,
     gap: 6,
   },
-  summaryNumber: { ...typography.sectionTitle, color: colors.tabProfile, fontWeight: '400', ...textShadow },
+  summaryNumber: { ...typography.sectionTitle, color: colors.tabProfileText, fontWeight: '400', ...textShadow },
   summaryCaption: { ...typography.caption, color: colors.textSecondary, lineHeight: 17, ...textShadow },
   card: {
     ...homeBandStyle,

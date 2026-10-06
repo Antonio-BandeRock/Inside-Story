@@ -575,7 +575,7 @@ export function TabHub() {
                 </View>
               )}
               <Text
-                style={[styles.itemLabel, { color: lighten(profileActive ? colors.tabProfile : colors.menuLabelMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
+                style={[styles.itemLabel, { color: lighten(profileActive ? colors.tabProfileText : colors.menuLabelMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
                 numberOfLines={1}
                 maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}
               >

@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     padding: HOME_BAND_CONTENT_PADDING,
     gap: 8,
   },
-  introTitle: { ...typography.sectionTitle, color: colors.tabProfile, fontWeight: '400', ...textShadow },
+  introTitle: { ...typography.sectionTitle, color: colors.tabProfileText, fontWeight: '400', ...textShadow },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, fontWeight: '400', ...textShadow },
   caption: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   lineText: { ...typography.body, color: colors.textPrimary, flexShrink: 1, ...textShadow },

@@ -48,8 +48,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   headingRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  heading: { ...typography.bodyEmphasis, color: colors.tabProfile, flex: 1, ...textShadow },
+  heading: { ...typography.bodyEmphasis, color: colors.tabProfileText, flex: 1, ...textShadow },
   body: { ...typography.body, color: colors.textPrimary, ...textShadow },
   link: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
-  linkText: { ...typography.body, color: colors.tabProfile, textDecorationLine: 'underline', ...textShadow },
+  linkText: { ...typography.body, color: colors.tabProfileText, textDecorationLine: 'underline', ...textShadow },
 });
