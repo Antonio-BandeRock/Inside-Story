@@ -23,7 +23,7 @@
 ### P28. Safety is never behind a paywall
 - **Ships by:** Owner decision first · **Size:** S · **Tabs:** all
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
-- **How:** Proposed: the emergency card, med and supplement timing warnings from the interaction rules, allergy cautions and the clinical-claims protections are on every tier including Free. The current tier table puts the rules engine on paid only. Free useful on its own; paying adds depth, people and time saved. On confirmation the CLAUDE.md tier table changes. Notion: https://app.notion.com/p/3f153652f27281928fe4f7fbfb9ac019
+- **How:** Confirmed 2026-10-06 by direct instruction ("Confirm P28 as written"), and the CLAUDE.md tier table changed with it: the emergency card, med and supplement timing warnings from the interaction rules, allergy cautions and the clinical-claims protections are on every tier including Free. The current tier table puts the rules engine on paid only. Free useful on its own; paying adds depth, people and time saved. The vault (agreed the same day) keeps these outside it as well. Notion: https://app.notion.com/p/3f153652f27281928fe4f7fbfb9ac019
 
 ## Phase 1. Foundations (10 items)
 
