@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Updates from 'expo-updates';
 import { restartApp } from '../lib/restartApp';
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { ActivityIndicator, AppState, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
@@ -29,6 +29,8 @@ import { textShadow, typography } from '../constants/typography';
 import {
   HOME_BAND_ACCENT_WIDTH,
   HOME_BAND_CONTENT_PADDING,
+  HOME_BAND_DIVIDER_COLOR,
+  HOME_BAND_EDGE_WIDTH,
   homeBandDivided,
   homeBandNoHairlines,
   homeBandStyle,
@@ -635,6 +637,46 @@ function PickerField({ label, children }: { label: string; children: ReactNode }
   );
 }
 
+// Each Profile group and card carries an icon beside its name, the way
+// Home's tab groups and the cards inside them do (1.0.61.12, direct
+// request: "format the Profile sections more like the Tab sections on the
+// Home screen").
+const PROFILE_GROUP_ICONS: Record<string, ComponentProps<typeof Ionicons>['name']> = {
+  'About You': 'person-circle-outline',
+  'Your Health': 'fitness-outline',
+  'How You Eat': 'restaurant-outline',
+  'Growing Your Own': 'flower-outline',
+  'How the App Looks': 'eye-outline',
+  'Device & Account': 'phone-portrait-outline',
+};
+
+const PROFILE_CARD_ICONS: Record<CardSectionKey, ComponentProps<typeof Ionicons>['name']> = {
+  'personal-info': 'person-outline',
+  conditions: 'medkit-outline',
+  'general-health': 'heart-outline',
+  reminders: 'notifications-outline',
+  'diet-preferences': 'leaf-outline',
+  'food-restrictions': 'ban-outline',
+  'meal-schedule': 'time-outline',
+  'meal-plan': 'calendar-outline',
+  'nutrient-targets': 'nutrition-outline',
+  'garden-details': 'map-outline',
+  'low-stimulation': 'moon-outline',
+  'playful-wording': 'happy-outline',
+  'routine-timer': 'timer-outline',
+  'home-screen': 'home-outline',
+  appearance: 'color-palette-outline',
+  'app-status': 'pulse-outline',
+  agreement: 'document-text-outline',
+  'about-ghostead': 'business-outline',
+  'voice-pack': 'volume-high-outline',
+  connections: 'people-outline',
+  applock: 'lock-closed-outline',
+  backup: 'cloud-upload-outline',
+  'app-updates': 'download-outline',
+  developer: 'construct-outline',
+};
+
 export default function ProfileScreen() {
   // The outline on a button a Your Story walk line names (components/WalkMark.ts).
   const walkMark = useWalkMark();
@@ -848,8 +890,9 @@ export default function ProfileScreen() {
     const collapsed = collapsedSections.has(key);
     return (
       <TouchableOpacity style={[styles.cardHeaderRow, styles.cardHeaderRowTop, walkMark(`profile.${key}` as WalkMark)]} onPress={() => toggleSection(key)} activeOpacity={0.7}>
-        <Text style={styles.cardTitle}>{title}</Text>
-        <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={16} color={colors.menuIconMuted} />
+        <Ionicons name={PROFILE_CARD_ICONS[key]} size={16} color={colors.tabProfile} style={textShadow} />
+        <Text style={styles.cardTitle} numberOfLines={1}>{title}</Text>
+        <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={18} color={colors.tabProfile} style={textShadow} />
       </TouchableOpacity>
     );
   }
@@ -877,14 +920,15 @@ export default function ProfileScreen() {
     const collapsed = collapsedGroups.has(title);
     return (
       <TouchableOpacity
-        style={styles.groupHeadingChip}
+        style={styles.groupHeadingRow}
         onPress={() => toggleGroup(title)}
-        activeOpacity={0.7}
+        activeOpacity={0.75}
         accessibilityRole="button"
         accessibilityState={{ expanded: !collapsed }}
       >
-        <Text style={styles.groupHeadingText}>{title}</Text>
-        <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={16} color={colors.textPrimary} style={textShadow} />
+        <Ionicons name={PROFILE_GROUP_ICONS[title] ?? 'ellipse-outline'} size={16} color={colors.tabProfile} style={textShadow} />
+        <Text style={styles.groupHeadingText} numberOfLines={1}>{title}</Text>
+        <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={18} color={colors.tabProfile} style={textShadow} />
       </TouchableOpacity>
     );
   }
@@ -3269,8 +3313,9 @@ export default function ProfileScreen() {
         </View>
       ) : null}
 
+      <View style={styles.groupBand}>
       {renderGroupHeading('About You')}
-      {!collapsedGroups.has('About You') ? (<>
+      {!collapsedGroups.has('About You') ? (<View style={styles.groupBody}>
       {/* Personal Info, 2026-08-09, regrouped from 5 separate cards
           (Your name, Units, Sex, Birth date, Height) plus a new Weight
           field, all explicitly requested together. Every former card's
@@ -3537,9 +3582,11 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      </>) : null}
+      </View>) : null}
+      </View>
+      <View style={styles.groupBand}>
       {renderGroupHeading('Your Health')}
-      {!collapsedGroups.has('Your Health') ? (<>
+      {!collapsedGroups.has('Your Health') ? (<View style={styles.groupBody}>
       {/* Conditions & Check-In, 2026-08-09, regrouped from 3 separate
           cards (Your conditions, Where you're at, plus a brand-new Food
           Allergies sub-section) explicitly requested together. */}
@@ -4152,9 +4199,11 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      </>) : null}
+      </View>) : null}
+      </View>
+      <View style={styles.groupBand}>
       {renderGroupHeading('How You Eat')}
-      {!collapsedGroups.has('How You Eat') ? (<>
+      {!collapsedGroups.has('How You Eat') ? (<View style={styles.groupBody}>
       {/* Diet Preferences, 2026-08-24, direct request: "the type of diet a
           person is trying to follow or is interested in trying should be
           in the Profile." A separate card from Conditions above rather
@@ -4598,9 +4647,11 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      </>) : null}
+      </View>) : null}
+      </View>
+      <View style={styles.groupBand}>
       {renderGroupHeading('Growing Your Own')}
-      {!collapsedGroups.has('Growing Your Own') ? (<>
+      {!collapsedGroups.has('Growing Your Own') ? (<View style={styles.groupBody}>
       {/* Garden Details, 2026-08-29, direct request: move Growing Zone
           into its own section named Garden Details, since "in future
           versions there will be more to setup in here." Its own card
@@ -4644,9 +4695,11 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      </>) : null}
+      </View>) : null}
+      </View>
+      <View style={styles.groupBand}>
       {renderGroupHeading('How the App Looks')}
-      {!collapsedGroups.has('How the App Looks') ? (<>
+      {!collapsedGroups.has('How the App Looks') ? (<View style={styles.groupBody}>
       {/* Low Stimulation, 2026-09-16. Everything it does could already be
           done by hand: set every background to Off one tab at a time, fold
           each Home section, and live with the motion. That is six or more
@@ -5275,9 +5328,11 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      </>) : null}
+      </View>) : null}
+      </View>
+      <View style={styles.groupBand}>
       {renderGroupHeading('Device & Account')}
-      {!collapsedGroups.has('Device & Account') ? (<>
+      {!collapsedGroups.has('Device & Account') ? (<View style={styles.groupBody}>
       {/* App Status, Phase A of the 2026-09-24 gap review: every "is this
           working?" answer in one place, see lib/appStatus.ts. */}
       <View style={styles.card}>
@@ -5994,7 +6049,8 @@ export default function ProfileScreen() {
           ) : null}
         </View>
       ) : null}
-      </>) : null}
+      </View>) : null}
+      </View>
     </ScrollView>
     {closeButton}
     {passwordPromptElement}
@@ -6145,26 +6201,24 @@ const styles = StyleSheet.create({
     ...textShadow,
 
   },
-  // The six group headings, 2026-09-04. Sits between cards rather than
-  // inside one, so it needs a surface of its own; same shape as the
-  // groupHeadingChip already defined on Schedules and Trends. Deliberately
-  // narrower padding and a tighter radius than `card` below, so a heading
-  // does not read as another empty card.
-  // Since 2026-09-19 a full-width heading band on the muted surface, the
-  // same shape makeTabBandStyles gives every tab's lens headings.
-  // surfaceMuted is darker than surface on every ground, which keeps a
-  // heading darker than the cards under it (1.0.61.6, same request).
-  // 1.0.61.7, direct request: "make the row heights the same as they are on
-  // the Homescreen for both the headers and the subsections when they
-  // aren't selected." So a heading and a closed card are both a Home band's
-  // header row: 12 above and below one line of bodyEmphasis, inside the
-  // band's two 1px edges (HomeSectionBand's header style).
-  groupHeadingChip: {
+  // 1.0.61.12, direct request: "format the Profile sections more like the
+  // Tab sections on the Home screen." So a group is one band, the way
+  // renderHomeTabGroup draws a tab's group on Home: the band holds the
+  // heading row and, while open, every card in the group, indented by the
+  // band's inset with a dark line closing the last one.
+  groupBand: {
     ...homeBandStyle,
-    backgroundColor: colors.surfaceMuted,
     borderColor: colors.tabProfile,
     ...homeBandNoHairlines,
     marginTop: HOME_BAND_ACCENT_WIDTH,
+  },
+  groupBody: {
+    marginLeft: HOME_BAND_CONTENT_PADDING,
+    marginBottom: HOME_BAND_CONTENT_PADDING,
+    borderBottomWidth: HOME_BAND_EDGE_WIDTH,
+    borderBottomColor: HOME_BAND_DIVIDER_COLOR,
+  },
+  groupHeadingRow: {
     paddingVertical: 12,
     paddingHorizontal: HOME_BAND_CONTENT_PADDING,
     flexDirection: 'row',
@@ -6174,20 +6228,18 @@ const styles = StyleSheet.create({
   groupHeadingText: {
     ...typography.bodyEmphasis,
     flex: 1,
-    // Deliberately the brighter primary text rather than the muted
-    // menuLabelMuted the card headers below it use: a group heading has to
-    // read as a level ABOVE the card titles it introduces, and matching
-    // their color would flatten the two into one another.
-    color: colors.textPrimary,
-    letterSpacing: 0.5,
+    // Home's band title: the tab's word colour, regular weight. The cards
+    // under it share the colour, and sit a level down by their indent.
+    color: colors.tabProfileText,
+    fontWeight: '400',
     ...textShadow,
   },
-  // Since 2026-09-19 an edge-to-edge band in the Profile colour, the
-  // same shape as every tab's boxes; the column's gap spaces them.
-  // The dark line along each card's top is what separates one card from
-  // the next, and the first from its heading, 1.0.61.6.
+  // 1.0.61.12, shaped like a card inside one of Home's tab groups: no
+  // surface of its own, so the group's shows through, and a dark line along
+  // its top. The group body draws the closing line under the last one.
   card: {
     ...homeBandStyle,
+    backgroundColor: 'transparent',
     borderColor: colors.tabProfile,
     ...homeBandDivided,
     // No padding above or below: the header row carries Home's 12 and
@@ -6198,7 +6250,8 @@ const styles = StyleSheet.create({
   // label has always used here.
   cardTitle: {
     ...typography.bodyEmphasis,
-    color: colors.menuLabelMuted,
+    color: colors.tabProfileText,
+    fontWeight: '400',
     flex: 1,
     ...textShadow,
   },
@@ -6234,7 +6287,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  cardHeaderRowTop: { paddingVertical: 12, gap: 8 },
+  // Home's band header row: the icon at the card's inset, no extra indent,
+  // since the group body now indents every card (1.0.61.12).
+  cardHeaderRowTop: { paddingVertical: 12, paddingLeft: 0, gap: 8, justifyContent: 'flex-start' },
   cardBody: {
     paddingBottom: HOME_BAND_CONTENT_PADDING,
   },
@@ -6253,7 +6308,7 @@ const styles = StyleSheet.create({
     marginTop: 18,
     paddingTop: 14,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: HOME_BAND_DIVIDER_COLOR,
   },
   appearanceSubsectionHeaderFirst: {
     marginTop: 0,
@@ -6310,7 +6365,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     paddingTop: 14,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: HOME_BAND_DIVIDER_COLOR,
 
     ...textShadow,
 
@@ -6678,7 +6733,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: HOME_BAND_DIVIDER_COLOR,
   },
   concernLabel: {
     ...typography.bodyEmphasis,
