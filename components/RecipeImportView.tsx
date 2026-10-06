@@ -32,7 +32,7 @@ import {
 } from '../lib/recipeImportDb';
 import { AppTextInput } from './AppTextInput';
 import { CookModeButton } from './CookMode';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HomeSectionBand } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 import { RecipeMarkupView } from './RecipeMarkupView';
 import { isDesktopApp } from '../lib/desktop/bridge';
@@ -635,7 +635,7 @@ export function RecipeImportView({
 
 const styles = StyleSheet.create({
   wrapper: { flex: 1 },
-  container: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
+  container: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_ACCENT_WIDTH },
   backLink: {
     ...typography.body,
     color: colors.textOnPrimary,
@@ -649,7 +649,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'transparent',
     textShadowRadius: 0,
   },
-  bandBody: { gap: HOME_BAND_GAP },
+  bandBody: { gap: HOME_BAND_ACCENT_WIDTH },
   intro: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   emptyText: { ...typography.body, color: colors.textPrimary, ...textShadow },
   headerRow: { borderRadius: 10, backgroundColor: colors.surfaceMuted, paddingHorizontal: 12, paddingVertical: 8 },

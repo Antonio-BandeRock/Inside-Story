@@ -26,7 +26,7 @@ import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
 import { FoodMarkButtons, foodAppLine, foodTrialLine } from './FoodSafetyMarks';
 import { categoryLabel } from './FoodLookup';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HomeSectionBand } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 
 // My Safe Foods: the person's list, kept by the person.
@@ -591,7 +591,7 @@ const styles = StyleSheet.create({
   // No fill: the Food background shows through, as it does behind every
   // other lens on this tab.
   wrapper: { flex: 1 },
-  container: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
+  container: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_ACCENT_WIDTH },
   backLink: {
     ...typography.body,
     color: colors.textOnPrimary,
@@ -605,7 +605,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'transparent',
     textShadowRadius: 0,
   },
-  bandBody: { gap: HOME_BAND_GAP },
+  bandBody: { gap: HOME_BAND_ACCENT_WIDTH },
   intro: {
     ...typography.caption,
     color: colors.textSecondary,
@@ -631,12 +631,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     color: colors.textPrimary,
   },
-  suggestionWrap: { gap: HOME_BAND_GAP },
+  suggestionWrap: { gap: HOME_BAND_ACCENT_WIDTH },
   draftCard: {
     borderRadius: 10,
     backgroundColor: colors.surfaceMuted,
     padding: 12,
-    gap: HOME_BAND_GAP,
+    gap: HOME_BAND_ACCENT_WIDTH,
   },
   draftName: {
     ...typography.bodyEmphasis,

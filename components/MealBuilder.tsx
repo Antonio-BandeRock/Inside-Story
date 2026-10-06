@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, homeBandNoHairlines, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
 import { textShadow, typography } from '../constants/typography';
 import {
   correctFoodTrialStartDate,
@@ -2337,13 +2337,14 @@ export function MealBuilder({
 }
 
 const styles = StyleSheet.create({
-  scrollContent: { padding: 16, paddingTop: 5, gap: HOME_BAND_GAP },
+  scrollContent: { padding: 16, paddingTop: 5, gap: HOME_BAND_ACCENT_WIDTH },
   // The band look, 2026-09-12 (see components/HomeSectionBand.tsx), the
   // same headerless box the other eleven builders use: every card here is
   // a form or a notice whose own title sits inside it, so none carries a
   // band header row. Edge to edge by cancelling scrollContent's own 16px.
   formCard: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     marginHorizontal: -16,
     padding: HOME_BAND_CONTENT_PADDING,
   },
@@ -2352,7 +2353,7 @@ const styles = StyleSheet.create({
   // other builders use).
   bandOut: { marginHorizontal: -16 },
   // Rows or tiles inside a band, the standard gap apart.
-  bandRows: { gap: HOME_BAND_GAP },
+  bandRows: { gap: HOME_BAND_ACCENT_WIDTH },
   formLabel: { ...typography.eyebrow, ...textShadow },
   formLabelSpaced: { marginTop: 14 },
   // The "nothing saved yet" notice above the identity form, 2026-08-08 --
@@ -2482,7 +2483,7 @@ const styles = StyleSheet.create({
   // same split Home's bands make.
   gridCaption: { ...typography.caption, color: colors.textPrimary, ...textShadow },
   emptyText: { ...typography.body, color: colors.textPrimary, ...textShadow },
-  savedList: { gap: HOME_BAND_GAP },
+  savedList: { gap: HOME_BAND_ACCENT_WIDTH },
   // A row inside a band: an inset box rather than a second band (a band
   // inside a band would put its accent 16px in), the same shape Log or
   // Schedule a Meal's rows take.

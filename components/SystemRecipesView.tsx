@@ -7,7 +7,7 @@ import { textShadow, typography } from '../constants/typography';
 import { EntryPhotoSection } from './EntryPhotoSection';
 import { EntryScrollAnchor, type EntryScrollTarget } from './EntryScrollAnchor';
 import { EntrySearchInput, searchFieldStyle } from './EntrySearchInput';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HomeSectionBand } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 import { CuratedRecipeShareButton, RECIPE_BUILDER_PARAM, RecipeBuildRow, RecipeDetailCard } from './RecipeDetailCard';
 import { getEntriesForCategory, searchEntriesScored } from '../lib/digest';
@@ -467,7 +467,7 @@ export function SystemRecipesView({
                     {section.entries.map((entry, index) => (
                       <Fragment key={entry.id}>
                         {/* The one pixel line sits exactly midway: the gap
-                            above and below it add back to HOME_BAND_GAP, so
+                            above and below it add back to HOME_BAND_ACCENT_WIDTH, so
                             the rows keep the spacing every other stacked
                             thing in the app uses. */}
                         {index > 0 ? <View style={styles.rowDivider} /> : null}
@@ -552,7 +552,7 @@ function SystemRecipeRow({
 const styles = StyleSheet.create({
   // The Food background shows through, as it does behind every builder.
   wrapper: { flex: 1 },
-  container: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
+  container: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_ACCENT_WIDTH },
   backLink: {
     ...typography.body,
     color: colors.textOnPrimary,
@@ -567,7 +567,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 0,
   },
   // gap: 0 on purpose. The rows space themselves through the divider
-  // below, which carries the whole HOME_BAND_GAP with the line in its
+  // below, which carries the whole band gap with the line in its
   // middle, and a gap here would add to it.
   bandBody: { gap: 0 },
   introBox: {
@@ -616,16 +616,16 @@ const styles = StyleSheet.create({
     ...typography.eyebrow,
     color: TAB_COLOR,
     ...textShadow,
-    marginBottom: HOME_BAND_GAP,
+    marginBottom: HOME_BAND_ACCENT_WIDTH,
   },
-  subgroupHeadingLater: { marginTop: HOME_BAND_GAP },
-  // One pixel, with the rest of HOME_BAND_GAP split evenly above and
+  subgroupHeadingLater: { marginTop: HOME_BAND_ACCENT_WIDTH },
+  // One pixel, with the rest of the band gap split evenly above and
   // below it, so the line lands halfway between two recipes and the
   // distance between them is unchanged.
   rowDivider: {
     height: 1,
     backgroundColor: colors.border,
-    marginVertical: (HOME_BAND_GAP - 1) / 2,
+    marginVertical: (HOME_BAND_ACCENT_WIDTH - 1) / 2,
   },
   // An inset box inside the band rather than a second band, the same shape
   // My Recipes' own rows take.

@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HomeSectionBand } from './HomeSectionBand';
 import { markPendingFoodTrialReturn } from '../lib/pendingFoodTrialReturn';
 import {
   deleteBakedGoods,
@@ -946,7 +946,7 @@ const styles = StyleSheet.create({
   // arrangement (a short list stacked from the bottom, near the thumb)
   // went with the move into the tab: the list now reads top-down under
   // its own header like every other band in the app.
-  container: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
+  container: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_ACCENT_WIDTH },
   backLink: {
     ...typography.body,
     color: colors.textOnPrimary,
@@ -960,7 +960,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'transparent',
     textShadowRadius: 0,
   },
-  bandBody: { gap: HOME_BAND_GAP },
+  bandBody: { gap: HOME_BAND_ACCENT_WIDTH },
   // A line of its own above the bands, on a surface rather than
   // straight on the Food background (see CLAUDE.md's standing rule).
   introBox: {

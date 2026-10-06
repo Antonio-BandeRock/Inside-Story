@@ -15,7 +15,7 @@ import {
 import { formatQuantity, formatTradeMoney, perUnit, type ValuationResult } from '../lib/harvestTrade';
 import { listPurchasableFoods, type PurchasableFood } from '../lib/kitchenDb';
 import { AppTextInput } from './AppTextInput';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HomeSectionBand } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 
 // My Whole Foods: what the person has on hand from their own garden, and
@@ -389,7 +389,7 @@ const styles = StyleSheet.create({
   // No fill: the Food background shows through, as it does behind every
   // other lens on this tab.
   wrapper: { flex: 1 },
-  container: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
+  container: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_ACCENT_WIDTH },
   backLink: {
     ...typography.body,
     color: colors.textOnPrimary,
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
     textShadowColor: 'transparent',
     textShadowRadius: 0,
   },
-  bandBody: { gap: HOME_BAND_GAP },
+  bandBody: { gap: HOME_BAND_ACCENT_WIDTH },
   intro: {
     ...typography.caption,
     color: colors.textSecondary,

@@ -13,7 +13,7 @@ import { applyMakePlan } from '../lib/kitchenDb';
 import { buildMakePlan, shortfallsFrom, type MakeIngredient, type MakePlan } from '../lib/kitchenUsage';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, homeBandNoHairlines, homeBandStyle } from './HomeSectionBand';
 import { markPendingFoodTrialReturn } from '../lib/pendingFoodTrialReturn';
 import {
   getBakedGoods,
@@ -739,8 +739,8 @@ const styles = StyleSheet.create({
   // every builder. The band look (components/HomeSectionBand.tsx): no
   // horizontal padding, each box edge to edge, the standard gap.
   wrapper: { flex: 1 },
-  container: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
-  panel: { ...homeBandStyle, borderColor: colors.tabFood, padding: HOME_BAND_CONTENT_PADDING },
+  container: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_ACCENT_WIDTH },
+  panel: { ...homeBandStyle, ...homeBandNoHairlines, borderColor: colors.tabFood, padding: HOME_BAND_CONTENT_PADDING },
   insightsColumn: { paddingHorizontal: HOME_BAND_CONTENT_PADDING },
   backLink: {
     ...typography.body,
@@ -837,7 +837,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
     borderRadius: 10,
     padding: 10,
-    marginBottom: HOME_BAND_GAP,
+    marginBottom: HOME_BAND_ACCENT_WIDTH,
   },
   ingredientName: {
     ...typography.bodyEmphasis,

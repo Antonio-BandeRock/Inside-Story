@@ -7,7 +7,7 @@ import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
 import { BAKED_GOODS_BUILDER_CATEGORIES } from '../constants/foodBuilderCategories';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, homeBandNoHairlines, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
 import { textShadow, typography } from '../constants/typography';
 import {
   getBuilderFavorite,
@@ -2315,7 +2315,7 @@ const styles = StyleSheet.create({
   // Deliberately NOT a ScrollView -- see this component's own render-time
   // comment for why FoodLookup can never sit inside one.
   pickerScreen: { flex: 1, paddingHorizontal: 16, paddingTop: 5 },
-  scrollContent: { padding: 16, paddingTop: 5, gap: HOME_BAND_GAP },
+  scrollContent: { padding: 16, paddingTop: 5, gap: HOME_BAND_ACCENT_WIDTH },
   // The band look, 2026-09-12 (see components/HomeSectionBand.tsx): a 4px
   // accent and hairlines in the tab colour (borderColor is set inline at
   // every site), no right edge, no radius, and edge to edge by cancelling
@@ -2324,6 +2324,7 @@ const styles = StyleSheet.create({
   // HomeSectionBand instead (see bandOut); this is the headerless box.
   formCard: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     marginHorizontal: -16,
     padding: HOME_BAND_CONTENT_PADDING,
   },

@@ -681,6 +681,17 @@ export default function ProfileScreen() {
   const [collapsedSections, setCollapsedSections] = useState<Set<CardSectionKey>>(
     () => new Set(ALL_CARD_SECTION_KEYS),
   );
+  // The six group headings fold too (1.0.61.9), keyed by their title.
+  // Starts with every group open; see renderGroupHeading.
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(() => new Set());
+  const toggleGroup = useCallback((title: string) => {
+    setCollapsedGroups((current) => {
+      const next = new Set(current);
+      if (next.has(title)) next.delete(title);
+      else next.add(title);
+      return next;
+    });
+  }, []);
   // Opened straight onto Reminders (1.0.60.3) by Choose Which Reminders
   // Come in the Waiting for an Answer list, so the switches are in view
   // rather than folded away somewhere down the page.
@@ -689,6 +700,11 @@ export default function ProfileScreen() {
   const remindersCardY = useRef<number | null>(null);
   useEffect(() => {
     if (openSection !== 'reminders') return;
+    setCollapsedGroups((current) => {
+      const next = new Set(current);
+      next.delete('Your Health');
+      return next;
+    });
     setCollapsedSections((current) => {
       const next = new Set(current);
       next.delete('reminders');
@@ -848,21 +864,28 @@ export default function ProfileScreen() {
   // the middle of them.
   //
   // Reordered into six groups, and these headings make the grouping
-  // legible rather than leaving it implied. Deliberately NOT a seventh
-  // collapse layer: this screen already has three (cards, TabHub icon
-  // groups, Appearance sub-sections), and a heading that can be collapsed
-  // to hide the headings underneath it stops being a signpost. A plain
-  // label is all this needs to do its job.
+  // legible rather than leaving it implied. Since 1.0.61.9 each heading
+  // also folds its whole group away, by direct request: "make each section
+  // of Profile collapsable." Groups start open so every card header stays
+  // a signpost on arrival; folding one is for getting it out of the way.
   //
   // Carries its own surface per the standing no-bare-text-on-the-tab-
   // background rule, and matches the groupHeadingChip shape already used
   // on Schedules and Trends for exactly this case: a heading introducing
   // a GROUP of separate cards rather than labelling one card.
   function renderGroupHeading(title: string) {
+    const collapsed = collapsedGroups.has(title);
     return (
-      <View style={styles.groupHeadingChip}>
+      <TouchableOpacity
+        style={styles.groupHeadingChip}
+        onPress={() => toggleGroup(title)}
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: !collapsed }}
+      >
         <Text style={styles.groupHeadingText}>{title}</Text>
-      </View>
+        <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={16} color={colors.textPrimary} style={textShadow} />
+      </TouchableOpacity>
     );
   }
   // 2026-08-14, direct request: "Is there a way to collapse each of the
@@ -3247,6 +3270,7 @@ export default function ProfileScreen() {
       ) : null}
 
       {renderGroupHeading('About You')}
+      {!collapsedGroups.has('About You') ? (<>
       {/* Personal Info, 2026-08-09, regrouped from 5 separate cards
           (Your name, Units, Sex, Birth date, Height) plus a new Weight
           field, all explicitly requested together. Every former card's
@@ -3513,7 +3537,9 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
+      </>) : null}
       {renderGroupHeading('Your Health')}
+      {!collapsedGroups.has('Your Health') ? (<>
       {/* Conditions & Check-In, 2026-08-09, regrouped from 3 separate
           cards (Your conditions, Where you're at, plus a brand-new Food
           Allergies sub-section) explicitly requested together. */}
@@ -4126,7 +4152,9 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
+      </>) : null}
       {renderGroupHeading('How You Eat')}
+      {!collapsedGroups.has('How You Eat') ? (<>
       {/* Diet Preferences, 2026-08-24, direct request: "the type of diet a
           person is trying to follow or is interested in trying should be
           in the Profile." A separate card from Conditions above rather
@@ -4570,7 +4598,9 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
+      </>) : null}
       {renderGroupHeading('Growing Your Own')}
+      {!collapsedGroups.has('Growing Your Own') ? (<>
       {/* Garden Details, 2026-08-29, direct request: move Growing Zone
           into its own section named Garden Details, since "in future
           versions there will be more to setup in here." Its own card
@@ -4614,7 +4644,9 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
+      </>) : null}
       {renderGroupHeading('How the App Looks')}
+      {!collapsedGroups.has('How the App Looks') ? (<>
       {/* Low Stimulation, 2026-09-16. Everything it does could already be
           done by hand: set every background to Off one tab at a time, fold
           each Home section, and live with the motion. That is six or more
@@ -5243,7 +5275,9 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
+      </>) : null}
       {renderGroupHeading('Device & Account')}
+      {!collapsedGroups.has('Device & Account') ? (<>
       {/* App Status, Phase A of the 2026-09-24 gap review: every "is this
           working?" answer in one place, see lib/appStatus.ts. */}
       <View style={styles.card}>
@@ -5960,6 +5994,7 @@ export default function ProfileScreen() {
           ) : null}
         </View>
       ) : null}
+      </>) : null}
     </ScrollView>
     {closeButton}
     {passwordPromptElement}
@@ -6132,9 +6167,13 @@ const styles = StyleSheet.create({
     marginTop: HOME_BAND_ACCENT_WIDTH,
     paddingVertical: 12,
     paddingHorizontal: HOME_BAND_CONTENT_PADDING,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   groupHeadingText: {
     ...typography.bodyEmphasis,
+    flex: 1,
     // Deliberately the brighter primary text rather than the muted
     // menuLabelMuted the card headers below it use: a group heading has to
     // read as a level ABOVE the card titles it introduces, and matching

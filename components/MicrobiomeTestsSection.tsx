@@ -11,7 +11,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from './AppTextInput';
 import { useConfirmSheet } from './ConfirmSheet';
-import { HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HomeSectionBand } from './HomeSectionBand';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -650,7 +650,7 @@ export function MicrobiomeTestsSection({ tabColor }: { tabColor: string }) {
 }
 
 const styles = StyleSheet.create({
-  body: { gap: HOME_BAND_GAP },
+  body: { gap: HOME_BAND_ACCENT_WIDTH },
   panel: {
     backgroundColor: colors.surface,
     borderRadius: 10,

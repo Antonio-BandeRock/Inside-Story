@@ -29,7 +29,7 @@ import { ActivityIndicator, Dimensions, Image, ScrollView, StyleSheet, Text, Tou
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppTextInput } from './AppTextInput';
 import { DraggableCropOverlay, type CropRect } from './DraggableCropOverlay';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, homeBandNoHairlines, homeBandStyle } from './HomeSectionBand';
 import { SimpleSlider } from './SimpleSlider';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -1951,12 +1951,13 @@ const styles = StyleSheet.create({
   // every builder. The band look (components/HomeSectionBand.tsx): each
   // step one Food-coloured band edge to edge, the standard gap between.
   screen: { flex: 1 },
-  content: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
-  panel: { ...homeBandStyle, borderColor: colors.tabFood, padding: HOME_BAND_CONTENT_PADDING, gap: 12 },
+  content: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_ACCENT_WIDTH },
+  panel: { ...homeBandStyle, ...homeBandNoHairlines, borderColor: colors.tabFood, padding: HOME_BAND_CONTENT_PADDING, gap: 12 },
   // A message with nothing to scroll: the same band, at the top rather
   // than centred in the space, since the space is the tab's now.
   centerBody: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: colors.tabFood,
     marginTop: 5,
     alignItems: 'center',
@@ -1966,7 +1967,7 @@ const styles = StyleSheet.create({
   },
   camera: { flex: 1 },
   // Barcodes scanned with no signal (G21), above the camera.
-  pendingPanel: { ...homeBandStyle, borderColor: colors.tabFood, padding: HOME_BAND_CONTENT_PADDING, gap: 8, marginBottom: HOME_BAND_GAP },
+  pendingPanel: { ...homeBandStyle, ...homeBandNoHairlines, borderColor: colors.tabFood, padding: HOME_BAND_CONTENT_PADDING, gap: 8, marginBottom: HOME_BAND_ACCENT_WIDTH },
   pendingList: { maxHeight: 240 },
   pendingHeading: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },
   pendingRow: { paddingVertical: 8, gap: 4, borderTopWidth: 1, borderTopColor: colors.border },

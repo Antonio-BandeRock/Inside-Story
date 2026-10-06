@@ -8,7 +8,7 @@ import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { TrendLineChart } from './TrendLineChart';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, homeBandNoHairlines, homeBandStyle } from './HomeSectionBand';
 import {
   deleteScannedProduct,
   getFoodNutrients,
@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
   // every builder. The band look (components/HomeSectionBand.tsx): each
   // card a Food-coloured band edge to edge, the standard gap between.
   screen: { flex: 1 },
-  content: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
+  content: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_ACCENT_WIDTH },
   backLink: {
     ...typography.body,
     color: colors.textOnPrimary,
@@ -368,6 +368,7 @@ const styles = StyleSheet.create({
   logPriceLabel: { marginTop: 12 },
   card: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: colors.tabFood,
     padding: HOME_BAND_CONTENT_PADDING,
     gap: 6,

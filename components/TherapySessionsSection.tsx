@@ -5,7 +5,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, homeBandNoHairlines, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
 import { useInfoAlert } from './InfoAlert';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -469,17 +469,19 @@ function makeStyles(tabColor: string) {
     appointmentRowTime: { width: 76, lineHeight: 16 },
     bandBox: {
       ...homeBandStyle,
+      ...homeBandNoHairlines,
       borderColor: tabColor,
       marginHorizontal: -CONTENT_INSET,
       padding: HOME_BAND_CONTENT_PADDING,
     },
-    bodyContent: { gap: HOME_BAND_GAP },
+    bodyContent: { gap: HOME_BAND_ACCENT_WIDTH },
     dateInput: { flex: 1 },
     emptyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
     errorText: { ...typography.body, color: colors.danger, ...textShadow },
     formActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12, marginTop: 16 },
     formCard: {
       ...homeBandStyle,
+      ...homeBandNoHairlines,
       borderColor: tabColor,
       marginHorizontal: -CONTENT_INSET,
       padding: HOME_BAND_CONTENT_PADDING,
@@ -557,7 +559,7 @@ function makeStyles(tabColor: string) {
     rowTitle: { ...typography.label, color: tabColor, ...textShadow },
     secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
     secondaryButtonText: { ...typography.bodyEmphasis, color: tabColor, ...textShadow },
-    table: { gap: HOME_BAND_GAP },
+    table: { gap: HOME_BAND_ACCENT_WIDTH },
     timeInput: { width: 56, textAlign: 'center' },
     timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     timeSeparator: { ...typography.label, color: tabColor, ...textShadow },

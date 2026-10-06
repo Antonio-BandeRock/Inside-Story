@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
+import { CalmBands } from '../../components/HomeSectionBand';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub, type MyItemsCategory } from '../../components/MyItemsHub';
 import { BakedGoodsBuilder } from '../../components/BakedGoodsBuilder';
@@ -1340,6 +1341,7 @@ export default function FoodScreen() {
           revealed yet) -- once a real builder is open, only its own
           LensHub corner button can back out of it. */}
       <SwipeableTabScreen enabled={!revealed}>
+        <CalmBands>
         <GatedTabContent
           pageTitle="Food"
           variant="produce"
@@ -1623,6 +1625,7 @@ export default function FoodScreen() {
             />
           ) : null}
         </GatedTabContent>
+        </CalmBands>
       </SwipeableTabScreen>
 
       {/* At rest the tab's own top level shows nothing in the box, per the

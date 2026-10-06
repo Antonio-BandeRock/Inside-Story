@@ -24,7 +24,7 @@ import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { TherapySessionsSection } from '../../components/TherapySessionsSection';
 import { textShadow, typography } from '../../constants/typography';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from '../../components/HomeSectionBand';
+import { CalmBands, HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, homeBandNoHairlines, homeBandStyle } from '../../components/HomeSectionBand';
 import { RecordPhotos } from '../../components/RecordPhotos';
 import { SymptomPhotosOverTime } from '../../components/SymptomPhotosOverTime';
 import { BodyMap } from '../../components/BodyMap';
@@ -3783,6 +3783,7 @@ export default function LogScreen() {
           change-tab only works from a lens's own picker, not once a real
           lens's content (with its own scrollable controls) is showing. */}
       <SwipeableTabScreen enabled={!revealed}>
+        <CalmBands>
         <GatedTabContent pageTitle="Signals" variant="bioCompass" revealed={revealed}>
           {lens === 'flares' ? (
             <FlaresLens />
@@ -3815,6 +3816,7 @@ export default function LogScreen() {
             <MyTrackersLens />
           )}
         </GatedTabContent>
+        </CalmBands>
       </SwipeableTabScreen>
 
       <PageIdentityLabel title="Signals" activeLensLabel={revealed ? activeLensLabel : undefined} />
@@ -3843,12 +3845,12 @@ export default function LogScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   body: { flex: 1 },
-  // Edge to edge, 2026-09-19: no side inset, one HOME_BAND_GAP between
+  // Edge to edge, 2026-09-19: no side inset, one band gap (the calm 4px since 1.0.61.9) between
   // stacked surfaces, and the bottom padding set inline from
   // useFloatingButtonScrollPadding, a full window of run-out. The section
   // components that render inside a lens stack their bands the same way.
-  bodyContent: { gap: HOME_BAND_GAP },
-  sectionColumn: { gap: HOME_BAND_GAP },
+  bodyContent: { gap: HOME_BAND_ACCENT_WIDTH },
+  sectionColumn: { gap: HOME_BAND_ACCENT_WIDTH },
   // Deliberately NOT a ScrollView -- see NewFoodsLens' own render-time
   // comment for why FoodLookup can never sit inside one, the same
   // established fix already applied in Garden's own harvest/planting
@@ -3867,11 +3869,13 @@ const styles = StyleSheet.create({
   // card instead of using either.
   panelStandalone: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: TAB_COLOR,
     padding: HOME_BAND_CONTENT_PADDING,
   },
   groupHeadingChip: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: TAB_COLOR,
     backgroundColor: colors.surfaceMuted,
     paddingVertical: 10,
@@ -3879,6 +3883,7 @@ const styles = StyleSheet.create({
   },
   addButton: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: TAB_COLOR,
     padding: HOME_BAND_CONTENT_PADDING,
     alignItems: 'center',
@@ -3892,6 +3897,7 @@ const styles = StyleSheet.create({
   // 2026-07-27.
   formCard: {
     ...homeBandStyle,
+    ...homeBandNoHairlines,
     borderColor: TAB_COLOR,
     padding: HOME_BAND_CONTENT_PADDING,
   },
@@ -3984,7 +3990,7 @@ const styles = StyleSheet.create({
   },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule, 2026-07-27.
   // The table is a band whose rows carry the content inset themselves.
-  table: { ...homeBandStyle, borderColor: TAB_COLOR, overflow: 'hidden' },
+  table: { ...homeBandStyle, ...homeBandNoHairlines, borderColor: TAB_COLOR, overflow: 'hidden' },
   row: { borderTopWidth: 1, borderTopColor: colors.border, paddingVertical: 12, paddingHorizontal: HOME_BAND_CONTENT_PADDING },
   rowTextCol: { flex: 1 },
   rowTitle: { ...typography.label, color: TAB_COLOR,

@@ -46,7 +46,7 @@ import { MenuScanBand } from './MenuScanBand';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, homeBandNoHairlines, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
 import { ALL_DIGEST_ENTRIES } from '../lib/digest';
 import { offerGardenUse } from '../lib/gardenPlateOffer';
 import { isProblemFoodEntry } from '../lib/digest/types';
@@ -1515,15 +1515,15 @@ const styles = StyleSheet.create({
   // The band look, 2026-09-13 (see components/HomeSectionBand.tsx), the
   // same as every Food builder: no horizontal padding, every box edge to
   // edge in the Food colour, the standard gap between them.
-  content: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_GAP },
-  panel: { ...homeBandStyle, borderColor: colors.tabFood, padding: HOME_BAND_CONTENT_PADDING, gap: 10 },
+  content: { paddingHorizontal: 0, paddingTop: 5, gap: HOME_BAND_ACCENT_WIDTH },
+  panel: { ...homeBandStyle, ...homeBandNoHairlines, borderColor: colors.tabFood, padding: HOME_BAND_CONTENT_PADDING, gap: 10 },
   listHeader: { marginBottom: 0 },
   // The header panel and, once anything is ticked, the tray beneath it,
   // the standard gap apart like every other band on the screen.
-  headerStack: { gap: HOME_BAND_GAP },
+  headerStack: { gap: HOME_BAND_ACCENT_WIDTH },
   // The rows inside a section band, the standard gap apart, no top padding
   // since the band's header row already separates its name from the first.
-  sectionBody: { gap: HOME_BAND_GAP },
+  sectionBody: { gap: HOME_BAND_ACCENT_WIDTH },
   title: { ...typography.sectionTitle, color: colors.textPrimary, ...textShadow },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4, ...textShadow },
   // textPrimary rather than textMuted: textMuted measures under 3:1 on the
