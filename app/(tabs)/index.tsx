@@ -31,6 +31,7 @@ import { EnergyOrb } from '../../components/EnergyOrb';
 import { FlipCard } from '../../components/FlipCard';
 import type { HelpSection } from '../../components/HelpButton';
 import {
+  HOME_BAND_ACCENT_WIDTH,
   HOME_BAND_CONTENT_PADDING,
   HOME_BAND_GAP,
   HomeBandHairlinesContext,
@@ -5277,11 +5278,14 @@ const styles = StyleSheet.create({
   // right side... with the padding in effect for the text or anything else
   // that is present, but not for the boxes." Each band carries its own
   // inner padding (HOME_BAND_CONTENT_PADDING); the page itself no longer
-  // insets anything. Home's bands stack with no gap since 1.0.61.4, direct
-  // request: "remove the space between color grouped entities on the Home
-  // screen". The left accent alone says where one ends and the next begins.
+  // insets anything. Home's bands lost their hairlines in 1.0.61.4, and in
+  // 1.0.61.5 the gap between Home's sections became the width of the left
+  // accent, direct request: "a small gap between the tab sections... kind of
+  // like a thicker line about the same distance from each other as the left
+  // side color lines are thick. They need to all be the same distance." So
+  // one constant sets both, and the cards inside a group still touch.
   // HOME_BAND_GAP stays the standard on every other screen.
-  content: { paddingHorizontal: 0, paddingTop: 12, paddingBottom: 32, gap: 0 },
+  content: { paddingHorizontal: 0, paddingTop: 12, paddingBottom: 32, gap: HOME_BAND_ACCENT_WIDTH },
   // Shared by every band's expanded content that is a stack of things
   // (caption, buttons, a photo strip) rather than one widget.
   bandBody: { gap: HOME_BAND_GAP },
