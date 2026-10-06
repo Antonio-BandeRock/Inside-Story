@@ -547,3 +547,18 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** all
 - **Answers:** (your question) · **Theme:** Shared foundations
 - **How:** Two plain-language pages on insidestoryapp.com (the Worker inside-story-site, docs/app-links), linked from X2, Profile and the store listings, and required by both stores. The privacy policy says what the local-first design means: health records stay on the device and the person's own cloud folder, no company server holds them, and exactly what the few lookups send (a barcode, a medicine code or name). Covers the FTC health breach rule, GDPR and Mexico's data protection law in outline. Written as drafts for a lawyer to review before store release, never presented as legal advice. Added 2026-09-26. Built 1.0.56.23: terms and privacy pages live on insidestoryapp.com, linked from the agreement, Profile and the home page; contact and governing law left for the legal review.
+
+### P7. A last-checked date on every reading entry
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life,Garden
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** A checkedOn field on DigestEntry shown quietly on each entry, and a script listing entries past a set age for rechecking in batches. Matters more once Learn decks are built from the corpus. Notion: https://app.notion.com/p/3f153652f27281b5980ccee7d551d9e5
+
+### P8. A convention for new text, so translation is not a rewrite
+- **Ships by:** Reading content · **Size:** S · **Tabs:** all
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Whole sentences, never glued fragments; counts through one plural helper; dates and numbers through one formatter. A small audit script on new files, then a decision on when the i18n library goes in. Notion: https://app.notion.com/p/3f153652f272818cbcd9fc22df82a27f
+
+### P11. Bring CLAUDE.md in line with what is built
+- **Ships by:** Reading content · **Size:** S · **Tabs:** none
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Platform scope still says the desktop is a PWA through PWABuilder (it is Electron); the Architecture intro says sync is not implemented (it is); nine tabs will be ten; the Free row is out of date (P3). Archive first, since the file is at the 100 KB limit. Notion: https://app.notion.com/p/3f153652f27281b1ac2fd6ecc12df8f2

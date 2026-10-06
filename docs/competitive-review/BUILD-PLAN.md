@@ -2,7 +2,7 @@
 
 Written 2026-09-25. Work starts 2026-09-26, first thing. Page: https://claude.ai/artifact/YJWZeijM5gEoWwdKc5sT6C (private until shared). The nine per-tab competitor reviews it comes from are the other `.md` files in this folder, and the full review page is https://claude.ai/artifact/H7w3rGJX4uDAZgU5xj48DE.
 
-**The owner's instruction:** "I agree with your assessment on each items, but I want to do literally everything we can to compete against all of these various competitors. I don't want to leave anything out from what was assessed from each competitor gap identified." So every gap is here: 220 items (219 at first, plus L5 on 2026-09-26) after merging the ones two or three tabs asked for. Items that break a standing rule or need a server are in Phase 7 with the reason, not dropped.
+**The owner's instruction:** "I agree with your assessment on each items, but I want to do literally everything we can to compete against all of these various competitors. I don't want to leave anything out from what was assessed from each competitor gap identified." So every gap is here: 220 items (219 at first, plus L5 on 2026-09-26) after merging the ones two or three tabs asked for, and later additions since, among them P1 to P12 from the 2026-10-06 review of the whole app (237 in all on that date). Items that break a standing rule or need a server are in Phase 7 with the reason, not dropped.
 
 **Source of truth:** `plan/items.txt` (one line per item: `id|phase|ship|size|tabs|competitors|title|how`). `plan/build-plan.js` regenerates the published page, `plan/build-md.js` regenerates this file's item list. Edit items.txt, never the generated output.
 

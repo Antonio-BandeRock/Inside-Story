@@ -312,3 +312,33 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Reports,Insights
 - **Answers:** Guava · **Theme:** Reports
 - **How:** visit_questions tied to an appointment, reorder and tick off, in the person's words.
+
+### P1. The first week, for someone with no condition and no patience
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Home,Profile
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Design day one, day two and day seven for someone who came to run their day and tracks no condition, before more areas are added: C18 (one clear next thing), Simple View, a first screen the second audience recognises, the interview offering "I'm here for my day, not a condition", and a short list of what the app does by itself versus what it needs. Ahead of new areas, by recommendation. Notion: https://app.notion.com/p/3f153652f2728187b6c8c529c4fee8b0
+
+### P4. One front door for things to remember or do
+- **Ships by:** Owner decision first · **Size:** M · **Tabs:** Home,Life,Signals
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Capture as the single way in, offering where a thing belongs (C8 already suggests), then a decision on whether Did I Do It, Routines, Upkeep, To-Do and Days Until stay separate or become views of one record with a kind. Decided before Projects or Things I'm Waiting On are built. Not a removal by default. Notion: https://app.notion.com/p/3f153652f272817abba5c3a1dc1a23c3
+
+### P6. Everything I've recorded, out in open formats
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Profile
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** One export: every table as CSV plus JSON, photos in folders, and an HTML index readable with nothing installed, saved to a folder the person picks, health records separable. App Lock asks again first. Phone and desktop. The first concrete piece of A Life's Inside Story. Notion: https://app.notion.com/p/3f153652f27281e6ba0ad6d8c1adb595
+
+### P9. Accessibility past text size
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** all
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** An audit for accessibilityLabel on pressables and icons (TalkBack, VoiceOver), a check that colour is never the only signal, and a Quieter view (plain backgrounds, less texture, reduced motion) that applies instantly for the autism audience. One screen-reader user in the beta (P2). Notion: https://app.notion.com/p/3f153652f272812db2ffe729fe54e3c9
+
+### P10. What your records showed this month
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Home,Insights,Trends
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** A monthly page from a quiet notification and Home: what was recorded, what changed, what tends to follow what (never a cause), finished experiments, things now known, garden and money in a line each. Clinical-claims rules apply, no praise or scores, gaps drawn as gaps. Check first what Insights already holds. Notion: https://app.notion.com/p/3f153652f2728140a574e001b1c5930a
+
+### P12. Sharing between two people past the shopping list
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Food,Schedules,Life
+- **Answers:** AnyList, Paprika · **Theme:** Brainstorm review 2026-10-06
+- **How:** Extend the allowlist in lib/peerRelationships.ts area by area (meal plan, schedule) with a per-category choice screen (meals and shopping shared by default; symptoms, labs and notes private; medications chosen at setup), carried by the relay (M1). Household read-only seats follow. The Partner tier's main reason to pay. Notion: https://app.notion.com/p/3f153652f272811db0d1ecb5862b72c0

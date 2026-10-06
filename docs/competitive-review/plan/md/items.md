@@ -1,5 +1,19 @@
-## Phase 0. Decisions only the owner can make (0 items)
+## Phase 0. Decisions only the owner can make (3 items)
 
+### P2. A small beta outside the house
+- **Ships by:** Owner decision first · **Size:** M · **Tabs:** none
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Five to ten people (two with one of the 19 conditions, two with ADHD, a gardener, a caregiver) for two to four weeks on the Play internal testing track, then a conversation with each. Plus a private, opt-in usage summary the person sends themselves, nothing leaving the phone otherwise. The first named risk says to test logging before building around it. Notion: https://app.notion.com/p/3f153652f2728129b607eae81a0a7b7d
+
+### P3. Redraw the tier table and plan how tiers are checked
+- **Ships by:** Owner decision first · **Size:** M · **Tabs:** all
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** One pass over every tab and lens, Free or paid, under the 2026-10-06 rule (Free stays a little useful, paying brings big wins); the Free row predates Life, Garden, Your Story, App Lock, Interests and Learn and leaves the second audience nowhere. Then one module that answers "is this available", read by every gated screen, built early even if it says yes to everything until launch. Notion: https://app.notion.com/p/3f153652f27281e6a3a8f3af4407fc21
+
+### P5. If something happens to me: keeping a life's records reachable
+- **Ships by:** Owner decision first · **Size:** M · **Tabs:** Life,Profile
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** No forgot-password flow, encrypted backups and App Lock mean a family loses everything on death or incapacity. Design, while the person is well: a recovery key handed to a named person in advance (printed, or sealed to their key through Connections), a sealed letter, and plainly what that person can open. No company server. Build follows in phase 3. Notion: https://app.notion.com/p/3f153652f2728137b703ec99f422084f
 
 ## Phase 1. Foundations (10 items)
 
@@ -53,7 +67,7 @@
 - **Answers:** Gardenize, Sortly, Monarch, Guava, Medisafe · **Theme:** Shared foundations
 - **How:** A media table (owner kind, owner id, file, taken_on), shrink on save, stored under the app folder, copied into the Backups folder and restored beside the encrypted snapshot, never in the plaintext record, shown on desktop from the synced copy. Serves A5, D12, I13, J4, J9.
 
-## Phase 2. Quick wins over the air (110 items)
+## Phase 2. Quick wins over the air (113 items)
 
 ### A3. Pills on hand and refill reminder
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life,Schedules,Signals,Insights
@@ -605,7 +619,22 @@
 - **Answers:** (your question) · **Theme:** Shared foundations
 - **How:** Two plain-language pages on insidestoryapp.com (the Worker inside-story-site, docs/app-links), linked from X2, Profile and the store listings, and required by both stores. The privacy policy says what the local-first design means: health records stay on the device and the person's own cloud folder, no company server holds them, and exactly what the few lookups send (a barcode, a medicine code or name). Covers the FTC health breach rule, GDPR and Mexico's data protection law in outline. Written as drafts for a lawyer to review before store release, never presented as legal advice. Added 2026-09-26. Built 1.0.56.23: terms and privacy pages live on insidestoryapp.com, linked from the agreement, Profile and the home page; contact and governing law left for the legal review.
 
-## Phase 3. Larger builds over the air (63 items)
+### P7. A last-checked date on every reading entry
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life,Garden
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** A checkedOn field on DigestEntry shown quietly on each entry, and a script listing entries past a set age for rechecking in batches. Matters more once Learn decks are built from the corpus. Notion: https://app.notion.com/p/3f153652f27281b5980ccee7d551d9e5
+
+### P8. A convention for new text, so translation is not a rewrite
+- **Ships by:** Reading content · **Size:** S · **Tabs:** all
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Whole sentences, never glued fragments; counts through one plural helper; dates and numbers through one formatter. A small audit script on new files, then a decision on when the i18n library goes in. Notion: https://app.notion.com/p/3f153652f272818cbcd9fc22df82a27f
+
+### P11. Bring CLAUDE.md in line with what is built
+- **Ships by:** Reading content · **Size:** S · **Tabs:** none
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Platform scope still says the desktop is a PWA through PWABuilder (it is Electron); the Architecture intro says sync is not implemented (it is); nine tabs will be ten; the Free row is out of date (P3). Archive first, since the file is at the 100 KB limit. Notion: https://app.notion.com/p/3f153652f27281b1ac2fd6ecc12df8f2
+
+## Phase 3. Larger builds over the air (69 items)
 
 ### A2. Tapering doses
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
@@ -921,6 +950,36 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Reports,Insights
 - **Answers:** Guava · **Theme:** Reports
 - **How:** visit_questions tied to an appointment, reorder and tick off, in the person's words.
+
+### P1. The first week, for someone with no condition and no patience
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Home,Profile
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Design day one, day two and day seven for someone who came to run their day and tracks no condition, before more areas are added: C18 (one clear next thing), Simple View, a first screen the second audience recognises, the interview offering "I'm here for my day, not a condition", and a short list of what the app does by itself versus what it needs. Ahead of new areas, by recommendation. Notion: https://app.notion.com/p/3f153652f2728187b6c8c529c4fee8b0
+
+### P4. One front door for things to remember or do
+- **Ships by:** Owner decision first · **Size:** M · **Tabs:** Home,Life,Signals
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** Capture as the single way in, offering where a thing belongs (C8 already suggests), then a decision on whether Did I Do It, Routines, Upkeep, To-Do and Days Until stay separate or become views of one record with a kind. Decided before Projects or Things I'm Waiting On are built. Not a removal by default. Notion: https://app.notion.com/p/3f153652f272817abba5c3a1dc1a23c3
+
+### P6. Everything I've recorded, out in open formats
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Profile
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** One export: every table as CSV plus JSON, photos in folders, and an HTML index readable with nothing installed, saved to a folder the person picks, health records separable. App Lock asks again first. Phone and desktop. The first concrete piece of A Life's Inside Story. Notion: https://app.notion.com/p/3f153652f27281e6ba0ad6d8c1adb595
+
+### P9. Accessibility past text size
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** all
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** An audit for accessibilityLabel on pressables and icons (TalkBack, VoiceOver), a check that colour is never the only signal, and a Quieter view (plain backgrounds, less texture, reduced motion) that applies instantly for the autism audience. One screen-reader user in the beta (P2). Notion: https://app.notion.com/p/3f153652f272812db2ffe729fe54e3c9
+
+### P10. What your records showed this month
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Home,Insights,Trends
+- **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
+- **How:** A monthly page from a quiet notification and Home: what was recorded, what changed, what tends to follow what (never a cause), finished experiments, things now known, garden and money in a line each. Clinical-claims rules apply, no praise or scores, gaps drawn as gaps. Check first what Insights already holds. Notion: https://app.notion.com/p/3f153652f2728140a574e001b1c5930a
+
+### P12. Sharing between two people past the shopping list
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Food,Schedules,Life
+- **Answers:** AnyList, Paprika · **Theme:** Brainstorm review 2026-10-06
+- **How:** Extend the allowlist in lib/peerRelationships.ts area by area (meal plan, schedule) with a per-category choice screen (meals and shopping shared by default; symptoms, labs and notes private; medications chosen at setup), carried by the relay (M1). Household read-only seats follow. The Partner tier's main reason to pay. Notion: https://app.notion.com/p/3f153652f272811db0d1ecb5862b72c0
 
 ## Phase 4. The Android rebuild (R1) (11 items)
 
