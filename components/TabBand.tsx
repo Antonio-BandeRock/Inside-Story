@@ -20,13 +20,21 @@
 // nothing here cancels a margin. Anything that has to sit between bands
 // without being one (a pill row, a lone button) takes `inset` instead.
 import { Ionicons } from '@expo/vector-icons';
-import type { ComponentProps, ReactNode } from 'react';
+import { useMemo, type ComponentProps, type ReactNode } from 'react';
 import { StyleSheet } from 'react-native';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import type { useBandFolds } from '../hooks/useBandFolds';
 import { openTellClaude, useTellClaudeOn } from '../lib/tellClaude';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from './HomeSectionBand';
+import {
+  HOME_BAND_ACCENT_WIDTH,
+  HOME_BAND_CONTENT_PADDING,
+  HOME_BAND_GAP,
+  HomeSectionBand,
+  homeBandNoHairlines,
+  homeBandStyle,
+  useCalmBands,
+} from './HomeSectionBand';
 
 type Folds = ReturnType<typeof useBandFolds>;
 
@@ -72,14 +80,28 @@ export function TabBand({
   );
 }
 
+// makeTabBandStyles for a component drawn inside a screen that may have
+// asked for the calm look: follows the screen.
+export function useTabBandStyles(tabColor: string) {
+  const calm = useCalmBands();
+  return useMemo(() => makeTabBandStyles(tabColor, { calm }), [tabColor, calm]);
+}
+
 // The non-fold shapes, in the tab's colour. A lens stacks them inside one
 // `column`, whose gap is HOME_BAND_GAP, so no shape carries a margin of
 // its own and the distance between bands cannot drift.
-export function makeTabBandStyles(tabColor: string) {
+//
+// `calm` is the 1.0.61.7 look (see useCalmBands in HomeSectionBand.tsx):
+// no hairlines, and a left-accent width between bands and between rows.
+export function makeTabBandStyles(tabColor: string, options?: { calm?: boolean }) {
+  const calm = options?.calm === true;
+  const edges = calm ? homeBandNoHairlines : null;
+  const gap = calm ? HOME_BAND_ACCENT_WIDTH : HOME_BAND_GAP;
   return StyleSheet.create({
     box: {
       ...homeBandStyle,
       borderColor: tabColor,
+      ...edges,
       padding: HOME_BAND_CONTENT_PADDING,
     },
     // A box on the muted surface: a standalone line (loading, empty, an
@@ -88,6 +110,7 @@ export function makeTabBandStyles(tabColor: string) {
       ...homeBandStyle,
       backgroundColor: colors.surfaceMuted,
       borderColor: tabColor,
+      ...edges,
       paddingVertical: 12,
       paddingHorizontal: HOME_BAND_CONTENT_PADDING,
     },
@@ -95,6 +118,7 @@ export function makeTabBandStyles(tabColor: string) {
       ...homeBandStyle,
       backgroundColor: colors.surfaceMuted,
       borderColor: tabColor,
+      ...edges,
       paddingVertical: 10,
       paddingHorizontal: HOME_BAND_CONTENT_PADDING,
     },
@@ -106,8 +130,8 @@ export function makeTabBandStyles(tabColor: string) {
       borderRadius: 10,
       padding: 12,
     },
-    rows: { gap: HOME_BAND_GAP },
-    column: { gap: HOME_BAND_GAP },
+    rows: { gap },
+    column: { gap },
     // For the few things that sit between bands rather than inside one (a
     // row of section pills, a lone Add button): the same inset the bands
     // give their content, so nothing lands on the screen's edge.

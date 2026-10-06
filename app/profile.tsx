@@ -831,9 +831,9 @@ export default function ProfileScreen() {
   function renderCardHeader(key: CardSectionKey, title: string) {
     const collapsed = collapsedSections.has(key);
     return (
-      <TouchableOpacity style={[styles.cardHeaderRow, walkMark(`profile.${key}` as WalkMark)]} onPress={() => toggleSection(key)} activeOpacity={0.7}>
-        <Text style={styles.label}>{title}</Text>
-        <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={18} color={colors.menuIconMuted} />
+      <TouchableOpacity style={[styles.cardHeaderRow, styles.cardHeaderRowTop, walkMark(`profile.${key}` as WalkMark)]} onPress={() => toggleSection(key)} activeOpacity={0.7}>
+        <Text style={styles.cardTitle}>{title}</Text>
+        <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={16} color={colors.menuIconMuted} />
       </TouchableOpacity>
     );
   }
@@ -6119,17 +6119,22 @@ const styles = StyleSheet.create({
   // same shape makeTabBandStyles gives every tab's lens headings.
   // surfaceMuted is darker than surface on every ground, which keeps a
   // heading darker than the cards under it (1.0.61.6, same request).
+  // 1.0.61.7, direct request: "make the row heights the same as they are on
+  // the Homescreen for both the headers and the subsections when they
+  // aren't selected." So a heading and a closed card are both a Home band's
+  // header row: 12 above and below one line of bodyEmphasis, inside the
+  // band's two 1px edges (HomeSectionBand's header style).
   groupHeadingChip: {
     ...homeBandStyle,
     backgroundColor: colors.surfaceMuted,
     borderColor: colors.tabProfile,
     ...homeBandNoHairlines,
     marginTop: HOME_BAND_ACCENT_WIDTH,
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: HOME_BAND_CONTENT_PADDING,
   },
   groupHeadingText: {
-    ...typography.sectionTitle,
+    ...typography.bodyEmphasis,
     // Deliberately the brighter primary text rather than the muted
     // menuLabelMuted the card headers below it use: a group heading has to
     // read as a level ABOVE the card titles it introduces, and matching
@@ -6146,7 +6151,17 @@ const styles = StyleSheet.create({
     ...homeBandStyle,
     borderColor: colors.tabProfile,
     ...homeBandDivided,
-    padding: HOME_BAND_CONTENT_PADDING,
+    // No padding above or below: the header row carries Home's 12 and
+    // cardBody carries the bottom, so a closed card is one Home row tall.
+    paddingHorizontal: HOME_BAND_CONTENT_PADDING,
+  },
+  // A card's title, Home's band title (bodyEmphasis) in the muted grey
+  // label has always used here.
+  cardTitle: {
+    ...typography.bodyEmphasis,
+    color: colors.menuLabelMuted,
+    flex: 1,
+    ...textShadow,
   },
   label: {
     ...typography.sectionTitle,
@@ -6180,8 +6195,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  cardHeaderRowTop: { paddingVertical: 12, gap: 8 },
   cardBody: {
-    marginTop: 8,
+    paddingBottom: HOME_BAND_CONTENT_PADDING,
   },
   // 2026-08-14, direct request: "there isn't much definition of space...
   // to tell where one ends and the next begins." A visible divider line

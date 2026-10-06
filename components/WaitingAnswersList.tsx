@@ -31,7 +31,7 @@ import { explainNotYet } from '../lib/notYet';
 import { actionTakesWords, waitingFor, type WaitingGroup, type WaitingItem } from '../lib/waitingAnswers';
 import { AppTextInput } from './AppTextInput';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP } from './HomeSectionBand';
-import { makeTabBandStyles } from './TabBand';
+import { useTabBandStyles } from './TabBand';
 
 type Props = {
   groups: WaitingGroup[];
@@ -46,7 +46,7 @@ type Props = {
 export function WaitingAnswersList({ groups, now, reload, tabColor, nested = false }: Props) {
   const router = useRouter();
   const prefs = useReminderPreferences();
-  const band = makeTabBandStyles(tabColor);
+  const band = useTabBandStyles(tabColor);
   // Which reminder has its words box open, and for which button.
   const [writing, setWriting] = useState<{ id: string; action: ReminderActionId } | null>(null);
   const [words, setWords] = useState('');

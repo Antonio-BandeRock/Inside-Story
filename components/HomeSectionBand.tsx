@@ -105,7 +105,10 @@ export const homeBandNoHairlines: ViewStyle = {
 // becomes a dark line, which also sets the first card off from the group's
 // name. The band resets this for its own contents, so only the group's
 // direct cards take it.
-export const HomeBandInGroupContext = createContext(false);
+// 1.0.61.7, follow-up: "include the bottom darker line on the last
+// selection for all of them", so the last card in a group says 'last' and
+// takes a dark line along its bottom as well, closing the group off.
+export const HomeBandInGroupContext = createContext<false | 'card' | 'last'>(false);
 
 // The dark line between stacked bands that otherwise touch (Home's group
 // cards, Profile's cards). Black at partial strength rather than a token,
@@ -120,6 +123,29 @@ export const homeBandDivided: ViewStyle = {
 };
 
 const IN_GROUP_STYLE: ViewStyle = { backgroundColor: 'transparent', ...homeBandDivided };
+const IN_GROUP_LAST_STYLE: ViewStyle = { ...IN_GROUP_STYLE, borderBottomColor: HOME_BAND_DIVIDER_COLOR };
+
+// The calm look, 1.0.61.7. Direct approval of the screens it reaches:
+// Life's lenses, Garden > Horticulture, Schedules > Today's Meals and Meds,
+// and all of Trends and Insights. A screen that provides false to
+// HomeBandHairlinesContext above has asked for it: bands without
+// hairlines, a left-accent width (4px) between them rather than
+// HOME_BAND_GAP, and lists of rows inside a band as close. Home was the
+// first screen with it. These two hooks are how a screen's own styles
+// follow along.
+export function useCalmBands(): boolean {
+  return !useContext(HomeBandHairlinesContext);
+}
+
+// The distance between stacked bands where this component is drawn.
+export function useBandGap(): number {
+  return useCalmBands() ? HOME_BAND_ACCENT_WIDTH : HOME_BAND_GAP;
+}
+
+// Wraps a screen or a lens in the calm look.
+export function CalmBands({ children }: { children: ReactNode }) {
+  return <HomeBandHairlinesContext.Provider value={false}>{children}</HomeBandHairlinesContext.Provider>;
+}
 
 // How long a hold has to last before it counts as one. React Native
 // defaults to 500ms; 400 is enough to be deliberate and short enough that
@@ -194,7 +220,7 @@ export function HomeSectionBand(props: FoldProps | ActionProps | StaticProps) {
     styles.band,
     { borderColor: color },
     hairlines ? null : homeBandNoHairlines,
-    inGroup ? IN_GROUP_STYLE : null,
+    inGroup === 'last' ? IN_GROUP_LAST_STYLE : inGroup ? IN_GROUP_STYLE : null,
   ];
   const glyph = props.renderIcon ? (
     props.renderIcon(16, color)

@@ -7,7 +7,7 @@ import { categoryLabelForEntry } from './DigestEntryDetail';
 import { DigestEntryRow, makeDigestRowStyles } from './DigestEntryRow';
 import { EntrySearchInput, searchFieldStyle } from './EntrySearchInput';
 import { HelpSheet, type HelpSection } from './HelpButton';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP } from './HomeSectionBand';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, useBandGap } from './HomeSectionBand';
 import { colors } from '../constants/colors';
 import { menuLabelShadow, textShadow, typography } from '../constants/typography';
 import { getVisibleFoodBaseNames } from '../lib/db';
@@ -308,7 +308,8 @@ export function DigestCategoryLens({
   onJumpElsewhere?: (id: string) => void;
 }) {
   const router = useRouter();
-  const styles = useMemo(() => makeStyles(tabColor, tabTextColor), [tabColor, tabTextColor]);
+  const bandGap = useBandGap();
+  const styles = useMemo(() => makeStyles(tabColor, tabTextColor, bandGap), [tabColor, tabTextColor, bandGap]);
   const meta = DIGEST_CATEGORY_META.find((candidate) => candidate.key === categoryKey);
   const pool = useMemo(() => getEntriesForCategory(categoryKey), [categoryKey]);
   const entries = useVisibleEntries(pool);
@@ -417,7 +418,8 @@ export function DigestSearchLens({
   initialQuery?: string;
 }) {
   const router = useRouter();
-  const styles = useMemo(() => makeStyles(tabColor, tabTextColor), [tabColor, tabTextColor]);
+  const bandGap = useBandGap();
+  const styles = useMemo(() => makeStyles(tabColor, tabTextColor, bandGap), [tabColor, tabTextColor, bandGap]);
   const [query, setQuery] = useState(initialQuery);
   const [searchActive, setSearchActive] = useState(initialQuery.trim().length > 0);
   const [helpVisible, setHelpVisible] = useState(false);
@@ -547,11 +549,11 @@ function makeMatchStyles(tabColor: string, tabTextColor: string) {
   });
 }
 
-function makeStyles(tabColor: string, tabTextColor: string) {
+function makeStyles(tabColor: string, tabTextColor: string, bandGap: number = HOME_BAND_GAP) {
   return StyleSheet.create({
     ...makeDigestRowStyles(tabColor),
     ...makeMatchStyles(tabColor, tabTextColor),
-    wrapper: { gap: HOME_BAND_GAP },
+    wrapper: { gap: bandGap },
     // The search box on its muted band, the shape Life > Conditions gave
     // its own, edge to edge with the band's content inset.
     controlsBox: {

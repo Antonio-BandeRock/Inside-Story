@@ -13,7 +13,7 @@ import type { useBandFolds } from '../hooks/useBandFolds';
 import { HEAT_SHADE_NOTE, type YearSquareSet } from '../lib/calendarHeat';
 import { loadYearStrips, type YearStrip } from '../lib/calendarHeatDb';
 import { CalendarHeatStrip } from './CalendarHeatStrip';
-import { makeTabBandStyles, TabBand } from './TabBand';
+import { useTabBandStyles, TabBand } from './TabBand';
 
 export const YEAR_IN_SQUARES_TITLE = 'The Year in Squares';
 
@@ -29,6 +29,7 @@ type Props = {
 
 export function YearInSquaresBand({ set, color, folds, idPrefix = 'year', reloadKey = 0 }: Props) {
   const [strips, setStrips] = useState<YearStrip[] | null>(null);
+  const band = useTabBandStyles(color);
   const load = useCallback(() => {
     let live = true;
     loadYearStrips(set)
@@ -70,7 +71,6 @@ export function YearInSquaresBand({ set, color, folds, idPrefix = 'year', reload
       </TabBand>
     );
   }
-  const band = makeTabBandStyles(color);
   return (
     <View style={band.box}>
       <Text style={band.headingText}>{YEAR_IN_SQUARES_TITLE}</Text>

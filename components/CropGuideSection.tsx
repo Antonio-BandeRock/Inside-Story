@@ -4,7 +4,7 @@ import { Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { makeDigestRowStyles } from './DigestEntryRow';
 import { EntryScrollAnchor, type EntryScrollTarget } from './EntryScrollAnchor';
 import { EntrySearchInput, searchFieldStyle } from './EntrySearchInput';
-import { HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { HOME_BAND_GAP, HomeSectionBand, useBandGap } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -113,7 +113,8 @@ export function CropGuideSection({
   // The host ScrollView, measured from this section's top.
   scrollToY?: (y: number) => void;
 }) {
-  const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
+  const bandGap = useBandGap();
+  const styles = useMemo(() => makeStyles(tabColor, bandGap), [tabColor, bandGap]);
   const [openBand, setOpenBand] = useState<Band>(null);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [openItem, setOpenItem] = useState<string | null>(null);
@@ -543,11 +544,11 @@ export function CropGuideSection({
   );
 }
 
-function makeStyles(tabColor: string) {
+function makeStyles(tabColor: string, bandGap: number = HOME_BAND_GAP) {
   return StyleSheet.create({
     ...makeDigestRowStyles(tabColor),
-    wrapper: { gap: HOME_BAND_GAP },
-    bandBody: { gap: HOME_BAND_GAP },
+    wrapper: { gap: bandGap },
+    bandBody: { gap: bandGap },
     topicDescription: { ...typography.caption, color: colors.textSecondary, ...textShadow },
     searchField: { ...typography.body, ...searchFieldStyle, borderColor: tabColor, ...textShadow },
     detailBody: { gap: HOME_BAND_GAP },

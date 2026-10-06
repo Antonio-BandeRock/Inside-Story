@@ -12,13 +12,13 @@
 // band, and takes an `action` (a way back, or the half of the feature that
 // does work on a computer) plus `children` for anything else the screen
 // still offers here.
-import { useEffect, useMemo, type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { phoneOnlyNotice, type PhoneOnlyFeature } from '../lib/desktop/phoneOnly';
 import { useInfoAlert } from './InfoAlert';
-import { makeTabBandStyles } from './TabBand';
+import { useTabBandStyles } from './TabBand';
 
 export function PhoneOnlyNotice({
   feature,
@@ -33,7 +33,7 @@ export function PhoneOnlyNotice({
   children?: ReactNode;
 }) {
   const notice = phoneOnlyNotice(feature);
-  const band = useMemo(() => makeTabBandStyles(color), [color]);
+  const band = useTabBandStyles(color);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   // Once, when the phone-only thing is selected. A change of feature while

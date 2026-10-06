@@ -7,7 +7,7 @@ import { NotesInput } from './NotesInput';
 import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
 import type { DropdownOption } from './Dropdown';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandStyle } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, homeBandNoHairlines, homeBandStyle, useCalmBands } from './HomeSectionBand';
 import { TabBand } from './TabBand';
 import { RecallsBand } from './RecallsBand';
 import { PopoverSelect } from './PopoverSelect';
@@ -184,7 +184,8 @@ type Props = {
 export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
   // The outline on a button a Your Story walk line names (components/WalkMark.ts).
   const walkMark = useWalkMark();
-  const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
+  const calm = useCalmBands();
+  const styles = useMemo(() => makeStyles(tabColor, calm), [tabColor, calm]);
   const router = useRouter();
   const folds = useBandFolds();
   const [treatments, setTreatments] = useState<TreatmentRecord[]>([]);
@@ -1108,7 +1109,11 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
   );
 }
 
-function makeStyles(tabColor: string) {
+// 1.0.61.7: calm is true on a calm screen (Life), which drops the
+// hairlines and closes the gaps to a left-accent width.
+function makeStyles(tabColor: string, calm: boolean = false) {
+  const bandGap = calm ? HOME_BAND_ACCENT_WIDTH : HOME_BAND_GAP;
+  const edges = calm ? homeBandNoHairlines : null;
   return StyleSheet.create({
     actionText: { ...typography.captionEmphasis, color: tabColor, ...textShadow },
     actionTextPrimary: { ...typography.captionEmphasis, color: colors.primary, ...textShadow },
@@ -1124,16 +1129,18 @@ function makeStyles(tabColor: string) {
     addButtonText: { ...typography.bodyEmphasis, color: colors.primary, ...textShadow },
     bandBox: {
       ...homeBandStyle,
+      ...edges,
       borderColor: tabColor,
       padding: HOME_BAND_CONTENT_PADDING,
     },
-    bodyContent: { paddingTop: 5, gap: HOME_BAND_GAP },
+    bodyContent: { paddingTop: 5, gap: bandGap },
     doseUnitInput: { flex: 1 },
     emptyText: { ...typography.body, color: colors.textSecondary, ...textShadow },
     errorText: { ...typography.body, color: colors.danger, ...textShadow },
     formActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12, marginTop: 16 },
     formCard: {
       ...homeBandStyle,
+      ...edges,
       borderColor: tabColor,
       padding: HOME_BAND_CONTENT_PADDING,
     },
@@ -1173,7 +1180,7 @@ function makeStyles(tabColor: string) {
       borderTopWidth: 1,
       borderTopColor: colors.border,
     },
-    myMedsGroup: { gap: HOME_BAND_GAP },
+    myMedsGroup: { gap: bandGap },
     myMedsResearchCard: {
       backgroundColor: colors.surfaceMuted,
       borderRadius: 10,
@@ -1205,7 +1212,7 @@ function makeStyles(tabColor: string) {
     secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
     secondaryButtonText: { ...typography.bodyEmphasis, color: tabColor, ...textShadow },
     supplementRowActions: { flexDirection: 'row', gap: 16, marginTop: 10 },
-    table: { gap: HOME_BAND_GAP },
+    table: { gap: bandGap },
     timeInput: { width: 56, textAlign: 'center' },
     timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     timeSeparator: { ...typography.label, color: tabColor, ...textShadow },

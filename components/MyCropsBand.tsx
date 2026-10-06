@@ -34,7 +34,7 @@ import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { SOWING_WINDOWS, type FrostAnchor } from '../lib/sowingWindows';
 import { AppTextInput } from './AppTextInput';
 import { PopoverSelect } from './PopoverSelect';
-import { makeTabBandStyles, TabBand } from './TabBand';
+import { useTabBandStyles, TabBand } from './TabBand';
 
 type Folds = ReturnType<typeof useBandFolds>;
 
@@ -62,7 +62,7 @@ export function MyCropsBand({
   today: string;
   onOpenPlantings: () => void;
 }) {
-  const band = useMemo(() => makeTabBandStyles(color), [color]);
+  const band = useTabBandStyles(color);
   const [plans, setPlans] = useState<CropPlan[]>([]);
   const [steps, setSteps] = useState<CropPlanStep[]>([]);
   const [plots, setPlots] = useState<GardenPlot[]>([]);

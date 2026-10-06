@@ -8,7 +8,7 @@ import type { useBandFolds } from '../hooks/useBandFolds';
 import type { ReadingRow, ReadingView } from '../lib/readingBands';
 import { YourStoryMissingLine } from './YourStoryMissingLine';
 import type { YourStoryItemKey } from '../lib/yourStory';
-import { makeTabBandStyles, TabBand } from './TabBand';
+import { useTabBandStyles, TabBand } from './TabBand';
 
 type Props = {
   view: ReadingView | null;
@@ -49,7 +49,7 @@ function Rows({ rows, color }: { rows: ReadingRow[]; color: string }) {
 }
 
 export function ReadingBandsView({ view, loading, loadingLine, folds, color, idPrefix, missingItem }: Props) {
-  const band = makeTabBandStyles(color);
+  const band = useTabBandStyles(color);
   if (loading) {
     return (
       <View style={band.boxMuted}>

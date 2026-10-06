@@ -4629,11 +4629,11 @@ export default function HomeScreen() {
           onLongPress={() => beginArranging()}
           contentStyle={styles.homeTabGroupBody}
         >
-          <HomeBandInGroupContext.Provider value>
-            {shown.map((member) => (
-              <Fragment key={member.key}>{member.node}</Fragment>
-            ))}
-          </HomeBandInGroupContext.Provider>
+          {shown.map((member, index) => (
+            <HomeBandInGroupContext.Provider key={member.key} value={index === shown.length - 1 ? 'last' : 'card'}>
+              {member.node}
+            </HomeBandInGroupContext.Provider>
+          ))}
         </HomeSectionBand>
       </View>
     );

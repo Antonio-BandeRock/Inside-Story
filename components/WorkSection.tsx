@@ -6,7 +6,7 @@ import { AppTextInput } from './AppTextInput';
 import { NotesInput } from './NotesInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
-import { TabBand, makeTabBandStyles } from './TabBand';
+import { TabBand, useTabBandStyles } from './TabBand';
 import { TodoSection } from './TodoSection';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -127,7 +127,7 @@ export function WorkSection({ tabColor }: Props) {
   const [confirm, setConfirm] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
-  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
+  const band = useTabBandStyles(tabColor);
   const folds = useBandFolds();
 
   const load = useCallback(() => {

@@ -24,7 +24,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { AppTextInput } from './AppTextInput';
 import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
-import { TabBand, makeTabBandStyles } from './TabBand';
+import { TabBand, useTabBandStyles } from './TabBand';
 import { RecordPhotos } from './RecordPhotos';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors, inputBackground } from '../constants/colors';
@@ -99,7 +99,7 @@ const SOURCE_LABEL: Record<KitchenInventoryItem['source'], string> = {
 };
 
 export function KitchenSection({ tabColor }: { tabColor: string }) {
-  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
+  const band = useTabBandStyles(tabColor);
   const folds = useBandFolds();
   const [items, setItems] = useState<KitchenInventoryItem[]>([]);
   const [loading, setLoading] = useState(true);

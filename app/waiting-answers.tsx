@@ -13,10 +13,9 @@
 // components/WaitingAnswersList.tsx and hooks/useWaitingReminders.ts.
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
-import { useMemo } from 'react';
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP } from '../components/HomeSectionBand';
-import { makeTabBandStyles } from '../components/TabBand';
+import { useTabBandStyles } from '../components/TabBand';
 import { WaitingAnswersList } from '../components/WaitingAnswersList';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -29,7 +28,7 @@ const PHONE = Platform.OS === 'android' || Platform.OS === 'ios';
 
 export default function WaitingAnswersScreen() {
   const scrollPadding = useFloatingButtonScrollPadding();
-  const band = useMemo(() => makeTabBandStyles(TAB_COLOR), []);
+  const band = useTabBandStyles(TAB_COLOR);
   const { groups, now, reload } = useWaitingReminders();
   const count = groups ? countWaiting(groups) : 0;
 

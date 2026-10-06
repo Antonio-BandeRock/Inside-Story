@@ -3,7 +3,7 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { DigestEntryRow, makeDigestRowStyles } from './DigestEntryRow';
 import { EntryScrollAnchor, type EntryScrollTarget } from './EntryScrollAnchor';
-import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, useBandGap } from './HomeSectionBand';
 import { colors } from '../constants/colors';
 import { menuLabelShadow, textShadow, typography } from '../constants/typography';
 import {
@@ -171,7 +171,8 @@ export function DigestCategorySection({
   scrollToY?: (y: number) => void;
   onJumpToRelated: (id: string) => void;
 }) {
-  const styles = useMemo(() => makeStyles(tabColor, tabTextColor), [tabColor, tabTextColor]);
+  const bandGap = useBandGap();
+  const styles = useMemo(() => makeStyles(tabColor, tabTextColor, bandGap), [tabColor, tabTextColor, bandGap]);
   const meta = DIGEST_CATEGORY_META.find((candidate) => candidate.key === categoryKey);
   const topics = useMemo(() => topicsForCategory(categoryKey, entries), [categoryKey, entries]);
 
@@ -382,11 +383,11 @@ const dotStyles = StyleSheet.create({
   miss: { backgroundColor: colors.border },
 });
 
-function makeStyles(tabColor: string, tabTextColor: string) {
+function makeStyles(tabColor: string, tabTextColor: string, bandGap: number = HOME_BAND_GAP) {
   return StyleSheet.create({
     ...makeDigestRowStyles(tabColor),
-    wrapper: { gap: HOME_BAND_GAP },
-    bandBody: { gap: HOME_BAND_GAP },
+    wrapper: { gap: bandGap },
+    bandBody: { gap: bandGap },
     // The category's name and description, the box the page starts with.
     // Edge to edge like the bands below it, with the band's content inset
     // so its text lines up with theirs.

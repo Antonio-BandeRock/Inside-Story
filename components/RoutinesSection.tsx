@@ -9,7 +9,7 @@ import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { KeepRemindingPicker } from './KeepRemindingPicker';
 import { StarterLists } from './StarterLists';
-import { TabBand, makeTabBandStyles } from './TabBand';
+import { TabBand, useTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -181,7 +181,7 @@ export function RoutinesSection({ tabColor }: Props) {
   } | null>(null);
 
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
-  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
+  const band = useTabBandStyles(tabColor);
   const folds = useBandFolds();
 
   const load = useCallback(() => {

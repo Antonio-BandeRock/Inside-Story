@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { LabelCheckView } from '../../components/LabelCheckView';
 import { routeForDigestEntry } from '../../lib/digestNavigation';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from '../../components/HomeSectionBand';
+import { CalmBands, HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HomeSectionBand } from '../../components/HomeSectionBand';
 import { formatTime12 } from '../../lib/timeOfDay';
 import {
   classifyPrepStateGroup,
@@ -1245,6 +1245,7 @@ export default function InsightsScreen() {
           change-tab only works from a lens's own picker, not once a real
           lens's content (with its own scrollable controls) is showing. */}
       <SwipeableTabScreen enabled={!revealed}>
+        <CalmBands>
         <GatedTabContent pageTitle="Insights" variant="insights" revealed={revealed}>
           {lens === 'foodLookup' ? (
             // Deliberately NOT inside the ScrollView below -- Food Lookup's
@@ -1446,6 +1447,7 @@ export default function InsightsScreen() {
             </ScrollView>
           )}
         </GatedTabContent>
+        </CalmBands>
       </SwipeableTabScreen>
 
       {/* Rendered here, as a sibling of the ScrollView -- not inside any
@@ -4428,9 +4430,9 @@ const styles = StyleSheet.create({
   // The loading card shown while a slow lens computes -- see
   // LensLoadingCard above for why it exists.
   // The explainer band's own gap to whatever the lens renders beneath it,
-  // the same HOME_BAND_GAP as between any two bands; the band itself is
+  // the same calm gap as between any two bands here (1.0.61.7); the band itself is
   // bandColumn (see below).
-  lensExplainerBand: { marginBottom: HOME_BAND_GAP },
+  lensExplainerBand: { marginBottom: HOME_BAND_ACCENT_WIDTH },
   lensLoadingBody: {
     ...typography.body,
     color: colors.textSecondary,
@@ -4522,7 +4524,8 @@ const styles = StyleSheet.create({
   // comment). bandColumn cancels bodyContent's own 16px so the bands run
   // edge to edge the way Home's do; everything inside them is inset by
   // the band's own content padding.
-  bandColumn: { marginHorizontal: -16, gap: HOME_BAND_GAP },
+  // 1.0.61.7: the calm look, bands a left-accent width apart.
+  bandColumn: { marginHorizontal: -16, gap: HOME_BAND_ACCENT_WIDTH },
   bandBody: { gap: 8 },
   bandLabel: { ...typography.eyebrow, color: TAB_COLOR, ...textShadow },
   bandText: { ...typography.body, color: colors.textPrimary, ...textShadow },

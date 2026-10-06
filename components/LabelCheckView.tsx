@@ -7,7 +7,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { AppTextInput } from './AppTextInput';
 import { HouseholdFitBand, useHouseholdPeople } from './HouseholdFitBand';
 import { IngredientCheckList } from './IngredientCheckList';
-import { makeTabBandStyles } from './TabBand';
+import { useTabBandStyles } from './TabBand';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import type { PersonalizationProfile } from '../lib/foodPersonalization';
@@ -22,7 +22,7 @@ type Props = {
 };
 
 export function LabelCheckView({ tabColor, profile, onOpenReading }: Props) {
-  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
+  const band = useTabBandStyles(tabColor);
   const [labelText, setLabelText] = useState('');
 
   const rows = useMemo(() => {

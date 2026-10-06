@@ -4,7 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
-import { TabBand, makeTabBandStyles } from './TabBand';
+import { TabBand, useTabBandStyles } from './TabBand';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -103,7 +103,7 @@ export function FinanceMoneySection({ tabColor }: Props) {
 
   const totals = useMemo(() => netWorth(accounts), [accounts]);
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
-  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
+  const band = useTabBandStyles(tabColor);
   const folds = useBandFolds();
 
   // Only debts with everything the simulation needs can be modelled. One

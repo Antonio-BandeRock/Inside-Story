@@ -6,7 +6,7 @@ import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DIGEST_READING_HELP, DigestCategoryLens } from '../../components/DigestCategoryLens';
 import { GatedTabContent } from '../../components/GatedTabContent';
-import { HOME_BAND_GAP, HomeSectionBand } from '../../components/HomeSectionBand';
+import { CalmBands, HOME_BAND_ACCENT_WIDTH, HOME_BAND_GAP, HomeSectionBand } from '../../components/HomeSectionBand';
 import { makeTabBandStyles, TabBand } from '../../components/TabBand';
 import { useBandFolds } from '../../hooks/useBandFolds';
 import { LensHub, type LensOption } from '../../components/LensHub';
@@ -866,12 +866,15 @@ function HorticultureLens({
     scrollRef.current?.scrollTo({ y: guidesTop.current + y, animated: true });
   }, []);
   return (
-    <ScrollView ref={scrollRef} contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
+    // 1.0.61.7: Horticulture is reading, so it takes the calm look.
+    <CalmBands>
+    <ScrollView ref={scrollRef} contentContainerStyle={[styles.body, styles.bodyCalm, { paddingBottom: scrollBottomPadding }]}>
       <View onLayout={(event) => { guidesTop.current = event.nativeEvent.layout.y; }}>
         <CropGuideSection tabColor={TAB_COLOR} openCropKey={openCropKey} scrollToY={scrollToGuide} />
       </View>
       <DigestCategoryLens categoryKey="homeGardening" tabColor={TAB_COLOR} openEntryId={openEntryId} scrollToY={scrollTo} />
     </ScrollView>
+    </CalmBands>
   );
 }
 
@@ -2485,6 +2488,7 @@ const styles = StyleSheet.create({
   // No side inset, 2026-09-19: every top-level element is a band that
   // reaches both edges, and a lone button takes band.inset instead.
   body: { paddingBottom: 32, gap: HOME_BAND_GAP },
+  bodyCalm: { gap: HOME_BAND_ACCENT_WIDTH },
   // A plain, non-scrolling container for a lens' own "actively picking a
   // food" state -- see PlotsAndPlantingsLens's own addingPlantingToPlot
   // comment for why this can never be inside a ScrollView (Harvest Log no

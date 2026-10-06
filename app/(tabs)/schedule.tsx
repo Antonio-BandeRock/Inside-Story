@@ -273,7 +273,7 @@ import { RuleSeverityTag } from '../../components/RuleSeverityTag';
 import { BUTTON_SHADOW, colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandStyle } from '../../components/HomeSectionBand';
+import { CalmBands, HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, homeBandNoHairlines, homeBandStyle } from '../../components/HomeSectionBand';
 import { useBandFolds } from '../../hooks/useBandFolds';
 import { describeUpkeepStanding, DUE_SOON_DAYS, upkeepCategoryLabel, upkeepStanding, type UpkeepItem, type UpkeepStanding } from '../../lib/upkeep';
 import { listUpkeepItems, markUpkeepDone } from '../../lib/upkeepDb';
@@ -4747,13 +4747,13 @@ function TodaysMealsLens() {
   }
 
   return (
-    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, styles.calmGap, { paddingBottom: scrollBottomPadding }]}>
       {infoAlertElement}
-      {errorMessage ? <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View> : null}
+      {errorMessage ? <View style={[styles.bandBox, styles.calmEdges]}><Text style={styles.errorText}>{errorMessage}</Text></View> : null}
       {loading ? (
-        <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
+        <View style={[styles.bandBox, styles.calmEdges]}><Text style={styles.emptyText}>Loading…</Text></View>
       ) : timeline.length === 0 ? (
-        <View style={styles.bandBox}>
+        <View style={[styles.bandBox, styles.calmEdges]}>
         <Text style={styles.emptyText}>
           Nothing scheduled to eat today yet. Anything you schedule on the Meals lens, or generate from a meal plan,
           shows up here with its steps ready to cook from, and any dose you have scheduled shows up beside it.
@@ -4762,14 +4762,14 @@ function TodaysMealsLens() {
       ) : (
         <>
         {summary ? (
-          <View style={styles.bandBox}>
+          <View style={[styles.bandBox, styles.calmEdges]}>
             <Text style={styles.interactionTitle}>{summary}</Text>
             <Text style={styles.interactionMessage}>
               Open the dose below to read which meal, and how far apart they are.
             </Text>
           </View>
         ) : null}
-        <View style={styles.bandBox}>
+        <View style={[styles.bandBox, styles.calmEdges]}>
           <Text style={styles.emptyText}>
             Every ingredient below carries the same three marks as My Safe Foods. Plus means safe for you, the
             question mark means you have not worked it out yet, the minus means not for you. Tapping a mark that
@@ -4778,7 +4778,7 @@ function TodaysMealsLens() {
           </Text>
         </View>
         {doseCount > 0 ? (
-          <View style={styles.bandBox}>
+          <View style={[styles.bandBox, styles.calmEdges]}>
             <Text style={styles.emptyText}>
               Doses sit in the day at the time they are scheduled for, in among the meals. What each one says is
               worked out from the meals around it: what they carry, how much of it, and how far apart the two are.
@@ -5779,7 +5779,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
     if (groupTreatments.length === 0) return null;
     return (
       <ScheduleBand key={group.title} folds={folds} id={`schedule:meds:${group.title}`} title={group.title} icon={group.icon} count={groupTreatments.length}>
-        <View style={styles.table}>
+        <View style={[styles.table, styles.calmGap]}>
           {groupTreatments.map((treatment) => {
             const doses = dosesByTreatment[treatment.id] ?? [];
             const doseToday = doses.filter((dose) => dose.scheduledFor.slice(0, 10) === today);
@@ -5834,7 +5834,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
   }
 
   return (
-    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, styles.calmGap, { paddingBottom: scrollBottomPadding }]}>
       {infoAlertElement}
       <AppActionSheet
         visible={removePrompt !== null}
@@ -5867,9 +5867,9 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
         </View>
       ) : null}
       {loading ? (
-        <View style={styles.bandBox}><Text style={styles.emptyText}>Loading…</Text></View>
+        <View style={[styles.bandBox, styles.calmEdges]}><Text style={styles.emptyText}>Loading…</Text></View>
       ) : errorMessage ? (
-        <View style={styles.bandBox}><Text style={styles.errorText}>{errorMessage}</Text></View>
+        <View style={[styles.bandBox, styles.calmEdges]}><Text style={styles.errorText}>{errorMessage}</Text></View>
       ) : (
         <>
           <ScheduleBand folds={folds} id="schedule:meds:today" title="Today" icon="time-outline" count={todaysDoses.length}>
@@ -5878,7 +5878,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
                 No doses on the schedule today. Add a reminder time under a med below.
               </Text>
             ) : (
-              <View style={styles.table}>
+              <View style={[styles.table, styles.calmGap]}>
                 {todaysDoses.map((dose) => (
                   <View key={dose.id} style={styles.row}>
                     <View style={styles.doseRow}>
@@ -5902,7 +5902,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
 
           {watched.length > 0 ? (
             <ScheduleBand folds={folds} id="schedule:meds:watch" title="Doses you watch" icon="people-outline" count={watched.length}>
-              <View style={styles.table}>
+              <View style={[styles.table, styles.calmGap]}>
                 {watched.map((person) => (
                   <View key={person.connectionId} style={styles.row}>
                     <Text style={styles.rowTitle}>{person.name}</Text>
@@ -5942,7 +5942,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
 
           {interactionWarnings.length > 0 ? (
             <ScheduleBand folds={folds} id="schedule:meds:things-to-check" title="Things to check" icon="alert-circle-outline" count={interactionWarnings.length}>
-              <View style={styles.table}>
+              <View style={[styles.table, styles.calmGap]}>
                 {interactionWarnings.map((warning, index) => (
                   <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
                     <RuleSeverityTag severity={warning.severity} onPress={showInfoAlert} />
@@ -5964,7 +5964,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
               icon="information-circle-outline"
               count={referenceOnlyRules.length}
             >
-              <View style={styles.table}>
+              <View style={[styles.table, styles.calmGap]}>
                 {referenceOnlyRules.map((rule) => (
                   <View key={rule.ruleId} style={[styles.interactionCard, styles.interactionCardReference]}>
                     <RuleSeverityTag severity={rule.severity} onPress={showInfoAlert} />
@@ -5979,7 +5979,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
           ) : null}
 
           {treatments.length === 0 ? (
-            <View style={styles.bandBox}>
+            <View style={[styles.bandBox, styles.calmEdges]}>
               <Text style={styles.emptyText}>
                 Nothing to schedule yet. Add a prescription, OTC drug or supplement in Life &gt; My Meds, then tap Schedule it there.
               </Text>
@@ -6951,7 +6951,7 @@ export default function ScheduleScreen() {
           {lens === 'meals' ? (
             <MealsLens />
           ) : lens === 'todaysMeals' ? (
-            <TodaysMealsLens />
+            <CalmBands><TodaysMealsLens /></CalmBands>
           ) : lens === 'pastMeals' ? (
             <PastMealsLens />
           ) : lens === 'dailyMealPlan' ? (
@@ -6959,7 +6959,7 @@ export default function ScheduleScreen() {
           ) : lens === 'hydration' ? (
             <HydrationLens />
           ) : lens === 'meds' ? (
-            <MedsLens scheduleTreatmentId={scheduleTreatmentId} />
+            <CalmBands><MedsLens scheduleTreatmentId={scheduleTreatmentId} /></CalmBands>
           ) : lens === 'appointments' ? (
             <AppointmentsLens />
           ) : lens === 'upkeep' ? (
@@ -7018,6 +7018,12 @@ const styles = StyleSheet.create({
   bandOut: { marginHorizontal: -16 },
   // Rows inside a band, the standard gap apart.
   bandRows: { gap: HOME_BAND_GAP },
+  // 1.0.61.7, the calm look on the two clock-ordered lenses (Today's Meals
+  // and Meds): bands and rows a left-accent width apart with no hairlines,
+  // so a day reads as one continuous run. See CalmBands in
+  // components/HomeSectionBand.tsx.
+  calmGap: { gap: HOME_BAND_ACCENT_WIDTH },
+  calmEdges: homeBandNoHairlines,
   // A headerless band box: a form, a reading, a notice.
   bandBox: {
     ...homeBandStyle,

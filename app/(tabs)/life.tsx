@@ -21,6 +21,7 @@ import { GatedTabContent } from '../../components/GatedTabContent';
 import { RecordPhotos } from '../../components/RecordPhotos';
 import { photosGoWithItSentence } from '../../lib/media';
 import { countMediaFor } from '../../lib/mediaDb';
+import { CalmBands } from '../../components/HomeSectionBand';
 import { TabBand, makeTabBandStyles } from '../../components/TabBand';
 import { DaysUntilSection } from '../../components/DaysUntilSection';
 import { TodoSection } from '../../components/TodoSection';
@@ -152,7 +153,10 @@ import type { WalkMark } from '../../lib/storyWalk';
 // that did not have to be bought, which is a fact.
 
 const TAB_COLOR = colors.tabLife;
-const band = makeTabBandStyles(TAB_COLOR);
+// 1.0.61.7: this whole tab takes the calm look (CalmBands in
+// components/HomeSectionBand.tsx): bands a left-accent width apart, no
+// hairlines.
+const band = makeTabBandStyles(TAB_COLOR, { calm: true });
 
 // 'groceryList' is a lens in the menu only: picking it opens the grocery
 // list screen (the same one Home's own Grocery List row opens) rather than
@@ -1974,6 +1978,7 @@ export default function LifeScreen() {
   return (
     <View style={styles.screen}>
       <SwipeableTabScreen enabled={!revealed && !rowDragging}>
+        <CalmBands>
         <GatedTabContent pageTitle="Life" variant="field" revealed={revealed}>
           <ScrollView ref={scrollRef} scrollEnabled={!rowDragging} style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
             {infoAlertElement}
@@ -2068,6 +2073,7 @@ export default function LifeScreen() {
             ) : null}
           </ScrollView>
         </GatedTabContent>
+        </CalmBands>
       </SwipeableTabScreen>
 
       <PageIdentityLabel title="Life" activeLensLabel={revealed ? activeLensLabel : undefined} />

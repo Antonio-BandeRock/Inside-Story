@@ -9,7 +9,7 @@ import { DIGEST_CONDITION_ICONS } from './DigestConditionIcons';
 import { DigestEntryRow, makeDigestRowStyles } from './DigestEntryRow';
 import { EntryScrollAnchor, type EntryScrollTarget } from './EntryScrollAnchor';
 import { EntrySearchInput, searchFieldStyle } from './EntrySearchInput';
-import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand } from './HomeSectionBand';
+import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP, HomeSectionBand, useBandGap } from './HomeSectionBand';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -227,7 +227,8 @@ export function ConditionsSection({
   const walkMark = useWalkMark();
   const router = useRouter();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
-  const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
+  const bandGap = useBandGap();
+  const styles = useMemo(() => makeStyles(tabColor, bandGap), [tabColor, bandGap]);
 
   const [ownCodes, setOwnCodes] = useState<string[]>([]);
   const [curiousCodes, setCuriousCodes] = useState<string[]>([]);
@@ -1091,7 +1092,7 @@ function ConditionBandBody({
   );
 }
 
-function makeStyles(tabColor: string) {
+function makeStyles(tabColor: string, bandGap: number = HOME_BAND_GAP) {
   return StyleSheet.create({
     // The bands run edge to edge, as Home's do; the host takes the
     // ScrollView's side gutter back for this section. Direct instruction,
@@ -1100,8 +1101,8 @@ function makeStyles(tabColor: string) {
     // search results) run edge to edge too, square-cornered like the
     // bands, with the band's content inset so their text lines up with
     // the text inside a band.
-    wrapper: { gap: HOME_BAND_GAP },
-    bandBody: { gap: HOME_BAND_GAP },
+    wrapper: { gap: bandGap },
+    bandBody: { gap: bandGap },
     introBox: {
       backgroundColor: colors.surfaceMuted,
       paddingVertical: 12,

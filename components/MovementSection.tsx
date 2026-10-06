@@ -3,7 +3,7 @@ import { Linking, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useFocusEffect } from '@react-navigation/native';
 import { useInfoAlert } from './InfoAlert';
 import { PhoneOnlyNotice } from './PhoneOnlyNotice';
-import { TabBand, makeTabBandStyles } from './TabBand';
+import { TabBand, useTabBandStyles } from './TabBand';
 import { RecordPhotos } from './RecordPhotos';
 import { useBandFolds } from '../hooks/useBandFolds';
 import { BUTTON_SHADOW, colors } from '../constants/colors';
@@ -109,7 +109,7 @@ function describeLastSync(state: HealthSyncState): string {
 
 export function MovementSection({ tabColor }: Props) {
   const styles = useMemo(() => makeStyles(tabColor), [tabColor]);
-  const band = useMemo(() => makeTabBandStyles(tabColor), [tabColor]);
+  const band = useTabBandStyles(tabColor);
   const folds = useBandFolds();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
 

@@ -43,7 +43,7 @@ import {
 } from '../lib/tagMarks';
 import { CompareTwoChart } from './CompareTwoChart';
 import { PopoverSelect } from './PopoverSelect';
-import { makeTabBandStyles, TabBand } from './TabBand';
+import { useTabBandStyles, TabBand } from './TabBand';
 
 type Props = {
   folds: ReturnType<typeof useBandFolds>;
@@ -60,7 +60,7 @@ function todayString(): string {
 }
 
 export function CompareTwoLens({ folds, color, weightUnit, initialA }: Props) {
-  const band = makeTabBandStyles(color);
+  const band = useTabBandStyles(color);
   const [choices, setChoices] = useState<SeriesChoice[] | null>(null);
   const [keyA, setKeyA] = useState<string | null>(initialA ?? null);
   // Null until somebody picks, so the default can follow what has data.

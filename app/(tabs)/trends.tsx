@@ -29,7 +29,7 @@ import { CYCLE_SHADING_SWITCH_HELP, CYCLE_SHADING_SWITCH_LABEL, cycleShadingFor 
 import { getVisualPreferences, setVisualPreferences, subscribeToVisualPreferences } from '../../lib/visualPreferences';
 import { summarizeSourceSplit } from '../../lib/supplementWindow';
 import { colors } from '../../constants/colors';
-import { HOME_BAND_CONTENT_PADDING, HOME_BAND_GAP } from '../../components/HomeSectionBand';
+import { CalmBands, HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING } from '../../components/HomeSectionBand';
 import { makeTabBandStyles, TabBand } from '../../components/TabBand';
 import { useBandFolds } from '../../hooks/useBandFolds';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
@@ -175,7 +175,10 @@ import { listRecordedBodySignals, loadTrendsMoreView, type TrendsMoreLens } from
 // used everywhere a box on THIS page needs its border to carry that
 // identity. Matches the same rule applied there, 2026-07-27.
 const TAB_COLOR = colors.tabTrends;
-const band = makeTabBandStyles(TAB_COLOR);
+// 1.0.61.7: this whole tab takes the calm look (CalmBands in
+// components/HomeSectionBand.tsx): bands a left-accent width apart, no
+// hairlines.
+const band = makeTabBandStyles(TAB_COLOR, { calm: true });
 
 // The year in squares (F15, 2026-10-01): the lenses with a figure per day
 // carry a year of them as a last band, a square per day.
@@ -1809,6 +1812,7 @@ export default function TrendsScreen() {
           change-tab only works from a lens's own picker, not once a real
           lens's content (with its own scrollable controls) is showing. */}
       <SwipeableTabScreen enabled={!revealed}>
+        <CalmBands>
         <GatedTabContent pageTitle="Trends" variant="trends" revealed={revealed}>
           <CycleShadingContext.Provider value={cycleShading}>
           <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
@@ -3932,6 +3936,7 @@ export default function TrendsScreen() {
           </ScrollView>
           </CycleShadingContext.Provider>
         </GatedTabContent>
+        </CalmBands>
       </SwipeableTabScreen>
 
       <PageIdentityLabel title="Trends" activeLensLabel={revealed ? activeLensLabel : undefined} />
@@ -3967,7 +3972,7 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   // No side inset, 2026-09-19: every top-level element is a band that
   // reaches both edges, and the pill rows take band.inset instead.
-  content: { paddingBottom: 32, gap: HOME_BAND_GAP },
+  content: { paddingBottom: 32, gap: HOME_BAND_ACCENT_WIDTH },
   // 2026-08-16, direct on-device report: Pattern Finder's own real, honest
   // empty-state text ("Log a flare or food reaction in Signals first...")
   // read as "does nothing" -- traced to this being the one real Text style

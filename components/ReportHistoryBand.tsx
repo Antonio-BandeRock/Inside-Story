@@ -23,7 +23,7 @@ import { listReportHistory, removeReportHistory, setReportForWhom } from '../lib
 import { REPORT_KINDS } from '../lib/reportKinds';
 import { AppTextInput } from './AppTextInput';
 import { useConfirmSheet } from './ConfirmSheet';
-import { makeTabBandStyles } from './TabBand';
+import { useTabBandStyles } from './TabBand';
 
 const SHOWN_AT_FIRST = 10;
 
@@ -37,7 +37,7 @@ type Props = {
 };
 
 export function ReportHistoryBand({ tabColor, refreshKey, askForId, onMakeAgain }: Props) {
-  const band = makeTabBandStyles(tabColor);
+  const band = useTabBandStyles(tabColor);
   const [entries, setEntries] = useState<ReportHistoryEntry[] | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
