@@ -50,6 +50,7 @@ import {
   readLockStateSync,
 } from "../lib/appLockSession";
 import { biometricTitle, deviceWord } from "../lib/appLockWords";
+import { isLockedCaptureShowing } from "../lib/lockedCaptures";
 import { isDesktopApp } from "../lib/desktop/bridge";
 import { wording } from "../lib/playfulCopy";
 import { runBeforeRestart } from "../lib/beforeRestart";
@@ -190,7 +191,9 @@ export function AppLockGate({ children }: { children: ReactNode }) {
         if (awaySince.current === null) awaySince.current = Date.now();
         return;
       }
-      if (next !== "active") return;
+      // The capture screen over the phone lock screen coming up is not the
+      // person coming back; the time away keeps counting (lib/lockedCaptures.ts).
+      if (next !== "active" || isLockedCaptureShowing()) return;
       const since = awaySince.current;
       awaySince.current = null;
       const current = readLockStateSync();

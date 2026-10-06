@@ -62,6 +62,7 @@ import { bytesToBase64Fast } from './localSeal';
 import { runBeforeRestart } from './beforeRestart';
 import { closeDatabasesForRestart, DB_NAME } from './db';
 import { unsealWaitingAnswersForTurnOff } from './lockedAnswers';
+import { unsealLockedCapturesForTurnOff } from './lockedCaptures';
 import { getDesktopBridge, isDesktopApp, type DesktopSqliteBridge } from './desktop/bridge';
 
 const PASSCODE_ITEM = 'inside_story_app_lock_passcode_v1';
@@ -695,6 +696,7 @@ async function finishTurningOff(
   // Presses made on a reminder while the lock was on are still sealed;
   // open them now, while the key is in hand, so the next start applies them.
   unsealWaitingAnswersForTurnOff(key);
+  unsealLockedCapturesForTurnOff(key);
   deleteLockState();
   for (const item of [PASSCODE_ITEM, BIOMETRIC_ITEM, MIGRATION_ITEM]) {
     await SecureStore.deleteItemAsync(item).catch(() => {});

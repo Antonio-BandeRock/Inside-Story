@@ -37,6 +37,7 @@ import { useHomeDataReady } from '../hooks/useHomeDataReady';
 import { getReferenceDatabase, initializeDatabase, settlePastScheduledMeals } from '../lib/db';
 import { handleIncomingIsFile } from '../lib/isFileLinking';
 import { refreshLockScreenNotice } from '../lib/emergencyLockScreen';
+import { writeLockedCaptures } from '../lib/lockedCaptures';
 import { listenForReminderTaps, syncReminderNotifications } from '../lib/reminderNotifications';
 import { checkReminderTiming } from '../lib/reminderTiming';
 import { refreshWidgets } from '../lib/widgets/taskHandler';
@@ -173,6 +174,10 @@ function UnlockedApp() {
   useEffect(() => {
     if (!dbReady) return;
     void syncReminderNotifications();
+    // Notes and photos taken over the lock screen (lib/lockedCaptures.ts)
+    // go into Capture now the database is open, and again on each return,
+    // since one can be taken while the app sits unlocked in the background.
+    void writeLockedCaptures().catch((error) => console.error('[layout] lock screen captures not written', error));
     // The emergency lines on the lock screen (A19) go back up after a phone
     // restart took them down, and pick up anything changed on the record.
     void refreshLockScreenNotice();
@@ -188,6 +193,9 @@ function UnlockedApp() {
       // and waiting for the next time the app opens would miss it.
       if (state === 'active' || state === 'background') void syncReminderNotifications();
       if (state === 'active') void refreshLockScreenNotice();
+      if (state === 'active') {
+        void writeLockedCaptures().catch((error) => console.error('[layout] lock screen captures not written', error));
+      }
       // Home screen widgets (L2) redraw as the app is put away, so what was
       // just logged shows there without waiting for Android's half hour.
       if (state === 'background') void refreshWidgets();

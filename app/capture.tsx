@@ -27,7 +27,7 @@
 //      honestly resolve.
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useFocusEffect, useLocalSearchParams, useRouter, type Href } from 'expo-router';
-import { useCallback, useRef, useState, type ComponentProps } from 'react';
+import { useCallback, useEffect, useRef, useState, type ComponentProps } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { NotesInput } from '../components/NotesInput';
 import { useInfoAlert } from '../components/InfoAlert';
@@ -104,8 +104,11 @@ export default function CaptureScreen() {
   // card's own "Say it"), so the microphone starts itself rather than making
   // them tap a second time to begin. Same reasoning as VoiceInputButton's own
   // autoStart prop, which is what carries it.
-  const { speak } = useLocalSearchParams<{ speak?: string }>();
+  const { speak, photo } = useLocalSearchParams<{ speak?: string; photo?: string }>();
   const startListening = speak === '1';
+  // photo=1 is the Photo Note tile or shade button with the phone unlocked
+  // (plugins/withCaptureTile.js): the camera opens once, on arrival.
+  const photoOpened = useRef(false);
 
   const [draft, setDraft] = useState('');
   const [notes, setNotes] = useState<CaptureNote[]>([]);
@@ -163,6 +166,14 @@ export default function CaptureScreen() {
     spokenRef.current = false;
     openPhotoCamera(router, { kind: 'capture_note', id }, { title: text });
   }
+
+  useEffect(() => {
+    if (photo !== '1' || photoOpened.current) return;
+    photoOpened.current = true;
+    void takePhoto();
+    // Once per arrival; takePhoto reads the box, which is empty on arrival.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [photo]);
 
   async function save() {
     const text = cleanCaptureText(draft);

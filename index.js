@@ -5,4 +5,12 @@
 // look with the app closed. Then Expo Router starts the app.
 import './lib/reminderBackgroundTask';
 import './lib/widgets/taskHandler';
+import { AppRegistry, Platform } from 'react-native';
 import 'expo-router/entry';
+
+// The capture screen over the phone lock screen (1.0.62.1), shown by
+// LockedCaptureActivity (plugins/withCaptureTile.js). Loaded only when that
+// screen opens, and never the app itself.
+if (Platform.OS === 'android') {
+  AppRegistry.registerComponent('LockedCapture', () => require('./components/LockedCaptureScreen').LockedCaptureScreen);
+}

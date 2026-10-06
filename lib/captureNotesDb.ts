@@ -46,13 +46,19 @@ function toNote(row: CaptureRow): CaptureNote {
  * matching against anything already in the app. The two seconds this takes is
  * the whole feature, and every check added here would be spent out of it.
  */
-export async function createCaptureNote(text: string, source: CaptureSource = 'typed'): Promise<string | null> {
+export async function createCaptureNote(
+  text: string,
+  source: CaptureSource = 'typed',
+  // A note kept sealed while the app was locked (lib/lockedCaptures.ts) is
+  // written on the next unlock with the time it was taken, not the unlock's.
+  createdAt: Date = new Date(),
+): Promise<string | null> {
   if (!isCaptureTextUsable(text)) return null;
   const db = await getDatabase();
-  const id = `capture_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+  const id = `capture_${createdAt.getTime()}_${Math.floor(Math.random() * 1000)}`;
   await db.runAsync(
     `INSERT INTO capture_notes (id, text, source, status, destination, created_at) VALUES (?, ?, ?, 'waiting', NULL, ?)`,
-    id, cleanCaptureText(text), source, new Date().toISOString(),
+    id, cleanCaptureText(text), source, createdAt.toISOString(),
   );
   return id;
 }

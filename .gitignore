@@ -131,3 +131,6 @@ _recovered/
 # identifiers, so it stays out of git; eas build still uploads it because
 # .easignore, not this file, decides what goes to the build server.
 google-services.json
+
+# Gradle output from a local compile of a local Expo module
+modules/*/android/build/

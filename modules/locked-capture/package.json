@@ -1,0 +1,7 @@
+{
+  "name": "locked-capture",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The Capture buttons kept in the notification shade, and closing the capture screen shown over the lock screen.",
+  "main": "index.ts"
+}

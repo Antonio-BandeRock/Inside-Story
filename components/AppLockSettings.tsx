@@ -13,11 +13,59 @@ import {
 } from '../lib/appLockDevice';
 import { biometricTitle, biometricWords, deviceWord } from '../lib/appLockWords';
 import { isDesktopApp } from '../lib/desktop/bridge';
+import { explainNotYet } from '../lib/notYet';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
+import LockedCapture from '../modules/locked-capture';
 
 // The body of Profile > App Lock. Setting the lock up and the changes that
 // need the passcode open app/app-lock-setup.tsx; the settings that do not
 // (when it locks again, screenshots, turning fingerprint off) change here.
+
+
+// The Voice Note and Photo buttons kept in the notification shade (1.0.62.1).
+// They open the same screens as the two quick settings tiles: over the lock
+// screen when App Lock is on, otherwise Capture once the phone is unlocked
+// (plugins/withCaptureTile.js). Phone only, and only on a build that has the
+// screen, which is said in words rather than hidden.
+function ShadeButtonsSetting() {
+  const [showing, setShowing] = useState(() => LockedCapture?.isShowingShadeButtons() ?? false);
+  if (isDesktopApp()) return null;
+  return (
+    <>
+      <Text style={styles.subLabel}>Voice Note and Photo buttons in the notification shade</Text>
+      <View style={styles.pillRow}>
+        {[true, false].map((on) => (
+          <TouchableOpacity
+            key={String(on)}
+            style={[styles.pill, showing === on ? styles.pillActive : null]}
+            activeOpacity={0.85}
+            onPress={() => {
+              if (!LockedCapture) {
+                explainNotYet('This needs the next full install of Inside Story on this phone. Until then the Capture tile in quick settings opens Capture in the app.');
+                return;
+              }
+              if (on === showing) return;
+              if (on) {
+                if (!LockedCapture.showShadeButtons()) {
+                  explainNotYet('Notifications are turned off for Inside Story, so the buttons have nowhere to show. They can be turned on in the phone settings, under Apps.');
+                  return;
+                }
+              } else LockedCapture.hideShadeButtons();
+              setShowing(LockedCapture.isShowingShadeButtons());
+            }}
+          >
+            <Text style={[styles.pillText, showing === on ? styles.pillTextActive : null]}>{on ? 'Shown' : 'Hidden'}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <Text style={styles.caption}>
+        {readLockStateSync()?.phase === 'on'
+          ? 'Pull down the shade, press Voice Note or Photo, and type your passcode. The phone stays locked, and what you keep is sealed until Inside Story is next unlocked. The same two buttons can be added as quick settings tiles.'
+          : 'Pull down the shade and press Voice Note or Photo. With App Lock set up these work over the lock screen with your passcode; without it the phone asks to be unlocked first. The same two buttons can be added as quick settings tiles.'}
+      </Text>
+    </>
+  );
+}
 
 export function AppLockSettings() {
   const router = useRouter();
@@ -47,6 +95,7 @@ export function AppLockSettings() {
         <TouchableOpacity style={styles.button} activeOpacity={0.85} onPress={() => router.push('/app-lock-setup')}>
           <Text style={styles.buttonText}>Set Up App Lock</Text>
         </TouchableOpacity>
+        <ShadeButtonsSetting />
       </>
     );
   }
@@ -165,6 +214,8 @@ export function AppLockSettings() {
           ? `A reminder says only what kind it is, such as "Time for your scheduled dose", so nobody near the ${deviceWord()} sees which medicine, meal or note it is about.`
           : `A reminder shows its whole text, including medicine names and notes, to anybody who can see the ${deviceWord()}.`}
       </Text>
+
+      <ShadeButtonsSetting />
 
       <TouchableOpacity
         style={styles.button}

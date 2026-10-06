@@ -268,6 +268,8 @@ const CATEGORIES = [
     allowNear: [
       /\bcomprehensive metabolic panel\b/i,
       /\bholistic (?:medicine|practitioner|health coach)\b/i,
+      // Unlocking a phone or a device is literal, not the figure of speech.
+      /\bunlock(?:s|ing)? (?:the|your) (?:phone|device|computer|screen)\b/i,
       // Allan Savory's method is named Holistic Planned Grazing. The Digest
       // reports on it by name, including the part that does not hold up.
       /\bholistic[- ](?:planned grazing|management|grazing)\b/i,
