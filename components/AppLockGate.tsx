@@ -54,6 +54,7 @@ import { isLockedCaptureShowing } from "../lib/lockedCaptures";
 import { isDesktopApp } from "../lib/desktop/bridge";
 import { wording } from "../lib/playfulCopy";
 import { runBeforeRestart } from "../lib/beforeRestart";
+import { listenForReminderPresses } from "../lib/reminderNotifications";
 import { restartApp } from "../lib/restartApp";
 import { getPlayfulWordingSync } from "../lib/visualPreferences";
 import { PasscodeEntry } from "./PasscodeEntry";
@@ -117,6 +118,23 @@ function progressText(
   }
 }
 
+// Up to a second and a half for the capture screen to say it is showing.
+// "capture" when it does, "away" when the app went to the background again
+// first, "back" when neither happened and the person has come back.
+const CAPTURE_WAIT_MS = 1500;
+function waitForCaptureScreen(): Promise<"capture" | "away" | "back"> {
+  const started = Date.now();
+  return new Promise((resolve) => {
+    const timer = setInterval(() => {
+      if (isLockedCaptureShowing()) resolve("capture");
+      else if (AppState.currentState !== "active") resolve("away");
+      else if (Date.now() - started >= CAPTURE_WAIT_MS) resolve("back");
+      else return;
+      clearInterval(timer);
+    }, 100);
+  });
+}
+
 export function AppLockGate({ children }: { children: ReactNode }) {
   const [fontsLoaded] = useFonts({ Nunito_600SemiBold });
   const [lockState, setLockState] = useState<AppLockState | null>(() =>
@@ -133,6 +151,10 @@ export function AppLockGate({ children }: { children: ReactNode }) {
   useEffect(() => {
     void applyScreenCapturePolicy(lockState);
   }, [lockState]);
+
+  // Reminder buttons are answered from here, since the app below does not
+  // mount while it is locked (lib/reminderNotifications.ts).
+  useEffect(() => listenForReminderPresses(), []);
 
   // The move into the encrypted file, run at the start with nothing else open.
   const migrate = useCallback(async () => {
@@ -184,6 +206,9 @@ export function AppLockGate({ children }: { children: ReactNode }) {
 
   // Locking again after time away.
   const awaySince = useRef<number | null>(null);
+  // Covers the app while the gate waits to see whether the capture screen
+  // over the phone lock screen is what came up (2026-10-07).
+  const [covered, setCovered] = useState(false);
   useEffect(() => {
     if (!lockState || lockState.phase !== "on") return;
     const subscription = AppState.addEventListener("change", (next) => {
@@ -194,12 +219,33 @@ export function AppLockGate({ children }: { children: ReactNode }) {
       // The capture screen over the phone lock screen coming up is not the
       // person coming back; the time away keeps counting (lib/lockedCaptures.ts).
       if (next !== "active" || isLockedCaptureShowing()) return;
-      const since = awaySince.current;
-      awaySince.current = null;
       const current = readLockStateSync();
-      if (!current || current.phase !== "on" || !isUnlocked()) return;
-      if (!shouldLockOnReturn(since, Date.now(), current.autoLockMinutes))
+      if (!current || current.phase !== "on" || !isUnlocked()) {
+        awaySince.current = null;
         return;
+      }
+      if (
+        !shouldLockOnReturn(awaySince.current, Date.now(), current.autoLockMinutes)
+      ) {
+        awaySince.current = null;
+        return;
+      }
+      // That screen says it is up a moment after the app reports itself
+      // active, and restarting in that moment closed it under somebody
+      // halfway through a note (2026-10-07). So the app is covered and the
+      // gate waits briefly before deciding the person came back.
+      setCovered(true);
+      void waitForCaptureScreen().then((outcome) => {
+        if (outcome === "capture") {
+          setCovered(false);
+          return;
+        }
+        if (outcome === "away") return;
+        awaySince.current = null;
+        lockAgain();
+      });
+    });
+    function lockAgain() {
       // Send what sync still has waiting before the key goes (1.0.60.17).
       runBeforeRestart()
         .then(() => {
@@ -211,13 +257,22 @@ export function AppLockGate({ children }: { children: ReactNode }) {
           // lock screen goes up, and the database opens again after unlocking.
           console.error("[appLock] restart to lock failed", error);
           dropDataKey();
+          setCovered(false);
           setView({ kind: "locked" });
         });
-    });
+    }
     return () => subscription.remove();
   }, [lockState]);
 
-  if (view.kind === "open") return <>{children}</>;
+  // The wrapping View is there whether or not the cover is, so putting the
+  // cover up never remounts the app beneath it.
+  if (view.kind === "open")
+    return (
+      <View style={styles.fill}>
+        {children}
+        {covered ? <View style={[StyleSheet.absoluteFill, styles.screen]} /> : null}
+      </View>
+    );
   if (!fontsLoaded) return null;
 
   if (view.kind === "migrating") {
@@ -795,6 +850,7 @@ function UnlockFailed({
 }
 
 const styles = StyleSheet.create({
+  fill: { flex: 1 },
   screen: { flex: 1, backgroundColor: colors.background },
   body: { flexGrow: 1, justifyContent: "center", paddingVertical: 32 },
   // The lock screens sit on the plain app colour rather than a tab photo, and

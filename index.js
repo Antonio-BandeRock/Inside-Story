@@ -10,7 +10,12 @@ import 'expo-router/entry';
 
 // The capture screen over the phone lock screen (1.0.62.1), shown by
 // LockedCaptureActivity (plugins/withCaptureTile.js). Loaded only when that
-// screen opens, and never the app itself.
+// screen opens, and never the app itself. It says it is showing as it
+// starts rather than once it has drawn, since the lock gate checks in that
+// gap and once restarted the app under the screen (2026-10-07).
 if (Platform.OS === 'android') {
-  AppRegistry.registerComponent('LockedCapture', () => require('./components/LockedCaptureScreen').LockedCaptureScreen);
+  AppRegistry.registerComponent('LockedCapture', () => {
+    require('./lib/lockedCaptures').setLockedCaptureShowing(true);
+    return require('./components/LockedCaptureScreen').LockedCaptureScreen;
+  });
 }

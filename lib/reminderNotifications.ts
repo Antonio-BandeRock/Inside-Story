@@ -997,12 +997,14 @@ function channelFor(kind: ReminderKind): string {
   return ANDROID_CHANNEL_ID;
 }
 
-function isOurs(identifier: string): boolean {
-  return identifier.startsWith(IDENTIFIER_PREFIX);
+// A notification this app did not queue through expo-notifications (the
+// Capture buttons in the shade) can come back with no identifier at all.
+function isOurs(identifier: string | null | undefined): boolean {
+  return identifier?.startsWith(IDENTIFIER_PREFIX) ?? false;
 }
 
-function isSnoozed(identifier: string): boolean {
-  return identifier.startsWith(SNOOZE_PREFIX);
+function isSnoozed(identifier: string | null | undefined): boolean {
+  return identifier?.startsWith(SNOOZE_PREFIX) ?? false;
 }
 
 // Every set of buttons, registered on each reconcile, which costs nothing
@@ -1480,11 +1482,11 @@ export function resolveReminderTap(response: Notifications.NotificationResponse 
   if (request?.identifier === WAITING_SUMMARY_ID) return { pathname: '/waiting-answers' };
   // A16: an alert about somebody else's dose opens Meds, where the band of
   // doses you watch sits. Queued by lib/peerDosesDb.ts, not by this module.
-  if (request?.identifier.startsWith(PEER_DOSE_PREFIX)) return { pathname: '/schedule', params: { openScheduleLens: 'meds' } };
+  if (request?.identifier?.startsWith(PEER_DOSE_PREFIX)) return { pathname: '/schedule', params: { openScheduleLens: 'meds' } };
   // A14: a recall matching something kept opens the Recalls band on My Meds,
   // or the scanned products list when every match was a food. Queued by
   // lib/recallsDb.ts.
-  if (request?.identifier.startsWith(RECALL_NOTIFICATION_PREFIX)) {
+  if (request?.identifier?.startsWith(RECALL_NOTIFICATION_PREFIX)) {
     const target = (request.content.data as { target?: unknown } | undefined)?.target;
     return target === 'foods' ? { pathname: '/food', params: { openFoodLens: 'myFoodProducts' } } : { pathname: '/life', params: { openLifeLens: 'myMeds' } };
   }
@@ -1872,8 +1874,37 @@ async function applyWaitingAnswers(): Promise<void> {
 export async function answerFromBackground(response: Notifications.NotificationResponse): Promise<void> {
   if (!supported) return;
   if (response.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) return;
+  console.log('[reminderPress] background task', response.notification.request.identifier, response.actionIdentifier);
+  const key = responseKey(response);
+  if (answered.has(key)) return;
+  answered.add(key);
   await answerPress(response);
 }
+
+// A tap that arrived while the app was locked, kept for the app to open
+// once it is unlocked (listenForReminderTaps).
+let tapWhileLocked: Notifications.NotificationResponse | null = null;
+
+// Mounted by the lock gate, which is there whether the app is locked or not
+// (components/AppLockGate.tsx). The rest of the app does not mount until it
+// is unlocked, so with only its listener, a button pressed while the app sat
+// on its passcode screen was held by Android until somebody unlocked
+// (2026-10-07). A press is answered here at once, and sealed for the next
+// unlock when the key is not held; a tap waits for the app to open.
+export function listenForReminderPresses(): () => void {
+  if (!supported) return () => {};
+  const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+    if (response.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
+      if (!tapListenerMounted) tapWhileLocked = response;
+      return;
+    }
+    console.log('[reminderPress] listener', response.notification.request.identifier, response.actionIdentifier, 'locked', isLockedNow());
+    handleResponse(response, () => undefined);
+  });
+  return () => subscription.remove();
+}
+
+let tapListenerMounted = false;
 
 // A button does its work where it is pressed and never opens the app
 // (1.0.53.10): the record is written and the reminder is taken off the
@@ -1888,7 +1919,9 @@ function handleResponse(
   if (answered.has(key)) return;
   answered.add(key);
   if (response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) {
-    answerPress(response).catch((error) => console.error('[reminderNotifications] answer failed', error));
+    answerPress(response)
+      .then(() => console.log('[reminderPress] answered', key))
+      .catch((error) => console.error('[reminderNotifications] answer failed', error));
     return;
   }
   const target = resolveReminderTap(response);
@@ -1994,7 +2027,14 @@ export function listenForReminderTaps(navigate: (target: ReminderTapTarget) => v
       if (response) Notifications.clearLastNotificationResponse();
     })
     .catch((error) => console.error('[reminderNotifications] getLastNotificationResponseAsync failed', error));
+  // Button presses are answered by listenForReminderPresses, which is
+  // always mounted; this one opens what a tap points at.
+  tapListenerMounted = true;
+  const waitingTap = tapWhileLocked;
+  tapWhileLocked = null;
+  if (waitingTap) handleResponse(waitingTap, navigate);
   const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+    if (response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) return;
     handleResponse(response, navigate);
   });
   // A reminder arriving while the app is open brings the summary up to date.
@@ -2002,6 +2042,7 @@ export function listenForReminderTaps(navigate: (target: ReminderTapTarget) => v
     if (isWaitingReminder(notification)) void refreshWaitingSummary();
   });
   return () => {
+    tapListenerMounted = false;
     subscription.remove();
     arrivals.remove();
   };
