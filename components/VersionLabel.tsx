@@ -49,8 +49,9 @@ const LABEL_LINE_HEIGHT = 14;
 // first tuned on-device, moved up by 5 on 2026-08-30 by direct request, and
 // down 2 on 2026-10-07 once the TabHub well grew to 88 px: "The size change of
 // the pressed-in TabHub icon has caused the need for the version under it to
-// be dropped a few more pixels down, maybe 2."
-const DROP_BELOW_BUTTON = 7;
+// be dropped a few more pixels down, maybe 2." Down 2 more the same day:
+// "bring the version number down 2 more pixels."
+const DROP_BELOW_BUTTON = 9;
 
 // The mug, 2026-10-03, direct request: "Can just the mug pop up when you long
 // press the version on the outside of Profile?" The Ghostead trailer's mug,

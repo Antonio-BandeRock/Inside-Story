@@ -1,5 +1,6 @@
 import type { ImageSourcePropType } from 'react-native';
 import { FLOATING_BUTTON_SIZE } from './floatingButton';
+import { TAB_HUB_ICON_REACH } from './tabHubIconReach';
 import type { TabHubIconChoice } from '../lib/visualPreferences';
 
 // A real, raw (require()'d, not wrapped in a component) image source per
@@ -346,11 +347,20 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
 // each way stays inside both with room to spare.
 export const TAB_HUB_WELL_SIZE = 88;
 
-// How much of the well's diameter an icon's own box may span corner to
-// corner. Artwork rarely fills the corners of its box (a butterfly's wing
-// tips, a round fruit), so a box a little wider than the inner circle still
-// leaves every drawn pixel inside the well. 0.95 was checked against the
-// butterfly, the widest common shape, and the square condition icons.
+// Each icon is as large as it can be inside the well without touching it.
+// 2026-10-07, direct request: "Can we make each one the largest size they
+// can be inside of the pressed-in circle? We don't want them touching the
+// edges at all, just as large as they can reasonably be inside of the
+// circle." Until then every icon was sized by its rectangle, corners on a
+// circle 95% of the well, and artwork rarely reaches its box's corners, so
+// most sat well short of the edge. Now each is sized by its farthest
+// painted pixel from the centre (constants/tabHubIconReach.ts, measured by
+// scripts/measure_tab_hub_icons.js), which lands this many points inside
+// the well's edge.
+const TAB_HUB_ICON_CLEARANCE = 4;
+
+// For an icon with no measured artwork (the vector Dessert Builder mark):
+// its box's corners on a circle this share of the well's diameter.
 const TAB_HUB_ICON_DIAGONAL_FRACTION = 0.95;
 
 // One shared answer to "how big is the TabHub button on screen, and how
@@ -374,8 +384,10 @@ export function getTabHubIconRenderSize(choice: TabHubIconChoice): {
   const dims = TAB_HUB_ICON_PIXEL_DIMENSIONS[choice] ?? TAB_HUB_ICON_PIXEL_DIMENSIONS.default!;
   const [pixelWidth, pixelHeight] = dims;
   const ratio = pixelWidth / pixelHeight;
-  const diagonal = TAB_HUB_WELL_SIZE * TAB_HUB_ICON_DIAGONAL_FRACTION;
-  const iconHeight = diagonal / Math.sqrt(1 + ratio * ratio);
+  const reach = TAB_HUB_ICON_REACH[choice];
+  const iconHeight = reach
+    ? (TAB_HUB_WELL_SIZE / 2 - TAB_HUB_ICON_CLEARANCE) / reach
+    : (TAB_HUB_WELL_SIZE * TAB_HUB_ICON_DIAGONAL_FRACTION) / Math.sqrt(1 + ratio * ratio);
   const iconWidth = iconHeight * ratio;
   const overhang = (TAB_HUB_WELL_SIZE - FLOATING_BUTTON_SIZE) / 2;
   return {
