@@ -262,7 +262,7 @@ import { groupHomeSectionsForDisplay, homeGroupIdOf } from '../lib/homeSections'
 import { PICTURE_TABS } from '../lib/progressScene';
 import { homeGroupIdentity } from '../constants/homeGroups';
 import { useWalkMark } from '../components/WalkMark';
-import type { WalkMark } from '../lib/storyWalk';
+import { getWalkMark, subscribeWalkMark, type WalkMark } from '../lib/storyWalk';
 import * as Linking from 'expo-linking';
 import { PRIVACY_URL, TERMS_URL } from '../lib/agreement';
 import { GHOSTEAD_URL } from '../lib/ghostead';
@@ -424,27 +424,27 @@ const ALL_CARD_SECTION_KEYS = [
   // How You Eat
   'diet-preferences',
   'food-restrictions',
-  'meal-schedule',
   'meal-plan',
+  'meal-schedule',
   'nutrient-targets',
   // Growing Your Own
   'garden-details',
   // How the App Looks
-  'low-stimulation',
-  'routine-timer',
-  'playful-wording',
-  'home-screen',
   'appearance',
+  'home-screen',
+  'low-stimulation',
+  'playful-wording',
+  'routine-timer',
   // Device & Account
-  'app-status',
-  'agreement',
   'about-ghostead',
-  'voice-pack',
-  'connections',
   'applock',
-  'backup',
+  'app-status',
   'app-updates',
+  'backup',
+  'connections',
   'developer',
+  'voice-pack',
+  'agreement',
 ] as const;
 type CardSectionKey = (typeof ALL_CARD_SECTION_KEYS)[number];
 
@@ -653,6 +653,42 @@ const PROFILE_GROUP_ICONS: Record<string, ComponentProps<typeof Ionicons>['name'
   'Device & Account': 'phone-portrait-outline',
 };
 
+// Which group each card sits in, so a Your Story walk pointing at a card
+// can unfold that group first now that every group starts folded.
+const PROFILE_CARD_GROUP: Record<CardSectionKey, string> = {
+  'personal-info': 'About You',
+  conditions: 'Your Health',
+  'general-health': 'Your Health',
+  reminders: 'Your Health',
+  'diet-preferences': 'How You Eat',
+  'food-restrictions': 'How You Eat',
+  'meal-plan': 'How You Eat',
+  'meal-schedule': 'How You Eat',
+  'nutrient-targets': 'How You Eat',
+  'garden-details': 'Growing Your Own',
+  appearance: 'How the App Looks',
+  'home-screen': 'How the App Looks',
+  'low-stimulation': 'How the App Looks',
+  'playful-wording': 'How the App Looks',
+  'routine-timer': 'How the App Looks',
+  'about-ghostead': 'Device & Account',
+  applock: 'Device & Account',
+  'app-status': 'Device & Account',
+  'app-updates': 'Device & Account',
+  backup: 'Device & Account',
+  connections: 'Device & Account',
+  developer: 'Device & Account',
+  'voice-pack': 'Device & Account',
+  agreement: 'Device & Account',
+};
+
+/** The group holding the card a walk mark names, or null for a mark off Profile. */
+function groupForWalkMark(mark: WalkMark | null): string | null {
+  if (!mark || !mark.startsWith('profile.')) return null;
+  const key = mark.slice('profile.'.length) === 'backupOneDrive' ? 'backup' : mark.slice('profile.'.length);
+  return PROFILE_CARD_GROUP[key as CardSectionKey] ?? null;
+}
+
 const PROFILE_CARD_ICONS: Record<CardSectionKey, ComponentProps<typeof Ionicons>['name']> = {
   'personal-info': 'person-outline',
   conditions: 'medkit-outline',
@@ -727,8 +763,9 @@ export default function ProfileScreen() {
     () => new Set(ALL_CARD_SECTION_KEYS),
   );
   // The six group headings fold too (1.0.61.9), keyed by their title.
-  // Starts with every group open; see renderGroupHeading.
-  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(() => new Set());
+  // Since 1.0.63.13 every group starts folded as well, by direct request:
+  // "I would like for Profile to have all sections collapsed when I go into it."
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(() => new Set(Object.keys(PROFILE_GROUP_ICONS)));
   const toggleGroup = useCallback((title: string) => {
     setCollapsedGroups((current) => {
       const next = new Set(current);
@@ -736,6 +773,22 @@ export default function ProfileScreen() {
       else next.add(title);
       return next;
     });
+  }, []);
+  // A Your Story walk pointing at a card here unfolds its group, since a
+  // folded group would hide the very header the walk is pointing at.
+  useEffect(() => {
+    const unfold = (mark: WalkMark | null) => {
+      const group = groupForWalkMark(mark);
+      if (!group) return;
+      setCollapsedGroups((current) => {
+        if (!current.has(group)) return current;
+        const next = new Set(current);
+        next.delete(group);
+        return next;
+      });
+    };
+    unfold(getWalkMark());
+    return subscribeWalkMark(unfold);
   }, []);
   // Opened straight onto Reminders (1.0.60.3) by Choose Which Reminders
   // Come in the Waiting for an Answer list, so the switches are in view
@@ -914,6 +967,8 @@ export default function ProfileScreen() {
   // also folds its whole group away, by direct request: "make each section
   // of Profile collapsable." Groups start open so every card header stays
   // a signpost on arrival; folding one is for getting it out of the way.
+  // Since 1.0.63.13 groups start folded too, and the cards inside each
+  // group read alphabetically by their titles, both by direct request.
   //
   // Carries its own surface per the standing no-bare-text-on-the-tab-
   // background rule, and matches the groupHeadingChip shape already used
@@ -4288,6 +4343,65 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
+      {/* Meal Plan shortcut, 2026-08-26, direct request: "we need to
+          create the way for the user, from within their profile area, or
+          from a tool listed in Scheduling, to automatically create 6
+          weeks worth of meals." The Daily Meal Plan generator itself
+          (lib/dailyMealPlan.ts) already lives on Schedule; this is the
+          second real door into that one generator, not a second
+          implementation of it. Reuses the same openScheduleLens deep-link
+          pattern Garden's own openGardenLens already established. */}
+      <View style={styles.card}>
+        {renderCardHeader('meal-plan', 'Meal Plan')}
+        {!collapsedSections.has('meal-plan') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Generate up to 6 weeks of full meals at once, built from your tracked conditions, diet
+              preference(s), and food allergies above: whole meals combining a main dish with a side,
+              salad, or beverage when doing so helps round out your nutrient intake, not just one
+              recipe standing in for the whole plate.
+            </Text>
+            <TouchableOpacity
+              style={styles.checkinButton}
+              onPress={() => router.push({ pathname: '/schedule', params: { openScheduleLens: 'dailyMealPlan' } })}
+            >
+              <Text style={styles.checkinButtonText}>Generate My Meal Plan</Text>
+            </TouchableOpacity>
+
+            {/* 2026-08-29: this action belongs here, in Profile > Meal
+                Plan. It was built into a Schedule lens first, then moved
+                to Profile > Meal Timing, both wrong. Direct correction:
+                "You were supposed to move it to Profile > Meal Plan."
+                Kept in exactly one place, never duplicated, so there is
+                never a question of which one is real. */}
+            <Text style={styles.subLabelDivided}>Meals already scheduled</Text>
+            <Text style={styles.helpText}>
+              Changes you make in Meal Timing only affect meals scheduled from that point on. A meal plan
+              already on your schedule keeps the times it was created with, and generating a plan again will not
+              fix it, because days already scheduled are left alone. Tap the button below to update them,
+              keeping the same meals on the same days, from today forward. Meals you have already logged are
+              left alone.
+            </Text>
+            <TouchableOpacity
+              style={styles.checkinButton}
+              disabled={realigningMealTimes}
+              onPress={handleRealignScheduledMealTimes}
+            >
+              {/* Deliberate line break after "Changes", 2026-08-29 direct
+                  request. Kept as a literal \n rather than letting the
+                  label wrap on its own, so the break lands in the same
+                  place on every screen width instead of wherever the text
+                  happens to run out of room. */}
+              <Text style={[styles.checkinButtonText, styles.checkinButtonTextMultiline]}>
+                {realigningMealTimes
+                  ? 'Updating…'
+                  : 'Apply My Meal Timing Changes\nto Existing Meals'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+      </View>
+
       {/* Meal Timing, 2026-08-09, regrouped from 2 separate cards (Usual
           meal times, Fasting/eating window), explicitly requested
           together. */}
@@ -4489,65 +4603,6 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      {/* Meal Plan shortcut, 2026-08-26, direct request: "we need to
-          create the way for the user, from within their profile area, or
-          from a tool listed in Scheduling, to automatically create 6
-          weeks worth of meals." The Daily Meal Plan generator itself
-          (lib/dailyMealPlan.ts) already lives on Schedule; this is the
-          second real door into that one generator, not a second
-          implementation of it. Reuses the same openScheduleLens deep-link
-          pattern Garden's own openGardenLens already established. */}
-      <View style={styles.card}>
-        {renderCardHeader('meal-plan', 'Meal Plan')}
-        {!collapsedSections.has('meal-plan') ? (
-          <View style={styles.cardBody}>
-            <Text style={styles.helpText}>
-              Generate up to 6 weeks of full meals at once, built from your tracked conditions, diet
-              preference(s), and food allergies above: whole meals combining a main dish with a side,
-              salad, or beverage when doing so helps round out your nutrient intake, not just one
-              recipe standing in for the whole plate.
-            </Text>
-            <TouchableOpacity
-              style={styles.checkinButton}
-              onPress={() => router.push({ pathname: '/schedule', params: { openScheduleLens: 'dailyMealPlan' } })}
-            >
-              <Text style={styles.checkinButtonText}>Generate My Meal Plan</Text>
-            </TouchableOpacity>
-
-            {/* 2026-08-29: this action belongs here, in Profile > Meal
-                Plan. It was built into a Schedule lens first, then moved
-                to Profile > Meal Timing, both wrong. Direct correction:
-                "You were supposed to move it to Profile > Meal Plan."
-                Kept in exactly one place, never duplicated, so there is
-                never a question of which one is real. */}
-            <Text style={styles.subLabelDivided}>Meals already scheduled</Text>
-            <Text style={styles.helpText}>
-              Changes you make in Meal Timing only affect meals scheduled from that point on. A meal plan
-              already on your schedule keeps the times it was created with, and generating a plan again will not
-              fix it, because days already scheduled are left alone. Tap the button below to update them,
-              keeping the same meals on the same days, from today forward. Meals you have already logged are
-              left alone.
-            </Text>
-            <TouchableOpacity
-              style={styles.checkinButton}
-              disabled={realigningMealTimes}
-              onPress={handleRealignScheduledMealTimes}
-            >
-              {/* Deliberate line break after "Changes", 2026-08-29 direct
-                  request. Kept as a literal \n rather than letting the
-                  label wrap on its own, so the break lands in the same
-                  place on every screen width instead of wherever the text
-                  happens to run out of room. */}
-              <Text style={[styles.checkinButtonText, styles.checkinButtonTextMultiline]}>
-                {realigningMealTimes
-                  ? 'Updating…'
-                  : 'Apply My Meal Timing Changes\nto Existing Meals'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
-      </View>
-
       {/* Nutrient Targets, 2026-08-26, direct follow-up: "you should
           complete the adjustable personal protein/fiber/sodium targets
           with its own small settings feature." A real person can
@@ -4705,298 +4760,6 @@ export default function ProfileScreen() {
       <View style={styles.groupBand}>
       {renderGroupHeading('How the App Looks')}
       {!collapsedGroups.has('How the App Looks') ? (<View style={styles.groupBody}>
-      {/* Low Stimulation, 2026-09-16. Everything it does could already be
-          done by hand: set every background to Off one tab at a time, fold
-          each Home section, and live with the motion. That is six or more
-          settings in three places, which is a lot to ask of someone on the
-          day they most need the app to be quiet. One switch instead, placed
-          first in this group so it is found before the pickers it overrides.
-
-          It writes almost nothing: backgrounds and motion are answered on
-          its behalf at the point of use (resolveBackgroundStyle and
-          isMotionReduced in lib/visualPreferences.ts), so every photo,
-          palette and icon the person chose survives untouched and returns
-          the instant this goes off. Fold state is the one exception and is
-          written once, at switch-on: an override there would hold every
-          section shut with no way to read anything. */}
-      <View style={styles.card}>
-        {renderCardHeader('low-stimulation', 'Low Stimulation')}
-        {!collapsedSections.has('low-stimulation') ? (
-          <View style={styles.cardBody}>
-            <Text style={styles.helpText}>
-              One switch for a quieter app on the days a busy screen is too much, instead of hunting down
-              the settings that add up to the same thing. Nothing is hidden, nothing is deleted, and every
-              choice you have made here is kept exactly as it is.
-            </Text>
-            <View style={styles.pillRow}>
-              {[false, true].map((value) => {
-                const active = visualPrefs.lowStimulation === value;
-                return (
-                  <TouchableOpacity
-                    key={value ? 'on' : 'off'}
-                    style={[styles.pill, active && styles.pillActive]}
-                    onPress={() => {
-                      void setLowStimulation(value);
-                    }}
-                  >
-                    <Text style={[styles.pillText, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-            <Text style={styles.helpText}>
-              Backgrounds: every tab shows the same flat color as the header and footer, with no photo and
-              no gradient behind anything you are reading. Your picks are untouched and come back the
-              moment you turn this off.
-            </Text>
-            <Text style={styles.helpText}>
-              Movement: the greeting stops zooming in and out, cards turn over without the flip, menus and
-              pop-ups open without fading, and a swiped tab changes without flying off the edge. Dragging
-              still follows your finger, since that is the screen answering you rather than moving on its
-              own.
-            </Text>
-            <Text style={styles.helpText}>
-              Sections: whatever is open on Home, and in every expandable band elsewhere, folds shut when
-              you turn this on, so a screen opens as a short list rather than a wall. Open any of them
-              again whenever you want. Turning this back off leaves your folds alone rather than reopening
-              them for you.
-            </Text>
-          </View>
-        ) : null}
-      </View>
-
-      {/* Playful Wording, 2026-10-03. On by default, as asked: a light joke
-          after the facts on a few empty screens, privacy notices and desktop
-          limits, each with a plain twin in lib/playfulCopy.ts. Listing a
-          neurodivergent profile offers to turn it off. */}
-      <View style={styles.card}>
-        {renderCardHeader('playful-wording', 'Playful Wording')}
-        {!collapsedSections.has('playful-wording') ? (
-          <View style={styles.cardBody}>
-            <Text style={styles.helpText}>
-              A few empty screens and notices carry a light joke after the facts, about the app, the technology or
-              the data industry and never about you. Off keeps every line plain and direct. What the app tells you
-              is the same either way.
-            </Text>
-            <View style={styles.pillRow}>
-              {[true, false].map((value) => {
-                const active = visualPrefs.playfulWording === value;
-                return (
-                  <TouchableOpacity
-                    key={value ? 'on' : 'off'}
-                    style={[styles.pill, active && styles.pillActive]}
-                    onPress={() => {
-                      void setVisualPreferences({ playfulWording: value });
-                    }}
-                  >
-                    <Text style={[styles.pillText, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-            <Text style={styles.helpText}>
-              Never in anything about your health: symptoms, flares, labs, medications, the emergency card,
-              conditions, patterns and advice all stay plain whatever this is set to.
-            </Text>
-          </View>
-        ) : null}
-      </View>
-
-      {/* Routine Timer (B5, 2026-09-30). Off unless somebody turns it on:
-          "It definitely shouldn't be turned on by default." The same ring
-          switch sits on the routine's step screen. The signal is its own
-          switch so the ring can be had without a sound. */}
-      <View style={styles.card}>
-        {renderCardHeader('routine-timer', 'Routine Timer')}
-        {!collapsedSections.has('routine-timer') ? (
-          <View style={styles.cardBody}>
-            <Text style={styles.helpText}>{STEP_TIMER_HELP}</Text>
-            <Text style={styles.helpText}>{STEP_TIMER_RING_LABEL}</Text>
-            <View style={styles.pillRow}>
-              {[false, true].map((value) => {
-                const active = stepTimer.ring === value;
-                return (
-                  <TouchableOpacity
-                    key={value ? 'on' : 'off'}
-                    style={[styles.pill, active && styles.pillActive]}
-                    onPress={() => {
-                      setStepTimerState((current) => ({ ...current, ring: value }));
-                      void setStepTimerRing(value);
-                    }}
-                  >
-                    <Text style={[styles.pillText, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-            <Text style={styles.helpText}>{STEP_TIMER_SIGNAL_LABEL}</Text>
-            <View style={styles.pillRow}>
-              {[false, true].map((value) => {
-                const active = stepTimer.signal === value;
-                return (
-                  <TouchableOpacity
-                    key={value ? 'on' : 'off'}
-                    style={[styles.pill, active && styles.pillActive]}
-                    onPress={() => {
-                      setStepTimerState((current) => ({ ...current, signal: value }));
-                      void setStepTimerSignal(value);
-                    }}
-                  >
-                    <Text style={[styles.pillText, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-            <Text style={styles.helpText}>{STEP_TIMER_SIGNAL_HELP}</Text>
-          </View>
-        ) : null}
-      </View>
-
-      {/* Home Screen, 2026-08-21, direct request: "make it capable of
-          turning on and off whatever the user wants to from the home
-          screen so they are able to dial in on what they want to have
-          available, and not whatever we decide to make them have all the
-          time... they may end up wanting everything, or even nothing."
-          Same per-topic toggle pattern as General Health Guidance right
-          above, applied to Home's own real content sections instead of
-          builder notes (see HomeSectionKey/HOME_SECTION_LABELS in
-          lib/visualPreferences.ts for the full list and why absence of a
-          key there means visible, not hidden -- the part of this design
-          that lets a section added to Home later show up for everyone
-          automatically). Home itself shows an honest message instead of a
-          blank page if every one of these ends up off. */}
-      <View style={styles.card}>
-        {renderCardHeader('home-screen', 'Home Screen')}
-        {!collapsedSections.has('home-screen') ? (
-          <View style={styles.cardBody}>
-            <Text style={styles.helpText}>
-              Choose which of these show up on your Home tab. Turn off anything you don&apos;t use, this only
-              changes what Home displays; nothing here is deleted, and any section can be turned back on any
-              time.
-            </Text>
-            {/* Since 1.0.39.16 all of this is reachable from Home itself:
-                holding any band there turns the page into the same list,
-                with a grip to drag and an eye to switch. Said here so
-                nobody has to find it by accident. This card stays the
-                place to see everything at once. */}
-            <Text style={styles.helpText}>
-              You can also do all of this on Home. Hold down any band there and the page becomes a list you
-              can drag into order and switch things off from.
-            </Text>
-
-            {/* Groups, 1.0.39.16: "maybe we have each group be turned on
-                and off from the Home group?" One switch for a whole tab's
-                worth of Home, separate from the cards inside it, so
-                turning a group back on restores exactly what was showing
-                before rather than guessing. */}
-            <Text style={styles.subLabelDivided}>Groups</Text>
-            <Text style={styles.helpText}>
-              Each of these is one tab’s worth of Home. Turning a group off hides the whole band; whatever
-              you had chosen about the cards inside it is remembered and comes back with it.
-            </Text>
-            <View style={styles.pillRow}>
-              {groupHomeSectionsForDisplay(getOrderedHomeSectionKeys(visualPrefs))
-                .filter((group) => group.kind === 'tab')
-                .map((group) => {
-                  const groupId = homeGroupIdOf(group);
-                  const identity = group.kind === 'tab' ? homeGroupIdentity(group.path) : undefined;
-                  const shown = isHomeGroupVisible(visualPrefs, groupId);
-                  return (
-                    <TouchableOpacity
-                      key={groupId}
-                      style={[styles.pill, shown && styles.pillActive]}
-                      onPress={() => toggleHomeGroup(groupId)}
-                    >
-                      <Text style={[styles.pillText, shown && styles.pillTextActive]}>
-                        {identity?.title ?? 'More'}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-            </View>
-
-            <Text style={styles.subLabelDivided}>Cards</Text>
-            <View style={styles.pillRow}>
-              {ALL_HOME_SECTION_KEYS.filter((key) => !HOME_SECTIONS_ALWAYS_SHOWN.has(key)).map((key) => {
-                const shown = isHomeSectionVisible(visualPrefs, key);
-                return (
-                  <TouchableOpacity
-                    key={key}
-                    style={[styles.pill, shown && styles.pillActive]}
-                    onPress={() => toggleHomeSection(key)}
-                  >
-                    <Text style={[styles.pillText, shown && styles.pillTextActive]}>{HOME_SECTION_LABELS[key]}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            {/* Order, 2026-08-23, direct request: "they should be able to
-                move the things on the home screen they have chosen to be
-                there into any order they want to from top to bottom,
-                except the welcome box with all of the basic daily info
-                available." The welcome box (greeting/date/weather) isn't
-                in this list at all -- it's not a HomeSectionKey to begin
-                with, see this list's own comment. Up/down buttons rather
-                than drag-and-drop: no drag library is part of this
-                project yet, and a plain, explicit tap is the same
-                low-risk control every other picker on this screen already
-                favors (see the PopoverSelect standard this app follows).
-                Shown in the person's own real current order, top to
-                bottom, matching exactly what Home itself will render. */}
-            <Text style={styles.subLabelDivided}>Order</Text>
-            {/* 2026-09-12: sections from the same tab sit together on Home
-                (lib/homeSections.ts), so a move that would carry one past
-                another tab's section carries its tab-mates with it. Said
-                here rather than left to be discovered when the list jumps
-                by more than one row. */}
-            <Text style={styles.helpText}>
-              Move any of these up or down to change the order they appear on Home, top to bottom. Sections that
-              belong to the same tab always stay together, so moving one past another tab&apos;s section brings
-              the rest of its tab along with it.
-            </Text>
-            <View style={styles.homeOrderList}>
-              {getOrderedHomeSectionKeys(visualPrefs).map((key, index, order) => (
-                <View key={key} style={styles.homeOrderRow}>
-                  <Text style={styles.homeOrderLabel} numberOfLines={1}>
-                    {HOME_SECTION_LABELS[key]}
-                  </Text>
-                  <View style={styles.homeOrderButtons}>
-                    <TouchableOpacity
-                      onPress={() => moveHomeSection(key, 'up')}
-                      disabled={index === 0}
-                      style={[styles.homeOrderButton, index === 0 && styles.homeOrderButtonDisabled]}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Move ${HOME_SECTION_LABELS[key]} up`}
-                    >
-                      <Ionicons name="chevron-up" size={18} color={index === 0 ? colors.textMuted : colors.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => moveHomeSection(key, 'down')}
-                      disabled={index === order.length - 1}
-                      style={[styles.homeOrderButton, index === order.length - 1 && styles.homeOrderButtonDisabled]}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Move ${HOME_SECTION_LABELS[key]} down`}
-                    >
-                      <Ionicons name="chevron-down" size={18} color={index === order.length - 1 ? colors.textMuted : colors.primary} />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ))}
-            </View>
-          </View>
-        ) : null}
-      </View>
-
-      {/* The Header Growth card stood here from 2026-08-21 to 1.0.39.14: one
-          On/Off pill for the small plant that grew in the header as criteria
-          were met. The marks it controlled are gone from the header, so the
-          control went with them rather than staying on screen doing nothing.
-          The preference key itself is kept (lib/visualPreferences.ts), since
-          the recognition it governed is moving into this screen as milestones
-          plus occasional short animations, and somebody who already turned it
-          off should not have that choice quietly forgotten. */}
-
       {/* Appearance & Navigation, 2026-08-09, regrouped from 3 separate
           cards (TabHub Icon, Shared background, Individual tab
           backgrounds) explicitly requested together.
@@ -5354,51 +5117,303 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
+      {/* Home Screen, 2026-08-21, direct request: "make it capable of
+          turning on and off whatever the user wants to from the home
+          screen so they are able to dial in on what they want to have
+          available, and not whatever we decide to make them have all the
+          time... they may end up wanting everything, or even nothing."
+          Same per-topic toggle pattern as General Health Guidance right
+          above, applied to Home's own real content sections instead of
+          builder notes (see HomeSectionKey/HOME_SECTION_LABELS in
+          lib/visualPreferences.ts for the full list and why absence of a
+          key there means visible, not hidden -- the part of this design
+          that lets a section added to Home later show up for everyone
+          automatically). Home itself shows an honest message instead of a
+          blank page if every one of these ends up off. */}
+      <View style={styles.card}>
+        {renderCardHeader('home-screen', 'Home Screen')}
+        {!collapsedSections.has('home-screen') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Choose which of these show up on your Home tab. Turn off anything you don&apos;t use, this only
+              changes what Home displays; nothing here is deleted, and any section can be turned back on any
+              time.
+            </Text>
+            {/* Since 1.0.39.16 all of this is reachable from Home itself:
+                holding any band there turns the page into the same list,
+                with a grip to drag and an eye to switch. Said here so
+                nobody has to find it by accident. This card stays the
+                place to see everything at once. */}
+            <Text style={styles.helpText}>
+              You can also do all of this on Home. Hold down any band there and the page becomes a list you
+              can drag into order and switch things off from.
+            </Text>
+
+            {/* Groups, 1.0.39.16: "maybe we have each group be turned on
+                and off from the Home group?" One switch for a whole tab's
+                worth of Home, separate from the cards inside it, so
+                turning a group back on restores exactly what was showing
+                before rather than guessing. */}
+            <Text style={styles.subLabelDivided}>Groups</Text>
+            <Text style={styles.helpText}>
+              Each of these is one tab’s worth of Home. Turning a group off hides the whole band; whatever
+              you had chosen about the cards inside it is remembered and comes back with it.
+            </Text>
+            <View style={styles.pillRow}>
+              {groupHomeSectionsForDisplay(getOrderedHomeSectionKeys(visualPrefs))
+                .filter((group) => group.kind === 'tab')
+                .map((group) => {
+                  const groupId = homeGroupIdOf(group);
+                  const identity = group.kind === 'tab' ? homeGroupIdentity(group.path) : undefined;
+                  const shown = isHomeGroupVisible(visualPrefs, groupId);
+                  return (
+                    <TouchableOpacity
+                      key={groupId}
+                      style={[styles.pill, shown && styles.pillActive]}
+                      onPress={() => toggleHomeGroup(groupId)}
+                    >
+                      <Text style={[styles.pillText, shown && styles.pillTextActive]}>
+                        {identity?.title ?? 'More'}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+            </View>
+
+            <Text style={styles.subLabelDivided}>Cards</Text>
+            <View style={styles.pillRow}>
+              {ALL_HOME_SECTION_KEYS.filter((key) => !HOME_SECTIONS_ALWAYS_SHOWN.has(key)).map((key) => {
+                const shown = isHomeSectionVisible(visualPrefs, key);
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    style={[styles.pill, shown && styles.pillActive]}
+                    onPress={() => toggleHomeSection(key)}
+                  >
+                    <Text style={[styles.pillText, shown && styles.pillTextActive]}>{HOME_SECTION_LABELS[key]}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {/* Order, 2026-08-23, direct request: "they should be able to
+                move the things on the home screen they have chosen to be
+                there into any order they want to from top to bottom,
+                except the welcome box with all of the basic daily info
+                available." The welcome box (greeting/date/weather) isn't
+                in this list at all -- it's not a HomeSectionKey to begin
+                with, see this list's own comment. Up/down buttons rather
+                than drag-and-drop: no drag library is part of this
+                project yet, and a plain, explicit tap is the same
+                low-risk control every other picker on this screen already
+                favors (see the PopoverSelect standard this app follows).
+                Shown in the person's own real current order, top to
+                bottom, matching exactly what Home itself will render. */}
+            <Text style={styles.subLabelDivided}>Order</Text>
+            {/* 2026-09-12: sections from the same tab sit together on Home
+                (lib/homeSections.ts), so a move that would carry one past
+                another tab's section carries its tab-mates with it. Said
+                here rather than left to be discovered when the list jumps
+                by more than one row. */}
+            <Text style={styles.helpText}>
+              Move any of these up or down to change the order they appear on Home, top to bottom. Sections that
+              belong to the same tab always stay together, so moving one past another tab&apos;s section brings
+              the rest of its tab along with it.
+            </Text>
+            <View style={styles.homeOrderList}>
+              {getOrderedHomeSectionKeys(visualPrefs).map((key, index, order) => (
+                <View key={key} style={styles.homeOrderRow}>
+                  <Text style={styles.homeOrderLabel} numberOfLines={1}>
+                    {HOME_SECTION_LABELS[key]}
+                  </Text>
+                  <View style={styles.homeOrderButtons}>
+                    <TouchableOpacity
+                      onPress={() => moveHomeSection(key, 'up')}
+                      disabled={index === 0}
+                      style={[styles.homeOrderButton, index === 0 && styles.homeOrderButtonDisabled]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Move ${HOME_SECTION_LABELS[key]} up`}
+                    >
+                      <Ionicons name="chevron-up" size={18} color={index === 0 ? colors.textMuted : colors.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => moveHomeSection(key, 'down')}
+                      disabled={index === order.length - 1}
+                      style={[styles.homeOrderButton, index === order.length - 1 && styles.homeOrderButtonDisabled]}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Move ${HOME_SECTION_LABELS[key]} down`}
+                    >
+                      <Ionicons name="chevron-down" size={18} color={index === order.length - 1 ? colors.textMuted : colors.primary} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        ) : null}
+      </View>
+
+      {/* The Header Growth card stood here from 2026-08-21 to 1.0.39.14: one
+          On/Off pill for the small plant that grew in the header as criteria
+          were met. The marks it controlled are gone from the header, so the
+          control went with them rather than staying on screen doing nothing.
+          The preference key itself is kept (lib/visualPreferences.ts), since
+          the recognition it governed is moving into this screen as milestones
+          plus occasional short animations, and somebody who already turned it
+          off should not have that choice quietly forgotten. */}
+
+      {/* Low Stimulation, 2026-09-16. Everything it does could already be
+          done by hand: set every background to Off one tab at a time, fold
+          each Home section, and live with the motion. That is six or more
+          settings in three places, which is a lot to ask of someone on the
+          day they most need the app to be quiet. One switch instead, placed
+          first in this group so it is found before the pickers it overrides.
+
+          It writes almost nothing: backgrounds and motion are answered on
+          its behalf at the point of use (resolveBackgroundStyle and
+          isMotionReduced in lib/visualPreferences.ts), so every photo,
+          palette and icon the person chose survives untouched and returns
+          the instant this goes off. Fold state is the one exception and is
+          written once, at switch-on: an override there would hold every
+          section shut with no way to read anything. */}
+      <View style={styles.card}>
+        {renderCardHeader('low-stimulation', 'Low Stimulation')}
+        {!collapsedSections.has('low-stimulation') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              One switch for a quieter app on the days a busy screen is too much, instead of hunting down
+              the settings that add up to the same thing. Nothing is hidden, nothing is deleted, and every
+              choice you have made here is kept exactly as it is.
+            </Text>
+            <View style={styles.pillRow}>
+              {[false, true].map((value) => {
+                const active = visualPrefs.lowStimulation === value;
+                return (
+                  <TouchableOpacity
+                    key={value ? 'on' : 'off'}
+                    style={[styles.pill, active && styles.pillActive]}
+                    onPress={() => {
+                      void setLowStimulation(value);
+                    }}
+                  >
+                    <Text style={[styles.pillText, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <Text style={styles.helpText}>
+              Backgrounds: every tab shows the same flat color as the header and footer, with no photo and
+              no gradient behind anything you are reading. Your picks are untouched and come back the
+              moment you turn this off.
+            </Text>
+            <Text style={styles.helpText}>
+              Movement: the greeting stops zooming in and out, cards turn over without the flip, menus and
+              pop-ups open without fading, and a swiped tab changes without flying off the edge. Dragging
+              still follows your finger, since that is the screen answering you rather than moving on its
+              own.
+            </Text>
+            <Text style={styles.helpText}>
+              Sections: whatever is open on Home, and in every expandable band elsewhere, folds shut when
+              you turn this on, so a screen opens as a short list rather than a wall. Open any of them
+              again whenever you want. Turning this back off leaves your folds alone rather than reopening
+              them for you.
+            </Text>
+          </View>
+        ) : null}
+      </View>
+
+      {/* Playful Wording, 2026-10-03. On by default, as asked: a light joke
+          after the facts on a few empty screens, privacy notices and desktop
+          limits, each with a plain twin in lib/playfulCopy.ts. Listing a
+          neurodivergent profile offers to turn it off. */}
+      <View style={styles.card}>
+        {renderCardHeader('playful-wording', 'Playful Wording')}
+        {!collapsedSections.has('playful-wording') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              A few empty screens and notices carry a light joke after the facts, about the app, the technology or
+              the data industry and never about you. Off keeps every line plain and direct. What the app tells you
+              is the same either way.
+            </Text>
+            <View style={styles.pillRow}>
+              {[true, false].map((value) => {
+                const active = visualPrefs.playfulWording === value;
+                return (
+                  <TouchableOpacity
+                    key={value ? 'on' : 'off'}
+                    style={[styles.pill, active && styles.pillActive]}
+                    onPress={() => {
+                      void setVisualPreferences({ playfulWording: value });
+                    }}
+                  >
+                    <Text style={[styles.pillText, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <Text style={styles.helpText}>
+              Never in anything about your health: symptoms, flares, labs, medications, the emergency card,
+              conditions, patterns and advice all stay plain whatever this is set to.
+            </Text>
+          </View>
+        ) : null}
+      </View>
+
+      {/* Routine Timer (B5, 2026-09-30). Off unless somebody turns it on:
+          "It definitely shouldn't be turned on by default." The same ring
+          switch sits on the routine's step screen. The signal is its own
+          switch so the ring can be had without a sound. */}
+      <View style={styles.card}>
+        {renderCardHeader('routine-timer', 'Routine Timer')}
+        {!collapsedSections.has('routine-timer') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>{STEP_TIMER_HELP}</Text>
+            <Text style={styles.helpText}>{STEP_TIMER_RING_LABEL}</Text>
+            <View style={styles.pillRow}>
+              {[false, true].map((value) => {
+                const active = stepTimer.ring === value;
+                return (
+                  <TouchableOpacity
+                    key={value ? 'on' : 'off'}
+                    style={[styles.pill, active && styles.pillActive]}
+                    onPress={() => {
+                      setStepTimerState((current) => ({ ...current, ring: value }));
+                      void setStepTimerRing(value);
+                    }}
+                  >
+                    <Text style={[styles.pillText, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <Text style={styles.helpText}>{STEP_TIMER_SIGNAL_LABEL}</Text>
+            <View style={styles.pillRow}>
+              {[false, true].map((value) => {
+                const active = stepTimer.signal === value;
+                return (
+                  <TouchableOpacity
+                    key={value ? 'on' : 'off'}
+                    style={[styles.pill, active && styles.pillActive]}
+                    onPress={() => {
+                      setStepTimerState((current) => ({ ...current, signal: value }));
+                      void setStepTimerSignal(value);
+                    }}
+                  >
+                    <Text style={[styles.pillText, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <Text style={styles.helpText}>{STEP_TIMER_SIGNAL_HELP}</Text>
+          </View>
+        ) : null}
+      </View>
+
       </View>) : null}
       </View>
       <View style={styles.groupBand}>
       {renderGroupHeading('Device & Account')}
       {!collapsedGroups.has('Device & Account') ? (<View style={styles.groupBody}>
-      {/* App Status, Phase A of the 2026-09-24 gap review: every "is this
-          working?" answer in one place, see lib/appStatus.ts. */}
-      <View style={styles.card}>
-        {renderCardHeader('app-status', 'App Status')}
-        {!collapsedSections.has('app-status') ? (
-          <View style={styles.cardBody}>
-            <Text style={styles.helpText}>
-              Which version is running, which food data it scores against, whether reminders can arrive, and whether
-              backups and sync are working, all on one page.
-            </Text>
-            <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/app-status')}>
-              <Text style={styles.checkinButtonText}>See App Status</Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
-      </View>
-
-      {/* The first-launch agreement (X2), readable again with the day it
-          was agreed to. See lib/agreement.ts. */}
-      <View style={styles.card}>
-        {renderCardHeader('agreement', 'What This App Is and Is Not')}
-        {!collapsedSections.has('agreement') ? (
-          <View style={styles.cardBody}>
-            <Text style={styles.helpText}>
-              The points you agreed to when you first opened the app: general information and your records, not
-              medical advice, not a diagnosis, and never allergy-safe.
-            </Text>
-            <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/agreement')}>
-              <Text style={styles.checkinButtonText}>Read It Again</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkinButton} onPress={() => void Linking.openURL(TERMS_URL)}>
-              <Text style={styles.checkinButtonText}>Terms of Use</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.checkinButton} onPress={() => void Linking.openURL(PRIVACY_URL)}>
-              <Text style={styles.checkinButtonText}>Privacy Policy</Text>
-            </TouchableOpacity>
-          </View>
-        ) : null}
-      </View>
-
       {/* About Ghostead, 2026-10-03: who makes the app and why nothing about
           the person is collected, in the voice of ghostead.com when Playful
           wording is on. */}
@@ -5432,63 +5447,6 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      {/* Speech on This Phone: whether the offline speech pack is here, and
-          a way to get it. Android only; see lib/voicePack.ts. */}
-      {Platform.OS === 'android' ? (
-        <View style={styles.card}>
-          {renderCardHeader('voice-pack', 'Speech on This Phone')}
-          {!collapsedSections.has('voice-pack') ? (
-            <View style={styles.cardBody}>
-              <VoicePackPanel
-                textStyle={styles.helpText}
-                buttonStyle={styles.checkinButton}
-                buttonTextStyle={styles.checkinButtonText}
-              />
-            </View>
-          ) : null}
-        </View>
-      ) : null}
-
-      {/* Step 4 of the device-pairing prerequisite list, 2026-08-15, see
-          CLAUDE.md's "Sharing individual recipes between two people"
-          security-requirement note. Management for this device's paired
-          Connections lives on its own dedicated screen
-          (app/connections.tsx), not crammed into this already-large card
-          list; this is just the entry point. */}
-      <View style={styles.card}>
-        {renderCardHeader('connections', 'Connections')}
-        {!collapsedSections.has('connections') ? (
-          <View style={styles.cardBody}>
-            <Text style={styles.helpText}>
-              Invite someone to connect directly with you in Inside Story, so you can share recipes and more with each
-              other, and see who you&apos;ve already connected with.
-            </Text>
-            <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/connections')}>
-              <Text style={styles.checkinButtonText}>Manage Connections</Text>
-            </TouchableOpacity>
-            <Text style={styles.helpText}>{PEER_PHOTOS_WIFI_ONLY_LABEL}</Text>
-            <Text style={styles.helpText}>{PEER_PHOTOS_WIFI_ONLY_WHAT}</Text>
-            <View style={styles.pillRow}>
-              {[false, true].map((value) => {
-                const on = peerPhotosWifiOnly === value;
-                return (
-                  <TouchableOpacity
-                    key={value ? 'on' : 'off'}
-                    style={[styles.pill, on && styles.pillActive]}
-                    onPress={() => {
-                      setPeerPhotosWifiOnlyState(value);
-                      void setPeerPhotosWifiOnly(value);
-                    }}
-                  >
-                    <Text style={[styles.pillText, on && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-        ) : null}
-      </View>
-
       {/* App Lock, 2026-10-02: setting it up and its settings, in
           components/AppLockSettings.tsx. */}
       <View style={styles.card}>
@@ -5496,6 +5454,48 @@ export default function ProfileScreen() {
         {!collapsedSections.has('applock') ? (
           <View style={styles.cardBody}>
             <AppLockSettings />
+          </View>
+        ) : null}
+      </View>
+
+      {/* App Status, Phase A of the 2026-09-24 gap review: every "is this
+          working?" answer in one place, see lib/appStatus.ts. */}
+      <View style={styles.card}>
+        {renderCardHeader('app-status', 'App Status')}
+        {!collapsedSections.has('app-status') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Which version is running, which food data it scores against, whether reminders can arrive, and whether
+              backups and sync are working, all on one page.
+            </Text>
+            <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/app-status')}>
+              <Text style={styles.checkinButtonText}>See App Status</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+      </View>
+
+      {/* App Updates, 2026-08-28, see handleCheckForUpdates's own comment
+          above for the full "why this exists" reasoning: the app only
+          ever checks for a JS update automatically when it first launches,
+          never while already open, so this is the manual alternative to
+          force-closing and relaunching just to find out. */}
+      <View style={styles.card}>
+        {renderCardHeader('app-updates', 'App Updates')}
+        {!collapsedSections.has('app-updates') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Inside Story only checks for a new version automatically when it first opens, not while it&apos;s
+              already running. If you know an update was just sent out, check here instead of closing and
+              reopening the app.
+            </Text>
+            <Text style={[styles.helpText, styles.derivedText]}>
+              You&apos;re on version {APP_VERSION}. Checking is safe: if there&apos;s nothing new, nothing happens.
+              If there is, you&apos;ll be told what will happen and asked before anything restarts.
+            </Text>
+            <TouchableOpacity style={styles.checkinButton} disabled={updateCheckBusy} onPress={handleCheckForUpdates}>
+              <Text style={styles.checkinButtonText}>{updateCheckBusy ? 'Working…' : 'Check for Updates'}</Text>
+            </TouchableOpacity>
           </View>
         ) : null}
       </View>
@@ -5793,27 +5793,42 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      {/* App Updates, 2026-08-28, see handleCheckForUpdates's own comment
-          above for the full "why this exists" reasoning: the app only
-          ever checks for a JS update automatically when it first launches,
-          never while already open, so this is the manual alternative to
-          force-closing and relaunching just to find out. */}
+      {/* Step 4 of the device-pairing prerequisite list, 2026-08-15, see
+          CLAUDE.md's "Sharing individual recipes between two people"
+          security-requirement note. Management for this device's paired
+          Connections lives on its own dedicated screen
+          (app/connections.tsx), not crammed into this already-large card
+          list; this is just the entry point. */}
       <View style={styles.card}>
-        {renderCardHeader('app-updates', 'App Updates')}
-        {!collapsedSections.has('app-updates') ? (
+        {renderCardHeader('connections', 'Connections')}
+        {!collapsedSections.has('connections') ? (
           <View style={styles.cardBody}>
             <Text style={styles.helpText}>
-              Inside Story only checks for a new version automatically when it first opens, not while it&apos;s
-              already running. If you know an update was just sent out, check here instead of closing and
-              reopening the app.
+              Invite someone to connect directly with you in Inside Story, so you can share recipes and more with each
+              other, and see who you&apos;ve already connected with.
             </Text>
-            <Text style={[styles.helpText, styles.derivedText]}>
-              You&apos;re on version {APP_VERSION}. Checking is safe: if there&apos;s nothing new, nothing happens.
-              If there is, you&apos;ll be told what will happen and asked before anything restarts.
-            </Text>
-            <TouchableOpacity style={styles.checkinButton} disabled={updateCheckBusy} onPress={handleCheckForUpdates}>
-              <Text style={styles.checkinButtonText}>{updateCheckBusy ? 'Working…' : 'Check for Updates'}</Text>
+            <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/connections')}>
+              <Text style={styles.checkinButtonText}>Manage Connections</Text>
             </TouchableOpacity>
+            <Text style={styles.helpText}>{PEER_PHOTOS_WIFI_ONLY_LABEL}</Text>
+            <Text style={styles.helpText}>{PEER_PHOTOS_WIFI_ONLY_WHAT}</Text>
+            <View style={styles.pillRow}>
+              {[false, true].map((value) => {
+                const on = peerPhotosWifiOnly === value;
+                return (
+                  <TouchableOpacity
+                    key={value ? 'on' : 'off'}
+                    style={[styles.pill, on && styles.pillActive]}
+                    onPress={() => {
+                      setPeerPhotosWifiOnlyState(value);
+                      void setPeerPhotosWifiOnly(value);
+                    }}
+                  >
+                    <Text style={[styles.pillText, on && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
         ) : null}
       </View>
@@ -6076,6 +6091,46 @@ export default function ProfileScreen() {
           ) : null}
         </View>
       ) : null}
+
+      {/* Speech on This Phone: whether the offline speech pack is here, and
+          a way to get it. Android only; see lib/voicePack.ts. */}
+      {Platform.OS === 'android' ? (
+        <View style={styles.card}>
+          {renderCardHeader('voice-pack', 'Speech on This Phone')}
+          {!collapsedSections.has('voice-pack') ? (
+            <View style={styles.cardBody}>
+              <VoicePackPanel
+                textStyle={styles.helpText}
+                buttonStyle={styles.checkinButton}
+                buttonTextStyle={styles.checkinButtonText}
+              />
+            </View>
+          ) : null}
+        </View>
+      ) : null}
+
+      {/* The first-launch agreement (X2), readable again with the day it
+          was agreed to. See lib/agreement.ts. */}
+      <View style={styles.card}>
+        {renderCardHeader('agreement', 'What This App Is and Is Not')}
+        {!collapsedSections.has('agreement') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              The points you agreed to when you first opened the app: general information and your records, not
+              medical advice, not a diagnosis, and never allergy-safe.
+            </Text>
+            <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/agreement')}>
+              <Text style={styles.checkinButtonText}>Read It Again</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.checkinButton} onPress={() => void Linking.openURL(TERMS_URL)}>
+              <Text style={styles.checkinButtonText}>Terms of Use</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.checkinButton} onPress={() => void Linking.openURL(PRIVACY_URL)}>
+              <Text style={styles.checkinButtonText}>Privacy Policy</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+      </View>
       </View>) : null}
       </View>
     </ScrollView>
