@@ -3219,7 +3219,8 @@ export default function ProfileScreen() {
   // icon the default." The key stays 'seedTall' (not renamed to 'seed'),
   // see TabHubIconChoice's comment for why.
   const appIconOptions: { key: TabHubIconChoice; label: string }[] = [
-    { key: 'seedTall', label: 'Seed (App Default)' },
+    { key: 'insideStory', label: 'Inside Story (App Default)' },
+    { key: 'seedTall', label: 'Seed' },
   ];
   // 2026-08-14: the renamed former "Default" entry (the plain butterfly, key
   // unchanged at 'default') is seeded in here by hand, not derived from
@@ -5061,8 +5062,8 @@ export default function ProfileScreen() {
             {!collapsedAppearanceSubsections.has('tabHubIcon') ? (
               <>
                 <Text style={styles.helpText}>
-                  The main floating button used to open the app&apos;s navigation menu. Shows the seed by
-                  default. Pick any tracked condition&apos;s icon, any insect/pollinator icon, any of the 38
+                  The main floating button used to open the app&apos;s navigation menu. Shows the Inside Story
+                  book by default. Pick any tracked condition&apos;s icon, any insect/pollinator icon, any of the 38
                   animal portraits, or a Food tab builder icon below to personalize it instead. Only one
                   can be active at a time.
                 </Text>

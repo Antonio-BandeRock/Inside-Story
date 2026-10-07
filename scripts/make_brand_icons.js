@@ -88,6 +88,9 @@ async function png(svg, size, file) {
   await png(bookOnlySvg({ scale: 0.27 }), 432, 'assets/brand/android-icon-monochrome.png');
   // The splash: the window alone, laid on the ground colour by the plugin.
   await png(windowSvg({ scale: 0.46 }), 1024, 'assets/brand/splash-icon.png');
+  // The TabHub button: the window alone, filling a 312 px square (four
+  // times the 78 px it is drawn at), so it sits in the footer as a button.
+  await png(windowSvg({ scale: 0.47 }), 312, 'assets/branding/inside-story-window.png');
 })().catch((err) => {
   console.error(err);
   process.exit(1);

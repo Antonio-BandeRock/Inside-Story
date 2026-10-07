@@ -187,7 +187,10 @@ export type FoodBuilderIconChoice = 'dessertBuilder';
 // dependency on lib/digest/index.ts's own much larger content-aggregation
 // module -- the same precedent already established for
 // sixDimensionsReference.ts's own type-only import into lib/db.ts).
-export type TabHubIconChoice = 'default' | 'seedTall' | DigestCategoryKey | GardenIconChoice | AnimalIconChoice | FoodBuilderIconChoice;
+// 'insideStory' (2026-10-06) is the app icon itself, a white open book in
+// the Ghostead window, and the out-of-the-box choice from then on. The seed
+// stays as a choice of its own, so a device that saved it keeps it.
+export type TabHubIconChoice = 'default' | 'insideStory' | 'seedTall' | DigestCategoryKey | GardenIconChoice | AnimalIconChoice | FoodBuilderIconChoice;
 
 // A set of calming color combinations -- not meant to compete with the real
 // wildflower/produce/etc. photography, just a quieter alternative for
@@ -929,7 +932,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   tabProgressPicture: {},
   customBackgroundImages: {},
   genericPalette: 'ocean',
-  tabHubIcon: 'seedTall',
+  tabHubIcon: 'insideStory',
   groundTheme: 'ghostead',
   homeSectionVisibility: {},
   homeGroupVisibility: {},

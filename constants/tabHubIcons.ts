@@ -64,6 +64,9 @@ export const TAB_HUB_ICON_SOURCES: Partial<Record<TabHubIconChoice, ImageSourceP
   // choice, uniquely, doesn't render at the shared TAB_HUB_ICON_FIXED_HEIGHT
   // every other icon uses.
   seedTall: require('../assets/branding/seed-tall-transparent.png'),
+  // 'insideStory', 2026-10-06: the app icon, drawn by
+  // scripts/make_brand_icons.js, and the default from that day.
+  insideStory: require('../assets/branding/inside-story-window.png'),
   honeybee: require('../assets/branding/garden-icons/honeybee.png'),
   bumblebee: require('../assets/branding/garden-icons/bumblebee.png'),
   dragonfly: require('../assets/branding/garden-icons/dragonfly.png'),
@@ -222,6 +225,7 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
   // geometric center and every consumer is correct without needing its
   // own compensating offset.
   seedTall: [412, 491],
+  insideStory: [312, 312],
   // The 8 garden/pollinator icons, 2026-08-12 -- real, individually
   // measured pairs off the actual final (already-downsized) files, the
   // same jimp-based methodology as every other entry in this table, not
