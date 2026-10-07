@@ -25,6 +25,17 @@ import { colors, mixHex } from '../constants/colors';
 // every theme and still sits a step below the footer when used there.
 const WELL_FLOOR = mixHex(colors.background, '#000000', 0.4);
 
+// Contents sit on the centre of the OPEN part of the well, not of the drawn
+// circle. The catch of light on the lower right rim is close to the colour
+// of the card around it, so it reads as card rather than hole, and the
+// opening looks about one point narrower on that side. With small contents
+// nobody could see it, but once TabHub's icons grew to within a few points
+// of the edge they read as sitting right of centre, 2026-10-07: "The tabhub
+// icons are just barely right of the vertical center of the circle now...
+// Maybe it is the circle that is slightly off?" Padding on the right and
+// bottom moves the centre half that far up and to the left.
+const RIM_OPTICAL_PADDING = 1;
+
 export function ActiveRingCircle({
   size,
   glowColor,
@@ -33,7 +44,8 @@ export function ActiveRingCircle({
   rimOpacity = 0.2,
   children,
 }: {
-  // Diameter of the well. Content passed as `children` is centred in it.
+  // Diameter of the well. Content passed as `children` is centred on its
+  // open part (RIM_OPTICAL_PADDING above).
   size: number;
   // The colour of the faint light inside the well, normally the tab colour
   // of the icon sitting in it. Left out, the well has no glow.
@@ -82,5 +94,10 @@ export function ActiveRingCircle({
 }
 
 const styles = StyleSheet.create({
-  wrap: { alignItems: 'center', justifyContent: 'center' },
+  wrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingRight: RIM_OPTICAL_PADDING,
+    paddingBottom: RIM_OPTICAL_PADDING,
+  },
 });
