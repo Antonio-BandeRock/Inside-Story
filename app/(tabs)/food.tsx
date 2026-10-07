@@ -666,12 +666,9 @@ export default function FoodScreen() {
   const [fermentationSubtype, setFermentationSubtype] = useState<FermentationSubtypeKey | null>(null);
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
-  // Lifted out of MyItemsHub itself, 2026-08-16 -- so LensHub's own new
-  // "My Foods" top-left tile (see its extraTile prop below) can open THIS
-  // SAME popup, at its own already-established position, after closing
-  // itself first. MyItemsHub's own floating button (further down) still
-  // works exactly as it always has, fully independent of this state -- see
-  // that component's own open/onOpenChange comment for the full "why."
+  // Held here rather than inside MyItemsHub so the screen can open its My
+  // menu itself. Since 2026-10-07 the My menu is reached only from its own
+  // corner button, no longer from a tile in the LensHub grid.
   const [myFoodsOpen, setMyFoodsOpen] = useState(false);
   // The popup is where the saved-item lists live, and since 2026-09-24 it
   // is the only place they live. From 2026-08-23 this tab also drew the
@@ -1647,7 +1644,6 @@ export default function FoodScreen() {
         selected={revealed ? lens : undefined}
         columns={3}
         autoOpenSignal={autoOpenLensHub}
-        extraTile={{ label: 'My Foods', icon: 'bookmarks-outline', onPress: () => setMyFoodsOpen(true) }}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);

@@ -29,11 +29,10 @@ import { loadSuggestModel } from '../lib/captureSuggestDb';
 import { announcePhoneOnly } from '../lib/desktop/phoneOnly';
 import { useNavigationHand } from '../lib/navigationHand';
 import { explainNotYet } from '../lib/notYet';
+import { EdgeTab } from './EdgeTab';
 import { useInfoAlert } from './InfoAlert';
 import { ThumbRow } from './ThumbRow';
 
-const TAB_HEIGHT = 44;
-const TAB_WIDTH = 30;
 const GAP_ABOVE_FOOTER = 8;
 
 type Stage =
@@ -146,13 +145,13 @@ export function QuickCaptureButton() {
     router.push('/capture');
   }
 
-  const edgeStyle = hand === 'right' ? styles.tabOnRight : styles.tabOnLeft;
   const sheetSide = hand === 'right' ? { right: 8 } : { left: 8 };
 
   return (
     <>
-      <Pressable
-        style={({ pressed }) => [styles.tab, edgeStyle, { bottom }, pressed ? styles.tabPressed : null]}
+      <EdgeTab
+        side={hand}
+        bottom={bottom}
         onPress={openSheet}
         hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         accessibilityRole="button"
@@ -160,7 +159,7 @@ export function QuickCaptureButton() {
         accessibilityHint="Listens and saves what you say to the Capture inbox"
       >
         <Ionicons name="mic-outline" size={18} color={colors.textPrimary} />
-      </Pressable>
+      </EdgeTab>
       <Modal visible={open} transparent animationType="none" onRequestClose={close}>
         <Pressable style={styles.backdrop} onPress={close} accessible={false}>
           <Pressable style={[styles.sheet, { bottom }, sheetSide]} onPress={() => undefined} accessible={false}>
@@ -237,30 +236,6 @@ export function QuickCaptureButton() {
 }
 
 const styles = StyleSheet.create({
-  tab: {
-    position: 'absolute',
-    width: TAB_WIDTH,
-    height: TAB_HEIGHT,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    borderWidth: 1,
-    borderColor: colors.border,
-    opacity: 0.85,
-  },
-  tabOnRight: {
-    right: 0,
-    borderRightWidth: 0,
-    borderTopLeftRadius: 12,
-    borderBottomLeftRadius: 12,
-  },
-  tabOnLeft: {
-    left: 0,
-    borderLeftWidth: 0,
-    borderTopRightRadius: 12,
-    borderBottomRightRadius: 12,
-  },
-  tabPressed: { opacity: 1 },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' },
   sheet: {
     position: 'absolute',

@@ -15,6 +15,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, lighten, MENU_LABEL_LIGHTEN_FRACTION } from '../constants/colors';
 import {
   FLOATING_BUTTON_SIZE,
+  LENS_CORNER_LABEL_GAP,
+  LENS_CORNER_LABEL_LINE,
+  LENS_CORNER_LABEL_SIZE,
   useBottomLeftHubPosition,
   useHubMenuCardSpan,
   useMenuCardBottom,
@@ -342,7 +345,6 @@ export function LensHub<T extends string>({
   color,
   headerLabel,
   buttonLabel,
-  extraTile,
   columns = 2,
   infoInGrid = columns !== 2,
   itemLabelLines = 1,
@@ -411,29 +413,6 @@ export function LensHub<T extends string>({
   // pageTitle, same as the popup's own header does -- most callers don't
   // need this at all.
   buttonLabel?: string;
-  // A single, extra, real tile pinned at the very FRONT of the grid (top-
-  // left), rendered before any of `options` -- 2026-08-16, explicitly
-  // requested: "I think maybe the My Foods icon should be where it is AND
-  // in the Food LensHub menu at the top left... They can still pop up
-  // right where it already is, but only after it closes the Food LensHub
-  // menu first." Distinct from a real LensOption on purpose -- it doesn't
-  // correspond to any `T` (this page's own set of views), so it never
-  // shows the active-selection ring and never calls `onSelect`. Tapping it
-  // instead reuses the identical close-then-fire sequencing `choose()`
-  // already uses for a real selection (see chooseExtra below): this popup
-  // closes first, and only once it's actually gone does `onPress` fire --
-  // so a caller wiring this to e.g. MyItemsHub's own new `open`/
-  // `onOpenChange` props (see that component) gets the exact "close this
-  // menu, THEN open that one, at its own already-established position"
-  // sequencing asked for, not the two popups fighting for the screen at
-  // the same instant. Optional -- every existing page that doesn't pass
-  // this renders its grid exactly as before, with nothing new at the front
-  // of it.
-  extraTile?: {
-    label: string;
-    icon: ComponentProps<typeof Ionicons>['name'];
-    onPress: () => void;
-  };
   // Grid width, default 2 -- every page except Food. Food's own 9 options
   // explicitly asked to lay out 3 wide, 4 tall (2026-07-27), with Info
   // centered on that 4th row (see infoInGrid below) rather than floating
@@ -677,18 +656,6 @@ export function LensHub<T extends string>({
     setTimeout(() => onSelect(key), TAB_REVEAL_DURATION_MS);
   }
 
-  // Same close-then-fire sequencing as choose() just above, for the one
-  // real, optional extraTile pinned at the front of the grid (see its own
-  // comment) -- kept as a genuinely separate function rather than folded
-  // into choose() itself since it fires a plain, no-argument callback
-  // (opening some OTHER popup entirely, e.g. MyItemsHub) rather than
-  // onSelect(key: T) (picking a real view within THIS same page).
-  function chooseExtra() {
-    if (!extraTile) return;
-    setOpen(false);
-    setTimeout(() => extraTile.onPress(), TAB_REVEAL_DURATION_MS);
-  }
-
   // Independent of buttonBottom -- the button itself stays anchored inside
   // the footer band; only the popup card floats clear above it (see
   // useMenuCardBottom's own comment in constants/floatingButton.ts).
@@ -728,11 +695,7 @@ export function LensHub<T extends string>({
   // Digest's 2), there's no true middle to center on, so no padding at all
   // -- Info just renders as the very next tile after the real options,
   // landing in whatever slot that naturally is.
-  // + 1 for extraTile, 2026-08-16 -- it occupies one real cell of its own,
-  // rendered first (see the JSX below), so Info's own centering math has to
-  // count it the same as any other real tile or it'd land one cell off
-  // from where it visually should.
-  const effectiveItemCount = options.length + (extraTile ? 1 : 0);
+  const effectiveItemCount = options.length;
   const itemsInPartialRow = effectiveItemCount % gridColumns;
   const rowPadding = itemsInPartialRow === 0 ? 0 : gridColumns - itemsInPartialRow;
   // Real group headers (below) force a fresh row at every group boundary,
@@ -956,35 +919,6 @@ export function LensHub<T extends string>({
                 recomputeScrollHint();
               }}
             >
-              {/* extraTile, 2026-08-16 -- rendered first, so it lands at
-                  the true top-left of the grid regardless of how many real
-                  options follow it. Always in the plain/inactive pill
-                  style (never a ring): it doesn't correspond to any `T`,
-                  so there's no `selected` state for it to ever match.
-                  Icon color still uses tabColor unconditionally, matching
-                  every real option's own icon below (2026-07-26: icon
-                  color doesn't vary with active/inactive, only the
-                  label's does) -- reads as belonging to this page the same
-                  way every other tile here does. */}
-              {extraTile ? (
-                <TouchableOpacity
-                  style={[styles.item, { width: `${itemWidthPercent}%` }]}
-                  onPress={chooseExtra}
-                  activeOpacity={0.7}
-                >
-                  <View style={[styles.itemIconPillPlain, { width: gridPillSize, height: gridPillSize }]}>
-                    <Ionicons name={extraTile.icon} size={gridIconSize} color={tabColor} style={textShadow} />
-                  </View>
-                  <Text
-                    style={[styles.itemLabel, { color: lighten(colors.textMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
-                    numberOfLines={itemLabelLines}
-                    ellipsizeMode="tail"
-                    maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}
-                  >
-                    {extraTile.label}
-                  </Text>
-                </TouchableOpacity>
-              ) : null}
               {(() => {
                 // Tracks which group's own header has already been shown,
                 // mutated as the map below runs -- a plain closure
@@ -1278,8 +1212,11 @@ const styles = StyleSheet.create({
   // the label behave on a computer the way it always has on a phone.
   buttonLabel: {
     ...typography.caption,
-    fontSize: 11,
-    marginTop: 2,
+    // Sized from constants/floatingButton.ts, which MyItemsHub reads to sit
+    // its well on the same centre line as this button's.
+    fontSize: LENS_CORNER_LABEL_SIZE,
+    lineHeight: LENS_CORNER_LABEL_LINE,
+    marginTop: LENS_CORNER_LABEL_GAP,
     flexShrink: 0,
     ...CORNER_ICON_SHADOW,
   },
@@ -1444,7 +1381,7 @@ const styles = StyleSheet.create({
   // already sizes to its own text content changes nothing visible.
   // ...textShadow, 2026-08-21, direct request alongside the lighter
   // labelColor above -- same drop shadow this file's own icons (option
-  // glyphs, Info, extraTile) already carry via their own `style={textShadow}`.
+  // glyphs, Info) already carry via their own `style={textShadow}`.
   // menuLabelShadow, not the plain textShadow every icon in this file still
   // uses -- see that constant's own comment in constants/typography.ts for
   // why this needed its own, stronger shadow.

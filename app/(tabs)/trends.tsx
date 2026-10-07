@@ -17,6 +17,7 @@ import {
 } from '../../lib/groceryDb';
 import { formatMoney, groceryPriceUnitLabel } from '../../lib/groceryList';
 import { MyItemsHub } from '../../components/MyItemsHub';
+import { useMyItemsCategories } from '../../hooks/useMyItemsCategories';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
@@ -1168,12 +1169,14 @@ export default function TrendsScreen() {
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
-  // Lifted out of MyItemsHub itself, 2026-08-16 -- same reasoning as
-  // Food's own identical addition (app/(tabs)/food.tsx): lets LensHub's
-  // new "My Trends" top-left tile (see its extraTile prop below) open
-  // this SAME popup, at its own already-established position, after
-  // closing itself first. The standalone MyItemsHub button further down
-  // keeps working exactly as before regardless.
+  const openMyItemsLens = useCallback((key: string) => {
+    setLens(key as TrendsLens);
+    setRevealed(true);
+  }, []);
+  const myItems = useMyItemsCategories('trends', openMyItemsLens);
+  // Held here rather than inside MyItemsHub so the screen can open its My
+  // menu itself. Since 2026-10-07 the My menu is reached only from its own
+  // corner button, no longer from a tile in the LensHub grid.
   const [myTrendsOpen, setMyTrendsOpen] = useState(false);
   // Still used by the four lenses whose own picker didn't change.
   const [days, setDays] = useState<(typeof DAY_RANGE_OPTIONS)[number]['value']>(30);
@@ -3944,6 +3947,8 @@ export default function TrendsScreen() {
       <MyItemsHub
         label="My Trends"
         tabColor={TAB_COLOR}
+        categories={myItems.categories}
+        onOpen={myItems.load}
         open={myTrendsOpen}
         onOpenChange={setMyTrendsOpen}
       />
@@ -3953,7 +3958,6 @@ export default function TrendsScreen() {
         selected={revealed ? lens : undefined}
         columns={3}
         autoOpenSignal={autoOpenLensHub}
-        extraTile={{ label: 'My Trends', icon: 'bookmarks-outline', onPress: () => setMyTrendsOpen(true) }}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);

@@ -11,6 +11,7 @@ import {
   type MenuCardFit,
 } from '@/lib/menuFit';
 import { useNavigationHand } from '@/lib/navigationHand';
+import { MENU_MAX_FONT_SCALE, menuLineHeight } from './typography';
 
 // Shared sizing/position for the app's bottom-center floating buttons --
 // TabHub's own button and HelpSheet's close button both anchor to the
@@ -178,6 +179,22 @@ export function mirrorForHand(left: number, width: number, windowWidth: number, 
 // Items, which centers itself between the two, follows. Direct request,
 // 2026-09-21: "no matter how wide the app is made to be, the menus are always
 // toward the middle of the window and available for quick access."
+// The LensHub corner button holds its icon's well and the lens name under
+// it inside one FLOATING_BUTTON_SIZE box, centred as a pair, so the well
+// sits higher than the box's middle by half the label's height. 2026-10-07,
+// direct request: "Make the horizontal centers of the Tab LensHub menu and the
+// My (whatever) menu pressed-in circle align." MyItemsHub lifts its button by
+// the same amount, read from here so the two can never drift apart. The label
+// carries LENS_CORNER_LABEL_LINE as its lineHeight for the same reason.
+export const LENS_CORNER_LABEL_SIZE = 11;
+export const LENS_CORNER_LABEL_GAP = 2;
+export const LENS_CORNER_LABEL_LINE = menuLineHeight(LENS_CORNER_LABEL_SIZE);
+export function useLensCornerWellRise(): number {
+  const { fontScale } = useWindowDimensions();
+  const scale = Number.isFinite(fontScale) ? Math.min(fontScale, MENU_MAX_FONT_SCALE) : 1;
+  return (LENS_CORNER_LABEL_GAP + LENS_CORNER_LABEL_LINE * scale) / 2;
+}
+
 export function useBottomLeftHubPosition(): { bottom: number; left: number } {
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();

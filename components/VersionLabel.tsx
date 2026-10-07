@@ -46,8 +46,11 @@ const GAP_BELOW_BUTTON = 4;
 // two extra pixels are where it sits, not how tall the text is.
 const LABEL_LINE_HEIGHT = 14;
 // How far below the button row's own bottom edge the label sits. Was 10 when
-// first tuned on-device, moved up by 5 on 2026-08-30 by direct request.
-const DROP_BELOW_BUTTON = 5;
+// first tuned on-device, moved up by 5 on 2026-08-30 by direct request, and
+// down 2 on 2026-10-07 once the TabHub well grew to 88 px: "The size change of
+// the pressed-in TabHub icon has caused the need for the version under it to
+// be dropped a few more pixels down, maybe 2."
+const DROP_BELOW_BUTTON = 7;
 
 // The mug, 2026-10-03, direct request: "Can just the mug pop up when you long
 // press the version on the outside of Profile?" The Ghostead trailer's mug,

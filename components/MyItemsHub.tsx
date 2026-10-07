@@ -10,6 +10,7 @@ import {
   useBottomLeftHubPosition,
   useMenuCardBottom,
   useMenuCardFit,
+  useLensCornerWellRise,
   useSecondaryHubCardLeft,
 } from '../constants/floatingButton';
 import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
@@ -106,10 +107,9 @@ export function MyItemsHub({
   // `open` flip, see below).
   onOpen?: () => void;
   // 2026-08-16, both optional: lets a parent screen open this SAME popup
-  // itself, from outside the button below -- added for LensHub's own new
-  // extraTile prop (see that component), which needs to close ITSELF first
-  // and only then open this one, at its own already-established position,
-  // rather than the two popups appearing at the same instant. Every
+  // itself, from outside the button below. It was added for a tile in the
+  // LensHub grid that has since been removed (2026-10-07); the screens still
+  // hold this state so they can open the menu themselves. Every
   // existing "My X" hub built before this keeps working exactly as it
   // always has, fully self-contained with its own internal open/close
   // state and no parent involvement at all -- only a caller that actually
@@ -199,7 +199,10 @@ export function MyItemsHub({
   // buttons occupy, rather than sharing their `bottom` directly (this
   // button is shorter than that row, so bottom-aligning it would sit its
   // icon noticeably lower than theirs).
-  const buttonBottom = rowBottom + (FLOATING_BUTTON_SIZE - TOUCH_SIZE) / 2;
+  // Lifted by the same amount LensHub's lens name lifts its well, so the two
+  // wells share one centre line (useLensCornerWellRise).
+  const wellRise = useLensCornerWellRise();
+  const buttonBottom = rowBottom + (FLOATING_BUTTON_SIZE - TOUCH_SIZE) / 2 + wellRise;
   // A submenu instance has no button of its own, so it registers nothing;
   // it still renders the stand-ins, since it is a full-screen menu too.
   const handoff = useHubHandoff(
@@ -255,7 +258,7 @@ export function MyItemsHub({
             <Text style={[styles.cardHeader, { color: tabColor }]} maxFontSizeMultiplier={MENU_MAX_FONT_SCALE}>
               {label}
             </Text>
-            {categories ? (
+            {categories && categories.length > 0 ? (
               <ScrollView style={styles.categoriesScroll} showsVerticalScrollIndicator={false}>
                 {categories.map((category) => (
                   <TouchableOpacity
@@ -276,7 +279,7 @@ export function MyItemsHub({
               </ScrollView>
             ) : (
               <Text style={styles.emptyText}>
-                {"Nothing saved yet. Once you're able to save or favorite things here, they'll show up in this list."}
+                {"Nothing made here yet. Whatever you save or record on this tab shows up in this list, grouped by kind."}
               </Text>
             )}
           </View>

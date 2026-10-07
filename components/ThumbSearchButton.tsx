@@ -10,18 +10,16 @@
 // typing comes from a real keyboard.
 import { Ionicons } from '@expo/vector-icons';
 import { useSyncExternalStore } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
 import { colors } from '../constants/colors';
 import { useFooterBandHeight } from '../constants/floatingButton';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { useNavigationHand } from '../lib/navigationHand';
 import { hasThumbSearch, openThumbSearch, subscribeThumbSearch } from '../lib/thumbSearch';
+import { EDGE_TAB_HEIGHT, EdgeTab } from './EdgeTab';
 
-const TAB_HEIGHT = 44;
-const TAB_WIDTH = 30;
-// The voice note tab sits 8 above the footer and is 44 tall; this one sits 8
-// above that.
-const BOTTOM_ABOVE_FOOTER = 8 + 44 + 8;
+// The voice note tab sits 8 above the footer and is EDGE_TAB_HEIGHT tall; this
+// one sits 8 above that.
+const BOTTOM_ABOVE_FOOTER = 8 + EDGE_TAB_HEIGHT + 8;
 
 export function ThumbSearchButton() {
   const hand = useNavigationHand();
@@ -30,13 +28,9 @@ export function ThumbSearchButton() {
   if (!available || isDesktopApp()) return null;
 
   return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.tab,
-        hand === 'right' ? styles.tabOnRight : styles.tabOnLeft,
-        { bottom: footerHeight + BOTTOM_ABOVE_FOOTER },
-        pressed ? styles.tabPressed : null,
-      ]}
+    <EdgeTab
+      side={hand}
+      bottom={footerHeight + BOTTOM_ABOVE_FOOTER}
       onPress={() => {
         openThumbSearch();
       }}
@@ -46,33 +40,6 @@ export function ThumbSearchButton() {
       accessibilityHint="Puts this screen's search box just above the keys"
     >
       <Ionicons name="search-outline" size={18} color={colors.textPrimary} />
-    </Pressable>
+    </EdgeTab>
   );
 }
-
-const styles = StyleSheet.create({
-  tab: {
-    position: 'absolute',
-    width: TAB_WIDTH,
-    height: TAB_HEIGHT,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    borderWidth: 1,
-    borderColor: colors.border,
-    opacity: 0.85,
-  },
-  tabOnRight: {
-    right: 0,
-    borderRightWidth: 0,
-    borderTopLeftRadius: 12,
-    borderBottomLeftRadius: 12,
-  },
-  tabOnLeft: {
-    left: 0,
-    borderLeftWidth: 0,
-    borderTopRightRadius: 12,
-    borderBottomRightRadius: 12,
-  },
-  tabPressed: { opacity: 1 },
-});

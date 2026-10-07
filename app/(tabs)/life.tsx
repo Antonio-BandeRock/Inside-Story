@@ -37,6 +37,7 @@ import type { HelpSection } from '../../components/HelpButton';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
+import { useMyItemsCategories } from '../../hooks/useMyItemsCategories';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
@@ -805,6 +806,16 @@ export default function LifeScreen() {
   // entry in place, with no route push, and clears when the menu picks
   // something else. An entry that lives on another tab is pushed there.
   const [jumpEntryId, setJumpEntryId] = useState<string | undefined>(undefined);
+  const openMyItemsLens = useCallback((key: string) => {
+    if (key === 'groceryList') {
+      router.push('/grocery-list');
+      return;
+    }
+    setJumpEntryId(undefined);
+    setLens(key as LifeLens);
+    setRevealed(true);
+  }, [router]);
+  const myItems = useMyItemsCategories('life', openMyItemsLens);
   const jumpElsewhere = useCallback((id: string) => {
     const entry = findDigestEntryById(id);
     if (!entry) return;
@@ -2079,14 +2090,20 @@ export default function LifeScreen() {
       </SwipeableTabScreen>
 
       <PageIdentityLabel title="Life" activeLensLabel={revealed ? activeLensLabel : undefined} />
-      <MyItemsHub label="My Life" tabColor={TAB_COLOR} open={myLifeOpen} onOpenChange={setMyLifeOpen} />
+      <MyItemsHub
+        label="My Life"
+        tabColor={TAB_COLOR}
+        categories={myItems.categories}
+        onOpen={myItems.load}
+        open={myLifeOpen}
+        onOpenChange={setMyLifeOpen}
+      />
       <LensHub
         pageTitle="Life"
         options={LIFE_LENSES}
         selected={revealed ? lens : undefined}
         columns={3}
         autoOpenSignal={autoOpenLensHub}
-        extraTile={{ label: 'My Life', icon: 'bookmarks-outline', onPress: () => setMyLifeOpen(true) }}
         onSelect={(key) => {
           // Opens the grocery list screen itself, with no list id so it lands
           // on whichever list is active, exactly what Home's own row does.

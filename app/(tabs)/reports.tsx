@@ -12,7 +12,7 @@ import { ReportHistoryBand } from '../../components/ReportHistoryBand';
 import { ReportSectionChooser } from '../../components/ReportSectionChooser';
 import { YourStoryMissingLine } from '../../components/YourStoryMissingLine';
 import { LensHub, type LensOption } from '../../components/LensHub';
-import { MyItemsHub } from '../../components/MyItemsHub';
+import { MyItemsHub, type MyItemsCategory } from '../../components/MyItemsHub';
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
@@ -24,7 +24,7 @@ import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { buildReport, renderReportText, type ReportDocument } from '../../lib/reportGenerator';
 import { againRange, type ReportHistoryEntry, type ReportSentHow } from '../../lib/reportHistory';
-import { recordReportSent } from '../../lib/reportHistoryDb';
+import { listReportHistory, recordReportSent } from '../../lib/reportHistoryDb';
 import { cleanLeftOut, REPORT_KINDS, type ReportKind, type ReportSectionId } from '../../lib/reportKinds';
 import { getReportLeftOut, setReportLeftOut } from '../../lib/reportSectionsDb';
 import { exportReportAsPdf, printReport } from '../../lib/reportPdf';
@@ -145,6 +145,28 @@ export default function ReportsScreen() {
   const [lens, setLens] = useState<ReportsLens>('overview');
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
+  // My Reports, 2026-10-07: every report made, counted by which report it
+  // was, each row opening that report with its history underneath.
+  const [myReports, setMyReports] = useState<MyItemsCategory[] | undefined>(undefined);
+  const loadMyReports = useCallback(() => {
+    listReportHistory()
+      .then((entries) => {
+        setMyReports(
+          REPORT_KINDS.map((def) => ({ def, count: entries.filter((entry) => entry.kind === def.key).length }))
+            .filter(({ count }) => count > 0)
+            .map(({ def, count }) => ({
+              id: def.key,
+              label: def.label,
+              count,
+              onPress: () => {
+                setLens(def.key);
+                setRevealed(true);
+              },
+            })),
+        );
+      })
+      .catch(() => setMyReports([]));
+  }, []);
   const [range, setRange] = useState<DayRange>(30);
   const [customStart, setCustomStart] = useState<string>(() => daysAgoString(13));
   // The last appointment that has happened, read on focus so a visit added
@@ -168,12 +190,9 @@ export default function ReportsScreen() {
   // Your Story's tour names a report by its key (1.0.52.7), the way it
   // names a Trends or Insights lens.
   const { openReportDays, openReportsLens } = useLocalSearchParams<{ openReportDays?: string; openReportsLens?: string }>();
-  // Lifted out of MyItemsHub itself, 2026-08-16 -- same reasoning as
-  // Food's own identical addition (app/(tabs)/food.tsx): lets LensHub's
-  // new "My Reports" top-left tile (see its extraTile prop below) open
-  // this SAME popup, at its own already-established position, after
-  // closing itself first. The standalone MyItemsHub button further down
-  // keeps working exactly as before regardless.
+  // Held here rather than inside MyItemsHub so the screen can open its My
+  // menu itself. Since 2026-10-07 the My menu is reached only from its own
+  // corner button, no longer from a tile in the LensHub grid.
   const [myReportsOpen, setMyReportsOpen] = useState(false);
   useFocusEffect(
     useCallback(() => {
@@ -512,6 +531,8 @@ export default function ReportsScreen() {
       <MyItemsHub
         label="My Reports"
         tabColor={TAB_COLOR}
+        categories={myReports}
+        onOpen={loadMyReports}
         open={myReportsOpen}
         onOpenChange={setMyReportsOpen}
       />
@@ -521,7 +542,6 @@ export default function ReportsScreen() {
         selected={revealed ? lens : undefined}
         columns={3}
         autoOpenSignal={autoOpenLensHub}
-        extraTile={{ label: 'My Reports', icon: 'bookmarks-outline', onPress: () => setMyReportsOpen(true) }}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);

@@ -140,6 +140,7 @@ import { ActiveRingCircle } from '../../components/ActiveRingCircle';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
+import { useMyItemsCategories } from '../../hooks/useMyItemsCategories';
 import { LabSheetBand } from '../../components/LabSheetBand';
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { ProgressRing } from '../../components/ProgressRing';
@@ -720,12 +721,14 @@ export default function InsightsScreen() {
   // "pick a function" prompt first, never an instant resume -- confirmed
   // product behavior, not an oversight.
   const [revealed, setRevealed] = useState(false);
-  // Lifted out of MyItemsHub itself, 2026-08-16 -- same reasoning as
-  // Food's own identical addition (app/(tabs)/food.tsx): lets LensHub's
-  // new "My Insights" top-left tile (see its extraTile prop below) open
-  // this SAME popup, at its own already-established position, after
-  // closing itself first. The standalone MyItemsHub button further down
-  // keeps working exactly as before regardless.
+  const openMyItemsLens = useCallback((key: string) => {
+    setLens(key as Lens);
+    setRevealed(true);
+  }, []);
+  const myItems = useMyItemsCategories('insights', openMyItemsLens);
+  // Held here rather than inside MyItemsHub so the screen can open its My
+  // menu itself. Since 2026-10-07 the My menu is reached only from its own
+  // corner button, no longer from a tile in the LensHub grid.
   const [myInsightsOpen, setMyInsightsOpen] = useState(false);
   useFocusEffect(
     useCallback(() => {
@@ -1486,6 +1489,8 @@ export default function InsightsScreen() {
       <MyItemsHub
         label="My Insights"
         tabColor={TAB_COLOR}
+        categories={myItems.categories}
+        onOpen={myItems.load}
         open={myInsightsOpen}
         onOpenChange={setMyInsightsOpen}
       />
@@ -1495,7 +1500,6 @@ export default function InsightsScreen() {
         selected={revealed ? lens : undefined}
         columns={3}
         autoOpenSignal={autoOpenLensHub}
-        extraTile={{ label: 'My Insights', icon: 'bookmarks-outline', onPress: () => setMyInsightsOpen(true) }}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);

@@ -26,9 +26,8 @@ import { useFooterBandHeight } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { farSide, setNavigationHand, useNavigationHand, type NavigationHand } from '../lib/navigationHand';
 import { useConfirmSheet } from './ConfirmSheet';
+import { EDGE_TAB_HEIGHT, EdgeTab } from './EdgeTab';
 
-const TAB_HEIGHT = 44;
-const TAB_WIDTH = 30;
 const GAP_ABOVE_FOOTER = 8;
 const FLYOUT_SHOWN_MS = 6000;
 const FLYOUT_WIDTH = 240;
@@ -83,8 +82,6 @@ export function HandSwitchButton() {
     if (ok) setNavigationHand(side);
   }
 
-  const edgeStyle = side === 'right' ? styles.tabOnRight : styles.tabOnLeft;
-
   return (
     <>
       {flyout ? (
@@ -92,7 +89,7 @@ export function HandSwitchButton() {
           <View
             style={[
               styles.flyout,
-              { bottom: bottom + TAB_HEIGHT + 8 },
+              { bottom: bottom + EDGE_TAB_HEIGHT + 8 },
               side === 'right' ? { right: 8 } : { left: 8 },
             ]}
           >
@@ -104,8 +101,9 @@ export function HandSwitchButton() {
           </View>
         </Pressable>
       ) : null}
-      <Pressable
-        style={({ pressed }) => [styles.tab, edgeStyle, { bottom }, pressed ? styles.tabPressed : null]}
+      <EdgeTab
+        side={side}
+        bottom={bottom}
         onPress={showFlyout}
         onLongPress={() => void askToSwitch()}
         delayLongPress={450}
@@ -117,37 +115,13 @@ export function HandSwitchButton() {
         onAccessibilityAction={() => void askToSwitch()}
       >
         <Ionicons name={side === 'right' ? 'hand-right-outline' : 'hand-left-outline'} size={18} color={colors.textPrimary} />
-      </Pressable>
+      </EdgeTab>
       {confirmElement}
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  tab: {
-    position: 'absolute',
-    width: TAB_WIDTH,
-    height: TAB_HEIGHT,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    borderWidth: 1,
-    borderColor: colors.border,
-    opacity: 0.85,
-  },
-  tabOnRight: {
-    right: 0,
-    borderRightWidth: 0,
-    borderTopLeftRadius: 12,
-    borderBottomLeftRadius: 12,
-  },
-  tabOnLeft: {
-    left: 0,
-    borderLeftWidth: 0,
-    borderTopRightRadius: 12,
-    borderBottomRightRadius: 12,
-  },
-  tabPressed: { opacity: 1 },
   flyout: {
     position: 'absolute',
     width: FLYOUT_WIDTH,

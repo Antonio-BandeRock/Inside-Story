@@ -6869,12 +6869,9 @@ export default function ScheduleScreen() {
   // indefinitely; only `revealed` resets on focus, so every arrival shows
   // the resting prompt first, never an instant resume.
   const [revealed, setRevealed] = useState(false);
-  // Lifted out of MyItemsHub itself, 2026-08-16 -- same reasoning as
-  // Food's own identical addition (app/(tabs)/food.tsx): lets LensHub's
-  // new "My Schedules" top-left tile (see its extraTile prop below) open
-  // this SAME popup, at its own already-established position, after
-  // closing itself first. The standalone MyItemsHub button further down
-  // keeps working exactly as before regardless.
+  // Held here rather than inside MyItemsHub so the screen can open its My
+  // menu itself. Since 2026-10-07 the My menu is reached only from its own
+  // corner button, no longer from a tile in the LensHub grid.
   const [mySchedulesOpen, setMySchedulesOpen] = useState(false);
   // 2026-08-30, direct report: "After generating my meal plan and putting
   // it onto a schedule, it isn't listed in My Schedules." Confirmed by
@@ -6991,17 +6988,6 @@ export default function ScheduleScreen() {
         selected={revealed ? lens : undefined}
         columns={3}
         autoOpenSignal={autoOpenLensHub}
-        extraTile={{
-          label: 'My Schedules',
-          icon: 'bookmarks-outline',
-          onPress: () => {
-            // MyItemsHub's own onOpen only fires for its own button, so
-            // opening the popup this way has to load the counts itself or
-            // the same menu would show stale/absent numbers.
-            loadScheduleCounts();
-            setMySchedulesOpen(true);
-          },
-        }}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);
