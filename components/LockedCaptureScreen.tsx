@@ -4,28 +4,29 @@
 // allows to appear over the lock screen without unlocking. You'd pull down the
 // tile or tap a button on a notification you keep in the shade, enter your
 // Inside Story code, speak, and it saves. The phone stays locked the whole
-// time." And the camera: "a photo straight into Capture ... Taken while the
+// time." Then, 2026-10-07: "This is supposed to be a one step process that
+// never has to unlock the phone and never has to unlock the app." So no code
+// is asked for any more: the screen starts listening, or opens the camera,
+// the moment it appears. And the camera: "a photo straight into Capture ... Taken while the
 // phone is locked, it would be sealed the same way, so the photo can't be
 // looked at until you unlock."
 //
 // Registered in index.js as "LockedCapture" and shown only by
 // LockedCaptureActivity (plugins/withCaptureTile.js). It is not the app: no
-// router, no database, no tab. The code is checked the same way the lock
-// screen checks it (checkPasscode, with its waits after wrong tries), and the
-// key that check opens is let go of straight away, since sealing needs only
-// the public key in the lock file. What is said or photographed is sealed
+// router, no database, no tab. Sealing needs only the public key in the lock
+// file, which opens nothing, so asking for the code here protected nothing:
+// somebody holding the phone can add a note but can read none, not even the
+// one they just added. What is said or photographed is sealed
 // (lib/lockedCaptures.ts) and written into Capture on the next unlock.
 
 import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { File } from 'expo-file-system';
 import { useEffect, useRef, useState } from 'react';
-import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
 import { useVoiceDictation, type VoiceDictationErrorKind } from '../hooks/useVoiceDictation';
-import { waitLabel } from '../lib/appLock';
-import { checkPasscode } from '../lib/appLockDevice';
 import { readLockStateSync } from '../lib/appLockSession';
 import { PHOTO_CAPTURE_TEXT, cleanCaptureText, isCaptureTextUsable } from '../lib/captureNotes';
 import { canSealCaptures, keepCaptureForUnlock, photoFileToBase64, setLockedCaptureShowing } from '../lib/lockedCaptures';
@@ -35,7 +36,6 @@ import LockedCapture from '../modules/locked-capture';
 type Mode = 'voice' | 'photo';
 
 type Stage =
-  | { kind: 'code' }
   | { kind: 'listening' }
   | { kind: 'camera' }
   | { kind: 'saving' }
@@ -70,10 +70,7 @@ function removeFile(uri: string | null | undefined) {
 
 export function LockedCaptureScreen({ mode: startMode }: { mode?: string }) {
   const [mode, setMode] = useState<Mode>(startMode === 'photo' ? 'photo' : 'voice');
-  const [stage, setStage] = useState<Stage>({ kind: 'code' });
-  const [code, setCode] = useState('');
-  const [checking, setChecking] = useState(false);
-  const [codeMessage, setCodeMessage] = useState<string | null>(null);
+  const [stage, setStage] = useState<Stage>({ kind: startMode === 'photo' ? 'camera' : 'listening' });
   const [heard, setHeard] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const savedOnce = useRef(false);
@@ -133,33 +130,15 @@ export function LockedCaptureScreen({ mode: startMode }: { mode?: string }) {
     if (!permission?.granted) void requestPermission();
   }
 
-  async function submitCode() {
-    if (checking) return;
-    if (!code) {
-      setCodeMessage('Type your Inside Story code first.');
-      return;
-    }
-    setChecking(true);
-    setCodeMessage(null);
-    try {
-      const result = await checkPasscode(code);
-      if (result.kind === 'key') {
-        // Sealing needs only the public key in the lock file, so the key the
-        // code opened is not kept anywhere on this screen.
-        setCode('');
-        begin(mode);
-        return;
-      }
-      setCode('');
-      if (result.kind === 'wait') setCodeMessage(`Too many wrong tries. Try again in ${waitLabel(result.waitMs)}.`);
-      else if (result.waitMs > 0) setCodeMessage(`That code is not right. The next try can be made in ${waitLabel(result.waitMs)}.`);
-      else setCodeMessage('That code is not right.');
-    } catch (error) {
-      setCodeMessage(error instanceof Error && error.message ? error.message : 'The code could not be checked.');
-    } finally {
-      setChecking(false);
-    }
-  }
+  // One step: the microphone or the camera starts as the screen appears.
+  const started = useRef(false);
+  useEffect(() => {
+    if (started.current || !ready) return;
+    started.current = true;
+    begin(mode);
+    // Once, on the first draw; begin is not stable and must not rerun it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ready]);
 
   function finishListening() {
     const text = heard.trim();
@@ -215,7 +194,7 @@ export function LockedCaptureScreen({ mode: startMode }: { mode?: string }) {
         <View style={styles.card}>
           <Text style={styles.title}>Unlock the phone first</Text>
           <Text style={styles.hint}>
-            Notes over the lock screen are sealed to your Inside Story code, and App Lock is not set up on this phone. Unlock the phone and
+            Notes over the lock screen are sealed with App Lock, and App Lock is not set up on this phone. Unlock the phone and
             Capture opens in the app instead.
           </Text>
           <TouchableOpacity style={styles.primaryButton} onPress={close}>
@@ -271,47 +250,9 @@ export function LockedCaptureScreen({ mode: startMode }: { mode?: string }) {
   }
 
   return (
-    <KeyboardAvoidingView style={styles.screen} behavior="height">
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+    <View style={styles.screen}>
+      <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.card}>
-          {stage.kind === 'code' ? (
-            <>
-              <View style={styles.titleRow}>
-                <Ionicons name={mode === 'voice' ? 'mic' : 'camera'} size={20} color={colors.primary} />
-                <Text style={styles.title}>{mode === 'voice' ? 'Voice note for Capture' : 'Photo for Capture'}</Text>
-              </View>
-              <Text style={styles.hint}>
-                Type your Inside Story code. The phone stays locked, and what you keep is sealed until Inside Story is next unlocked.
-              </Text>
-              <TextInput
-                style={styles.input}
-                value={code}
-                onChangeText={(next) => {
-                  setCode(next);
-                  setCodeMessage(null);
-                }}
-                secureTextEntry
-                autoFocus
-                keyboardType={lockState?.passcodeKind === 'digits' ? 'number-pad' : 'default'}
-                autoCapitalize="none"
-                autoCorrect={false}
-                returnKeyType="go"
-                onSubmitEditing={() => void submitCode()}
-                placeholder="Inside Story code"
-                placeholderTextColor={colors.textMuted}
-                accessibilityLabel="Inside Story code"
-              />
-              {codeMessage ? <Text style={styles.warning}>{codeMessage}</Text> : null}
-              <View style={styles.actions}>
-                <TouchableOpacity style={styles.secondaryButton} onPress={cancel}>
-                  <Text style={styles.secondaryText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.primaryButton} onPress={() => void submitCode()}>
-                  <Text style={styles.primaryText}>{checking ? 'Checking…' : 'Continue'}</Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          ) : null}
           {stage.kind === 'listening' ? (
             <>
               <View style={styles.titleRow}>
@@ -372,7 +313,7 @@ export function LockedCaptureScreen({ mode: startMode }: { mode?: string }) {
           ) : null}
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -393,16 +334,6 @@ const styles = StyleSheet.create({
   heard: { ...typography.body, color: colors.textPrimary, ...textShadow },
   hint: { ...typography.caption, color: colors.textSecondary, ...textShadow },
   warning: { ...typography.caption, color: colors.danger, ...textShadow },
-  input: {
-    ...typography.body,
-    color: colors.textPrimary,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: colors.background,
-  },
   actions: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 12, marginTop: 4 },
   primaryButton: { paddingVertical: 10, paddingHorizontal: 18, borderRadius: 10, backgroundColor: colors.primary },
   primaryText: { ...typography.bodyEmphasis, color: colors.textOnPrimary, fontWeight: '400' },

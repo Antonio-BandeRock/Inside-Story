@@ -7,8 +7,8 @@
 // photo can't be looked at until you unlock."
 //
 // The capture screen over the lock screen (components/LockedCaptureScreen.tsx)
-// cannot open the database: the code it asks for proves who is there, and
-// the key it opens is let go of at once. What was said or photographed is
+// cannot open the database and asks for no code (2026-10-07: one step, never
+// unlocking the phone or the app). What was said or photographed is
 // sealed to the same public key reminder presses use (lib/lockedAnswers.ts)
 // and kept as one file per capture in a folder beside the lock file. The
 // locked app can add files and cannot read them back. The next time Inside

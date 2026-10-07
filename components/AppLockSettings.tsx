@@ -60,8 +60,8 @@ function ShadeButtonsSetting() {
       </View>
       <Text style={styles.caption}>
         {readLockStateSync()?.phase === 'on'
-          ? 'Pull down the shade, press Voice Note or Photo, and type your passcode. The phone stays locked, and what you keep is sealed until Inside Story is next unlocked. The same two buttons can be added as quick settings tiles.'
-          : 'Pull down the shade and press Voice Note or Photo. With App Lock set up these work over the lock screen with your passcode; without it the phone asks to be unlocked first. The same two buttons can be added as quick settings tiles.'}
+          ? 'Pull down the shade and press Voice Note or Photo. It starts listening, or opens the camera, straight away, with no code and the phone still locked. What you keep is sealed until Inside Story is next unlocked, so nobody holding the phone can read it. The same two buttons can be added as quick settings tiles.'
+          : 'Pull down the shade and press Voice Note or Photo. With App Lock set up these work over the lock screen with no code at all; without it the phone asks to be unlocked first. The same two buttons can be added as quick settings tiles.'}
       </Text>
     </>
   );

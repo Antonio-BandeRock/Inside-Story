@@ -1626,17 +1626,27 @@ async function answerPress(response: Notifications.NotificationResponse): Promis
     await refreshWaitingSummary();
     return;
   }
-  if (!(await claimAnswer(responseKey(response)))) return;
   const data = request.content.data as Partial<ReminderPayload> | undefined;
   const kind = data?.kind ?? '';
-  if (response.actionIdentifier === SNOOZE_ACTION) {
+  const snooze = response.actionIdentifier === SNOOZE_ACTION;
+  const plan = !snooze && data?.kind ? planReminderAction(data.kind, response.actionIdentifier) : null;
+  // The reminder leaves the screen the moment the press is recognised, before
+  // anything is written. It used to go only after the press was noted, so a
+  // press noted once and then cut short (the app closed under it) left a
+  // reminder no later press could clear, since each one was turned away as
+  // already handled before reaching the dismiss (2026-10-07).
+  if (plan) await Notifications.dismissNotificationAsync(request.identifier).catch(() => undefined);
+  if (!(await claimAnswer(responseKey(response)))) {
+    console.log('[reminderPress] already noted', request.identifier, response.actionIdentifier);
+    await refreshWaitingSummary();
+    return;
+  }
+  if (snooze) {
     await snoozeReminder(response);
     await refreshWaitingSummary();
     return;
   }
-  const plan = data?.kind ? planReminderAction(data.kind, response.actionIdentifier) : null;
   if (!plan) return;
-  await Notifications.dismissNotificationAsync(request.identifier).catch(() => undefined);
   const words = (response.userText ?? '').trim();
   try {
     await withSessionGuardLifted(() => recordAnswer(plan, data?.scheduleItemId ?? '', words, kind));
