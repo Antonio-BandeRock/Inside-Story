@@ -7,7 +7,6 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Icon
 
 // The Capture buttons kept in the notification shade (1.0.62.1). Direct
 // request, 2026-10-05: "tap a button on a notification you keep in the
@@ -19,11 +18,19 @@ import android.graphics.drawable.Icon
 // phone's own unlock first when App Lock is off, and straight into Capture
 // when the phone is already unlocked. The notification carries no words
 // from anybody's records, so it is safe to show on the lock screen.
+//
+// Two notifications, each opened by a tap on itself, rather than one with
+// two buttons (2026-10-07). Samsung's shade sends every press of a
+// notification BUTTON that opens a screen through the phone's own unlock
+// first, whatever that screen allows; a tap on the notification itself goes
+// straight to a screen that may show over the lock screen. Seen in the
+// phone's log as dismissKeyguardThenExecute on each button press.
 object ShadeButtons {
   private const val PREFS = "inside_story_locked_capture"
   private const val KEY_ON = "shade_buttons"
   private const val CHANNEL_ID = "capture-buttons"
   private const val NOTIFICATION_ID = 61016
+  private const val PHOTO_NOTIFICATION_ID = 61017
   const val ACTION_DISMISSED = "expo.modules.lockedcapture.SHADE_BUTTONS_DISMISSED"
 
   fun isOn(context: Context): Boolean =
@@ -62,27 +69,30 @@ object ShadeButtons {
       }
     )
     val small = drawable(context, "notification_icon", android.R.drawable.ic_btn_speak_now)
-    val voiceIcon = Icon.createWithResource(context, drawable(context, "ic_tile_voice", small))
-    val photoIcon = Icon.createWithResource(context, drawable(context, "ic_tile_photo", small))
     val dismissed = PendingIntent.getBroadcast(
       context, 3,
       Intent(context, ShadeButtonsReceiver::class.java).setAction(ACTION_DISMISSED),
       PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
-    val notification = Notification.Builder(context, CHANNEL_ID)
-      .setSmallIcon(small)
-      .setContentTitle("Capture")
-      .setContentText("A voice note or a photo, straight into Capture.")
-      .setContentIntent(launcher(context, "inbox", 0))
-      .addAction(Notification.Action.Builder(voiceIcon, "Voice Note", launcher(context, "voice", 1)).build())
-      .addAction(Notification.Action.Builder(photoIcon, "Photo", launcher(context, "photo", 2)).build())
-      .setDeleteIntent(dismissed)
-      .setOngoing(true)
-      .setShowWhen(false)
-      .setOnlyAlertOnce(true)
-      .setVisibility(Notification.VISIBILITY_PUBLIC)
-      .build()
-    manager.notify(NOTIFICATION_ID, notification)
+    fun post(id: Int, iconName: String, title: String, text: String, mode: String, requestCode: Int) {
+      val notification = Notification.Builder(context, CHANNEL_ID)
+        .setSmallIcon(drawable(context, iconName, small))
+        .setContentTitle(title)
+        .setContentText(text)
+        .setContentIntent(launcher(context, mode, requestCode))
+        .setDeleteIntent(dismissed)
+        .setOngoing(true)
+        .setShowWhen(false)
+        .setOnlyAlertOnce(true)
+        .setVisibility(Notification.VISIBILITY_PUBLIC)
+        // A group of its own keeps Android from folding it in with the
+        // reminders, where it would sit one tap further away.
+        .setGroup("inside-story-capture-$mode")
+        .build()
+      manager.notify(id, notification)
+    }
+    post(NOTIFICATION_ID, "ic_tile_voice", "Voice Note", "Tap to say a note into Capture.", "voice", 1)
+    post(PHOTO_NOTIFICATION_ID, "ic_tile_photo", "Photo", "Tap to take a photo into Capture.", "photo", 2)
     return true
   }
 
@@ -90,6 +100,7 @@ object ShadeButtons {
     setOn(context, false)
     val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     manager.cancel(NOTIFICATION_ID)
+    manager.cancel(PHOTO_NOTIFICATION_ID)
   }
 
   /** Whether the buttons are in the shade now, rather than only wanted. */
