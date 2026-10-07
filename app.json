@@ -3,9 +3,9 @@
     "name": "Inside Story",
     "slug": "inside-story",
     "owner": "inside-story",
-    "version": "1.0.62.8",
+    "version": "1.0.62.9",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/brand/icon.png",
     "scheme": "hashimotosapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -48,9 +48,9 @@
     "android": {
       "package": "com.insidestoryapp.app",
       "adaptiveIcon": {
-        "backgroundColor": "#244147",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#1F2A2C",
+        "foregroundImage": "./assets/brand/android-icon-foreground.png",
+        "monochromeImage": "./assets/brand/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -137,19 +137,19 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/brand/favicon.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/brand/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#1F2A2C",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#1F2A2C"
           }
         }
       ],
@@ -218,8 +218,8 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/android-icon-monochrome.png",
-          "color": "#244147"
+          "icon": "./assets/brand/android-icon-monochrome.png",
+          "color": "#1F2A2C"
         }
       ],
       "expo-quick-actions",
