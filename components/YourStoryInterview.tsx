@@ -13,7 +13,7 @@
 // since the first tap would otherwise answer it and move on.
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, type ViewStyle } from 'react-native';
 import { AppTextInput } from './AppTextInput';
 import { colors } from '../constants/colors';
 import { textShadow, typography } from '../constants/typography';
@@ -66,7 +66,7 @@ import { BeatPicker } from './BeatPicker';
 import { usePlayfulWording } from '../hooks/usePlayfulWording';
 import { wording } from '../lib/playfulCopy';
 import { setVisualPreferences } from '../lib/visualPreferences';
-import { HOME_BAND_CONTENT_PADDING, homeBandStyle } from './HomeSectionBand';
+import { HOME_BAND_CONTENT_PADDING, HOME_BAND_DIVIDER_COLOR, homeBandStyle } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 
 type Props = {
@@ -413,9 +413,9 @@ export function YourStoryInterview({ mode, interview, onChanged, go }: Props) {
     }
   }
 
-  function renderOpen(question: InterviewQuestionView) {
+  function renderOpen(question: InterviewQuestionView, bandStyle: ViewStyle = styles.bandOpen) {
     return (
-      <View style={[styles.band, styles.bandOpen]}>
+      <View style={[styles.band, bandStyle]}>
         <Text style={styles.question}>{question.question}</Text>
         <Text style={styles.why}>{question.def.why}</Text>
         {renderChoices(question)}
@@ -426,8 +426,13 @@ export function YourStoryInterview({ mode, interview, onChanged, go }: Props) {
     );
   }
 
+  // On Home the question sits inside the Your Story band, which already
+  // carries the colour. 1.0.62.12, direct request: the coloured lines above
+  // and below the question "shouldn't be there anymore", and any line that
+  // separates it uses the same dark line the other areas use. So no accent
+  // on the left and the dark divider top and bottom.
   if (mode === 'card') {
-    return open ? <View style={styles.cardWrap}>{renderOpen(open)}</View> : null;
+    return open ? <View style={styles.cardWrap}>{renderOpen(open, styles.bandInCard)}</View> : null;
   }
 
   const answered = interview.questions.filter((question) => question.answered && question.key !== openKey);
@@ -468,6 +473,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   bandOpen: { borderColor: colors.primary },
+  bandInCard: {
+    borderLeftWidth: 0,
+    borderTopColor: HOME_BAND_DIVIDER_COLOR,
+    borderBottomColor: HOME_BAND_DIVIDER_COLOR,
+  },
   heading: { ...typography.sectionTitle, color: colors.textPrimary, ...textShadow },
   subheading: { ...typography.label, color: colors.textPrimary, ...textShadow },
   question: { ...typography.bodyEmphasis, color: colors.textPrimary, ...textShadow },

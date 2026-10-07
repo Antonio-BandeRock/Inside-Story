@@ -122,7 +122,13 @@ export const homeBandDivided: ViewStyle = {
   borderBottomColor: 'transparent',
 };
 
-const IN_GROUP_STYLE: ViewStyle = { backgroundColor: 'transparent', ...homeBandDivided };
+// 1.0.62.12, direct request: "I don't think the secondary inner left thick
+// line of the tab color needs to be shown for the subsections. The outer
+// line shows the color for the section that is open." So a card inside a
+// group keeps the accent's width (nothing inside it moves) but draws it
+// clear; the group's own accent and the card's title colour already say
+// which tab it belongs to.
+const IN_GROUP_STYLE: ViewStyle = { backgroundColor: 'transparent', ...homeBandDivided, borderLeftColor: 'transparent' };
 const IN_GROUP_LAST_STYLE: ViewStyle = { ...IN_GROUP_STYLE, borderBottomColor: HOME_BAND_DIVIDER_COLOR };
 
 // The calm look, 1.0.61.7. Direct approval of the screens it reaches:
