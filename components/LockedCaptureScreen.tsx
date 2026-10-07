@@ -75,6 +75,8 @@ export function LockedCaptureScreen({ mode: startMode }: { mode?: string }) {
   const [message, setMessage] = useState<string | null>(null);
   const savedOnce = useRef(false);
   const cameraRef = useRef<CameraView>(null);
+  const [cameraReady, setCameraReady] = useState(false);
+  const [shooting, setShooting] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const lockState = readLockStateSync();
   const ready = lockState !== null && canSealCaptures();
@@ -126,6 +128,7 @@ export function LockedCaptureScreen({ mode: startMode }: { mode?: string }) {
       void start();
       return;
     }
+    setCameraReady(false);
     setStage({ kind: 'camera' });
     if (!permission?.granted) void requestPermission();
   }
@@ -151,17 +154,28 @@ export function LockedCaptureScreen({ mode: startMode }: { mode?: string }) {
   }
 
   async function takePhoto() {
-    if (!cameraRef.current) {
+    if (shooting) return;
+    if (!cameraRef.current || !cameraReady) {
       setMessage('The camera is still starting. Try again in a moment.');
       return;
     }
-    setStage({ kind: 'saving' });
+    // The camera stays on screen until the picture is in hand: taking it off
+    // first, by showing Sealing, closed the camera mid-shot and every photo
+    // failed with "Failed to capture image" (1.0.63.11).
+    setShooting(true);
+    setMessage(null);
     let taken: string | null = null;
     let shrunk: string | null = null;
     try {
-      const picture = await cameraRef.current.takePictureAsync({ quality: 0.8 });
+      let picture: Awaited<ReturnType<CameraView['takePictureAsync']>>;
+      try {
+        picture = await cameraRef.current.takePictureAsync({ quality: 0.8 });
+      } finally {
+        setShooting(false);
+      }
       taken = picture?.uri ?? null;
       if (!taken) throw new Error('The camera did not hand back a photo.');
+      setStage({ kind: 'saving' });
       const small = await shrinkPhotoFile(taken, PHOTO_MAX_DIMENSION, PHOTO_MAX_BYTES);
       shrunk = small?.uri ?? null;
       const uri = shrunk ?? taken;
@@ -209,7 +223,7 @@ export function LockedCaptureScreen({ mode: startMode }: { mode?: string }) {
     return (
       <View style={styles.cameraScreen}>
         {permission?.granted ? (
-          <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" />
+          <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" onCameraReady={() => setCameraReady(true)} />
         ) : (
           <View style={styles.card}>
             <Text style={styles.title}>The camera is not allowed yet</Text>
@@ -225,6 +239,7 @@ export function LockedCaptureScreen({ mode: startMode }: { mode?: string }) {
         )}
         <View style={styles.cameraBar}>
           {message ? <Text style={[styles.hint, styles.cameraMessage]}>{message}</Text> : null}
+          {shooting ? <Text style={[styles.hint, styles.cameraMessage]}>Hold still…</Text> : null}
           <View style={styles.actions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={cancel}>
               <Text style={styles.secondaryText}>Cancel</Text>
