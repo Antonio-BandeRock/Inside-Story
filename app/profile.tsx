@@ -503,12 +503,12 @@ type TabHubIconGroupKey = (typeof ALL_TAB_HUB_ICON_GROUP_KEYS)[number];
 // header text, the header/footer divider lines, and every ring, all flat
 // and static, no animation anywhere.
 const ALL_APPEARANCE_SUBSECTION_KEYS = [
-  'tabHubIcon',
-  'sharedBackground',
-  'individualTabBackgrounds',
-  'progressPictures',
   'genericPalette',
   'groundColor',
+  'individualTabBackgrounds',
+  'progressPictures',
+  'sharedBackground',
+  'tabHubIcon',
   'textSpacing',
 ] as const;
 type AppearanceSubsectionKey = (typeof ALL_APPEARANCE_SUBSECTION_KEYS)[number];
@@ -1066,7 +1066,8 @@ export default function ProfileScreen() {
   // Same tappable-header shape as renderCardHeader/renderIconGroupHeader
   // above, plus a visible divider line above every sub-section but the
   // first (styles.appearanceSubsectionHeaderFirst zeroes that border/
-  // spacing out for TabHub Icon, which already sits directly under the
+  // spacing out for whichever sub-section comes first alphabetically,
+  // since 1.0.63.15 Generic color combination, which sits directly under the
   // card's header with nothing else above it to separate from). This is
   // the direct answer to "there isn't much definition of space... to tell
   // where one ends and the next begins," not just the collapsing itself.
@@ -4820,176 +4821,11 @@ export default function ProfileScreen() {
         {renderCardHeader('appearance', 'Appearance & Navigation')}
         {!collapsedSections.has('appearance') ? (
           <View style={styles.cardBody}>
-            {/* 2026-09-03. The welcome and the pointer both clear themselves for
-                good once the button has been used, which is right for the
-                person who learned it and wrong for the phone being handed to
-                someone who has not. This puts them back. Also the only way to
-                see either of them a second time, which is what makes them
-                checkable at all. */}
-            <View style={styles.subLabelDivided}>
-              <Text style={styles.subLabel}>Getting Started</Text>
-            </View>
-            <Text style={styles.helpText}>
-              The first time this app is opened it says what the button below is for, and keeps a small
-              pointer above it until the button has been used once. Both are gone for good after that.
-              Bring them back when setting this up for someone new.
-            </Text>
-            <TouchableOpacity
-              style={styles.replayWelcomeButton}
-              activeOpacity={0.85}
-              onPress={() => {
-                void setVisualPreferences({ hasSeenTabHubWelcome: false, hasUsedTabHub: false });
-              }}
-            >
-              <Text style={styles.replayWelcomeButtonText}>Show the Welcome Again</Text>
-            </TouchableOpacity>
-
-            {/* 1.0.61.13: the same choice the navigation switch button makes
-                (components/HandSwitchButton.tsx), for anybody who would rather
-                pick it here than hold a button. Kept on this device only. */}
-            <View style={styles.subLabelDivided}>
-              <Text style={styles.subLabel}>Navigation Hand</Text>
-            </View>
-            <Text style={styles.helpText}>
-              Which thumb works the menu buttons. They sit in the bottom corner on that side, and the small switch
-              tab just above the footer sits on the other side. Holding that tab switches sides from any screen.
-            </Text>
-            <PickerField label="Navigation hand">
-              <PopoverSelect
-                options={['Left Hand', 'Right Hand']}
-                selected={navigationHand === 'left' ? 'Left Hand' : 'Right Hand'}
-                minWidth={150}
-                tabColor={colors.menuIconMuted}
-                groundSurface
-                onSelect={(label) => setNavigationHand(label === 'Right Hand' ? 'right' : 'left')}
-              />
-            </PickerField>
-
-            {renderAppearanceSubsectionHeader('tabHubIcon', 'TabHub Icon', true)}
-            {!collapsedAppearanceSubsections.has('tabHubIcon') ? (
-              <>
-                <Text style={styles.helpText}>
-                  The main floating button used to open the app&apos;s navigation menu. Shows the Inside Story
-                  book by default. Pick any tracked condition&apos;s icon, any insect/pollinator icon, any of the 38
-                  animal portraits, or a Food tab builder icon below to personalize it instead. Only one
-                  can be active at a time.
-                </Text>
-
-                {renderIconGroupHeader('tabHubAppIcon', 'App Icon', 10)}
-                {!collapsedIconGroups.has('tabHubAppIcon') ? renderTabHubIconGroup(appIconOptions) : null}
-
-                {renderIconGroupHeader('tabHubConditions', 'Conditions', 14)}
-                {!collapsedIconGroups.has('tabHubConditions') ? renderTabHubIconGroup(conditionIconOptions) : null}
-
-                {renderIconGroupHeader('tabHubInsects', 'Insects & Other Wildlife', 14)}
-                {!collapsedIconGroups.has('tabHubInsects') ? renderTabHubIconGroup(gardenIconOptions) : null}
-
-                {renderIconGroupHeader('tabHubAnimals', 'Animals', 14)}
-                {!collapsedIconGroups.has('tabHubAnimals') ? renderTabHubIconGroup(animalIconOptions) : null}
-
-                {renderIconGroupHeader('tabHubFoodBuilders', 'Food Builders', 14)}
-                {!collapsedIconGroups.has('tabHubFoodBuilders') ? renderTabHubIconGroup(foodBuilderIconOptions) : null}
-              </>
-            ) : null}
-
-            {/* 2026-09-16: without this line, picking a background while Low
-                Stimulation is on looks like a setting that does nothing. Said
-                here, above both background sub-sections, rather than repeated
-                inside each one. */}
-            {visualPrefs.lowStimulation ? (
-              <Text style={styles.helpText}>
-                Low Stimulation is on, so every background below is off for now, whatever is picked here.
-                Your choices are still saved and appear again as soon as you switch it off.
-              </Text>
-            ) : null}
-            {renderAppearanceSubsectionHeader('sharedBackground', 'Shared background', false)}
-            {!collapsedAppearanceSubsections.has('sharedBackground') ? (
-              <>
-                <Text style={styles.helpText}>
-                  The flowery scene behind Home, and behind every tab left on Photo below until you pick a function. &ldquo;Generic&rdquo; swaps
-                  it for a calm gradient instead (pick the color combination below); &ldquo;Off&rdquo; removes it
-                  entirely, leaving the same flat background color as the header and footer. &ldquo;Custom
-                  image&rdquo; lets you upload your own photo; it&apos;s automatically resized and compressed to
-                  comply with a reasonable size (up to {CUSTOM_BACKGROUND_MAX_DIMENSION}px, under{' '}
-                  {Math.round(CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES / (1024 * 1024))}MB on disk); a too-small
-                  photo (under {CUSTOM_BACKGROUND_MIN_DIMENSION}px on its shorter side) is rejected rather than
-                  stretched blurry.
-                </Text>
-                {renderBackgroundOptionsRow(SHARED_BACKGROUND_SCOPE_KEY, true, visualPrefs.homeBackgroundStyle)}
-              </>
-            ) : null}
-
-            {renderAppearanceSubsectionHeader('individualTabBackgrounds', 'Individual tab backgrounds', false)}
-            {!collapsedAppearanceSubsections.has('individualTabBackgrounds') ? (
-              <>
-                <Text style={styles.helpText}>
-                  Each tab&apos;s background, set one at a time rather than all at once (Food, Insights,
-                  Schedules, and the rest). Photo, the default, gives a tab its bundled image once you pick a tool
-                  from the corner button, and leaves the shared background above showing until you do. Off,
-                  Generic and a photo you added yourself take effect the moment you open the tab, so the tab&apos;s
-                  resting screen is whatever you picked here.
-                </Text>
-                {BACKGROUND_TAB_ROUTES.map((route) => (
-                  <View key={route.path as string} style={styles.mealTimeRow}>
-                    <Text style={styles.mealTimeLabel}>{route.title}</Text>
-                    {renderBackgroundOptionsRow(
-                      route.path as string,
-                      false,
-                      visualPrefs.tabBackgroundStyle[route.path as string] ?? 'photo',
-                    )}
-                  </View>
-                ))}
-              </>
-            ) : null}
-
-            {/* C17 (docs/progress-design.md): the picture each tab draws from
-                the person's records. On by default over Photo and Generic,
-                off over a photo the person added, off under Low Stimulation
-                (isProgressPictureShown). Every picture can also be looked at
-                on the Your Progress page, whatever is picked here. */}
-            {renderAppearanceSubsectionHeader('progressPictures', 'Pictures of your progress', false)}
-            {!collapsedAppearanceSubsections.has('progressPictures') ? (
-              <>
-                <Text style={styles.helpText}>
-                  A quiet picture on a tab&apos;s resting screen, drawn from what you have recorded there: jars on a
-                  pantry shelf for each kind of food you have eaten, the plants you are growing, a star for each day
-                  you checked in. It never moves and never takes a tap. It starts on over the built-in backgrounds and
-                  off over a photo you added, and Low Stimulation turns every one off.
-                </Text>
-                <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/progress')}>
-                  <Text style={styles.checkinButtonText}>See Your Progress</Text>
-                </TouchableOpacity>
-                {BACKGROUND_TAB_ROUTES.filter((route) => (PICTURE_TABS as readonly string[]).includes(String(route.path))).map((route) => {
-                  const key = String(route.path);
-                  const on = isProgressPictureShown(visualPrefs, key);
-                  return (
-                    <View key={key} style={styles.mealTimeRow}>
-                      <Text style={styles.mealTimeLabel}>{route.title}</Text>
-                      <View style={styles.pillRow}>
-                        {[true, false].map((value) => {
-                          const active = on === value && !visualPrefs.lowStimulation;
-                          return (
-                            <TouchableOpacity
-                              key={String(value)}
-                              style={[styles.pillSmall, active && styles.pillActive]}
-                              onPress={() => setVisualPreferences({ tabProgressPicture: { [key]: value } })}
-                            >
-                              <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
-                            </TouchableOpacity>
-                          );
-                        })}
-                      </View>
-                    </View>
-                  );
-                })}
-              </>
-            ) : null}
-
-            {renderAppearanceSubsectionHeader('genericPalette', 'Generic color combination', false)}
+            {renderAppearanceSubsectionHeader('genericPalette', 'Generic color combination', true)}
             {!collapsedAppearanceSubsections.has('genericPalette') ? (
               <>
                 <Text style={styles.helpText}>
-                  Used anywhere above (or the shared background) set to &ldquo;Generic,&rdquo; and, as of
+                  Used by any tab background (or the shared background) set to &ldquo;Generic,&rdquo; and, as of
                   2026-08-17, everywhere else too: the app&apos;s own name at the top of every screen, the fine
                   divider lines in the header and footer, and every colored ring around a selected item all take
                   their color from this same choice&apos;s own lighter shade. One shared pick, not a separate one
@@ -5013,6 +4849,30 @@ export default function ProfileScreen() {
                 </View>
               </>
             ) : null}
+
+            {/* 2026-09-03. The welcome and the pointer both clear themselves for
+                good once the button has been used, which is right for the
+                person who learned it and wrong for the phone being handed to
+                someone who has not. This puts them back. Also the only way to
+                see either of them a second time, which is what makes them
+                checkable at all. */}
+            <View style={styles.subLabelDivided}>
+              <Text style={styles.subLabel}>Getting Started</Text>
+            </View>
+            <Text style={styles.helpText}>
+              The first time this app is opened it says what the button below is for, and keeps a small
+              pointer above it until the button has been used once. Both are gone for good after that.
+              Bring them back when setting this up for someone new.
+            </Text>
+            <TouchableOpacity
+              style={styles.replayWelcomeButton}
+              activeOpacity={0.85}
+              onPress={() => {
+                void setVisualPreferences({ hasSeenTabHubWelcome: false, hasUsedTabHub: false });
+              }}
+            >
+              <Text style={styles.replayWelcomeButtonText}>Show the Welcome Again</Text>
+            </TouchableOpacity>
 
             {/* Ground color, 2026-08-19, see constants/colors.ts's
                 GROUND_THEMES/initialGround comments for the full reasoning
@@ -5067,6 +4927,157 @@ export default function ProfileScreen() {
                     );
                   })}
                 </View>
+              </>
+            ) : null}
+
+            {renderAppearanceSubsectionHeader('individualTabBackgrounds', 'Individual tab backgrounds', false)}
+            {!collapsedAppearanceSubsections.has('individualTabBackgrounds') ? (
+              <>
+                {/* 2026-09-16: without this line, picking a background while Low
+                    Stimulation is on looks like a setting that does nothing. Said
+                    inside both background sub-sections, since alphabetical order
+                    (1.0.63.15) no longer keeps them side by side. */}
+                {visualPrefs.lowStimulation ? (
+                  <Text style={styles.helpText}>
+                    Low Stimulation is on, so every background is off for now, whatever is picked here. Your
+                    choices are still saved and appear again as soon as you switch it off.
+                  </Text>
+                ) : null}
+                <Text style={styles.helpText}>
+                  Each tab&apos;s background, set one at a time rather than all at once (Food, Insights,
+                  Schedules, and the rest). Photo, the default, gives a tab its bundled image once you pick a tool
+                  from the corner button, and leaves the shared background showing until you do. Off,
+                  Generic and a photo you added yourself take effect the moment you open the tab, so the tab&apos;s
+                  resting screen is whatever you picked here.
+                </Text>
+                {BACKGROUND_TAB_ROUTES.map((route) => (
+                  <View key={route.path as string} style={styles.mealTimeRow}>
+                    <Text style={styles.mealTimeLabel}>{route.title}</Text>
+                    {renderBackgroundOptionsRow(
+                      route.path as string,
+                      false,
+                      visualPrefs.tabBackgroundStyle[route.path as string] ?? 'photo',
+                    )}
+                  </View>
+                ))}
+              </>
+            ) : null}
+
+            {/* 1.0.61.13: the same choice the navigation switch button makes
+                (components/HandSwitchButton.tsx), for anybody who would rather
+                pick it here than hold a button. Kept on this device only. */}
+            <View style={styles.subLabelDivided}>
+              <Text style={styles.subLabel}>Navigation Hand</Text>
+            </View>
+            <Text style={styles.helpText}>
+              Which thumb works the menu buttons. They sit in the bottom corner on that side, and the small switch
+              tab just above the footer sits on the other side. Holding that tab switches sides from any screen.
+            </Text>
+            <PickerField label="Navigation hand">
+              <PopoverSelect
+                options={['Left Hand', 'Right Hand']}
+                selected={navigationHand === 'left' ? 'Left Hand' : 'Right Hand'}
+                minWidth={150}
+                tabColor={colors.menuIconMuted}
+                groundSurface
+                onSelect={(label) => setNavigationHand(label === 'Right Hand' ? 'right' : 'left')}
+              />
+            </PickerField>
+
+            {/* C17 (docs/progress-design.md): the picture each tab draws from
+                the person's records. On by default over Photo and Generic,
+                off over a photo the person added, off under Low Stimulation
+                (isProgressPictureShown). Every picture can also be looked at
+                on the Your Progress page, whatever is picked here. */}
+            {renderAppearanceSubsectionHeader('progressPictures', 'Pictures of your progress', false)}
+            {!collapsedAppearanceSubsections.has('progressPictures') ? (
+              <>
+                <Text style={styles.helpText}>
+                  A quiet picture on a tab&apos;s resting screen, drawn from what you have recorded there: jars on a
+                  pantry shelf for each kind of food you have eaten, the plants you are growing, a star for each day
+                  you checked in. It never moves and never takes a tap. It starts on over the built-in backgrounds and
+                  off over a photo you added, and Low Stimulation turns every one off.
+                </Text>
+                <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/progress')}>
+                  <Text style={styles.checkinButtonText}>See Your Progress</Text>
+                </TouchableOpacity>
+                {BACKGROUND_TAB_ROUTES.filter((route) => (PICTURE_TABS as readonly string[]).includes(String(route.path))).map((route) => {
+                  const key = String(route.path);
+                  const on = isProgressPictureShown(visualPrefs, key);
+                  return (
+                    <View key={key} style={styles.mealTimeRow}>
+                      <Text style={styles.mealTimeLabel}>{route.title}</Text>
+                      <View style={styles.pillRow}>
+                        {[true, false].map((value) => {
+                          const active = on === value && !visualPrefs.lowStimulation;
+                          return (
+                            <TouchableOpacity
+                              key={String(value)}
+                              style={[styles.pillSmall, active && styles.pillActive]}
+                              onPress={() => setVisualPreferences({ tabProgressPicture: { [key]: value } })}
+                            >
+                              <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{value ? 'On' : 'Off'}</Text>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </View>
+                    </View>
+                  );
+                })}
+              </>
+            ) : null}
+
+            {renderAppearanceSubsectionHeader('sharedBackground', 'Shared background', false)}
+            {!collapsedAppearanceSubsections.has('sharedBackground') ? (
+              <>
+                {/* 2026-09-16: without this line, picking a background while Low
+                    Stimulation is on looks like a setting that does nothing. Said
+                    inside both background sub-sections, since alphabetical order
+                    (1.0.63.15) no longer keeps them side by side. */}
+                {visualPrefs.lowStimulation ? (
+                  <Text style={styles.helpText}>
+                    Low Stimulation is on, so every background is off for now, whatever is picked here. Your
+                    choices are still saved and appear again as soon as you switch it off.
+                  </Text>
+                ) : null}
+                <Text style={styles.helpText}>
+                  The flowery scene behind Home, and behind every tab left on Photo under Individual tab backgrounds until you pick a function. &ldquo;Generic&rdquo; swaps
+                  it for a calm gradient instead (pick it under Generic color combination); &ldquo;Off&rdquo; removes it
+                  entirely, leaving the same flat background color as the header and footer. &ldquo;Custom
+                  image&rdquo; lets you upload your own photo; it&apos;s automatically resized and compressed to
+                  comply with a reasonable size (up to {CUSTOM_BACKGROUND_MAX_DIMENSION}px, under{' '}
+                  {Math.round(CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES / (1024 * 1024))}MB on disk); a too-small
+                  photo (under {CUSTOM_BACKGROUND_MIN_DIMENSION}px on its shorter side) is rejected rather than
+                  stretched blurry.
+                </Text>
+                {renderBackgroundOptionsRow(SHARED_BACKGROUND_SCOPE_KEY, true, visualPrefs.homeBackgroundStyle)}
+              </>
+            ) : null}
+
+            {renderAppearanceSubsectionHeader('tabHubIcon', 'TabHub Icon', false)}
+            {!collapsedAppearanceSubsections.has('tabHubIcon') ? (
+              <>
+                <Text style={styles.helpText}>
+                  The main floating button used to open the app&apos;s navigation menu. Shows the Inside Story
+                  book by default. Pick any tracked condition&apos;s icon, any insect/pollinator icon, any of the 38
+                  animal portraits, or a Food tab builder icon below to personalize it instead. Only one
+                  can be active at a time.
+                </Text>
+
+                {renderIconGroupHeader('tabHubAppIcon', 'App Icon', 10)}
+                {!collapsedIconGroups.has('tabHubAppIcon') ? renderTabHubIconGroup(appIconOptions) : null}
+
+                {renderIconGroupHeader('tabHubConditions', 'Conditions', 14)}
+                {!collapsedIconGroups.has('tabHubConditions') ? renderTabHubIconGroup(conditionIconOptions) : null}
+
+                {renderIconGroupHeader('tabHubInsects', 'Insects & Other Wildlife', 14)}
+                {!collapsedIconGroups.has('tabHubInsects') ? renderTabHubIconGroup(gardenIconOptions) : null}
+
+                {renderIconGroupHeader('tabHubAnimals', 'Animals', 14)}
+                {!collapsedIconGroups.has('tabHubAnimals') ? renderTabHubIconGroup(animalIconOptions) : null}
+
+                {renderIconGroupHeader('tabHubFoodBuilders', 'Food Builders', 14)}
+                {!collapsedIconGroups.has('tabHubFoodBuilders') ? renderTabHubIconGroup(foodBuilderIconOptions) : null}
               </>
             ) : null}
 
