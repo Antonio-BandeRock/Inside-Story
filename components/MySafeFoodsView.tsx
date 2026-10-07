@@ -29,6 +29,7 @@ import { categoryLabel } from './FoodLookup';
 import { HOME_BAND_ACCENT_WIDTH, HOME_BAND_CONTENT_PADDING, HomeSectionBand } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
 import { ThumbRow } from './ThumbRow';
+import { useOnVaultChange } from '../lib/vaultReads';
 
 // My Safe Foods: the person's list, kept by the person.
 //
@@ -127,6 +128,11 @@ export function MySafeFoodsView({ onClose, onChanged }: { onClose: () => void; o
   useEffect(() => {
     refresh();
   }, [refresh]);
+  // Cleared food experiments are offered from the vault, so opening it here
+  // offers them and closing it takes them away.
+  useOnVaultChange(() => {
+    void refresh();
+  });
 
   useEffect(() => {
     let isCurrent = true;

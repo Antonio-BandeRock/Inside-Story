@@ -161,6 +161,8 @@ import {
 } from '../../lib/customTrackersDb';
 import { ThumbRow } from '../../components/ThumbRow';
 import { ThumbEndRow } from '../../components/ThumbEndRow';
+import { VaultLensFrame } from '../../components/VaultLensFrame';
+import type { VaultCategory } from '../../lib/vault';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -206,6 +208,21 @@ type Lens =
 const LOG_PERSONAL_NOTES_HELP: HelpSection = {
   heading: 'Personal notes, not medical fact',
   body: "Everything here is your record of your body, distinct from this app's cited food scoring and DRI targets elsewhere. Nothing you log here is treated as verified medical fact, the same way this app never confuses a personal hunch with a cited rule.",
+};
+
+// Which vault categories each lens shows (lib/vault.ts, phase 2). A lens
+// left out shows nothing the vault holds.
+const LENS_VAULT: Partial<Record<Lens, readonly VaultCategory[]>> = {
+  flares: ['symptoms'],
+  foodReactions: ['symptoms'],
+  generalNote: ['symptoms'],
+  nocturia: ['symptoms'],
+  bowel: ['symptoms'],
+  newFoods: ['experiments'],
+  bloodPressure: ['body'],
+  therapies: ['therapy'],
+  cycle: ['cycle'],
+  microbiome: ['labs'],
 };
 
 const LENSES: LensOption<Lens>[] = [
@@ -3790,6 +3807,7 @@ export default function LogScreen() {
       <SwipeableTabScreen enabled={!revealed}>
         <CalmBands>
         <GatedTabContent pageTitle="Signals" variant="bioCompass" revealed={revealed}>
+          <VaultLensFrame color={TAB_COLOR} categories={LENS_VAULT[lens] ?? []} gap={HOME_BAND_ACCENT_WIDTH}>
           {lens === 'flares' ? (
             <FlaresLens />
           ) : lens === 'foodReactions' ? (
@@ -3820,6 +3838,7 @@ export default function LogScreen() {
           ) : (
             <MyTrackersLens />
           )}
+          </VaultLensFrame>
         </GatedTabContent>
         </CalmBands>
       </SwipeableTabScreen>

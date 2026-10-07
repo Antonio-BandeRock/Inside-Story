@@ -56,6 +56,7 @@ import {
 import { isDesktopApp } from '../../lib/desktop/bridge';
 import { parseBuildMealHandoff } from '../../lib/mealBuilderHandoff';
 import { consumePendingFoodTrialReturn } from '../../lib/pendingFoodTrialReturn';
+import { useVaultReloadKey } from '../../lib/vaultReads';
 
 // This page's own identity color -- every box FoodLookup draws (list
 // borders, the results table, its own text) takes this as its `tabColor`
@@ -610,6 +611,9 @@ export default function FoodScreen() {
   useEffect(() => {
     consumedBuildMealFromRef.current = consumedBuildMealFrom;
   }, [consumedBuildMealFrom]);
+  // Changes as the vault opens or closes, so a food's experiment history
+  // reads again.
+  const vaultKey = useVaultReloadKey();
   const [lens, setLens] = useState<FoodLens>('mealBuilder');
   // Which list, dish or product the three row-opened lenses are showing
   // (see the FoodLens type). Set as the row is tapped, read by the render
@@ -1421,7 +1425,7 @@ export default function FoodScreen() {
               initialEntryId={openEntryId}
             />
           ) : lens === 'myFoodsDetail' && detailParams ? (
-            <FoodItemDetailView {...detailParams} onClose={() => setLens(listLens)} />
+            <FoodItemDetailView key={vaultKey} {...detailParams} onClose={() => setLens(listLens)} />
           ) : lens === 'myFoodProduct' && productParams ? (
             <FoodProductDetailView {...productParams} onClose={() => setLens(listLens)} />
           ) : lens === 'mySafeFoods' ? (

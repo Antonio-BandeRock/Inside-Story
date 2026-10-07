@@ -138,6 +138,7 @@ import { explainNotYet } from '../../lib/notYet';
 import { anyWateringSoon, rainNoteForTask } from '../../lib/rainForecast';
 import { ThumbRow } from '../../components/ThumbRow';
 import { ThumbEndRow } from '../../components/ThumbEndRow';
+import { useOnVaultChange } from '../../lib/vaultReads';
 
 // This page's own identity color -- see constants/colors.ts's own comment
 // on tabGarden for how it was chosen.
@@ -537,6 +538,9 @@ export default function GardenScreen() {
     setCostCount(costs.length);
     setCountdownCount(countdowns);
   }, []);
+  useOnVaultChange(() => {
+    void loadMyGardenCounts();
+  });
 
   const myGardenCategories: MyItemsCategory[] = [
     { id: 'plots', label: 'Garden Areas', count: plotCount, onPress: () => { setLens('plotsAndPlantings'); setRevealed(true); } },

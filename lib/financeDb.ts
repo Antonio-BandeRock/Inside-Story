@@ -24,10 +24,12 @@
 // had to unpick repeatedly elsewhere.
 
 import { getDatabase } from './db';
+import { VAULT_TOOL_READ } from './vault';
 import { groceryLineTotal, type GroceryPriceUnit } from './groceryList';
 import type { TrackedSpending } from './financeCore';
 import type { FinanceDirection } from './financeCategories';
 import { parseDueRule, serializeDueRule, type DueRule } from './financeSchedule';
+import { readOrClosed } from './vaultReads';
 
 // finance_recurring.cadence is NOT NULL and predates the rule model. Every
 // row written from now on stores this marker in it, meaning "the real
@@ -185,9 +187,10 @@ export async function deleteRecurring(id: string): Promise<void> {
   await db.runAsync('DELETE FROM finance_recurring WHERE id = ?', id);
 }
 
-export async function listRecurring(): Promise<FinanceRecurringRecord[]> {
+/** `forReminders` reads past a closed vault: bill reminders keep coming (2026-10-07). */
+export async function listRecurring(forReminders = false): Promise<FinanceRecurringRecord[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{
+  const rows = await readOrClosed(() => db.getAllAsync<{
     id: string;
     direction: FinanceDirection;
     name: string;
@@ -203,7 +206,7 @@ export async function listRecurring(): Promise<FinanceRecurringRecord[]> {
     amountIsEstimate: number;
     fromGoalId: string | null;
   }>(
-    `
+    `${forReminders ? VAULT_TOOL_READ : ''}
       SELECT id, direction, name, category, amount, cadence,
              due_rule_json AS dueRuleJson, autopay, active, notes,
              paid_from_account_id AS paidFromAccountId,
@@ -213,7 +216,7 @@ export async function listRecurring(): Promise<FinanceRecurringRecord[]> {
       FROM finance_recurring
       ORDER BY direction DESC, active DESC, amount DESC
     `,
-  );
+  ), []);
   return rows.map((row) => {
     const rule = parseDueRule(row.dueRuleJson);
     return {
@@ -251,14 +254,14 @@ export async function listRecurring(): Promise<FinanceRecurringRecord[]> {
  */
 export async function getIncomeReceiptsByStream(): Promise<Record<string, { occurredOn: string; amount: number }[]>> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ streamId: string; occurredOn: string; amount: number }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ streamId: string; occurredOn: string; amount: number }>(
     `
       SELECT income_stream_id AS streamId, occurred_on AS occurredOn, amount
       FROM finance_entries
       WHERE income_stream_id IS NOT NULL AND direction = 'income'
       ORDER BY occurred_on
     `,
-  );
+  ), []);
   const byStream: Record<string, { occurredOn: string; amount: number }[]> = {};
   for (const row of rows) {
     (byStream[row.streamId] ??= []).push({ occurredOn: row.occurredOn, amount: row.amount });
@@ -322,7 +325,7 @@ export async function listEntries(filters: { month?: string; limit?: number } = 
   const db = await getDatabase();
   const where = filters.month ? "WHERE occurred_on LIKE ? || '%'" : '';
   const params: (string | number)[] = filters.month ? [filters.month] : [];
-  const rows = await db.getAllAsync<FinanceEntryRecord>(
+  const rows = await readOrClosed(() => db.getAllAsync<FinanceEntryRecord>(
     `
       SELECT id, occurred_on AS occurredOn, direction, amount, category, description, notes,
              paid_from_account_id AS paidFromAccountId, goal_cost_id AS goalCostId,
@@ -334,7 +337,7 @@ export async function listEntries(filters: { month?: string; limit?: number } = 
     `,
     ...params,
     filters.limit ?? 300,
-  );
+  ), []);
   return rows;
 }
 
@@ -404,14 +407,14 @@ export async function getTrackedSpending(month: string): Promise<TrackedSpending
     else grocerySpend += total;
   }
 
-  const therapyRows = await db.getAllAsync<{ cost: number | null }>(
+  const therapyRows = await readOrClosed(() => db.getAllAsync<{ cost: number | null }>(
     `
       SELECT cost
       FROM therapy_sessions
       WHERE performed_at LIKE ? || '%'
     `,
     month,
-  );
+  ), []);
 
   let therapySpend = 0;
   let therapySessionsWithoutCost = 0;

@@ -12,6 +12,8 @@ import type { YourStoryView } from './yourStory';
 import { buildGuides } from './yourStoryGuides';
 import type { GuideView } from './yourStoryGuides';
 import { buildInterview } from './yourStoryInterview';
+import { readLockStateSync } from './appLockSession';
+import { chosenVaultCategories, currentVaultKey } from './vaultState';
 import type { InterviewAnswer, InterviewFacts, InterviewView } from './yourStoryInterview';
 import { loadYourStoryFacts, lookForGuideRecords, markYourStorySeen } from './yourStoryDb';
 import { getConditionStagingModel } from './conditionStages';
@@ -110,6 +112,18 @@ export async function loadYourStoryEverything(withGuides = true): Promise<YourSt
     allergies,
     answers,
     records,
+    security: readSecurity(),
   });
   return { view, guides: withGuides ? buildGuides(facts, records) : [], interview };
+}
+
+// App Lock and the vault, for the question that asks how records are kept
+// closed. Both live in files beside the database, so nothing here can fail
+// on a closed vault.
+function readSecurity(): NonNullable<InterviewFacts['security']> {
+  return {
+    appLockOn: readLockStateSync()?.phase === 'on',
+    vaultCategories: chosenVaultCategories().length,
+    vaultGuarded: currentVaultKey() !== 'none',
+  };
 }

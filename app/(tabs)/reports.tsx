@@ -33,6 +33,9 @@ import { markYourStorySeen } from '../../lib/yourStoryDb';
 import { describeRange, monthsBefore, sinceVisitStart, type LastVisitForRange } from '../../lib/reportRange';
 import { lastVisit } from '../../lib/sinceLastVisit';
 import { listAllAppointments } from '../../lib/trendsMoreDb';
+import { VaultClosedBand } from '../../components/VaultClosedBand';
+import { VAULT_CATEGORIES } from '../../lib/vault';
+import { useOnVaultChange } from '../../lib/vaultReads';
 
 const TAB_COLOR = colors.tabReports;
 const band = makeTabBandStyles(TAB_COLOR, { calm: true });
@@ -313,6 +316,11 @@ export default function ReportsScreen() {
       if (revealed && leftOutFor === lens) load(days, lens, leftOutKey ? leftOutKey.split('|') : []);
     }, [revealed, days, lens, load, leftOutFor, leftOutKey]),
   );
+  // Opening the vault puts its sections back into the report; closing it
+  // takes them out again.
+  useOnVaultChange(() => {
+    if (revealed && leftOutFor === lens) load(days, lens, leftOutKey ? leftOutKey.split('|') : []);
+  });
 
   useFocusEffect(
     useCallback(() => {
@@ -397,6 +405,7 @@ export default function ReportsScreen() {
             <View style={band.heading}>
               <Text style={band.headingText}>{activeLensLabel}</Text>
             </View>
+            <VaultClosedBand color={TAB_COLOR} categories={VAULT_CATEGORIES} />
 
             <View style={[band.inset, styles.pillRow]}>
               {DAY_RANGE_OPTIONS.map((option) => (

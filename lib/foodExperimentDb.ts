@@ -12,6 +12,7 @@ import {
   type RecordedStep,
   type SteppedResultInput,
 } from './steppedReintroduction';
+import { readOrClosed } from './vaultReads';
 
 function localToday(): string {
   const now = new Date();
@@ -61,10 +62,10 @@ export async function readExperimentInput(trial: FoodTrialRecord): Promise<Exper
 export async function readSteppedInput(trial: FoodTrialRecord): Promise<SteppedResultInput | null> {
   if (trial.design !== 'stepped') return null;
   const db = await getDatabase();
-  const steps = await db.getAllAsync<RecordedStep>(
+  const steps = await readOrClosed(() => db.getAllAsync<RecordedStep>(
     'SELECT step, started_on AS startedOn FROM trial_steps WHERE trial_id = ? ORDER BY started_on, created_at',
     trial.id,
-  );
+  ), []);
   if (!steps.length) return null;
   const [flares, reactions] = await Promise.all([
     listCheckins({ checkinType: 'flare', limit: 500 }),

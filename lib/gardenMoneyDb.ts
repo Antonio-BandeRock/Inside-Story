@@ -31,6 +31,7 @@ import {
 } from './gardenMoney';
 import { harvestUnitForPricing, valueReceivedGoods, type RecordedPrice, type ValuationResult } from './harvestTrade';
 import { getLastPaidPrices } from './harvestTradeDb';
+import { readOrClosed } from './vaultReads';
 
 export const GARDEN_COST_CATEGORY = 'garden_supplies';
 
@@ -223,7 +224,7 @@ export async function deleteGrowingCost(financeEntryId: string): Promise<void> {
  *  tab annotated it; one typed straight into Finances shows with no kind. */
 export async function listGrowingCosts(limit = 200): Promise<GrowingCostRecord[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{
+  const rows = await readOrClosed(() => db.getAllAsync<{
     id: string;
     occurredOn: string;
     amount: number;
@@ -260,7 +261,7 @@ export async function listGrowingCosts(limit = 200): Promise<GrowingCostRecord[]
     `,
     GARDEN_COST_CATEGORY,
     limit,
-  );
+  ), []);
   return rows.map((row) => {
     // A cost with no area or group of its own takes the pile's, when it was
     // bought for a pile. A pile feeding a whole group counts as the group,
@@ -288,10 +289,10 @@ export async function listGrowingCosts(limit = 200): Promise<GrowingCostRecord[]
  *  which is also all time, so the two sides cover the same window. */
 export async function getGrowingCostTotal(): Promise<number> {
   const db = await getDatabase();
-  const row = await db.getFirstAsync<{ total: number | null }>(
+  const row = await readOrClosed(() => db.getFirstAsync<{ total: number | null }>(
     `SELECT SUM(amount) AS total FROM finance_entries WHERE category = ? AND direction = 'expense'`,
     GARDEN_COST_CATEGORY,
-  );
+  ), null);
   return row?.total ?? 0;
 }
 

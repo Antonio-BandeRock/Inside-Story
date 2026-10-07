@@ -41,6 +41,7 @@ import {
   serializeChosen,
   type QuestionnaireCode,
 } from '../lib/standardQuestionnaires';
+import { VaultClosedBand } from '../components/VaultClosedBand';
 
 type QuestionnaireResult = {
   code: QuestionnaireCode;
@@ -222,6 +223,9 @@ export default function AssessmentScreen() {
   return (
     <CalmBands>
       <ScrollView style={styles.screen} contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
+        {/* The questions stay usable with the vault closed; the comparison
+            with the last time waits for it to be opened. */}
+        <VaultClosedBand color={colors.tabProfile} categories={['symptoms']} />
         <View style={styles.introBox}>
           <Text style={styles.intro}>
             Answer as many as feel relevant; you don&apos;t have to finish every question for this to be useful. Retake

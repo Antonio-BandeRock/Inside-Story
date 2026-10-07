@@ -60,6 +60,8 @@ import { readExperimentInput, readSteppedInput } from './foodExperimentDb';
 import { experimentResultLines } from './foodExperiment';
 import { orderedSteps, steppedResultLines, steppedStage } from './steppedReintroduction';
 import { experimentsSection, noticedSection, NOTICED_WINDOW_HOURS, type ExperimentForReport } from './reportNoticed';
+import { readOrClosed } from './vaultReads';
+import { isCategoryClosed } from './vaultState';
 
 // Same real, small nutrient set app/(tabs)/index.tsx (Home) and
 // app/(tabs)/trends.tsx both already use, duplicated here rather than
@@ -175,6 +177,9 @@ function plural(count: number, singular: string, pluralWord = `${singular}s`): s
 // the Trainer report does not wait on a nutrient pass it will not show.
 // K10: the person can leave any of a report's sections out of one copy,
 // and a section left out is skipped the same way, never gathered.
+// What a section held in a closed vault says in place of its rows.
+const IN_THE_VAULT = 'In the vault, which is closed. Open it and make the report again to include this.';
+
 export async function buildReport(
   days: number,
   kind: ReportKind = 'overview',
@@ -193,7 +198,11 @@ export async function buildReport(
   // Tracked conditions. The codes are read whenever the flags section is
   // wanted too, since that section is scoped to them.
   const userConditionCodes = want.has('conditions') || want.has('flags') ? await getUserConditions() : [];
-  if (want.has('conditions')) {
+  if (want.has('conditions') && isCategoryClosed('conditions')) {
+    // Scoring still reads the conditions, so the flags below stay; only
+    // naming them waits for the vault to be opened.
+    sections.push({ kind: 'list', heading: 'Tracked conditions', rows: [], empty: IN_THE_VAULT });
+  } else if (want.has('conditions')) {
     const allConditions = await listAllConditions();
     const conditionNames = userConditionCodes
       .map((code) => allConditions.find((c) => c.code === code)?.name ?? code)
@@ -327,7 +336,9 @@ export async function buildReport(
   // registry My Meds & Interactions already reads (listAllActiveTreatments,
   // 2026-08-08), so this section can never drift from what's actually
   // marked active there.
-  if (want.has('meds')) {
+  if (want.has('meds') && isCategoryClosed('medications')) {
+    sections.push({ kind: 'list', heading: 'Active medications and supplements', rows: [], empty: IN_THE_VAULT });
+  } else if (want.has('meds')) {
     const treatments = await listAllActiveTreatments();
     sections.push({
       kind: 'table',
@@ -517,12 +528,12 @@ async function glanceSection(rangeStart: string, rangeEnd: string): Promise<Repo
   try {
     const db = await getDatabase();
     const [tagRows, doses, measurements, labResults, labTests] = await Promise.all([
-      db.getAllAsync<{ loggedAt: string; checkinType: string; tagCode: string | null; severity: number | null }>(
+      readOrClosed(() => db.getAllAsync<{ loggedAt: string; checkinType: string; tagCode: string | null; severity: number | null }>(
         `SELECT c.logged_at AS loggedAt, c.checkin_type AS checkinType, t.tag_code AS tagCode, t.severity AS severity
          FROM wellbeing_checkins c LEFT JOIN checkin_tags t ON t.checkin_id = c.id
          WHERE c.logged_at >= ?`,
         addDays(rangeStart, -1),
-      ),
+      ), []),
       listScheduledDoses({ start: rangeStart, end: rangeEnd }),
       listBodyMeasurements(undefined, 400),
       listLabResults(undefined, 200),

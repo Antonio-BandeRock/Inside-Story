@@ -239,6 +239,13 @@ import { useBandFolds } from '../../hooks/useBandFolds';
 import { useWalkMark } from '../../components/WalkMark';
 import { ThumbRow } from '../../components/ThumbRow';
 import { ThumbEndRow } from '../../components/ThumbEndRow';
+import { VaultClosedBand } from '../../components/VaultClosedBand';
+import type { VaultCategory } from '../../lib/vault';
+import { useOnVaultChange, useVaultReloadKey } from '../../lib/vaultReads';
+
+// What Home shows that the vault can hold: check-ins and flares, the
+// morning readings, the week, pacing and the assessment banner.
+const HOME_VAULT: readonly VaultCategory[] = ['symptoms', 'body', 'labs', 'therapy', 'experiments'];
 
 // 'YYYY-MM-DD' in LOCAL time -- same helper (and same reasoning) duplicated
 // in food.tsx/insights.tsx/schedule.tsx/log.tsx: UTC's calendar date is
@@ -1571,6 +1578,9 @@ export default function HomeScreen() {
   // while that load is still going never brings the gate back.
   const homeShownRef = useRef(false);
   const scrollRef = useRef<ScrollView>(null);
+  // Changes as the vault opens or closes, so the cards that load themselves
+  // read again.
+  const vaultKey = useVaultReloadKey();
   // Where each section sits down the page, recorded as it lays out, so the
   // lens menu can scroll to the one option that stays on Home. A ref rather
   // than state on purpose: this changes on every layout pass and nothing
@@ -1883,6 +1893,9 @@ export default function HomeScreen() {
       },
     );
   }, []);
+  // Opening the vault on Home loads the check-in, the week and the rest it
+  // refused; closing it clears them.
+  useOnVaultChange(load);
 
   // Both loaded together, on every focus (so returning from Food/Bio-
   // Compass with something new logged still shows up) -- but the loading
@@ -2885,7 +2898,7 @@ export default function HomeScreen() {
             <Text style={[styles.feelingStartButtonText, { color: tabColorFor('/log') }]}>Log how you feel today</Text>
           </TouchableOpacity>
         )}
-        {feelingPickerOpen ? null : <HealthConnectFilledIn />}
+        {feelingPickerOpen ? null : <HealthConnectFilledIn key={vaultKey} />}
       </>,
     );
   }
@@ -4257,7 +4270,7 @@ export default function HomeScreen() {
       'dayTimeline',
       'Timeline',
       <View style={styles.bandBody}>
-        <DayTimeline compact tabColor={colors.tabSchedules} />
+        <DayTimeline key={vaultKey} compact tabColor={colors.tabSchedules} />
       </View>,
     );
   }
@@ -4295,7 +4308,7 @@ export default function HomeScreen() {
       'morningCheckin',
       'Morning Check-In',
       <View style={styles.bandBody}>
-        <MorningCheckin tabColor={tabColorFor('/log')} />
+        <MorningCheckin key={vaultKey} tabColor={tabColorFor('/log')} />
       </View>,
     );
   }
@@ -4956,6 +4969,10 @@ export default function HomeScreen() {
               </Text>
             </View>
           ) : null}
+
+          {/* The cards below draw empty while the vault is closed, so a
+              check-in already made is not read as one still to do. */}
+          <VaultClosedBand color={colors.tabHome} categories={HOME_VAULT} />
 
           {!loading && (loadRunningLong || loadProblem) ? (
             <View style={styles.loadingCard}>

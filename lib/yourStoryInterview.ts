@@ -51,7 +51,8 @@ export type InterviewKind =
   | 'eatingStyle'
   | 'allergies'
   | 'aboutYou'
-  | 'backup';
+  | 'backup'
+  | 'security';
 
 export type InterviewQuestionDef = {
   kind: InterviewKind;
@@ -124,6 +125,15 @@ export const INTERVIEW_QUESTIONS: InterviewQuestionDef[] = [
     why: 'Everything you record lives on this device and nobody else holds a copy. A backup to a cloud folder you control is the only way back if the phone is lost or reset.',
     beats: [],
   },
+  // Direct instruction, 2026-10-07: health and money records go in the
+  // vault by default, "activated during app setup but by choice. If they
+  // want to start that way, or any of the other ways, they can."
+  {
+    kind: 'security',
+    question: 'How should your records be kept closed?',
+    why: 'App Lock encrypts everything on this device and asks for your code when the app opens. The vault keeps your health and money records closed even while the app is open, so a phone handed over for the shopping list does not show your labs. Either, both, or neither, and any of it can be changed in Profile.',
+    beats: [],
+  },
 ];
 
 export const QUESTION_BY_KIND: Record<InterviewKind, InterviewQuestionDef> = Object.fromEntries(
@@ -142,6 +152,9 @@ export const TAKE_NOTHING_LABEL = 'I take nothing';
 export const ADD_MEDS_LABEL = 'Add them in My Meds';
 export const LEAVE_OUT_LABEL = 'Leave these out';
 export const SET_UP_BACKUP_LABEL = 'Set it up in Profile';
+export const SECURITY_BOTH_LABEL = 'App Lock and the vault';
+export const SECURITY_APP_LOCK_LABEL = 'App Lock only';
+export const SECURITY_VAULT_LABEL = 'The vault only';
 export const PLAN_THIS_WAY_LABEL = 'Plan meals this way';
 export const READ_MORE_LABEL = 'Read more';
 export const CHANGE_LABEL = 'Change';
@@ -1035,6 +1048,8 @@ export type InterviewFacts = {
   allergies: string[];
   answers: Record<string, InterviewAnswer>;
   records: GuideRecords;
+  // App Lock and the vault, read from their files rather than the database.
+  security?: { appLockOn: boolean; vaultCategories: number; vaultGuarded: boolean };
 };
 
 export type InterviewQuestionView = {
@@ -1098,6 +1113,17 @@ function itemSettled(facts: InterviewFacts, key: YourStoryItemKey): 'done' | 'se
   return null;
 }
 
+function securitySummary(facts: InterviewFacts): string | null {
+  const security = facts.security;
+  if (!security) return null;
+  const vault = security.vaultCategories > 0;
+  if (security.appLockOn && vault) return 'App Lock and the vault.';
+  if (security.appLockOn) return 'App Lock.';
+  if (vault && security.vaultGuarded) return 'The vault, with a code of its own.';
+  if (vault) return 'The vault, still waiting for a code.';
+  return null;
+}
+
 function tabTitle(path: string | null | undefined): string | null {
   return TOUR_TABS.find((tab) => tab.path === path)?.title ?? null;
 }
@@ -1145,6 +1171,11 @@ function viewQuestion(def: InterviewQuestionDef, facts: InterviewFacts): Intervi
     }
     case 'backup': {
       if (itemSettled(facts, 'backup') === 'done') return { ...base, answered: true, summary: 'Backed up.' };
+      return { ...base, answered: !!answer, summary: answer ? 'Not yet.' : null };
+    }
+    case 'security': {
+      const summary = securitySummary(facts);
+      if (summary) return { ...base, answered: true, summary };
       return { ...base, answered: !!answer, summary: answer ? 'Not yet.' : null };
     }
     case 'stage':
@@ -1293,5 +1324,18 @@ function switchedOnLine(question: InterviewQuestionView, facts: InterviewFacts):
       return itemSettled(facts, 'backup') === 'done'
         ? 'A copy of your records is kept in the folder you chose.'
         : 'Nothing is backed up yet. Profile, under Backup & Restore, sets it up whenever you are ready.';
+    case 'security': {
+      const security = facts.security;
+      if (security?.appLockOn && security.vaultCategories > 0) {
+        return 'Your records are encrypted on this device, and the ones in the vault stay closed until your code opens them.';
+      }
+      if (security?.appLockOn) return 'Your records are encrypted on this device and open with your code.';
+      if (security && security.vaultCategories > 0) {
+        return security.vaultGuarded
+          ? 'The records in the vault stay closed until its code opens them.'
+          : 'The vault has records chosen but no code yet, so they are still open. Profile, under App Lock, sets the code.';
+      }
+      return 'Nothing is locked yet. Profile, under App Lock, sets it up whenever you are ready.';
+    }
   }
 }

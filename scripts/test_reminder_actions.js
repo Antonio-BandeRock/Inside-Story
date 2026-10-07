@@ -45,6 +45,7 @@ const {
   MORNING_BUTTON_VALUES,
   MORNING_ENERGY_TITLE,
   MORNING_ENERGY_BODY,
+  ACTION_OPENS_APP,
   ACTION_TEXT_INPUT,
   ALL_REMINDER_CATEGORY_KEYS,
   CATEGORY_ACTIONS,
@@ -67,7 +68,7 @@ function check(label, ok) {
 // Every set fits Android's three buttons and ends with Snooze, except the
 // two morning questions, whose three buttons are all answers (2026-10-01:
 // a question on a notification must be answerable on it).
-const ALL_ANSWERS = ['morning', 'energy'];
+const ALL_ANSWERS = ['morning', 'energy', 'vaultOffer'];
 for (const key of ALL_REMINDER_CATEGORY_KEYS) {
   const actions = CATEGORY_ACTIONS[key];
   check(`${key} has at most three buttons`, actions.length <= 3);
@@ -124,6 +125,10 @@ const expected = {
   cropSow: 'cropSow',
 };
 for (const [kind, key] of Object.entries(expected)) check(`${kind} -> ${key}`, categoryKeyFor(kind) === key);
+// The vault offer: three answers, and only Set It Up opens the app.
+check('the vault offer has its three answers', CATEGORY_ACTIONS.vaultOffer.join() === 'vaultSetUp,vaultNotNow,vaultStop');
+check('only Set It Up opens the app', Object.keys(ACTION_OPENS_APP).join() === 'vaultSetUp');
+check('the vault offer writes no record', planReminderAction('vaultOffer', 'vaultNotNow') === null);
 check('upkeep that expires gets Snooze only', categoryKeyFor('upkeep', false) === 'plain');
 
 // Every button a kind carries has a plan, and every plan pairs with its own kind.

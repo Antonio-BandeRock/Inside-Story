@@ -30,8 +30,8 @@ export async function getCheckinReminderInputs(since: string): Promise<CheckinRe
         LIMIT 20`,
       since,
     ),
-    db.getFirstAsync<{ at: string | null }>("SELECT MAX(logged_at) AS at FROM wellbeing_checkins WHERE checkin_type <> 'sleep'"),
-    db.getFirstAsync<{ at: string | null }>("SELECT MAX(logged_at) AS at FROM wellbeing_checkins WHERE checkin_type = 'sleep'"),
+    db.getFirstAsync<{ at: string | null }>("/* vault:tool */ SELECT MAX(logged_at) AS at FROM wellbeing_checkins WHERE checkin_type <> 'sleep'"),
+    db.getFirstAsync<{ at: string | null }>("/* vault:tool */ SELECT MAX(logged_at) AS at FROM wellbeing_checkins WHERE checkin_type = 'sleep'"),
   ]);
   // Home wrote UTC stamps before 1.0.53.4; localStampOf reads one back as
   // local time so it compares with the meals.

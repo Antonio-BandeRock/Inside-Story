@@ -41,6 +41,7 @@ import { listAllAppointments, listBloodPressureReadings, loadVisitRecords, DOSE_
 import { convertToGrams, type MeasurementUnit } from './unitConversion';
 import { upkeepStanding } from './upkeep';
 import { listUpkeepItems } from './upkeepDb';
+import { readOrClosed } from './vaultReads';
 
 export type InsightsMoreLens = 'i-today' | 'i-signals' | 'i-appointment' | 'i-money' | 'i-kitchen' | 'i-garden';
 
@@ -71,7 +72,7 @@ async function listYesterdayOpen(today: string): Promise<{ scheduledFor: string;
 
 async function listCheckinsAround(today: string): Promise<SignalCheckin[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{
+  const rows = await readOrClosed(() => db.getAllAsync<{
     id: string;
     loggedAt: string;
     checkinType: string;
@@ -84,13 +85,13 @@ async function listCheckinsAround(today: string): Promise<SignalCheckin[]> {
      FROM wellbeing_checkins WHERE logged_at >= ? AND logged_at < ? ORDER BY logged_at ASC`,
     addDays(today, -1),
     addDays(today, 2),
-  );
+  ), []);
   if (rows.length === 0) return [];
-  const tags = await db.getAllAsync<{ checkinId: string; tagCode: string }>(
+  const tags = await readOrClosed(() => db.getAllAsync<{ checkinId: string; tagCode: string }>(
     `SELECT checkin_id AS checkinId, tag_code AS tagCode FROM checkin_tags
      WHERE (severity IS NULL OR severity > 0) AND checkin_id IN (${rows.map(() => '?').join(', ')})`,
     ...rows.map((row) => row.id),
-  );
+  ), []);
   return rows.map((row) => ({
     ...row,
     tags: tags

@@ -6,20 +6,21 @@
 // between-people allowlist and never travels to anybody else.
 import { getDatabase } from './db';
 import { periodsFrom, type CycleDay } from './cycle';
+import { readOrClosed } from './vaultReads';
 
 export type CycleDayRow = { id: string; day: string; flow: number | null; source: string; notes: string | null };
 
 export async function listCycleDays(limit = 120): Promise<CycleDayRow[]> {
   const db = await getDatabase();
-  return db.getAllAsync<CycleDayRow>(
+  return readOrClosed(() => db.getAllAsync<CycleDayRow>(
     'SELECT id, day, flow, source, notes FROM cycle_days ORDER BY day DESC, source ASC LIMIT ?',
     limit,
-  );
+  ), []);
 }
 
 export async function listAllCycleDays(): Promise<CycleDay[]> {
   const db = await getDatabase();
-  return db.getAllAsync<CycleDay>('SELECT day, flow FROM cycle_days ORDER BY day ASC');
+  return readOrClosed(() => db.getAllAsync<CycleDay>('SELECT day, flow FROM cycle_days ORDER BY day ASC'), []);
 }
 
 export async function listPeriodStarts(): Promise<string[]> {
@@ -32,7 +33,7 @@ export async function saveCycleDay(input: { day: string; flow: number | null; no
   const now = new Date().toISOString();
   const notes = input.notes && input.notes.trim() ? input.notes.trim() : null;
   const existing = await db.getFirstAsync<{ id: string }>(
-    "SELECT id FROM cycle_days WHERE day = ? AND source = 'hand'",
+    "/* vault:tool */ SELECT id FROM cycle_days WHERE day = ? AND source = 'hand'",
     input.day,
   );
   if (existing) {

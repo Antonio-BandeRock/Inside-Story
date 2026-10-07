@@ -54,6 +54,8 @@ import {
 import { routeForDigestEntry } from '../lib/digestNavigation';
 import { useWalkMark } from './WalkMark';
 import { ThumbRow } from './ThumbRow';
+import { VaultClosedBand } from './VaultClosedBand';
+import { useCategoryClosed } from '../lib/vaultSession';
 
 // The 19 conditions, on the Life tab. Direct instruction, 2026-09-19:
 // "move Conditions from Digest to Life, all condition icons be changed to
@@ -250,6 +252,12 @@ export function ConditionsSection({
 
   const [familyForm, setFamilyForm] = useState<FamilyForm | null>(null);
   const [confirm, setConfirm] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
+
+  // Conditions and family members' health are never refused at the
+  // database, since scoring and the meal plan read them, so these lists are
+  // left out here while they are in a closed vault.
+  const conditionsClosed = useCategoryClosed('conditions');
+  const familyClosed = useCategoryClosed('familyHealth');
 
   const load = useCallback(async () => {
     try {
@@ -622,6 +630,9 @@ export function ConditionsSection({
         </View>
       ) : (
         <>
+          {conditionsClosed ? (
+            <VaultClosedBand color={tabColor} categories={['conditions']} />
+          ) : (
           <View style={styles.groupHeadingChip}>
             <Text style={styles.groupHeadingText}>My Conditions</Text>
             <Text style={styles.groupHeadingMeta}>
@@ -635,7 +646,8 @@ export function ConditionsSection({
               </TouchableOpacity>
             ) : null}
           </View>
-          {ownMetas.map((meta) => renderConditionBand(meta))}
+          )}
+          {conditionsClosed ? null : ownMetas.map((meta) => renderConditionBand(meta))}
 
           <View style={styles.groupHeadingChip}>
             <Text style={styles.groupHeadingText}>Family</Text>
@@ -644,7 +656,8 @@ export function ConditionsSection({
               checked alongside yours when a plan is generated. Nothing here touches your scores or
               advisories.
             </Text>
-            {family.map((member) => {
+            {familyClosed ? <VaultClosedBand inline color={tabColor} categories={['familyHealth']} /> : null}
+            {(familyClosed ? [] : family).map((member) => {
               const conditionNames = member.conditionCodes
                 .map((code) => allConditions.find((condition) => condition.code === code)?.name ?? code)
                 .sort((a, b) => a.localeCompare(b));

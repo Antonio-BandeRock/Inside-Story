@@ -23,6 +23,7 @@ import type {
   MedicalBill,
   BillStatus,
 } from './financeHealth';
+import { readOrClosed } from './vaultReads';
 
 // --- Insurance plans --------------------------------------------------------
 
@@ -84,7 +85,7 @@ export async function upsertInsurancePlan(input: {
 
 export async function getActiveInsurancePlan(): Promise<InsurancePlan | null> {
   const db = await getDatabase();
-  const row = await db.getFirstAsync<{
+  const row = await readOrClosed(() => db.getFirstAsync<{
     id: string;
     name: string;
     yearStart: string;
@@ -103,7 +104,7 @@ export async function getActiveInsurancePlan(): Promise<InsurancePlan | null> {
       ORDER BY year_start DESC
       LIMIT 1
     `,
-  );
+  ), null);
   return row ?? null;
 }
 
@@ -176,7 +177,7 @@ export async function deleteMedicalBill(id: string): Promise<void> {
 
 export async function listMedicalBills(limit = 200): Promise<MedicalBill[]> {
   const db = await getDatabase();
-  return db.getAllAsync<MedicalBill>(
+  return readOrClosed(() => db.getAllAsync<MedicalBill>(
     `
       SELECT id, service_date AS serviceDate, provider, description, billed, allowed,
              insurance_paid AS insurancePaid, you_owe AS youOwe, paid_amount AS paidAmount,
@@ -187,7 +188,7 @@ export async function listMedicalBills(limit = 200): Promise<MedicalBill[]> {
       LIMIT ?
     `,
     limit,
-  );
+  ), []);
 }
 
 // --- HSA and FSA ------------------------------------------------------------
@@ -227,13 +228,13 @@ export async function deleteHealthAccount(id: string): Promise<void> {
 
 export async function listHealthAccounts(): Promise<HealthAccount[]> {
   const db = await getDatabase();
-  return db.getAllAsync<HealthAccount>(
+  return readOrClosed(() => db.getAllAsync<HealthAccount>(
     `
       SELECT id, kind, plan_year AS planYear, contributed, spent, deadline
       FROM finance_health_accounts
       ORDER BY plan_year DESC, kind
     `,
-  );
+  ), []);
 }
 
 // --- What a condition costs -------------------------------------------------
@@ -263,20 +264,20 @@ export async function getConditionCostInputs(sinceDate: string): Promise<{
 }> {
   const db = await getDatabase();
 
-  const billRows = await db.getAllAsync<{ amount: number | null; conditionCode: string | null }>(
+  const billRows = await readOrClosed(() => db.getAllAsync<{ amount: number | null; conditionCode: string | null }>(
     `
       SELECT COALESCE(paid_amount, you_owe) AS amount, condition_code AS conditionCode
       FROM finance_medical_bills
       WHERE service_date >= ?
     `,
     sinceDate,
-  );
+  ), []);
 
   // Only health-category spending counts toward what a condition costs. A
   // tagged restaurant meal is not a medical cost, and letting every
   // category in would turn this figure into general spending wearing a
   // condition's name.
-  const entryRows = await db.getAllAsync<{ amount: number; conditionCode: string | null }>(
+  const entryRows = await readOrClosed(() => db.getAllAsync<{ amount: number; conditionCode: string | null }>(
     `
       SELECT amount, condition_code AS conditionCode
       FROM finance_entries
@@ -285,18 +286,18 @@ export async function getConditionCostInputs(sinceDate: string): Promise<{
         AND category IN ('health_insurance', 'medical_care', 'prescriptions', 'supplements', 'therapies')
     `,
     sinceDate,
-  );
+  ), []);
 
-  const therapyRows = await db.getAllAsync<{ amount: number | null; conditionCode: string | null }>(
+  const therapyRows = await readOrClosed(() => db.getAllAsync<{ amount: number | null; conditionCode: string | null }>(
     `
       SELECT cost AS amount, condition_code AS conditionCode
       FROM therapy_sessions
       WHERE performed_at >= ?
     `,
     sinceDate,
-  );
+  ), []);
 
-  const recurringTagged = await db.getAllAsync<{
+  const recurringTagged = await readOrClosed(() => db.getAllAsync<{
     amount: number;
     conditionCode: string | null;
     ruleJson: string | null;
@@ -309,7 +310,7 @@ export async function getConditionCostInputs(sinceDate: string): Promise<{
         AND direction = 'expense'
         AND category IN ('health_insurance', 'medical_care', 'prescriptions', 'supplements', 'therapies')
     `,
-  );
+  ), []);
 
   const asCost = (
     rows: { amount: number | null; conditionCode: string | null }[],

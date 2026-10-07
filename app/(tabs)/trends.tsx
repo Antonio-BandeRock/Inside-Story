@@ -170,6 +170,10 @@ import type { ReadingView } from '../../lib/readingBands';
 import type { YourStoryItemKey } from '../../lib/yourStory';
 import { listRecordedBodySignals, loadTrendsMoreView, type TrendsMoreLens } from '../../lib/trendsMoreDb';
 import { ThumbRow } from '../../components/ThumbRow';
+import { VaultClosedBand } from '../../components/VaultClosedBand';
+import type { VaultCategory } from '../../lib/vault';
+import { useOnVaultChange, useVaultReloadKey } from '../../lib/vaultReads';
+import { useListedClosed } from '../../lib/vaultSession';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -233,6 +237,29 @@ const MORE_LENSES: Record<TrendsMoreLens, { loadingLine: string; missingItem?: Y
   workouts: { loadingLine: 'Reading your workouts…', missingItem: 'exercise' },
   pacing: { loadingLine: 'Reading your days…', missingItem: 'exercise' },
   cycle: { loadingLine: 'Reading your cycles…' },
+};
+
+// Which vault categories each lens shows (lib/vault.ts, phase 2). A lens
+// left out shows nothing the vault holds.
+const TRENDS_LENS_VAULT: Partial<Record<TrendsLens, readonly VaultCategory[]>> = {
+  symptoms: ['symptoms'],
+  weight: ['body'],
+  labs: ['labs'],
+  conditions: ['conditions'],
+  cost: ['finances', 'medicalBills', 'therapy'],
+  patterns: ['symptoms', 'labs'],
+  therapyResponse: ['therapy', 'symptoms'],
+  compare: ['symptoms', 'labs', 'body', 'cycle'],
+  squares: ['symptoms', 'experiments', 'body', 'therapy', 'labs', 'cycle', 'finances'],
+  bloodPressure: ['body'],
+  bodySignals: ['labs'],
+  doses: ['medications'],
+  care: ['appointments', 'symptoms'],
+  reactions: ['symptoms', 'experiments'],
+  nights: ['symptoms', 'labs'],
+  workouts: ['labs'],
+  pacing: ['symptoms', 'therapy'],
+  cycle: ['cycle', 'symptoms'],
 };
 
 function isMoreLens(lens: TrendsLens): lens is TrendsMoreLens {
@@ -1157,15 +1184,22 @@ export default function TrendsScreen() {
   // every visit, since a day logged in Signals should show on return.
   const [cycleDays, setCycleDays] = useState<CycleDay[]>([]);
   const [shadeCycle, setShadeCycle] = useState(false);
+  // Changes as the vault opens or closes, so every load below reads again.
+  const vaultKey = useVaultReloadKey();
   useFocusEffect(
     useCallback(() => {
       listAllCycleDays().then(setCycleDays).catch(() => setCycleDays([]));
       getVisualPreferences().then((prefs) => setShadeCycle(prefs.trendsCycleShading));
       return subscribeToVisualPreferences((prefs) => setShadeCycle(prefs.trendsCycleShading));
-    }, []),
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- vaultKey reads again as the vault opens or closes
+    }, [vaultKey]),
   );
   const autoOpenLensHub = useAutoOpenLensHubSignal();
   const [lens, setLens] = useState<TrendsLens>('nutrients');
+  const lensVault = TRENDS_LENS_VAULT[lens] ?? [];
+  // A listed category (doses, conditions, appointments) is never refused at
+  // the database, so the lens is left out here while it is closed.
+  const listedClosedHere = useListedClosed(lensVault);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
@@ -1585,6 +1619,7 @@ export default function TrendsScreen() {
       });
     }
   }, [lens, days, harvestMonths, conditionMonths, pickedMeasurement, pickedDeviceSource, pickedDeviceDay, costMonths, measurementSystem, resolvedRange, selectedNutrient, selectedTestCode, selectedGroceryFood, patternWindow, patternOutcome, personalizationProfile]);
+  useOnVaultChange(load);
 
   // F22: read again once weather is turned on or off, or new days arrive.
   const loadRef = useRef(load);
@@ -1823,6 +1858,7 @@ export default function TrendsScreen() {
             <View style={band.heading}>
               <Text style={band.headingText}>{activeLensLabel}</Text>
             </View>
+            <VaultClosedBand color={TAB_COLOR} categories={lensVault} />
 
             {lens === 'squares' ? null : showsRangePicker ? (
               <>
@@ -1989,7 +2025,7 @@ export default function TrendsScreen() {
               </View>
             ) : null}
 
-            {lens === 'nutrients' ? (
+            {listedClosedHere ? null : lens === 'nutrients' ? (
               <>
                 {fiberChart && !resolvedRange.isSingleDay ? (
                   <TabBand
@@ -2944,10 +2980,10 @@ export default function TrendsScreen() {
               )
             ) : lens === 'squares' ? (
               <View style={band.box}>
-                <LifeInSquares />
+                <LifeInSquares key={vaultKey} />
               </View>
             ) : lens === 'compare' ? (
-              <CompareTwoLens
+              <CompareTwoLens key={vaultKey}
                 folds={folds}
                 color={TAB_COLOR}
                 weightUnit={measurementSystem === 'imperial' ? 'lb' : 'kg'}

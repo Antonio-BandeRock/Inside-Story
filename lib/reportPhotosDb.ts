@@ -8,6 +8,7 @@ import { mediaMimeType, type MediaItem } from './media';
 import { ensureMediaHere, listMediaOfKind, mediaFile } from './mediaDb';
 import type { ReportPhotoSection } from './reportGenerator';
 import { choosePhotosForReport, reportPhotoCaption, reportPhotoNote } from './reportPhotos';
+import { readOrClosed } from './vaultReads';
 
 async function photoSection(
   heading: string,
@@ -52,7 +53,7 @@ export async function symptomPhotoSection(start: string, end: string): Promise<R
   const items = await listMediaOfKind('symptom');
   const db = await getDatabase();
   const kinds = new Map(
-    (await db.getAllAsync<{ id: string; checkinType: string }>('SELECT id, checkin_type AS checkinType FROM wellbeing_checkins')).map(
+    (await readOrClosed(() => db.getAllAsync<{ id: string; checkinType: string }>('SELECT id, checkin_type AS checkinType FROM wellbeing_checkins'), [])).map(
       (row) => [row.id, row.checkinType],
     ),
   );

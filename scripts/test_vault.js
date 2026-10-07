@@ -16,7 +16,12 @@
 //     reads past it for a backup.
 //  5. Every vault table exists in lib/db.ts, the emergency card's tables
 //     are never in the vault, and no table is in two categories.
-//  6. In the source: the backup reads through unguardedGetAll, database
+//  6. Phase 2: the categories chosen decide what is refused, a listed
+//     category (meds, conditions, appointments) is never refused at the
+//     database, a statement carrying the tool mark reads past the vault,
+//     a phase 1 phone keeps its nine categories, the vault guards only when
+//     something opens it, and the offer to set it up waits for records.
+//  7. In the source: the backup reads through unguardedGetAll, database
 //     startup runs inside withVaultBypass, and the root layout closes the
 //     vault when the app is put away.
 //
@@ -29,19 +34,39 @@ const ts = require('typescript');
 const ROOT = path.join(__dirname, '..');
 const LIB = path.join(ROOT, 'lib');
 
-// A lock file the stand-in for expo-file-system hands back.
-let lockFileText = null;
+// The files the stand-in for expo-file-system holds, by name: the lock file
+// and the vault's settings file.
+const files = new Map();
+const LOCK = 'app-lock.json';
+const VAULT_FILE = 'vault.json';
 const fakeFileSystem = {
   Paths: { document: 'doc' },
   File: class {
-    constructor() {
-      this.exists = lockFileText !== null;
+    constructor(_dir, name) {
+      this.name = name;
+    }
+    get exists() {
+      return files.has(this.name);
+    }
+    create() {
+      files.set(this.name, '');
+    }
+    write(text) {
+      files.set(this.name, text);
     }
     textSync() {
-      return lockFileText;
+      return files.get(this.name) ?? null;
     }
   },
 };
+function setLock(value) {
+  for (const name of [...files.keys()]) if (name !== VAULT_FILE) files.delete(name);
+  if (value !== null) files.set(LOCK, JSON.stringify(value));
+}
+function setVaultFile(value) {
+  if (value === null) files.delete(VAULT_FILE);
+  else files.set(VAULT_FILE, JSON.stringify(value));
+}
 
 function loadModule(name, cache = new Map()) {
   if (cache.has(name)) return cache.get(name);
@@ -106,11 +131,12 @@ check('categories are named once each', same(V.vaultCategoriesRead('SELECT * FRO
 
 // 3. When a read is refused.
 const read = 'SELECT * FROM lab_results';
-check('off refuses nothing', V.vaultRefusal(read, false, false) === null);
-check('open refuses nothing', V.vaultRefusal(read, true, true) === null);
-check('on and closed refuses a vault read', V.vaultRefusal(read, true, false) instanceof V.VaultClosedError);
-check('on and closed lets an ordinary read through', V.vaultRefusal('SELECT * FROM meals', true, false) === null);
-check('the refusal names its category', same(V.vaultRefusal(read, true, false).categories, ['labs']));
+const ALL = V.VAULT_CATEGORIES;
+check('off refuses nothing', V.vaultRefusal(read, false, false, ALL) === null);
+check('open refuses nothing', V.vaultRefusal(read, true, true, ALL) === null);
+check('on and closed refuses a vault read', V.vaultRefusal(read, true, false, ALL) instanceof V.VaultClosedError);
+check('on and closed lets an ordinary read through', V.vaultRefusal('SELECT * FROM meals', true, false, ALL) === null);
+check('the refusal names its category', same(V.vaultRefusal(read, true, false, ALL).categories, ['labs']));
 check('the refusal is recognised by name too', V.isVaultClosedError(Object.assign(new Error('x'), { name: 'VaultClosedError' })));
 check('another error is not the vault', !V.isVaultClosedError(new Error('no such table')));
 
@@ -130,23 +156,24 @@ const baseLock = {
   reminderDetail: 'full',
 };
 
-lockFileText = null;
+setLock(null);
+setVaultFile(null);
 S.refreshVaultOn();
 check('no lock file, no vault', !S.isVaultOn() && S.vaultRefusalNow(read) === null);
 
-lockFileText = JSON.stringify({ ...baseLock, vault: false });
+setLock({ ...baseLock, vault: false });
 S.refreshVaultOn();
 check('lock on, vault off', !S.isVaultOn());
 
-lockFileText = JSON.stringify({ ...baseLock, vault: true, phase: 'encrypting' });
+setLock({ ...baseLock, vault: true, phase: 'encrypting' });
 S.refreshVaultOn();
 check('a lock still being set up has no vault', !S.isVaultOn());
 
-lockFileText = JSON.stringify(baseLock);
+setLock(baseLock);
 S.refreshVaultOn();
 check('a lock file from before the vault reads as vault off', !S.isVaultOn());
 
-lockFileText = JSON.stringify({ ...baseLock, vault: true });
+setLock({ ...baseLock, vault: true });
 S.refreshVaultOn();
 check('lock on, vault on', S.isVaultOn() && S.isVaultClosed());
 check('closed refuses a vault read', S.vaultRefusalNow(read) instanceof V.VaultClosedError);
@@ -227,7 +254,71 @@ check('closed again refuses', S.vaultRefusalNow(read) instanceof V.VaultClosedEr
   check('the emergency card is never in the vault', V.ALL_VAULT_TABLES.every((t) => !t.startsWith('emergency')));
   check('app_meta is never in the vault', !V.ALL_VAULT_TABLES.includes('app_meta'));
 
-  // 6. In the source.
+  // 6. Phase 2: choosing what goes in.
+  check('a phone that turned the vault on in phase 1 keeps its nine categories', same(S.chosenVaultCategories(), [...V.PHASE_ONE_CATEGORIES]));
+  const labsOnly = ['labs'];
+  check('a category left out is not refused', V.vaultRefusal('SELECT * FROM cycle_days', true, false, labsOnly) === null);
+  check('a category put in is refused', V.vaultRefusal(read, true, false, labsOnly) instanceof V.VaultClosedError);
+  check('a join refuses only what was put in', same(V.vaultRefusal('SELECT * FROM lab_results JOIN cycle_days ON 1', true, false, labsOnly).categories, ['labs']));
+  check('an empty vault refuses nothing', V.vaultRefusal(read, true, false, []) === null);
+  check('the tool mark reads past the vault', V.vaultRefusal(V.VAULT_TOOL_READ + ' ' + read, true, false, ALL) === null);
+  check('the tool mark must lead the statement', V.vaultRefusal(read + ' ' + V.VAULT_TOOL_READ, true, false, ALL) instanceof V.VaultClosedError);
+  for (const listed of ['medications', 'conditions', 'appointments']) {
+    check(`${listed} is a listed category`, V.VAULT_CATEGORY_KIND[listed] === 'listed');
+  }
+  check('the med list is never refused at the database', V.vaultRefusal('SELECT * FROM treatments', true, false, ALL) === null);
+  check('the conditions list is never refused at the database', V.vaultRefusal('SELECT * FROM user_conditions', true, false, ALL) === null);
+  check('allergies are never refused at the database', V.vaultRefusal('SELECT * FROM user_food_allergies', true, false, ALL) === null);
+  check('finances are refused', V.vaultRefusal('SELECT * FROM finance_entries', true, false, ['finances']) instanceof V.VaultClosedError);
+  check('a check-in tag list is a tool, never in the vault', !V.ALL_VAULT_TABLES.includes('custom_checkin_tags'));
+  check('every category is in the default set', same([...V.VAULT_DEFAULT_CATEGORIES].sort(), [...V.VAULT_CATEGORIES].sort()));
+  check('every category is health or money', V.VAULT_CATEGORIES.every((c) => ['health', 'money'].includes(V.VAULT_CATEGORY_GROUP[c])));
+  check('every category has a label', V.VAULT_CATEGORIES.every((c) => typeof V.VAULT_CATEGORY_LABELS[c] === 'string'));
+  check('a listed category says what keeps working', ['medications', 'conditions', 'appointments'].every((c) => typeof V.VAULT_CATEGORY_NOTES[c] === 'string'));
+  check('an unknown category is dropped', same(V.cleanCategories(['labs', 'nonsense', 'labs', 3]), ['labs']));
+
+  const withCode = {
+    ...V.EMPTY_VAULT_SETTINGS,
+    categories: ['labs'],
+    code: { kind: 'digits', kdf: { name: 'scrypt', N: 16384, r: 8, p: 1, salt: 'c2FsdA==' }, check: 'Y2hlY2s=', failedTries: 0, lastFailedAt: 0 },
+  };
+  check('App Lock opens the vault when it is on', V.vaultKey(true, withCode) === 'app-lock');
+  check('its own code opens it with App Lock off', V.vaultKey(false, withCode) === 'own-code');
+  check('nothing opens it with neither', V.vaultKey(false, { ...withCode, code: null }) === 'none');
+  check('with nothing to open it, it guards nothing', !V.vaultGuarding(false, { ...withCode, code: null }));
+  check('with nothing in it, it guards nothing', !V.vaultGuarding(true, { ...withCode, categories: [] }));
+  check('settings survive a round trip', same(V.parseVaultSettings(V.serializeVaultSettings(withCode)), withCode));
+  check('a damaged settings file reads as none', V.parseVaultSettings('{not json') === null);
+  check('a settings file of another version reads as none', V.parseVaultSettings(JSON.stringify({ ...withCode, version: 2 })) === null);
+  check('a damaged code is dropped', V.parseVaultSettings(JSON.stringify({ ...withCode, code: { kind: 'digits' } })).code === null);
+
+  setLock(null);
+  setVaultFile(withCode);
+  S.refreshVault();
+  check('vault only: its own code guards with App Lock off', S.isVaultOn() && S.currentVaultKey() === 'own-code');
+  check('vault only: a chosen category is refused', S.vaultRefusalNow(read) instanceof V.VaultClosedError);
+  check('vault only: a category left out is read', S.vaultRefusalNow('SELECT * FROM cycle_days') === null);
+  check('isCategoryClosed follows the choice', S.isCategoryClosed('labs') && !S.isCategoryClosed('cycle'));
+  S.saveVaultSettings({ ...withCode, categories: [] });
+  check('emptying the vault opens everything', S.vaultRefusalNow(read) === null && !S.isVaultOn());
+  check('the vault file is written', V.parseVaultSettings(files.get(VAULT_FILE)).categories.length === 0);
+
+  const DAY = 24 * 60 * 60 * 1000;
+  const none = { ...V.EMPTY_VAULT_SETTINGS };
+  check('no offer before there are records', !V.shouldOfferVault(none, false, V.VAULT_OFFER_AFTER_RECORDS - 1, 100 * DAY));
+  check('an offer once there are records', V.shouldOfferVault(none, false, V.VAULT_OFFER_AFTER_RECORDS, 100 * DAY));
+  check('no offer again within the month', !V.shouldOfferVault({ ...none, offeredAt: 90 * DAY }, false, 50, 100 * DAY));
+  check('an offer again after the month', V.shouldOfferVault({ ...none, offeredAt: 60 * DAY }, false, 50, 100 * DAY));
+  check('Stop Asking stops it', !V.shouldOfferVault({ ...none, stopOffering: true }, false, 50, 100 * DAY));
+  check('no offer while the vault is guarding', !V.shouldOfferVault(withCode, false, 50, 100 * DAY));
+  check('the offer names a count and nothing else', /^You have 25 health and money records/.test(V.vaultOfferText(25).body));
+
+  const everyTable = new Set(Object.values(V.VAULT_TABLES).flat());
+  check('the offer counts only tables the vault holds', V.VAULT_COUNTED_TABLES.every((t) => everyTable.has(t)));
+  check('the offer never arrives at night', !V.vaultOfferHourOk(new Date(2026, 9, 7, 23, 0)) && V.vaultOfferHourOk(new Date(2026, 9, 7, 14, 0)));
+  const notifier = fs.readFileSync(path.join(LIB, 'reminderNotifications.ts'), 'utf8');
+  check('a tap on the offer opens Profile on App Lock', notifier.includes("VAULT_OFFER_NOTIFICATION_ID) return { pathname: '/profile', params: { section: 'applock' } }"));
+  // 7. In the source.
   const backup = fs.readFileSync(path.join(LIB, 'dataBackup.ts'), 'utf8');
   check('the backup reads through unguardedGetAll', backup.includes('await unguardedGetAll<Record<string, unknown>>(db, `SELECT * FROM "${name}"`)'));
   check('database startup runs inside withVaultBypass', /withVaultBypass\(runDatabaseInitialization\)/.test(dbSource));

@@ -332,6 +332,9 @@ import { useWalkMark } from '../../components/WalkMark';
 import { ExerciseScheduleSection } from '../../components/ExerciseScheduleSection';
 import { ThumbRow } from '../../components/ThumbRow';
 import { ThumbEndRow } from '../../components/ThumbEndRow';
+import { VaultClosedBand } from '../../components/VaultClosedBand';
+import { useVaultReloadKey } from '../../lib/vaultReads';
+import { useCategoryClosed } from '../../lib/vaultSession';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -5389,6 +5392,10 @@ const MEDS_GROUPS: MedsGroup[] = [
 function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
   // The outline on a button a Your Story walk line names (components/WalkMark.ts).
   const walkMark = useWalkMark();
+  // The doses and the meds are left out while medications are in a closed
+  // vault. Reminders keep coming and the warnings stay: safety is never
+  // behind the vault.
+  const medsClosed = useCategoryClosed('medications');
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const folds = useBandFolds();
@@ -5874,6 +5881,10 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
         <View style={[styles.bandBox, styles.calmEdges]}><Text style={styles.errorText}>{errorMessage}</Text></View>
       ) : (
         <>
+          {medsClosed ? (
+            <VaultClosedBand color={TAB_COLOR} categories={['medications']} />
+          ) : (
+          <>
           <ScheduleBand folds={folds} id="schedule:meds:today" title="Today" icon="time-outline" count={todaysDoses.length}>
             {todaysDoses.length === 0 ? (
               <Text style={[styles.helperText, styles.panelStandalone]}>
@@ -5942,6 +5953,9 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
             </ScheduleBand>
           ) : null}
 
+          </>
+          )}
+
           {interactionWarnings.length > 0 ? (
             <ScheduleBand folds={folds} id="schedule:meds:things-to-check" title="Things to check" icon="alert-circle-outline" count={interactionWarnings.length}>
               <View style={[styles.table, styles.calmGap]}>
@@ -5980,7 +5994,7 @@ function MedsLens({ scheduleTreatmentId }: { scheduleTreatmentId?: string }) {
             </ScheduleBand>
           ) : null}
 
-          {treatments.length === 0 ? (
+          {medsClosed ? null : treatments.length === 0 ? (
             <View style={[styles.bandBox, styles.calmEdges]}>
               <Text style={styles.emptyText}>
                 Nothing to schedule yet. Add a prescription, OTC drug or supplement in Life &gt; My Meds, then tap Schedule it there.
@@ -6173,6 +6187,9 @@ const DEVICE_IMPORT_WINDOW_DAYS = 90;
 // time by a provider's office anyway.
 function AppointmentsLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  // The list is left out while appointments are in a closed vault. Adding
+  // one stays, and appointment reminders keep coming.
+  const appointmentsClosed = useCategoryClosed('appointments');
   const folds = useBandFolds();
   const [appointments, setAppointments] = useState<ScheduleItemRecord[]>([]);
   const [interactionWarnings, setInteractionWarnings] = useState<InteractionWarning[]>([]);
@@ -6634,6 +6651,9 @@ function AppointmentsLens() {
             </ScheduleBand>
           ) : null}
 
+          {appointmentsClosed ? (
+            <VaultClosedBand color={TAB_COLOR} categories={['appointments']} />
+          ) : (
           <ScheduleBand folds={folds} id="schedule:appointments:list" title="Appointments" icon="calendar-outline" count={appointments.length}>
           {appointments.length === 0 ? (
             <Text style={[styles.emptyText, styles.panelStandalone]}>Nothing scheduled. Add an appointment or import one from your phone calendar.</Text>
@@ -6696,6 +6716,7 @@ function AppointmentsLens() {
             </View>
           )}
           </ScheduleBand>
+          )}
         </>
       )}
     </ScrollView>
@@ -6863,6 +6884,7 @@ export default function ScheduleScreen() {
   // leaving someone to find it themselves via LensHub afterward.
   const { openScheduleLens, scheduleTreatmentId } = useLocalSearchParams<{ openScheduleLens?: string; scheduleTreatmentId?: string }>();
   const [lens, setLens] = useState<Lens>('meals');
+  const vaultKey = useVaultReloadKey();
   const activeLensLabel = LENSES.find((option) => option.key === lens)?.label;
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment
   // for the full reasoning. `lens` itself keeps its last-picked value
@@ -6957,7 +6979,7 @@ export default function ScheduleScreen() {
           ) : lens === 'dailyMealPlan' ? (
             <DailyMealPlanLens />
           ) : lens === 'hydration' ? (
-            <HydrationLens />
+            <HydrationLens key={vaultKey} />
           ) : lens === 'meds' ? (
             <MedsLens scheduleTreatmentId={scheduleTreatmentId} />
           ) : lens === 'appointments' ? (

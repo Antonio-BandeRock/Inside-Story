@@ -39,6 +39,7 @@ import { buildPacingView, PACING_TAG_CODES, pacingTodayLines, type PacingInputs,
 import { therapyTypeLabel } from './therapyTypes';
 import { buildCycleTrendsView, CYCLE_TRENDS_MIN_DAYS, type CycleTrendsInputs } from './cycleTrends';
 import { listAllCycleDays } from './cycleDb';
+import { readOrClosed } from './vaultReads';
 
 export type TrendsMoreLens =
   | 'hydration'
@@ -81,11 +82,11 @@ export async function listBloodPressureReadings(): Promise<
   { loggedAt: string; systolic: number; diastolic: number; pulse: number | null }[]
 > {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ loggedAt: string; type: string; value: number }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ loggedAt: string; type: string; value: number }>(
     `SELECT logged_at AS loggedAt, measurement_type AS type, value FROM body_measurements
      WHERE measurement_type IN ('blood_pressure_systolic', 'blood_pressure_diastolic', 'heart_rate_bpm')
      ORDER BY logged_at ASC`,
-  );
+  ), []);
   // A reading is a systolic and a diastolic written at the same moment; a
   // pulse at that moment rides along, and one on its own is left out.
   const byMoment = new Map<string, { systolic?: number; diastolic?: number; pulse?: number }>();
@@ -138,9 +139,9 @@ export async function loadVisitRecords(today: string): Promise<SinceLastVisitInp
     listAllAppointments(),
     listLabResults(undefined, 200),
     getLabTests(),
-    db.getAllAsync<{ loggedAt: string; severity: number | null; notes: string | null }>(
+    readOrClosed(() => db.getAllAsync<{ loggedAt: string; severity: number | null; notes: string | null }>(
       `SELECT logged_at AS loggedAt, severity, notes FROM wellbeing_checkins WHERE checkin_type = 'flare' ORDER BY logged_at ASC`,
-    ),
+    ), []),
     db.getAllAsync<SinceLastVisitInputs['treatments'][number]>(
       `SELECT name, treatment_type AS treatmentType, start_date AS startDate, end_date AS endDate,
               updated_at AS updatedAt, dose_amount AS doseAmount, dose_unit AS doseUnit
@@ -172,15 +173,15 @@ export async function loadSinceLastVisitView(): Promise<ReadingView> {
 
 export async function listFlareDates(): Promise<string[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ loggedAt: string }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ loggedAt: string }>(
     `SELECT logged_at AS loggedAt FROM wellbeing_checkins WHERE checkin_type = 'flare' ORDER BY logged_at ASC`,
-  );
+  ), []);
   return rows.map((row) => localDay(row.loggedAt));
 }
 
 export async function listMealReactions(range: DayRange): Promise<{ loggedAt: string; severity: number | null; mealName: string | null }[]> {
   const db = await getDatabase();
-  return db.getAllAsync(
+  return readOrClosed(() => db.getAllAsync(
     `SELECT c.logged_at AS loggedAt, c.severity AS severity, m.name AS mealName
      FROM wellbeing_checkins c LEFT JOIN meals m ON m.id = c.related_meal_id
      WHERE c.checkin_type = 'post_meal' AND c.valence = 'negative'
@@ -188,17 +189,17 @@ export async function listMealReactions(range: DayRange): Promise<{ loggedAt: st
      ORDER BY c.logged_at ASC`,
     addDays(range.start, -1),
     addDays(range.end, 2),
-  );
+  ), []);
 }
 
 export async function listFoodTrialsForTrends(): Promise<
   { foodName: string; status: string; startedAt: string; resolvedAt: string | null; design: string | null; subjectKind: string | null }[]
 > {
   const db = await getDatabase();
-  return db.getAllAsync(
+  return readOrClosed(() => db.getAllAsync(
     `SELECT food_name AS foodName, status, started_at AS startedAt, resolved_at AS resolvedAt, design, subject_kind AS subjectKind
      FROM food_trials ORDER BY started_at ASC`,
-  );
+  ), []);
 }
 
 export async function listFermentBatches(): Promise<{ fermentationName: string; startedAt: string; stage: string }[]> {
@@ -312,14 +313,14 @@ export async function loadTagNights(range: DayRange): Promise<TagNightsInputs> {
   const db = await getDatabase();
   const [tags, rows] = await Promise.all([
     loadTagDays(range.start, range.end),
-    db.getAllAsync<{ recordType: string; localDate: string; value: number | null; value2: number | null }>(
+    readOrClosed(() => db.getAllAsync<{ recordType: string; localDate: string; value: number | null; value2: number | null }>(
       `SELECT record_type AS recordType, local_date AS localDate, value, value2
          FROM health_records
         WHERE record_type IN ('sleep', 'resting_heart_rate', 'hrv') AND local_date >= ? AND local_date <= ?
         ORDER BY local_date ASC`,
       addDays(range.end, -TAG_NIGHTS_LOOKBACK_DAYS),
       addDays(range.end, 1),
-    ),
+    ), []),
   ]);
   const sums: Record<string, Map<string, { total: number; n: number }>> = { sleep: new Map(), resting_heart_rate: new Map(), hrv: new Map() };
   for (const row of rows) {
@@ -337,7 +338,7 @@ export async function loadTagNights(range: DayRange): Promise<TagNightsInputs> {
 
 export async function listBodySignalReadings(): Promise<BodySignalReading[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{
+  const rows = await readOrClosed(() => db.getAllAsync<{
     recordType: string;
     localDate: string;
     startedAt: string;
@@ -351,7 +352,7 @@ export async function listBodySignalReadings(): Promise<BodySignalReading[]> {
      WHERE record_type IN (${Object.keys(BODY_SIGNAL_RECORD_TYPES).map(() => '?').join(', ')})
      ORDER BY started_at ASC`,
     ...Object.keys(BODY_SIGNAL_RECORD_TYPES),
-  );
+  ), []);
   const readings: BodySignalReading[] = [];
   for (const row of rows) {
     const signal = BODY_SIGNAL_RECORD_TYPES[row.recordType];
@@ -368,11 +369,11 @@ export async function listBodySignalReadings(): Promise<BodySignalReading[]> {
 // Finder offers only those as outcomes.
 export async function listRecordedBodySignals(): Promise<BodySignalKey[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ recordType: string }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ recordType: string }>(
     `SELECT DISTINCT record_type AS recordType FROM health_records
      WHERE record_type IN (${Object.keys(BODY_SIGNAL_RECORD_TYPES).map(() => '?').join(', ')}) AND value IS NOT NULL`,
     ...Object.keys(BODY_SIGNAL_RECORD_TYPES),
-  );
+  ), []);
   const found = new Set(rows.map((row) => BODY_SIGNAL_RECORD_TYPES[row.recordType]).filter(Boolean));
   return BODY_SIGNAL_ORDER.filter((signal) => found.has(signal));
 }
@@ -382,14 +383,14 @@ export async function listBodySignalReadingsFrom(signal: BodySignalKey, fromDate
   const recordTypes = Object.keys(BODY_SIGNAL_RECORD_TYPES).filter((type) => BODY_SIGNAL_RECORD_TYPES[type] === signal);
   if (recordTypes.length === 0) return [];
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ localDate: string; startedAt: string; value: number | null }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ localDate: string; startedAt: string; value: number | null }>(
     `SELECT local_date AS localDate, started_at AS startedAt, value
      FROM health_records
      WHERE record_type IN (${recordTypes.map(() => '?').join(', ')}) AND local_date >= ?
      ORDER BY started_at ASC`,
     ...recordTypes,
     fromDate,
-  );
+  ), []);
   return rows
     .filter((row) => typeof row.value === 'number' && Number.isFinite(row.value))
     .map((row) => ({ signal, date: row.localDate, at: row.startedAt, value: row.value as number }));
@@ -431,13 +432,13 @@ export async function loadPacingInputs(range: DayRange, today: string): Promise<
       from,
       through,
     ),
-    db.getAllAsync<{ performedAt: string; therapyType: string; minutes: number | null }>(
+    readOrClosed(() => db.getAllAsync<{ performedAt: string; therapyType: string; minutes: number | null }>(
       `SELECT performed_at AS performedAt, therapy_type AS therapyType, duration_minutes AS minutes
        FROM therapy_sessions WHERE performed_at >= ? AND performed_at < ? ORDER BY performed_at ASC`,
       from,
       through,
-    ),
-    db.getAllAsync<{ loggedAt: string; code: string }>(
+    ), []),
+    readOrClosed(() => db.getAllAsync<{ loggedAt: string; code: string }>(
       `SELECT c.logged_at AS loggedAt, t.tag_code AS code
        FROM checkin_tags t JOIN wellbeing_checkins c ON c.id = t.checkin_id
        WHERE c.logged_at >= ? AND c.logged_at < ? AND t.tag_code IN (${codes.map(() => '?').join(', ')})
@@ -445,7 +446,7 @@ export async function loadPacingInputs(range: DayRange, today: string): Promise<
       from,
       through,
       ...codes,
-    ),
+    ), []),
   ]);
   return {
     range,
@@ -470,20 +471,20 @@ export async function loadCycleTrendsInputs(range: DayRange, today: string): Pro
   const through = addDays(range.end, 2);
   const [cycleDays, checkinRows, tagRows] = await Promise.all([
     listAllCycleDays(),
-    db.getAllAsync<{ loggedAt: string; type: string; mood: number | null; energy: number | null; stress: number | null }>(
+    readOrClosed(() => db.getAllAsync<{ loggedAt: string; type: string; mood: number | null; energy: number | null; stress: number | null }>(
       `SELECT logged_at AS loggedAt, checkin_type AS type, mood, energy, stress
        FROM wellbeing_checkins WHERE logged_at >= ? AND logged_at < ? ORDER BY logged_at ASC`,
       from,
       through,
-    ),
-    db.getAllAsync<{ loggedAt: string; code: string }>(
+    ), []),
+    readOrClosed(() => db.getAllAsync<{ loggedAt: string; code: string }>(
       `SELECT c.logged_at AS loggedAt, t.tag_code AS code
        FROM checkin_tags t JOIN wellbeing_checkins c ON c.id = t.checkin_id
        WHERE c.logged_at >= ? AND c.logged_at < ? AND (t.severity IS NULL OR t.severity > 0)
        ORDER BY c.logged_at ASC`,
       from,
       through,
-    ),
+    ), []),
   ]);
   const inRange = (date: string) => date >= range.start && date <= range.end;
   return {

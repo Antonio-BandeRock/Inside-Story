@@ -122,7 +122,7 @@ export type DatedReminderSource = {
  */
 export async function listDatedReminderSources(today: string): Promise<DatedReminderSource[]> {
   const [recurring, upkeepItems, benefits, countdowns, freeCountdowns, piles] = await Promise.all([
-    listRecurring(),
+    listRecurring(true),
     listUpkeepItems(),
     listBenefits(),
     listRunningGardenCountdowns(),

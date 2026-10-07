@@ -65,6 +65,7 @@ import type { WeekdayTargetOverride } from './weekdayTargets';
 import { customTagFromRow, setCustomCheckinTags, type CheckinTagDefinition, type CustomCheckinTagRow } from './checkinTags';
 import { gapFoodNameKey } from './nutrientGapFoods';
 import { eatenOutCaption, eatenOutOf, parseEatenOutNote, recentPlaces, type EatenOutHow } from './eatenOut';
+import { readOrClosed } from './vaultReads';
 
 // Exported as of 2026-08-19 -- lib/visualPreferences.ts's own
 // getGroundThemeSync() needs to open this exact same file (by name, via
@@ -4965,8 +4966,10 @@ function ownLabTestToLabTest(row: OwnLabTestRow): LabTest {
 
 async function listOwnLabTestRows(): Promise<OwnLabTestRow[]> {
   const db = await getDatabase();
+  // The tests the person added are a choice list for the lab form, so they
+  // read past a closed vault; the results stay in it.
   return db.getAllAsync<OwnLabTestRow>(
-    `SELECT code, display_name AS displayName, unit, retired_at AS retiredAt FROM own_lab_tests ORDER BY display_name COLLATE NOCASE`,
+    `/* vault:tool */ SELECT code, display_name AS displayName, unit, retired_at AS retiredAt FROM own_lab_tests ORDER BY display_name COLLATE NOCASE`,
   );
 }
 
@@ -4993,7 +4996,7 @@ export async function addOwnLabTest(name: string, unit: string): Promise<string>
   const db = await getDatabase();
   const displayName = name.trim().replace(/\s+/g, ' ');
   const existing = await db.getFirstAsync<{ code: string }>(
-    'SELECT code FROM own_lab_tests WHERE display_name = ? COLLATE NOCASE',
+    '/* vault:tool */ SELECT code FROM own_lab_tests WHERE display_name = ? COLLATE NOCASE',
     displayName,
   );
   if (existing) {
@@ -5002,7 +5005,7 @@ export async function addOwnLabTest(name: string, unit: string): Promise<string>
   }
   const base = `own_${slugForOwnTest(displayName)}`;
   let code = base;
-  for (let n = 2; await db.getFirstAsync('SELECT 1 FROM own_lab_tests WHERE code = ?', code); n++) code = `${base}_${n}`;
+  for (let n = 2; await db.getFirstAsync('/* vault:tool */ SELECT 1 FROM own_lab_tests WHERE code = ?', code); n++) code = `${base}_${n}`;
   await db.runAsync(
     'INSERT INTO own_lab_tests (code, display_name, unit, created_at) VALUES (?, ?, ?, ?)',
     code,
@@ -5025,7 +5028,7 @@ export async function renameOwnLabTest(code: string, name: string) {
  */
 export async function removeOwnLabTest(code: string): Promise<'retired' | 'deleted'> {
   const db = await getDatabase();
-  const used = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM lab_results WHERE test_code = ?', code);
+  const used = await db.getFirstAsync<{ n: number }>('/* vault:tool */ SELECT COUNT(*) AS n FROM lab_results WHERE test_code = ?', code);
   if ((used?.n ?? 0) > 0) {
     await db.runAsync('UPDATE own_lab_tests SET retired_at = ? WHERE code = ?', new Date().toISOString(), code);
     return 'retired';
@@ -19358,7 +19361,7 @@ function mealItemToIngredientInput(item: MealItemRecord): MealIngredientInput {
 export async function countFoodTrialsActivatedByMeal(mealId: string): Promise<number> {
   const db = await getDatabase();
   const row = await db.getFirstAsync<{ count: number }>(
-    'SELECT COUNT(*) AS count FROM food_trials WHERE activated_by_meal_id = ?',
+    '/* vault:tool */ SELECT COUNT(*) AS count FROM food_trials WHERE activated_by_meal_id = ?',
     mealId,
   );
   return row?.count ?? 0;
@@ -20391,8 +20394,11 @@ export async function getFamilyMembers(): Promise<FamilyMember[]> {
   }>(
     'SELECT id, name, relationship, include_in_meal_plan, created_at, portion, soft_food, lives_from, lives_until, age_group, sex FROM family_members ORDER BY created_at, name',
   );
+  // Read past a closed vault: a member's conditions shape the meal plan and
+  // scoring the way the person's own do. The Family list hides them itself
+  // while family health is in the vault (components/ConditionsSection.tsx).
   const conditionRows = await db.getAllAsync<{ member_id: string; condition_code: string }>(
-    'SELECT member_id, condition_code FROM family_member_conditions ORDER BY selected_at',
+    '/* vault:tool */ SELECT member_id, condition_code FROM family_member_conditions ORDER BY selected_at',
   );
   const byMember = new Map<string, string[]>();
   for (const row of conditionRows) {
@@ -20657,9 +20663,9 @@ export async function removeFoodAllergy(name: string): Promise<void> {
 // listed one regardless of which was added first.
 export async function listNeuroProfile(): Promise<NeuroProfileKey[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ profile_key: string }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ profile_key: string }>(
     'SELECT profile_key FROM user_neuro_profile',
-  );
+  ), []);
   return normalizeNeuroProfileKeys(rows.map((row) => row.profile_key));
 }
 
@@ -21187,13 +21193,25 @@ const PERSONAL_RULE_COLUMNS = `
 // want what's currently checkable (lib/interactionRules.ts) pass true.
 export async function listPersonalRules(activeOnly = false): Promise<PersonalRule[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<Omit<PersonalRule, 'active'> & { active: number }>(
+  const rows = await readOrClosed(() => db.getAllAsync<Omit<PersonalRule, 'active'> & { active: number }>(
     `
       SELECT ${PERSONAL_RULE_COLUMNS}
       FROM personal_rules
       ${activeOnly ? 'WHERE active = 1' : ''}
       ORDER BY created_at DESC
     `,
+  ), []);
+  return rows.map((row) => ({ ...row, active: row.active === 1 }));
+}
+
+// The active rules for the warnings in lib/interactionRules.ts, read past a
+// closed vault: a rule the person or their doctor wrote is a safety warning,
+// and safety is never behind the vault (P28). The list of rules itself, on
+// Insights and in reports, goes through listPersonalRules and stays closed.
+export async function listPersonalRulesForWarnings(): Promise<PersonalRule[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<Omit<PersonalRule, 'active'> & { active: number }>(
+    `/* vault:tool */ SELECT ${PERSONAL_RULE_COLUMNS} FROM personal_rules WHERE active = 1 ORDER BY created_at DESC`,
   );
   return rows.map((row) => ({ ...row, active: row.active === 1 }));
 }
@@ -22840,7 +22858,7 @@ export async function recordLabResult(input: {
 // specifically want one test's history in chronological order for charting.
 export async function listLabResults(testCode?: string, limit = 100) {
   const db = await getDatabase();
-  return db.getAllAsync<LabResultRecord>(
+  return readOrClosed(() => db.getAllAsync<LabResultRecord>(
     `
       SELECT id, test_code AS testCode, value, unit, lab_range_low AS labRangeLow, lab_range_high AS labRangeHigh,
              tested_at AS testedAt, lab_name AS labName, notes, created_at AS createdAt
@@ -22850,7 +22868,7 @@ export async function listLabResults(testCode?: string, limit = 100) {
       LIMIT ?
     `,
     ...(testCode ? [testCode, limit] : [limit]),
-  );
+  ), []);
 }
 
 // One test's full history in chronological (oldest-first) order -- the
@@ -22858,7 +22876,7 @@ export async function listLabResults(testCode?: string, limit = 100) {
 // opposed to listLabResults' most-recent-first feed.
 export async function getLabResultTrend(testCode: string) {
   const db = await getDatabase();
-  return db.getAllAsync<LabResultRecord>(
+  return readOrClosed(() => db.getAllAsync<LabResultRecord>(
     `
       SELECT id, test_code AS testCode, value, unit, lab_range_low AS labRangeLow, lab_range_high AS labRangeHigh,
              tested_at AS testedAt, lab_name AS labName, notes, created_at AS createdAt
@@ -22867,7 +22885,7 @@ export async function getLabResultTrend(testCode: string) {
       ORDER BY tested_at ASC
     `,
     testCode,
-  );
+  ), []);
 }
 
 export async function deleteLabResult(id: string) {
@@ -23001,10 +23019,10 @@ async function attachCheckinTags(
   if (checkins.length === 0) return [];
 
   const placeholders = checkins.map(() => '?').join(', ');
-  const tagRows = await db.getAllAsync<{ checkin_id: string; tag_code: string; severity: number | null }>(
+  const tagRows = await readOrClosed(() => db.getAllAsync<{ checkin_id: string; tag_code: string; severity: number | null }>(
     `SELECT checkin_id, tag_code, severity FROM checkin_tags WHERE checkin_id IN (${placeholders})`,
     ...checkins.map((checkin) => checkin.id),
-  );
+  ), []);
 
   const tagsByCheckin = new Map<string, string[]>();
   const severityByCheckin = new Map<string, Record<string, number>>();
@@ -23024,10 +23042,10 @@ async function attachCheckinTags(
     }
   }
 
-  const regionRows = await db.getAllAsync<{ checkin_id: string; region: string }>(
+  const regionRows = await readOrClosed(() => db.getAllAsync<{ checkin_id: string; region: string }>(
     `SELECT checkin_id, region FROM checkin_body_regions WHERE checkin_id IN (${placeholders}) ORDER BY rowid`,
     ...checkins.map((checkin) => checkin.id),
-  );
+  ), []);
   const regionsByCheckin = new Map<string, string[]>();
   for (const row of regionRows) {
     regionsByCheckin.set(row.checkin_id, [...(regionsByCheckin.get(row.checkin_id) ?? []), row.region]);
@@ -23068,7 +23086,7 @@ export async function listCheckins(
   const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
   const limit = filters.limit ?? 50;
 
-  const rows = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday' | 'bodyRegions'>>(
+  const rows = await readOrClosed(() => db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday' | 'bodyRegions'>>(
     `
       SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
              related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,
@@ -23080,7 +23098,7 @@ export async function listCheckins(
     `,
     ...params,
     limit,
-  );
+  ), []);
 
   return attachCheckinTags(db, rows);
 }
@@ -23089,7 +23107,7 @@ export async function listCheckins(
  *  dates, oldest first, with their tags and body areas (D11, Trends). */
 export async function listCheckinsBetween(types: CheckinType[], startDay: string, endDay: string) {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday' | 'bodyRegions'>>(
+  const rows = await readOrClosed(() => db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday' | 'bodyRegions'>>(
     `
       SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
              related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,
@@ -23101,7 +23119,7 @@ export async function listCheckinsBetween(types: CheckinType[], startDay: string
     ...types,
     startDay,
     `${endDay}T99`,
-  );
+  ), []);
   return attachCheckinTags(db, rows);
 }
 
@@ -23111,7 +23129,7 @@ export async function listCheckinsBetween(types: CheckinType[], startDay: string
 export async function listCheckinsByIds(ids: string[]) {
   if (ids.length === 0) return [];
   const db = await getDatabase();
-  const rows = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday' | 'bodyRegions'>>(
+  const rows = await readOrClosed(() => db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday' | 'bodyRegions'>>(
     `
       SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
              related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,
@@ -23120,7 +23138,7 @@ export async function listCheckinsByIds(ids: string[]) {
       WHERE id IN (${ids.map(() => '?').join(', ')})
     `,
     ...ids,
-  );
+  ), []);
   return attachCheckinTags(db, rows);
 }
 
@@ -23241,7 +23259,7 @@ export async function listTherapySessions(
   const where = filters.sinceDate ? 'WHERE performed_at >= ?' : '';
   const params: (string | number)[] = filters.sinceDate ? [filters.sinceDate] : [];
 
-  const rows = await db.getAllAsync<{
+  const rows = await readOrClosed(() => db.getAllAsync<{
     id: string;
     performedAt: string;
     therapyType: string;
@@ -23261,7 +23279,7 @@ export async function listTherapySessions(
     `,
     ...params,
     filters.limit ?? 200,
-  );
+  ), []);
 
   return rows;
 }
@@ -23289,7 +23307,7 @@ export async function getTherapyResponseInputs(days: number): Promise<{
   const pad = (n: number) => String(n).padStart(2, '0');
   const sinceDate = `${since.getFullYear()}-${pad(since.getMonth() + 1)}-${pad(since.getDate())}`;
 
-  const sessions = await db.getAllAsync<{ performedAt: string; therapyType: string }>(
+  const sessions = await readOrClosed(() => db.getAllAsync<{ performedAt: string; therapyType: string }>(
     `
       SELECT performed_at AS performedAt, therapy_type AS therapyType
       FROM therapy_sessions
@@ -23297,9 +23315,9 @@ export async function getTherapyResponseInputs(days: number): Promise<{
       ORDER BY performed_at ASC
     `,
     sinceDate,
-  );
+  ), []);
 
-  const checkins = await db.getAllAsync<{ loggedAt: string; valence: CheckinValence; severity: number | null }>(
+  const checkins = await readOrClosed(() => db.getAllAsync<{ loggedAt: string; valence: CheckinValence; severity: number | null }>(
     `
       SELECT logged_at AS loggedAt, valence, severity
       FROM wellbeing_checkins
@@ -23307,7 +23325,7 @@ export async function getTherapyResponseInputs(days: number): Promise<{
       ORDER BY logged_at ASC
     `,
     sinceDate,
-  );
+  ), []);
 
   return { sessions, checkins };
 }
@@ -23323,7 +23341,7 @@ export async function getTherapyResponseInputs(days: number): Promise<{
 // todayDateString()).
 export async function getCheckinForDate(date: string, checkinType: CheckinType): Promise<WellbeingCheckin | null> {
   const db = await getDatabase();
-  const row = await db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday' | 'bodyRegions'>>(
+  const row = await readOrClosed(() => db.getAllAsync<Omit<WellbeingCheckin, 'tags' | 'tagSeverity' | 'noneToday' | 'bodyRegions'>>(
     `
       SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
              related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,
@@ -23335,7 +23353,7 @@ export async function getCheckinForDate(date: string, checkinType: CheckinType):
     checkinType,
     addDaysToLocalDate(date, -1),
     addDaysToLocalDate(date, 2),
-  ).then((rows) => rows.find((candidate) => localDayOf(candidate.loggedAt) === date) ?? null);
+  ), []).then((rows) => rows.find((candidate) => localDayOf(candidate.loggedAt) === date) ?? null);
   if (!row) return null;
   const [withTags] = await attachCheckinTags(db, [row]);
   return withTags;
@@ -23449,7 +23467,7 @@ export async function recordBodyMeasurement(input: {
 
 export async function listBodyMeasurements(measurementType?: string, limit = 100) {
   const db = await getDatabase();
-  return db.getAllAsync<BodyMeasurementRecord>(
+  return readOrClosed(() => db.getAllAsync<BodyMeasurementRecord>(
     `
       SELECT id, logged_at AS loggedAt, measurement_type AS measurementType, value, unit, notes, created_at AS createdAt
       FROM body_measurements
@@ -23458,7 +23476,7 @@ export async function listBodyMeasurements(measurementType?: string, limit = 100
       LIMIT ?
     `,
     ...(measurementType ? [measurementType, limit] : [limit]),
-  );
+  ), []);
 }
 
 export async function deleteBodyMeasurement(id: string) {
@@ -23471,7 +23489,7 @@ export async function deleteBodyMeasurement(id: string) {
 // most-recent-first feed.
 export async function getBodyMeasurementTrend(measurementType: string) {
   const db = await getDatabase();
-  return db.getAllAsync<BodyMeasurementRecord>(
+  return readOrClosed(() => db.getAllAsync<BodyMeasurementRecord>(
     `
       SELECT id, logged_at AS loggedAt, measurement_type AS measurementType, value, unit, notes, created_at AS createdAt
       FROM body_measurements
@@ -23479,7 +23497,7 @@ export async function getBodyMeasurementTrend(measurementType: string) {
       ORDER BY logged_at ASC
     `,
     measurementType,
-  );
+  ), []);
 }
 
 // 'health_connect' added 2026-09-14: a day the phone's health store
@@ -23645,7 +23663,7 @@ export async function listHealthRecords(recordType: HealthRecordType, days = 90)
   const since = new Date();
   since.setDate(since.getDate() - (days - 1));
   const sinceDate = `${since.getFullYear()}-${String(since.getMonth() + 1).padStart(2, '0')}-${String(since.getDate()).padStart(2, '0')}`;
-  return db.getAllAsync<HealthRecord>(
+  return readOrClosed(() => db.getAllAsync<HealthRecord>(
     `
       SELECT ${HEALTH_RECORD_COLUMNS}
       FROM health_records
@@ -23654,12 +23672,12 @@ export async function listHealthRecords(recordType: HealthRecordType, days = 90)
     `,
     recordType,
     sinceDate,
-  );
+  ), []);
 }
 
 export async function getLatestHealthRecord(recordType: HealthRecordType): Promise<HealthRecord | null> {
   const db = await getDatabase();
-  return db.getFirstAsync<HealthRecord>(
+  return readOrClosed(() => db.getFirstAsync<HealthRecord>(
     `
       SELECT ${HEALTH_RECORD_COLUMNS}
       FROM health_records
@@ -23668,13 +23686,13 @@ export async function getLatestHealthRecord(recordType: HealthRecordType): Promi
       LIMIT 1
     `,
     recordType,
-  );
+  ), null);
 }
 
 export async function countHealthRecords(recordType: HealthRecordType): Promise<number> {
   const db = await getDatabase();
   const row = await db.getFirstAsync<{ count: number }>(
-    'SELECT COUNT(*) AS count FROM health_records WHERE record_type = ?',
+    '/* vault:tool */ SELECT COUNT(*) AS count FROM health_records WHERE record_type = ?',
     recordType,
   );
   return row?.count ?? 0;
@@ -23693,7 +23711,7 @@ export async function recordSyncedBodyMeasurement(input: {
 }): Promise<boolean> {
   const db = await getDatabase();
   const existing = await db.getFirstAsync<{ id: string }>(
-    'SELECT id FROM body_measurements WHERE external_id = ? LIMIT 1',
+    '/* vault:tool */ SELECT id FROM body_measurements WHERE external_id = ? LIMIT 1',
     input.externalId,
   );
   if (existing) return false;
@@ -23720,7 +23738,7 @@ export async function recordSyncedBodyMeasurement(input: {
 export async function getLatestSyncedBodyMeasurement(measurementType: string): Promise<BodyMeasurementRecord | null> {
   const db = await getDatabase();
   return db.getFirstAsync<BodyMeasurementRecord>(
-    `
+    `/* vault:tool */ 
       SELECT id, logged_at AS loggedAt, measurement_type AS measurementType, value, unit, notes, created_at AS createdAt
       FROM body_measurements
       WHERE measurement_type = ? AND source = 'health_connect'
@@ -23809,7 +23827,7 @@ export async function getExerciseAndMeasurementTimeline(days = 90) {
       `,
       since,
     ),
-    db.getAllAsync<BodyMeasurementRecord>(
+    readOrClosed(() => db.getAllAsync<BodyMeasurementRecord>(
       `
         SELECT id, logged_at AS loggedAt, measurement_type AS measurementType, value, unit, notes, created_at AS createdAt
         FROM body_measurements
@@ -23817,7 +23835,7 @@ export async function getExerciseAndMeasurementTimeline(days = 90) {
         ORDER BY logged_at ASC
       `,
       since,
-    ),
+    ), []),
   ]);
 
   return { exercises, measurements };
@@ -23967,7 +23985,7 @@ export async function createFoodTrial(input: {
 
 export async function listFoodTrials(limit = 100): Promise<FoodTrialRecord[]> {
   const db = await getDatabase();
-  return db.getAllAsync<FoodTrialRecord>(
+  return readOrClosed(() => db.getAllAsync<FoodTrialRecord>(
     `
       SELECT id, food_name AS foodName, started_at AS startedAt, observation_days AS observationDays,
              status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
@@ -23981,7 +23999,7 @@ export async function listFoodTrials(limit = 100): Promise<FoodTrialRecord[]> {
       LIMIT ?
     `,
     limit,
-  );
+  ), []);
 }
 
 // Every past trial for one exact real food, regardless of prep state
@@ -23993,7 +24011,7 @@ export async function listFoodTrials(limit = 100): Promise<FoodTrialRecord[]> {
 // auto-suggestion logic here, just the real, connected history.
 export async function getFoodTrialHistory(foodId: number, source: string): Promise<FoodTrialRecord[]> {
   const db = await getDatabase();
-  return db.getAllAsync<FoodTrialRecord>(
+  return readOrClosed(() => db.getAllAsync<FoodTrialRecord>(
     `
       SELECT id, food_name AS foodName, started_at AS startedAt, observation_days AS observationDays,
              status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
@@ -24008,7 +24026,7 @@ export async function getFoodTrialHistory(foodId: number, source: string): Promi
     `,
     foodId,
     source,
-  );
+  ), []);
 }
 
 export async function resolveFoodTrial(id: string, status: 'cleared' | 'flagged', notes?: string) {
@@ -24055,7 +24073,7 @@ export async function resolveFoodTrial(id: string, status: 'cleared' | 'flagged'
 export async function reopenFoodTrial(id: string) {
   const db = await getDatabase();
   const trial = await db.getFirstAsync<{ food_name: string; observation_days: number; subject_kind: string | null }>(
-    'SELECT food_name, observation_days, subject_kind FROM food_trials WHERE id = ?',
+    '/* vault:tool */ SELECT food_name, observation_days, subject_kind FROM food_trials WHERE id = ?',
     id,
   );
   if (!trial) return;
@@ -24084,7 +24102,7 @@ export async function reopenFoodTrial(id: string) {
 export async function markExperimentBack(id: string): Promise<void> {
   const db = await getDatabase();
   const trial = await db.getFirstAsync<{ food_name: string; observation_days: number; subject_kind: string | null }>(
-    'SELECT food_name, observation_days, subject_kind FROM food_trials WHERE id = ?',
+    '/* vault:tool */ SELECT food_name, observation_days, subject_kind FROM food_trials WHERE id = ?',
     id,
   );
   if (!trial) return;
@@ -24117,10 +24135,10 @@ export async function recordTrialStep(trialId: string, step: StepKey): Promise<v
     status: string;
     step_days: number | null;
     washout_days: number | null;
-  }>('SELECT food_name, status, step_days, washout_days FROM food_trials WHERE id = ?', trialId);
+  }>('/* vault:tool */ SELECT food_name, status, step_days, washout_days FROM food_trials WHERE id = ?', trialId);
   if (!trial) return;
   const existing = await db.getFirstAsync<{ id: string }>(
-    'SELECT id FROM trial_steps WHERE trial_id = ? AND step = ?',
+    '/* vault:tool */ SELECT id FROM trial_steps WHERE trial_id = ? AND step = ?',
     trialId,
     step,
   );
@@ -24158,9 +24176,9 @@ export type TrialStepRecord = RecordedStep & { trialId: string };
 
 export async function listTrialSteps(): Promise<TrialStepRecord[]> {
   const db = await getDatabase();
-  return db.getAllAsync<TrialStepRecord>(
+  return readOrClosed(() => db.getAllAsync<TrialStepRecord>(
     'SELECT trial_id AS trialId, step, started_on AS startedOn FROM trial_steps ORDER BY started_on, created_at',
-  );
+  ), []);
 }
 
 // Part 5 of Past Meals, 2026-08-14 -- "This never actually happened, put
@@ -24189,7 +24207,7 @@ export async function revertFoodTrialToWaiting(id: string): Promise<void> {
 export async function correctFoodTrialStartDate(id: string, newStartedAt: string): Promise<void> {
   const db = await getDatabase();
   const trial = await db.getFirstAsync<{ food_name: string; observation_days: number; subject_kind: string | null }>(
-    'SELECT food_name, observation_days, subject_kind FROM food_trials WHERE id = ?',
+    '/* vault:tool */ SELECT food_name, observation_days, subject_kind FROM food_trials WHERE id = ?',
     id,
   );
   if (!trial) return;
@@ -24328,7 +24346,7 @@ export async function markConcernAlreadyTested(
 // per-concern round trip is needed).
 export async function getFoodTrialsForCondition(conditionCode: string): Promise<FoodTrialRecord[]> {
   const db = await getDatabase();
-  return db.getAllAsync<FoodTrialRecord>(
+  return readOrClosed(() => db.getAllAsync<FoodTrialRecord>(
     `
       SELECT id, food_name AS foodName, started_at AS startedAt, observation_days AS observationDays,
              status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
@@ -24342,7 +24360,7 @@ export async function getFoodTrialsForCondition(conditionCode: string): Promise<
       ORDER BY started_at DESC
     `,
     conditionCode,
-  );
+  ), []);
 }
 
 export async function deleteFoodTrial(id: string) {
@@ -24420,20 +24438,20 @@ export async function createTrialSeries(input: {
 
 export async function listTrialSeries(): Promise<TrialSeriesRecord[]> {
   const db = await getDatabase();
-  const series = await db.getAllAsync<Omit<TrialSeriesRecord, 'items'>>(
+  const series = await readOrClosed(() => db.getAllAsync<Omit<TrialSeriesRecord, 'items'>>(
     `SELECT id, name, observation_days AS observationDays, condition_code AS conditionCode,
             stopped_at AS stoppedAt, created_at AS createdAt
      FROM trial_series ORDER BY created_at DESC`,
-  );
+  ), []);
   if (series.length === 0) return [];
-  const items = await db.getAllAsync<TrialSeriesItemRecord & { seriesId: string }>(
+  const items = await readOrClosed(() => db.getAllAsync<TrialSeriesItemRecord & { seriesId: string }>(
     `SELECT i.id, i.series_id AS seriesId, i.position, i.food_name AS foodName, i.food_id AS foodId,
             i.source, i.prep_method AS prepMethod, i.trial_id AS trialId, i.skipped_at AS skippedAt,
             t.status AS trialStatus
      FROM trial_series_items i
      LEFT JOIN food_trials t ON t.id = i.trial_id
      ORDER BY i.series_id, i.position`,
-  );
+  ), []);
   return series.map((row) => ({
     ...row,
     items: items
@@ -24487,7 +24505,7 @@ export async function advanceTrialSeries(seriesId: string): Promise<string | nul
 async function advanceSeriesForTrial(trialId: string): Promise<void> {
   const db = await getDatabase();
   const row = await db.getFirstAsync<{ series_id: string }>(
-    'SELECT series_id FROM trial_series_items WHERE trial_id = ?',
+    '/* vault:tool */ SELECT series_id FROM trial_series_items WHERE trial_id = ?',
     trialId,
   );
   if (row) await advanceTrialSeries(row.series_id);
@@ -24499,12 +24517,12 @@ async function advanceSeriesForTrial(trialId: string): Promise<void> {
 export async function skipTrialSeriesItem(itemId: string): Promise<void> {
   const db = await getDatabase();
   const item = await db.getFirstAsync<{ series_id: string; trial_id: string | null }>(
-    'SELECT series_id, trial_id FROM trial_series_items WHERE id = ?',
+    '/* vault:tool */ SELECT series_id, trial_id FROM trial_series_items WHERE id = ?',
     itemId,
   );
   if (!item) return;
   if (item.trial_id) {
-    const trial = await db.getFirstAsync<{ status: string }>('SELECT status FROM food_trials WHERE id = ?', item.trial_id);
+    const trial = await db.getFirstAsync<{ status: string }>('/* vault:tool */ SELECT status FROM food_trials WHERE id = ?', item.trial_id);
     if (trial && trial.status !== 'waiting') return;
     if (trial) {
       await cancelFoodTrialCheckins(item.trial_id);
@@ -24580,7 +24598,7 @@ export async function recordSymptomAssessment(input: {
 // for one assessment's actual answers.
 export async function listSymptomAssessments(limit = 50) {
   const db = await getDatabase();
-  return db.getAllAsync<SymptomAssessmentRecord>(
+  return readOrClosed(() => db.getAllAsync<SymptomAssessmentRecord>(
     `
       SELECT id, completed_at AS completedAt, notes, created_at AS createdAt
       FROM symptom_assessments
@@ -24588,19 +24606,19 @@ export async function listSymptomAssessments(limit = 50) {
       LIMIT ?
     `,
     limit,
-  );
+  ), []);
 }
 
 export async function getSymptomAssessmentResponses(assessmentId: string) {
   const db = await getDatabase();
-  return db.getAllAsync<SymptomAssessmentResponseRecord>(
+  return readOrClosed(() => db.getAllAsync<SymptomAssessmentResponseRecord>(
     `
       SELECT id, assessment_id AS assessmentId, item_code AS itemCode, response_value AS responseValue
       FROM symptom_assessment_responses
       WHERE assessment_id = ?
     `,
     assessmentId,
-  );
+  ), []);
 }
 
 // Chronological (oldest-first) list of every assessment with its
@@ -24608,9 +24626,9 @@ export async function getSymptomAssessmentResponses(assessmentId: string) {
 // functions expect.
 export async function getSymptomAssessmentTrend() {
   const db = await getDatabase();
-  const assessments = await db.getAllAsync<SymptomAssessmentRecord>(
+  const assessments = await readOrClosed(() => db.getAllAsync<SymptomAssessmentRecord>(
     'SELECT id, completed_at AS completedAt, notes, created_at AS createdAt FROM symptom_assessments ORDER BY completed_at ASC',
-  );
+  ), []);
 
   const withResponses = await Promise.all(
     assessments.map(async (assessment) => ({
@@ -25323,7 +25341,7 @@ export async function scheduleFoodTrialCheckins(input: {
 async function cancelFoodTrialCheckins(foodTrialId: string): Promise<void> {
   const db = await getDatabase();
   const link = await db.getFirstAsync<{ repeat_group_id: string | null }>(
-    `
+    `/* vault:tool */ 
       SELECT si.repeat_group_id
       FROM food_trial_task_links ftl
       JOIN schedule_items si ON si.id = ftl.schedule_item_id

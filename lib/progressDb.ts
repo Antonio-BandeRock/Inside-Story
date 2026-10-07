@@ -169,7 +169,7 @@ export async function loadProgressInputs(): Promise<ProgressInputs> {
   const workDays = days(await rows(db, 'SELECT week_of AS at FROM work_checkins'));
   const accountRows = await rows<{ name: string | null; first: string | null; last: string | null }>(
     db,
-    `SELECT a.name AS name, MIN(h.recorded_on) AS first, MAX(h.recorded_on) AS last
+    `/* vault:tool */ SELECT a.name AS name, MIN(h.recorded_on) AS first, MAX(h.recorded_on) AS last
        FROM finance_account_balance_history h JOIN finance_accounts a ON a.id = h.account_id
       WHERE a.active = 1 GROUP BY a.id`,
   );
@@ -178,12 +178,12 @@ export async function loadProgressInputs(): Promise<ProgressInputs> {
     .filter((row) => row.first && row.last);
   const streamRows = await rows<{ first: string | null; last: string | null }>(
     db,
-    `SELECT MIN(substr(occurred_on, 1, 7)) AS first, MAX(substr(occurred_on, 1, 7)) AS last FROM finance_entries
+    `/* vault:tool */ SELECT MIN(substr(occurred_on, 1, 7)) AS first, MAX(substr(occurred_on, 1, 7)) AS last FROM finance_entries
       WHERE direction = 'income' AND income_stream_id IS NOT NULL GROUP BY income_stream_id`,
   );
 
   // Signals
-  const checkinDays = days(await rows(db, 'SELECT logged_at AS at FROM wellbeing_checkins'));
+  const checkinDays = days(await rows(db, '/* vault:tool */ SELECT logged_at AS at FROM wellbeing_checkins'));
   const trackers = named(await rows(db, 'SELECT name, created_at AS at FROM custom_trackers'));
   const trackerEntryDays = days(await rows(db, 'SELECT logged_at AS at FROM custom_tracker_entries'));
   const trackerReadings = (
@@ -196,8 +196,8 @@ export async function loadProgressInputs(): Promise<ProgressInputs> {
   )
     .filter((row) => row.name)
     .map((row) => ({ name: row.name!.trim(), count: Number(row.count) || 0 }));
-  const trials = named(await rows(db, "SELECT food_name AS name, started_at AS at FROM food_trials WHERE (subject_kind IS NULL OR subject_kind = 'food')"));
-  const cycleRows = await rows<CycleDay>(db, 'SELECT day, flow FROM cycle_days ORDER BY day ASC');
+  const trials = named(await rows(db, "/* vault:tool */ SELECT food_name AS name, started_at AS at FROM food_trials WHERE (subject_kind IS NULL OR subject_kind = 'food')"));
+  const cycleRows = await rows<CycleDay>(db, '/* vault:tool */ SELECT day, flow FROM cycle_days ORDER BY day ASC');
   const cycleCount = cycleRows.length > 0 ? cycleLengths(periodsFrom(cycleRows)).length : 0;
 
   // Schedules
@@ -226,7 +226,7 @@ export async function loadProgressInputs(): Promise<ProgressInputs> {
   }
 
   // Trends, Insights, Reports
-  const weightReadings = (await rows<{ n: number }>(db, "SELECT COUNT(*) AS n FROM body_measurements WHERE measurement_type = 'weight'"))[0]?.n ?? 0;
+  const weightReadings = (await rows<{ n: number }>(db, "/* vault:tool */ SELECT COUNT(*) AS n FROM body_measurements WHERE measurement_type = 'weight'"))[0]?.n ?? 0;
   const stepDays = (await rows<{ n: number }>(db, 'SELECT COUNT(*) AS n FROM daily_step_counts WHERE step_count > 0'))[0]?.n ?? 0;
   const count = async (sql: string) => Number((await rows<{ n: number }>(db, sql))[0]?.n ?? 0);
   const activeTreatments = await count('SELECT COUNT(*) AS n FROM treatments WHERE active = 1');
@@ -236,9 +236,9 @@ export async function loadProgressInputs(): Promise<ProgressInputs> {
     symptoms: checkinDays.length > 0,
     meds: activeTreatments > 0,
     movement: movementRows.length > 0 || stepDays > 0,
-    body: (await count('SELECT COUNT(*) AS n FROM body_measurements')) > 0,
-    rules: (await count('SELECT COUNT(*) AS n FROM personal_rules WHERE active = 1')) > 0,
-    labs: (await count('SELECT COUNT(*) AS n FROM lab_results')) > 0,
+    body: (await count('/* vault:tool */ SELECT COUNT(*) AS n FROM body_measurements')) > 0,
+    rules: (await count('/* vault:tool */ SELECT COUNT(*) AS n FROM personal_rules WHERE active = 1')) > 0,
+    labs: (await count('/* vault:tool */ SELECT COUNT(*) AS n FROM lab_results')) > 0,
   };
   const captureDays = days(await rows(db, 'SELECT created_at AS at FROM capture_notes'));
   const lifeDays = [...days(routineRows), ...days(upkeepRows), ...markDays, ...workDays];

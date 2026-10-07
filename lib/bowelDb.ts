@@ -4,26 +4,27 @@
 // a mistaken one is removed and logged again.
 import { getDatabase } from './db';
 import type { BowelEntry, BristolType } from './bowel';
+import { readOrClosed } from './vaultReads';
 
 const COLUMNS =
   'id, occurred_at AS occurredAt, bristol_type AS bristolType, urgency, blood, pain, note';
 
 export async function listBowelEntries(limit = 50): Promise<BowelEntry[]> {
   const db = await getDatabase();
-  return db.getAllAsync<BowelEntry>(
+  return readOrClosed(() => db.getAllAsync<BowelEntry>(
     `SELECT ${COLUMNS} FROM bowel_movements ORDER BY occurred_at DESC, created_at DESC LIMIT ?`,
     limit,
-  );
+  ), []);
 }
 
 /** Every entry from `startDay` to `endDay`, both local dates, oldest first. */
 export async function listBowelEntriesBetween(startDay: string, endDay: string): Promise<BowelEntry[]> {
   const db = await getDatabase();
-  return db.getAllAsync<BowelEntry>(
+  return readOrClosed(() => db.getAllAsync<BowelEntry>(
     `SELECT ${COLUMNS} FROM bowel_movements WHERE occurred_at >= ? AND occurred_at < ? ORDER BY occurred_at ASC`,
     startDay,
     `${endDay}T99`,
-  );
+  ), []);
 }
 
 export async function addBowelEntry(input: {

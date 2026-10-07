@@ -18,6 +18,7 @@ import {
 import { formatTrackerValue } from './customTrackers';
 import { getCustomTrackerSeries, getDailyScaleSeries, getStepTrendPoints } from './trendAnalysis';
 import { localDay } from './trendsMore';
+import { readOrClosed } from './vaultReads';
 
 export type YearStrip = { spec: YearStripSpec; heat: CalendarHeat };
 
@@ -39,12 +40,12 @@ async function mealDays(from: string, through: string): Promise<{ day: string; m
 
 async function checkinDays(from: string, through: string): Promise<{ day: string; type: string; valence: string | null }[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ loggedAt: string; type: string; valence: string | null }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ loggedAt: string; type: string; valence: string | null }>(
     `SELECT logged_at AS loggedAt, checkin_type AS type, valence FROM wellbeing_checkins
      WHERE logged_at >= ? AND logged_at < ?`,
     from,
     through,
-  );
+  ), []);
   return rows.map((row) => ({ day: localDay(row.loggedAt), type: row.type, valence: row.valence }));
 }
 
@@ -78,11 +79,11 @@ async function valuesFor(key: keyof typeof YEAR_STRIPS, from: string, through: s
       return new Map(scales.mood.map((point) => [point.date, point.value]));
     }
     case 'nights': {
-      const rows = await db.getAllAsync<{ nightOf: string; times: number }>(
+      const rows = await readOrClosed(() => db.getAllAsync<{ nightOf: string; times: number }>(
         `SELECT night_of AS nightOf, times FROM nocturia_nights WHERE night_of >= ? AND night_of < ?`,
         from,
         through,
-      );
+      ), []);
       return new Map(rows.map((row) => [row.nightOf, row.times]));
     }
     case 'exercise': {

@@ -63,7 +63,7 @@ export async function removeCustomCheckinTag(code: string): Promise<'retired' | 
   if (!code.startsWith(CUSTOM_TAG_PREFIX)) return null;
   const db = await getDatabase();
   const id = code.slice(CUSTOM_TAG_PREFIX.length);
-  const used = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM checkin_tags WHERE tag_code = ?', code);
+  const used = await db.getFirstAsync<{ n: number }>('/* vault:tool */ SELECT COUNT(*) AS n FROM checkin_tags WHERE tag_code = ?', code);
   if ((used?.n ?? 0) > 0) {
     const now = new Date().toISOString();
     await db.runAsync('UPDATE custom_checkin_tags SET retired_at = ?, updated_at = ? WHERE id = ?', now, now, id);

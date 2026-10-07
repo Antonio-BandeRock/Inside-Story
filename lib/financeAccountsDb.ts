@@ -7,6 +7,7 @@
 
 import { getDatabase } from './db';
 import { netWorth, type Account, type BalancePoint } from './financeAccounts';
+import { readOrClosed } from './vaultReads';
 
 export type AccountRecord = Account & { notes: string | null };
 
@@ -88,7 +89,7 @@ async function recordBalancePoint(accountId: string, balance: number, contributi
 
 export async function listBalanceHistory(accountId: string): Promise<BalancePoint[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ date: string; balance: number; contribution: number }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ date: string; balance: number; contribution: number }>(
     `
       SELECT recorded_on AS date, balance, contribution
       FROM finance_account_balance_history
@@ -96,7 +97,7 @@ export async function listBalanceHistory(accountId: string): Promise<BalancePoin
       ORDER BY recorded_on
     `,
     accountId,
-  );
+  ), []);
   return rows;
 }
 
@@ -104,13 +105,13 @@ export async function listBalanceHistory(accountId: string): Promise<BalancePoin
  *  showing a list of accounts needs one query rather than one per row. */
 export async function listAllBalanceHistory(): Promise<Record<string, BalancePoint[]>> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ accountId: string; date: string; balance: number; contribution: number }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ accountId: string; date: string; balance: number; contribution: number }>(
     `
       SELECT account_id AS accountId, recorded_on AS date, balance, contribution
       FROM finance_account_balance_history
       ORDER BY account_id, recorded_on
     `,
-  );
+  ), []);
   const byAccount: Record<string, BalancePoint[]> = {};
   for (const row of rows) {
     (byAccount[row.accountId] ??= []).push({ date: row.date, balance: row.balance, contribution: row.contribution });
@@ -132,7 +133,7 @@ export async function deleteAccount(id: string): Promise<void> {
 
 export async function listAccounts(): Promise<AccountRecord[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{
+  const rows = await readOrClosed(() => db.getAllAsync<{
     id: string; name: string; kind: string; balance: number;
     apr: number | null; minimumPayment: number | null; active: number; notes: string | null;
   }>(
@@ -141,7 +142,7 @@ export async function listAccounts(): Promise<AccountRecord[]> {
       FROM finance_accounts
       ORDER BY active DESC, kind, name
     `,
-  );
+  ), []);
   return rows.map((row) => ({ ...row, kind: row.kind as Account['kind'], active: row.active === 1 }));
 }
 
@@ -168,7 +169,7 @@ async function recordNetWorthSnapshot(): Promise<void> {
 
 export async function listNetWorthHistory(limit = 24): Promise<NetWorthPoint[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ date: string; assets: number; liabilities: number }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ date: string; assets: number; liabilities: number }>(
     `
       SELECT snapshot_date AS date, assets, liabilities
       FROM finance_networth_snapshots
@@ -176,7 +177,7 @@ export async function listNetWorthHistory(limit = 24): Promise<NetWorthPoint[]> 
       LIMIT ?
     `,
     limit,
-  );
+  ), []);
   return rows.reverse().map((row) => ({ ...row, net: row.assets - row.liabilities }));
 }
 
@@ -202,8 +203,8 @@ export async function removeBudget(category: string): Promise<void> {
 
 export async function listBudgets(): Promise<BudgetRecord[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ id: string; category: string; monthlyLimit: number; active: number }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ id: string; category: string; monthlyLimit: number; active: number }>(
     'SELECT id, category, monthly_limit AS monthlyLimit, active FROM finance_budgets WHERE active = 1 ORDER BY monthly_limit DESC',
-  );
+  ), []);
   return rows.map((row) => ({ ...row, active: row.active === 1 }));
 }

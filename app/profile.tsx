@@ -270,6 +270,9 @@ import { wording } from '../lib/playfulCopy';
 import { VoicePackPanel } from '../components/VoicePackPanel';
 import { setNavigationHand, useNavigationHand } from '../lib/navigationHand';
 import { ThumbEndRow } from '../components/ThumbEndRow';
+import { VaultClosedBand } from '../components/VaultClosedBand';
+import { useOnVaultChange } from '../lib/vaultReads';
+import { useCategoryClosed } from '../lib/vaultSession';
 
 // Whether a backup that has been reached is restored or only checked.
 type BackupUse = 'restore' | 'check';
@@ -720,6 +723,12 @@ export default function ProfileScreen() {
   // The outline on a button a Your Story walk line names (components/WalkMark.ts).
   const walkMark = useWalkMark();
   const router = useRouter();
+  // What the vault closes on this screen. Conditions and allergies are never
+  // refused at the database, since scoring and allergy cautions read them,
+  // so the chosen ones are left out here; choosing and adding stay.
+  const conditionsClosed = useCategoryClosed('conditions');
+  const neuroClosed = useCategoryClosed('neuro');
+  const symptomsClosed = useCategoryClosed('symptoms');
   const insets = useSafeAreaInsets();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   // The desktop build only: the size the window draws the app at, which
@@ -796,20 +805,29 @@ export default function ProfileScreen() {
   const { section: openSection } = useLocalSearchParams<{ section?: string }>();
   const scrollRef = useRef<ScrollView>(null);
   const remindersCardY = useRef<number | null>(null);
+  // Also opened straight onto App Lock (1.0.63.14) by the Your Story
+  // question about keeping records closed, where the vault is chosen.
+  const appLockCardY = useRef<number | null>(null);
   useEffect(() => {
-    if (openSection !== 'reminders') return;
+    const target =
+      openSection === 'reminders'
+        ? { group: 'Your Health', section: 'reminders' as const, y: remindersCardY }
+        : openSection === 'applock'
+          ? { group: 'Device & Account', section: 'applock' as const, y: appLockCardY }
+          : null;
+    if (!target) return;
     setCollapsedGroups((current) => {
       const next = new Set(current);
-      next.delete('Your Health');
+      next.delete(target.group);
       return next;
     });
     setCollapsedSections((current) => {
       const next = new Set(current);
-      next.delete('reminders');
+      next.delete(target.section);
       return next;
     });
     const timer = setTimeout(() => {
-      if (remindersCardY.current != null) scrollRef.current?.scrollTo({ y: remindersCardY.current, animated: true });
+      if (target.y.current != null) scrollRef.current?.scrollTo({ y: target.y.current, animated: true });
     }, 350);
     return () => clearTimeout(timer);
   }, [openSection]);
@@ -1835,6 +1853,15 @@ export default function ProfileScreen() {
   });
   const [eatingWindowStartBuffer, setEatingWindowStartBuffer] = useState<TimeOfDayInput>(BLANK_TIME);
   const [eatingWindowEndBuffer, setEatingWindowEndBuffer] = useState<TimeOfDayInput>(BLANK_TIME);
+
+  useOnVaultChange(() => {
+    void Promise.all([listSymptomAssessments(1), listNeuroProfile()])
+      .then(([recentAssessments, storedNeuroProfile]) => {
+        setLastAssessment(recentAssessments[0] ?? null);
+        setNeuroProfile(storedNeuroProfile);
+      })
+      .catch((error: unknown) => console.warn('[profile] could not read again after the vault changed', error));
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -3677,6 +3704,9 @@ export default function ProfileScreen() {
                 half-card cell instead of sizing to its own text, so two
                 per row always line up with the row below regardless of
                 how long either name is. */}
+            {conditionsClosed ? (
+              <VaultClosedBand inline color={colors.tabProfile} categories={['conditions']} />
+            ) : (
             <View style={styles.conditionGrid}>
               {allConditions
                 .filter((condition) => condition.status !== 'planned')
@@ -3698,6 +3728,7 @@ export default function ProfileScreen() {
                   );
                 })}
             </View>
+            )}
             {allConditions.some((condition) => condition.status === 'planned') ? (
               <Text style={[styles.helpText, { marginTop: 10 }]}>
                 Coming soon: {allConditions
@@ -3761,6 +3792,7 @@ export default function ProfileScreen() {
               about you. Nothing selected here ever changes your food scores, meal plans, advisories or safe
               foods.
             </Text>
+            {conditionsClosed ? null : (
             <View style={styles.conditionGrid}>
               {allConditions
                 .filter((condition) => condition.status !== 'planned' && !selectedConditions.includes(condition.code))
@@ -3782,6 +3814,7 @@ export default function ProfileScreen() {
                   );
                 })}
             </View>
+            )}
 
             {/* Food allergies, 2026-08-09, explicitly requested: "Add to
                 conditions area an ability to provide food allergies. They
@@ -3793,6 +3826,9 @@ export default function ProfileScreen() {
               Separate from the condition-based food scoring above: an allergy or intolerance, not a
               preference. Multiple are fully supported. Tap a common allergen below, or add your own.
             </Text>
+            {conditionsClosed ? (
+              <VaultClosedBand inline color={colors.tabProfile} categories={['conditions']} />
+            ) : (
             <View style={styles.pillRow}>
               {COMMON_ALLERGENS.map((name) => {
                 const active = foodAllergies.includes(name);
@@ -3807,6 +3843,7 @@ export default function ProfileScreen() {
                 );
               })}
             </View>
+            )}
             <ThumbEndRow style={styles.dateRow}>
               <AppTextInput
                 onVoiceResult={(transcript) => setAllergyInput(transcript)}
@@ -3819,7 +3856,7 @@ export default function ProfileScreen() {
                 <Text style={styles.addAllergyButtonText}>Add</Text>
               </TouchableOpacity>
             </ThumbEndRow>
-            {foodAllergies.filter((name) => !COMMON_ALLERGENS.includes(name)).length > 0 ? (
+            {!conditionsClosed && foodAllergies.filter((name) => !COMMON_ALLERGENS.includes(name)).length > 0 ? (
               <View style={[styles.pillRow, { marginTop: 8 }]}>
                 {foodAllergies
                   .filter((name) => !COMMON_ALLERGENS.includes(name))
@@ -3850,6 +3887,9 @@ export default function ProfileScreen() {
                 these three wherever they come up. */}
             <Text style={styles.subLabelDivided}>{NEURO_PROFILE_HEADING}</Text>
             <Text style={styles.helpText}>{NEURO_PROFILE_INTRO}</Text>
+            {neuroClosed ? (
+              <VaultClosedBand inline color={colors.tabProfile} categories={['neuro']} />
+            ) : (
             <View style={styles.pillRow}>
               {ALL_NEURO_PROFILE_KEYS.map((key) => {
                 const active = neuroProfile.includes(key);
@@ -3866,6 +3906,7 @@ export default function ProfileScreen() {
                 );
               })}
             </View>
+            )}
             {neuroProfile.map((key) => (
               <Text key={key} style={styles.derivedText}>
                 {NEURO_PROFILE_LABELS[key]}: {NEURO_PROFILE_CAPTIONS[key]}
@@ -3895,14 +3936,16 @@ export default function ProfileScreen() {
                   Early on, day-to-day change can feel invisible because everything is happening at once; this
                   is what turns that into an actual, visible trend over time.
                 </Text>
-                {lastAssessment ? (
+                {symptomsClosed ? (
+                  <VaultClosedBand inline color={colors.tabProfile} categories={['symptoms']} />
+                ) : lastAssessment ? (
                   <Text style={styles.derivedText}>Last taken {daysAgoLabel(lastAssessment.completedAt)}.</Text>
                 ) : (
                   <Text style={styles.derivedText}>You haven’t taken this yet. Your first one becomes your baseline.</Text>
                 )}
                 <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/assessment')}>
                   <Text style={styles.checkinButtonText}>
-                    {lastAssessment ? 'Retake check-in' : 'Take your first check-in'}
+                    {lastAssessment || symptomsClosed ? 'Retake check-in' : 'Take your first check-in'}
                   </Text>
                 </TouchableOpacity>
               </>
@@ -5449,7 +5492,7 @@ export default function ProfileScreen() {
 
       {/* App Lock, 2026-10-02: setting it up and its settings, in
           components/AppLockSettings.tsx. */}
-      <View style={styles.card}>
+      <View style={styles.card} onLayout={(event) => (appLockCardY.current = event.nativeEvent.layout.y)}>
         {renderCardHeader('applock', 'App Lock')}
         {!collapsedSections.has('applock') ? (
           <View style={styles.cardBody}>

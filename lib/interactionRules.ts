@@ -7,7 +7,7 @@ import {
   getUserProfile,
   listInteractionRules,
   listOtcTreatments,
-  listPersonalRules,
+  listPersonalRulesForWarnings,
   listPrescriptionTreatments,
   listScheduledOtcForDate,
   listScheduledPrescriptionsForDate,
@@ -94,7 +94,7 @@ export type InteractionEvaluation = {
 // Condition-linking was considered and deliberately left out of this
 // pass -- a real, cheap future addition, not part of what was asked for.
 async function matchingPersonalRules(date: string, activeTreatmentIds: Set<string>): Promise<PersonalRule[]> {
-  const allRules = await listPersonalRules(true);
+  const allRules = await listPersonalRulesForWarnings();
   if (allRules.length === 0) return [];
 
   const needsFoodLog = allRules.some((rule) => rule.linkType === 'food');

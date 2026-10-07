@@ -114,6 +114,16 @@ import { useWalkMark } from '../../components/WalkMark';
 import type { WalkMark } from '../../lib/storyWalk';
 import { ThumbRow } from '../../components/ThumbRow';
 import { ThumbEndRow } from '../../components/ThumbEndRow';
+import { VaultClosedBand } from '../../components/VaultClosedBand';
+import type { VaultCategory } from '../../lib/vault';
+import { useOnVaultChange, useVaultReloadKey } from '../../lib/vaultReads';
+
+// Which vault categories each lens shows (lib/vault.ts, phase 2). My Meds
+// and Conditions say so inside their own lists, beside the tools that stay.
+const LIFE_LENS_VAULT: Partial<Record<LifeLens, readonly VaultCategory[]>> = {
+  finances: ['finances', 'medicalBills'],
+  movement: ['body', 'labs'],
+};
 
 // The 10th tab, added 2026-09-04, and its first real area, added
 // 2026-09-05. Direct request: "Let's start with Finances... Finances is
@@ -776,6 +786,9 @@ export default function LifeScreen() {
     scrollRef.current?.scrollTo({ y: readingTop.current + y, animated: true });
   }, []);
   const [lens, setLens] = useState<LifeLens>('finances');
+  // Changes as the vault opens or closes, so the sections that load
+  // themselves read again.
+  const vaultKey = useVaultReloadKey();
   const [revealed, setRevealed] = useState(false);
   const [myLifeOpen, setMyLifeOpen] = useState(false);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -853,6 +866,8 @@ export default function LifeScreen() {
       .catch((error) => showInfoAlert('Could not load Finances', error instanceof Error ? error.message : String(error)))
       .finally(() => setLoading(false));
   }, [month, showInfoAlert]);
+  // Opening the vault on Finances loads what it refused; closing clears it.
+  useOnVaultChange(load);
 
   // A deep link opens its lens directly (Schedules > Meds sends "Add a med"
   // and "Edit in My Meds" here); an ordinary arrival rests, as before.
@@ -2003,6 +2018,7 @@ export default function LifeScreen() {
               actions={confirm?.actions ?? []}
             />
 
+            <VaultClosedBand color={TAB_COLOR} categories={LIFE_LENS_VAULT[lens] ?? []} />
             {lens === 'conditions' ? (
               <View onLayout={(event) => { conditionsTop.current = event.nativeEvent.layout.y; }}>
                 <ConditionsSection
@@ -2034,7 +2050,7 @@ export default function LifeScreen() {
             {lens === 'upkeep' ? <UpkeepSection tabColor={TAB_COLOR} prefillName={upkeepName ?? null} /> : null}
             {lens === 'emergency' ? <EmergencySection tabColor={TAB_COLOR} /> : null}
             {lens === 'myMeds' ? <MyMedsSection tabColor={TAB_COLOR} focusTreatmentId={focusTreatmentId} /> : null}
-            {lens === 'movement' ? <MovementSection tabColor={TAB_COLOR} /> : null}
+            {lens === 'movement' ? <MovementSection key={vaultKey} tabColor={TAB_COLOR} /> : null}
             {lens === 'workouts' ? <WorkoutsSection tabColor={TAB_COLOR} onDragChange={setRowDragging} /> : null}
             {lens === 'routines' ? <RoutinesSection tabColor={TAB_COLOR} /> : null}
             {lens === 'didIDoIt' ? <DidIDoItSection tabColor={TAB_COLOR} /> : null}
@@ -2070,15 +2086,15 @@ export default function LifeScreen() {
             ) : section === 'overview' ? (
               renderOverview()
             ) : section === 'health' ? (
-              <FinanceHealthSection tabColor={TAB_COLOR} />
+              <FinanceHealthSection key={vaultKey} tabColor={TAB_COLOR} />
             ) : section === 'recurring' ? (
               renderRecurringSection()
             ) : section === 'spending' ? (
               renderSpending()
             ) : section === 'money' ? (
-              <FinanceMoneySection tabColor={TAB_COLOR} />
+              <FinanceMoneySection key={vaultKey} tabColor={TAB_COLOR} />
             ) : section === 'goals' ? (
-              <FinanceGoalsSection tabColor={TAB_COLOR} />
+              <FinanceGoalsSection key={vaultKey} tabColor={TAB_COLOR} />
             ) : (
               renderUpcoming()
             )}

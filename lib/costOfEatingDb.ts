@@ -40,6 +40,7 @@ import { getLastPaidPrices } from './harvestTradeDb';
 import type { MeasureSystem } from './harvestYield';
 import { getNutrientTrendSeriesForCodes } from './trendAnalysis';
 import { addDays } from './eatingVariety';
+import { readOrClosed } from './vaultReads';
 
 /** How long a look back at what food is reaching runs. Short on purpose: the
  *  question is what food is supplying NOW, not what it supplied two years
@@ -65,7 +66,7 @@ const HEALTH_CATEGORY_KINDS: Record<string, HealthCostKind> = {
 async function readHealthCosts(startDate: string, endDate: string): Promise<HealthCostRecord[]> {
   const db = await getDatabase();
 
-  const entries = await db.getAllAsync<{ occurredOn: string; amount: number; category: string; conditionCode: string | null }>(
+  const entries = await readOrClosed(() => db.getAllAsync<{ occurredOn: string; amount: number; category: string; conditionCode: string | null }>(
     `
       SELECT occurred_on AS occurredOn, amount AS amount, category AS category, condition_code AS conditionCode
       FROM finance_entries
@@ -75,14 +76,14 @@ async function readHealthCosts(startDate: string, endDate: string): Promise<Heal
     `,
     startDate,
     endDate,
-  );
+  ), []);
 
   // A bill is counted at what was actually paid where that is known, and at
   // what is owed where it is not. Bills and entries have no link column
   // between them, so anything somebody recorded in both places is counted
   // from both, which the band says out loud rather than pretending to
   // de-duplicate.
-  const bills = await db.getAllAsync<{ occurredOn: string; amount: number | null; conditionCode: string | null }>(
+  const bills = await readOrClosed(() => db.getAllAsync<{ occurredOn: string; amount: number | null; conditionCode: string | null }>(
     `
       SELECT service_date AS occurredOn, COALESCE(paid_amount, you_owe) AS amount, condition_code AS conditionCode
       FROM finance_medical_bills
@@ -90,9 +91,9 @@ async function readHealthCosts(startDate: string, endDate: string): Promise<Heal
     `,
     startDate,
     endDate,
-  );
+  ), []);
 
-  const sessions = await db.getAllAsync<{ performedAt: string; amount: number | null; conditionCode: string | null }>(
+  const sessions = await readOrClosed(() => db.getAllAsync<{ performedAt: string; amount: number | null; conditionCode: string | null }>(
     `
       SELECT performed_at AS performedAt, cost AS amount, condition_code AS conditionCode
       FROM therapy_sessions
@@ -100,7 +101,7 @@ async function readHealthCosts(startDate: string, endDate: string): Promise<Heal
     `,
     startDate,
     `${endDate}T23:59`,
-  );
+  ), []);
 
   return [
     ...entries.map((row) => ({
@@ -141,7 +142,7 @@ async function readConditionNames(): Promise<Record<string, string>> {
 
 async function readFoodCosts(startDate: string, endDate: string): Promise<FoodCostRecord[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ occurredOn: string; amount: number; category: string }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ occurredOn: string; amount: number; category: string }>(
     `
       SELECT occurred_on AS occurredOn, amount AS amount, category AS category
       FROM finance_entries
@@ -151,7 +152,7 @@ async function readFoodCosts(startDate: string, endDate: string): Promise<FoodCo
     `,
     startDate,
     endDate,
-  );
+  ), []);
   return rows
     .filter((row) => (row.amount ?? 0) > 0)
     .map((row) => ({
@@ -215,7 +216,7 @@ async function readGroceryLines(startDate: string, endDate: string): Promise<Gro
  *  else. */
 async function readGrowingCosts(startDate: string, endDate: string): Promise<GrowingCostRecord[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ occurredOn: string; amount: number; plotName: string | null }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ occurredOn: string; amount: number; plotName: string | null }>(
     `
       SELECT e.occurred_on AS occurredOn,
              e.amount AS amount,
@@ -229,7 +230,7 @@ async function readGrowingCosts(startDate: string, endDate: string): Promise<Gro
     `,
     startDate,
     endDate,
-  );
+  ), []);
   return rows.filter((row) => (row.amount ?? 0) > 0);
 }
 
@@ -278,7 +279,7 @@ async function readSupplements(): Promise<SupplementRun[]> {
 
 async function readSupplementSpend(startDate: string, endDate: string): Promise<{ occurredOn: string; amount: number }[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ occurredOn: string; amount: number }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ occurredOn: string; amount: number }>(
     `
       SELECT occurred_on AS occurredOn, amount AS amount
       FROM finance_entries
@@ -288,7 +289,7 @@ async function readSupplementSpend(startDate: string, endDate: string): Promise<
     `,
     startDate,
     endDate,
-  );
+  ), []);
   return rows.filter((row) => (row.amount ?? 0) > 0);
 }
 
@@ -334,7 +335,7 @@ async function readFoodCoverage(codes: string[], endDate: string): Promise<FoodC
  *  blank years. */
 export async function getEarliestMoneyDate(): Promise<string | null> {
   const db = await getDatabase();
-  const row = await db.getFirstAsync<{ earliest: string | null }>(
+  const row = await readOrClosed(() => db.getFirstAsync<{ earliest: string | null }>(
     `
       SELECT MIN(earliest) AS earliest FROM (
         SELECT MIN(occurred_on) AS earliest FROM finance_entries
@@ -342,7 +343,7 @@ export async function getEarliestMoneyDate(): Promise<string | null> {
         UNION ALL SELECT MIN(substr(performed_at, 1, 10)) FROM therapy_sessions
       )
     `,
-  );
+  ), null);
   return row?.earliest ?? null;
 }
 

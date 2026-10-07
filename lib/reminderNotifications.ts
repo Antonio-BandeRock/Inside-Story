@@ -10,6 +10,7 @@ import { withSessionGuardLifted } from './databaseActivity';
 import { getMovedWaterTarget } from './hydrationIndexDb';
 import { skipHydrationReminder, waterTargetReached } from './hydrationTarget';
 import {
+  ACTION_OPENS_APP,
   ACTION_TEXT_INPUT,
   AFTER_MEAL_MINUTES,
   ALL_REMINDER_CATEGORY_KEYS,
@@ -24,6 +25,7 @@ import {
   planReminderAction,
   REMINDER_CATEGORY_IDS,
   reminderActionTitle,
+  type ReminderActionId,
   type ReminderActionPlan,
 } from './reminderActions';
 import {
@@ -84,6 +86,9 @@ import { listCropPlans, recordCropStep } from './cropPlanDb';
 import { parseCropStepSourceId } from './cropPlan';
 import { readCachedFrostDates } from './homeSky';
 import { frostAnchor } from './sowingWindows';
+import { VAULT_OFFER_NOTIFICATION_ID, vaultOfferText } from './vault';
+import { answerVaultOffer, vaultOfferDue } from './vaultOffer';
+import { markVaultOffered } from './vaultSession';
 
 // Local reminders: the scheduled doses in Schedules > Meds, the visits in
 // Schedules > Appointments, the meals and drinks on the schedule, the work
@@ -788,6 +793,21 @@ async function presentMorningEnergy(day: string): Promise<void> {
   });
 }
 
+// The occasional offer to set the vault up (lib/vault.ts). Shown at once
+// rather than queued, and marked offered first, so a second reconcile
+// running at the same moment does not show it twice.
+async function offerVaultIfDue(now: Date): Promise<void> {
+  const count = await vaultOfferDue(now);
+  if (count === null) return;
+  markVaultOffered(now.getTime());
+  const { title, body } = vaultOfferText(count);
+  await Notifications.scheduleNotificationAsync({
+    identifier: VAULT_OFFER_NOTIFICATION_ID,
+    content: { title, body, data: { tab: 'vaultOffer' }, sound: false, categoryIdentifier: REMINDER_CATEGORY_IDS.vaultOffer },
+    trigger: { channelId: ANDROID_DATED_CHANNEL_ID },
+  });
+}
+
 // This week's meals (H10). The meals planned for the seven days starting
 // the day it fires, read when the reminders are reconciled; the body says
 // when. Opens Schedules on the Meals lens, where the week strip is.
@@ -1009,7 +1029,8 @@ function isSnoozed(identifier: string | null | undefined): boolean {
 
 // Every set of buttons, registered on each reconcile, which costs nothing
 // and means a set changed in an update reaches the phone without a step.
-// No button opens the app (1.0.53.10); see lib/reminderActions.ts.
+// No button opens the app (1.0.53.10) except Set It Up on the vault offer,
+// whose answer is a screen; see lib/reminderActions.ts.
 async function ensureCategories(): Promise<void> {
   await Promise.all(
     ALL_REMINDER_CATEGORY_KEYS.map((key) =>
@@ -1020,7 +1041,7 @@ async function ensureCategories(): Promise<void> {
           return {
             identifier: action,
             buttonTitle: reminderActionTitle(action, SNOOZE_MINUTES),
-            options: { opensAppToForeground: false },
+            options: { opensAppToForeground: ACTION_OPENS_APP[action] === true },
             ...(textInput ? { textInput } : {}),
           };
         }),
@@ -1095,6 +1116,7 @@ async function runSync(): Promise<ReminderSyncResult> {
   await ensureCategories();
 
   const now = new Date();
+  await offerVaultIfDue(now).catch((error) => console.warn('[reminderNotifications] the vault offer could not be checked', error));
   const today = localDateString(now);
   const horizon = new Date(now);
   horizon.setDate(horizon.getDate() + LOOKAHEAD_DAYS);
@@ -1459,6 +1481,7 @@ export type ReminderTapTarget =
   | { pathname: '/reconcile' }
   | { pathname: '/waiting-answers' }
   | { pathname: '/daily-checkin' }
+  | { pathname: '/profile'; params: { section: 'applock' } }
   | { pathname: '/'; params: { openHomeSection: 'yourWeek' } }
   | { pathname: '/food'; params: { openFoodLens: 'myFoodProducts' } }
   | { pathname: '/photo-camera'; params: { ownerKind: string; ownerId: string; guide: '1'; title: string } };
@@ -1480,6 +1503,9 @@ const DATED_LENSES: LifeReminderLens[] = ['finances', 'upkeep', 'work', 'daysUnt
 export function resolveReminderTap(response: Notifications.NotificationResponse | null): ReminderTapTarget | null {
   const request = response?.notification.request;
   if (request?.identifier === WAITING_SUMMARY_ID) return { pathname: '/waiting-answers' };
+  // The vault offer, tapped or Set It Up pressed, opens Profile on App Lock,
+  // where the vault is set up.
+  if (request?.identifier === VAULT_OFFER_NOTIFICATION_ID) return { pathname: '/profile', params: { section: 'applock' } };
   // A16: an alert about somebody else's dose opens Meds, where the band of
   // doses you watch sits. Queued by lib/peerDosesDb.ts, not by this module.
   if (request?.identifier?.startsWith(PEER_DOSE_PREFIX)) return { pathname: '/schedule', params: { openScheduleLens: 'meds' } };
@@ -1619,6 +1645,12 @@ function responseKey(response: Notifications.NotificationResponse): string {
 // answering on this phone, and the merge carries it across.
 async function answerPress(response: Notifications.NotificationResponse): Promise<void> {
   const request = response.notification.request;
+  // The vault offer is not a reminder and writes nothing to the database.
+  if (request.identifier === VAULT_OFFER_NOTIFICATION_ID) {
+    await Notifications.dismissNotificationAsync(request.identifier).catch(() => undefined);
+    answerVaultOffer(response.actionIdentifier);
+    return;
+  }
   const ours = isOurs(request.identifier) || isSnoozed(request.identifier);
   if (!ours) return;
   if (isLockedNow()) {
@@ -1637,7 +1669,6 @@ async function answerPress(response: Notifications.NotificationResponse): Promis
   // already handled before reaching the dismiss (2026-10-07).
   if (plan) await Notifications.dismissNotificationAsync(request.identifier).catch(() => undefined);
   if (!(await claimAnswer(responseKey(response)))) {
-    console.log('[reminderPress] already noted', request.identifier, response.actionIdentifier);
     await refreshWaitingSummary();
     return;
   }
@@ -1883,8 +1914,7 @@ async function applyWaitingAnswers(): Promise<void> {
 // left alone there, since it opens the app and the app answers it.
 export async function answerFromBackground(response: Notifications.NotificationResponse): Promise<void> {
   if (!supported) return;
-  if (response.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) return;
-  console.log('[reminderPress] background task', response.notification.request.identifier, response.actionIdentifier);
+  if (opensLikeATap(response.actionIdentifier)) return;
   const key = responseKey(response);
   if (answered.has(key)) return;
   answered.add(key);
@@ -1895,6 +1925,12 @@ export async function answerFromBackground(response: Notifications.NotificationR
 // once it is unlocked (listenForReminderTaps).
 let tapWhileLocked: Notifications.NotificationResponse | null = null;
 
+// A tap, or the one button that opens a screen (Set It Up on the vault
+// offer), which the app answers by opening where the tap would.
+function opensLikeATap(actionIdentifier: string): boolean {
+  return actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER || ACTION_OPENS_APP[actionIdentifier as ReminderActionId] === true;
+}
+
 // Mounted by the lock gate, which is there whether the app is locked or not
 // (components/AppLockGate.tsx). The rest of the app does not mount until it
 // is unlocked, so with only its listener, a button pressed while the app sat
@@ -1904,11 +1940,10 @@ let tapWhileLocked: Notifications.NotificationResponse | null = null;
 export function listenForReminderPresses(): () => void {
   if (!supported) return () => {};
   const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-    if (response.actionIdentifier === Notifications.DEFAULT_ACTION_IDENTIFIER) {
+    if (opensLikeATap(response.actionIdentifier)) {
       if (!tapListenerMounted) tapWhileLocked = response;
       return;
     }
-    console.log('[reminderPress] listener', response.notification.request.identifier, response.actionIdentifier, 'locked', isLockedNow());
     handleResponse(response, () => undefined);
   });
   return () => subscription.remove();
@@ -1928,9 +1963,8 @@ function handleResponse(
   const key = responseKey(response);
   if (answered.has(key)) return;
   answered.add(key);
-  if (response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) {
+  if (!opensLikeATap(response.actionIdentifier)) {
     answerPress(response)
-      .then(() => console.log('[reminderPress] answered', key))
       .catch((error) => console.error('[reminderNotifications] answer failed', error));
     return;
   }
@@ -1971,7 +2005,7 @@ async function recordAnswer(
     // press after answering in the app changes that answer and keeps the
     // rest of it. The energy question follows a sleep press only while
     // energy has no answer yet.
-    const saved = await getMorningCheckin(now);
+    const saved = await getMorningCheckin(now, true);
     const sleepQuality = plan.write === 'sleepQuality' ? plan.value : saved?.sleepQuality ?? null;
     const energy = plan.write === 'morningEnergy' ? plan.value : saved?.energy ?? null;
     await saveMorningCheckin({ existingId: saved?.id ?? null, sleepQuality, energy, notes: saved?.notes ?? '', at: now });
@@ -2044,7 +2078,7 @@ export function listenForReminderTaps(navigate: (target: ReminderTapTarget) => v
   tapWhileLocked = null;
   if (waitingTap) handleResponse(waitingTap, navigate);
   const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-    if (response.actionIdentifier !== Notifications.DEFAULT_ACTION_IDENTIFIER) return;
+    if (!opensLikeATap(response.actionIdentifier)) return;
     handleResponse(response, navigate);
   });
   // A reminder arriving while the app is open brings the summary up to date.

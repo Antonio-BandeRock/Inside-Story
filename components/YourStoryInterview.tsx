@@ -55,6 +55,9 @@ import {
   PLAN_THIS_WAY_LABEL,
   READ_MORE_LABEL,
   SET_UP_BACKUP_LABEL,
+  SECURITY_APP_LOCK_LABEL,
+  SECURITY_BOTH_LABEL,
+  SECURITY_VAULT_LABEL,
   START_ALL,
   TAKE_NOTHING_LABEL,
   TOUR_TABS,
@@ -68,6 +71,8 @@ import { wording } from '../lib/playfulCopy';
 import { setVisualPreferences } from '../lib/visualPreferences';
 import { HOME_BAND_CONTENT_PADDING, HOME_BAND_DIVIDER_COLOR, homeBandStyle } from './HomeSectionBand';
 import { PopoverSelect } from './PopoverSelect';
+import { VAULT_DEFAULT_CATEGORIES } from '../lib/vault';
+import { answerVaultSetupNotNow, setVaultCategories } from '../lib/vaultSession';
 
 type Props = {
   mode: 'card' | 'page';
@@ -92,6 +97,13 @@ function validBirthDate(year: number, month: number, day: number): boolean {
 }
 
 const profileRoute: Exclude<StoryDestination, { kind: 'beats' }> = { kind: 'route', pathname: '/profile' };
+// Profile opened at App Lock, where the vault's choices and code are.
+const appLockProfileRoute: Exclude<StoryDestination, { kind: 'beats' }> = {
+  kind: 'route',
+  pathname: '/profile',
+  params: { section: 'applock' },
+};
+const appLockSetupRoute: Exclude<StoryDestination, { kind: 'beats' }> = { kind: 'route', pathname: '/app-lock-setup' };
 const myMedsRoute: Exclude<StoryDestination, { kind: 'beats' }> = {
   kind: 'route',
   pathname: '/life',
@@ -410,6 +422,43 @@ export function YourStoryInterview({ mode, interview, onChanged, go }: Props) {
             {link(NOT_NOW_LABEL, () => void act(() => setYourStoryAnswer('backup', 'notNow'), null), true)}
           </View>
         );
+      case 'security': {
+        // Choosing the vault puts the health and money records in it
+        // straight away; App Lock is set up on its own screen, and a vault
+        // with no App Lock gets its code in Profile.
+        const appLockOn = facts.security?.appLockOn ?? false;
+        return (
+          <View style={styles.links}>
+            {link(SECURITY_BOTH_LABEL, () => {
+              setVaultCategories(VAULT_DEFAULT_CATEGORIES);
+              setHolding(null);
+              onChanged();
+              go(appLockOn ? appLockProfileRoute : appLockSetupRoute);
+            })}
+            {appLockOn
+              ? null
+              : link(SECURITY_APP_LOCK_LABEL, () => {
+                  setHolding(null);
+                  go(appLockSetupRoute);
+                })}
+            {link(SECURITY_VAULT_LABEL, () => {
+              setVaultCategories(VAULT_DEFAULT_CATEGORIES);
+              setHolding(null);
+              onChanged();
+              go(appLockProfileRoute);
+            })}
+            {link(
+              NOT_NOW_LABEL,
+              () =>
+                void act(async () => {
+                  answerVaultSetupNotNow();
+                  await setYourStoryAnswer('security', 'notNow');
+                }, null),
+              true,
+            )}
+          </View>
+        );
+      }
     }
   }
 

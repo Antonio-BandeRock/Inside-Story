@@ -41,6 +41,8 @@ import { morningSummary, SLEEP_QUALITY_WORDS } from '../lib/morningCheckin';
 import { getMorningCheckin, saveMorningCheckin } from '../lib/morningCheckinDb';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
 import { SEVERITY_STEPS, severityStepLabel, stepFromTen } from '../lib/severityScale';
+import { VaultClosedBand } from '../components/VaultClosedBand';
+import { useOnVaultChange } from '../lib/vaultReads';
 
 const TAB_COLOR = colors.tabBioCompass;
 const ENERGY = scaleOf('energy');
@@ -100,6 +102,11 @@ export default function DailyCheckinScreen() {
     flare: { saved: false },
   });
 
+  // Opening the vault reads this morning's answers back in, so a check-in
+  // already made is not answered a second time.
+  const [vaultReads, setVaultReads] = useState(0);
+  useOnVaultChange(() => setVaultReads((n) => n + 1));
+
   useEffect(() => {
     let cancelled = false;
     void (async () => {
@@ -124,7 +131,7 @@ export default function DailyCheckinScreen() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [vaultReads]);
 
   const morningAnswered = sleepQuality !== null || morningEnergy !== null || morningNote.trim().length > 0;
   const feelingAnswered =
@@ -459,6 +466,7 @@ export default function DailyCheckinScreen() {
     <View style={styles.screen}>
       <Stack.Screen options={{ title: 'Check In' }} />
       <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        <VaultClosedBand color={TAB_COLOR} categories={['symptoms']} />
         <View style={styles.band}>
           {caption ? <Text style={styles.caption}>{caption}</Text> : null}
           <Text style={[styles.title, { color: TAB_COLOR }]}>{current.title}</Text>

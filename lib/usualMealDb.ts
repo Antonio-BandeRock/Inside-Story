@@ -284,6 +284,6 @@ export async function logUsualMeal(meal: UsualMeal, eatenAt: string): Promise<Us
   if ('error' in logged) return logged;
   if (meal.kind === 'out') await markMealEatenOut(logged.id, { place: meal.place });
   await db.runAsync('UPDATE usual_meals SET last_used_at = ?, updated_at = ? WHERE id = ?', new Date().toISOString(), new Date().toISOString(), meal.id);
-  const trials = await db.getFirstAsync<{ n: number }>('SELECT COUNT(*) AS n FROM food_trials WHERE activated_by_meal_id = ?', logged.id);
+  const trials = await db.getFirstAsync<{ n: number }>('/* vault:tool */ SELECT COUNT(*) AS n FROM food_trials WHERE activated_by_meal_id = ?', logged.id);
   return { ...logged, touchedFoodTrials: (trials?.n ?? 0) > 0 };
 }

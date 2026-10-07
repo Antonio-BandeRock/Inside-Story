@@ -59,6 +59,8 @@ import type { SupplyReading } from '../lib/medSupply';
 import type { NutrientGapEntry } from '../lib/nutrientAnalysis';
 import { useWalkMark } from '../components/WalkMark';
 import { ThumbRow } from './ThumbRow';
+import { VaultClosedBand } from './VaultClosedBand';
+import { useCategoryClosed } from '../lib/vaultSession';
 
 // My Meds, the registry of everything a person takes: prescriptions, OTC
 // drugs and supplements, each with its dose, form, timing rules, interactions
@@ -213,6 +215,11 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [confirmSheet, confirmSheetElement] = useConfirmSheet();
+  // The med list is never refused at the database, since the timing
+  // warnings read it, so the list is left out here while it is in a closed
+  // vault. Adding a med and the warnings stay: the vault holds records,
+  // never the tools, and safety is never behind it.
+  const medsClosed = useCategoryClosed('medications');
 
   // Lazily loaded, cached by nutrient code -- there's no reason to fetch
   // supplement_forms/nutrient_timing for every nutrient this app tracks up
@@ -1095,7 +1102,9 @@ export function MyMedsSection({ tabColor, focusTreatmentId }: Props) {
 
           <RecallsBand folds={folds} tabColor={tabColor} reloadKey={treatments.length} />
 
-          {treatments.length === 0 ? (
+          {medsClosed ? (
+            <VaultClosedBand color={tabColor} categories={['medications']} />
+          ) : treatments.length === 0 ? (
             <View style={styles.bandBox}><Text style={styles.emptyText}>Nothing here yet. Add a prescription, OTC drug, or supplement above, then tap Schedule it to set its times in Schedules.</Text></View>
           ) : (
             <>

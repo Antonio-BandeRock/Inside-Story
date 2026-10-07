@@ -21,14 +21,15 @@ import {
   getStepTrendPoints,
   getWeightTrendPoints,
 } from './trendAnalysis';
+import { readOrClosed } from './vaultReads';
 
 export async function loadCompareChoices(weightUnit: 'kg' | 'lb'): Promise<SeriesChoice[]> {
   const db = await getDatabase();
   const [intakes, testedRows, tests, trackers, weatherOn] = await Promise.all([
     getDietaryReferenceIntakesForCurrentUser(),
-    db.getAllAsync<{ code: string; unit: string }>(
+    readOrClosed(() => db.getAllAsync<{ code: string; unit: string }>(
       `SELECT test_code AS code, unit FROM lab_results GROUP BY test_code ORDER BY MAX(tested_at) DESC`,
-    ),
+    ), []),
     getLabTests(),
     listCustomTrackers(),
     isWeatherOn(),
@@ -140,13 +141,13 @@ export async function loadSeriesPoints(choice: SeriesChoice, end: string, start:
 // marked as not present (severity 0) is left out, as Signals leaves it out.
 export async function loadTagDays(start: string, end: string): Promise<TagMarkRow[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ loggedAt: string; tagCode: string }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ loggedAt: string; tagCode: string }>(
     `SELECT c.logged_at AS loggedAt, t.tag_code AS tagCode
        FROM checkin_tags t JOIN wellbeing_checkins c ON c.id = t.checkin_id
       WHERE c.logged_at >= ? AND c.logged_at < ?
         AND (t.severity IS NULL OR t.severity > 0)`,
     shiftDate(start, -1),
     shiftDate(end, 2),
-  );
+  ), []);
   return tagDays(rows, start, end, (code) => getCheckinTagDefinition(code)?.label);
 }

@@ -6,8 +6,10 @@
 // answering again the same morning changes that row rather than adding one.
 
 import { getDatabase } from './db';
+import { VAULT_TOOL_READ } from './vault';
 import { localStamp } from './dailyScales';
 import type { MorningInputs, MorningPoint } from './morningCheckin';
+import { readOrClosed } from './vaultReads';
 
 // How far back the usual range reaches. The range needs 8 earlier
 // readings, and four months holds far more than that for anyone who wears
@@ -26,14 +28,14 @@ export async function getMorningInputs(now = new Date()): Promise<MorningInputs>
   const db = await getDatabase();
   const since = localDate(addDays(now, -LOOKBACK_DAYS));
   const today = localDate(now);
-  const rows = await db.getAllAsync<{ recordType: string; localDate: string; value: number | null; value2: number | null }>(
+  const rows = await readOrClosed(() => db.getAllAsync<{ recordType: string; localDate: string; value: number | null; value2: number | null }>(
     `SELECT record_type AS recordType, local_date AS localDate, value, value2
        FROM health_records
       WHERE record_type IN ('sleep', 'resting_heart_rate', 'hrv') AND local_date >= ? AND local_date <= ?
       ORDER BY started_at ASC`,
     since,
     today,
-  );
+  ), []);
   // Sleep as Trends reads it (getSleepTrendPoints): time asleep where the
   // watch recorded stages, otherwise time in bed, and two sessions ending
   // the same morning added together.
@@ -65,17 +67,22 @@ export type MorningRecord = {
   notes: string | null;
 };
 
-export async function getMorningCheckin(now = new Date()): Promise<MorningRecord | null> {
+/**
+ * `forReminder` reads past a closed vault, for a press on the morning
+ * reminder that keeps the rest of the morning's answer: the reminder is a
+ * tool, and the vault holds records, never the tools that make them.
+ */
+export async function getMorningCheckin(now = new Date(), forReminder = false): Promise<MorningRecord | null> {
   const db = await getDatabase();
-  return db.getFirstAsync<MorningRecord>(
-    `SELECT id, logged_at AS loggedAt, sleep_quality AS sleepQuality, energy, notes
+  return readOrClosed(() => db.getFirstAsync<MorningRecord>(
+    `${forReminder ? VAULT_TOOL_READ : ''} SELECT id, logged_at AS loggedAt, sleep_quality AS sleepQuality, energy, notes
        FROM wellbeing_checkins
       WHERE checkin_type = 'sleep' AND logged_at >= ? AND logged_at < ?
       ORDER BY logged_at DESC
       LIMIT 1`,
     localDate(now),
     localDate(addDays(now, 1)),
-  );
+  ), null);
 }
 
 export async function saveMorningCheckin(input: {
@@ -99,6 +106,24 @@ export async function saveMorningCheckin(input: {
       notes,
       stamp,
       input.existingId,
+    );
+    return;
+  }
+  // A form opened while the vault was closed could not see this morning's
+  // answer, so it arrives with no id. Fill in what was answered now and keep
+  // the rest, rather than leaving two answers for one morning.
+  const earlier = await getMorningCheckin(answeredAt, true);
+  if (earlier) {
+    await db.runAsync(
+      `UPDATE wellbeing_checkins
+          SET sleep_quality = COALESCE(?, sleep_quality), energy = COALESCE(?, energy),
+              notes = COALESCE(?, notes), updated_at = ?
+        WHERE id = ?`,
+      input.sleepQuality,
+      input.energy,
+      notes,
+      stamp,
+      earlier.id,
     );
     return;
   }

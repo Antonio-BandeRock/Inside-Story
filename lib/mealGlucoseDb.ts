@@ -6,6 +6,7 @@
 import { getDatabase } from './db';
 import { addDays } from './eatingVariety';
 import { hasReadingsNear, readMealsGlucose, type GlucosePoint, type MealForGlucose, type MealGlucose } from './mealGlucose';
+import { readOrClosed } from './vaultReads';
 
 function localMillis(eatenAt: string): number | null {
   const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(eatenAt);
@@ -26,13 +27,13 @@ export async function listMealGlucose(fromDay: string, toDay: string): Promise<M
       fromDay,
       addDays(toDay, 1),
     ),
-    db.getAllAsync<{ startedAt: string; value: number | null }>(
+    readOrClosed(() => db.getAllAsync<{ startedAt: string; value: number | null }>(
       `SELECT started_at AS startedAt, value FROM health_records
        WHERE record_type = 'glucose' AND local_date >= ? AND local_date <= ?
        ORDER BY started_at ASC`,
       addDays(fromDay, -1),
       addDays(toDay, 1),
-    ),
+    ), []),
   ]);
   const readings: GlucosePoint[] = [];
   for (const row of glucoseRows) {

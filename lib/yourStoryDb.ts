@@ -122,7 +122,7 @@ async function lookForRecords(db: Db): Promise<Partial<Record<YourStoryItemKey, 
     conditions: await earliest(db, 'SELECT MIN(selected_at) AS at FROM user_conditions'),
     allergies: await earliest(db, 'SELECT MIN(added_at) AS at FROM user_food_allergies'),
     eatingStyle: await earliest(db, 'SELECT MIN(selected_at) AS at FROM diet_preferences'),
-    neuro: await earliest(db, 'SELECT MIN(added_at) AS at FROM user_neuro_profile'),
+    neuro: await earliest(db, '/* vault:tool */ SELECT MIN(added_at) AS at FROM user_neuro_profile'),
     meds: await earliest(db, 'SELECT MIN(created_at) AS at FROM treatments'),
     emergency: earliestOf(emergencyProfile, emergencyContacts),
     capture: await earliest(db, 'SELECT MIN(created_at) AS at FROM capture_notes'),
@@ -131,14 +131,14 @@ async function lookForRecords(db: Db): Promise<Partial<Record<YourStoryItemKey, 
     daysUntil: earliestOf(countdown, gardenCountdown),
     todo: await earliest(db, 'SELECT MIN(created_at) AS at FROM todos'),
     meal: await earliest(db, "SELECT MIN(eaten_at) AS at FROM meals WHERE meal_type <> 'beverage'"),
-    checkin: await earliest(db, 'SELECT MIN(logged_at) AS at FROM wellbeing_checkins'),
+    checkin: await earliest(db, '/* vault:tool */ SELECT MIN(logged_at) AS at FROM wellbeing_checkins'),
     water: await earliest(db, "SELECT MIN(eaten_at) AS at FROM meals WHERE meal_type = 'beverage'"),
     exercise: await earliest(db, 'SELECT MIN(logged_at) AS at FROM exercise_logs'),
     gardenArea: await earliest(db, 'SELECT MIN(created_at) AS at FROM garden_plots'),
     planting: await earliest(db, 'SELECT MIN(created_at) AS at FROM garden_plantings'),
     harvest: await earliest(db, 'SELECT MIN(harvested_at) AS at FROM garden_harvests'),
-    bills: await earliest(db, "SELECT MIN(created_at) AS at FROM finance_recurring WHERE direction = 'expense'"),
-    spending: await earliest(db, "SELECT MIN(created_at) AS at FROM finance_entries WHERE direction = 'expense'"),
+    bills: await earliest(db, "/* vault:tool */ SELECT MIN(created_at) AS at FROM finance_recurring WHERE direction = 'expense'"),
+    spending: await earliest(db, "/* vault:tool */ SELECT MIN(created_at) AS at FROM finance_entries WHERE direction = 'expense'"),
     upkeep: await earliest(db, 'SELECT MIN(created_at) AS at FROM upkeep_items'),
     kitchen: await earliest(
       db,
@@ -147,7 +147,7 @@ async function lookForRecords(db: Db): Promise<Partial<Record<YourStoryItemKey, 
     workCheckin: await earliest(db, 'SELECT MIN(created_at) AS at FROM work_checkins'),
     workBenefits: await earliest(db, 'SELECT MIN(created_at) AS at FROM work_benefits'),
     familyMember: await earliest(db, 'SELECT MIN(created_at) AS at FROM family_members'),
-    familyConditions: await earliest(db, 'SELECT MIN(selected_at) AS at FROM family_member_conditions'),
+    familyConditions: await earliest(db, '/* vault:tool */ SELECT MIN(selected_at) AS at FROM family_member_conditions'),
   };
 }
 
@@ -233,7 +233,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 // the 24 hours before it, the shortest window Pattern Finder offers.
 async function countFlaresWithMealsBefore(db: Db): Promise<number> {
   const symptoms = await db.getAllAsync<{ logged_at: string }>(
-    "SELECT logged_at FROM wellbeing_checkins WHERE checkin_type IN ('flare', 'post_meal') AND severity IS NOT NULL",
+    "/* vault:tool */ SELECT logged_at FROM wellbeing_checkins WHERE checkin_type IN ('flare', 'post_meal') AND severity IS NOT NULL",
   );
   if (symptoms.length === 0) return 0;
   const meals = await db.getAllAsync<{ eaten_at: string }>('SELECT eaten_at FROM meals');
@@ -258,7 +258,7 @@ async function countWaiting(db: Db): Promise<Partial<Record<YourStoryItemKey, nu
     ...(await distinctDays(db, 'SELECT started_at AS at FROM routine_runs')),
     ...(await distinctDays(db, 'SELECT done_on AS at FROM upkeep_doings')),
   ]);
-  const spendingDays = await distinctDays(db, "SELECT occurred_on AS at FROM finance_entries WHERE direction = 'expense'");
+  const spendingDays = await distinctDays(db, "/* vault:tool */ SELECT occurred_on AS at FROM finance_entries WHERE direction = 'expense'");
   const spendingMonths = new Set(Array.from(spendingDays).map((day) => day.slice(0, 7)));
   return {
     patterns: await countFlaresWithMealsBefore(db),

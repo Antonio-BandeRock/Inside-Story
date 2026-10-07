@@ -2,6 +2,7 @@
 // Signals > Nocturia writes here; Trends > Nights reads it beside the
 // evening's drinks (lib/trendsMore.ts, lib/trendsMoreDb.ts).
 import { getDatabase } from './db';
+import { readOrClosed } from './vaultReads';
 
 export type NocturiaNight = {
   id: string;
@@ -15,19 +16,19 @@ const COLUMNS = 'id, night_of AS nightOf, times, first_wake AS firstWake, notes'
 
 export async function listNocturiaNights(limit = 30): Promise<NocturiaNight[]> {
   const db = await getDatabase();
-  return db.getAllAsync<NocturiaNight>(
+  return readOrClosed(() => db.getAllAsync<NocturiaNight>(
     `SELECT ${COLUMNS} FROM nocturia_nights ORDER BY night_of DESC, created_at DESC LIMIT ?`,
     limit,
-  );
+  ), []);
 }
 
 export async function listNocturiaNightsBetween(start: string, end: string): Promise<NocturiaNight[]> {
   const db = await getDatabase();
-  return db.getAllAsync<NocturiaNight>(
+  return readOrClosed(() => db.getAllAsync<NocturiaNight>(
     `SELECT ${COLUMNS} FROM nocturia_nights WHERE night_of >= ? AND night_of <= ? ORDER BY night_of ASC`,
     start,
     end,
-  );
+  ), []);
 }
 
 /** One night is one row: logging the same night again replaces what was
@@ -40,7 +41,7 @@ export async function saveNocturiaNight(input: {
 }): Promise<void> {
   const db = await getDatabase();
   const now = new Date().toISOString();
-  const existing = await db.getFirstAsync<{ id: string }>('SELECT id FROM nocturia_nights WHERE night_of = ?', input.nightOf);
+  const existing = await db.getFirstAsync<{ id: string }>('/* vault:tool */ SELECT id FROM nocturia_nights WHERE night_of = ?', input.nightOf);
   const notes = input.notes && input.notes.trim() ? input.notes.trim() : null;
   if (existing) {
     await db.runAsync(

@@ -47,6 +47,8 @@ import { QuickAreaForm } from './QuickAreaForm';
 import { makeTabBandStyles, TabBand } from './TabBand';
 import { ThumbRow } from './ThumbRow';
 import { ThumbEndRow } from './ThumbEndRow';
+import { VaultClosedBand } from './VaultClosedBand';
+import { useOnVaultChange } from '../lib/vaultReads';
 
 // Growing Costs, a lens of Garden.
 //
@@ -183,6 +185,9 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
       void load();
     }, [load]),
   );
+  useOnVaultChange(() => {
+    void load();
+  });
 
   useEffect(() => {
     setError(null);
@@ -385,6 +390,7 @@ export function GrowingCostsLens({ scrollBottomPadding }: { scrollBottomPadding:
 
   return (
     <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
+      <VaultClosedBand color={TAB_COLOR} categories={['finances']} />
       <View style={[band.box, styles.card]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>What the Garden Costs and Gives Back</Text>
         {summary ? (

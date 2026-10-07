@@ -14,6 +14,7 @@ import {
   type GoalCostKind,
   type GoalProgress,
 } from './financeGoals';
+import { readOrClosed } from './vaultReads';
 
 export type GoalContribution = {
   id: string;
@@ -157,7 +158,7 @@ export type GoalCostOption = { costId: string; goalName: string; costLabel: stri
  */
 export async function listGoalCostOptions(): Promise<GoalCostOption[]> {
   const db = await getDatabase();
-  return db.getAllAsync<GoalCostOption>(
+  return readOrClosed(() => db.getAllAsync<GoalCostOption>(
     `
       SELECT c.id AS costId, g.name AS goalName, c.label AS costLabel
       FROM finance_goal_costs c
@@ -165,7 +166,7 @@ export async function listGoalCostOptions(): Promise<GoalCostOption[]> {
       WHERE c.kind = 'money' AND g.status = 'active'
       ORDER BY g.name, c.rowid
     `,
-  );
+  ), []);
 }
 
 // --- Reading it all back ----------------------------------------------------
@@ -181,7 +182,7 @@ export async function listGoalCostOptions(): Promise<GoalCostOption[]> {
 export async function listGoalsWithProgress(): Promise<GoalWithProgress[]> {
   const db = await getDatabase();
 
-  const goalRows = await db.getAllAsync<{
+  const goalRows = await readOrClosed(() => db.getAllAsync<{
     id: string; name: string; reason: string | null; targetDate: string | null; status: string;
   }>(
     `
@@ -193,10 +194,10 @@ export async function listGoalsWithProgress(): Promise<GoalWithProgress[]> {
         target_date,
         name
     `,
-  );
+  ), []);
   if (goalRows.length === 0) return [];
 
-  const costRows = await db.getAllAsync<{
+  const costRows = await readOrClosed(() => db.getAllAsync<{
     id: string; goalId: string; kind: string; label: string; target: number; unit: string | null;
   }>(
     `
@@ -204,9 +205,9 @@ export async function listGoalsWithProgress(): Promise<GoalWithProgress[]> {
       FROM finance_goal_costs
       ORDER BY rowid
     `,
-  );
+  ), []);
 
-  const contribRows = await db.getAllAsync<{
+  const contribRows = await readOrClosed(() => db.getAllAsync<{
     id: string; costId: string; occurredOn: string; amount: number; note: string | null;
   }>(
     `
@@ -214,7 +215,7 @@ export async function listGoalsWithProgress(): Promise<GoalWithProgress[]> {
       FROM finance_goal_contributions
       ORDER BY occurred_on DESC, rowid DESC
     `,
-  );
+  ), []);
 
   const contributionsByCost: Record<string, GoalContribution[]> = {};
   const byHandByCost: Record<string, number> = {};
@@ -230,14 +231,14 @@ export async function listGoalsWithProgress(): Promise<GoalWithProgress[]> {
   //
   // Expenses only, matching what createEntry will store: income tagged to a
   // goal would be earmarking, not progress.
-  const taggedRows = await db.getAllAsync<{ costId: string; total: number }>(
+  const taggedRows = await readOrClosed(() => db.getAllAsync<{ costId: string; total: number }>(
     `
       SELECT goal_cost_id AS costId, SUM(amount) AS total
       FROM finance_entries
       WHERE goal_cost_id IS NOT NULL AND direction = 'expense'
       GROUP BY goal_cost_id
     `,
-  );
+  ), []);
   const fromSpendingByCost: Record<string, number> = {};
   for (const row of taggedRows) fromSpendingByCost[row.costId] = row.total ?? 0;
 

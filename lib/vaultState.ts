@@ -1,5 +1,5 @@
-// The vault, whether it is on and whether it is open right now. Kept apart
-// from lib/vaultSession.ts, which opens it with the code or fingerprint, so
+// The vault, what is in it and whether it is open right now. Kept apart
+// from lib/vaultSession.ts, which opens it with a code or fingerprint, so
 // lib/databaseActivity.ts can ask on every read without pulling in secure
 // store or the prompt. The rules themselves are in lib/vault.ts.
 //
@@ -7,40 +7,89 @@
 // closes it, and so does putting the app away (lib/vaultSession.ts).
 
 import { readLockStateSync } from './appLockSession';
-import { vaultRefusal, type VaultClosedError } from './vault';
+import {
+  vaultGuarding,
+  vaultKey,
+  vaultRefusal,
+  type VaultCategory,
+  type VaultClosedError,
+  type VaultKey,
+  type VaultSettings,
+} from './vault';
+import { readVaultSettingsSync, writeVaultSettingsSync } from './vaultSettings';
 
-let vaultOnCache: boolean | null = null;
+type Snapshot = { settings: VaultSettings; appLockOn: boolean; guarding: boolean; key: VaultKey };
+
+let snapshot: Snapshot | null = null;
 let vaultOpen = false;
 let bypassDepth = 0;
 const listeners = new Set<() => void>();
 
 /**
- * Whether the vault is switched on. Read from the lock file once and then
- * remembered, since this is asked before every SELECT; refreshVaultOn() reads
- * it again after the setting changes. Never on while App Lock is off or
- * still moving the database, since the vault opens with the lock's code.
+ * The settings and whether App Lock is on, read from the two files once and
+ * then remembered, since this is asked before every SELECT. refreshVault()
+ * reads them again after either changes.
  */
-export function isVaultOn(): boolean {
-  if (vaultOnCache === null) {
-    const state = readLockStateSync();
-    vaultOnCache = state !== null && state.phase === 'on' && state.vault;
+function current(): Snapshot {
+  if (snapshot === null) {
+    const lock = readLockStateSync();
+    const appLockOn = lock !== null && lock.phase === 'on';
+    const settings = readVaultSettingsSync();
+    snapshot = { settings, appLockOn, guarding: vaultGuarding(appLockOn, settings), key: vaultKey(appLockOn, settings) };
   }
-  return vaultOnCache;
+  return snapshot;
 }
 
-export function refreshVaultOn(): void {
-  vaultOnCache = null;
-  isVaultOn();
+export function getVaultSettings(): VaultSettings {
+  return current().settings;
+}
+
+/** Writes the settings and redraws everything watching the vault. */
+export function saveVaultSettings(settings: VaultSettings): void {
+  writeVaultSettingsSync(settings);
+  refreshVault();
+}
+
+/** True when the vault is closing something: categories are chosen and a code opens it. */
+export function isVaultOn(): boolean {
+  return current().guarding;
+}
+
+/** What opens it: the App Lock code, its own code, or nothing yet. */
+export function currentVaultKey(): VaultKey {
+  return current().key;
+}
+
+export function isAppLockOnForVault(): boolean {
+  return current().appLockOn;
+}
+
+/** The categories the person put in the vault, guarded or not. */
+export function chosenVaultCategories(): VaultCategory[] {
+  return current().settings.categories;
+}
+
+export function refreshVault(): void {
+  snapshot = null;
+  if (!current().guarding) vaultOpen = false;
   notify();
 }
+
+/** Kept for lib/appLockDevice.ts, which calls it after the lock file changes. */
+export const refreshVaultOn = refreshVault;
 
 export function isVaultOpen(): boolean {
   return vaultOpen;
 }
 
-/** True when the vault is on and closed, so its records cannot be read. */
+/** True when the vault is guarding and closed, so its records cannot be read. */
 export function isVaultClosed(): boolean {
   return isVaultOn() && !vaultOpen;
+}
+
+/** True when this one category is in the vault, guarded, and closed. */
+export function isCategoryClosed(category: VaultCategory): boolean {
+  return isVaultClosed() && current().settings.categories.includes(category);
 }
 
 export function setVaultOpen(open: boolean): void {
@@ -66,7 +115,8 @@ export async function withVaultBypass<T>(work: () => Promise<T>): Promise<T> {
 /** The refusal for a statement about to run, or null when it may run. */
 export function vaultRefusalNow(sql: string): VaultClosedError | null {
   if (vaultOpen || bypassDepth > 0) return null;
-  return vaultRefusal(sql, isVaultOn(), vaultOpen);
+  const now = current();
+  return vaultRefusal(sql, now.guarding, vaultOpen, now.settings.categories);
 }
 
 export function subscribeVault(listener: () => void): () => void {

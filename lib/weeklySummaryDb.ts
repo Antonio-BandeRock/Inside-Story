@@ -7,6 +7,7 @@ import { getStepCountTrend, getDatabase } from './db';
 import { localDayOf } from './dailyScales';
 import { getMorningInputs } from './morningCheckinDb';
 import { shiftDay, type WeekInputs } from './weeklySummary';
+import { readOrClosed } from './vaultReads';
 
 export async function getYourWeekInputs(now = new Date()): Promise<WeekInputs> {
   const db = await getDatabase();
@@ -21,7 +22,7 @@ export async function getYourWeekInputs(now = new Date()): Promise<WeekInputs> {
       from,
       to,
     ),
-    db.getAllAsync<{
+    readOrClosed(() => db.getAllAsync<{
       loggedAt: string;
       checkinType: string;
       valence: string | null;
@@ -34,7 +35,7 @@ export async function getYourWeekInputs(now = new Date()): Promise<WeekInputs> {
         WHERE logged_at >= ? AND logged_at < ?`,
       from,
       to,
-    ),
+    ), []),
   ]);
   const flareDays: string[] = [];
   const scales: WeekInputs['scales'] = [];

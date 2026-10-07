@@ -21,6 +21,7 @@ import { getDatabase } from './db';
 import { createEntry } from './financeDb';
 import { addKitchenItem, consumeKitchenItem } from './kitchenDb';
 import type { DispositionKind, DispositionRecord, ReceivedGood, RecipientKind, RecordedPrice } from './harvestTrade';
+import { readOrClosed } from './vaultReads';
 
 export type RecordDispositionInput = {
   occurredOn: string;
@@ -223,14 +224,14 @@ export async function listDispositions(limit = 100): Promise<DispositionRecord[]
  */
 export async function getMoneyGiven(sinceDate: string): Promise<number> {
   const db = await getDatabase();
-  const row = await db.getFirstAsync<{ total: number | null }>(
+  const row = await readOrClosed(() => db.getFirstAsync<{ total: number | null }>(
     `
       SELECT SUM(amount) AS total
       FROM finance_entries
       WHERE direction = 'expense' AND category = 'gifts_giving' AND occurred_on >= ?
     `,
     sinceDate,
-  );
+  ), null);
   return row?.total ?? 0;
 }
 

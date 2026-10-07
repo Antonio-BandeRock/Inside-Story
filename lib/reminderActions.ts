@@ -71,7 +71,10 @@ export type ReminderActionId =
   | 'energySome'
   | 'energyPlenty'
   | 'prepped'
-  | 'sown';
+  | 'sown'
+  | 'vaultSetUp'
+  | 'vaultNotNow'
+  | 'vaultStop';
 
 export type ReminderCategoryKey =
   | 'plain'
@@ -85,7 +88,8 @@ export type ReminderCategoryKey =
   | 'morning'
   | 'energy'
   | 'cropPrep'
-  | 'cropSow';
+  | 'cropSow'
+  | 'vaultOffer';
 
 // 'plain' keeps the identifier the single category always had, so a
 // Snooze-only reminder already queued is still correct and is left alone
@@ -103,6 +107,7 @@ export const REMINDER_CATEGORY_IDS: Record<ReminderCategoryKey, string> = {
   energy: 'inside-story-reminder-energy',
   cropPrep: 'inside-story-reminder-crop-prep',
   cropSow: 'inside-story-reminder-crop-sow',
+  vaultOffer: 'inside-story-vault-offer',
 };
 
 // The 1 to 5 value each morning button saves. Each title is that value's
@@ -156,6 +161,12 @@ export function reminderActionTitle(action: ReminderActionId, snoozeMinutes: num
       return 'Prepped';
     case 'sown':
       return 'Sown';
+    case 'vaultSetUp':
+      return 'Set It Up';
+    case 'vaultNotNow':
+      return 'Not Now';
+    case 'vaultStop':
+      return 'Stop Asking';
   }
 }
 
@@ -173,7 +184,17 @@ export const CATEGORY_ACTIONS: Record<ReminderCategoryKey, ReminderActionId[]> =
   energy: ['energyLow', 'energySome', 'energyPlenty'],
   cropPrep: ['prepped', 'snooze'],
   cropSow: ['sown', 'snooze'],
+  // The offer to set the vault up (lib/vault.ts, shouldOfferVault): three
+  // answers and no Snooze, since Not Now is the snooze and it asks again in
+  // a month.
+  vaultOffer: ['vaultSetUp', 'vaultNotNow', 'vaultStop'],
 };
+
+/**
+ * The one button that opens the app, because setting a code is done on a
+ * screen. Every other button does its work where it is pressed (1.0.53.10).
+ */
+export const ACTION_OPENS_APP: Partial<Record<ReminderActionId, true>> = { vaultSetUp: true };
 
 /**
  * Which set of buttons a reminder of this kind carries. `markable` is false

@@ -168,6 +168,10 @@ import { nutrientKey } from '../../lib/compareSeries';
 import { eatenOutDayLine } from '../../lib/eatenOut';
 import { ThumbRow } from '../../components/ThumbRow';
 import { ThumbEndRow } from '../../components/ThumbEndRow';
+import { VaultClosedBand } from '../../components/VaultClosedBand';
+import type { VaultCategory } from '../../lib/vault';
+import { useOnVaultChange, useVaultReloadKey } from '../../lib/vaultReads';
+import { useCategoryClosed } from '../../lib/vaultSession';
 
 // 'YYYY-MM-DD' in LOCAL time -- same reasoning as the rest of the app
 // (see lib/db.ts/app/(tabs)/index.tsx): UTC's calendar date is wrong for
@@ -238,6 +242,18 @@ const MORE_LENSES: Record<InsightsMoreLens, { loadingLine: string; missingItem?:
   'i-money': { loadingLine: 'Reading this month’s money…', missingItem: 'spending' },
   'i-kitchen': { loadingLine: 'Reading what is on hand…', missingItem: 'kitchen' },
   'i-garden': { loadingLine: 'Reading the garden…', missingItem: 'harvest' },
+};
+
+// Which vault categories each lens shows (lib/vault.ts, phase 2). A lens
+// left out shows nothing the vault holds.
+const INSIGHTS_LENS_VAULT: Partial<Record<Lens, readonly VaultCategory[]>> = {
+  labs: ['labs'],
+  myMeds: ['medications', 'experiments'],
+  portions: ['body'],
+  'i-today': ['medications'],
+  'i-signals': ['symptoms', 'body', 'labs'],
+  'i-appointment': ['appointments', 'symptoms', 'labs', 'medications'],
+  'i-money': ['finances', 'medicalBills'],
 };
 
 function isMoreLens(lens: Lens): lens is InsightsMoreLens {
@@ -699,6 +715,13 @@ export default function InsightsScreen() {
     lookupSubcategory?: string;
   }>();
   const [lens, setLens] = useState<Lens>('nutrients');
+  const lensVault = INSIGHTS_LENS_VAULT[lens] ?? [];
+  // Changes as the vault opens or closes, so the loads below read again.
+  const vaultKey = useVaultReloadKey();
+  // The med list is never refused at the database, since the timing
+  // warnings read it, so the list is left out here while it is closed. The
+  // warnings stay: safety is never behind the vault.
+  const medsClosed = useCategoryClosed('medications');
   const router = useRouter();
   // Which lenses put the ScopeHub (the funnel) in the corner is decided in
   // this screen's own render below; the list here mirrors it exactly so
@@ -780,7 +803,8 @@ export default function InsightsScreen() {
       return () => {
         cancelled = true;
       };
-    }, [lens]),
+      // eslint-disable-next-line react-hooks/exhaustive-deps -- vaultKey reads again as the vault opens or closes
+    }, [lens, vaultKey]),
   );
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -1077,6 +1101,7 @@ export default function InsightsScreen() {
     });
   }, []);
   useFocusEffect(useCallback(() => loadLabs(), [loadLabs]));
+  useOnVaultChange(loadLabs);
 
   // My Meds & Interactions lens, 2026-08-08 -- a read-only surface over
   // real, already-changing data (active treatments + live interaction
@@ -1110,6 +1135,7 @@ export default function InsightsScreen() {
     );
   }, []);
   useFocusEffect(useCallback(() => loadMyMeds(), [loadMyMeds]));
+  useOnVaultChange(loadMyMeds);
 
   // Today's Advisories lens, 2026-08-08 -- today's real, changing log, so
   // this reloads on focus too, same reasoning as Labs/My Meds above.
@@ -1155,6 +1181,9 @@ export default function InsightsScreen() {
       setPortionsLoading(false);
     });
   }, []);
+  useOnVaultChange(() => {
+    if (lens === 'portions') loadPortions();
+  });
   useFocusEffect(
     useCallback(() => {
       if (lens === 'portions') loadPortions();
@@ -1333,6 +1362,7 @@ export default function InsightsScreen() {
                 expanded={lensExplainerExpanded}
                 onToggle={() => setLensExplainerExpanded((current) => !current)}
               />
+              <VaultClosedBand color={TAB_COLOR} categories={lensVault} />
               {lens === 'labelCheck' ? (
               <View style={styles.bandColumn}>
                 <LabelCheckView
@@ -1386,7 +1416,7 @@ export default function InsightsScreen() {
               />
             ) : lens === 'myMeds' ? (
               <MyMedsView
-                treatments={myMedsTreatments}
+                treatments={medsClosed ? [] : myMedsTreatments}
                 warnings={myMedsWarnings}
                 referenceOnly={myMedsReferenceOnly}
                 personalRuleMatches={myMedsPersonalRuleMatches}

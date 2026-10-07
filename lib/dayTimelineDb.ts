@@ -34,6 +34,7 @@ import {
 } from './dayTimeline';
 import { listDatedReminderSources } from './reminderSources';
 import { getRoutines } from './routinesDb';
+import { readOrClosed } from './vaultReads';
 
 const CALENDAR_META_KEY = 'timeline_device_calendar';
 
@@ -138,24 +139,24 @@ export async function loadDayTimeline(now: number = Date.now()): Promise<DayTime
       utcFrom,
       utcTo,
     ),
-    db.getAllAsync<Omit<TimelineCheckinInput, 'tags'>>(
+    readOrClosed(() => db.getAllAsync<Omit<TimelineCheckinInput, 'tags'>>(
       `SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity
          FROM wellbeing_checkins
         WHERE logged_at >= ? AND logged_at < ? AND checkin_type <> 'food_trial_daily'
         ORDER BY logged_at ASC`,
       utcFrom,
       utcTo,
-    ),
-    db.getAllAsync<TimelineSleepInput>(
+    ), []),
+    readOrClosed(() => db.getAllAsync<TimelineSleepInput>(
       `SELECT id, started_at AS startedAt, ended_at AS endedAt
          FROM health_records
         WHERE record_type = 'sleep' AND started_at >= ? AND started_at < ?`,
       utcFrom,
       utcTo,
-    ),
+    ), []),
     getRoutines(),
     listDatedReminderSources(today),
-    db.getAllAsync<WorkoutRow>(WORKOUT_SQL, utcFrom, utcTo),
+    readOrClosed(() => db.getAllAsync<WorkoutRow>(WORKOUT_SQL, utcFrom, utcTo), []),
     db.getAllAsync<TimelineStepsInput>(
       `SELECT date, step_count AS steps FROM daily_step_counts
         WHERE source = 'health_connect' AND date >= ? AND date < ?`,
@@ -172,11 +173,11 @@ export async function loadDayTimeline(now: number = Date.now()): Promise<DayTime
   const tags =
     checkinRows.length === 0
       ? []
-      : await db.getAllAsync<{ checkinId: string; tagCode: string }>(
+      : await readOrClosed(() => db.getAllAsync<{ checkinId: string; tagCode: string }>(
           `SELECT checkin_id AS checkinId, tag_code AS tagCode FROM checkin_tags
             WHERE (severity IS NULL OR severity > 0) AND checkin_id IN (${checkinRows.map(() => '?').join(', ')})`,
           ...checkinRows.map((row) => row.id),
-        );
+        ), []);
   const checkins: TimelineCheckinInput[] = checkinRows.map((row) => ({
     ...row,
     tags: tags
@@ -216,17 +217,17 @@ export async function loadFilledInToday(now: number = Date.now()): Promise<Fille
   const utcFrom = new Date(dayStartMs(today, -1)).toISOString();
   const utcTo = new Date(dayStartMs(today, 2)).toISOString();
   const [sleepRows, stepsRow, workoutRows] = await Promise.all([
-    db.getAllAsync<{ startedAt: string; endedAt: string | null }>(
+    readOrClosed(() => db.getAllAsync<{ startedAt: string; endedAt: string | null }>(
       `SELECT started_at AS startedAt, ended_at AS endedAt FROM health_records
         WHERE record_type = 'sleep' AND ended_at >= ? AND ended_at < ?`,
       utcFrom,
       utcTo,
-    ),
+    ), []),
     db.getFirstAsync<{ steps: number }>(
       `SELECT step_count AS steps FROM daily_step_counts WHERE date = ? AND source = 'health_connect'`,
       today,
     ),
-    db.getAllAsync<WorkoutRow>(WORKOUT_SQL, utcFrom, utcTo),
+    readOrClosed(() => db.getAllAsync<WorkoutRow>(WORKOUT_SQL, utcFrom, utcTo), []),
   ]);
   let sleepMinutes: number | null = null;
   for (const row of sleepRows) {

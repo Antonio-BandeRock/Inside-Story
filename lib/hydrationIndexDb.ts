@@ -10,6 +10,7 @@
 
 import { getDatabase } from './db';
 import { activeMinutesToday, movedWaterTarget, type MovedTarget } from './hydrationIndex';
+import { readOrClosed } from './vaultReads';
 
 export type HydrationDay = {
   active: { minutes: number; source: 'health' | 'logged' | null };
@@ -20,10 +21,10 @@ export type HydrationDay = {
 export async function getHydrationDay(date: string): Promise<HydrationDay> {
   const db = await getDatabase();
   const [health, logged, drinks] = await Promise.all([
-    db.getAllAsync<{ minutes: number | null }>(
+    readOrClosed(() => db.getAllAsync<{ minutes: number | null }>(
       `SELECT value AS minutes FROM health_records WHERE record_type = 'exercise' AND local_date = ?`,
       date,
-    ),
+    ), []),
     db.getAllAsync<{ minutes: number | null }>(
       `SELECT duration_minutes AS minutes FROM exercise_logs WHERE substr(logged_at, 1, 10) = ?`,
       date,
