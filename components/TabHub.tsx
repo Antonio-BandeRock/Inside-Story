@@ -699,20 +699,18 @@ export function TabHub() {
                     key={index}
                     style={[
                       styles.butterflyRealCopy,
-                      { opacity: layer.opacity, transform: [{ translateX: -2 }, { translateY: layer.offsetY }] },
+                      { opacity: layer.opacity, transform: [{ translateY: layer.offsetY }] },
                     ]}
                   >
                     {vectorIconRenderer(iconWidth, '#000000')}
                   </View>
                 ))}
-                <View style={[styles.butterflyRealCopy, { transform: [{ translateX: -2 }] }]}>
+                <View style={styles.butterflyRealCopy}>
                   {vectorIconRenderer(iconWidth, DESSERT_BUILDER_TAB_HUB_COLOR)}
                 </View>
               </View>
             ) : (
-              <View style={{ transform: [{ translateX: -2 }] }}>
-                {vectorIconRenderer(iconWidth, DESSERT_BUILDER_TAB_HUB_COLOR)}
-              </View>
+              vectorIconRenderer(iconWidth, DESSERT_BUILDER_TAB_HUB_COLOR)
             )
           ) : open ? (
             <View style={[styles.butterflyOpenWrap, { width: iconWidth, height: iconHeight }]}>
@@ -724,7 +722,7 @@ export function TabHub() {
                     styles.butterflyImage,
                     { width: iconWidth, height: iconHeight },
                     styles.butterflyShadowCopy,
-                    { opacity: layer.opacity, transform: [{ translateX: -2 }, { translateY: layer.offsetY + verticalShift }] },
+                    { opacity: layer.opacity, transform: [{ translateY: layer.offsetY + verticalShift }] },
                   ]}
                   resizeMode="contain"
                 />
@@ -735,7 +733,7 @@ export function TabHub() {
                   styles.butterflyImage,
                   { width: iconWidth, height: iconHeight },
                   styles.butterflyRealCopy,
-                  { transform: [{ translateX: -2 }, { translateY: verticalShift }] },
+                  { transform: [{ translateY: verticalShift }] },
                 ]}
                 resizeMode="contain"
               />
@@ -746,7 +744,7 @@ export function TabHub() {
               style={[
                 styles.butterflyImage,
                 { width: iconWidth, height: iconHeight },
-                { transform: [{ translateX: -2 }, { translateY: verticalShift }] },
+                { transform: [{ translateY: verticalShift }] },
               ]}
               resizeMode="contain"
             />
@@ -917,19 +915,12 @@ const styles = StyleSheet.create({
     // butterfly-only box. Every OTHER style property here stays static,
     // unrelated to which icon is showing.
     //
-    // Re-added 2026-07-27, explicitly requested despite no diagnosed
-    // cause -- a near-identical -2px leftward nudge lived here before,
-    // was removed the same day pixel analysis showed the asset itself
-    // centered to within 1px (attributing the perceived offset to the OS's
-    // own nav-bar button, not this component), and was then reported as
-    // making things look off-center *to the left*. This time the report
-    // is the opposite direction (slightly right of center), so this is a
-    // small leftward correction again -- still experimental, not a fix
-    // for any bug found in the position math itself (there isn't one; see
-    // the button style's own alignSelf: 'center' and floatingButton.ts,
-    // neither references any left/right inset that could skew this).
-    // Adjust or remove based on how it actually looks on-device.
-    transform: [{ translateX: -2 }],
+    // No sideways nudge. A -2px leftward one lived here from 2026-07-27,
+    // when the artwork was the whole button and had nothing to line up
+    // with. Once it sat in the pressed-in well it pulled every icon 2px
+    // left of the well's centre, and it was removed 2026-10-07 on a
+    // direct report: "The TabHub icons each need to be perfectly centered
+    // on the pressed-in circles."
   },
   // Open-only wrapper -- sized to the artwork's own full footprint (the
   // per-render buttonIconWidth/Height, not BUTTON_SIZE -- see the inline
@@ -940,9 +931,6 @@ const styles = StyleSheet.create({
   // the bare Image directly, so the closed <-> open switch doesn't shift
   // anything.
   butterflyOpenWrap: {},
-  // No transform of its own -- butterflyImage's own translateX: -2
-  // survives the style merge (RN merges style OBJECTS key-by-key, and
-  // this one simply doesn't declare a `transform` key to override it).
   butterflyRealCopy: {
     position: 'absolute',
     top: 0,
