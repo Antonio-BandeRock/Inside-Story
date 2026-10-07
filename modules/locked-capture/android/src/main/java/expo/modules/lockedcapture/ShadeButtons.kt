@@ -118,8 +118,10 @@ class ShadeButtonsReceiver : BroadcastReceiver() {
   override fun onReceive(context: Context, intent: Intent) {
     when (intent.action) {
       ShadeButtons.ACTION_DISMISSED -> ShadeButtons.dismissed(context)
-      Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED ->
+      Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED -> {
         if (ShadeButtons.isOn(context)) ShadeButtons.show(context)
+        EmergencyNotice.restore(context)
+      }
     }
   }
 }

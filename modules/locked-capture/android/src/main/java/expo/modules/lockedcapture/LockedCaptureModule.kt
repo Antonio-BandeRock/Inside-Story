@@ -25,5 +25,9 @@ class LockedCaptureModule : Module() {
     Function("hideShadeButtons") { ShadeButtons.hide(context) }
 
     Function("isShowingShadeButtons") { ShadeButtons.isShowing(context) }
+
+    Function("showEmergencyNotice") { title: String, body: String -> EmergencyNotice.show(context, title, body) }
+
+    Function("hideEmergencyNotice") { EmergencyNotice.hide(context) }
   }
 }

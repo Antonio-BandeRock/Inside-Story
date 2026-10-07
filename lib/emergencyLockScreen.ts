@@ -10,17 +10,66 @@
 // it is posted, so nothing in lib/reminderNotifications.ts ever cancels it,
 // and it is posted again at startup and on coming back to the foreground,
 // since a phone restart clears it.
+//
+// Since 1.0.63.12 the notice is posted by modules/locked-capture, so a tap
+// on it shows the lines over the lock screen (LockedEmergencyView) with the
+// phone and the app both still locked. The lines picked are also written to
+// emergency-lock-screen.json beside the lock file, in plain text, because
+// that screen and a phone restart both need them without the database key.
+// The file holds nothing the lock screen does not already show, and is
+// deleted the moment the notice comes down. A phone on an older build keeps
+// the expo-notifications notice, which opens the app.
 
+import { File, Paths } from 'expo-file-system';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { getDatabase } from './db';
 import { isDesktopApp } from './desktop/bridge';
 import { gatherFromApp, getEmergencyProfile, listEmergencyContacts } from './emergencyDb';
 import { lockScreenNotice, parseLockScreenParts, type LockScreenPart } from './emergencyOutside';
+import LockedCapture from '../modules/locked-capture';
 
 const META_KEY = 'emergency_lock_screen';
 const NOTIFICATION_ID = 'inside-story-emergency';
 const CHANNEL_ID = 'emergency-lock-screen';
+/** Read by LockedEmergencyView and by the native restore after a restart. */
+export const EMERGENCY_FILE_NAME = 'emergency-lock-screen.json';
+
+export type EmergencyLinesFile = { title: string; body: string; lines: string[]; writtenAt: string };
+
+function writeLinesFile(title: string, body: string): void {
+  const file = new File(Paths.document, EMERGENCY_FILE_NAME);
+  const content: EmergencyLinesFile = { title, body, lines: body.split('\n'), writtenAt: new Date().toISOString() };
+  if (!file.exists) file.create();
+  file.write(JSON.stringify(content));
+}
+
+function removeLinesFile(): void {
+  try {
+    const file = new File(Paths.document, EMERGENCY_FILE_NAME);
+    if (file.exists) file.delete();
+  } catch {
+    // Nothing left to remove.
+  }
+}
+
+/** The lines as last written, or null. Opens no database, for the screen over the lock screen. */
+export function readEmergencyLinesSync(): EmergencyLinesFile | null {
+  try {
+    const file = new File(Paths.document, EMERGENCY_FILE_NAME);
+    if (!file.exists) return null;
+    const value = JSON.parse(file.textSync()) as Partial<EmergencyLinesFile>;
+    if (typeof value.title !== 'string' || !Array.isArray(value.lines)) return null;
+    const lines = value.lines.filter((line): line is string => typeof line === 'string' && line.length > 0);
+    return lines.length > 0 ? { title: value.title, body: lines.join('\n'), lines, writtenAt: String(value.writtenAt ?? '') } : null;
+  } catch {
+    return null;
+  }
+}
+
+function nativeNotice(): boolean {
+  return typeof LockedCapture?.showEmergencyNotice === 'function';
+}
 
 /** Whether this device can show it at all. */
 export function lockScreenSupported(): boolean {
@@ -70,10 +119,17 @@ export async function refreshLockScreenNotice(): Promise<boolean> {
       : null;
     if (!notice) {
       await Notifications.dismissNotificationAsync(NOTIFICATION_ID).catch(() => undefined);
+      LockedCapture?.hideEmergencyNotice?.();
+      removeLinesFile();
       return false;
     }
     const permission = await Notifications.getPermissionsAsync();
     if (!permission.granted) return false;
+    if (nativeNotice()) {
+      writeLinesFile(notice.title, notice.body);
+      await Notifications.dismissNotificationAsync(NOTIFICATION_ID).catch(() => undefined);
+      return LockedCapture?.showEmergencyNotice?.(notice.title, notice.body) ?? false;
+    }
     await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
       name: 'Emergency lines on the lock screen',
       description: 'The emergency lines you picked in Life > Emergency, readable while the phone is locked.',

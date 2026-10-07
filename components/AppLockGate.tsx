@@ -53,7 +53,6 @@ import { biometricTitle, deviceWord } from "../lib/appLockWords";
 import { isLockedCaptureShowing } from "../lib/lockedCaptures";
 import { isDesktopApp } from "../lib/desktop/bridge";
 import { wording } from "../lib/playfulCopy";
-import { runBeforeRestart } from "../lib/beforeRestart";
 import { listenForReminderPresses } from "../lib/reminderNotifications";
 import { restartApp } from "../lib/restartApp";
 import { getPlayfulWordingSync } from "../lib/visualPreferences";
@@ -246,12 +245,14 @@ export function AppLockGate({ children }: { children: ReactNode }) {
       });
     });
     function lockAgain() {
-      // Send what sync still has waiting before the key goes (1.0.60.17).
-      runBeforeRestart()
-        .then(() => {
-          dropDataKey();
-          return restartApp();
-        })
+      // No send first, unlike Lock Now (lib/appLockDevice.ts). The app
+      // already saved to the shared folder when it was put away, and a send
+      // here queued behind the sync check that runs the moment the app comes
+      // back, so the person looked at a blank cover for its whole 15 second
+      // limit before the keypad came up (2026-10-07). Anything still unsent
+      // stays marked unsaved and goes after unlocking.
+      dropDataKey();
+      restartApp()
         .catch((error) => {
           // A refused reload still locks: the app tree comes down and the
           // lock screen goes up, and the database opens again after unlocking.

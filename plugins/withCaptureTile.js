@@ -14,7 +14,9 @@
 //    Phone locked and App Lock off: Android's own unlock first, since there
 //    is no Inside Story code to ask for, then Capture in the app. Phone
 //    unlocked: Capture in the app, listening or with the camera open. The
-//    shade buttons (modules/locked-capture) open the same activity.
+//    shade buttons (modules/locked-capture) open the same activity. The
+//    emergency notification opens it in mode "emergency", which always goes
+//    to the screen over the lock screen, locked or not, with no code.
 //  - LockedCaptureActivity is a second React screen in the same app,
 //    allowed over the lock screen, showing only the component registered as
 //    "LockedCapture" (components/LockedCaptureScreen.tsx). It never shows
@@ -22,7 +24,8 @@
 //    (lib/lockedCaptures.ts) and closes. Its own task, so it never appears
 //    in the recent apps list and never clears the app's own screens.
 //
-// Neither activity reads a record. The launcher looks only at whether the
+// Neither activity reads a record; the emergency lines come from a file
+// holding only what the person picked to be readable on a locked phone. The launcher looks only at whether the
 // lock file exists, which is the same thing the app checks before opening
 // the database (lib/appLockSession.ts).
 const { withAndroidManifest, withDangerousMod, AndroidConfig } = require('expo/config-plugins');
@@ -91,6 +94,17 @@ class CaptureLauncherActivity : Activity() {
     val mode = intent?.getStringExtra("mode") ?: "voice"
     val keyguard = getSystemService(KEYGUARD_SERVICE) as KeyguardManager
     val appLockOn = File(filesDir, "app-lock.json").exists()
+    // The emergency lines are for whoever is holding the phone, locked or
+    // not, so they always open on the screen that shows over the lock
+    // screen and never go through either unlock (2026-10-07).
+    if (mode == "emergency") {
+      startActivity(Intent(this, LockedCaptureActivity::class.java).apply {
+        putExtra("mode", mode)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+      })
+      finish()
+      return
+    }
     if (keyguard.isKeyguardLocked && appLockOn && mode != "inbox") {
       startActivity(Intent(this, LockedCaptureActivity::class.java).apply {
         putExtra("mode", mode)
