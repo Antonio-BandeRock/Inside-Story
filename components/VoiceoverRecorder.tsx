@@ -1,5 +1,6 @@
 // Recording the Ghostead trailer's voices, in Profile > Developer Tools
-// (2026-10-06). One row per line, with the words and how to say them; each
+// (2026-10-06). A picker chooses one of the nine scripts (lib/voiceoverScript.ts),
+// and that script shows one row per line, with the words and how to say them; each
 // take is kept on this phone as <id>.m4a under the document folder, and Send
 // to OneDrive copies every take into Backups/Voiceover, which is where the
 // trailer page's voice/ folder is filled from. A take recorded again replaces
@@ -26,8 +27,9 @@ import { announcePhoneOnly } from '../lib/desktop/phoneOnly';
 import { explainNotYet } from '../lib/notYet';
 import { ensureChildFolder, uploadFile } from '../lib/oneDriveGraph';
 import { getBackupsFolder } from '../lib/oneDriveFolders';
-import { SPEAKER_LABEL, VOICEOVER_LINES } from '../lib/voiceoverScript';
+import { SPEAKER_LABEL, VOICEOVER_LINES, VOICEOVER_SCRIPTS } from '../lib/voiceoverScript';
 import { useInfoAlert } from './InfoAlert';
+import { PopoverSelect } from './PopoverSelect';
 
 const FOLDER_NAME = 'voiceover';
 const ONEDRIVE_FOLDER_NAME = 'Voiceover';
@@ -64,6 +66,9 @@ export function VoiceoverRecorder() {
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [scriptKey, setScriptKey] = useState(VOICEOVER_SCRIPTS[0].key);
+  const script = VOICEOVER_SCRIPTS.find((candidate) => candidate.key === scriptKey) ?? VOICEOVER_SCRIPTS[0];
+  const recordedIn = (lines: readonly { id: string }[]) => lines.filter((line) => takes.has(line.id)).length;
   const player = useRef<{ player: AudioPlayer; release: () => void } | null>(null);
 
   const stopPlaying = useCallback(() => {
@@ -146,6 +151,15 @@ export function VoiceoverRecorder() {
     setPlayingId(id);
   };
 
+  const chooseScript = (key: string) => {
+    if (recordingId) {
+      explainNotYet('Stop the line being recorded first, then choose another script.');
+      return;
+    }
+    stopPlaying();
+    setScriptKey(key);
+  };
+
   const send = async () => {
     if (recordingId) {
       explainNotYet('Stop recording first, then send the takes.');
@@ -184,16 +198,27 @@ export function VoiceoverRecorder() {
   return (
     <View style={styles.wrap}>
       {infoAlertElement}
-      <Text style={styles.heading}>Ghostead Trailer Voiceover</Text>
+      <Text style={styles.heading}>Ghostead Trailer Voiceovers</Text>
       <Text style={styles.help}>
-        Record each line of the trailer in your voice. A quiet room helps, with the phone about a hand&apos;s width from
-        your mouth. Each take replaces the last one for that line. When you are done, Send to OneDrive puts every take
-        in Backups/Voiceover, and the trailer plays your takes in place of the stand-in voices.
+        Choose a script, then record each of its lines in your voice. A quiet room helps, with the phone about a
+        hand&apos;s width from your mouth. Each take replaces the last one for that line. When you are done, Send to
+        OneDrive puts every take from every script in Backups/Voiceover, and the trailer plays your takes in place of
+        the stand-in voices.
       </Text>
+      <PopoverSelect
+        options={VOICEOVER_SCRIPTS.map((candidate) => ({
+          label: candidate.title + ' (' + recordedIn(candidate.lines) + ' of ' + candidate.lines.length + ')',
+          value: candidate.key,
+        }))}
+        selected={script.key}
+        onSelect={chooseScript}
+        tabColor={colors.menuIconMuted}
+      />
       <Text style={styles.help}>
-        {takes.size} of {VOICEOVER_LINES.length} lines recorded.
+        {recordedIn(script.lines)} of {script.lines.length} lines recorded in {script.title}. {takes.size} of{' '}
+        {VOICEOVER_LINES.length} across all {VOICEOVER_SCRIPTS.length} scripts.
       </Text>
-      {VOICEOVER_LINES.map((line) => {
+      {script.lines.map((line) => {
         const isRecording = recordingId === line.id;
         const hasTake = takes.has(line.id);
         return (

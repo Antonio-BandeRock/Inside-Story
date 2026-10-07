@@ -548,7 +548,15 @@ function walk(dir, out) {
 // Honest Limits" trips the honesty rule, and both stay as they are: the
 // person naming the shelves outranks the detector. A false positive gets
 // fixed here, never by editing the text back.
-const OWNER_CHOICE = ['Industry, Greenwashing & Honest Limits', 'Building Real Soil'];
+//
+// 2026-10-06: a line of the Ghostead trailer script, approved by the owner,
+// where the Realist says "That's the part worth keeping" about a person's
+// memories. It is a character speaking, not commentary about the writing.
+const OWNER_CHOICE = [
+  'Industry, Greenwashing & Honest Limits',
+  'Building Real Soil',
+  "That's the part worth keeping",
+];
 
 function isOwnerChoice(text, index, length) {
   for (const phrase of OWNER_CHOICE) {
