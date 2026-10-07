@@ -219,7 +219,7 @@ export function MyItemsHub({
           accessibilityLabel={`${label}, your saved items`}
         >
           {open ? (
-            <ActiveRingCircle size={RING_SIZE}>
+            <ActiveRingCircle size={RING_SIZE} glowColor={tabColor}>
               <Ionicons name="bookmarks-outline" size={ICON_SIZE} color={tabColor} style={CORNER_ICON_SHADOW} />
             </ActiveRingCircle>
           ) : (

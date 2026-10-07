@@ -55,9 +55,10 @@ import type { TabHubIconChoice } from '../lib/visualPreferences';
 // needed to change once this became Partial.
 export const TAB_HUB_ICON_SOURCES: Partial<Record<TabHubIconChoice, ImageSourcePropType>> = {
   default: require('../assets/branding/butterfly-transparent.png'),
-  // 'insideStory', 2026-10-06: the app icon, drawn by
-  // scripts/make_brand_icons.js, and the default from that day.
-  insideStory: require('../assets/branding/inside-story-window.png'),
+  // 'insideStory', 2026-10-06: the app icon's book, drawn by
+  // scripts/make_brand_icons.js, and the default from that day. The book
+  // without its window since 2026-10-07, because the button draws the well.
+  insideStory: require('../assets/branding/inside-story-book.png'),
   honeybee: require('../assets/branding/garden-icons/honeybee.png'),
   bumblebee: require('../assets/branding/garden-icons/bumblebee.png'),
   dragonfly: require('../assets/branding/garden-icons/dragonfly.png'),
@@ -195,7 +196,7 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
   // dimensions themselves are unchanged, only which choice a fresh install
   // starts on.
   default: [464, 312],
-  insideStory: [312, 312],
+  insideStory: [276, 188],
   // The 8 garden/pollinator icons, 2026-08-12 -- real, individually
   // measured pairs off the actual final (already-downsized) files, the
   // same jimp-based methodology as every other entry in this table, not
@@ -325,121 +326,65 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
   dessertBuilder: [100, 100],
 };
 
-// The default butterfly's own real, established render width -- unchanged
-// from TabHub.tsx's own original BUTTERFLY_WIDTH constant, so picking
-// 'default' (renamed "Graves' / Hashimoto's" in Profile's own picker,
-// 2026-08-14 -- no longer the app's own out-of-the-box choice, see
-// TAB_HUB_ICON_PIXEL_DIMENSIONS.default's own comment below) renders
-// byte-for-byte identically to how this button originally looked, not
-// just "close."
-export const TAB_HUB_ICON_TARGET_WIDTH = 116;
-// The default butterfly's own real aspect ratio -- the source of its own
-// already-established, already-safe 78px render height
-// (TAB_HUB_ICON_TARGET_WIDTH / this ratio). Kept as an exact fraction, not
-// a pre-rounded decimal, matching TabHub.tsx's own original
-// BUTTERFLY_ASPECT_RATIO precedent. Updated 2026-08-10 to the real, current
-// 464x312 asset (see TAB_HUB_ICON_PIXEL_DIMENSIONS's own comment) -- the
-// ratio itself is preserved to within 0.01% of the original 1606:1080, so
-// this changes the computed render height by a fraction of a pixel, not a
-// visible amount.
-const DEFAULT_ICON_ASPECT_RATIO = 464 / 312;
-
-// 2026-08-09, a real, direct correction: an earlier version of this
-// function let HEIGHT vary per icon too (scaling each icon's own longer
-// edge, whichever axis that was, up to TAB_HUB_ICON_TARGET_WIDTH) -- on
-// device, that pushed several of the taller/narrower condition icons
-// (Gout, Type 1/2 Diabetes, Cardiovascular Disease, and others with a real
-// aspect ratio well under 1) up to 116px tall, well past the button's own
-// already-tuned, already-safe 78px height, visibly poking above the
-// footer's own top line. Direct, explicit correction: "They should all
-// stay the same distance away from the line on the footer and the top
-// edge of the navigation bar" -- every icon's own vertical clearance from
-// both of those real screen edges has to be IDENTICAL, which is only
-// possible if every icon renders at the exact same fixed HEIGHT (the
-// butterfly's own already-proven-safe value), never a per-icon one. Width
-// is the one dimension genuinely safe to vary -- it has no bearing on
-// vertical clearance at all -- so every icon still renders at its own
-// real, undistorted aspect ratio; a narrower-shaped icon (Gout, Type 1
-// Diabetes) legitimately ends up narrower than a squarer one (Sjögren's)
-// or the butterfly itself at that same shared height, since there's no
-// way to make a narrow image "look as wide" as a square one without
-// either stretching it (visibly distorted, not something this app does
-// anywhere else) or letting it grow taller (exactly the bug this fix
-// closes). This IS mathematically identical to how every condition icon
-// already rendered before the "proportional" pass -- see this file's own
-// git history for that fuller reasoning -- reverted here specifically
-// because the person's own explicit, direct requirement (identical
-// clearance for every icon) rules out the alternative.
-const TAB_HUB_ICON_FIXED_HEIGHT = TAB_HUB_ICON_TARGET_WIDTH / DEFAULT_ICON_ASPECT_RATIO;
-
-// The overhang every ordinary icon has today, above AND below the 60px
-// button box, purely as a side effect of centering a 78px-tall image inside
-// it. An icon in TAB_HUB_ICON_HEIGHT_OVERRIDE reuses this same number as its own BOTTOM overhang
-// (see TAB_HUB_ICON_HEIGHT_OVERRIDE), so its pit sits exactly where every
-// other icon's own bottom edge already sits -- only its top grows past that.
-const TAB_HUB_ICON_STANDARD_OVERHANG = (TAB_HUB_ICON_FIXED_HEIGHT - FLOATING_BUTTON_SIZE) / 2;
-
-// 2026-08-21, a deliberate, narrow exception to the 2026-08-09 rule
-// documented on TAB_HUB_ICON_FIXED_HEIGHT above ("every icon shares the
-// exact same height... poking above the footer's own top line" was
-// explicitly rejected then). Direct request this time, for this one icon
-// specifically: "It will require for the plant to partially be above the
-// top edge of the footer. I want it to go ahead and do that." Only a
-// choice listed here ever renders taller than TAB_HUB_ICON_FIXED_HEIGHT --
-// every other icon is completely unaffected, so the 2026-08-09 guarantee
-// (identical clearance for every OTHER icon) still holds. 112 was chosen,
-// not measured off a device screenshot: at TAB_HUB_ICON_STANDARD_OVERHANG's
-// own real geometry (see constants/floatingButton.ts's FLOATING_BUTTON_
-// BOTTOM_OFFSET/FOOTER_BAND_HEIGHT), the button's own top edge sits 20px
-// below the footer band's real top edge, so 112 puts this icon's own top
-// about 23px above that edge -- clearly visible, not just a hairline
-// crossing. Adjust this one number if that turns out too much or too
-// little once actually seen on-device.
-const TAB_HUB_ICON_HEIGHT_OVERRIDE: Partial<Record<TabHubIconChoice, number>> = {
-  // Empty since the seed was removed on 2026-10-06; it was the one entry.
-};
-
-// A real, shared, pure function -- not duplicated per consumer. Three real
-// components each need this exact same "how big does the CURRENTLY chosen
-// icon actually render" answer: TabHub.tsx itself (the button's own real
-// size), PageIdentityLabel.tsx (positions its own corner box to clear
-// whatever's actually on screen), and MyItemsHub.tsx (positions its own
-// button relative to the artwork's real left edge, to avoid overlapping a
-// wing/silhouette tip) -- all three call this directly rather than each
-// re-deriving the same math, or trusting a static constant that stops
-// being accurate the moment someone picks a non-default icon.
+// The pressed-in well every TabHub icon sits in, 2026-10-07 (1.0.62.13).
+// Direct request: "I think the same could be done for the TabHub icon on
+// the dark pressed-in background... If the pressed-in circle needs to be
+// bigger for the TabHub icons to all fit well inside of the pressed-in
+// backgrounds, then lets make that change too."
 //
-// 2026-08-21: widened to also return topOverhang/bottomOverhang/
-// verticalShift, not just width/height, for TAB_HUB_ICON_HEIGHT_OVERRIDE's
-// sake -- every icon NOT in that override still gets a symmetric overhang
-// (topOverhang === bottomOverhang, verticalShift 0, byte-for-byte the same
-// behavior as before this existed) and only an overridden icon gets an asymmetric
-// one, its bottomOverhang pinned to TAB_HUB_ICON_STANDARD_OVERHANG so its
-// pit doesn't move, its extra height going entirely into topOverhang
-// instead. verticalShift is the one number TabHub.tsx's own render actually
-// needs: how far to nudge the icon up from where plain center-alignment
-// would otherwise put it, to realize that asymmetric split.
+// Until then every icon was drawn at one fixed height of 78 (the butterfly's
+// 116 x 78), so each one kept the same clearance from the footer's top line
+// and the navigation bar, a rule from 2026-08-09; the git history of this
+// file holds that reasoning and the one-icon height exception it later
+// carried. The well keeps the rule by a different route: the well is the
+// thing on screen now, it is the same size whatever icon is chosen, and so
+// every choice has the same clearance automatically.
+//
+// 88 across: the button's top edge sits 20 below the footer band's top line
+// and its bottom edge 23 above the bottom of the screen area it is laid out
+// in (constants/floatingButton.ts), so a well overhanging the 60 box by 14
+// each way stays inside both with room to spare.
+export const TAB_HUB_WELL_SIZE = 88;
+
+// How much of the well's diameter an icon's own box may span corner to
+// corner. Artwork rarely fills the corners of its box (a butterfly's wing
+// tips, a round fruit), so a box a little wider than the inner circle still
+// leaves every drawn pixel inside the well. 0.95 was checked against the
+// butterfly, the widest common shape, and the square condition icons.
+const TAB_HUB_ICON_DIAGONAL_FRACTION = 0.95;
+
+// One shared answer to "how big is the TabHub button on screen, and how
+// big is the icon inside it", read by TabHub.tsx (draws both),
+// PageIdentityLabel.tsx (keeps its corner box clear of the button),
+// MyItemsHub.tsx and VersionLabel.tsx (place themselves beside it).
+// width/height and the overhangs describe the WELL, since that is what the
+// neighbours have to clear; iconWidth/iconHeight are the artwork inside it,
+// kept at the icon's own undistorted ratio. verticalShift stays in the
+// shape for callers that still read it and is always 0 now that no icon
+// pokes above the others.
 export function getTabHubIconRenderSize(choice: TabHubIconChoice): {
   width: number;
   height: number;
   topOverhang: number;
   bottomOverhang: number;
   verticalShift: number;
+  iconWidth: number;
+  iconHeight: number;
 } {
   const dims = TAB_HUB_ICON_PIXEL_DIMENSIONS[choice] ?? TAB_HUB_ICON_PIXEL_DIMENSIONS.default!;
   const [pixelWidth, pixelHeight] = dims;
   const ratio = pixelWidth / pixelHeight;
-  // Every icon shares the exact same height unless overridden above -- see
-  // TAB_HUB_ICON_FIXED_HEIGHT's own comment for why that's the rule, and
-  // TAB_HUB_ICON_HEIGHT_OVERRIDE's own comment for the one deliberate
-  // exception. Width follows that height at the icon's own real,
-  // undistorted ratio, capped at TAB_HUB_ICON_TARGET_WIDTH as a real (if
-  // currently never-hit for any non-overridden icon) safety ceiling.
-  const height = TAB_HUB_ICON_HEIGHT_OVERRIDE[choice] ?? TAB_HUB_ICON_FIXED_HEIGHT;
-  const width = Math.min(TAB_HUB_ICON_TARGET_WIDTH, height * ratio);
-  const naturalOverhang = (height - FLOATING_BUTTON_SIZE) / 2;
-  const bottomOverhang = choice in TAB_HUB_ICON_HEIGHT_OVERRIDE ? TAB_HUB_ICON_STANDARD_OVERHANG : naturalOverhang;
-  const topOverhang = height - FLOATING_BUTTON_SIZE - bottomOverhang;
-  const verticalShift = bottomOverhang - naturalOverhang;
-  return { width, height, topOverhang, bottomOverhang, verticalShift };
+  const diagonal = TAB_HUB_WELL_SIZE * TAB_HUB_ICON_DIAGONAL_FRACTION;
+  const iconHeight = diagonal / Math.sqrt(1 + ratio * ratio);
+  const iconWidth = iconHeight * ratio;
+  const overhang = (TAB_HUB_WELL_SIZE - FLOATING_BUTTON_SIZE) / 2;
+  return {
+    width: TAB_HUB_WELL_SIZE,
+    height: TAB_HUB_WELL_SIZE,
+    topOverhang: overhang,
+    bottomOverhang: overhang,
+    verticalShift: 0,
+    iconWidth,
+    iconHeight,
+  };
 }

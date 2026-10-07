@@ -2939,7 +2939,7 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
             >
               {active ? (
-                <ActiveRingCircle size={ICON_GRID_PILL_SIZE}>
+                <ActiveRingCircle size={ICON_GRID_PILL_SIZE} glowColor={colors.buttonColor}>
                   <Image source={source} style={styles.iconGridImage} resizeMode="contain" />
                 </ActiveRingCircle>
               ) : (

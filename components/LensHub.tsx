@@ -206,12 +206,10 @@ const GRID_ITEM_ICON_SIZE = 20;
 //
 // Raised from 28 to 30, its real technical ceiling given the current pill
 // size, same day: "they could be a little bigger still." 30 is the actual
-// max this geometry allows without restructuring the pill/ring itself --
-// ActiveRingCircle's own inner white circle (what an active item's
-// icon sits inside) is `size - ringWidth * 2`, and with GRID_ITEM_PILL_SIZE
-// (34) and the ring's own default 2px width, that's exactly 34 - 4 = 30;
-// anything larger would visually spill past that inner circle's own edge
-// and overlap the animated ring itself once a tile is selected. Going
+// max this geometry allows without restructuring the pill itself: the
+// selected well (ActiveRingCircle, a dark pressed-in circle since
+// 2026-10-07) is GRID_ITEM_PILL_SIZE (34) across, and an icon wider than
+// 30 would cover the rim that shows the well is there. Going
 // bigger than 30 for real would mean growing GRID_ITEM_PILL_SIZE itself
 // (or a Purple-Digest-specific pill size), which -- since GRID_ROW_HEIGHT
 // and every page's own shared, pixel-identical CARD_HEIGHT are both built
@@ -814,7 +812,7 @@ export function LensHub<T extends string>({
             reserves the ring's own footprint, so only the ring appears and
             disappears; nothing moves. */}
         {open ? (
-          <ActiveRingCircle size={FLOATING_BUTTON_SIZE}>
+          <ActiveRingCircle size={FLOATING_BUTTON_SIZE} glowColor={tabColor}>
             {renderIcon ? renderIcon(32) : <Ionicons name={tabIcon} size={32} color={tabColor} style={CORNER_ICON_SHADOW} />}
           </ActiveRingCircle>
         ) : (
@@ -1048,7 +1046,7 @@ export function LensHub<T extends string>({
                         activeOpacity={0.7}
                       >
                         {active ? (
-                          <ActiveRingCircle size={gridPillSize}>
+                          <ActiveRingCircle size={gridPillSize} glowColor={option.iconColor ?? tabColor}>
                             {option.renderIcon ? (
                               option.renderIcon(gridCustomIconSize, option.iconColor ?? tabColor)
                             ) : (
@@ -1101,7 +1099,7 @@ export function LensHub<T extends string>({
                     accessibilityLabel={selectedOption ? `About ${selectedOption.label}` : 'Select a function to see information about it'}
                   >
                     {selectedOption ? (
-                      <ActiveRingCircle size={gridPillSize}>
+                      <ActiveRingCircle size={gridPillSize} glowColor={tabColor}>
                         <Ionicons name="information-circle" size={gridIconSize} color={tabColor} style={textShadow} />
                       </ActiveRingCircle>
                     ) : (
@@ -1189,7 +1187,7 @@ export function LensHub<T extends string>({
                 accessibilityLabel={selectedOption ? `About ${selectedOption.label}` : 'Select a function to see information about it'}
               >
                 {selectedOption ? (
-                  <ActiveRingCircle size={GRID_ITEM_PILL_SIZE}>
+                  <ActiveRingCircle size={GRID_ITEM_PILL_SIZE} glowColor={tabColor}>
                     <Ionicons name="information-circle" size={GRID_ITEM_ICON_SIZE} color={tabColor} style={textShadow} />
                   </ActiveRingCircle>
                 ) : (

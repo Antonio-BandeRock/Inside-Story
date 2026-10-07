@@ -66,11 +66,24 @@ function bookOnlySvg({ scale }) {
     + '</g></svg>';
 }
 
-async function png(svg, size, file) {
+// The book alone in its white and pearl finish, on nothing, cropped to the
+// pages. The TabHub button draws its own pressed-in well behind whichever
+// icon is chosen (components/ActiveRingCircle.tsx, 2026-10-07), so the app
+// icon there is the book, not the window: a window drawn inside a well
+// would be a hole inside a hole.
+function bookShadedSvg() {
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="-690 -460 1380 940">' + DEFS
+    + PAGES.map((d) => `<path d="${d}" fill="#c9d4ff" opacity="0.3" filter="url(#glow)"/>`).join('')
+    + PAGES.map((d) => `<path d="${d}" fill="url(#shade)"/><path d="${d}" fill="url(#pearl)" opacity="0.3"/>`).join('')
+    + LINES.map((d) => `<path d="${d}" fill="none" stroke="#151d1f" stroke-width="34" stroke-linecap="round" opacity="0.55"/>`).join('')
+    + '</svg>';
+}
+
+async function png(svg, size, file, height = size) {
   const out = path.join(ROOT, file);
   fs.mkdirSync(path.dirname(out), { recursive: true });
-  await sharp(Buffer.from(svg)).resize(size, size).png().toFile(out);
-  console.log('wrote ' + file + ' (' + size + 'x' + size + ')');
+  await sharp(Buffer.from(svg)).resize(size, height).png().toFile(out);
+  console.log('wrote ' + file + ' (' + size + 'x' + height + ')');
 }
 
 (async () => {
@@ -91,6 +104,8 @@ async function png(svg, size, file) {
   // The TabHub button: the window alone, filling a 312 px square (four
   // times the 78 px it is drawn at), so it sits in the footer as a button.
   await png(windowSvg({ scale: 0.47 }), 312, 'assets/branding/inside-story-window.png');
+  // The book for the TabHub well, at four times the size it is drawn at.
+  await png(bookShadedSvg(), 276, 'assets/branding/inside-story-book.png', 188);
 })().catch((err) => {
   console.error(err);
   process.exit(1);

@@ -90,6 +90,14 @@ const BOTTOM_OFFSET = FLOATING_BUTTON_BOTTOM_OFFSET;
 // butterfly.
 const ICON_PILL_SIZE = 34;
 
+// The TabHub button's own well, 2026-10-07. Direct request: "The TabHub
+// accent color should follow the ground color theme in a nice but subdued
+// way." So its glow and its rim are the ground theme's buttonColor, kept
+// faint: the menu wells glow in a tab colour at 0.34 to say "selected",
+// and this one is always on screen, so it says less.
+const TAB_HUB_WELL_GLOW_OPACITY = 0.28;
+const TAB_HUB_WELL_RIM_OPACITY = 0.45;
+
 // 2026-07-26: replaced the traced iridescent outline that used to render
 // here -- explicitly asked to remove it in favor of a shadow that reads as
 // the button lifting OFF the page instead. Same underlying technique as a
@@ -321,7 +329,7 @@ export function TabHub() {
   // one in TAB_HUB_ICON_HEIGHT_OVERRIDE these two overhangs are identical and verticalShift is 0,
   // so hitSlop/the icon's own position below are byte-for-byte unchanged
   // from before this existed.
-  const { width: buttonIconWidth, height: buttonIconHeight, topOverhang, bottomOverhang, verticalShift } =
+  const { width: buttonIconWidth, topOverhang, bottomOverhang, verticalShift, iconWidth, iconHeight } =
     getTabHubIconRenderSize(tabHubIcon);
   const buttonIconOverhangX = Math.max(0, Math.ceil((buttonIconWidth - BUTTON_SIZE) / 2));
   const buttonIconOverhangTopY = Math.max(0, Math.ceil(topOverhang));
@@ -530,7 +538,7 @@ export function TabHub() {
                   activeOpacity={0.7}
                 >
                   {active ? (
-                    <ActiveRingCircle size={ICON_PILL_SIZE}>
+                    <ActiveRingCircle size={ICON_PILL_SIZE} glowColor={route.color}>
                       <TabRouteIcon route={route} size={20} />
                     </ActiveRingCircle>
                   ) : (
@@ -566,7 +574,7 @@ export function TabHub() {
   const renderProfileTile = () => (
     <TouchableOpacity key="profile" style={styles.item} onPress={openProfile} activeOpacity={0.7}>
               {profileActive ? (
-                <ActiveRingCircle size={ICON_PILL_SIZE}>
+                <ActiveRingCircle size={ICON_PILL_SIZE} glowColor={colors.tabProfile}>
                   <Ionicons name="person-circle" size={20} color={colors.tabProfile} style={textShadow} />
                 </ActiveRingCircle>
               ) : (
@@ -614,7 +622,7 @@ export function TabHub() {
   const renderInfoTile = () => (
     <TouchableOpacity style={styles.item} onPress={openHelpForCurrentPage} activeOpacity={0.7}>
               {activeRoute ? (
-                <ActiveRingCircle size={ICON_PILL_SIZE}>
+                <ActiveRingCircle size={ICON_PILL_SIZE} glowColor={activeRoute.color}>
                   <Ionicons name="information-circle" size={20} color={activeRoute.color} style={textShadow} />
                 </ActiveRingCircle>
               ) : (
@@ -649,11 +657,10 @@ export function TabHub() {
         accessibilityLabel="Open navigation menu"
         hitSlop={{ left: buttonIconOverhangX, right: buttonIconOverhangX, top: buttonIconOverhangTopY, bottom: buttonIconOverhangBottomY }}
       >
-        {/* No circle, no fill, no border at rest -- the artwork itself is
-            the button. Its own background was removed (see
-            assets/branding/butterfly-transparent.png), so it sits directly
-            on whatever the screen behind it is, rather than needing to
-            color-match a solid backdrop.
+        {/* The artwork sits in a dark pressed-in well, always, since
+            2026-10-07 (TAB_HUB_WELL_GLOW_OPACITY above has the request).
+            Before that there was no circle at all and the artwork alone
+            was the button.
             Open only: a graduated drop shadow (ELEVATION_SHADOW_LAYERS)
             meant to read as the button lifting off the page, not just a
             dark smudge under it. Each layer is another copy of the same
@@ -667,76 +674,84 @@ export function TabHub() {
             shadowOffset are iOS-only, and elevation, its one real
             mechanism, shadows a view's rectangular bounds, not a
             transparent PNG's actual silhouette). */}
-        {vectorIconRenderer ? (
-          // A real, separate rendering path for a vector-backed choice (see
-          // TAB_HUB_VECTOR_ICONS' own comment) -- no Image/tintColor at
-          // all, since the icon function already takes color directly.
-          // Shadow copies reuse styles.butterflyRealCopy (plain position:
-          // absolute/top/left, with no tintColor key -- unlike
-          // styles.butterflyShadowCopy, which isn't a valid View style)
-          // as their own base, with opacity/offset applied the identical
-          // way the raster path applies them, just via a wrapping View
-          // instead of an Image style prop, since Svg itself takes no
-          // opacity/transform of its own here.
-          open ? (
-            <View style={[styles.butterflyOpenWrap, { width: buttonIconWidth, height: buttonIconHeight }]}>
-              {ELEVATION_SHADOW_LAYERS.map((layer, index) => (
-                <View
-                  key={index}
-                  style={[
-                    styles.butterflyRealCopy,
-                    { opacity: layer.opacity, transform: [{ translateX: -2 }, { translateY: layer.offsetY }] },
-                  ]}
-                >
-                  {vectorIconRenderer(buttonIconWidth, '#000000')}
+        <ActiveRingCircle
+          size={buttonIconWidth}
+          glowColor={colors.buttonColor}
+          glowOpacity={TAB_HUB_WELL_GLOW_OPACITY}
+          rimColor={colors.buttonColor}
+          rimOpacity={TAB_HUB_WELL_RIM_OPACITY}
+        >
+          {vectorIconRenderer ? (
+            // A real, separate rendering path for a vector-backed choice (see
+            // TAB_HUB_VECTOR_ICONS' own comment) -- no Image/tintColor at
+            // all, since the icon function already takes color directly.
+            // Shadow copies reuse styles.butterflyRealCopy (plain position:
+            // absolute/top/left, with no tintColor key -- unlike
+            // styles.butterflyShadowCopy, which isn't a valid View style)
+            // as their own base, with opacity/offset applied the identical
+            // way the raster path applies them, just via a wrapping View
+            // instead of an Image style prop, since Svg itself takes no
+            // opacity/transform of its own here.
+            open ? (
+              <View style={[styles.butterflyOpenWrap, { width: iconWidth, height: iconHeight }]}>
+                {ELEVATION_SHADOW_LAYERS.map((layer, index) => (
+                  <View
+                    key={index}
+                    style={[
+                      styles.butterflyRealCopy,
+                      { opacity: layer.opacity, transform: [{ translateX: -2 }, { translateY: layer.offsetY }] },
+                    ]}
+                  >
+                    {vectorIconRenderer(iconWidth, '#000000')}
+                  </View>
+                ))}
+                <View style={[styles.butterflyRealCopy, { transform: [{ translateX: -2 }] }]}>
+                  {vectorIconRenderer(iconWidth, DESSERT_BUILDER_TAB_HUB_COLOR)}
                 </View>
-              ))}
-              <View style={[styles.butterflyRealCopy, { transform: [{ translateX: -2 }] }]}>
-                {vectorIconRenderer(buttonIconWidth, DESSERT_BUILDER_TAB_HUB_COLOR)}
               </View>
-            </View>
-          ) : (
-            <View style={{ transform: [{ translateX: -2 }] }}>
-              {vectorIconRenderer(buttonIconWidth, DESSERT_BUILDER_TAB_HUB_COLOR)}
-            </View>
-          )
-        ) : open ? (
-          <View style={[styles.butterflyOpenWrap, { width: buttonIconWidth, height: buttonIconHeight }]}>
-            {ELEVATION_SHADOW_LAYERS.map((layer, index) => (
+            ) : (
+              <View style={{ transform: [{ translateX: -2 }] }}>
+                {vectorIconRenderer(iconWidth, DESSERT_BUILDER_TAB_HUB_COLOR)}
+              </View>
+            )
+          ) : open ? (
+            <View style={[styles.butterflyOpenWrap, { width: iconWidth, height: iconHeight }]}>
+              {ELEVATION_SHADOW_LAYERS.map((layer, index) => (
+                <Image
+                  key={index}
+                  source={buttonIconSource}
+                  style={[
+                    styles.butterflyImage,
+                    { width: iconWidth, height: iconHeight },
+                    styles.butterflyShadowCopy,
+                    { opacity: layer.opacity, transform: [{ translateX: -2 }, { translateY: layer.offsetY + verticalShift }] },
+                  ]}
+                  resizeMode="contain"
+                />
+              ))}
               <Image
-                key={index}
                 source={buttonIconSource}
                 style={[
                   styles.butterflyImage,
-                  { width: buttonIconWidth, height: buttonIconHeight },
-                  styles.butterflyShadowCopy,
-                  { opacity: layer.opacity, transform: [{ translateX: -2 }, { translateY: layer.offsetY + verticalShift }] },
+                  { width: iconWidth, height: iconHeight },
+                  styles.butterflyRealCopy,
+                  { transform: [{ translateX: -2 }, { translateY: verticalShift }] },
                 ]}
                 resizeMode="contain"
               />
-            ))}
+            </View>
+          ) : (
             <Image
               source={buttonIconSource}
               style={[
                 styles.butterflyImage,
-                { width: buttonIconWidth, height: buttonIconHeight },
-                styles.butterflyRealCopy,
+                { width: iconWidth, height: iconHeight },
                 { transform: [{ translateX: -2 }, { translateY: verticalShift }] },
               ]}
               resizeMode="contain"
             />
-          </View>
-        ) : (
-          <Image
-            source={buttonIconSource}
-            style={[
-              styles.butterflyImage,
-              { width: buttonIconWidth, height: buttonIconHeight },
-              { transform: [{ translateX: -2 }, { translateY: verticalShift }] },
-            ]}
-            resizeMode="contain"
-          />
-        )}
+          )}
+        </ActiveRingCircle>
       </TouchableOpacity>
 
       {/* statusBarTranslucent/navigationBarTranslucent: Android's Modal opens
