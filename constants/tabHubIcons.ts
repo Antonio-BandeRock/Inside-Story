@@ -55,15 +55,6 @@ import type { TabHubIconChoice } from '../lib/visualPreferences';
 // needed to change once this became Partial.
 export const TAB_HUB_ICON_SOURCES: Partial<Record<TabHubIconChoice, ImageSourcePropType>> = {
   default: require('../assets/branding/butterfly-transparent.png'),
-  // 'seedTall' -- the app's own out-of-the-box default since 2026-08-21
-  // (see TabHubIconChoice's own comment in lib/visualPreferences.ts). A
-  // plain, shorter-stemmed 'seed' choice existed briefly (2026-08-19
-  // through 2026-08-21) and was removed outright, direct instruction:
-  // "remove the other seed icon from the app entirely." See
-  // TAB_HUB_ICON_HEIGHT_OVERRIDE's own comment below for why this one
-  // choice, uniquely, doesn't render at the shared TAB_HUB_ICON_FIXED_HEIGHT
-  // every other icon uses.
-  seedTall: require('../assets/branding/seed-tall-transparent.png'),
   // 'insideStory', 2026-10-06: the app icon, drawn by
   // scripts/make_brand_icons.js, and the default from that day.
   insideStory: require('../assets/branding/inside-story-window.png'),
@@ -199,32 +190,11 @@ export const TAB_HUB_ICON_SOURCES: Partial<Record<TabHubIconChoice, ImageSourceP
 const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [number, number]>> = {
   // 'default' -- the plain butterfly, relabeled "Graves' / Hashimoto's" in
   // Profile's own picker 2026-08-14 and no longer the app's own actual
-  // out-of-the-box choice (DEFAULT_VISUAL_PREFERENCES.tabHubIcon is now
-  // 'seedTall', 2026-08-21, see lib/visualPreferences.ts) -- the key/asset/
+  // out-of-the-box choice (DEFAULT_VISUAL_PREFERENCES.tabHubIcon is
+  // 'insideStory' since 2026-10-06, see lib/visualPreferences.ts) -- the key/asset/
   // dimensions themselves are unchanged, only which choice a fresh install
   // starts on.
   default: [464, 312],
-  // 'seedTall' -- the app's own default since 2026-08-21. Individually
-  // measured off the actual final cropped file. A plain, shorter-stemmed
-  // 'seed' entry existed here briefly (2026-08-19 through 2026-08-21,
-  // 212x312 then 288x312 then 350x406 across its own three art swaps) and
-  // was removed outright alongside its asset, direct instruction: "remove
-  // the other seed icon from the app entirely." This choice does NOT use
-  // these dimensions to derive its render HEIGHT the way every other icon
-  // does -- see TAB_HUB_ICON_HEIGHT_OVERRIDE below -- only its aspect ratio
-  // is read from this pair. Widened from 361x491 to 412x491 the same day,
-  // after a device screenshot of the launcher icon showed the pit sitting
-  // noticeably left of center -- the pit's own true center measured ~26px
-  // right of the raw trimmed file's own geometric center (a stray leaf/
-  // tendril pixel had pushed the trim's right boundary out further than
-  // the pit itself), so every consumer that centers the whole file on
-  // itself inherited that same left-shifted look. Fixed at the source by
-  // padding 51px of transparent space onto the right edge (measured, not
-  // guessed: left margin to the pit was 53px, right margin was 2px before
-  // this), so the pit's own true center now matches the file's own
-  // geometric center and every consumer is correct without needing its
-  // own compensating offset.
-  seedTall: [412, 491],
   insideStory: [312, 312],
   // The 8 garden/pollinator icons, 2026-08-12 -- real, individually
   // measured pairs off the actual final (already-downsized) files, the
@@ -404,7 +374,7 @@ const TAB_HUB_ICON_FIXED_HEIGHT = TAB_HUB_ICON_TARGET_WIDTH / DEFAULT_ICON_ASPEC
 
 // The overhang every ordinary icon has today, above AND below the 60px
 // button box, purely as a side effect of centering a 78px-tall image inside
-// it. 'seedTall' below reuses this same number as its own BOTTOM overhang
+// it. An icon in TAB_HUB_ICON_HEIGHT_OVERRIDE reuses this same number as its own BOTTOM overhang
 // (see TAB_HUB_ICON_HEIGHT_OVERRIDE), so its pit sits exactly where every
 // other icon's own bottom edge already sits -- only its top grows past that.
 const TAB_HUB_ICON_STANDARD_OVERHANG = (TAB_HUB_ICON_FIXED_HEIGHT - FLOATING_BUTTON_SIZE) / 2;
@@ -426,7 +396,7 @@ const TAB_HUB_ICON_STANDARD_OVERHANG = (TAB_HUB_ICON_FIXED_HEIGHT - FLOATING_BUT
 // crossing. Adjust this one number if that turns out too much or too
 // little once actually seen on-device.
 const TAB_HUB_ICON_HEIGHT_OVERRIDE: Partial<Record<TabHubIconChoice, number>> = {
-  seedTall: 112,
+  // Empty since the seed was removed on 2026-10-06; it was the one entry.
 };
 
 // A real, shared, pure function -- not duplicated per consumer. Three real
@@ -443,7 +413,7 @@ const TAB_HUB_ICON_HEIGHT_OVERRIDE: Partial<Record<TabHubIconChoice, number>> = 
 // verticalShift, not just width/height, for TAB_HUB_ICON_HEIGHT_OVERRIDE's
 // sake -- every icon NOT in that override still gets a symmetric overhang
 // (topOverhang === bottomOverhang, verticalShift 0, byte-for-byte the same
-// behavior as before this existed) and only 'seedTall' gets an asymmetric
+// behavior as before this existed) and only an overridden icon gets an asymmetric
 // one, its bottomOverhang pinned to TAB_HUB_ICON_STANDARD_OVERHANG so its
 // pit doesn't move, its extra height going entirely into topOverhang
 // instead. verticalShift is the one number TabHub.tsx's own render actually

@@ -834,16 +834,17 @@ const HOME_LENS_DESTINATIONS: Partial<
   // cards below, for the same reason: the thing itself is already on this
   // page.
   //
-  // 24, not 30: the sprout is taller than it is wide, so at 30 it would stand
-  // over the 20px glyphs beside it.
+  // 22, not 30: the book's round window is drawn edge to edge, so at 30 it
+  // would stand over the 20px glyphs beside it. The seed it replaced on
+  // 2026-10-06 was removed from the app by direct instruction.
   today: {
     label: 'Today',
     icon: 'partly-sunny',
     color: colors.tabHome,
     renderIcon: () => (
       <Image
-        source={require('../../assets/branding/seed-tall-transparent.png')}
-        style={{ width: Math.round((24 * 32) / 38), height: 24 }}
+        source={require('../../assets/branding/inside-story-window.png')}
+        style={{ width: 22, height: 22 }}
         resizeMode="contain"
       />
     ),
@@ -2574,7 +2575,7 @@ export default function HomeScreen() {
           </View>
         ) : null}
       </>,
-      { renderIcon: renderGreetingSeedGlyph },
+      { renderIcon: renderGreetingBookGlyph },
     );
   }
 
@@ -2593,13 +2594,14 @@ export default function HomeScreen() {
   // glyph, drawn wherever the band asks for it and at whatever size it
   // asks for.
   //
-  // The art is 32 wide by 38 tall, so the size it is given is its height
-  // and the width follows, rather than squashing the sprout into a square.
-  function renderGreetingSeedGlyph(size: number) {
+  // Since 2026-10-06 the glyph is the Inside Story book in its round window
+  // (assets/branding/inside-story-window.png), by direct instruction, in
+  // place of the seed. The art is square, so it is drawn at size by size.
+  function renderGreetingBookGlyph(size: number) {
     return (
       <Image
-        source={require('../../assets/branding/seed-tall-transparent.png')}
-        style={{ width: Math.round((size * 32) / 38), height: size }}
+        source={require('../../assets/branding/inside-story-window.png')}
+        style={{ width: size, height: size }}
         resizeMode="contain"
       />
     );
@@ -2690,7 +2692,7 @@ export default function HomeScreen() {
     options?: {
       icon?: ComponentProps<typeof Ionicons>['name'];
       // A drawn glyph instead of the Ionicons one, for the one section whose
-      // mark is a picture (Today's sprouting seed).
+      // mark is a picture (Today's Inside Story book).
       renderIcon?: (size: number, color: string) => ReactNode;
       color?: string;
       contentStyle?: StyleProp<ViewStyle>;

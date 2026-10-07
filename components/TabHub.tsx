@@ -318,7 +318,7 @@ export function TabHub() {
   // butterfly's own shape regardless of what's chosen.
   // 2026-08-21: topOverhang/bottomOverhang/verticalShift added alongside
   // width/height -- see that function's own comment. For every icon except
-  // 'seedTall' these two overhangs are identical and verticalShift is 0,
+  // one in TAB_HUB_ICON_HEIGHT_OVERRIDE these two overhangs are identical and verticalShift is 0,
   // so hitSlop/the icon's own position below are byte-for-byte unchanged
   // from before this existed.
   const { width: buttonIconWidth, height: buttonIconHeight, topOverhang, bottomOverhang, verticalShift } =

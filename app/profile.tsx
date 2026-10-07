@@ -3216,11 +3216,11 @@ export default function ProfileScreen() {
   // shorter-stemmed 'seed' entry existed here briefly (2026-08-19 through
   // 2026-08-21) alongside this one; removed outright, direct instruction:
   // "remove the other seed icon from the app entirely, make the new seed
-  // icon the default." The key stays 'seedTall' (not renamed to 'seed'),
-  // see TabHubIconChoice's comment for why.
+  // icon the default." The seed itself was removed as a choice on
+  // 2026-10-06, by direct instruction, when the Inside Story book took its
+  // place.
   const appIconOptions: { key: TabHubIconChoice; label: string }[] = [
     { key: 'insideStory', label: 'Inside Story (App Default)' },
-    { key: 'seedTall', label: 'Seed' },
   ];
   // 2026-08-14: the renamed former "Default" entry (the plain butterfly, key
   // unchanged at 'default') is seeded in here by hand, not derived from

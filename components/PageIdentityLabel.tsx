@@ -174,9 +174,9 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   const { tabHubIcon } = useVisualPreferences();
   // 2026-08-21: reads bottomOverhang directly rather than deriving it from
   // height/2 -- see getTabHubIconRenderSize's own comment. Every icon
-  // except 'seedTall' still has bottomOverhang === (height-FLOATING_BUTTON_
+  // except one in TAB_HUB_ICON_HEIGHT_OVERRIDE has bottomOverhang === (height-FLOATING_BUTTON_
   // SIZE)/2, so this is byte-for-byte the same value as before for them;
-  // 'seedTall' alone has a smaller, pinned bottomOverhang (its extra height
+  // an overridden icon has a smaller, pinned bottomOverhang (its extra height
   // goes up, not down), and this box needs that real number, not the
   // symmetric one, to clear the nav bar by the right amount.
   const { bottomOverhang } = getTabHubIconRenderSize(tabHubIcon);
