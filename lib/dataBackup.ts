@@ -79,6 +79,7 @@
 import type { SQLiteBindValue } from 'expo-sqlite';
 import { encryptBackupPayload } from './backupEncryption';
 import { getDatabase } from './db';
+import { unguardedGetAll } from './databaseActivity';
 
 export const BACKUP_SCHEMA_VERSION = 1;
 
@@ -130,8 +131,9 @@ export async function buildBackupEnvelope(skipTables: readonly string[] = []): P
     // `name` comes straight out of sqlite_master, never from anything a
     // person typed -- safe to interpolate as a real identifier here, and
     // there's no way to parametrize a table name in a prepared statement
-    // regardless.
-    tables[name] = await db.getAllAsync<Record<string, unknown>>(`SELECT * FROM "${name}"`);
+    // regardless. Read past the vault (lib/vault.ts): a backup and the sync
+    // copy carry every record, encrypted, to where the person sent them.
+    tables[name] = await unguardedGetAll<Record<string, unknown>>(db, `SELECT * FROM "${name}"`);
   }
 
   return {

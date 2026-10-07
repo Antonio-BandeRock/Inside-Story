@@ -3,6 +3,7 @@ import { File } from 'expo-file-system';
 import { REFERENCE_DB_VERSION } from './referenceDbVersion';
 import { toRuleSeverity, type RuleSeverity } from './ruleSeverity';
 import { attachWriteTracking } from './databaseActivity';
+import { withVaultBypass } from './vaultState';
 import { dataKeyForOpening } from './appLockSession';
 import { keyPragma } from './appLock';
 import { ageFromBirthDate } from './profile';
@@ -5292,11 +5293,13 @@ export function isSharedObjectReleasedError(error: unknown): boolean {
 // why this was needed.
 export async function initializeDatabase() {
   if (!initializeDatabasePromise) {
-    initializeDatabasePromise = runDatabaseInitialization().catch(async (error) => {
+    // Startup reads past the vault (lib/vaultState.ts): nobody can be asked
+    // to open it before the database is even built.
+    initializeDatabasePromise = withVaultBypass(runDatabaseInitialization).catch(async (error) => {
       if (!isSharedObjectReleasedError(error)) throw error;
       databasePromise = null;
       initializeDatabasePromise = null;
-      return runDatabaseInitialization();
+      return withVaultBypass(runDatabaseInitialization);
     });
   }
   return initializeDatabasePromise;

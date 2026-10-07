@@ -89,6 +89,12 @@ export type AppLockState = {
   lastFailedAt: number;
   /** kind: a reminder says only what kind it is. full: its whole text. */
   reminderDetail: ReminderDetail;
+  /**
+   * The vault (lib/vault.ts): the health records that stay closed while the
+   * app is open, until the same code or fingerprint opens them. Off on any
+   * lock file written before the vault was built (1.0.63.10).
+   */
+  vault: boolean;
 };
 
 // ---------------------------------------------------------------------------
@@ -137,6 +143,7 @@ export function parseLockState(text: string | null): AppLockState | null {
     failedTries: wholeNumber(r.failedTries),
     lastFailedAt: wholeNumber(r.lastFailedAt),
     reminderDetail: r.reminderDetail === 'kind' ? 'kind' : 'full',
+    vault: r.vault === true,
   };
 }
 

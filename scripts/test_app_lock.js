@@ -141,6 +141,7 @@ const same = (a, b) => !!a && !!b && a.length === b.length && a.every((v, i) => 
     failedTries: 0,
     lastFailedAt: 0,
     reminderDetail: 'kind',
+    vault: true,
   };
   const parsed = L.parseLockState(L.serializeLockState(good));
   check('a lock file round-trips', JSON.stringify(parsed) === JSON.stringify(good));
@@ -248,7 +249,7 @@ const same = (a, b) => !!a && !!b && a.length === b.length && a.every((v, i) => 
   check('the reminder task is quiet when locked', task.includes('if (isAppLockedError(answerError)) return;'));
   const reminders = fs.readFileSync(path.join(LIB, 'reminderNotifications.ts'), 'utf8');
   const lockedAt = reminders.indexOf('if (isLockedNow()) {');
-  const claimAt = reminders.indexOf('if (!(await claimAnswer(responseKey(response)))) return;');
+  const claimAt = reminders.indexOf('if (!(await claimAnswer(responseKey(response))))');
   check('a locked press is kept before anything opens the database', lockedAt > 0 && claimAt > lockedAt);
   const drainAt = reminders.indexOf('// Presses kept while locked go in first');
   const lastAt = reminders.indexOf('.then(() => Notifications.getLastNotificationResponseAsync())');

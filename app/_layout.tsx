@@ -38,6 +38,7 @@ import { getReferenceDatabase, initializeDatabase, settlePastScheduledMeals } fr
 import { handleIncomingIsFile } from '../lib/isFileLinking';
 import { refreshLockScreenNotice } from '../lib/emergencyLockScreen';
 import { writeLockedCaptures } from '../lib/lockedCaptures';
+import { watchVaultClosing } from '../lib/vaultSession';
 import { listenForReminderTaps, syncReminderNotifications } from '../lib/reminderNotifications';
 import { checkReminderTiming } from '../lib/reminderTiming';
 import { refreshWidgets } from '../lib/widgets/taskHandler';
@@ -100,6 +101,11 @@ function UnlockedApp() {
   // leaving Home's own separate, un-gated first load to populate on its
   // own with nothing covering it.
   const homeDataReady = useHomeDataReady();
+
+  // The vault (lib/vault.ts) closes whenever the app is put away.
+  useEffect(() => {
+    watchVaultClosing();
+  }, []);
 
   // getDatabase() elsewhere in the app only opens the SQLite file -- it
   // never guarantees initializeDatabase()'s CREATE TABLE/migration logic

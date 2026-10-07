@@ -60,6 +60,7 @@ import { dropDataKey, holdDataKey, LOCK_FILE_NAME, readLockStateSync } from './a
 import { restartApp } from './restartApp';
 import { bytesToBase64Fast } from './localSeal';
 import { runBeforeRestart } from './beforeRestart';
+import { refreshVaultOn } from './vaultState';
 import { closeDatabasesForRestart, DB_NAME } from './db';
 import { unsealWaitingAnswersForTurnOff } from './lockedAnswers';
 import { unsealLockedCapturesForTurnOff } from './lockedCaptures';
@@ -113,15 +114,17 @@ export { readLockStateSync };
 
 function writeLockState(state: AppLockState): void {
   new File(Paths.document, LOCK_FILE_NAME).write(serializeLockState(state));
+  refreshVaultOn();
 }
 
 function deleteLockState(): void {
   const file = new File(Paths.document, LOCK_FILE_NAME);
   if (file.exists) file.delete();
+  refreshVaultOn();
 }
 
 export function updateLockSettings(
-  patch: Partial<Pick<AppLockState, 'autoLockMinutes' | 'allowScreenshots' | 'reminderDetail'>>,
+  patch: Partial<Pick<AppLockState, 'autoLockMinutes' | 'allowScreenshots' | 'reminderDetail' | 'vault'>>,
 ): AppLockState | null {
   const state = readLockStateSync();
   if (!state) return null;
@@ -241,6 +244,7 @@ export async function turnOnAppLock(options: {
     failedTries: 0,
     lastFailedAt: 0,
     reminderDetail: 'full',
+    vault: false,
   });
   return { biometric };
 }

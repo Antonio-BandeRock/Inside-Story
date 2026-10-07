@@ -1,4 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
+import * as Updates from 'expo-updates';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
@@ -15,7 +16,16 @@ import { biometricTitle, biometricWords, deviceWord } from '../lib/appLockWords'
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { explainNotYet } from '../lib/notYet';
 import { syncReminderNotifications } from '../lib/reminderNotifications';
+import {
+  closeVault,
+  openVaultWithBiometric,
+  openVaultWithPasscode,
+  setVaultOn,
+  useVault,
+  type VaultOpenResult,
+} from '../lib/vaultSession';
 import LockedCapture from '../modules/locked-capture';
+import { PasscodeEntry } from './PasscodeEntry';
 
 // The body of Profile > App Lock. Setting the lock up and the changes that
 // need the passcode open app/app-lock-setup.tsx; the settings that do not
@@ -63,6 +73,106 @@ function ShadeButtonsSetting() {
           ? 'Pull down the shade and press Voice Note or Photo. It starts listening, or opens the camera, straight away, with no code and the phone still locked. What you keep is sealed until Inside Story is next unlocked, so nobody holding the phone can read it. The same two buttons can be added as quick settings tiles.'
           : 'Pull down the shade and press Voice Note or Photo. With App Lock set up these work over the lock screen with no code at all; without it the phone asks to be unlocked first. The same two buttons can be added as quick settings tiles.'}
       </Text>
+    </>
+  );
+}
+
+// The vault (lib/vault.ts), phase 1: the switch and the way to open and
+// close it. Shown only where Developer Tools are, until every screen that
+// reads a vault record knows how to say it is in the vault, since until then
+// a screen with the vault closed shows an empty space or an error.
+const SHOW_VAULT_SWITCH = __DEV__ || Updates.channel === 'preview';
+
+function waitWords(ms: number): string {
+  const seconds = Math.ceil(ms / 1000);
+  return seconds < 60 ? `${seconds} seconds` : `${Math.ceil(seconds / 60)} minutes`;
+}
+
+function VaultSetting({ state }: { state: AppLockState }) {
+  const vault = useVault();
+  const [typed, setTyped] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+
+  const answer = (result: VaultOpenResult) => {
+    setTyped('');
+    if (result.kind === 'wrong') {
+      setProblem(result.waitMs ? `That code did not open it. Try again in ${waitWords(result.waitMs)}.` : 'That code did not open it.');
+    } else if (result.kind === 'wait') setProblem(`Too many wrong codes. Try again in ${waitWords(result.waitMs)}.`);
+    else if (result.kind === 'needs-passcode') setProblem('Type your code to open it.');
+    else setProblem(null);
+  };
+
+  const run = async (work: () => Promise<VaultOpenResult>) => {
+    setBusy(true);
+    try {
+      answer(await work());
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <>
+      <Text style={styles.subLabel}>The vault (testing)</Text>
+      <View style={styles.pillRow}>
+        {[true, false].map((on) => (
+          <TouchableOpacity
+            key={String(on)}
+            style={[styles.pill, vault.on === on ? styles.pillActive : null]}
+            activeOpacity={0.85}
+            onPress={() => {
+              if (on === vault.on) return;
+              setVaultOn(on);
+              setProblem(null);
+            }}
+          >
+            <Text style={[styles.pillText, vault.on === on ? styles.pillTextActive : null]}>{on ? 'On' : 'Off'}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      <Text style={styles.caption}>
+        {vault.on
+          ? `Symptoms, labs, body measurements, cycle, therapy, personal rules and food experiments, medical bills and family health stay closed while the app is open, until your code${
+              state.biometric ? ' or fingerprint' : ''
+            } opens them. The vault closes again whenever the app is put away. The emergency card is never in it. Screens that read these records do not say so yet, so with the vault closed they can show nothing or an error.`
+          : 'With the vault on, your health records stay closed while the app is open, until your code or fingerprint opens them, so a phone left unlocked shows the shopping list and not your labs.'}
+      </Text>
+      {vault.on && vault.open ? (
+        <TouchableOpacity style={styles.button} activeOpacity={0.85} onPress={closeVault}>
+          <Text style={styles.buttonText}>Close the Vault</Text>
+        </TouchableOpacity>
+      ) : null}
+      {vault.closed ? (
+        <>
+          <Text style={styles.subLabel}>Open the vault</Text>
+          <PasscodeEntry
+            kind={state.passcodeKind}
+            value={typed}
+            onChange={setTyped}
+            disabled={busy}
+            submitLabel="Open"
+            onSubmit={() => {
+              if (!typed) {
+                explainNotYet('Type your App Lock code first, then press Open.');
+                return;
+              }
+              void run(() => openVaultWithPasscode(typed));
+            }}
+          />
+          {state.biometric && !isDesktopApp() ? (
+            <TouchableOpacity
+              style={styles.button}
+              activeOpacity={0.85}
+              disabled={busy}
+              onPress={() => void run(openVaultWithBiometric)}
+            >
+              <Text style={styles.buttonText}>Open With Fingerprint</Text>
+            </TouchableOpacity>
+          ) : null}
+          {problem ? <Text style={styles.caption}>{problem}</Text> : null}
+        </>
+      ) : null}
     </>
   );
 }
@@ -216,6 +326,8 @@ export function AppLockSettings() {
       </Text>
 
       <ShadeButtonsSetting />
+
+      {SHOW_VAULT_SWITCH ? <VaultSetting state={state} /> : null}
 
       <TouchableOpacity
         style={styles.button}

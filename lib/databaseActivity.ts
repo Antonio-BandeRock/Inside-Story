@@ -15,6 +15,7 @@
 // startup or a SELECT is not something the other device needs.
 
 import { APP_META_TABLE, DEVICE_LOCAL_TABLES } from './snapshotSync';
+import { vaultRefusalNow } from './vaultState';
 
 type WriteListener = (count: number) => void;
 
@@ -140,10 +141,33 @@ export function addDatabaseWriteListener(listener: WriteListener): () => void {
 type TrackableDatabase = {
   runAsync: (...args: any[]) => Promise<any>;
   execAsync: (source: string) => Promise<void>;
+  getAllAsync: (...args: any[]) => Promise<any>;
+  getFirstAsync: (...args: any[]) => Promise<any>;
 };
 
+// THE VAULT (lib/vault.ts). The two read methods are wrapped as well, so a
+// SELECT naming a vault table while the vault is closed is refused with
+// VaultClosedError before it reaches the database. Writing is never refused
+// by the vault. The few readers that carry the whole database somewhere the
+// person sent it on purpose (a backup, the sync copy of their own devices)
+// read through unguardedGetAll, which keeps the methods as they were before
+// wrapping.
+
+const unguardedReaders = new WeakMap<object, (...args: any[]) => Promise<any>>();
+
 /**
- * Wraps the two methods every write in this app goes through. The
+ * getAllAsync without the vault's refusal, for a whole-database copy that
+ * stays encrypted and stays the person's: a backup and the snapshot sync
+ * between their own devices. Never for anything drawn on a screen.
+ */
+export async function unguardedGetAll<R>(db: object, source: string, ...params: any[]): Promise<R[]> {
+  const read = unguardedReaders.get(db) ?? (db as TrackableDatabase).getAllAsync.bind(db);
+  return read(source, ...params);
+}
+
+/**
+ * Wraps the two methods every write in this app goes through, and the two
+ * every read goes through for the vault. The
  * connection is returned so getDatabase can hand back the same object it
  * opened; the wrapped methods live on the instance, ahead of the
  * prototype's, so `db.runAsync(...)` anywhere lands here first.
@@ -151,6 +175,19 @@ type TrackableDatabase = {
 export function attachWriteTracking<T extends TrackableDatabase>(db: T): T {
   const runAsync = db.runAsync.bind(db);
   const execAsync = db.execAsync.bind(db);
+  const getAllAsync = db.getAllAsync.bind(db);
+  const getFirstAsync = db.getFirstAsync.bind(db);
+  unguardedReaders.set(db, getAllAsync);
+  db.getAllAsync = async (...args: any[]) => {
+    const closed = typeof args[0] === 'string' ? vaultRefusalNow(args[0]) : null;
+    if (closed) throw closed;
+    return getAllAsync(...args);
+  };
+  db.getFirstAsync = async (...args: any[]) => {
+    const closed = typeof args[0] === 'string' ? vaultRefusalNow(args[0]) : null;
+    if (closed) throw closed;
+    return getFirstAsync(...args);
+  };
   db.runAsync = async (...args: any[]) => {
     const refusal = typeof args[0] === 'string' ? sessionRefusalFor(args[0]) : null;
     if (refusal) throw new SessionReadOnlyError(refusal);
