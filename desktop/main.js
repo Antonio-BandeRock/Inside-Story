@@ -267,7 +267,7 @@ function createWindow() {
     minHeight: MIN_HEIGHT,
     title: 'Inside Story',
     autoHideMenuBar: true,
-    backgroundColor: '#0b0f14',
+    backgroundColor: '#1F2A2C',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
