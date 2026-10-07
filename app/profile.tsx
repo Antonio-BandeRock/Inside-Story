@@ -11,6 +11,7 @@ import { getPeerPhotosWifiOnly, peerPhotoStorageUsed, setPeerPhotosWifiOnly } fr
 import { STEP_TIMER_HELP, STEP_TIMER_RING_LABEL, STEP_TIMER_SIGNAL_HELP, STEP_TIMER_SIGNAL_LABEL } from '../lib/stepTimer';
 import { getStepTimerSettings, setStepTimerRing, setStepTimerSignal, type StepTimerSettings } from '../lib/stepTimerDb';
 import { AppTextInput } from '../components/AppTextInput';
+import { VoiceoverRecorder } from '../components/VoiceoverRecorder';
 import { GenericBackground } from '../components/GenericBackground';
 import { HelpButton, type HelpSection } from '../components/HelpButton';
 import { ActiveRingCircle } from '../components/ActiveRingCircle';
@@ -6070,6 +6071,7 @@ export default function ProfileScreen() {
                   {clearingSeededData ? 'Clearing...' : 'Clear Seeded Test Data'}
                 </Text>
               </TouchableOpacity>
+              <VoiceoverRecorder />
             </View>
           ) : null}
         </View>
