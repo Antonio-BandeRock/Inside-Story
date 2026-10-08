@@ -75,7 +75,7 @@ module.exports = [
   // Waiting on a decision
   P('across', 'z-ai', 'An assistant that answers questions about your records', 'asked', 2, 3, 2, 'asked', 'Z1', 'Google Health Premium $9.99 a month. Needs a model that costs per use.'),
   P('across', 'z-grocery', 'Send the grocery list to a delivery service', 'asked', 2, 2, 1, 'asked', 'Z3', 'Needs a partner agreement.'),
-  P('across', 'z-banklink', 'A live bank link', 'asked', 1, 3, 2, 'asked', 'Z5', 'Monarch and YNAB charge about $100 a year; needs a paid aggregator.'),
+  P('life', 'z-banklink', 'A live bank link', 'asked', 1, 3, 2, 'asked', 'Z10', 'Monarch and YNAB charge about $100 a year; needs a paid aggregator.'),
   P('across', 'z-lifetime', 'A lifetime price and a hardship price', 'asked', 3, 3, 1, 'asked', 'Z15', 'Structured sells lifetime at $99.99.'),
   // Companions
   P('companions', 'c-viewer', 'Free viewer companion (household seat)', 'companions', 3, 1, 2, 'companion', 'Tiers', 'Reads the meal plan, shopping list and Trends summary, ticks off the list. First 2 to 3 seats free, then $1.99 a month.'),

@@ -888,7 +888,7 @@ Kinds: Nobody gives it away.
 
 **How it reaches pay caliber.** If any is approved it can only be paid, because each carries a running cost.
 
-On the board: An assistant that answers questions about your records (Across the app, waiting on a decision); Send the grocery list to a delivery service (Across the app, waiting on a decision); A live bank link (Across the app, waiting on a decision); A lifetime price and a hardship price (Across the app, waiting on a decision).
+On the board: An assistant that answers questions about your records (Across the app, waiting on a decision); Send the grocery list to a delivery service (Across the app, waiting on a decision); A live bank link (Life, waiting on a decision); A lifetime price and a hardship price (Across the app, waiting on a decision).
 
 <a id="fam-companions"></a>
 ### Companion tiers: partner, household, guardian, caregiver
