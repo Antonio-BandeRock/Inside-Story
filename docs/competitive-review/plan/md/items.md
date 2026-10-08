@@ -77,7 +77,7 @@
 - **Answers:** Gardenize, Sortly, Monarch, Guava, Medisafe · **Theme:** Shared foundations
 - **How:** A media table (owner kind, owner id, file, taken_on), shrink on save, stored under the app folder, copied into the Backups folder and restored beside the encrypted snapshot, never in the plaintext record, shown on desktop from the synced copy. Serves A5, D12, I13, J4, J9.
 
-## Phase 2. Quick wins over the air (125 items)
+## Phase 2. Quick wins over the air (127 items)
 
 ### A3. Pills on hand and refill reminder
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life,Schedules,Signals,Insights
@@ -704,7 +704,17 @@
 - **Answers:** Day One, Journey · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** The Diary from the 2026-09-26 gap review, absorbing General Note: entries with photos and voice, prompts, on this day, its own lock, private until chosen, and the words a life’s Inside Story is later made from.
 
-## Phase 3. Larger builds over the air (96 items)
+### Q25. A taste of Insights on Free
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** Insights,Food
+- **Answers:** Cronometer, Yuka, Fig · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Decide with P27 and Q18: today’s nutrients with the food and supplement split, scanning a label, and one condition scored (or the For You card on a few foods a day) on Free, with gap foods, absorption, history, every condition and the household reading paid. Cronometer, Yuka and Fig all give their first look away.
+
+### Q28. What can I make from what is here
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Insights,Food
+- **Answers:** KitchenPal, SuperCook · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Recipes ranked by how much of each the kitchen already holds, items nearest their use-by first, filtered by the person’s conditions, allergies and diet, with what is missing sent to the grocery list in one tap.
+
+## Phase 3. Larger builds over the air (99 items)
 
 ### A2. Tapering doses
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
@@ -1185,6 +1195,21 @@
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Signals,Reports
 - **Answers:** Bladder Journal, U-Night · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** An optional mode for the clinical three days: each void with volume and urgency, leaks, fluid in drawn from what is already logged, the night share worked out, and a page in the doctor report.
+
+### Q26. What each lab marker means
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Insights,Life
+- **Answers:** HealthMatters.io, Carrot Care · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A plain entry for every common marker in the lab list: what it measures, what moves it up or down (food, supplements, medicines, timing of the draw), which of the 19 conditions watch it, with an evidence tier and source, opened on tap from any result. Never a verdict on the person’s number.
+
+### Q27. Energy use measured, not guessed
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Insights,Trends
+- **Answers:** MacroFactor · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Once several weeks of meals and weight exist, work out energy use from intake against the weight trend, say how many weeks and how many logged days it rests on, show it beside the formula figure, and leave any weight goal to the person.
+
+### Q29. Sun as a vitamin D source
+- **Ships by:** Cloudflare Worker · **Size:** M · **Tabs:** Insights,Signals
+- **Answers:** dminder · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Skin type and time outdoors as a third vitamin D source beside food and supplements, the UV index from a coarsened opt-in location through the Worker bundle, a burn warning, and the vitamin D lab read beside all three. Second gap review item.
 
 ## Phase 4. The Android rebuild (R1) (14 items)
 

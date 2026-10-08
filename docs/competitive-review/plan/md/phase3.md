@@ -477,3 +477,18 @@
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Signals,Reports
 - **Answers:** Bladder Journal, U-Night · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** An optional mode for the clinical three days: each void with volume and urgency, leaks, fluid in drawn from what is already logged, the night share worked out, and a page in the doctor report.
+
+### Q26. What each lab marker means
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Insights,Life
+- **Answers:** HealthMatters.io, Carrot Care · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A plain entry for every common marker in the lab list: what it measures, what moves it up or down (food, supplements, medicines, timing of the draw), which of the 19 conditions watch it, with an evidence tier and source, opened on tap from any result. Never a verdict on the person’s number.
+
+### Q27. Energy use measured, not guessed
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Insights,Trends
+- **Answers:** MacroFactor · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Once several weeks of meals and weight exist, work out energy use from intake against the weight trend, say how many weeks and how many logged days it rests on, show it beside the formula figure, and leave any weight goal to the person.
+
+### Q29. Sun as a vitamin D source
+- **Ships by:** Cloudflare Worker · **Size:** M · **Tabs:** Insights,Signals
+- **Answers:** dminder · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Skin type and time outdoors as a third vitamin D source beside food and supplements, the UV index from a coarsened opt-in location through the Worker bundle, a burn warning, and the vitamin D lab read beside all three. Second gap review item.

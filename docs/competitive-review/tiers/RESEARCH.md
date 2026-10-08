@@ -29,6 +29,7 @@ Standing rule since 2026-10-07: every function that competes with a leading app 
 | Food | 3 | 3 | 6 | 6 | 0 |
 | Schedules | 6 | 5 | 2 | 1 | 0 |
 | Signals | 3 | 7 | 2 | 2 | 7 |
+| Insights | 5 | 5 | 4 | 8 | 0 |
 
 ### Food
 
@@ -782,6 +783,318 @@ Same idea, deeper reading here, free there. Also compared: Exist, Daylio. Checke
 **To be better.** Trackers on Free with the reading paid (Q18). Plan: Q18.
 
 Sources: <https://bearable.app/support/common-questions/bearable-free-vs-premium-features/>
+
+### Insights
+
+#### Nutrients today, from food and from supplements: Even against Cronometer
+
+Ahead on every measure but one: Cronometer shows today’s nutrients free and ours does not show them on Free at all. Also compared: MacroFactor, MyFitnessPal. Checked 2026-10-07.
+
+| Measure | Cronometer | Inside Story | |
+|---|---|---|---|
+| What it does | 84 nutrients against targets; Oracle suggests foods for a gap (Gold) | Every nutrient against targets from whole day down to one food, split into food and supplement by each supplement’s dates; foods to close a short nutrient (G12); calcium, iron and zinc absorption estimated (G13); distinct plants this week (G14) | + |
+| Depth | Lab-verified food entries | Seven national databases, absorption and cooking losses taken into account | + |
+| Taps | Log every food | Planned meals already count | + |
+| Offline | Account, syncs | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free: 84 nutrients, 7 days of history, ads; Gold $59.88 a year | Individual, $89.99 a year; Free has Food Lookup only | - |
+| Conditions covered | General | Targets and cautions read from the 19 conditions | + |
+
+**To be better.** Today’s nutrients on Free, with the food and supplement split, and the paid layer being what closes the gap: foods to close it, absorption, history past a week, condition targets (Q25). Plan: Q25, P27.
+
+Sources: <https://nutrola.app/en/blog/cronometer-review-2026> <https://nutrola.app/en/blog/is-cronometer-gold-worth-the-money-2026>
+
+#### Condition Scores: Better against Fig
+
+Fig answers whether a product fits a diet; ours scores why a food helps or strains each condition the person has. Also compared: ZOE, Heali. Checked 2026-10-07.
+
+| Measure | Fig | Inside Story | |
+|---|---|---|---|
+| What it does | A verdict per packaged product for 2,800 diet profiles | Every whole food scored on each condition’s own dimensions, a phrase per food (G15), across all the person’s conditions at once | + |
+| Depth | Ingredient rules per profile | Cited sub-criteria per condition, with evidence tiers | + |
+| Taps | Scan | Look up or scan | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | A few scans free; Fig+ $34.99 to $60 a year | Individual, $89.99 a year; Free has Food Lookup only | = |
+| Conditions covered | Diets and allergies, few medical conditions | The 19 conditions, combined | + |
+
+**To be better.** A taste on Free so a newcomer sees it: one condition scored, or the For You card on a few foods a day (Q25). Plan: Q25.
+
+Sources: <https://apps.apple.com/app/id1564434726> <https://apppricinglab.com/iap/apple/1564434726>
+
+#### Cooking & Prep (how preparation changes a food): Nobody else
+
+Trackers list a raw and a cooked entry; none found explains how soaking, sprouting, fermenting or cooking changes what a food delivers for a condition, with the source. Also compared: Cronometer. Checked 2026-10-07.
+
+Sources: <https://nutrola.app/en/blog/cronometer-review-2026>
+
+#### Cooking Impact: Nobody else
+
+No app found estimates how much of each nutrient survives each cooking method and labels the estimate as one. Also compared: Cronometer. Checked 2026-10-07.
+
+Sources: <https://nutrola.app/en/blog/cronometer-review-2026>
+
+#### Hydration reading: Better against Waterllama
+
+Counts the water in soup and fruit that every drink counter leaves out. Also compared: WaterMinder. Checked 2026-10-07.
+
+| Measure | Waterllama | Inside Story | |
+|---|---|---|---|
+| What it does | Drinks against a goal, by drink type | Water from drinks and from food together, against a target | + |
+| Depth | Drink water factors | Food water from the database, caffeine and alcohol read beside it | + |
+| Taps | One tap a drink | Meals count without extra taps | + |
+| Offline | On the phone | On the phone | = |
+| Privacy | Account optional | No account | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free with paid extras | Individual, $89.99 a year; Free has Food Lookup only | - |
+| Conditions covered | None | Kidney disease, gout and others with fluid needs | + |
+
+**Where the leader’s edge rests on a rule kept here.** Waterllama’s pull is streaks and collectible characters (Z4), which this app does not do.
+
+Sources: <https://waterllama.com/>
+
+#### Med and supplement timing warnings (Today's Advisories): Nobody else
+
+Interaction checkers answer a question about two names; none reads what the person ate today against cited alcohol, coffee and juice advisories for their conditions. Also compared: Drugs.com. Checked 2026-10-07.
+
+Sources: <https://www.drugs.com/interactions>
+
+#### My Meds & Interactions: Even against Drugs.com
+
+Drugs.com is broader; ours knows when the person ate and took what. Neither replaces the other, so ours hands off for breadth. Also compared: Medscape, Medisafe. Checked 2026-10-07.
+
+| Measure | Drugs.com | Inside Story | |
+|---|---|---|---|
+| What it does | Drug, food, alcohol and condition interactions for 24,000 medicines, major, moderate, minor | Food, supplement and prescription timing rules, major, caution, note (A9), checked against dose times and the meals around them; a link to Drugs.com for drug-to-drug (A10) | = |
+| Depth | Breadth: every medicine | Timing against actual meals, with a mechanism and source per rule | + |
+| Taps | Type the names each time | Read from My Meds automatically | + |
+| Offline | Online | On the phone | + |
+| Privacy | Ads, no account needed | No account, no ads | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free with ads | Individual, $89.99 a year; Free has Food Lookup only | - |
+| Conditions covered | Drug-condition warnings | The 19 conditions | = |
+
+**To be better.** Show the medicine’s own label with its food and alcohol lines (A11), keep the Drugs.com hand-off one tap from every medicine (A10), and put the timing warnings on Free, where they already belong by the safety rule. Plan: A11, A10.
+
+**Where the leader’s edge rests on a rule kept here.** A drug-to-drug rule library of its own was ruled out by direct instruction on 2026-09-26 (liability, licensed data); the app links out instead.
+
+Sources: <https://www.drugs.com/interactions> <https://pillo.care/blog/best-drug-interaction-checker>
+
+#### Check a Label: Better against Yuka
+
+Yuka gives one number for everyone; ours tells this person why, ingredient by ingredient, and points back to cooking at home. Also compared: Fig, ZOE. Checked 2026-10-07.
+
+| Measure | Yuka | Inside Story | |
+|---|---|---|---|
+| What it does | A 0 to 100 product score, additives rated, a better product suggested | Every ingredient checked with a named reason (G18), NOVA group and additives (G16), one line at the top (G17), a home recipe or whole food in its place (G22) | + |
+| Depth | Additive risk levels | Linked to the reading on each additive, read against the person’s conditions and allergies | + |
+| Taps | Scan | Scan | = |
+| Offline | Works offline for known products | Needs a signal for the first lookup | - |
+| Privacy | Account optional | No account; only the barcode number is sent | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free, unlimited scans | Individual, $89.99 a year; Free has Food Lookup only | - |
+| Conditions covered | General | The 19 conditions, allergies, diet | + |
+
+**To be better.** Scans that work with no signal for anything scanned before (G21), and the scan itself on Free with the condition reading paid (Q25). Plan: G21, Q25.
+
+**Where the leader’s edge rests on a rule kept here.** Yuka’s 0 to 100 product score stands in for judgement (Z2); this app gives the reasons, not a number.
+
+Sources: <https://yuka.io/en/> <https://apps.apple.com/app/id1564434726>
+
+#### Nutrient Ranking (best foods for a nutrient): Better against Cronometer Oracle
+
+Same idea, filtered for the person and reachable inside the builder where the choice is made. Also compared: nutritionvalue.org. Checked 2026-10-07.
+
+| Measure | Cronometer Oracle | Inside Story | |
+|---|---|---|---|
+| What it does | Foods richest in a nutrient (Gold) | Foods richest in a nutrient per 100 g or per serving, from Insights and every builder (G10) | + |
+| Depth | Ranked | Ranked, then filtered by the person’s conditions, allergies and diet | + |
+| Taps | Search | Pick a nutrient | = |
+| Offline | Online | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Gold $59.88 a year | Individual, $89.99 a year; Free has Food Lookup only | = |
+| Conditions covered | None | The 19 | + |
+
+Sources: <https://nutrola.app/en/blog/is-cronometer-gold-worth-the-money-2026>
+
+#### Safe Foods for you: Better against Fig
+
+The only list found of foods safe for several conditions at once. Also compared: Spoonful. Checked 2026-10-07.
+
+| Measure | Fig | Inside Story | |
+|---|---|---|---|
+| What it does | Products that fit the person’s profiles | Whole foods with no flagged concern across every condition at once, less allergies and diet | + |
+| Depth | Ingredient rules | Scored sub-criteria per condition | + |
+| Taps | Browse | Browse | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Fig+ $34.99 to $60 a year | Individual, $89.99 a year; Free has Food Lookup only | = |
+| Conditions covered | Diets | Several conditions combined | + |
+
+Sources: <https://apps.apple.com/app/id1564434726>
+
+#### Healing Stage food finder: Nobody else
+
+No app found reorders foods by a staged healing guide for six conditions, flagging and never hiding. Checked 2026-10-07.
+
+#### Labs: Even against HealthMatters.io
+
+Ahead on privacy and on reading a lab against food; behind on explaining each marker in plain words. Also compared: Carrot Care, BloodTrends, SnapLabs. Checked 2026-10-07.
+
+| Measure | HealthMatters.io | Inside Story | |
+|---|---|---|---|
+| What it does | Results over time, 10,000 markers each explained, import from lab files | Latest result per test with the person’s own reference range, a whole sheet logged from a photo read on the phone (G28), charts on Trends, labs read against intake on Compare Two | = |
+| Depth | An explanation per marker | Read against the nutrients and supplements that move it | + |
+| Taps | Upload a PDF | Photo of the sheet, each value confirmed | = |
+| Offline | Online, account | On the phone | + |
+| Privacy | Uploaded to a server | Read on the phone, nothing sent | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $79 a year or $250 once | Individual, $89.99 a year; Free has Food Lookup only | = |
+| Conditions covered | General | Markers the 19 conditions watch | + |
+
+**To be better.** A plain explanation for every common marker, with what moves it and its evidence tier, opened on tap from the result (Q26), and lab files taken straight from a patient portal once that decision is made (G29). Plan: Q26, G29.
+
+**Where the leader’s edge rests on a rule kept here.** Leaders that interpret results with an AI model send the results to a server (Z5); the explanation here is written once, cited, and stays on the phone.
+
+Sources: <https://crowncounseling.com/reviews/best-blood-test-tracking-apps> <https://apps.apple.com/app/id6756438055>
+
+#### Allergy cautions wherever food is shown: Even against Fig
+
+Fig covers more named restrictions; ours shows cautions everywhere food appears, on every tier. Also compared: Spokin, Yuka. Checked 2026-10-07.
+
+| Measure | Fig | Inside Story | |
+|---|---|---|---|
+| What it does | 2,800 profiles including alpha-gal, histamine, FODMAP | Allergy cautions wherever food is shown; six more restrictions (G19), worded allergen-aware, not allergy-safe | = |
+| Depth | Per ingredient, uncertain class | Per ingredient with a named reason (G18) | = |
+| Taps | Scan | Shown without asking | + |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | A few scans free | Every tier: safety is never paid | + |
+| Conditions covered | Many diets | Fewer named diets, the 19 conditions | = |
+
+**To be better.** Keep adding restrictions as people ask for them through the add-your-own list, and show the household member a food does not suit (G20, built) on every scan. Plan: G19, G20.
+
+Sources: <https://apps.apple.com/app/id1564434726>
+
+#### Energy & Portions: Behind against MacroFactor
+
+A formula guesses; MacroFactor measures. For someone whose thyroid changes their energy use, the measured figure matters more than for anyone. Also compared: Cronometer, MyFitnessPal. Checked 2026-10-07.
+
+| Measure | MacroFactor | Inside Story | |
+|---|---|---|---|
+| What it does | Energy worked out each week from what was eaten against the weight trend | Mifflin-St Jeor times activity, protein by body weight | - |
+| Depth | Adapts to the person | A formula | - |
+| Taps | Log food and weight | Weight from Health Connect | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $71.99 a year, no free tier | Individual, $89.99 a year; Free has Food Lookup only | = |
+| Conditions covered | None | Thyroid conditions change expenditure; formula does not know it | = |
+
+**To be better.** Work out the person’s energy use from logged meals and the weight trend once there are enough weeks, say how many weeks it rests on, show it beside the formula, and never set a weight goal the person did not ask for (Q27). Plan: Q27.
+
+Sources: <https://nutrola.app/en/blog/how-much-does-macrofactor-cost-now-2026> <https://calorie-trackers.com/reviews/macrofactor/>
+
+#### What the Kitchen Holds: Even against KitchenPal
+
+Ours fills itself from the garden and the grocery list; KitchenPal turns what is there into a meal. Also compared: Pantry Check, NoWaste. Checked 2026-10-07.
+
+| Measure | KitchenPal | Inside Story | |
+|---|---|---|---|
+| What it does | Pantry, fridge and freezer with expiry alerts, barcode, recipes from what is there, shared | Everything in the kitchen with its place and use-by date, garden harvests and ferments among it, read on Insights | = |
+| Depth | Recipes from what you have | Use-by and where it is | - |
+| Taps | Scan to add | Added from grocery, harvest and ferment records | + |
+| Offline | Account, syncs | On the phone | = |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free limited; $1.99 a month or $29.99 lifetime | Individual, $89.99 a year; Free has Food Lookup only | - |
+| Conditions covered | None | Read against the person’s conditions | + |
+
+**To be better.** What can I make from what is here: recipes ranked by how much of them the kitchen already holds, use-by first, filtered for the person’s conditions (Q28). Plan: Q28.
+
+Sources: <https://www.apppricinglab.com/app/google_play/fr.icuisto.icuisto> <https://alternativeto.net/software/kitchenpal/about>
+
+#### Money This Month: Behind against YNAB
+
+Typing every amount loses to a budget app that imports it. Also compared: Monarch. Checked 2026-10-07.
+
+| Measure | YNAB | Inside Story | |
+|---|---|---|---|
+| What it does | A month against a plan, every account imported | A month of what was entered: food, health, garden costs together | - |
+| Depth | Budget categories, goals | Health and food spend read together | = |
+| Taps | Imported from the bank | Typed | - |
+| Offline | Account, bank link | On the phone | + |
+| Privacy | Bank credentials through an aggregator | Nothing leaves the phone | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $109 a year | Individual, $89.99 a year; Free has Food Lookup only | + |
+| Conditions covered | None | Medical bills beside the rest | + |
+
+**To be better.** Import a bank export file (J1), then repeating charges and category rules (J2, J3), so the month fills itself without a bank link. Plan: J1, J2, J3.
+
+**Where the leader’s edge rests on a rule kept here.** A live bank link was ruled out (Z10): it needs an aggregator holding the person’s bank access on a server.
+
+Sources: <https://www.ynab.com/pricing>
+
+#### Your Day: Nobody else
+
+No app found reads a person’s meals, doses, symptoms, sleep and upkeep for one day as a single page. Checked 2026-10-07.
+
+#### Signals Today: Nobody else
+
+Bearable shows today’s entries; none found reads them beside today’s food and doses in one place. Also compared: Bearable. Checked 2026-10-07.
+
+#### Before Your Appointment: Nobody else
+
+No app found gathers what changed since the last visit and the questions written down for it, ready before an appointment (K4 extends it). Also compared: Apple Health sharing. Checked 2026-10-07.
+
+#### From the Garden: Nobody else
+
+No food tracker reads what the person’s own garden is giving into the day’s nutrients. Checked 2026-10-07.
+
+#### Sunlight as a vitamin D source (planned): Behind against dminder
+
+Planned in the second gap review and not started. Also compared: Sun Day. Checked 2026-10-07.
+
+| Measure | dminder | Inside Story | |
+|---|---|---|---|
+| What it does | Vitamin D from sun by skin type and UV, from diet and supplements, a burn time | Not built | - |
+| Depth | An endocrinologist’s model | Not built | - |
+| Taps | A session timer | Not built | - |
+| Offline | Needs UV data | Not built | ? |
+| Privacy | Location for UV | Not built | ? |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free; $1.99 for levels over time | Not built | - |
+| Conditions covered | General | Not built | ? |
+
+**To be better.** Sun as the third vitamin D source beside food and supplements, with skin type, a coarsened opt-in location for the UV index through the Worker bundle, a burn warning, and the vitamin D lab beside it (Q29). Plan: Q29.
+
+Sources: <https://dminder.ontometrics.com/> <https://www.imedicalapps.com/2017/09/dminder-app-vitamin-d-tracking-patients/>
+
+#### Pill identifier (planned): Behind against Drugs.com Pill Identifier
+
+Drugs.com gives it away; building one needs a licensed imprint database. Also compared: Medscape. Checked 2026-10-07.
+
+| Measure | Drugs.com Pill Identifier | Inside Story | |
+|---|---|---|---|
+| What it does | 24,000 medicines by imprint, colour and shape, with images | Not built | - |
+| Depth | Licensed imprint database | Not built | - |
+| Taps | Search | Not built | - |
+| Offline | Online for images | Not built | ? |
+| Privacy | Ads | Not built | ? |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free in the Medication Guide app | Not built | - |
+| Conditions covered | None | Not built | ? |
+
+**To be better.** A photo of each pill on its My Meds entry, so the person can match what is in the organiser to what was prescribed, and a link to the Drugs.com identifier for an unknown one (A15). Plan: A15.
+
+**Where the leader’s edge rests on a rule kept here.** An imprint database of its own is licensed data and the liability ruling of 2026-09-26 applies; the app links out.
+
+Sources: <https://apps.apple.com/us/app/-/id398305495> <https://nowpatient.com/blog/free-pill-identifier-tools>
 
 ## Why things are free or paid: the kinds
 

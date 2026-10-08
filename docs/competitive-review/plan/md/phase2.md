@@ -622,3 +622,13 @@
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Signals,Life
 - **Answers:** Day One, Journey · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** The Diary from the 2026-09-26 gap review, absorbing General Note: entries with photos and voice, prompts, on this day, its own lock, private until chosen, and the words a life’s Inside Story is later made from.
+
+### Q25. A taste of Insights on Free
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** Insights,Food
+- **Answers:** Cronometer, Yuka, Fig · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Decide with P27 and Q18: today’s nutrients with the food and supplement split, scanning a label, and one condition scored (or the For You card on a few foods a day) on Free, with gap foods, absorption, history, every condition and the household reading paid. Cronometer, Yuka and Fig all give their first look away.
+
+### Q28. What can I make from what is here
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Insights,Food
+- **Answers:** KitchenPal, SuperCook · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Recipes ranked by how much of each the kitchen already holds, items nearest their use-by first, filtered by the person’s conditions, allergies and diet, with what is missing sent to the grocery list in one tap.
