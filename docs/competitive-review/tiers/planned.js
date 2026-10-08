@@ -73,7 +73,7 @@ module.exports = [
   P('across', 'p-adhd', 'ADHD and autism as profiles', 'daily', 4, 2, 1, 'planned', 'Step 28', 'Needs care not to imply diet treats them.'),
   P('across', 'p-growth', 'What grows on the tab screens', 'story', 5, 2, 3, 'planned', 'Step 29', 'Made of records, never awarded: no streaks or points.'),
   // Waiting on a decision
-  P('across', 'z-ai', 'An assistant that answers questions about your records', 'asked', 2, 3, 2, 'asked', 'Z1', 'Google Health Premium $9.99 a month. Needs a model that costs per use.'),
+  P('across', 'z-ai', 'An assistant that answers questions about your records', 'asked', 2, 3, 2, 'asked', 'Z1', 'Google Health Premium $9.99 a month. Decided 2026-10-08: on the phone only, a model that runs on the device with no charge per question, never a server reading the records.'),
   P('across', 'z-grocery', 'Send the grocery list to a delivery service', 'asked', 2, 2, 1, 'asked', 'Z3', 'Needs a partner agreement.'),
   P('across', 'z-lifetime', 'A lifetime price and a hardship price', 'asked', 3, 3, 1, 'asked', 'Z15', 'Structured sells lifetime at $99.99.'),
   // Companions
@@ -83,7 +83,6 @@ module.exports = [
   P('companions', 'c-guardian', 'Guardian (a parent’s children)', 'companions', 4, 3, 2, 'companion', 'Tiers', 'Free with a paid plan, per child. Tiimo family is $119.99 for five.'),
   P('companions', 'c-caregiver', 'Caregiver (writing on behalf of another adult)', 'companions', 5, 5, 3, 'companion', 'Q73', 'Free to the caregiver; the first caregiver comes with the cared-for person’s Individual plan. Caring Village charges $24.99 a month past one person; Medfriend only hears about missed doses.'),
   P('companions', 'cg-link', 'Caregiver: free download, first one in the person’s Individual plan', 'companions', 4, 4, 3, 'companion', 'Q74', 'The leaders are free to the caregiver too; ours links the two by signed invitation, so nobody joins a person’s care uninvited.'),
-  P('companions', 'cg-notpartner', 'Caregiver: never a cheaper Partner', 'companions', 3, 2, 1, 'companion', 'Q89', 'One way, no paid features for the caregiver’s own records, so the link cannot replace Partner.'),
   P('companions', 'cg-family', 'Caregiver: a paid user caring for their family', 'companions', 4, 4, 3, 'companion', 'Q90', 'Free to the paid user; the family member pays for the link through a plan of their own.'),
   P('companions', 'cg-apart', 'Caregiver: each person cared for kept apart', 'companions', 5, 4, 2, 'companion', 'Q75', 'Caring Village separates by village and charges past the first; a separate sealed record per person is stronger.'),
   P('companions', 'cg-day', 'Caregiver: the day across everyone cared for', 'companions', 4, 4, 3, 'companion', 'Q76', 'Nobody reviewed lays every person’s doses and visits on one day without mixing their records.'),

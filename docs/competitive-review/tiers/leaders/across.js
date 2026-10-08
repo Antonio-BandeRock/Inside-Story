@@ -301,7 +301,7 @@ module.exports = [
     v: 'behind',
     m: notBuilt({ does: 'Answers any question in plain words', depth: 'General knowledge', taps: 'Type', offline: 'Online', offlineV: '-', privacy: 'Text on a company server', price: 'Free tier', priceV: '-', conds: 'Any', oursConds: 'Ask Your Records (C22) answers from fixed rules on the phone' }),
     why: 'Ask Your Records answers fixed questions on the phone; a model would answer anything.',
-    win: 'Kept as an opt-in per use, answering only from the cited reading with tiers shown (Z3), never reading the records on a server.',
+    win: 'On the phone only (decided 2026-10-08): a model that runs on the device, so no question costs anything and no record leaves it, answering from the cited reading with tiers shown (Z3).',
     rule: 'No model reads the records on a server.',
     items: ['C22', 'Z3'],
   }),

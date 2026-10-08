@@ -209,14 +209,6 @@ module.exports = [
     win: 'Records go where the person said (Q88, P32), the caregiver keeps their notes and costs, and nothing is deleted unasked.',
     items: ['Q88', 'P32'],
   }),
-  L('cg-notpartner', {
-    leader: 'Nobody reviewed',
-    v: 'alone',
-    m: notBuilt({ does: 'Nothing reviewed', depth: '-', price: '-', ours: 'Included in the rules of the link', priceV: '=' }),
-    why: 'The leaders are free, so none of them has a cheaper tier to protect.',
-    win: 'A one-way link that gives the caregiver no paid features for their own records (Q89), enforced in the allowlist and the entitlement gate.',
-    items: ['Q89', 'P12', 'P27'],
-  }),
   L('cg-family', {
     leader: 'Caring Village',
     src: ['https://caringvillage.com/pricing/'],
