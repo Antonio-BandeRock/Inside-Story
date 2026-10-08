@@ -502,3 +502,28 @@
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Trends,Garden
 - **Answers:** Ecowitt · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Each planting’s grow drawn with the readings from its area across the same weeks, a stretch that ran cold, hot or dry marked in words beside the yield.
+
+### Q38. Varieties and sowing windows for every crop
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden
+- **Answers:** Seedtime, Planter · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A variety list per crop with days to maturity to pick from (typed varieties still allowed and kept), and sowing, transplant and harvest windows from the frost dates for all 91 crops with guides rather than 45, per variety where maturity differs.
+
+### Q39. The hive log
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Garden
+- **Answers:** BeePlus, Apiary Book, HiveTracks · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Colonies as Garden areas of kind hive: queens (source, marked, date), inspections (brood, temper, stores, queen seen), mite counts and treatments with method and dates, feeding, harvests as yield, swarms, splits and losses kept as history, equipment through Grow Setup, costs through Growing Costs, native and stingless bee boxes as their own kinds. Nothing scores a colony.
+
+### Q40. Reading on bees and keeping them
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Garden,Life
+- **Answers:** Apiary Book, BBKA · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Horticulture reading on every kind of bee (honey, bumble, solitary, stingless, native), and every part of keeping them, bee-centred and conventional practice side by side, each described fairly, with evidence tiers; where untreated varroa kills colonies it says so.
+
+### Q41. Preserving the harvest
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden,Food,Life
+- **Answers:** Ball Canning, Preserve It · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** From a harvest: can, dry, freeze or ferment, with processing times only from published tested sources (USDA, NCHFP) and their citation, jars kept in Kitchen with a date, drawn down by meals, salt and sugar read against the 19 conditions.
+
+### Q42. Saving seed from what was grown
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden
+- **Answers:** Seed Savers Exchange · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Mark a planting kept for seed: isolation distance and population size per crop from published guides, harvest and drying dates, germination test, and the saved seed lands in the Seeds lens with the planting it came from.

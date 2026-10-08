@@ -31,6 +31,8 @@ Standing rule since 2026-10-07: every function that competes with a leading app 
 | Signals | 3 | 7 | 2 | 2 | 7 |
 | Insights | 5 | 5 | 4 | 8 | 0 |
 | Trends | 6 | 14 | 3 | 8 | 0 |
+| Reports | 2 | 3 | 0 | 4 | 0 |
+| Garden | 3 | 5 | 6 | 6 | 0 |
 
 ### Food
 
@@ -1591,6 +1593,431 @@ Ahead on honesty and the path to a test; Guava gives correlations away and ours 
 **Where the leader’s edge rests on a rule kept here.** Never claims a cause from a sample of one.
 
 Sources: <https://apps.appfollow.io/ios/guava-health-tracker/1622255863?country=de> <https://bearable.app/support/common-questions/bearable-free-vs-premium-features/>
+
+### Reports
+
+#### Overview report: Even against Bearable
+
+Ahead on content; both put the report behind payment, and ours costs more. Also compared: Guava. Checked 2026-10-07.
+
+| Measure | Bearable | Inside Story | |
+|---|---|---|---|
+| What it does | A PDF of chosen factors over a range (Premium) | At a glance page, charts, what I have noticed, any range or since the last visit, sections chosen | + |
+| Depth | Charts per factor | Doses as words, usual ranges, denominators on every pattern | + |
+| Taps | Pick range and factors | Pick range, sections optional | = |
+| Offline | Account | Made on the phone, no server | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Premium $34.99 a year | Individual, $89.99 a year; no Reports on Free | - |
+| Conditions covered | Any | The 19 conditions | + |
+
+**To be better.** One page for the doctor on Free, the last 30 days at a glance, so the first visit is where a person sees what the app is for (Q36). Plan: Q36.
+
+Sources: <https://bearable.app/support/common-questions/bearable-free-vs-premium-features/>
+
+#### For Your Doctor: Even against Guava
+
+Guava’s report fills itself from the clinic’s records; ours knows more about what happened between visits. Also compared: CareClinic, Bearable. Checked 2026-10-07.
+
+| Measure | Guava | Inside Story | |
+|---|---|---|---|
+| What it does | Visit prep: questions, medications, printable summary | Doctor report with visit prep, questions, charts, labs with usual range, interactions with a clinician line | + |
+| Depth | Imports records from patient portals | Typed or scanned labs; no portal import | - |
+| Taps | Records arrive by themselves | From the records kept | - |
+| Offline | Cloud | On the phone | + |
+| Privacy | Account, portal links | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free plan; Premium $78 a year adds lab import and an AI assistant | Individual, $89.99 a year; no Reports on Free | - |
+| Conditions covered | Any | The 19 conditions with evidence tiers | + |
+
+**To be better.** Portal records through FHIR on the phone (G29), a sealed share the doctor opens with a code (P29), and a free one-pager (Q36). Plan: G29, P29, Q36.
+
+**Where the leader’s edge rests on a rule kept here.** No model reading the records on a server; Ask Your Records stays fixed rules on the phone.
+
+Sources: <https://guavahealth.com/plans> <https://guavahealth.com/news/visit-prep-summary-announcement>
+
+#### For a Nutritionist: Better against Cronometer
+
+Ours hands a nutritionist the symptoms beside the food, which Cronometer does not hold. Also compared: mySymptoms. Checked 2026-10-07.
+
+| Measure | Cronometer | Inside Story | |
+|---|---|---|---|
+| What it does | Nutrition report and sharing with a professional (Pro side paid) | Nutrients with food and supplement apart, day-by-day food and symptom diary, variety | + |
+| Depth | 84 nutrients | Absorption, conditions, gut-supporting foods | + |
+| Taps | Export | Export or print | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account, linked to the professional | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Gold $59.88 a year | Individual, $89.99 a year; no Reports on Free | - |
+| Conditions covered | General | The 19 conditions | + |
+
+Sources: <https://nutrola.app/en/blog/cronometer-review-2026>
+
+#### For a Trainer: Nobody else
+
+Fitness apps export workouts; none found hands a trainer the workouts with crashes, pacing and heart rate beside them. Also compared: Hevy, Visible. Checked 2026-10-07.
+
+Sources: <https://www.sensai.fit/blog/hevy-review-2026>
+
+#### For a Caregiver: Even against CareClinic
+
+CareClinic’s caregiver sees changes as they happen; ours hands over a page. Also compared: Guava. Checked 2026-10-07.
+
+| Measure | CareClinic | Inside Story | |
+|---|---|---|---|
+| What it does | Shares a care plan and records with a caregiver | A report for the caregiver: meds, routines, what to watch, emergency details | = |
+| Depth | Live shared access | A report handed over; live sharing not built | - |
+| Taps | Invite | Make and send | = |
+| Offline | Cloud | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free core, Premium paid | Individual, $89.99 a year; no Reports on Free | - |
+| Conditions covered | Any | The 19 conditions | + |
+
+**To be better.** The Caregiver tier, built on the between-people allowlist with every change logged where both read it (P31, A16). Plan: P31, A16.
+
+Sources: <https://apps.apple.com/us/app/tracker-reminder-careclinic/id1455648231>
+
+#### Looking Back: Nobody else
+
+Journals print a book of entries; none found looks back over health, food, garden and days together. Also compared: Day One, Daylio. Checked 2026-10-07.
+
+Sources: <https://dayoneapp.com/guides/premium-subscription/day-one-pricing-features-guide/>
+
+#### Medical Costs: Nobody else
+
+Budget apps categorise; none found lays out medical costs for a claim or a tax year beside the visits they came from. Also compared: YNAB. Checked 2026-10-07.
+
+Sources: <https://www.ynab.com/pricing>
+
+#### Garden Record: Better against Gardenize
+
+Ours is a full record of a season; Gardenize exports a diary, and is cheaper. Also compared: Seedtime. Checked 2026-10-07.
+
+| Measure | Gardenize | Inside Story | |
+|---|---|---|---|
+| What it does | Export of the garden diary (Premium) | Garden record: areas, plantings, harvests, costs, conditions, CSV beside it | + |
+| Depth | Photos and notes | Yield, avoided cost, compost, readings | + |
+| Taps | Export | Make and share | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Premium $19.99 a year | Individual, $89.99 a year; no Reports on Free | - |
+| Conditions covered | None | None | = |
+
+Sources: <https://apppricinglab.com/app/google_play/com.htec.gardenize>
+
+#### Eating Variety: Nobody else
+
+No app found reports how varied someone’s eating was across months, plants and gut-supporting foods counted. Also compared: ZOE. Checked 2026-10-07.
+
+Sources: <https://joinzoe.com/>
+
+### Garden
+
+#### My Zone: Better against Seedtime
+
+Ours is more exact and private; Seedtime is free. Also compared: Planter. Checked 2026-10-07.
+
+| Measure | Seedtime | Inside Story | |
+|---|---|---|---|
+| What it does | Frost dates from location | Zone, frost dates from 30 years of daily lows, sky and seasons | + |
+| Depth | Average frost dates | Frost and hard frost odds, sun and moon | + |
+| Taps | Enter a location | Enter or allow a coarsened location | = |
+| Offline | Account | Worked out once, kept on the phone | + |
+| Privacy | Account | No account, location coarsened | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free core | Not yet placed on a tier (P27, Q37); Individual is $89.99 a year | - |
+| Conditions covered | None | None | = |
+
+Sources: <https://www.wilx.com/2026/03/02/what-tech-seedtime-app/>
+
+#### Plots & Plantings: Even against Planter
+
+Planter plans faster and knows more varieties; ours records the life of each planting. Also compared: Seedtime, GrowVeg. Checked 2026-10-07.
+
+| Measure | Planter | Inside Story | |
+|---|---|---|---|
+| What it does | Square-foot grid, companions, varieties | Areas and plantings drawn to scale (I8), companions (I7), what was done to each (I14) | = |
+| Depth | 100 plus crops, thousands of varieties | 91 crop guides, varieties typed | - |
+| Taps | Drag plants onto a grid | Add planting, then place | = |
+| Offline | On the phone | On the phone | = |
+| Privacy | Optional account | No account | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $11.99 to $24.99 a year, $39.99 to $49.99 lifetime | Not yet placed on a tier (P27, Q37); Individual is $89.99 a year | = |
+| Conditions covered | None | Linked to meals and conditions | + |
+
+**To be better.** A variety list per crop to pick from, with days to maturity, and the plan drawn from the sowing windows (Q38). Plan: Q38, Q37.
+
+Sources: <https://apps.apple.com/app/id1542642210>
+
+#### Days Until: Nobody else
+
+Planners show dates; none found counts the days to or past any garden moment, tied to the planting, and keeps the count as the record. Also compared: Seedtime. Checked 2026-10-07.
+
+Sources: <https://www.wilx.com/2026/03/02/what-tech-seedtime-app/>
+
+#### Sowing Calendar: Even against Seedtime
+
+Seedtime covers more crops in its calendar. Also compared: Planter. Checked 2026-10-07.
+
+| Measure | Seedtime | Inside Story | |
+|---|---|---|---|
+| What it does | Week-by-week sowing, transplant and harvest windows | Sowing windows from frost dates for 45 crops, moon and traditions shown as traditions | = |
+| Depth | Many crops and varieties | 45 crops in the calendar of 91 with guides | - |
+| Taps | Pick crops | Pick crops | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free core; planner paid | Not yet placed on a tier (P27, Q37); Individual is $89.99 a year | - |
+| Conditions covered | None | None | = |
+
+**To be better.** Sowing windows for every one of the 91 crops with guides, and per variety where days to maturity differ (Q38). Plan: Q38, Q37.
+
+Sources: <https://www.wilx.com/2026/03/02/what-tech-seedtime-app/> <https://apps.apple.com/app/id1542642210>
+
+#### Harvest Log: Better against Gardenize
+
+The harvest goes into the kitchen and the meals, which no garden app does. Also compared: Veglog. Checked 2026-10-07.
+
+| Measure | Gardenize | Inside Story | |
+|---|---|---|---|
+| What it does | Harvest notes and photos | Harvests by weight or count, used in meals, avoided cost from the person’s own prices | + |
+| Depth | Diary | Yield over time, units never converted across kinds | + |
+| Taps | Log | Log, and meals offer to draw it down | + |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Premium $19.99 a year | Not yet placed on a tier (P27, Q37); Individual is $89.99 a year | = |
+| Conditions covered | None | Linked to meals | + |
+
+Sources: <https://apppricinglab.com/app/google_play/com.htec.gardenize>
+
+#### Upcoming Tasks: Better against Seedtime
+
+Ours knows when it rained and what each crop needs next. Also compared: Planter. Checked 2026-10-07.
+
+| Measure | Seedtime | Inside Story | |
+|---|---|---|---|
+| What it does | Weekly task list from the plan | Tasks from care cadence per crop (I1), rain forecast on watering (I2), this month in the garden | + |
+| Depth | From the plan | From the planting record and the weather | + |
+| Taps | Tick | Tick, or answer from the notification | + |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free core | Not yet placed on a tier (P27, Q37); Individual is $89.99 a year | - |
+| Conditions covered | None | None | = |
+
+Sources: <https://www.wilx.com/2026/03/02/what-tech-seedtime-app/>
+
+#### Compost: Nobody else
+
+No garden app found keeps a compost pile as a record: what went in, turning, temperature, and where it went. Also compared: Gardenize. Checked 2026-10-07.
+
+Sources: <https://apppricinglab.com/app/google_play/com.htec.gardenize>
+
+#### Growing Conditions and sensors: Even against Ecowitt (WS View Plus)
+
+Even: the station app is free and finer; ours ties readings to the garden. Also compared: AC Infinity. Checked 2026-10-07.
+
+| Measure | Ecowitt (WS View Plus) | Inside Story | |
+|---|---|---|---|
+| What it does | Every sensor charted | Hand and sensor readings, VPD, the gateway read on the home network | = |
+| Depth | Minute by minute | Per period with low and high, beside plantings | + |
+| Taps | None | None with a sensor | = |
+| Offline | Cloud | On the phone and the home network | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free with the hardware | Not yet placed on a tier (P27, Q37); Individual is $89.99 a year | - |
+| Conditions covered | None | None | = |
+
+**To be better.** Readings drawn on each crop’s own timeline (Q34). Plan: Q34, Q37.
+
+**Where the leader’s edge rests on a rule kept here.** Published interfaces only; the AC Infinity cloud link was removed for that reason.
+
+Sources: <https://www.ecowitt.com/>
+
+#### Seeds: Even against Seedtime
+
+Picking a variety from a catalog is quicker than typing it. Also compared: Planter, Seed Keeper. Checked 2026-10-07.
+
+| Measure | Seedtime | Inside Story | |
+|---|---|---|---|
+| What it does | Seed inventory tied to the plan | Seeds lens: packets, packet photo, variety, sown from | = |
+| Depth | Variety catalog | Typed variety | - |
+| Taps | Pick from catalog | Photo and type | - |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Inventory in the paid plan | Not yet placed on a tier (P27, Q37); Individual is $89.99 a year | = |
+| Conditions covered | None | None | = |
+
+**To be better.** The variety list (Q38), the packet barcode where a published source exists (Z8), and seed saved from the garden going straight into the lens (Q42). Plan: Q38, Z8, Q42.
+
+Sources: <https://www.wilx.com/2026/03/02/what-tech-seedtime-app/>
+
+#### Growing Costs and electricity: Nobody else
+
+No garden app found records growing costs and the electricity a grow adds, compared per day against the bill before it. Also compared: Gardenize. Checked 2026-10-07.
+
+Sources: <https://apppricinglab.com/app/google_play/com.htec.gardenize>
+
+#### Grow Setup (indoor equipment): Nobody else
+
+Grow diaries list equipment; none found keeps it as a record per area with its cost and ongoing amounts. Also compared: GrowDiaries. Checked 2026-10-07.
+
+Sources: <https://growdiaries.com/>
+
+#### Horticulture crop guides (living soil, three problems per crop): Even against PictureThis
+
+PictureThis names any plant from a photo; ours knows food crops deeply and points away from the bottle. Also compared: Planta, RHS Grow Your Own. Checked 2026-10-07.
+
+| Measure | PictureThis | Inside Story | |
+|---|---|---|---|
+| What it does | Identifies a plant from a photo, diagnoses disease, treatment advice | Crop guides with three problems each fixed from the soil, care cadence, living soil; photo ID handed to a free app (I24) | = |
+| Depth | 400,000 species | 91 food crops, at least three sources each beyond PubMed | - |
+| Taps | One photo | Pick the crop, or the hand-off | - |
+| Offline | Cloud | On the phone | + |
+| Privacy | Account, photos uploaded | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $29.99 a year | Not yet placed on a tier (P27, Q37); Individual is $89.99 a year | = |
+| Conditions covered | None | What to grow for my conditions (I16) | + |
+
+**To be better.** What is wrong with a plant, crop by crop, from symptoms the person picks (I26), and the photo hand-off kept free of charge (I24). Plan: I26, I24.
+
+**Where the leader’s edge rests on a rule kept here.** Living soil first, no chemical product names in a fix; published interfaces only, nothing charged per call.
+
+Sources: <https://www.educationalappstore.com/blog/how-much-is-the-plant-identifier-app-in-2026>
+
+#### Hive log (not built yet): Behind against BeePlus
+
+The owner intends to keep bees; the hive log is decided and not built. Also compared: Apiary Book, HiveTracks. Checked 2026-10-07.
+
+| Measure | BeePlus | Inside Story | |
+|---|---|---|---|
+| What it does | Hive histories, queens, inspections, equipment, money | Not built | - |
+| Depth | Structured inspection records | Not built | - |
+| Taps | Inspection form | Not built | - |
+| Offline | Works offline | Would be on the phone | = |
+| Privacy | Varies | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $9.99 | Not yet placed on a tier (P27, Q37); Individual is $89.99 a year | - |
+| Conditions covered | None | None | = |
+
+**To be better.** The complete hive log on Garden’s areas, equipment, readings and yield (Q39), with every kind of bee and native boxes, and the reading beside it (Q40). Plan: Q39, Q40.
+
+Sources: <https://apps.apple.com/us/app/beeplus-beekeeping-manager/id1018655661> <https://www.guideflow.com/blog/beekeeping-software>
+
+#### What to grow for my conditions (planned): Nobody else
+
+No garden app found suggests what to grow from the person’s conditions and what they are short of. Also compared: From Seed to Spoon. Checked 2026-10-07.
+
+Sources: <https://apps.apple.com/us/app/from-seed-to-spoon/id1032493406>
+
+#### Preserving the harvest (planned): Behind against Ball Canning
+
+Not built. Also compared: Preserve It. Checked 2026-10-07.
+
+| Measure | Ball Canning | Inside Story | |
+|---|---|---|---|
+| What it does | Tested canning recipes and timers | Not built; fermenting is in the Fermentation Builder | - |
+| Depth | Tested processing times | Not built | - |
+| Taps | Recipe and timer | Not built | - |
+| Offline | On the phone | Would be on the phone | = |
+| Privacy | Account optional | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free | Not yet placed on a tier (P27, Q37); Individual is $89.99 a year | - |
+| Conditions covered | None | Would read the 19 conditions (salt, sugar) | + |
+
+**To be better.** Preserving the harvest (Q41): canning, drying, freezing and fermenting from what the garden gave, tested times from published sources, jars kept in Kitchen with dates. Plan: Q41, P16.
+
+Sources: <https://www.ballmasonjars.com/>
+
+#### Saving seed from your plants (planned): Nobody else
+
+No app found takes a person from a plant they grew to seed saved, isolation distance and population size included, into a seed lens. Also compared: Seed Savers Exchange. Checked 2026-10-07.
+
+Sources: <https://seedsavers.org/>
+
+#### Foraging (planned): Behind against Seek by iNaturalist
+
+Not built. Also compared: PictureThis. Checked 2026-10-07.
+
+| Measure | Seek by iNaturalist | Inside Story | |
+|---|---|---|---|
+| What it does | Identifies plants and fungi from the camera, free | Not built | - |
+| Depth | Community-verified observations | Not built | - |
+| Taps | Point the camera | Not built | - |
+| Offline | On the phone | Would be on the phone | = |
+| Privacy | No account, location blurred | No account | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free | Not yet placed on a tier (P27, Q37); Individual is $89.99 a year | - |
+| Conditions covered | None | Would read the 19 conditions | + |
+
+**To be better.** Foraging (Q43): finds recorded with place and season, identification handed to Seek, and a plain warning that no app makes a wild food safe to eat. Plan: Q43.
+
+**Where the leader’s edge rests on a rule kept here.** Never says a wild plant or mushroom is safe to eat.
+
+Sources: <https://www.inaturalist.org/pages/seek_app>
+
+#### A nature journal (planned): Behind against iNaturalist
+
+Not built. Also compared: Merlin Bird ID. Checked 2026-10-07.
+
+| Measure | iNaturalist | Inside Story | |
+|---|---|---|---|
+| What it does | Observations shared with science | Not built | - |
+| Depth | Global community | Not built | - |
+| Taps | Photo and post | Not built | - |
+| Offline | Works offline, uploads later | Would be on the phone | = |
+| Privacy | Account, public observations | Private until chosen | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free | Not yet placed on a tier (P27, Q37); Individual is $89.99 a year | - |
+| Conditions covered | None | None | = |
+
+**To be better.** A nature journal (Q44): what was seen, heard and when, kept private, with a one-tap export to iNaturalist when the person wants it to count for science. Plan: Q44.
+
+Sources: <https://www.inaturalist.org/>
+
+#### Animals (pets and livestock) (planned): Behind against 11pets
+
+Not built. Also compared: Farmbrite. Checked 2026-10-07.
+
+| Measure | 11pets | Inside Story | |
+|---|---|---|---|
+| What it does | Pet health, vet visits, reminders | Not built | - |
+| Depth | Per pet records | Not built | - |
+| Taps | Forms | Not built | - |
+| Offline | Account | Would be on the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free core, premium paid | Not yet placed on a tier (P27, Q37); Individual is $89.99 a year | - |
+| Conditions covered | None | None | = |
+
+**To be better.** Animals (Q45): pets and small livestock as records with feed, care, vets and costs, eggs and milk as yield, manure into compost. Plan: Q45.
+
+Sources: <https://www.11pets.com/>
+
+#### Reading on every kind of bee and every part of keeping them (planned): Behind against Apiary Book
+
+Not built. Also compared: BBKA guides. Checked 2026-10-07.
+
+| Measure | Apiary Book | Inside Story | |
+|---|---|---|---|
+| What it does | Beginner education built in | Not built | - |
+| Depth | Conventional practice | Not built | - |
+| Taps | Read | Not built | - |
+| Offline | On the phone | Would be on the phone | = |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free core | Not yet placed on a tier (P27, Q37); Individual is $89.99 a year | - |
+| Conditions covered | None | None | = |
+
+**To be better.** Reading on every kind of bee and every part of keeping them, bee-centred and conventional set side by side and each described fairly (Q40). Plan: Q40.
+
+**Where the leader’s edge rests on a rule kept here.** Where untreated varroa kills colonies the reading says so; working with nature never becomes advice to refuse a treatment.
+
+Sources: <https://www.guideflow.com/blog/beekeeping-software>
 
 ## Why things are free or paid: the kinds
 

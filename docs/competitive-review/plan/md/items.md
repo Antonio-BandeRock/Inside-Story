@@ -77,7 +77,7 @@
 - **Answers:** Gardenize, Sortly, Monarch, Guava, Medisafe · **Theme:** Shared foundations
 - **How:** A media table (owner kind, owner id, file, taken_on), shrink on save, stored under the app folder, copied into the Backups folder and restored beside the encrypted snapshot, never in the plaintext record, shown on desktop from the synced copy. Serves A5, D12, I13, J4, J9.
 
-## Phase 2. Quick wins over the air (131 items)
+## Phase 2. Quick wins over the air (133 items)
 
 ### A3. Pills on hand and refill reminder
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life,Schedules,Signals,Insights
@@ -734,7 +734,17 @@
 - **Answers:** Streaks, Google Fit · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** TalkBack labels on every chart, button and fold band, a one-sentence text summary under each chart, contrast checked in both themes, and a script that fails on an unlabelled pressable.
 
-## Phase 3. Larger builds over the air (101 items)
+### Q36. One report on Free
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** Reports,All
+- **Answers:** Bearable, Guava · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Decide with P27 and Q30: the doctor one-pager for the last 30 days on Free, so the first visit is where a person sees what the app is for; every other report, longer ranges, the PDF layout choices and the sealed share paid. Bearable keeps its PDF behind Premium; Guava gives visit prep on its free plan.
+
+### Q37. Garden on Free
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** Garden,All
+- **Answers:** Seedtime, Planter, Gardenize · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Decide with P27: the leading garden apps all give a free core (Seedtime frost dates and timeline, Gardenize diary, Planter grid). Proposed: zone and frost dates, one area, plantings, harvests and the crop guides on Free; several areas, grow setup, electricity, growing conditions, the hive log and reports paid.
+
+## Phase 3. Larger builds over the air (106 items)
 
 ### A2. Tapering doses
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
@@ -1241,7 +1251,32 @@
 - **Answers:** Ecowitt · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Each planting’s grow drawn with the readings from its area across the same weeks, a stretch that ran cold, hot or dry marked in words beside the yield.
 
-## Phase 4. The Android rebuild (R1) (14 items)
+### Q38. Varieties and sowing windows for every crop
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden
+- **Answers:** Seedtime, Planter · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A variety list per crop with days to maturity to pick from (typed varieties still allowed and kept), and sowing, transplant and harvest windows from the frost dates for all 91 crops with guides rather than 45, per variety where maturity differs.
+
+### Q39. The hive log
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Garden
+- **Answers:** BeePlus, Apiary Book, HiveTracks · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Colonies as Garden areas of kind hive: queens (source, marked, date), inspections (brood, temper, stores, queen seen), mite counts and treatments with method and dates, feeding, harvests as yield, swarms, splits and losses kept as history, equipment through Grow Setup, costs through Growing Costs, native and stingless bee boxes as their own kinds. Nothing scores a colony.
+
+### Q40. Reading on bees and keeping them
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Garden,Life
+- **Answers:** Apiary Book, BBKA · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Horticulture reading on every kind of bee (honey, bumble, solitary, stingless, native), and every part of keeping them, bee-centred and conventional practice side by side, each described fairly, with evidence tiers; where untreated varroa kills colonies it says so.
+
+### Q41. Preserving the harvest
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden,Food,Life
+- **Answers:** Ball Canning, Preserve It · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** From a harvest: can, dry, freeze or ferment, with processing times only from published tested sources (USDA, NCHFP) and their citation, jars kept in Kitchen with a date, drawn down by meals, salt and sugar read against the 19 conditions.
+
+### Q42. Saving seed from what was grown
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden
+- **Answers:** Seed Savers Exchange · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Mark a planting kept for seed: isolation distance and population size per crop from published guides, harvest and drying dates, germination test, and the saved seed lands in the Seeds lens with the planting it came from.
+
+## Phase 4. The Android rebuild (R1) (17 items)
 
 ### C11. Share into Inside Story from any app
 - **Ships by:** Android rebuild R1 · **Size:** M · **Tabs:** Life,Home,Food
@@ -1312,6 +1347,21 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Profile
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
 - **How:** Partner, household, guardian or caregiver link ended by either person: syncing stops, each keeps their records in full, shared records are copied to both sides, the connection's keys are retired, the other is told it ended and never why. Ties to If something happens to me. Notion: https://app.notion.com/p/3f153652f2728189bd50e76926d4d5e6
+
+### Q43. Foraging
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden,Food
+- **Answers:** Seek, PictureThis · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Finds recorded with place (kept private, coarsened if shared), season and what was taken, identification handed to Seek or iNaturalist, and a plain line on every find that no app makes a wild plant or mushroom safe to eat.
+
+### Q44. A nature journal
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden,Life
+- **Answers:** iNaturalist, Merlin · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** What was seen or heard, where and when, a photo, kept private; a one-tap export in the iNaturalist observation format when the person wants it to count for science; pollinators seen on the garden tied to the area.
+
+### Q45. Animals
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Garden,Life
+- **Answers:** 11pets, Farmbrite · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Pets and small livestock as records: feed, care, vet visits and vaccinations as reminders, costs, eggs and milk as yield, manure into the compost record; recorded as a relationship over time, nothing scored for output.
 
 ## Phase 5. The Worker and the relay (6 items)
 

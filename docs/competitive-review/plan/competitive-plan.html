@@ -64,12 +64,12 @@ nav.toc a{color:var(--accent)}
 <h1>Everything the competitors do, and how Inside Story gets there</h1>
 <p class="lead">Every gap the nine tab reviews named, merged where two tabs asked for the same thing, then ordered so each phase stands on the one before. Nothing from the review is left out: items that break a standing rule or need a server are listed in Phase 7 with the reason, waiting on your yes.</p>
 <div class="stats">
-<span class="stat"><b>293</b>items</span>
-<span class="stat"><b>237</b>ship over the air</span>
+<span class="stat"><b>303</b>items</span>
+<span class="stat"><b>245</b>ship over the air</span>
 <span class="stat"><b>11</b>in the Android rebuild</span>
 <span class="stat"><b>2</b>in the iPhone build</span>
 <span class="stat"><b>10</b>on the Worker</span>
-<span class="stat"><b>33</b>wait on your decision</span>
+<span class="stat"><b>35</b>wait on your decision</span>
 </div>
 </header>
 
@@ -305,7 +305,7 @@ nav.toc a{color:var(--accent)}
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p2">
-<h2>Phase 2. Quick wins over the air <span class="count">131</span></h2>
+<h2>Phase 2. Quick wins over the air <span class="count">133</span></h2>
 <p class="lead">Small and medium items that each close a named competitor gap with no rebuild. Most take an hour to a day each.</p>
 <div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
 <tbody><tr data-tabs="Life|Schedules|Signals|Insights" data-text="pills on hand and refill reminder supply_on_hand, supply_unit and refill_lead_days on treatments, drawn down when a dose is marked taken on meds, a refill kind in lib/remindersources.ts, "about 6 days left" in mymedssection.tsx. medisafe, mytherapy, careclinic, guava">
@@ -1224,10 +1224,24 @@ nav.toc a{color:var(--accent)}
 <td class="tabs">All</td>
 <td><span class="ship ota">Over the air</span></td>
 <td class="size">M</td>
+</tr>
+<tr data-tabs="Reports|All" data-text="one report on free decide with p27 and q30: the doctor one-pager for the last 30 days on free, so the first visit is where a person sees what the app is for; every other report, longer ranges, the pdf layout choices and the sealed share paid. bearable keeps its pdf behind premium; guava gives visit prep on its free plan. bearable, guava">
+<td class="id">Q36</td>
+<td><div class="t">One report on Free</div><div class="how">Decide with P27 and Q30: the doctor one-pager for the last 30 days on Free, so the first visit is where a person sees what the app is for; every other report, longer ranges, the PDF layout choices and the sealed share paid. Bearable keeps its PDF behind Premium; Guava gives visit prep on its free plan.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Bearable, Guava</div></td>
+<td class="tabs">Reports<br>All</td>
+<td><span class="ship ask">Your decision</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Garden|All" data-text="garden on free decide with p27: the leading garden apps all give a free core (seedtime frost dates and timeline, gardenize diary, planter grid). proposed: zone and frost dates, one area, plantings, harvests and the crop guides on free; several areas, grow setup, electricity, growing conditions, the hive log and reports paid. seedtime, planter, gardenize">
+<td class="id">Q37</td>
+<td><div class="t">Garden on Free</div><div class="how">Decide with P27: the leading garden apps all give a free core (Seedtime frost dates and timeline, Gardenize diary, Planter grid). Proposed: zone and frost dates, one area, plantings, harvests and the crop guides on Free; several areas, grow setup, electricity, growing conditions, the hive log and reports paid.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Seedtime, Planter, Gardenize</div></td>
+<td class="tabs">Garden<br>All</td>
+<td><span class="ship ask">Your decision</span></td>
+<td class="size">S</td>
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p3">
-<h2>Phase 3. Larger builds over the air <span class="count">101</span></h2>
+<h2>Phase 3. Larger builds over the air <span class="count">106</span></h2>
 <p class="lead">Bigger pieces of JS work: new tables with their own screens, drawn editors, experiments, the caregiver holding, garden planning, bank import.</p>
 <div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
 <tbody><tr data-tabs="Schedules" data-text="tapering doses a taper step list on treatments (amount per date range), read by the series generator and the dose reminder text. prednisone tapers in ra, ibd and lupus flares. needs a1. built 1.0.57.1: steps entered on life &gt; my meds as a first day plus amount and days per step (treatment_taper_steps, lib/taper.ts); reminders, home, schedules &gt; meds and today's meals show the day's amount with (step n of m); new reminder times preset to stop on the taper's last day; the med's own dose applies outside the taper. careclinic">
@@ -1936,10 +1950,45 @@ nav.toc a{color:var(--accent)}
 <td class="tabs">Trends<br>Garden</td>
 <td><span class="ship ota">Over the air</span></td>
 <td class="size">S</td>
+</tr>
+<tr data-tabs="Garden" data-text="varieties and sowing windows for every crop a variety list per crop with days to maturity to pick from (typed varieties still allowed and kept), and sowing, transplant and harvest windows from the frost dates for all 91 crops with guides rather than 45, per variety where maturity differs. seedtime, planter">
+<td class="id">Q38</td>
+<td><div class="t">Varieties and sowing windows for every crop</div><div class="how">A variety list per crop with days to maturity to pick from (typed varieties still allowed and kept), and sowing, transplant and harvest windows from the frost dates for all 91 crops with guides rather than 45, per variety where maturity differs.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Seedtime, Planter</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Garden" data-text="the hive log colonies as garden areas of kind hive: queens (source, marked, date), inspections (brood, temper, stores, queen seen), mite counts and treatments with method and dates, feeding, harvests as yield, swarms, splits and losses kept as history, equipment through grow setup, costs through growing costs, native and stingless bee boxes as their own kinds. nothing scores a colony. beeplus, apiary book, hivetracks">
+<td class="id">Q39</td>
+<td><div class="t">The hive log</div><div class="how">Colonies as Garden areas of kind hive: queens (source, marked, date), inspections (brood, temper, stores, queen seen), mite counts and treatments with method and dates, feeding, harvests as yield, swarms, splits and losses kept as history, equipment through Grow Setup, costs through Growing Costs, native and stingless bee boxes as their own kinds. Nothing scores a colony.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers BeePlus, Apiary Book, HiveTracks</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Garden|Life" data-text="reading on bees and keeping them horticulture reading on every kind of bee (honey, bumble, solitary, stingless, native), and every part of keeping them, bee-centred and conventional practice side by side, each described fairly, with evidence tiers; where untreated varroa kills colonies it says so. apiary book, bbka">
+<td class="id">Q40</td>
+<td><div class="t">Reading on bees and keeping them</div><div class="how">Horticulture reading on every kind of bee (honey, bumble, solitary, stingless, native), and every part of keeping them, bee-centred and conventional practice side by side, each described fairly, with evidence tiers; where untreated varroa kills colonies it says so.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Apiary Book, BBKA</div></td>
+<td class="tabs">Garden<br>Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Garden|Food|Life" data-text="preserving the harvest from a harvest: can, dry, freeze or ferment, with processing times only from published tested sources (usda, nchfp) and their citation, jars kept in kitchen with a date, drawn down by meals, salt and sugar read against the 19 conditions. ball canning, preserve it">
+<td class="id">Q41</td>
+<td><div class="t">Preserving the harvest</div><div class="how">From a harvest: can, dry, freeze or ferment, with processing times only from published tested sources (USDA, NCHFP) and their citation, jars kept in Kitchen with a date, drawn down by meals, salt and sugar read against the 19 conditions.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Ball Canning, Preserve It</div></td>
+<td class="tabs">Garden<br>Food<br>Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Garden" data-text="saving seed from what was grown mark a planting kept for seed: isolation distance and population size per crop from published guides, harvest and drying dates, germination test, and the saved seed lands in the seeds lens with the planting it came from. seed savers exchange">
+<td class="id">Q42</td>
+<td><div class="t">Saving seed from what was grown</div><div class="how">Mark a planting kept for seed: isolation distance and population size per crop from published guides, harvest and drying dates, germination test, and the saved seed lands in the Seeds lens with the planting it came from.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Seed Savers Exchange</div></td>
+<td class="tabs">Garden</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p4">
-<h2>Phase 4. The Android rebuild (R1) <span class="count">14</span></h2>
+<h2>Phase 4. The Android rebuild (R1) <span class="count">17</span></h2>
 <p class="lead">Everything below needs native code, so it is gathered into one EAS build. Both phones reinstall once.</p>
 <div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
 <tbody><tr data-tabs="Life|Home|Food" data-text="share into inside story from any app a send intent filter for text, links and images. a link to a recipe goes to the importer (g1); anything else lands in capture. todoist, samsung food, plan to eat">
@@ -2039,6 +2088,27 @@ nav.toc a{color:var(--accent)}
 <td class="tabs">Profile</td>
 <td><span class="ship ota">Over the air</span></td>
 <td class="size">M</td>
+</tr>
+<tr data-tabs="Garden|Food" data-text="foraging finds recorded with place (kept private, coarsened if shared), season and what was taken, identification handed to seek or inaturalist, and a plain line on every find that no app makes a wild plant or mushroom safe to eat. seek, picturethis">
+<td class="id">Q43</td>
+<td><div class="t">Foraging</div><div class="how">Finds recorded with place (kept private, coarsened if shared), season and what was taken, identification handed to Seek or iNaturalist, and a plain line on every find that no app makes a wild plant or mushroom safe to eat.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Seek, PictureThis</div></td>
+<td class="tabs">Garden<br>Food</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Garden|Life" data-text="a nature journal what was seen or heard, where and when, a photo, kept private; a one-tap export in the inaturalist observation format when the person wants it to count for science; pollinators seen on the garden tied to the area. inaturalist, merlin">
+<td class="id">Q44</td>
+<td><div class="t">A nature journal</div><div class="how">What was seen or heard, where and when, a photo, kept private; a one-tap export in the iNaturalist observation format when the person wants it to count for science; pollinators seen on the garden tied to the area.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers iNaturalist, Merlin</div></td>
+<td class="tabs">Garden<br>Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Garden|Life" data-text="animals pets and small livestock as records: feed, care, vet visits and vaccinations as reminders, costs, eggs and milk as yield, manure into the compost record; recorded as a relationship over time, nothing scored for output. 11pets, farmbrite">
+<td class="id">Q45</td>
+<td><div class="t">Animals</div><div class="how">Pets and small livestock as records: feed, care, vet visits and vaccinations as reminders, costs, eggs and milk as yield, manure into the compost record; recorded as a relationship over time, nothing scored for output.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers 11pets, Farmbrite</div></td>
+<td class="tabs">Garden<br>Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">L</td>
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p5">

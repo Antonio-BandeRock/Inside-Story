@@ -1,0 +1,138 @@
+// Reports tab: each competing function against the leader for that one function.
+// Checked on the web 2026-10-07, on top of docs/competitive-review/reports.md
+// (2026-09-25). K1 to K11 have been built since, so the verdicts read today's app.
+const { L, M } = require('./shape.js');
+
+const NA = 'Text scales with the phone, uncapped; screen reader labels not audited';
+const PAID = 'Individual, $89.99 a year; no Reports on Free';
+const GUAVA = 'https://guavahealth.com/plans';
+const BEAR = 'https://bearable.app/support/common-questions/bearable-free-vs-premium-features/';
+
+module.exports = [
+  L('rep-overview', {
+    leader: 'Bearable',
+    also: ['Guava'],
+    src: [BEAR],
+    v: 'even',
+    m: {
+      does: M('A PDF of chosen factors over a range (Premium)', 'At a glance page, charts, what I have noticed, any range or since the last visit, sections chosen', '+'),
+      depth: M('Charts per factor', 'Doses as words, usual ranges, denominators on every pattern', '+'),
+      taps: M('Pick range and factors', 'Pick range, sections optional', '='),
+      offline: M('Account', 'Made on the phone, no server', '+'),
+      privacy: M('Account', 'No account', '+'),
+      access: M('Not checked', NA, '?'),
+      price: M('Premium $34.99 a year', PAID, '-'),
+      conds: M('Any', 'The 19 conditions', '+'),
+    },
+    why: 'Ahead on content; both put the report behind payment, and ours costs more.',
+    win: 'One page for the doctor on Free, the last 30 days at a glance, so the first visit is where a person sees what the app is for (Q36).',
+    items: ['Q36'],
+  }),
+  L('rep-doctor', {
+    leader: 'Guava',
+    also: ['CareClinic', 'Bearable'],
+    src: [GUAVA, 'https://guavahealth.com/news/visit-prep-summary-announcement'],
+    v: 'even',
+    m: {
+      does: M('Visit prep: questions, medications, printable summary', 'Doctor report with visit prep, questions, charts, labs with usual range, interactions with a clinician line', '+'),
+      depth: M('Imports records from patient portals', 'Typed or scanned labs; no portal import', '-'),
+      taps: M('Records arrive by themselves', 'From the records kept', '-'),
+      offline: M('Cloud', 'On the phone', '+'),
+      privacy: M('Account, portal links', 'No account', '+'),
+      access: M('Not checked', NA, '?'),
+      price: M('Free plan; Premium $78 a year adds lab import and an AI assistant', PAID, '-'),
+      conds: M('Any', 'The 19 conditions with evidence tiers', '+'),
+    },
+    why: 'Guava’s report fills itself from the clinic’s records; ours knows more about what happened between visits.',
+    win: 'Portal records through FHIR on the phone (G29), a sealed share the doctor opens with a code (P29), and a free one-pager (Q36).',
+    rule: 'No model reading the records on a server; Ask Your Records stays fixed rules on the phone.',
+    items: ['G29', 'P29', 'Q36'],
+  }),
+  L('rep-nutritionist', {
+    leader: 'Cronometer',
+    also: ['mySymptoms'],
+    src: ['https://nutrola.app/en/blog/cronometer-review-2026'],
+    v: 'better',
+    m: {
+      does: M('Nutrition report and sharing with a professional (Pro side paid)', 'Nutrients with food and supplement apart, day-by-day food and symptom diary, variety', '+'),
+      depth: M('84 nutrients', 'Absorption, conditions, gut-supporting foods', '+'),
+      taps: M('Export', 'Export or print', '='),
+      offline: M('Account', 'On the phone', '+'),
+      privacy: M('Account, linked to the professional', 'No account', '+'),
+      access: M('Not checked', NA, '?'),
+      price: M('Gold $59.88 a year', PAID, '-'),
+      conds: M('General', 'The 19 conditions', '+'),
+    },
+    why: 'Ours hands a nutritionist the symptoms beside the food, which Cronometer does not hold.',
+    items: [],
+  }),
+  L('rep-trainer', {
+    leader: null,
+    also: ['Hevy', 'Visible'],
+    src: ['https://www.sensai.fit/blog/hevy-review-2026'],
+    v: 'alone',
+    why: 'Fitness apps export workouts; none found hands a trainer the workouts with crashes, pacing and heart rate beside them.',
+    items: ['Q33'],
+  }),
+  L('rep-caregiver', {
+    leader: 'CareClinic',
+    also: ['Guava'],
+    src: ['https://apps.apple.com/us/app/tracker-reminder-careclinic/id1455648231'],
+    v: 'even',
+    m: {
+      does: M('Shares a care plan and records with a caregiver', 'A report for the caregiver: meds, routines, what to watch, emergency details', '='),
+      depth: M('Live shared access', 'A report handed over; live sharing not built', '-'),
+      taps: M('Invite', 'Make and send', '='),
+      offline: M('Cloud', 'On the phone', '+'),
+      privacy: M('Account', 'No account', '+'),
+      access: M('Not checked', NA, '?'),
+      price: M('Free core, Premium paid', PAID, '-'),
+      conds: M('Any', 'The 19 conditions', '+'),
+    },
+    why: 'CareClinic’s caregiver sees changes as they happen; ours hands over a page.',
+    win: 'The Caregiver tier, built on the between-people allowlist with every change logged where both read it (P31, A16).',
+    items: ['P31', 'A16'],
+  }),
+  L('rep-looking', {
+    leader: null,
+    also: ['Day One', 'Daylio'],
+    src: ['https://dayoneapp.com/guides/premium-subscription/day-one-pricing-features-guide/'],
+    v: 'alone',
+    why: 'Journals print a book of entries; none found looks back over health, food, garden and days together.',
+    items: [],
+  }),
+  L('rep-costs', {
+    leader: null,
+    also: ['YNAB'],
+    src: ['https://www.ynab.com/pricing'],
+    v: 'alone',
+    why: 'Budget apps categorise; none found lays out medical costs for a claim or a tax year beside the visits they came from.',
+    items: [],
+  }),
+  L('rep-garden', {
+    leader: 'Gardenize',
+    also: ['Seedtime'],
+    src: ['https://apppricinglab.com/app/google_play/com.htec.gardenize'],
+    v: 'better',
+    m: {
+      does: M('Export of the garden diary (Premium)', 'Garden record: areas, plantings, harvests, costs, conditions, CSV beside it', '+'),
+      depth: M('Photos and notes', 'Yield, avoided cost, compost, readings', '+'),
+      taps: M('Export', 'Make and share', '='),
+      offline: M('Account', 'On the phone', '+'),
+      privacy: M('Account', 'No account', '+'),
+      access: M('Not checked', NA, '?'),
+      price: M('Premium $19.99 a year', PAID, '-'),
+      conds: M('None', 'None', '='),
+    },
+    why: 'Ours is a full record of a season; Gardenize exports a diary, and is cheaper.',
+    items: ['Q37'],
+  }),
+  L('rep-variety', {
+    leader: null,
+    also: ['ZOE'],
+    src: ['https://joinzoe.com/'],
+    v: 'alone',
+    why: 'No app found reports how varied someone’s eating was across months, plants and gut-supporting foods counted.',
+    items: [],
+  }),
+];

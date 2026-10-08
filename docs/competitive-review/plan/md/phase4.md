@@ -67,3 +67,18 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Profile
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
 - **How:** Partner, household, guardian or caregiver link ended by either person: syncing stops, each keeps their records in full, shared records are copied to both sides, the connection's keys are retired, the other is told it ended and never why. Ties to If something happens to me. Notion: https://app.notion.com/p/3f153652f2728189bd50e76926d4d5e6
+
+### Q43. Foraging
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden,Food
+- **Answers:** Seek, PictureThis · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Finds recorded with place (kept private, coarsened if shared), season and what was taken, identification handed to Seek or iNaturalist, and a plain line on every find that no app makes a wild plant or mushroom safe to eat.
+
+### Q44. A nature journal
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden,Life
+- **Answers:** iNaturalist, Merlin · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** What was seen or heard, where and when, a photo, kept private; a one-tap export in the iNaturalist observation format when the person wants it to count for science; pollinators seen on the garden tied to the area.
+
+### Q45. Animals
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Garden,Life
+- **Answers:** 11pets, Farmbrite · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Pets and small livestock as records: feed, care, vet visits and vaccinations as reminders, costs, eggs and milk as yield, manure into the compost record; recorded as a relationship over time, nothing scored for output.

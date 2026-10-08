@@ -652,3 +652,13 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** All
 - **Answers:** Streaks, Google Fit · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** TalkBack labels on every chart, button and fold band, a one-sentence text summary under each chart, contrast checked in both themes, and a script that fails on an unlabelled pressable.
+
+### Q36. One report on Free
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** Reports,All
+- **Answers:** Bearable, Guava · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Decide with P27 and Q30: the doctor one-pager for the last 30 days on Free, so the first visit is where a person sees what the app is for; every other report, longer ranges, the PDF layout choices and the sealed share paid. Bearable keeps its PDF behind Premium; Guava gives visit prep on its free plan.
+
+### Q37. Garden on Free
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** Garden,All
+- **Answers:** Seedtime, Planter, Gardenize · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Decide with P27: the leading garden apps all give a free core (Seedtime frost dates and timeline, Gardenize diary, Planter grid). Proposed: zone and frost dates, one area, plantings, harvests and the crop guides on Free; several areas, grow setup, electricity, growing conditions, the hive log and reports paid.
