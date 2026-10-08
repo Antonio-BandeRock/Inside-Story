@@ -283,7 +283,7 @@ const VISIBLE_ROW_COUNT = 3;
 // whether their own last row happens to fill both columns. Food itself no
 // longer relies on this at all -- see infoInGrid's own comment for why its
 // own Info sits inside the grid instead, on its own dedicated 4th row.
-function cardHeightFor(fontScale: number): number {
+export function cardHeightFor(fontScale: number): number {
   return cardHeaderHeight(fontScale) + VISIBLE_ROW_COUNT * gridRowHeight(fontScale) + CARD_PADDING_VERTICAL + 5;
 }
 

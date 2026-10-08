@@ -27,6 +27,7 @@ import { StoryWalkHost } from '../components/StoryWalkHost';
 import { NotYetHost } from '../components/NotYetHost';
 import { TellClaudeHost } from '../components/TellClaudeHost';
 import { HandSwitchButton } from '../components/HandSwitchButton';
+import { LowStimulationButton } from '../components/LowStimulationButton';
 import { QuickCaptureButton } from '../components/QuickCaptureButton';
 import { ThumbSearchButton } from '../components/ThumbSearchButton';
 import { FreshAuthHost } from '../components/FreshAuthHost';
@@ -919,6 +920,9 @@ function UnlockedApp() {
               {/* Search near the thumb (1.0.61.15): above the voice note tab while
                   the screen has a lens search box, components/ThumbSearchButton.tsx. */}
               <ThumbSearchButton />
+              {/* Low Stimulation from the edge, above the voice note tab and the
+                  search tab, components/LowStimulationButton.tsx. */}
+              <LowStimulationButton />
               {/* App Lock (1.0.60.6): the passcode asked for again before
                   records leave the phone, lib/freshAuth.ts. */}
               <FreshAuthHost />

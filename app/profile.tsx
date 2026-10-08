@@ -4,7 +4,8 @@ import { restartApp } from '../lib/restartApp';
 import { useCallback, useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { ActivityIndicator, AppState, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { LOW_STIMULATION_INTRO, LOW_STIMULATION_PARTS } from '../lib/lowStimulationWords';
+import { useFocusEffect, useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { mediaStorageUsed } from '../lib/mediaDb';
 import { PEER_PHOTOS_WIFI_ONLY_LABEL, PEER_PHOTOS_WIFI_ONLY_WHAT } from '../lib/peerPhotos';
 import { getPeerPhotosWifiOnly, peerPhotoStorageUsed, setPeerPhotosWifiOnly } from '../lib/peerPhotosDb';
@@ -255,7 +256,6 @@ import {
   SHARED_BACKGROUND_SCOPE_KEY,
   type BackgroundStyle,
   type GenericPalette,
-  type HomeSectionKey,
   type TabHubIconChoice,
 } from '../lib/visualPreferences';
 import { groupHomeSectionsForDisplay, homeGroupIdOf } from '../lib/homeSections';
@@ -503,6 +503,11 @@ const ALL_APPEARANCE_SUBSECTION_KEYS = [
   'genericPalette',
   'gettingStarted',
   'groundColor',
+  // Home Screen's three sub-sections, 1.0.63.18. They share this set since
+  // only one card is open at a time, so one accordion covers both cards.
+  'homeCards',
+  'homeGroups',
+  'homeOrder',
   'individualTabBackgrounds',
   'navigationHand',
   'progressPictures',
@@ -1064,7 +1069,7 @@ export default function ProfileScreen() {
     return (
       <TouchableOpacity
         ref={headerRef(`icons:${key}`)}
-        style={[styles.subsectionRow, styles.iconGroupRow]}
+        style={styles.subsectionRow}
         onPress={() => toggleIconGroup(key)}
         activeOpacity={0.7}
       >
@@ -1286,26 +1291,6 @@ export default function ProfileScreen() {
     setVisualPreferences({ homeGroupVisibility: { [groupId]: !isHomeGroupVisible(visualPrefs, groupId) } });
   }
 
-  // Home Screen order, 2026-08-23, direct request: "they should be able
-  // to move the things on the home screen they have chosen to be there
-  // into any order they want to from top to bottom, except the welcome
-  // box." Reads the real, reconciled order via getOrderedHomeSectionKeys
-  // (never visualPrefs.homeSectionOrder directly, same discipline
-  // isHomeSectionVisible already establishes for its own sibling field),
-  // swaps the moved key with its neighbor, and saves the whole new order
-  // in one write -- setVisualPreferences replaces homeSectionOrder
-  // wholesale rather than merging it key by key (see that function's own
-  // comment in lib/visualPreferences.ts), which is exactly right for a
-  // full reordered list, not a problem to work around.
-  function moveHomeSection(key: HomeSectionKey, direction: 'up' | 'down') {
-    const order = getOrderedHomeSectionKeys(visualPrefs);
-    const index = order.indexOf(key);
-    const swapWith = direction === 'up' ? index - 1 : index + 1;
-    if (index === -1 || swapWith < 0 || swapWith >= order.length) return;
-    const reordered = [...order];
-    [reordered[index], reordered[swapWith]] = [reordered[swapWith], reordered[index]];
-    setVisualPreferences({ homeSectionOrder: reordered });
-  }
 
 
   // Local text-field buffers, kept separate from `profile` so the person
@@ -4847,8 +4832,7 @@ export default function ProfileScreen() {
           <View style={styles.cardBody}>
             {renderAppearanceSubsectionHeader('genericPalette', 'Generic color combination', true)}
             {!collapsedAppearanceSubsections.has('genericPalette') ? (
-              <>
-                <Text style={styles.helpText}>
+              <View style={styles.subsectionBody}>                <Text style={styles.helpText}>
                   Used by any tab background (or the shared background) set to &ldquo;Generic,&rdquo; and, as of
                   2026-08-17, everywhere else too: the app&apos;s own name at the top of every screen, the fine
                   divider lines in the header and footer, and every colored ring around a selected item all take
@@ -4871,7 +4855,7 @@ export default function ProfileScreen() {
                     );
                   })}
                 </View>
-              </>
+              </View>
             ) : null}
 
             {/* 2026-09-03. The welcome and the pointer both clear themselves for
@@ -4882,8 +4866,7 @@ export default function ProfileScreen() {
                 checkable at all. */}
             {renderAppearanceSubsectionHeader('gettingStarted', 'Getting Started', false)}
             {!collapsedAppearanceSubsections.has('gettingStarted') ? (
-              <>
-                <Text style={styles.helpText}>
+              <View style={styles.subsectionBody}>                <Text style={styles.helpText}>
                   Until the menu button at the bottom of the screen has been used once, a small note above it says
                   to tap there to move around the app. It is gone for good after that. Bring it back when setting
                   this up for someone new.
@@ -4897,7 +4880,7 @@ export default function ProfileScreen() {
                 >
                   <Text style={styles.replayWelcomeButtonText}>Show the Pointer Again</Text>
                 </TouchableOpacity>
-              </>
+              </View>
             ) : null}
 
             {/* Ground color, 2026-08-19, see constants/colors.ts's
@@ -4923,8 +4906,7 @@ export default function ProfileScreen() {
                 all. */}
             {renderAppearanceSubsectionHeader('groundColor', 'Ground color', false)}
             {!collapsedAppearanceSubsections.has('groundColor') ? (
-              <>
-                <Text style={styles.helpText}>
+              <View style={styles.subsectionBody}>                <Text style={styles.helpText}>
                   The app&apos;s dark base color: every card, border, and muted label everywhere reads from
                   this one choice. Picking a new one restarts the app for a moment to apply it everywhere.
                 </Text>
@@ -4953,13 +4935,12 @@ export default function ProfileScreen() {
                     );
                   })}
                 </View>
-              </>
+              </View>
             ) : null}
 
             {renderAppearanceSubsectionHeader('individualTabBackgrounds', 'Individual tab backgrounds', false)}
             {!collapsedAppearanceSubsections.has('individualTabBackgrounds') ? (
-              <>
-                {/* 2026-09-16: without this line, picking a background while Low
+              <View style={styles.subsectionBody}>                {/* 2026-09-16: without this line, picking a background while Low
                     Stimulation is on looks like a setting that does nothing. Said
                     inside both background sub-sections, since alphabetical order
                     (1.0.63.15) no longer keeps them side by side. */}
@@ -4986,7 +4967,7 @@ export default function ProfileScreen() {
                     )}
                   </View>
                 ))}
-              </>
+              </View>
             ) : null}
 
             {/* 1.0.61.13: the same choice the navigation switch button makes
@@ -4994,8 +4975,7 @@ export default function ProfileScreen() {
                 pick it here than hold a button. Kept on this device only. */}
             {renderAppearanceSubsectionHeader('navigationHand', 'Navigation Hand', false)}
             {!collapsedAppearanceSubsections.has('navigationHand') ? (
-              <>
-                <Text style={styles.helpText}>
+              <View style={styles.subsectionBody}>                <Text style={styles.helpText}>
                   Which thumb works the menu buttons. They sit in the bottom corner on that side, and the small switch
                   tab just above the footer sits on the other side. Holding that tab switches sides from any screen.
                 </Text>
@@ -5009,7 +4989,7 @@ export default function ProfileScreen() {
                     onSelect={(label) => setNavigationHand(label === 'Right Hand' ? 'right' : 'left')}
                   />
                 </PickerField>
-              </>
+              </View>
             ) : null}
 
             {/* C17 (docs/progress-design.md): the picture each tab draws from
@@ -5019,8 +4999,7 @@ export default function ProfileScreen() {
                 on the Your Progress page, whatever is picked here. */}
             {renderAppearanceSubsectionHeader('progressPictures', 'Pictures of your progress', false)}
             {!collapsedAppearanceSubsections.has('progressPictures') ? (
-              <>
-                <Text style={styles.helpText}>
+              <View style={styles.subsectionBody}>                <Text style={styles.helpText}>
                   A quiet picture on a tab&apos;s resting screen, drawn from what you have recorded there: jars on a
                   pantry shelf for each kind of food you have eaten, the plants you are growing, a star for each day
                   you checked in. It never moves and never takes a tap. It starts on over the built-in backgrounds and
@@ -5052,13 +5031,12 @@ export default function ProfileScreen() {
                     </View>
                   );
                 })}
-              </>
+              </View>
             ) : null}
 
             {renderAppearanceSubsectionHeader('sharedBackground', 'Shared background', false)}
             {!collapsedAppearanceSubsections.has('sharedBackground') ? (
-              <>
-                {/* 2026-09-16: without this line, picking a background while Low
+              <View style={styles.subsectionBody}>                {/* 2026-09-16: without this line, picking a background while Low
                     Stimulation is on looks like a setting that does nothing. Said
                     inside both background sub-sections, since alphabetical order
                     (1.0.63.15) no longer keeps them side by side. */}
@@ -5079,13 +5057,12 @@ export default function ProfileScreen() {
                   stretched blurry.
                 </Text>
                 {renderBackgroundOptionsRow(SHARED_BACKGROUND_SCOPE_KEY, true, visualPrefs.homeBackgroundStyle)}
-              </>
+              </View>
             ) : null}
 
             {renderAppearanceSubsectionHeader('tabHubIcon', 'TabHub Icon', false)}
             {!collapsedAppearanceSubsections.has('tabHubIcon') ? (
-              <>
-                <Text style={styles.helpText}>
+              <View style={styles.subsectionBody}>                <Text style={styles.helpText}>
                   The main floating button used to open the app&apos;s navigation menu. Shows the Inside Story
                   book by default. Pick any tracked condition&apos;s icon, any insect/pollinator icon, any of the 38
                   animal portraits below to personalize it instead. Only one
@@ -5094,17 +5071,17 @@ export default function ProfileScreen() {
 
                 {/* App Icon first, then the rest alphabetically (1.0.63.16). */}
                 {renderIconGroupHeader('tabHubAppIcon', 'App Icon')}
-                {!collapsedIconGroups.has('tabHubAppIcon') ? renderTabHubIconGroup(appIconOptions) : null}
+                {!collapsedIconGroups.has('tabHubAppIcon') ? <View style={styles.subsectionBody}>{renderTabHubIconGroup(appIconOptions)}</View> : null}
 
                 {renderIconGroupHeader('tabHubAnimals', 'Animals')}
-                {!collapsedIconGroups.has('tabHubAnimals') ? renderTabHubIconGroup(animalIconOptions) : null}
+                {!collapsedIconGroups.has('tabHubAnimals') ? <View style={styles.subsectionBody}>{renderTabHubIconGroup(animalIconOptions)}</View> : null}
 
                 {renderIconGroupHeader('tabHubConditions', 'Conditions')}
-                {!collapsedIconGroups.has('tabHubConditions') ? renderTabHubIconGroup(conditionIconOptions) : null}
+                {!collapsedIconGroups.has('tabHubConditions') ? <View style={styles.subsectionBody}>{renderTabHubIconGroup(conditionIconOptions)}</View> : null}
 
                 {renderIconGroupHeader('tabHubInsects', 'Insects & Other Wildlife')}
-                {!collapsedIconGroups.has('tabHubInsects') ? renderTabHubIconGroup(gardenIconOptions) : null}
-              </>
+                {!collapsedIconGroups.has('tabHubInsects') ? <View style={styles.subsectionBody}>{renderTabHubIconGroup(gardenIconOptions)}</View> : null}
+              </View>
             ) : null}
 
             {/* Text size and spacing, 2026-09-17. Two halves that get
@@ -5118,8 +5095,7 @@ export default function ProfileScreen() {
                 See lib/textSpacing.ts for where 1.5 comes from. */}
             {renderAppearanceSubsectionHeader('textSpacing', 'Text size and spacing', false)}
             {!collapsedAppearanceSubsections.has('textSpacing') ? (
-              <>
-                <Text style={styles.helpText}>
+              <View style={styles.subsectionBody}>                <Text style={styles.helpText}>
                   How much room the lines of text get, and how much room the letters of a word get. Both are separate
                   from text size, which your phone sets. Picking a new one restarts the app for a moment to apply it
                   everywhere.
@@ -5191,7 +5167,7 @@ export default function ProfileScreen() {
                     <Text style={styles.derivedText}>{textSizeWhereToLook(Platform.OS)}</Text>
                   </>
                 )}
-              </>
+              </View>
             ) : null}
           </View>
         ) : null}
@@ -5219,116 +5195,93 @@ export default function ProfileScreen() {
               changes what Home displays; nothing here is deleted, and any section can be turned back on any
               time.
             </Text>
-            {/* Since 1.0.39.16 all of this is reachable from Home itself:
-                holding any band there turns the page into the same list,
-                with a grip to drag and an eye to switch. Said here so
-                nobody has to find it by accident. This card stays the
-                place to see everything at once. */}
-            <Text style={styles.helpText}>
-              You can also do all of this on Home. Hold down any band there and the page becomes a list you
-              can drag into order and switch things off from.
-            </Text>
-
             {/* Groups, 1.0.39.16: "maybe we have each group be turned on
                 and off from the Home group?" One switch for a whole tab's
                 worth of Home, separate from the cards inside it, so
                 turning a group back on restores exactly what was showing
-                before rather than guessing. */}
-            <Text style={styles.subLabelDivided}>Groups</Text>
-            <Text style={styles.helpText}>
-              Each of these is one tab’s worth of Home. Turning a group off hides the whole band; whatever
-              you had chosen about the cards inside it is remembered and comes back with it.
-            </Text>
-            <View style={styles.pillRow}>
-              {groupHomeSectionsForDisplay(getOrderedHomeSectionKeys(visualPrefs))
-                .filter((group) => group.kind === 'tab')
-                .map((group) => {
-                  const groupId = homeGroupIdOf(group);
-                  const identity = group.kind === 'tab' ? homeGroupIdentity(group.path) : undefined;
-                  const shown = isHomeGroupVisible(visualPrefs, groupId);
-                  return (
-                    <TouchableOpacity
-                      key={groupId}
-                      style={[styles.pill, shown && styles.pillActive]}
-                      onPress={() => toggleHomeGroup(groupId)}
-                    >
-                      <Text style={[styles.pillText, shown && styles.pillTextActive]}>
-                        {identity?.title ?? 'More'}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-            </View>
-
-            <Text style={styles.subLabelDivided}>Cards</Text>
-            <View style={styles.pillRow}>
-              {ALL_HOME_SECTION_KEYS.filter((key) => !HOME_SECTIONS_ALWAYS_SHOWN.has(key)).map((key) => {
-                const shown = isHomeSectionVisible(visualPrefs, key);
-                return (
-                  <TouchableOpacity
-                    key={key}
-                    style={[styles.pill, shown && styles.pillActive]}
-                    onPress={() => toggleHomeSection(key)}
-                  >
-                    <Text style={[styles.pillText, shown && styles.pillTextActive]}>{HOME_SECTION_LABELS[key]}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            {/* Order, 2026-08-23, direct request: "they should be able to
-                move the things on the home screen they have chosen to be
-                there into any order they want to from top to bottom,
-                except the welcome box with all of the basic daily info
-                available." The welcome box (greeting/date/weather) isn't
-                in this list at all -- it's not a HomeSectionKey to begin
-                with, see this list's own comment. Up/down buttons rather
-                than drag-and-drop: no drag library is part of this
-                project yet, and a plain, explicit tap is the same
-                low-risk control every other picker on this screen already
-                favors (see the PopoverSelect standard this app follows).
-                Shown in the person's own real current order, top to
-                bottom, matching exactly what Home itself will render. */}
-            <Text style={styles.subLabelDivided}>Order</Text>
-            {/* 2026-09-12: sections from the same tab sit together on Home
-                (lib/homeSections.ts), so a move that would carry one past
-                another tab's section carries its tab-mates with it. Said
-                here rather than left to be discovered when the list jumps
-                by more than one row. */}
-            <Text style={styles.helpText}>
-              Move any of these up or down to change the order they appear on Home, top to bottom. Sections that
-              belong to the same tab always stay together, so moving one past another tab&apos;s section brings
-              the rest of its tab along with it.
-            </Text>
-            <View style={styles.homeOrderList}>
-              {getOrderedHomeSectionKeys(visualPrefs).map((key, index, order) => (
-                <View key={key} style={styles.homeOrderRow}>
-                  <Text style={styles.homeOrderLabel} numberOfLines={1}>
-                    {HOME_SECTION_LABELS[key]}
-                  </Text>
-                  <View style={styles.homeOrderButtons}>
-                    <TouchableOpacity
-                      onPress={() => moveHomeSection(key, 'up')}
-                      disabled={index === 0}
-                      style={[styles.homeOrderButton, index === 0 && styles.homeOrderButtonDisabled]}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Move ${HOME_SECTION_LABELS[key]} up`}
-                    >
-                      <Ionicons name="chevron-up" size={18} color={index === 0 ? colors.textMuted : colors.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={() => moveHomeSection(key, 'down')}
-                      disabled={index === order.length - 1}
-                      style={[styles.homeOrderButton, index === order.length - 1 && styles.homeOrderButtonDisabled]}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Move ${HOME_SECTION_LABELS[key]} down`}
-                    >
-                      <Ionicons name="chevron-down" size={18} color={index === order.length - 1 ? colors.textMuted : colors.primary} />
-                    </TouchableOpacity>
-                  </View>
+                before rather than guessing. Groups, Cards and Order fold
+                like the Appearance sub-sections since 1.0.63.18. */}
+            {renderAppearanceSubsectionHeader('homeGroups', 'Groups', true)}
+            {!collapsedAppearanceSubsections.has('homeGroups') ? (
+              <View style={styles.subsectionBody}>
+                <Text style={styles.helpText}>
+                  Each group is one tab’s worth of Home, under that tab’s name. Turning a group off hides the whole
+                  band; whatever you had chosen about the cards inside it is remembered and comes back with it.
+                </Text>
+                <View style={styles.pillRow}>
+                  {groupHomeSectionsForDisplay(getOrderedHomeSectionKeys(visualPrefs))
+                    .filter((group) => group.kind === 'tab')
+                    .map((group) => {
+                      const groupId = homeGroupIdOf(group);
+                      const identity = group.kind === 'tab' ? homeGroupIdentity(group.path) : undefined;
+                      const shown = isHomeGroupVisible(visualPrefs, groupId);
+                      return (
+                        <TouchableOpacity
+                          key={groupId}
+                          style={[styles.pill, shown && styles.pillActive]}
+                          onPress={() => toggleHomeGroup(groupId)}
+                        >
+                          <Text style={[styles.pillText, shown && styles.pillTextActive]}>
+                            {identity?.title ?? 'More'}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
                 </View>
-              ))}
-            </View>
+              </View>
+            ) : null}
+
+            {/* Cards, 1.0.63.18: "Cards below Groups needs to be explained
+                what they are." */}
+            {renderAppearanceSubsectionHeader('homeCards', 'Cards', false)}
+            {!collapsedAppearanceSubsections.has('homeCards') ? (
+              <View style={styles.subsectionBody}>
+                <Text style={styles.helpText}>
+                  A card is one piece of Home inside a group, such as Weather & Sunrise/Sunset or Your Week. Turning
+                  a card off hides just that card and leaves the rest of its group showing. A group turned off
+                  hides its cards whatever is picked here.
+                </Text>
+                <View style={styles.pillRow}>
+                  {ALL_HOME_SECTION_KEYS.filter((key) => !HOME_SECTIONS_ALWAYS_SHOWN.has(key)).map((key) => {
+                    const shown = isHomeSectionVisible(visualPrefs, key);
+                    return (
+                      <TouchableOpacity
+                        key={key}
+                        style={[styles.pill, shown && styles.pillActive]}
+                        onPress={() => toggleHomeSection(key)}
+                      >
+                        <Text style={[styles.pillText, shown && styles.pillTextActive]}>{HOME_SECTION_LABELS[key]}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            ) : null}
+
+            {/* Order, 1.0.63.18. From 2026-08-23 this was a second copy of
+                Home's order with up and down buttons on every card, which
+                made it the longest thing in Profile. Home has done this
+                better since 1.0.39.16 (hold any band and drag), so this
+                explains that and opens Home straight into the arranging
+                list (the arrangeHome param in app/(tabs)/index.tsx). */}
+            {renderAppearanceSubsectionHeader('homeOrder', 'Order', false)}
+            {!collapsedAppearanceSubsections.has('homeOrder') ? (
+              <View style={styles.subsectionBody}>
+                <Text style={styles.helpText}>
+                  Home is arranged on Home itself. Hold your finger on any band there and the page turns into a
+                  list: drag a group or a card by its grip to move it up or down, and tap its eye to hide it or
+                  show it again. Hold a group&apos;s name to move the groups, or a card to move the cards inside
+                  that group. Cards from the same tab always stay together.
+                </Text>
+                <TouchableOpacity
+                  style={styles.replayWelcomeButton}
+                  onPress={() => router.push({ pathname: '/', params: { arrangeHome: '1' } } as Href)}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.replayWelcomeButtonText}>Arrange Home Now</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
           </View>
         ) : null}
       </View>
@@ -5360,11 +5313,7 @@ export default function ProfileScreen() {
         {renderCardHeader('low-stimulation', 'Low Stimulation')}
         {!collapsedSections.has('low-stimulation') ? (
           <View style={styles.cardBody}>
-            <Text style={styles.helpText}>
-              One switch for a quieter app on the days a busy screen is too much, instead of hunting down
-              the settings that add up to the same thing. Nothing is hidden, nothing is deleted, and every
-              choice you have made here is kept exactly as it is.
-            </Text>
+            <Text style={styles.helpText}>{LOW_STIMULATION_INTRO}</Text>
             <View style={styles.pillRow}>
               {[false, true].map((value) => {
                 const active = visualPrefs.lowStimulation === value;
@@ -5381,22 +5330,14 @@ export default function ProfileScreen() {
                 );
               })}
             </View>
+            {/* The same words the edge button's sheet shows, 1.0.63.18
+                (lib/lowStimulationWords.ts). */}
+            {LOW_STIMULATION_PARTS.map((part) => (
+              <Text key={part.title} style={styles.helpText}>{`${part.title}: ${part.text}`}</Text>
+            ))}
             <Text style={styles.helpText}>
-              Backgrounds: every tab shows the same flat color as the header and footer, with no photo and
-              no gradient behind anything you are reading. Your picks are untouched and come back the
-              moment you turn this off.
-            </Text>
-            <Text style={styles.helpText}>
-              Movement: the greeting stops zooming in and out, cards turn over without the flip, menus and
-              pop-ups open without fading, and a swiped tab changes without flying off the edge. Dragging
-              still follows your finger, since that is the screen answering you rather than moving on its
-              own.
-            </Text>
-            <Text style={styles.helpText}>
-              Sections: whatever is open on Home, and in every expandable band elsewhere, folds shut when
-              you turn this on, so a screen opens as a short list rather than a wall. Open any of them
-              again whenever you want. Turning this back off leaves your folds alone rather than reopening
-              them for you.
+              The moon tab on the edge of the screen, above the voice note tab, explains this and turns it on or off
+              from any screen.
             </Text>
           </View>
         ) : null}
@@ -6482,8 +6423,12 @@ const styles = StyleSheet.create({
   subsectionRowFirst: {
     borderTopWidth: 0,
   },
-  iconGroupRow: {
-    paddingLeft: 12,
+  // 1.0.63.18, direct request: "the section, subsection list of items should
+  // be indented so it is obvious they are subsections of the subsections."
+  // What a foldable sub-section holds sits one step in from its header, and
+  // a TabHub icon group's icons one step in from the group's name.
+  subsectionBody: {
+    paddingLeft: 14,
   },
   subsectionTitle: {
     ...typography.bodyEmphasis,
@@ -6530,14 +6475,12 @@ const styles = StyleSheet.create({
   // "Eating window starts"/"Eating window ends" under one "Fasting" group)
   // is deliberately left as plain subLabel, same reasoning
   // appearanceSubsectionHeaderFirst already carries for its own first
-  // sub-section. fontSize 16 (up from subLabel's own 14), "make the
-  // headers of each larger," a visible step up now that this text is
-  // doing double duty as a section-within-a-section header, not just a
-  // field label.
+  // sub-section. It was fontSize 16 from 2026-08-21 to 1.0.63.18, when
+  // every heading at this level was asked to be one size and colour: the
+  // body size and textPrimary of a foldable sub-section's title.
   subLabelDivided: {
     ...typography.label,
     color: colors.textPrimary,
-    fontSize: 16,
     marginTop: 18,
     marginBottom: 6,
     paddingTop: 14,
@@ -6607,34 +6550,6 @@ const styles = StyleSheet.create({
     textShadowRadius: 0,
 
   },
-  // Home Screen's own "Order" list, 2026-08-23 -- one row per reorderable
-  // section, up/down buttons rather than drag-and-drop (see the JSX's own
-  // comment for why).
-  homeOrderList: { gap: 8, marginTop: 4 },
-  homeOrderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  homeOrderLabel: { ...typography.body, color: colors.textPrimary, flex: 1, marginRight: 8,
-
-    ...textShadow,
-
-  },
-  homeOrderButtons: { flexDirection: 'row', gap: 4 },
-  homeOrderButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.surface,
-  },
-  homeOrderButtonDisabled: { opacity: 0.35 },
   // The Conditions & Check-In condition picker's even 2-column grid,
   // 2026-08-21, see the JSX's comment above for why this list needed a
   // grid instead of the plain pillRow every other picker on this screen

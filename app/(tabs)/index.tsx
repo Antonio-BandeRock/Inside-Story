@@ -1292,9 +1292,12 @@ export default function HomeScreen() {
   const router = useRouter();
   // Sent from elsewhere to a card on Home or to one of its quick-log forms,
   // 2026-09-24: Your Story's "Go there" for an item that lives on Home.
-  const { openHomeSection, openHomeQuickLog } = useLocalSearchParams<{
+  // arrangeHome, 1.0.63.18: Profile > Home Screen > Order opens straight into
+  // the arranging list rather than keeping a second copy of it there.
+  const { openHomeSection, openHomeQuickLog, arrangeHome } = useLocalSearchParams<{
     openHomeSection?: string;
     openHomeQuickLog?: string;
+    arrangeHome?: string;
   }>();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const bottomInset = useBackgroundBottomInset();
@@ -2096,6 +2099,17 @@ export default function HomeScreen() {
     // through its own closure; the request itself is what this waits on.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, openHomeSection, openHomeQuickLog]);
+
+  // Sent from Profile > Home Screen > Order, which explains arranging and
+  // brings the person here to do it. Cleared at once so coming back to Home
+  // later opens the page, not the list.
+  useEffect(() => {
+    if (loading || arrangeHome !== '1') return;
+    beginArranging();
+    router.setParams({ arrangeHome: '' });
+    // beginArranging is rebuilt every render; the request is what this waits on.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, arrangeHome]);
 
   // What the meals around today's doses do to them, 2026-09-23.
   //
