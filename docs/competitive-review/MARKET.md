@@ -10,7 +10,7 @@ Tiers: **measured** (study, government count, company report), **survey** (poll,
 2. Lead every message with privacy. 53% of Americans would never trust a tech company with health data; Inside Story holds none.
 3. Paid installs do not pay back in year one at median conversion. Spend at scale only once 30-day retention is known.
 4. Advertise contextually: patient and ADHD creators, podcast host reads, newsletters, keyword search ads. No pixels, no retargeting.
-5. A launch quarter that could become a sensation: $150K to $300K. Sustained: $1M to $3M a year. Ground floor (under $2K a month) should start now.
+5. A launch quarter that could become a sensation: $150K to $300K. Sustained: $1M to $3M a year. Creator gifting ($0) and the ground floor (under $2K a month) should start now; every paid level is optional and waits on retention.
 6. Most companion tiers are priced above leaders that are free. Caregiver is now free to the caregiver and paid for by the person cared for (decided 2026-10-07); the rest of P27 matters more than any ad budget.
 
 ## Audiences (US)
@@ -62,10 +62,11 @@ RevenueCat's measured median is $1.21 revenue per install at 12 months. Health t
 
 | Level | Spend | Buys |
 |---|---|---|
+| Creator gifting | $0 | free Individual access for 50 to 100 small creators in the condition, ADHD, autism, caregiving and gardening communities; no payment, no script, a code each, FTC disclosure; start now |
 | Ground floor | $0 to $2K a month | store keywords, reading pages on insidestoryapp.com, beta from each community, waiting list |
-| Seeding | $5K to $15K a month | 20 to 60 creator posts, $3K to $5K keyword ads, 1 to 2 podcast reads |
-| Launch quarter | $150K to $300K | about $60K podcasts, $50K to $80K creators, $50K keyword ads, $20K to $40K film and press, App Store nomination |
-| Sustained | $1M to $3M a year | always-on creators, podcasts and newsletters, companion tiers launched as events, caregiver partnerships |
+| Seeding (optional) | $5K to $15K a month | 20 to 60 creator posts, $3K to $5K keyword ads, 1 to 2 podcast reads |
+| Launch quarter (optional) | $150K to $300K | about $60K podcasts, $50K to $80K creators, $50K keyword ads, $20K to $40K film and press, App Store nomination |
+| Sustained (optional) | $1M to $3M a year | always-on creators, podcasts and newsletters, companion tiers launched as events, caregiver partnerships |
 
 Launch-year install estimate with a feature and creators that land: 250K to 1M. Finch: 2.34M downloads in 90 days, mostly word of mouth. Yuka: about 80M users, 25M in the US, no advertising ever.
 
