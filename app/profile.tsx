@@ -1069,7 +1069,7 @@ export default function ProfileScreen() {
     return (
       <TouchableOpacity
         ref={headerRef(`icons:${key}`)}
-        style={styles.subsectionRow}
+        style={[styles.subsectionRow, styles.iconGroupRow]}
         onPress={() => toggleIconGroup(key)}
         activeOpacity={0.7}
       >
@@ -5071,16 +5071,16 @@ export default function ProfileScreen() {
 
                 {/* App Icon first, then the rest alphabetically (1.0.63.16). */}
                 {renderIconGroupHeader('tabHubAppIcon', 'App Icon')}
-                {!collapsedIconGroups.has('tabHubAppIcon') ? <View style={styles.subsectionBody}>{renderTabHubIconGroup(appIconOptions)}</View> : null}
+                {!collapsedIconGroups.has('tabHubAppIcon') ? <View style={styles.iconGroupBody}>{renderTabHubIconGroup(appIconOptions)}</View> : null}
 
                 {renderIconGroupHeader('tabHubAnimals', 'Animals')}
-                {!collapsedIconGroups.has('tabHubAnimals') ? <View style={styles.subsectionBody}>{renderTabHubIconGroup(animalIconOptions)}</View> : null}
+                {!collapsedIconGroups.has('tabHubAnimals') ? <View style={styles.iconGroupBody}>{renderTabHubIconGroup(animalIconOptions)}</View> : null}
 
                 {renderIconGroupHeader('tabHubConditions', 'Conditions')}
-                {!collapsedIconGroups.has('tabHubConditions') ? <View style={styles.subsectionBody}>{renderTabHubIconGroup(conditionIconOptions)}</View> : null}
+                {!collapsedIconGroups.has('tabHubConditions') ? <View style={styles.iconGroupBody}>{renderTabHubIconGroup(conditionIconOptions)}</View> : null}
 
                 {renderIconGroupHeader('tabHubInsects', 'Insects & Other Wildlife')}
-                {!collapsedIconGroups.has('tabHubInsects') ? <View style={styles.subsectionBody}>{renderTabHubIconGroup(gardenIconOptions)}</View> : null}
+                {!collapsedIconGroups.has('tabHubInsects') ? <View style={styles.iconGroupBody}>{renderTabHubIconGroup(gardenIconOptions)}</View> : null}
               </View>
             ) : null}
 
@@ -6164,6 +6164,10 @@ export default function ProfileScreen() {
   );
 }
 
+// How far a foldable sub-section's header row sits in from its card's
+// header: past the card's icon and title gap (24), then one step more.
+const SUBSECTION_INSET = 38;
+
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
@@ -6419,6 +6423,16 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderTopWidth: HOME_BAND_EDGE_WIDTH,
     borderTopColor: HOME_BAND_DIVIDER_COLOR,
+    // 1.0.63.19, reported from the phone: the rows started left of the
+    // card's title text, so they read as a level above the card rather than
+    // inside it. They now start past the title (the card's 16 icon and 8
+    // gap, then 14 more), and their dividing lines move in with them.
+    marginLeft: SUBSECTION_INSET,
+  },
+  // A TabHub icon group's name sits inside a sub-section's body, which is
+  // inset already.
+  iconGroupRow: {
+    marginLeft: 0,
   },
   subsectionRowFirst: {
     borderTopWidth: 0,
@@ -6428,6 +6442,9 @@ const styles = StyleSheet.create({
   // What a foldable sub-section holds sits one step in from its header, and
   // a TabHub icon group's icons one step in from the group's name.
   subsectionBody: {
+    paddingLeft: SUBSECTION_INSET + 14,
+  },
+  iconGroupBody: {
     paddingLeft: 14,
   },
   subsectionTitle: {
