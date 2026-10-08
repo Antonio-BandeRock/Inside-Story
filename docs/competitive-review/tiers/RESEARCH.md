@@ -3465,7 +3465,7 @@ Sources: <https://families.google/familylink/>
 
 #### Caregiver (writing on behalf of another adult) (planned): Behind against Caring Village
 
-Not built. Decided 2026-10-07: free to the caregiver, the first caregiver in the cared-for person’s Individual plan, linked by invitation, each person cared for kept apart, never a cheaper Partner. Also compared: CareClinic, Medisafe (Medfriend), Jointly, Lotsa Helping Hands, CaringBridge, ianacare. Checked 2026-10-07.
+Not built. Decided 2026-10-07, corrected 2026-10-08: paid, never Free, since the link exists only on the cared-for person’s plan; no separate charge to the caregiver, the first caregiver in the cared-for person’s Individual plan, linked by invitation, each person cared for kept apart, never a cheaper Partner. Also compared: CareClinic, Medisafe (Medfriend), Jointly, Lotsa Helping Hands, CaringBridge, ianacare. Checked 2026-10-07.
 
 | Measure | Caring Village | Inside Story | |
 |---|---|---|---|
@@ -3475,14 +3475,14 @@ Not built. Decided 2026-10-07: free to the caregiver, the first caregiver in the
 | Offline | Cloud | Would merge through the relay and shared folder | = |
 | Privacy | Company holds the shared data | Sealed between the two, allowlist per area | + |
 | Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
-| Price | Free for 1 person and 2 members; $24.99 a month for up to 5 people | Free to the caregiver; first caregiver in the person’s Individual plan | = |
+| Price | Free for 1 person and 2 members; $24.99 a month for up to 5 people | In the cared-for person’s paid plan; no charge to the caregiver | = |
 | Conditions covered | None | The 19 conditions, consent area by area or attestation | + |
 
 **To be better.** Q73 with the functions below (Q74 to Q90), each built to beat that function’s leader, plus every change logged (P31) and missed doses told on time (A16, M1). Plan: Q73, Q74, Q75, Q89, Q90, P31, A16, M1.
 
 Sources: <https://caringvillage.com/pricing/> <https://help-center.medisafe.com/en/articles/11793638-caregiver-guide-how-to-use-medisafe-to-manage-a-family-member-s-medications>
 
-#### Caregiver: free download, first one in the person’s Individual plan (planned): Behind against Medisafe (Medfriend)
+#### Caregiver: free download, the link in the person’s paid plan (planned): Behind against Medisafe (Medfriend)
 
 Not built. Medfriend is free to both, and a Medfriend can only watch. Also compared: Caring Village. Checked 2026-10-07.
 
@@ -3494,7 +3494,7 @@ Not built. Medfriend is free to both, and a Medfriend can only watch. Also compa
 | Offline | Cloud | Would merge through the relay and shared folder | = |
 | Privacy | Company holds the shared data | Sealed between the two, allowlist per area | + |
 | Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
-| Price | Free to both | Free to the caregiver; first one in the person’s Individual plan | = |
+| Price | Free to both | In the cared-for person’s paid plan; no charge to the caregiver | = |
 | Conditions covered | Medications only | Health domain never shared unless chosen | + |
 
 **To be better.** A link signed by both device keys (Q74) that carries writing on the person’s behalf, which Medfriend never does, so the caregiver gets more for the same nothing. Plan: Q74, P12.
@@ -3513,7 +3513,7 @@ Not built. Caring Village charges a caregiver $24.99 a month to care for a secon
 | Offline | Cloud | Would merge through the relay and shared folder | = |
 | Privacy | Every village on the company’s server | Sealed between the two, allowlist per area | + |
 | Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
-| Price | $24.99 a month past the first person | Free to the caregiver for every person who links | + |
+| Price | $24.99 a month past the first person | In each cared-for person’s paid plan, no charge to the caregiver | + |
 | Conditions covered | None | Health domain never shared unless chosen | + |
 
 **To be better.** A separate sealed record per person (Q75), never one database with a person column, and no charge to the caregiver however many people they care for. Plan: Q75.
@@ -3532,7 +3532,7 @@ Not built. The leaders show one person’s calendar at a time. Also compared: Jo
 | Offline | Cloud | Would merge through the relay and shared folder | = |
 | Privacy | Company holds the shared data | Sealed between the two, allowlist per area | + |
 | Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
-| Price | Paid past one person | Free to the caregiver | - |
+| Price | Paid past one person | In the cared-for person’s paid plan | - |
 | Conditions covered | None | Health domain never shared unless chosen | + |
 
 **To be better.** One day across everyone (Q76), each line in that person’s name and colour, with the caregiver’s own day beside it. Plan: Q76, Q75.
@@ -3551,7 +3551,7 @@ Not built. Medfriend tells a caregiver about a missed dose but cannot record one
 | Offline | Cloud | Would merge through the relay and shared folder | = |
 | Privacy | Company holds the shared data | Sealed between the two, allowlist per area | + |
 | Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
-| Price | Free | Free to the caregiver | = |
+| Price | Free | In the cared-for person’s paid plan | = |
 | Conditions covered | Medications only | Meds, supplements and the interaction-rule timing | + |
 
 **To be better.** Doses marked on the person’s behalf with who marked them (Q77), missed doses told on time through the relay (A16, M1), and the timing warnings Medisafe lacks. Plan: Q77, A16, M1.
@@ -3608,7 +3608,7 @@ Not built. CaringBridge is free and trusted for updates. Checked 2026-10-07.
 | Offline | Cloud | Would merge through the relay and shared folder | = |
 | Privacy | Posts held by CaringBridge | Sealed between the two, allowlist per area | + |
 | Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
-| Price | Free, nonprofit | Free to the caregiver | = |
+| Price | Free, nonprofit | In the cared-for person’s paid plan | = |
 | Conditions covered | None | Health domain never shared unless chosen | + |
 
 **To be better.** Updates written once and sent to chosen people (Q80) without a site holding them, nothing sent that the caregiver did not write. Plan: Q80, O3.
@@ -3627,7 +3627,7 @@ Not built. Caring Village’s vault is on its server. Checked 2026-10-07.
 | Offline | Cloud | Would merge through the relay and shared folder | = |
 | Privacy | Company holds the shared data | Sealed between the two, allowlist per area | + |
 | Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
-| Price | Free plan includes folders | Free to the caregiver | = |
+| Price | Free plan includes folders | In the cared-for person’s paid plan | = |
 | Conditions covered | None | Health domain never shared unless chosen | + |
 
 **To be better.** Documents per person sealed on the device and inside the vault (Q81), with expiry dates raising a reminder. Plan: Q81.
@@ -3703,7 +3703,7 @@ Not built. Jointly leaves handover to a message thread. Also compared: Caring Vi
 | Offline | Cloud | Would merge through the relay and shared folder | = |
 | Privacy | Company holds the shared data | Sealed between the two, allowlist per area | + |
 | Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
-| Price | £2.99 once per circle | Free to the caregiver | + |
+| Price | £2.99 once per circle | In the cared-for person’s paid plan | + |
 | Conditions covered | None | Health domain never shared unless chosen | + |
 
 **To be better.** One page of what happened since the last caregiver was there (Q85), read from the change log (P31) rather than written up by hand. Plan: Q85, P31.
@@ -3722,7 +3722,7 @@ No caregiver app reviewed keeps care costs per person. Checked 2026-10-07.
 | Offline | Cloud | Would merge through the relay and shared folder | = |
 | Privacy | Company holds the shared data | Sealed between the two, allowlist per area | + |
 | Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
-| Price | - | Free to the caregiver | = |
+| Price | - | In the cared-for person’s paid plan | = |
 | Conditions covered | None | Health domain never shared unless chosen | + |
 
 **To be better.** Costs, who paid and claims per person cared for (Q86), kept out of the caregiver’s own money. Plan: Q86, J1.
@@ -3758,7 +3758,7 @@ No caregiver app reviewed says where a person’s records go when care ends. Che
 | Offline | Cloud | Would merge through the relay and shared folder | = |
 | Privacy | Company holds the shared data | Sealed between the two, allowlist per area | + |
 | Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
-| Price | - | Free to the caregiver | = |
+| Price | - | In the cared-for person’s paid plan | = |
 | Conditions covered | None | Health domain never shared unless chosen | + |
 
 **To be better.** Records go where the person said (Q88, P32), the caregiver keeps their notes and costs, and nothing is deleted unasked. Plan: Q88, P32.
@@ -4702,7 +4702,7 @@ Kinds: A free tier that sells the paid one, Paid for by a nonprofit, a church or
 
 **How it reaches pay caliber.** Viewer companions Free (every viewer meets the app). Partner at about 1.5x and Caregiver per person are paid caliber: caregivers carry the most load and nothing else holds the records for them.
 
-On the board: Children’s records (Life, planned); Free viewer companion (household seat) (Companions, companion tier); Paid interactive household companion (Companions, companion tier); Partner (two full accounts, chosen visibility) (Companions, companion tier); Guardian (a parent’s children) (Companions, companion tier); Caregiver (writing on behalf of another adult) (Companions, companion tier); Caregiver: free download, first one in the person’s Individual plan (Companions, companion tier); Caregiver: a paid user caring for their family (Companions, companion tier); Caregiver: each person cared for kept apart (Companions, companion tier); Caregiver: the day across everyone cared for (Companions, companion tier); Caregiver: doses marked on someone’s behalf (Companions, companion tier); Caregiver: consent area by area, or attestation (Companions, companion tier); Caregiver: the care circle and claimed tasks (Companions, companion tier); Caregiver: updates to the people who ask (Companions, companion tier); Caregiver: documents per person cared for (Companions, companion tier); Caregiver: an emergency card per person (Companions, companion tier); Caregiver: appointment questions and what was said (Companions, companion tier); Caregiver: what was noticed, apart from what was said (Companions, companion tier); Caregiver: handover between caregivers (Companions, companion tier); Caregiver: care costs per person cared for (Companions, companion tier); Caregiver: the caregiver’s life too (Companions, companion tier); Caregiver: when care ends (Companions, companion tier).
+On the board: Children’s records (Life, planned); Free viewer companion (household seat) (Companions, companion tier); Paid interactive household companion (Companions, companion tier); Partner (two full accounts, chosen visibility) (Companions, companion tier); Guardian (a parent’s children) (Companions, companion tier); Caregiver (writing on behalf of another adult) (Companions, companion tier); Caregiver: free download, the link in the person’s paid plan (Companions, companion tier); Caregiver: a paid user caring for their family (Companions, companion tier); Caregiver: each person cared for kept apart (Companions, companion tier); Caregiver: the day across everyone cared for (Companions, companion tier); Caregiver: doses marked on someone’s behalf (Companions, companion tier); Caregiver: consent area by area, or attestation (Companions, companion tier); Caregiver: the care circle and claimed tasks (Companions, companion tier); Caregiver: updates to the people who ask (Companions, companion tier); Caregiver: documents per person cared for (Companions, companion tier); Caregiver: an emergency card per person (Companions, companion tier); Caregiver: appointment questions and what was said (Companions, companion tier); Caregiver: what was noticed, apart from what was said (Companions, companion tier); Caregiver: handover between caregivers (Companions, companion tier); Caregiver: care costs per person cared for (Companions, companion tier); Caregiver: the caregiver’s life too (Companions, companion tier); Caregiver: when care ends (Companions, companion tier).
 
 ## General evidence
 
