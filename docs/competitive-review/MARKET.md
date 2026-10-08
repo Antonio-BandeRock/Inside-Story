@@ -11,7 +11,7 @@ Tiers: **measured** (study, government count, company report), **survey** (poll,
 3. Paid installs do not pay back in year one at median conversion. Spend at scale only once 30-day retention is known.
 4. Advertise contextually: patient and ADHD creators, podcast host reads, newsletters, keyword search ads. No pixels, no retargeting.
 5. A launch quarter that could become a sensation: $150K to $300K. Sustained: $1M to $3M a year. Ground floor (under $2K a month) should start now.
-6. The companion tiers are priced above leaders that are free; Caregiver is the largest audience and the hardest sell. P27 matters more than any ad budget.
+6. Most companion tiers are priced above leaders that are free. Caregiver is now free to the caregiver and paid for by the person cared for (decided 2026-10-07); the rest of P27 matters more than any ad budget.
 
 ## Audiences (US)
 
@@ -34,7 +34,7 @@ Hashimoto's is about 7.5% worldwide. These audiences overlap and are not added t
 | Partner | $134.99/yr for two | Apple Health Sharing, free | fair; sell as an upgrade from Individual |
 | Household seats | $17.99/yr a seat after 2 or 3 free | Cozi Gold $39/yr per family | per seat loses to one family price |
 | Guardian | bundled | Google Family Link, free | right shape |
-| Caregiver | $49.99/yr a person | CareClinic, Medisafe Medfriend, free | weakest against the biggest audience; consider free when the cared-for person pays |
+| Caregiver | free to the caregiver, paid for by the person cared for | Caring Village (free for one person, $24.99 a month for up to five), Medisafe Medfriend (free, watch only) | decided 2026-10-07: linked by invitation like Partner, each person cared for kept apart; Q74 to Q88 planned to beat each leader |
 
 ## Arithmetic of paid installs (per 1,000 installs)
 
