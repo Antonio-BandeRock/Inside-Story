@@ -75,7 +75,6 @@ import { markUpkeepDone, listUpkeepItems } from './upkeepDb';
 import { getTodo, markTodoDone } from './todosDb';
 import { getMorningCheckin, saveMorningCheckin } from './morningCheckinDb';
 import { isLockedNow, reminderDetailHidden } from './appLockSession';
-import { tracePress } from './pressTrace';
 import { isRelayWake } from './relayWake';
 import { reminderWords } from './lockedReminderText';
 import { keepAnswerForUnlock, takeWaitingAnswers } from './lockedAnswers';
@@ -1653,7 +1652,6 @@ async function answerPress(response: Notifications.NotificationResponse): Promis
     return;
   }
   const ours = isOurs(request.identifier) || isSnoozed(request.identifier);
-  tracePress('press', ours, isLockedNow(), (request.content.data as Partial<ReminderPayload> | undefined)?.kind, response.actionIdentifier);
   if (!ours) return;
   if (isLockedNow()) {
     await answerWhileLocked(response);
@@ -1679,7 +1677,10 @@ async function answerPress(response: Notifications.NotificationResponse): Promis
     await refreshWaitingSummary();
     return;
   }
-  if (!plan) return;
+  if (!plan) {
+    await refreshWaitingSummary();
+    return;
+  }
   const words = (response.userText ?? '').trim();
   try {
     await withSessionGuardLifted(() => recordAnswer(plan, data?.scheduleItemId ?? '', words, kind));
@@ -1870,11 +1871,9 @@ async function answerWhileLocked(response: Notifications.NotificationResponse): 
   const pressedAt = new Date();
   const snooze = response.actionIdentifier === SNOOZE_ACTION;
   const plan = !snooze && data?.kind ? planReminderAction(data.kind, response.actionIdentifier) : null;
-  tracePress('locked', data?.kind, response.actionIdentifier, plan?.write);
   if (!snooze && !plan) return;
   if (snooze) await snoozeReminder(response);
   else await clearAnsweredWhileLocked(request.identifier);
-  tracePress('cleared');
   if (plan?.write === 'sleepQuality') await presentMorningEnergy(localDateString(pressedAt));
   const kept = await keepAnswerForUnlock({
     identifier: request.identifier,
@@ -1885,7 +1884,6 @@ async function answerWhileLocked(response: Notifications.NotificationResponse): 
     pressedAt: pressedAt.toISOString(),
     handled: snooze ? 'snoozed' : null,
   });
-  tracePress('kept', kept);
   if (!kept) console.error('[reminderNotifications] a press while locked could not be kept');
 }
 
@@ -1919,7 +1917,6 @@ async function applyWaitingAnswers(): Promise<void> {
 // left alone there, since it opens the app and the app answers it.
 export async function answerFromBackground(response: Notifications.NotificationResponse): Promise<void> {
   if (!supported) return;
-  tracePress('bg', response.actionIdentifier, opensLikeATap(response.actionIdentifier), answered.has(responseKey(response)));
   if (opensLikeATap(response.actionIdentifier)) return;
   const key = responseKey(response);
   if (answered.has(key)) return;
@@ -1946,7 +1943,6 @@ function opensLikeATap(actionIdentifier: string): boolean {
 export function listenForReminderPresses(): () => void {
   if (!supported) return () => {};
   const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-    tracePress('listen', response.actionIdentifier, answered.has(responseKey(response)));
     if (opensLikeATap(response.actionIdentifier)) {
       if (!tapListenerMounted) tapWhileLocked = response;
       return;
@@ -1973,7 +1969,6 @@ function handleResponse(
   if (!opensLikeATap(response.actionIdentifier)) {
     answerPress(response)
       .catch((error) => {
-        tracePress('err', String((error as Error)?.message ?? error).slice(0, 60).replace(/[^A-Za-z0-9 ]/g, ''));
         console.error('[reminderNotifications] answer failed', error);
       });
     return;
