@@ -527,3 +527,33 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Garden
 - **Answers:** Seed Savers Exchange · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Mark a planting kept for seed: isolation distance and population size per crop from published guides, harvest and drying dates, germination test, and the saved seed lands in the Seeds lens with the planting it came from.
+
+### Q47. To-Do projects
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life
+- **Answers:** Todoist, Things · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Projects that hold to-dos, sub-steps under a to-do, a waiting-on state with who and since when, labels and a filter by label, a project finished kept as history; no points, no streaks, no overdue count shown in red.
+
+### Q48. Insurance claims and appeal deadlines
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Reports
+- **Answers:** Sheer Health · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Each claim beside its bill and explanation of benefits (scanned), its state, a denial with the appeal deadline counted down through Days Until, the appeal letter laid out from the person’s own visit, lab and med records for them to edit and send; the insurer is never linked and no company reads the claim.
+
+### Q49. Things I am waiting on
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life,Home
+- **Answers:** Things, Todoist · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A list of what is owed to the person: lab results, referrals, refunds, repairs, replies; who it is from, since when, a nudge after the days they choose, and lab results and referrals offered from the records when they arrive.
+
+### Q50. Working life and a resume
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Life
+- **Answers:** Kickresume, Job Accommodation Network · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Work, education, credentials, skills and accommodations asked for, given and up for review, as records; a resume made from them as .docx, read back with differences offered one at a time; an existing resume imported; health never on it unless the person puts it there.
+
+### Q51. Ready for a trip
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Schedules
+- **Answers:** TripIt, Medisafe · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Dates away: meds counted for the days plus spare, doses moved across time zones (A7, Q14), food for the conditions at the destination, a letter for carried medicines, the emergency card in the local language, upkeep and the garden paused or handed over.
+
+### Q52. Ready for a power cut or disaster
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life
+- **Answers:** FEMA app, Red Cross Emergency · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A go-bag and a supply list built from My Meds and Kitchen and kept current, medicines that need cold with how long they keep, the fridge after an outage with published safe times, contacts on paper; alerts handed to the official apps.

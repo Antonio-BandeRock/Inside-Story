@@ -27,3 +27,8 @@
 - **Ships by:** Relay (Worker plus push) · **Size:** L · **Tabs:** all
 - **Answers:** Medisafe, AnyList, CareClinic · **Theme:** Servers and relay
 - **How:** The Worker plus FCM, carrying a wake-up and sealed bytes only. Unlocks A16 on time, J12 instantly, and O3. Remote push setup rides in R1.
+
+### Q58. A life’s Inside Story, first edition
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** All
+- **Answers:** StoryWorth · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Years of the person’s own records gathered and laid out in their words, chosen piece by piece, others named shown before inclusion, as a printed book or PDF plus an open-format archive readable with nothing installed.

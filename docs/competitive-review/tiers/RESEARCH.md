@@ -33,6 +33,7 @@ Standing rule since 2026-10-07: every function that competes with a leading app 
 | Trends | 6 | 14 | 3 | 8 | 0 |
 | Reports | 2 | 3 | 0 | 4 | 0 |
 | Garden | 3 | 5 | 6 | 6 | 0 |
+| Life | 4 | 6 | 19 | 7 | 0 |
 
 ### Food
 
@@ -2018,6 +2019,617 @@ Not built. Also compared: BBKA guides. Checked 2026-10-07.
 **Where the leader’s edge rests on a rule kept here.** Where untreated varroa kills colonies the reading says so; working with nature never becomes advice to refuse a treatment.
 
 Sources: <https://www.guideflow.com/blog/beekeeping-software>
+
+### Life
+
+#### Grocery List: Even against AnyList
+
+Ours knows what the meals need and what is already there; AnyList is quicker to reach and shares instantly with the whole house. Also compared: OurGroceries. Checked 2026-10-07.
+
+| Measure | AnyList | Inside Story | |
+|---|---|---|---|
+| What it does | Shared list, recipes, aisles, item photos, location reminders | List worked out from the meal schedule for N people, aisles per store (G6), barcode onto the list (G7), sent as text (G8), ticked lines into Kitchen | + |
+| Depth | Knows nothing of the cupboard | Kitchen, garden and ferments counted against it, allergies on every line | + |
+| Taps | Widgets, Siri, Alexa, watch | Home quick-add; no widget yet | - |
+| Offline | Syncs in seconds | On the phone; partner merge through the shared folder | - |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free lists and sharing; $14.99 a year household | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | The 19 conditions | + |
+
+**To be better.** The list on Free (Q46), on the home screen (L2), and shared past two people (P12). Plan: Q46, L2, P12.
+
+**Where the leader’s edge rests on a rule kept here.** No voice-assistant or delivery link that costs per call or sends the list to a company (Z6, Z9).
+
+Sources: <https://www.anylist.com/complete>
+
+#### Conditions reading (19 conditions): Better against Mayo Clinic app
+
+For the 19 conditions ours goes far deeper and ties the reading to meals; Mayo is free and known. Also compared: Healthline, WebMD. Checked 2026-10-07.
+
+| Measure | Mayo Clinic app | Inside Story | |
+|---|---|---|---|
+| What it does | General reference on thousands of conditions | Deep reading on 19 conditions, with family and curious lists kept apart | + |
+| Depth | Overview level | Topics, cited research, evidence tiers, healing stages | + |
+| Taps | Search | Fold bands, one search box | = |
+| Offline | Online | On the phone | + |
+| Privacy | Account for the patient side | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | Thousands, shallow | 19, deep, wired to food and the meal plan | + |
+
+**To be better.** A last-checked date on every entry (P7) so the depth is trusted the way a clinic name is. Plan: P7.
+
+Sources: <https://www.mayoclinic.org/apps/mayo-clinic>
+
+#### Health Literacy reading: Better against Healthline
+
+Free on both; ours carries evidence tiers and no advertising. Also compared: Examine. Checked 2026-10-07.
+
+| Measure | Healthline | Inside Story | |
+|---|---|---|---|
+| What it does | Health articles | Nutrients, additives, interactions, glossary | = |
+| Depth | Articles with ads | Evidence tiers on every claim | + |
+| Taps | Search | Fold bands | = |
+| Offline | Online | On the phone | + |
+| Privacy | Ad tracking | No tracking | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free with ads | Free | = |
+| Conditions covered | General | Read against the person’s conditions | + |
+
+Sources: <https://www.healthline.com/>
+
+#### Earth Matters reading: Nobody else
+
+Footprint apps score a person; none found explains soil, water and food systems as reading tied to a garden and a kitchen. Also compared: Giki, Joro. Checked 2026-10-07.
+
+Sources: <https://giki.earth/>
+
+#### Search Reading: Nobody else
+
+One search across the whole reading corpus, landing on the tab and lens where each entry lives, has no counterpart. Also compared: Healthline. Checked 2026-10-07.
+
+Sources: <https://www.healthline.com/>
+
+#### Finances: Behind against YNAB
+
+Typing every entry is the cost of keeping a bank out of it. Also compared: Monarch Money. Checked 2026-10-07.
+
+| Measure | YNAB | Inside Story | |
+|---|---|---|---|
+| What it does | Every dollar a job, bank-linked, goals, reports | Bills, entries, accounts, net worth, budgets, debt, goals, receipts (J4), the medical money layer | = |
+| Depth | The method most people learn from | Deductible, FSA and HSA standing no budget app holds | + |
+| Taps | Transactions arrive by themselves | Typed by hand | - |
+| Offline | Cloud | On the phone | + |
+| Privacy | Bank link through an aggregator | Nothing linked | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $109 a year, no free tier | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | + |
+| Conditions covered | None | Medical costs beside the visits | + |
+
+**To be better.** Import a bank export file (J1) with repeating charges spotted (J2) and category rules (J3), and the every-dollar method (J5). Plan: J1, J2, J3, J5.
+
+**Where the leader’s edge rests on a rule kept here.** No linked bank accounts (Z10): a file the person downloads, never an aggregator.
+
+Sources: <https://www.ynab.com/pricing>
+
+#### Work: Nobody else
+
+Benefits with reset dates and a weekly check-in on autonomy, strain and belonging set beside symptoms have no counterpart. Also compared: Todoist, Daylio. Checked 2026-10-07.
+
+Sources: <https://www.todoist.com/pricing>
+
+#### Upkeep: Even against Sweepy
+
+Matched on the chores; Sweepy is cheaper and has a free core. Also compared: Tody. Checked 2026-10-07.
+
+| Measure | Sweepy | Inside Story | |
+|---|---|---|---|
+| What it does | Chores by room, by person, fitted to time | Recurring from last done, by room (J6), I have 20 minutes (J7), shared (J8), documents that expire | + |
+| Depth | Dirtiness levels | Keeping Up history, no score | = |
+| Taps | Tick | Tick, or from the notification | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free limited; $19.99 a year | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | Strain and flares beside it | + |
+
+**To be better.** Upkeep fitted to the day by who and where (Q16), and its basics on Free (Q46). Plan: Q16, Q46.
+
+**Where the leader’s edge rests on a rule kept here.** No points for chores and no streaks.
+
+Sources: <https://sweepy.com/>
+
+#### Emergency card: Better against Medical ID (iPhone) and Emergency information (Android)
+
+Ours fills the phone’s own card and keeps it current. Also compared: Medisafe. Checked 2026-10-07.
+
+| Measure | Medical ID (iPhone) and Emergency information (Android) | Inside Story | |
+|---|---|---|---|
+| What it does | Conditions, meds, allergies, contacts on the lock screen | The same written from My Meds and conditions, put into Medical ID (A17), a wallet card (A18), the lock screen (A19) | + |
+| Depth | Typed by hand | Kept current from the records | + |
+| Taps | Lock screen | Lock screen | = |
+| Offline | On the phone | On the phone | = |
+| Privacy | On the phone | On the phone | = |
+| Accessibility | System accessibility | Text scales with the phone, uncapped; screen reader labels not audited | - |
+| Price | Free | Free on every tier | = |
+| Conditions covered | Typed | The 19 conditions | + |
+
+Sources: <https://support.apple.com/en-us/105022>
+
+#### My Meds (the list itself): Even against Medisafe
+
+Even, with Medfriend the one clear miss. Also compared: MyTherapy, CareClinic. Checked 2026-10-07.
+
+| Measure | Medisafe | Inside Story | |
+|---|---|---|---|
+| What it does | Meds, reminders, refills, interactions, Medfriend | Prescriptions, OTC, supplements, pills on hand and refills (A3), pill photos (A5), pharmacy contact (A6), check on adding (A8), labels (A11), recalls (A14) | = |
+| Depth | Drug interactions | Drugs, supplements and foods, timing against meals | + |
+| Taps | Reminder buttons | Reminder buttons, answerable when locked | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free for 2 meds; $39.99 a year | The list and every warning free; the rest Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | = |
+| Conditions covered | General | The 19 conditions | + |
+
+**To be better.** A caregiver or partner told of a missed dose (A16). Plan: A16.
+
+Sources: <https://pillo.care/blog/medisafe-not-free-what-to-do>
+
+#### Kitchen (what is on hand, where it is): Even against Sortly
+
+Ours is the kitchen that knows the meals; Sortly finds a box in a garage faster. Also compared: NoWaste, Pantry Check. Checked 2026-10-07.
+
+| Measure | Sortly | Inside Story | |
+|---|---|---|---|
+| What it does | Items in places inside places, QR labels, photos | Food and non-food on hand, drawn down by meals, use-by dates (H2), where it is | + |
+| Depth | Inventory | Fed by groceries, garden and ferments | + |
+| Taps | Scan a label | Search, barcode for non-food (G7) | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free for 100 items; $49 a month | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | + |
+| Conditions covered | None | Foods scored | + |
+
+**To be better.** Places inside places (J10), QR labels for boxes (J11), photos on places (J9), and food thrown out to compost (Q8). Plan: J10, J11, J9, Q8.
+
+Sources: <https://help.sortly.com/hc/en-us/articles/360035774271-Sortly-Pricing-Plan-Information>
+
+#### Movement: Better against Google Fit
+
+Ours reads the same steps for what they meant to the body. Also compared: Apple Fitness. Checked 2026-10-07.
+
+| Measure | Google Fit | Inside Story | |
+|---|---|---|---|
+| What it does | Steps, heart points, goals | Steps from Health Connect beside symptoms, week by week | + |
+| Depth | Activity alone | Read against flares and crashes | + |
+| Taps | None | None | = |
+| Offline | Google account | On the phone | + |
+| Privacy | Google account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | Pacing for the conditions that need it | + |
+
+**To be better.** Movement on Free (Q46). Plan: Q46.
+
+**Where the leader’s edge rests on a rule kept here.** No step goals pushed at someone pacing a condition.
+
+Sources: <https://www.google.com/fit/>
+
+#### Workouts: Behind against Hevy
+
+Hevy logs a set faster and shows progress. Also compared: Strong, Fitbod. Checked 2026-10-07.
+
+| Measure | Hevy | Inside Story | |
+|---|---|---|---|
+| What it does | Sets, reps, routines, rest timer, bests | Workouts logged, started from the plan | - |
+| Depth | Exercise library, graphs | Beside flares and pacing | = |
+| Taps | Fast set entry | Form entry | - |
+| Offline | On the phone | On the phone | = |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free core; $23.99 a year | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | The 19 conditions | + |
+
+**To be better.** Personal bests and volume (Q33) and a plan that answers to the body (Q17). Plan: Q33, Q17.
+
+Sources: <https://www.sensai.fit/blog/hevy-review-2026>
+
+#### Routines: Even against Tiimo
+
+Matched on the routine itself; Tiimo is on the home screen and has a free core. Also compared: Routinery, Goblin.tools. Checked 2026-10-07.
+
+| Measure | Tiimo | Inside Story | |
+|---|---|---|---|
+| What it does | Visual day, routines, timers, AI breakdown | One step at a time, minutes per step (B4), shrinking ring (B5), read aloud (B6), starter lists (C13) | = |
+| Depth | Planner | Steps that are Did I Do It checks, Keeping Up history | + |
+| Taps | Widgets and Live Activity | In the app; widgets wait on a rebuild | - |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Built for neurodivergent users | Text scales with the phone, uncapped; screen reader labels not audited | - |
+| Price | Free core; $79.99 a year | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | ADHD and autism | ADHD, autism and the 19 conditions | + |
+
+**To be better.** Routines on Free for the second audience (Q46), widgets (L2, L3), and the accessibility pass (Q35). Plan: Q46, L2, L3, Q35.
+
+**Where the leader’s edge rests on a rule kept here.** No AI on a server breaking down tasks unless the person opts in (C14).
+
+Sources: <https://www.tiimoapp.com/product>
+
+#### Did I Do It: Nobody else
+
+Reminder apps ask in advance; none found answers later “did I lock the door” with the time it was marked. Also compared: Due, Streaks. Checked 2026-10-07.
+
+Sources: <https://www.dueapp.com/>
+
+#### Days Until: Even against Dreamdays
+
+Countdown apps live on the home screen. Also compared: Countdown apps. Checked 2026-10-07.
+
+| Measure | Dreamdays | Inside Story | |
+|---|---|---|---|
+| What it does | Counts to or since a date, widgets | Counts to and past a date, tied to a planting or nothing, reminds on the day | + |
+| Depth | Photos and themes | Done keeps how long it took | + |
+| Taps | Home screen widget | In the app and on Home | - |
+| Offline | On the phone | On the phone | = |
+| Privacy | On the phone | On the phone | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free with a paid upgrade | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | None | = |
+
+**To be better.** A Days Until widget (L2) and the lens on Free (Q46). Plan: L2, Q46.
+
+Sources: <https://apps.apple.com/us/app/dreamdays-countdown-to-big-day/id1453226627>
+
+#### To-Do: Behind against Todoist
+
+Todoist holds a life’s projects; ours holds a list. Also compared: TickTick, Things. Checked 2026-10-07.
+
+| Measure | Todoist | Inside Story | |
+|---|---|---|---|
+| What it does | Projects, sub-tasks, labels, filters, sharing | Dated to-dos with repeats (C10), plain-language dates (C4) | - |
+| Depth | Projects and boards | One list | - |
+| Taps | Quick add everywhere, widgets | Capture and Home | - |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free for 5 projects; $60 a year | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | Flares beside a busy week | + |
+
+**To be better.** Projects with sub-steps and a waiting-on state (Q47), one front door for things to do (P4), share into Inside Story from any app (C11). Plan: Q47, P4, C11, L2.
+
+Sources: <https://www.todoist.com/pricing>
+
+#### Family roster and their conditions in the meal plan: Nobody else
+
+Family organisers share calendars; none found plans one meal around several people’s conditions and nutrient needs. Also compared: Cozi, FamilyWall. Checked 2026-10-07.
+
+Sources: <https://www.cozi.com/>
+
+#### Import a bank export (planned): Behind against Monarch Money
+
+Not built. Also compared: YNAB. Checked 2026-10-07.
+
+| Measure | Monarch Money | Inside Story | |
+|---|---|---|---|
+| What it does | Transactions from every account | Not built | - |
+| Depth | Categorised, repeating charges found | Not built | - |
+| Taps | None after linking | Not built | - |
+| Offline | Cloud | Would be on the phone | + |
+| Privacy | Aggregator link | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $99.99 a year | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | None | = |
+
+**To be better.** Import a bank export file (J1), CSV, OFX or QIF, matched against entries already typed. Plan: J1, J2, J3.
+
+**Where the leader’s edge rests on a rule kept here.** No linked bank accounts (Z10).
+
+Sources: <https://getfinny.app/blog/monarch-money-pricing-2026>
+
+#### Give every dollar a job (planned): Behind against YNAB
+
+Not built. Checked 2026-10-07.
+
+| Measure | YNAB | Inside Story | |
+|---|---|---|---|
+| What it does | Every dollar given a job, money moved between jobs | Not built | - |
+| Depth | Taught method, workshops | Not built | - |
+| Taps | Assign | Not built | - |
+| Offline | Cloud | Would be on the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $109 a year | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | Medical costs as their own jobs | + |
+
+**To be better.** Give every dollar a job (J5), with medical costs and FSA or HSA money as jobs of their own. Plan: J5.
+
+Sources: <https://www.ynab.com/pricing>
+
+#### Insurance claims and appeal deadlines (planned): Behind against Sheer Health
+
+Not built. Also compared: Resolve. Checked 2026-10-07.
+
+| Measure | Sheer Health | Inside Story | |
+|---|---|---|---|
+| What it does | Claims read from the insurer, errors found, appeals handled | Not built | - |
+| Depth | People who fight a denial for you | Not built | - |
+| Taps | Link the insurer | Not built | - |
+| Offline | Cloud | Would be on the phone | + |
+| Privacy | Insurer account linked, a company reads the claims | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free answers; claim help about $40 a month | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | Claims beside the visits and conditions | + |
+
+**To be better.** Claims and appeal deadlines (Q48): each claim against its bill and EOB, a denial with its appeal deadline counted down, the letter drafted from the person’s records, nothing sent anywhere. Plan: Q48.
+
+**Where the leader’s edge rests on a rule kept here.** No company reads the claims; the insurer is never linked.
+
+Sources: <https://www.theskimm.com/wellness/ask-an-expert-sheer-health>
+
+#### Things I’m waiting on (planned): Behind against Things
+
+Not built. Also compared: Todoist, OmniFocus. Checked 2026-10-07.
+
+| Measure | Things | Inside Story | |
+|---|---|---|---|
+| What it does | Someday and waiting lists by tag | Not built | - |
+| Depth | Manual tags | Not built | - |
+| Taps | Tag | Not built | - |
+| Offline | On the device | Would be on the phone | + |
+| Privacy | Account | No account | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $49.99 once on Mac, iPhone app $9.99 | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | None | = |
+
+**To be better.** Things I am waiting on (Q49): who it is from, since when, a nudge after N days, and lab results and referrals filled in from the records. Plan: Q49.
+
+Sources: <https://culturedcode.com/things/>
+
+#### Accommodations at work and school (planned): Nobody else
+
+JAN explains accommodations; nothing found holds the ones a person asked for, was given and when they are reviewed. Also compared: Job Accommodation Network. Checked 2026-10-07.
+
+Sources: <https://askjan.org/>
+
+#### Travelling with a condition (planned): Behind against TripIt
+
+TripIt plans the trip; nothing plans travelling with a condition. Also compared: Medisafe. Checked 2026-10-07.
+
+| Measure | TripIt | Inside Story | |
+|---|---|---|---|
+| What it does | Itineraries from booking emails | Not built | - |
+| Depth | Flights and alerts | Not built | - |
+| Taps | Forward an email | Not built | - |
+| Offline | Cloud | Would be on the phone | + |
+| Privacy | Email access | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free; Pro $49 a year | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | Meds, food and flares for the trip | + |
+
+**To be better.** Ready for a trip (Q51): meds counted for the days away plus spare, time zone handled (A7, Q14), food for the conditions at the destination, letters for carried medicines, the emergency card in the local language. Plan: Q51, A7, Q14.
+
+Sources: <https://www.pilotplans.com/blog/review-of-tripit>
+
+#### Disaster and power-cut preparedness (planned): Behind against FEMA app
+
+Not built. Also compared: Red Cross Emergency. Checked 2026-10-07.
+
+| Measure | FEMA app | Inside Story | |
+|---|---|---|---|
+| What it does | Alerts, shelters, a supplies checklist | Not built | - |
+| Depth | General | Not built | - |
+| Taps | Checklist | Not built | - |
+| Offline | Partly | Would be on the phone | = |
+| Privacy | No account | No account | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | Would read the 19 conditions | + |
+
+**To be better.** Ready for a power cut or disaster (Q52): medicines needing cold and how long they last, a go-bag built from My Meds and Kitchen, the fridge after an outage, kept current from the records. Plan: Q52.
+
+Sources: <https://www.fema.gov/about/news-multimedia/mobile-app-text-messages>
+
+#### Water quality at home (planned): Behind against EWG Tap Water Database
+
+Not built. Checked 2026-10-07.
+
+| Measure | EWG Tap Water Database | Inside Story | |
+|---|---|---|---|
+| What it does | Contaminants reported by the local water system | Not built | - |
+| Depth | 50,000 US systems | Not built | - |
+| Taps | Enter a ZIP | Not built | - |
+| Offline | Online | Would be on the phone | - |
+| Privacy | No account | No account | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | Read against the conditions (iodine, fluoride, nitrate) | + |
+
+**To be better.** Water at home (Q53): a home test or the utility report recorded, the filter as Upkeep, and what matters for the person’s conditions; the utility looked up by a coarsened place only. Plan: Q53.
+
+Sources: <https://www.livescience.com/59935-tap-water-database.html>
+
+#### Home and health (mold, air, energy) (planned): Behind against Awair
+
+Not built. Also compared: Airthings. Checked 2026-10-07.
+
+| Measure | Awair | Inside Story | |
+|---|---|---|---|
+| What it does | Air quality, radon, humidity from the sensor | Not built | - |
+| Depth | Continuous readings | Not built | - |
+| Taps | None | Not built | - |
+| Offline | Cloud | Would be on the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free with the sensor | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | Read beside symptoms | + |
+
+**To be better.** Home and health (Q54): air, damp and mould recorded by hand or from a sensor with a published interface, beside symptoms in Pattern Finder. Plan: Q54.
+
+**Where the leader’s edge rests on a rule kept here.** Published interfaces only.
+
+Sources: <https://www.airthings.com/>
+
+#### Contacts, one record of a person (planned): Behind against The phone’s contacts
+
+Not built. Also compared: Google Contacts. Checked 2026-10-07.
+
+| Measure | The phone’s contacts | Inside Story | |
+|---|---|---|---|
+| What it does | Everyone a person knows | Not built | - |
+| Depth | Synced everywhere | Not built | - |
+| Taps | None | Not built | - |
+| Offline | On the phone | Would be on the phone | = |
+| Privacy | Google or Apple account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | One record of a person across the app | + |
+
+**To be better.** Phone contacts imported one ticked contact at a time (O1), each one record across emergency, care team, family and work. Plan: O1.
+
+Sources: <https://contacts.google.com/>
+
+#### Keeping in touch, text or call from a contact (planned): Behind against The phone’s dialer and messages
+
+Not built. Checked 2026-10-07.
+
+| Measure | The phone’s dialer and messages | Inside Story | |
+|---|---|---|---|
+| What it does | Call and text | Not built | - |
+| Depth | Everything | Not built | - |
+| Taps | One tap | Not built | - |
+| Offline | On the phone | Would be on the phone | = |
+| Privacy | On the phone | No account | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | None | = |
+
+**To be better.** Text or call from a contact inside the app (O2), with keeping-in-touch reminders for the people the person chooses. Plan: O2.
+
+Sources: <https://messages.google.com/>
+
+#### Messages between Inside Story users (planned): Behind against Signal
+
+Not built. Also compared: WhatsApp. Checked 2026-10-07.
+
+| Measure | Signal | Inside Story | |
+|---|---|---|---|
+| What it does | End-to-end encrypted messages | Not built | - |
+| Depth | Groups, calls | Not built | - |
+| Taps | Instant | Not built | - |
+| Offline | Server relays | Would be on the phone | + |
+| Privacy | Phone number | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | Messages tied to a shared list or plan | + |
+
+**To be better.** Messages between paired Inside Story users (O3), tied to the shopping list, meal plan or care they share. Plan: O3.
+
+**Where the leader’s edge rests on a rule kept here.** The relay stays content-blind; no company server holds a message.
+
+Sources: <https://signal.org/>
+
+#### Family health history and the family tree (planned): Behind against FamilySearch
+
+Not built. Also compared: Ancestry. Checked 2026-10-07.
+
+| Measure | FamilySearch | Inside Story | |
+|---|---|---|---|
+| What it does | A family tree with records | Not built | - |
+| Depth | Billions of records | Not built | - |
+| Taps | Search records | Not built | - |
+| Offline | Online | Would be on the phone | + |
+| Privacy | Account, shared tree | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free; Ancestry $39.99 a month | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | Conditions with age at onset for a doctor | + |
+
+**To be better.** Family health history and the tree (Q55): both sides, any condition with age at onset, GEDCOM in and out, the history a doctor asks for, never a risk figure. Plan: Q55.
+
+Sources: <https://www.familysearch.org/>
+
+#### Children’s records (planned): Behind against Baby Connect
+
+Not built. Also compared: Huckleberry. Checked 2026-10-07.
+
+| Measure | Baby Connect | Inside Story | |
+|---|---|---|---|
+| What it does | A child’s feeds, sleep, growth, health | Not built | - |
+| Depth | Shared with carers | Not built | - |
+| Taps | Quick entry | Not built | - |
+| Offline | Cloud | Would be on the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | About $4.99 once on phones, web subscription | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | The child’s conditions | + |
+
+**To be better.** Children’s records under the Guardian tier (Q56), handed over at adulthood (P30). Plan: Q56, P30.
+
+Sources: <https://www.baby-connect.com/>
+
+#### If something happens to me (planned): Behind against Everplans
+
+Not built; P5 decides how. Also compared: Trustworthy. Checked 2026-10-07.
+
+| Measure | Everplans | Inside Story | |
+|---|---|---|---|
+| What it does | Wills, accounts, wishes, deputies who can see them | Not built | - |
+| Depth | Checklists and guidance | Not built | - |
+| Taps | Forms | Not built | - |
+| Offline | Cloud | Would be on the phone | + |
+| Privacy | Company holds it | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free for 10 items; $99.99 a year | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | Care instructions from the records | + |
+
+**To be better.** If something happens to me (P5, then Q57): what the people chosen need, sealed to them, released by a dead man’s switch they agree to, with no company holding it. Plan: P5, Q57.
+
+**Where the leader’s edge rests on a rule kept here.** No company server holds it.
+
+Sources: <https://help.everplans.com/hc/en-us/articles/215665778-How-much-does-Everplans-cost>
+
+#### A life’s Inside Story (planned): Nobody else
+
+StoryWorth makes a book from answers to prompts; nothing makes years of a person’s own records into a book in their words. Also compared: StoryWorth, Day One. Checked 2026-10-07.
+
+Sources: <https://welcome.storyworth.com/>
+
+#### Working life and a resume (planned): Behind against Kickresume
+
+Not built. Also compared: Zety, LinkedIn. Checked 2026-10-07.
+
+| Measure | Kickresume | Inside Story | |
+|---|---|---|---|
+| What it does | Templates, writing help, download | Not built | - |
+| Depth | Templates | Not built | - |
+| Taps | Forms | Not built | - |
+| Offline | Cloud | Would be on the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Paid to download, often about $300 a year on auto-renew | Not yet placed on a tier (P27, Q46); Individual is $89.99 a year | - |
+| Conditions covered | None | Health never on it unless the person puts it there | = |
+
+**To be better.** A resume from work, education and skill records (Q50), .docx out and back in with differences offered one at a time. Plan: Q50.
+
+Sources: <https://www.kickresume.com/en/pricing/>
+
+#### Accessibility past text size (planned): Behind against Tiimo
+
+Text scales and low stimulation exists; screen readers and the rest are not audited. Also compared: Microsoft Seeing AI. Checked 2026-10-07.
+
+| Measure | Tiimo | Inside Story | |
+|---|---|---|---|
+| What it does | Calm visuals, reduced choice, read aloud | Not built | - |
+| Depth | Built with neurodivergent users | Not built | - |
+| Taps | Settings | Not built | - |
+| Offline | Account | Would be on the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free core | Free on every tier | = |
+| Conditions covered | None | ADHD, autism and the 19 conditions | + |
+
+**To be better.** Accessibility past text size (P9) and the chart and list pass (Q35). Plan: P9, Q35.
+
+Sources: <https://www.tiimoapp.com/product>
 
 ## Why things are free or paid: the kinds
 

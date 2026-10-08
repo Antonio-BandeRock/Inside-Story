@@ -77,7 +77,7 @@
 - **Answers:** Gardenize, Sortly, Monarch, Guava, Medisafe · **Theme:** Shared foundations
 - **How:** A media table (owner kind, owner id, file, taken_on), shrink on save, stored under the app folder, copied into the Backups folder and restored beside the encrypted snapshot, never in the plaintext record, shown on desktop from the synced copy. Serves A5, D12, I13, J4, J9.
 
-## Phase 2. Quick wins over the air (133 items)
+## Phase 2. Quick wins over the air (134 items)
 
 ### A3. Pills on hand and refill reminder
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life,Schedules,Signals,Insights
@@ -744,7 +744,12 @@
 - **Answers:** Seedtime, Planter, Gardenize · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Decide with P27: the leading garden apps all give a free core (Seedtime frost dates and timeline, Gardenize diary, Planter grid). Proposed: zone and frost dates, one area, plantings, harvests and the crop guides on Free; several areas, grow setup, electricity, growing conditions, the hive log and reports paid.
 
-## Phase 3. Larger builds over the air (106 items)
+### Q46. The second audience’s Life lenses on Free
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** Life,All
+- **Answers:** Tiimo, Sweepy, AnyList, Medisafe · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Decide with P27: the leaders for daily living all give a free core (Tiimo routines, Sweepy chores, AnyList lists, Medisafe two meds, Google Fit steps). Proposed on Free: Grocery List, Routines, Did I Do It, Days Until, Upkeep, Movement and the med list with every warning, so someone who came for help running their day needs no condition and no payment to start; depth, sync, history and reports paid.
+
+## Phase 3. Larger builds over the air (112 items)
 
 ### A2. Tapering doses
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
@@ -1276,7 +1281,37 @@
 - **Answers:** Seed Savers Exchange · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Mark a planting kept for seed: isolation distance and population size per crop from published guides, harvest and drying dates, germination test, and the saved seed lands in the Seeds lens with the planting it came from.
 
-## Phase 4. The Android rebuild (R1) (17 items)
+### Q47. To-Do projects
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life
+- **Answers:** Todoist, Things · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Projects that hold to-dos, sub-steps under a to-do, a waiting-on state with who and since when, labels and a filter by label, a project finished kept as history; no points, no streaks, no overdue count shown in red.
+
+### Q48. Insurance claims and appeal deadlines
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Reports
+- **Answers:** Sheer Health · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Each claim beside its bill and explanation of benefits (scanned), its state, a denial with the appeal deadline counted down through Days Until, the appeal letter laid out from the person’s own visit, lab and med records for them to edit and send; the insurer is never linked and no company reads the claim.
+
+### Q49. Things I am waiting on
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life,Home
+- **Answers:** Things, Todoist · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A list of what is owed to the person: lab results, referrals, refunds, repairs, replies; who it is from, since when, a nudge after the days they choose, and lab results and referrals offered from the records when they arrive.
+
+### Q50. Working life and a resume
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Life
+- **Answers:** Kickresume, Job Accommodation Network · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Work, education, credentials, skills and accommodations asked for, given and up for review, as records; a resume made from them as .docx, read back with differences offered one at a time; an existing resume imported; health never on it unless the person puts it there.
+
+### Q51. Ready for a trip
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Schedules
+- **Answers:** TripIt, Medisafe · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Dates away: meds counted for the days plus spare, doses moved across time zones (A7, Q14), food for the conditions at the destination, a letter for carried medicines, the emergency card in the local language, upkeep and the garden paused or handed over.
+
+### Q52. Ready for a power cut or disaster
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life
+- **Answers:** FEMA app, Red Cross Emergency · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A go-bag and a supply list built from My Meds and Kitchen and kept current, medicines that need cold with how long they keep, the fridge after an outage with published safe times, contacts on paper; alerts handed to the official apps.
+
+## Phase 4. The Android rebuild (R1) (22 items)
 
 ### C11. Share into Inside Story from any app
 - **Ships by:** Android rebuild R1 · **Size:** M · **Tabs:** Life,Home,Food
@@ -1363,7 +1398,32 @@
 - **Answers:** 11pets, Farmbrite · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Pets and small livestock as records: feed, care, vet visits and vaccinations as reminders, costs, eggs and milk as yield, manure into the compost record; recorded as a relationship over time, nothing scored for output.
 
-## Phase 5. The Worker and the relay (6 items)
+### Q53. Water at home
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Upkeep
+- **Answers:** EWG Tap Water Database · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** The utility report or a home test recorded by hand, the filter as Upkeep, and what matters for the person’s conditions (iodine, fluoride, nitrate, lead) with evidence tiers; any lookup of the utility by a coarsened place only (item 27).
+
+### Q54. Home and health
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Signals
+- **Answers:** Airthings, Awair · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Air quality, damp, mould, radon and allergens recorded by hand or from a sensor with a published interface, beside symptoms in Pattern Finder as context, never offered as the cause.
+
+### Q55. Family health history and the tree
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Life,Reports
+- **Answers:** FamilySearch, Ancestry · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Both sides, any condition with age at onset, people who have died, unknown as an answer with no weight; GEDCOM in and out; the history a doctor asks for in the doctor report; never a risk figure, off the between-people allowlist by default.
+
+### Q56. Children’s records under the Guardian tier
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Life,All
+- **Answers:** Baby Connect, Huckleberry · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A child’s conditions, meds, food, growth, school and appointments kept by the parent, the child’s own access opened at the parent’s pace, handed over at adulthood (P30).
+
+### Q57. If something happens to me
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Life
+- **Answers:** Everplans, Trustworthy · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** After P5 decides how: what the people chosen need (care instructions, meds, accounts, wishes, where things are), sealed to each of them, released by a check-in they agreed to, with no company holding it.
+
+## Phase 5. The Worker and the relay (7 items)
 
 ### A14. Recalls matched to My Meds and scanned foods
 - **Ships by:** Cloudflare Worker · **Size:** M · **Tabs:** Insights,Life,Food
@@ -1394,6 +1454,11 @@
 - **Ships by:** Relay (Worker plus push) · **Size:** L · **Tabs:** all
 - **Answers:** Medisafe, AnyList, CareClinic · **Theme:** Servers and relay
 - **How:** The Worker plus FCM, carrying a wake-up and sealed bytes only. Unlocks A16 on time, J12 instantly, and O3. Remote push setup rides in R1.
+
+### Q58. A life’s Inside Story, first edition
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** All
+- **Answers:** StoryWorth · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Years of the person’s own records gathered and laid out in their words, chosen piece by piece, others named shown before inclusion, as a printed book or PDF plus an open-format archive readable with nothing installed.
 
 ## Phase 6. The iPhone build (R2) (2 items)
 

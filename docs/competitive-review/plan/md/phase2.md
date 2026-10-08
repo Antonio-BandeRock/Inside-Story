@@ -662,3 +662,8 @@
 - **Ships by:** Owner decision first · **Size:** S · **Tabs:** Garden,All
 - **Answers:** Seedtime, Planter, Gardenize · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Decide with P27: the leading garden apps all give a free core (Seedtime frost dates and timeline, Gardenize diary, Planter grid). Proposed: zone and frost dates, one area, plantings, harvests and the crop guides on Free; several areas, grow setup, electricity, growing conditions, the hive log and reports paid.
+
+### Q46. The second audience’s Life lenses on Free
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** Life,All
+- **Answers:** Tiimo, Sweepy, AnyList, Medisafe · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Decide with P27: the leaders for daily living all give a free core (Tiimo routines, Sweepy chores, AnyList lists, Medisafe two meds, Google Fit steps). Proposed on Free: Grocery List, Routines, Did I Do It, Days Until, Upkeep, Movement and the med list with every warning, so someone who came for help running their day needs no condition and no payment to start; depth, sync, history and reports paid.

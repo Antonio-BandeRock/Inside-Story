@@ -82,3 +82,28 @@
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Garden,Life
 - **Answers:** 11pets, Farmbrite · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Pets and small livestock as records: feed, care, vet visits and vaccinations as reminders, costs, eggs and milk as yield, manure into the compost record; recorded as a relationship over time, nothing scored for output.
+
+### Q53. Water at home
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Upkeep
+- **Answers:** EWG Tap Water Database · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** The utility report or a home test recorded by hand, the filter as Upkeep, and what matters for the person’s conditions (iodine, fluoride, nitrate, lead) with evidence tiers; any lookup of the utility by a coarsened place only (item 27).
+
+### Q54. Home and health
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Signals
+- **Answers:** Airthings, Awair · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Air quality, damp, mould, radon and allergens recorded by hand or from a sensor with a published interface, beside symptoms in Pattern Finder as context, never offered as the cause.
+
+### Q55. Family health history and the tree
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Life,Reports
+- **Answers:** FamilySearch, Ancestry · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Both sides, any condition with age at onset, people who have died, unknown as an answer with no weight; GEDCOM in and out; the history a doctor asks for in the doctor report; never a risk figure, off the between-people allowlist by default.
+
+### Q56. Children’s records under the Guardian tier
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Life,All
+- **Answers:** Baby Connect, Huckleberry · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A child’s conditions, meds, food, growth, school and appointments kept by the parent, the child’s own access opened at the parent’s pace, handed over at adulthood (P30).
+
+### Q57. If something happens to me
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Life
+- **Answers:** Everplans, Trustworthy · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** After P5 decides how: what the people chosen need (care instructions, meds, accounts, wishes, where things are), sealed to each of them, released by a check-in they agreed to, with no company holding it.
