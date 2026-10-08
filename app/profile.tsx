@@ -4884,9 +4884,9 @@ export default function ProfileScreen() {
             {!collapsedAppearanceSubsections.has('gettingStarted') ? (
               <>
                 <Text style={styles.helpText}>
-                  The first time this app is opened it says what the button below is for, and keeps a small
-                  pointer above it until the button has been used once. Both are gone for good after that.
-                  Bring them back when setting this up for someone new.
+                  Until the menu button at the bottom of the screen has been used once, a small note above it says
+                  to tap there to move around the app. It is gone for good after that. Bring it back when setting
+                  this up for someone new.
                 </Text>
                 <TouchableOpacity
                   style={styles.replayWelcomeButton}
@@ -4895,7 +4895,7 @@ export default function ProfileScreen() {
                     void setVisualPreferences({ hasSeenTabHubWelcome: false, hasUsedTabHub: false });
                   }}
                 >
-                  <Text style={styles.replayWelcomeButtonText}>Show the Welcome Again</Text>
+                  <Text style={styles.replayWelcomeButtonText}>Show the Pointer Again</Text>
                 </TouchableOpacity>
               </>
             ) : null}

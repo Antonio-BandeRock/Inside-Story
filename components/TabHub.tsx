@@ -41,7 +41,7 @@ import { DessertBuilderIcon } from './FoodBuilderIcons';
 import { HelpSheet } from './HelpButton';
 import { ActiveRingCircle } from './ActiveRingCircle';
 import { useHubHandoff } from './HubHandoff';
-import { TabHubPointer, TabHubWelcome, useTabHubOnboarding } from './TabHubOnboarding';
+import { TabHubPointer, useTabHubOnboarding } from './TabHubOnboarding';
 import { TabRouteIcon } from './TabRouteIcon';
 import { useWalkMark } from './WalkMark';
 
@@ -453,7 +453,7 @@ export function TabHub() {
   const activeRoute = TAB_ROUTES.find((route) => route.path === activeTabPath);
 
   // 2026-09-03: says what this button is to someone who has never seen the
-  // app. See TabHubOnboarding.tsx for why it is two pieces rather than one.
+  // app. See TabHubOnboarding.tsx.
   const onboarding = useTabHubOnboarding();
 
   const buttonBottom = insets.bottom + BOTTOM_OFFSET;
@@ -643,12 +643,8 @@ export function TabHub() {
 
   return (
     <>
-      {/* Both render BEFORE the button and at a lower zIndex, which is what
-          leaves the button lit above the dim with no masking involved. Hidden
-          while the menu is open, since neither has anything to say then. */}
-      {onboarding.showWelcome && !open ? (
-        <TabHubWelcome buttonBottom={buttonBottom} onDismiss={onboarding.dismissWelcome} />
-      ) : null}
+      {/* Renders BEFORE the button and at a lower zIndex. Hidden while the
+          menu is open, since it has nothing to say then. */}
       {onboarding.showPointer && !open ? <TabHubPointer buttonBottom={buttonBottom} /> : null}
       <TouchableOpacity
         style={[styles.button, { bottom: buttonBottom }, walkMark('hub')]}
