@@ -34,7 +34,7 @@ Hashimoto's is about 7.5% worldwide. These audiences overlap and are not added t
 | Partner | $134.99/yr for two | Apple Health Sharing, free | fair; sell as an upgrade from Individual |
 | Household seats | $17.99/yr a seat after 2 or 3 free | Cozi Gold $39/yr per family | per seat loses to one family price |
 | Guardian | bundled | Google Family Link, free | right shape |
-| Caregiver | free to the caregiver, paid for by the person cared for | Caring Village (free for one person, $24.99 a month for up to five), Medisafe Medfriend (free, watch only) | decided 2026-10-07: linked by invitation like Partner, each person cared for kept apart; Q74 to Q88 planned to beat each leader |
+| Caregiver | free to the caregiver; first caregiver in the person’s Individual plan | Caring Village (free for one person, $24.99 a month for up to five), Medisafe Medfriend (free, watch only) | decided 2026-10-07: linked by invitation, each person cared for kept apart, one way so it never stands in for Partner (Q89); a paid user caring for family pays nothing more (Q90); Q74 to Q90 planned to beat each leader |
 
 ## Arithmetic of paid installs (per 1,000 installs)
 

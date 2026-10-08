@@ -36,12 +36,12 @@
 ### Q73. The Caregiver tier
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** All
 - **Answers:** CareClinic, Medisafe, Caring Village · **Theme:** Beating the leader, function by function (2026-10-07)
-- **How:** Free to download for the caregiver and paid for by the person cared for, linked by an invitation sent from the app as Partner is; writing for another adult with consent or attestation, every change logged where both read it, missed doses told on time. Q74 to Q88 carry the rest, each built to beat the caregiver leader for that function.
+- **How:** Free to download for the caregiver; the person cared for pays, and their first caregiver comes with their Individual plan. Linked by an invitation sent from the app; writing for another adult with consent or attestation, every change logged where both read it, missed doses told on time, and never usable as a cheaper Partner (Q89). Q74 to Q90 carry the rest, each built to beat the caregiver leader for that function.
 
 ### Q74. A free caregiver download, paid for by the person cared for
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** All
 - **Answers:** Medisafe (Medfriend), Caring Village · **Theme:** Beating the leader, function by function (2026-10-07)
-- **How:** The caregiver installs free and is linked only by an invitation sent from the cared-for person’s app and accepted, signed by both device keys as Partner is; the cared-for person’s plan carries the caregiver seat, and a person with no device of their own can be paid for by whoever sets them up.
+- **How:** The caregiver installs free and is linked only by an invitation sent from the cared-for person’s app and accepted, signed by both device keys; the first caregiver comes with the cared-for person’s Individual plan, further caregivers are priced under P27, and a person with no device of their own can have their plan bought for them by a relative, still as their plan.
 
 ### Q75. Each person cared for kept apart
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** All
@@ -112,3 +112,13 @@
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Profile
 - **Answers:** (nobody) · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** When the link ends or the person dies, the records go where the person said they should (P32, and “If something happens to me”), the caregiver keeps their notes and costs, and nothing is deleted unasked.
+
+### Q89. A caregiver link can never stand in for Partner
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** All
+- **Answers:** (your question) · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** The link runs one way, onto the cared-for person’s record and only the areas they consented to; nothing of the caregiver’s record travels back; meals and shopping are not shared both ways as Partner shares them; and the link gives the caregiver no paid features for their own records, which stay on whatever plan the caregiver has. Two people who set up caregiver links each way are paying two Individual plans, more than Partner, and the app says Partner costs less and shares more. Enforced in the allowlist (lib/peerRelationships.ts) and the entitlement gate (P27), never by trusting what the link is called.
+
+### Q90. A paid user becoming a caregiver for their family
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** All
+- **Answers:** Caring Village · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A person already on Individual or Partner becomes a caregiver for a parent or anyone in their extended family at no cost to themselves; the family member pays for the link through a plan of their own, which a relative may buy for them. The caregiver’s own records keep their full paid features beside each person they care for, kept apart (Q75).
