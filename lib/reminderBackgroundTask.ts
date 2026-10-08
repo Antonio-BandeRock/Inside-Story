@@ -26,6 +26,7 @@ import { Platform } from 'react-native';
 import { isAppLockedError } from './appLockSession';
 import { answerFromBackground } from './reminderNotifications';
 import { isRelayWake } from './relayWake';
+import { tracePress } from './pressTrace';
 
 export const REMINDER_ANSWER_TASK = 'inside-story-reminder-answer';
 
@@ -40,6 +41,7 @@ if (Platform.OS === 'android') {
         console.error('[reminderBackgroundTask] task error', error);
         return;
       }
+      tracePress('task', isResponse(data), typeof data === 'object' && data !== null ? Object.keys(data).join('.') : typeof data);
       if (!isResponse(data)) {
         if (isRelayWake(data)) {
           const { collectAfterWake } = await import('./pushWake');
@@ -54,6 +56,7 @@ if (Platform.OS === 'android') {
         // next unlock before anything opens the database (answerWhileLocked
         // in lib/reminderNotifications.ts). A locked error here means the
         // lock came on partway through, and the press is let go quietly.
+        tracePress('taskerr', isAppLockedError(answerError), String((answerError as Error)?.message ?? answerError).slice(0, 60).replace(/[^A-Za-z0-9 ]/g, ''));
         if (isAppLockedError(answerError)) return;
         console.error('[reminderBackgroundTask] answer failed', answerError);
       }
