@@ -64,12 +64,12 @@ nav.toc a{color:var(--accent)}
 <h1>Everything the competitors do, and how Inside Story gets there</h1>
 <p class="lead">Every gap the nine tab reviews named, merged where two tabs asked for the same thing, then ordered so each phase stands on the one before. Nothing from the review is left out: items that break a standing rule or need a server are listed in Phase 7 with the reason, waiting on your yes.</p>
 <div class="stats">
-<span class="stat"><b>275</b>items</span>
-<span class="stat"><b>223</b>ship over the air</span>
+<span class="stat"><b>282</b>items</span>
+<span class="stat"><b>229</b>ship over the air</span>
 <span class="stat"><b>11</b>in the Android rebuild</span>
 <span class="stat"><b>2</b>in the iPhone build</span>
 <span class="stat"><b>9</b>on the Worker</span>
-<span class="stat"><b>30</b>wait on your decision</span>
+<span class="stat"><b>31</b>wait on your decision</span>
 </div>
 </header>
 
@@ -305,7 +305,7 @@ nav.toc a{color:var(--accent)}
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p2">
-<h2>Phase 2. Quick wins over the air <span class="count">122</span></h2>
+<h2>Phase 2. Quick wins over the air <span class="count">125</span></h2>
 <p class="lead">Small and medium items that each close a named competitor gap with no rebuild. Most take an hour to a day each.</p>
 <div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
 <tbody><tr data-tabs="Life|Schedules|Signals|Insights" data-text="pills on hand and refill reminder supply_on_hand, supply_unit and refill_lead_days on treatments, drawn down when a dose is marked taken on meds, a refill kind in lib/remindersources.ts, "about 6 days left" in mymedssection.tsx. medisafe, mytherapy, careclinic, guava">
@@ -1161,10 +1161,31 @@ nav.toc a{color:var(--accent)}
 <td class="tabs">Schedules<br>Home</td>
 <td><span class="ship ota">Over the air</span></td>
 <td class="size">M</td>
+</tr>
+<tr data-tabs="Signals|All" data-text="logging on free, reading on paid decide with p27: the daily check-in, flares, food reactions, the bowel log, blood pressure, period days and the person’s own trackers are kept on free with no limit, and pattern finder, experiments, trends beyond a short window and reports stay paid. bearable gives unlimited logging away; a record nobody can start for free never reaches the paid reading. bearable, flaredown, smartbp, clue">
+<td class="id">Q18</td>
+<td><div class="t">Logging on Free, reading on paid</div><div class="how">Decide with P27: the daily check-in, flares, food reactions, the bowel log, blood pressure, period days and the person’s own trackers are kept on Free with no limit, and Pattern Finder, experiments, Trends beyond a short window and Reports stay paid. Bearable gives unlimited logging away; a record nobody can start for free never reaches the paid reading.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Bearable, Flaredown, SmartBP, Clue</div></td>
+<td class="tabs">Signals<br>All</td>
+<td><span class="ship ask">Your decision</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Signals|Trends" data-text="exertion and how it landed an effort rating on each exercise or activity log, and a next-morning question after a bigger day (better, same, worse, crashed), both read by trends &gt; pacing beside the crash tags. visible">
+<td class="id">Q20</td>
+<td><div class="t">Exertion and how it landed</div><div class="how">An effort rating on each exercise or activity log, and a next-morning question after a bigger day (better, same, worse, crashed), both read by Trends &gt; Pacing beside the crash tags.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Visible</div></td>
+<td class="tabs">Signals<br>Trends</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Signals|Life" data-text="the diary the diary from the 2026-09-26 gap review, absorbing general note: entries with photos and voice, prompts, on this day, its own lock, private until chosen, and the words a life’s inside story is later made from. day one, journey">
+<td class="id">Q24</td>
+<td><div class="t">The Diary</div><div class="how">The Diary from the 2026-09-26 gap review, absorbing General Note: entries with photos and voice, prompts, on this day, its own lock, private until chosen, and the words a life’s Inside Story is later made from.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Day One, Journey</div></td>
+<td class="tabs">Signals<br>Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">L</td>
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p3">
-<h2>Phase 3. Larger builds over the air <span class="count">92</span></h2>
+<h2>Phase 3. Larger builds over the air <span class="count">96</span></h2>
 <p class="lead">Bigger pieces of JS work: new tables with their own screens, drawn editors, experiments, the caregiver holding, garden planning, bank import.</p>
 <div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
 <tbody><tr data-tabs="Schedules" data-text="tapering doses a taper step list on treatments (amount per date range), read by the series generator and the dose reminder text. prednisone tapers in ra, ibd and lupus flares. needs a1. built 1.0.57.1: steps entered on life &gt; my meds as a first day plus amount and days per step (treatment_taper_steps, lib/taper.ts); reminders, home, schedules &gt; meds and today's meals show the day's amount with (step n of m); new reminder times preset to stop on the taper's last day; the med's own dose applies outside the taper. careclinic">
@@ -1810,6 +1831,34 @@ nav.toc a{color:var(--accent)}
 <td class="tabs">Schedules<br>Life</td>
 <td><span class="ship ota">Over the air</span></td>
 <td class="size">M</td>
+</tr>
+<tr data-tabs="Signals" data-text="cycle shared with a partner by choice a relationship in lib/peerrelationships.ts that names period days and predicted dates only, symptoms only if ticked one by one, turned off from either side. clue connect">
+<td class="id">Q19</td>
+<td><div class="t">Cycle shared with a partner by choice</div><div class="how">A relationship in lib/peerRelationships.ts that names period days and predicted dates only, symptoms only if ticked one by one, turned off from either side.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Clue Connect</div></td>
+<td class="tabs">Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Signals|Reports" data-text="a home blood-pressure week a guided seven days of two readings a minute apart morning and evening, the first day set aside as clinic guidance asks, the average and the count of readings carried into the doctor report. smartbp, qardio">
+<td class="id">Q21</td>
+<td><div class="t">A home blood-pressure week</div><div class="how">A guided seven days of two readings a minute apart morning and evening, the first day set aside as clinic guidance asks, the average and the count of readings carried into the doctor report.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers SmartBP, Qardio</div></td>
+<td class="tabs">Signals<br>Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Signals|Life" data-text="calm for each condition, and where to go further scripts for flare nights, pain and waiting for results written per condition, the trial-backed programmes (gut-directed hypnotherapy, cbt for ibs) named with how to reach them in the condition reading, and the person’s own recordings played once r1 carries expo-audio. nerva, calm">
+<td class="id">Q22</td>
+<td><div class="t">Calm for each condition, and where to go further</div><div class="how">Scripts for flare nights, pain and waiting for results written per condition, the trial-backed programmes (gut-directed hypnotherapy, CBT for IBS) named with how to reach them in the condition reading, and the person’s own recordings played once R1 carries expo-audio.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Nerva, Calm</div></td>
+<td class="tabs">Signals<br>Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Signals|Reports" data-text="a three-day bladder diary an optional mode for the clinical three days: each void with volume and urgency, leaks, fluid in drawn from what is already logged, the night share worked out, and a page in the doctor report. bladder journal, u-night">
+<td class="id">Q23</td>
+<td><div class="t">A three-day bladder diary</div><div class="how">An optional mode for the clinical three days: each void with volume and urgency, leaks, fluid in drawn from what is already logged, the night share worked out, and a page in the doctor report.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Bladder Journal, U-Night</div></td>
+<td class="tabs">Signals<br>Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p4">

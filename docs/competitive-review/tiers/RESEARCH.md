@@ -28,6 +28,7 @@ Standing rule since 2026-10-07: every function that competes with a leading app 
 |---|---|---|---|---|---|
 | Food | 3 | 3 | 6 | 6 | 0 |
 | Schedules | 6 | 5 | 2 | 1 | 0 |
+| Signals | 3 | 7 | 2 | 2 | 7 |
 
 ### Food
 
@@ -537,6 +538,250 @@ Fitbod decides the next workout from the last one; ours schedules what the perso
 **To be better.** A plan that answers to the body: offer the gentler alternative on a day the check-in reads low or a flare is open, and step a strength workout up from its logged sets, so it is the only planner that progresses and also holds back. Plan: Q17.
 
 Sources: <https://fitbod.me/>
+
+### Signals
+
+#### How you feel today (daily check-in): Even against Bearable
+
+Ours goes further once logged, but Bearable gives the logging itself away and ours keeps it behind the paywall; a person who cannot log for free never builds the record that the paid analysis reads. Also compared: Daylio, CareClinic. Checked 2026-10-07.
+
+| Measure | Bearable | Inside Story | |
+|---|---|---|---|
+| What it does | Mood, energy, sleep, any symptom the person names, severity, reminders, widgets | Mood, energy and stress 1 to 5, 43 tags plus the person’s own, severity per symptom, a daily list with none today, a morning check-in, reminders with answers on the notification, one flow (D1 to D9) | = |
+| Depth | Comparison graphs, correlations | Read by Pattern Finder with named denominators and a baseline, beside cycle, sleep and treatment changes | + |
+| Taps | A few taps, a widget | A few taps, answers on the notification, a Capture widget | = |
+| Offline | Account, syncs | On the phone | + |
+| Privacy | Account; passcode lock is premium | No account; App Lock and the vault on every tier | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free: unlimited symptoms, mood, reminders, widgets, 30 days of graphs; $34.99 a year | Free tier has no Signals at all today; Individual $89.99 a year | - |
+| Conditions covered | Any, general | The 19 conditions’ own symptoms in the tag list | + |
+
+**To be better.** Put logging on Free: the daily check-in, flares, food reactions, the bowel log and the person’s own trackers, with Pattern Finder, experiments and reports staying paid (Q18). Then a check-in widget that answers in one tap on the home screen. Plan: Q18, P27.
+
+Sources: <https://bearable.app/support/common-questions/bearable-free-vs-premium-features/> <https://apppricinglab.com/iap/apple/1482581097>
+
+#### Flares: Even against Flaredown
+
+Ahead on every measure that reads the flare, behind on price and on weather, which Flaredown puts beside every flare. Also compared: Bearable, CareClinic. Checked 2026-10-07.
+
+| Measure | Flaredown | Inside Story | |
+|---|---|---|---|
+| What it does | Daily symptoms, conditions, treatments, weather, free | Start time, severity, tags, a body map, photos over time, treatments read beside it (D11, D12) | + |
+| Depth | Weather and community trends | Meals before it, typical delay, cycle day, sleep and treatment changes beside it | + |
+| Taps | One daily form | One form, or from the notification | = |
+| Offline | Account, web | On the phone | + |
+| Privacy | Data pooled for community insight | No account; nothing pooled | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free | Free tier has no Signals at all today; Individual $89.99 a year | - |
+| Conditions covered | Any condition by name | The 19, with condition-specific reading | + |
+
+**To be better.** Logging a flare free (Q18), and weather beside flares through the Worker bundle with a coarsened, opt-in location (F22). Plan: Q18, F22.
+
+**Where the leader’s edge rests on a rule kept here.** Flaredown’s community trends pool everybody’s health data on a server (Z5), which this app does not do.
+
+Sources: <https://flaredown.com/>
+
+#### Food Reactions: Better against mySymptoms Food Diary
+
+mySymptoms ranks suspects by frequency; ours ranks them against a baseline and needs fewer taps because the plan already holds the meals. Also compared: Cara Care, Bearable. Checked 2026-10-07.
+
+| Measure | mySymptoms Food Diary | Inside Story | |
+|---|---|---|---|
+| What it does | Food, drink, symptoms, bowel, meds; suspect foods ranked | A reaction from the named food; Pattern Finder with typical delay and best days beside worst days (F3, F4) | = |
+| Depth | Suspects by how often they precede a symptom | Same, against how often the food turns up in any ordinary stretch, so a food eaten daily is not blamed for being common | + |
+| Taps | Log every food by hand | Meals already on the plan count as eaten | + |
+| Offline | On the phone | On the phone | = |
+| Privacy | Account optional | No account | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Logging with ads; $49.99 a year | Individual | = |
+| Conditions covered | Gut, general | The 19 conditions’ trigger foods scored in the food database | + |
+
+Sources: <https://www.skygazerlabs.com/> <https://discourse.weareopen.coop/news/best-gut-health-and-ibs>
+
+#### Leave-it-out experiments (New Foods & Experiments): Better against Bearable experiments
+
+The only experiment found anywhere that brings the thing back and says what one run can and cannot show. Also compared: Monash FODMAP reintroduction, mySymptoms. Checked 2026-10-07.
+
+| Measure | Bearable experiments | Inside Story | |
+|---|---|---|---|
+| What it does | Before and after a change, a few free | Leave it out then bring it back, any factor, an elimination series, stepped reintroduction, glucose as a measure (F5 to F8) | + |
+| Depth | Before against after | Before, without and back, each ending with its one-run limit | + |
+| Taps | Set up once | Set up once; a meal eaten during the days without does not start it | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Limited free; $34.99 a year | Individual | - |
+| Conditions covered | General | Elimination diets for IBS, celiac and others read from the conditions | + |
+
+Sources: <https://bearable.app/support/common-questions/bearable-free-vs-premium-features/>
+
+#### Exercise log: Even against Visible
+
+Visible reads heart rate live from a dedicated band; ours reads what the person already wears after the fact, and adds therapy and crash tags. Even, with different strengths. Also compared: Strava, Bearable. Checked 2026-10-07.
+
+| Measure | Visible | Inside Story | |
+|---|---|---|---|
+| What it does | Pacing for energy-limiting illness: heart rate all day from an armband, PacePoints, a morning check-in, pacing alerts | Exercise logged or filled in from Health Connect, a pacing view of steps, exercise, therapy and crash tags against the typical day (D16) | = |
+| Depth | Heart rate against an energy budget, live | What came in the two days before a crash, against the person’s typical day | = |
+| Taps | Automatic from the band | Automatic from Health Connect, or one form | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account; research app pools data | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | App free; Plus about $15 to $20 a month and an $80 band | Free tier has no Signals at all today; Individual $89.99 a year | = |
+| Conditions covered | ME/CFS, long COVID, POTS, fibromyalgia, EDS | Fibromyalgia and the energy-limiting side of all 19 | = |
+
+**To be better.** Record how hard it felt and how it landed: an exertion rating on each log and a next-morning question after any bigger day, both read by Pacing, so the record carries the post-exertion side that Visible only infers (Q20). Plan: Q20.
+
+**Where the leader’s edge rests on a rule kept here.** Visible’s live pacing buzz needs a worn sensor and a native background service (Z14), and its Stability Score is a score standing in for judgement (Z2); both stay out.
+
+Sources: <https://help.makevisible.com/en/articles/13928208-what-is-visible> <https://help.makevisible.com/en/articles/8311647-visible-membership-faqs>
+
+#### Blood Pressure: Even against SmartBP
+
+Even on the record; ahead on what it sits beside; behind on price. Also compared: Qardio, Apple Health. Checked 2026-10-07.
+
+| Measure | SmartBP | Inside Story | |
+|---|---|---|---|
+| What it does | Log or sync, averages, tags, export, reminders, widgets, Watch | Systolic, diastolic and pulse, typed or from Health Connect; charted with your usual range | = |
+| Depth | Averages and tags | Read beside meds, sodium and potassium from meals, and flares | + |
+| Taps | One form or automatic | One form or automatic | = |
+| Offline | On the phone, Apple Health | On the phone | = |
+| Privacy | Account optional | No account | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free | Free tier has no Signals at all today; Individual $89.99 a year | - |
+| Conditions covered | None | Kidney disease and gout among the 19 | + |
+
+**To be better.** A home reading week the way clinic guidelines ask for it, two readings a minute apart morning and evening for seven days, the first day set aside, the average carried into the doctor report (Q21), and logging on Free (Q18). Plan: Q21, Q18.
+
+Sources: <https://livestrong.com/article/13726355-blood-pressure-app> <https://apps.appfollow.io/ios/blood-pressure-tracker-smartbp/519076558?country=hr>
+
+#### Hands-On Therapies: Nobody else
+
+No app found records chiropractic, acupuncture, massage or pelvic floor sessions with who, what, how long and cost, and reads symptoms before and after them (Trends > Therapy Response). Also compared: CareClinic. Checked 2026-10-07.
+
+Sources: <https://apps.apple.com/us/app/tracker-reminder-careclinic/id1455648231>
+
+#### General Note: Behind against Day One
+
+A note is not a journal. The Diary decided in the 2026-09-26 gap review absorbs this lens and is not built. Also compared: Journey, Apple Journal. Checked 2026-10-07.
+
+| Measure | Day One | Inside Story | |
+|---|---|---|---|
+| What it does | A journal: entries with photos, audio, places, templates, prompts, on this day | A general note on the day, and journal prompts (D14) | - |
+| Depth | Many journals, years of memories | A note beside the day’s other records | - |
+| Taps | Quick entry, widgets | One form | = |
+| Offline | Syncs, end-to-end encrypted | On the phone | = |
+| Privacy | End-to-end encrypted on every tier | No account; App Lock | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free; Silver $49.99, Gold $74.99 a year | Free tier has no Signals at all today; Individual $89.99 a year | - |
+| Conditions covered | None | Read beside the health record | + |
+
+**To be better.** Build the Diary: entries with photos and voice, prompts, on this day, its own lock, private until chosen, and the words that later make up the person’s life story (Q24). Day One’s depth with the health record beside it is something no journal has. Plan: Q24.
+
+Sources: <https://dayoneapp.com/guides/premium-subscription/day-one-pricing-features-guide/> <https://blog.mylifenote.ai/day-one-vs-journey/>
+
+#### Nocturia: Even against Bladder Journal
+
+Ours is lighter and reads more around it; a urologist asks for a full three-day bladder diary, which ours does not hold. Also compared: U-Night, Bladder Diary. Checked 2026-10-07.
+
+| Measure | Bladder Journal | Inside Story | |
+|---|---|---|---|
+| What it does | Voids, fluid in, leaks, volume measured by sound | Night trips and first waking time, read on Trends > Nights beside drinks and food water | - |
+| Depth | Bladder metrics | Against evening drinks, caffeine and alcohol from meals, sleep and meds | + |
+| Taps | One per void | One per night | + |
+| Offline | On the phone | On the phone | = |
+| Privacy | Privacy stated | No account | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free to try, subscription | Free tier has no Signals at all today; Individual $89.99 a year | = |
+| Conditions covered | Overactive bladder, incontinence, nocturia | Nocturia beside kidney disease and diabetes-related reading | = |
+
+**To be better.** Offer the clinical three-day bladder diary as a mode: each void with volume and urgency, leaks, fluid in from what is already logged, the nocturnal share worked out, and a page in the doctor report (Q23). Plan: Q23.
+
+Sources: <https://apps.apple.com/lb/app/bladder-journal-diary-tracker/id6743176692> <https://diposit.ub.edu/items/45ecd79f-d09b-473f-90fc-e2b5a80853e4>
+
+#### Bowel Movements: Better against Poop Tracker
+
+The same record, read against meals; nothing pins a type as good or bad, and blood is kept as said with one line to raise it. Also compared: mySymptoms, Cara Care. Checked 2026-10-07.
+
+| Measure | Poop Tracker | Inside Story | |
+|---|---|---|---|
+| What it does | Bristol type, amount, urgency, blood, mucus, gas, cramps, odour | Bristol type pictured, urgency, blood, pain, a note (D10) | = |
+| Depth | Charts | Pattern Finder counts what came before type 1 or 2 days and type 6 or 7 days | + |
+| Taps | Faster than a text | One form | = |
+| Offline | On the phone, no account | On the phone, no account | = |
+| Privacy | No account | No account | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free to try | Free tier has no Signals at all today; Individual $89.99 a year | - |
+| Conditions covered | Gut, general | IBS, IBD and celiac read with their foods | + |
+
+Sources: <https://apps.apple.com/app/id1270884638> <https://discourse.weareopen.coop/news/best-gut-health-and-ibs>
+
+#### Microbiome Tests: Nobody else
+
+Every microbiome app reads only its own kit. Ours keeps any company’s result as a typed record and reads it beside the meals and symptoms around it. Also compared: Viome, Zoe, Thorne. Checked 2026-10-07.
+
+Sources: <https://joinzoe.com/>
+
+#### Cycle: Even against Clue
+
+Ahead on reading the cycle against the rest of the body and on privacy; behind on price and on a partner view. Also compared: Euki, Flo, Bearable. Checked 2026-10-07.
+
+| Measure | Clue | Inside Story | |
+|---|---|---|---|
+| What it does | Period, symptoms, predictions, Clue Connect for a partner, pregnancy and perimenopause modes | Period days by hand or from Health Connect, next period from the person’s average, Trends > Cycle, shading on every chart (E1 to E6) | = |
+| Depth | Cycle science | Flares by cycle day, each tag by week of the cycle, mood and energy by phase, Pattern Finder beside it | + |
+| Taps | Quick | Quick | = |
+| Offline | Account | On the phone, nothing sent (Euki’s model) | + |
+| Privacy | Mozilla 8 of 10 | No account, no server; Euki scored 10 of 10 the same way | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free core; Clue Plus about $39.99 a year | Free tier has no Signals at all today; Individual $89.99 a year | - |
+| Conditions covered | Cycle conditions | Autoimmune flares across the cycle for all 19 | + |
+
+**To be better.** Period days on Free (Q18), and a partner view sent by choice through the between-people allowlist, cycle days only, never symptoms unless named (Q19). Plan: Q18, Q19.
+
+**Where the leader’s edge rests on a rule kept here.** A fertile-window prediction used to avoid pregnancy is a medical device claim (Natural Cycles and Clue Birth Control went through the FDA); this app does not predict fertility for contraception.
+
+Sources: <https://unstar.app/blog/flo-clue-stardust-apple-health-period-tracking-apps-ranked-2026> <https://www.digitaltrends.com/phones/stardust-flo-and-other-popular-period-trackers-flunk-mozillas-latest-privacy-test/>
+
+#### Calm: Behind against Nerva
+
+Nerva sells a trial-tested programme; ours is a pacer and scripts and says so. Also compared: Calm, Headspace. Checked 2026-10-07.
+
+| Measure | Nerva | Inside Story | |
+|---|---|---|---|
+| What it does | A six-week gut-directed hypnotherapy programme with recorded sessions | A breathing pacer, relaxation scripts read by the device voice (D15) | - |
+| Depth | Trial-backed for IBS | Slow breathing and muscle relaxation, said plainly to be less than a programme | - |
+| Taps | Press play | Press play | = |
+| Offline | Downloads | On the phone | = |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $43.99 a month to $199 | Individual | + |
+| Conditions covered | IBS | All 19, general | = |
+
+**To be better.** Do not imitate the programme. Name the trial-backed programmes and how to reach them (Nerva, the NHS-listed ones, a trained therapist) where the IBS reading talks about it, write scripts for flare nights and pain for each condition, and play the person’s own recordings once the R1 build carries expo-audio (Q22). Plan: Q22, D15.
+
+**Where the leader’s edge rests on a rule kept here.** Recorded audio would have to be licensed or produced for the app, and nothing free is good enough to stand behind; that is a choice recorded in lib/calm.ts.
+
+Sources: <https://start.nervahealth.com/programs/gut-directed-hypnotherapy> <https://apppricinglab.com/iap/apple/1467398796>
+
+#### My Trackers (track anything): Even against Bearable
+
+Same idea, deeper reading here, free there. Also compared: Exist, Daylio. Checked 2026-10-07.
+
+| Measure | Bearable | Inside Story | |
+|---|---|---|---|
+| What it does | Any factor the person names, unlimited free | Any tracker the person names, numbers, yes or no, scales (D2) | = |
+| Depth | Correlations against mood and symptoms | Pattern Finder for any factor against any outcome (F1, F2), Trends > My Trackers | + |
+| Taps | Widgets | A form, Capture widget | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free, unlimited | Free tier has no Signals at all today; Individual $89.99 a year | - |
+| Conditions covered | General | General | = |
+
+**To be better.** Trackers on Free with the reading paid (Q18). Plan: Q18.
+
+Sources: <https://bearable.app/support/common-questions/bearable-free-vs-premium-features/>
 
 ## Why things are free or paid: the kinds
 

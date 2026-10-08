@@ -607,3 +607,18 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules,Home
 - **Answers:** Tiimo, Structured · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** The Today timeline drawn as blocks sized by their minutes, each in its tab colour with its lens icon, the current block counting down, readable at a glance without reading a list; the list stays one tap away.
+
+### Q18. Logging on Free, reading on paid
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** Signals,All
+- **Answers:** Bearable, Flaredown, SmartBP, Clue · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Decide with P27: the daily check-in, flares, food reactions, the bowel log, blood pressure, period days and the person’s own trackers are kept on Free with no limit, and Pattern Finder, experiments, Trends beyond a short window and Reports stay paid. Bearable gives unlimited logging away; a record nobody can start for free never reaches the paid reading.
+
+### Q20. Exertion and how it landed
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Signals,Trends
+- **Answers:** Visible · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** An effort rating on each exercise or activity log, and a next-morning question after a bigger day (better, same, worse, crashed), both read by Trends > Pacing beside the crash tags.
+
+### Q24. The Diary
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Signals,Life
+- **Answers:** Day One, Journey · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** The Diary from the 2026-09-26 gap review, absorbing General Note: entries with photos and voice, prompts, on this day, its own lock, private until chosen, and the words a life’s Inside Story is later made from.

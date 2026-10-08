@@ -77,7 +77,7 @@
 - **Answers:** Gardenize, Sortly, Monarch, Guava, Medisafe · **Theme:** Shared foundations
 - **How:** A media table (owner kind, owner id, file, taken_on), shrink on save, stored under the app folder, copied into the Backups folder and restored beside the encrypted snapshot, never in the plaintext record, shown on desktop from the synced copy. Serves A5, D12, I13, J4, J9.
 
-## Phase 2. Quick wins over the air (122 items)
+## Phase 2. Quick wins over the air (125 items)
 
 ### A3. Pills on hand and refill reminder
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life,Schedules,Signals,Insights
@@ -689,7 +689,22 @@
 - **Answers:** Tiimo, Structured · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** The Today timeline drawn as blocks sized by their minutes, each in its tab colour with its lens icon, the current block counting down, readable at a glance without reading a list; the list stays one tap away.
 
-## Phase 3. Larger builds over the air (92 items)
+### Q18. Logging on Free, reading on paid
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** Signals,All
+- **Answers:** Bearable, Flaredown, SmartBP, Clue · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Decide with P27: the daily check-in, flares, food reactions, the bowel log, blood pressure, period days and the person’s own trackers are kept on Free with no limit, and Pattern Finder, experiments, Trends beyond a short window and Reports stay paid. Bearable gives unlimited logging away; a record nobody can start for free never reaches the paid reading.
+
+### Q20. Exertion and how it landed
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Signals,Trends
+- **Answers:** Visible · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** An effort rating on each exercise or activity log, and a next-morning question after a bigger day (better, same, worse, crashed), both read by Trends > Pacing beside the crash tags.
+
+### Q24. The Diary
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Signals,Life
+- **Answers:** Day One, Journey · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** The Diary from the 2026-09-26 gap review, absorbing General Note: entries with photos and voice, prompts, on this day, its own lock, private until chosen, and the words a life’s Inside Story is later made from.
+
+## Phase 3. Larger builds over the air (96 items)
 
 ### A2. Tapering doses
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
@@ -1150,6 +1165,26 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules,Life
 - **Answers:** Fitbod · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Offer the gentler alternative when the check-in reads low or a flare is open, and step a strength workout up from its logged sets, so the plan progresses and also holds back.
+
+### Q19. Cycle shared with a partner by choice
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Signals
+- **Answers:** Clue Connect · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A relationship in lib/peerRelationships.ts that names period days and predicted dates only, symptoms only if ticked one by one, turned off from either side.
+
+### Q21. A home blood-pressure week
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Signals,Reports
+- **Answers:** SmartBP, Qardio · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A guided seven days of two readings a minute apart morning and evening, the first day set aside as clinic guidance asks, the average and the count of readings carried into the doctor report.
+
+### Q22. Calm for each condition, and where to go further
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Signals,Life
+- **Answers:** Nerva, Calm · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Scripts for flare nights, pain and waiting for results written per condition, the trial-backed programmes (gut-directed hypnotherapy, CBT for IBS) named with how to reach them in the condition reading, and the person’s own recordings played once R1 carries expo-audio.
+
+### Q23. A three-day bladder diary
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Signals,Reports
+- **Answers:** Bladder Journal, U-Night · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** An optional mode for the clinical three days: each void with volume and urgency, leaks, fluid in drawn from what is already logged, the night share worked out, and a page in the doctor report.
 
 ## Phase 4. The Android rebuild (R1) (14 items)
 
