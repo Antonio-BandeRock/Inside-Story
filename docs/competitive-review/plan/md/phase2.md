@@ -667,3 +667,8 @@
 - **Ships by:** Owner decision first · **Size:** S · **Tabs:** Life,All
 - **Answers:** Tiimo, Sweepy, AnyList, Medisafe · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Decide with P27: the leaders for daily living all give a free core (Tiimo routines, Sweepy chores, AnyList lists, Medisafe two meds, Google Fit steps). Proposed on Free: Grocery List, Routines, Did I Do It, Days Until, Upkeep, Movement and the med list with every warning, so someone who came for help running their day needs no condition and no payment to start; depth, sync, history and reports paid.
+
+### Q59. Simple View
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Home
+- **Answers:** Tiimo, Structured · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** One switch that turns Home into one clear next thing from the person’s own schedules, routines and reminders, with the rest one tap away; nothing scored, nothing counted against them.

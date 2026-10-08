@@ -32,3 +32,8 @@
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** All
 - **Answers:** StoryWorth · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Years of the person’s own records gathered and laid out in their words, chosen piece by piece, others named shown before inclusion, as a printed book or PDF plus an open-format archive readable with nothing installed.
+
+### Q73. The Caregiver tier
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** All
+- **Answers:** CareClinic, Medisafe · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Writing for another adult with consent or attestation, every change logged where both read it, missed doses told on time.

@@ -64,9 +64,9 @@ nav.toc a{color:var(--accent)}
 <h1>Everything the competitors do, and how Inside Story gets there</h1>
 <p class="lead">Every gap the nine tab reviews named, merged where two tabs asked for the same thing, then ordered so each phase stands on the one before. Nothing from the review is left out: items that break a standing rule or need a server are listed in Phase 7 with the reason, waiting on your yes.</p>
 <div class="stats">
-<span class="stat"><b>316</b>items</span>
-<span class="stat"><b>257</b>ship over the air</span>
-<span class="stat"><b>11</b>in the Android rebuild</span>
+<span class="stat"><b>331</b>items</span>
+<span class="stat"><b>271</b>ship over the air</span>
+<span class="stat"><b>12</b>in the Android rebuild</span>
 <span class="stat"><b>2</b>in the iPhone build</span>
 <span class="stat"><b>10</b>on the Worker</span>
 <span class="stat"><b>36</b>wait on your decision</span>
@@ -305,7 +305,7 @@ nav.toc a{color:var(--accent)}
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p2">
-<h2>Phase 2. Quick wins over the air <span class="count">134</span></h2>
+<h2>Phase 2. Quick wins over the air <span class="count">135</span></h2>
 <p class="lead">Small and medium items that each close a named competitor gap with no rebuild. Most take an hour to a day each.</p>
 <div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
 <tbody><tr data-tabs="Life|Schedules|Signals|Insights" data-text="pills on hand and refill reminder supply_on_hand, supply_unit and refill_lead_days on treatments, drawn down when a dose is marked taken on meds, a refill kind in lib/remindersources.ts, "about 6 days left" in mymedssection.tsx. medisafe, mytherapy, careclinic, guava">
@@ -1245,10 +1245,17 @@ nav.toc a{color:var(--accent)}
 <td class="tabs">Life<br>All</td>
 <td><span class="ship ask">Your decision</span></td>
 <td class="size">S</td>
+</tr>
+<tr data-tabs="Home" data-text="simple view one switch that turns home into one clear next thing from the person’s own schedules, routines and reminders, with the rest one tap away; nothing scored, nothing counted against them. tiimo, structured">
+<td class="id">Q59</td>
+<td><div class="t">Simple View</div><div class="how">One switch that turns Home into one clear next thing from the person’s own schedules, routines and reminders, with the rest one tap away; nothing scored, nothing counted against them.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Tiimo, Structured</div></td>
+<td class="tabs">Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p3">
-<h2>Phase 3. Larger builds over the air <span class="count">112</span></h2>
+<h2>Phase 3. Larger builds over the air <span class="count">117</span></h2>
 <p class="lead">Bigger pieces of JS work: new tables with their own screens, drawn editors, experiments, the caregiver holding, garden planning, bank import.</p>
 <div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
 <tbody><tr data-tabs="Schedules" data-text="tapering doses a taper step list on treatments (amount per date range), read by the series generator and the dose reminder text. prednisone tapers in ra, ibd and lupus flares. needs a1. built 1.0.57.1: steps entered on life &gt; my meds as a first day plus amount and days per step (treatment_taper_steps, lib/taper.ts); reminders, home, schedules &gt; meds and today's meals show the day's amount with (step n of m); new reminder times preset to stop on the taper's last day; the med's own dose applies outside the taper. careclinic">
@@ -2034,10 +2041,45 @@ nav.toc a{color:var(--accent)}
 <td class="tabs">Life</td>
 <td><span class="ship ota">Over the air</span></td>
 <td class="size">M</td>
+</tr>
+<tr data-tabs="Home|Schedules" data-text="ready for tomorrow one evening view over tomorrow’s records (meals, doses, appointments, upkeep, routines), with prep lead time on recipes raising an evening-before task. structured">
+<td class="id">Q60</td>
+<td><div class="t">Ready for tomorrow</div><div class="how">One evening view over tomorrow’s records (meals, doses, appointments, upkeep, routines), with prep lead time on recipes raising an evening-before task.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Structured</div></td>
+<td class="tabs">Home<br>Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Life|Home" data-text="break a task into small steps on the phone steps from starter patterns and the person’s own routines, worked out on the phone with no model; text goes to a model only with an opt-in each time, if ever. goblin.tools, tiimo">
+<td class="id">Q61</td>
+<td><div class="t">Break a task into small steps on the phone</div><div class="how">Steps from starter patterns and the person’s own routines, worked out on the phone with no model; text goes to a model only with an opt-in each time, if ever.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Goblin.tools, Tiimo</div></td>
+<td class="tabs">Life<br>Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="All" data-text="google drive and icloud drive as the shared folder the same snapshot sync and backup through google drive and icloud drive as through onedrive, the person’s own storage, no company server. obsidian sync, day one">
+<td class="id">Q62</td>
+<td><div class="t">Google Drive and iCloud Drive as the shared folder</div><div class="how">The same snapshot sync and backup through Google Drive and iCloud Drive as through OneDrive, the person’s own storage, no company server.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Obsidian Sync, Day One</div></td>
+<td class="tabs">All</td>
+<td><span class="ship r1">Android rebuild</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="All" data-text="a shared recipe readable without the app a received .is recipe also carries a plain page anyone can read, signed content unchanged, so a person without the app still gets the recipe. paprika">
+<td class="id">Q63</td>
+<td><div class="t">A shared recipe readable without the app</div><div class="how">A received .is recipe also carries a plain page anyone can read, signed content unchanged, so a person without the app still gets the recipe.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Paprika</div></td>
+<td class="tabs">All</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Reports" data-text="reports saved to a remembered folder save to a folder chosen once and remembered, beside the share sheet, in pdf and open formats. obsidian">
+<td class="id">Q64</td>
+<td><div class="t">Reports saved to a remembered folder</div><div class="how">Save to a folder chosen once and remembered, beside the share sheet, in PDF and open formats.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Obsidian</div></td>
+<td class="tabs">Reports</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p4">
-<h2>Phase 4. The Android rebuild (R1) <span class="count">22</span></h2>
+<h2>Phase 4. The Android rebuild (R1) <span class="count">30</span></h2>
 <p class="lead">Everything below needs native code, so it is gathered into one EAS build. Both phones reinstall once.</p>
 <div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
 <tbody><tr data-tabs="Life|Home|Food" data-text="share into inside story from any app a send intent filter for text, links and images. a link to a recipe goes to the importer (g1); anything else lands in capture. todoist, samsung food, plan to eat">
@@ -2193,10 +2235,66 @@ nav.toc a{color:var(--accent)}
 <td class="tabs">Life</td>
 <td><span class="ship ota">Over the air</span></td>
 <td class="size">L</td>
+</tr>
+<tr data-tabs="Interests" data-text="the interests tab following and practising as two stages of one record: sessions, gear, costs, people and places, nothing pushed toward earning, no diagnosis needed to start. notion, strava">
+<td class="id">Q65</td>
+<td><div class="t">The Interests tab</div><div class="how">Following and practising as two stages of one record: sessions, gear, costs, people and places, nothing pushed toward earning, no diagnosis needed to start.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Notion, Strava</div></td>
+<td class="tabs">Interests</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="All" data-text="projects across the app a project that reads records from any tab (a garden bed, a kitchen job, a trip), on top of to-do projects. todoist, notion">
+<td class="id">Q66</td>
+<td><div class="t">Projects across the app</div><div class="how">A project that reads records from any tab (a garden bed, a kitchen job, a trip), on top of To-Do projects.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Todoist, Notion</div></td>
+<td class="tabs">All</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Interests" data-text="making it pay self-employment reading and a viability worksheet from the interest’s own costs and time; never advises starting a business or quitting a job. score, sba">
+<td class="id">Q67</td>
+<td><div class="t">Making It Pay</div><div class="how">Self-employment reading and a viability worksheet from the interest’s own costs and time; never advises starting a business or quitting a job.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers SCORE, SBA</div></td>
+<td class="tabs">Interests</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Interests" data-text="learn: ready-made decks on free decks on the 19 conditions, food and the reading, mostly critical-thinking questions, spaced repetition, printable, no points or pushed percentages. anki, quizlet">
+<td class="id">Q68</td>
+<td><div class="t">Learn: ready-made decks on Free</div><div class="how">Decks on the 19 conditions, food and the reading, mostly critical-thinking questions, spaced repetition, printable, no points or pushed percentages.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Anki, Quizlet</div></td>
+<td class="tabs">Interests</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Interests" data-text="learn: decks from a table and from records paid: decks imported from a table or made from the person’s own records, which no free tool can make. quizlet, anki">
+<td class="id">Q69</td>
+<td><div class="t">Learn: decks from a table and from records</div><div class="how">Paid: decks imported from a table or made from the person’s own records, which no free tool can make.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Quizlet, Anki</div></td>
+<td class="tabs">Interests</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Home" data-text="inside knowledge on home a home card counting what a person has come to know, a count that only grows, percentages behind a link they open. duolingo">
+<td class="id">Q70</td>
+<td><div class="t">Inside Knowledge on Home</div><div class="how">A Home card counting what a person has come to know, a count that only grows, percentages behind a link they open.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Duolingo</div></td>
+<td class="tabs">Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="All" data-text="household seats viewer and household seats on the allowlist: meal plan, list, trends summary, ticking off; one family price considered against per seat. cozi, anylist">
+<td class="id">Q71</td>
+<td><div class="t">Household seats</div><div class="how">Viewer and household seats on the allowlist: meal plan, list, Trends summary, ticking off; one family price considered against per seat.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Cozi, AnyList</div></td>
+<td class="tabs">All</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="All" data-text="the partner tier two full accounts, meals and shopping shared, a per-category choice of the rest, ended cleanly. apple health sharing, anylist">
+<td class="id">Q72</td>
+<td><div class="t">The Partner tier</div><div class="how">Two full accounts, meals and shopping shared, a per-category choice of the rest, ended cleanly.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Apple Health Sharing, AnyList</div></td>
+<td class="tabs">All</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">L</td>
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p5">
-<h2>Phase 5. The Worker and the relay <span class="count">7</span></h2>
+<h2>Phase 5. The Worker and the relay <span class="count">8</span></h2>
 <p class="lead">Cloudflare work on inside-story-site: the content-blind relay, and the public-data bundles under the three privacy shapes from item 27.</p>
 <div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
 <tbody><tr data-tabs="Insights|Life|Food" data-text="recalls matched to my meds and scanned foods external data item 27: the worker pre-fetches fda recall feeds as one bundle and the phone matches names locally, so the med list never leaves it. drugs.com">
@@ -2244,6 +2342,13 @@ nav.toc a{color:var(--accent)}
 <tr data-tabs="All" data-text="a life’s inside story, first edition years of the person’s own records gathered and laid out in their words, chosen piece by piece, others named shown before inclusion, as a printed book or pdf plus an open-format archive readable with nothing installed. storyworth">
 <td class="id">Q58</td>
 <td><div class="t">A life’s Inside Story, first edition</div><div class="how">Years of the person’s own records gathered and laid out in their words, chosen piece by piece, others named shown before inclusion, as a printed book or PDF plus an open-format archive readable with nothing installed.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers StoryWorth</div></td>
+<td class="tabs">All</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="All" data-text="the caregiver tier writing for another adult with consent or attestation, every change logged where both read it, missed doses told on time. careclinic, medisafe">
+<td class="id">Q73</td>
+<td><div class="t">The Caregiver tier</div><div class="how">Writing for another adult with consent or attestation, every change logged where both read it, missed doses told on time.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers CareClinic, Medisafe</div></td>
 <td class="tabs">All</td>
 <td><span class="ship ota">Over the air</span></td>
 <td class="size">L</td>

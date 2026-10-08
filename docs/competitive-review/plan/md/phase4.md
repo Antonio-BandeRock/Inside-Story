@@ -107,3 +107,43 @@
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Life
 - **Answers:** Everplans, Trustworthy · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** After P5 decides how: what the people chosen need (care instructions, meds, accounts, wishes, where things are), sealed to each of them, released by a check-in they agreed to, with no company holding it.
+
+### Q65. The Interests tab
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Interests
+- **Answers:** Notion, Strava · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Following and practising as two stages of one record: sessions, gear, costs, people and places, nothing pushed toward earning, no diagnosis needed to start.
+
+### Q66. Projects across the app
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** All
+- **Answers:** Todoist, Notion · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A project that reads records from any tab (a garden bed, a kitchen job, a trip), on top of To-Do projects.
+
+### Q67. Making It Pay
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Interests
+- **Answers:** SCORE, SBA · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Self-employment reading and a viability worksheet from the interest’s own costs and time; never advises starting a business or quitting a job.
+
+### Q68. Learn: ready-made decks on Free
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Interests
+- **Answers:** Anki, Quizlet · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Decks on the 19 conditions, food and the reading, mostly critical-thinking questions, spaced repetition, printable, no points or pushed percentages.
+
+### Q69. Learn: decks from a table and from records
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Interests
+- **Answers:** Quizlet, Anki · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Paid: decks imported from a table or made from the person’s own records, which no free tool can make.
+
+### Q70. Inside Knowledge on Home
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Home
+- **Answers:** Duolingo · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A Home card counting what a person has come to know, a count that only grows, percentages behind a link they open.
+
+### Q71. Household seats
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** All
+- **Answers:** Cozi, AnyList · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Viewer and household seats on the allowlist: meal plan, list, Trends summary, ticking off; one family price considered against per seat.
+
+### Q72. The Partner tier
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** All
+- **Answers:** Apple Health Sharing, AnyList · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Two full accounts, meals and shopping shared, a per-category choice of the rest, ended cleanly.

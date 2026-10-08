@@ -77,7 +77,7 @@
 - **Answers:** Gardenize, Sortly, Monarch, Guava, Medisafe · **Theme:** Shared foundations
 - **How:** A media table (owner kind, owner id, file, taken_on), shrink on save, stored under the app folder, copied into the Backups folder and restored beside the encrypted snapshot, never in the plaintext record, shown on desktop from the synced copy. Serves A5, D12, I13, J4, J9.
 
-## Phase 2. Quick wins over the air (134 items)
+## Phase 2. Quick wins over the air (135 items)
 
 ### A3. Pills on hand and refill reminder
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life,Schedules,Signals,Insights
@@ -749,7 +749,12 @@
 - **Answers:** Tiimo, Sweepy, AnyList, Medisafe · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Decide with P27: the leaders for daily living all give a free core (Tiimo routines, Sweepy chores, AnyList lists, Medisafe two meds, Google Fit steps). Proposed on Free: Grocery List, Routines, Did I Do It, Days Until, Upkeep, Movement and the med list with every warning, so someone who came for help running their day needs no condition and no payment to start; depth, sync, history and reports paid.
 
-## Phase 3. Larger builds over the air (112 items)
+### Q59. Simple View
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Home
+- **Answers:** Tiimo, Structured · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** One switch that turns Home into one clear next thing from the person’s own schedules, routines and reminders, with the rest one tap away; nothing scored, nothing counted against them.
+
+## Phase 3. Larger builds over the air (117 items)
 
 ### A2. Tapering doses
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
@@ -1311,7 +1316,32 @@
 - **Answers:** FEMA app, Red Cross Emergency · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** A go-bag and a supply list built from My Meds and Kitchen and kept current, medicines that need cold with how long they keep, the fridge after an outage with published safe times, contacts on paper; alerts handed to the official apps.
 
-## Phase 4. The Android rebuild (R1) (22 items)
+### Q60. Ready for tomorrow
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Home,Schedules
+- **Answers:** Structured · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** One evening view over tomorrow’s records (meals, doses, appointments, upkeep, routines), with prep lead time on recipes raising an evening-before task.
+
+### Q61. Break a task into small steps on the phone
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life,Home
+- **Answers:** Goblin.tools, Tiimo · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Steps from starter patterns and the person’s own routines, worked out on the phone with no model; text goes to a model only with an opt-in each time, if ever.
+
+### Q62. Google Drive and iCloud Drive as the shared folder
+- **Ships by:** Android rebuild R1 · **Size:** M · **Tabs:** All
+- **Answers:** Obsidian Sync, Day One · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** The same snapshot sync and backup through Google Drive and iCloud Drive as through OneDrive, the person’s own storage, no company server.
+
+### Q63. A shared recipe readable without the app
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** All
+- **Answers:** Paprika · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A received .is recipe also carries a plain page anyone can read, signed content unchanged, so a person without the app still gets the recipe.
+
+### Q64. Reports saved to a remembered folder
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
+- **Answers:** Obsidian · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Save to a folder chosen once and remembered, beside the share sheet, in PDF and open formats.
+
+## Phase 4. The Android rebuild (R1) (30 items)
 
 ### C11. Share into Inside Story from any app
 - **Ships by:** Android rebuild R1 · **Size:** M · **Tabs:** Life,Home,Food
@@ -1423,7 +1453,47 @@
 - **Answers:** Everplans, Trustworthy · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** After P5 decides how: what the people chosen need (care instructions, meds, accounts, wishes, where things are), sealed to each of them, released by a check-in they agreed to, with no company holding it.
 
-## Phase 5. The Worker and the relay (7 items)
+### Q65. The Interests tab
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Interests
+- **Answers:** Notion, Strava · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Following and practising as two stages of one record: sessions, gear, costs, people and places, nothing pushed toward earning, no diagnosis needed to start.
+
+### Q66. Projects across the app
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** All
+- **Answers:** Todoist, Notion · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A project that reads records from any tab (a garden bed, a kitchen job, a trip), on top of To-Do projects.
+
+### Q67. Making It Pay
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Interests
+- **Answers:** SCORE, SBA · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Self-employment reading and a viability worksheet from the interest’s own costs and time; never advises starting a business or quitting a job.
+
+### Q68. Learn: ready-made decks on Free
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Interests
+- **Answers:** Anki, Quizlet · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Decks on the 19 conditions, food and the reading, mostly critical-thinking questions, spaced repetition, printable, no points or pushed percentages.
+
+### Q69. Learn: decks from a table and from records
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Interests
+- **Answers:** Quizlet, Anki · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Paid: decks imported from a table or made from the person’s own records, which no free tool can make.
+
+### Q70. Inside Knowledge on Home
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Home
+- **Answers:** Duolingo · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A Home card counting what a person has come to know, a count that only grows, percentages behind a link they open.
+
+### Q71. Household seats
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** All
+- **Answers:** Cozi, AnyList · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Viewer and household seats on the allowlist: meal plan, list, Trends summary, ticking off; one family price considered against per seat.
+
+### Q72. The Partner tier
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** All
+- **Answers:** Apple Health Sharing, AnyList · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Two full accounts, meals and shopping shared, a per-category choice of the rest, ended cleanly.
+
+## Phase 5. The Worker and the relay (8 items)
 
 ### A14. Recalls matched to My Meds and scanned foods
 - **Ships by:** Cloudflare Worker · **Size:** M · **Tabs:** Insights,Life,Food
@@ -1459,6 +1529,11 @@
 - **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** All
 - **Answers:** StoryWorth · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Years of the person’s own records gathered and laid out in their words, chosen piece by piece, others named shown before inclusion, as a printed book or PDF plus an open-format archive readable with nothing installed.
+
+### Q73. The Caregiver tier
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** All
+- **Answers:** CareClinic, Medisafe · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Writing for another adult with consent or attestation, every change logged where both read it, missed doses told on time.
 
 ## Phase 6. The iPhone build (R2) (2 items)
 

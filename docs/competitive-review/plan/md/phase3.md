@@ -557,3 +557,28 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life
 - **Answers:** FEMA app, Red Cross Emergency · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** A go-bag and a supply list built from My Meds and Kitchen and kept current, medicines that need cold with how long they keep, the fridge after an outage with published safe times, contacts on paper; alerts handed to the official apps.
+
+### Q60. Ready for tomorrow
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Home,Schedules
+- **Answers:** Structured · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** One evening view over tomorrow’s records (meals, doses, appointments, upkeep, routines), with prep lead time on recipes raising an evening-before task.
+
+### Q61. Break a task into small steps on the phone
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life,Home
+- **Answers:** Goblin.tools, Tiimo · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Steps from starter patterns and the person’s own routines, worked out on the phone with no model; text goes to a model only with an opt-in each time, if ever.
+
+### Q62. Google Drive and iCloud Drive as the shared folder
+- **Ships by:** Android rebuild R1 · **Size:** M · **Tabs:** All
+- **Answers:** Obsidian Sync, Day One · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** The same snapshot sync and backup through Google Drive and iCloud Drive as through OneDrive, the person’s own storage, no company server.
+
+### Q63. A shared recipe readable without the app
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** All
+- **Answers:** Paprika · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A received .is recipe also carries a plain page anyone can read, signed content unchanged, so a person without the app still gets the recipe.
+
+### Q64. Reports saved to a remembered folder
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
+- **Answers:** Obsidian · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Save to a folder chosen once and remembered, beside the share sheet, in PDF and open formats.
