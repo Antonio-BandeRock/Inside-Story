@@ -224,6 +224,18 @@
   },
   {
    "t": "food",
+   "id": "food-gardenuse",
+   "n": "From your garden (a saved meal takes what it used off the harvest)",
+   "u": 5,
+   "p": 2,
+   "f": 2,
+   "e": "No garden app knows what was cooked and no food app knows what was grown.",
+   "r": "A connection between the kitchen and the garden. Niche, but nobody else can do it.",
+   "s": false,
+   "fam": "connections"
+  },
+  {
+   "t": "food",
    "id": "food-log",
    "n": "Logging a meal (Log or Schedule, quick log)",
    "u": 1,
@@ -256,7 +268,7 @@
    "e": "No reviewed app checks a dose against the meals around it.",
    "r": "Doses in context. Unique and used daily.",
    "s": false,
-   "fam": "med-reminders"
+   "fam": "connections"
   },
   {
    "t": "schedules",
@@ -808,7 +820,7 @@
    "e": "Nobody connects a garden to nutrition.",
    "r": "Unique but niche.",
    "s": false,
-   "fam": "garden"
+   "fam": "connections"
   },
   {
    "t": "trends",
@@ -1000,7 +1012,7 @@
    "e": "No app reviewed puts these in one place.",
    "r": "Unique, monthly use.",
    "s": false,
-   "fam": "money"
+   "fam": "connections"
   },
   {
    "t": "trends",
@@ -1133,6 +1145,18 @@
    "r": "Paid draw.",
    "s": false,
    "fam": "pattern"
+  },
+  {
+   "t": "trends",
+   "id": "tr-rule",
+   "n": "Make this a rule (a Pattern Finder result becomes a personal rule)",
+   "u": 5,
+   "p": 4,
+   "f": 1,
+   "e": "Bearable and Guava show a correlation and stop; nothing turns one into a rule that then watches meals and treatments.",
+   "r": "A connection: what the records showed starts shaping what the app says next.",
+   "s": false,
+   "fam": "connections"
   },
   {
    "t": "trends",
@@ -1648,7 +1672,7 @@
    "e": "Nobody plans meals across a family's conditions.",
    "r": "Leads naturally to Partner and Household.",
    "s": false,
-   "fam": "meal-plan"
+   "fam": "connections"
   },
   {
    "t": "across",

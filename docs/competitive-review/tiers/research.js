@@ -17,6 +17,7 @@ const KINDS = {
   mission: { name: 'Paid for by a nonprofit, a church or a government', text: 'Donors, grants or public money cover it, so it is free to everyone and stays that way.' },
   once: { name: 'Sold once', text: 'A one-time purchase rather than a subscription, which sets what people expect to pay.' },
   paid: { name: 'Nobody gives it away', text: 'Every app reviewed charges for it.' },
+  whole: { name: 'Only works because it is all in one place', text: 'It reads records from more than one part of life against each other, so no single-purpose app can offer it at any price. Separate apps each hold one piece and none of them can see the others.' },
   none: { name: 'Nobody offers it', text: 'No app reviewed does this, so there is no price to compare against.' },
 };
 
@@ -45,6 +46,13 @@ const SOURCES = {
   caringbridge: { t: 'CaringBridge', url: 'https://CaringBridge.org', finding: 'A nonprofit, free, no ads and no data sales, over 90% funded by people who have used it.' },
   inat: { t: 'iNaturalist: is it free?', url: 'https://help.inaturalist.org/en/support/solutions/articles/151000189329', finding: 'Free with no paywall, a nonprofit funded by grants (Moore Foundation) and donations, with photo hosting donated by Amazon.' },
   pets: { t: '11pets on the App Store', url: 'https://apps.apple.com/us/app/11pets-pet-care/id1232470530', finding: 'Free with in-app purchases from $1.99 to $17.99.' },
+  multimorb: { t: 'Cumulative burden of digital health technologies for patients with multimorbidity: a systematic review (PMC)', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12032558/', finding: 'Of 148 FDA-cleared digital health technologies, fewer than 5% were built for two or more conditions. A person with five chronic conditions would need at least 15 of them to get the functions clinicians rated important, which the authors call a burden of its own.' },
+  multimorb2: { t: 'TechTarget: few digital health technologies address multimorbidity', url: 'https://www.techtarget.com/virtualhealthcare/news/366623435/Few-digital-health-technologies-can-address-multimorbidity', finding: 'The same work in plain terms: one hypothetical patient would need up to 13 apps and 7 devices.' },
+  subcount: { t: 'Glenbrook: US subscription fatigue', url: 'https://glenbrook.com/payments_news/us-subscription-fatigue-is-real-with-consumers-managing-an-average-of-5-accounts/', finding: 'The average American pays for about 5.4 subscriptions, two of them now through a bundle.' },
+  fatigue: { t: 'ExpressVPN: 2 in 5 people have subscription fatigue', url: 'https://expressvpn.com/blog/?p=144107', finding: 'Nearly 40% of people across the US, UK, France and Germany say they feel overwhelmed by the number of subscriptions they manage. An industry survey.' },
+  bundle: { t: 'L.E.K. Consulting: subscription aggregation', url: 'https://www.lek.com/insights/subscription-aggregation-rx-ott-fatigue', finding: 'Bundling and aggregation are the industry response to subscription fatigue. An industry analysis.' },
+  yougov: { t: 'YouGov: who wants an all-in-one super app', url: 'https://yougov.com/articles/48247-singaporeans-are-fifth-most-likely-in-the-world-to-want-to-use-an-all-in-one-super-app', finding: 'A warning: 63% of Singaporeans would use an everything app, but only 27% of Danes, 29% of Americans, 30% of Germans and 32% of Britons. "Everything in one app" is a weak pitch in the West.' },
+  specialist: { t: 'MinuteDock: why use a suite of apps', url: 'https://MinuteDock.com/academy/why-you-need-a-suite-of-apps-a-comprehensive-exploration', finding: 'The usual case for separate apps: each is built by specialists and goes deeper than an all-in-one tool.' },
   resume: { t: 'Unstar: resume builder apps ranked 2026', url: 'https://unstar.app/blog/resume-io-zety-canva-indeed-novoresume-resume-builder-apps-ranked-2026', finding: 'Most resume builders are free to write in and charge to download, often a $2.95 trial that renews at $23.95 every four weeks (about $311 a year). The FTC hears about 70 complaints a day on subscription traps.' },
 };
 
@@ -158,7 +166,7 @@ const FAMILIES = [
     lift: 'Every logger stays Free; a free person’s records are never locked. The understanding (Pattern Finder, Trends) is paid.',
   },
   {
-    id: 'pattern', name: 'Finding what tends to come before a flare', kinds: ['paid'],
+    id: 'pattern', name: 'Finding what tends to come before a flare', kinds: ['paid', 'whole'],
     comps: [
       C('Bearable Premium', '$34.99 a year', 'Nothing', 'Correlations between factors and symptoms', ['https://bearable.app/pricing/'], 'trends.md §2.1'),
       C('Exist', '$62.90 a year', 'Nothing', 'Correlations across connected services', ['https://exist.io/'], 'trends.md §2.2'),
@@ -204,7 +212,7 @@ const FAMILIES = [
     lift: 'Entering results Free. Labs over time with the usual range, and labs beside intake (Compare Two), paid.',
   },
   {
-    id: 'nutrients', name: 'Nutrients from food and from supplements', kinds: ['paid', 'funnel'],
+    id: 'nutrients', name: 'Nutrients from food and from supplements', kinds: ['paid', 'funnel', 'whole'],
     comps: [
       C('Cronometer Gold', '$59.99 a year', 'Daily totals', 'Charts over time, custom targets', ['https://cronometer.com/gold/index.html'], 'trends.md §2.5'),
       C('ZOE', '$99.99 a year', 'Little', 'Diversity and gut scores', ['https://zoe.com/en-us/app'], 'insights.md §2.2'),
@@ -214,7 +222,7 @@ const FAMILIES = [
     lift: 'Today’s totals Free; the food or supplement split, history and variety paid. The split is unique, so name it.',
   },
   {
-    id: 'reports', name: 'Reports for a doctor, nutritionist, trainer or caregiver', kinds: ['paid', 'platform'],
+    id: 'reports', name: 'Reports for a doctor, nutritionist, trainer or caregiver', kinds: ['paid', 'platform', 'whole'],
     comps: [
       C('Guava', 'Premium', 'Basic sharing', 'Visit prep reports', ['https://guavahealth.com/plans'], 'reports.md'),
       C('Bearable', 'Premium $34.99 a year', 'Nothing', 'Export and reports', ['https://bearable.app/pricing/'], 'reports.md'),
@@ -328,7 +336,7 @@ const FAMILIES = [
     lift: 'Health Literacy and Earth Matters Free (already decided). The 19 condition libraries are paid: that depth is not free anywhere.',
   },
   {
-    id: 'privacy', name: 'Privacy, the lock, the vault and backup', kinds: ['data', 'none'],
+    id: 'privacy', name: 'Privacy, the lock, the vault and backup', kinds: ['data', 'none', 'whole'],
     comps: [C('Most health apps', 'Free', 'Data held on the company’s server', '', ['https://www.mozillafoundation.org/ca/privacynotincluded/articles/getting-private-mental-health-and-prayer-apps-rush-to-revise-privacy-policies/'])],
     whyFree: 'Almost nobody sells privacy, because their business needs the data. GoodRx and Flo were fined for sharing it; 29 of 32 mental health apps earned Mozilla’s warning.',
     ours: 'No server at all. Records are encrypted on the device, the vault hides chosen categories, backups go to the person’s cloud folder.',
@@ -483,6 +491,18 @@ const FAMILIES = [
     lift: 'Free.',
   },
   {
+    id: 'connections', name: 'What the records do together', kinds: ['whole', 'none'],
+    comps: [
+      C('Cronometer + Medisafe', '$59.99 + $39.99 a year', 'A food log and dose reminders', 'Each its own analysis, neither sees the other', ['https://pillo.care/blog/medisafe-not-free-what-to-do'], 'food.md §2.1, schedules.md §2.1'),
+      C('Bearable', '$34.99 a year', 'Logging', 'Correlations, but only across what is logged inside Bearable', ['https://bearable.app/pricing/'], 'trends.md §2.1'),
+      C('Seedtime + YNAB', 'from $84 + $109 a year', 'A garden plan and a budget', 'Neither sees the other, or the kitchen', [], 'garden.md §2, life.md §2'),
+    ],
+    whyFree: 'Nobody offers it, free or paid. Each competitor holds one part of life, so a dose cannot be checked against a meal logged elsewhere, a harvest cannot come off a meal saved elsewhere, and a cost cannot be added up across four apps. A systematic review found fewer than 5% of cleared digital health tools cover more than one condition, so a person with several conditions needs 13 to 15 of them. The market answer to too many subscriptions is a bundle, which saves money but connects nothing.',
+    ours: 'Records from food, doses, sleep, symptoms, the garden, money and family read against each other: Today’s Meals checks each dose against the meals around it, What It Costs adds food, medicines, bills and the garden together, From your garden takes a meal’s ingredients off the harvest, a family member’s conditions shape the meal plan, and a Pattern Finder result becomes a personal rule in one tap. All of it in one encrypted place with no company holding it, where eight separate apps would mean eight companies each holding a piece.',
+    lift: 'The strongest paid-caliber family in the app, because no set of separate apps can do it at any price. It also gives the Free line a rule rather than a guess: each piece, trimmed down, on Free; the connections between pieces on paid. Sell the connections by what they do, never as "everything in one app", which surveys show is a weak pitch in the US and Europe.',
+    srcs: ['multimorb', 'multimorb2', 'subcount', 'fatigue', 'bundle', 'yougov', 'specialist'],
+  },
+  {
     id: 'asked', name: 'Waiting on a decision (need a server or bend a rule)', kinds: ['paid'],
     comps: [C('Google Health Premium', '$9.99 a month', '', 'An AI health coach', ['https://techcrunch.com/2026/05/07/googles-9-99-per-month-ai-health-coach-launches-may-19/'], 'home.md §2.6')],
     whyFree: 'These are paid where they exist because they cost the company money every time they run (an AI model, a bank link, a delivery partner).',
@@ -513,7 +533,8 @@ const EVALUATION = [
   { h: 'Sell privacy as the reason the app costs money', b: 'Free health apps have been paid for with data: GoodRx and Flo were fined, Mozilla flagged 29 of 32 mental health apps, and Mint closed when credit referrals stopped covering it. People say they would pay about $12 more for strong data safety. Inside Story has no server, so the price is the whole business model. Say so on the paywall, while the lock itself stays Free.', fams: ['privacy', 'money', 'cycle'] },
   { h: 'Give the second audience a paid way in that needs no condition', b: 'People with ADHD already pay $79.99 a year for Tiimo, $27 to $40 for Routinery and $99.99 for Structured. Inside Story’s routines, Did I Do It, Keeping Up, Where did I put it, the one next thing and Ready for tomorrow match that and add the rest of life. Today the paid tier is priced around condition scoring. Worth deciding: does someone who came for daily living pay the same Individual price, or is there a lower daily-living price that upgrades into health?', fams: ['daily', 'inventory'] },
   { h: 'Treat the garden as paid depth that people already pay for', b: 'Garden planners charge $25 to $168 a year. The Inside Story garden is the only one tied to the kitchen and the body, and "What to grow for my conditions" (I16) would be unique. Plots and the harvest log Free; sowing calendar, tasks, yield, sensors, crop guides and the garden report paid. The hive log is a candidate for a separate add-on, since HiveTracks charges by hive.', fams: ['garden', 'sensors', 'soil', 'bees'] },
-  { h: 'Show the bundle in dollars', b: 'Bought separately, the closest single apps cost: Cronometer Gold $59.99, Bearable $34.99, Medisafe $39.99, Eat This Much from $47.99, Tiimo $79.99, YNAB $109, Seedtime from $84 and Day One $49.99, about $506 a year, before the 19-condition scoring that nobody sells at all. Against that, $89.99 a year is easy to explain, and the paywall should explain it.', fams: [] },
+  { h: 'Show the bundle in dollars', b: 'Bought separately, the closest single apps cost: Cronometer Gold $59.99, Bearable $34.99, Medisafe $39.99, Eat This Much from $47.99, Tiimo $79.99, YNAB $109, Seedtime from $84 and Day One $49.99, about $506 a year, before the 19-condition scoring that nobody sells at all. Against that, $89.99 a year is easy to explain, and the paywall should explain it. The dollar figure is the smaller half of the case: see the next point.', fams: ['connections'] },
+  { h: 'Sell what the records do together, not "everything in one app"', b: 'The paid case nobody can match is the connections: a dose checked against the meals around it, a flare read against meals, sleep and treatment changes, costs added across the kitchen, medicines, bills and the garden, reports drawn from every area, a food or supplement split on every nutrient. Separate apps cannot do any of this at any price, and a systematic review found a person with five conditions would need at least 15 separate health tools. Two cautions shape the wording: only 27 to 32% of people in the US, UK, Germany and Denmark say they want an everything app, and the usual argument for separate apps is depth. So the paywall leads with a connection the person can see working on their records, and each piece is already rated against the specialist it competes with. For the Free line this gives a rule: the pieces, trimmed, on Free; the connections on paid. Safety stays the exception, since a timing warning is a connection and stays Free (P28).', fams: ['connections', 'pattern', 'nutrients', 'reports', 'privacy'] },
   { h: 'Fix the annual price', b: 'Health and fitness leans to annual plans and keeps people longer on them. $89.99 a year is only 25% off twelve months at $9.99, where about 50% is the norm. An annual price of $59.99 to $69.99 would match Cronometer Gold and Fig while keeping the monthly price. A lifetime price and a hardship price (Z15) are still the owner’s call.', fams: [] },
   { h: 'Let Free taste the paid core, a little', b: 'Freemium health apps convert about 4% of users; a hard paywall converts 12% of far fewer. Showing one paid result on Free (one For You reading a day, one generated day of meals, the top Pattern Finder result) lets someone see what they would get, the way Eat This Much gives one free day. A trial of everything that drops back to Free afterwards is the other common approach; trial-to-paid in health averages about 40%.', fams: ['condition-food', 'meal-plan', 'pattern'] },
   { h: 'Price the companions on the work they do for the payer', b: 'Sharing that brings in new users is free in the market (Clue Connect, AnyList lists); plans that do work for the payer are paid (Tiimo family, Medfriend). So: viewer companions Free, since each viewer meets the app; Partner at about 1.5x; Caregiver per person, the strongest of all because caregivers carry the most and nothing else holds records for them. Guardian, bundled free with a paid plan, is a reason to choose that plan.', fams: ['companions'] },
