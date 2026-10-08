@@ -632,3 +632,23 @@
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Insights,Food
 - **Answers:** KitchenPal, SuperCook · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Recipes ranked by how much of each the kitchen already holds, items nearest their use-by first, filtered by the person’s conditions, allergies and diet, with what is missing sent to the grocery list in one tap.
+
+### Q30. A recent window of Trends on Free
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** Trends,All
+- **Answers:** Bearable, Hevy, Cronometer, Guava, Clue · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Decide with P27, Q18 and Q25: the last 30 days of every Trends lens on Free, Keeping Up in full on Free for the daily-living audience, and one Pattern Finder candidate a month shown with its basis; six months, a year, Compare Two, experiments and the full finder paid. Bearable shows 30 days free, Hevy three months, Cronometer seven days.
+
+### Q31. A smoothed weight trend
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Trends
+- **Answers:** Happy Scale, MacroFactor · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A moving average drawn through weigh-ins on Trends > Weight, the number of weigh-ins it rests on said under it, gaps kept, and no goal or projection unless the person sets one.
+
+### Q32. Nights without a wearable
+- **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Trends,Signals
+- **Answers:** Sleep Cycle · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Bedtime and waking from a tap on the evening and morning check-in (or the alarm time where the phone gives it), a how-rested question, and Trends > Nights drawing those when no watch is connected, said as typed rather than measured.
+
+### Q35. An accessibility pass on charts and lists
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** All
+- **Answers:** Streaks, Google Fit · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** TalkBack labels on every chart, button and fold band, a one-sentence text summary under each chart, contrast checked in both themes, and a script that fails on an unlabelled pressable.

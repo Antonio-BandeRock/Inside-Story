@@ -492,3 +492,13 @@
 - **Ships by:** Cloudflare Worker · **Size:** M · **Tabs:** Insights,Signals
 - **Answers:** dminder · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Skin type and time outdoors as a third vitamin D source beside food and supplements, the UV index from a coarsened opt-in location through the Worker bundle, a burn warning, and the vitamin D lab read beside all three. Second gap review item.
+
+### Q33. Personal bests and volume in Workouts
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Trends,Signals
+- **Answers:** Hevy, Strong · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Best weight and reps per exercise, volume per muscle group by week and an estimated one-rep max, with a mark where a flare or a crash interrupted the run; never a target pushed.
+
+### Q34. Growing conditions on a crop’s own timeline
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Trends,Garden
+- **Answers:** Ecowitt · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Each planting’s grow drawn with the readings from its area across the same weeks, a stretch that ran cold, hot or dry marked in words beside the yield.

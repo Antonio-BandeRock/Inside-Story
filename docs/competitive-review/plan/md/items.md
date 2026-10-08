@@ -77,7 +77,7 @@
 - **Answers:** Gardenize, Sortly, Monarch, Guava, Medisafe · **Theme:** Shared foundations
 - **How:** A media table (owner kind, owner id, file, taken_on), shrink on save, stored under the app folder, copied into the Backups folder and restored beside the encrypted snapshot, never in the plaintext record, shown on desktop from the synced copy. Serves A5, D12, I13, J4, J9.
 
-## Phase 2. Quick wins over the air (127 items)
+## Phase 2. Quick wins over the air (131 items)
 
 ### A3. Pills on hand and refill reminder
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life,Schedules,Signals,Insights
@@ -714,7 +714,27 @@
 - **Answers:** KitchenPal, SuperCook · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Recipes ranked by how much of each the kitchen already holds, items nearest their use-by first, filtered by the person’s conditions, allergies and diet, with what is missing sent to the grocery list in one tap.
 
-## Phase 3. Larger builds over the air (99 items)
+### Q30. A recent window of Trends on Free
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** Trends,All
+- **Answers:** Bearable, Hevy, Cronometer, Guava, Clue · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Decide with P27, Q18 and Q25: the last 30 days of every Trends lens on Free, Keeping Up in full on Free for the daily-living audience, and one Pattern Finder candidate a month shown with its basis; six months, a year, Compare Two, experiments and the full finder paid. Bearable shows 30 days free, Hevy three months, Cronometer seven days.
+
+### Q31. A smoothed weight trend
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Trends
+- **Answers:** Happy Scale, MacroFactor · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A moving average drawn through weigh-ins on Trends > Weight, the number of weigh-ins it rests on said under it, gaps kept, and no goal or projection unless the person sets one.
+
+### Q32. Nights without a wearable
+- **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Trends,Signals
+- **Answers:** Sleep Cycle · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Bedtime and waking from a tap on the evening and morning check-in (or the alarm time where the phone gives it), a how-rested question, and Trends > Nights drawing those when no watch is connected, said as typed rather than measured.
+
+### Q35. An accessibility pass on charts and lists
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** All
+- **Answers:** Streaks, Google Fit · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** TalkBack labels on every chart, button and fold band, a one-sentence text summary under each chart, contrast checked in both themes, and a script that fails on an unlabelled pressable.
+
+## Phase 3. Larger builds over the air (101 items)
 
 ### A2. Tapering doses
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
@@ -1210,6 +1230,16 @@
 - **Ships by:** Cloudflare Worker · **Size:** M · **Tabs:** Insights,Signals
 - **Answers:** dminder · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Skin type and time outdoors as a third vitamin D source beside food and supplements, the UV index from a coarsened opt-in location through the Worker bundle, a burn warning, and the vitamin D lab read beside all three. Second gap review item.
+
+### Q33. Personal bests and volume in Workouts
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Trends,Signals
+- **Answers:** Hevy, Strong · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Best weight and reps per exercise, volume per muscle group by week and an estimated one-rep max, with a mark where a flare or a crash interrupted the run; never a target pushed.
+
+### Q34. Growing conditions on a crop’s own timeline
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Trends,Garden
+- **Answers:** Ecowitt · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Each planting’s grow drawn with the readings from its area across the same weeks, a stretch that ran cold, hot or dry marked in words beside the yield.
 
 ## Phase 4. The Android rebuild (R1) (14 items)
 

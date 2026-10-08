@@ -30,6 +30,7 @@ Standing rule since 2026-10-07: every function that competes with a leading app 
 | Schedules | 6 | 5 | 2 | 1 | 0 |
 | Signals | 3 | 7 | 2 | 2 | 7 |
 | Insights | 5 | 5 | 4 | 8 | 0 |
+| Trends | 6 | 14 | 3 | 8 | 0 |
 
 ### Food
 
@@ -1095,6 +1096,501 @@ Drugs.com gives it away; building one needs a licensed imprint database. Also co
 **Where the leader’s edge rests on a rule kept here.** An imprint database of its own is licensed data and the liability ruling of 2026-09-26 applies; the app links out.
 
 Sources: <https://apps.apple.com/us/app/-/id398305495> <https://nowpatient.com/blog/free-pill-identifier-tools>
+
+### Trends
+
+#### Nutrients over time: Even against Cronometer
+
+Ahead everywhere except that a free person sees a week of Cronometer charts and none of ours. Also compared: MacroFactor. Checked 2026-10-07.
+
+| Measure | Cronometer | Inside Story | |
+|---|---|---|---|
+| What it does | Nutrient charts over days and weeks (history past 7 days is Gold) | Every nutrient over time, food and supplement drawn apart by each supplement’s dates, gaps left as gaps | + |
+| Depth | 84 nutrients | Seven national databases, absorption and cooking taken into account | + |
+| Taps | Log every food | Planned meals already count | + |
+| Offline | Account, syncs | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free: 7 days; Gold $59.88 a year | Individual, $89.99 a year; Free has Trends for exercise only | - |
+| Conditions covered | General | Targets from the 19 conditions | + |
+
+**To be better.** A recent window of every Trends lens on Free, longer history and the reading paid (Q30). Plan: Q30, Q25.
+
+Sources: <https://nutrola.app/en/blog/cronometer-review-2026>
+
+#### Condition Scores over time: Nobody else
+
+No app found charts how a person’s eating scored for each of their conditions week by week. Also compared: Fig, ZOE. Checked 2026-10-07.
+
+Sources: <https://apps.apple.com/app/id1564434726> <https://joinzoe.com/>
+
+#### What You Eat (variety, gut-supporting foods, packaged share): Better against ZOE
+
+ZOE counts plants; ours counts them without a kit or account and puts them beside the person’s conditions. Also compared: Cronometer. Checked 2026-10-07.
+
+| Measure | ZOE | Inside Story | |
+|---|---|---|---|
+| What it does | Plants a week toward 30, gut scores per food | Distinct plants, gut-supporting foods and the packaged share week by week, gaps drawn as gaps | + |
+| Depth | Its own scoring model | Cited sources, evidence tiers | + |
+| Taps | Log or scan meals | Meals already logged or planned | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account, research use | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Subscription, testing kit sold separately | Individual, $89.99 a year; Free has Trends for exercise only | + |
+| Conditions covered | General gut health | Read against the 19 conditions | + |
+
+Sources: <https://joinzoe.com/>
+
+#### Symptoms & Flares over time: Even against Bearable
+
+Bearable lets anyone see a month of their symptoms for free; ours shows none on Free. Also compared: Guava, Flaredown. Checked 2026-10-07.
+
+| Measure | Bearable | Inside Story | |
+|---|---|---|---|
+| What it does | Symptom charts beside every factor logged | Symptoms and flares over time with the person’s usual range, cycle shading, weekday and month averages | + |
+| Depth | Correlations on every factor (paid) | Pattern Finder with baselines and denominators | + |
+| Taps | One check-in | One check-in | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free: unlimited logging, 30 days of graphs; $34.99 a year | Individual, $89.99 a year; Free has Trends for exercise only | - |
+| Conditions covered | Any, self-defined | 19 conditions plus the person’s own trackers | + |
+
+**To be better.** Logging free with no limit (Q18) and a recent window of the chart free (Q30). Plan: Q30, Q18.
+
+Sources: <https://bearable.app/support/common-questions/bearable-free-vs-premium-features/>
+
+#### Eating Window: Even against Zero
+
+Zero gives its fasting history away; ours is paid. Also compared: Simple, Fastic. Checked 2026-10-07.
+
+| Measure | Zero | Inside Story | |
+|---|---|---|---|
+| What it does | Fast timer, fasting history, zones (Plus) | The eating window read from meals already logged, no timer to start | + |
+| Depth | Fasting zones presented as stages | Timing read beside dose timing and the conditions | + |
+| Taps | Start and stop a fast | None past logging meals | + |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free timer and history; Plus $69.99 a year | Individual, $89.99 a year; Free has Trends for exercise only | - |
+| Conditions covered | General | Read against the 19 conditions | + |
+
+**To be better.** The recent window free (Q30). Plan: Q30.
+
+**Where the leader’s edge rests on a rule kept here.** Fasting zones are claimed as metabolic stages on a fixed clock; ours stays at what the evidence tiering allows.
+
+Sources: <https://apps.apple.com/app/zero-fasting-tracker/id1168348542> <https://nutrola.app/en/blog/simple-vs-zero-vs-fastic-fasting-apps-2026>
+
+#### Weight: Even against Happy Scale
+
+Happy Scale’s smoothed line is what makes daily weighing bearable, and it is free. Also compared: MacroFactor, Libra. Checked 2026-10-07.
+
+| Measure | Happy Scale | Inside Story | |
+|---|---|---|---|
+| What it does | A smoothed trend line through daily weigh-ins, goal and milestones | Weigh-ins with the person’s usual range and weekly averages | - |
+| Depth | Moving-average trend and projection | Weight read beside thyroid labs, doses and cycle | + |
+| Taps | Enter or import a weight | Enter or read from Health Connect | = |
+| Offline | On the phone | On the phone | = |
+| Privacy | No account | No account | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free, paid extras | Individual, $89.99 a year; Free has Trends for exercise only | - |
+| Conditions covered | General | Read against the 19 conditions | + |
+
+**To be better.** A smoothed trend line on the weight chart that says how many weigh-ins it rests on, no goal unless the person sets one (Q31), and the recent window free (Q30). Plan: Q31, Q30.
+
+Sources: <https://apps.appfollow.io/ios/happy-scale/532430574?country=ie>
+
+#### Movement: Even against Google Fit and Apple Fitness
+
+Even on what is shown; ours wins on reading it beside symptoms, theirs on accessibility work done. Also compared: Pedometer++. Checked 2026-10-07.
+
+| Measure | Google Fit and Apple Fitness | Inside Story | |
+|---|---|---|---|
+| What it does | Steps and active minutes over time | Steps and movement over time, gaps kept, beside symptoms and pacing | + |
+| Depth | Rings and goals | Usual range, no goals pushed | = |
+| Taps | None, measured | None, read from Health Connect | = |
+| Offline | Account | On the phone | + |
+| Privacy | Google or Apple account | No account | + |
+| Accessibility | Strong platform support | Text scales with the phone, uncapped; screen reader labels not audited | - |
+| Price | Free | Free (exercise Trends are on Free) | = |
+| Conditions covered | General | Read beside the 19 conditions | + |
+
+**To be better.** An accessibility pass with TalkBack on every chart, each chart carrying a sentence that says what it shows (Q35). Plan: Q35.
+
+Sources: <https://www.android.com/health-connect/>
+
+#### Workouts: Behind against Hevy
+
+For someone lifting, Hevy shows progress in strength; ours shows how training sat with their health and little of the progress. Also compared: Strong, Fitbod. Checked 2026-10-07.
+
+| Measure | Hevy | Inside Story | |
+|---|---|---|---|
+| What it does | Personal records, volume per muscle, 1-rep max estimates | Workouts over time beside pacing and flares | - |
+| Depth | Strength progression detail | Exertion against how it landed (with Q20) | = |
+| Taps | Fast set logging | Workout logging | - |
+| Offline | Works offline, syncs | On the phone | = |
+| Privacy | Account, social feed | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free: unlimited logging, 3 months of graphs; Pro $23.99 a year | Free (exercise Trends are on Free) | + |
+| Conditions covered | General | Read against the 19 conditions | + |
+
+**To be better.** Personal bests, volume per muscle group and an estimated one-rep max in Workouts, with a line where a flare or a crash interrupted the run (Q33). Plan: Q33, Q20.
+
+Sources: <https://www.sensai.fit/blog/fitness-app-pricing-free-tier-comparison> <https://www.sensai.fit/blog/hevy-review-2026>
+
+#### Pacing (energy envelope): Even against Visible
+
+Visible measures with its own band; ours reads what the person already wears and adds the conditions. Also compared: Bearable. Checked 2026-10-07.
+
+| Measure | Visible | Inside Story | |
+|---|---|---|---|
+| What it does | Daily PacePoints from heart rate (band sold separately) | Energy envelope from activity, check-ins and crash tags | = |
+| Depth | Morning HRV from its own band | Heart rate and HRV read through Health Connect | = |
+| Taps | Wear the band | Check in, or read a watch | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account, research use | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Plus about $15 to $20 a month, plus an $80 band | Individual, $89.99 a year; Free has Trends for exercise only | + |
+| Conditions covered | Long COVID and ME/CFS | The 19 conditions | + |
+
+**To be better.** An effort rating and the next-morning question so the envelope learns from how a day landed (Q20). Plan: Q20.
+
+Sources: <https://help.makevisible.com/en/articles/13928208-what-is-visible>
+
+#### Cycle over time: Even against Clue
+
+Clue’s cycle history is free; ours is paid. Also compared: Euki, Stardust. Checked 2026-10-07.
+
+| Measure | Clue | Inside Story | |
+|---|---|---|---|
+| What it does | Cycle history, lengths, symptom patterns by phase | Cycle over time, and cycle shading on every other chart | + |
+| Depth | Large research base | Read beside thyroid, iron and flares | + |
+| Taps | Log period days | Log period days | = |
+| Offline | Account | On the phone | + |
+| Privacy | Mozilla 8 of 10 | No account, no server | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free core; Clue Plus paid | Individual, $89.99 a year; Free has Trends for exercise only | - |
+| Conditions covered | Reproductive health | The 19 conditions | + |
+
+**To be better.** Period days and the recent window free (Q18, Q30), sharing with a partner by choice (Q19). Plan: Q30, Q19.
+
+**Where the leader’s edge rests on a rule kept here.** No fertility prediction for contraception.
+
+Sources: <https://unstar.app/blog/flo-clue-stardust-apple-health-period-tracking-apps-ranked-2026>
+
+#### Labs over time with your usual range: Even against HealthMatters.io
+
+HealthMatters reads a lab PDF and explains each marker; ours is ahead on context and behind on getting results in. Also compared: Guava, Carrot Care. Checked 2026-10-07.
+
+| Measure | HealthMatters.io | Inside Story | |
+|---|---|---|---|
+| What it does | Lab history, markers explained, ranges | Labs over time with the person’s usual range, beside doses and food | + |
+| Depth | Marker library | Evidence-tiered readings per condition | = |
+| Taps | Upload a PDF | Type in, or scan | - |
+| Offline | Account, cloud | On the phone | + |
+| Privacy | Uploads to a server | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $79 a year or $250 once | Individual, $89.99 a year; Free has Trends for exercise only | = |
+| Conditions covered | General | The 19 conditions | + |
+
+**To be better.** What each marker means (Q26) and reading a lab report from a photo or PDF on the phone (G29). Plan: Q26, G29.
+
+**Where the leader’s edge rests on a rule kept here.** Never a verdict on the person’s number.
+
+Sources: <https://crowncounseling.com/reviews/best-blood-test-tracking-apps> <https://apps.appfollow.io/ios/guava-health-tracker/1622255863?country=de>
+
+#### Grocery Prices: Nobody else
+
+Shopping apps hold a price per item; none found charts what the person paid for the same food over months. Also compared: Out of Milk, Basket. Checked 2026-10-07.
+
+Sources: <https://www.outofmilk.com/>
+
+#### Keeping Up (routines and upkeep, never scored): Even against Streaks
+
+Streaks is cheap and polished; ours refuses the streak on purpose and is paid. Also compared: Habitify, Daylio. Checked 2026-10-07.
+
+| Measure | Streaks | Inside Story | |
+|---|---|---|---|
+| What it does | Habit streaks, completion rates | Routines and upkeep over time, blank days said in words | = |
+| Depth | Streak counts and goals | When things got done, never scored | = |
+| Taps | One tap | One tap | = |
+| Offline | On the phone | On the phone | = |
+| Privacy | No account | No account | = |
+| Accessibility | Strong (Apple design award) | Text scales with the phone, uncapped; screen reader labels not audited | - |
+| Price | $5.99 once | Individual, $89.99 a year; Free has Trends for exercise only | - |
+| Conditions covered | General | Built for the daily-living audience | + |
+
+**To be better.** Keeping Up on Free, since it is the way in for someone who came to run their day (Q30, item 28 in CLAUDE.md), plus the accessibility pass (Q35). Plan: Q30, Q35.
+
+**Where the leader’s edge rests on a rule kept here.** No streaks, points or percentages on anything a person keeps up with.
+
+Sources: <https://streaksapp.com/>
+
+#### Garden Yield: Better against Gardenize
+
+Gardenize keeps a diary; ours turns the diary into what the garden gave, in food and money. Also compared: Seedtime. Checked 2026-10-07.
+
+| Measure | Gardenize | Inside Story | |
+|---|---|---|---|
+| What it does | Harvest notes per plant | Yield over time by crop and area, units kept apart, avoided cost from the person’s own prices | + |
+| Depth | Photos and notes | Read beside growing conditions and what was eaten from it | + |
+| Taps | Log a harvest | Log a harvest | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free, Premium paid | Individual, $89.99 a year; Free has Trends for exercise only | = |
+| Conditions covered | None | Linked to meals and conditions | + |
+
+Sources: <https://gardenize.com/>
+
+#### Growing Conditions over time: Even against Ecowitt (WS View Plus)
+
+The station app is free and minute-by-minute; ours is paid and puts the readings beside what was planted. Also compared: Weather Underground. Checked 2026-10-07.
+
+| Measure | Ecowitt (WS View Plus) | Inside Story | |
+|---|---|---|---|
+| What it does | Charts every sensor on the station | Readings typed or sent by a sensor, averaged with low and high per period | = |
+| Depth | Every reading, minute by minute | Read beside plantings and yield | + |
+| Taps | None, measured | None with a sensor, typed without one | = |
+| Offline | Cloud | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free with the hardware | Individual, $89.99 a year; Free has Trends for exercise only | - |
+| Conditions covered | None | None | = |
+
+**To be better.** Readings set beside what each planting did through its grow, a stretch that ran cold or dry marked on the crop’s own timeline (Q34). Plan: Q34, Q30.
+
+Sources: <https://www.ecowitt.com/>
+
+#### What It Costs (food, meds, garden together): Behind against YNAB
+
+YNAB sees every dollar with no typing; ours sees what was typed. Also compared: Monarch. Checked 2026-10-07.
+
+| Measure | YNAB | Inside Story | |
+|---|---|---|---|
+| What it does | Every account, categorised, over time | Food, meds and garden money together, from what was entered | - |
+| Depth | Budgets and goals | Supplement costs against nutrients food now meets | + |
+| Taps | Bank link imports everything | Typed or imported per entry | - |
+| Offline | Cloud | On the phone | + |
+| Privacy | Bank link through an aggregator | No account, no bank link | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $109 a year | Individual, $89.99 a year; Free has Trends for exercise only | + |
+| Conditions covered | None | Health costs read against conditions | + |
+
+**To be better.** Statement import from a bank’s CSV or OFX file (J1) and the categories behind it (J2, J3). Plan: J1, J2, J3.
+
+**Where the leader’s edge rests on a rule kept here.** No bank link (Z10).
+
+Sources: <https://www.ynab.com/pricing>
+
+#### Therapy Response: Nobody else
+
+No app found sets before and after a treatment start against the same symptoms and labs with the dates of the dose changes. Also compared: Bearable, Guava. Checked 2026-10-07.
+
+Sources: <https://bearable.app/support/common-questions/bearable-free-vs-premium-features/> <https://apps.appfollow.io/ios/guava-health-tracker/1622255863?country=de>
+
+#### Hydration over time: Better against Waterllama
+
+Ours counts the water in food and knows which conditions change the target. Also compared: WaterMinder. Checked 2026-10-07.
+
+| Measure | Waterllama | Inside Story | |
+|---|---|---|---|
+| What it does | Water over time with drink types | Water from drinks and from food, over time | + |
+| Depth | Drink hydration factors | Food water counted, condition targets | + |
+| Taps | One tap | One tap, and meals count | + |
+| Offline | On the phone | On the phone | = |
+| Privacy | No account needed | No account | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free, Premium paid | Individual, $89.99 a year; Free has Trends for exercise only | - |
+| Conditions covered | General | The 19 conditions (kidney, gout, IBD) | + |
+
+Sources: <https://waterllama.com/>
+
+#### Blood Pressure over time: Even against SmartBP
+
+SmartBP’s readings and report are free. Also compared: Qardio. Checked 2026-10-07.
+
+| Measure | SmartBP | Inside Story | |
+|---|---|---|---|
+| What it does | Readings over time, averages, report for the doctor | Readings over time with usual range, beside doses and salt | + |
+| Depth | Classification by guideline bands | Read beside the meds that move it | + |
+| Taps | Enter or read a cuff | Enter or read Health Connect | = |
+| Offline | Account optional | On the phone | = |
+| Privacy | Cloud sync option | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free core, Pro paid | Individual, $89.99 a year; Free has Trends for exercise only | - |
+| Conditions covered | Hypertension | The 19 conditions | + |
+
+**To be better.** The guided home blood-pressure week (Q21) and the recent window free (Q30). Plan: Q21, Q30.
+
+Sources: <https://apps.appfollow.io/ios/blood-pressure-tracker-smartbp/519076558?country=hr>
+
+#### Body Signals: Even against Welltory
+
+Welltory reads iPhones as well as Android; ours reads Android only. Also compared: Oura, Guava. Checked 2026-10-07.
+
+| Measure | Welltory | Inside Story | |
+|---|---|---|---|
+| What it does | HRV, resting heart rate, stress from many devices | Six Health Connect signals with usual range, as Pattern Finder outcomes (F2) | = |
+| Depth | Its own stress and energy scores | No scores; above or below usual only | = |
+| Taps | Measure or sync | Sync | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free core, premium about $70 a year | Individual, $89.99 a year; Free has Trends for exercise only | = |
+| Conditions covered | General | The 19 conditions | + |
+
+**To be better.** Apple Health on iPhone (L1). Plan: L1.
+
+**Where the leader’s edge rests on a rule kept here.** No made-up stress or readiness score standing in for a clinician.
+
+Sources: <https://welltory.com/> <https://apps.appfollow.io/ios/guava-health-tracker/1622255863?country=de>
+
+#### Doses Over Time: Even against Medisafe
+
+Even on price; ours is ahead on what doses sit beside. Also compared: MyTherapy. Checked 2026-10-07.
+
+| Measure | Medisafe | Inside Story | |
+|---|---|---|---|
+| What it does | Adherence charts and percentages | Doses over time, taken and skipped by day, beside symptoms and labs | + |
+| Depth | Adherence report | Dose changes marked on the lab chart | + |
+| Taps | Tap the reminder | Tap the reminder, even locked | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free tier limited since 2025; premium paid | Individual, $89.99 a year; Free has Trends for exercise only | = |
+| Conditions covered | General | The 19 conditions | + |
+
+**To be better.** The recent window on Free (Q30), so the record of doses is never something a person pays to see. Plan: Q30.
+
+**Where the leader’s edge rests on a rule kept here.** No adherence percentage held over the person.
+
+Sources: <https://pillo.care/blog/medisafe-no-longer-free-best-free-alternatives>
+
+#### Appointments & Care: Nobody else
+
+No app found draws appointments as a timeline of care beside what changed after each one. Also compared: Google Calendar, CareClinic. Checked 2026-10-07.
+
+Sources: <https://apps.apple.com/us/app/tracker-reminder-careclinic/id1455648231>
+
+#### Work: Nobody else
+
+Time trackers count hours; none found reads work weeks beside symptoms and energy. Also compared: Toggl, Daylio. Checked 2026-10-07.
+
+Sources: <https://toggl.com/>
+
+#### Reactions & New Foods: Better against mySymptoms Food Diary
+
+Ours says what it is counting against and offers the test; mySymptoms is cheaper. Also compared: Cara Care. Checked 2026-10-07.
+
+| Measure | mySymptoms Food Diary | Inside Story | |
+|---|---|---|---|
+| What it does | Suspected foods over time | Reactions and new foods over time, each with how often it turns up anyway | + |
+| Depth | Correlation by time window | Baselines, denominators, and a test to run | + |
+| Taps | Log food and symptoms | Meals already logged | + |
+| Offline | On the phone | On the phone | = |
+| Privacy | No account | No account | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $4.99 once | Individual, $89.99 a year; Free has Trends for exercise only | - |
+| Conditions covered | Gut | The 19 conditions | + |
+
+Sources: <https://www.skygazerlabs.com/>
+
+#### Nights (sleep): Behind against Sleep Cycle
+
+Without a watch, ours has no night to show; Sleep Cycle needs only the phone. Also compared: Oura, Pillow. Checked 2026-10-07.
+
+| Measure | Sleep Cycle | Inside Story | |
+|---|---|---|---|
+| What it does | Measures sleep with the phone’s microphone, smart alarm, snoring | Nights read from a watch through Health Connect, beside meals and symptoms | - |
+| Depth | Sleep phases, long-term trends | Read beside late meals, caffeine and flares | + |
+| Taps | Phone on the nightstand | Needs a wearable, or nothing | - |
+| Offline | Account | On the phone | + |
+| Privacy | Account, sound stays on device | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $39.99 a year | Individual, $89.99 a year; Free has Trends for exercise only | = |
+| Conditions covered | General | The 19 conditions | + |
+
+**To be better.** Nights without a wearable: bedtime and waking taken from a tap or the alarm, and a morning how-rested question (Q32). Plan: Q32.
+
+Sources: <https://www.bettersleep.com/blog/sleep-cycle-vs-bettersleep-2026-honest-sleep-app-comparison>
+
+#### My Trackers over time: Even against Exist
+
+Exist fills itself from other services; ours is typed. Also compared: Bearable, Guava. Checked 2026-10-07.
+
+| Measure | Exist | Inside Story | |
+|---|---|---|---|
+| What it does | Custom tags and numbers over time, auto-imported from many services | Trackers the person names, over time, as Pattern Finder factors | = |
+| Depth | Correlations across everything | Baselines and denominators | + |
+| Taps | Mostly automatic | Typed | - |
+| Offline | Cloud | On the phone | + |
+| Privacy | Account, many service links | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $62.90 a year, no free tier | Individual, $89.99 a year; Free has Trends for exercise only | = |
+| Conditions covered | General | The 19 conditions | + |
+
+**To be better.** A recent window free (Q30) and Apple Health on iPhone (L1) so more fills itself. Plan: Q30, L1.
+
+**Where the leader’s edge rests on a rule kept here.** Published interfaces only, so no scraping of services that offer no API.
+
+Sources: <https://exist.io/> <https://bearable.app/support/common-questions/bearable-free-vs-premium-features/>
+
+#### Compare Two: Better against Exist
+
+Ours says why two series might move together, and when nothing known connects them. Also compared: Guava. Checked 2026-10-07.
+
+| Measure | Exist | Inside Story | |
+|---|---|---|---|
+| What it does | Any two attributes side by side | Any two recorded series, with the published reason two might connect, a tier and a source | + |
+| Depth | Correlation coefficient | Says when nothing known connects them | + |
+| Taps | Pick two | Pick two | = |
+| Offline | Cloud | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $62.90 a year | Individual, $89.99 a year; Free has Trends for exercise only | = |
+| Conditions covered | General | The 19 conditions | + |
+
+Sources: <https://exist.io/> <https://apps.appfollow.io/ios/guava-health-tracker/1622255863?country=de>
+
+#### Make this a rule (a Pattern Finder result becomes a personal rule): Nobody else
+
+No app found turns a found pattern into a standing personal rule that then watches the food or treatment. Also compared: Bearable. Checked 2026-10-07.
+
+Sources: <https://bearable.app/support/common-questions/bearable-free-vs-premium-features/>
+
+#### Ferments: Nobody else
+
+Brewfather charts beer; nothing found charts food ferments and how much of each was eaten. Also compared: Brewfather (brewing only). Checked 2026-10-07.
+
+Sources: <https://docs.brewfather.app/>
+
+#### Planned and Eaten: Nobody else
+
+Meal planners plan; none found sets the plan against what was eaten. Also compared: Plan to Eat, Eat This Much. Checked 2026-10-07.
+
+Sources: <https://www.plantoeat.com/>
+
+#### Pattern Finder (what tends to come before a flare): Better against Guava
+
+Ahead on honesty and the path to a test; Guava gives correlations away and ours is paid. Also compared: Bearable, Welltory. Checked 2026-10-07.
+
+| Measure | Guava | Inside Story | |
+|---|---|---|---|
+| What it does | Correlations between symptoms and any factor, weather included | Candidates before a flare, any factor, each against how often it turns up anyway | + |
+| Depth | Correlation strength | Denominators, baselines, context beside, and a test to run | + |
+| Taps | None | None | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account, records import | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free: unlimited correlations, 3 pinned | Individual, $89.99 a year; Free has Trends for exercise only | - |
+| Conditions covered | Any | The 19 conditions | + |
+
+**To be better.** One candidate a month shown on Free with its basis, the full finder paid (Q30). Plan: Q30.
+
+**Where the leader’s edge rests on a rule kept here.** Never claims a cause from a sample of one.
+
+Sources: <https://apps.appfollow.io/ios/guava-health-tracker/1622255863?country=de> <https://bearable.app/support/common-questions/bearable-free-vs-premium-features/>
 
 ## Why things are free or paid: the kinds
 
