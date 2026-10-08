@@ -11,7 +11,7 @@ Tiers: **measured** (study, government count, company report), **survey** (poll,
 3. Paid installs do not pay back in year one at median conversion. Spend at scale only once 30-day retention is known.
 4. Advertise contextually: patient and ADHD creators, podcast host reads, newsletters, keyword search ads. No pixels, no retargeting.
 5. A launch quarter that could become a sensation: $150K to $300K. Sustained: $1M to $3M a year. Creator gifting ($0) and the ground floor (under $2K a month) should start now; every paid level is optional and waits on retention.
-6. Most companion tiers are priced above leaders that are free. Caregiver is paid, on the cared-for person's plan, with no separate charge to the caregiver (decided 2026-10-07, corrected 2026-10-08); the rest of P27 matters more than any ad budget.
+6. Most companion tiers are priced above leaders that are free. Caregiver is free to the caregiver to download and does nothing until the caregiver cost is paid, normally by the person cared for (decided 2026-10-07, clarified 2026-10-08); the rest of P27 matters more than any ad budget.
 
 ## Audiences (US)
 
@@ -34,7 +34,7 @@ Hashimoto's is about 7.5% worldwide. These audiences overlap and are not added t
 | Partner | $134.99/yr for two | Apple Health Sharing, free | fair; sell as an upgrade from Individual |
 | Household seats | $17.99/yr a seat after 2 or 3 free | Cozi Gold $39/yr per family | per seat loses to one family price |
 | Guardian | bundled | Google Family Link, free | right shape |
-| Caregiver | paid, on the cared-for person’s plan; first caregiver included, no charge to the caregiver | Caring Village (free for one person, $24.99 a month for up to five), Medisafe Medfriend (free, watch only) | decided 2026-10-07: linked by invitation, each person cared for kept apart, one way so it never stands in for Partner (Q89); a paid user caring for family pays nothing more (Q90); Q74 to Q90 planned to beat each leader |
+| Caregiver | free to the caregiver; works once the caregiver cost is paid, first caregiver in the person’s Individual plan | Caring Village (free for one person, $24.99 a month for up to five), Medisafe Medfriend (free, watch only) | decided 2026-10-07: linked by invitation, each person cared for kept apart, one way so it never stands in for Partner (Q89); a paid user caring for family pays nothing more (Q90); Q74 to Q90 planned to beat each leader |
 
 ## Arithmetic of paid installs (per 1,000 installs)
 
