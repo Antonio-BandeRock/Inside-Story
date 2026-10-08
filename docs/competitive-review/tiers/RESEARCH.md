@@ -27,6 +27,7 @@ Standing rule since 2026-10-07: every function that competes with a leading app 
 | Tab | Better | Even | Behind | Nobody else | Not yet compared |
 |---|---|---|---|---|---|
 | Food | 3 | 3 | 6 | 6 | 0 |
+| Schedules | 6 | 5 | 2 | 1 | 0 |
 
 ### Food
 
@@ -285,6 +286,257 @@ Conversions are free everywhere; ours can only win by knowing the food. Checked 
 | Conditions covered | None | None needed | = |
 
 **To be better.** Already planned in P15: convert using food_unit_weights so a cup of spinach and a cup of rice come out right.
+
+### Schedules
+
+#### Dose reminders and timeline: Even against Apple Health Medications (iPhone), MyTherapy (Android)
+
+Apple Health is free, built in and on the Watch, and checks drug against drug; ours checks a dose against breakfast, which neither leader does, but there is no iPhone build yet and the reminder itself does not yet read the meals. Also compared: Medisafe, CareClinic. Checked 2026-10-07.
+
+| Measure | Apple Health Medications (iPhone), MyTherapy (Android) | Inside Story | |
+|---|---|---|---|
+| What it does | Reminders, log taken or skipped, scan a US pill bottle, drug interaction alerts (US only), on the Watch | Prescriptions, OTC and supplements on one dose timeline; Taken and Skip on the notification; repeats daily, weekly, every N days, monthly; tapers; a scanned label (A11) | = |
+| Depth | Drug against drug, alcohol, tobacco and cannabis | Dose against the meals around it, supplements carrying their nutrients into the day, timing rules between food, supplement and prescription | + |
+| Taps | Tap the notification | Taken on the notification, on a widget, or on a paired Android watch through the notification | = |
+| Offline | On the phone | On the phone | = |
+| Privacy | On the phone, iCloud if turned on | On the phone; no account | = |
+| Accessibility | Apple accessibility throughout, VoiceOver | Text scales with the phone, uncapped; screen reader labels not audited | - |
+| Price | Free (Apple Health); MyTherapy free, unlimited | Free or Individual, line undecided | ? |
+| Conditions covered | None | Interaction rules written for the 19 conditions’ usual medicines | + |
+
+**To be better.** Three things. Make the reminder contextual, as decided long ago: when a calcium-rich breakfast is logged, the levothyroxine reminder says so and names the later window (Q11). Ship the iPhone build with widgets (L3), since the leader there is the phone itself. And put unlimited dose reminders on Free, because MyTherapy is free and unlimited and Medisafe’s two-med cap drew complaints; the interaction depth is what pays. Plan: Q11, L3, Q10.
+
+**Where the leader’s edge rests on a rule kept here.** Drug-against-drug checking needs a licensed interaction database; the rule library for it was dropped on 2026-09-26 for liability, and A10 opens the free Drugs.com checker with nothing sent. Apple carries that licence and that liability. We beat it on the axis no drug database covers: food, supplements and timing.
+
+Sources: <https://support.apple.com/en-ca/105064> <https://iphonelife.com/content/how-to-check-medication-interactions> <https://pillo.care/blog/medisafe-no-longer-free-best-free-alternatives> <https://edit.mytherapyapp.com/blog/medisafe-alternatives-free>
+
+#### Today's Meals: meals and doses side by side with timing checks: Nobody else
+
+No app found puts meals and doses on one clock and reads each dose against the nearest meal that competes with it. Apple Health stops at alcohol, tobacco and cannabis. Also compared: Apple Health Medications, MyTherapy, Medisafe. Checked 2026-10-07.
+
+Sources: <https://iphonelife.com/content/how-to-check-medication-interactions>
+
+#### Pills on hand and refill reminders: Even against MyTherapy
+
+Both count down and warn. Medisafe adds pharmacy partners in the US, which needs a server and a commercial link. Also compared: Medisafe. Checked 2026-10-07.
+
+| Measure | MyTherapy | Inside Story | |
+|---|---|---|---|
+| What it does | Pack size, warns when low | Count once; what is left is that count less every dose marked from anywhere; a refill reminder ahead of running out | = |
+| Depth | Counts down by the daily schedule | Counts marked doses, and says plainly that a dose taken and never marked is still counted as in the bottle | + |
+| Taps | Automatic once set | Automatic once counted | = |
+| Offline | On the phone | On the phone | = |
+| Privacy | Account optional | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free | Free or Individual, line undecided | ? |
+| Conditions covered | None | None specific | = |
+
+**To be better.** Make the days left follow the real schedule (a taper step, an every-other-week biologic, a weekly vitamin D) and put the refill ask on the day’s timeline with the pharmacy one tap away (A6), so the warning arrives when it is useful rather than at a fixed count. Plan: Q12.
+
+Sources: <https://pillo.care/blog/medisafe-no-longer-free-best-free-alternatives> <https://www.yougot.ai/blog/health/medication-reminders/medication-tracker-app>
+
+#### Tapering doses: Better against CareClinic
+
+Only CareClinic offered tapers at all; ours puts every step on the same clock as meals and reads the taper beside the flare it was for. Also compared: Medisafe. Checked 2026-10-07.
+
+| Measure | CareClinic | Inside Story | |
+|---|---|---|---|
+| What it does | A dose that steps down over time | Taper steps per date range on the med, each step on the dose timeline with its own reminders (A2) | = |
+| Depth | Schedule only | Each step’s amount reaches the day, the interaction rules and Pattern Finder’s treatment context | + |
+| Taps | Entered once | Entered once | = |
+| Offline | Cloud account | On the phone | + |
+| Privacy | Record on their servers | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Premium about $39.99 a year | Free or Individual, line undecided | ? |
+| Conditions covered | General chronic illness | Prednisone tapers in RA, IBD and lupus flares are read beside symptoms | + |
+
+Sources: <https://apps.apple.com/us/app/tracker-reminder-careclinic/id1455648231>
+
+#### Injection site rotation: Even against MyTherapy
+
+Same idea, same depth. Also compared: CareClinic. Checked 2026-10-07.
+
+| Measure | MyTherapy | Inside Story | |
+|---|---|---|---|
+| What it does | Rotates injection sites | Records the site per dose and suggests the next from the last few (A4) | = |
+| Depth | Site list | Site list | = |
+| Taps | Pick a site | Pick a site; the suggestion is preselected | = |
+| Offline | On the phone | On the phone | = |
+| Privacy | Account optional | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free | Free or Individual, line undecided | ? |
+| Conditions covered | None | Biologics for RA, psoriasis, Crohn’s and MS | = |
+
+**To be better.** Draw the body so a site is picked by touch rather than from a list, note a site reaction (redness, a lump) on the dose, and let Pattern Finder see reactions by site, which a pill app has no record to do. Plan: Q13.
+
+Sources: <https://www.mytherapyapp.com/>
+
+#### Travel: keep home time or shift to local: Even against Medisafe
+
+Even on the core switch, slightly ahead on per-med choice. Also compared: Apple Health Medications. Checked 2026-10-07.
+
+| Measure | Medisafe | Inside Story | |
+|---|---|---|---|
+| What it does | Keep home time or shift to local | Keep home time or shift to local, per med (A7) | = |
+| Depth | Per account | Per med, so a levothyroxine can keep home time while a supplement moves | + |
+| Taps | A setting | A setting | = |
+| Offline | On the phone | On the phone | = |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Premium $39.99 a year | Free or Individual, line undecided | ? |
+| Conditions covered | None | None specific | = |
+
+**To be better.** Notice the zone change and ask once, with a stepped shift over a few days offered for a dose whose timing matters, and move the meal timing checks with it. Plan: Q14.
+
+Sources: <https://apps.apple.com/us/app/id573916946>
+
+#### Appointments with the phone calendar: Better against Google Calendar
+
+A calendar holds the time; ours holds the reason for the visit and arrives with the questions and the report. It also writes to the calendar, so nothing is given up. Also compared: Apple Calendar, CareClinic. Checked 2026-10-07.
+
+| Measure | Google Calendar | Inside Story | |
+|---|---|---|---|
+| What it does | Any event, repeats, reminders, shared calendars | Doctor, lab, nutritionist and trainer visits; import from and push to the phone calendar | = |
+| Depth | Title, time, place | Questions to ask, what has changed since the last visit, blood-draw notes, and the report to bring | + |
+| Taps | Fast | Fast; import from the calendar | = |
+| Offline | Syncs online | On the phone; the phone calendar still holds a copy | = |
+| Privacy | Google account | No account | + |
+| Accessibility | Strong | Text scales with the phone, uncapped; screen reader labels not audited | - |
+| Price | Free | Free or Individual, line undecided | ? |
+| Conditions covered | None | Visits tied to the conditions and labs they are for | + |
+
+Sources: <https://workspace.google.com/products/calendar/>
+
+#### Timeline of the day: Behind against Tiimo
+
+Ours holds more and keeps it as a record, but Tiimo is seen at a glance and ours is read; for the second audience that is the difference that matters. No iPhone build, so no Live Activity. Also compared: Structured. Checked 2026-10-07.
+
+| Measure | Tiimo | Inside Story | |
+|---|---|---|---|
+| What it does | The day as colour and icon blocks, a shrinking countdown, routines, AI task breakdown, calendar sync | One Today timeline of meals, doses, routines, upkeep, appointments and phone calendar events; "next in 25 minutes"; a ring timer; minutes on steps (B1 to B5) | = |
+| Depth | Planning only | Each item is a record: a dose marked here is the dose on Meds, a routine step writes the did-I-do-it mark | + |
+| Taps | Visual, one glance | A list, read line by line | - |
+| Offline | Account, syncs | On the phone | + |
+| Privacy | Account; AI sends task text away | No account; sorting help is rules on the phone | + |
+| Accessibility | Designed with neurodivergent users; iPhone App of the Year 2025; Live Activities | Text scales with the phone, uncapped; screen reader labels not audited | - |
+| Price | Free; Pro about $47.99 a year, five profiles | Free (the second audience needs it there) | + |
+| Conditions covered | ADHD and autism daily living | ADHD and autism daily living plus the 19 conditions | + |
+
+**To be better.** A visual day: blocks sized by their minutes, each in its tab’s colour with its lens icon, the current one counting down, readable without reading. Then the iPhone build with a Live Activity (L3). Plan: Q15, L3.
+
+Sources: <https://www.tiimoapp.com/> <https://aisotools.com/pricing/tiimo> <https://help.structured.app/en/articles/324674>
+
+#### Meals on the clock: Better against Plan to Eat
+
+Every Plan to Eat convenience is now here, on Free, and each meal knows who it is safe for. Also compared: Paprika, Samsung Food. Checked 2026-10-07.
+
+| Measure | Plan to Eat | Inside Story | |
+|---|---|---|---|
+| What it does | Drag recipes onto a calendar, save a week, notes, one household account | Meals on the clock, any repeat, move a meal, month view, notes, save and reuse a week, a shared household meal calendar (H5 to H9) | = |
+| Depth | Every recipe equal | Each planned meal carries its safety for every condition in the household and its doses around it | + |
+| Taps | Drag and drop on the web | A day picker | = |
+| Offline | Online | On the phone | + |
+| Privacy | Account | No account; the household calendar travels through their own shared folder | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | $49 a year, no free tier | Free (Meals is a Free lens) | + |
+| Conditions covered | None | 19 conditions across everyone at the table | + |
+
+Sources: <https://www.plantoeat.com/> <https://haznos.org/best-meal-planning-app-2026/>
+
+#### Meal Plan generator (up to six weeks): Better against Eat This Much
+
+Eat This Much solves a day to a number; ours solves it to a body, and now does the number too when asked. Also compared: Mealime, Plan to Eat. Checked 2026-10-07.
+
+| Measure | Eat This Much | Inside Story | |
+|---|---|---|---|
+| What it does | Plans to a calorie and macro target, budget, pantry, leftovers, swap one meal, grocery delivery | Up to six weeks from recipes safe for every selected condition; prefers what the kitchen holds, leftovers, swap one meal, optional calorie band, budget from recorded prices (H1, H3, H4, G37, G38) | = |
+| Depth | Calories and macros | Conditions, healing stage, diet, rotation so nothing repeats, the full RDA for the day, food first against supplements | + |
+| Taps | One tap to generate | One tap to generate | = |
+| Offline | Online | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free one day at a time; $8.99 a month | Individual | = |
+| Conditions covered | Diets, not conditions | 19 conditions, alone and combined, and a partner’s | + |
+
+**Where the leader’s edge rests on a rule kept here.** Grocery delivery to Instacart needs a partner key and a server and sends the list to a company (Z6); sending the list as text (G8) covers it without either.
+
+Sources: <https://apps.apple.com/us/app/eat-this-much-meal-planner/id981637806> <https://fitia.app/learn/article/best-meal-planning-apps-2026/>
+
+#### Past Meals: Better against Cronometer
+
+Logging by exception: a planned meal is already the record, which is the fewest taps any tracker can reach. Also compared: MyFitnessPal. Checked 2026-10-07.
+
+| Measure | Cronometer | Inside Story | |
+|---|---|---|---|
+| What it does | A diary of what was logged | A planned meal counts as eaten once its time passes, adjustable part by part | + |
+| Depth | Nutrients per day | Nutrients, plus food trials protected when a meal they depended on changes | + |
+| Taps | Log every meal | Nothing, when the plan was eaten | + |
+| Offline | Online | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free diary | Free | = |
+| Conditions covered | None | Read by Pattern Finder against flares | + |
+
+Sources: <https://cronometer.com/>
+
+#### Hydration: Better against Waterllama
+
+The honest total counts food water too, and every drink reaches the nutrients. Waterllama keeps the charm and the Watch. Also compared: WaterMinder, Apple Health. Checked 2026-10-07.
+
+| Measure | Waterllama | Inside Story | |
+|---|---|---|---|
+| What it does | One tap a drink, 150 drinks with a hydration factor, goal from weight and weather, widgets and Watch | One tap a drink, a Glass widget, a cited hydration index per drink, reminders that stop at the target, a goal that moves with activity (G34 to G36) | = |
+| Depth | Drinks tapped in | Water from food as well as drinks, a drink as a full record with nutrients, coffee timing against levothyroxine | + |
+| Taps | One, from the Watch or lock screen | One, from a widget or the notification | = |
+| Offline | On the phone | On the phone | = |
+| Privacy | Account optional | No account; writes to Health Connect if allowed | = |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free; lifetime $8.99 to $19.99 | Free | = |
+| Conditions covered | None | Kidney disease and other fluid limits read from the conditions | + |
+
+**Where the leader’s edge rests on a rule kept here.** Its characters, streaks and challenges are ruled out here by the Keeping Up rules (Z4); nothing scores how much somebody drank.
+
+Sources: <https://apps.apple.com/us/app/water-tracker-waterllama/id1454778585>
+
+#### Upkeep on the timeline: Even against Sweepy
+
+Sweepy plans a house by room and by who; ours covers more kinds of upkeep but not the room or the fair share. Also compared: Tody, Todoist. Checked 2026-10-07.
+
+| Measure | Sweepy | Inside Story | |
+|---|---|---|---|
+| What it does | Chores by room, cleanliness level, household members assigned, a schedule that fits the time you have | Upkeep items with dates, overdue and soon, mark done computes the next date; household chores cross to other people a row at a time | = |
+| Depth | Rooms and effort | Any kind of upkeep: home, car, garden equipment, documents | + |
+| Taps | Daily list | On the Today timeline | = |
+| Offline | Account | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | Free; premium about $19.99 a year | Free | = |
+| Conditions covered | None | Energy-aware, once the check-in reads low | ? |
+
+**To be better.** Rooms and places as an optional grouping, who does it, and a gentle fit to a low-energy day (the lighter items offered first when the check-in reads low), with no points or leaderboard. Plan: Q16.
+
+**Where the leader’s edge rests on a rule kept here.** Sweepy’s points and household leaderboard are ruled out by the Keeping Up rules; nothing here scores anybody.
+
+Sources: <https://sweepy.app/>
+
+#### Exercise schedule: Behind against Fitbod
+
+Fitbod decides the next workout from the last one; ours schedules what the person chose and keeps the record. Also compared: Strava, Apple Fitness. Checked 2026-10-07.
+
+| Measure | Fitbod | Inside Story | |
+|---|---|---|---|
+| What it does | Generates each workout from logged sets, recovery per muscle and equipment | Plans a workout from Life > Workouts or a plain activity on any repeat; done from Health Connect (H11) | - |
+| Depth | Progression per lift | A plan and its record | - |
+| Taps | Start the generated workout | Mark done, or automatic from Health Connect | = |
+| Offline | Mostly online | On the phone | + |
+| Privacy | Account | No account | + |
+| Accessibility | Not checked | Text scales with the phone, uncapped; screen reader labels not audited | ? |
+| Price | About $79.99 a year | Free | + |
+| Conditions covered | None | Exercise guidance written for the conditions in the reading | + |
+
+**To be better.** A plan that answers to the body: offer the gentler alternative on a day the check-in reads low or a flare is open, and step a strength workout up from its logged sets, so it is the only planner that progresses and also holds back. Plan: Q17.
+
+Sources: <https://fitbod.me/>
 
 ## Why things are free or paid: the kinds
 

@@ -437,3 +437,23 @@
 - **Ships by:** Reading content · **Size:** M · **Tabs:** Food,Garden
 - **Answers:** Seasonal Food Guide · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Match the Seasonal Food Guide's US data from the same public sources (USDA, state extension), add the other countries the app is built for, and join it to the person's harvest and meal plan.
+
+### Q13. Injection sites picked on a drawn body, with site reactions
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Schedules,Signals
+- **Answers:** MyTherapy, CareClinic · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A front and back body outline to pick the site by touch, a site reaction (redness, swelling, a lump) recorded on the dose, and Pattern Finder reading reactions by site.
+
+### Q14. Travel noticed when the zone changes
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Schedules
+- **Answers:** Medisafe · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** When the phone changes time zone, ask once per med whether to keep home time or shift, offer a stepped shift over a few days for a dose whose timing matters, and move the meal timing checks with it.
+
+### Q16. Upkeep by place, by who, and fitted to the day
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life,Schedules
+- **Answers:** Sweepy, Tody · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Optional rooms or places to group upkeep, who does it, and on a day the check-in reads low the lighter items offered first. No points and no leaderboard.
+
+### Q17. A workout plan that answers to the body
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules,Life
+- **Answers:** Fitbod · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Offer the gentler alternative when the check-in reads low or a flare is open, and step a strength workout up from its logged sets, so the plan progresses and also holds back.

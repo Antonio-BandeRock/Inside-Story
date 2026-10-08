@@ -77,7 +77,7 @@
 - **Answers:** Gardenize, Sortly, Monarch, Guava, Medisafe · **Theme:** Shared foundations
 - **How:** A media table (owner kind, owner id, file, taken_on), shrink on save, stored under the app folder, copied into the Backups folder and restored beside the encrypted snapshot, never in the plaintext record, shown on desktop from the synced copy. Serves A5, D12, I13, J4, J9.
 
-## Phase 2. Quick wins over the air (119 items)
+## Phase 2. Quick wins over the air (122 items)
 
 ### A3. Pills on hand and refill reminder
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life,Schedules,Signals,Insights
@@ -674,7 +674,22 @@
 - **Answers:** Every leader · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Text already scales uncapped. Walk every tab with TalkBack and the desktop's narrator, give every icon button an accessibilityLabel, and add a script that fails on a Pressable with no label, so accessibility is a measured win rather than a "not checked" against every leader.
 
-## Phase 3. Larger builds over the air (88 items)
+### Q11. Dose reminders that read the meals around them
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
+- **Answers:** Apple Health Medications, MyTherapy, Medisafe · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** The reminder body reads doseMealTiming when it is scheduled and again when a meal is logged: a calcium-rich breakfast logged at 7:40 turns the 8:00 levothyroxine reminder into one naming the breakfast and the later window, with the time the reading was made ("based on food logged as of 7:45"). Falls back to the plain reminder when nothing is logged.
+
+### Q12. Days left that follow the real schedule
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Schedules
+- **Answers:** MyTherapy, Medisafe · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Supply runs down by the dose timeline itself (taper steps, every-other-week, weekly, monthly) rather than a daily average, and the refill ask lands on the Today timeline far enough ahead to call the pharmacy, with the pharmacy one tap away (A6).
+
+### Q15. A visual day
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules,Home
+- **Answers:** Tiimo, Structured · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** The Today timeline drawn as blocks sized by their minutes, each in its tab colour with its lens icon, the current block counting down, readable at a glance without reading a list; the list stays one tap away.
+
+## Phase 3. Larger builds over the air (92 items)
 
 ### A2. Tapering doses
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
@@ -1115,6 +1130,26 @@
 - **Ships by:** Reading content · **Size:** M · **Tabs:** Food,Garden
 - **Answers:** Seasonal Food Guide · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Match the Seasonal Food Guide's US data from the same public sources (USDA, state extension), add the other countries the app is built for, and join it to the person's harvest and meal plan.
+
+### Q13. Injection sites picked on a drawn body, with site reactions
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Schedules,Signals
+- **Answers:** MyTherapy, CareClinic · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** A front and back body outline to pick the site by touch, a site reaction (redness, swelling, a lump) recorded on the dose, and Pattern Finder reading reactions by site.
+
+### Q14. Travel noticed when the zone changes
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Schedules
+- **Answers:** Medisafe · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** When the phone changes time zone, ask once per med whether to keep home time or shift, offer a stepped shift over a few days for a dose whose timing matters, and move the meal timing checks with it.
+
+### Q16. Upkeep by place, by who, and fitted to the day
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life,Schedules
+- **Answers:** Sweepy, Tody · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Optional rooms or places to group upkeep, who does it, and on a day the check-in reads low the lighter items offered first. No points and no leaderboard.
+
+### Q17. A workout plan that answers to the body
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules,Life
+- **Answers:** Fitbod · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Offer the gentler alternative when the check-in reads low or a flare is open, and step a strength workout up from its logged sets, so the plan progresses and also holds back.
 
 ## Phase 4. The Android rebuild (R1) (14 items)
 

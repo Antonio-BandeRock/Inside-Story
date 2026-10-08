@@ -592,3 +592,18 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** All
 - **Answers:** Every leader · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Text already scales uncapped. Walk every tab with TalkBack and the desktop's narrator, give every icon button an accessibilityLabel, and add a script that fails on a Pressable with no label, so accessibility is a measured win rather than a "not checked" against every leader.
+
+### Q11. Dose reminders that read the meals around them
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
+- **Answers:** Apple Health Medications, MyTherapy, Medisafe · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** The reminder body reads doseMealTiming when it is scheduled and again when a meal is logged: a calcium-rich breakfast logged at 7:40 turns the 8:00 levothyroxine reminder into one naming the breakfast and the later window, with the time the reading was made ("based on food logged as of 7:45"). Falls back to the plain reminder when nothing is logged.
+
+### Q12. Days left that follow the real schedule
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Schedules
+- **Answers:** MyTherapy, Medisafe · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Supply runs down by the dose timeline itself (taper steps, every-other-week, weekly, monthly) rather than a daily average, and the refill ask lands on the Today timeline far enough ahead to call the pharmacy, with the pharmacy one tap away (A6).
+
+### Q15. A visual day
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules,Home
+- **Answers:** Tiimo, Structured · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** The Today timeline drawn as blocks sized by their minutes, each in its tab colour with its lens icon, the current block counting down, readable at a glance without reading a list; the list stays one tap away.

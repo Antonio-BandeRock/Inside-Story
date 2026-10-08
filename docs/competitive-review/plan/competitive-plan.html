@@ -64,8 +64,8 @@ nav.toc a{color:var(--accent)}
 <h1>Everything the competitors do, and how Inside Story gets there</h1>
 <p class="lead">Every gap the nine tab reviews named, merged where two tabs asked for the same thing, then ordered so each phase stands on the one before. Nothing from the review is left out: items that break a standing rule or need a server are listed in Phase 7 with the reason, waiting on your yes.</p>
 <div class="stats">
-<span class="stat"><b>268</b>items</span>
-<span class="stat"><b>216</b>ship over the air</span>
+<span class="stat"><b>275</b>items</span>
+<span class="stat"><b>223</b>ship over the air</span>
 <span class="stat"><b>11</b>in the Android rebuild</span>
 <span class="stat"><b>2</b>in the iPhone build</span>
 <span class="stat"><b>9</b>on the Worker</span>
@@ -305,7 +305,7 @@ nav.toc a{color:var(--accent)}
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p2">
-<h2>Phase 2. Quick wins over the air <span class="count">119</span></h2>
+<h2>Phase 2. Quick wins over the air <span class="count">122</span></h2>
 <p class="lead">Small and medium items that each close a named competitor gap with no rebuild. Most take an hour to a day each.</p>
 <div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
 <tbody><tr data-tabs="Life|Schedules|Signals|Insights" data-text="pills on hand and refill reminder supply_on_hand, supply_unit and refill_lead_days on treatments, drawn down when a dose is marked taken on meds, a refill kind in lib/remindersources.ts, "about 6 days left" in mymedssection.tsx. medisafe, mytherapy, careclinic, guava">
@@ -1140,10 +1140,31 @@ nav.toc a{color:var(--accent)}
 <td class="tabs">All</td>
 <td><span class="ship ota">Over the air</span></td>
 <td class="size">M</td>
+</tr>
+<tr data-tabs="Schedules" data-text="dose reminders that read the meals around them the reminder body reads dosemealtiming when it is scheduled and again when a meal is logged: a calcium-rich breakfast logged at 7:40 turns the 8:00 levothyroxine reminder into one naming the breakfast and the later window, with the time the reading was made ("based on food logged as of 7:45"). falls back to the plain reminder when nothing is logged. apple health medications, mytherapy, medisafe">
+<td class="id">Q11</td>
+<td><div class="t">Dose reminders that read the meals around them</div><div class="how">The reminder body reads doseMealTiming when it is scheduled and again when a meal is logged: a calcium-rich breakfast logged at 7:40 turns the 8:00 levothyroxine reminder into one naming the breakfast and the later window, with the time the reading was made ("based on food logged as of 7:45"). Falls back to the plain reminder when nothing is logged.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Apple Health Medications, MyTherapy, Medisafe</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Schedules" data-text="days left that follow the real schedule supply runs down by the dose timeline itself (taper steps, every-other-week, weekly, monthly) rather than a daily average, and the refill ask lands on the today timeline far enough ahead to call the pharmacy, with the pharmacy one tap away (a6). mytherapy, medisafe">
+<td class="id">Q12</td>
+<td><div class="t">Days left that follow the real schedule</div><div class="how">Supply runs down by the dose timeline itself (taper steps, every-other-week, weekly, monthly) rather than a daily average, and the refill ask lands on the Today timeline far enough ahead to call the pharmacy, with the pharmacy one tap away (A6).</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers MyTherapy, Medisafe</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Schedules|Home" data-text="a visual day the today timeline drawn as blocks sized by their minutes, each in its tab colour with its lens icon, the current block counting down, readable at a glance without reading a list; the list stays one tap away. tiimo, structured">
+<td class="id">Q15</td>
+<td><div class="t">A visual day</div><div class="how">The Today timeline drawn as blocks sized by their minutes, each in its tab colour with its lens icon, the current block counting down, readable at a glance without reading a list; the list stays one tap away.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Tiimo, Structured</div></td>
+<td class="tabs">Schedules<br>Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p3">
-<h2>Phase 3. Larger builds over the air <span class="count">88</span></h2>
+<h2>Phase 3. Larger builds over the air <span class="count">92</span></h2>
 <p class="lead">Bigger pieces of JS work: new tables with their own screens, drawn editors, experiments, the caregiver holding, garden planning, bank import.</p>
 <div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
 <tbody><tr data-tabs="Schedules" data-text="tapering doses a taper step list on treatments (amount per date range), read by the series generator and the dose reminder text. prednisone tapers in ra, ibd and lupus flares. needs a1. built 1.0.57.1: steps entered on life &gt; my meds as a first day plus amount and days per step (treatment_taper_steps, lib/taper.ts); reminders, home, schedules &gt; meds and today's meals show the day's amount with (step n of m); new reminder times preset to stop on the taper's last day; the med's own dose applies outside the taper. careclinic">
@@ -1760,6 +1781,34 @@ nav.toc a{color:var(--accent)}
 <td><div class="t">Seasonal food for every country in scope, joined to the garden</div><div class="how">Match the Seasonal Food Guide's US data from the same public sources (USDA, state extension), add the other countries the app is built for, and join it to the person's harvest and meal plan.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Seasonal Food Guide</div></td>
 <td class="tabs">Food<br>Garden</td>
 <td><span class="ship ota">Reading content</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Schedules|Signals" data-text="injection sites picked on a drawn body, with site reactions a front and back body outline to pick the site by touch, a site reaction (redness, swelling, a lump) recorded on the dose, and pattern finder reading reactions by site. mytherapy, careclinic">
+<td class="id">Q13</td>
+<td><div class="t">Injection sites picked on a drawn body, with site reactions</div><div class="how">A front and back body outline to pick the site by touch, a site reaction (redness, swelling, a lump) recorded on the dose, and Pattern Finder reading reactions by site.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers MyTherapy, CareClinic</div></td>
+<td class="tabs">Schedules<br>Signals</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Schedules" data-text="travel noticed when the zone changes when the phone changes time zone, ask once per med whether to keep home time or shift, offer a stepped shift over a few days for a dose whose timing matters, and move the meal timing checks with it. medisafe">
+<td class="id">Q14</td>
+<td><div class="t">Travel noticed when the zone changes</div><div class="how">When the phone changes time zone, ask once per med whether to keep home time or shift, offer a stepped shift over a few days for a dose whose timing matters, and move the meal timing checks with it.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Medisafe</div></td>
+<td class="tabs">Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Life|Schedules" data-text="upkeep by place, by who, and fitted to the day optional rooms or places to group upkeep, who does it, and on a day the check-in reads low the lighter items offered first. no points and no leaderboard. sweepy, tody">
+<td class="id">Q16</td>
+<td><div class="t">Upkeep by place, by who, and fitted to the day</div><div class="how">Optional rooms or places to group upkeep, who does it, and on a day the check-in reads low the lighter items offered first. No points and no leaderboard.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Sweepy, Tody</div></td>
+<td class="tabs">Life<br>Schedules</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">S</td>
+</tr>
+<tr data-tabs="Schedules|Life" data-text="a workout plan that answers to the body offer the gentler alternative when the check-in reads low or a flare is open, and step a strength workout up from its logged sets, so the plan progresses and also holds back. fitbod">
+<td class="id">Q17</td>
+<td><div class="t">A workout plan that answers to the body</div><div class="how">Offer the gentler alternative when the check-in reads low or a flare is open, and step a strength workout up from its logged sets, so the plan progresses and also holds back.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Fitbod</div></td>
+<td class="tabs">Schedules<br>Life</td>
+<td><span class="ship ota">Over the air</span></td>
 <td class="size">M</td>
 </tr></tbody></table></div>
 </section>
