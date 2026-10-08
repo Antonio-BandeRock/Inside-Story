@@ -454,15 +454,12 @@ type CardSectionKey = (typeof ALL_CARD_SECTION_KEYS)[number];
 // See ALL_CARD_SECTION_KEYS's comment above for why this one area gets its
 // own, second, independent collapse layer. Deliberately its own separate
 // key space/state (collapsedIconGroups below), not folded into
-// CardSectionKey/collapsedSections: these 3 groups only ever exist nested
+// CardSectionKey/collapsedSections: these 4 groups only ever exist nested
 // inside the 'appearance' card's "TabHub Icon" sub-section (see
 // AppearanceSubsectionKey right below), never as a top-level card of their
-// own. A third level of nesting: card, sub-section, group. 'tabHubFoodBuilders'
-// added 2026-08-14, same day: Dessert Builder's new icon
-// (components/FoodBuilderIcons.tsx) is neither a tracked condition, an
-// insect/pollinator, nor an animal, so it gets its own 4th group rather
-// than being folded into any of the existing three for a fit that isn't
-// quite honest.
+// own. A third level of nesting: card, sub-section, group. A Food Builders
+// group (2026-08-14) was removed in 1.0.63.16 by direct request, since its
+// one icon had no picture to show and the group opened onto nothing.
 //
 // 'tabHubAppIcon' added 2026-08-19: the app's new default icon (the seed,
 // see TabHubIconChoice's comment in lib/visualPreferences.ts) isn't a
@@ -471,11 +468,11 @@ type CardSectionKey = (typeof ALL_CARD_SECTION_KEYS)[number];
 // group, deliberately placed first in the render order below (see the JSX
 // further down), since it's the one choice most people will actually see
 // without ever opening this picker.
-const ALL_TAB_HUB_ICON_GROUP_KEYS = ['tabHubAppIcon', 'tabHubConditions', 'tabHubInsects', 'tabHubAnimals', 'tabHubFoodBuilders'] as const;
+const ALL_TAB_HUB_ICON_GROUP_KEYS = ['tabHubAppIcon', 'tabHubAnimals', 'tabHubConditions', 'tabHubInsects'] as const;
 type TabHubIconGroupKey = (typeof ALL_TAB_HUB_ICON_GROUP_KEYS)[number];
 
 // 2026-08-14, same day, a direct follow-up that generalizes the exception
-// above from "just TabHub Icon's 3 groups" to the whole 'appearance' card:
+// above from "just TabHub Icon's 4 groups" to the whole 'appearance' card:
 // "There isn't much definition of space between the TabHub Icon appearance
 // and navigation selection and the next selection picker below that, and
 // so-on after that one to tell where one ends and the next begins. Is it
@@ -504,8 +501,10 @@ type TabHubIconGroupKey = (typeof ALL_TAB_HUB_ICON_GROUP_KEYS)[number];
 // and static, no animation anywhere.
 const ALL_APPEARANCE_SUBSECTION_KEYS = [
   'genericPalette',
+  'gettingStarted',
   'groundColor',
   'individualTabBackgrounds',
+  'navigationHand',
   'progressPictures',
   'sharedBackground',
   'tabHubIcon',
@@ -775,14 +774,24 @@ export default function ProfileScreen() {
   // Since 1.0.63.13 every group starts folded as well, by direct request:
   // "I would like for Profile to have all sections collapsed when I go into it."
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(() => new Set(Object.keys(PROFILE_GROUP_ICONS)));
-  const toggleGroup = useCallback((title: string) => {
-    setCollapsedGroups((current) => {
-      const next = new Set(current);
-      if (next.has(title)) next.delete(title);
-      else next.add(title);
-      return next;
-    });
-  }, []);
+  // 1.0.63.16, direct request: "when I select a section header, it should
+  // expand with that header placed at the top of the screen. If another
+  // section had been opened, it should close when I open the other header.
+  // The same goes for subsections." So every level folds like an
+  // accordion: opening a header closes the others at its level and anything
+  // left open below them, and the opened header is scrolled to the top of
+  // the page. Closing a header leaves the page where it is.
+  function toggleGroup(title: string) {
+    if (!collapsedGroups.has(title)) {
+      setCollapsedGroups((current) => new Set(current).add(title));
+      return;
+    }
+    setCollapsedGroups(new Set(Object.keys(PROFILE_GROUP_ICONS).filter((g) => g !== title)));
+    setCollapsedSections(new Set(ALL_CARD_SECTION_KEYS));
+    setCollapsedAppearanceSubsections(new Set(ALL_APPEARANCE_SUBSECTION_KEYS));
+    setCollapsedIconGroups(new Set(ALL_TAB_HUB_ICON_GROUP_KEYS));
+    bringHeaderToTop(`group:${title}`);
+  }
   // A Your Story walk pointing at a card here unfolds its group, since a
   // folded group would hide the very header the walk is pointing at.
   useEffect(() => {
@@ -816,28 +825,45 @@ export default function ProfileScreen() {
           ? { group: 'Device & Account', section: 'applock' as const, y: appLockCardY }
           : null;
     if (!target) return;
-    setCollapsedGroups((current) => {
-      const next = new Set(current);
-      next.delete(target.group);
-      return next;
-    });
-    setCollapsedSections((current) => {
-      const next = new Set(current);
-      next.delete(target.section);
-      return next;
-    });
+    setCollapsedGroups(new Set(Object.keys(PROFILE_GROUP_ICONS).filter((g) => g !== target.group)));
+    setCollapsedSections(new Set(ALL_CARD_SECTION_KEYS.filter((k) => k !== target.section)));
     const timer = setTimeout(() => {
       if (target.y.current != null) scrollRef.current?.scrollTo({ y: target.y.current, animated: true });
     }, 350);
     return () => clearTimeout(timer);
   }, [openSection]);
   function toggleSection(key: CardSectionKey) {
-    setCollapsedSections((current) => {
-      const next = new Set(current);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
+    if (!collapsedSections.has(key)) {
+      setCollapsedSections((current) => new Set(current).add(key));
+      return;
+    }
+    setCollapsedSections(new Set(ALL_CARD_SECTION_KEYS.filter((k) => k !== key)));
+    setCollapsedAppearanceSubsections(new Set(ALL_APPEARANCE_SUBSECTION_KEYS));
+    setCollapsedIconGroups(new Set(ALL_TAB_HUB_ICON_GROUP_KEYS));
+    bringHeaderToTop(`card:${key}`);
+  }
+  // Where each foldable header is, so the one just opened can be scrolled to
+  // the top. Measured in the window once the fold has redrawn, then turned
+  // into a scroll position from where the page is scrolled now and where the
+  // scrolling area starts (just under the Profile title bar).
+  const scrollYRef = useRef(0);
+  const titleBarRef = useRef<View>(null);
+  const headerRefs = useRef(new Map<string, View | null>());
+  const headerRef = (id: string) => (node: View | null) => {
+    headerRefs.current.set(id, node);
+  };
+  function bringHeaderToTop(id: string) {
+    setTimeout(() => {
+      const header = headerRefs.current.get(id);
+      const bar = titleBarRef.current;
+      if (!header || !bar) return;
+      bar.measureInWindow((_bx, barY, _bw, barHeight) => {
+        header.measureInWindow((_hx, headerY) => {
+          const y = Math.max(0, scrollYRef.current + headerY - (barY + barHeight));
+          scrollRef.current?.scrollTo({ y, animated: true });
+        });
+      });
+    }, 120);
   }
   // The time pickers that belong to one reminder switch, drawn under it
   // while it is on (1.0.60.3: each picker moved beside its own switch when
@@ -963,7 +989,7 @@ export default function ProfileScreen() {
   function renderCardHeader(key: CardSectionKey, title: string) {
     const collapsed = collapsedSections.has(key);
     return (
-      <TouchableOpacity style={[styles.cardHeaderRow, styles.cardHeaderRowTop, walkMark(`profile.${key}` as WalkMark)]} onPress={() => toggleSection(key)} activeOpacity={0.7}>
+      <TouchableOpacity ref={headerRef(`card:${key}`)} style={[styles.cardHeaderRow, styles.cardHeaderRowTop, walkMark(`profile.${key}` as WalkMark)]} onPress={() => toggleSection(key)} activeOpacity={0.7}>
         <Ionicons name={PROFILE_CARD_ICONS[key]} size={16} color={colors.tabProfile} style={textShadow} />
         <Text style={styles.cardTitle} numberOfLines={1}>{title}</Text>
         <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={18} color={colors.tabProfile} style={textShadow} />
@@ -996,6 +1022,7 @@ export default function ProfileScreen() {
     const collapsed = collapsedGroups.has(title);
     return (
       <TouchableOpacity
+        ref={headerRef(`group:${title}`)}
         style={styles.groupHeadingRow}
         onPress={() => toggleGroup(title)}
         activeOpacity={0.75}
@@ -1011,37 +1038,37 @@ export default function ProfileScreen() {
   // 2026-08-14, direct request: "Is there a way to collapse each of the
   // sections of TabHub Icons inside of the already collapsable section
   // they are a part of?" A second, independent collapse layer scoped only
-  // to the TabHub Icon picker's 3 groups (see TabHubIconGroupKey's comment
+  // to the TabHub Icon picker's 4 groups (see TabHubIconGroupKey's comment
   // above for why this one area is exempt from the "no nested sub-cards"
   // rule the rest of this screen holds to). Starts every group collapsed,
   // same "just headers first" default as the top-level cards: with 65
-  // tiles across the 3 groups combined, showing all of them the instant
+  // tiles across the 4 groups combined, showing all of them the instant
   // the outer Appearance & Navigation card opens would defeat the whole
   // point of collapsing that card in the first place.
   const [collapsedIconGroups, setCollapsedIconGroups] = useState<Set<TabHubIconGroupKey>>(
     () => new Set(ALL_TAB_HUB_ICON_GROUP_KEYS),
   );
   function toggleIconGroup(key: TabHubIconGroupKey) {
-    setCollapsedIconGroups((current) => {
-      const next = new Set(current);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
+    if (!collapsedIconGroups.has(key)) {
+      setCollapsedIconGroups((current) => new Set(current).add(key));
+      return;
+    }
+    setCollapsedIconGroups(new Set(ALL_TAB_HUB_ICON_GROUP_KEYS.filter((k) => k !== key)));
+    bringHeaderToTop(`icons:${key}`);
   }
-  // Same tappable-header shape as renderCardHeader above, just using
-  // subLabel's smaller/lighter styling (matching every other in-card
-  // sub-heading on this screen) and a slightly smaller chevron, since this
-  // is a sub-level header nested one layer deeper than a card header.
-  function renderIconGroupHeader(key: TabHubIconGroupKey, title: string, marginTop: number) {
+  // A Home row (1.0.63.16): 12 above and below one line of body text, a dark
+  // line above it, nudged in a little further than the sub-section it sits
+  // in so the third level still reads as a level down.
+  function renderIconGroupHeader(key: TabHubIconGroupKey, title: string) {
     const collapsed = collapsedIconGroups.has(key);
     return (
       <TouchableOpacity
-        style={[styles.cardHeaderRow, { marginTop }]}
+        ref={headerRef(`icons:${key}`)}
+        style={[styles.subsectionRow, styles.iconGroupRow]}
         onPress={() => toggleIconGroup(key)}
         activeOpacity={0.7}
       >
-        <Text style={styles.subLabel}>{title}</Text>
+        <Text style={styles.subsectionTitle} numberOfLines={1}>{title}</Text>
         <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={16} color={colors.menuIconMuted} />
       </TouchableOpacity>
     );
@@ -1056,16 +1083,17 @@ export default function ProfileScreen() {
     () => new Set(ALL_APPEARANCE_SUBSECTION_KEYS),
   );
   function toggleAppearanceSubsection(key: AppearanceSubsectionKey) {
-    setCollapsedAppearanceSubsections((current) => {
-      const next = new Set(current);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
+    if (!collapsedAppearanceSubsections.has(key)) {
+      setCollapsedAppearanceSubsections((current) => new Set(current).add(key));
+      return;
+    }
+    setCollapsedAppearanceSubsections(new Set(ALL_APPEARANCE_SUBSECTION_KEYS.filter((k) => k !== key)));
+    setCollapsedIconGroups(new Set(ALL_TAB_HUB_ICON_GROUP_KEYS));
+    bringHeaderToTop(`sub:${key}`);
   }
   // Same tappable-header shape as renderCardHeader/renderIconGroupHeader
   // above, plus a visible divider line above every sub-section but the
-  // first (styles.appearanceSubsectionHeaderFirst zeroes that border/
+  // first (styles.subsectionRowFirst zeroes that border/
   // spacing out for whichever sub-section comes first alphabetically,
   // since 1.0.63.15 Generic color combination, which sits directly under the
   // card's header with nothing else above it to separate from). This is
@@ -1075,11 +1103,12 @@ export default function ProfileScreen() {
     const collapsed = collapsedAppearanceSubsections.has(key);
     return (
       <TouchableOpacity
-        style={[styles.appearanceSubsectionHeader, isFirst && styles.appearanceSubsectionHeaderFirst]}
+        ref={headerRef(`sub:${key}`)}
+        style={[styles.subsectionRow, isFirst && styles.subsectionRowFirst]}
         onPress={() => toggleAppearanceSubsection(key)}
         activeOpacity={0.7}
       >
-        <Text style={styles.subLabel}>{title}</Text>
+        <Text style={styles.subsectionTitle} numberOfLines={1}>{title}</Text>
         <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={17} color={colors.menuIconMuted} />
       </TouchableOpacity>
     );
@@ -3281,15 +3310,6 @@ export default function ProfileScreen() {
     { key: 'wolf', label: 'Wolf' },
   ];
   animalIconOptions.sort((a, b) => a.label.localeCompare(b.label));
-  // 2026-08-14: a new 4th group, Food tab builder icons, starting with
-  // Dessert Builder (components/FoodBuilderIcons.tsx), the first
-  // hand-drawn vector icon this picker has ever offered rather than a
-  // cropped photo (see that file's header comment). Neither a tracked
-  // condition, a pollinator, nor an animal, so it doesn't belong in any of
-  // the three groups above; an honest 4th group of its own.
-  const foodBuilderIconOptions: { key: TabHubIconChoice; label: string }[] = [
-    { key: 'dessertBuilder', label: 'Dessert Builder (Cupcake)' },
-  ];
   // 2026-08-19: a new 5th group, just the one seed icon, the app's actual
   // out-of-the-box default (see TabHubIconChoice's comment in
   // lib/visualPreferences.ts). Deliberately its own group, not folded into
@@ -3364,7 +3384,7 @@ export default function ProfileScreen() {
         scrolled content's top edge simply disappears at this bar's bottom
         edge, the same visual effect an overlaid sticky header would give,
         without needing one. */}
-    <View style={[styles.stickyTitleBar, { paddingTop: insets.top + 12 }, showGenericBackground && styles.transparentBackground]}>
+    <View ref={titleBarRef} style={[styles.stickyTitleBar, { paddingTop: insets.top + 12 }, showGenericBackground && styles.transparentBackground]}>
       <View style={styles.profileTitleRow}>
         <Text style={styles.profileTitle}>Profile</Text>
         <HelpButton pageTitle="Profile" sections={PROFILE_HELP_SECTIONS} />
@@ -3372,6 +3392,10 @@ export default function ProfileScreen() {
     </View>
     <ScrollView
       ref={scrollRef}
+      onScroll={(event) => {
+        scrollYRef.current = event.nativeEvent.contentOffset.y;
+      }}
+      scrollEventThrottle={32}
       style={[styles.screen, showGenericBackground && styles.transparentBackground]}
       contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}
     >
@@ -4856,23 +4880,25 @@ export default function ProfileScreen() {
                 someone who has not. This puts them back. Also the only way to
                 see either of them a second time, which is what makes them
                 checkable at all. */}
-            <View style={styles.subLabelDivided}>
-              <Text style={styles.subLabel}>Getting Started</Text>
-            </View>
-            <Text style={styles.helpText}>
-              The first time this app is opened it says what the button below is for, and keeps a small
-              pointer above it until the button has been used once. Both are gone for good after that.
-              Bring them back when setting this up for someone new.
-            </Text>
-            <TouchableOpacity
-              style={styles.replayWelcomeButton}
-              activeOpacity={0.85}
-              onPress={() => {
-                void setVisualPreferences({ hasSeenTabHubWelcome: false, hasUsedTabHub: false });
-              }}
-            >
-              <Text style={styles.replayWelcomeButtonText}>Show the Welcome Again</Text>
-            </TouchableOpacity>
+            {renderAppearanceSubsectionHeader('gettingStarted', 'Getting Started', false)}
+            {!collapsedAppearanceSubsections.has('gettingStarted') ? (
+              <>
+                <Text style={styles.helpText}>
+                  The first time this app is opened it says what the button below is for, and keeps a small
+                  pointer above it until the button has been used once. Both are gone for good after that.
+                  Bring them back when setting this up for someone new.
+                </Text>
+                <TouchableOpacity
+                  style={styles.replayWelcomeButton}
+                  activeOpacity={0.85}
+                  onPress={() => {
+                    void setVisualPreferences({ hasSeenTabHubWelcome: false, hasUsedTabHub: false });
+                  }}
+                >
+                  <Text style={styles.replayWelcomeButtonText}>Show the Welcome Again</Text>
+                </TouchableOpacity>
+              </>
+            ) : null}
 
             {/* Ground color, 2026-08-19, see constants/colors.ts's
                 GROUND_THEMES/initialGround comments for the full reasoning
@@ -4966,23 +4992,25 @@ export default function ProfileScreen() {
             {/* 1.0.61.13: the same choice the navigation switch button makes
                 (components/HandSwitchButton.tsx), for anybody who would rather
                 pick it here than hold a button. Kept on this device only. */}
-            <View style={styles.subLabelDivided}>
-              <Text style={styles.subLabel}>Navigation Hand</Text>
-            </View>
-            <Text style={styles.helpText}>
-              Which thumb works the menu buttons. They sit in the bottom corner on that side, and the small switch
-              tab just above the footer sits on the other side. Holding that tab switches sides from any screen.
-            </Text>
-            <PickerField label="Navigation hand">
-              <PopoverSelect
-                options={['Left Hand', 'Right Hand']}
-                selected={navigationHand === 'left' ? 'Left Hand' : 'Right Hand'}
-                minWidth={150}
-                tabColor={colors.menuIconMuted}
-                groundSurface
-                onSelect={(label) => setNavigationHand(label === 'Right Hand' ? 'right' : 'left')}
-              />
-            </PickerField>
+            {renderAppearanceSubsectionHeader('navigationHand', 'Navigation Hand', false)}
+            {!collapsedAppearanceSubsections.has('navigationHand') ? (
+              <>
+                <Text style={styles.helpText}>
+                  Which thumb works the menu buttons. They sit in the bottom corner on that side, and the small switch
+                  tab just above the footer sits on the other side. Holding that tab switches sides from any screen.
+                </Text>
+                <PickerField label="Navigation hand">
+                  <PopoverSelect
+                    options={['Left Hand', 'Right Hand']}
+                    selected={navigationHand === 'left' ? 'Left Hand' : 'Right Hand'}
+                    minWidth={150}
+                    tabColor={colors.menuIconMuted}
+                    groundSurface
+                    onSelect={(label) => setNavigationHand(label === 'Right Hand' ? 'right' : 'left')}
+                  />
+                </PickerField>
+              </>
+            ) : null}
 
             {/* C17 (docs/progress-design.md): the picture each tab draws from
                 the person's records. On by default over Photo and Generic,
@@ -5060,24 +5088,22 @@ export default function ProfileScreen() {
                 <Text style={styles.helpText}>
                   The main floating button used to open the app&apos;s navigation menu. Shows the Inside Story
                   book by default. Pick any tracked condition&apos;s icon, any insect/pollinator icon, any of the 38
-                  animal portraits, or a Food tab builder icon below to personalize it instead. Only one
+                  animal portraits below to personalize it instead. Only one
                   can be active at a time.
                 </Text>
 
-                {renderIconGroupHeader('tabHubAppIcon', 'App Icon', 10)}
+                {/* App Icon first, then the rest alphabetically (1.0.63.16). */}
+                {renderIconGroupHeader('tabHubAppIcon', 'App Icon')}
                 {!collapsedIconGroups.has('tabHubAppIcon') ? renderTabHubIconGroup(appIconOptions) : null}
 
-                {renderIconGroupHeader('tabHubConditions', 'Conditions', 14)}
-                {!collapsedIconGroups.has('tabHubConditions') ? renderTabHubIconGroup(conditionIconOptions) : null}
-
-                {renderIconGroupHeader('tabHubInsects', 'Insects & Other Wildlife', 14)}
-                {!collapsedIconGroups.has('tabHubInsects') ? renderTabHubIconGroup(gardenIconOptions) : null}
-
-                {renderIconGroupHeader('tabHubAnimals', 'Animals', 14)}
+                {renderIconGroupHeader('tabHubAnimals', 'Animals')}
                 {!collapsedIconGroups.has('tabHubAnimals') ? renderTabHubIconGroup(animalIconOptions) : null}
 
-                {renderIconGroupHeader('tabHubFoodBuilders', 'Food Builders', 14)}
-                {!collapsedIconGroups.has('tabHubFoodBuilders') ? renderTabHubIconGroup(foodBuilderIconOptions) : null}
+                {renderIconGroupHeader('tabHubConditions', 'Conditions')}
+                {!collapsedIconGroups.has('tabHubConditions') ? renderTabHubIconGroup(conditionIconOptions) : null}
+
+                {renderIconGroupHeader('tabHubInsects', 'Insects & Other Wildlife')}
+                {!collapsedIconGroups.has('tabHubInsects') ? renderTabHubIconGroup(gardenIconOptions) : null}
               </>
             ) : null}
 
@@ -6378,6 +6404,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderColor: colors.tabProfile,
     ...homeBandDivided,
+    // 1.0.63.16, as on Home in 1.0.62.12: a card inside a group keeps the
+    // accent's width but draws it clear, since the group's own accent
+    // already says which tab this is.
+    borderLeftColor: 'transparent',
     // No padding above or below: the header row carries Home's 12 and
     // cardBody carries the bottom, so a closed card is one Home row tall.
     paddingHorizontal: HOME_BAND_CONTENT_PADDING,
@@ -6437,19 +6467,30 @@ const styles = StyleSheet.create({
   // border/spacing out for the very first sub-section (TabHub Icon), which
   // already sits directly under the card's header with nothing above it
   // to visually separate from.
-  appearanceSubsectionHeader: {
+  // 1.0.63.16, direct request: every row in Profile the height of a Home
+  // row. Home's header is 12 above and below one line of body text, so a
+  // foldable sub-section is the same, with the dark line Home draws between
+  // the cards of a group.
+  subsectionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 18,
-    paddingTop: 14,
-    borderTopWidth: 1,
+    gap: 8,
+    paddingVertical: 12,
+    borderTopWidth: HOME_BAND_EDGE_WIDTH,
     borderTopColor: HOME_BAND_DIVIDER_COLOR,
   },
-  appearanceSubsectionHeaderFirst: {
-    marginTop: 0,
-    paddingTop: 0,
+  subsectionRowFirst: {
     borderTopWidth: 0,
+  },
+  iconGroupRow: {
+    paddingLeft: 12,
+  },
+  subsectionTitle: {
+    ...typography.bodyEmphasis,
+    color: colors.textPrimary,
+    fontWeight: '400',
+    flex: 1,
+    ...textShadow,
   },
   helpText: {
     ...typography.body,
