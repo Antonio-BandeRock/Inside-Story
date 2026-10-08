@@ -1,0 +1,589 @@
+<title>Free or Paid Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one plotting field (uniqueness across, willingness to pay up), a tilted Free/Paid line laid over it,
+   a detail panel beside it, and the two live lists underneath. */
+:root {
+  --bg: #eef1f3;
+  --panel: #ffffff;
+  --ink: #17232b;
+  --muted: #5b6b75;
+  --rule: #cfd8dd;
+  --field: #f7f9fa;
+  --free: #2f7d5b;
+  --free-wash: #e2f1ea;
+  --paid: #8a4fb8;
+  --paid-wash: #efe5f7;
+  --safety: #c0392b;
+  --focus: #1d6fd1;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --t-home: #d08a1e; --t-food: #3f9d4a; --t-schedules: #2f86c9; --t-signals: #d2544f; --t-insights: #7a5cc7;
+  --t-trends: #1fa3a0; --t-reports: #6d7c86; --t-garden: #7f9a2c; --t-life: #c75a9c; --t-across: #384a56;
+  --t-interests: #b0682f; --t-companions: #3d5fb0;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12191e; --panel: #1b252c; --ink: #e6edf1; --muted: #9aabb5; --rule: #2f3d46; --field: #161f25;
+  --free: #5cc196; --free-wash: #17352a; --paid: #c39ae6; --paid-wash: #2f2340; --safety: #ff7b6b; --focus: #6aa8ff;
+  --t-across: #a9bac4; --t-companions: #7f9be0; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12191e; --panel: #1b252c; --ink: #e6edf1; --muted: #9aabb5; --rule: #2f3d46; --field: #161f25;
+  --free: #5cc196; --free-wash: #17352a; --paid: #c39ae6; --paid-wash: #2f2340; --safety: #ff7b6b; --focus: #6aa8ff;
+  --t-across: #a9bac4; --t-companions: #7f9be0; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 48px; display: flex; flex-direction: column; gap: 18px; }
+h1 { font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4vw, 36px); line-height: 1.1; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 500; font-size: 19px; margin: 0; }
+.lead { max-width: 70ch; color: var(--muted); margin: 6px 0 0; }
+.status { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 600 12px var(--body); border: 1px solid var(--rule); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 4px 10px 4px 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.chip i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.chip[aria-pressed="false"] { opacity: .45; }
+.chip:focus-visible, button:focus-visible, .dot:focus-visible, .handle:focus-visible, li button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.btn { font: 600 13px var(--body); border: 1px solid var(--rule); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+@media (max-width: 900px) { .main { grid-template-columns: minmax(0, 1fr); } }
+.plot { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 12px 12px 8px 40px; position: relative; min-width: 0; }
+.field { position: relative; height: clamp(440px, 62vh, 640px); background: var(--field); border-radius: 6px; touch-action: none; overflow: hidden; }
+.field svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ylab { position: absolute; left: 4px; top: 50%; transform: translate(-50%, -50%) rotate(-90deg) translateY(-10px); transform-origin: center; font: 600 11px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; margin-left: 18px; }
+.xlab { display: flex; justify-content: space-between; font: 600 11px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding-top: 6px; gap: 8px; }
+.yticks { position: absolute; left: 22px; top: 12px; bottom: 30px; width: 14px; pointer-events: none; }
+.yticks span { position: absolute; right: 0; transform: translateY(-50%); font: 11px var(--mono); color: var(--muted); }
+.dot { position: absolute; border-radius: 50%; transform: translate(-50%, -50%); border: 2px solid var(--panel); cursor: grab; padding: 0; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.dot.paid { box-shadow: 0 0 0 2px var(--paid), 0 1px 2px rgba(0,0,0,.25); }
+.dot.safety { box-shadow: 0 0 0 2px var(--safety); }
+.dot.pinned::after { content: ""; position: absolute; right: -4px; top: -4px; width: 7px; height: 7px; border-radius: 2px; background: var(--ink); }
+.dot.future { border-style: dashed; border-color: var(--ink); background-clip: padding-box; opacity: .85; }
+.dot.future::before { content: ""; position: absolute; inset: 25%; border-radius: 50%; background: var(--panel); }
+.dot.dim { opacity: .12; pointer-events: none; }
+.dot.sel { outline: 3px solid var(--focus); outline-offset: 2px; z-index: 5; }
+.dot.dragging { cursor: grabbing; z-index: 6; }
+.tag { position: absolute; transform: translate(10px, -50%); font: 11px var(--body); color: var(--ink); background: var(--panel); border: 1px solid var(--rule); border-radius: 4px; padding: 0 4px; white-space: nowrap; pointer-events: none; z-index: 4; }
+.handle { position: absolute; width: 26px; height: 26px; border-radius: 6px; background: var(--ink); color: var(--bg); transform: translate(-50%, -50%); cursor: ns-resize; border: none; font: 700 12px var(--mono); display: grid; place-items: center; z-index: 7; }
+.zone { position: absolute; font: 700 12px var(--body); letter-spacing: .08em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; pointer-events: none; }
+.zone.f { left: 10px; bottom: 8px; color: var(--free); background: var(--free-wash); }
+.zone.p { right: 10px; top: 8px; color: var(--paid); background: var(--paid-wash); }
+.quad { position: absolute; font: 11px var(--body); color: var(--muted); pointer-events: none; max-width: 30%; opacity: .9; }
+.side { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.side .tabname { font: 700 11px var(--body); letter-spacing: .08em; text-transform: uppercase; }
+.side h3 { font-family: var(--display); font-weight: 700; font-size: 20px; margin: 0; line-height: 1.2; text-wrap: balance; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; font-size: 13px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; font-family: var(--mono); font-size: 12px; }
+.side p { margin: 0; font-size: 14px; }
+.side .ev { font-size: 13px; color: var(--muted); }
+.seg { display: flex; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+.seg button { flex: 1; font: 600 12px var(--body); background: var(--panel); color: var(--ink); border: none; padding: 7px 4px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--rule); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.seg button:disabled { opacity: .5; cursor: not-allowed; }
+textarea { width: 100%; box-sizing: border-box; font: 14px var(--body); border: 1px solid var(--rule); border-radius: 8px; padding: 8px; background: var(--field); color: var(--ink); resize: vertical; min-height: 64px; }
+.pill { font: 700 11px var(--body); letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; display: inline-block; }
+.pill.free { background: var(--free-wash); color: var(--free); }
+.pill.paid { background: var(--paid-wash); color: var(--paid); }
+.pill.safety { background: transparent; color: var(--safety); border: 1px solid var(--safety); }
+.empty { color: var(--muted); font-size: 14px; }
+.lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+@media (max-width: 700px) { .lists { grid-template-columns: minmax(0, 1fr); } }
+.list { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 14px; min-width: 0; }
+.list header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; border-bottom: 2px solid currentColor; padding-bottom: 6px; margin-bottom: 8px; }
+.list.free header { color: var(--free); }
+.list.paid header { color: var(--paid); }
+.list header h2 { color: inherit; }
+.list header span { font: 12px var(--mono); }
+.list h4 { font: 700 11px var(--body); letter-spacing: .08em; text-transform: uppercase; margin: 10px 0 2px; display: flex; align-items: center; gap: 6px; color: var(--muted); }
+.list h4 i { width: 8px; height: 8px; border-radius: 50%; }
+.list ul { list-style: none; margin: 0; padding: 0; columns: 2 200px; column-gap: 16px; }
+.list li { break-inside: avoid; }
+.list li button { all: unset; cursor: pointer; font-size: 14px; display: block; padding: 1px 0; color: var(--ink); }
+.list li button:hover { text-decoration: underline; }
+.list li .m { font: 10px var(--mono); color: var(--muted); margin-left: 4px; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--muted); align-items: center; }
+.legend b { display: inline-block; border-radius: 50%; background: var(--muted); vertical-align: middle; margin-right: 4px; }
+.how { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 12px 14px; font-size: 14px; }
+.how summary { cursor: pointer; font-weight: 700; }
+.how ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.pill.st { background: var(--field); color: var(--muted); border: 1px dashed var(--muted); }
+.fam { border-top: 1px solid var(--rule); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.fam h5 { font: 700 11px var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.fam p { font-size: 13.5px; }
+.kinds { display: flex; flex-wrap: wrap; gap: 4px; }
+.kind { font: 600 11px var(--body); border-radius: 4px; padding: 1px 6px; background: var(--field); border: 1px solid var(--rule); color: var(--ink); }
+.comps { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 13px; }
+.comps b { font-weight: 700; }
+.comps .pr { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.comps a, .research a, .eval a { color: var(--focus); }
+.jump { font: 600 13px var(--body); color: var(--focus); }
+.research, .eval { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.research > p, .eval > p { max-width: 72ch; margin: 0; color: var(--muted); }
+.kindlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.kindlist div { font-size: 13.5px; } .kindlist b { display: block; }
+.fams { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 12px; }
+.famcard { border: 1px solid var(--rule); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px; min-width: 0; scroll-margin-top: 16px; }
+.famcard:target { outline: 3px solid var(--focus); }
+.famcard h3 { font-family: var(--display); font-size: 17px; margin: 0; }
+.famcard p { margin: 0; font-size: 13.5px; }
+.famcard .lbl { font: 700 10.5px var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.famcard .fn { font-size: 12.5px; color: var(--muted); }
+.famcard .fn button { all: unset; cursor: pointer; text-decoration: underline; text-decoration-color: var(--rule); }
+.tablewrap { overflow-x: auto; }
+table.rt { border-collapse: collapse; width: 100%; font-size: 12.5px; min-width: 520px; }
+table.rt th, table.rt td { text-align: left; vertical-align: top; padding: 5px 6px; border-bottom: 1px solid var(--rule); }
+table.rt th { font: 700 10.5px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.eval ol { margin: 0; padding-left: 22px; display: grid; gap: 12px; max-width: 80ch; }
+.eval li b { font-family: var(--display); font-size: 16px; display: block; }
+.srcs { font-size: 13px; columns: 2 320px; column-gap: 24px; margin: 0; padding-left: 18px; }
+.srcs li { break-inside: avoid; margin-bottom: 6px; }
+@media (prefers-reduced-motion: no-preference) { .dot { transition: opacity .2s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>What would someone pay Inside Story for?</h1>
+    <p class="lead">Every function in the app, built and planned, plus the companion tiers, placed by two questions: is it already free in other apps (left) or only found here (right), and would someone pay for it on its own (bottom to top)? The tilted line splits Free from paid. Everything is a draft for you to drag.</p>
+  </header>
+
+  <details class="how" id="how">
+    <summary>How to use the board</summary>
+    <ul>
+      <li>Drag any dot to where you think it belongs. Your placement is saved and stays when the page is reopened.</li>
+      <li>Tap a dot to read why I put it there, why other apps give that kind of thing away or charge for it (with sources), what Inside Story does differently, and to pin it to Free or paid whatever the line says.</li>
+      <li>Hollow dots with a dashed edge are not built yet, are waiting on a decision, or are companion tiers.</li>
+      <li>Below the lists: the research behind every reason, and how more of the app could reach pay caliber.</li>
+      <li>Drag the two square handles on the line up or down. Everything above the line is paid, everything below is Free.</li>
+      <li>Red rings are safety items. They stay Free on every tier (P28), so they cannot be pinned to paid.</li>
+      <li>Bigger dots are used more often: daily, weekly, or now and then.</li>
+      <li>The "would pay" scores are my guesses until the beta (P2) gives us something better.</li>
+    </ul>
+  </details>
+
+  <div class="tools">
+    <div class="chips" id="chips" role="group" aria-label="Show tabs"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn" id="names" aria-pressed="false">Show names</button>
+      <button class="btn" id="copy">Copy the split as a table</button>
+      <span class="status" id="status">Connecting…</span>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><b style="width:20px;height:20px"></b>Daily</span>
+    <span><b style="width:14px;height:14px"></b>Weekly</span>
+    <span><b style="width:10px;height:10px"></b>Now and then</span>
+    <span><b style="width:12px;height:12px;background:transparent;box-shadow:0 0 0 2px var(--safety)"></b>Safety, always Free</span>
+    <span><b style="width:12px;height:12px;background:transparent;box-shadow:0 0 0 2px var(--paid)"></b>Paid side</span>
+    <span><b style="width:8px;height:8px;border-radius:2px;background:var(--ink)"></b>Pinned by you</span>
+    <span><b style="width:14px;height:14px;background:var(--panel);border:2px dashed var(--ink)"></b>Not built yet, or a companion tier</span>
+  </div>
+
+  <div class="main">
+    <div class="plot">
+      <div class="ylab">Would pay for it alone →</div>
+      <div class="yticks" id="yticks"></div>
+      <div class="field" id="field">
+        <svg id="lines" aria-hidden="true"></svg>
+        <div class="quad" style="left:10px;top:8px">Common, but people would pay. Paid only if ours beats the free versions.</div>
+        <div class="quad" style="right:10px;bottom:30px;text-align:right">Only here, nobody buys it alone. Paid depth.</div>
+        <div class="zone f">Free</div>
+        <div class="zone p">Paid</div>
+      </div>
+      <div class="xlab"><span>← Free in many apps</span><span>Paid elsewhere</span><span>Only here →</span></div>
+    </div>
+
+    <aside class="side" id="side" aria-live="polite">
+      <p class="empty">Tap a dot or a name in the lists to see why it sits where it does, and to pin it.</p>
+    </aside>
+  </div>
+
+  <div class="lists">
+    <section class="list free"><header><h2>Free</h2><span id="freeCount"></span></header><div id="freeList"></div></section>
+    <section class="list paid"><header><h2>Paid</h2><span id="paidCount"></span></header><div id="paidList"></div></section>
+  </div>
+
+  <section class="eval" id="evaluation">
+    <h2>How more of Inside Story can reach pay caliber</h2>
+    <p>Drawn from the research below. Each point names the families of functions it rests on.</p>
+    <ol id="evalList"></ol>
+  </section>
+
+  <section class="research" id="research">
+    <h2>Why other apps give it away, and what Inside Story does differently</h2>
+    <p>Every function belongs to one family below. Each family names the competitors reviewed, their prices with the page they came from, and why the market gives that kind of thing away or charges for it. Prices were gathered in the nine per-tab reviews in docs/competitive-review and on 2026-10-07, and drift.</p>
+    <div class="kindlist" id="kindList"></div>
+    <div class="fams" id="famList"></div>
+    <h2>General evidence</h2>
+    <ul class="srcs" id="srcList"></ul>
+  </section>
+</div>
+
+<script>
+const DATA = /*DATA*/null;
+const TABS = DATA.TABS;
+const TAB_NAME = Object.fromEntries(TABS);
+const F = DATA.F;
+const FAMS = Object.fromEntries(DATA.FAMILIES.map(f => [f.id, f]));
+const KINDS = DATA.KINDS, SOURCES = DATA.SOURCES, EVALUATION = DATA.EVALUATION;
+const ST_WORD = { planned: 'Planned', asked: 'Waiting on a decision', companion: 'Companion tier' };
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]); }
+function hostOf(u) { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return u; } }
+function links(arr) { return (arr || []).map(u => '<a href="' + esc(u) + '" target="_blank" rel="noopener">' + esc(hostOf(u)) + '</a>').join(', '); }
+
+// Spread dots that share a cell so each can be seen and grabbed.
+(function spread() {
+  const cells = {};
+  F.forEach(d => { const k = d.u + ',' + d.p; (cells[k] = cells[k] || []).push(d); });
+  Object.values(cells).forEach(list => {
+    const n = list.length, cols = Math.ceil(Math.sqrt(n)), rows = Math.ceil(n / cols);
+    list.forEach((d, i) => {
+      const c = i % cols, r = Math.floor(i / cols);
+      d.dx = d.u + (cols > 1 ? (c / (cols - 1) - 0.5) * 0.72 : 0);
+      d.dy = d.p + (rows > 1 ? (0.5 - r / (rows - 1)) * 0.72 : 0);
+    });
+  });
+})();
+
+const BYID = Object.fromEntries(F.map(d => [d.id, d]));
+const MIN = 0.5, MAX = 5.5;
+const DEFAULT_SPLIT = { left: 3.6, right: 2.6 };
+let place = {};          // id -> {x, y, pin, note}, from the store
+let split = { ...DEFAULT_SPLIT };
+let shown = new Set(TABS.map(t => t[0]));
+let selected = null, showNames = false, db = null, canWrite = true;
+
+const field = document.getElementById('field');
+const svg = document.getElementById('lines');
+const statusEl = document.getElementById('status');
+
+function pos(d) { const p = place[d.id]; return p && typeof p.x === 'number' ? { x: p.x, y: p.y } : { x: d.dx, y: d.dy }; }
+function pinOf(d) { return d.s ? 'free' : (place[d.id] && place[d.id].pin) || 'line'; }
+function lineAt(x) { const t = (x - MIN) / (MAX - MIN); return split.left + (split.right - split.left) * t; }
+function sideOf(d) {
+  const pin = pinOf(d);
+  if (pin !== 'line') return pin;
+  const p = pos(d); return p.y > lineAt(p.x) ? 'paid' : 'free';
+}
+function toPx(x, y) { const r = field.getBoundingClientRect(); return { left: (x - MIN) / (MAX - MIN) * r.width, top: (1 - (y - MIN) / (MAX - MIN)) * r.height }; }
+function fromPx(px, py) {
+  const r = field.getBoundingClientRect();
+  const x = MIN + Math.min(Math.max(px / r.width, 0), 1) * (MAX - MIN);
+  const y = MIN + (1 - Math.min(Math.max(py / r.height, 0), 1)) * (MAX - MIN);
+  return { x, y };
+}
+function sizeOf(d) { return d.f === 3 ? 20 : d.f === 2 ? 14 : 10; }
+function color(t) { return `var(--t-${t})`; }
+function freqWord(f) { return f === 3 ? 'Daily' : f === 2 ? 'Weekly' : 'Now and then'; }
+function uWord(u) { return u < 1.75 ? 'free in many apps' : u < 2.75 ? 'in some free apps' : u < 3.75 ? 'paid elsewhere' : u < 4.5 ? 'rare elsewhere' : 'only here'; }
+
+// Chips
+const chips = document.getElementById('chips');
+TABS.forEach(([k, name]) => {
+  const b = document.createElement('button');
+  b.className = 'chip'; b.setAttribute('aria-pressed', 'true');
+  b.innerHTML = `<i style="background:${color(k)}"></i>`;
+  b.append(name);
+  b.addEventListener('click', () => {
+    if (shown.has(k)) shown.delete(k); else shown.add(k);
+    b.setAttribute('aria-pressed', shown.has(k) ? 'true' : 'false');
+    renderDots();
+  });
+  chips.append(b);
+});
+
+// Y ticks
+const yt = document.getElementById('yticks');
+for (let v = 1; v <= 5; v++) { const s = document.createElement('span'); s.textContent = v; s.style.top = ((1 - (v - MIN) / (MAX - MIN)) * 100) + '%'; yt.append(s); }
+
+// Dots
+const dotEls = {}, tagEls = {};
+F.forEach(d => {
+  const b = document.createElement('button');
+  b.className = 'dot' + (d.st ? ' future' : ''); b.type = 'button';
+  b.setAttribute('aria-label', `${d.n}, ${TAB_NAME[d.t]}`);
+  b.style.background = color(d.t);
+  b.style.width = b.style.height = sizeOf(d) + 'px';
+  attachDrag(b, d);
+  field.append(b); dotEls[d.id] = b;
+  const tag = document.createElement('div'); tag.className = 'tag'; tag.textContent = d.n.replace(/ \(.*\)$/, ''); tag.hidden = true;
+  field.append(tag); tagEls[d.id] = tag;
+});
+
+function renderDots() {
+  F.forEach(d => {
+    const el = dotEls[d.id], p = pos(d), px = toPx(p.x, p.y), side = sideOf(d);
+    el.style.left = px.left + 'px'; el.style.top = px.top + 'px';
+    el.classList.toggle('paid', side === 'paid' && !d.s);
+    el.classList.toggle('safety', d.s);
+    el.classList.toggle('pinned', !d.s && pinOf(d) !== 'line');
+    el.classList.toggle('dim', !shown.has(d.t));
+    el.classList.toggle('sel', selected === d.id);
+    const tag = tagEls[d.id];
+    tag.hidden = !(shown.has(d.t) && (showNames || selected === d.id));
+    tag.style.left = px.left + 'px'; tag.style.top = px.top + 'px';
+  });
+  renderLine();
+}
+
+const hL = document.createElement('button'), hR = document.createElement('button');
+[hL, hR].forEach((h, i) => { h.className = 'handle'; h.type = 'button'; h.textContent = '↕'; h.setAttribute('aria-label', i ? 'Right end of the Free and paid line' : 'Left end of the Free and paid line'); field.append(h); attachHandle(h, i ? 'right' : 'left'); });
+
+function renderLine() {
+  const r = field.getBoundingClientRect();
+  const a = toPx(MIN, split.left), b = toPx(MAX, split.right);
+  svg.setAttribute('viewBox', `0 0 ${r.width} ${r.height}`);
+  let grid = '';
+  for (let v = 1; v <= 5; v++) {
+    const gx = toPx(v, 0).left, gy = toPx(0, v).top;
+    grid += `<line x1="${gx}" y1="0" x2="${gx}" y2="${r.height}" stroke="var(--rule)" stroke-width="1"/>`;
+    grid += `<line x1="0" y1="${gy}" x2="${r.width}" y2="${gy}" stroke="var(--rule)" stroke-width="1"/>`;
+  }
+  svg.innerHTML = grid +
+    `<polygon points="0,${a.top} ${r.width},${b.top} ${r.width},0 0,0" fill="var(--paid-wash)" opacity=".55"/>` +
+    `<polygon points="0,${a.top} ${r.width},${b.top} ${r.width},${r.height} 0,${r.height}" fill="var(--free-wash)" opacity=".55"/>` +
+    `<line x1="0" y1="${a.top}" x2="${r.width}" y2="${b.top}" stroke="var(--ink)" stroke-width="2" stroke-dasharray="6 4"/>`;
+  hL.style.left = '14px'; hL.style.top = a.top + 'px';
+  hR.style.left = (r.width - 14) + 'px'; hR.style.top = b.top + 'px';
+}
+
+function attachDrag(el, d) {
+  let start = null, moved = false;
+  el.addEventListener('pointerdown', e => {
+    if (!shown.has(d.t)) return;
+    start = { x: e.clientX, y: e.clientY }; moved = false;
+    el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener('pointermove', e => {
+    if (!start) return;
+    if (!moved && Math.hypot(e.clientX - start.x, e.clientY - start.y) < 4) return;
+    moved = true; el.classList.add('dragging');
+    const r = field.getBoundingClientRect();
+    const p = fromPx(e.clientX - r.left, e.clientY - r.top);
+    place[d.id] = { ...(place[d.id] || {}), x: round(p.x), y: round(p.y) };
+    selected = d.id; renderDots();
+  });
+  el.addEventListener('pointerup', () => {
+    if (!start) return;
+    el.classList.remove('dragging'); start = null;
+    if (moved) { save(d.id); renderLists(); renderSide(); }
+    else select(d.id);
+  });
+  el.addEventListener('keydown', e => {
+    const step = e.shiftKey ? 0.5 : 0.1, k = e.key;
+    if (!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(k)) return;
+    e.preventDefault();
+    const p = pos(d);
+    const nx = clamp(p.x + (k === 'ArrowRight' ? step : k === 'ArrowLeft' ? -step : 0));
+    const ny = clamp(p.y + (k === 'ArrowUp' ? step : k === 'ArrowDown' ? -step : 0));
+    place[d.id] = { ...(place[d.id] || {}), x: round(nx), y: round(ny) };
+    selected = d.id; renderDots(); renderLists(); renderSide(); saveSoon(d.id);
+  });
+}
+function attachHandle(h, end) {
+  let on = false;
+  h.addEventListener('pointerdown', e => { on = true; h.setPointerCapture(e.pointerId); });
+  h.addEventListener('pointermove', e => {
+    if (!on) return;
+    const r = field.getBoundingClientRect();
+    split[end] = round(fromPx(0, e.clientY - r.top).y);
+    renderDots(); renderLists(); renderSide();
+  });
+  h.addEventListener('pointerup', () => { if (!on) return; on = false; saveSplit(); });
+  h.addEventListener('keydown', e => {
+    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+    e.preventDefault();
+    split[end] = round(clamp(split[end] + (e.key === 'ArrowUp' ? 0.1 : -0.1)));
+    renderDots(); renderLists(); renderSide(); saveSplitSoon();
+  });
+}
+function clamp(v) { return Math.min(MAX, Math.max(MIN, v)); }
+function round(v) { return Math.round(v * 100) / 100; }
+
+function select(id) { selected = id; renderDots(); renderSide(); }
+
+const side = document.getElementById('side');
+function renderSide() {
+  if (!selected) return;
+  const d = BYID[selected], p = pos(d), s = sideOf(d), pin = pinOf(d), moved = !!(place[d.id] && typeof place[d.id].x === 'number');
+  side.innerHTML = '';
+  const tab = document.createElement('div'); tab.className = 'tabname'; tab.style.color = color(d.t); tab.textContent = TAB_NAME[d.t];
+  const h = document.createElement('h3'); h.textContent = d.n;
+  const pills = document.createElement('div'); pills.style.display = 'flex'; pills.style.gap = '6px'; pills.style.flexWrap = 'wrap';
+  pills.innerHTML = `<span class="pill ${s}">${s === 'paid' ? 'Paid' : 'Free'}</span>` + (d.s ? '<span class="pill safety">Safety, always Free</span>' : '') + '<span class="pill st">' + (d.st ? esc(ST_WORD[d.st]) + (d.plan ? ' · ' + esc(d.plan) : '') : 'Built') + '</span>';
+  const kv = document.createElement('dl'); kv.className = 'kv';
+  kv.innerHTML = `<dt>Elsewhere</dt><dd></dd><dt>Would pay</dt><dd></dd><dt>Used</dt><dd></dd><dt>My draft</dt><dd></dd>`;
+  const dds = kv.querySelectorAll('dd');
+  dds[0].textContent = `${p.x.toFixed(1)} of 5, ${uWord(p.x)}`;
+  dds[1].textContent = `${p.y.toFixed(1)} of 5`;
+  dds[2].textContent = freqWord(d.f);
+  dds[3].textContent = `${d.u} across, ${d.p} up` + (moved ? ' (you moved it)' : '');
+  const why = document.createElement('p'); why.textContent = d.r;
+  const ev = document.createElement('p'); ev.className = 'ev'; ev.textContent = d.e ? 'Evidence: ' + d.e : (d.plan ? 'Where it is written up: ' + d.plan : '');
+  const fam = FAMS[d.fam]; let famEl = null;
+  if (fam) {
+    famEl = document.createElement('div'); famEl.className = 'fam';
+    const comps = fam.comps.map(c => '<li><b>' + esc(c.app) + '</b> <span class="pr">' + esc(c.price) + '</span><br>Free: ' + esc(c.free) + '. Paid: ' + esc(c.paid) + '.' + (c.src.length ? ' ' + links(c.src) : '') + (c.r ? ' <span class="pr">(' + esc(c.r) + ')</span>' : '') + '</li>').join('');
+    const srcs = (fam.srcs || []).map(k => SOURCES[k]).filter(Boolean).map(s => '<li>' + esc(s.finding) + ' <a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.t) + '</a></li>').join('');
+    famEl.innerHTML = '<h5>Why it is free elsewhere: ' + esc(fam.name) + '</h5>'
+      + '<div class="kinds">' + fam.kinds.map(k => '<span class="kind" title="' + esc(KINDS[k] && KINDS[k].text) + '">' + esc(KINDS[k] ? KINDS[k].name : k) + '</span>').join('') + '</div>'
+      + '<p>' + esc(fam.whyFree) + '</p><ul class="comps">' + comps + '</ul>'
+      + (srcs ? '<ul class="comps">' + srcs + '</ul>' : '')
+      + '<h5>What Inside Story does</h5><p>' + esc(fam.ours) + '</p>'
+      + '<h5>How it reaches pay caliber</h5><p>' + esc(fam.lift) + '</p>'
+      + '<a class="jump" href="#fam-' + esc(fam.id) + '">Open the full research for this family</a>';
+  }
+  const segLabel = document.createElement('div'); segLabel.className = 'tabname'; segLabel.style.color = 'var(--muted)'; segLabel.textContent = 'Which side';
+  const seg = document.createElement('div'); seg.className = 'seg'; seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Which side');
+  [['line','Follow the line'],['free','Always Free'],['paid','Always paid']].forEach(([k, label]) => {
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = label;
+    b.setAttribute('aria-pressed', pin === k ? 'true' : 'false');
+    if (d.s || !canWrite) b.disabled = true;
+    b.addEventListener('click', () => { place[d.id] = { ...(place[d.id] || {}), pin: k }; save(d.id); renderDots(); renderLists(); renderSide(); });
+    seg.append(b);
+  });
+  const noteLabel = document.createElement('label'); noteLabel.className = 'tabname'; noteLabel.style.color = 'var(--muted)'; noteLabel.textContent = 'Your note'; noteLabel.htmlFor = 'note-' + d.id;
+  const note = document.createElement('textarea'); note.id = 'note-' + d.id; note.placeholder = 'Anything to remember about where this goes'; note.value = (place[d.id] && place[d.id].note) || '';
+  note.disabled = !canWrite;
+  note.addEventListener('input', () => { place[d.id] = { ...(place[d.id] || {}), note: note.value }; saveSoon(d.id, 800); });
+  const reset = document.createElement('button'); reset.className = 'btn'; reset.type = 'button'; reset.textContent = 'Put it back where I drafted it';
+  reset.disabled = !canWrite || !(place[d.id] && (typeof place[d.id].x === 'number' || (place[d.id].pin && place[d.id].pin !== 'line')));
+  reset.addEventListener('click', () => { const n = place[d.id] && place[d.id].note; place[d.id] = n ? { note: n } : {}; save(d.id); renderDots(); renderLists(); renderSide(); });
+  side.append(tab, h, pills, kv, why); if (ev.textContent) side.append(ev); if (famEl) side.append(famEl); side.append(segLabel, seg);
+  if (d.s) { const sp = document.createElement('p'); sp.className = 'ev'; sp.textContent = 'Safety items stay Free on every tier, so this cannot be pinned to paid. You can still move it to record how much people would value it.'; side.append(sp); }
+  side.append(noteLabel, note, reset);
+}
+
+function renderLists() {
+  const groups = { free: {}, paid: {} };
+  let fc = 0, pc = 0, fd = 0, pd = 0;
+  F.forEach(d => {
+    const s = sideOf(d);
+    (groups[s][d.t] = groups[s][d.t] || []).push(d);
+    if (s === 'free') { fc++; if (d.f === 3) fd++; } else { pc++; if (d.f === 3) pd++; }
+  });
+  document.getElementById('freeCount').textContent = `${fc} functions, ${fd} used daily`;
+  document.getElementById('paidCount').textContent = `${pc} functions, ${pd} used daily`;
+  ['free','paid'].forEach(s => {
+    const box = document.getElementById(s + 'List'); box.innerHTML = '';
+    TABS.forEach(([k, name]) => {
+      const list = groups[s][k]; if (!list) return;
+      const h = document.createElement('h4'); h.innerHTML = `<i style="background:${color(k)}"></i>`; h.append(`${name} · ${list.length}`);
+      const ul = document.createElement('ul');
+      list.sort((a, b) => pos(b).y - pos(a).y).forEach(d => {
+        const li = document.createElement('li'); const b = document.createElement('button'); b.type = 'button';
+        b.textContent = d.n;
+        const m = document.createElement('span'); m.className = 'm';
+        m.textContent = (d.s ? 'safety ' : '') + (pinOf(d) !== 'line' && !d.s ? 'pinned ' : '') + (d.f === 3 ? 'daily ' : '') + (d.st ? ST_WORD[d.st].toLowerCase() : '');
+        b.append(m);
+        b.addEventListener('click', () => { select(d.id); field.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+        li.append(b); ul.append(li);
+      });
+      box.append(h, ul);
+    });
+  });
+}
+
+// Store
+const timers = {};
+function saveSoon(id, ms = 500) { clearTimeout(timers[id]); timers[id] = setTimeout(() => save(id), ms); }
+let splitTimer = null;
+function saveSplitSoon() { clearTimeout(splitTimer); splitTimer = setTimeout(saveSplit, 500); }
+const writing = {};
+async function save(id) {
+  if (!db || !canWrite) return;
+  if (writing[id]) { writing[id].again = true; return; }
+  writing[id] = { again: false };
+  try {
+    const body = { ...(place[id] || {}), at: new Date().toISOString() };
+    await db.doc('placements/' + id).set(body);
+    setStatus('Saved');
+  } catch (e) { onWriteError(e); }
+  const again = writing[id].again; delete writing[id];
+  if (again) save(id);
+}
+let splitWriting = false;
+async function saveSplit() {
+  if (!db || !canWrite || splitWriting) return;
+  splitWriting = true;
+  try { await db.doc('board/split').set({ left: split.left, right: split.right, at: new Date().toISOString() }); setStatus('Saved'); }
+  catch (e) { onWriteError(e); }
+  splitWriting = false;
+}
+function onWriteError(e) {
+  if (e && e.code === 'invalid_argument') { canWrite = false; setStatus('View only: moves are not saved'); renderSide(); }
+  else if (e && e.code === 'quota_exceeded') setStatus('The board is full and could not save');
+  else setStatus('Could not save just now. Try the move again.');
+}
+function setStatus(t) { statusEl.textContent = t; }
+
+async function connect() {
+  if (!window.claude || !window.claude.use) { setStatus('Moves stay on this screen only'); return; }
+  try {
+    const user = await window.claude.use('user');
+    if (user && user.can) { const w = await user.can('data.write'); if (w === false) canWrite = false; }
+  } catch (e) {}
+  db = await window.claude.use('db');
+  if (!db) { setStatus('Moves stay on this screen only'); return; }
+  setStatus(canWrite ? 'Your moves are saved' : 'View only');
+  db.collection('placements').onSnapshot(snap => {
+    const next = {};
+    snap.docs.forEach(doc => { if (BYID[doc.id]) next[doc.id] = { ...doc.data() }; });
+    // keep a dot being dragged or typed in where this screen has it
+    Object.keys(writing).forEach(id => { if (place[id]) next[id] = place[id]; });
+    Object.keys(timers).forEach(id => { if (place[id]) next[id] = place[id]; });
+    place = next; renderDots(); renderLists(); renderSide();
+  }, e => setStatus('Lost the connection to saved moves. Reload to see them.'));
+  db.doc('board/split').onSnapshot(doc => {
+    if (doc.exists && !splitWriting) { const v = doc.data(); if (typeof v.left === 'number') split = { left: v.left, right: v.right }; renderDots(); renderLists(); renderSide(); }
+  }, () => {});
+}
+
+document.getElementById('names').addEventListener('click', e => {
+  showNames = !showNames; e.currentTarget.setAttribute('aria-pressed', String(showNames));
+  e.currentTarget.textContent = showNames ? 'Hide names' : 'Show names'; renderDots();
+});
+document.getElementById('copy').addEventListener('click', e => {
+  const rows = [['id','tab','function','status','plan','family','side','pinned','safety','elsewhere','would pay','used','note'].join('\t')];
+  F.forEach(d => { const p = pos(d); rows.push([d.id, TAB_NAME[d.t], d.n, d.st ? ST_WORD[d.st] : 'Built', d.plan || '', FAMS[d.fam] ? FAMS[d.fam].name : '', sideOf(d), d.s ? '' : (pinOf(d) === 'line' ? '' : pinOf(d)), d.s ? 'yes' : '', p.x.toFixed(1), p.y.toFixed(1), freqWord(d.f), ((place[d.id] && place[d.id].note) || '').replace(/\s+/g, ' ')].join('\t')); });
+  const btn = e.currentTarget;
+  navigator.clipboard.writeText(rows.join('\n')).then(() => { btn.textContent = 'Copied'; setTimeout(() => btn.textContent = 'Copy the split as a table', 1500); })
+    .catch(() => { btn.textContent = 'Copy is blocked here'; setTimeout(() => btn.textContent = 'Copy the split as a table', 2000); });
+});
+// Research and evaluation
+(function renderResearch() {
+  const byFam = {}; F.forEach(d => (byFam[d.fam] = byFam[d.fam] || []).push(d));
+  document.getElementById('kindList').innerHTML = Object.values(KINDS).map(k => '<div><b>' + esc(k.name) + '</b>' + esc(k.text) + '</div>').join('');
+  const fl = document.getElementById('famList');
+  DATA.FAMILIES.forEach(f => {
+    const sec = document.createElement('section'); sec.className = 'famcard'; sec.id = 'fam-' + f.id;
+    const rows = f.comps.map(c => '<tr><td><b>' + esc(c.app) + '</b></td><td>' + esc(c.price) + '</td><td>' + esc(c.free) + '</td><td>' + esc(c.paid) + '</td><td>' + links(c.src) + (c.r ? ' ' + esc(c.r) : '') + '</td></tr>').join('');
+    const srcs = (f.srcs || []).map(k => SOURCES[k]).filter(Boolean).map(s => '<li>' + esc(s.finding) + ' <a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.t) + '</a></li>').join('');
+    sec.innerHTML = '<h3>' + esc(f.name) + '</h3><div class="kinds">' + f.kinds.map(k => '<span class="kind">' + esc(KINDS[k] ? KINDS[k].name : k) + '</span>').join('') + '</div>'
+      + '<span class="lbl">Why it is free or paid elsewhere</span><p>' + esc(f.whyFree) + '</p>'
+      + '<div class="tablewrap"><table class="rt"><thead><tr><th>App</th><th>Price</th><th>Free</th><th>Paid</th><th>Source</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
+      + (srcs ? '<ul class="srcs" style="columns:1">' + srcs + '</ul>' : '')
+      + '<span class="lbl">What Inside Story does</span><p>' + esc(f.ours) + '</p>'
+      + '<span class="lbl">How it reaches pay caliber</span><p>' + esc(f.lift) + '</p>';
+    const fn = document.createElement('div'); fn.className = 'fn'; fn.append('On the board: ');
+    (byFam[f.id] || []).forEach((d, i) => {
+      if (i) fn.append(', ');
+      const b = document.createElement('button'); b.type = 'button';
+      b.textContent = d.n + (d.st ? ' (' + ST_WORD[d.st].toLowerCase() + ')' : '');
+      b.addEventListener('click', () => { select(d.id); field.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+      fn.append(b);
+    });
+    sec.append(fn); fl.append(sec);
+  });
+  document.getElementById('evalList').innerHTML = EVALUATION.map(e => '<li><b>' + esc(e.h) + '</b>' + esc(e.b)
+    + (e.fams && e.fams.length ? ' <span class="fn">Rests on: ' + e.fams.filter(k => FAMS[k]).map(k => '<a href="#fam-' + esc(k) + '">' + esc(FAMS[k].name) + '</a>').join(', ') + '</span>' : '') + '</li>').join('');
+  document.getElementById('srcList').innerHTML = Object.values(SOURCES).map(s => '<li><a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.t) + '</a>. ' + esc(s.finding) + '</li>').join('');
+})();
+window.addEventListener('resize', renderDots);
+requestAnimationFrame(() => { renderDots(); renderLists(); });
+connect();
+</script>

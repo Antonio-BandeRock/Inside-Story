@@ -1,0 +1,524 @@
+// Why each kind of function is free or paid in other apps, what Inside Story does
+// differently, and how it could reach pay caliber. Source for tiers/RESEARCH.md and
+// the Free or Paid board (https://claude.ai/artifact/U9AUm2LG8f6dzrWmHPDJCt).
+// Regenerate both with: node docs/competitive-review/tiers/build.js
+//
+// Competitor prices come from the nine per-tab reviews in docs/competitive-review/
+// (section 2 of each, with the pricing URLs given there) plus the web sources below,
+// gathered 2026-10-07. Prices drift; the review file and section are named on every
+// competitor so a figure can be checked against where it came from.
+
+// Why a function is free in other apps. A family can carry more than one.
+const KINDS = {
+  data: { name: 'Paid for with data or ads', text: 'The person is the product. Free health and finance apps have been paid for by advertising, referral fees and data sharing, and regulators have fined some of them for it.' },
+  platform: { name: 'Comes with a phone or a device', text: 'Apple, Google and hardware makers give the app away because it sells the phone, the ring or the sensor.' },
+  funnel: { name: 'A free tier that sells the paid one', text: 'Logging is given away so that the analysis, history or export can be charged for. Health apps convert about 4% of free users this way.' },
+  commodity: { name: 'Every app has it', text: 'Simple to build and offered by dozens of apps, so nobody can charge for it alone.' },
+  mission: { name: 'Paid for by a nonprofit, a church or a government', text: 'Donors, grants or public money cover it, so it is free to everyone and stays that way.' },
+  once: { name: 'Sold once', text: 'A one-time purchase rather than a subscription, which sets what people expect to pay.' },
+  paid: { name: 'Nobody gives it away', text: 'Every app reviewed charges for it.' },
+  none: { name: 'Nobody offers it', text: 'No app reviewed does this, so there is no price to compare against.' },
+};
+
+// Evidence about health and subscription apps in general.
+const SOURCES = {
+  revcat: { t: 'RevenueCat State of Subscription Apps 2025 (via Athletech News)', url: 'https://athletechnews.com/fitness-apps-monetizable-winner-take-all-or-most/', finding: 'Health and fitness has the highest revenue per install of any category, a $0.63 median 60 days after install. Trial-to-paid median 39.9%, top tenth 68.3%. The category leans to annual plans.' },
+  revcat2: { t: 'RevenueCat report, ten learnings (SaaStr)', url: 'https://saastr.com/the-top-10-learnings-from-revenuecats-state-of-subscription-apps-how-115000-mobile-apps-deliver-16b-in-revenue-whats-working-whats-quietly-killing-growth', finding: 'iPhone users convert about twice as well as Android users. Annual plans keep people longer than monthly ones.' },
+  freemium: { t: 'iOS free-to-paid conversion benchmarks 2026', url: 'https://appsops.store/blog/ios-free-to-paid-conversion-benchmarks-2026', finding: 'Freemium median 2.18% across categories, 4.2% for health and fitness, 6 to 8% for the best apps.' },
+  adapty: { t: 'Adapty: freemium to premium conversion', url: 'https://adapty.io/blog/freemium-to-premium-conversion-techniques', finding: 'A hard paywall converts at a 12.11% median, several times a freemium tier, but reaches far fewer people.' },
+  medisafe: { t: 'Pillo: Medisafe is no longer free', url: 'https://pillo.care/blog/medisafe-not-free-what-to-do', finding: 'Medisafe cut its free tier to two medications in January 2026 (Premium $4.99 a month or $39.99 a year). People with a chronic condition take four to five on average. Users objected loudly.' },
+  goodrx: { t: 'MobiHealthNews: GoodRx and the FTC', url: 'https://www.mobihealthnews.com/news/goodrx-shared-health-data-google-and-facebook-ftc-says', finding: 'GoodRx paid $1.5 million for sharing health data with Google and Facebook, the first action under the Health Breach Notification Rule. Flo Health settled with the FTC in 2021 over sharing data with the same companies.' },
+  mozilla: { t: 'Mozilla Privacy Not Included: mental health apps', url: 'https://www.mozillafoundation.org/ca/privacynotincluded/articles/getting-private-mental-health-and-prayer-apps-rush-to-revise-privacy-policies/', finding: 'Of 32 mental health and prayer apps, 29 earned a privacy warning for sharing data, weak passwords and targeted ads.' },
+  jmir: { t: 'JMIR mHealth 2018: medication adherence apps', url: 'https://mhealth.jmir.org/2018/3/e62/PDF', finding: 'Of 421 free adherence apps, 13.8% involved health professionals and 0.95% had any evidence base. 92% were reminders only.' },
+  digitas: { t: 'MobiHealthNews: patients want their doctors to prescribe apps', url: 'https://www.mobihealthnews.com/news/most-patients-want-their-doctors-prescribe-apps', finding: '90% of 2,000 people with a chronic condition would use an app their doctor prescribed.' },
+  korea: { t: 'MobiHealthNews: what people would pay more for in a health app', url: 'https://www.mobihealthnews.com/news/asia/koreans-would-pay-more-feature-mobile-health-apps', finding: 'People would pay about $12 more for strong data safety and about $5 more for accreditation.' },
+  mytherapy: { t: 'Smartpatient (MyTherapy): how it is paid for', url: 'https://www.smartpatient.eu/pharma-services/patient-support', finding: 'MyTherapy is free because pharmaceutical companies pay for adherence programs built on it and receive aggregated adherence data.' },
+  mint: { t: 'NerdWallet: Mint is closing', url: 'https://www.nerdwallet.com/article/finance/mint-app-closing-what-it-means-how-to-pick-a-new-budget-service', finding: 'Mint was free for 15 years, paid for by credit card and loan referrals, and shut in March 2024 when that stopped covering its costs.' },
+  off: { t: 'Open Food Facts', url: 'https://world.openfoodfacts.org/', finding: 'A volunteer nonprofit database of packaged foods, funded by donations and free for any app to use. Yuka and most barcode apps build on it.' },
+  dayone: { t: 'Day One pricing guide', url: 'https://dayoneapp.com/guides/premium-subscription/day-one-pricing-features-guide/', finding: 'Day One Silver (formerly Premium) $49.99 a year, Gold $74.99 a year.' },
+  familysearch: { t: 'Church of Jesus Christ: free family history access', url: 'https://www.churchofjesuschrist.org/church/news/church-members-gain-free-access-to-178-billion-family-history-records?lang=eng', finding: 'FamilySearch is free to everyone, run by the church as a nonprofit.' },
+  ancestry: { t: 'The Pricer: what Ancestry costs', url: 'https://www.thepricer.org/how-much-does-ancestry-cost/', finding: 'Ancestry World Explorer $39.99 a month or $149 for six months. MyHeritage Complete about $299 a year.' },
+  anki: { t: 'Mindomax: Quizlet or Anki', url: 'https://www.mindomax.com/quizlet-vs-anki', finding: 'Anki is free on computers, Android and the web (volunteer project), AnkiMobile is $24.99 once. Quizlet Plus $35.99 a year.' },
+  hivetracks: { t: 'Guideflow: beekeeping software compared', url: 'https://www.guideflow.com/blog/beekeeping-software', finding: 'HiveTracks $5 to $20 a month by hive count (about $69.99 a year in the app). Apiary Book free with paid plans from about EUR 3.33 a month.' },
+  everplans: { t: 'Everplans: what it costs', url: 'https://help.everplans.com/hc/en-us/articles/215665778-How-much-does-Everplans-cost', finding: 'Everplans Premium $99.99 a year; the free tier holds three items.' },
+  legacy: { t: 'Apple: Legacy Contact', url: 'https://support.apple.com/en-gb/102678', finding: 'Apple gives every account a free legacy contact who can reach its data after death.' },
+  caringbridge: { t: 'CaringBridge', url: 'https://CaringBridge.org', finding: 'A nonprofit, free, no ads and no data sales, over 90% funded by people who have used it.' },
+  inat: { t: 'iNaturalist: is it free?', url: 'https://help.inaturalist.org/en/support/solutions/articles/151000189329', finding: 'Free with no paywall, a nonprofit funded by grants (Moore Foundation) and donations, with photo hosting donated by Amazon.' },
+  pets: { t: '11pets on the App Store', url: 'https://apps.apple.com/us/app/11pets-pet-care/id1232470530', finding: 'Free with in-app purchases from $1.99 to $17.99.' },
+  resume: { t: 'Unstar: resume builder apps ranked 2026', url: 'https://unstar.app/blog/resume-io-zety-canva-indeed-novoresume-resume-builder-apps-ranked-2026', finding: 'Most resume builders are free to write in and charge to download, often a $2.95 trial that renews at $23.95 every four weeks (about $311 a year). The FTC hears about 70 complaints a day on subscription traps.' },
+};
+
+// r: the review file and section, for prices without a URL of their own.
+const C = (app, price, free, paid, src, r) => ({ app, price, free, paid, src: src || [], r: r || '' });
+
+const FAMILIES = [
+  {
+    id: 'food-data', name: 'Looking up a food', kinds: ['mission', 'funnel'],
+    comps: [
+      C('USDA FoodData Central', 'Free', 'The whole US nutrient database', 'Nothing', ['https://fdc.nal.usda.gov/']),
+      C('Cronometer', 'Free; Gold $59.99 a year', 'Lookup and logging', 'Custom charts, nutrient targets past the basics, no ads', ['https://nutriscan.app/blog/posts/cronometer-pricing-2026-basic-vs-gold-vs-pro-b28e621201'], 'food.md §2.1'),
+      C('MyFitnessPal', 'Free; Premium $79.99, Premium+ $99.99', 'Lookup with ads', 'Barcode scanning (moved to paid), macros by meal', [], 'food.md §2.2'),
+    ],
+    whyFree: 'The numbers come from national food databases that governments publish for nothing, so every food app has them. Lookup is how a nutrition app gets someone in the door.',
+    ours: '22,022 whole foods from seven national databases, cleaned and combined, with no ads.',
+    lift: 'Keep it Free. Nobody will pay to look up spinach. What a food means for this person is the paid part (see Reading a food against your conditions).',
+  },
+  {
+    id: 'barcode', name: 'Scanning and checking packaged food', kinds: ['mission', 'funnel'],
+    comps: [
+      C('Yuka', 'Free; from $10 a year', 'Scan and a general health score', 'Search without scanning, offline, alternatives', [], 'food.md §2.4'),
+      C('Open Food Facts', 'Free, nonprofit', 'Scan, ingredients, additives', 'Nothing', ['https://world.openfoodfacts.org/']),
+      C('MyFitnessPal', 'Premium', 'Nothing', 'The barcode scanner itself since 2022', [], 'food.md §2.2'),
+      C('Fig', '$34.99 to $69.99 a year', 'A few scans', 'Checks against diets and allergies', [], 'food.md §2.3'),
+    ],
+    whyFree: 'Open Food Facts gives the product data away, so a plain scan costs an app almost nothing. MyFitnessPal is the exception that charges, and it was criticised for it.',
+    ours: 'The scan reads the product against the person’s conditions, allergies and diet, the way Fig does for diets, across 19 conditions.',
+    lift: 'Scan and nutrition Free. What it means for your conditions is paid, the same line Fig draws.',
+    srcs: ['off'],
+  },
+  {
+    id: 'condition-food', name: 'Reading a food against your conditions', kinds: ['paid', 'none'],
+    comps: [
+      C('Fig', '$34.99 to $69.99 a year', 'Limited scans', 'Flags against chosen diets and allergies; no condition scoring', [], 'food.md §2.3'),
+      C('Monash FODMAP', '$8 to $13 once', 'Nothing', 'FODMAP ratings for IBS only', [], 'food.md §2.5'),
+      C('Heali', 'About $75 a year', 'Little', 'Diet-based food guidance', [], 'insights.md §2.8'),
+    ],
+    whyFree: 'It is not free anywhere. Rating foods for a condition takes expert time to build, so every app that does it charges, and none covers more than one or two conditions.',
+    ours: 'Every food, meal and recipe read against any of 19 conditions at once, on six dimensions, with the evidence tier shown, plus healing stage and safe-food lists.',
+    lift: 'This is the core of what someone pays for. Show it everywhere a food appears, fully on the paid tier.',
+  },
+  {
+    id: 'recipes', name: 'Recipes, builders and logging meals', kinds: ['funnel', 'once'],
+    comps: [
+      C('Samsung Food', 'Free; Food+ $59.99 a year', 'Recipes, saving, import', 'Personalised plans, guided cooking', [], 'food.md §2.6'),
+      C('Paprika', '$4.99 to $29.99 once per platform', 'Nothing', 'Everything, bought once', ['https://www.paprikaapp.com/windows/'], 'food.md §2.7'),
+      C('MyFitnessPal', 'Free with ads', 'Meal logging', 'Meal scan, planning', [], 'food.md §2.2'),
+    ],
+    whyFree: 'Logging and saving recipes are the free hook. Recipe content can be imported from any website, and Paprika shows people will pay once rather than monthly for a recipe box.',
+    ours: 'Builders for each kind of dish that show nutrients and condition effects while building, a depth report before saving, and a recipe library checked against conditions and diet.',
+    lift: 'Logging, builders and import stay Free. The depth report and the condition-checked recipe library are paid.',
+  },
+  {
+    id: 'meal-plan', name: 'Meal planning', kinds: ['paid', 'funnel'],
+    comps: [
+      C('Eat This Much', 'Free for one day; $47.99 to $84.99 a year', 'A single day', 'Weekly plans, grocery lists', ['https://apps.apple.com/us/app/eat-this-much-meal-planner/id981637806'], 'schedules.md §2.4'),
+      C('Plan to Eat', '$49 a year', 'Trial', 'Planner and list', ['https://www.plantoeat.com/'], 'schedules.md §2.5'),
+      C('Samsung Food', 'Food+ $59.99 a year', 'Manual planning', 'Generated plans', [], 'food.md §2.6'),
+    ],
+    whyFree: 'Generated plans are paid nearly everywhere. A free single day is the taste that sells the week.',
+    ours: 'Up to six weeks generated around 19 conditions, nutrient pairing rules and the family members whose conditions join the plan.',
+    lift: 'Paid, and worth showing on Free the way Eat This Much does: one generated day.',
+  },
+  {
+    id: 'prep', name: 'How preparation and fermenting change a food', kinds: ['none'],
+    comps: [],
+    whyFree: 'No app reviewed does this, so there is nothing to compare. Fermentation trackers exist as hobby apps but do not connect to nutrition.',
+    ours: 'Cooking and preparation effects on nutrients and anti-nutrients, fermentation batches with yield, and the ferments over time.',
+    lift: 'Paid depth. Unique, but nobody buys it alone, so it rides along with the paid tier rather than selling it.',
+  },
+  {
+    id: 'med-reminders', name: 'Medication reminders and dose records', kinds: ['data', 'funnel', 'commodity'],
+    comps: [
+      C('Medisafe', 'Free for 2 meds; $39.99 a year', 'Two medications', 'More medications, Medfriend, reports', ['https://pillo.care/blog/medisafe-not-free-what-to-do'], 'schedules.md §2.1'),
+      C('MyTherapy', 'Free', 'Everything', 'Nothing; paid for by drug companies', ['https://www.smartpatient.eu/pharma-services/patient-support'], 'schedules.md §2.2'),
+      C('CareClinic', 'Free; Premium about $69.99 a year', 'Reminders', 'Reports, care team', ['https://www.capterra.com/p/181945/CareClinic/'], 'schedules.md §2.3'),
+    ],
+    whyFree: 'Reminders are the most common health app feature there is: 92% of adherence apps do nothing else. MyTherapy is free because pharmaceutical companies pay for it. When Medisafe capped its free tier at two medicines, users revolted, because most people with a chronic condition take four or five.',
+    ours: 'Reminders that can be answered from the notification, tapering, injection site rotation, travel time zones, refill counts, and timing checked against the meals actually logged.',
+    lift: 'Unlimited reminders on Free, said out loud as the opposite of Medisafe. The timing intelligence around them (Today’s Meals, taper plans, dose history over time) is paid.',
+    srcs: ['jmir', 'medisafe', 'mytherapy'],
+  },
+  {
+    id: 'med-safety', name: 'Safety: interactions, allergies and the emergency card', kinds: ['data', 'platform'],
+    comps: [
+      C('Drugs.com', 'Free with ads', 'Interaction checker, pill identifier', 'Ad-free', [], 'insights.md §2.6'),
+      C('Phone Medical ID', 'Free with the phone', 'Emergency card on the lock screen', 'Nothing', ['https://apps.apple.com/us/app/medisafe-medication-management/id573916946'], 'life.md §2.10'),
+    ],
+    whyFree: 'Interaction checkers are paid for with advertising; the emergency card comes with every phone.',
+    ours: 'Warnings that fire against what was eaten and taken today, allergy cautions wherever food appears, and an emergency card that works from the lock screen.',
+    lift: 'Not for sale. Safety stays Free on every tier (P28), and the vault never hides a warning. This is also a reason to trust the paid tier.',
+  },
+  {
+    id: 'hydration', name: 'Hydration', kinds: ['commodity'],
+    comps: [C('Waterllama', 'Free; extras paid', 'Tracking', 'Themes, extra drinks', ['https://apps.apple.com/us/app/water-tracker-waterllama/id1454778585'], 'schedules.md §2.7')],
+    whyFree: 'A counter anyone can build.',
+    ours: 'Water from food and cooking counted, and targets that respect kidney disease and other limits.',
+    lift: 'Free. It feeds the paid readings (kidney, gout, Pattern Finder) rather than selling itself.',
+  },
+  {
+    id: 'symptoms', name: 'Logging how you feel, symptoms and reactions', kinds: ['funnel', 'mission', 'commodity'],
+    comps: [
+      C('Bearable', 'Free; Premium $34.99 a year', 'All logging', 'Correlations, history past a short window, export', ['https://bearable.app/pricing'], 'signals.md §2.1'),
+      C('Flaredown', 'Free', 'Everything', 'Nothing; donation funded', [], 'signals.md §2.5'),
+      C('mySymptoms', 'About $49.99', 'Little', 'Food and symptom analysis', [], 'signals.md §2.4'),
+      C('Daylio', 'Free; about $35.99 a year', 'Mood logging', 'Statistics, more entries per day', ['https://daylio.net/faq/docs/daylio-faq/about/daylio-premium-features/'], 'trends.md §2.7'),
+    ],
+    whyFree: 'Logging is given away so the analysis can be sold. Bearable, Daylio and mySymptoms all draw the line in the same place: write freely, pay to understand it.',
+    ours: 'Every kind of signal in one place, from bowel movements to nocturia to tracking anything, read later by Pattern Finder with its limits stated.',
+    lift: 'Every logger stays Free; a free person’s records are never locked. The understanding (Pattern Finder, Trends) is paid.',
+  },
+  {
+    id: 'pattern', name: 'Finding what tends to come before a flare', kinds: ['paid'],
+    comps: [
+      C('Bearable Premium', '$34.99 a year', 'Nothing', 'Correlations between factors and symptoms', ['https://bearable.app/pricing/'], 'trends.md §2.1'),
+      C('Exist', '$62.90 a year', 'Nothing', 'Correlations across connected services', ['https://exist.io/'], 'trends.md §2.2'),
+      C('Guava', 'Free; Premium about $78 a year', 'Records', 'Correlations and insights', ['https://guavahealth.com/plans'], 'trends.md §2.3'),
+    ],
+    whyFree: 'It is paid everywhere. Correlation is what these apps sell.',
+    ours: 'Compared against how often a food turns up in any ordinary stretch, with sleep and treatment changes listed beside it, a leave-it-out experiment one tap away, and never a claimed cause.',
+    lift: 'The headline reason to pay, because it is the discovery work the app does for the person. Show a single result on Free, with the rest paid.',
+  },
+  {
+    id: 'pacing', name: 'Pacing energy', kinds: ['paid', 'platform'],
+    comps: [C('Visible', 'Basic free; Plus about $180 a year with an armband', 'Morning check-in', 'Pacing with heart data from the band', ['https://www.makevisible.com/', 'https://help.makevisible.com/en/articles/12995632-visible-buying-guide'], 'trends.md §2.6')],
+    whyFree: 'The only serious competitor charges about $180 a year and needs its band.',
+    ours: 'An energy envelope from check-ins and activity, no band needed.',
+    lift: 'Paid, and a strong draw for anyone with a fatigue condition. Name it in the store description.',
+  },
+  {
+    id: 'cycle', name: 'Menstrual cycle', kinds: ['data', 'funnel'],
+    comps: [C('Clue', 'Free; Clue Plus $39.99 a year', 'Tracking and prediction', 'Deeper analysis, pregnancy modes', [], 'signals.md §2.8'), C('Flo', 'Free; Premium paid', 'Tracking', 'Insights', ['https://www.mobihealthnews.com/news/goodrx-shared-health-data-google-and-facebook-ftc-says'])],
+    whyFree: 'Cycle tracking is free in every app, and Flo settled with the FTC after sharing cycle data with Facebook and Google.',
+    ours: 'The cycle stays on the device and sits beside flares in Pattern Finder.',
+    lift: 'Logging Free. Reading the cycle against flares is part of paid Pattern Finder. Lead with privacy here, where it matters most.',
+    srcs: ['goodrx'],
+  },
+  {
+    id: 'body', name: 'Weight, sleep, steps, blood pressure and workouts', kinds: ['platform', 'commodity'],
+    comps: [
+      C('Apple Health and Google Health', 'Free with the phone; Google Health Premium $9.99 a month', 'Every body measure', 'Google: an AI coach', ['https://support.apple.com/guide/iphone/view-your-health-data-iphe3d379c32/ios', 'https://store.google.com/product/google_health_premium?hl=en-US'], 'home.md §2.6'),
+      C('Oura', 'Ring plus $69.99 a year', 'Little without membership', 'Sleep and readiness trends', ['https://ouraring.com/membership'], 'trends.md §2.8'),
+    ],
+    whyFree: 'Phones count steps, weigh, and log sleep for free because it sells phones. Rings and watches charge for the trends on top.',
+    ours: 'The same measures, read beside food, flares and medicines.',
+    lift: 'Free. These earn their keep by feeding Pattern Finder and the condition readings, which are paid.',
+  },
+  {
+    id: 'labs', name: 'Labs, microbiome tests and therapies', kinds: ['funnel', 'paid'],
+    comps: [
+      C('Guava', 'Free; Premium about $78 a year', 'Lab charts', 'Insights', ['https://guavahealth.com/plans'], 'trends.md §2.3'),
+      C('ZOE', '$99.99 a year plus a test kit', 'Little', 'Scores and a microbiome test', ['https://zoe.com/en-us/app'], 'insights.md §2.2'),
+    ],
+    whyFree: 'Guava gives lab charts away to sell insights; ZOE sells a test kit.',
+    ours: 'Results from any lab or test held together, each with the person’s usual range, never a judgement of what it should be.',
+    lift: 'Entering results Free. Labs over time with the usual range, and labs beside intake (Compare Two), paid.',
+  },
+  {
+    id: 'nutrients', name: 'Nutrients from food and from supplements', kinds: ['paid', 'funnel'],
+    comps: [
+      C('Cronometer Gold', '$59.99 a year', 'Daily totals', 'Charts over time, custom targets', ['https://cronometer.com/gold/index.html'], 'trends.md §2.5'),
+      C('ZOE', '$99.99 a year', 'Little', 'Diversity and gut scores', ['https://zoe.com/en-us/app'], 'insights.md §2.2'),
+    ],
+    whyFree: 'Daily totals are given away; history and targets are paid.',
+    ours: 'Every nutrient split into what food supplied and what a supplement did, worked out per day from supplement start and end dates, toward food first.',
+    lift: 'Today’s totals Free; the food or supplement split, history and variety paid. The split is unique, so name it.',
+  },
+  {
+    id: 'reports', name: 'Reports for a doctor, nutritionist, trainer or caregiver', kinds: ['paid', 'platform'],
+    comps: [
+      C('Guava', 'Premium', 'Basic sharing', 'Visit prep reports', ['https://guavahealth.com/plans'], 'reports.md'),
+      C('Bearable', 'Premium $34.99 a year', 'Nothing', 'Export and reports', ['https://bearable.app/pricing/'], 'reports.md'),
+      C('Apple Health', 'Free', 'Share with a provider (some US systems)', 'Nothing', [], 'reports.md'),
+    ],
+    whyFree: 'Reports are paid nearly everywhere. Apple shares raw data free, but only with clinics on its system.',
+    ours: 'Eight reports, each written for its reader, built on the phone, every claim carrying its evidence tier.',
+    lift: 'Paid. 90% of people with a chronic condition would use an app their doctor recommends, so the doctor report is also how the app gets recommended.',
+    srcs: ['digitas'],
+  },
+  {
+    id: 'daily', name: 'Daily living: the next thing, routines, to-dos, capture', kinds: ['funnel', 'commodity', 'once'],
+    comps: [
+      C('Tiimo', '$79.99 a year; family $119.99 for five', 'A few days', 'Visual day planning built with ADHD and autistic people', ['https://lifestack.ai/blog/tiimo-pricing'], 'life.md §2.6'),
+      C('Structured', '$99.99 lifetime', 'Timeline', 'Recurring tasks, sync', ['https://www.tiltaken.com/articles/structured-app-lifetime-price'], 'home.md §2.3'),
+      C('Routinery', '$27 to $40 a year', 'A few routines', 'Unlimited routines', ['https://makeheadway.com/blog/routinery/'], 'life.md §2.7'),
+      C('Due', '$7.99 once', 'Nothing', 'Reminders that keep asking', ['https://www.dueapp.com/'], 'life.md §2.8'),
+      C('Todoist', 'Free; Pro paid', 'Tasks and quick capture', 'Reminders, more projects', ['https://www.todoist.com/pricing'], 'life.md §2.11'),
+    ],
+    whyFree: 'To-do lists and quick capture are free everywhere. What people with ADHD pay for is help holding the day: Tiimo, Routinery and Due charge for exactly that, and people pay.',
+    ours: 'The one next thing, routines and Did I Do It with no streaks or scores, Keeping Up, reminders that keep asking, and capture from the lock screen.',
+    lift: 'For the second audience this is the product. Plain to-dos and capture Free; routines past a few, Keeping Up and the one next thing paid. See the evaluation on a way in without a condition.',
+  },
+  {
+    id: 'inventory', name: 'What is on hand and where it is', kinds: ['paid', 'commodity'],
+    comps: [
+      C('Sortly', 'Free for 100 items; paid plans for businesses', 'A small inventory', 'More items, alerts', ['https://help.sortly.com/hc/en-us/articles/360035774271-Sortly-Pricing-Plan-Information'], 'life.md §2.9'),
+      C('Paprika', 'Once', 'Pantry list', 'Nothing more', [], 'schedules.md §2.6'),
+    ],
+    whyFree: 'Pantry lists are common and free; whole-home inventory is sold to businesses.',
+    ours: 'One search across kitchen, notes and garden that says how old each answer is, and a kitchen that goes down as meals are saved.',
+    lift: 'Where did I put it is a strong Free hook for the second audience. Kitchen tracking tied to meals is paid.',
+  },
+  {
+    id: 'grocery', name: 'Grocery list, prices and seasonal food', kinds: ['commodity', 'funnel'],
+    comps: [
+      C('AnyList', 'Free; $9.99 a year, household $14.99', 'Lists', 'Recipes, meal plan, sharing extras', ['https://www.anylist.com/complete'], 'life.md §2.1'),
+      C('OurGroceries', 'Free with ads; small one-time upgrade', 'Shared lists', 'No ads', ['https://www.ourgroceries.com/user-guide'], 'life.md §2.2'),
+    ],
+    whyFree: 'A list is the simplest app there is. Sharing it is how these apps spread through a household.',
+    ours: 'A list made from the meal plan, checked against conditions, with price history.',
+    lift: 'Free, shared with the household on Free too. The list built from a paid meal plan is where paid shows itself.',
+  },
+  {
+    id: 'money', name: 'Money, medical costs and insurance', kinds: ['data', 'paid'],
+    comps: [
+      C('YNAB', '$109 a year', 'Trial', 'Budgeting', ['https://www.ynab.com/pricing'], 'life.md §2.3'),
+      C('Monarch', '$99.99 a year', 'Trial', 'Everything', ['https://www.monarch.com/pricing'], 'life.md §2.4'),
+      C('Mint (closed 2024)', 'Was free', 'Everything', 'Paid for by credit card referrals', ['https://www.nerdwallet.com/article/finance/mint-app-closing-what-it-means-how-to-pick-a-new-budget-service']),
+    ],
+    whyFree: 'Free budgeting was paid for by selling credit products to users, and Mint closed when that stopped working. The survivors charge about $100 a year.',
+    ours: 'No bank link and no server. Money is kept beside what it was for: food, medicine, the garden, medical bills.',
+    lift: 'Paid. What It Costs and Medical Costs are unique; insurance claims and appeal deadlines would make this worth a lot to people with a chronic condition.',
+    srcs: ['mint'],
+  },
+  {
+    id: 'care', name: 'Appointments, work and upkeep', kinds: ['commodity', 'platform', 'paid'],
+    comps: [
+      C('Phone calendar', 'Free', 'Appointments', 'Nothing', []),
+      C('Sweepy', '$19.99 a year', 'Basic', 'Household cleaning plans', ['https://sweepy.com/'], 'life.md §2.5'),
+    ],
+    whyFree: 'Calendars come with the phone; chore apps charge modestly.',
+    ours: 'Appointments with questions prepared from the records, work check-ins, upkeep on the same timeline as meals and doses.',
+    lift: 'Appointments and upkeep Free. Before Your Appointment, built from the records, paid.',
+  },
+  {
+    id: 'garden', name: 'Garden planning and harvest', kinds: ['paid', 'funnel'],
+    comps: [
+      C('Seedtime', '$84 to $168 a year', 'A small garden', 'Calendar, tasks, more beds', ['https://seedtime.us/pages/pricing'], 'garden.md §2.2'),
+      C('GrowVeg', '$29 to $35 a year', 'Trial', 'Planner', ['https://www.growveg.com/subscribeinfo.aspx'], 'garden.md §2.3'),
+      C('Gardenize', '$44.88 a year', 'Journal', 'More plants and photos', ['https://gardenize.com/subscriptions/'], 'garden.md §2.4'),
+      C('Planter', '$24.99 a year or $99.99 lifetime', 'Small plans', 'Everything', ['https://planter.garden/pricing/'], 'garden.md §2.9'),
+    ],
+    whyFree: 'Garden planners mostly charge, from $25 to $168 a year, with a small free garden as the taste.',
+    ours: 'The garden connected to the kitchen and the body: harvest to meals, what it saved, and (planned) what to grow for your conditions.',
+    lift: 'A garden person already pays $25 to $168 a year elsewhere. Plots and a harvest log Free; sowing calendar, tasks, yield and the garden report paid.',
+  },
+  {
+    id: 'sensors', name: 'Growing conditions, sensors and grow setup', kinds: ['platform'],
+    comps: [
+      C('Ecowitt', 'Free with sensors', 'The app', 'The hardware', ['https://shop.ecowitt.com/products/wh51'], 'garden.md §2.7'),
+      C('AC Infinity', 'Free with controllers', 'The app', 'The hardware', ['https://acinfinity.com/controllers/'], 'garden.md §2.6'),
+    ],
+    whyFree: 'Hardware makers give their apps away to sell sensors.',
+    ours: 'Readings typed or sent by a sensor, equipment and electricity costs per grow.',
+    lift: 'Paid depth for indoor and serious growers.',
+  },
+  {
+    id: 'soil', name: 'Living soil, compost and crop guides', kinds: ['mission'],
+    comps: [C('Garden Organic and extension services', 'Free', 'Reading', 'Nothing', ['https://www.gardenorganic.org.uk/'])],
+    whyFree: 'Charities and university extension services publish it free.',
+    ours: 'Three problems per crop solved from the soil, the case against the chemical bottle, sources beyond PubMed, tied to the person’s plantings.',
+    lift: 'Paid as part of the garden, since the free versions are not tied to anyone’s garden.',
+  },
+  {
+    id: 'bees', name: 'Bees and the hive log', kinds: ['paid', 'funnel'],
+    comps: [
+      C('HiveTracks', '$5 to $20 a month, about $69.99 a year', 'Trial', 'Inspections and analysis by hive count', ['https://www.guideflow.com/blog/beekeeping-software']),
+      C('Apiary Book', 'Free; from about EUR 3.33 a month', 'Basic logging', 'More hives, academy', ['https://www.guideflow.com/blog/beekeeping-software']),
+    ],
+    whyFree: 'Beekeepers pay for hive records, priced by the number of hives.',
+    ours: 'Planned: the whole hive log plus reading on every kind of bee, bee-centred keeping beside conventional, tied to the garden it pollinates.',
+    lift: 'Paid, likely an add-on someone with bees would buy alone.',
+    srcs: ['hivetracks'],
+  },
+  {
+    id: 'reading', name: 'Reading about conditions and health', kinds: ['data', 'mission'],
+    comps: [C('Health websites and national health services', 'Free', 'Everything', 'Paid for by ads or public money', [])],
+    whyFree: 'General health reading is everywhere, funded by advertising or by governments.',
+    ours: 'Condition reading for 19 conditions with evidence tiers, written to be acted on in the app beside it.',
+    lift: 'Health Literacy and Earth Matters Free (already decided). The 19 condition libraries are paid: that depth is not free anywhere.',
+  },
+  {
+    id: 'privacy', name: 'Privacy, the lock, the vault and backup', kinds: ['data', 'none'],
+    comps: [C('Most health apps', 'Free', 'Data held on the company’s server', '', ['https://www.mozillafoundation.org/ca/privacynotincluded/articles/getting-private-mental-health-and-prayer-apps-rush-to-revise-privacy-policies/'])],
+    whyFree: 'Almost nobody sells privacy, because their business needs the data. GoodRx and Flo were fined for sharing it; 29 of 32 mental health apps earned Mozilla’s warning.',
+    ours: 'No server at all. Records are encrypted on the device, the vault hides chosen categories, backups go to the person’s cloud folder.',
+    lift: 'People say they would pay about $12 more for strong data safety. Keep the lock Free as a baseline and say why on the paywall: "You are paying so your records are not the product."',
+    srcs: ['goodrx', 'mozilla', 'korea'],
+  },
+  {
+    id: 'devices', name: 'Sync between devices and the desktop app', kinds: ['funnel', 'once'],
+    comps: [
+      C('Cronometer', 'Free', 'Sync (the data lives on their server)', '', [], 'food.md §2.1'),
+      C('Paprika', 'Bought once per platform', '', 'Each platform separately', ['https://www.paprikaapp.com/windows/'], 'food.md §2.7'),
+    ],
+    whyFree: 'Server apps sync for free because the data is already on their server. Apps without one charge per device.',
+    ours: 'Sync through the person’s cloud folder with three-way merge and no server, and a full Windows and Mac app.',
+    lift: 'Paid (already in Individual). Being on the computer too is something people expect to pay for.',
+  },
+  {
+    id: 'sharing', name: 'Sharing with other people', kinds: ['funnel'],
+    comps: [C('AnyList', 'Household $14.99 a year', 'Sharing a list', 'Household extras', ['https://www.anylist.com/complete'], 'life.md §2.1')],
+    whyFree: 'Sharing spreads an app through a household, so it is usually free.',
+    ours: 'Signed, encrypted .is files and a shared shopping list with a partner, only with people the person has paired with.',
+    lift: 'Free. Each person someone shares with sees the app.',
+  },
+  {
+    id: 'looks', name: 'Looks, accessibility and the way around', kinds: ['commodity'],
+    comps: [],
+    whyFree: 'Settings are expected to be free, and accessibility should never be sold.',
+    ours: 'Low Stimulation, left or right hand, line spacing, backgrounds and playful wording.',
+    lift: 'Free, and accessibility stays Free by principle.',
+  },
+  {
+    id: 'story', name: 'Your story over time', kinds: ['none'],
+    comps: [],
+    whyFree: 'No app reviewed tells a person’s records back to them as their story.',
+    ours: 'Your Story, Your Life in Squares, Looking Back, and (planned) what your records showed this month.',
+    lift: 'The guide stays Free because it is how people learn the app. Looking Back and the monthly look are paid.',
+  },
+  // Planned families
+  {
+    id: 'diary', name: 'The Diary', kinds: ['funnel', 'commodity'],
+    comps: [C('Day One', 'Free; Silver $49.99, Gold $74.99 a year', 'One journal', 'Unlimited photos, journals, sync', ['https://dayoneapp.com/guides/premium-subscription/day-one-pricing-features-guide/'])],
+    whyFree: 'Writing is free in every notes app; Day One charges $49.99 to $74.99 a year for the journal around it.',
+    ours: 'Planned: a diary private by default, beside everything else recorded, that can later become part of a life’s story only by the person’s choice.',
+    lift: 'Writing Free. Photos, voice, search across years and the link to the rest of life paid.',
+    srcs: ['dayone'],
+  },
+  {
+    id: 'legacy', name: 'If something happens to me, and a life’s Inside Story', kinds: ['platform', 'paid'],
+    comps: [
+      C('Apple Legacy Contact', 'Free with the phone', 'A contact who can reach the account after death', 'Nothing', ['https://support.apple.com/en-gb/102678']),
+      C('Everplans', '$99.99 a year', 'Three items', 'Everything', ['https://help.everplans.com/hc/en-us/articles/215665778-How-much-does-Everplans-cost']),
+    ],
+    whyFree: 'Phones give a legacy contact away; organising it all is sold at about $100 a year.',
+    ours: 'Planned: what someone needs to know if you cannot tell them, and in the end a life told through the person’s words, in formats that outlive the app.',
+    lift: 'Strongly paid caliber. Nothing else turns years of records into a book in the person’s words.',
+    srcs: ['everplans', 'legacy'],
+  },
+  {
+    id: 'family-tree', name: 'Family health history and the family tree', kinds: ['mission', 'paid'],
+    comps: [
+      C('FamilySearch', 'Free', 'Everything', 'Nothing; run by a church', ['https://www.churchofjesuschrist.org/church/news/church-members-gain-free-access-to-178-billion-family-history-records?lang=eng']),
+      C('Ancestry', '$39.99 a month', 'A tree', 'Records', ['https://www.thepricer.org/how-much-does-ancestry-cost/']),
+      C('MyHeritage', 'About $299 a year', 'A small tree', 'Records, DNA matching', ['https://www.thepricer.org/how-much-does-ancestry-cost/']),
+    ],
+    whyFree: 'The tree is free (FamilySearch); the records are what Ancestry and MyHeritage charge for. None of them holds a family’s health history for the person’s doctor.',
+    ours: 'Planned: a tree with conditions and age at onset, GEDCOM in and out, passed down as seen from the child’s side, never a risk figure.',
+    lift: 'The tree Free (it imports from FamilySearch anyway). Health history read into the person’s reports paid.',
+    srcs: ['familysearch', 'ancestry'],
+  },
+  {
+    id: 'learn', name: 'Learn', kinds: ['mission', 'funnel'],
+    comps: [
+      C('Anki', 'Free; iPhone $24.99 once', 'Everything', 'Nothing', ['https://www.mindomax.com/quizlet-vs-anki']),
+      C('Quizlet', 'Free; Plus $35.99 a year', 'Study sets', 'Learning modes, no ads', ['https://www.mindomax.com/quizlet-vs-anki']),
+    ],
+    whyFree: 'Anki is a free volunteer project; Quizlet charges for study modes.',
+    ours: 'Planned: decks from a table or from the person’s records, critical-thinking questions throughout, no points.',
+    lift: 'Decided already: ready-made decks Free, making your own paid.',
+    srcs: ['anki'],
+  },
+  {
+    id: 'interests', name: 'Interests, projects and making it pay', kinds: ['commodity', 'none'],
+    comps: [],
+    whyFree: 'Note apps and bookmarks are free; nothing reviewed connects an interest from following to practising to earning.',
+    ours: 'Planned: a tenth tab where an interest is one record through each stage, with projects across the app and Share to Inside Story.',
+    lift: 'Following and saving Free; projects and Making It Pay paid.',
+  },
+  {
+    id: 'resume', name: 'Working life and a resume', kinds: ['funnel'],
+    comps: [C('Resume builders (Resume.io, MyPerfectResume)', '$2.95 trial then about $311 a year', 'Writing', 'Downloading what you wrote', ['https://unstar.app/blog/resume-io-zety-canva-indeed-novoresume-resume-builder-apps-ranked-2026'])],
+    whyFree: 'Builders are free to write in and charge to download, a pattern the FTC gets complaints about daily.',
+    ours: 'Planned: a resume made from work, education and skill records, out as .docx and back in.',
+    lift: 'Making it from the records paid. Never charge to take out something the person wrote (P6).',
+    srcs: ['resume'],
+  },
+  {
+    id: 'nature', name: 'Animals, foraging and a nature journal', kinds: ['mission', 'funnel'],
+    comps: [
+      C('iNaturalist', 'Free, nonprofit', 'Everything', 'Nothing', ['https://help.inaturalist.org/en/support/solutions/articles/151000189329']),
+      C('Pl@ntNet', 'Free', 'Plant identification', 'Nothing', [], 'garden.md §2.8'),
+      C('11pets', 'Free; $1.99 to $17.99', 'Pet records', 'More pets, sharing', ['https://apps.apple.com/us/app/11pets-pet-care/id1232470530']),
+    ],
+    whyFree: 'Nature recording is carried by nonprofits and research consortia; pet records are cheap.',
+    ours: 'Planned: animals, foraging and a nature journal as part of the same life, beside the garden and the kitchen.',
+    lift: 'Free mostly. Foraged food read against conditions paid.',
+    srcs: ['inat', 'pets'],
+  },
+  {
+    id: 'home-env', name: 'The home: water, air, preparedness', kinds: ['mission'],
+    comps: [C('FEMA app and EWG Tap Water Database', 'Free', 'Preparedness lists, water reports', 'Nothing; public and nonprofit', ['https://www.ewg.org/tapwater/'])],
+    whyFree: 'Governments and nonprofits publish it free.',
+    ours: 'Planned: the home’s water, air, mold and power-cut readiness kept beside the person’s conditions and medicines (what to have on hand if the power goes).',
+    lift: 'Preparedness for medicines is close to safety, so Free. Readings over time paid.',
+  },
+  {
+    id: 'womens', name: 'Pregnancy and postpartum', kinds: ['data', 'funnel'],
+    comps: [C('Flo and Clue', 'Free; premium paid', 'Pregnancy modes', 'Insights', [], 'signals.md §2.8')],
+    whyFree: 'Free, paid for in Flo’s case partly by data, which the FTC acted on.',
+    ours: 'Planned: pregnancy and postpartum with thyroid, celiac and other conditions in view, which no pregnancy app covers.',
+    lift: 'Paid, because condition-aware pregnancy guidance does not exist elsewhere.',
+    srcs: ['goodrx'],
+  },
+  {
+    id: 'records', name: 'Medical history, screenings and portal records', kinds: ['platform', 'funnel'],
+    comps: [
+      C('Apple Health Records', 'Free with the phone', 'Portal records (US)', 'Nothing', []),
+      C('Guava', 'Free; Premium about $78 a year', 'Records', 'Insights', ['https://guavahealth.com/plans'], 'trends.md §2.3'),
+    ],
+    whyFree: 'Apple gives portal records away; Guava sells insight on top.',
+    ours: 'Planned: a full history, screenings due, blood-draw prep, short illnesses as context.',
+    lift: 'Keeping the history Free (it is the person’s record); reading it into reports and Pattern Finder paid.',
+  },
+  {
+    id: 'mental', name: 'A mental health safety plan', kinds: ['mission'],
+    comps: [],
+    whyFree: 'Safety plans are handed out free by health services, and should be.',
+    ours: 'Planned: a safety plan reachable the way the emergency card is.',
+    lift: 'Never paid. Treat it as safety under P28.',
+  },
+  {
+    id: 'contacts', name: 'Contacts and keeping in touch', kinds: ['platform'],
+    comps: [C('Phone contacts', 'Free', 'Everything', 'Nothing', [])],
+    whyFree: 'Comes with the phone.',
+    ours: 'Planned: one record of a person, imported one contact at a time, linked to family, care and appointments.',
+    lift: 'Free. It is plumbing for the paid parts.',
+  },
+  {
+    id: 'utility', name: 'Widgets and conversions', kinds: ['commodity'],
+    comps: [],
+    whyFree: 'Every phone and dozens of free apps convert units and show widgets.',
+    ours: 'Planned: conversions in kitchen terms, widgets showing the next thing.',
+    lift: 'Free.',
+  },
+  {
+    id: 'asked', name: 'Waiting on a decision (need a server or bend a rule)', kinds: ['paid'],
+    comps: [C('Google Health Premium', '$9.99 a month', '', 'An AI health coach', ['https://techcrunch.com/2026/05/07/googles-9-99-per-month-ai-health-coach-launches-may-19/'], 'home.md §2.6')],
+    whyFree: 'These are paid where they exist because they cost the company money every time they run (an AI model, a bank link, a delivery partner).',
+    ours: 'Not built: each would need a server or a decision on a standing rule (Z items in the build plan). Streaks and a readiness score were refused.',
+    lift: 'If any is approved it can only be paid, because each carries a running cost.',
+  },
+  {
+    id: 'companions', name: 'Companion tiers: partner, household, guardian, caregiver', kinds: ['funnel', 'mission'],
+    comps: [
+      C('Clue Connect', 'Free', 'Sharing a cycle with a partner', 'Nothing', [], 'signals.md §2.8'),
+      C('AnyList household', '$14.99 a year', 'A shared list', 'Household features', ['https://www.anylist.com/complete'], 'life.md §2.1'),
+      C('Tiimo family', '$119.99 a year for five', '', 'Family plan', ['https://lifestack.ai/blog/tiimo-pricing'], 'life.md §2.6'),
+      C('Medisafe Medfriend', 'Premium $39.99 a year', '', 'A friend told about missed doses', ['https://pillo.care/blog/medisafe-not-free-what-to-do'], 'schedules.md §2.1'),
+      C('CaringBridge', 'Free, nonprofit', 'Health updates to family', 'Nothing', ['https://CaringBridge.org']),
+    ],
+    whyFree: 'Sharing is free when it brings in new users (Clue, AnyList lists); a family or care plan is paid when it does work for the payer (Tiimo, Medfriend). CaringBridge shares updates free as a nonprofit, but holds no records.',
+    ours: 'A partner with full access to their records and chosen visibility into each other’s; household seats; a parent’s children; a caregiver writing on behalf of an adult with consent. Health domains never cross without a choice.',
+    lift: 'Viewer companions Free (every viewer meets the app). Partner at about 1.5x and Caregiver per person are paid caliber: caregivers carry the most load and nothing else holds the records for them.',
+    srcs: ['caringbridge'],
+  },
+];
+
+// Ideas for lifting more of the app to pay caliber, drawn from the families above.
+const EVALUATION = [
+  { h: 'Charge for what the app works out, not for what the person writes down', b: 'Every competitor that succeeds draws the same line: Bearable, Daylio, mySymptoms and Cronometer give logging away and charge for understanding it. Inside Story’s paid core is the reading nobody else does: every food, meal and dose read against 19 conditions, Pattern Finder, Therapy Response, the food or supplement split and the reports. Everything a person records stays Free and is never locked.', fams: ['symptoms', 'pattern', 'condition-food', 'nutrients'] },
+  { h: 'Make commodity trackers earn their place by what they feed', b: 'Weight, sleep, steps, water and blood pressure cannot sell alone, since phones give them away. They become worth paying for when they sit beside something: sleep beside flares in Pattern Finder, water read for kidney disease or gout, blood pressure beside sodium. Keep each tracker Free and make the "beside" view paid.', fams: ['body', 'hydration'] },
+  { h: 'Use unlimited reminders as the Free tier’s advertisement', b: 'Medisafe cut its free tier to two medicines in January 2026 and users revolted; most people with a chronic condition take four or five. Unlimited reminders on Free, said plainly in the store listing, takes that market. The timing around them (meals and doses interleaved, tapering, dose history) is the paid step.', fams: ['med-reminders'] },
+  { h: 'Sell privacy as the reason the app costs money', b: 'Free health apps have been paid for with data: GoodRx and Flo were fined, Mozilla flagged 29 of 32 mental health apps, and Mint closed when credit referrals stopped covering it. People say they would pay about $12 more for strong data safety. Inside Story has no server, so the price is the whole business model. Say so on the paywall, while the lock itself stays Free.', fams: ['privacy', 'money', 'cycle'] },
+  { h: 'Give the second audience a paid way in that needs no condition', b: 'People with ADHD already pay $79.99 a year for Tiimo, $27 to $40 for Routinery and $99.99 for Structured. Inside Story’s routines, Did I Do It, Keeping Up, Where did I put it, the one next thing and Ready for tomorrow match that and add the rest of life. Today the paid tier is priced around condition scoring. Worth deciding: does someone who came for daily living pay the same Individual price, or is there a lower daily-living price that upgrades into health?', fams: ['daily', 'inventory'] },
+  { h: 'Treat the garden as paid depth that people already pay for', b: 'Garden planners charge $25 to $168 a year. The Inside Story garden is the only one tied to the kitchen and the body, and "What to grow for my conditions" (I16) would be unique. Plots and the harvest log Free; sowing calendar, tasks, yield, sensors, crop guides and the garden report paid. The hive log is a candidate for a separate add-on, since HiveTracks charges by hive.', fams: ['garden', 'sensors', 'soil', 'bees'] },
+  { h: 'Show the bundle in dollars', b: 'Bought separately, the closest single apps cost: Cronometer Gold $59.99, Bearable $34.99, Medisafe $39.99, Eat This Much from $47.99, Tiimo $79.99, YNAB $109, Seedtime from $84 and Day One $49.99, about $506 a year, before the 19-condition scoring that nobody sells at all. Against that, $89.99 a year is easy to explain, and the paywall should explain it.', fams: [] },
+  { h: 'Fix the annual price', b: 'Health and fitness leans to annual plans and keeps people longer on them. $89.99 a year is only 25% off twelve months at $9.99, where about 50% is the norm. An annual price of $59.99 to $69.99 would match Cronometer Gold and Fig while keeping the monthly price. A lifetime price and a hardship price (Z15) are still the owner’s call.', fams: [] },
+  { h: 'Let Free taste the paid core, a little', b: 'Freemium health apps convert about 4% of users; a hard paywall converts 12% of far fewer. Showing one paid result on Free (one For You reading a day, one generated day of meals, the top Pattern Finder result) lets someone see what they would get, the way Eat This Much gives one free day. A trial of everything that drops back to Free afterwards is the other common approach; trial-to-paid in health averages about 40%.', fams: ['condition-food', 'meal-plan', 'pattern'] },
+  { h: 'Price the companions on the work they do for the payer', b: 'Sharing that brings in new users is free in the market (Clue Connect, AnyList lists); plans that do work for the payer are paid (Tiimo family, Medfriend). So: viewer companions Free, since each viewer meets the app; Partner at about 1.5x; Caregiver per person, the strongest of all because caregivers carry the most and nothing else holds records for them. Guardian, bundled free with a paid plan, is a reason to choose that plan.', fams: ['companions'] },
+  { h: 'Start the planned work at pay caliber', b: 'Several planned functions already have a paying market: a life’s Inside Story and If something happens to me (Everplans $99.99 a year), family health history (Ancestry $39.99 a month, MyHeritage about $299 a year), making your own Learn decks (Quizlet $35.99), the diary (Day One $49.99), the hive log (HiveTracks about $69.99). Pregnancy with a condition in view and insurance appeals have no competitor at all.', fams: ['legacy', 'family-tree', 'learn', 'diary', 'bees', 'womens', 'money'] },
+  { h: 'What never moves to paid', b: 'Safety (P28): the emergency card, interaction and timing warnings, allergy cautions, the safety plan. Accessibility: Low Stimulation, hand switching, text size and anything past it (P9). Getting records out in open formats (P6), because the record belongs to the person and resume builders show what charging for a download looks like. And ending a shared relationship (P32), which must never depend on who pays.', fams: ['med-safety', 'looks', 'mental'] },
+];
+
+module.exports = { KINDS, SOURCES, FAMILIES, EVALUATION };
