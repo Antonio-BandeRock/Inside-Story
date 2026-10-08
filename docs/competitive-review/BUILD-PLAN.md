@@ -50,7 +50,7 @@ Possible on Android only, not recommended. Local-first is not the blocker (SMS g
 - **Live database:** A9 approved 2026-09-26; G23 (per-serving FODMAP thresholds, sources decided, waits on unified Phase 5). Crop family stays out of the DB (`lib/cropFamilies.ts`, I10).
 - **Money and licences:** A11 reshaped 2026-09-26 (the FDA label word for word, no rule library, no licensed database; a lawyer review before store release), A15 pill identifier, D13 questionnaire licences beyond PHQ-9 and GAD-7, D15 audio content, I25 plant diagnosis, Z7 chain menus, the Apple developer account.
 - **Bends a standing rule:** Z2 scores, Z4 streaks and characters, Z12 store guides, Z1 Z3 C14 anything leaving the phone.
-- **Product:** C17 decided 2026-09-26 (progress, design document first; distinct things or repetitions settles inside it), Z15 lifetime and hardship prices, the Free-tier line for a way in without a condition (item 28), G29 FHIR scope, servers Z5 Z6 Z9 Z10 Z11.
+- **Product:** C17 decided 2026-09-26 (progress, design document first; distinct things or repetitions settles inside it), Z15 lifetime and hardship prices, the Free-tier line for a way in without a condition (item 28), G29 FHIR scope, servers Z5 Z6 Z9 Z11 (Z10, a live bank link, ruled out 2026-10-07: J1 only).
 
 ## Rules every item is built under
 
@@ -1166,9 +1166,9 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **How:** A skill needs a company server.
 
 ### Z10. Linked bank accounts
-- **Ships by:** Needs a company server · **Size:** L · **Tabs:** Life
+- **Ships by:** Owner decision first · **Size:** L · **Tabs:** Life
 - **Answers:** YNAB, Monarch · **Theme:** Asked of you: these meet a standing rule or need a company server
-- **How:** Plaid or GoCardless tokens held on a server. J1 covers most of it.
+- **How:** Ruled out 2026-10-07 by direct instruction ("J1 only"). Plaid and Belvo need a company server holding a secret and charge the app per account or per call; GoCardless Bank Account Data closed on 2023-12-18; SimpleFIN Bridge (the person pays about $15 a year, the phone fetches directly) was the one route that fit, and it reaches US and Canadian banks only. J1, importing a bank export file, is the route: every country, no cost, nothing leaves the device.
 
 ### Z11. A clinician dashboard or live link
 - **Ships by:** Needs a company server · **Size:** L · **Tabs:** Reports,Schedules

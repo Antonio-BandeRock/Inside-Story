@@ -266,7 +266,7 @@ Z6|7|SRV|M|Life|MyFitnessPal, Eat This Much|Grocery delivery (Instacart, AmazonF
 Z7|7|WK|L|Food|MyFitnessPal|Chain restaurant menus|A keyed lookup through the Worker. Licensing the data is the cost.
 Z8|7|WK|L|Garden|From Seed to Spoon|Seed packet barcode to variety|A keyed lookup; open data rarely resolves seeds.
 Z9|7|SRV|S|Life|OurGroceries|Add by Alexa or Google Assistant|A skill needs a company server.
-Z10|7|SRV|L|Life|YNAB, Monarch|Linked bank accounts|Plaid or GoCardless tokens held on a server. J1 covers most of it.
+Z10|7|DEC|L|Life|YNAB, Monarch|Linked bank accounts|Ruled out 2026-10-07 by direct instruction ("J1 only"). Plaid and Belvo need a company server holding a secret and charge the app per account or per call; GoCardless Bank Account Data closed on 2023-12-18; SimpleFIN Bridge (the person pays about $15 a year, the phone fetches directly) was the one route that fit, and it reaches US and Canadian banks only. J1, importing a bank export file, is the route: every country, no cost, nothing leaves the device.
 Z11|7|SRV|L|Reports,Schedules|Guava, mySymptoms, Healthie, CareClinic|A clinician dashboard or live link|Health data on a server. The PDF and CSV cover the visit.
 Z12|7|DEC|M|Food,Insights|Fig|Store and restaurant guides|Pulls against home cooking over commercial products.
 Z13|7|DEC|L|Signals|Visible, Welltory|Heart rate from the camera|Frame processing and validation; out of proportion.
