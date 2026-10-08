@@ -3465,7 +3465,7 @@ Sources: <https://families.google/familylink/>
 
 #### Caregiver (writing on behalf of another adult) (planned): Behind against Caring Village
 
-Not built. Decided 2026-10-07, clarified 2026-10-08: free to the caregiver to download, and the companion does nothing until the caregiver cost is paid, normally by the person cared for, the first caregiver in the cared-for person’s Individual plan, linked by invitation, each person cared for kept apart, never a cheaper Partner. Also compared: CareClinic, Medisafe (Medfriend), Jointly, Lotsa Helping Hands, CaringBridge, ianacare. Checked 2026-10-07.
+Not built. Decided 2026-10-07, clarified 2026-10-08: a feature in the Free version that the person cared for turns on and pays for (the first caregiver in their Individual plan), covering only the people cared for while the caregiver keeps Free for their own records, linked by invitation, each person cared for kept apart, never a cheaper Partner. Also compared: CareClinic, Medisafe (Medfriend), Jointly, Lotsa Helping Hands, CaringBridge, ianacare. Checked 2026-10-07.
 
 | Measure | Caring Village | Inside Story | |
 |---|---|---|---|

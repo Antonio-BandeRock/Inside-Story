@@ -65,7 +65,7 @@ module.exports = [
     src: ['https://caringvillage.com/pricing/', 'https://help-center.medisafe.com/en/articles/11793638-caregiver-guide-how-to-use-medisafe-to-manage-a-family-member-s-medications'],
     v: 'behind',
     m: notBuilt({ does: 'A circle around one person: calendar, meds, journal, documents, messages', depth: 'Meds, symptoms, care plan, documents', price: 'Free for 1 person and 2 members; $24.99 a month for up to 5 people', ours: 'Free to the caregiver; works once the caregiver cost is paid', priceV: '=', oursConds: 'The 19 conditions, consent area by area or attestation' }),
-    why: 'Not built. Decided 2026-10-07, clarified 2026-10-08: free to the caregiver to download, and the companion does nothing until the caregiver cost is paid, normally by the person cared for, the first caregiver in the cared-for person’s Individual plan, linked by invitation, each person cared for kept apart, never a cheaper Partner.',
+    why: 'Not built. Decided 2026-10-07, clarified 2026-10-08: a feature in the Free version that the person cared for turns on and pays for (the first caregiver in their Individual plan), covering only the people cared for while the caregiver keeps Free for their own records, linked by invitation, each person cared for kept apart, never a cheaper Partner.',
     win: 'Q73 with the functions below (Q74 to Q90), each built to beat that function’s leader, plus every change logged (P31) and missed doses told on time (A16, M1).',
     items: ['Q73', 'Q74', 'Q75', 'Q89', 'Q90', 'P31', 'A16', 'M1'],
   }),

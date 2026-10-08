@@ -11,7 +11,7 @@ Tiers: **measured** (study, government count, company report), **survey** (poll,
 3. Paid installs do not pay back in year one at median conversion. Spend at scale only once 30-day retention is known.
 4. Advertise contextually: patient and ADHD creators, podcast host reads, newsletters, keyword search ads. No pixels, no retargeting.
 5. A launch quarter that could become a sensation: $150K to $300K. Sustained: $1M to $3M a year. Creator gifting ($0) and the ground floor (under $2K a month) should start now; every paid level is optional and waits on retention.
-6. Most companion tiers are priced above leaders that are free. Caregiver is free to the caregiver to download and does nothing until the caregiver cost is paid, normally by the person cared for (decided 2026-10-07, clarified 2026-10-08); the rest of P27 matters more than any ad budget.
+6. Most companion tiers are priced above leaders that are free. Caregiver is a feature inside the Free version, turned on and paid for by the person cared for, and it covers only the people cared for; the caregiver uses Free for their own records unless they pay for themselves (decided 2026-10-07, clarified 2026-10-08); the rest of P27 matters more than any ad budget.
 
 ## Audiences (US)
 
