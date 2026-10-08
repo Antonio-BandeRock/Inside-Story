@@ -64,12 +64,12 @@ nav.toc a{color:var(--accent)}
 <h1>Everything the competitors do, and how Inside Story gets there</h1>
 <p class="lead">Every gap the nine tab reviews named, merged where two tabs asked for the same thing, then ordered so each phase stands on the one before. Nothing from the review is left out: items that break a standing rule or need a server are listed in Phase 7 with the reason, waiting on your yes.</p>
 <div class="stats">
-<span class="stat"><b>258</b>items</span>
-<span class="stat"><b>207</b>ship over the air</span>
+<span class="stat"><b>268</b>items</span>
+<span class="stat"><b>216</b>ship over the air</span>
 <span class="stat"><b>11</b>in the Android rebuild</span>
 <span class="stat"><b>2</b>in the iPhone build</span>
 <span class="stat"><b>9</b>on the Worker</span>
-<span class="stat"><b>29</b>wait on your decision</span>
+<span class="stat"><b>30</b>wait on your decision</span>
 </div>
 </header>
 
@@ -305,7 +305,7 @@ nav.toc a{color:var(--accent)}
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p2">
-<h2>Phase 2. Quick wins over the air <span class="count">115</span></h2>
+<h2>Phase 2. Quick wins over the air <span class="count">119</span></h2>
 <p class="lead">Small and medium items that each close a named competitor gap with no rebuild. Most take an hour to a day each.</p>
 <div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
 <tbody><tr data-tabs="Life|Schedules|Signals|Insights" data-text="pills on hand and refill reminder supply_on_hand, supply_unit and refill_lead_days on treatments, drawn down when a dose is marked taken on meds, a refill kind in lib/remindersources.ts, "about 6 days left" in mymedssection.tsx. medisafe, mytherapy, careclinic, guava">
@@ -1112,10 +1112,38 @@ nav.toc a{color:var(--accent)}
 <td class="tabs">all</td>
 <td><span class="ship ota">Over the air</span></td>
 <td class="size">M</td>
+</tr>
+<tr data-tabs="Food" data-text="any ingredient or additive of your own to avoid fig names 2,800+ restrictions. a free-text avoid list (an ingredient, an additive, an e number, a family such as "anything with carrageenan") matched by the same ingredient reader the scan and the recipe import use, so every lookup, scan, imported recipe and builder flags it with the person's own words as the reason. fig">
+<td class="id">Q2</td>
+<td><div class="t">Any ingredient or additive of your own to avoid</div><div class="how">Fig names 2,800+ restrictions. A free-text avoid list (an ingredient, an additive, an E number, a family such as "anything with carrageenan") matched by the same ingredient reader the scan and the recipe import use, so every lookup, scan, imported recipe and builder flags it with the person's own words as the reason.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Fig</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Food" data-text="import measured against the 50 most visited recipe sites keep a dated list of the 50 most visited recipe sites and blogs in scripts/, run lib/recipeimport.ts against one page from each in a test, record which import cleanly, and fix every miss. publish the rate in the plan so it can be compared with paprika's. paprika">
+<td class="id">Q3</td>
+<td><div class="t">Import measured against the 50 most visited recipe sites</div><div class="how">Keep a dated list of the 50 most visited recipe sites and blogs in scripts/, run lib/recipeImport.ts against one page from each in a test, record which import cleanly, and fix every miss. Publish the rate in the plan so it can be compared with Paprika's.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Paprika</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Food|Home" data-text="fewer taps to log than macrofactor count taps for the tasks macrofactor publishes (one food, a recipe, yesterday's breakfast again, a usual lunch) in a script that walks the screens, write the counts down, then cut ours below theirs: one tap to repeat a recent meal from home, "same as yesterday", and recents ranked by time of day. photo recognition stays with z1, opt-in only. macrofactor">
+<td class="id">Q5</td>
+<td><div class="t">Fewer taps to log than MacroFactor</div><div class="how">Count taps for the tasks MacroFactor publishes (one food, a recipe, yesterday's breakfast again, a usual lunch) in a script that walks the screens, write the counts down, then cut ours below theirs: one tap to repeat a recent meal from Home, "same as yesterday", and recents ranked by time of day. Photo recognition stays with Z1, opt-in only.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers MacroFactor</div></td>
+<td class="tabs">Food<br>Home</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="All" data-text="a screen reader audit text already scales uncapped. walk every tab with talkback and the desktop's narrator, give every icon button an accessibilitylabel, and add a script that fails on a pressable with no label, so accessibility is a measured win rather than a "not checked" against every leader. every leader">
+<td class="id">Q10</td>
+<td><div class="t">A screen reader audit</div><div class="how">Text already scales uncapped. Walk every tab with TalkBack and the desktop's narrator, give every icon button an accessibilityLabel, and add a script that fails on a Pressable with no label, so accessibility is a measured win rather than a "not checked" against every leader.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Every leader</div></td>
+<td class="tabs">All</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p3">
-<h2>Phase 3. Larger builds over the air <span class="count">82</span></h2>
+<h2>Phase 3. Larger builds over the air <span class="count">88</span></h2>
 <p class="lead">Bigger pieces of JS work: new tables with their own screens, drawn editors, experiments, the caregiver holding, garden planning, bank import.</p>
 <div class="tw"><table><thead><tr><th>#</th><th>What and how</th><th>Tabs</th><th>Ships by</th><th>Size</th></tr></thead>
 <tbody><tr data-tabs="Schedules" data-text="tapering doses a taper step list on treatments (amount per date range), read by the series generator and the dose reminder text. prednisone tapers in ra, ibd and lupus flares. needs a1. built 1.0.57.1: steps entered on life &gt; my meds as a first day plus amount and days per step (treatment_taper_steps, lib/taper.ts); reminders, home, schedules &gt; meds and today's meals show the day's amount with (step n of m); new reminder times preset to stop on the taper's last day; the med's own dose applies outside the taper. careclinic">
@@ -1691,6 +1719,48 @@ nav.toc a{color:var(--accent)}
 <td class="tabs">Reports<br>Schedules</td>
 <td><span class="ship wk">Worker</span></td>
 <td class="size">L</td>
+</tr>
+<tr data-tabs="Food|Insights|Trends" data-text="reach at least cronometer's 84 nutrients cronometer tracks 84 against our 40. add from usda fooddata central, which already publishes them: omega-3 ala, epa and dha, omega-6, trans fat, the nine essential amino acids, chromium, molybdenum, fluoride, starch, beta-carotene, lutein and the rest. ingest and map them in the unified database, carry them across in phase 5, and only then reach the live file through the swap; never by hand on foods_reference.db. every insights and trends nutrient band reads them with no further change once the code list grows. cronometer">
+<td class="id">Q1</td>
+<td><div class="t">Reach at least Cronometer's 84 nutrients</div><div class="how">Cronometer tracks 84 against our 40. Add from USDA FoodData Central, which already publishes them: omega-3 ALA, EPA and DHA, omega-6, trans fat, the nine essential amino acids, chromium, molybdenum, fluoride, starch, beta-carotene, lutein and the rest. Ingest and map them in the unified database, carry them across in Phase 5, and only then reach the live file through the swap; never by hand on foods_reference.db. Every Insights and Trends nutrient band reads them with no further change once the code list grows.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Cronometer</div></td>
+<td class="tabs">Food<br>Insights<br>Trends</td>
+<td><span class="ship ask">Live DB, your yes</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Food" data-text="a recipe library past 1,500 without a paid feed grow from 496 by cited sets per condition and per season, and by people: a checked recipe shared as a .is file goes into the receiver's library already scored. a recipe api is a per-call charge and ai generation sends data away, so neither is the route. samsung food, kitchen stories">
+<td class="id">Q4</td>
+<td><div class="t">A recipe library past 1,500 without a paid feed</div><div class="how">Grow from 496 by cited sets per condition and per season, and by people: a checked recipe shared as a .is file goes into the receiver's library already scored. A recipe API is a per-call charge and AI generation sends data away, so neither is the route.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Samsung Food, Kitchen Stories</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship ota">Reading content</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Food" data-text="home brew that beats brewfather built on the fermentation builder (batches, strains, yield already done): gravity, abv, a temperature and gravity log charted free, the ispindel's published http feed into the batch, stock and cost from finances, and what no brewing app has: alcohol, histamine and sulfites read against the person's conditions and the next dose. brewfather">
+<td class="id">Q6</td>
+<td><div class="t">Home brew that beats Brewfather</div><div class="how">Built on the Fermentation builder (batches, strains, yield already done): gravity, ABV, a temperature and gravity log charted free, the iSpindel's published HTTP feed into the batch, stock and cost from Finances, and what no brewing app has: alcohol, histamine and sulfites read against the person's conditions and the next dose.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Brewfather</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">L</td>
+</tr>
+<tr data-tabs="Food" data-text="cooking technique taught through meals the person can eat the 30 techniques the 496 recipes actually use, each as illustrated steps inside cook mode with a link out to a free video, ordered by what the person's planned meals need next. kitchen stories, america's test kitchen">
+<td class="id">Q7</td>
+<td><div class="t">Cooking technique taught through meals the person can eat</div><div class="how">The 30 techniques the 496 recipes actually use, each as illustrated steps inside cook mode with a link out to a free video, ordered by what the person's planned meals need next.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Kitchen Stories, America's Test Kitchen</div></td>
+<td class="tabs">Food</td>
+<td><span class="ship ota">Reading content</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Food|Garden|Life" data-text="thrown out, with a reason, a cost and a compost heap mark a kitchen item thrown out from where it sits, with a reason and the price paid, and send it to a heap in garden. monthly money and weight, never a score. nowaste">
+<td class="id">Q8</td>
+<td><div class="t">Thrown out, with a reason, a cost and a compost heap</div><div class="how">Mark a kitchen item thrown out from where it sits, with a reason and the price paid, and send it to a heap in Garden. Monthly money and weight, never a score.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers NoWaste</div></td>
+<td class="tabs">Food<br>Garden<br>Life</td>
+<td><span class="ship ota">Over the air</span></td>
+<td class="size">M</td>
+</tr>
+<tr data-tabs="Food|Garden" data-text="seasonal food for every country in scope, joined to the garden match the seasonal food guide's us data from the same public sources (usda, state extension), add the other countries the app is built for, and join it to the person's harvest and meal plan. seasonal food guide">
+<td class="id">Q9</td>
+<td><div class="t">Seasonal food for every country in scope, joined to the garden</div><div class="how">Match the Seasonal Food Guide's US data from the same public sources (USDA, state extension), add the other countries the app is built for, and join it to the person's harvest and meal plan.</div><div class="meta">Beating the leader, function by function (2026-10-07) · answers Seasonal Food Guide</div></td>
+<td class="tabs">Food<br>Garden</td>
+<td><span class="ship ota">Reading content</span></td>
+<td class="size">M</td>
 </tr></tbody></table></div>
 </section>
 <section class="phase" id="p4">

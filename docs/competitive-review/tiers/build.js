@@ -9,6 +9,8 @@ const here = __dirname;
 const { KINDS, SOURCES, FAMILIES, EVALUATION } = require('./research.js');
 const built = JSON.parse(fs.readFileSync(path.join(here, 'functions-built.json'), 'utf8'));
 const planned = require('./planned.js');
+const { LEADERS, MEASURES, VERDICTS } = require('./leaders/index.js');
+const planIds = new Set(fs.readFileSync(path.join(here, '..', 'plan', 'items.txt'), 'utf8').split(/\r?\n/).filter(l => /^[A-Z]\d+[a-z]?\|/.test(l)).map(l => l.split('|')[0]));
 
 const TABS = built.TABS.filter(([k]) => k !== 'across');
 TABS.push(['interests', 'Interests'], ['across', 'Across the app'], ['companions', 'Companions']);
@@ -34,13 +36,24 @@ FAMILIES.forEach(f => {
   f.kinds.forEach(k => { if (!KINDS[k]) problems.push(f.id + ' has unknown kind ' + k); });
   if (!F.some(d => d.fam === f.id)) problems.push('family ' + f.id + ' has no functions');
 });
+const leadSeen = new Set();
+LEADERS.forEach(x => {
+  if (!F.some(d => d.id === x.id)) problems.push('leader entry for unknown function ' + x.id);
+  if (leadSeen.has(x.id)) problems.push('two leader entries for ' + x.id);
+  leadSeen.add(x.id);
+  if (!VERDICTS[x.v]) problems.push(x.id + ' has unknown verdict ' + x.v);
+  if (x.v !== 'alone' && !x.m) problems.push(x.id + ' compares with a leader but has no measures');
+  if (x.m) MEASURES.forEach(([k]) => { if (!x.m[k] || !'+=-?'.includes(x.m[k][2])) problems.push(x.id + ' measure ' + k + ' missing or unmarked'); });
+  if ((x.v === 'even' || x.v === 'behind') && !x.win) problems.push(x.id + ' is ' + x.v + ' with no way to win');
+  x.items.forEach(i => { if (!planIds.has(i)) problems.push(x.id + ' names unknown plan item ' + i); });
+});
 EVALUATION.forEach(e => (e.fams || []).forEach(k => { if (!famIds.has(k)) problems.push('evaluation cites unknown family ' + k); }));
 if (problems.length) { console.error(problems.join('\n')); process.exit(1); }
 
 // The board.
 const template = fs.readFileSync(path.join(here, 'board-template.html'), 'utf8');
 if (!template.includes('/*DATA*/null')) throw new Error('template has no /*DATA*/null placeholder');
-const data = JSON.stringify({ TABS, F, FAMILIES, KINDS, SOURCES, EVALUATION }).replace(/</g, '\\u003c');
+const data = JSON.stringify({ TABS, F, FAMILIES, KINDS, SOURCES, EVALUATION, LEADERS, MEASURES, VERDICTS }).replace(/</g, '\\u003c');
 const out = process.argv[2] || path.join(here, 'tier-board.html');
 fs.writeFileSync(out, template.replace('/*DATA*/null', () => data));
 
@@ -59,6 +72,39 @@ md.push('## How Inside Story can make more of itself pay caliber');
 md.push('');
 EVALUATION.forEach((e, i) => {
   md.push(`${i + 1}. **${e.h}.** ${e.b}` + (e.fams && e.fams.length ? ' Rests on: ' + e.fams.map(k => `[${FAMILIES.find(f => f.id === k).name}](#fam-${k})`).join(', ') + '.' : ''));
+});
+md.push('');
+md.push('## Better than the leader');
+md.push('');
+md.push('Standing rule since 2026-10-07: every function that competes with a leading app has to be better than the leader for that one function, Free or paid. Each is compared on the same eight measures, marked + (ours better), = (even), - (behind) or ? (not checked). Even and behind carry what it takes to win and the build-plan items that carry it.');
+md.push('');
+const leadTabs = TABS.filter(([k]) => LEADERS.some(x => F.find(d => d.id === x.id).t === k));
+md.push('| Tab | Better | Even | Behind | Nobody else | Not yet compared |');
+md.push('|---|---|---|---|---|---|');
+leadTabs.forEach(([k, n]) => {
+  const xs = LEADERS.filter(x => F.find(d => d.id === x.id).t === k);
+  const c = v => xs.filter(x => x.v === v).length;
+  md.push(`| ${n} | ${c('better')} | ${c('even')} | ${c('behind')} | ${c('alone')} | ${F.filter(d => d.t === k && !leadSeen.has(d.id)).length} |`);
+});
+leadTabs.forEach(([k, n]) => {
+  md.push('');
+  md.push(`### ${n}`);
+  LEADERS.filter(x => F.find(d => d.id === x.id).t === k).forEach(x => {
+    const d = F.find(f => f.id === x.id);
+    md.push('');
+    md.push(`#### ${d.n}${d.st ? ' (planned)' : ''}: ${VERDICTS[x.v]}${x.leader ? ' against ' + x.leader : ''}`);
+    md.push('');
+    md.push(x.why + (x.also && x.also.length ? ' Also compared: ' + x.also.join(', ') + '.' : '') + (x.checked ? ' Checked ' + x.checked + '.' : ''));
+    if (x.m) {
+      md.push('');
+      md.push('| Measure | ' + cell(x.leader) + ' | Inside Story | |');
+      md.push('|---|---|---|---|');
+      MEASURES.forEach(([mk, mn]) => md.push(`| ${mn} | ${cell(x.m[mk][0])} | ${cell(x.m[mk][1])} | ${x.m[mk][2]} |`));
+    }
+    if (x.win) { md.push(''); md.push('**To be better.** ' + x.win + (x.items.length ? ' Plan: ' + x.items.join(', ') + '.' : '')); }
+    if (x.rule) { md.push(''); md.push('**Where the leader’s edge rests on a rule kept here.** ' + x.rule); }
+    if (x.src && x.src.length) { md.push(''); md.push('Sources: ' + x.src.map(u => `<${u}>`).join(' ')); }
+  });
 });
 md.push('');
 md.push('## Why things are free or paid: the kinds');

@@ -24,15 +24,16 @@
   --t-home: #d08a1e; --t-food: #3f9d4a; --t-schedules: #2f86c9; --t-signals: #d2544f; --t-insights: #7a5cc7;
   --t-trends: #1fa3a0; --t-reports: #6d7c86; --t-garden: #7f9a2c; --t-life: #c75a9c; --t-across: #384a56;
   --t-interests: #b0682f; --t-companions: #3d5fb0;
+  --better: #17795a; --better-wash: #dcf1e8; --even: #8a6a12; --even-wash: #f5ecd2; --behind: #b2412c; --behind-wash: #f8e1db; --alone: #3d5fb0; --alone-wash: #e2e8f7;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #12191e; --panel: #1b252c; --ink: #e6edf1; --muted: #9aabb5; --rule: #2f3d46; --field: #161f25;
   --free: #5cc196; --free-wash: #17352a; --paid: #c39ae6; --paid-wash: #2f2340; --safety: #ff7b6b; --focus: #6aa8ff;
-  --t-across: #a9bac4; --t-companions: #7f9be0; color-scheme: dark } }
+  --t-across: #a9bac4; --t-companions: #7f9be0; --better: #5cc196; --better-wash: #17352a; --even: #e0bd5a; --even-wash: #3a3018; --behind: #ff8a75; --behind-wash: #40221c; --alone: #8fa9ea; --alone-wash: #1f2a44; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #12191e; --panel: #1b252c; --ink: #e6edf1; --muted: #9aabb5; --rule: #2f3d46; --field: #161f25;
   --free: #5cc196; --free-wash: #17352a; --paid: #c39ae6; --paid-wash: #2f2340; --safety: #ff7b6b; --focus: #6aa8ff;
-  --t-across: #a9bac4; --t-companions: #7f9be0; color-scheme: dark }
+  --t-across: #a9bac4; --t-companions: #7f9be0; --better: #5cc196; --better-wash: #17352a; --even: #e0bd5a; --even-wash: #3a3018; --behind: #ff8a75; --behind-wash: #40221c; --alone: #8fa9ea; --alone-wash: #1f2a44; color-scheme: dark }
 body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; }
 .wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; padding-block: 20px 48px; display: flex; flex-direction: column; gap: 18px; }
 h1 { font-family: var(--display); font-weight: 700; font-size: clamp(26px, 4vw, 36px); line-height: 1.1; margin: 0; text-wrap: balance; }
@@ -110,6 +111,27 @@ textarea { width: 100%; box-sizing: border-box; font: 14px var(--body); border: 
 .how { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 12px 14px; font-size: 14px; }
 .how summary { cursor: pointer; font-weight: 700; }
 .how ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.pill.better { background: var(--better-wash); color: var(--better); }
+.pill.even { background: var(--even-wash); color: var(--even); }
+.pill.behind { background: var(--behind-wash); color: var(--behind); }
+.pill.alone { background: var(--alone-wash); color: var(--alone); }
+.lead-box { border-top: 1px solid var(--rule); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.lead-box h5 { margin: 0; font: 700 12px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.lead-box p { margin: 0; font-size: 13px; }
+.mt { width: 100%; border-collapse: collapse; font-size: 12px; }
+.mt th, .mt td { text-align: left; vertical-align: top; padding: 4px 6px; border-bottom: 1px solid var(--rule); }
+.mt th { color: var(--muted); font-weight: 700; }
+.mk { font: 700 13px var(--mono); text-align: center !important; width: 1.6em; }
+.mk.p { color: var(--better); } .mk.e { color: var(--even); } .mk.m { color: var(--behind); } .mk.q { color: var(--muted); }
+.leaders { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.leaders > p { max-width: 72ch; margin: 0; color: var(--muted); }
+.tally { border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.tally th, .tally td { padding: 6px 12px; border-bottom: 1px solid var(--rule); text-align: right; }
+.tally th:first-child, .tally td:first-child { text-align: left; }
+.vl { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.vl button { all: unset; cursor: pointer; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.vl button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.vl .w { color: var(--muted); font-size: 13px; }
 .pill.st { background: var(--field); color: var(--muted); border: 1px dashed var(--muted); }
 .fam { border-top: 1px solid var(--rule); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
 .fam h5 { font: 700 11px var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; }
@@ -207,6 +229,13 @@ table.rt th { font: 700 10.5px var(--body); letter-spacing: .06em; text-transfor
     <section class="list paid"><header><h2>Paid</h2><span id="paidCount"></span></header><div id="paidList"></div></section>
   </div>
 
+  <section class="leaders" id="leaders">
+    <h2>Better than the leader</h2>
+    <p>Every function that competes with a leading app has to be better than that leader, Free or paid. Each is checked against the leader for that one function on the same eight measures. Tap a row to open it on the field above.</p>
+    <div class="tablewrap"><table class="tally" id="tally"></table></div>
+    <div id="leadList"></div>
+  </section>
+
   <section class="eval" id="evaluation">
     <h2>How more of Inside Story can reach pay caliber</h2>
     <p>Drawn from the research below. Each point names the families of functions it rests on.</p>
@@ -230,6 +259,22 @@ const TAB_NAME = Object.fromEntries(TABS);
 const F = DATA.F;
 const FAMS = Object.fromEntries(DATA.FAMILIES.map(f => [f.id, f]));
 const KINDS = DATA.KINDS, SOURCES = DATA.SOURCES, EVALUATION = DATA.EVALUATION;
+const LEAD = Object.fromEntries((DATA.LEADERS || []).map(x => [x.id, x]));
+const MEASURES = DATA.MEASURES || [], VERDICTS = DATA.VERDICTS || {};
+const MK = { '+': ['p', 'Ours better'], '=': ['e', 'Even'], '-': ['m', 'Behind'], '?': ['q', 'Not checked'] };
+function leadBox(x) {
+  const box = document.createElement('div'); box.className = 'lead-box';
+  let h = '<h5>' + (x.leader ? 'Against the leader: ' + esc(x.leader) : 'Against the leader') + '</h5>'
+    + '<div><span class="pill ' + esc(x.v) + '">' + esc(VERDICTS[x.v]) + '</span></div><p>' + esc(x.why) + '</p>';
+  if (x.m) h += '<div class="tablewrap"><table class="mt"><thead><tr><th></th><th>' + esc(x.leader) + '</th><th>Inside Story</th><th></th></tr></thead><tbody>'
+    + MEASURES.map(([k, n]) => { const r = x.m[k], mk = MK[r[2]] || MK['?']; return '<tr><th>' + esc(n) + '</th><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td><td class="mk ' + mk[0] + '" title="' + mk[1] + '">' + esc(r[2]) + '</td></tr>'; }).join('')
+    + '</tbody></table></div>';
+  if (x.win) h += '<h5>To be better</h5><p>' + esc(x.win) + (x.items && x.items.length ? ' Plan: ' + esc(x.items.join(', ')) + '.' : '') + '</p>';
+  if (x.rule) h += '<h5>Where the leader’s edge rests on a rule kept here</h5><p>' + esc(x.rule) + '</p>';
+  if (x.also && x.also.length) h += '<p class="ev">Also compared: ' + esc(x.also.join(', ')) + '. Checked ' + esc(x.checked) + '.</p>';
+  if (x.src && x.src.length) h += '<p class="ev">Sources: ' + links(x.src) + '</p>';
+  box.innerHTML = h; return box;
+}
 const ST_WORD = { planned: 'Planned', asked: 'Waiting on a decision', companion: 'Companion tier' };
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]); }
 function hostOf(u) { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return u; } }
@@ -414,7 +459,7 @@ function renderSide() {
   const tab = document.createElement('div'); tab.className = 'tabname'; tab.style.color = color(d.t); tab.textContent = TAB_NAME[d.t];
   const h = document.createElement('h3'); h.textContent = d.n;
   const pills = document.createElement('div'); pills.style.display = 'flex'; pills.style.gap = '6px'; pills.style.flexWrap = 'wrap';
-  pills.innerHTML = `<span class="pill ${s}">${s === 'paid' ? 'Paid' : 'Free'}</span>` + (d.s ? '<span class="pill safety">Safety, always Free</span>' : '') + '<span class="pill st">' + (d.st ? esc(ST_WORD[d.st]) + (d.plan ? ' · ' + esc(d.plan) : '') : 'Built') + '</span>';
+  pills.innerHTML = `<span class="pill ${s}">${s === 'paid' ? 'Paid' : 'Free'}</span>` + (d.s ? '<span class="pill safety">Safety, always Free</span>' : '') + (LEAD[d.id] ? '<span class="pill ' + LEAD[d.id].v + '">' + esc(VERDICTS[LEAD[d.id].v]) + '</span>' : '') + '<span class="pill st">' + (d.st ? esc(ST_WORD[d.st]) + (d.plan ? ' · ' + esc(d.plan) : '') : 'Built') + '</span>';
   const kv = document.createElement('dl'); kv.className = 'kv';
   kv.innerHTML = `<dt>Elsewhere</dt><dd></dd><dt>Would pay</dt><dd></dd><dt>Used</dt><dd></dd><dt>My draft</dt><dd></dd>`;
   const dds = kv.querySelectorAll('dd');
@@ -453,7 +498,7 @@ function renderSide() {
   const reset = document.createElement('button'); reset.className = 'btn'; reset.type = 'button'; reset.textContent = 'Put it back where I drafted it';
   reset.disabled = !canWrite || !(place[d.id] && (typeof place[d.id].x === 'number' || (place[d.id].pin && place[d.id].pin !== 'line')));
   reset.addEventListener('click', () => { const n = place[d.id] && place[d.id].note; place[d.id] = n ? { note: n } : {}; save(d.id); renderDots(); renderLists(); renderSide(); });
-  side.append(tab, h, pills, kv, why); if (ev.textContent) side.append(ev); if (famEl) side.append(famEl); side.append(segLabel, seg);
+  side.append(tab, h, pills, kv, why); if (ev.textContent) side.append(ev); if (LEAD[d.id]) side.append(leadBox(LEAD[d.id])); if (famEl) side.append(famEl); side.append(segLabel, seg);
   if (d.s) { const sp = document.createElement('p'); sp.className = 'ev'; sp.textContent = 'Safety items stay Free on every tier, so this cannot be pinned to paid. You can still move it to record how much people would value it.'; side.append(sp); }
   side.append(noteLabel, note, reset);
 }
@@ -478,7 +523,7 @@ function renderLists() {
         const li = document.createElement('li'); const b = document.createElement('button'); b.type = 'button';
         b.textContent = d.n;
         const m = document.createElement('span'); m.className = 'm';
-        m.textContent = (d.s ? 'safety ' : '') + (pinOf(d) !== 'line' && !d.s ? 'pinned ' : '') + (d.f === 3 ? 'daily ' : '') + (d.st ? ST_WORD[d.st].toLowerCase() : '');
+        m.textContent = (LEAD[d.id] ? VERDICTS[LEAD[d.id].v].toLowerCase() + ' · ' : '') + (d.s ? 'safety ' : '') + (pinOf(d) !== 'line' && !d.s ? 'pinned ' : '') + (d.f === 3 ? 'daily ' : '') + (d.st ? ST_WORD[d.st].toLowerCase() : '');
         b.append(m);
         b.addEventListener('click', () => { select(d.id); field.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
         li.append(b); ul.append(li);
@@ -582,6 +627,25 @@ document.getElementById('copy').addEventListener('click', e => {
   document.getElementById('evalList').innerHTML = EVALUATION.map(e => '<li><b>' + esc(e.h) + '</b>' + esc(e.b)
     + (e.fams && e.fams.length ? ' <span class="fn">Rests on: ' + e.fams.filter(k => FAMS[k]).map(k => '<a href="#fam-' + esc(k) + '">' + esc(FAMS[k].name) + '</a>').join(', ') + '</span>' : '') + '</li>').join('');
   document.getElementById('srcList').innerHTML = Object.values(SOURCES).map(s => '<li><a href="' + esc(s.url) + '" target="_blank" rel="noopener">' + esc(s.t) + '</a>. ' + esc(s.finding) + '</li>').join('');
+})();
+(function renderLeaders() {
+  const vs = ['better', 'even', 'behind', 'alone'], GAPS_FIRST = ['behind', 'even', 'better', 'alone'];
+  const has = k => F.some(d => d.t === k && LEAD[d.id]);
+  const count = (k, v) => F.filter(d => d.t === k && LEAD[d.id] && LEAD[d.id].v === v).length;
+  document.getElementById('tally').innerHTML = '<thead><tr><th>Tab</th>' + vs.map(v => '<th>' + esc(VERDICTS[v]) + '</th>').join('') + '<th>Not yet compared</th></tr></thead><tbody>'
+    + TABS.map(([k, n]) => '<tr><td>' + esc(n) + '</td>' + vs.map(v => '<td>' + (has(k) ? count(k, v) : '·') + '</td>').join('') + '<td>' + F.filter(d => d.t === k && !LEAD[d.id]).length + '</td></tr>').join('') + '</tbody>';
+  const box = document.getElementById('leadList');
+  TABS.filter(([k]) => has(k)).forEach(([k, n]) => {
+    const h = document.createElement('h3'); h.textContent = n; h.style.margin = '6px 0'; h.style.fontFamily = 'var(--display)';
+    const ul = document.createElement('ul'); ul.className = 'vl';
+    F.filter(d => d.t === k && LEAD[d.id]).sort((a, b) => GAPS_FIRST.indexOf(LEAD[a.id].v) - GAPS_FIRST.indexOf(LEAD[b.id].v)).forEach(d => {
+      const x = LEAD[d.id], li = document.createElement('li'), b = document.createElement('button'); b.type = 'button';
+      b.innerHTML = '<span class="pill ' + esc(x.v) + '">' + esc(VERDICTS[x.v]) + '</span><b>' + esc(d.n) + '</b>' + (d.st ? ' <span class="w">(planned)</span>' : '') + '<span class="w">' + (x.leader ? 'Against ' + esc(x.leader) + '. ' : '') + esc(x.why) + '</span>';
+      b.addEventListener('click', () => { select(d.id); field.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+      li.append(b); ul.append(li);
+    });
+    box.append(h, ul);
+  });
 })();
 window.addEventListener('resize', renderDots);
 requestAnimationFrame(() => { renderDots(); renderLists(); });

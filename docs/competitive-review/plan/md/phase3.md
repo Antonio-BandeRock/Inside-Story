@@ -407,3 +407,33 @@
 - **Ships by:** Cloudflare Worker · **Size:** L · **Tabs:** Reports,Schedules
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
 - **How:** The person picks what goes in (usually K4's visit page); the doctor opens a link on insidestoryapp.com with a code and it decrypts on their screen, the Worker never seeing the contents. Expires after the appointment by default and can be withdrawn sooner, saying plainly it cannot reach a copy the doctor saved; offers a PDF for the portal or chart. No install or account for the doctor. Notion: https://app.notion.com/p/3f153652f27281e590c9fe4cad6ce01b
+
+### Q1. Reach at least Cronometer's 84 nutrients
+- **Ships by:** Live database, needs owner yes · **Size:** L · **Tabs:** Food,Insights,Trends
+- **Answers:** Cronometer · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Cronometer tracks 84 against our 40. Add from USDA FoodData Central, which already publishes them: omega-3 ALA, EPA and DHA, omega-6, trans fat, the nine essential amino acids, chromium, molybdenum, fluoride, starch, beta-carotene, lutein and the rest. Ingest and map them in the unified database, carry them across in Phase 5, and only then reach the live file through the swap; never by hand on foods_reference.db. Every Insights and Trends nutrient band reads them with no further change once the code list grows.
+
+### Q4. A recipe library past 1,500 without a paid feed
+- **Ships by:** Reading content · **Size:** L · **Tabs:** Food
+- **Answers:** Samsung Food, Kitchen Stories · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Grow from 496 by cited sets per condition and per season, and by people: a checked recipe shared as a .is file goes into the receiver's library already scored. A recipe API is a per-call charge and AI generation sends data away, so neither is the route.
+
+### Q6. Home brew that beats Brewfather
+- **Ships by:** Over the air (JS) · **Size:** L · **Tabs:** Food
+- **Answers:** Brewfather · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Built on the Fermentation builder (batches, strains, yield already done): gravity, ABV, a temperature and gravity log charted free, the iSpindel's published HTTP feed into the batch, stock and cost from Finances, and what no brewing app has: alcohol, histamine and sulfites read against the person's conditions and the next dose.
+
+### Q7. Cooking technique taught through meals the person can eat
+- **Ships by:** Reading content · **Size:** M · **Tabs:** Food
+- **Answers:** Kitchen Stories, America's Test Kitchen · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** The 30 techniques the 496 recipes actually use, each as illustrated steps inside cook mode with a link out to a free video, ordered by what the person's planned meals need next.
+
+### Q8. Thrown out, with a reason, a cost and a compost heap
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Food,Garden,Life
+- **Answers:** NoWaste · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Mark a kitchen item thrown out from where it sits, with a reason and the price paid, and send it to a heap in Garden. Monthly money and weight, never a score.
+
+### Q9. Seasonal food for every country in scope, joined to the garden
+- **Ships by:** Reading content · **Size:** M · **Tabs:** Food,Garden
+- **Answers:** Seasonal Food Guide · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Match the Seasonal Food Guide's US data from the same public sources (USDA, state extension), add the other countries the app is built for, and join it to the person's harvest and meal plan.

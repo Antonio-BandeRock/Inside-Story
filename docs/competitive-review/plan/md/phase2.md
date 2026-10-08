@@ -572,3 +572,23 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** all
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
 - **How:** Tiers are not decided yet, so build the mechanism now: one table maps features to tiers and every screen asks one function. Deciding or changing tiers becomes an edit to the table. A gated feature names the tier that includes it through explainNotYet; Developer Tools can switch tiers; store billing feeds it later. Notion: https://app.notion.com/p/3f153652f272812e8721f0bee87e8dc0
+
+### Q2. Any ingredient or additive of your own to avoid
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Food
+- **Answers:** Fig · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Fig names 2,800+ restrictions. A free-text avoid list (an ingredient, an additive, an E number, a family such as "anything with carrageenan") matched by the same ingredient reader the scan and the recipe import use, so every lookup, scan, imported recipe and builder flags it with the person's own words as the reason.
+
+### Q3. Import measured against the 50 most visited recipe sites
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Food
+- **Answers:** Paprika · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Keep a dated list of the 50 most visited recipe sites and blogs in scripts/, run lib/recipeImport.ts against one page from each in a test, record which import cleanly, and fix every miss. Publish the rate in the plan so it can be compared with Paprika's.
+
+### Q5. Fewer taps to log than MacroFactor
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Food,Home
+- **Answers:** MacroFactor · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Count taps for the tasks MacroFactor publishes (one food, a recipe, yesterday's breakfast again, a usual lunch) in a script that walks the screens, write the counts down, then cut ours below theirs: one tap to repeat a recent meal from Home, "same as yesterday", and recents ranked by time of day. Photo recognition stays with Z1, opt-in only.
+
+### Q10. A screen reader audit
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** All
+- **Answers:** Every leader · **Theme:** Beating the leader, function by function (2026-10-07)
+- **How:** Text already scales uncapped. Walk every tab with TalkBack and the desktop's narrator, give every icon button an accessibilityLabel, and add a script that fails on a Pressable with no label, so accessibility is a measured win rather than a "not checked" against every leader.
