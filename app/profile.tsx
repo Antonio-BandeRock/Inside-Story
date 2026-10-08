@@ -4833,11 +4833,10 @@ export default function ProfileScreen() {
             {renderAppearanceSubsectionHeader('genericPalette', 'Generic color combination', true)}
             {!collapsedAppearanceSubsections.has('genericPalette') ? (
               <View style={styles.subsectionBody}>                <Text style={styles.helpText}>
-                  Used by any tab background (or the shared background) set to &ldquo;Generic,&rdquo; and, as of
-                  2026-08-17, everywhere else too: the app&apos;s own name at the top of every screen, the fine
-                  divider lines in the header and footer, and every colored ring around a selected item all take
-                  their color from this same choice&apos;s own lighter shade. One shared pick, not a separate one
-                  per tab, and always flat and static now, never animated.
+                  Used by any tab background (or the shared background) set to &ldquo;Generic.&rdquo; The
+                  app&apos;s name at the top of every screen, the fine divider lines in the header and footer, and
+                  every colored ring around a selected item all take their color from this setting. One shared
+                  pick, not a separate one per tab, and always flat and static now, never animated.
                 </Text>
                 <View style={styles.pillRow}>
                   {GENERIC_PALETTE_OPTIONS.map((palette) => {
