@@ -9,7 +9,7 @@ const { withAndroidManifest } = require('expo/config-plugins');
 // show Android's Autofill suggestion chip over Side Builder's Dish Name
 // field -- traced to Samsung Pass being the device's active Autofill
 // service, which some OEM autofill implementations are documented to
-// treat inconsistently at the per-view level. Setting this at the
+// treat inconsistently at the per-view level. Setting this at theLast night we made  it so the user can choose their conditio
 // <application> level is the one other real lever this app has: it's the
 // SAME underlying Android attribute, just declared for the whole app's
 // view tree at once rather than negotiated per field, and some autofill
