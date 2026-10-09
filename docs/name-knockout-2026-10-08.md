@@ -84,4 +84,6 @@ Dictionary words in the book family are all in use by apps already: Commonplace 
   - Out: Lifeward (a NASDAQ medical device company), Lifewoven (too close to LifeWeaver, a life story app), Lifekept (LifeKeeper, a life management app, and several Kept apps), Life Tended (several Tend health apps).
 - **Hearthleaf**: no use found, but it reads as "heartleaf", a plant name and a large skincare ingredient line, so it would be misheard.
 
+The full brainstorm (about 100 names, about 75 checked) is in `docs/name-candidates-2026-10-09.md`.
+
 Tracked as the Project Tracker Decision row [The name Inside Story](https://app.notion.com/p/3f453652f27281ed861adedd29b40749).
