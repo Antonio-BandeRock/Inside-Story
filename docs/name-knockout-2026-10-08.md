@@ -21,6 +21,14 @@ https://apps.apple.com/us/app/inside-story-a-gut-journal/id6787264326
 
 On priority: our name was chosen around 2026-07-18 and `insidestoryapp.com` registered then, but Inside Story has not been offered in any store, and a placeholder site is weak evidence of use in commerce for software. In the US, rights in a mark come from use in commerce or from an intent-to-use filing, and we have neither. Their 2026-07-30 release is very likely the earlier use.
 
+**Their store page, read 2026-10-09** (Nigeria storefront, https://apps.apple.com/ng/app/inside-story-a-gut-journal/id6787264326):
+
+- Sold outside the US: the Nigeria storefront prices Pro at ₦14,900 a month and ₦119,900 a year. So the UK, EU and Canada risk is not hypothetical either.
+- Copyright line "© 2026 Inside Story", so they present the phrase as the brand, not only as a title.
+- Version 1.1 (8 Aug) lists Pro features that match ours by name or close to it: trend insights, a trigger food finder (our Pattern Finder), IBD-safe recipes, a Calm library, and doctor-ready PDF reports. Free tier: unlimited logging, medication scheduling, a 7-day view of symptoms and patterns.
+- Conditions named: IBD, Crohn's, ulcerative colitis, IBS, celiac. "Created by someone who lives with IBD every day", a founder story like ours.
+- Runs on iPhone, Mac (M1 and later) and Vision Pro. Privacy line: "never sells your health data and never uses it for advertising."
+
 ## Medium risks
 
 - **insidestory.app**, a book and author platform in beta, run by a sole trader in Auckland, NZ (about 2,745 readers, 634 authors). Uses @insidestoryapp on Facebook and @insidestory.app on Instagram. No trademark found. Different field, but it splits search results and takes the handle we would want. https://insidestory.app , https://insidestory.app/terms
