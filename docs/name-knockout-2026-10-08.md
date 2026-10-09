@@ -63,4 +63,13 @@ The cost of a rename rises sharply at the first store release, so it is cheapest
 
 **Option 1, rename before launch**, and spend the attorney's time clearing the new name rather than defending this one. Their use came first, their conditions are three of ours, their price matches ours, and the phrase is too crowded to defend even if we won. Option 2 keeps the same collision under a longer name. Option 3 pays an attorney to most likely confirm the problem.
 
-Owner's decision: pending. Tracked as the Project Tracker Decision row [The name Inside Story](https://app.notion.com/p/3f453652f27281ed861adedd29b40749).
+Owner's decision, 2026-10-09: **rename** ("back to the drawing board"), keeping the open book icon and a name in the same family. New name not chosen yet.
+
+## First pass at a new name (2026-10-09, web search only)
+
+Dictionary words in the book family are all in use by apps already: Commonplace (several quote and commonplace-book apps), Marginalia (six iOS apps), Dogear (a reading tracker and a quotes app), Longhand (an iPad app), Stillroom (Stillroom FM, iOS and macOS), Lifeleaf (an AI journal), Leafwise (a plant identifier, which overlaps Garden), Hearth (a family recipe-book app and a family calendar). Understory is three software companies. Body of Work is a live fitness registration (88842048, reg. 6548457), which overlaps Movement. So the field points to a coined compound.
+
+- **Storyroot**: no app found. One use, a sustainability consultancy (founded 2019), a different trade. Keeps "story", and roots fit family history, root causes, living soil and the nature principle. Front-runner for a full search.
+- **Hearthleaf**: no use found, but it reads as "heartleaf", a plant name and a large skincare ingredient line, so it would be misheard.
+
+Tracked as the Project Tracker Decision row [The name Inside Story](https://app.notion.com/p/3f453652f27281ed861adedd29b40749).
