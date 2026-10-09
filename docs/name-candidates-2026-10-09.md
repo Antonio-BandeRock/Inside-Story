@@ -2,6 +2,8 @@
 
 Status: **brainstorm and first-pass check, for the owner to read.** Written while the owner was out, at their request for as many possibilities as the language offers, each one researched. Background and the reason for a rename are in `docs/name-knockout-2026-10-08.md`.
 
+> **Superseded the same day by the full check, published as a page: https://claude.ai/artifact/RvSVUfG8y1iXN9LgvbSUhW.** It covers 108 names against eight domains each (registry RDAP), the US and international trademark registers, both app stores, YouTube handles and what is on each .com. **Storyroot and Turnleaf, recommended below, are out:** Storyroot Memory Co. LLC filed three live US applications in 2025 (50036073, 50036131, 50036181) for a life-story business, and Turnleaf is an App Store app, a Google Play app and the live US mark TURNLEAF HEALTH COACHING (88563599). The four names that came through clean on everything, with the .com free: Lifesheaf, Leafhold, Wholehold, Hereleaf.
+
 What every name here had to meet:
 
 - Not tied to one condition, illness or neurodivergence.

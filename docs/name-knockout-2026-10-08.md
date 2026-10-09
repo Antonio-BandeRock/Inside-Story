@@ -77,7 +77,7 @@ Owner's decision, 2026-10-09: **rename** ("back to the drawing board"), keeping 
 
 Dictionary words in the book family are all in use by apps already: Commonplace (several quote and commonplace-book apps), Marginalia (six iOS apps), Dogear (a reading tracker and a quotes app), Longhand (an iPad app), Stillroom (Stillroom FM, iOS and macOS), Lifeleaf (an AI journal), Leafwise (a plant identifier, which overlaps Garden), Hearth (a family recipe-book app and a family calendar). Understory is three software companies. Body of Work is a live fitness registration (88842048, reg. 6548457), which overlaps Movement. So the field points to a coined compound.
 
-- **Storyroot**: no app found. One use, a sustainability consultancy (founded 2019), a different trade. Keeps "story", and roots fit family history, root causes, living soil and the nature principle. Front-runner for a full search.
+- **Storyroot**: no app found. One use, a sustainability consultancy (founded 2019), a different trade. Keeps "story", and roots fit family history, root causes, living soil and the nature principle. Was the front-runner for a full search; the full check on 2026-10-09 put it out, since Storyroot Memory Co. LLC holds three live US applications (see `docs/name-candidates-2026-10-09.md`).
 - **Names with "Life" in them** (owner's direction, 2026-10-09, starting from Life Resolute). "Life" alone protects nothing (Life360, Lifesum, Lifebook), so the second word carries the name.
   - **Life Resolute**: no use found. Nearest is Resolution Life, a life insurance group (a different trade). Passes the first pass.
   - **Lifeloom**: no use found. Passes the first pass.
