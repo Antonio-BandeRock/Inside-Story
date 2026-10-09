@@ -35,10 +35,12 @@
   // resolves once the zone is active (nameservers at Namecheap pointed at
   // felipe/sofia.ns.cloudflare.com, 2026-09-14).
   // lifestead.ghostead.com is the home (the ghostead.com zone was already on
-  // Cloudflare). lifestead.app joins this list once its nameservers at
-  // Namecheap point at Cloudflare; until then a deploy naming it would fail.
+  // Cloudflare). lifestead.app and www.lifestead.app joined on 2026-10-09,
+  // once that zone went active; the script sends them on to the home.
   "routes": [
     { "pattern": "lifestead.ghostead.com", "custom_domain": true },
+    { "pattern": "lifestead.app", "custom_domain": true },
+    { "pattern": "www.lifestead.app", "custom_domain": true },
     { "pattern": "insidestoryapp.com", "custom_domain": true },
     { "pattern": "www.insidestoryapp.com", "custom_domain": true }
   ]

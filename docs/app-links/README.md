@@ -12,9 +12,13 @@ are answered in place, and every page a person reads gets a 301 to the home
 host. `run_worker_first` in `wrangler.jsonc` is what lets the script see a
 request before the static files do.
 
-`lifestead.app` is the short address people are given. It joins `routes` once
-its nameservers at Namecheap point at Cloudflare, and is then covered by the
-same rule, so it needs no Redirect Rule in the dashboard.
+`lifestead.app` is the short address people are given. Its registration stays
+at Namecheap with the nameservers pointed at Cloudflare (felipe and sofia), and
+the zone went active on 2026-10-09. `lifestead.app` and `www.lifestead.app` are
+in `routes` and covered by the same rule, so a page 301s to the home host while
+`/.well-known/`, `/relay/` and `/connect` answer in place, with no Redirect Rule
+in the dashboard. The zone keeps Namecheap's email forwarding (five MX records
+and the SPF TXT); the parking A and www CNAME were deleted.
 
 Still on insidestoryapp.com until the next native rebuild: `INVITE_LINK_ORIGIN`
 in `lib/connections.ts` and the two App Link hosts in `app.json`. Changing
