@@ -20,10 +20,13 @@ in `routes` and covered by the same rule, so a page 301s to the home host while
 in the dashboard. The zone keeps Namecheap's email forwarding (five MX records
 and the SPF TXT); the parking A and www CNAME were deleted.
 
-Still on insidestoryapp.com until the next native rebuild: `INVITE_LINK_ORIGIN`
-in `lib/connections.ts` and the two App Link hosts in `app.json`. Changing
-`app.json` changes the runtime fingerprint, so it goes in with the rebuild,
-never in an OTA update. The section below describes the original setup.
+The 2026-10-09 rebuild (1.0.65.2) added `lifestead.app` and
+`lifestead.ghostead.com` to the App Link hosts in `app.json` and moved
+`INVITE_LINK_ORIGIN` in `lib/connections.ts` to `https://lifestead.app`.
+`insidestoryapp.com` stays in those filters so invites sent before the move
+still open the app. Changing `app.json` changes the runtime fingerprint, so a
+host change always goes in with a rebuild, never in an OTA update. The section
+below describes the original setup.
 
 
 `public/.well-known/assetlinks.json` here is the file Android checks before
