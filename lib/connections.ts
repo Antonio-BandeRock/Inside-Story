@@ -578,6 +578,11 @@ export function encodeInviteCode(invite: ConnectionInvite): string {
  * URL-safe base64 (- and _ for + and /, no padding), since a + in a URL is a
  * space to enough parsers to matter. decodeBase64Utf8 reads both alphabets.
  */
+// Still insidestoryapp.com after the 2026-10-09 move to lifestead.ghostead.com,
+// on purpose: installed builds verify App Links for insidestoryapp.com only, so
+// a lifestead link would open a browser rather than the app. It moves in the
+// rebuild that adds the new hosts to app.json's intent filters. The Worker
+// keeps answering /connect on the old host, without a redirect, either way.
 export const INVITE_LINK_ORIGIN = 'https://insidestoryapp.com';
 
 export function buildInviteLink(code: string): string {

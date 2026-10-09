@@ -2,7 +2,7 @@
 // relay where to send one (M1, 1.0.62.2). Pure, with no Expo in it, so
 // scripts/test_relay_wake.js can check it in plain node.
 //
-// The relay at insidestoryapp.com holds sealed mail between linked people.
+// The relay at lifestead.ghostead.com (insidestoryapp.com until 2026-10-09) holds sealed mail between linked people.
 // Since M1 it also asks Google to wake the recipient's phone when mail lands,
 // with a message that carries nothing but RELAY_WAKE_KIND: no sender, no size,
 // nothing from the mail. docs/app-links/src/index.js sends it and has to use

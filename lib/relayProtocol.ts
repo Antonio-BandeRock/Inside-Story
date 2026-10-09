@@ -33,10 +33,12 @@ export const RELAY_PROTOCOL = 'inside-story/relay/v1';
  * Where the relay lives.
  *
  * The same Cloudflare Worker that serves the App Links file and the two landing
- * pages, on the domain the app already names in its intent filters. One host,
- * one deployment, one thing to keep alive.
+ * pages. One deployment, one database, one thing to keep alive. Moved from
+ * insidestoryapp.com to lifestead.ghostead.com on 2026-10-09; the Worker answers
+ * the relay on both hosts from the same D1 database, so a phone still on an old
+ * build and a phone on this one reach the same mailboxes.
  */
-export const RELAY_BASE_URL = 'https://insidestoryapp.com/relay/v1';
+export const RELAY_BASE_URL = 'https://lifestead.ghostead.com/relay/v1';
 
 /** What a request can ask for. The verb is signed, so these are not interchangeable. */
 export type RelayVerb = 'send' | 'collect' | 'ack' | 'register';

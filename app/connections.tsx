@@ -586,7 +586,7 @@ export default function ConnectionsScreen() {
 
             Every other way of sending here moves bytes between the two phones
             or through storage the person already pays for. This one leaves a
-            sealed message on a server at insidestoryapp.com until the other
+            sealed message on a server at lifestead.ghostead.com until the other
             phone asks for it, which is what makes it work when the two people
             are apart and neither is awake at the same moment.
 
@@ -597,7 +597,7 @@ export default function ConnectionsScreen() {
         <View style={styles.fingerprintCard}>
           <Text style={styles.fingerprintLabel}>Through the relay</Text>
           <Text style={styles.fingerprintHint}>
-            Leaves a sealed message waiting at insidestoryapp.com until the other phone picks it up. Nothing to sign
+            Leaves a sealed message waiting at lifestead.ghostead.com until the other phone picks it up. Nothing to sign
             in to, no folder to share, and you do not both have to be here at once. It works by itself: whenever
             something you share changes, a sealed copy goes, and on Android the other phone is woken to collect it,
             even with the app closed. The buttons below are there for when you want it now.

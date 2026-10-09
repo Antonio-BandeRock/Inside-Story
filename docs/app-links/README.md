@@ -1,4 +1,26 @@
-# App Links hosting for insidestoryapp.com
+# App Links hosting for lifestead.ghostead.com
+
+## Where the site lives (2026-10-09)
+
+The home host is `lifestead.ghostead.com`, a custom domain on this Worker in
+the ghostead.com zone. `insidestoryapp.com` and `www.insidestoryapp.com` stay
+attached to the same Worker and the same D1 database, because installed builds
+still verify App Links for that host and call the relay there. `HOME_HOST` and
+`SERVED_ON_EVERY_HOST` at the bottom of `src/index.js` decide what happens on
+any other host: `/.well-known/`, `/relay/`, `/connect` and `/import-shared`
+are answered in place, and every page a person reads gets a 301 to the home
+host. `run_worker_first` in `wrangler.jsonc` is what lets the script see a
+request before the static files do.
+
+`lifestead.app` is the short address people are given. It joins `routes` once
+its nameservers at Namecheap point at Cloudflare, and is then covered by the
+same rule, so it needs no Redirect Rule in the dashboard.
+
+Still on insidestoryapp.com until the next native rebuild: `INVITE_LINK_ORIGIN`
+in `lib/connections.ts` and the two App Link hosts in `app.json`. Changing
+`app.json` changes the runtime fingerprint, so it goes in with the rebuild,
+never in an OTA update. The section below describes the original setup.
+
 
 `public/.well-known/assetlinks.json` here is the file Android checks before
 it lets `https://insidestoryapp.com/connect` and `/import-shared` open Inside

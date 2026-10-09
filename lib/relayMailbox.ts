@@ -1,4 +1,4 @@
-// The mailbox, running on the relay at insidestoryapp.com.
+// The mailbox, running on the relay at lifestead.ghostead.com (insidestoryapp.com until 2026-10-09).
 //
 // WHAT CHANGES HERE AND WHAT DOES NOT. The carrier changes: bytes wait on a
 // Cloudflare Worker instead of in a cloud folder or on the same Wi-Fi. Nothing

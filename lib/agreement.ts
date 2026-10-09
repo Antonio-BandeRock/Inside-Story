@@ -51,12 +51,13 @@ export const AGREEMENT_BUTTON = 'I understand and agree';
 
 export const AGREEMENT_FOOTNOTE = 'You can read this again any time from Profile, under What This App Is and Is Not.';
 
-// The terms of use and privacy policy on insidestoryapp.com (X3, published
-// 1.0.56.23 from docs/app-links/public/terms and /privacy). Working drafts
+// The terms of use and privacy policy on lifestead.ghostead.com (X3, published
+// 1.0.56.23 from docs/app-links/public/terms and /privacy; moved from
+// insidestoryapp.com 2026-10-09, which now redirects here). Working drafts
 // awaiting a lawyer's review before store release; the pages say so.
 export const LEGAL_PAGES_LIVE = true;
-export const TERMS_URL = 'https://insidestoryapp.com/terms/';
-export const PRIVACY_URL = 'https://insidestoryapp.com/privacy/';
+export const TERMS_URL = 'https://lifestead.ghostead.com/terms/';
+export const PRIVACY_URL = 'https://lifestead.ghostead.com/privacy/';
 
 export type AgreementRecord = {
   /** Which wording was agreed to. */

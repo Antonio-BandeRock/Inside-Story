@@ -1,7 +1,7 @@
 // Being woken when somebody linked to you sends something (M1, 1.0.62.2).
 //
 // Direct decision, 2026-10-06: "Build it to allow the relay to carry it too."
-// The relay at insidestoryapp.com already held sealed mail between linked
+// The relay at lifestead.ghostead.com (insidestoryapp.com until 2026-10-09) already held sealed mail between linked
 // people, but only the Send and Check buttons on Connections used it, and the
 // phone found mail only when somebody pressed Check. Now the automatic
 // exchange (components/PeerMailboxWatcher.tsx) posts there whenever something

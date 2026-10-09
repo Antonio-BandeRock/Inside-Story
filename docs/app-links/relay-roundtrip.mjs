@@ -6,7 +6,7 @@
 import nacl from 'tweetnacl';
 import crypto from 'node:crypto';
 
-const BASE = process.env.RELAY_BASE ?? 'https://insidestoryapp.com';
+const BASE = process.env.RELAY_BASE ?? 'https://lifestead.ghostead.com';
 const PROTOCOL = 'inside-story/relay/v1';
 
 let passed = 0;

@@ -570,9 +570,26 @@ async function handleRelay(request, env, url, ctx) {
   return fail(404, 'That is not something this relay does.');
 }
 
+// WHERE THE SITE LIVES (2026-10-09). The app's home moved from
+// insidestoryapp.com to lifestead.ghostead.com, with lifestead.app as the short
+// address people are given. All three hosts reach this one Worker and this one
+// D1 database, so a phone on an old build and a phone on a new one still share
+// one relay. Pages a person reads redirect to the home host. What an installed
+// build or an already-sent link depends on is answered on every host without a
+// redirect: Android refuses an App Link whose assetlinks.json redirects, the
+// relay's POSTs would not survive one, and a /connect link sent last month has
+// to keep working where it was sent.
+const HOME_HOST = 'lifestead.ghostead.com';
+const SERVED_ON_EVERY_HOST = ['/.well-known/', '/relay/', '/connect', '/import-shared'];
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
+
+    if (url.hostname !== HOME_HOST && !url.hostname.endsWith('.workers.dev')
+        && !SERVED_ON_EVERY_HOST.some((prefix) => url.pathname.startsWith(prefix))) {
+      return Response.redirect(`https://${HOME_HOST}${url.pathname}${url.search}`, 301);
+    }
 
     if (url.pathname.startsWith('/relay/')) {
       try {
