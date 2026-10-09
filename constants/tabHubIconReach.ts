@@ -7,7 +7,7 @@
 
 export const TAB_HUB_ICON_REACH: Record<string, number> = {
   default: 0.8528,
-  insideStory: 0.7973,
+  insideStory: 0.487,
   honeybee: 0.6191,
   bumblebee: 0.6359,
   dragonfly: 0.6796,

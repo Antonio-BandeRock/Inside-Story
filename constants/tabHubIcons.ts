@@ -56,10 +56,11 @@ import type { TabHubIconChoice } from '../lib/visualPreferences';
 // needed to change once this became Partial.
 export const TAB_HUB_ICON_SOURCES: Partial<Record<TabHubIconChoice, ImageSourcePropType>> = {
   default: require('../assets/branding/butterfly-transparent.png'),
-  // 'insideStory', 2026-10-06: the app icon's book, drawn by
-  // scripts/make_brand_icons.js, and the default from that day. The book
+  // 'insideStory', 2026-10-06: the app icon's mark, drawn by
+  // scripts/make_brand_icons.js, and the default from that day. Shown
   // without its window since 2026-10-07, because the button draws the well.
-  insideStory: require('../assets/branding/inside-story-book.png'),
+  // The open book became the spread figure on 2026-10-09.
+  insideStory: require('../assets/branding/inside-story-figure.png'),
   honeybee: require('../assets/branding/garden-icons/honeybee.png'),
   bumblebee: require('../assets/branding/garden-icons/bumblebee.png'),
   dragonfly: require('../assets/branding/garden-icons/dragonfly.png'),
@@ -197,7 +198,7 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
   // dimensions themselves are unchanged, only which choice a fresh install
   // starts on.
   default: [464, 312],
-  insideStory: [276, 188],
+  insideStory: [276, 276],
   // The 8 garden/pollinator icons, 2026-08-12 -- real, individually
   // measured pairs off the actual final (already-downsized) files, the
   // same jimp-based methodology as every other entry in this table, not

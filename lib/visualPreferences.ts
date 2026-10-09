@@ -173,8 +173,8 @@ export type FoodBuilderIconChoice = 'dessertBuilder';
 // dependency on lib/digest/index.ts's own much larger content-aggregation
 // module -- the same precedent already established for
 // sixDimensionsReference.ts's own type-only import into lib/db.ts).
-// 'insideStory' (2026-10-06) is the app icon itself, a white open book in
-// the Ghostead window, and the out-of-the-box choice from then on. The
+// 'insideStory' (2026-10-06) is the app icon itself (a white open book in
+// the Ghostead window, a white spread human figure since 2026-10-09), and the out-of-the-box choice from then on. The
 // sprouting seed ('seedTall', the default from 2026-08-21) was removed as a
 // choice the same day by direct instruction; a device that saved it reads
 // back as 'insideStory' through readTabHubIcon below.
