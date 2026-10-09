@@ -3,7 +3,7 @@
     "name": "Inside Story",
     "slug": "inside-story",
     "owner": "inside-story",
-    "version": "1.0.65.1",
+    "version": "1.0.65.2",
     "orientation": "portrait",
     "icon": "./assets/brand/icon.png",
     "scheme": "hashimotosapp",
@@ -121,6 +121,26 @@
             {
               "scheme": "https",
               "host": "insidestoryapp.com",
+              "pathPrefix": "/import-shared"
+            },
+            {
+              "scheme": "https",
+              "host": "lifestead.app",
+              "pathPrefix": "/connect"
+            },
+            {
+              "scheme": "https",
+              "host": "lifestead.app",
+              "pathPrefix": "/import-shared"
+            },
+            {
+              "scheme": "https",
+              "host": "lifestead.ghostead.com",
+              "pathPrefix": "/connect"
+            },
+            {
+              "scheme": "https",
+              "host": "lifestead.ghostead.com",
               "pathPrefix": "/import-shared"
             }
           ]
