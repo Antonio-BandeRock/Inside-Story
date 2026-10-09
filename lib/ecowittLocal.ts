@@ -385,7 +385,7 @@ export function gatewayStatus(input: {
 }
 
 export const WHILE_OPEN_NOTE =
-  'A gateway is read only while Inside Story is open on the device that reads it, and it keeps little history of its own, so time with the app closed stays blank. A history file from the Ecowitt app can fill those days through Import Readings from a File.';
+  'A gateway is read only while Lifestead is open on the device that reads it, and it keeps little history of its own, so time with the app closed stays blank. A history file from the Ecowitt app can fill those days through Import Readings from a File.';
 
 export const ONE_DEVICE_NOTE =
   "One device reads each gateway, so a phone and a computer never read the same one and never replace each other's hours. The other device shows where it is read and gets the hours and days when the two sync. Moving it to another device is one press there; on the day it moves, that day is worked out from the device reading it by the end of the day.";
@@ -435,7 +435,7 @@ export function gatewayReader(input: {
       readsHere: false,
       text: input.readerId
         ? 'It sends its readings to your computer. The hours and days reach this phone when the two sync.'
-        : 'It is set to send its readings to a computer, and no computer receives them yet. Set that up from Inside Story on the computer.',
+        : 'It is set to send its readings to a computer, and no computer receives them yet. Set that up from Lifestead on the computer.',
       takeOverLabel: null,
       takeOverConfirm: null,
     };

@@ -305,7 +305,7 @@ function SavedOrFavoriteActions({
       // produces is what the .is file reuses, written to a file instead of
       // embedded in a URL.
       const ingredientLines = (entry.recipeCard?.ingredients ?? []).map((ingredient) => ingredient.text).join('\n');
-      const message = [entry.title, entry.recipeCard?.yield ?? '', ingredientLines, `Shared from Inside Story by ${fromName}.`]
+      const message = [entry.title, entry.recipeCard?.yield ?? '', ingredientLines, `Shared from Lifestead by ${fromName}.`]
         .filter(Boolean)
         .join('\n\n');
       // Step 6, 2026-08-15: the .is file the comment block above named as

@@ -48,9 +48,9 @@ export const PLAYFUL_COPY = {
   // ---------------------------------------------------------------- about
   aboutLede: {
     plain:
-      'Inside Story is made by Ghostead. Ghostead apps keep your records on your devices and nowhere else: no account database, no analytics, no usage file. Nothing about you is collected.',
+      'Lifestead is made by Ghostead. Ghostead apps keep your records on your devices and nowhere else: no account database, no analytics, no usage file. Nothing about you is collected.',
     playful:
-      'Inside Story is made by Ghostead. Ghostead apps keep your records on your devices and nowhere else: no account database, no analytics, no "anonymized" usage file, which is usually about as anonymous as a name tag.',
+      'Lifestead is made by Ghostead. Ghostead apps keep your records on your devices and nowhere else: no account database, no analytics, no "anonymized" usage file, which is usually about as anonymous as a name tag.',
   },
   aboutBreakIn: {
     plain: 'If anybody broke into the Ghostead office, there would be nothing of yours there to find.',

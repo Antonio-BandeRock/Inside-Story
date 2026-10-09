@@ -23,7 +23,7 @@ export function referenceDataDate(version: string): string {
 
 export function reportVersionLine(appVersion: string, referenceVersion: string): string {
   return (
-    `Made with Inside Story ${appVersion}, using food reference data and interaction rules dated ` +
+    `Made with Lifestead ${appVersion}, using food reference data and interaction rules dated ` +
     `${referenceDataDate(referenceVersion)} (build ${referenceVersion}).`
   );
 }

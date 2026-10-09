@@ -109,6 +109,30 @@ function markSvg({ at, background, house }) {
     + `<path d="${WINDOW}"/>${house ? CHIMNEY + ROOF + WALL : ''}</g></g>`
     + `<g transform="${at}">${figureLayers(true)}</g></svg>`;
 }
+// The large logo on a web page. The Ghostead page's large mark (its
+// wordmark, ghostead.com) draws the deboss far finer relative to the roof
+// than the icon filter does, which is sized to survive at 48 px. Its
+// numbers are scaled here by the ratio of the two roofs (0.34047 against
+// the wordmark's 0.22623), so the roof, wall and window read the same as
+// Ghostead's at the same size, without the wide light rim. The filter's
+// numbers are the icon's; their long decimals are how they print.
+const HERO_RATIO = 0.34047 / 0.22623;
+const HERO_DEBOSS = [[36, 9.6], [45, 12], [10.799999999999999, 2.88], [14.4, 3.84], [5.3999999999999995, 1.44]];
+function heroSvg() {
+  let svg = markSvg({ at: GHOSTEAD_PLACE, house: true });
+  const filter = svg.match(/<filter id="debossWeb"[\s\S]*?<\/filter>/)[0];
+  let fine = filter;
+  for (const [icon, word] of HERO_DEBOSS) {
+    fine = fine.split('"' + icon + '"').join('"' + +(word * HERO_RATIO).toFixed(3) + '"');
+  }
+  // The roof and wall lines thinned the same way: the wordmark's roof is
+  // 100 units thick across a 4397-unit span, against 190 across 2822 here.
+  const thin = (100 / 4397) * 2822.4 / 190;
+  svg = svg.replace('stroke-width="190"', `stroke-width="${(190 * thin).toFixed(1)}"`)
+    .replace('stroke-width="142.5"', `stroke-width="${(142.5 * thin).toFixed(1)}"`);
+  return svg.replace(filter, fine);
+}
+
 const windowSvg = ({ scale, background }) => markSvg({ at: `translate(512 512) scale(${scale})`, background, house: false });
 
 // One flat colour, for Android's themed icon and the notification icon,
@@ -142,6 +166,8 @@ async function png(svg, size, file, height = size) {
   const fullOnGround = markSvg({ at: GHOSTEAD_PLACE, house: true, background: GROUND });
   fs.writeFileSync(path.join(ROOT, 'docs/app-links/public/inside-story-icon.svg'), full);
   console.log('wrote docs/app-links/public/inside-story-icon.svg');
+  fs.writeFileSync(path.join(ROOT, 'docs/app-links/public/lifestead-logo.svg'), heroSvg());
+  console.log('wrote docs/app-links/public/lifestead-logo.svg');
   await png(fullOnGround, 512, 'docs/app-links/public/og-square.png');
   await png(fullOnGround, 180, 'docs/app-links/public/apple-touch-icon.png');
   await png(fullOnGround, 32, 'docs/app-links/public/favicon-32.png');

@@ -293,7 +293,7 @@ async function listenerRoundTrip() {
     req.end();
   });
   const hello = await request('GET');
-  check('a browser check answers', hello.status === 200 && /Inside Story is listening/.test(hello.text));
+  check('a browser check answers', hello.status === 200 && /Lifestead is listening/.test(hello.text));
   const posted = await request('POST', body);
   check('a post is answered and passed on', posted.status === 200 && got.length === 1 && got[0].body === body && L.isNearby(got[0].from) && !!got[0].receivedAt);
   const now = L.status();

@@ -115,7 +115,7 @@ export async function logWidgetGlass(now: Date = new Date()): Promise<void> {
 /** What one widget shows right now. Never throws: a widget that cannot be
  *  read says so and still opens the app. */
 const LOCKED_CONTENT: WidgetContent = {
-  heading: 'Inside Story',
+  heading: 'Lifestead',
   lines: ['Locked. Tap to open the app.'],
   caption: null,
   uri: 'hashimotosapp://',
@@ -138,6 +138,6 @@ export async function widgetContentFor(name: WidgetName, now: number = Date.now(
   } catch (error) {
     if (isAppLockedError(error)) return LOCKED_CONTENT;
     console.error('[widgetData] could not read', name, error);
-    return { heading: 'Inside Story', lines: ['Could not be read just now. Tap to open the app.'], caption: null, uri: 'hashimotosapp://' };
+    return { heading: 'Lifestead', lines: ['Could not be read just now. Tap to open the app.'], caption: null, uri: 'hashimotosapp://' };
   }
 }

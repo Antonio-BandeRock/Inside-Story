@@ -130,7 +130,7 @@ export function DayTimeline({ tabColor, compact = false }: { tabColor: string; c
 
   async function toggleCalendar(next: boolean) {
     if (next && !(await requestCalendarPermission())) {
-      setMoveNote('The phone did not allow reading its calendar, so nothing from it is shown. That can be changed in the phone\'s settings for Inside Story.');
+      setMoveNote('The phone did not allow reading its calendar, so nothing from it is shown. That can be changed in the phone\'s settings for Lifestead.');
       return;
     }
     await setTimelineCalendarOn(next);

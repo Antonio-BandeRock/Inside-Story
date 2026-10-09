@@ -309,4 +309,4 @@ export const LIGHT_METER_DISTANCE_HOW =
   'How far the lamp was above the phone. The figure already has the distance in it, since the phone was where the leaves are, so this is kept as a note to tell readings at different lamp heights apart.';
 
 export const LIGHT_METER_IPHONE =
-  'An iPhone does not let any app read its light sensor, so on this phone type the figure from a light meter. Inside Story on an Android phone can measure it.';
+  'An iPhone does not let any app read its light sensor, so on this phone type the figure from a light meter. Lifestead on an Android phone can measure it.';

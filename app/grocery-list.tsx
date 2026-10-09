@@ -560,7 +560,7 @@ export default function GroceryListScreen() {
       if (!permission.granted) {
         showInfoAlert(
           'Camera access needed',
-          'Inside Story needs your camera to read a price off the shelf label. You can still type the price in by hand.',
+          'Lifestead needs your camera to read a price off the shelf label. You can still type the price in by hand.',
         );
         return;
       }

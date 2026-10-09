@@ -1,5 +1,5 @@
 // App icon shortcuts (C12, rebuild R1, 2026-10-02). A long press on the
-// Inside Story icon offers three ways straight in, for the moments when
+// Lifestead icon offers three ways straight in, for the moments when
 // opening the app and finding the place is the step that gets skipped:
 // Capture, Did I take it (today's doses on Schedules > Meds), and Where is
 // it. The quick settings tile (plugins/withCaptureTile.js) is the fourth

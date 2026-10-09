@@ -670,8 +670,8 @@ const tiers = (map) => (code) => map[code] ?? 'unknown';
   // The big one: the entire message pasted, which is what most people will do
   // rather than carefully selecting one line.
   const wholeMessage =
-    'Here is my Inside Story partner invite, so we can plan meals together.\n\n' +
-    'In Inside Story, go to Profile, then Connections, then "I Was Sent an Invite" and paste this in:\n\n' +
+    'Here is my Lifestead partner invite, so we can plan meals together.\n\n' +
+    'In Lifestead, go to Profile, then Connections, then "I Was Sent an Invite" and paste this in:\n\n' +
     `${code}\n\n` +
     `(A file is attached too, and this link may work on some phones: hashimotosapp://connect?data=${code})`;
   check('the whole message pasted still finds the code', parseInviteInput(wholeMessage), code);

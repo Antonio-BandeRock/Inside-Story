@@ -1,15 +1,15 @@
 # electron-builder settings for the Windows and Mac installers.
 # `npm run dist` in this folder exports the web build first, then packs it.
 appId: com.insidestoryapp.app
-productName: Inside Story
-copyright: Inside Story
+productName: Lifestead
+copyright: Lifestead
 directories:
   output: dist
 # The app's version is four parts (1.0.DAY.UPDATE, see constants/version.ts),
 # which is not semver, so package.json carries the first three and the whole
 # thing goes here: Windows shows it as the file version, and the installer
 # file is named by it.
-buildVersion: 1.0.65.3
+buildVersion: 1.0.65.4
 artifactName: ${productName} Setup ${buildVersion}.${ext}
 files:
   - main.js

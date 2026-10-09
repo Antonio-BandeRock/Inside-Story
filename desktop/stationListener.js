@@ -62,7 +62,7 @@ function handle(request, response) {
   }
   if (request.method !== 'POST') {
     response.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
-    response.end('Inside Story is listening.');
+    response.end('Lifestead is listening.');
     return;
   }
   const chunks = [];

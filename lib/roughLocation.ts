@@ -43,7 +43,7 @@ export async function takeRoughPoint(): Promise<RoughOutcome> {
   try {
     const permission = await Location.requestForegroundPermissionsAsync();
     if (!permission.granted) {
-      return { ok: false, reason: 'Inside Story was not allowed to know the rough location, so nothing changed. A postal code in Garden > My Zone works as well.' };
+      return { ok: false, reason: 'Lifestead was not allowed to know the rough location, so nothing changed. A postal code in Garden > My Zone works as well.' };
     }
     const here = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Lowest });
     const point = coarsenPoint(here.coords.latitude, here.coords.longitude);

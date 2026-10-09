@@ -1,7 +1,7 @@
 // Notes and photos taken over the phone's lock screen (1.0.62.1).
 //
 // Direct request, 2026-10-05: "You'd pull down the tile or tap a button on a
-// notification you keep in the shade, enter your Inside Story code, speak,
+// notification you keep in the shade, enter your Lifestead code, speak,
 // and it saves. The phone stays locked the whole time." And for the camera:
 // "Taken while the phone is locked, it would be sealed the same way, so the
 // photo can't be looked at until you unlock."

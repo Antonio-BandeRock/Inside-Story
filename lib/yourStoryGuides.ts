@@ -171,13 +171,13 @@ export const GUIDES: GuideDef[] = [
     name: 'The Basics',
     title: 'The Basics',
     opening:
-      'However you use Inside Story, a few pieces sit under every part of it. Everything you record stays on your device unless you choose to send it somewhere, so keeping a copy safe comes first. After that it is a matter of getting things out of your head and into a place you can find them again.',
+      'However you use Lifestead, a few pieces sit under every part of it. Everything you record stays on your device unless you choose to send it somewhere, so keeping a copy safe comes first. After that it is a matter of getting things out of your head and into a place you can find them again.',
     firstResult:
       'What you get first: in about five minutes, a copy of everything kept somewhere safe, and one place to put down any thought so you can stop holding onto it.',
     entries: [
       fromItem(
         'beats',
-        'Choose the parts of your life you want Inside Story to follow.',
+        'Choose the parts of your life you want Lifestead to follow.',
         'Your Story shows a guide like this one for each part you choose, and the Home card follows along. Nothing anywhere in the app is hidden by what you leave out.',
         {
           when: 'start',
@@ -228,13 +228,13 @@ export const GUIDES: GuideDef[] = [
       },
       fromItem(
         'secondDevice',
-        'Open Inside Story on a computer or a second phone and turn on automatic saving there, with the same password and the same folder.',
+        'Open Lifestead on a computer or a second phone and turn on automatic saving there, with the same password and the same folder.',
         'The two devices merge what each one recorded, record by record, so work done on either is kept. The computer version gives you a bigger screen for longer jobs like planning meals or reading.',
         {
           when: 'more',
           takes: 'About ten minutes',
           taps: [
-            'On the other device, install Inside Story and open it.',
+            'On the other device, install Lifestead and open it.',
             'Go to Profile there, open Backup & Restore, and turn on automatic saving with the same password and the same folder as this device.',
           ],
         },
@@ -283,7 +283,7 @@ export const GUIDES: GuideDef[] = [
     name: 'Health',
     title: 'If your health matters to you',
     opening:
-      'Here is how Inside Story works for your health. It starts with who you are, what you have and what you take. Then, day by day, you note how you feel and what you eat. Over weeks the app lines that up against what you ate, slept and did, and shows what tends to come before a better or a worse day. It shows patterns worth watching and never decides what caused something, and anything medical stays between you and your doctor.',
+      'Here is how Lifestead works for your health. It starts with who you are, what you have and what you take. Then, day by day, you note how you feel and what you eat. Over weeks the app lines that up against what you ate, slept and did, and shows what tends to come before a better or a worse day. It shows patterns worth watching and never decides what caused something, and anything medical stays between you and your doctor.',
     firstResult:
       'What you get first: about ten minutes of setup gives you every dose on one timeline of the day, with reminders and what to take it with or keep it apart from. A minute a day after that, noting how you feel and what you ate, is what lets Pattern Finder show anything in a few weeks.',
     entries: [
@@ -573,7 +573,7 @@ export const GUIDES: GuideDef[] = [
     name: 'Food',
     title: 'If food matters to you',
     opening:
-      'Here is how Inside Story works for food. You tell it what you avoid and how you eat, then log what you eat as you go. The app works out what is in every meal for you and checks each ingredient against your conditions and allergies. Over time it shows what your days add up to, where your nutrients come from, and which foods tend to come before a better or worse day. The goal is to get what you need from food, with a supplement only for what food cannot supply.',
+      'Here is how Lifestead works for food. You tell it what you avoid and how you eat, then log what you eat as you go. The app works out what is in every meal for you and checks each ingredient against your conditions and allergies. Over time it shows what your days add up to, where your nutrients come from, and which foods tend to come before a better or worse day. The goal is to get what you need from food, with a supplement only for what food cannot supply.',
     firstResult:
       'What you get first: a few minutes in Profile, then your first meal logged, and you can see what that day adds up to in every nutrient. After a week of meals, Trends shows where your nutrients come from and what is missing.',
     entries: [
@@ -774,7 +774,7 @@ export const GUIDES: GuideDef[] = [
     name: 'Movement',
     title: 'If movement matters to you',
     opening:
-      'Here is how Inside Story works for movement. Log what you do, or let your phone count your steps, and the app lays it out across the weeks beside how you felt. It counts what happened and never sets you a target.',
+      'Here is how Lifestead works for movement. Log what you do, or let your phone count your steps, and the app lays it out across the weeks beside how you felt. It counts what happened and never sets you a target.',
     firstResult:
       'What you get first: a walk logged in under a minute. Connect your phone\'s health store once and steps come in by themselves, and after a week Trends lays your movement beside how you felt.',
     entries: [
@@ -785,7 +785,7 @@ export const GUIDES: GuideDef[] = [
         doThis: 'Connect your phone\'s health store, in Life under Movement, if another app or a watch counts your steps or sleep.',
         forYou: 'Steps and sleep come in by themselves, each one a separate choice. Steps reach Trends and Pattern Finder.',
         takes: 'A couple of minutes',
-        taps: ['Turn on steps, sleep, or both.', 'Say yes when the phone asks whether Inside Story may read them.'],
+        taps: ['Turn on steps, sleep, or both.', 'Say yes when the phone asks whether Lifestead may read them.'],
         destination: lifeLens('movement'),
       },
       fromItem(
@@ -830,7 +830,7 @@ export const GUIDES: GuideDef[] = [
     name: 'Home',
     title: 'If keeping the house running matters to you',
     opening:
-      'Here is how Inside Story works for the house. Anything that comes round now and then gets written down once and reminds you when it is due. Anything you might wonder about later, like whether the door is locked or where the spare keys went, gets one tap or one line when it happens, so the answer is waiting when you need it.',
+      'Here is how Lifestead works for the house. Anything that comes round now and then gets written down once and reminds you when it is due. Anything you might wonder about later, like whether the door is locked or where the spare keys went, gets one tap or one line when it happens, so the answer is waiting when you need it.',
     firstResult:
       'What you get first: one thing like locking the door set up in a minute, and from then on one tap each time answers "did I?" with the time. One upkeep job written down once reminds you every time it comes round.',
     entries: [
@@ -918,7 +918,7 @@ export const GUIDES: GuideDef[] = [
     name: 'Garden',
     title: 'If your garden matters to you',
     opening:
-      'Here is how Inside Story works for a garden, whether it is a field, a raised bed or a pot on a windowsill, indoors or out. Everything hangs off a garden area: what grows there, what it needs, what it cost and what it gave back. What you harvest can go straight into your meals.',
+      'Here is how Lifestead works for a garden, whether it is a field, a raised bed or a pot on a windowsill, indoors or out. Everything hangs off a garden area: what grows there, what it needs, what it cost and what it gave back. What you harvest can go straight into your meals.',
     firstResult:
       'What you get first: one garden area and one planting, about five minutes, and the planting carries its dates so jobs, counters and harvests follow from it. Everything else in the garden hangs off those two.',
     entries: [
@@ -1085,7 +1085,7 @@ export const GUIDES: GuideDef[] = [
     name: 'Money',
     title: 'If money matters to you',
     opening:
-      'Here is how Inside Story works for money. Bills that come round on their own get written down once, and spending gets recorded against the day it happened. The app only ever counts what you entered, and never guesses at a month you did not.',
+      'Here is how Lifestead works for money. Bills that come round on their own get written down once, and spending gets recorded against the day it happened. The app only ever counts what you entered, and never guesses at a month you did not.',
     firstResult:
       'What you get first: your monthly bills written down once, a few minutes each, and from then on each one shows before it comes due. Spending recorded as it happens shows by month once two months have some.',
     entries: [
@@ -1163,7 +1163,7 @@ export const GUIDES: GuideDef[] = [
     name: 'Routines',
     title: 'If routines matter to you',
     opening:
-      'Here is how Inside Story works for the shape of your days. Anything that needs remembering gets written down once, so it stops taking up room in your head. Routines hold their parts in order and keep your place. The app can remind you before a thing rather than at it, and counts what happened without ever scoring you.',
+      'Here is how Lifestead works for the shape of your days. Anything that needs remembering gets written down once, so it stops taking up room in your head. Routines hold their parts in order and keep your place. The app can remind you before a thing rather than at it, and counts what happened without ever scoring you.',
     firstResult:
       'What you get first: one routine, like getting ready in the morning, written down in about five minutes. From then on Walk it shows one part at a time and keeps your place if you stop.',
     entries: [
@@ -1262,7 +1262,7 @@ export const GUIDES: GuideDef[] = [
     name: 'Work',
     title: 'If work matters to you',
     opening:
-      'Here is how Inside Story works for work. It keeps track of two things your job gives you besides pay: the benefits it makes available, which are easy to leave unclaimed, and how the work itself has been going, a week at a time.',
+      'Here is how Lifestead works for work. It keeps track of two things your job gives you besides pay: the benefits it makes available, which are easy to leave unclaimed, and how the work itself has been going, a week at a time.',
     firstResult:
       'What you get first: one benefit written down in a couple of minutes, with how much there is and when it resets, so it does not run out unnoticed. A minute at the end of each week keeps how work has been going.',
     entries: [
@@ -1313,7 +1313,7 @@ export const GUIDES: GuideDef[] = [
     name: 'Family',
     title: 'If your family matters to you',
     opening:
-      'Here is how Inside Story works for the people you look after. Each person you add can have their conditions noted, and anyone included in the meal plan shapes what gets planned, so the food suits everybody at the table.',
+      'Here is how Lifestead works for the people you look after. Each person you add can have their conditions noted, and anyone included in the meal plan shapes what gets planned, so the food suits everybody at the table.',
     firstResult:
       'What you get first: one family member added with their conditions, a few minutes, and the next meal plan suits them as well as you.',
     entries: [
@@ -1362,7 +1362,7 @@ export const GUIDES: GuideDef[] = [
         key: 'connectionFamily',
         record: 'connection',
         when: 'more',
-        doThis: 'If a partner uses Inside Story too, pair with them in Profile under Connections.',
+        doThis: 'If a partner uses Lifestead too, pair with them in Profile under Connections.',
         forYou: 'The grocery list is shared between you, and recipes can be sent across. Health records stay with each person.',
         takes: 'A few minutes, with them beside you',
         taps: [
@@ -1653,10 +1653,10 @@ export function openGuideLabel(key: GuideKey): string {
 export function guideCardLine(key: GuideKey): string {
   return key === 'basics'
     ? 'This is part of The Basics, which walks through everything every part of the app shares.'
-    : `This is part of the ${BEAT_LABELS[key]} guide, which walks through everything Inside Story does for ${BEAT_LABELS[key].toLowerCase()}.`;
+    : `This is part of the ${BEAT_LABELS[key]} guide, which walks through everything Lifestead does for ${BEAT_LABELS[key].toLowerCase()}.`;
 }
 
-export const GUIDES_HEADING = 'How Inside Story works for you';
+export const GUIDES_HEADING = 'How Lifestead works for you';
 export const GUIDES_LEAD =
   'One guide for each part of your life you chose, plus The Basics. Each one starts with what to set up first and what to do every day, then what to do when something happens, and what fills in once there are a few weeks of records. Every line takes you straight there.';
 export const READ_LABEL = 'Have a look';

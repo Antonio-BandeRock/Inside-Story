@@ -3,7 +3,7 @@
 // Direct request, 2026-10-05: "a separate small capture screen that Android
 // allows to appear over the lock screen without unlocking. You'd pull down the
 // tile or tap a button on a notification you keep in the shade, enter your
-// Inside Story code, speak, and it saves. The phone stays locked the whole
+// Lifestead code, speak, and it saves. The phone stays locked the whole
 // time." Then, 2026-10-07: "This is supposed to be a one step process that
 // never has to unlock the phone and never has to unlock the app." So no code
 // is asked for any more: the screen starts listening, or opens the camera,
@@ -49,7 +49,7 @@ const PHOTO_MAX_DIMENSION = 1600;
 const PHOTO_MAX_BYTES = 900 * 1024;
 
 const ERROR_WORDS: Record<Exclude<VoiceDictationErrorKind, 'no-speech'>, string> = {
-  permission: 'The microphone is not allowed for Inside Story. It can be turned on in the phone settings, under Apps, once the phone is unlocked.',
+  permission: 'The microphone is not allowed for Lifestead. It can be turned on in the phone settings, under Apps, once the phone is unlocked.',
   unavailable: 'Speech recognition is not available on this phone right now.',
   other: 'Something went wrong while listening. Try again.',
 };
@@ -93,7 +93,7 @@ export function LockedCaptureScreen({ mode: startMode }: { mode?: string }) {
     const clean = cleanCaptureText(text);
     try {
       const kept = await keepCaptureForUnlock({ kind: 'spoken', text: clean, takenAt: new Date().toISOString(), photo: null, width: 0, height: 0 });
-      setStage(kept ? { kind: 'saved', what: 'voice', text: clean } : { kind: 'failed', message: 'Inside Story is not locked with a code on this phone, so there is nothing to seal the note to.' });
+      setStage(kept ? { kind: 'saved', what: 'voice', text: clean } : { kind: 'failed', message: 'Lifestead is not locked with a code on this phone, so there is nothing to seal the note to.' });
     } catch (error) {
       savedOnce.current = false;
       setStage({ kind: 'failed', message: error instanceof Error && error.message ? error.message : 'The note could not be kept.' });
@@ -187,7 +187,7 @@ export function LockedCaptureScreen({ mode: startMode }: { mode?: string }) {
         width: small?.width ?? picture.width,
         height: small?.height ?? picture.height,
       });
-      setStage(kept ? { kind: 'saved', what: 'photo', text: PHOTO_CAPTURE_TEXT } : { kind: 'failed', message: 'Inside Story is not locked with a code on this phone, so there is nothing to seal the photo to.' });
+      setStage(kept ? { kind: 'saved', what: 'photo', text: PHOTO_CAPTURE_TEXT } : { kind: 'failed', message: 'Lifestead is not locked with a code on this phone, so there is nothing to seal the photo to.' });
     } catch (error) {
       setStage({ kind: 'failed', message: error instanceof Error && error.message ? error.message : 'The photo could not be kept.' });
     } finally {
@@ -229,7 +229,7 @@ export function LockedCaptureScreen({ mode: startMode }: { mode?: string }) {
             <Text style={styles.title}>The camera is not allowed yet</Text>
             <Text style={styles.hint}>
               {permission && !permission.canAskAgain
-                ? 'The camera is turned off for Inside Story. It can be turned on in the phone settings, under Apps, once the phone is unlocked.'
+                ? 'The camera is turned off for Lifestead. It can be turned on in the phone settings, under Apps, once the phone is unlocked.'
                 : 'Allow the camera when the phone asks. If nothing appears, take one photo from Capture inside the app first, and the lock screen camera works from then on.'}
             </Text>
             <TouchableOpacity style={styles.primaryButton} onPress={() => void requestPermission()}>
@@ -297,7 +297,7 @@ export function LockedCaptureScreen({ mode: startMode }: { mode?: string }) {
               </View>
               {stage.what === 'voice' ? <Text style={styles.heard}>{stage.text}</Text> : null}
               <Text style={styles.hint}>
-                It is sealed on this phone and goes into Capture the next time Inside Story is unlocked, with the time it was taken.
+                It is sealed on this phone and goes into Capture the next time Lifestead is unlocked, with the time it was taken.
               </Text>
               <View style={styles.actions}>
                 <TouchableOpacity style={styles.secondaryButton} onPress={() => begin(stage.what === 'voice' ? 'photo' : 'voice')}>

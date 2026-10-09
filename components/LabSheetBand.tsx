@@ -131,7 +131,7 @@ export function LabSheetBand({
       if (from === 'camera') {
         const permission = await ImagePicker.requestCameraPermissionsAsync();
         if (!permission.granted) {
-          showInfoAlert('Camera access needed', 'Inside Story needs your camera to read a lab sheet. You can still paste or type the results.');
+          showInfoAlert('Camera access needed', 'Lifestead needs your camera to read a lab sheet. You can still paste or type the results.');
           return;
         }
       }

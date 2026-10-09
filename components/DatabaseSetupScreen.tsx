@@ -137,9 +137,9 @@ export function DatabaseSetupScreen({
           inaccurate past the very first launch (this screen appears every
           time, per this file's own header comment, just resolving near-
           instantly on every launch after the first), where "Loading Your
-          Inside Story" reads correctly regardless of which launch this
+          Lifestead" reads correctly regardless of which launch this
           is. */}
-      <Text style={styles.message}>Loading Your Inside Story</Text>
+      <Text style={styles.message}>Loading Your Lifestead</Text>
     </Animated.View>
   );
 }

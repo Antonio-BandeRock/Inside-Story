@@ -38,7 +38,7 @@ function connection(userDataPath, name) {
     // the key (unlock below). Opening the bare name here would make an
     // empty plain file beside them, so it is refused instead.
     if (fs.existsSync(sealed.sealedFile(file))) {
-      throw new Error('Inside Story is locked.');
+      throw new Error('Lifestead is locked.');
     }
     // Foreign keys are left to the app: lib/db.ts turns them on with a
     // PRAGMA at startup and lib/dataBackup.ts turns them off around a

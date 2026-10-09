@@ -107,7 +107,7 @@ export function voicePackPrompt(lang: string, service: string): VoicePackPrompt 
       `This phone can turn speech into text by itself once its ${language} speech pack is downloaded. ` +
       `It does not have one yet, so what you say would go to ${service} to be turned into text, ` +
       `and from then on that company's privacy terms apply to it.\n\n` +
-      'Inside Story keeps everything you record on your device, and there is no Inside Story server holding any of it. ' +
+      'Lifestead keeps everything you record on your device, and there is no Lifestead server holding any of it. ' +
       'What you say into a microphone here is often about your health: a meal, a symptom, a medicine. ' +
       'With the speech pack, those words never leave the phone, and the microphone works with no connection at all.\n\n' +
       'The pack is a one-time download to the phone. Not Now uses the speech service this time and asks again the next time you open the app.',
@@ -167,4 +167,4 @@ export function voicePackStatusLine(s: VoicePackSituation & { neverAsk: boolean 
 }
 
 export const VOICE_PACK_CARD_LEAD =
-  'Inside Story keeps your records on your device. The one thing that can leave it is what you say into a microphone, when the phone has no speech pack to recognize it by itself.';
+  'Lifestead keeps your records on your device. The one thing that can leave it is what you say into a microphone, when the phone has no speech pack to recognize it by itself.';

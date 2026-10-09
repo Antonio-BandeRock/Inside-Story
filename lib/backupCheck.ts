@@ -65,7 +65,7 @@ export function backupCheckSentence(summary: BackupCheckSummary, madeOn: string)
     'This backup from ' + madeOn + ' opens and reads cleanly: ' +
     plural(summary.rows, 'record') + ' across ' + plural(summary.tables, 'table') + '. Nothing on this device was changed.';
   if (summary.newerFormat) {
-    sentence += ' It was written by a newer version of Inside Story, so update the app before restoring it.';
+    sentence += ' It was written by a newer version of Lifestead, so update the app before restoring it.';
   } else if (summary.unknownTables.length > 0) {
     sentence +=
       ' ' + plural(summary.unknownTables.length, 'table') +

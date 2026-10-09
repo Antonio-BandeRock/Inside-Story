@@ -1,4 +1,4 @@
-// Checks lib/shareIntake.ts, where something shared into Inside Story from
+// Checks lib/shareIntake.ts, where something shared into Lifestead from
 // another app goes (C11, rebuild R1): images become a Capture note with the
 // photos on it, a link that reads like a recipe opens Import a Recipe, text
 // and other links become a Capture note, and nothing shared is dropped for

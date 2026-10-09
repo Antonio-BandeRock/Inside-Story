@@ -422,7 +422,7 @@ export async function startLanSync(): Promise<LanSyncStatus> {
     // the other phone as a new service rather than as the one it already
     // resolved (and possibly failed on) minutes ago. The fingerprint that
     // matters travels in the TXT record, not the name.
-    const serviceName = `Inside Story ${myCompact} ${Date.now().toString(36).slice(-4)}`;
+    const serviceName = `Lifestead ${myCompact} ${Date.now().toString(36).slice(-4)}`;
     current.serviceName = serviceName;
     zeroconf.publishService(LAN_SYNC_SERVICE_TYPE, LAN_SYNC_PROTOCOL, LAN_SYNC_DOMAIN, serviceName, server.port, {
       fp: myCompact,

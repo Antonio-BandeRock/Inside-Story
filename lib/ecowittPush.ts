@@ -167,7 +167,7 @@ export const PUSH_PATH = '/data/report/';
 export const PUSH_INTERVAL_SECONDS = 60;
 
 export const PUSH_HOW =
-  'A station can also send its readings to this computer by itself, about once a minute, rather than waiting to be asked. Use this where a station cannot be asked by its address, or where you want every minute kept. It needs this computer switched on with Inside Story open (minimised is fine), and the computer keeps what arrives; the hours and days reach your phone when the two sync.';
+  'A station can also send its readings to this computer by itself, about once a minute, rather than waiting to be asked. Use this where a station cannot be asked by its address, or where you want every minute kept. It needs this computer switched on with Lifestead open (minimised is fine), and the computer keeps what arrives; the hours and days reach your phone when the two sync.';
 
 /** The setup for sending, in the order it has to be done. */
 export function pushSteps(input: { addresses: string[]; port: number }): string[] {
@@ -181,8 +181,8 @@ export function pushSteps(input: { addresses: string[]; port: number }): string[
     'Press Add a Gateway below, give it a name, pick It sends its readings to this computer, and save. The address can be left blank; it is filled in from the first reading.',
     'On your phone, open the Ecowitt app or the WS View Plus app, open the station, and find Weather Services (sometimes under Others or More). Go through its pages to Customized.',
     `Set Customized to on (Enable), Protocol Type to Ecowitt, Server IP or Hostname to ${address}, Path to ${PUSH_PATH}, Port to ${input.port}, and Upload Interval to ${PUSH_INTERVAL_SECONDS} seconds. Save.`,
-    'The first time a reading arrives, Windows may ask whether Inside Story can use the network. Allow it on private networks. If nothing arrives, open Windows Security, Firewall, Allow an app through the firewall, and tick Private beside Inside Story.',
-    `Within a minute or two the gateway reads as Receiving and lists its sensors. To check the computer can be reached at all, open http://${input.addresses[0] ?? 'the computer\'s address'}:${input.port} in your phone\'s browser: it answers Inside Story is listening.`,
+    'The first time a reading arrives, Windows may ask whether Lifestead can use the network. Allow it on private networks. If nothing arrives, open Windows Security, Firewall, Allow an app through the firewall, and tick Private beside Lifestead.',
+    `Within a minute or two the gateway reads as Receiving and lists its sensors. To check the computer can be reached at all, open http://${input.addresses[0] ?? 'the computer\'s address'}:${input.port} in your phone\'s browser: it answers Lifestead is listening.`,
     'Give each sensor you want kept an area, the same as for a gateway that is asked.',
   ];
 }
@@ -191,7 +191,7 @@ export const PUSH_ADDRESS_TIP =
   'The station sends to the computer by the computer\'s address, so a router handing the computer a new one stops the readings. Ask the router to keep the computer\'s address the same (a reserved address or DHCP reservation).';
 
 export const PUSH_PHONE_NOTE =
-  'A station that cannot be asked by its address can send its readings to the computer app instead. Set that up from Inside Story on the computer; the hours and days reach this phone when the two sync.';
+  'A station that cannot be asked by its address can send its readings to the computer app instead. Set that up from Lifestead on the computer; the hours and days reach this phone when the two sync.';
 
 /** How a gateway that sends stands, in words. */
 export function pushStatus(input: {

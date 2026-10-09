@@ -543,7 +543,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'Phone reminders',
-        body: 'Each dose time fires as a notification on this phone at that time, once you allow notifications for Inside Story (asked the first time you save a time, or from the band at the top). Marking a dose taken or skipped, removing it, or pausing the med in My Meds drops its reminder. Every notification says when it was last matched to your schedule; changes made while the app is closed take effect the next time it opens. Nothing leaves the phone.',
+        body: 'Each dose time fires as a notification on this phone at that time, once you allow notifications for Lifestead (asked the first time you save a time, or from the band at the top). Marking a dose taken or skipped, removing it, or pausing the med in My Meds drops its reminder. Every notification says when it was last matched to your schedule; changes made while the app is closed take effect the next time it opens. Nothing leaves the phone.',
       },
       REPEATING_SCHEDULES_HELP,
     ],
@@ -559,7 +559,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'Phone reminders',
-        body: 'An hour before each appointment a notification fires on this phone, once you allow notifications for Inside Story (asked the first time you save one, or from the band at the top). Completing, cancelling or removing an appointment drops its reminder. Nothing leaves the phone, and this works with or without the phone calendar sync below.',
+        body: 'An hour before each appointment a notification fires on this phone, once you allow notifications for Lifestead (asked the first time you save one, or from the band at the top). Completing, cancelling or removing an appointment drops its reminder. Nothing leaves the phone, and this works with or without the phone calendar sync below.',
       },
       {
         heading: 'Phone calendar sync',
@@ -6076,7 +6076,7 @@ async function ensureDeviceCalendarPermission(
   if (!granted) {
     showInfoAlert(
       'Calendar access needed',
-      `Turn on calendar access for Inside Story in your phone's Settings to sync ${noun} with your phone calendar.`,
+      `Turn on calendar access for Lifestead in your phone's Settings to sync ${noun} with your phone calendar.`,
     );
   }
   return granted;
@@ -6101,7 +6101,7 @@ async function ensureReminderPermission(
   if (!granted) {
     showInfoAlert(
       'Reminders are off',
-      "Turn on notifications for Inside Story in your phone's Settings and the times you set here will fire as reminders.",
+      "Turn on notifications for Lifestead in your phone's Settings and the times you set here will fire as reminders.",
     );
   }
   return granted;
@@ -6125,7 +6125,7 @@ function ReminderPermissionBand({
       <HomeSectionBand
         kind="action"
         title="Turn on reminders"
-        caption={`Let Inside Story send notifications so each ${noun} you set here fires on this phone.`}
+        caption={`Let Lifestead send notifications so each ${noun} you set here fires on this phone.`}
         icon="notifications-outline"
         color={TAB_COLOR}
         onPress={() => {

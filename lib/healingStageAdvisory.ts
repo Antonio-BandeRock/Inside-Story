@@ -140,6 +140,6 @@ export function getHealingStageAdvisory(
     title: `Healing Stage: ${stageLabel}`,
     message:
       reasons.join('\n\n') +
-      "\n\nThis is advisory only. Nothing in Inside Story hides or blocks a food based on your stage. See Hashimoto's Healing Stages in Life > Conditions for the full, cited guide.",
+      "\n\nThis is advisory only. Nothing in Lifestead hides or blocks a food based on your stage. See Hashimoto's Healing Stages in Life > Conditions for the full, cited guide.",
   };
 }

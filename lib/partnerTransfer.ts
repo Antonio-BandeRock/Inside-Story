@@ -531,7 +531,7 @@ export async function sendToPartnerAsFile(connectionId: string): Promise<{
   //    Share.share silently discards its url field on Android, which is why every
   //    file share in this app has always been two native calls rather than one.
   await Share.share({
-    message: `Here is what I am sharing with you from Inside Story. Open it with Get What They Sent on the Connections screen.`,
+    message: `Here is what I am sharing with you from Lifestead. Open it with Get What They Sent on the Connections screen.`,
   });
   const shared = await shareFileIfAvailable(uri, {
     dialogTitle: `Send to ${partner.name}`,

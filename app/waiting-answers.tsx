@@ -48,7 +48,7 @@ export default function WaitingAnswersScreen() {
           </Text>
           <Text style={styles.summaryCaption}>
             {!PHONE
-              ? 'Reminders show up on your phone, so this list is there. Open it from Inside Story on your phone.'
+              ? 'Reminders show up on your phone, so this list is there. Open it from Lifestead on your phone.'
               : count === 0
                 ? 'Every reminder still showing on your phone appears here, grouped, with the same buttons it has on the notification.'
                 : 'Each button does what it does on the notification and takes the reminder off your phone. Tap the words to open where it is kept.'}

@@ -4,7 +4,7 @@ const { withAndroidStyles, AndroidConfig } = require('expo/config-plugins');
 // (config plugins run outside Metro/Babel), so this is a literal copy of
 // colors.background -- keep it in sync if that value ever changes.
 // Updated 2026-08-19 alongside colors.background's own Navy -> Teal change.
-// 2026-10-06: #1F2A2C, the Inside Story icon's ground, so the window behind
+// 2026-10-06: #1F2A2C, the Lifestead icon's ground, so the window behind
 // the splash and the launcher icon are one colour.
 const WINDOW_BACKGROUND_COLOR = '#1F2A2C';
 

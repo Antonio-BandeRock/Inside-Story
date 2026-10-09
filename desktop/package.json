@@ -2,7 +2,7 @@
   "name": "inside-story-desktop",
   "version": "1.0.42",
   "private": true,
-  "description": "Inside Story for Windows and Mac: the same app the phone runs, in an Electron window.",
+  "description": "Lifestead for Windows and Mac: the same app the phone runs, in an Electron window.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -15,5 +15,5 @@
     "electron": "^44.4.3",
     "electron-builder": "^26.15.3"
   },
-  "author": "Inside Story"
+  "author": "Lifestead"
 }

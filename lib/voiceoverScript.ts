@@ -139,12 +139,12 @@ export const VOICEOVER_SCRIPTS: readonly VoiceoverScript[] = [
   },
   {
     key: '3am',
-    title: '3 A.M. (Inside Story)',
+    title: '3 A.M. (Lifestead)',
     length: 'short',
     lines: [
       { id: '3am-01', speaker: P, text: 'My watch knows my heart rate. My scale knows my weight. My sleep app knows I was awake at 3 a.m.', direction: 'Listing, tighter on each one.' },
       { id: '3am-02', speaker: P, text: 'WHO ELSE KNOWS I WAS AWAKE AT 3 A.M.?', direction: 'Full shout.' },
-      { id: '3am-03', speaker: R, text: 'Inside Story keeps your health records on your phone. Not on our servers. We don\'t have servers for that.', direction: 'After the record scratch. Calm and clear.' },
+      { id: '3am-03', speaker: R, text: 'Lifestead keeps your health records on your phone. Not on our servers. We don\'t have servers for that.', direction: 'After the record scratch. Calm and clear.' },
       { id: '3am-04', speaker: R, text: 'You were awake at 3 a.m. That one stays between you and the ceiling.', direction: 'After a beat. Dry, with a little warmth.' },
     ],
   },

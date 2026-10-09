@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "Inside Story",
+    "name": "Lifestead",
     "slug": "inside-story",
     "owner": "inside-story",
-    "version": "1.0.65.3",
+    "version": "1.0.65.4",
     "orientation": "portrait",
     "icon": "./assets/brand/icon.png",
     "scheme": "hashimotosapp",
@@ -21,7 +21,7 @@
       "infoPlist": {
         "CFBundleDocumentTypes": [
           {
-            "CFBundleTypeName": "Inside Story Share",
+            "CFBundleTypeName": "Lifestead Share",
             "LSHandlerRank": "Owner",
             "LSItemContentTypes": [
               "com.insidestoryapp.app.is-share"
@@ -31,7 +31,7 @@
         "UTExportedTypeDeclarations": [
           {
             "UTTypeIdentifier": "com.insidestoryapp.app.is-share",
-            "UTTypeDescription": "Inside Story Share",
+            "UTTypeDescription": "Lifestead Share",
             "UTTypeConformsTo": [
               "public.data",
               "public.content"
@@ -191,28 +191,28 @@
       [
         "expo-calendar",
         {
-          "calendarPermission": "Inside Story uses your calendar to show upcoming appointments here and to add appointments you schedule in Inside Story to your calendar."
+          "calendarPermission": "Lifestead uses your calendar to show upcoming appointments here and to add appointments you schedule in Lifestead to your calendar."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Inside Story uses your photos to let you choose a custom background image, or a photo of a meal you've made.",
-          "cameraPermission": "Inside Story uses your camera to let you take a photo of a meal you've made, or of an ingredient label or price tag while scanning a product."
+          "photosPermission": "Lifestead uses your photos to let you choose a custom background image, or a photo of a meal you've made.",
+          "cameraPermission": "Lifestead uses your camera to let you take a photo of a meal you've made, or of an ingredient label or price tag while scanning a product."
         }
       ],
       "expo-secure-store",
       [
         "expo-speech-recognition",
         {
-          "microphonePermission": "Inside Story uses your microphone to let you search and add notes by speaking instead of typing.",
-          "speechRecognitionPermission": "Inside Story uses speech recognition to turn what you say into text for search boxes and notes."
+          "microphonePermission": "Lifestead uses your microphone to let you search and add notes by speaking instead of typing.",
+          "speechRecognitionPermission": "Lifestead uses speech recognition to turn what you say into text for search boxes and notes."
         }
       ],
       [
         "expo-camera",
         {
-          "cameraPermission": "Inside Story uses your camera to scan a product's barcode while you're shopping."
+          "cameraPermission": "Lifestead uses your camera to scan a product's barcode while you're shopping."
         }
       ],
       [
@@ -247,14 +247,14 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Inside Story uses Face ID to unlock the app when you have turned App Lock on."
+          "faceIDPermission": "Lifestead uses Face ID to unlock the app when you have turned App Lock on."
         }
       ],
       [
         "expo-media-library",
         {
-          "photosPermission": "Inside Story saves the full-size photos you take in the app to your gallery, when you have asked it to.",
-          "savePhotosPermission": "Inside Story saves the full-size photos you take in the app to your gallery, when you have asked it to.",
+          "photosPermission": "Lifestead saves the full-size photos you take in the app to your gallery, when you have asked it to.",
+          "savePhotosPermission": "Lifestead saves the full-size photos you take in the app to your gallery, when you have asked it to.",
           "granularPermissions": [
             "photo"
           ]
@@ -263,7 +263,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Inside Story uses your approximate location, only when you ask, to fetch the weather for your area. It is rounded before anything is sent.",
+          "locationWhenInUsePermission": "Lifestead uses your approximate location, only when you ask, to fetch the weather for your area. It is rounded before anything is sent.",
           "isAndroidBackgroundLocationEnabled": false,
           "isAndroidForegroundServiceEnabled": false
         }
@@ -271,7 +271,7 @@
       [
         "expo-contacts",
         {
-          "contactsPermission": "Inside Story lets you pick a person from your contacts for an emergency contact, a prescriber, a pharmacy or a family member. Nothing is copied out of your phone."
+          "contactsPermission": "Lifestead lets you pick a person from your contacts for an emergency contact, a prescriber, a pharmacy or a family member. Nothing is copied out of your phone."
         }
       ],
       [

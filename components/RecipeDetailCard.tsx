@@ -128,7 +128,7 @@ export function conditionNoteAppliesTo(noteConditionText: string, activeConditio
 // any condition as it appears to be currently. If they have selected to be
 // interested in any other conditions, that should also be identified in case
 // they are keeping a watchful eye for someone else, but those interests are
-// never used with their own Inside Story."
+// never used with their own Lifestead."
 //
 // So three outcomes per note, and the split is the whole point:
 //   mine    a general caution, or one naming a condition they have
@@ -433,7 +433,7 @@ export function CuratedRecipeShareButton({
       const ingredientLines = (recipe?.ingredients ?? [])
         .map((ingredient) => `${ingredient.quantity} ${ingredient.unit} ${ingredient.foodName}`)
         .join('\n');
-      const message = [recipe?.name ?? '', ingredientLines, `Shared from Inside Story by ${fromName}.`]
+      const message = [recipe?.name ?? '', ingredientLines, `Shared from Lifestead by ${fromName}.`]
         .filter(Boolean)
         .join('\n\n');
       // A local .is file (the signed envelope, richer than the deep

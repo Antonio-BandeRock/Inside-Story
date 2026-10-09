@@ -1,4 +1,4 @@
-// Inside Story's design system -- one place for every color used across the
+// Lifestead's design system -- one place for every color used across the
 // app, so the palette can be reasoned about (and changed) as a whole rather
 // than as scattered hex literals per screen.
 //
@@ -675,7 +675,7 @@ export const colors = {
   // The Digest's own identity color -- the new autoimmune learning/
   // news area (see the 2026-07-27 conversation this was named and designed
   // in -- "Field Notes" and "Autoimmune Intelligence"/AI and "Autoimmune
-  // Inside Story"/AIS were all considered and rejected first, the latter
+  // Lifestead"/AIS were all considered and rejected first, the latter
   // two for real collisions with the AI initialism and with Androgen
   // Insensitivity Syndrome respectively). Deliberate, not a coincidence:
   // purple is the real-world universal color for autoimmune disease

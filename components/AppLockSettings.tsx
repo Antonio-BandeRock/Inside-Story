@@ -42,13 +42,13 @@ function ShadeButtonsSetting() {
             activeOpacity={0.85}
             onPress={() => {
               if (!LockedCapture) {
-                explainNotYet('This needs the next full install of Inside Story on this phone. Until then the Capture tile in quick settings opens Capture in the app.');
+                explainNotYet('This needs the next full install of Lifestead on this phone. Until then the Capture tile in quick settings opens Capture in the app.');
                 return;
               }
               if (on === showing) return;
               if (on) {
                 if (!LockedCapture.showShadeButtons()) {
-                  explainNotYet('Notifications are turned off for Inside Story, so the buttons have nowhere to show. They can be turned on in the phone settings, under Apps.');
+                  explainNotYet('Notifications are turned off for Lifestead, so the buttons have nowhere to show. They can be turned on in the phone settings, under Apps.');
                   return;
                 }
               } else LockedCapture.hideShadeButtons();
@@ -61,7 +61,7 @@ function ShadeButtonsSetting() {
       </View>
       <Text style={styles.caption}>
         {readLockStateSync()?.phase === 'on'
-          ? 'Pull down the shade and press Voice Note or Photo. It starts listening, or opens the camera, straight away, with no code and the phone still locked. What you keep is sealed until Inside Story is next unlocked, so nobody holding the phone can read it. The same two buttons can be added as quick settings tiles.'
+          ? 'Pull down the shade and press Voice Note or Photo. It starts listening, or opens the camera, straight away, with no code and the phone still locked. What you keep is sealed until Lifestead is next unlocked, so nobody holding the phone can read it. The same two buttons can be added as quick settings tiles.'
           : 'Pull down the shade and press Voice Note or Photo. With App Lock set up these work over the lock screen with no code at all; without it the phone asks to be unlocked first. The same two buttons can be added as quick settings tiles.'}
       </Text>
     </>

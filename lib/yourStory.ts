@@ -66,7 +66,7 @@ export const BEAT_CAPTIONS: Record<BeatKey, string> = {
   family: 'The people you look after',
 };
 
-export const BEATS_QUESTION = 'What parts of your life do you want Inside Story to follow?';
+export const BEATS_QUESTION = 'What parts of your life do you want Lifestead to follow?';
 export const BEATS_NOTE =
   'This only shapes this guide. Every part of the app stays open to you whatever you choose, and you can change it any time.';
 
@@ -221,7 +221,7 @@ export const ITEMS: ItemDef[] = [
     section: 'frontPage',
     kind: 'needed',
     beats: [],
-    todo: 'Choose the parts of your life you want Inside Story to follow.',
+    todo: 'Choose the parts of your life you want Lifestead to follow.',
     done: 'Following your chosen parts of life.',
     why: 'This guide is built from what you choose here, so it only asks about the parts of life you want followed. Nothing in the app is hidden by what you leave out.',
     destination: { kind: 'beats' },
@@ -297,7 +297,7 @@ export const ITEMS: ItemDef[] = [
     section: 'archive',
     kind: 'optional',
     beats: [],
-    todo: 'Open Inside Story on a second device, such as a computer, and turn on automatic saving there with the same password.',
+    todo: 'Open Lifestead on a second device, such as a computer, and turn on automatic saving there with the same password.',
     done: 'Your records have arrived from your other device.',
     why: 'Two devices saving to the same shared folder keep each other up to date, and each one is a copy of the other.',
     destination: profile,

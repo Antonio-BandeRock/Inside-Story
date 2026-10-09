@@ -1,4 +1,4 @@
-// What plant is this (I24, 2026-09-29): Inside Story names no plant itself.
+// What plant is this (I24, 2026-09-29): Lifestead names no plant itself.
 // It opens a free identification app the person already trusts, Pl@ntNet or
 // Google Lens, and records on the planting which app named it and how sure
 // that app said it was.
@@ -65,10 +65,10 @@ export function identifyLinks(service: IdentifyService, platform: IdentifyPlatfo
 }
 
 export const IDENTIFY_INTRO =
-  'Inside Story does not name plants itself. Open one of these free apps, photograph a leaf and a flower or fruit if it has one, then come back and search for the name it gives below.';
+  'Lifestead does not name plants itself. Open one of these free apps, photograph a leaf and a flower or fruit if it has one, then come back and search for the name it gives below.';
 
 export const IDENTIFY_COMPUTER_INTRO =
-  'Inside Story does not name plants itself. Open one of these free sites, upload a photo of a leaf and a flower or fruit if it has one, then come back and search for the name it gives below.';
+  'Lifestead does not name plants itself. Open one of these free sites, upload a photo of a leaf and a flower or fruit if it has one, then come back and search for the name it gives below.';
 
 /** Said every time, since a wrong name on a wild plant can poison someone. */
 export const IDENTIFY_CAUTION =

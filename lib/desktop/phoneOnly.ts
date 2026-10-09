@@ -49,9 +49,9 @@ export type PhoneOnlyNotice = {
 
 const MESSAGES: Record<PhoneOnlyFeature, string> = {
   scanProduct:
-    "Scanning a product uses the phone's camera, and this computer has no way to do it. Open Inside Story on your phone and scan the product there.",
+    "Scanning a product uses the phone's camera, and this computer has no way to do it. Open Lifestead on your phone and scan the product there.",
   photo:
-    'Photos are taken and kept on the phone for now. This computer cannot take one or bring one in yet. Add the photo from Inside Story on your phone.',
+    'Photos are taken and kept on the phone for now. This computer cannot take one or bring one in yet. Add the photo from Lifestead on your phone.',
   voice:
     'Speaking to the app works on the phone, which listens on the device itself. This computer has no way to do that, so type it here, or say it on your phone.',
   readPrice:
@@ -61,9 +61,9 @@ const MESSAGES: Record<PhoneOnlyFeature, string> = {
   readLabSheet:
     'Reading a lab sheet from a photo is done on the phone, which reads the words on the device itself. On this computer, paste the results from a patient portal or a CSV into the box below, or fill in a whole panel.',
   healthConnect:
-    'Steps, sleep and the rest come from Health Connect on an Android phone, and this computer has nothing to read them from. Connect from Inside Story on your phone.',
+    'Steps, sleep and the rest come from Health Connect on an Android phone, and this computer has nothing to read them from. Connect from Lifestead on your phone.',
   wifiSync:
-    'Sync over Wi-Fi runs between two phones in the same place. This computer cannot join it. Use Inside Story on your phone.',
+    'Sync over Wi-Fi runs between two phones in the same place. This computer cannot join it. Use Lifestead on your phone.',
   scanPairingCode:
     "Reading the code on the other person's phone uses the camera. On this computer, show your code for them to scan, or send a link instead. On your phone, point the camera at their code.",
   scanMedicineCode:
@@ -73,7 +73,7 @@ const MESSAGES: Record<PhoneOnlyFeature, string> = {
   phoneCalendar:
     "Events from your phone's calendar are read on the phone as the timeline is drawn, and never copied into the app, so this computer has none to show. Turn them on from the timeline on your phone.",
   lightMeter:
-    "Measuring the light uses the light sensor on an Android phone. A computer, Windows or Mac, has none the app can read, and an iPhone does not let any app read its own. Type a figure from a light meter here, or measure it with Inside Story on an Android phone.",
+    "Measuring the light uses the light sensor on an Android phone. A computer, Windows or Mac, has none the app can read, and an iPhone does not let any app read its own. Type a figure from a light meter here, or measure it with Lifestead on an Android phone.",
 };
 
 export const PHONE_ONLY_FEATURES: readonly PhoneOnlyFeature[] = Object.keys(MESSAGES) as PhoneOnlyFeature[];

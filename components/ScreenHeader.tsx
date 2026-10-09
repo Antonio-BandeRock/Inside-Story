@@ -22,7 +22,7 @@ const ROW_HORIZONTAL_PADDING = 4;
 // instruction: "we won't be doing any of the rewarding for the user from
 // the header area. And, I don't think we need the little selected tab icon
 // to be up there anymore. Let's shrink the header height, leaving just the
-// User's first name and "Inside Story" centered both horizontally and
+// User's first name and "Lifestead" centered both horizontally and
 // vertically in the header space, giving more room on the tab screens."
 // So the tab glyph (TabPositionMark, 16px) and the 14px once kept for growth
 // marks are both gone, and the title's box is cut to what the full-size
@@ -107,13 +107,13 @@ export function useScreenHeaderHeight(): number {
 
 // 2026-07-25: this used to be the one header carrying three things --
 // the page's own title/sub-tab (left), a help icon (far left), and
-// "{name}'s Inside Story" (right). All three moved out: the info icon is
+// "{name}'s Lifestead" (right). All three moved out: the info icon is
 // gone (TabHub's own picker grid has an equivalent "About this page" tile
 // now, colored to match whatever page is open); the page title and
 // sub-tab label moved to PageIdentityLabel, anchored in the screen's
 // bottom corner instead (see components/PageIdentityLabel.tsx and each
 // screen's own render of it). What's left here is purely the app's own
-// branding -- "{name}'s Inside Story" -- now the only thing this header
+// branding -- "{name}'s Lifestead" -- now the only thing this header
 // shows, in a larger size, centered both ways in the header's own space
 // rather than pinned to one side of a now-empty row.
 //
@@ -122,7 +122,7 @@ export function useScreenHeaderHeight(): number {
 // title=... helpSections=... tabPath=.../>, which meant each one also
 // carried its own local firstName state, starting at null on that
 // screen's own first mount -- swiping to a tab whose header hadn't
-// resolved its own profile fetch yet flashed the "MY Inside Story"
+// resolved its own profile fetch yet flashed the "MY Lifestead"
 // placeholder before correcting itself a moment later. A single shared
 // instance has exactly one firstName, fetched once, so there's nothing
 // left to flash: whichever tab is showing, the name is already known.
@@ -141,12 +141,12 @@ export function ScreenHeader() {
   const { width: windowWidth } = useWindowDimensions();
   // Matches `row`'s own paddingHorizontal below.
   const textAreaWidth = Math.max(200, windowWidth - ROW_HORIZONTAL_PADDING * 2);
-  const appNameText = `${firstName ? `${firstName}'s` : 'MY'} Inside Story`;
+  const appNameText = `${firstName ? `${firstName}'s` : 'MY'} Lifestead`;
   const availableTextWidth = textAreaWidth - HEADER_TEXT_HORIZONTAL_MARGIN * 2;
   const estimatedWidthAtMax = estimateTextWidth(appNameText, HEADER_TEXT_MAX_FONT_SIZE);
 
   // Shrinks from the max size only as far as needed to fit the *current*
-  // name -- "Tony's Inside Story" stays at full size, "Alexandria's Inside
+  // name -- "Tony's Lifestead" stays at full size, "Alexandria's Inside
   // Story" scales down, both computed synchronously (no render-then-measure
   // round trip, no chance of a stale/late value).
   const fontSize =
@@ -218,7 +218,7 @@ export function ScreenHeader() {
         {/* 2026-08-21, Phase 0 of the header growth vine/Timeline plan:
             the title itself becomes the door into the Timeline -- direct
             request: "they should need to tap their (name of person)'s
-            Inside Story and it unfolds before them." Since 2026-09-26
+            Lifestead and it unfolds before them." Since 2026-09-26
             (B1 of the competitive build plan) it opens the day
             timeline, app/timeline.tsx; the words stop
             being passive branding and become a literal door in, with zero
@@ -230,7 +230,7 @@ export function ScreenHeader() {
                 Profile -- same slot, same style as the real possessive, so
                 setting a name later is a straight swap, not a layout
                 change. One text string, not two side by side -- both the
-                name and "Inside Story" belong on the same row, and a single
+                name and "Lifestead" belong on the same row, and a single
                 string guarantees that rather than depending on there being
                 enough width for two separate ones to land next to each other. */}
             <Svg width={textAreaWidth} height={HEADER_TEXT_HEIGHT}>

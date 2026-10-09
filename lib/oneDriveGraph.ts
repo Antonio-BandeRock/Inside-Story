@@ -302,7 +302,7 @@ export async function createFolder(
       name,
       folder: {},
       // Renames rather than failing or overwriting if the name is taken. A
-      // second folder called "Inside Story 1" is recoverable; a silently
+      // second folder called "Lifestead 1" is recoverable; a silently
       // replaced one is not.
       '@microsoft.graph.conflictBehavior': 'rename',
     }),
@@ -598,7 +598,7 @@ export async function checkFolder(
  * on a computer came away holding a Windows path as its shared folder, so
  * it asked the person to set up a folder they had already set up and could
  * save nothing in the meantime (1.0.42.30). The sentence the computer
- * stored, "OneDrive / Documents / Inside Story", names the same folder
+ * stored, "OneDrive / Documents / Lifestead", names the same folder
  * here, so it is looked up by that path.
  *
  * Only a sentence beginning with the plain word OneDrive, which is the

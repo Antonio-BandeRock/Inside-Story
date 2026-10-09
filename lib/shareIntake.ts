@@ -1,5 +1,5 @@
-// What happens to something shared into Inside Story from another app (C11,
-// rebuild R1, 2026-10-02). Android's Share sheet lists Inside Story for text,
+// What happens to something shared into Lifestead from another app (C11,
+// rebuild R1, 2026-10-02). Android's Share sheet lists Lifestead for text,
 // links and images. A link that looks like a recipe opens Food > Import a
 // Recipe with the link already in its box, where nothing is fetched or saved
 // until the person goes on; an image becomes a Capture note with the photo

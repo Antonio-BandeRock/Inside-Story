@@ -20,7 +20,7 @@
 // so nothing in lib/db.ts changes.
 //
 // THE PATH A PERSON READS IS THE SAME ON BOTH. A phone shows a folder as
-// "OneDrive / Apps / Inside Story", built by describeItemPath from Graph's
+// "OneDrive / Apps / Lifestead", built by describeItemPath from Graph's
 // parent path. A computer builds the same sentence from the folder's place
 // under the OneDrive root, and that is deliberate: a backup taken on the
 // phone carries the phone's stored folder, and when it is restored on the
@@ -82,7 +82,7 @@ function isUnder(folderPath: string, rootPath: string): boolean {
  * The sentence a person reads for a folder on this disk.
  *
  * Under a OneDrive root it reads as the phone would show the same folder,
- * "OneDrive / Apps / Inside Story", so the two agree. Anywhere else the
+ * "OneDrive / Apps / Lifestead", so the two agree. Anywhere else the
  * absolute path is the honest description.
  */
 export async function describeDiskPath(folderPath: string): Promise<string> {
@@ -113,7 +113,7 @@ async function refFor(folderPath: string, name?: string): Promise<DriveItemRef> 
  * A folder chosen on a phone, found on this disk.
  *
  * The phone stores the folder's Graph address plus the sentence it showed,
- * "OneDrive / Apps / Inside Story". The address means nothing here, but
+ * "OneDrive / Apps / Lifestead". The address means nothing here, but
  * the sentence does: its first part names a OneDrive root on this computer
  * and the rest is the folder's place under it. Null when no root by that
  * name is here or the folder is not under it, which the caller says

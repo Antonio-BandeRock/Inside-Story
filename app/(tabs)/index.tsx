@@ -1272,8 +1272,8 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
     body: 'Certain foods and minerals (calcium and iron are well-documented examples) can interfere with how well a thyroid prescription is absorbed if eaten too close to a dose, which is part of why Schedules tracks meal, supplement, and prescription timing together. Digestion and absorption are also frequently disrupted in Hashimoto’s, which is why gut and microbiome support is treated as a goal in its own right throughout this app.',
   },
   {
-    heading: 'What Inside Story does',
-    body: "Not a generic calorie counter. Inside Story exists to help someone with an autoimmune condition relearn how and what to eat, and understand how food affects their body specifically. Hashimoto's is the first condition built out in full depth, with more autoimmune conditions in active development. Meals builds and scores meals; Insights shows how today stacks up; Schedules handles timing; Trends looks for patterns over time; Signals is where you record flares, reactions, and new foods; Reports turns it all into something to hand a doctor.",
+    heading: 'What Lifestead does',
+    body: "Not a generic calorie counter. Lifestead exists to help someone with an autoimmune condition relearn how and what to eat, and understand how food affects their body specifically. Hashimoto's is the first condition built out in full depth, with more autoimmune conditions in active development. Meals builds and scores meals; Insights shows how today stacks up; Schedules handles timing; Trends looks for patterns over time; Signals is where you record flares, reactions, and new foods; Reports turns it all into something to hand a doctor.",
   },
   {
     heading: 'Personal notes, not medical fact',
@@ -2000,7 +2000,7 @@ export default function HomeScreen() {
       if (notes.length === 0) return;
       showInfoAlert(
         `Updated to ${APP_VERSION}`,
-        `Inside Story updated itself and restarted. Here's what changed:\n\n${formatReleaseNotesMessage(notes)}`,
+        `Lifestead updated itself and restarted. Here's what changed:\n\n${formatReleaseNotesMessage(notes)}`,
       );
     } catch (error) {
       // A failure here should never block Home from finishing its own
@@ -2621,7 +2621,7 @@ export default function HomeScreen() {
   // glyph, drawn wherever the band asks for it and at whatever size it
   // asks for.
   //
-  // Since 2026-10-06 the glyph is the Inside Story book in its round window
+  // Since 2026-10-06 the glyph is the Lifestead book in its round window
   // (assets/branding/inside-story-window.png), by direct instruction, in
   // place of the seed. The art is square, so it is drawn at size by size.
   function renderGreetingBookGlyph(size: number) {
@@ -2719,7 +2719,7 @@ export default function HomeScreen() {
     options?: {
       icon?: ComponentProps<typeof Ionicons>['name'];
       // A drawn glyph instead of the Ionicons one, for the one section whose
-      // mark is a picture (Today's Inside Story book).
+      // mark is a picture (Today's Lifestead book).
       renderIcon?: (size: number, color: string) => ReactNode;
       color?: string;
       contentStyle?: StyleProp<ViewStyle>;

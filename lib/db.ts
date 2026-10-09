@@ -6630,7 +6630,7 @@ async function runDatabaseInitialization() {
       );
 
       -- Your Story, 2026-09-24 (lib/yourStory.ts). The parts of life a
-      -- person asked Inside Story to follow: a closed list of nine keys,
+      -- person asked Lifestead to follow: a closed list of nine keys,
       -- written only when one is added, so a device opening the app does
       -- not stir the sync. Travels between one person's devices; never
       -- between people, since lib/peerRelationships.ts names no table

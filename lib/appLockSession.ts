@@ -20,7 +20,7 @@ export const LOCK_FILE_NAME = 'app-lock.json';
 
 export class AppLockedError extends Error {
   constructor() {
-    super('Inside Story is locked.');
+    super('Lifestead is locked.');
     this.name = 'AppLockedError';
   }
 }

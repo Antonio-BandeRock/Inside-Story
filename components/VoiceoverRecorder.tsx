@@ -89,8 +89,8 @@ export function VoiceoverRecorder() {
     const permission = await requestRecordingPermissionsAsync();
     if (!permission.granted) {
       showInfoAlert(
-        'The microphone is off for Inside Story',
-        'Recording a line needs the microphone. Turn it on for Inside Story in the phone\'s Settings, under Apps, then come back and press Record again.',
+        'The microphone is off for Lifestead',
+        'Recording a line needs the microphone. Turn it on for Lifestead in the phone\'s Settings, under Apps, then come back and press Record again.',
       );
       return;
     }

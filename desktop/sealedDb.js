@@ -56,7 +56,7 @@ function encrypt(bytes, key) {
 
 function decrypt(sealed, key) {
   if (sealed.length < MAGIC.length + NONCE_BYTES + TAG_BYTES || !sealed.subarray(0, MAGIC.length).equals(MAGIC)) {
-    throw new Error('This is not a sealed Inside Story file.');
+    throw new Error('This is not a sealed Lifestead file.');
   }
   let at = MAGIC.length;
   const nonce = sealed.subarray(at, (at += NONCE_BYTES));

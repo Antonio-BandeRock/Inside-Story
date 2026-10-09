@@ -515,7 +515,7 @@ export async function buildReport(
     generatedAt: new Date().toISOString(),
     preface: leftOutLine ? [...def.preface, leftOutLine] : def.preface,
     sections,
-    footer: `Generated on the phone by Inside Story ${APP_VERSION}. Nothing in this report left the phone until the person chose to share it.`,
+    footer: `Generated on the phone by Lifestead ${APP_VERSION}. Nothing in this report left the phone until the person chose to share it.`,
     versionLine: reportVersionLine(APP_VERSION, REFERENCE_DB_VERSION),
   };
 }

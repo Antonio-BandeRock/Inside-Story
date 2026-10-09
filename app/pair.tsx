@@ -138,7 +138,7 @@ export default function PairScreen() {
       const data = parseInviteInput(result.data);
       if (!data) {
         setScanError(
-          "That code isn't an Inside Story invite. Ask them to open Connections on their phone and show you their code.",
+          "That code isn't a Lifestead invite. Ask them to open Connections on their phone and show you their code.",
         );
         return;
       }
@@ -165,7 +165,7 @@ export default function PairScreen() {
     if (!code) return;
     const link = buildInviteLink(code);
     const who = fromName ? `${fromName} wants` : 'Someone wants';
-    const message = `${who} to connect with you on Inside Story. Open this on the phone that has the app:
+    const message = `${who} to connect with you on Lifestead. Open this on the phone that has the app:
 ${link}`;
     try {
       await Share.share({ message });
@@ -212,7 +212,7 @@ ${link}`;
               <Ionicons name="camera-outline" size={40} color={colors.textMuted} style={styles.centerIcon} />
               <Text style={styles.title}>Camera access needed</Text>
               <Text style={styles.text}>
-                Inside Story needs your camera to read the code on the other phone. Nothing is recorded, and nothing
+                Lifestead needs your camera to read the code on the other phone. Nothing is recorded, and nothing
                 leaves this device.
               </Text>
               <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={requestPermission}>
@@ -266,7 +266,7 @@ ${link}`;
         <Text style={styles.text}>
           {alreadyHaveYou
             ? 'You have them saved. This code tells their phone the same, which is what finishes the link on both sides.'
-            : 'They open Inside Story, go to Profile, then Connections, and tap Scan Their Code. Nothing is sent anywhere: the code goes from this screen to their camera and no further. Not in the same room? Send them the link instead.'}
+            : 'They open Lifestead, go to Profile, then Connections, and tap Scan Their Code. Nothing is sent anywhere: the code goes from this screen to their camera and no further. Not in the same room? Send them the link instead.'}
         </Text>
 
         {buildError ? (
@@ -340,7 +340,7 @@ ${link}`;
       <View style={styles.noteBox}>
         <Text style={styles.noteText}>
           Whoever goes second scans first, or opens the link first. After that each screen says what to do next, until
-          both phones show you are connected. The link carries this same code and opens Inside Story on a phone that
+          both phones show you are connected. The link carries this same code and opens Lifestead on a phone that
           has it; it is only useful to someone you meant to send it to.
         </Text>
       </View>

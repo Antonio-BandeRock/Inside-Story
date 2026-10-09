@@ -47,7 +47,7 @@ export function reminderStatusLine(facts: ReminderFacts): StatusLine {
     };
   }
   if (!facts.permission) {
-    return { label: 'Reminders', value: 'Notifications are turned off for Inside Story.', tone: 'attention' };
+    return { label: 'Reminders', value: 'Notifications are turned off for Lifestead.', tone: 'attention' };
   }
   return {
     label: 'Reminders',
@@ -70,7 +70,7 @@ export function reminderDiagnosis(facts: ReminderFacts): string[] {
   }
   if (!facts.permission) {
     reasons.push(
-      'Notifications are turned off for Inside Story in the phone settings, so nothing can arrive. ' +
+      'Notifications are turned off for Lifestead in the phone settings, so nothing can arrive. ' +
         'Turning them back on there, then opening this app once, queues everything again.',
     );
   }
@@ -100,7 +100,7 @@ export function reminderDiagnosis(facts: ReminderFacts): string[] {
   if (facts.exactAlarmsAsked) {
     reasons.push(
       'If reminders arrive late rather than not at all: on Android 12 and later, allow Alarms & reminders ' +
-        'for Inside Story in the phone settings, and set its battery use to Unrestricted. ' +
+        'for Lifestead in the phone settings, and set its battery use to Unrestricted. ' +
         'Without those, Android may hold a reminder back while the phone is saving battery.',
     );
   }

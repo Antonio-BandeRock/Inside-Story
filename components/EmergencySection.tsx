@@ -260,7 +260,7 @@ export function EmergencySection({ tabColor }: Props) {
     if (parts.length > 0 && !(await askLockScreenPermission())) {
       showInfoAlert(
         'Notifications are off',
-        "The lines go on the lock screen as a notification, and this phone has notifications from Inside Story turned off. Turn them on in the phone's settings and try again.",
+        "The lines go on the lock screen as a notification, and this phone has notifications from Lifestead turned off. Turn them on in the phone's settings and try again.",
       );
       return;
     }
@@ -704,7 +704,7 @@ export function EmergencySection({ tabColor }: Props) {
           <Text style={styles.helperText}>
             {Platform.OS === 'ios' && !isDesktopApp()
               ? "On an Android phone, the lines you pick can sit on the lock screen as a notification that cannot be swiped away. An iPhone does not let an app keep one there, so on an iPhone the Medical ID above is what shows from the lock screen."
-              : 'On an Android phone, the lines you pick can sit on the lock screen as a notification that cannot be swiped away. The computer version, Windows or Mac, has no lock screen to put them on, so turn it on from Inside Story on an Android phone.'}
+              : 'On an Android phone, the lines you pick can sit on the lock screen as a notification that cannot be swiped away. The computer version, Windows or Mac, has no lock screen to put them on, so turn it on from Lifestead on an Android phone.'}
           </Text>
         </TabBand>
       )}

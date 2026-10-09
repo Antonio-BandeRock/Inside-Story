@@ -80,7 +80,7 @@ const UNLOCK_BEFORE_NAME = `${DB_NAME}.before-unlock`;
 const UNLOCK_UNOPENED_NAME = `${DB_NAME}.unlocked-unopened`;
 const SIDE_FILES = ['-wal', '-shm', '-journal'];
 
-const BIOMETRIC_PROMPT = 'Unlock Inside Story';
+const BIOMETRIC_PROMPT = 'Unlock Lifestead';
 
 async function secureStore() {
   return import('expo-secure-store');

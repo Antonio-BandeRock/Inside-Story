@@ -168,7 +168,7 @@ function listFiles(folder) {
 
 /**
  * Makes a folder, taking the next free name if that one is in use, the
- * way OneDrive itself does ("Inside Story 1"). A second folder under a
+ * way OneDrive itself does ("Lifestead 1"). A second folder under a
  * new name is recoverable; one quietly reused is not what was asked for.
  */
 function makeFolder(parent, name) {

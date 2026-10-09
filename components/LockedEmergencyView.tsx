@@ -61,7 +61,7 @@ export function LockedEmergencyView() {
             })
           ) : (
             <Text style={styles.hint}>
-              No emergency lines are kept on this phone. They are picked in Inside Story, under Life, Emergency, once the phone is unlocked.
+              No emergency lines are kept on this phone. They are picked in Lifestead, under Life, Emergency, once the phone is unlocked.
             </Text>
           )}
           <View style={styles.actions}>

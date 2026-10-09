@@ -47,7 +47,7 @@ if (!fs.existsSync(dist)) {
 
 const built = fs
   .readdirSync(dist)
-  .map((name) => name.match(/^Inside Story Setup (\d+\.\d+\.\d+\.\d+)\.exe$/))
+  .map((name) => name.match(/^Lifestead Setup (\d+\.\d+\.\d+\.\d+)\.exe$/))
   .filter(Boolean)
   .map((match) => match[1]);
 

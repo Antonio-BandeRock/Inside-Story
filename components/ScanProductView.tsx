@@ -670,7 +670,7 @@ export function ScanProductView({
       const result = await pickAndSaveMealPhoto('library', scopeKey, previousUri ?? undefined);
       if (result.status !== 'success') {
         if (result.status === 'permission-denied') {
-          setErrorMessage('Inside Story needs access to your photos to use an existing picture.');
+          setErrorMessage('Lifestead needs access to your photos to use an existing picture.');
         }
         return;
       }
@@ -1116,7 +1116,7 @@ export function ScanProductView({
         <View style={styles.centerBody}>
           <Ionicons name="camera-outline" size={40} color={colors.textMuted} />
           <Text style={styles.title}>Camera access needed</Text>
-          <Text style={styles.text}>Inside Story needs your camera to scan a product&apos;s barcode.</Text>
+          <Text style={styles.text}>Lifestead needs your camera to scan a product&apos;s barcode.</Text>
           <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={requestPermission}>
             <Text style={styles.primaryButtonText}>Allow Camera Access</Text>
           </TouchableOpacity>

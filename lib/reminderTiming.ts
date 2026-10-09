@@ -99,7 +99,7 @@ export function reminderTimingLine(status: ReminderTimingStatus): string | null 
   if (status.exact === null) return null;
   const exact = status.exact
     ? 'Alarms & reminders is allowed, so each reminder is set for its minute.'
-    : 'Alarms & reminders is not allowed for Inside Story, so Android may hold reminders back until the phone is picked up or the app is opened.';
+    : 'Alarms & reminders is not allowed for Lifestead, so Android may hold reminders back until the phone is picked up or the app is opened.';
   if (status.battery === null) return exact;
   const battery = status.battery
     ? 'Battery use is unrestricted, so Android does not put the app to sleep between reminders.'
@@ -110,7 +110,7 @@ export function reminderTimingLine(status: ReminderTimingStatus): string | null 
 export const REMINDER_TIMING_TITLE = 'Let reminders arrive on time';
 export const REMINDER_TIMING_MESSAGE =
   'Android is holding reminders back until the phone is picked up, which is why some arrive when you open the app. ' +
-  'Allowing Alarms & reminders for Inside Story lets each one arrive at its time. The switch is on the next screen.';
+  'Allowing Alarms & reminders for Lifestead lets each one arrive at its time. The switch is on the next screen.';
 
 let asking = false;
 

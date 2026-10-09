@@ -1476,7 +1476,7 @@ export default function ProfileScreen() {
       hideBusy();
       showBackupAlert(
         'Saved',
-        'Your new ground color is saved, but this device could not restart the app automatically. Close and reopen Inside Story to see it everywhere.',
+        'Your new ground color is saved, but this device could not restart the app automatically. Close and reopen Lifestead to see it everywhere.',
       );
     }
   }
@@ -1515,7 +1515,7 @@ export default function ProfileScreen() {
         setUpdateCheckBusy(false);
         showBackupAlert(
           'Not Available on This Build',
-          'This copy of Inside Story isn’t connected to update checking (true of a development build running from a live server). Close and reopen the app instead to pick up a change.',
+          'This copy of Lifestead isn’t connected to update checking (true of a development build running from a live server). Close and reopen the app instead to pick up a change.',
         );
         return;
       }
@@ -1525,7 +1525,7 @@ export default function ProfileScreen() {
         setUpdateCheckBusy(false);
         showBackupAlert(
           'Up to Date',
-          `You already have the latest version of Inside Story (${APP_VERSION}). Nothing was downloaded, and the app does not need to restart.`,
+          `You already have the latest version of Lifestead (${APP_VERSION}). Nothing was downloaded, and the app does not need to restart.`,
         );
         return;
       }
@@ -1542,7 +1542,7 @@ export default function ProfileScreen() {
       const proceed = await confirmBackup({
         title: 'Update Available',
         message:
-          'A newer version of Inside Story is ready. It will download, then the app will close and reopen on its own to finish. This usually takes a few seconds. Anything you are part-way through entering right now would be lost, so finish or save that first if you need to. When it reopens, you will see a summary of what changed.',
+          'A newer version of Lifestead is ready. It will download, then the app will close and reopen on its own to finish. This usually takes a few seconds. Anything you are part-way through entering right now would be lost, so finish or save that first if you need to. When it reopens, you will see a summary of what changed.',
         confirmLabel: 'Update and Restart',
         cancelLabel: 'Not Now',
       });
@@ -2408,7 +2408,7 @@ export default function ProfileScreen() {
           hideBusy();
           showBackupAlert(
             'Saved',
-            'Everything is turned back off, but this device could not restart the app automatically. Close and reopen Inside Story to see the line spacing everywhere.',
+            'Everything is turned back off, but this device could not restart the app automatically. Close and reopen Lifestead to see the line spacing everywhere.',
           );
         }
         return;
@@ -2456,7 +2456,7 @@ export default function ProfileScreen() {
         hideBusy();
         showBackupAlert(
           'Saved',
-          'Everything is turned on, but this device could not restart the app automatically. Close and reopen Inside Story to see the roomier line spacing everywhere.',
+          'Everything is turned on, but this device could not restart the app automatically. Close and reopen Lifestead to see the roomier line spacing everywhere.',
         );
       }
       return;
@@ -2480,7 +2480,7 @@ export default function ProfileScreen() {
       hideBusy();
       showBackupAlert(
         'Saved',
-        'Your line spacing is saved, but this device could not restart the app automatically. Close and reopen Inside Story to see it everywhere.',
+        'Your line spacing is saved, but this device could not restart the app automatically. Close and reopen Lifestead to see it everywhere.',
       );
     }
   }
@@ -2499,7 +2499,7 @@ export default function ProfileScreen() {
       hideBusy();
       showBackupAlert(
         'Saved',
-        'Your letter spacing is saved, but this device could not restart the app automatically. Close and reopen Inside Story to see it everywhere.',
+        'Your letter spacing is saved, but this device could not restart the app automatically. Close and reopen Lifestead to see it everywhere.',
       );
     }
   }
@@ -2577,7 +2577,7 @@ export default function ProfileScreen() {
       } else if (result.status === 'permission-denied') {
         showBackupAlert(
           'Photo access needed',
-          "Inside Story needs permission to your photos to set a custom background. You can grant this in your device's app settings.",
+          "Lifestead needs permission to your photos to set a custom background. You can grant this in your device's app settings.",
         );
       } else if (result.status === 'too-small') {
         showBackupAlert(
@@ -2696,7 +2696,7 @@ export default function ProfileScreen() {
       if (backups.length === 0) {
         showBackupAlert(
           'No backups there',
-          'There are no Inside Story backups in ' + (backupFolder.path ?? backupFolder.name) + '.',
+          'There are no Lifestead backups in ' + (backupFolder.path ?? backupFolder.name) + '.',
         );
         return;
       }
@@ -2745,7 +2745,7 @@ export default function ProfileScreen() {
       }
       const shared = await shareFileIfAvailable(fileUri, {
         mimeType: 'application/json',
-        dialogTitle: 'Save your Inside Story backup',
+        dialogTitle: 'Save your Lifestead backup',
       });
       await refreshLocalBackups();
       showBackupAlert(
@@ -2754,7 +2754,7 @@ export default function ProfileScreen() {
           shared
             ? "If you just saved a copy somewhere (a cloud drive, an email to yourself), that's the one to keep: it survives even if this device doesn't. "
             : ''
-        }A copy also stays right here, in Inside Story's app storage:\n\n${fileUri}\n\nThat copy is what "Restore Most Recent" below reads from, but it's lost along with this device if this device is ever lost or replaced.`,
+        }A copy also stays right here, in Lifestead's app storage:\n\n${fileUri}\n\nThat copy is what "Restore Most Recent" below reads from, but it's lost along with this device if this device is ever lost or replaced.`,
       );
     } catch (error) {
       showBackupAlert('Something went wrong', error instanceof Error ? error.message : 'Failed to export a backup.');
@@ -2897,7 +2897,7 @@ export default function ProfileScreen() {
           result.tablesSkipped.length > 0
             ? ` (${result.tablesSkipped.length} table(s) from the backup no longer exist in this version of the app and were skipped.)`
             : ''
-        }\n\nClose and fully reopen Inside Story now: some settings (like the TabHub icon) are cached in memory while the app is running, and won't show the restored value until it's restarted.`,
+        }\n\nClose and fully reopen Lifestead now: some settings (like the TabHub icon) are cached in memory while the app is running, and won't show the restored value until it's restarted.`,
       );
     } catch (error) {
       showBackupAlert(
@@ -3306,10 +3306,10 @@ export default function ProfileScreen() {
   // 2026-08-21) alongside this one; removed outright, direct instruction:
   // "remove the other seed icon from the app entirely, make the new seed
   // icon the default." The seed itself was removed as a choice on
-  // 2026-10-06, by direct instruction, when the Inside Story book took its
+  // 2026-10-06, by direct instruction, when the Lifestead book took its
   // place.
   const appIconOptions: { key: TabHubIconChoice; label: string }[] = [
-    { key: 'insideStory', label: 'Inside Story (App Default)' },
+    { key: 'insideStory', label: 'Lifestead (App Default)' },
   ];
   // 2026-08-14: the renamed former "Default" entry (the plain butterfly, key
   // unchanged at 'default') is seeded in here by hand, not derived from
@@ -3424,7 +3424,7 @@ export default function ProfileScreen() {
           <View style={styles.cardBody}>
             <Text style={styles.subLabel}>Your name</Text>
             <Text style={styles.helpText}>
-              Your first name shows in the header (e.g. &ldquo;Tony&apos;s Inside Story&rdquo;). Last name is also
+              Your first name shows in the header (e.g. &ldquo;Tony&apos;s Lifestead&rdquo;). Last name is also
               collected: one reason is for reports meant to be handed to a doctor, where both
               names read naturally together.
             </Text>
@@ -4158,7 +4158,7 @@ export default function ProfileScreen() {
             <Text style={styles.helpText}>
               Which of your scheduled things send a notification to this phone. Turning one off leaves the
               schedule itself untouched, it only stops the reminder. None of these can fire until you have
-              allowed notifications for Inside Story, which Schedules &gt; Meds asks for the first time you set a
+              allowed notifications for Lifestead, which Schedules &gt; Meds asks for the first time you set a
               dose time.
             </Text>
             {canOpenReminderTimingSettings() && reminderTimingLine(reminderTiming) ? (
@@ -5062,7 +5062,7 @@ export default function ProfileScreen() {
             {renderAppearanceSubsectionHeader('tabHubIcon', 'TabHub Icon', false)}
             {!collapsedAppearanceSubsections.has('tabHubIcon') ? (
               <View style={styles.subsectionBody}>                <Text style={styles.helpText}>
-                  The main floating button used to open the app&apos;s navigation menu. Shows the Inside Story
+                  The main floating button used to open the app&apos;s navigation menu. Shows the Lifestead
                   book by default. Pick any tracked condition&apos;s icon, any insect/pollinator icon, any of the 38
                   animal portraits below to personalize it instead. Only one
                   can be active at a time.
@@ -5505,7 +5505,7 @@ export default function ProfileScreen() {
         {!collapsedSections.has('app-updates') ? (
           <View style={styles.cardBody}>
             <Text style={styles.helpText}>
-              Inside Story only checks for a new version automatically when it first opens, not while it&apos;s
+              Lifestead only checks for a new version automatically when it first opens, not while it&apos;s
               already running. If you know an update was just sent out, check here instead of closing and
               reopening the app.
             </Text>
@@ -5824,7 +5824,7 @@ export default function ProfileScreen() {
         {!collapsedSections.has('connections') ? (
           <View style={styles.cardBody}>
             <Text style={styles.helpText}>
-              Invite someone to connect directly with you in Inside Story, so you can share recipes and more with each
+              Invite someone to connect directly with you in Lifestead, so you can share recipes and more with each
               other, and see who you&apos;ve already connected with.
             </Text>
             <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/connections')}>

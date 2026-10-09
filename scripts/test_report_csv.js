@@ -64,7 +64,7 @@ const doc = {
     { kind: 'table', heading: 'Doses & marks (café)', columns: ['Day'], rows: [['2026-09-12']], empty: 'None.' },
   ],
   footer: 'Made on this device.',
-  versionLine: 'Inside Story 1.0.56.15',
+  versionLine: 'Lifestead 1.0.56.15',
 };
 
 // 1. Tables offered
@@ -84,7 +84,7 @@ same(
 // 3. Whole report
 const whole = C.wholeReportCsv(doc).split('\r\n');
 same(whole[0], BOM + 'Doctor Report', 'title first, after the BOM');
-same(whole.slice(1, 5), ['Covers 2026-08-31 to 2026-09-29', 'Made 2026-09-29', 'Inside Story 1.0.56.15', 'For Dr. Ruiz'], 'range, date, version and preface');
+same(whole.slice(1, 5), ['Covers 2026-08-31 to 2026-09-29', 'Made 2026-09-29', 'Lifestead 1.0.56.15', 'For Dr. Ruiz'], 'range, date, version and preface');
 same(whole.slice(5, 9), ['', 'At a glance', 'Counts only.', 'Weight: 68 kg on Sep 20.'], 'a list section under its heading with its note');
 same(whole.slice(9, 14), ['', 'Labs', 'Test,Value,Date', 'TSH,5.1,2026-09-10', '"Note, with comma","say ""high""",2026-09-11'], 'a table keeps its columns');
 const movement = whole.indexOf('Movement');

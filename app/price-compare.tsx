@@ -110,7 +110,7 @@ export default function PriceCompareScreen() {
       if (!permission.granted) {
         showInfoAlert(
           'Camera access needed',
-          'Inside Story needs your camera to read a price off the shelf label. You can still type it in.',
+          'Lifestead needs your camera to read a price off the shelf label. You can still type it in.',
         );
         return;
       }

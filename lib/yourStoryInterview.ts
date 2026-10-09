@@ -74,12 +74,12 @@ export const INTERVIEW_QUESTIONS: InterviewQuestionDef[] = [
   {
     kind: 'neuro',
     question: 'Is autism, ADHD or dyslexia part of your life?',
-    why: 'Inside Story can hold the details of your day so they stop taking up room in your head, with a quieter Home, a place to drop a thought and reminders that come before a thing. None of it changes a food score.',
+    why: 'Lifestead can hold the details of your day so they stop taking up room in your head, with a quieter Home, a place to drop a thought and reminders that come before a thing. None of it changes a food score.',
     beats: [],
   },
   {
     kind: 'beats',
-    question: 'What parts of your life do you want Inside Story to follow?',
+    question: 'What parts of your life do you want Lifestead to follow?',
     why: 'The rest of these questions, and the guides after them, only ask about the parts you choose. Nothing in the app is hidden by what you leave out.',
     beats: [],
   },
@@ -164,8 +164,8 @@ export const OPEN_PROFILE_LABEL = 'Open Profile';
 
 export const INTERVIEW_HEADING = 'A few questions first';
 export const INTERVIEW_LEAD =
-  'Inside Story works better the more it knows about you. Answer what applies, one at a time; every answer can be changed later.';
-export const INTERVIEW_ANSWERED_HEADING = 'What you told Inside Story';
+  'Lifestead works better the more it knows about you. Answer what applies, one at a time; every answer can be changed later.';
+export const INTERVIEW_ANSWERED_HEADING = 'What you told Lifestead';
 export const INTERVIEW_FINISHED_LINE = 'Every question has an answer. Tap Change on any of them if something is different now.';
 export const NEXT_QUESTION_LABEL = 'Next question:';
 

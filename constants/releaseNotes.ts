@@ -100,7 +100,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.42.16',
     date: '2026-09-21',
     changes: [
-      'A fresh install no longer fails to set up its database: the favorites migration read a schedule column that did not exist yet on a brand-new phone, and the check was moved behind that column. Inside Story also runs on Windows and Mac now, as a desktop app sharing the same code, keeping its data in a folder on the computer; it is a first version, and carrying your phone\'s data over to it is the next step.',
+      'A fresh install no longer fails to set up its database: the favorites migration read a schedule column that did not exist yet on a brand-new phone, and the check was moved behind that column. Lifestead also runs on Windows and Mac now, as a desktop app sharing the same code, keeping its data in a folder on the computer; it is a first version, and carrying your phone\'s data over to it is the next step.',
     ],
   },
   {
@@ -554,7 +554,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.39.13',
     date: '2026-09-16',
     changes: [
-      'The row of ten dots under My Inside Story is now one icon: whichever tab you are standing on, in the colour that tab carries everywhere, the same icon the main menu shows for it.',
+      'The row of ten dots under My Lifestead is now one icon: whichever tab you are standing on, in the colour that tab carries everywhere, the same icon the main menu shows for it.',
       'The other nine dimmed dots are gone. They only ever said where you were by position, and the icon says it outright.',
     ],
   },
@@ -1392,7 +1392,7 @@ export const RELEASE_NOTES: ReleaseNote[] = [
     version: '1.0.34.30',
     date: '2026-09-06',
     changes: [
-      'New: partner links. You can connect with a partner on their own copy of Inside Story, and plan meals around both of you at once. This is the first connection in the app that does anything beyond sending a single recipe.',
+      'New: partner links. You can connect with a partner on their own copy of Lifestead, and plan meals around both of you at once. This is the first connection in the app that does anything beyond sending a single recipe.',
       'One dinner, two sets of conditions. A meal is left out only if it is one to avoid for someone; if it is merely worth a closer look for one of you, it stays on the plan and each of you is told what it means for you. Planning only what is perfect for both would empty the menu, and a shared dinner where one person leaves something out is a normal evening rather than a failure.',
       'What you share is your choice and is set before the link is sent. Meals and shopping lists start on. Which conditions you track starts OFF and has to be turned on deliberately, because a list of your diagnoses is not the same kind of thing as what is for dinner.',
       'Your symptoms, labs, healing stage, weight and notes are not shared by this and cannot be. Only the names of the conditions you track ever cross, and only if you switch that on.',

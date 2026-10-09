@@ -1,4 +1,4 @@
-// Takes in whatever another app shares to Inside Story (C11, rebuild R1,
+// Takes in whatever another app shares to Lifestead (C11, rebuild R1,
 // lib/shareIntake.ts decides where it goes). A recipe link opens Food >
 // Import a Recipe with the link in its box and nothing fetched; text or a
 // link becomes a Capture note marked as shared; images become one Capture

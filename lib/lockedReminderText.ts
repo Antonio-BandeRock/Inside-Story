@@ -35,7 +35,7 @@ export function privateReminderTitle(kind: string): string {
     case 'upkeep':
       return 'An upkeep task is due';
     default:
-      return 'A reminder from Inside Story is due';
+      return 'A reminder from Lifestead is due';
   }
 }
 

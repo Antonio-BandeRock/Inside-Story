@@ -279,7 +279,7 @@ declare global {
 export function getDesktopBridge(): DesktopBridge {
   const bridge = typeof window !== 'undefined' ? window.insideStoryDesktop : undefined;
   if (!bridge) {
-    throw new Error('Inside Story desktop bridge is missing: this build only runs inside the desktop app.');
+    throw new Error('Lifestead desktop bridge is missing: this build only runs inside the desktop app.');
   }
   return bridge;
 }

@@ -9,7 +9,7 @@ import { getCuriousAboutConditions, getUserConditions } from '../lib/db';
 // condition as it appears to be currently. If they have selected to be
 // interested in any other conditions, that should also be identified in case
 // they are keeping a watchful eye for someone else, but those interests are
-// never used with their own Inside Story."
+// never used with their own Lifestead."
 //
 // `own` is user_conditions: what the person has, and the only list that is
 // ever allowed to shape anything about them. `curious` is

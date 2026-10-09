@@ -287,7 +287,7 @@ export default function VoiceLogScreen() {
       showInfoAlert(
         'Voice input had a problem',
         kind === 'permission'
-          ? "Inside Story needs microphone and speech recognition access for this. You can turn it on in your device's Settings, under this app's permissions."
+          ? "Lifestead needs microphone and speech recognition access for this. You can turn it on in your device's Settings, under this app's permissions."
           : 'Something went wrong listening for that. Give it another try.',
       );
       setPhase('review');

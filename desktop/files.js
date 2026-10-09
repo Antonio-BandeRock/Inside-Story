@@ -158,7 +158,7 @@ function move(userDataPath, fromUri, toUriValue) {
 // with no filter.
 function filtersFor(mimeType) {
   const known = {
-    'application/json': { name: 'Inside Story backups', extensions: ['json'] },
+    'application/json': { name: 'Lifestead backups', extensions: ['json'] },
     'application/pdf': { name: 'PDF documents', extensions: ['pdf'] },
     'text/csv': { name: 'Spreadsheet files', extensions: ['csv', 'tsv', 'txt'] },
     'audio/*': { name: 'Recordings', extensions: ['mp3', 'm4a', 'aac', 'wav', 'ogg', 'opus', 'flac', 'webm'] },

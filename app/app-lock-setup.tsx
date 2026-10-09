@@ -71,11 +71,11 @@ function titleFor(mode: Mode): string {
 
 function recoveryText(key: RecoveryKey): string {
   return [
-    "Inside Story recovery key",
+    "Lifestead recovery key",
     "",
     key.groups.join(" "),
     "",
-    `This opens Inside Story on your ${deviceWord()} if you forget your passcode.`,
+    `This opens Lifestead on your ${deviceWord()} if you forget your passcode.`,
     `Keep it somewhere safe and away from the ${deviceWord()}. Anybody holding it and the ${deviceWord()} can open your records.`,
     `Made ${new Date().toLocaleDateString()}.`,
   ].join("\n");
@@ -84,9 +84,9 @@ function recoveryText(key: RecoveryKey): string {
 function recoveryHtml(key: RecoveryKey): string {
   const groups = key.groups.map((g) => `<span>${g}</span>`).join(" ");
   return `<html><body style="font-family: sans-serif; padding: 40px;">
-<h2>Inside Story recovery key</h2>
+<h2>Lifestead recovery key</h2>
 <p style="font-family: monospace; font-size: 24px; letter-spacing: 2px; word-spacing: 12px;">${groups}</p>
-<p>This opens Inside Story on your ${deviceWord()} if you forget your passcode.</p>
+<p>This opens Lifestead on your ${deviceWord()} if you forget your passcode.</p>
 <p>Keep it somewhere safe and away from the ${deviceWord()}. Anybody holding it and the ${deviceWord()} can open your records.</p>
 <p>Made ${new Date().toLocaleDateString()}.</p>
 </body></html>`;

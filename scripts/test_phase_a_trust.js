@@ -62,7 +62,7 @@ same(reportVersion.referenceDataDate('odd'), 'odd', 'a stamp in another shape is
 const line = reportVersion.reportVersionLine('1.0.50.13', '20260918210000');
 same(
   line,
-  'Made with Inside Story 1.0.50.13, using food reference data and interaction rules dated 2026-09-18 (build 20260918210000).',
+  'Made with Lifestead 1.0.50.13, using food reference data and interaction rules dated 2026-09-18 (build 20260918210000).',
   'the version line names both versions',
 );
 const reportFiles = ['lib/reportGenerator.ts', 'lib/reportHtml.ts'].map((file) => fs.readFileSync(path.join(__dirname, '..', file), 'utf8'));
@@ -170,7 +170,7 @@ same(appStatus.reminderStatusLine(facts).value, '12 reminders queued.', 'queued 
 const denied = { ...facts, permission: false, kindsOff: ['Meals'], quietWindow: '10:00 PM to 7:00 AM' };
 same(appStatus.reminderStatusLine(denied).tone, 'attention', 'permission off is raised');
 const reasons = appStatus.reminderDiagnosis(denied);
-check(reasons[0].includes('turned off for Inside Story'), 'permission is the first reason');
+check(reasons[0].includes('turned off for Lifestead'), 'permission is the first reason');
 check(reasons.some((r) => r.includes('Meals')) && reasons.some((r) => r.includes('Quiet hours are on, 10:00 PM')), 'switched-off kinds and quiet hours are named');
 check(reasons.some((r) => r.includes('Alarms & reminders')), 'the Android exact alarm allowance is named');
 check(!appStatus.reminderDiagnosis(facts).some((r) => r.includes('holds 60')), 'a queue with room says nothing about being full');

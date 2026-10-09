@@ -493,7 +493,7 @@ function LockScreen({
   };
 
   return (
-    <GateScreen icon="lock-closed-outline" title="Inside Story is locked">
+    <GateScreen icon="lock-closed-outline" title="Lifestead is locked">
       {lockedAside ? <Text style={styles.text}>{lockedAside}</Text> : null}
       {message ? <Text style={styles.text}>{message}</Text> : null}
       {waiting ? (
@@ -775,14 +775,14 @@ function RecordsUnopenable({ problem }: { problem: string }) {
     const result = await bringRecordsBackFromSharedFolder();
     if (result.ok) {
       restartApp().catch(() =>
-        setOutcome("Your records are back. Close Inside Story and open it again."),
+        setOutcome("Your records are back. Close Lifestead and open it again."),
       );
       return;
     }
     setWorking(false);
     setOutcome(
       result.syncTurnedOff
-        ? `${result.problem} Sync with the shared folder was turned off on this computer so nothing empty reaches your other device. Close Inside Story, open it again, and turn sync back on in Profile > Backup & Restore to bring the records over.`
+        ? `${result.problem} Sync with the shared folder was turned off on this computer so nothing empty reaches your other device. Close Lifestead, open it again, and turn sync back on in Profile > Backup & Restore to bring the records over.`
         : result.problem,
     );
   };

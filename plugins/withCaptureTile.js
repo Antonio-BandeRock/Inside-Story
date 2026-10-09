@@ -2,7 +2,7 @@
 // capture, 1.0.62.1, 2026-10-05).
 //
 // Two tiles: Voice Note and Photo Note. Direct request, 2026-10-05: "You'd
-// pull down the tile ..., enter your Inside Story code, speak, and it saves.
+// pull down the tile ..., enter your Lifestead code, speak, and it saves.
 // The phone stays locked the whole time," and the camera's job is "a photo
 // straight into Capture."
 //
@@ -12,7 +12,7 @@
 //  - CaptureLauncherActivity decides at the moment of the press. Phone
 //    locked and App Lock on: the capture screen over the lock screen.
 //    Phone locked and App Lock off: Android's own unlock first, since there
-//    is no Inside Story code to ask for, then Capture in the app. Phone
+//    is no Lifestead code to ask for, then Capture in the app. Phone
 //    unlocked: Capture in the app, listening or with the camera open. The
 //    shade buttons (modules/locked-capture) open the same activity. The
 //    emergency notification opens it in mode "emergency", which always goes

@@ -45,7 +45,7 @@ const ERROR_COPY: Record<Exclude<VoiceDictationErrorKind, 'no-speech'>, { title:
   permission: {
     title: 'Microphone access needed',
     message:
-      "Inside Story needs microphone and speech recognition access to use voice input. You can turn this on in your device Settings, under this app's permissions.",
+      "Lifestead needs microphone and speech recognition access to use voice input. You can turn this on in your device Settings, under this app's permissions.",
   },
   unavailable: {
     title: 'Voice input not available',

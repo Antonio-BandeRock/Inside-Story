@@ -295,7 +295,7 @@ export default function OneDriveFolderScreen() {
           ) : chosen ? (
             <>
               <Text style={styles.chosen}>Currently using: {chosen.name}</Text>
-              {/* The full path, because two folders can be called Inside Story and
+              {/* The full path, because two folders can be called Lifestead and
                   a name on its own cannot tell them apart. */}
               <Text style={styles.pathText}>{chosen.path ?? 'OneDrive, in a folder shared with you.'}</Text>
               {/* What the app puts inside it, named plainly rather than left to be

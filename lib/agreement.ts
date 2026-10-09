@@ -1,5 +1,5 @@
 // The first-launch agreement (X2, 2026-09-29). Before anything else, one
-// screen says in plain words what Inside Story is and is not, and the
+// screen says in plain words what Lifestead is and is not, and the
 // person agrees once. The wording lives here, with the number of the
 // wording it is: change a point and raise AGREEMENT_VERSION, and everyone
 // who agreed to an earlier wording is asked again. What was agreed to is
@@ -16,7 +16,7 @@ export const AGREEMENT_META_KEY = 'agreement_accepted';
 export const AGREEMENT_TITLE = 'Before you start';
 
 export const AGREEMENT_INTRO =
-  'Inside Story keeps your records and offers general information about food, health and daily living. Please read these points once before going on.';
+  'Lifestead keeps your records and offers general information about food, health and daily living. Please read these points once before going on.';
 
 export type AgreementPoint = { heading: string; body: string };
 

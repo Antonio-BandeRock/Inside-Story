@@ -63,7 +63,7 @@ check('failed asks', V.afterVoicePackDownload('failed') === 'ask');
 const prompt = V.voicePackPrompt('en-US', "Google's speech service");
 check('prompt names language', prompt.body.includes('English speech pack'));
 check('prompt names the service', prompt.body.includes("Google's speech service"));
-check('prompt says why', /no Inside Story server/.test(prompt.body) && /never leave the phone/.test(prompt.body));
+check('prompt says why', /no Lifestead server/.test(prompt.body) && /never leave the phone/.test(prompt.body));
 check('three buttons', prompt.download && prompt.notNow && prompt.never);
 
 const sit = { platform: 'android', osVersion: 34, supportsOnDevice: true, installed: false, neverAsk: false };

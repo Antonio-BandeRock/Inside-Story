@@ -537,7 +537,7 @@ function UnlockedApp() {
                   name="timeline"
                   options={{
                     headerShown: true,
-                    title: 'Your Inside Story',
+                    title: 'Your Lifestead',
                     headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.textPrimary,
                   }}

@@ -33,7 +33,7 @@ export type GrowthVineState = {
   // 1.0.61.3 nothing rewards from the header at all. This file
   // and the criteria registry it reads are kept intact on purpose, because
   // the recognition itself stays: "The reward concept, yes it stays, but
-  // not the dots, and not under Inside Story as it is."
+  // not the dots, and not under Lifestead as it is."
   perTab: TabGrowthState[];
   isMature: boolean;
 };

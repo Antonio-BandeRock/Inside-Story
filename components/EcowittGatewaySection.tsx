@@ -68,7 +68,7 @@ const METHOD_CHOICES: { label: string; value: GatewayMethod }[] = [
 ];
 
 const OLD_INSTALLER_NOTE =
-  'This copy of Inside Story on the computer is too old to receive readings. Install the latest version, then come back here.';
+  'This copy of Lifestead on the computer is too old to receive readings. Install the latest version, then come back here.';
 
 function stationListener() {
   return isDesktopApp() ? getDesktopBridge().stationListener ?? null : null;

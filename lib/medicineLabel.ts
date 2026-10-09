@@ -352,7 +352,7 @@ export function labelIdentity(doc: LabelDocument): string {
 
 /** What the text is, and what the app does not do with it. */
 export const LABEL_SOURCE_NOTE =
-  "This is the manufacturer's label as filed with the FDA, shown word for word. Inside Story does not check it against your other medicines or your meals. A pharmacist can check all of your medicines together.";
+  "This is the manufacturer's label as filed with the FDA, shown word for word. Lifestead does not check it against your other medicines or your meals. A pharmacist can check all of your medicines together.";
 
 export const LABEL_FDA_CAVEAT =
   'openFDA says this text has not been altered or verified by the FDA, and it may not match the labeling on the package you have. Tables on the label appear here as plain text; DailyMed shows the full layout.';

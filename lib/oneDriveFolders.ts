@@ -40,7 +40,7 @@
 // Graph address; a computer stores its path on the disk (driveId 'disk',
 // lib/desktop/cloudFolder.ts). A backup restored across the two carries the
 // other kind's address, so getSharedFolder reads the stored folder's path
-// sentence ("OneDrive / Apps / Inside Story") back into a folder on this
+// sentence ("OneDrive / Apps / Lifestead") back into a folder on this
 // computer when it can, and says plainly where the folder was chosen when it
 // cannot, rather than reporting a Graph error about an id that means nothing
 // here or a disk path that means nothing on a phone.

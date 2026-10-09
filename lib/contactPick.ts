@@ -42,7 +42,7 @@ export async function pickContact(): Promise<PickOutcome> {
       if (!permission.granted) {
         return {
           kind: 'problem',
-          reason: 'Inside Story was not allowed to read contacts, so nothing was filled in. The name and number can still be typed, or the permission turned on in the phone settings.',
+          reason: 'Lifestead was not allowed to read contacts, so nothing was filled in. The name and number can still be typed, or the permission turned on in the phone settings.',
         };
       }
     }

@@ -1,4 +1,4 @@
-// Inside Story for Windows and Mac: Electron's main process.
+// Lifestead for Windows and Mac: Electron's main process.
 //
 // The window shows the same app the phone runs, exported for the web
 // target by `node build-web.js` into web-build/ and served from there over
@@ -40,6 +40,11 @@ const SCHEME = 'app';
 const HOST = 'inside-story';
 const WEB_ROOT = path.join(__dirname, 'web-build');
 const REFERENCE_DB_FILE = 'foods_reference.db';
+
+// The records live in %APPDATA%/inside-story-desktop. The app was renamed
+// Lifestead on 2026-10-09, and Electron names that folder after the app,
+// so it is pinned here: a rename must never leave someone's records behind.
+app.setPath('userData', path.join(app.getPath('appData'), 'inside-story-desktop'));
 
 // A phone-shaped window: the app lays itself out for one column, the
 // popup menus measure the window to place themselves, and this size keeps
@@ -265,7 +270,7 @@ function createWindow() {
     height: sizeOverride ? Number(sizeOverride[2]) : Math.min(DEFAULT_HEIGHT, workArea.height - 24),
     minWidth: MIN_WIDTH,
     minHeight: MIN_HEIGHT,
-    title: 'Inside Story',
+    title: 'Lifestead',
     autoHideMenuBar: true,
     backgroundColor: '#1F2A2C',
     webPreferences: {
