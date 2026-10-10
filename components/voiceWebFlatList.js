@@ -4,7 +4,10 @@
 // 'react-native-web/dist/exports/FlatList', and metro.config.js hands this
 // app's own files this module for that path instead. See
 // components/voiceNamedControl.js.
-const Imported = require('react-native-web/dist/exports/FlatList');
+// '/index', never the bare export path: Metro hands the bare path to this
+// file for every other file in components/, so it would import itself and
+// the desktop would open blank (1.0.66.14, the 1.0.52.3 bug again).
+const Imported = require('react-native-web/dist/exports/FlatList/index');
 const { withVoiceScroll } = require('./voiceNamedControl');
 
 const Original = Imported && Imported.default ? Imported.default : Imported;
