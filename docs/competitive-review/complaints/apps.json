@@ -1,0 +1,4648 @@
+[
+ {
+  "app": "AnyList",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "trends",
+   "home",
+   "life",
+   "companions",
+   "across"
+  ],
+  "groups": [
+   "Widgets and conversions",
+   "Grocery list, prices and seasonal food",
+   "Sharing with other people",
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Home screen widgets",
+   "Grocery List",
+   "Sharing recipes as .is files",
+   "Shopping list shared with a partner",
+   "Paid interactive household companion",
+   "Partner (two full accounts, chosen visibility)"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Bearable",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "schedules",
+   "signals",
+   "insights",
+   "trends",
+   "reports",
+   "home",
+   "life",
+   "across"
+  ],
+  "groups": [
+   "Your story over time",
+   "Looks, accessibility and the way around",
+   "Logging how you feel, symptoms and reactions",
+   "Weight, sleep, steps, blood pressure and workouts",
+   "Menstrual cycle",
+   "Pacing energy",
+   "Finding what tends to come before a flare",
+   "What the records do together",
+   "Reports for a doctor, nutritionist, trainer or caregiver",
+   "Privacy, the lock, the vault and backup",
+   "Sync between devices and the desktop app",
+   "Waiting on a decision (need a server or bend a rule)"
+  ],
+  "functions": [
+   "Your Story guide and interview",
+   "Arranging Home cards",
+   "What your records showed this month",
+   "How you feel today (daily check-in)",
+   "Flares",
+   "Food Reactions",
+   "Exercise log",
+   "Cycle",
+   "My Trackers (track anything)",
+   "Signals Today",
+   "Symptoms & Flares over time",
+   "Pacing (energy envelope)",
+   "Therapy Response",
+   "My Trackers over time",
+   "Make this a rule (a Pattern Finder result becomes a personal rule)",
+   "Pattern Finder (what tends to come before a flare)",
+   "Overview report",
+   "For Your Doctor",
+   "App Lock (encrypted records)",
+   "Windows and Mac app",
+   "Health Connect import",
+   "A lifetime price and a hardship price"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Brewfather",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "food"
+  ],
+  "groups": [
+   "How preparation and fermenting change a food"
+  ],
+  "functions": [
+   "Home brew from whole foods (beer, wine, spirits)"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Brewfather (brewing only)",
+  "role": [
+   "leader",
+   "also"
+  ],
+  "tabs": [
+   "food",
+   "trends"
+  ],
+  "groups": [
+   "How preparation and fermenting change a food"
+  ],
+  "functions": [
+   "Fermentation builder and batch tracker",
+   "Ferments"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Cronometer",
+  "role": [
+   "leader",
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "schedules",
+   "insights",
+   "trends",
+   "reports",
+   "across"
+  ],
+  "groups": [
+   "Looking up a food",
+   "Recipes, builders and logging meals",
+   "Nutrients from food and from supplements",
+   "How preparation and fermenting change a food",
+   "Pacing energy",
+   "Reports for a doctor, nutritionist, trainer or caregiver",
+   "Sync between devices and the desktop app"
+  ],
+  "functions": [
+   "Food Lookup (nutrients for any food)",
+   "Meal builders (Meal, Sides, Salads, Smoothies, Soups and the rest)",
+   "Past Meals",
+   "Nutrients today, from food and from supplements",
+   "Cooking & Prep (how preparation changes a food)",
+   "Cooking Impact",
+   "Energy & Portions",
+   "Nutrients over time",
+   "What You Eat (variety, gut-supporting foods, packaged share)",
+   "For a Nutritionist",
+   "Sync between your devices",
+   "Windows and Mac app"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Eat This Much",
+  "role": [
+   "leader",
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "schedules",
+   "trends"
+  ],
+  "groups": [
+   "Meal planning"
+  ],
+  "functions": [
+   "Meal Plan generator (up to six weeks)",
+   "Planned and Eaten"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Fig",
+  "role": [
+   "leader",
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "insights",
+   "trends"
+  ],
+  "groups": [
+   "Reading a food against your conditions",
+   "Scanning and checking packaged food",
+   "Safety: interactions, allergies and the emergency card"
+  ],
+  "functions": [
+   "What a food means for your conditions (For You card)",
+   "Scan a Product",
+   "Condition Scores",
+   "Check a Label",
+   "Safe Foods for you",
+   "Allergy cautions wherever food is shown",
+   "Condition Scores over time"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Kitchen Calculator apps and Google",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "food"
+  ],
+  "groups": [
+   "Widgets and conversions"
+  ],
+  "functions": [
+   "Conversions in kitchen terms"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Kitchen Stories",
+  "role": [
+   "also",
+   "leader"
+  ],
+  "tabs": [
+   "food"
+  ],
+  "groups": [
+   "Recipes, builders and logging meals"
+  ],
+  "functions": [
+   "Ready-made recipes checked for your conditions and diet",
+   "Learning to cook"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "MacroFactor",
+  "role": [
+   "also",
+   "leader"
+  ],
+  "tabs": [
+   "food",
+   "insights",
+   "trends"
+  ],
+  "groups": [
+   "Looking up a food",
+   "Recipes, builders and logging meals",
+   "Nutrients from food and from supplements",
+   "Pacing energy",
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Food Lookup (nutrients for any food)",
+   "Logging a meal (Log or Schedule, quick log)",
+   "Nutrients today, from food and from supplements",
+   "Energy & Portions",
+   "Nutrients over time",
+   "Weight"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "NoWaste",
+  "role": [
+   "leader",
+   "also"
+  ],
+  "tabs": [
+   "food",
+   "insights",
+   "life"
+  ],
+  "groups": [
+   "Grocery list, prices and seasonal food",
+   "What is on hand and where it is"
+  ],
+  "functions": [
+   "Food thrown out and the loop to compost",
+   "What the Kitchen Holds",
+   "Kitchen (what is on hand, where it is)"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Paprika",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "schedules",
+   "insights",
+   "home",
+   "life",
+   "across"
+  ],
+  "groups": [
+   "Interests, projects and making it pay",
+   "Recipes, builders and logging meals",
+   "Sharing with other people",
+   "Waiting on a decision (need a server or bend a rule)",
+   "What is on hand and where it is",
+   "Sync between devices and the desktop app"
+  ],
+  "functions": [
+   "Share to Inside Story from any app",
+   "Import a Recipe",
+   "Meals on the clock",
+   "Sharing recipes as .is files",
+   "A lifetime price and a hardship price"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Plan to Eat",
+  "role": [
+   "leader",
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "schedules",
+   "trends"
+  ],
+  "groups": [
+   "Recipes, builders and logging meals",
+   "Meal planning"
+  ],
+  "functions": [
+   "Meals on the clock",
+   "Meal Plan generator (up to six weeks)",
+   "Planned and Eaten"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Samsung Food",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "schedules",
+   "trends",
+   "across"
+  ],
+  "groups": [
+   "Recipes, builders and logging meals",
+   "Sharing with other people",
+   "Waiting on a decision (need a server or bend a rule)",
+   "Meal planning"
+  ],
+  "functions": [
+   "Import a Recipe",
+   "Ready-made recipes checked for your conditions and diet",
+   "Meals on the clock",
+   "Sharing recipes as .is files",
+   "Send the grocery list to a delivery service"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Seasonal Food Guide",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "food"
+  ],
+  "groups": [
+   "Grocery list, prices and seasonal food"
+  ],
+  "functions": [
+   "Seasonal and local food"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Yuka",
+  "role": [
+   "leader",
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "insights",
+   "across"
+  ],
+  "groups": [
+   "Scanning and checking packaged food",
+   "Safety: interactions, allergies and the emergency card",
+   "Privacy, the lock, the vault and backup"
+  ],
+  "functions": [
+   "Scan a Product",
+   "Check a Label",
+   "Allergy cautions wherever food is shown",
+   "External data lookups (one Worker, three privacy shapes)"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "America’s Test Kitchen",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "food"
+  ],
+  "groups": [
+   "Recipes, builders and logging meals"
+  ],
+  "functions": [
+   "Learning to cook"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Cal AI",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "food"
+  ],
+  "groups": [
+   "Recipes, builders and logging meals"
+  ],
+  "functions": [
+   "Logging a meal (Log or Schedule, quick log)"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Cronometer + Medisafe",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "schedules",
+   "insights",
+   "trends",
+   "life"
+  ],
+  "groups": [
+   "What the records do together"
+  ],
+  "functions": [],
+  "first": "food"
+ },
+ {
+  "app": "Heali",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "insights",
+   "trends",
+   "across"
+  ],
+  "groups": [
+   "Reading a food against your conditions",
+   "Waiting on a decision (need a server or bend a rule)"
+  ],
+  "functions": [
+   "Condition Scores",
+   "An assistant that answers questions about your records"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Mela",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "food"
+  ],
+  "groups": [
+   "Recipes, builders and logging meals"
+  ],
+  "functions": [
+   "Import a Recipe"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Monash FODMAP",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "insights",
+   "trends"
+  ],
+  "groups": [
+   "Reading a food against your conditions",
+   "Recipes, builders and logging meals"
+  ],
+  "functions": [
+   "What a food means for your conditions (For You card)",
+   "Ready-made recipes checked for your conditions and diet"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "MyFitnessPal",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "schedules",
+   "insights",
+   "across"
+  ],
+  "groups": [
+   "Looking up a food",
+   "Recipes, builders and logging meals",
+   "Nutrients from food and from supplements",
+   "Pacing energy",
+   "Waiting on a decision (need a server or bend a rule)",
+   "Scanning and checking packaged food"
+  ],
+  "functions": [
+   "Food Lookup (nutrients for any food)",
+   "Meal builders (Meal, Sides, Salads, Smoothies, Soups and the rest)",
+   "Logging a meal (Log or Schedule, quick log)",
+   "Past Meals",
+   "Nutrients today, from food and from supplements",
+   "Energy & Portions",
+   "Send the grocery list to a delivery service"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "NYT Cooking",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "food"
+  ],
+  "groups": [
+   "Recipes, builders and logging meals"
+  ],
+  "functions": [
+   "Learning to cook"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Open Food Facts",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "insights"
+  ],
+  "groups": [
+   "Scanning and checking packaged food"
+  ],
+  "functions": [],
+  "first": "food"
+ },
+ {
+  "app": "OurGroceries",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "trends",
+   "life",
+   "companions",
+   "across"
+  ],
+  "groups": [
+   "Grocery list, prices and seasonal food",
+   "Sharing with other people",
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Grocery List",
+   "Shopping list shared with a partner",
+   "Free viewer companion (household seat)"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "PantryWise",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "food"
+  ],
+  "groups": [
+   "Grocery list, prices and seasonal food"
+  ],
+  "functions": [
+   "Food thrown out and the loop to compost"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "Seedtime + YNAB",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "schedules",
+   "insights",
+   "trends",
+   "life"
+  ],
+  "groups": [
+   "What the records do together"
+  ],
+  "functions": [],
+  "first": "food"
+ },
+ {
+  "app": "Spoonful",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "food",
+   "insights"
+  ],
+  "groups": [
+   "Reading a food against your conditions",
+   "Scanning and checking packaged food"
+  ],
+  "functions": [
+   "What a food means for your conditions (For You card)",
+   "Scan a Product",
+   "Safe Foods for you"
+  ],
+  "first": "food"
+ },
+ {
+  "app": "USDA FoodData Central",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "food",
+   "insights"
+  ],
+  "groups": [
+   "Looking up a food"
+  ],
+  "functions": [],
+  "first": "food"
+ },
+ {
+  "app": "Apple Health Medications (iPhone), MyTherapy (Android)",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "schedules"
+  ],
+  "groups": [
+   "Medication reminders and dose records"
+  ],
+  "functions": [
+   "Dose reminders and timeline"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "CareClinic",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "schedules",
+   "signals",
+   "trends",
+   "reports",
+   "life",
+   "companions",
+   "across"
+  ],
+  "groups": [
+   "Medication reminders and dose records",
+   "Appointments, work and upkeep",
+   "Logging how you feel, symptoms and reactions",
+   "Reports for a doctor, nutritionist, trainer or caregiver",
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Dose reminders and timeline",
+   "Tapering doses",
+   "Injection site rotation",
+   "Appointments with the phone calendar",
+   "How you feel today (daily check-in)",
+   "Flares",
+   "Hands-On Therapies",
+   "Appointments & Care",
+   "For Your Doctor",
+   "For a Caregiver",
+   "My Meds (the list itself)",
+   "Caregiver (writing on behalf of another adult)",
+   "Caregiver: doses marked on someone’s behalf",
+   "Caregiver: appointment questions and what was said",
+   "Caregiver: what was noticed, apart from what was said"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Fitbod",
+  "role": [
+   "leader",
+   "also"
+  ],
+  "tabs": [
+   "schedules",
+   "trends",
+   "life"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Exercise schedule",
+   "Workouts"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Google Calendar",
+  "role": [
+   "leader",
+   "also"
+  ],
+  "tabs": [
+   "schedules",
+   "trends"
+  ],
+  "groups": [
+   "Appointments, work and upkeep"
+  ],
+  "functions": [
+   "Appointments with the phone calendar",
+   "Appointments & Care"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Medisafe",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "schedules",
+   "insights",
+   "trends",
+   "home",
+   "life",
+   "across"
+  ],
+  "groups": [
+   "Widgets and conversions",
+   "Medication reminders and dose records",
+   "What the records do together",
+   "Safety: interactions, allergies and the emergency card",
+   "Appointments, work and upkeep"
+  ],
+  "functions": [
+   "Home screen widgets",
+   "Dose reminders and timeline",
+   "Today's Meals: meals and doses side by side with timing checks",
+   "Pills on hand and refill reminders",
+   "Tapering doses",
+   "Travel: keep home time or shift to local",
+   "My Meds & Interactions",
+   "Doses Over Time",
+   "Emergency card",
+   "My Meds (the list itself)",
+   "Travelling with a condition",
+   "Reminders you can answer from the notification"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "MyTherapy",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "schedules",
+   "trends",
+   "life",
+   "across"
+  ],
+  "groups": [
+   "What the records do together",
+   "Medication reminders and dose records"
+  ],
+  "functions": [
+   "Today's Meals: meals and doses side by side with timing checks",
+   "Pills on hand and refill reminders",
+   "Injection site rotation",
+   "Doses Over Time",
+   "My Meds (the list itself)"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Structured",
+  "role": [
+   "leader",
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "schedules",
+   "insights",
+   "trends",
+   "home",
+   "life",
+   "garden",
+   "across"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture",
+   "Waiting on a decision (need a server or bend a rule)"
+  ],
+  "functions": [
+   "The one next thing",
+   "Simple View with one clear next thing",
+   "Ready for tomorrow (evening view, prep lead time)",
+   "Timeline of the day",
+   "A lifetime price and a hardship price"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Sweepy",
+  "role": [
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "schedules",
+   "insights",
+   "trends",
+   "life"
+  ],
+  "groups": [
+   "Appointments, work and upkeep"
+  ],
+  "functions": [
+   "Upkeep on the timeline",
+   "Upkeep"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Tiimo",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "schedules",
+   "insights",
+   "trends",
+   "home",
+   "life",
+   "garden",
+   "across"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture",
+   "Widgets and conversions",
+   "Looks, accessibility and the way around"
+  ],
+  "functions": [
+   "The one next thing",
+   "Simple View with one clear next thing",
+   "A way in that needs no condition",
+   "Ready for tomorrow (evening view, prep lead time)",
+   "Home screen widgets",
+   "Break a task into small steps",
+   "Timeline of the day",
+   "Routines",
+   "Accessibility past text size",
+   "Low Stimulation",
+   "ADHD and autism as profiles"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Todoist",
+  "role": [
+   "leader",
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "schedules",
+   "insights",
+   "trends",
+   "home",
+   "life",
+   "garden",
+   "interests",
+   "across"
+  ],
+  "groups": [
+   "Widgets and conversions",
+   "Interests, projects and making it pay",
+   "Appointments, work and upkeep",
+   "Daily living: the next thing, routines, to-dos, capture",
+   "Looks, accessibility and the way around"
+  ],
+  "functions": [
+   "Home screen widgets",
+   "Share to Inside Story from any app",
+   "Upkeep on the timeline",
+   "Work",
+   "To-Do",
+   "Things I’m waiting on",
+   "Backgrounds, colors and icons",
+   "Projects across the app"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Waterllama",
+  "role": [
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "schedules",
+   "insights",
+   "trends"
+  ],
+  "groups": [
+   "Hydration"
+  ],
+  "functions": [
+   "Hydration",
+   "Hydration reading",
+   "Hydration over time"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Apple Calendar",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "schedules"
+  ],
+  "groups": [
+   "Appointments, work and upkeep"
+  ],
+  "functions": [
+   "Appointments with the phone calendar"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Apple Fitness",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "schedules",
+   "life"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Exercise schedule",
+   "Movement"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Apple Health",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "schedules",
+   "signals",
+   "reports",
+   "across"
+  ],
+  "groups": [
+   "Hydration",
+   "Weight, sleep, steps, blood pressure and workouts",
+   "Waiting on a decision (need a server or bend a rule)",
+   "Reports for a doctor, nutritionist, trainer or caregiver"
+  ],
+  "functions": [
+   "Hydration",
+   "Blood Pressure",
+   "An assistant that answers questions about your records"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Apple Health and Google Health",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "schedules",
+   "signals",
+   "trends",
+   "life",
+   "across"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [],
+  "first": "schedules"
+ },
+ {
+  "app": "Apple Health Medications",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "schedules"
+  ],
+  "groups": [
+   "What the records do together",
+   "Medication reminders and dose records"
+  ],
+  "functions": [
+   "Today's Meals: meals and doses side by side with timing checks",
+   "Travel: keep home time or shift to local"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Due",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "schedules",
+   "insights",
+   "trends",
+   "home",
+   "life",
+   "garden",
+   "across"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture",
+   "Medication reminders and dose records"
+  ],
+  "functions": [
+   "Did I Do It",
+   "Reminders you can answer from the notification"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Mealime",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "schedules"
+  ],
+  "groups": [
+   "Meal planning"
+  ],
+  "functions": [
+   "Meal Plan generator (up to six weeks)"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Oura",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "schedules",
+   "signals",
+   "trends",
+   "life",
+   "across"
+  ],
+  "groups": [
+   "Logging how you feel, symptoms and reactions",
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Body Signals",
+   "Nights (sleep)"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Phone calendar",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "schedules",
+   "insights",
+   "trends",
+   "life"
+  ],
+  "groups": [
+   "Appointments, work and upkeep"
+  ],
+  "functions": [],
+  "first": "schedules"
+ },
+ {
+  "app": "Routinery",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "schedules",
+   "insights",
+   "trends",
+   "home",
+   "life",
+   "garden",
+   "across"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture"
+  ],
+  "functions": [
+   "Routines",
+   "ADHD and autism as profiles"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Strava",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "schedules",
+   "signals",
+   "interests"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts",
+   "Interests, projects and making it pay"
+  ],
+  "functions": [
+   "Exercise schedule",
+   "Exercise log",
+   "Interests: follow, practise, share"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Tody",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "schedules",
+   "life"
+  ],
+  "groups": [
+   "Appointments, work and upkeep"
+  ],
+  "functions": [
+   "Upkeep on the timeline",
+   "Upkeep"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "WaterMinder",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "schedules",
+   "insights",
+   "trends"
+  ],
+  "groups": [
+   "Hydration"
+  ],
+  "functions": [
+   "Hydration",
+   "Hydration reading",
+   "Hydration over time"
+  ],
+  "first": "schedules"
+ },
+ {
+  "app": "Bearable experiments",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "signals"
+  ],
+  "groups": [
+   "Finding what tends to come before a flare"
+  ],
+  "functions": [
+   "Leave-it-out experiments (New Foods & Experiments)"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Bladder Journal",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "signals"
+  ],
+  "groups": [
+   "Logging how you feel, symptoms and reactions"
+  ],
+  "functions": [
+   "Nocturia"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Clue",
+  "role": [
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "signals",
+   "trends"
+  ],
+  "groups": [
+   "Menstrual cycle"
+  ],
+  "functions": [
+   "Cycle",
+   "Cycle over time"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Day One",
+  "role": [
+   "leader",
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "signals",
+   "reports",
+   "home",
+   "life",
+   "across"
+  ],
+  "groups": [
+   "The Diary",
+   "Logging how you feel, symptoms and reactions",
+   "Your story over time",
+   "If something happens to me, and a life’s Inside Story",
+   "Privacy, the lock, the vault and backup",
+   "Sync between devices and the desktop app",
+   "Reports for a doctor, nutritionist, trainer or caregiver"
+  ],
+  "functions": [
+   "The Diary",
+   "General Note",
+   "Looking Back",
+   "A life’s Inside Story",
+   "App Lock (encrypted records)",
+   "The Vault",
+   "Sync between your devices",
+   "Encrypted backup to your cloud drive",
+   "Reports saved to a folder in open formats"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Exist",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "signals",
+   "trends"
+  ],
+  "groups": [
+   "Logging how you feel, symptoms and reactions",
+   "Finding what tends to come before a flare"
+  ],
+  "functions": [
+   "My Trackers (track anything)",
+   "My Trackers over time",
+   "Compare Two"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Flaredown",
+  "role": [
+   "leader",
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "signals",
+   "insights",
+   "trends"
+  ],
+  "groups": [
+   "Logging how you feel, symptoms and reactions"
+  ],
+  "functions": [
+   "Flares",
+   "Symptoms & Flares over time"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Guava",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "signals",
+   "insights",
+   "trends",
+   "reports",
+   "across"
+  ],
+  "groups": [
+   "Logging how you feel, symptoms and reactions",
+   "Labs, microbiome tests and therapies",
+   "Finding what tends to come before a flare",
+   "Reports for a doctor, nutritionist, trainer or caregiver",
+   "Weight, sleep, steps, blood pressure and workouts",
+   "Medical history, screenings and portal records"
+  ],
+  "functions": [
+   "Symptoms & Flares over time",
+   "Labs over time with your usual range",
+   "Therapy Response",
+   "Body Signals",
+   "My Trackers over time",
+   "Compare Two",
+   "Pattern Finder (what tends to come before a flare)",
+   "Overview report",
+   "For Your Doctor",
+   "For a Caregiver",
+   "Health Connect import"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "mySymptoms Food Diary",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "signals",
+   "trends"
+  ],
+  "groups": [
+   "Logging how you feel, symptoms and reactions"
+  ],
+  "functions": [
+   "Food Reactions",
+   "Reactions & New Foods"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Nerva",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "signals"
+  ],
+  "groups": [
+   "Logging how you feel, symptoms and reactions"
+  ],
+  "functions": [
+   "Calm"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Poop Tracker",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "signals"
+  ],
+  "groups": [
+   "Logging how you feel, symptoms and reactions"
+  ],
+  "functions": [
+   "Bowel Movements"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "SmartBP",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "signals",
+   "trends"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Blood Pressure",
+   "Blood Pressure over time"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Visible",
+  "role": [
+   "leader",
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "signals",
+   "insights",
+   "trends",
+   "reports"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts",
+   "Pacing energy",
+   "Reports for a doctor, nutritionist, trainer or caregiver"
+  ],
+  "functions": [
+   "Exercise log",
+   "Pacing (energy envelope)",
+   "For a Trainer"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "ZOE",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "signals",
+   "insights",
+   "trends",
+   "reports"
+  ],
+  "groups": [
+   "Reading a food against your conditions",
+   "Scanning and checking packaged food",
+   "Nutrients from food and from supplements",
+   "Labs, microbiome tests and therapies"
+  ],
+  "functions": [
+   "Condition Scores",
+   "Check a Label",
+   "Condition Scores over time",
+   "What You Eat (variety, gut-supporting foods, packaged share)",
+   "Eating Variety"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Apple Health Records",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "signals"
+  ],
+  "groups": [
+   "Medical history, screenings and portal records"
+  ],
+  "functions": [],
+  "first": "signals"
+ },
+ {
+  "app": "Apple Journal",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "signals"
+  ],
+  "groups": [
+   "Logging how you feel, symptoms and reactions"
+  ],
+  "functions": [
+   "General Note"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Bearable Premium",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "signals",
+   "trends"
+  ],
+  "groups": [
+   "Finding what tends to come before a flare"
+  ],
+  "functions": [],
+  "first": "signals"
+ },
+ {
+  "app": "Bladder Diary",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "signals"
+  ],
+  "groups": [
+   "Logging how you feel, symptoms and reactions"
+  ],
+  "functions": [
+   "Nocturia"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Calm",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "signals"
+  ],
+  "groups": [
+   "Logging how you feel, symptoms and reactions"
+  ],
+  "functions": [
+   "Calm"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Cara Care",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "signals",
+   "trends"
+  ],
+  "groups": [
+   "Logging how you feel, symptoms and reactions"
+  ],
+  "functions": [
+   "Food Reactions",
+   "Bowel Movements",
+   "Reactions & New Foods"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Daylio",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "signals",
+   "insights",
+   "trends",
+   "reports",
+   "home",
+   "life",
+   "across"
+  ],
+  "groups": [
+   "Your story over time",
+   "Logging how you feel, symptoms and reactions",
+   "Daily living: the next thing, routines, to-dos, capture",
+   "Appointments, work and upkeep",
+   "Looks, accessibility and the way around"
+  ],
+  "functions": [
+   "What your records showed this month",
+   "How you feel today (daily check-in)",
+   "My Trackers (track anything)",
+   "Keeping Up (routines and upkeep, never scored)",
+   "Work",
+   "Looking Back",
+   "Backgrounds, colors and icons"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Euki",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "signals",
+   "trends"
+  ],
+  "groups": [
+   "Menstrual cycle"
+  ],
+  "functions": [
+   "Cycle",
+   "Cycle over time"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Flo",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "signals",
+   "trends"
+  ],
+  "groups": [
+   "Menstrual cycle"
+  ],
+  "functions": [
+   "Cycle"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Flo and Clue",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "signals"
+  ],
+  "groups": [
+   "Pregnancy and postpartum"
+  ],
+  "functions": [],
+  "first": "signals"
+ },
+ {
+  "app": "Headspace",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "signals"
+  ],
+  "groups": [
+   "Logging how you feel, symptoms and reactions"
+  ],
+  "functions": [
+   "Calm"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Journey",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "signals",
+   "home"
+  ],
+  "groups": [
+   "The Diary",
+   "Logging how you feel, symptoms and reactions"
+  ],
+  "functions": [
+   "The Diary",
+   "General Note"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Monash FODMAP reintroduction",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "signals"
+  ],
+  "groups": [
+   "Finding what tends to come before a flare"
+  ],
+  "functions": [
+   "Leave-it-out experiments (New Foods & Experiments)"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "mySymptoms",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "signals",
+   "insights",
+   "trends",
+   "reports"
+  ],
+  "groups": [
+   "Finding what tends to come before a flare",
+   "Logging how you feel, symptoms and reactions",
+   "Reports for a doctor, nutritionist, trainer or caregiver"
+  ],
+  "functions": [
+   "Leave-it-out experiments (New Foods & Experiments)",
+   "Bowel Movements",
+   "For a Nutritionist"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Qardio",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "signals",
+   "trends"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Blood Pressure",
+   "Blood Pressure over time"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Thorne",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "signals"
+  ],
+  "groups": [
+   "Labs, microbiome tests and therapies"
+  ],
+  "functions": [
+   "Microbiome Tests"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "U-Night",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "signals"
+  ],
+  "groups": [
+   "Logging how you feel, symptoms and reactions"
+  ],
+  "functions": [
+   "Nocturia"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Viome",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "signals"
+  ],
+  "groups": [
+   "Labs, microbiome tests and therapies"
+  ],
+  "functions": [
+   "Microbiome Tests"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Zoe",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "signals"
+  ],
+  "groups": [
+   "Labs, microbiome tests and therapies"
+  ],
+  "functions": [
+   "Microbiome Tests"
+  ],
+  "first": "signals"
+ },
+ {
+  "app": "Cronometer Oracle",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "insights"
+  ],
+  "groups": [
+   "Looking up a food"
+  ],
+  "functions": [
+   "Nutrient Ranking (best foods for a nutrient)"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "dminder",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "insights"
+  ],
+  "groups": [
+   "Nutrients from food and from supplements"
+  ],
+  "functions": [
+   "Sunlight as a vitamin D source"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "Drugs.com",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "insights",
+   "life"
+  ],
+  "groups": [
+   "Safety: interactions, allergies and the emergency card"
+  ],
+  "functions": [
+   "Med and supplement timing warnings (Today's Advisories)",
+   "My Meds & Interactions"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "Drugs.com Pill Identifier",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "insights"
+  ],
+  "groups": [
+   "Safety: interactions, allergies and the emergency card"
+  ],
+  "functions": [
+   "Pill identifier"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "HealthMatters.io",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "insights",
+   "trends"
+  ],
+  "groups": [
+   "Labs, microbiome tests and therapies"
+  ],
+  "functions": [
+   "Labs",
+   "Labs over time with your usual range"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "KitchenPal",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "insights"
+  ],
+  "groups": [
+   "What is on hand and where it is"
+  ],
+  "functions": [
+   "What the Kitchen Holds"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "Sortly",
+  "role": [
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "insights",
+   "home",
+   "life"
+  ],
+  "groups": [
+   "What is on hand and where it is"
+  ],
+  "functions": [
+   "Where did I put it",
+   "Kitchen (what is on hand, where it is)"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "YNAB",
+  "role": [
+   "leader",
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "insights",
+   "trends",
+   "reports",
+   "life"
+  ],
+  "groups": [
+   "Money, medical costs and insurance",
+   "What the records do together",
+   "Reports for a doctor, nutritionist, trainer or caregiver"
+  ],
+  "functions": [
+   "Money This Month",
+   "What It Costs (food, meds, garden together)",
+   "Medical Costs",
+   "Finances",
+   "Import a bank export",
+   "Give every dollar a job"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "Apple Health sharing",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "insights"
+  ],
+  "groups": [
+   "Appointments, work and upkeep"
+  ],
+  "functions": [
+   "Before Your Appointment"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "BloodTrends",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "insights"
+  ],
+  "groups": [
+   "Labs, microbiome tests and therapies"
+  ],
+  "functions": [
+   "Labs"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "Carrot Care",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "insights",
+   "trends"
+  ],
+  "groups": [
+   "Labs, microbiome tests and therapies"
+  ],
+  "functions": [
+   "Labs",
+   "Labs over time with your usual range"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "Cronometer Gold",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "insights",
+   "trends",
+   "reports"
+  ],
+  "groups": [
+   "Nutrients from food and from supplements"
+  ],
+  "functions": [],
+  "first": "insights"
+ },
+ {
+  "app": "Medscape",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "insights"
+  ],
+  "groups": [
+   "Safety: interactions, allergies and the emergency card"
+  ],
+  "functions": [
+   "My Meds & Interactions",
+   "Pill identifier"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "Mint (closed 2024)",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "insights",
+   "life"
+  ],
+  "groups": [
+   "Money, medical costs and insurance"
+  ],
+  "functions": [],
+  "first": "insights"
+ },
+ {
+  "app": "Monarch",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "insights",
+   "trends",
+   "life"
+  ],
+  "groups": [
+   "Money, medical costs and insurance",
+   "What the records do together"
+  ],
+  "functions": [
+   "Money This Month",
+   "What It Costs (food, meds, garden together)"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "nutritionvalue.org",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "insights"
+  ],
+  "groups": [
+   "Looking up a food"
+  ],
+  "functions": [
+   "Nutrient Ranking (best foods for a nutrient)"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "Pantry Check",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "insights",
+   "life"
+  ],
+  "groups": [
+   "What is on hand and where it is"
+  ],
+  "functions": [
+   "What the Kitchen Holds",
+   "Kitchen (what is on hand, where it is)"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "Phone Medical ID",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "insights",
+   "life"
+  ],
+  "groups": [
+   "Safety: interactions, allergies and the emergency card"
+  ],
+  "functions": [],
+  "first": "insights"
+ },
+ {
+  "app": "SnapLabs",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "insights"
+  ],
+  "groups": [
+   "Labs, microbiome tests and therapies"
+  ],
+  "functions": [
+   "Labs"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "Spokin",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "insights"
+  ],
+  "groups": [
+   "Safety: interactions, allergies and the emergency card"
+  ],
+  "functions": [
+   "Allergy cautions wherever food is shown"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "Sun Day",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "insights"
+  ],
+  "groups": [
+   "Nutrients from food and from supplements"
+  ],
+  "functions": [
+   "Sunlight as a vitamin D source"
+  ],
+  "first": "insights"
+ },
+ {
+  "app": "Ecowitt (WS View Plus)",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "trends",
+   "garden"
+  ],
+  "groups": [
+   "Growing conditions, sensors and grow setup"
+  ],
+  "functions": [
+   "Growing Conditions over time",
+   "Growing Conditions and sensors"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Gardenize",
+  "role": [
+   "leader",
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "trends",
+   "reports",
+   "garden"
+  ],
+  "groups": [
+   "Garden planning and harvest",
+   "Living soil, compost and crop guides",
+   "Growing conditions, sensors and grow setup"
+  ],
+  "functions": [
+   "Garden Yield",
+   "Garden Record",
+   "Harvest Log",
+   "Compost",
+   "Growing Costs and electricity"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Google Fit and Apple Fitness",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "trends"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Movement"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Happy Scale",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "trends"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Weight"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Hevy",
+  "role": [
+   "leader",
+   "also"
+  ],
+  "tabs": [
+   "trends",
+   "reports",
+   "life"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts",
+   "Reports for a doctor, nutritionist, trainer or caregiver"
+  ],
+  "functions": [
+   "Workouts",
+   "For a Trainer"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Planter",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "trends",
+   "reports",
+   "garden"
+  ],
+  "groups": [
+   "Garden planning and harvest"
+  ],
+  "functions": [
+   "My Zone",
+   "Plots & Plantings",
+   "Sowing Calendar",
+   "Upcoming Tasks",
+   "Seeds"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Seedtime",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "trends",
+   "reports",
+   "garden"
+  ],
+  "groups": [
+   "Garden planning and harvest",
+   "Daily living: the next thing, routines, to-dos, capture"
+  ],
+  "functions": [
+   "Garden Yield",
+   "Garden Record",
+   "My Zone",
+   "Plots & Plantings",
+   "Days Until",
+   "Sowing Calendar",
+   "Upcoming Tasks",
+   "Seeds"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Sleep Cycle",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "trends"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Nights (sleep)"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Streaks",
+  "role": [
+   "leader",
+   "also"
+  ],
+  "tabs": [
+   "trends",
+   "life"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture"
+  ],
+  "functions": [
+   "Keeping Up (routines and upkeep, never scored)",
+   "Did I Do It"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Welltory",
+  "role": [
+   "leader",
+   "also"
+  ],
+  "tabs": [
+   "trends",
+   "across"
+  ],
+  "groups": [
+   "Logging how you feel, symptoms and reactions",
+   "Finding what tends to come before a flare",
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Body Signals",
+   "Pattern Finder (what tends to come before a flare)",
+   "Health Connect import"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Zero",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "trends"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Eating Window"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "AC Infinity",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "trends",
+   "garden"
+  ],
+  "groups": [
+   "Growing conditions, sensors and grow setup"
+  ],
+  "functions": [
+   "Growing Conditions and sensors"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Basket",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "trends"
+  ],
+  "groups": [
+   "Grocery list, prices and seasonal food"
+  ],
+  "functions": [
+   "Grocery Prices"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Ecowitt",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "trends",
+   "garden"
+  ],
+  "groups": [
+   "Growing conditions, sensors and grow setup"
+  ],
+  "functions": [],
+  "first": "trends"
+ },
+ {
+  "app": "Fastic",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "trends"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Eating Window"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "GrowVeg",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "trends",
+   "reports",
+   "garden"
+  ],
+  "groups": [
+   "Garden planning and harvest"
+  ],
+  "functions": [
+   "Plots & Plantings"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Habitify",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "trends"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture"
+  ],
+  "functions": [
+   "Keeping Up (routines and upkeep, never scored)"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Libra",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "trends"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Weight"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Out of Milk",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "trends"
+  ],
+  "groups": [
+   "Grocery list, prices and seasonal food"
+  ],
+  "functions": [
+   "Grocery Prices"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Pedometer++",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "trends"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Movement"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Pillow",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "trends"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Nights (sleep)"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Simple",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "trends"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Eating Window"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Stardust",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "trends"
+  ],
+  "groups": [
+   "Menstrual cycle"
+  ],
+  "functions": [
+   "Cycle over time"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Strong",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "trends",
+   "life"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Workouts"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Toggl",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "trends"
+  ],
+  "groups": [
+   "Appointments, work and upkeep"
+  ],
+  "functions": [
+   "Work"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Weather Underground",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "trends"
+  ],
+  "groups": [
+   "Growing conditions, sensors and grow setup"
+  ],
+  "functions": [
+   "Growing Conditions over time"
+  ],
+  "first": "trends"
+ },
+ {
+  "app": "Apple Health (Pinned)",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "home"
+  ],
+  "groups": [
+   "Looks, accessibility and the way around"
+  ],
+  "functions": [
+   "Arranging Home cards"
+  ],
+  "first": "home"
+ },
+ {
+  "app": "Daylio (Year in Pixels)",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "home"
+  ],
+  "groups": [
+   "Your story over time"
+  ],
+  "functions": [
+   "Your Life in Squares (Home card and Trends lens)"
+  ],
+  "first": "home"
+ },
+ {
+  "app": "Finch",
+  "role": [
+   "also",
+   "leader"
+  ],
+  "tabs": [
+   "home",
+   "across"
+  ],
+  "groups": [
+   "Your story over time",
+   "Daily living: the next thing, routines, to-dos, capture",
+   "Looks, accessibility and the way around"
+  ],
+  "functions": [
+   "Your Story guide and interview",
+   "A way in that needs no condition",
+   "Low Stimulation",
+   "Backgrounds, colors and icons",
+   "Playful wording",
+   "What grows on the tab screens"
+  ],
+  "first": "home"
+ },
+ {
+  "app": "Goblin.tools",
+  "role": [
+   "leader",
+   "also"
+  ],
+  "tabs": [
+   "home",
+   "life"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture"
+  ],
+  "functions": [
+   "Break a task into small steps",
+   "Routines"
+  ],
+  "first": "home"
+ },
+ {
+  "app": "Google Keep",
+  "role": [
+   "leader",
+   "also"
+  ],
+  "tabs": [
+   "home"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture",
+   "What is on hand and where it is",
+   "Interests, projects and making it pay"
+  ],
+  "functions": [
+   "Capture (voice, photo, typed, from the lock screen)",
+   "Where did I put it",
+   "Share to Inside Story from any app"
+  ],
+  "first": "home"
+ },
+ {
+  "app": "Headway",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "home"
+  ],
+  "groups": [
+   "Reading about conditions and health"
+  ],
+  "functions": [
+   "Something to Read cards"
+  ],
+  "first": "home"
+ },
+ {
+  "app": "Healthline",
+  "role": [
+   "also",
+   "leader"
+  ],
+  "tabs": [
+   "home",
+   "life"
+  ],
+  "groups": [
+   "Reading about conditions and health"
+  ],
+  "functions": [
+   "Something to Read cards",
+   "Conditions reading (19 conditions)",
+   "Health Literacy reading",
+   "Search Reading"
+  ],
+  "first": "home"
+ },
+ {
+  "app": "Noom",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "home"
+  ],
+  "groups": [
+   "Your story over time"
+  ],
+  "functions": [
+   "Your Story guide and interview"
+  ],
+  "first": "home"
+ },
+ {
+  "app": "Apple Notes",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "home"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture"
+  ],
+  "functions": [
+   "Capture (voice, photo, typed, from the lock screen)"
+  ],
+  "first": "home"
+ },
+ {
+  "app": "Drafts",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "home"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture"
+  ],
+  "functions": [
+   "Capture (voice, photo, typed, from the lock screen)"
+  ],
+  "first": "home"
+ },
+ {
+  "app": "Health websites and national health services",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "home",
+   "life"
+  ],
+  "groups": [
+   "Reading about conditions and health"
+  ],
+  "functions": [],
+  "first": "home"
+ },
+ {
+  "app": "Life Calendar",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "home"
+  ],
+  "groups": [
+   "Your story over time"
+  ],
+  "functions": [
+   "Your Life in Squares (Home card and Trends lens)"
+  ],
+  "first": "home"
+ },
+ {
+  "app": "Awair",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "The home: water, air, preparedness"
+  ],
+  "functions": [
+   "Home and health (mold, air, energy)"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Baby Connect",
+  "role": [
+   "leader",
+   "also"
+  ],
+  "tabs": [
+   "life",
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Children’s records",
+   "Guardian (a parent’s children)"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "CaringBridge",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "life",
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Caregiver (writing on behalf of another adult)",
+   "Caregiver: updates to the people who ask"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Cozi",
+  "role": [
+   "also",
+   "leader"
+  ],
+  "tabs": [
+   "life",
+   "companions",
+   "across"
+  ],
+  "groups": [
+   "What the records do together",
+   "Sharing with other people",
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Family roster and their conditions in the meal plan",
+   "Shopping list shared with a partner",
+   "Free viewer companion (household seat)",
+   "Paid interactive household companion"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Dreamdays",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture"
+  ],
+  "functions": [
+   "Days Until"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Everplans",
+  "role": [
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "If something happens to me, and a life’s Inside Story"
+  ],
+  "functions": [
+   "If something happens to me"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "EWG Tap Water Database",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "The home: water, air, preparedness"
+  ],
+  "functions": [
+   "Water quality at home"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "FamilySearch",
+  "role": [
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Family health history and the family tree"
+  ],
+  "functions": [
+   "Family health history and the family tree"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "FEMA app",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "The home: water, air, preparedness"
+  ],
+  "functions": [
+   "Disaster and power-cut preparedness"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Google Fit",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Weight, sleep, steps, blood pressure and workouts"
+  ],
+  "functions": [
+   "Movement"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Kickresume",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Working life and a resume"
+  ],
+  "functions": [
+   "Working life and a resume"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Mayo Clinic app",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Reading about conditions and health"
+  ],
+  "functions": [
+   "Conditions reading (19 conditions)"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Medical ID (iPhone) and Emergency information (Android)",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Safety: interactions, allergies and the emergency card"
+  ],
+  "functions": [
+   "Emergency card"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Monarch Money",
+  "role": [
+   "also",
+   "leader"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Money, medical costs and insurance"
+  ],
+  "functions": [
+   "Finances",
+   "Import a bank export"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Sheer Health",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Money, medical costs and insurance"
+  ],
+  "functions": [
+   "Insurance claims and appeal deadlines"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Signal",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Sharing with other people"
+  ],
+  "functions": [
+   "Messages between Inside Story users"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "The phone’s contacts",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Contacts and keeping in touch"
+  ],
+  "functions": [
+   "Contacts, one record of a person"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "The phone’s dialer and messages",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Contacts and keeping in touch"
+  ],
+  "functions": [
+   "Keeping in touch, text or call from a contact"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Things",
+  "role": [
+   "also",
+   "leader"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture"
+  ],
+  "functions": [
+   "To-Do",
+   "Things I’m waiting on"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "TripIt",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Appointments, work and upkeep"
+  ],
+  "functions": [
+   "Travelling with a condition"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Airthings",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "The home: water, air, preparedness"
+  ],
+  "functions": [
+   "Home and health (mold, air, energy)"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Ancestry",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Family health history and the family tree"
+  ],
+  "functions": [
+   "Family health history and the family tree"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "AnyList household",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "life",
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [],
+  "first": "life"
+ },
+ {
+  "app": "Apple Legacy Contact",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "If something happens to me, and a life’s Inside Story"
+  ],
+  "functions": [],
+  "first": "life"
+ },
+ {
+  "app": "Clue Connect",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "life",
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [],
+  "first": "life"
+ },
+ {
+  "app": "Countdown apps",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture"
+  ],
+  "functions": [
+   "Days Until"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Examine",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Reading about conditions and health"
+  ],
+  "functions": [
+   "Health Literacy reading"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "FamilyWall",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "What the records do together"
+  ],
+  "functions": [
+   "Family roster and their conditions in the meal plan"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "FEMA app and EWG Tap Water Database",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "The home: water, air, preparedness"
+  ],
+  "functions": [],
+  "first": "life"
+ },
+ {
+  "app": "Giki",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Reading about conditions and health"
+  ],
+  "functions": [
+   "Earth Matters reading"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Google Contacts",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Contacts and keeping in touch"
+  ],
+  "functions": [
+   "Contacts, one record of a person"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Huckleberry",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Children’s records"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Job Accommodation Network",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Appointments, work and upkeep"
+  ],
+  "functions": [
+   "Accommodations at work and school"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Joro",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Reading about conditions and health"
+  ],
+  "functions": [
+   "Earth Matters reading"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "LinkedIn",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Working life and a resume"
+  ],
+  "functions": [
+   "Working life and a resume"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Medisafe Medfriend",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "life",
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [],
+  "first": "life"
+ },
+ {
+  "app": "Microsoft Seeing AI",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Looks, accessibility and the way around"
+  ],
+  "functions": [
+   "Accessibility past text size"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "MyHeritage",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Family health history and the family tree"
+  ],
+  "functions": [],
+  "first": "life"
+ },
+ {
+  "app": "OmniFocus",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture"
+  ],
+  "functions": [
+   "Things I’m waiting on"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Phone contacts",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Contacts and keeping in touch"
+  ],
+  "functions": [],
+  "first": "life"
+ },
+ {
+  "app": "Red Cross Emergency",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "The home: water, air, preparedness"
+  ],
+  "functions": [
+   "Disaster and power-cut preparedness"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Resolve",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Money, medical costs and insurance"
+  ],
+  "functions": [
+   "Insurance claims and appeal deadlines"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Resume builders (Resume.io, MyPerfectResume)",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Working life and a resume"
+  ],
+  "functions": [],
+  "first": "life"
+ },
+ {
+  "app": "StoryWorth",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "If something happens to me, and a life’s Inside Story"
+  ],
+  "functions": [
+   "A life’s Inside Story"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "TickTick",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture"
+  ],
+  "functions": [
+   "To-Do"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Tiimo family",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "life",
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [],
+  "first": "life"
+ },
+ {
+  "app": "Trustworthy",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "If something happens to me, and a life’s Inside Story"
+  ],
+  "functions": [
+   "If something happens to me"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "WebMD",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Reading about conditions and health"
+  ],
+  "functions": [
+   "Conditions reading (19 conditions)"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "WhatsApp",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Sharing with other people"
+  ],
+  "functions": [
+   "Messages between Inside Story users"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "Zety",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "life"
+  ],
+  "groups": [
+   "Working life and a resume"
+  ],
+  "functions": [
+   "Working life and a resume"
+  ],
+  "first": "life"
+ },
+ {
+  "app": "11pets",
+  "role": [
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Animals, foraging and a nature journal"
+  ],
+  "functions": [
+   "Animals (pets and livestock)"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "Apiary Book",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Bees and the hive log"
+  ],
+  "functions": [
+   "Hive log (not built yet)",
+   "Reading on every kind of bee and every part of keeping them"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "Ball Canning",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Garden planning and harvest"
+  ],
+  "functions": [
+   "Preserving the harvest"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "BeePlus",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Bees and the hive log"
+  ],
+  "functions": [
+   "Hive log (not built yet)"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "iNaturalist",
+  "role": [
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Animals, foraging and a nature journal"
+  ],
+  "functions": [
+   "A nature journal"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "PictureThis",
+  "role": [
+   "leader",
+   "also"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Living soil, compost and crop guides",
+   "Animals, foraging and a nature journal"
+  ],
+  "functions": [
+   "Horticulture crop guides (living soil, three problems per crop)",
+   "Foraging"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "Seek by iNaturalist",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Animals, foraging and a nature journal"
+  ],
+  "functions": [
+   "Foraging"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "BBKA guides",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Bees and the hive log"
+  ],
+  "functions": [
+   "Reading on every kind of bee and every part of keeping them"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "Farmbrite",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Animals, foraging and a nature journal"
+  ],
+  "functions": [
+   "Animals (pets and livestock)"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "From Seed to Spoon",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Garden planning and harvest"
+  ],
+  "functions": [
+   "What to grow for my conditions"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "Garden Organic and extension services",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Living soil, compost and crop guides"
+  ],
+  "functions": [],
+  "first": "garden"
+ },
+ {
+  "app": "GrowDiaries",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Growing conditions, sensors and grow setup"
+  ],
+  "functions": [
+   "Grow Setup (indoor equipment)"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "HiveTracks",
+  "role": [
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Bees and the hive log"
+  ],
+  "functions": [
+   "Hive log (not built yet)"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "Merlin Bird ID",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Animals, foraging and a nature journal"
+  ],
+  "functions": [
+   "A nature journal"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "Pl@ntNet",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Animals, foraging and a nature journal"
+  ],
+  "functions": [],
+  "first": "garden"
+ },
+ {
+  "app": "Planta",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Living soil, compost and crop guides"
+  ],
+  "functions": [
+   "Horticulture crop guides (living soil, three problems per crop)"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "Preserve It",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Garden planning and harvest"
+  ],
+  "functions": [
+   "Preserving the harvest"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "RHS Grow Your Own",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Living soil, compost and crop guides"
+  ],
+  "functions": [
+   "Horticulture crop guides (living soil, three problems per crop)"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "Seed Keeper",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Garden planning and harvest"
+  ],
+  "functions": [
+   "Seeds"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "Seed Savers Exchange",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Garden planning and harvest"
+  ],
+  "functions": [
+   "Saving seed from your plants"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "Veglog",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "garden"
+  ],
+  "groups": [
+   "Garden planning and harvest"
+  ],
+  "functions": [
+   "Harvest Log"
+  ],
+  "first": "garden"
+ },
+ {
+  "app": "Anki",
+  "role": [
+   "leader",
+   "also",
+   "table"
+  ],
+  "tabs": [
+   "interests"
+  ],
+  "groups": [
+   "Learn"
+  ],
+  "functions": [
+   "Learn: ready-made decks",
+   "Learn: making your own decks"
+  ],
+  "first": "interests"
+ },
+ {
+  "app": "Notion",
+  "role": [
+   "leader",
+   "also"
+  ],
+  "tabs": [
+   "interests"
+  ],
+  "groups": [
+   "Interests, projects and making it pay"
+  ],
+  "functions": [
+   "Interests: follow, practise, share",
+   "Projects across the app"
+  ],
+  "first": "interests"
+ },
+ {
+  "app": "Quizlet",
+  "role": [
+   "also",
+   "leader",
+   "table"
+  ],
+  "tabs": [
+   "interests"
+  ],
+  "groups": [
+   "Learn"
+  ],
+  "functions": [
+   "Learn: ready-made decks",
+   "Learn: making your own decks"
+  ],
+  "first": "interests"
+ },
+ {
+  "app": "SCORE",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "interests"
+  ],
+  "groups": [
+   "Interests, projects and making it pay"
+  ],
+  "functions": [
+   "Making It Pay"
+  ],
+  "first": "interests"
+ },
+ {
+  "app": "Duolingo",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "interests",
+   "across"
+  ],
+  "groups": [
+   "Looks, accessibility and the way around",
+   "Learn"
+  ],
+  "functions": [
+   "Playful wording",
+   "Learn: ready-made decks"
+  ],
+  "first": "interests"
+ },
+ {
+  "app": "Duolingo widget",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "interests"
+  ],
+  "groups": [
+   "Learn"
+  ],
+  "functions": [
+   "Inside Knowledge on Home"
+  ],
+  "first": "interests"
+ },
+ {
+  "app": "Pinterest",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "interests"
+  ],
+  "groups": [
+   "Interests, projects and making it pay"
+  ],
+  "functions": [
+   "Interests: follow, practise, share"
+  ],
+  "first": "interests"
+ },
+ {
+  "app": "QuickBooks Solopreneur",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "interests"
+  ],
+  "groups": [
+   "Interests, projects and making it pay"
+  ],
+  "functions": [
+   "Making It Pay"
+  ],
+  "first": "interests"
+ },
+ {
+  "app": "SBA Learning Center",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "interests"
+  ],
+  "groups": [
+   "Interests, projects and making it pay"
+  ],
+  "functions": [
+   "Making It Pay"
+  ],
+  "first": "interests"
+ },
+ {
+  "app": "Trello",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "interests"
+  ],
+  "groups": [
+   "Interests, projects and making it pay"
+  ],
+  "functions": [
+   "Projects across the app"
+  ],
+  "first": "interests"
+ },
+ {
+  "app": "Apple Health (Sharing)",
+  "role": [
+   "leader",
+   "also"
+  ],
+  "tabs": [
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Partner (two full accounts, chosen visibility)",
+   "Caregiver: consent area by area, or attestation"
+  ],
+  "first": "companions"
+ },
+ {
+  "app": "Apple Medical ID",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Caregiver: an emergency card per person"
+  ],
+  "first": "companions"
+ },
+ {
+  "app": "Caring Village",
+  "role": [
+   "leader",
+   "also"
+  ],
+  "tabs": [
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Caregiver (writing on behalf of another adult)",
+   "Caregiver: free download, working once the caregiver cost is paid",
+   "Caregiver: each person cared for kept apart",
+   "Caregiver: the day across everyone cared for",
+   "Caregiver: consent area by area, or attestation",
+   "Caregiver: the care circle and claimed tasks",
+   "Caregiver: documents per person cared for",
+   "Caregiver: an emergency card per person",
+   "Caregiver: handover between caregivers",
+   "Caregiver: a paid user caring for their family"
+  ],
+  "first": "companions"
+ },
+ {
+  "app": "Google Family Link",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Guardian (a parent’s children)"
+  ],
+  "first": "companions"
+ },
+ {
+  "app": "ianacare",
+  "role": [
+   "also",
+   "leader"
+  ],
+  "tabs": [
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Caregiver (writing on behalf of another adult)",
+   "Caregiver: the care circle and claimed tasks",
+   "Caregiver: the caregiver’s life too"
+  ],
+  "first": "companions"
+ },
+ {
+  "app": "Jointly",
+  "role": [
+   "also",
+   "leader"
+  ],
+  "tabs": [
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Caregiver (writing on behalf of another adult)",
+   "Caregiver: the day across everyone cared for",
+   "Caregiver: handover between caregivers"
+  ],
+  "first": "companions"
+ },
+ {
+  "app": "Lotsa Helping Hands",
+  "role": [
+   "also",
+   "leader"
+  ],
+  "tabs": [
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Caregiver (writing on behalf of another adult)",
+   "Caregiver: the care circle and claimed tasks"
+  ],
+  "first": "companions"
+ },
+ {
+  "app": "Medisafe (Medfriend)",
+  "role": [
+   "also",
+   "leader"
+  ],
+  "tabs": [
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Caregiver (writing on behalf of another adult)",
+   "Caregiver: free download, working once the caregiver cost is paid",
+   "Caregiver: doses marked on someone’s behalf"
+  ],
+  "first": "companions"
+ },
+ {
+  "app": "Nobody reviewed",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Caregiver: care costs per person cared for",
+   "Caregiver: when care ends"
+  ],
+  "first": "companions"
+ },
+ {
+  "app": "Apple Family Sharing",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Guardian (a parent’s children)"
+  ],
+  "first": "companions"
+ },
+ {
+  "app": "OurHome",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Paid interactive household companion"
+  ],
+  "first": "companions"
+ },
+ {
+  "app": "Paired",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "companions"
+  ],
+  "groups": [
+   "Companion tiers: partner, household, guardian, caregiver"
+  ],
+  "functions": [
+   "Partner (two full accounts, chosen visibility)"
+  ],
+  "first": "companions"
+ },
+ {
+  "app": "ChatGPT",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "across"
+  ],
+  "groups": [
+   "Waiting on a decision (need a server or bend a rule)"
+  ],
+  "functions": [
+   "An assistant that answers questions about your records"
+  ],
+  "first": "across"
+ },
+ {
+  "app": "Obsidian",
+  "role": [
+   "also",
+   "leader"
+  ],
+  "tabs": [
+   "across"
+  ],
+  "groups": [
+   "Sync between devices and the desktop app",
+   "Reports for a doctor, nutritionist, trainer or caregiver"
+  ],
+  "functions": [
+   "Windows and Mac app",
+   "Reports saved to a folder in open formats"
+  ],
+  "first": "across"
+ },
+ {
+  "app": "Obsidian Sync",
+  "role": [
+   "leader"
+  ],
+  "tabs": [
+   "across"
+  ],
+  "groups": [
+   "Sync between devices and the desktop app"
+  ],
+  "functions": [
+   "Sync between your devices"
+  ],
+  "first": "across"
+ },
+ {
+  "app": "Apple Weather",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "across"
+  ],
+  "groups": [
+   "Privacy, the lock, the vault and backup"
+  ],
+  "functions": [
+   "External data lookups (one Worker, three privacy shapes)"
+  ],
+  "first": "across"
+ },
+ {
+  "app": "Forest",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "across"
+  ],
+  "groups": [
+   "Your story over time"
+  ],
+  "functions": [
+   "What grows on the tab screens"
+  ],
+  "first": "across"
+ },
+ {
+  "app": "Google Health Premium",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "across"
+  ],
+  "groups": [
+   "Waiting on a decision (need a server or bend a rule)"
+  ],
+  "functions": [],
+  "first": "across"
+ },
+ {
+  "app": "Google One",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "across"
+  ],
+  "groups": [
+   "Privacy, the lock, the vault and backup"
+  ],
+  "functions": [
+   "Encrypted backup to your cloud drive"
+  ],
+  "first": "across"
+ },
+ {
+  "app": "Inflow",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "across"
+  ],
+  "groups": [
+   "Daily living: the next thing, routines, to-dos, capture"
+  ],
+  "functions": [
+   "ADHD and autism as profiles"
+  ],
+  "first": "across"
+ },
+ {
+  "app": "Keepsafe",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "across"
+  ],
+  "groups": [
+   "Privacy, the lock, the vault and backup"
+  ],
+  "functions": [
+   "The Vault"
+  ],
+  "first": "across"
+ },
+ {
+  "app": "Most health apps",
+  "role": [
+   "table"
+  ],
+  "tabs": [
+   "across"
+  ],
+  "groups": [
+   "Privacy, the lock, the vault and backup"
+  ],
+  "functions": [],
+  "first": "across"
+ },
+ {
+  "app": "One UI one-handed mode",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "across"
+  ],
+  "groups": [
+   "Looks, accessibility and the way around"
+  ],
+  "functions": [
+   "Left or right hand navigation"
+  ],
+  "first": "across"
+ },
+ {
+  "app": "Standard Notes",
+  "role": [
+   "also"
+  ],
+  "tabs": [
+   "across"
+  ],
+  "groups": [
+   "Privacy, the lock, the vault and backup"
+  ],
+  "functions": [
+   "App Lock (encrypted records)"
+  ],
+  "first": "across"
+ }
+]
