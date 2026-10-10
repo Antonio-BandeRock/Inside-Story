@@ -37,7 +37,17 @@ export type UseVoiceDictationOptions = {
   onError?: (kind: VoiceDictationErrorKind, message: string) => void;
   // [Default: "en-US"] Passed straight through to the recognizer.
   lang?: string;
+  // When set, listening goes on until nothing new has been heard for this
+  // long, rather than ending at the recognizer's own first pause, which is
+  // short enough to cut somebody off mid-sentence (1.0.66.10, direct
+  // instruction: "Make sure to give enough time for someone to finish what
+  // they need to say"). Results then arrive as the whole of what has been
+  // said so far, and the last one is marked final when listening stops.
+  pauseMs?: number;
 };
+
+// How long a session with pauseMs waits for the first word before giving up.
+const FIRST_WORD_WAIT_MS = 8000;
 
 // Where the audio was actually processed for the most recent session. Null
 // until one has started. This is not a preference; it is a report, and any
@@ -52,7 +62,7 @@ export type UseVoiceDictationResult = {
   recognitionMode: VoiceRecognitionMode | null;
 };
 
-export function useVoiceDictation({ onResult, onError, lang = 'en-US' }: UseVoiceDictationOptions): UseVoiceDictationResult {
+export function useVoiceDictation({ onResult, onError, lang = 'en-US', pauseMs }: UseVoiceDictationOptions): UseVoiceDictationResult {
   const [status, setStatus] = useState<VoiceDictationStatus>('idle');
   const [recognitionMode, setRecognitionMode] = useState<VoiceRecognitionMode | null>(null);
   const onResultRef = useRef(onResult);
@@ -60,6 +70,25 @@ export function useVoiceDictation({ onResult, onError, lang = 'en-US' }: UseVoic
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
   const isActiveRef = useRef(false);
+  // For pauseMs: what has been settled so far, the latest whole text, and the
+  // timer that stops listening after the pause.
+  const committedRef = useRef('');
+  const latestRef = useRef('');
+  const pauseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearPauseTimer = useCallback(() => {
+    if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
+    pauseTimerRef.current = null;
+  }, []);
+  const armPauseTimer = useCallback(
+    (ms: number) => {
+      clearPauseTimer();
+      pauseTimerRef.current = setTimeout(() => {
+        pauseTimerRef.current = null;
+        if (isActiveRef.current) ExpoSpeechRecognitionModule.stop();
+      }, ms);
+    },
+    [clearPauseTimer],
+  );
   // False once the screen holding this hook has gone, so a speech pack
   // question answered after that does not start a session with no owner.
   const mountedRef = useRef(true);
@@ -73,21 +102,42 @@ export function useVoiceDictation({ onResult, onError, lang = 'en-US' }: UseVoic
   useSpeechRecognitionEvent('result', (event) => {
     if (!isActiveRef.current) return;
     const best = event.results[0]?.transcript ?? '';
-    if (best.trim().length > 0) {
+    if (best.trim().length === 0) return;
+    if (!pauseMs) {
       onResultRef.current(best, event.isFinal);
+      return;
     }
+    // Android hands each stretch of speech back on its own and iOS hands back
+    // the whole so far, so a result that does not start with what is already
+    // settled is added to it.
+    const settled = committedRef.current;
+    const whole =
+      settled && !best.trim().toLowerCase().startsWith(settled.toLowerCase()) ? `${settled} ${best.trim()}` : best.trim();
+    latestRef.current = whole;
+    if (event.isFinal) committedRef.current = whole;
+    onResultRef.current(whole, false);
+    armPauseTimer(pauseMs);
   });
 
   useSpeechRecognitionEvent('end', () => {
     if (!isActiveRef.current) return;
     isActiveRef.current = false;
+    clearPauseTimer();
     setStatus('idle');
+    if (pauseMs && latestRef.current) onResultRef.current(latestRef.current, true);
   });
 
   useSpeechRecognitionEvent('error', (event) => {
     if (!isActiveRef.current) return;
     isActiveRef.current = false;
+    clearPauseTimer();
     setStatus('idle');
+    // Stopping after the pause can land as an error on some phones; what was
+    // heard before it still counts.
+    if (pauseMs && latestRef.current) {
+      onResultRef.current(latestRef.current, true);
+      return;
+    }
     // "aborted" is this hook's own stop() call landing back as an event,
     // not a real error worth surfacing to whoever's using the mic.
     if (event.error === 'aborted') return;
@@ -161,27 +211,43 @@ export function useVoiceDictation({ onResult, onError, lang = 'en-US' }: UseVoic
     if (isActiveRef.current || !mountedRef.current) return;
 
     isActiveRef.current = true;
+    committedRef.current = '';
+    latestRef.current = '';
     setRecognitionMode(useOnDevice ? 'on-device' : 'network');
     setStatus('listening');
+    if (pauseMs) armPauseTimer(Math.max(FIRST_WORD_WAIT_MS, pauseMs));
     ExpoSpeechRecognitionModule.start({
       lang: useOnDevice ? listenLang : lang,
       interimResults: true,
       requiresOnDeviceRecognition: useOnDevice,
+      ...(pauseMs
+        ? {
+            // Keeps going past a pause (Android 13 and later, and iOS); the
+            // timer above is what stops it. The silence lengths are a hint
+            // for older Android, which ends at its own pause regardless.
+            continuous: true,
+            androidIntentOptions: {
+              EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS: pauseMs,
+              EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS: pauseMs,
+            },
+          }
+        : null),
       // Auto-stops once a final result comes back (or, on iOS 17 and
       // below, after ~3 seconds of silence) -- the natural "tap, speak,
       // it finishes on its own" shape for both a search box and a short
       // dictated note, rather than needing a person to remember to tap
       // Stop themselves. See this hook's own header comment for why
       // continuous mode isn't used here.
-      continuous: false,
+      ...(pauseMs ? null : { continuous: false }),
       maxAlternatives: 1,
     });
-  }, [lang]);
+  }, [lang, pauseMs, armPauseTimer]);
 
   const stop = useCallback(() => {
+    clearPauseTimer();
     if (!isActiveRef.current) return;
     ExpoSpeechRecognitionModule.stop();
-  }, []);
+  }, [clearPauseTimer]);
 
   // Defensive: if the button/screen this hook belongs to unmounts while it
   // was still genuinely listening (e.g. Cancel tapped mid-listen right

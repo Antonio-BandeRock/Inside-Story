@@ -17,10 +17,20 @@
 // answer says how old it is, anything old enough to have gone wrong says so in
 // words, and confirming or correcting an answer is one tap on the answer
 // itself.
+//
+// 1.0.66.10 (2026-10-10), voice first, by direct instruction: "the same will
+// be for where is it 'Where are the bowling balls?' or 'Where are the fishing
+// poles?' and the app returns the location ... If there are maybe multiple
+// things with a similar name ... the app should return a list of the items
+// that match so the correct one can be chosen." Opened from the quick-access
+// menu it starts listening at once, with the question to ask written above
+// the microphone. The answer is shown and read aloud; several matches are
+// never chosen between, the person picks from the list below.
+import * as Speech from 'expo-speech';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
 import { colors } from '../constants/colors';
@@ -44,6 +54,10 @@ import { openQuickAccessSheet, subscribePlaceSaved } from '../lib/quickAccess';
 import { confirmKitchenItemLocation, setKitchenItemLocation } from '../lib/kitchenDb';
 import { RecordPhotos } from '../components/RecordPhotos';
 import { usePlayfulWording } from '../hooks/usePlayfulWording';
+import { useVoiceDictation } from '../hooks/useVoiceDictation';
+import { isDesktopApp } from '../lib/desktop/bridge';
+import { describeSpokenAnswer, parseWhereQuestion } from '../lib/whereSpeech';
+import { SENTENCE_PAUSE_MS } from '../components/StoreLocationSheet';
 
 // Where the answer came from, so a result carries its source at a glance: a
 // garden bed reads differently from a cupboard, and a sentence somebody spoke
@@ -65,7 +79,10 @@ export default function WhereIsItScreen() {
   const playful = usePlayfulWording();
   // q comes from Ask Your Records (C22): the thing asked about is
   // already in the box.
-  const { q } = useLocalSearchParams<{ q?: string }>();
+  // listen comes from the quick-access menu: the microphone starts at once.
+  const { q, listen } = useLocalSearchParams<{ q?: string; listen?: string }>();
+  const desktop = isDesktopApp();
+  const listenOnArrival = listen === '1' && !desktop;
   const [query, setQuery] = useState(typeof q === 'string' ? q : '');
   const [records, setRecords] = useState<PlaceRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,6 +90,57 @@ export default function WhereIsItScreen() {
   // every result at once would bury the answers under the editing.
   const [movingId, setMovingId] = useState<string | null>(null);
   const [movingTo, setMovingTo] = useState('');
+  const [heard, setHeard] = useState('');
+  const [spokenAnswer, setSpokenAnswer] = useState<string | null>(null);
+  const [micProblem, setMicProblem] = useState<string | null>(null);
+  const recordsRef = useRef<PlaceRecord[]>([]);
+  recordsRef.current = records;
+
+  const { status: micStatus, start: startListening, stop: stopListening } = useVoiceDictation({
+    pauseMs: SENTENCE_PAUSE_MS,
+    onResult: (transcript, isFinal) => {
+      setHeard(transcript);
+      const asked = parseWhereQuestion(transcript);
+      setQuery(asked);
+      if (!isFinal) return;
+      const today = new Date().toISOString().slice(0, 10);
+      const matches = searchPlaces(recordsRef.current, asked).map((hit) => ({
+        what: hit.record.what,
+        place: hit.record.place,
+        age: describePlaceAge(hit.record.placedOn, today),
+      }));
+      const answer = describeSpokenAnswer(asked, asked ? matches : []);
+      setSpokenAnswer(answer);
+      Speech.stop();
+      Speech.speak(answer);
+    },
+    onError: (kind) => {
+      if (kind === 'no-speech') return;
+      setMicProblem(
+        kind === 'permission'
+          ? 'The microphone is not allowed for Lifestead. It can be turned on in the phone’s Settings, under this app.'
+          : 'Listening did not work just now. Tap the microphone to try again, or type in the box.',
+      );
+    },
+  });
+  const micListening = micStatus === 'listening';
+
+  function askAloud() {
+    Speech.stop();
+    setHeard('');
+    setSpokenAnswer(null);
+    setMicProblem(null);
+    void startListening();
+  }
+
+  useEffect(() => {
+    if (listenOnArrival) askAloud();
+    return () => {
+      stopListening();
+      Speech.stop();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const refresh = useCallback(async () => {
     const rows = await listPlaceRecords();
@@ -212,15 +280,45 @@ export default function WhereIsItScreen() {
             is growing in the garden.
           </Text>
           <TouchableOpacity
-            style={styles.sayWhereButton}
+            style={styles.storeLocationButton}
             activeOpacity={0.85}
-            onPress={() => openQuickAccessSheet('sayWhere')}
+            onPress={() => openQuickAccessSheet('storeLocation')}
             accessibilityRole="button"
           >
             <Ionicons name="pin-outline" size={16} color={colors.textOnPrimary} />
-            <Text style={styles.sayWhereText}>Say Where Something Is</Text>
+            <Text style={styles.storeLocationText}>Store Its Location</Text>
           </TouchableOpacity>
         </View>
+
+        {!desktop ? (
+          <View style={styles.askCard}>
+            <Text style={styles.lead}>Ask it like this:</Text>
+            <Text style={styles.askExample}>“Where are the fishing poles?”</Text>
+            <View style={styles.askMicRow}>
+              <TouchableOpacity
+                style={[styles.askMic, micListening ? styles.askMicListening : null]}
+                activeOpacity={0.85}
+                onPress={micListening ? stopListening : askAloud}
+                accessibilityRole="button"
+                accessibilityLabel={micListening ? 'Stop listening' : 'Ask where something is'}
+              >
+                <Ionicons
+                  name={micListening ? 'mic' : 'mic-outline'}
+                  size={30}
+                  color={micListening ? colors.textOnPrimary : colors.textPrimary}
+                />
+              </TouchableOpacity>
+              <Text style={[styles.footnote, styles.askMicCaption]}>
+                {micListening
+                  ? 'Listening. Stops a few seconds after you finish.'
+                  : 'Tap the microphone and ask.'}
+              </Text>
+            </View>
+            {heard ? <Text style={styles.footnote}>Heard: {heard}</Text> : null}
+            {micProblem ? <Text style={styles.hitWarning}>{micProblem}</Text> : null}
+            {spokenAnswer ? <Text style={styles.askAnswer}>{spokenAnswer}</Text> : null}
+          </View>
+        ) : null}
 
         <View style={styles.searchCard}>
           <View style={styles.searchRow}>
@@ -230,10 +328,13 @@ export default function WhereIsItScreen() {
               voiceJoin="replace"
               micColor={colors.accent}
               value={query}
-              onChangeText={setQuery}
+              onChangeText={(text) => {
+                setQuery(text);
+                setSpokenAnswer(null);
+              }}
               placeholder="Batteries"
               placeholderTextColor={colors.textMuted}
-              autoFocus
+              autoFocus={!listenOnArrival}
               returnKeyType="search"
             />
             {query.length > 0 ? (
@@ -287,7 +388,7 @@ const styles = StyleSheet.create({
   leadBox: { ...homeBandStyle, borderColor: colors.primary, padding: HOME_BAND_CONTENT_PADDING, gap: 10 },
   // Where Is It answers only from what was told to it, so the way to tell it
   // sits right under the sentence saying what it reads (1.0.66.9).
-  sayWhereButton: {
+  storeLocationButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -296,7 +397,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: colors.primary,
   },
-  sayWhereText: {
+  storeLocationText: {
     ...typography.bodyEmphasis,
     fontWeight: '400',
     color: colors.textOnPrimary,
@@ -304,6 +405,22 @@ const styles = StyleSheet.create({
     textShadowRadius: 0,
   },
   lead: { ...typography.body, color: colors.textSecondary, ...textShadow },
+  askCard: { ...homeBandStyle, borderColor: colors.primary, padding: HOME_BAND_CONTENT_PADDING, gap: 6 },
+  askExample: { ...typography.body, color: colors.textPrimary, ...textShadow },
+  askMicRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
+  askMic: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.38)',
+    borderWidth: 2,
+    borderColor: colors.primary,
+  },
+  askMicListening: { backgroundColor: colors.primary },
+  askMicCaption: { flex: 1 },
+  askAnswer: { ...typography.bodyEmphasis, fontWeight: '400', color: colors.textPrimary, marginTop: 4, ...textShadow },
   footnote: { ...typography.caption, color: colors.textMuted, ...textShadow },
   searchCard: {
     ...homeBandStyle,

@@ -100,15 +100,24 @@ export function scorePlaceRecord(record: PlaceRecord, query: string): number | n
 
   let total = 0;
   for (const word of words) {
-    const best = Math.max(
-      fieldScore(what, word, 10, 6),
-      fieldScore(place, word, 4, 2),
-      fieldScore(detail, word, 1, 1),
-    );
+    let best = 0;
+    for (const form of wordForms(word)) {
+      best = Math.max(best, fieldScore(what, form, 10, 6), fieldScore(place, form, 4, 2), fieldScore(detail, form, 1, 1));
+    }
     if (best === 0) return null;
     total += best;
   }
   return total;
+}
+
+// The word as asked, and with a plural ending taken off, so "Where are the
+// fishing poles" finds a fishing pole written down in the singular (1.0.66.10).
+// The other way round already works, since "pole" starts "poles".
+function wordForms(word: string): string[] {
+  const forms = [word];
+  if (word.length > 3 && word.endsWith('s')) forms.push(word.slice(0, -1));
+  if (word.length > 4 && word.endsWith('es')) forms.push(word.slice(0, -2));
+  return forms;
 }
 
 function fieldScore(haystack: string, word: string, atWordStart: number, anywhere: number): number {

@@ -15,10 +15,10 @@
 //
 // Most choices open sheets mounted elsewhere at the root (the voice note and
 // Low Stimulation, which kept their sheets when they lost their own tabs, Ask
-// Your Records, and Say Where Something Is), through lib/quickAccess.ts. Where
+// Your Records, and Store Its Location), through lib/quickAccess.ts. Where
 // Is It is a screen.
 //
-// Say Where Something Is joined in 1.0.66.9 as Where Is It's companion, by
+// Store Its Location joined in 1.0.66.9 as Where Is It's companion, by
 // direct request: "Where is it can only draw on what the user has told it
 // about where something is located. We need a button for them to do that."
 import { Ionicons } from '@expo/vector-icons';
@@ -91,8 +91,8 @@ export function QuickAccessButton() {
   // Top to bottom as drawn; the last one is nearest the thumb.
   const choices: Choice[] = [
     { key: 'ask', label: 'Ask Your Records', icon: 'help-circle-outline', run: () => openQuickAccessSheet('askRecords') },
-    { key: 'where', label: 'Where Is It', icon: 'location-outline', run: () => router.push('/where-is-it') },
-    { key: 'sayWhere', label: 'Say Where Something Is', icon: 'pin-outline', run: () => openQuickAccessSheet('sayWhere') },
+    { key: 'where', label: 'Where Is It', icon: 'location-outline', run: () => router.push({ pathname: '/where-is-it', params: { listen: '1' } }) },
+    { key: 'storeLocation', label: 'Store Its Location', icon: 'pin-outline', run: () => openQuickAccessSheet('storeLocation') },
     {
       key: 'lowStimulation',
       label: lowStimulationOn ? 'Low Stimulation is on' : 'Low Stimulation',
@@ -113,7 +113,7 @@ export function QuickAccessButton() {
         hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         accessibilityRole="button"
         accessibilityLabel="Quick access"
-        accessibilityHint="Opens Voice Note, Low Stimulation, Say Where Something Is, Where Is It and Ask Your Records"
+        accessibilityHint="Opens Voice Note, Low Stimulation, Store Its Location, Where Is It and Ask Your Records"
         accessibilityState={{ expanded: open }}
       >
         <Ionicons name="grid-outline" size={18} color={colors.textPrimary} />

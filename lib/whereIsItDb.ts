@@ -19,7 +19,7 @@
 //     Read only here: a planting moves by being harvested, and that happens in
 //     Garden where the rest of its history is.
 import { getDatabase } from './db';
-import { addKitchenItem, setKitchenItemLocation } from './kitchenDb';
+import { addKitchenItem, deleteKitchenItem, setKitchenItemLocation } from './kitchenDb';
 import type { PlaceRecord } from './whereIsIt';
 import { cleanPlaceName, isPlaceNameUsable } from './whereIsIt';
 
@@ -181,7 +181,7 @@ export async function listUsedPlaces(limit = 8): Promise<string[]> {
   return places;
 }
 
-// Say Where Something Is, 1.0.66.9 (2026-10-10): the companion to Where Is
+// Store Its Location, 1.0.66.9 (2026-10-10): the companion to Where Is
 // It. Direct request: "Where is it can only draw on what the user has told it
 // about where something is located. We need a button for them to do that."
 //
@@ -192,15 +192,24 @@ export async function listUsedPlaces(limit = 8): Promise<string[]> {
 // item of one with that place, which is where Where Is It and Life > Kitchen
 // both already look. Nothing here guesses at food: the person can move it to
 // the food side in Kitchen if that is where it belongs.
-export type RememberedWhere = { kind: 'moved' | 'added'; id: string; what: string; place: string };
+// previous is where a moved thing was before, kept so That's Wrong can put it
+// back (1.0.66.10): Store Its Location saves the moment the sentence is
+// understood, so the person who sees it went wrong needs one way back.
+export type RememberedWhere = {
+  kind: 'moved' | 'added';
+  id: string;
+  what: string;
+  place: string;
+  previous: { location: string | null; setAt: string | null } | null;
+};
 
 export async function rememberWhere(what: string, place: string): Promise<RememberedWhere | null> {
   const name = what.replace(/\s+/g, ' ').trim();
   const cleanedPlace = cleanPlaceName(place);
   if (!name || !isPlaceNameUsable(cleanedPlace)) return null;
   const db = await getDatabase();
-  const existing = await db.getFirstAsync<{ id: string; foodName: string }>(
-    `SELECT id, food_name AS foodName
+  const existing = await db.getFirstAsync<{ id: string; foodName: string; location: string | null; setAt: string | null }>(
+    `SELECT id, food_name AS foodName, location, location_set_at AS setAt
        FROM kitchen_items
       WHERE LOWER(TRIM(food_name)) = LOWER(?) AND quantity_remaining > 0
       ORDER BY COALESCE(location_set_at, added_at) DESC
@@ -209,8 +218,30 @@ export async function rememberWhere(what: string, place: string): Promise<Rememb
   );
   if (existing) {
     await setKitchenItemLocation(existing.id, cleanedPlace);
-    return { kind: 'moved', id: existing.id, what: existing.foodName, place: cleanedPlace };
+    return {
+      kind: 'moved',
+      id: existing.id,
+      what: existing.foodName,
+      place: cleanedPlace,
+      previous: { location: existing.location, setAt: existing.setAt },
+    };
   }
   const id = await addKitchenItem({ foodName: name, quantity: 1, unit: 'item', kind: 'non_food', location: cleanedPlace });
-  return { kind: 'added', id, what: name, place: cleanedPlace };
+  return { kind: 'added', id, what: name, place: cleanedPlace, previous: null };
+}
+
+// Takes back what rememberWhere just did: a new row goes, a moved one returns
+// to the place and date it had.
+export async function undoRememberWhere(done: RememberedWhere): Promise<void> {
+  if (done.kind === 'added') {
+    await deleteKitchenItem(done.id);
+    return;
+  }
+  const db = await getDatabase();
+  await db.runAsync(
+    'UPDATE kitchen_items SET location = ?, location_set_at = ? WHERE id = ?',
+    done.previous?.location ?? null,
+    done.previous?.setAt ?? null,
+    done.id,
+  );
 }

@@ -39,6 +39,10 @@ export type VoiceInputButtonProps = {
   // false, completely unaffected -- this only ever fires once, on a fresh
   // mount, never on an unrelated re-render.
   autoStart?: boolean;
+  // Passed to useVoiceDictation: listen until this long passes with nothing
+  // new said, for a whole sentence rather than a search word.
+  pauseMs?: number;
+  accessibilityLabel?: string;
 };
 
 const ERROR_COPY: Record<Exclude<VoiceDictationErrorKind, 'no-speech'>, { title: string; message: string }> = {
@@ -63,10 +67,13 @@ export function VoiceInputButton({
   color = colors.textMuted,
   style,
   autoStart = false,
+  pauseMs,
+  accessibilityLabel,
 }: VoiceInputButtonProps) {
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const { status, start, stop } = useVoiceDictation({
     onResult,
+    pauseMs,
     onError: (kind) => {
       // A real, common, non-error case -- nothing was picked up in time.
       // Silently returning to idle (no popup) matches how a phone's own
@@ -103,7 +110,7 @@ export function VoiceInputButton({
         style={[styles.button, listening ? styles.buttonListening : null, style]}
         hitSlop={10}
         accessibilityRole="button"
-        accessibilityLabel={listening ? 'Stop listening' : 'Search or dictate by speaking'}
+        accessibilityLabel={listening ? 'Stop listening' : (accessibilityLabel ?? 'Search or dictate by speaking')}
       >
         <Ionicons name={listening ? 'mic' : 'mic-outline'} size={size} color={listening ? colors.background : color} />
       </TouchableOpacity>

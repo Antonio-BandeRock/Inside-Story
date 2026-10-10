@@ -28,7 +28,7 @@ import { NotYetHost } from '../components/NotYetHost';
 import { TellClaudeHost } from '../components/TellClaudeHost';
 import { HandSwitchButton } from '../components/HandSwitchButton';
 import { AskRecordsSheet } from '../components/AskRecordsSheet';
-import { SayWhereSheet } from '../components/SayWhereSheet';
+import { StoreLocationSheet } from '../components/StoreLocationSheet';
 import { LowStimulationSheet } from '../components/LowStimulationSheet';
 import { QuickAccessButton } from '../components/QuickAccessButton';
 import { QuickCaptureSheet } from '../components/QuickCaptureSheet';
@@ -933,7 +933,7 @@ function UnlockedApp() {
                   Modal, so it sits here ahead of AppKeyboard, which draws over
                   it while its box is being typed into. */}
               <AskRecordsSheet />
-              <SayWhereSheet />
+              <StoreLocationSheet />
               {/* App Lock (1.0.60.6): the passcode asked for again before
                   records leave the phone, lib/freshAuth.ts. */}
               <FreshAuthHost />
