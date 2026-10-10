@@ -49,10 +49,9 @@ const WINDOW = 'M-1000 0 a1000 1000 0 1 0 2000 0 a1000 1000 0 1 0 -2000 0 Z';
 const GHOSTEAD_PLACE = 'translate(512 580.9) scale(0.34047)';
 const ROOF = '<path d="M-1411.2 -790 L0 -1303.6 L1411.2 -790" fill="none" stroke-width="190" stroke-linejoin="miter" stroke-linecap="butt"/>';
 const CHIMNEY = '<path d="M708.5 -1045.8 V-1223.6 H928.5 V-965.7 Z"/>';
-// The wall rises from the roof's centre line at x -1180 and ends in a foot
-// long enough for an L, short of the circle.
-const WALL_TOP = (-790 - (1411.2 - 1180) * (513.6 / 1411.2)).toFixed(1);
-const WALL = `<path d="M-1180 ${WALL_TOP} V1170 H-560" fill="none" stroke-width="142.5" stroke-linejoin="miter" stroke-linecap="butt"/>`;
+// The roof and chimney are the Ghostead mark's, unchanged. An L wall and
+// floor were drawn on the left until 2026-10-09, when Tony asked for the
+// roof alone.
 
 // The figure's drawing space onto the window's: its middle (581, 604) on the
 // origin, its farthest reach (557.5) at 890, so no hand or foot touches the
@@ -106,7 +105,7 @@ function markSvg({ at, background, house }) {
   return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">' + DEFS_ALL
     + (background ? `<rect width="1024" height="1024" fill="${background}"/>` : '')
     + `<g filter="url(#debossWeb)"><g transform="${at}" fill="${DARK}" stroke="${DARK}" stroke-width="0">`
-    + `<path d="${WINDOW}"/>${house ? CHIMNEY + ROOF + WALL : ''}</g></g>`
+    + `<path d="${WINDOW}"/>${house ? CHIMNEY + ROOF : ''}</g></g>`
     + `<g transform="${at}">${figureLayers(true)}</g></svg>`;
 }
 // The large logo on a web page. The Ghostead page's large mark (its
@@ -125,11 +124,10 @@ function heroSvg() {
   for (const [icon, word] of HERO_DEBOSS) {
     fine = fine.split('"' + icon + '"').join('"' + +(word * HERO_RATIO).toFixed(3) + '"');
   }
-  // The roof and wall lines thinned the same way: the wordmark's roof is
-  // 100 units thick across a 4397-unit span, against 190 across 2822 here.
+  // The roof line thinned the same way: the wordmark's roof is 100 units
+  // thick across a 4397-unit span, against 190 across 2822 here.
   const thin = (100 / 4397) * 2822.4 / 190;
-  svg = svg.replace('stroke-width="190"', `stroke-width="${(190 * thin).toFixed(1)}"`)
-    .replace('stroke-width="142.5"', `stroke-width="${(142.5 * thin).toFixed(1)}"`);
+  svg = svg.replace('stroke-width="190"', `stroke-width="${(190 * thin).toFixed(1)}"`);
   return svg.replace(filter, fine);
 }
 
