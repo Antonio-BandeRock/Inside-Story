@@ -23,7 +23,8 @@ import { VaultChoices } from './VaultChoices';
 // (when it locks again, screenshots, turning fingerprint off) change here.
 
 
-// The Voice Note and Photo buttons kept in the notification shade (1.0.62.1).
+// The Voice Note and Photo buttons kept in the notification shade (1.0.62.1),
+// and Voice Control beside them (1.0.66.13).
 // They open the same screens as the two quick settings tiles: over the lock
 // screen when App Lock is on, otherwise Capture once the phone is unlocked
 // (plugins/withCaptureTile.js). Phone only, and only on a build that has the
@@ -33,7 +34,7 @@ function ShadeButtonsSetting() {
   if (isDesktopApp()) return null;
   return (
     <>
-      <Text style={styles.subLabel}>Voice Note and Photo buttons in the notification shade</Text>
+      <Text style={styles.subLabel}>Voice Note, Photo and Voice Control buttons in the notification shade</Text>
       <View style={styles.pillRow}>
         {[true, false].map((on) => (
           <TouchableOpacity
@@ -61,8 +62,8 @@ function ShadeButtonsSetting() {
       </View>
       <Text style={styles.caption}>
         {readLockStateSync()?.phase === 'on'
-          ? 'Pull down the shade and press Voice Note or Photo. It starts listening, or opens the camera, straight away, with no code and the phone still locked. What you keep is sealed until Lifestead is next unlocked, so nobody holding the phone can read it. The same two buttons can be added as quick settings tiles.'
-          : 'Pull down the shade and press Voice Note or Photo. With App Lock set up these work over the lock screen with no code at all; without it the phone asks to be unlocked first. The same two buttons can be added as quick settings tiles.'}
+          ? 'Pull down the shade and press Voice Note or Photo. It starts listening, or opens the camera, straight away, with no code and the phone still locked. What you keep is sealed until Lifestead is next unlocked, so nobody holding the phone can read it. Voice Control asks for the phone\'s unlock first, then your Lifestead code, then listens. The same three buttons can be added as quick settings tiles.'
+          : 'Pull down the shade and press Voice Note or Photo. With App Lock set up these work over the lock screen with no code at all; without it the phone asks to be unlocked first. Voice Control always asks for the phone\'s unlock, then listens for a command. The same three buttons can be added as quick settings tiles.'}
       </Text>
     </>
   );

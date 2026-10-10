@@ -1,7 +1,7 @@
 // Quick settings tiles for Capture (C12, rebuild R1, 2026-10-02; lock screen
 // capture, 1.0.62.1, 2026-10-05).
 //
-// Two tiles: Voice Note and Photo Note. Direct request, 2026-10-05: "You'd
+// Three tiles: Voice Note, Photo Note and, since 1.0.66.13, Voice Control. Direct request, 2026-10-05: "You'd
 // pull down the tile ..., enter your Lifestead code, speak, and it saves.
 // The phone stays locked the whole time," and the camera's job is "a photo
 // straight into Capture."
@@ -16,7 +16,12 @@
 //    unlocked: Capture in the app, listening or with the camera open. The
 //    shade buttons (modules/locked-capture) open the same activity. The
 //    emergency notification opens it in mode "emergency", which always goes
-//    to the screen over the lock screen, locked or not, with no code.
+//    to the screen over the lock screen, locked or not, with no code. Mode
+//    "command" (Voice Control) never shows over the lock screen: it asks for
+//    the phone's unlock whenever the phone is locked, then opens the app
+//    listening for a command (app/voice-control.tsx). Direct request,
+//    2026-10-10: "it forces the unlock of the phone and then allows the
+//    voice control."
 //  - LockedCaptureActivity is a second React screen in the same app,
 //    allowed over the lock screen, showing only the component registered as
 //    "LockedCapture" (components/LockedCaptureScreen.tsx). It never shows
@@ -35,6 +40,8 @@ const path = require('path');
 const TILES = [
   { name: '.CaptureTileService', className: 'CaptureTileService', label: 'Voice Note', icon: '@drawable/ic_tile_voice', mode: 'voice' },
   { name: '.CapturePhotoTileService', className: 'CapturePhotoTileService', label: 'Photo Note', icon: '@drawable/ic_tile_photo', mode: 'photo' },
+  // Voice Control (1.0.66.13): the phone's unlock, then the app listening.
+  { name: '.VoiceControlTileService', className: 'VoiceControlTileService', label: 'Voice Control', icon: '@drawable/ic_tile_command', mode: 'command' },
 ];
 const LAUNCHER = '.CaptureLauncherActivity';
 const LOCKED = '.LockedCaptureActivity';
@@ -65,7 +72,7 @@ class ${tile.className} : TileService() {
     }
     if (Build.VERSION.SDK_INT >= 34) {
       val pending = PendingIntent.getActivity(
-        this, ${tile.mode === 'voice' ? 1 : 2}, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        this, ${{ voice: 1, photo: 2, command: 4 }[tile.mode]}, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
       )
       startActivityAndCollapse(pending)
     } else {
@@ -105,7 +112,9 @@ class CaptureLauncherActivity : Activity() {
       finish()
       return
     }
-    if (keyguard.isKeyguardLocked && appLockOn && mode != "inbox") {
+    // Voice Control works the app's screens, so it never shows over the
+    // lock screen: the phone's unlock always comes first (1.0.66.13).
+    if (keyguard.isKeyguardLocked && appLockOn && mode != "inbox" && mode != "command") {
       startActivity(Intent(this, LockedCaptureActivity::class.java).apply {
         putExtra("mode", mode)
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -134,7 +143,8 @@ class CaptureLauncherActivity : Activity() {
       "photo" -> "?photo=1"
       else -> ""
     }
-    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("hashimotosapp://capture$query")).apply {
+    val target = if (mode == "command") "hashimotosapp://voice-control" else "hashimotosapp://capture$query"
+    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(target)).apply {
       setPackage(packageName)
       addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     })
@@ -178,7 +188,7 @@ class LockedCaptureActivity : ReactActivity() {
 `;
 }
 
-// Material Symbols mic and photo camera, white, for the tiles and the shade
+// Material Symbols mic, photo camera and record voice over, white, for the tiles and the shade
 // buttons (a tile tints its icon itself).
 const DRAWABLES = {
   ic_tile_voice: `<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
@@ -188,6 +198,10 @@ const DRAWABLES = {
   ic_tile_photo: `<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
   <path android:fillColor="#FFFFFFFF" android:pathData="M12,15.2a3.2,3.2 0,1 0,0 -6.4a3.2,3.2 0,1 0,0 6.4z"/>
   <path android:fillColor="#FFFFFFFF" android:pathData="M9,2L7.17,4L4,4c-1.1,0 -2,0.9 -2,2v12c0,1.1 0.9,2 2,2h16c1.1,0 2,-0.9 2,-2L22,6c0,-1.1 -0.9,-2 -2,-2h-3.17L15,2L9,2zM12,17c-2.76,0 -5,-2.24 -5,-5s2.24,-5 5,-5 5,2.24 5,5 -2.24,5 -5,5z"/>
+</vector>
+`,
+  ic_tile_command: `<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+  <path android:fillColor="#FFFFFFFF" android:pathData="M9,13c2.21,0 4,-1.79 4,-4s-1.79,-4 -4,-4 -4,1.79 -4,4 1.79,4 4,4zM9,15c-2.67,0 -8,1.34 -8,4v2h16v-2c0,-2.66 -5.33,-4 -8,-4zM16.76,5.36l-1.68,1.69c0.84,1.18 0.84,2.71 0,3.89l1.68,1.69c2.02,-2.02 2.02,-5.07 0,-7.27zM20.07,2l-1.63,1.63c2.77,3.02 2.77,7.56 0,10.74L20.07,16c3.9,-3.89 3.91,-9.95 0,-14z"/>
 </vector>
 `,
 };

@@ -15,13 +15,15 @@ import android.content.Intent
 // Each button opens CaptureLauncherActivity, written into the app by
 // plugins/withLockedCapture.js, which decides at the moment of the press:
 // over the lock screen when the phone is locked and App Lock is on, the
-// phone's own unlock first when App Lock is off, and straight into Capture
-// when the phone is already unlocked. The notification carries no words
+// phone's unlock first when App Lock is off, and straight into Capture
+// when the phone is already unlocked. Voice Control (1.0.66.13) always asks
+// for the phone's unlock first and then opens the app listening for a
+// command, since it works the app's screens. The notification carries no words
 // from anybody's records, so it is safe to show on the lock screen.
 //
-// Two notifications, each opened by a tap on itself, rather than one with
+// One notification per button, each opened by a tap on itself, rather than one with
 // two buttons (2026-10-07). Samsung's shade sends every press of a
-// notification BUTTON that opens a screen through the phone's own unlock
+// notification BUTTON that opens a screen through the phone's unlock
 // first, whatever that screen allows; a tap on the notification itself goes
 // straight to a screen that may show over the lock screen. Seen in the
 // phone's log as dismissKeyguardThenExecute on each button press.
@@ -31,6 +33,7 @@ object ShadeButtons {
   private const val CHANNEL_ID = "capture-buttons"
   private const val NOTIFICATION_ID = 61016
   private const val PHOTO_NOTIFICATION_ID = 61017
+  private const val COMMAND_NOTIFICATION_ID = 61018
   const val ACTION_DISMISSED = "expo.modules.lockedcapture.SHADE_BUTTONS_DISMISSED"
 
   fun isOn(context: Context): Boolean =
@@ -63,7 +66,7 @@ object ShadeButtons {
     setOn(context, true)
     manager.createNotificationChannel(
       NotificationChannel(CHANNEL_ID, "Capture buttons", NotificationManager.IMPORTANCE_LOW).apply {
-        description = "Voice Note and Photo buttons kept in the shade, usable from the lock screen."
+        description = "Voice Note, Photo and Voice Control buttons kept in the shade."
         setShowBadge(false)
         lockscreenVisibility = Notification.VISIBILITY_PUBLIC
       }
@@ -93,6 +96,8 @@ object ShadeButtons {
     }
     post(NOTIFICATION_ID, "ic_tile_voice", "Voice Note", "Tap to say a note into Capture.", "voice", 1)
     post(PHOTO_NOTIFICATION_ID, "ic_tile_photo", "Photo", "Tap to take a photo into Capture.", "photo", 2)
+    // 3 is the dismissed broadcast above.
+    post(COMMAND_NOTIFICATION_ID, "ic_tile_command", "Voice Control", "Tap to unlock and give a command.", "command", 4)
     return true
   }
 
@@ -101,6 +106,7 @@ object ShadeButtons {
     val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     manager.cancel(NOTIFICATION_ID)
     manager.cancel(PHOTO_NOTIFICATION_ID)
+    manager.cancel(COMMAND_NOTIFICATION_ID)
   }
 
   /** Whether the buttons are in the shade now, rather than only wanted. */
