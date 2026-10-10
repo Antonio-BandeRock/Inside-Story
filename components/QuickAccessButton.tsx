@@ -137,14 +137,16 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 10,
   },
-  list: { gap: 8 },
+  // 8 to 4 and wells 12 to 6 padding in 1.0.66.7, direct instruction: half
+  // the space between, each choice about a quarter shorter (48 to 36 dp).
+  list: { gap: 4 },
   // Each choice in a pressed-in well: darker than the panel, its top edge
   // shaded and its bottom edge catching light, the way a recess reads.
   well: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    paddingVertical: 12,
+    paddingVertical: 6,
     paddingHorizontal: 14,
     borderRadius: 10,
     backgroundColor: 'rgba(0,0,0,0.38)',
