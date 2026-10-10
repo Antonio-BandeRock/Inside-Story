@@ -19,6 +19,7 @@
 //     Read only here: a planting moves by being harvested, and that happens in
 //     Garden where the rest of its history is.
 import { getDatabase } from './db';
+import { addKitchenItem, setKitchenItemLocation } from './kitchenDb';
 import type { PlaceRecord } from './whereIsIt';
 import { cleanPlaceName, isPlaceNameUsable } from './whereIsIt';
 
@@ -178,4 +179,38 @@ export async function listUsedPlaces(limit = 8): Promise<string[]> {
     if (places.length >= limit) break;
   }
   return places;
+}
+
+// Say Where Something Is, 1.0.66.9 (2026-10-10): the companion to Where Is
+// It. Direct request: "Where is it can only draw on what the user has told it
+// about where something is located. We need a button for them to do that."
+//
+// A thing already in Kitchen under the same name (food or household, still on
+// hand) has its place moved, the way "I moved it" does, rather than a second
+// copy being made, since two answers for one thing is how a search starts
+// sending somebody to the wrong cupboard. Anything else becomes a household
+// item of one with that place, which is where Where Is It and Life > Kitchen
+// both already look. Nothing here guesses at food: the person can move it to
+// the food side in Kitchen if that is where it belongs.
+export type RememberedWhere = { kind: 'moved' | 'added'; id: string; what: string; place: string };
+
+export async function rememberWhere(what: string, place: string): Promise<RememberedWhere | null> {
+  const name = what.replace(/\s+/g, ' ').trim();
+  const cleanedPlace = cleanPlaceName(place);
+  if (!name || !isPlaceNameUsable(cleanedPlace)) return null;
+  const db = await getDatabase();
+  const existing = await db.getFirstAsync<{ id: string; foodName: string }>(
+    `SELECT id, food_name AS foodName
+       FROM kitchen_items
+      WHERE LOWER(TRIM(food_name)) = LOWER(?) AND quantity_remaining > 0
+      ORDER BY COALESCE(location_set_at, added_at) DESC
+      LIMIT 1`,
+    name,
+  );
+  if (existing) {
+    await setKitchenItemLocation(existing.id, cleanedPlace);
+    return { kind: 'moved', id: existing.id, what: existing.foodName, place: cleanedPlace };
+  }
+  const id = await addKitchenItem({ foodName: name, quantity: 1, unit: 'item', kind: 'non_food', location: cleanedPlace });
+  return { kind: 'added', id, what: name, place: cleanedPlace };
 }

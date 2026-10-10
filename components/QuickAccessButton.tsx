@@ -9,13 +9,18 @@
 // The edge tab is the navigation switch's shape (components/EdgeTab.tsx), just
 // above the footer where the voice note's tab used to be. A tap opens a short
 // list right above it: each choice sits in a dark pressed-in well, and the
-// four wells sit on the lighter menu panel, so the list stands out from
+// wells sit on the lighter menu panel, so the list stands out from
 // whatever screen is behind it. The voice note is the choice nearest the
 // thumb, since it is the one that has to be quick.
 //
-// Two choices open sheets mounted elsewhere at the root (the voice note and
-// Low Stimulation, which kept their sheets when they lost their own tabs, and
-// Ask Your Records), through lib/quickAccess.ts. Where Is It is a screen.
+// Most choices open sheets mounted elsewhere at the root (the voice note and
+// Low Stimulation, which kept their sheets when they lost their own tabs, Ask
+// Your Records, and Say Where Something Is), through lib/quickAccess.ts. Where
+// Is It is a screen.
+//
+// Say Where Something Is joined in 1.0.66.9 as Where Is It's companion, by
+// direct request: "Where is it can only draw on what the user has told it
+// about where something is located. We need a button for them to do that."
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState, useSyncExternalStore, type ComponentProps } from 'react';
@@ -87,6 +92,7 @@ export function QuickAccessButton() {
   const choices: Choice[] = [
     { key: 'ask', label: 'Ask Your Records', icon: 'help-circle-outline', run: () => openQuickAccessSheet('askRecords') },
     { key: 'where', label: 'Where Is It', icon: 'location-outline', run: () => router.push('/where-is-it') },
+    { key: 'sayWhere', label: 'Say Where Something Is', icon: 'pin-outline', run: () => openQuickAccessSheet('sayWhere') },
     {
       key: 'lowStimulation',
       label: lowStimulationOn ? 'Low Stimulation is on' : 'Low Stimulation',
@@ -107,7 +113,7 @@ export function QuickAccessButton() {
         hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         accessibilityRole="button"
         accessibilityLabel="Quick access"
-        accessibilityHint="Opens Voice Note, Low Stimulation, Where Is It and Ask Your Records"
+        accessibilityHint="Opens Voice Note, Low Stimulation, Say Where Something Is, Where Is It and Ask Your Records"
         accessibilityState={{ expanded: open }}
       >
         <Ionicons name="grid-outline" size={18} color={colors.textPrimary} />
@@ -147,7 +153,7 @@ export function QuickAccessButton() {
 }
 
 const styles = StyleSheet.create({
-  // The panel behind all four: the lighter menu grey with a firm border and a
+  // The panel behind every choice: the lighter menu grey with a firm border and a
   // drop shadow, so the list lifts off the screen behind it.
   panel: {
     position: 'absolute',

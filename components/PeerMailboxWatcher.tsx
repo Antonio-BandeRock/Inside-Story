@@ -46,6 +46,8 @@ import { collectAfterWake, keepWakeRegistrationCurrent, pushWakeSupported } from
 import { receiveViaRelay, sendViaRelay } from '../lib/relayMailbox';
 import { isRelayWake } from '../lib/relayWake';
 import { useInfoAlert } from './InfoAlert';
+import { decideTrouble } from '../lib/passingTrouble';
+import { setTroubleSince, troubleSince } from '../lib/passingTroubleClock';
 
 /** How often the folder is checked while the app is open. */
 const EXCHANGE_INTERVAL_MS = 30 * 1000;
@@ -71,13 +73,20 @@ export function PeerMailboxWatcher() {
 
   const heard = useCallback(
     (status: MailboxStatus) => {
-      if (status.state !== 'unreachable') return;
-      const key = status.folderName + ': ' + status.reason;
+      if (status.state !== 'unreachable') {
+        if (status.state === 'ready') setTroubleSince('mailbox', null);
+        return;
+      }
+      // Passing trouble waits an hour before it is said (lib/passingTrouble.ts).
+      const decision = decideTrouble(troubleSince('mailbox'), status.reason, Date.now());
+      setTroubleSince('mailbox', decision.since);
+      if (!decision.speak) return;
+      const key = status.folderName + ': ' + decision.sentence;
       if (toldRef.current.has(key)) return;
       toldRef.current.add(key);
       showNotice(
         'Sharing could not reach the mailbox folder',
-        `${status.folderName}: ${status.reason.trim().replace(/\.?$/, '.')} Until it can, what you share with people waits here, and the Send and Check buttons in Connections say the same.`,
+        `${status.folderName}: ${decision.sentence.trim().replace(/\.?$/, '.')} Until it can, what you share with people waits here, and the Send and Check buttons in Connections say the same.`,
       );
     },
     [showNotice],

@@ -30,6 +30,7 @@
 import { isDesktopApp } from './desktop/bridge';
 import * as disk from './desktop/cloudFolder';
 import { forgetAccessToken, getAccessToken } from './oneDriveAuth';
+import { ONEDRIVE_BUSY_LEAD } from './passingTrouble';
 
 const GRAPH = 'https://graph.microsoft.com/v1.0';
 
@@ -106,6 +107,12 @@ export function graphErrorSentence(status: number, message: string | null): stri
       (message ? ' (it answered ' + message.trim() + ')' : '') +
       '. This is sometimes on Microsoft\u2019s side and clears within a few minutes. If it keeps happening, sign in to OneDrive again on the Shared Folder screen.'
     );
+  }
+  // Microsoft's way of saying busy, try later (408, 429 and the 5xx
+  // family). Its message adds nothing, and lib/passingTrouble.ts knows
+  // this sentence, so background sync holds it back unless it lasts.
+  if (status === 408 || status === 429 || status >= 500) {
+    return ONEDRIVE_BUSY_LEAD + ' (' + status + '). Try again in a few minutes.';
   }
   if (!bare && message) return message;
   return 'OneDrive refused that (' + status + (message ? ', ' + message.trim() : '') + '). Try again in a few minutes.';

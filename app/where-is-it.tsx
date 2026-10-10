@@ -20,7 +20,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
 import { colors } from '../constants/colors';
@@ -40,6 +40,7 @@ import {
   type PlaceRecordKind,
 } from '../lib/whereIsIt';
 import { listPlaceRecords } from '../lib/whereIsItDb';
+import { openQuickAccessSheet, subscribePlaceSaved } from '../lib/quickAccess';
 import { confirmKitchenItemLocation, setKitchenItemLocation } from '../lib/kitchenDb';
 import { RecordPhotos } from '../components/RecordPhotos';
 import { usePlayfulWording } from '../hooks/usePlayfulWording';
@@ -87,6 +88,7 @@ export default function WhereIsItScreen() {
       void refresh();
     }, [refresh]),
   );
+  useEffect(() => subscribePlaceSaved(() => void refresh()), [refresh]);
 
   async function confirmStillThere(record: PlaceRecord) {
     await confirmKitchenItemLocation(record.id.slice('kitchen:'.length));
@@ -209,6 +211,15 @@ export default function WhereIsItScreen() {
             Anything with a place written down: kitchen and household items, notes you sorted to Where it is, and what
             is growing in the garden.
           </Text>
+          <TouchableOpacity
+            style={styles.sayWhereButton}
+            activeOpacity={0.85}
+            onPress={() => openQuickAccessSheet('sayWhere')}
+            accessibilityRole="button"
+          >
+            <Ionicons name="pin-outline" size={16} color={colors.textOnPrimary} />
+            <Text style={styles.sayWhereText}>Say Where Something Is</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.searchCard}>
@@ -273,7 +284,25 @@ export default function WhereIsItScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   content: { gap: HOME_BAND_GAP },
-  leadBox: { ...homeBandStyle, borderColor: colors.primary, padding: HOME_BAND_CONTENT_PADDING },
+  leadBox: { ...homeBandStyle, borderColor: colors.primary, padding: HOME_BAND_CONTENT_PADDING, gap: 10 },
+  // Where Is It answers only from what was told to it, so the way to tell it
+  // sits right under the sentence saying what it reads (1.0.66.9).
+  sayWhereButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: colors.primary,
+  },
+  sayWhereText: {
+    ...typography.bodyEmphasis,
+    fontWeight: '400',
+    color: colors.textOnPrimary,
+    textShadowColor: 'transparent',
+    textShadowRadius: 0,
+  },
   lead: { ...typography.body, color: colors.textSecondary, ...textShadow },
   footnote: { ...typography.caption, color: colors.textMuted, ...textShadow },
   searchCard: {
