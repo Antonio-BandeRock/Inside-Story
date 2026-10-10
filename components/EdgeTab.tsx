@@ -1,6 +1,7 @@
 // The tab tucked into the screen edge just above the footer, shared by the
 // navigation switch (components/HandSwitchButton.tsx) and the quick voice
-// note (components/QuickCaptureButton.tsx), 2026-10-07. Direct request: "Can
+// note (components/QuickCaptureButton.tsx, the quick-access tab since
+// 1.0.66.6, components/QuickAccessButton.tsx), 2026-10-07. Direct request: "Can
 // we modify the navigation button, and the microphone buttons on the lower
 // corners to have the pressed-in look behind the icons, so maybe round out
 // the end of the tab it sits on so it follows the round of the pressed-in

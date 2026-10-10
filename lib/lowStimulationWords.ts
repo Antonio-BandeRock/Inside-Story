@@ -1,6 +1,6 @@
 // What Low Stimulation does, in one place, 1.0.63.18. Read by Profile's Low
 // Stimulation card and by the edge button's sheet
-// (components/LowStimulationButton.tsx), so the two never describe it
+// (components/LowStimulationSheet.tsx), so the two never describe it
 // differently.
 
 export const LOW_STIMULATION_INTRO =

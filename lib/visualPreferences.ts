@@ -234,17 +234,9 @@ export type HomeSectionKey =
   // arriving has not been assigned to an area yet, and a band to open
   // first is a tap the two seconds cannot afford.
   | 'captureInbox'
-  // Where did I put it, 2026-09-23. Belongs to no tab for the same reason
-  // capture does not: where the spare batteries are is a fact about the
-  // house rather than about Food, Garden or Life. It sits directly under
-  // Capture because the two are halves of one habit, putting something
-  // down somewhere and finding it again.
-  | 'whereIsIt'
-  // Ask Your Records, 2026-09-30 (C22, lib/askRecords.ts). A question
-  // typed the way it would be said, sent by fixed rules to the Trends lens,
-  // Pattern Finder, Where Is It or reading that can answer it. Belongs to
-  // no tab, since a question can be about anything.
-  | 'askRecords'
+  // Where Is It and Ask Your Records were sections here from 2026-09-23 and
+  // 2026-09-30 until 1.0.66.6, when both moved to the quick-access menu on
+  // the thumb side (components/QuickAccessButton.tsx).
   // Your Story, 2026-09-24 (lib/yourStory.ts). Belongs to no tab, since
   // its job is to say where each tab fits, so it is a top-level row like
   // Capture. The one card on Home that cannot be turned off: see
@@ -411,10 +403,6 @@ export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
   // Capture leads, behind only the one-off folder nudge: it is the one
   // card whose whole value is being reachable before a thought is gone.
   'captureInbox',
-  // And finding it again, right behind it.
-  'whereIsIt',
-  // Then asking anything else of what is kept.
-  'askRecords',
   // Home. 2026-09-16, direct correction: "You removed the Home group from
   // the Home screen. It should remain at the top in order of occurance in
   // the TabHub menu." Home leads TabHub’s own grid, so it leads the
@@ -503,8 +491,6 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   weather: 'Weather & Sunrise/Sunset',
   sharedFolderSetup: 'Shared Folder Setup',
   captureInbox: 'Capture',
-  whereIsIt: 'Where Is It',
-  askRecords: 'Ask Your Records',
   yourStory: 'Your Guide',
   today: 'Today',
   lowStimulation: 'Low Stimulation',

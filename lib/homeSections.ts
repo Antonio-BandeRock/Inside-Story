@@ -32,14 +32,6 @@ export const HOME_SECTION_TAB_PATH: Record<HomeSectionKey, string | null> = {
   // here is what keeps it a top-level row instead of a card inside a
   // band, so reaching it is one tap rather than two.
   captureInbox: null,
-  // Where did I put it, 2026-09-23. Null for the same reason, and with the
-  // same consequence: a top-level row, so looking something up is one tap.
-  // Somebody standing in front of an open cupboard will not go two taps
-  // deep, which is the whole test this feature has to pass.
-  whereIsIt: null,
-  // Ask Your Records, 2026-09-30 (C22). Null because a question can be
-  // about anything the person keeps, so it belongs to no one tab.
-  askRecords: null,
   // Your Story, 2026-09-24. Null because it spans every tab: its job is
   // to say where each one fits. A top-level row, like Capture.
   yourStory: null,

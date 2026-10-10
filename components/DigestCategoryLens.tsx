@@ -414,7 +414,7 @@ export function DigestSearchLens({
   tabColor: string;
   tabTextColor?: string;
   onJumpElsewhere?: (id: string) => void;
-  /** A search already asked, from Ask Your Records on Home. Read once. */
+  /** A search already asked, from Ask Your Records. Read once. */
   initialQuery?: string;
 }) {
   const router = useRouter();

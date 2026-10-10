@@ -27,8 +27,10 @@ import { StoryWalkHost } from '../components/StoryWalkHost';
 import { NotYetHost } from '../components/NotYetHost';
 import { TellClaudeHost } from '../components/TellClaudeHost';
 import { HandSwitchButton } from '../components/HandSwitchButton';
-import { LowStimulationButton } from '../components/LowStimulationButton';
-import { QuickCaptureButton } from '../components/QuickCaptureButton';
+import { AskRecordsSheet } from '../components/AskRecordsSheet';
+import { LowStimulationSheet } from '../components/LowStimulationSheet';
+import { QuickAccessButton } from '../components/QuickAccessButton';
+import { QuickCaptureSheet } from '../components/QuickCaptureSheet';
 import { ThumbSearchButton } from '../components/ThumbSearchButton';
 import { FreshAuthHost } from '../components/FreshAuthHost';
 import { WordingEditProvider } from '../components/EditableText';
@@ -914,15 +916,22 @@ function UnlockedApp() {
               {/* The navigation switch (1.0.61.13): the edge tab above the footer
                   on the far side from the hubs, components/HandSwitchButton.tsx. */}
               <HandSwitchButton />
-              {/* The quick voice note (1.0.61.14): the edge tab on the thumb side,
-                  saving what is said to Capture, components/QuickCaptureButton.tsx. */}
-              <QuickCaptureButton />
+              {/* Quick access (1.0.66.6): one edge tab on the thumb side opening
+                  Voice Note, Low Stimulation, Where Is It and Ask Your Records,
+                  components/QuickAccessButton.tsx. The voice note's sheet
+                  (1.0.61.14) saves what is said to Capture. */}
+              <QuickAccessButton />
+              <QuickCaptureSheet />
               {/* Search near the thumb (1.0.61.15): above the voice note tab while
                   the screen has a lens search box, components/ThumbSearchButton.tsx. */}
               <ThumbSearchButton />
-              {/* Low Stimulation from the edge, above the voice note tab and the
-                  search tab, components/LowStimulationButton.tsx. */}
-              <LowStimulationButton />
+              {/* Low Stimulation's explain-then-ask card, opened from the
+                  quick-access menu, components/LowStimulationSheet.tsx. */}
+              <LowStimulationSheet />
+              {/* Ask Your Records (1.0.66.6), from the quick-access menu. Not a
+                  Modal, so it sits here ahead of AppKeyboard, which draws over
+                  it while its box is being typed into. */}
+              <AskRecordsSheet />
               {/* App Lock (1.0.60.6): the passcode asked for again before
                   records leave the phone, lib/freshAuth.ts. */}
               <FreshAuthHost />

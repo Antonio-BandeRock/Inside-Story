@@ -63,7 +63,7 @@ export function EntrySearchInput({
   // renders at all.
   onPressInfo?: () => void;
   // What the box holds when it first draws, for a caller opened with a
-  // search already asked (Ask Your Records on Home, 2026-09-30). Read once,
+  // search already asked (Ask Your Records, 2026-09-30). Read once,
   // like everything else here: a caller that wants it changed remounts.
   initialValue?: string;
 }) {

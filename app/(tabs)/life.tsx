@@ -766,7 +766,7 @@ export default function LifeScreen() {
   const walkMark = useWalkMark();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const folds = useBandFolds();
-  // searchQuery comes from Ask Your Records on Home (C22): Search Reading
+  // searchQuery comes from Ask Your Records (C22): Search Reading
   // opens with the question's words already in the box.
   const { openLifeLens, focusTreatmentId, openEntryId, upkeepName, searchQuery } = useLocalSearchParams<{ openLifeLens?: string; focusTreatmentId?: string; openEntryId?: string; upkeepName?: string; searchQuery?: string }>();
   // Conditions asks to scroll to a band it just opened from a link; its y

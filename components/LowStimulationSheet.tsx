@@ -7,37 +7,32 @@
 // on a time out setting, it will allow the user to scroll through what it
 // does and then they choose to turn it on or cancel to close the text box."
 //
-// An edge tab on the thumb side, stacked above the quick voice note's tab
-// (components/QuickCaptureButton.tsx), and above the thumb search tab too
-// while that one is showing, so the three never land on each other. A tap
-// opens a card in the place and at the size of a LensHub menu, holding what
-// Low Stimulation does (lib/lowStimulationWords.ts, the same words Profile
-// shows) and two buttons. Nothing changes until one of them is pressed.
-import { Ionicons } from '@expo/vector-icons';
-import { useState, useSyncExternalStore } from 'react';
+// Since 1.0.66.6 it is one of the four choices in the quick-access menu on
+// the thumb side (components/QuickAccessButton.tsx) rather than an edge tab
+// of its own. Choosing it opens a card in the place and at the size of a
+// LensHub menu, holding what Low Stimulation does (lib/lowStimulationWords.ts,
+// the same words Profile shows) and two buttons. Nothing changes until one of them is pressed.
+import { useEffect, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { colors } from '../constants/colors';
-import { useFooterBandHeight, useHubMenuCardSpan, useMenuCardBottom, useMenuCardFit } from '../constants/floatingButton';
+import { useHubMenuCardSpan, useMenuCardBottom, useMenuCardFit } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
-import { isDesktopApp } from '../lib/desktop/bridge';
 import { LOW_STIMULATION_INTRO, LOW_STIMULATION_PARTS } from '../lib/lowStimulationWords';
-import { useNavigationHand } from '../lib/navigationHand';
-import { hasThumbSearch, subscribeThumbSearch } from '../lib/thumbSearch';
+import { subscribeQuickAccess } from '../lib/quickAccess';
 import { modalAnimationType, setLowStimulation } from '../lib/visualPreferences';
-import { EDGE_TAB_HEIGHT, EdgeTab } from './EdgeTab';
 import { cardHeightFor } from './LensHub';
 
-// The voice note tab sits 8 above the footer; this one sits a tab and a gap
-// above it, and one more above that while the thumb search tab is showing.
-const ONE_STEP = EDGE_TAB_HEIGHT + 8;
-
-export function LowStimulationButton() {
-  const hand = useNavigationHand();
-  const footerHeight = useFooterBandHeight();
+export function LowStimulationSheet() {
   const prefs = useVisualPreferences();
-  const searchShowing = useSyncExternalStore(subscribeThumbSearch, hasThumbSearch, hasThumbSearch);
   const [open, setOpen] = useState(false);
+  useEffect(
+    () =>
+      subscribeQuickAccess((sheet) => {
+        if (sheet === 'lowStimulation') setOpen(true);
+      }),
+    [],
+  );
 
   const { fontScale } = useWindowDimensions();
   const { left, width } = useHubMenuCardSpan();
@@ -45,8 +40,6 @@ export function LowStimulationButton() {
   const fit = useMenuCardFit(cardHeightFor(fontScale), 200);
 
   const on = prefs.lowStimulation;
-  const steps = searchShowing && !isDesktopApp() ? 2 : 1;
-  const bottom = footerHeight + 8 + steps * ONE_STEP;
 
   function choose() {
     setOpen(false);
@@ -55,17 +48,6 @@ export function LowStimulationButton() {
 
   return (
     <>
-      <EdgeTab
-        side={hand}
-        bottom={bottom}
-        onPress={() => setOpen(true)}
-        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-        accessibilityRole="button"
-        accessibilityLabel={on ? 'Low Stimulation is on' : 'Low Stimulation'}
-        accessibilityHint="Explains Low Stimulation and asks before changing it"
-      >
-        <Ionicons name={on ? 'moon' : 'moon-outline'} size={18} color={colors.textPrimary} />
-      </EdgeTab>
       <Modal
         visible={open}
         transparent

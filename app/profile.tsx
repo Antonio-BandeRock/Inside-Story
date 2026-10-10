@@ -5339,7 +5339,7 @@ export default function ProfileScreen() {
               <Text key={part.title} style={styles.helpText}>{`${part.title}: ${part.text}`}</Text>
             ))}
             <Text style={styles.helpText}>
-              The moon tab on the edge of the screen, above the voice note tab, explains this and turns it on or off
+              Low Stimulation in the quick-access menu, from the grid tab at the bottom edge, explains this and turns it on or off
               from any screen.
             </Text>
           </View>

@@ -220,7 +220,7 @@ export const GUIDES: GuideDef[] = [
       {
         key: 'whereIsIt',
         when: 'whenItHappens',
-        doThis: 'Look something up in Where Is It, from Home.',
+        doThis: 'Look something up in Where Is It, from the quick-access button at the bottom edge on your navigation side.',
         forYou: 'One search across the kitchen, your notes about where things are, and what is growing in the garden. Every answer says how old it is, so an answer from months ago says so.',
         takes: 'A few seconds',
         taps: ['Type what you are looking for.', 'Each answer says where it was put and how long ago that was.'],
@@ -878,7 +878,7 @@ export const GUIDES: GuideDef[] = [
       {
         key: 'whereIsIt',
         when: 'whenItHappens',
-        doThis: 'Ask Where Is It, from Home, the next time something goes missing.',
+        doThis: 'Ask Where Is It, from the quick-access button, the next time something goes missing.',
         forYou: 'One search across the kitchen, your notes and the garden, each answer with its age.',
         takes: 'A few seconds',
         taps: ['Type what you are looking for.'],

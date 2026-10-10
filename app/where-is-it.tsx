@@ -62,7 +62,7 @@ const KIND_COLORS: Record<PlaceRecordKind, string> = {
 export default function WhereIsItScreen() {
   const scrollPadding = useFloatingButtonScrollPadding();
   const playful = usePlayfulWording();
-  // q comes from Ask Your Records on Home (C22): the thing asked about is
+  // q comes from Ask Your Records (C22): the thing asked about is
   // already in the box.
   const { q } = useLocalSearchParams<{ q?: string }>();
   const [query, setQuery] = useState(typeof q === 'string' ? q : '');

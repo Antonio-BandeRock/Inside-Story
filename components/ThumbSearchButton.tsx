@@ -1,7 +1,7 @@
 // Search near the thumb, 1.0.61.15 (2026-10-05). Direct request: "Search boxes
 // at the top of a lens are the hardest thing to reach one-handed." An edge tab
-// on the thumb side, stacked just above the quick voice note's tab
-// (components/QuickCaptureButton.tsx) and the same shape, shown only while the
+// on the thumb side, stacked just above the quick-access tab
+// (components/QuickAccessButton.tsx) and the same shape, shown only while the
 // screen on view has a lens search box (lib/thumbSearch.ts). A tap moves that
 // box's search into the app keyboard's search row, just above the keys, so
 // the words go in at the bottom of the screen and the list narrows above.
@@ -17,7 +17,7 @@ import { useNavigationHand } from '../lib/navigationHand';
 import { hasThumbSearch, openThumbSearch, subscribeThumbSearch } from '../lib/thumbSearch';
 import { EDGE_TAB_HEIGHT, EdgeTab } from './EdgeTab';
 
-// The voice note tab sits 8 above the footer and is EDGE_TAB_HEIGHT tall; this
+// The quick-access tab sits 8 above the footer and is EDGE_TAB_HEIGHT tall; this
 // one sits 8 above that.
 const BOTTOM_ABOVE_FOOTER = 8 + EDGE_TAB_HEIGHT + 8;
 

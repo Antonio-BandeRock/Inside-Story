@@ -180,9 +180,6 @@ import { PackPicker } from '../../components/PackPicker';
 import { offerGardenUse } from '../../lib/gardenPlateOffer';
 import type { GardenYieldHomeSummary } from '../../lib/harvestYield';
 import { getGardenYieldHomeSummary } from '../../lib/harvestYieldDb';
-import { describeWhereIsItRow } from '../../lib/whereIsIt';
-import { countPlaceRecords } from '../../lib/whereIsItDb';
-import { routeQuestion, type AskAnswer } from '../../lib/askRecords';
 import { describeReconcileQueue, lookbackDateString } from '../../lib/reconciliation';
 import {
   checkStanding,
@@ -628,10 +625,6 @@ type DashboardData = {
   // Reminders shows, just not bound to today.
   gardenTasks: (ScheduleItemRecord & { plotId: string | null; plantingId: string | null })[];
   captureCounts: { waiting: number; sorted: number };
-  // How many things have a place written down, 2026-09-23. A count rather
-  // than the rows: Home says how much is findable and never names any of
-  // it, since this page gets read over a shoulder.
-  placeCount: number;
   // Routines and the Did I Do It record, 2026-09-17. Both arrive whole
   // rather than as counts: the routine list is short by nature, and the
   // whole point of the checks is reading what each one says, which a
@@ -1032,18 +1025,6 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.primary,
     href: '/capture' as Href,
   },
-  whereIsIt: {
-    label: 'Where Is It',
-    icon: 'search-outline',
-    color: colors.primary,
-    href: '/where-is-it' as Href,
-  },
-  askRecords: {
-    label: 'Ask Your Records',
-    icon: 'chatbox-ellipses-outline',
-    color: colors.primary,
-    scrollTo: true,
-  },
   // Your Story, 2026-09-24. The menu goes to the full page rather than
   // scrolling to the card, since the card shows one section and the page
   // shows them all. A book rather than the newspaper, which is the Digest
@@ -1090,8 +1071,6 @@ const HOME_LENS_ORDER: HomeSectionKey[] = [
   'nextThing',
   'yourStory',
   'captureInbox',
-  'whereIsIt',
-  'askRecords',
   'usualMeal',
   'logAgain',
   'scanProduct',
@@ -1500,8 +1479,6 @@ export default function HomeScreen() {
   const [stagedConditionKey, setStagedConditionKey] = useState('');
   const [dailyReadingId, setDailyReadingId] = useState<string | null>(null);
   const dailyReadingStateRef = useRef<DailyReadingState | null>(null);
-  const [askQuestion, setAskQuestion] = useState('');
-  const askAnswers = useMemo(() => routeQuestion(askQuestion), [askQuestion]);
   // Null while it is still being worked out, so the card cannot flash up on
   // somebody who set this up months ago.
   const [sharedFolderReady, setSharedFolderReady] = useState<boolean | null>(null);
@@ -1763,7 +1740,6 @@ export default function HomeScreen() {
       // things would be worse than either of them alone.
       listDatedReminderSources(date),
       getReminderPreferences(),
-      countPlaceRecords(),
       // Variety, 2026-09-23. Four weeks of meal items over one query plus
       // one reference-database lookup, the same read the lens does over a
       // shorter range.
@@ -1811,7 +1787,6 @@ export default function HomeScreen() {
         routinesHome,
         datedSources,
         reminderPrefs,
-        placeCount,
         variety,
         keepingUp,
         gardenYield,
@@ -1877,7 +1852,6 @@ export default function HomeScreen() {
           checkinReminderDays: profile.checkinReminderDays,
           gardenTasks,
           captureCounts,
-          placeCount,
           variety,
           keepingUp,
           gardenYield,
@@ -2731,7 +2705,7 @@ export default function HomeScreen() {
     return (
       <HomeSectionBand
         title={title}
-        // A section that belongs to no tab (Where Is It, Ask Your Records)
+        // A section that belongs to no tab (Capture, Your Story)
         // takes the icon the Home menu already shows for it. Without this
         // it drew an empty circle, 1.0.66.5.
         icon={options?.icon ?? identity?.icon ?? HOME_LENS_DESTINATIONS[key]?.icon ?? 'ellipse-outline'}
@@ -4673,85 +4647,6 @@ export default function HomeScreen() {
     );
   }
 
-  // Where did I put it, 2026-09-23, phase 1 of the cross-app push. The
-  // other half of Capture: one is for putting a thing down somewhere, this
-  // is for finding it again. A row rather than a card inside a band, and
-  // directly under Capture, because the moment it has to serve is somebody
-  // standing in front of an open cupboard with a phone in one hand.
-  function renderWhereIsIt() {
-    if (!isHomeSectionVisible(visualPrefs, 'whereIsIt')) return null;
-    return renderBand(
-      'whereIsIt',
-      'Where Is It',
-      <View style={styles.bandBody}>
-        <Text style={styles.bandCaption}>
-          {describeWhereIsItRow(data?.placeCount ?? 0)} Kitchen items, anything sorted to Where it is in Capture,
-          and what is growing in the garden.
-        </Text>
-        <TouchableOpacity
-          style={[styles.logAgainSpeakButton, { borderColor: colors.primary }]}
-          onPress={() => router.push('/where-is-it')}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="search-outline" size={18} color={colors.primary} style={textShadow} />
-          <Text style={[styles.logAgainSpeakText, { color: colors.primary }]}>Look something up</Text>
-        </TouchableOpacity>
-      </View>,
-    );
-  }
-
-  // Ask Your Records, 2026-09-30 (C22). The box answers nothing itself:
-  // lib/askRecords.ts reads the words and names the one to three places
-  // that can show the answer, so every answer is the one that place
-  // already gives, with the counts and limits it already states.
-  function openAskAnswer(answer: AskAnswer) {
-    const target = answer.target;
-    if (target.kind === 'trends') {
-      router.push({
-        pathname: '/trends',
-        params: target.range ? { openTrendsLens: target.lens, openTrendsRange: target.range } : { openTrendsLens: target.lens },
-      });
-    } else if (target.kind === 'whereIsIt') {
-      router.push({ pathname: '/where-is-it', params: { q: target.query } });
-    } else {
-      router.push({ pathname: '/life', params: { openLifeLens: 'searchReading', searchQuery: target.query } });
-    }
-  }
-
-  function renderAskRecords() {
-    if (!isHomeSectionVisible(visualPrefs, 'askRecords')) return null;
-    return renderBand(
-      'askRecords',
-      'Ask Your Records',
-      <View style={styles.bandBody}>
-        <Text style={styles.bandCaption}>
-          Ask the way you would say it, and this names the places that can show you. It works out nothing on its own.
-        </Text>
-        <AppTextInput
-          style={styles.quickInput}
-          placeholder="What did I eat before my last flare?"
-          value={askQuestion}
-          onChangeText={setAskQuestion}
-          returnKeyType="search"
-        />
-        {askAnswers.map((answer) => (
-          <TouchableOpacity
-            key={answer.label}
-            style={styles.askAnswerRow}
-            onPress={() => openAskAnswer(answer)}
-            activeOpacity={0.8}
-          >
-            <View style={styles.askAnswerText}>
-              <Text style={styles.askAnswerLabel}>{answer.label}</Text>
-              <Text style={styles.bandCaption}>{answer.caption}</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.primary} style={textShadow} />
-          </TouchableOpacity>
-        ))}
-      </View>,
-    );
-  }
-
   // Single dispatcher rather than a Record<HomeSectionKey, fn> object --
   // this only ever gets called with a REORDERABLE_HOME_SECTION_KEYS
   // member (see getOrderedHomeSectionKeys), never 'weather' (the sky grid is
@@ -4787,10 +4682,6 @@ export default function HomeScreen() {
         return renderYourStory();
       case 'captureInbox':
         return renderCaptureInbox();
-      case 'whereIsIt':
-        return renderWhereIsIt();
-      case 'askRecords':
-        return renderAskRecords();
       case 'today':
         return renderToday();
       case 'lowStimulation':
@@ -5478,19 +5369,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   logAgainSpeakText: { ...typography.bodyEmphasis, ...textShadow },
-  askAnswerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: colors.surface,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-  },
-  askAnswerText: { flex: 1, gap: 2 },
-  askAnswerLabel: { ...typography.bodyEmphasis, ...textShadow, color: colors.textPrimary },
   usualMealName: { ...typography.bodyEmphasis, ...textShadow },
   usualMealActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   usualMealButton: { flexGrow: 1 },

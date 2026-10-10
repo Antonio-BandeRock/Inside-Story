@@ -2,9 +2,9 @@
 // access button for capturing a voice record note that gets transcripted so
 // they can act on it later in the app, placing it where it would need to go."
 //
-// An edge tab on the thumb side, just above the footer, the same shape as the
-// navigation switch on the far side (components/HandSwitchButton.tsx), so the
-// two read as one kind of thing. A tap starts listening straight away over
+// Opened from the quick-access menu on the thumb side
+// (components/QuickAccessButton.tsx) since 1.0.66.6, when its own edge tab
+// joined that menu. Choosing Voice Note starts listening straight away over
 // whatever screen is open; the words appear as they are heard; when speech
 // stops the note is saved to the Capture inbox as a spoken note with nothing
 // more to press. Sorting stays the inbox's rule: nothing is put anywhere by
@@ -17,7 +17,7 @@
 // deleted in the inbox like any other.
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { useFooterBandHeight } from '../constants/floatingButton';
@@ -29,7 +29,7 @@ import { loadSuggestModel } from '../lib/captureSuggestDb';
 import { announcePhoneOnly } from '../lib/desktop/phoneOnly';
 import { useNavigationHand } from '../lib/navigationHand';
 import { explainNotYet } from '../lib/notYet';
-import { EdgeTab } from './EdgeTab';
+import { subscribeQuickAccess } from '../lib/quickAccess';
 import { useInfoAlert } from './InfoAlert';
 import { ThumbRow } from './ThumbRow';
 
@@ -48,7 +48,7 @@ const ERROR_WORDS: Record<Exclude<VoiceDictationErrorKind, 'no-speech'>, string>
   other: 'Something went wrong while listening. Try again.',
 };
 
-export function QuickCaptureButton() {
+export function QuickCaptureSheet() {
   const hand = useNavigationHand();
   const footerHeight = useFooterBandHeight();
   const router = useRouter();
@@ -145,21 +145,22 @@ export function QuickCaptureButton() {
     router.push('/capture');
   }
 
+  // The listener is subscribed once, so it reaches the latest openSheet
+  // through a ref rather than the one from the first render.
+  const openSheetRef = useRef(openSheet);
+  openSheetRef.current = openSheet;
+  useEffect(
+    () =>
+      subscribeQuickAccess((sheet) => {
+        if (sheet === 'voiceNote') openSheetRef.current();
+      }),
+    [],
+  );
+
   const sheetSide = hand === 'right' ? { right: 8 } : { left: 8 };
 
   return (
     <>
-      <EdgeTab
-        side={hand}
-        bottom={bottom}
-        onPress={openSheet}
-        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-        accessibilityRole="button"
-        accessibilityLabel="Quick voice note"
-        accessibilityHint="Listens and saves what you say to the Capture inbox"
-      >
-        <Ionicons name="mic-outline" size={18} color={colors.textPrimary} />
-      </EdgeTab>
       <Modal visible={open} transparent animationType="none" onRequestClose={close}>
         <Pressable style={styles.backdrop} onPress={close} accessible={false}>
           <Pressable style={[styles.sheet, { bottom }, sheetSide]} onPress={() => undefined} accessible={false}>
