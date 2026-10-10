@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Fragment, useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
+import { Fragment, useContext, useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import {
   Modal,
   Pressable,
@@ -40,6 +40,8 @@ import { HelpSheet, type HelpSection } from './HelpButton';
 import { ActiveRingCircle } from './ActiveRingCircle';
 import { useHubHandoff } from './HubHandoff';
 import { modalAnimationType } from '../lib/visualPreferences';
+import { NavigationContext } from '@react-navigation/native';
+import { focusOf, registerVoiceLenses } from '../lib/voiceControlRegistry';
 import { useWalkMark } from './WalkMark';
 
 export type LensOption<T extends string> = {
@@ -522,6 +524,21 @@ export function LensHub<T extends string>({
   // The outline on a button a Your Story walk line names (components/WalkMark.ts).
   const walkMark = useWalkMark();
   const [open, setOpen] = useState(false);
+
+  // Voice control (1.0.66.11): "Open Horticulture" picks this tab's lens by
+  // name, only while this tab is the one in front.
+  const navigation = useContext(NavigationContext);
+  const voiceLatest = useRef({ options, onSelect });
+  voiceLatest.current = { options, onSelect };
+  useEffect(
+    () =>
+      registerVoiceLenses({
+        focused: focusOf(navigation),
+        options: () => voiceLatest.current.options.map((option) => ({ key: option.key, label: option.label })),
+        select: (key) => voiceLatest.current.onSelect(key as T),
+      }),
+    [navigation],
+  );
   // Same fix as TabHub's own Modal (components/TabHub.tsx) -- see that
   // file's longer comment for the full reasoning and the real, captured
   // timing data behind it: the card's own layout was already correct on

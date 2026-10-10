@@ -49,7 +49,9 @@ function checkWeb() {
     env: { ...process.env, LIFESTEAD_DESKTOP: '1', CI: '1' },
   });
   const dir = path.join(out, '_expo', 'static', 'js', 'web');
-  const bundle = fs.readFileSync(path.join(dir, fs.readdirSync(dir).find((name) => name.endsWith('.js'))), 'utf8');
+  // The entry bundle, not a split-off chunk such as Print-<hash>.js, which
+  // sorts ahead of it.
+  const bundle = fs.readFileSync(path.join(dir, fs.readdirSync(dir).find((name) => /^index-.*\.js$/.test(name))), 'utf8');
   const byPath = new Map();
   const pattern = /\},(\d+),\[([\d,]*)\],"([^"]+)"\);/g;
   let found;
@@ -61,6 +63,13 @@ function checkWeb() {
     if (!ok) failed += 1;
     console.log(`${ok ? 'ok  ' : 'FAIL'} ${label}`);
   };
+  // A dev export names every chunk with the same empty hash, so an async
+  // chunk also called index (expo-image-manipulator's) can overwrite the
+  // entry bundle. Say so rather than failing on missing modules.
+  if (![...byPath.keys()].some((p) => p.startsWith('app/'))) {
+    console.log('FAIL the entry bundle was overwritten by a chunk of the same name; check the desktop build instead');
+    return 1;
+  }
   const swap = byPath.get('components/editableTextForWeb.js');
   const editable = byPath.get('components/EditableText.tsx');
   const text = byPath.get('components/reactNativeText.web.js');

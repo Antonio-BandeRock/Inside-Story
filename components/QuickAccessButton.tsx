@@ -90,6 +90,7 @@ export function QuickAccessButton() {
 
   // Top to bottom as drawn; the last one is nearest the thumb.
   const choices: Choice[] = [
+    { key: 'command', label: 'Say a Command', icon: 'megaphone-outline', run: () => openQuickAccessSheet('voiceCommand') },
     { key: 'ask', label: 'Ask Your Records', icon: 'help-circle-outline', run: () => openQuickAccessSheet('askRecords') },
     { key: 'where', label: 'Where Is It', icon: 'location-outline', run: () => router.push({ pathname: '/where-is-it', params: { listen: '1' } }) },
     { key: 'storeLocation', label: 'Store Its Location', icon: 'pin-outline', run: () => openQuickAccessSheet('storeLocation') },
@@ -113,7 +114,7 @@ export function QuickAccessButton() {
         hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         accessibilityRole="button"
         accessibilityLabel="Quick access"
-        accessibilityHint="Opens Voice Note, Low Stimulation, Store Its Location, Where Is It and Ask Your Records"
+        accessibilityHint="Opens Voice Note, Low Stimulation, Store Its Location, Where Is It, Ask Your Records and Say a Command"
         accessibilityState={{ expanded: open }}
       >
         <Ionicons name="grid-outline" size={18} color={colors.textPrimary} />

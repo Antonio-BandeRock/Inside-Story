@@ -33,17 +33,33 @@ const EDITABLE_TEXT_FILES = new Set([
   path.join(__dirname, 'components', 'editableTextForWeb.js'),
   path.join(__dirname, 'components', 'reactNativeText.js'),
   path.join(__dirname, 'components', 'reactNativeText.web.js'),
+  path.join(__dirname, 'components', 'voiceNamedControl.js'),
+  path.join(__dirname, 'components', 'voiceWebTouchableOpacity.js'),
+  path.join(__dirname, 'components', 'voiceWebTouchableHighlight.js'),
+  path.join(__dirname, 'components', 'voiceWebPressable.js'),
+  path.join(__dirname, 'components', 'voiceWebScrollView.js'),
+  path.join(__dirname, 'components', 'voiceWebFlatList.js'),
+  path.join(__dirname, 'components', 'voiceWebSectionList.js'),
 ]);
-const WEB_TEXT_MODULES = new Set(['react-native-web/dist/exports/Text', 'react-native-web/dist/cjs/exports/Text']);
+// Voice control (1.0.66.11) swaps the buttons and scroll views the same way,
+// so each can put itself where voice commands find it; on the web target
+// each deep import gets its own module. See components/voiceNamedControl.js.
+const WEB_SWAPS = { Text: 'editableTextForWeb.js' };
+for (const name of ['TouchableOpacity', 'TouchableHighlight', 'Pressable', 'ScrollView', 'FlatList', 'SectionList']) WEB_SWAPS[name] = `voiceWeb${name}.js`;
+const WEB_SWAP_MODULES = new Map();
+for (const [name, file] of Object.entries(WEB_SWAPS)) {
+  WEB_SWAP_MODULES.set(`react-native-web/dist/exports/${name}`, file);
+  WEB_SWAP_MODULES.set(`react-native-web/dist/cjs/exports/${name}`, file);
+}
 function editableTextFor(context, moduleName) {
-  const web = WEB_TEXT_MODULES.has(moduleName);
-  if (moduleName !== 'react-native' && !web) return null;
+  const webSwap = WEB_SWAP_MODULES.get(moduleName);
+  if (moduleName !== 'react-native' && !webSwap) return null;
   const origin = context.originModulePath;
   if (!origin || EDITABLE_TEXT_FILES.has(origin)) return null;
   const relative = path.relative(__dirname, origin);
   const top = relative.split(path.sep)[0];
   if (!OWN_SOURCE_FOLDERS.has(top)) return null;
-  const swap = web ? 'editableTextForWeb.js' : 'reactNativeWithEditableText.js';
+  const swap = webSwap ?? 'reactNativeWithEditableText.js';
   return { type: 'sourceFile', filePath: path.join(__dirname, 'components', swap) };
 }
 {

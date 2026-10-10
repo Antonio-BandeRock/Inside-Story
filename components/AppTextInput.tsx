@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useId, useRef, useState } from 'react';
+import { forwardRef, useCallback, useContext, useEffect, useId, useRef, useState } from 'react';
 import { StyleSheet, TextInput, View, type TextInput as TextInputType, type TextInputProps, type TextStyle, type ViewStyle } from 'react-native';
 import { useActiveInputControls, type AppKeyboardType } from './ActiveInputContext';
 import { useKeyboardLift } from './KeyboardLift';
@@ -6,6 +6,8 @@ import { VoiceInputButton } from './VoiceInputButton';
 import { isDesktopApp } from '../lib/desktop/bridge';
 import { appendDictatedText, parseVoiceCommands } from '../lib/voiceCommandParsing';
 import { useNavigationHand } from '../lib/navigationHand';
+import { NavigationContext } from '@react-navigation/native';
+import { focusOf, registerVoiceField, type VoiceNode } from '../lib/voiceControlRegistry';
 
 // Drop-in replacement for RN's own TextInput -- same prop surface, so every
 // existing call site (all controlled value/onChangeText fields, see this
@@ -213,6 +215,33 @@ const AppTextInputField = forwardRef<TextInputType, AppTextInputProps>(function 
   // ref-backed way it now reads the live value.
   const selectionRef = useRef(selection);
   selectionRef.current = selection;
+
+  // Voice control (1.0.66.11): "Type milk in Search" finds this box by its
+  // label, or by the hint written in it when it has none, and puts the words
+  // in through the same onChangeText typing would.
+  const voiceLatest = useRef({ onChangeText, rest });
+  voiceLatest.current = { onChangeText, rest };
+  const navigation = useContext(NavigationContext);
+  useEffect(
+    () =>
+      registerVoiceField({
+        focused: focusOf(navigation),
+        name: () => {
+          const { rest: props } = voiceLatest.current;
+          const label = props.accessibilityLabel ?? props.placeholder ?? '';
+          return typeof label === 'string' ? label : '';
+        },
+        canType: () => voiceLatest.current.rest.editable !== false && !!voiceLatest.current.onChangeText,
+        setText: (text) => {
+          const { onChangeText: change, rest: props } = voiceLatest.current;
+          if (!change) return;
+          change(props.maxLength ? text.slice(0, props.maxLength) : text);
+        },
+        focus: () => innerRef.current?.focus(),
+        node: () => innerRef.current as unknown as VoiceNode,
+      }),
+    [navigation],
+  );
 
   // 2026-08-21, a real, reported bug, distinct from the stale-ref race the
   // registration effect below already closes: "the cursor goes backward
