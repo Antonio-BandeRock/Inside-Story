@@ -39,7 +39,10 @@
 // No React in here, so scripts/test_hub_handoff.js can check it without a
 // phone. components/HubHandoff.tsx is the hook and the stand-in rendering.
 
-export type HubKey = 'tab' | 'lens' | 'myItems';
+// 'quick' is the quick-access menu on the thumb side (components/
+// QuickAccessButton.tsx), since 1.0.66.8. It is not a Modal and lives at the
+// root rather than on a screen, so it registers whenever it is mounted.
+export type HubKey = 'tab' | 'lens' | 'myItems' | 'quick';
 
 export type HubSpot = {
   key: HubKey;

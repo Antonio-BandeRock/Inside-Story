@@ -105,8 +105,9 @@ export function useHubHandoff(key: HubKey, box: HubButtonBox | null, open: () =>
 
 // What a screen reader hears for a stand-in. The real buttons underneath
 // carry their own labels; these say what the tap will do instead.
-const HANDOFF_LABELS: Record<HubKey, string> = {
+export const HANDOFF_LABELS: Record<HubKey, string> = {
   tab: 'Switch to the navigation menu',
   lens: 'Switch to the view menu',
   myItems: 'Switch to your saved items',
+  quick: 'Switch to the quick-access menu',
 };

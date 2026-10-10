@@ -23,7 +23,7 @@ export const EDGE_TAB_HEIGHT = EDGE_TAB_WELL + EDGE_TAB_MARGIN * 2;
 // Room from the screen edge to where the well starts, plus the well and the
 // margin past it, so the half circle's centre is the well's centre.
 const EDGE_TAB_LEAD = 6;
-const EDGE_TAB_WIDTH = EDGE_TAB_LEAD + EDGE_TAB_WELL + EDGE_TAB_MARGIN;
+export const EDGE_TAB_WIDTH = EDGE_TAB_LEAD + EDGE_TAB_WELL + EDGE_TAB_MARGIN;
 const EDGE_TAB_WELL_GLOW_OPACITY = 0.28;
 const EDGE_TAB_WELL_RIM_OPACITY = 0.45;
 

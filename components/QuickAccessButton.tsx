@@ -18,7 +18,7 @@
 // Ask Your Records), through lib/quickAccess.ts. Where Is It is a screen.
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useState, type ComponentProps } from 'react';
+import { useEffect, useState, useSyncExternalStore, type ComponentProps } from 'react';
 import { BackHandler, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
@@ -26,8 +26,10 @@ import { useFooterBandHeight } from '../constants/floatingButton';
 import { textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { useNavigationHand } from '../lib/navigationHand';
+import { getHubSpots, otherHubSpots, registerHubSpot, subscribeHubSpots } from '../lib/hubHandoff';
 import { openQuickAccessSheet } from '../lib/quickAccess';
-import { EDGE_TAB_HEIGHT, EdgeTab } from './EdgeTab';
+import { EDGE_TAB_HEIGHT, EDGE_TAB_WIDTH, EdgeTab } from './EdgeTab';
+import { HANDOFF_LABELS } from './HubHandoff';
 
 const GAP_ABOVE_FOOTER = 8;
 const MENU_WIDTH = 250;
@@ -44,13 +46,28 @@ export function QuickAccessButton() {
   const footerHeight = useFooterBandHeight();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { height: windowHeight } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const prefs = useVisualPreferences();
   const [open, setOpen] = useState(false);
   const bottom = footerHeight + GAP_ABOVE_FOOTER;
   const menuBottom = bottom + EDGE_TAB_HEIGHT + 6;
   const maxHeight = Math.max(160, windowHeight - menuBottom - insets.top - 16);
   const lowStimulationOn = prefs.lowStimulation;
+
+  // A change of mind goes straight to the other menu, 1.0.66.8. Direct
+  // instruction: with this menu open, pressing the TabHub or a LensHub button
+  // shows that menu and this one goes away. Both directions run through
+  // lib/hubHandoff.ts: this button registers where it is, so the hubs' own
+  // menus carry a stand-in for it, and this menu carries a stand-in for each
+  // of theirs over its backdrop.
+  const tabLeft = hand === 'right' ? windowWidth - EDGE_TAB_WIDTH : 0;
+  useEffect(
+    () =>
+      registerHubSpot({ key: 'quick', left: tabLeft, bottom, width: EDGE_TAB_WIDTH, height: EDGE_TAB_HEIGHT, open: () => setOpen(true) }),
+    [tabLeft, bottom],
+  );
+  const allHubs = useSyncExternalStore(subscribeHubSpots, getHubSpots, getHubSpots);
+  const otherHubs = otherHubSpots(allHubs, 'quick');
 
   useEffect(() => {
     if (!open) return undefined;
@@ -98,6 +115,15 @@ export function QuickAccessButton() {
       {open ? (
         <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} accessible={false} />
+          {otherHubs.map((spot) => (
+            <Pressable
+              key={spot.key}
+              style={{ position: 'absolute', left: spot.left, bottom: spot.bottom, width: spot.width, height: spot.height }}
+              onPress={() => pick(spot.open)}
+              accessibilityRole="button"
+              accessibilityLabel={HANDOFF_LABELS[spot.key]}
+            />
+          ))}
           <View style={[styles.panel, menuSide, { bottom: menuBottom, maxHeight }]}>
             <ScrollView contentContainerStyle={styles.list} bounces={false}>
               {choices.map((choice) => (
