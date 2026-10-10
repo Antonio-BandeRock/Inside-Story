@@ -200,7 +200,7 @@ export function StoryWalkHost() {
                 onPress={() => setStoryWalk(walkNext(walk, steps, at))}
               />
             ) : null}
-            <WalkButton icon="book-outline" label={WALK_STORY_LABEL} onPress={toStory} />
+            <WalkButton icon="compass-outline" label={WALK_STORY_LABEL} onPress={toStory} />
             <WalkButton icon="close" label={finished ? WALK_CLOSE_LABEL : WALK_STOP_LABEL} onPress={stop} />
           </View>
         )}

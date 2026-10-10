@@ -115,23 +115,23 @@ export type SectionDef = {
 };
 
 export const SECTIONS: SectionDef[] = [
-  { key: 'frontPage', name: 'Front Page', caption: 'What Matters to You', alwaysShown: true },
-  { key: 'archive', name: 'The Archive', caption: 'Keeping your records safe', alwaysShown: true },
-  { key: 'onTheRecord', name: 'On the Record', caption: 'What you take, written down once', alwaysShown: false },
-  { key: 'calendar', name: 'The Calendar', caption: 'What your days hold', alwaysShown: false },
-  { key: 'dailyReport', name: 'The Daily Report', caption: 'What you eat, drink and feel', alwaysShown: false },
-  { key: 'insideStory', name: 'The Inside Story', caption: 'What your records start to show', alwaysShown: true },
-  { key: 'gardenBeat', name: 'The Garden Page', caption: 'What you grow', alwaysShown: false },
-  { key: 'moneyBeat', name: 'The Money Page', caption: 'What comes in and goes out', alwaysShown: false },
-  { key: 'homeBeat', name: 'The Home Page', caption: 'Keeping the house running', alwaysShown: false },
-  { key: 'workBeat', name: 'The Work Page', caption: 'How work is going', alwaysShown: false },
-  { key: 'familyBeat', name: 'The Family Page', caption: 'The people you look after', alwaysShown: false },
+  { key: 'frontPage', name: 'What Matters to You', caption: 'The parts of your life to follow, and about you', alwaysShown: true },
+  { key: 'archive', name: 'Keeping Your Records Safe', caption: 'A backup, and your other devices', alwaysShown: true },
+  { key: 'onTheRecord', name: 'What You Take', caption: 'Medicines and supplements, written down once', alwaysShown: false },
+  { key: 'calendar', name: 'What Your Days Hold', caption: 'Notes, routines, to-dos and days to count down', alwaysShown: false },
+  { key: 'dailyReport', name: 'What You Eat, Drink and Feel', caption: 'Meals, water, movement and how you feel', alwaysShown: false },
+  { key: 'insideStory', name: 'What Your Records Show', caption: 'Patterns, trends and reports, once there is enough', alwaysShown: true },
+  { key: 'gardenBeat', name: 'Garden', caption: 'What you grow', alwaysShown: false },
+  { key: 'moneyBeat', name: 'Money', caption: 'What comes in and goes out', alwaysShown: false },
+  { key: 'homeBeat', name: 'Home', caption: 'Keeping the house running', alwaysShown: false },
+  { key: 'workBeat', name: 'Work', caption: 'How work is going', alwaysShown: false },
+  { key: 'familyBeat', name: 'Family', caption: 'The people you look after', alwaysShown: false },
 ];
 
 export const FIRST_EDITION: SectionKey[] = ['frontPage', 'archive', 'onTheRecord', 'calendar', 'dailyReport', 'insideStory'];
 
 export const INSIDE_STORY_EMPTY_LINE =
-  'What shows here depends on the parts of your life you choose on the Front Page.';
+  'What shows here depends on the parts of your life you choose under What Matters to You.';
 
 // WHERE AN ITEM TAKES YOU. A route is a tab and lens; home is a card on
 // Home itself, opened in place; quickLog is one of Home's quick-log forms.
@@ -803,9 +803,9 @@ export type YourStoryView = {
   newlySeen: { key: YourStoryItemKey; day: string }[];
 };
 
-export const HEADING_BEGINS = 'Your Story Begins Here';
-export const HEADING_TAKING_SHAPE = 'Your first edition is taking shape';
-export const HEADING_CONTINUES = 'Your Story Continues';
+export const HEADING_BEGINS = 'Start Here';
+export const HEADING_TAKING_SHAPE = 'Getting Set Up';
+export const HEADING_CONTINUES = 'All Set, More When You Want It';
 
 function isOpen(item: ItemView): boolean {
   return (item.state === 'open' || item.state === 'reopened') && item.def.kind !== 'optional';
@@ -903,15 +903,15 @@ export const BRING_BACK_LABEL = 'Bring this back';
 // WHERE EACH TAB FITS, for the line at the foot of every help sheet.
 
 export const TAB_STORY_LINES: Record<string, string> = {
-  '/': 'Home holds the Your Story card, which names the next thing to set up and links straight to it.',
-  '/food': 'Food is where meals are built and looked up, which feeds The Daily Report.',
-  '/schedule': 'Schedules holds The Daily Report: meals, drinks and doses, each on the clock.',
-  '/log': 'Signals is where flares, reactions and movement are logged, the other half of The Daily Report.',
+  '/': 'Home holds the Your Guide card, which names the next thing to set up and links straight to it.',
+  '/food': 'Food is where meals are built and looked up, so what you eat is on record.',
+  '/schedule': 'Schedules holds meals, drinks and doses, each on the clock.',
+  '/log': 'Signals is where flares, reactions and movement are logged, so how you feel sits beside what you ate.',
   '/insights': 'Insights reads what is on record and says what it means for the foods and nutrients you look at.',
-  '/trends': 'Trends is The Inside Story: what your records show once there are enough of them.',
-  '/reports': 'Reports turns The Inside Story into a document to take to an appointment.',
-  '/garden': 'Garden is The Garden Page, for anybody who chose Garden on the Front Page.',
-  '/life': 'Life holds On the Record, The Calendar and the pages for Money, Home, Work and Family.',
+  '/trends': 'Trends is where your records start to show patterns, once there are enough of them.',
+  '/reports': 'Reports turns what your records show into a document to take to an appointment.',
+  '/garden': 'Garden is for anybody who chose Garden under What Matters to You.',
+  '/life': 'Life holds what you take, what your days hold, and Money, Home, Work and Family.',
 };
 
 export function tabStoryLine(tabPath: string | null | undefined, view: YourStoryView | null): string | null {

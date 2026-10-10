@@ -3397,11 +3397,11 @@ export default function ProfileScreen() {
           up on this very page. */}
       <View style={styles.introBox}>
         <Text style={styles.intro}>
-          Your Story shows each part of the app in the order it helps most, what is already on record, and a link
+          Your Guide shows each part of the app in the order it helps most, what is already on record, and a link
           straight to anything not set up yet.
         </Text>
         <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/your-story')}>
-          <Text style={styles.checkinButtonText}>Open Your Story</Text>
+          <Text style={styles.checkinButtonText}>Open Your Guide</Text>
         </TouchableOpacity>
       </View>
       {savedFlash ? (

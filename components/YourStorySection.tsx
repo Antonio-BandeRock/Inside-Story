@@ -395,7 +395,7 @@ export function YourStorySection({ mode, view, guides, interview, onChanged, onH
           </View>
         ) : null}
         <TouchableOpacity style={styles.action} onPress={() => router.push('/your-story' as Href)} accessibilityRole="button">
-          <Text style={styles.actionText}>Open Your Story</Text>
+          <Text style={styles.actionText}>Open Your Guide</Text>
           <Ionicons name="arrow-forward" size={13} color={colors.primary} style={textShadow} />
         </TouchableOpacity>
         {infoAlertElement}

@@ -762,7 +762,7 @@ function UnlockedApp() {
                   name="your-story"
                   options={{
                     headerShown: true,
-                    title: 'Your Story',
+                    title: 'Your Guide',
                     headerStyle: { backgroundColor: colors.background },
                     headerTintColor: colors.textPrimary,
                   }}

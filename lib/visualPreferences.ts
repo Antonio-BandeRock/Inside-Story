@@ -505,7 +505,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   captureInbox: 'Capture',
   whereIsIt: 'Where Is It',
   askRecords: 'Ask Your Records',
-  yourStory: 'Your Story',
+  yourStory: 'Your Guide',
   today: 'Today',
   lowStimulation: 'Low Stimulation',
   symptomCheckinReminder: 'Symptom Check-In',

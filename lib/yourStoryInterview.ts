@@ -594,7 +594,7 @@ export const TOUR_TABS: TourTabDef[] = [
       'To show today without you going to look for it: meals, doses, appointments and whatever is due.',
       'To take a thought the moment you have it, with Capture, and keep it until you deal with it.',
       'To answer where you put something, with Where Is It.',
-      'To bring Your Story back whenever you want to find your way again.',
+      'To bring Your Guide back whenever you want to find your way again.',
     ],
     groups: [
       { title: 'Today', line: 'The date and weather, how you feel, and the meals and doses coming up.', lenses: [] },

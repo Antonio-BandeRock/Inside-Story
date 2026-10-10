@@ -56,10 +56,10 @@ export default function YourStoryScreen() {
   return (
     <CalmBands>
       <View style={styles.screen}>
-        <Stack.Screen options={{ title: 'Your Story' }} />
+        <Stack.Screen options={{ title: 'Your Guide' }} />
         <ScrollView ref={scrollRef} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
           <View style={styles.leadBox}>
-            <Text style={styles.heading}>{view?.heading ?? 'Your Story'}</Text>
+            <Text style={styles.heading}>{view?.heading ?? 'Your Guide'}</Text>
             <Text style={styles.lead}>
               The app asks what it needs first, then shows what each tab is for and how to get started with it. Below
               those are the guides, one for each part of your life, and then your paper section by section. Every line

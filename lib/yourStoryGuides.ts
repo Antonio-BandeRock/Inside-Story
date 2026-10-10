@@ -178,7 +178,7 @@ export const GUIDES: GuideDef[] = [
       fromItem(
         'beats',
         'Choose the parts of your life you want Lifestead to follow.',
-        'Your Story shows a guide like this one for each part you choose, and the Home card follows along. Nothing anywhere in the app is hidden by what you leave out.',
+        'Your Guide shows a guide like this one for each part you choose, and the Home card follows along. Nothing anywhere in the app is hidden by what you leave out.',
         {
           when: 'start',
           takes: 'About a minute',

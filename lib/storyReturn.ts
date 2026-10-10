@@ -32,8 +32,8 @@ export type StoryReturn = {
   left: boolean;
 };
 
-export const STORY_RETURN_LABEL = 'Back to Your Story';
-export const STORY_RETURN_CLOSE_LABEL = 'Hide the way back to Your Story';
+export const STORY_RETURN_LABEL = 'Back to Your Guide';
+export const STORY_RETURN_CLOSE_LABEL = 'Hide the way back to Your Guide';
 
 let current: StoryReturn | null = null;
 const listeners = new Set<(value: StoryReturn | null) => void>();

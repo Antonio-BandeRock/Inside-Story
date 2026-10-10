@@ -63,7 +63,7 @@ export function YourStoryMissingLine({ itemKey, standaloneColor }: Props) {
       <Text style={styles.sentence}>{sentence}</Text>
       {note ? <Text style={styles.note}>{note}</Text> : null}
       <TouchableOpacity style={styles.link} onPress={() => router.push('/your-story' as Href)} accessibilityRole="button">
-        <Text style={styles.linkText}>Where this fits in Your Story</Text>
+        <Text style={styles.linkText}>Where this fits in Your Guide</Text>
         <Ionicons name="arrow-forward" size={13} color={colors.primary} style={textShadow} />
       </TouchableOpacity>
     </View>

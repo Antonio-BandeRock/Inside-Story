@@ -1061,8 +1061,8 @@ const HOME_LENS_DESTINATIONS: Partial<
     href: '/your-story' as Href,
   },
   yourStory: {
-    label: 'Your Story',
-    icon: 'book-outline',
+    label: 'Your Guide',
+    icon: 'compass-outline',
     color: colors.primary,
     href: '/your-story' as Href,
   },
@@ -4505,7 +4505,7 @@ export default function HomeScreen() {
   function renderYourStory() {
     return renderBand(
       'yourStory',
-      yourStory?.heading ?? 'Your Story',
+      yourStory?.heading ?? 'Your Guide',
       <View style={styles.bandBody}>
         <YourStorySection
           mode="card"
@@ -4517,7 +4517,7 @@ export default function HomeScreen() {
         />
       </View>,
       {
-        icon: 'book-outline',
+        icon: 'compass-outline',
         color: colors.primary,
         foldedCaption: yourStory
           ? (yourStoryInterview ? interviewLine(yourStoryInterview) : null) ??

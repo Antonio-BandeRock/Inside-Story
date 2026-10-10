@@ -53,7 +53,7 @@ export function NextThing({ view, tabColor, onGo }: Props) {
     action = 'Take me there';
     go = () => onGo(item.def.destination);
   } else {
-    sentence = 'Your Story has nothing waiting to be set up. Anything on your mind can go in Capture.';
+    sentence = 'Your Guide has nothing waiting to be set up. Anything on your mind can go in Capture.';
     action = 'Open Capture';
     go = () => router.push('/capture' as Href);
   }

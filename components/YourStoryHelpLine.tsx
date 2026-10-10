@@ -13,7 +13,7 @@ import { textShadow, typography } from '../constants/typography';
 import { tabStoryLine, type YourStoryView } from '../lib/yourStory';
 import { loadYourStory } from '../lib/yourStoryDb';
 
-export const YOUR_STORY_HELP_HEADING = 'Where this fits in Your Story';
+export const YOUR_STORY_HELP_HEADING = 'Where this fits in Your Guide';
 
 type Props = {
   tabPath: string | null | undefined;
@@ -52,7 +52,7 @@ export function YourStoryHelpLine({ tabPath, onOpenYourStory }: Props) {
         accessibilityRole="button"
         style={styles.link}
       >
-        <Text style={styles.linkText}>Open Your Story</Text>
+        <Text style={styles.linkText}>Open Your Guide</Text>
       </TouchableOpacity>
     </View>
   );
