@@ -5,7 +5,7 @@ import { requireOptionalNativeModule } from 'expo';
 export type LockedCaptureModule = {
   /** Closes the capture screen shown over the lock screen. */
   finishCapture(): void;
-  /** Keeps the Voice Note, Photo and Voice Control buttons in the notification shade. */
+  /** Keeps the Voice Note and Photo buttons in the notification shade. */
   showShadeButtons(): boolean;
   hideShadeButtons(): void;
   isShowingShadeButtons(): boolean;
