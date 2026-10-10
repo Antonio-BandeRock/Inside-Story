@@ -1,4 +1,4 @@
-// Plain words into one thing to do, for Say a Command (1.0.66.11).
+// Plain words into one thing to do, for Voice Control (1.0.66.11).
 //
 // Direct instruction, 2026-10-10: "I do mean they can do everything in the
 // app by voice command using plain words, and not just some things." So the
@@ -185,7 +185,7 @@ function goTo(where: string, screen: VoiceScreen): VoiceCommand | null {
   return null;
 }
 
-// What Say a Command shows when a sentence named nothing on screen.
+// What Voice Control shows when a sentence named nothing on screen.
 export function describeNotFound(heard: string): string {
   if (!heard) return 'Nothing was heard. Tap the microphone and say a command.';
   return `Nothing on this screen is called “${heard}”. Say the words on the button, the name of a tab or lens, or “help”.`;

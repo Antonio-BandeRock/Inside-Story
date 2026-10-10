@@ -1,4 +1,4 @@
-// Say a Command, from the quick-access menu (1.0.66.11).
+// Voice Control, from the quick-access menu (1.0.66.11).
 //
 // Direct instruction, 2026-10-10: "Voice control is for the app, not for the
 // phone. I want to make it clear that I do mean they can do everything in the
@@ -368,7 +368,7 @@ export function VoiceCommandSheet() {
       <View style={[styles.sheet, { left, width, bottom, maxHeight }]}>
         <View style={styles.titleRow}>
           <Ionicons name="megaphone-outline" size={20} color={colors.textPrimary} style={textShadow} />
-          <Text style={styles.title}>Say a Command</Text>
+          <Text style={styles.title}>Voice Control</Text>
         </View>
         <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           {choices.length === 0 ? (

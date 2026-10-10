@@ -935,7 +935,7 @@ function UnlockedApp() {
                   it while its box is being typed into. */}
               <AskRecordsSheet />
               <StoreLocationSheet />
-              {/* Say a Command (1.0.66.11): everything on the screen in front, by voice. */}
+              {/* Voice Control (1.0.66.11): everything on the screen in front, by voice. */}
               <VoiceCommandSheet />
               {/* App Lock (1.0.60.6): the passcode asked for again before
                   records leave the phone, lib/freshAuth.ts. */}
