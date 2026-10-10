@@ -25,7 +25,9 @@ import {
 } from '../constants/floatingButton';
 import { TAB_ROUTES } from '../constants/tabs';
 import { TAB_REVEAL_DURATION_MS } from '../constants/tabReveal';
+import { useTier } from '../lib/entitlement';
 import { gridColumnsFor } from '../lib/menuFit';
+import { paidLens } from '../lib/paidFeatures';
 import {
   MENU_MAX_FONT_SCALE,
   menuLabelShadow,
@@ -631,6 +633,7 @@ export function LensHub<T extends string>({
   // -- shouldn't happen for a real tab, but cheaper than a crash if a
   // future page's title drifts out of sync.
   const tabRoute = TAB_ROUTES.find((route) => route.title === pageTitle);
+  const tier = useTier();
   const tabIcon = icon ?? tabRoute?.icon ?? 'list';
   const tabColor = color ?? tabRoute?.color ?? colors.primary;
   // What the new bottom-left Info tile (see the render below) shows --
@@ -979,6 +982,7 @@ export function LensHub<T extends string>({
                         onPress={() => choose(option.key)}
                         activeOpacity={0.7}
                       >
+                        <View style={{ width: gridPillSize, height: gridPillSize }}>
                         {active ? (
                           <ActiveRingCircle size={gridPillSize} glowColor={option.iconColor ?? tabColor}>
                             {option.renderIcon ? (
@@ -996,6 +1000,16 @@ export function LensHub<T extends string>({
                             )}
                           </View>
                         )}
+                        {/* P27: a paid lens carries a small key while
+                            Developer Tools has this device on Free. Full
+                            colour, never greyed, since the lens still opens
+                            and says what the plan gives. */}
+                        {tier === 'free' && paidLens(pageTitle, option.key) ? (
+                          <View style={[styles.paidKey, { borderColor: tabColor }]} pointerEvents="none">
+                            <Ionicons name="key" size={11} color={tabColor} />
+                          </View>
+                        ) : null}
+                        </View>
                         <Text
                           style={[styles.itemLabel, { color: labelColor }]}
                           numberOfLines={itemLabelLines}
@@ -1162,6 +1176,18 @@ export function LensHub<T extends string>({
 }
 
 const styles = StyleSheet.create({
+  paidKey: {
+    position: 'absolute',
+    top: -3,
+    right: -3,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 1,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   // Just a touch-target box now -- no background/border/shadow of its own
   // at rest, since the plain icon (JSX) has nothing to sit on, matching
   // GatedTabContent.tsx's resting-prompt icon. ActiveRingCircle

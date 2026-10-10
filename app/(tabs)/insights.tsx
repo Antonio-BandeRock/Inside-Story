@@ -1280,7 +1280,7 @@ export default function InsightsScreen() {
           lens's content (with its own scrollable controls) is showing. */}
       <SwipeableTabScreen enabled={!revealed}>
         <CalmBands>
-        <GatedTabContent pageTitle="Insights" variant="insights" revealed={revealed}>
+        <GatedTabContent pageTitle="Insights" variant="insights" revealed={revealed} lens={lens}>
           {lens === 'foodLookup' ? (
             // Deliberately NOT inside the ScrollView below -- Food Lookup's
             // own InlineSelectList/InlineSearchSelectList each render a

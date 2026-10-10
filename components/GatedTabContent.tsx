@@ -3,7 +3,10 @@ import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { TAB_ROUTES } from '../constants/tabs';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
+import { useTier } from '../lib/entitlement';
+import { paidLens } from '../lib/paidFeatures';
 import { resolveBackgroundStyle } from '../lib/visualPreferences';
+import { PaidWall } from './PaidWall';
 import { ProgressPicture } from './ProgressPicture';
 import { ScreenBackground, type BackgroundVariant } from './ScreenBackground';
 
@@ -104,6 +107,7 @@ export function GatedTabContent({
   pageTitle,
   variant,
   revealed,
+  lens,
   children,
 }: {
   // Which tab this is, by the title in TAB_ROUTES. The only thing read
@@ -119,6 +123,11 @@ export function GatedTabContent({
   // it, since the screen also needs it for its own PageIdentityLabel/
   // ScopeHub gating.
   revealed: boolean;
+  // The lens on screen, P27 (2026-10-09). With Developer Tools set to Free,
+  // a paid lens draws the wall (components/PaidWall.tsx) in place of its
+  // content; lib/paidFeatures.ts says which lenses are paid. Left out,
+  // nothing is walled.
+  lens?: string;
   children?: ReactNode;
 }) {
   // 2026-08-08: which per-tab visual-preferences override (if any) applies
@@ -139,10 +148,16 @@ export function GatedTabContent({
   const restingStyle = resolveBackgroundStyle(visualPrefs, routeKey);
   const restingIsShared = restingStyle === 'photo';
 
+  const tier = useTier();
+  const walled = tier === 'free' ? paidLens(pageTitle, lens) : null;
+  const tabColor = TAB_ROUTES.find((route) => route.title === pageTitle)?.color;
+
   return (
     <View style={styles.body}>
       {revealed ? (
-        <ScreenBackground variant={variant} routeKey={routeKey}>{children}</ScreenBackground>
+        <ScreenBackground variant={variant} routeKey={routeKey}>
+          {walled && tabColor ? <PaidWall paid={walled} color={tabColor} /> : children}
+        </ScreenBackground>
       ) : (
         <>
           {restingIsShared ? null : <ScreenBackground variant={variant} routeKey={routeKey} />}

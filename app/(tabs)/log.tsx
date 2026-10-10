@@ -3806,7 +3806,7 @@ export default function LogScreen() {
           lens's content (with its own scrollable controls) is showing. */}
       <SwipeableTabScreen enabled={!revealed}>
         <CalmBands>
-        <GatedTabContent pageTitle="Signals" variant="bioCompass" revealed={revealed}>
+        <GatedTabContent pageTitle="Signals" variant="bioCompass" revealed={revealed} lens={lens}>
           <VaultLensFrame color={TAB_COLOR} categories={LENS_VAULT[lens] ?? []} gap={HOME_BAND_ACCENT_WIDTH}>
           {lens === 'flares' ? (
             <FlaresLens />

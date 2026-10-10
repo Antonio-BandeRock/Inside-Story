@@ -565,7 +565,7 @@ export default function GardenScreen() {
             it), so this falls back to the shared wildflower scene every
             tab rests on before its own art exists. */}
         <CalmBands>
-        <GatedTabContent pageTitle="Garden" variant="field" revealed={revealed}>
+        <GatedTabContent pageTitle="Garden" variant="field" revealed={revealed} lens={lens}>
           {lens === 'myZone' ? (
             <MyZoneLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'plotsAndPlantings' ? (

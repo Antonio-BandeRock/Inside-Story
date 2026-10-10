@@ -269,6 +269,7 @@ import { GHOSTEAD_URL } from '../lib/ghostead';
 import { wording } from '../lib/playfulCopy';
 import { VoicePackPanel } from '../components/VoicePackPanel';
 import { setNavigationHand, useNavigationHand } from '../lib/navigationHand';
+import { setTier, useTier } from '../lib/entitlement';
 import { ThumbEndRow } from '../components/ThumbEndRow';
 import { VaultClosedBand } from '../components/VaultClosedBand';
 import { useOnVaultChange } from '../lib/vaultReads';
@@ -1192,6 +1193,7 @@ export default function ProfileScreen() {
   // background and each tab's own revealed background immediately, with no
   // extra local state to keep in sync.
   const visualPrefs = useVisualPreferences();
+  const tier = useTier();
   const navigationHand = useNavigationHand();
   const playful = visualPrefs.playfulWording;
   // The hidden touch on the version line in App Updates: a long press shows
@@ -5870,6 +5872,30 @@ export default function ProfileScreen() {
           {renderCardHeader('developer', 'Developer Tools')}
           {!collapsedSections.has('developer') ? (
             <View style={styles.cardBody}>
+              {/* Free or Paid, P27 (2026-10-09). Direct request: "a free to
+                  paid switch in developer tools that puts the paid things
+                  behind a virtual wall so I am able to use the app in free
+                  mode to see what the user would see." Changes nothing that
+                  is stored; lib/paidFeatures.ts says what is paid. */}
+              <Text style={styles.helpText}>
+                Use this device as Free or as Paid. On Free, every lens that comes with a plan shows a
+                small key in its menu and opens on a page saying what the plan gives, so you see the app
+                the way somebody on Free will. Nothing you have recorded changes either way.
+              </Text>
+              <View style={styles.pillRow}>
+                {(['free', 'paid'] as const).map((value) => {
+                  const on = tier === value;
+                  return (
+                    <TouchableOpacity
+                      key={value}
+                      style={[styles.pill, on && styles.pillActive]}
+                      onPress={() => setTier(value)}
+                    >
+                      <Text style={[styles.pillText, on && styles.pillTextActive]}>{value === 'free' ? 'Free' : 'Paid'}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
               {/* Tell Claude, 2026-09-22. Turning this on puts a long press on
                   every fold band in the app and a small button against the left
                   edge, either of which writes a note about wherever you are. It

@@ -571,7 +571,7 @@
 ### P27. One entitlement gate every feature checks
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** all
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
-- **How:** Tiers are not decided yet, so build the mechanism now: one table maps features to tiers and every screen asks one function. Deciding or changing tiers becomes an edit to the table. A gated feature names the tier that includes it through explainNotYet; Developer Tools can switch tiers; store billing feeds it later. Notion: https://app.notion.com/p/3f153652f272812e8721f0bee87e8dc0
+- **How:** Tiers are not decided yet, so build the mechanism now: one table maps features to tiers and every screen asks one function. Deciding or changing tiers becomes an edit to the table. A gated feature names the tier that includes it through explainNotYet; Developer Tools can switch tiers; store billing feeds it later. Notion: https://app.notion.com/p/3f153652f272812e8721f0bee87e8dc0 Partly built 1.0.65.6 (2026-10-09): lib/paidFeatures.ts holds the 44 paid lenses read off the free/paid board, lib/entitlement.ts holds the tier per device, GatedTabContent draws components/PaidWall.tsx in place of a paid lens on Free, LensHub marks paid lenses with a small key, and Profile > Developer Tools switches Free and Paid; scripts/test_paid_features.js. Still open: paid parts inside a Free screen (For You card, depth report, Make this a rule, From your garden, refill, taper, injection sites, family roster, sync, the Your Life in Squares Home card) and store billing.
 
 ### Q2. Any ingredient or additive of your own to avoid
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Food

@@ -400,7 +400,7 @@ export default function ReportsScreen() {
           lens's content (with its own scrollable controls) is showing. */}
       <SwipeableTabScreen enabled={!revealed}>
         <CalmBands>
-        <GatedTabContent pageTitle="Reports" variant="reports" revealed={revealed}>
+        <GatedTabContent pageTitle="Reports" variant="reports" revealed={revealed} lens={lens}>
           <ScrollView ref={scrollRef} style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
             <View style={band.heading}>
               <Text style={band.headingText}>{activeLensLabel}</Text>

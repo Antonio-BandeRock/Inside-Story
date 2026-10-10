@@ -2007,7 +2007,7 @@ export default function LifeScreen() {
     <View style={styles.screen}>
       <SwipeableTabScreen enabled={!revealed && !rowDragging}>
         <CalmBands>
-        <GatedTabContent pageTitle="Life" variant="field" revealed={revealed}>
+        <GatedTabContent pageTitle="Life" variant="field" revealed={revealed} lens={lens}>
           <ScrollView ref={scrollRef} scrollEnabled={!rowDragging} style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
             {infoAlertElement}
             <AppActionSheet

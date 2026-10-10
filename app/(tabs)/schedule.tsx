@@ -6969,7 +6969,7 @@ export default function ScheduleScreen() {
           lens's content (with its own scrollable controls) is showing. */}
       <SwipeableTabScreen enabled={!revealed}>
         <CalmBands>
-        <GatedTabContent pageTitle="Schedules" variant="schedule" revealed={revealed}>
+        <GatedTabContent pageTitle="Schedules" variant="schedule" revealed={revealed} lens={lens}>
           {lens === 'meals' ? (
             <MealsLens />
           ) : lens === 'todaysMeals' ? (

@@ -1347,6 +1347,7 @@ export default function FoodScreen() {
           pageTitle="Food"
           variant="produce"
           revealed={revealed}
+          lens={lens}
         >
           {lens === 'findMeal' ? (
             <FindMealView

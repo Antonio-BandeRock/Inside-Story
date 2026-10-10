@@ -28,22 +28,22 @@
 ### U1. The billing floor
 - **Ships by:** Owner decision first · **Size:** S · **Tabs:** All
 - **Answers:** Noom, Inflow, Goblin.tools, Headway, PictureThis, Paired · **Theme:** What competitors' users complain about (2026-10-09)
-- **How:** No free trial that turns into a charge unnoticed: renewal accepted by a box ticked on purpose, a reminder two days before any first or renewing charge, a receipt for every charge, and cancelling in one step inside the app. Decided with P27 before any price ships. Sources: complaints/home.md, across.md, garden.md, companions.md.
+- **How:** No free trial that turns into a charge unnoticed: renewal accepted by a box ticked on purpose, a reminder two days before any first or renewing charge, a receipt for every charge, and cancelling in one step inside the app. Decided with P27 before any price ships. Sources: complaints/home.md, across.md, garden.md, companions.md. Decided 2026-10-09: yes.
 
 ### U2. Nothing already used moves behind payment
 - **Ships by:** Owner decision first · **Size:** S · **Tabs:** All
 - **Answers:** Quizlet, Trello, Drafts, Forest, 11pets, Obsidian Sync, Google One · **Theme:** What competitors' users complain about (2026-10-09)
-- **How:** A function a person has used on a tier stays on that tier, a price is never raised on the same thing for an existing subscriber, a limit is never enforced by making the person's own records read only, and nothing is priced per animal, hive, deck or project. Decided with the free/paid board and Z15. Sources: complaints/interests.md, home.md, garden.md, across.md.
+- **How:** A function a person has used on a tier stays on that tier, a price is never raised on the same thing for an existing subscriber, a limit is never enforced by making the person's own records read only, and nothing is priced per animal, hive, deck or project. Decided with the free/paid board and Z15. Sources: complaints/interests.md, home.md, garden.md, across.md. Decided 2026-10-09: no, as written. A paid function turns off when the free trial ends, and the trial is 60 days, long enough for Pattern Finder and Trends to have weeks of records to show. What stays: nothing the person recorded is lost, and the wall says so.
 
 ### U3. Say what is Free before setup, and open on the person's own things
 - **Ships by:** Owner decision first · **Size:** S · **Tabs:** All
 - **Answers:** PictureThis, RHS Grow, Goblin.tools, Veglog · **Theme:** What competitors' users complain about (2026-10-09)
-- **How:** No offer screen on opening the app or a tab; what is Free and what is paid is said in the store listing and before the first question of setup, never after it. Sources: complaints/garden.md, home.md.
+- **How:** No offer screen on opening the app or a tab; what is Free and what is paid is said in the store listing and before the first question of setup, never after it. Sources: complaints/garden.md, home.md. Decided 2026-10-09: yes.
 
 ### U4. Privacy is never what a person pays for
 - **Ships by:** Owner decision first · **Size:** S · **Tabs:** All
 - **Answers:** Keepsafe, Standard Notes · **Theme:** What competitors' users complain about (2026-10-09)
-- **How:** App Lock and the vault sit on Free beside safety (P28), with no ads or trackers on any tier. A placement to confirm on the free/paid board. Source: complaints/across.md.
+- **How:** App Lock and the vault sit on Free beside safety (P28), with no ads or trackers on any tier. A placement to confirm on the free/paid board. Source: complaints/across.md. Decided 2026-10-09: yes, x-lock and x-vault pinned to Free on the board.
 
 ## Phase 1. Foundations (10 items)
 
@@ -672,7 +672,7 @@
 ### P27. One entitlement gate every feature checks
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** all
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
-- **How:** Tiers are not decided yet, so build the mechanism now: one table maps features to tiers and every screen asks one function. Deciding or changing tiers becomes an edit to the table. A gated feature names the tier that includes it through explainNotYet; Developer Tools can switch tiers; store billing feeds it later. Notion: https://app.notion.com/p/3f153652f272812e8721f0bee87e8dc0
+- **How:** Tiers are not decided yet, so build the mechanism now: one table maps features to tiers and every screen asks one function. Deciding or changing tiers becomes an edit to the table. A gated feature names the tier that includes it through explainNotYet; Developer Tools can switch tiers; store billing feeds it later. Notion: https://app.notion.com/p/3f153652f272812e8721f0bee87e8dc0 Partly built 1.0.65.6 (2026-10-09): lib/paidFeatures.ts holds the 44 paid lenses read off the free/paid board, lib/entitlement.ts holds the tier per device, GatedTabContent draws components/PaidWall.tsx in place of a paid lens on Free, LensHub marks paid lenses with a small key, and Profile > Developer Tools switches Free and Paid; scripts/test_paid_features.js. Still open: paid parts inside a Free screen (For You card, depth report, Make this a rule, From your garden, refill, taper, injection sites, family roster, sync, the Your Life in Squares Home card) and store billing.
 
 ### Q2. Any ingredient or additive of your own to avoid
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Food

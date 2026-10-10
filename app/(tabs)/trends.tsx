@@ -1852,7 +1852,7 @@ export default function TrendsScreen() {
           lens's content (with its own scrollable controls) is showing. */}
       <SwipeableTabScreen enabled={!revealed}>
         <CalmBands>
-        <GatedTabContent pageTitle="Trends" variant="trends" revealed={revealed}>
+        <GatedTabContent pageTitle="Trends" variant="trends" revealed={revealed} lens={lens}>
           <CycleShadingContext.Provider value={cycleShading}>
           <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
             <View style={band.heading}>
