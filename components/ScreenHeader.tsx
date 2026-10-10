@@ -19,6 +19,17 @@ const HEADER_TEXT_FONT_SIZE = 26;
 // Just enough that the first shadow layer is not clipped by the canvas's
 // left edge (Svg defaults to overflow: hidden).
 const HEADER_TEXT_HORIZONTAL_MARGIN = 4;
+// Where the word's visible middle sits above its baseline, as a share of the
+// font size. In Nunito SemiBold the letters of "Lifestead" run from the
+// baseline (-0.009 with overshoot) to the tops of L, i, f and d (0.712), so
+// the middle is 0.3515. 1.0.66.16, direct instruction: "make the word itself
+// be centered vertically on the horizontal center of the pressed in logo."
+// The logo's window is centred in its image (rows 12 to 303 of 312), so its
+// centre line is the row's. alignmentBaseline="middle" was used before, which
+// centres the lowercase letters and left the tall ones riding high, and which
+// Android and the desktop do not read the same way; a plain baseline set from
+// the font's measurements lands in one place on both.
+const WORD_INK_MIDDLE_EM = 0.3515;
 
 const APP_NAME = 'Lifestead';
 // The logo: the window with the figure in it, the same image Home uses.
@@ -84,7 +95,8 @@ export function ScreenHeader() {
     120,
     windowWidth - HEADER_LEFT_INSET - HEADER_LOGO_SIZE - HEADER_LOGO_TEXT_GAP - ROW_HORIZONTAL_PADDING,
   );
-  const textCenterY = HEADER_TEXT_HEIGHT / 2;
+  // The baseline, so the word's visible middle is on the logo's centre line.
+  const textBaselineY = HEADER_TEXT_HEIGHT / 2 + WORD_INK_MIDDLE_EM * HEADER_TEXT_FONT_SIZE;
   // The shadow stack starts a couple of pixels in so its first copy is not
   // clipped by the canvas's left edge.
   const textX = HEADER_TEXT_HORIZONTAL_MARGIN;
@@ -101,24 +113,22 @@ export function ScreenHeader() {
               <SvgText
                 key={layer.offset}
                 x={textX + layer.offset}
-                y={textCenterY + layer.offset}
+                y={textBaselineY + layer.offset}
                 fontFamily="Nunito_600SemiBold"
                 fontSize={HEADER_TEXT_FONT_SIZE}
                 fill={`rgba(6, 9, 20, ${layer.opacity})`}
                 textAnchor="start"
-                alignmentBaseline="middle"
               >
                 {APP_NAME}
               </SvgText>
             ))}
             <SvgText
               x={textX}
-              y={textCenterY}
+              y={textBaselineY}
               fontFamily="Nunito_600SemiBold"
               fontSize={HEADER_TEXT_FONT_SIZE}
               fill={LOGO_FIGURE_WHITE}
               textAnchor="start"
-              alignmentBaseline="middle"
             >
               {APP_NAME}
             </SvgText>
