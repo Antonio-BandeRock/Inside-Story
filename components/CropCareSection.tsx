@@ -124,7 +124,7 @@ export function CropCareSection({ plantingId, plotId, status, guide, expectedHar
     return (
       <View key={task.key} style={styles.task}>
         <View style={styles.taskRow}>
-          <TouchableOpacity
+          <TouchableOpacity accessibilityLabel={`Tick ${task.title}`}
             onPress={() => setTicked((current) => ({ ...current, [task.key]: !isTicked(task) }))}
             disabled={already}
             accessibilityRole="checkbox"

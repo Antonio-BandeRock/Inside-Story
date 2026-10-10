@@ -468,7 +468,7 @@ export function CuratedRecipeShareButton({
   return (
     <>
       {infoAlertElement}
-      <TouchableOpacity style={styles.recipeShareButton} activeOpacity={0.85} onPress={handleShare} disabled={sharing}>
+      <TouchableOpacity accessibilityLabel="Share this recipe" style={styles.recipeShareButton} activeOpacity={0.85} onPress={handleShare} disabled={sharing}>
         <Ionicons name="share-outline" size={18} color={tabColor} />
       </TouchableOpacity>
     </>

@@ -94,7 +94,7 @@ export function ScreenHeader() {
       <View style={{ paddingTop: insets.top }}>
         {/* The header is still the door into the day timeline
             (app/timeline.tsx), as it has been since 2026-09-26. */}
-        <Pressable style={styles.row} onPress={() => router.push('/timeline')}>
+        <Pressable accessibilityLabel="Lifestead, open your timeline" style={styles.row} onPress={() => router.push('/timeline')}>
           <Image source={LOGO} style={styles.logo} resizeMode="contain" />
           <Svg width={textAreaWidth} height={HEADER_TEXT_HEIGHT}>
             {SHADOW_LAYERS.slice().reverse().map((layer) => (

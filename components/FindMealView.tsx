@@ -969,7 +969,7 @@ export function FindMealView({
                   placeholder="g"
                   placeholderTextColor={colors.textMuted}
                 />
-                <TouchableOpacity
+                <TouchableOpacity accessibilityLabel={`Remove ${food.foodName}`}
                   onPress={() => setOutFoods((current) => current.filter((item) => item.key !== food.key))}
                   hitSlop={8}
                 >
@@ -1115,7 +1115,7 @@ export function FindMealView({
                       {`From ${dish.from}`}
                     </Text>
                   </View>
-                  <TouchableOpacity onPress={() => toggleDishTicked(key, dish)} hitSlop={8}>
+                  <TouchableOpacity accessibilityLabel={`Untick ${dish.name}`} onPress={() => toggleDishTicked(key, dish)} hitSlop={8}>
                     <Ionicons name="close-circle-outline" size={20} color={colors.textPrimary} />
                   </TouchableOpacity>
                 </View>

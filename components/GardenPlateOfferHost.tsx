@@ -106,7 +106,7 @@ export function GardenPlateOfferHost() {
 
   return (
     <View style={styles.backdrop}>
-      <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(null)} />
+      <Pressable accessibilityLabel="Close" style={StyleSheet.absoluteFill} onPress={() => setOpen(null)} />
       <View style={styles.card}>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.where}>{open.mealName}</Text>

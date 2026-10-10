@@ -546,7 +546,7 @@ export default function VoiceLogScreen() {
           <Text style={styles.itemSpoken} numberOfLines={2}>
             {item.spokenText}
           </Text>
-          <TouchableOpacity onPress={() => handleRemoveItem(item.key)} activeOpacity={0.7} style={styles.removeButton}>
+          <TouchableOpacity accessibilityLabel="Remove this one" onPress={() => handleRemoveItem(item.key)} activeOpacity={0.7} style={styles.removeButton}>
             <Ionicons name="close-circle-outline" size={20} color={colors.textMuted} />
           </TouchableOpacity>
         </View>

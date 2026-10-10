@@ -3243,7 +3243,7 @@ export default function HomeScreen() {
             // drawn exactly as they always were.
             const split = nutrientSourceSplit(entry);
             return (
-              <TouchableOpacity
+              <TouchableOpacity accessibilityLabel={`${entry.displayName}, open Nutrients`}
                 key={entry.nutrientCode}
                 onPress={() => router.navigate({ pathname: '/insights', params: { openInsightsLens: 'nutrients' } })}
                 activeOpacity={0.75}
@@ -5026,7 +5026,7 @@ export default function HomeScreen() {
 
       <Modal visible={selectedItem != null} transparent animationType={modalAnimationType('fade')} onRequestClose={() => setSelectedItem(null)}>
           <View style={styles.modalBackdrop}>
-            <Pressable style={styles.modalBackdropTouchable} onPress={() => setSelectedItem(null)} />
+            <Pressable accessibilityLabel="Close" style={styles.modalBackdropTouchable} onPress={() => setSelectedItem(null)} />
             {selectedItem ? (
               <View style={styles.modalCard}>
                 <Text style={styles.modalTitle}>{selectedItem.title}</Text>
@@ -5057,7 +5057,7 @@ export default function HomeScreen() {
 
         <Modal visible={quickLogModal != null} transparent animationType={modalAnimationType('fade')} onRequestClose={closeQuickLogModal}>
           <View style={styles.modalBackdrop}>
-            <Pressable style={styles.modalBackdropTouchable} onPress={closeQuickLogModal} />
+            <Pressable accessibilityLabel="Close" style={styles.modalBackdropTouchable} onPress={closeQuickLogModal} />
             <View style={styles.modalCard}>
               {quickLogModal === 'bp' ? (
                 <>

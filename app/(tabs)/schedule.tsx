@@ -2056,7 +2056,7 @@ function MealsLens() {
 
     <Modal visible={rotatingItem !== null} transparent animationType={modalAnimationType('slide')} onRequestClose={closeRotateSheet}>
       <View style={styles.backdrop}>
-        <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={closeRotateSheet} />
+        <TouchableOpacity accessibilityLabel="Close" style={StyleSheet.absoluteFill} activeOpacity={1} onPress={closeRotateSheet} />
         <View style={styles.rotateSheet}>
           <View style={styles.rotateSheetHeader}>
             <Text style={styles.rotateSheetTitle}>Rotate ingredients: {rotatingItem?.title}</Text>
@@ -2357,7 +2357,7 @@ function MoveMealSheet({
   return (
     <Modal visible={item !== null} transparent animationType={modalAnimationType('slide')} onRequestClose={onClose}>
       <View style={styles.backdrop}>
-        <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={onClose} />
+        <TouchableOpacity accessibilityLabel="Close" style={StyleSheet.absoluteFill} activeOpacity={1} onPress={onClose} />
         <View style={styles.rotateSheet}>
           <View style={styles.rotateSheetHeader}>
             <Text style={styles.rotateSheetTitle}>
@@ -2446,7 +2446,7 @@ function LeftoverSheet({ cook, profile, onClose }: { cook: LeftoverCook | null; 
   return (
     <Modal visible={cook !== null} transparent animationType={modalAnimationType('slide')} onRequestClose={onClose}>
       <View style={styles.backdrop}>
-        <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={onClose} />
+        <TouchableOpacity accessibilityLabel="Close" style={StyleSheet.absoluteFill} activeOpacity={1} onPress={onClose} />
         <View style={styles.rotateSheet}>
           <View style={styles.rotateSheetHeader}>
             <Text style={styles.rotateSheetTitle}>

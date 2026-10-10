@@ -85,7 +85,7 @@ export function CollapsibleOverlayCard({
           this file's own header comment); it still visually blocks and
           intercepts touches meant for whatever's underneath, which is the
           real point of a backdrop here. */}
-      <Pressable style={styles.backdrop} />
+      <Pressable accessible={false} style={styles.backdrop} />
       <View style={[styles.topWrap, { paddingTop: headerHeight + 12 }]} pointerEvents="box-none">
         <View style={[styles.card, { borderColor: tabColor }]}>
           {/* Nav-hand-aware, 2026-08-17, direct report: "the expand and

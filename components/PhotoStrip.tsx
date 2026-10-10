@@ -179,7 +179,7 @@ export function PhotoStrip({
         onRequestClose={() => setOpen(null)}
       >
         <View style={styles.backdrop}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(null)} />
+          <Pressable accessibilityLabel="Close" style={StyleSheet.absoluteFill} onPress={() => setOpen(null)} />
           {open ? (
             <View style={styles.panel}>
               {open.uri ? (

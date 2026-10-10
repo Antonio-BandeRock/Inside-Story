@@ -790,7 +790,7 @@ export function TabHub() {
         onRequestClose={() => setOpen(false)}
       >
         <View style={styles.backdrop}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
+          <Pressable accessibilityLabel="Close the menu" style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
           {/* A tap on another hub's button while this menu is open lands on
               that hub rather than only closing this one: see lib/hubHandoff.ts. */}
           {handoff.targets}

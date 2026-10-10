@@ -361,10 +361,10 @@ export function AppKeyboard() {
   // registers it as the activeField and raises this keyboard, cursor ready.
   const searchRow = (
     <View style={[styles.searchRow, { flexDirection: navigationHand === 'left' ? 'row' : 'row-reverse' }]}>
-      <Pressable onPress={next} style={styles.accessoryButton}>
+      <Pressable accessibilityLabel="Next box" onPress={next} style={styles.accessoryButton}>
         <Ionicons name="arrow-forward-outline" size={16} color={colors.textPrimary} />
       </Pressable>
-      <Pressable onPress={done} style={[styles.accessoryButton, styles.accessoryButtonDone]}>
+      <Pressable accessibilityLabel="Done typing" onPress={done} style={[styles.accessoryButton, styles.accessoryButtonDone]}>
         <Ionicons name="checkmark" size={18} color={colors.textOnPrimary} />
       </Pressable>
       {activeField?.infoPress ? (

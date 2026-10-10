@@ -2426,7 +2426,7 @@ export function FermentationBuilder({
                   placeholderTextColor={colors.textSecondary}
                 />
                 {strainSearchQuery.length > 0 ? (
-                  <TouchableOpacity onPress={() => setStrainSearchQuery('')} hitSlop={8}>
+                  <TouchableOpacity accessibilityLabel="Clear the search" onPress={() => setStrainSearchQuery('')} hitSlop={8}>
                     <Ionicons name="close-circle" size={16} color={colors.textSecondary} />
                   </TouchableOpacity>
                 ) : null}
@@ -2457,7 +2457,7 @@ export function FermentationBuilder({
                     const active = selectedStrainIds.includes(strain.id);
                     return (
                       <View key={strain.id} style={[styles.strainRow, active ? { borderColor: tabColor } : null]}>
-                        <TouchableOpacity onPress={() => toggleStrain(strain.id)} hitSlop={8} style={styles.strainRowCheckbox}>
+                        <TouchableOpacity accessibilityLabel={`Tick ${strain.commonName ?? strain.scientificName}`} onPress={() => toggleStrain(strain.id)} hitSlop={8} style={styles.strainRowCheckbox}>
                           <Ionicons name={active ? 'checkbox' : 'square-outline'} size={22} color={active ? tabColor : colors.textSecondary} />
                         </TouchableOpacity>
                         <TouchableOpacity

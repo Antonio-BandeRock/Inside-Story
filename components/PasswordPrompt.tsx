@@ -83,7 +83,7 @@ export function usePasswordPrompt(): [
   const element = (
     <Modal visible={request !== null} transparent animationType={modalAnimationType('fade')} onRequestClose={() => close(null)}>
       <View style={styles.backdrop}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={() => close(null)} />
+        <Pressable accessibilityLabel="Cancel" style={StyleSheet.absoluteFill} onPress={() => close(null)} />
         <View style={styles.card}>
           <Text style={styles.title}>{request?.title}</Text>
           <Text style={styles.message}>{request?.message}</Text>

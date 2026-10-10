@@ -57,7 +57,7 @@ export function HelpSheet({
     >
       <View style={styles.root}>
         <View style={styles.backdrop}>
-          <Pressable style={styles.backdropTouchable} onPress={onClose} />
+          <Pressable accessibilityLabel="Close" style={styles.backdropTouchable} onPress={onClose} />
           <View style={styles.panel}>
             <View style={styles.header}>
               <Text style={styles.title}>About {pageTitle}</Text>

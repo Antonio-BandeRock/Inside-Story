@@ -78,7 +78,7 @@ export function useInfoAlert(): [(title: string, message: string) => void, React
   const element = (
     <Modal visible={request !== null} transparent animationType={modalAnimationType('fade')} onRequestClose={close}>
       <View style={styles.backdrop}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={close} />
+        <Pressable accessibilityLabel="Close" style={StyleSheet.absoluteFill} onPress={close} />
         <View style={styles.card}>
           <Text style={styles.title}>{request?.title}</Text>
           <ScrollView style={styles.messageScroll}>

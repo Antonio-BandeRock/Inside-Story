@@ -84,7 +84,7 @@ export function AppActionSheet({
 
   const sheetNode = visible ? (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="box-none">
-      <Pressable style={styles.backdrop} onPress={onClose} />
+      <Pressable accessibilityLabel="Close" style={styles.backdrop} onPress={onClose} />
       <View style={styles.centerWrap} pointerEvents="box-none">
         <View style={[styles.card, { borderColor: scheme.blobs[1] }]}>
           <View style={[StyleSheet.absoluteFillObject, { backgroundColor: scheme.gradient[1] }]} pointerEvents="none" />

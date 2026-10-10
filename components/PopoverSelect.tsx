@@ -407,7 +407,7 @@ export const PopoverSelect = memo(function PopoverSelect({
   const menuNode =
     isOpen && menuPosition ? (
       <View style={StyleSheet.absoluteFillObject} pointerEvents="box-none">
-        <Pressable style={StyleSheet.absoluteFill} onPress={closeMenu} />
+        <Pressable accessibilityLabel="Close" style={StyleSheet.absoluteFill} onPress={closeMenu} />
         <View
           style={[
             styles.popover,

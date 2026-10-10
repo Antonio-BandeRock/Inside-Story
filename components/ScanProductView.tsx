@@ -1210,7 +1210,7 @@ export function ScanProductView({
           style={[styles.captureOverlay, { paddingTop: 60 + insets.top, paddingBottom: 48 + insets.bottom }]}
           pointerEvents="box-none"
         >
-          <TouchableOpacity
+          <TouchableOpacity accessibilityLabel="Cancel the photo"
             style={[styles.captureCancelButton, { top: 16 + insets.top }]}
             activeOpacity={0.8}
             onPress={handleCancelPhotoCapture}
@@ -1224,7 +1224,7 @@ export function ScanProductView({
                 ? 'Line up another angle of the label, then tap to capture.'
                 : 'Line up the ingredients list, then tap to capture.'}
           </Text>
-          <TouchableOpacity
+          <TouchableOpacity accessibilityLabel="Take the picture"
             style={[styles.shutterButton, takingPicture ? styles.disabled : null]}
             activeOpacity={0.8}
             onPress={handleTakePicture}

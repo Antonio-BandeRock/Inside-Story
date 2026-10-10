@@ -412,7 +412,7 @@ export function YourStorySection({ mode, view, guides, interview, onChanged, onH
           isCurrent || openSections.includes(section.def.key) || (beatsOpen && section.def.key === 'frontPage');
         return (
           <View key={section.def.key} style={[styles.sectionCard, isCurrent && styles.sectionCardCurrent]}>
-            <TouchableOpacity
+            <TouchableOpacity accessibilityLabel={section.def.name}
               onPress={() =>
                 isCurrent
                   ? undefined

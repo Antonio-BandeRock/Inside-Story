@@ -1597,7 +1597,7 @@ export function MealBuilder({
                         {`From ${dish.from}`}
                       </Text>
                     </View>
-                    <TouchableOpacity onPress={() => toggleDishTicked(key, dish)} hitSlop={8}>
+                    <TouchableOpacity accessibilityLabel={`Untick ${dish.name}`} onPress={() => toggleDishTicked(key, dish)} hitSlop={8}>
                       <Ionicons name="close-circle-outline" size={22} color={colors.textMuted} />
                     </TouchableOpacity>
                   </View>
@@ -2208,7 +2208,7 @@ export function MealBuilder({
                       {Math.round(component.yourSharePercent)}% of this saved item{component.servings > 1 ? ` (its own ${component.servings} servings)` : ''}
                     </Text>
                   </View>
-                  <TouchableOpacity onPress={() => removeComponent(component.key)} hitSlop={8}>
+                  <TouchableOpacity accessibilityLabel={`Remove ${component.name}`} onPress={() => removeComponent(component.key)} hitSlop={8}>
                     <Ionicons name="close-circle-outline" size={22} color={colors.textMuted} />
                   </TouchableOpacity>
                 </View>

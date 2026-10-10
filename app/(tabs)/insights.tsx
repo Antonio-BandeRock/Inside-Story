@@ -2560,7 +2560,7 @@ function ScopeHub<M extends NavigableMeal>({
 
       <Modal visible={open} transparent animationType={modalAnimationType('fade')} onRequestClose={() => setOpen(false)}>
         <View style={styles.backdrop}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
+          <Pressable accessibilityLabel="Close" style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
           <View style={[styles.scopeCard, { bottom: cardBottom, left: cardLeft, borderColor: TAB_COLOR }]}>
             <View style={styles.scopeCardHeaderRow}>
               {/* Title case, not the literal "DRILL DOWN" this used before

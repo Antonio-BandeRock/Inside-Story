@@ -173,7 +173,7 @@ export function TellClaudeHost() {
       )}
       {choosing ? (
         <View style={styles.backdrop}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={() => setChoosing(false)} />
+          <Pressable accessibilityLabel="Close" style={StyleSheet.absoluteFill} onPress={() => setChoosing(false)} />
           <View style={styles.card}>
             <Text style={styles.title}>Tell Claude</Text>
             <TouchableOpacity
@@ -206,7 +206,7 @@ export function TellClaudeHost() {
       ) : null}
       {open ? (
         <View style={styles.backdrop}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(null)} />
+          <Pressable accessibilityLabel="Close" style={StyleSheet.absoluteFill} onPress={() => setOpen(null)} />
           <View style={styles.card}>
             <Text style={styles.title}>Tell Claude</Text>
             <Text style={styles.where}>{describeDevNoteWhere(open)}</Text>

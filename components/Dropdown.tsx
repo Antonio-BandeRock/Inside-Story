@@ -251,7 +251,7 @@ export const Dropdown = forwardRef<DropdownHandle, DropdownProps>(function Dropd
   // since only one dropdown is ever open at a time.
   const menuNode = isOpen ? (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="box-none">
-      <Pressable
+      <Pressable accessibilityLabel="Close"
         style={[styles.backdrop, { top: menuPosition?.top ?? 0 }]}
         onPress={closeMenu}
       />
