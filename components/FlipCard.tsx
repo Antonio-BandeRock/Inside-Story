@@ -99,11 +99,18 @@ export function FlipCard({
     setIsFlipped(next);
   }
 
+  // Each face also goes invisible once it passes edge-on, where the card has
+  // no width and the swap cannot be seen. backfaceVisibility alone is not
+  // enough on the desktop: Chromium does not carry it into a scroll view, so
+  // the turned-away face's scrolling text and scroll bar showed through the
+  // front, mirrored (reported 2026-10-10, 1.0.66.15).
   const frontStyle = useAnimatedStyle(() => ({
     transform: [{ perspective: 1000 }, { rotateY: `${interpolate(flipped.value, [0, 1], [0, 180])}deg` }],
+    opacity: flipped.value < 0.5 ? 1 : 0,
   }));
   const backStyle = useAnimatedStyle(() => ({
     transform: [{ perspective: 1000 }, { rotateY: `${interpolate(flipped.value, [0, 1], [180, 360])}deg` }],
+    opacity: flipped.value < 0.5 ? 0 : 1,
   }));
 
   // One header row, drawn on both faces so the card's origin reads the same
