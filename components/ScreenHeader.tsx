@@ -14,7 +14,8 @@ const ROW_HORIZONTAL_PADDING = 4;
 // reaching 8px below it. The corner box (PageIdentityLabel) says which tab
 // is showing. The whole header went from 80px under the status bar to 54.
 const HEADER_TEXT_HEIGHT = 44;
-const HEADER_TEXT_FONT_SIZE = 28;
+// 28 to 26 in 1.0.66.5, once the logo beside it grew to 36.
+const HEADER_TEXT_FONT_SIZE = 26;
 // Just enough that the first shadow layer is not clipped by the canvas's
 // left edge (Svg defaults to overflow: hidden).
 const HEADER_TEXT_HORIZONTAL_MARGIN = 4;
@@ -22,9 +23,10 @@ const HEADER_TEXT_HORIZONTAL_MARGIN = 4;
 const APP_NAME = 'Lifestead';
 // The logo: the window with the figure in it, the same image Home uses.
 const LOGO = require('../assets/branding/lifestead-window.png');
-// About a third of the TabHub button as it is drawn (78 px of artwork over
-// its 60 px tap target), by direct instruction.
-const HEADER_LOGO_SIZE = 26;
+// 26 in 1.0.66.4 (a third of the drawn TabHub button) read as a dark dot
+// on the dark header; 36 since 1.0.66.5 by direct instruction, about the
+// height of the word's tall letters.
+const HEADER_LOGO_SIZE = 36;
 const HEADER_LOGO_TEXT_GAP = 8;
 // An eighth of an inch. A dp is 1/160 of an inch, so 20 dp.
 const HEADER_LEFT_INSET = 20;
@@ -33,16 +35,11 @@ const HEADER_LEFT_INSET = 20;
 // point to #eceef7 across most of the body.
 const LOGO_FIGURE_WHITE = '#eceef7';
 
-// SVG has no text-shadow prop: darker copies of the same text, offset
-// further down-right and drawn first, give the raised look. A highlight copy
-// offset the other way once added a lit edge; on white text it would not
-// show, so it is gone.
-const SHADOW_LAYERS: readonly { offset: number; opacity: number }[] = [
-  { offset: 2, opacity: 0.5 },
-  { offset: 4, opacity: 0.35 },
-  { offset: 6, opacity: 0.22 },
-  { offset: 8, opacity: 0.12 },
-];
+// SVG has no text-shadow prop: a darker copy of the same text, offset
+// down-right and drawn first, gives the lift. Four stacked copies (2, 4, 6
+// and 8 px) suited the old coloured text but showed under white as a
+// blurred second word, so since 1.0.66.5 only the nearest one is kept.
+const SHADOW_LAYERS: readonly { offset: number; opacity: number }[] = [{ offset: 2, opacity: 0.5 }];
 
 // The title's box plus the rounded-edge shadow strip below it (EdgeShadow),
 // every piece of this header's fixed vertical footprint, a true constant per

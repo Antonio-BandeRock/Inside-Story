@@ -2731,7 +2731,10 @@ export default function HomeScreen() {
     return (
       <HomeSectionBand
         title={title}
-        icon={options?.icon ?? identity?.icon ?? 'ellipse-outline'}
+        // A section that belongs to no tab (Where Is It, Ask Your Records)
+        // takes the icon the Home menu already shows for it. Without this
+        // it drew an empty circle, 1.0.66.5.
+        icon={options?.icon ?? identity?.icon ?? HOME_LENS_DESTINATIONS[key]?.icon ?? 'ellipse-outline'}
         renderIcon={options?.renderIcon}
         color={options?.color ?? identity?.color ?? colors.primary}
         textColor={options?.color ?? identity?.textColor}
