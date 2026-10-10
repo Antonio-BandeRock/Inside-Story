@@ -25,12 +25,12 @@ Files: `app/(tabs)/reports.tsx` (screen), `lib/reportKinds.ts` (what each report
 ### Guava Health (https://guavahealth.com/plans)
 - **Price:** Free, or Premium at $78 a year. Family pricing is "discounted" with no figure published.
 - **What it does well:** Visit Prep for each appointment (a symptom summary, a prioritized list of questions, download, send or print); imports records from over 50,000 US patient portals and reads lab values out of an uploaded PDF; has a provider dashboard.
-- **Where Inside Story is ahead:** no account and no server; food, nutrient and condition sections; reports for different readers; medical costs.
+- **Where Lifestead is ahead:** no account and no server; food, nutrient and condition sections; reports for different readers; medical costs.
 
 ### Bearable (https://bearable.app/pricing/)
 - **Price:** $6.99 a month or $34.99 a year (often discounted to $18.99). Free tier.
 - **What it does well:** strong charts that people screenshot for their doctor; CSV export covering 3 months, 6 months or everything.
-- **Where Inside Story is ahead:** Bearable has no laid-out PDF report (still on their roadmap), and its "% effect" figures read as cause and effect.
+- **Where Lifestead is ahead:** Bearable has no laid-out PDF report (still on their roadmap), and its "% effect" figures read as cause and effect.
 
 ### Visible (third-party sources; the official pricing page returned "not found")
 - **Price:** the app is free. Visible Plus is $19.99 a month or $179.88 a year and requires their band.
@@ -39,7 +39,7 @@ Files: `app/(tabs)/reports.tsx` (screen), `lib/reportKinds.ts` (what each report
 ### CareClinic (App Store listing)
 - **Price:** about $5.99 a month or $39.99 a year. A lifetime plan exists, with passes listed from $34.99 to $59.99.
 - **What it does well:** charted PDF reports, Care Teams that share with family, stored health documents.
-- **Where Inside Story is ahead:** evidence labelling, and depth on food and cost.
+- **Where Lifestead is ahead:** evidence labelling, and depth on food and cost.
 
 ### mySymptoms (App Store listing)
 - **Price:** $9.99 a month, $39.99 for 6 months, or $59.99 a year. Prices vary by country.
@@ -48,7 +48,7 @@ Files: `app/(tabs)/reports.tsx` (screen), `lib/reportKinds.ts` (what each report
 ### Cronometer (third-party 2026 reviews; the support page blocked the fetch)
 - **Price:** Gold about $10.99 a month or $59.99 a year. Pro, for practitioners, about $39.99 a month.
 - **What it does well:** Gold's configurable Print Report; Pro accounts where a dietitian invites the client and sees their diary.
-- **Where Inside Story is ahead:** conditions, symptoms and a doctor report.
+- **Where Lifestead is ahead:** conditions, symptoms and a doctor report.
 
 ### Apple Health (Apple Support share-with-provider FAQ)
 - **Price:** free on iPhone.
@@ -86,6 +86,6 @@ Files: `app/(tabs)/reports.tsx` (screen), `lib/reportKinds.ts` (what each report
 | Cronometer Gold | yes | ~$10.99 | $59.99 | Pro ~$39.99 a month |
 | Apple Health | free | none | none | iPhone only |
 | Healthie (practitioner) | client free | $19.99 to $149.99 | about 10% off | practitioner pays |
-| **Inside Story (planned)** | Free (no Reports) | $9.99 Individual; $14.99 Partner | $89.99; $134.99 Partner | Caregiver $4.99 a month; household seats $1.99 a month |
+| **Lifestead (planned)** | Free (no Reports) | $9.99 Individual; $14.99 Partner | $89.99; $134.99 Partner | Caregiver $4.99 a month; household seats $1.99 a month |
 
 Single-purpose trackers cost $35 to $60 a year. Broader record or health organizers cost about $78 to $96 a year. Monthly prices cluster at $6 to $11. At $89.99 a year, Individual sits at the top of the consumer range, defensible because no competitor offers eight reports for different readers, or food, cost and caregiver reports.

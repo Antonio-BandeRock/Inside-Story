@@ -123,7 +123,7 @@ const done = [{ id: 'e1', plantingId: 'p2', occurredOn: '2026-05-01', foodName: 
 const dRows = parseCsv(C.doneCsv(done).slice(1));
 check('done row', dRows[1].join('|') === '2026-05-01|Peas|Back bed|Staked or tied||p2', dRows[1].join('|'));
 
-check('file names', C.gardenCsvFileName('done', '2026-09-28') === 'inside-story-garden-what-was-done-2026-09-28.csv' && C.gardenCsvFileName('plantings', '2026-09-28') === 'inside-story-garden-plantings-2026-09-28.csv');
+check('file names', C.gardenCsvFileName('done', '2026-09-28') === 'lifestead-garden-what-was-done-2026-09-28.csv' && C.gardenCsvFileName('plantings', '2026-09-28') === 'lifestead-garden-plantings-2026-09-28.csv');
 check('three kinds', C.GARDEN_CSV_KINDS.map((k) => k.kind).join() === 'plantings,harvests,done');
 for (const kind of ['plantings', 'harvests', 'done']) check(`empty wording ${kind}`, /nothing to put in the file/.test(C.nothingToSave(kind)));
 

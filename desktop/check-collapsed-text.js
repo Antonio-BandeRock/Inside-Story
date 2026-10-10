@@ -74,7 +74,7 @@ const PROBE = `(function () {
   return out;
 })()`;
 
-const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'inside-story-check-'));
+const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'lifestead-check-'));
 // The electron package's main export is the path to its executable.
 const electron = require('electron');
 
@@ -83,13 +83,13 @@ function runProbe(tab, clicks) {
   const clickAfter = 6000;
   const env = {
     ...process.env,
-    INSIDE_STORY_LOG: '1',
-    INSIDE_STORY_CLICK: clicks.join(','),
-    INSIDE_STORY_CLICK_AFTER_MS: String(clickAfter),
-    INSIDE_STORY_EVAL: PROBE.replace(/\n/g, ' '),
+    LIFESTEAD_LOG: '1',
+    LIFESTEAD_CLICK: clicks.join(','),
+    LIFESTEAD_CLICK_AFTER_MS: String(clickAfter),
+    LIFESTEAD_EVAL: PROBE.replace(/\n/g, ' '),
     // The screenshot is only how the app is told to quit; the file is thrown away.
-    INSIDE_STORY_SCREENSHOT: path.join(dataDir, 'frame.png'),
-    INSIDE_STORY_SCREENSHOT_AFTER_MS: String(clickAfter + clickCount * 1500 + 3000),
+    LIFESTEAD_SCREENSHOT: path.join(dataDir, 'frame.png'),
+    LIFESTEAD_SCREENSHOT_AFTER_MS: String(clickAfter + clickCount * 1500 + 3000),
   };
   const result = spawnSync(
     electron,

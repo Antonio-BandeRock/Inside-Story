@@ -326,7 +326,7 @@
 ### P6. Everything I've recorded, out in open formats
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Profile
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
-- **How:** One export: every table as CSV plus JSON, photos in folders, and an HTML index readable with nothing installed, saved to a folder the person picks, health records separable. App Lock asks again first. Phone and desktop. The first concrete piece of A Life's Inside Story. Notion: https://app.notion.com/p/3f153652f27281e6ba0ad6d8c1adb595
+- **How:** One export: every table as CSV plus JSON, photos in folders, and an HTML index readable with nothing installed, saved to a folder the person picks, health records separable. App Lock asks again first. Phone and desktop. The first concrete piece of A Life's Lifestead. Notion: https://app.notion.com/p/3f153652f27281e6ba0ad6d8c1adb595
 
 ### P9. Accessibility past text size
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** all

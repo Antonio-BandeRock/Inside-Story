@@ -1,5 +1,5 @@
 // expo-sqlite, as the desktop app sees it. metro.config.js resolves
-// 'expo-sqlite' here when INSIDE_STORY_DESKTOP=1 on the web platform, so
+// 'expo-sqlite' here when LIFESTEAD_DESKTOP=1 on the web platform, so
 // lib/db.ts keeps its `import * as SQLite from 'expo-sqlite'` and every
 // runAsync/getAllAsync/getFirstAsync/execAsync/withTransactionAsync call it
 // makes lands on SQLite running in Electron's main process (desktop/sqlite.js,

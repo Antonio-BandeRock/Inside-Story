@@ -74,7 +74,7 @@ The Interests tab and its Learn lens are not built (CLAUDE.md items 31 and 37), 
 - AI images fill the feed, AI moderation pulls posts and bans accounts, and hand-drawn art gets labelled as AI. **many** ([404 Media](https://404media.co/pinterest-is-drowning-in-a-sea-of-ai-slop-and-auto-moderation), read 2026-10-09)
 - The setting to see fewer AI pins is on and they still come: of 85 reviews mentioning the setting, 63 reported it failing. **many** ([Unstar](https://unstar.app/blog/pinterest-ai-filter-not-working-see-less-ai-reviews-2026); [TechCrunch, 2025-10-16](https://techcrunch.com/2025/10/16/pinterest-adds-controls-to-let-you-limit-the-amount-of-ai-slop-in-your-feed/?sidebar=a))
 
-**Lifestead must:** Share to Inside Story saves the page the person chose, with its address and the day, and there is no feed.
+**Lifestead must:** Share to Lifestead saves the page the person chose, with its address and the day, and there is no feed.
 
 ## QuickBooks Solopreneur (also: QuickBooks Self-Employed; leader: self-employed bookkeeping)
 

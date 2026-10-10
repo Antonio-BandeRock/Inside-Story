@@ -60,7 +60,7 @@ export const TAB_HUB_ICON_SOURCES: Partial<Record<TabHubIconChoice, ImageSourceP
   // scripts/make_brand_icons.js, and the default from that day. Shown
   // without its window since 2026-10-07, because the button draws the well.
   // The open book became the spread figure on 2026-10-09.
-  insideStory: require('../assets/branding/inside-story-figure.png'),
+  insideStory: require('../assets/branding/lifestead-figure.png'),
   honeybee: require('../assets/branding/garden-icons/honeybee.png'),
   bumblebee: require('../assets/branding/garden-icons/bumblebee.png'),
   dragonfly: require('../assets/branding/garden-icons/dragonfly.png'),

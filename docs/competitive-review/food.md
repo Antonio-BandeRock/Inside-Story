@@ -50,16 +50,16 @@ Chosen for what each does best in 2026: Cronometer (nutrient depth), MyFitnessPa
 
 **Pricing** (checked 2026-09-25, https://cronometer.com/gold/index.html): Basic free; Gold $10.99 a month or $59.99 a year (about $5 a month). No lifetime or family plan found. Some reviews quote $49.99 a year, so the annual price may vary by store or promotion.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 
-1. **Recipe import from a web link.** Paste a recipe URL and it builds the recipe with nutrients. Inside Story has no import path; every personal recipe goes through a builder by hand.
-2. **Photo logging that suggests ingredients and portions** (AI). Inside Story takes a meal photo but deliberately does not recognise food.
+1. **Recipe import from a web link.** Paste a recipe URL and it builds the recipe with nutrients. Lifestead has no import path; every personal recipe goes through a builder by hand.
+2. **Photo logging that suggests ingredients and portions** (AI). Lifestead takes a meal photo but deliberately does not recognise food.
 3. **Custom charts of any nutrient against any biometric**, and "Oracle", which answers "which foods are richest in X for the fewest calories".
 4. **Repeat items and a macro scheduler** (different targets on different days).
 5. **Lab-verified database tagging**: every food shows its source and whether it was lab-analysed, which is part of why people trust it.
 6. **Device integrations** (Apple Health, Garmin, Oura, Dexcom and others).
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 
 - Per-condition scoring of every food for 19 conditions; Cronometer knows nothing about any condition.
 - Condition cautions on recipes, goitrogen stacking across a meal, healing-stage reordering, and food trials that test one food out and back in.
@@ -82,20 +82,20 @@ Chosen for what each does best in 2026: Cronometer (nutrient depth), MyFitnessPa
 
 **Pricing** (checked 2026-09-25, https://www.fitbudd.com/post/myfitnesspal-app-cost and https://nutriscan.app/blog/posts/myfitnesspal-pricing-2026-guide-2ff09c399a; the official blog returned 403): Free $0 with ads; Premium $19.99 a month or $79.99 a year; Premium+ $24.99 a month or $99.99 a year. No lifetime or family plan. The barcode scanner moved behind the paywall, which drew heavy complaints.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 
 1. **Sheer database size**: about 14 million foods, mostly crowd-added branded and restaurant items, so almost anything eaten out can be found by name.
-2. **Restaurant meals.** Inside Story has no restaurant path at all; a meal out has to be built from ingredients or skipped.
+2. **Restaurant meals.** Lifestead has no restaurant path at all; a meal out has to be built from ingredients or skipped.
 3. **Meal Scan** (photo recognition) and voice logging in one tap from the diary.
 4. **Meal plan to grocery list to delivery** (Instacart sync, US only).
 5. **Recipe import from a URL.**
-6. **Social habit loop**: streaks, community, a friends' feed. Inside Story has ruled out streaks by design (CLAUDE.md item 29), so this is a gap on purpose.
+6. **Social habit loop**: streaks, community, a friends' feed. Lifestead has ruled out streaks by design (CLAUDE.md item 29), so this is a gap on purpose.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 
 - Condition scoring, condition cautions, food trials, stages: MyFitnessPal has none.
 - A curated, sourced reference database of whole foods rather than a crowd list with many duplicate and wrong entries.
-- Barcode scanning plus on-device OCR of the ingredients list at no charge in Inside Story's plans, versus paid-only here.
+- Barcode scanning plus on-device OCR of the ingredients list at no charge in Lifestead's plans, versus paid-only here.
 - Home cooking tools: twelve builders with cooking method, fermentation, garden harvest drawn down as it is cooked. MyFitnessPal treats a recipe as a list of lines.
 - Privacy: MyFitnessPal had a 150-million-account breach in 2018 and runs on ads.
 
@@ -112,14 +112,14 @@ Chosen for what each does best in 2026: Cronometer (nutrient depth), MyFitnessPa
 
 **Pricing** (checked 2026-09-25, https://apps.apple.com/us/app/fig-food-scanner-recipes/id1564434726): free with a scan limit; Fig+ listed in the US App Store at $5.99 to $7.49 a month and $34.99 to $69.99 a year (several price points, likely by introductory offer). Third-party reviews quote $10 a month or $50 a year. No lifetime plan found. Family use is covered inside Fig+ through "Multiple Figs" profiles.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 
-1. **Ingredient-level verdicts on packaged food**, each with a plain reason ("contains inulin, high FODMAP"), from dietitian-reviewed ingredient ratings. Inside Story's scan flags condition concerns but builds on the nutrient panel and OCR text, without a curated ingredient-to-restriction map of that size.
+1. **Ingredient-level verdicts on packaged food**, each with a plain reason ("contains inulin, high FODMAP"), from dietitian-reviewed ingredient ratings. Lifestead's scan flags condition concerns but builds on the nutrient panel and OCR text, without a curated ingredient-to-restriction map of that size.
 2. **Several people's restrictions at once.** "Find food that works for everyone" across profiles, which matters to a household cooking one meal.
 3. **Store and restaurant browsing**: lists of compliant products at over 100 grocery chains and restaurants, so a person can shop without scanning every box.
 4. **Very wide restriction list**, including rare ones (alpha-gal, salicylates, histamine, sulfites), which is the everyday reality for many autoimmune patients.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 
 - Whole-food cooking and nutrient depth; Fig is almost entirely packaged products.
 - Personal evidence: food trials and My Safe Foods let a person's own results override the general rule. Fig only knows the published list.
@@ -140,16 +140,16 @@ Chosen for what each does best in 2026: Cronometer (nutrient depth), MyFitnessPa
 
 **Pricing** (checked 2026-09-25, https://help.yuka.io/l/en/article/hkzw2hkj5w-cost-membership): free version scans without limit. Premium is annual only, a sliding "pay what you choose" rate starting at $10 a year (US), £10, €10, $25 CAD or $20 AUD; every price point gets the same features. No monthly, lifetime or family plan.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 
-1. **A single, instantly readable verdict** (a coloured score and word) on every scanned product, with the reason broken down underneath. Inside Story's scan screen gives condition flags and nutrients, which is richer but slower to read in a supermarket aisle.
+1. **A single, instantly readable verdict** (a coloured score and word) on every scanned product, with the reason broken down underneath. Lifestead's scan screen gives condition flags and nutrients, which is richer but slower to read in a supermarket aisle.
 2. **Additive explanations**: every E-number or additive rated for risk with its research cited.
 3. **"Better option" suggestions**: a similar product that scores higher.
-4. **Offline scanning** (Premium) for stores with poor signal. Inside Story's scan needs a connection to Open Food Facts or USDA.
+4. **Offline scanning** (Premium) for stores with poor signal. Lifestead's scan needs a connection to Open Food Facts or USDA.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 
-- Condition-aware judgment: Yuka's score is the same for everybody; Inside Story weighs a product against the person's own conditions, allergies and stage.
+- Condition-aware judgment: Yuka's score is the same for everybody; Lifestead weighs a product against the person's own conditions, allergies and stage.
 - Price history per product and Buy This onto the grocery list.
 - Logging the product as eaten, so it feeds nutrient totals and Pattern Finder. Yuka is not a food log.
 - The steer toward home cooking over packaged food, which Yuka does not attempt.
@@ -169,14 +169,14 @@ Chosen for what each does best in 2026: Cronometer (nutrient depth), MyFitnessPa
 
 **Pricing** (checked 2026-09-25, https://play.google.com/store/apps/details?id=com.monashuniversity.fodmap and https://www.monashfodmap.com/ibs-central/i-have-ibs/get-the-app/): one-time purchase, about $7.99 to $12.99 depending on store and region (around $9 on Google Play in the US), with free updates as foods are tested. No subscription, no family plan.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 
-1. **Serving-size thresholds.** A food is green at one amount and red at a larger one. This is the most useful idea in the category for Inside Story, since many condition cautions (oxalate, goitrogens, purines, histamine) are dose-dependent too.
-2. **A structured reintroduction protocol**: one FODMAP group at a time, over three days of increasing amounts, with a washout between. Inside Story's food trials test one food out and back in, but have no stepped dose.
+1. **Serving-size thresholds.** A food is green at one amount and red at a larger one. This is the most useful idea in the category for Lifestead, since many condition cautions (oxalate, goitrogens, purines, histamine) are dose-dependent too.
+2. **A structured reintroduction protocol**: one FODMAP group at a time, over three days of increasing amounts, with a washout between. Lifestead's food trials test one food out and back in, but have no stepped dose.
 3. **Lab-tested data** from the diet's originators, which gives it unmatched authority for IBS.
 4. **Certified product lists** for packaged foods that passed testing.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 
 - 19 conditions rather than one, and several at once.
 - Whole-diet nutrition: Monash shows only FODMAP content, not whether the day gave enough iron or fiber.
@@ -196,7 +196,7 @@ Chosen for what each does best in 2026: Cronometer (nutrient depth), MyFitnessPa
 
 **Pricing** (checked 2026-09-25, https://samsungfood.com/food-plus/ and https://www.plantoeat.com/blog/2026/01/samsung-food-review-pros-and-cons/; the support page returned 403): free for saving recipes from the web, meal planning and shopping lists. Food+ is $6.99 a month or $59.99 a year, often free for 3 to 12 months with a Samsung device. No lifetime plan. Household sharing of lists and plans is part of the free app.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 
 1. **Save any recipe from any website in one tap** (a share-sheet target), with ingredients parsed and nutrition estimated.
 2. **Scan a recipe from a photo** (a cookbook page or a handwritten card), Food+.
@@ -204,7 +204,7 @@ Chosen for what each does best in 2026: Cronometer (nutrient depth), MyFitnessPa
 4. **Community recipes and collections**: thousands of recipes to browse by diet, with ratings and notes.
 5. **Shared household list and plan, updated live** across each family member's phone.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 
 - Condition cautions and scoring on every recipe; Samsung Food's diet filters are generic (vegan, keto) and reviewers say its plans ignored stated preferences.
 - The six-week meal plan generator driven by conditions, stage, safe foods and nutrient rules, rather than taste.
@@ -215,7 +215,7 @@ Chosen for what each does best in 2026: Cronometer (nutrient depth), MyFitnessPa
 
 | Gap | Where it would go | Native or JS | Privacy | Size |
 |---|---|---|---|---|
-| "Share to Inside Story" from a browser | Register the app as an Android share target for text and links (an intent filter in `app.json`, the same mechanism the `.is` file registration already uses), handing the URL to the recipe importer described under Cronometer. | Native config change, so one EAS rebuild; the importer itself is JS | None | Small for the intent, on top of the Large importer |
+| "Share to Lifestead" from a browser | Register the app as an Android share target for text and links (an intent filter in `app.json`, the same mechanism the `.is` file registration already uses), handing the URL to the recipe importer described under Cronometer. | Native config change, so one EAS rebuild; the importer itself is JS | None | Small for the intent, on top of the Large importer |
 | Recipe from a cookbook photo | `lib/ocr.ts` already runs ML Kit text recognition on the phone. Feed a photographed recipe page through it, split into ingredient lines and steps, and hand the lines to the same ingredient matcher. | JS (OCR module already in the build) | None: stays on the phone | Medium, once the matcher exists |
 | Cook mode | `RecipeDetailCard.tsx` gains a "Cook this" view: one step at a time, large text, timers spotted in step text, screen kept awake (`expo-keep-awake`, which is a small native module, so check whether it is already in the build before counting on over-the-air). | JS if keep-awake is present, otherwise a rebuild | None | Small to Medium |
 | Live shared household list | Already designed: the shopping list is the one area that merges between two people (`lib/peerRelationships.ts`). The gap is that it only runs between linked people through the shared folder. Nothing to add on this tab. | n/a | n/a | n/a |
@@ -226,14 +226,14 @@ Chosen for what each does best in 2026: Cronometer (nutrient depth), MyFitnessPa
 
 **Pricing** (checked 2026-09-25, https://www.paprikaapp.com/ lists no prices; figures from store listings reported at https://eathealthy365.com/how-much-does-paprika-recipe-manager-cost-to-download/ and deal sites): one-time purchase per platform, about $4.99 on iPhone or Android and about $29.99 on Mac or Windows, with regular half-price sales ($2.99 and $14.99). No subscription, no family plan (one account can be shared). Exact current store prices not confirmed from the official site.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 
 1. **Web capture that works on almost any site**, including ones without structured data, by letting the person highlight the ingredients and steps.
 2. **Scaling** a recipe up or down with the ingredient amounts recalculated.
 3. **Aisle-sorted, merged grocery list** ("2 onions" plus "1 onion" becomes "3 onions").
 4. **Pay once, own it.** The pricing model many cooks prefer.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 
 - Every recipe carries nutrients and condition cautions; Paprika has no nutrition analysis to speak of.
 - Recipes come with the app (about 500), where Paprika starts empty.
@@ -255,14 +255,14 @@ Chosen for what each does best in 2026: Cronometer (nutrient depth), MyFitnessPa
 
 **Trust record, worth knowing** (https://techcrunch.com/2026/04/21/apples-cal-ai-crackdown-signals-its-still-policing-the-app-store/): Apple briefly pulled it in April 2026 for bypassing in-app purchase and deceptive billing, and a March 2026 breach reportedly exposed over 3.2 million records including health tracking data through an unsecured cloud database.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 
 1. **A meal logged in about five seconds.** This speaks directly to CLAUDE.md's named risk number one, logging discipline.
 2. **Portion estimation** from the photo (some phones use the depth sensor).
 
 **Why it is weaker than it looks.** Independent testing puts simple foods at roughly 85 to 92 percent accuracy and mixed or restaurant dishes 25 to 50 percent off, usually low. It returns macros, not the ingredient identity that condition scoring needs: it cannot say whether the sauce held garlic or the bowl held raw kale.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 
 - Ingredient-level records, which is what Pattern Finder, food trials and condition scoring run on. A calorie guess is useless for finding that a person reacts to onion.
 - Photos never leave the phone. Cal AI's breach shows the cost of the other approach.
@@ -279,12 +279,12 @@ Chosen for what each does best in 2026: Cronometer (nutrient depth), MyFitnessPa
 
 ## 3. Gap synthesis and ranked recommendations
 
-**Where Inside Story is already ahead of every app reviewed:** no competitor scores food against 19 conditions, reorders by healing stage, checks a whole meal for stacked goitrogens, runs a leave-it-out-then-bring-it-back food trial, separates food from supplements, tracks ferments and garden harvest into the kitchen, or keeps all of it on the phone. The closest single-condition rival is Monash (IBS only). The market splits into trackers (Cronometer, MyFitnessPal, Cal AI), scanners (Yuka, Fig) and recipe keepers (Samsung Food, Paprika); Inside Story is the only one that is all three, which is also why its gaps are mostly about **getting food in faster** rather than about depth.
+**Where Lifestead is already ahead of every app reviewed:** no competitor scores food against 19 conditions, reorders by healing stage, checks a whole meal for stacked goitrogens, runs a leave-it-out-then-bring-it-back food trial, separates food from supplements, tracks ferments and garden harvest into the kitchen, or keeps all of it on the phone. The closest single-condition rival is Monash (IBS only). The market splits into trackers (Cronometer, MyFitnessPal, Cal AI), scanners (Yuka, Fig) and recipe keepers (Samsung Food, Paprika); Lifestead is the only one that is all three, which is also why its gaps are mostly about **getting food in faster** rather than about depth.
 
 **Ranked by value for the effort** (Small = a day or less, Medium = a few days, Large = a week or more):
 
 1. **Fix the stale builder help text** (Small, JS). Eleven builders' help in `FOOD_LENS_COPY` (`app/(tabs)/food.tsx`) still says "In progress" and that saving as a favourite is not wired up, while My Recipes shows saved favourites. A first-time user reads that as unfinished.
-2. **One-glance verdict on a scanned product** (Small, JS, `ScanProductView.tsx`). Yuka's and Fig's whole appeal; Inside Story already has the facts.
+2. **One-glance verdict on a scanned product** (Small, JS, `ScanProductView.tsx`). Yuka's and Fig's whole appeal; Lifestead already has the facts.
 3. **Additives and processing level from the same Open Food Facts response** (Medium, JS, `lib/barcodeLookup.ts`, new `lib/additives.ts`, links into Health Literacy's Food Additives reading). No extra network request, no privacy cost.
 4. **Scale a recipe and group the grocery list by store section** (Small each, JS, `RecipeDetailCard.tsx`, `lib/groceryList.ts`). Paprika-level basics people expect.
 5. **Suggest the usual meal at the usual time** (Small to Medium, JS). Attacks the logging-discipline risk without any AI or privacy cost.
@@ -315,12 +315,12 @@ Checked 2026-09-25, US prices. Sources are in each section above.
 | Samsung Food+ | Yes (import, plan, list) | $6.99 | $59.99 | None | Sharing is free |
 | Paprika 3 | No (desktop demo only) | None | None | about $4.99 mobile, $29.99 desktop, per platform | One account shared |
 | Cal AI Premium | Yes (no photo scan) | $9.99 (dynamic) | $29.99 (dynamic) | reported $99.99 | reported $59.99/yr |
-| **Inside Story Free** | Builders, Food Lookup without condition scoring | $0 | $0 | | |
-| **Inside Story Individual** | | $9.99 | $89.99 | | |
-| **Inside Story Partner** (two people) | | $14.99 | $134.99 | | |
-| **Inside Story Household seat** | first 2 or 3 free | $1.99 per seat | $17.99 per seat | | |
-| **Inside Story Caregiver** | | $4.99 per person | $49.99 per person | | |
+| **Lifestead Free** | Builders, Food Lookup without condition scoring | $0 | $0 | | |
+| **Lifestead Individual** | | $9.99 | $89.99 | | |
+| **Lifestead Partner** (two people) | | $14.99 | $134.99 | | |
+| **Lifestead Household seat** | first 2 or 3 free | $1.99 per seat | $17.99 per seat | | |
+| **Lifestead Caregiver** | | $4.99 per person | $49.99 per person | | |
 
 **What people in this category are used to paying.** The monthly sticker price clusters at $7 to $11, but almost everyone pays annually, and annual prices cluster at **$30 to $60**. Only MyFitnessPal charges more ($80 to $100) on the strength of its brand. Single-purpose tools (Yuka, Monash, Paprika) are $10 a year or a one-time $5 to $30. Annual discounts are steep: Cronometer and Samsung Food take 50 percent or more off the monthly rate.
 
-**What that means for Inside Story.** $9.99 a month sits in the normal band. **$89.99 a year is above every app here except MyFitnessPal Premium+**, and its annual discount (25 percent) is shallower than the 50 percent people see elsewhere. The case for it has to rest on doing the work of three or four of these apps (tracker, scanner, recipe keeper, condition guide) plus Signals, Trends and Reports, and on the privacy stance, which Cal AI's and MyFitnessPal's breaches make easy to explain. Worth weighing: an annual price nearer $59.99 to $69.99, or a launch price, to meet what this audience already pays for Cronometer. Also note the Free tier leaves out condition scoring, which is the one thing no competitor offers; a small taste of it (for example, one condition, or scoring on scanned products only) may convert better than hiding it.
+**What that means for Lifestead.** $9.99 a month sits in the normal band. **$89.99 a year is above every app here except MyFitnessPal Premium+**, and its annual discount (25 percent) is shallower than the 50 percent people see elsewhere. The case for it has to rest on doing the work of three or four of these apps (tracker, scanner, recipe keeper, condition guide) plus Signals, Trends and Reports, and on the privacy stance, which Cal AI's and MyFitnessPal's breaches make easy to explain. Worth weighing: an annual price nearer $59.99 to $69.99, or a launch price, to meet what this audience already pays for Cronometer. Also note the Free tier leaves out condition scoring, which is the one thing no competitor offers; a small taste of it (for example, one condition, or scoring on scanned products only) may convert better than hiding it.

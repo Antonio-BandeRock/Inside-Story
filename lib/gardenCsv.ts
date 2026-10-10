@@ -159,7 +159,7 @@ export const GARDEN_CSV_KINDS: { kind: GardenCsvKind; label: string; dialogTitle
 
 export function gardenCsvFileName(kind: GardenCsvKind, today: string): string {
   const part = kind === 'done' ? 'what-was-done' : kind;
-  return `inside-story-garden-${part}-${today}.csv`;
+  return `lifestead-garden-${part}-${today}.csv`;
 }
 
 /** Said when a file would hold nothing but its header row. */

@@ -75,7 +75,7 @@ const phaseHtml = PHASES.map(([n, title, lead]) => {
 const byId = Object.fromEntries(items.map(i => [i.id, i]));
 const refs = a => a.map(id => `<b>${id}</b> ${esc(byId[id].title)}`).join('; ');
 
-const html = `<title>Inside Story Build Plan</title>
+const html = `<title>Lifestead Build Plan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
@@ -137,8 +137,8 @@ nav.toc a{color:var(--accent)}
 </style>
 <div class="wrap">
 <header>
-<span class="kicker">Inside Story · written 2026-09-25 · from the nine competitor reviews</span>
-<h1>Everything the competitors do, and how Inside Story gets there</h1>
+<span class="kicker">Lifestead · written 2026-09-25 · from the nine competitor reviews</span>
+<h1>Everything the competitors do, and how Lifestead gets there</h1>
 <p class="lead">Every gap the nine tab reviews named, merged where two tabs asked for the same thing, then ordered so each phase stands on the one before. Nothing from the review is left out: items that break a standing rule or need a server are listed in Phase 7 with the reason, waiting on your yes.</p>
 <div class="stats">
 <span class="stat"><b>${items.length}</b>items</span>
@@ -151,15 +151,15 @@ nav.toc a{color:var(--accent)}
 </header>
 
 <section class="box warn" id="sms">
-<h2>Can Inside Story be the default texting app?</h2>
+<h2>Can Lifestead be the default texting app?</h2>
 <p><b>Technically, on Android only. Not advisable, and local-first is not what stops it.</b> A text travels through the carrier, not a company server, so it fits the privacy model fine. What stops it:</p>
 <ul>
 <li><b>Google Play policy.</b> The SMS and Call Log permissions are granted only to apps whose core purpose is messaging, through a Permissions Declaration Google reviews. A health and daily-living app asking to be the default SMS handler is very likely refused, and a refusal can hold up every other update.</li>
 <li><b>The person loses RCS</b> (typing dots, read receipts, full-size photos, encrypted chats with Google Messages users), since Google gives no other app access to RCS.</li>
 <li><b>It is a whole messaging app to build:</b> the receivers, MMS, group threads, blocking, delivery reports, and a Kotlin native module.</li>
-<li><b>It cannot exist on iPhone or on the desktop app</b>, so it would never be part of Inside Story everywhere.</li>
+<li><b>It cannot exist on iPhone or on the desktop app</b>, so it would never be part of Lifestead everywhere.</li>
 </ul>
-<p><b>What gets most of the value without that:</b> read phone contacts into Emergency, prescriber, pharmacy and the family roster (O1); text or call from inside the app with the message filled in (O2); share any text, link or photo into Capture from any app (C11); and <b>encrypted messages between Inside Story users</b> through the device keys already built, carried by a relay that cannot read them (O3, M1). That last one is the communication system that fits local-first, and it is what makes a missed-dose alert reach a caregiver on time. The default-texting item stays on the list as O5 so nothing is dropped.</p>
+<p><b>What gets most of the value without that:</b> read phone contacts into Emergency, prescriber, pharmacy and the family roster (O1); text or call from inside the app with the message filled in (O2); share any text, link or photo into Capture from any app (C11); and <b>encrypted messages between Lifestead users</b> through the device keys already built, carried by a relay that cannot read them (O3, M1). That last one is the communication system that fits local-first, and it is what makes a missed-dose alert reach a caregiver on time. The default-texting item stays on the list as O5 so nothing is dropped.</p>
 </section>
 
 <nav class="toc">

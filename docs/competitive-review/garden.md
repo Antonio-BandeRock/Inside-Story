@@ -47,13 +47,13 @@ Around the tab: Trends > Garden Yield and Trends > Growing Conditions read these
 
 **Pricing.** Free tier limited (basic reminders). Premium $35.99 a year; alternative billing seen as $7.99 a month or $17.99 for three months. No lifetime. Sources: [Growli price survey, App Store listings read 27 to 28 July 2026](https://www.getgrowli.app/blog/plant-app-prices-2026); [Alibaba Gardening review](https://gardening.alibaba.com/plant-care/planta-app). Checked 2026-09-25. Regional prices differ (UK is set separately).
 
-**What it does well that Inside Story does not.**
-1. *Care reminders computed from the plant, not typed by hand.* Inside Story's Upcoming Tasks and Days Until are dates the person sets. Planta works out "water in 3 days" from species, pot size and light.
-2. *Plant ID and diagnosis by photo.* Inside Story has no camera use on Garden at all.
-3. *Light meter.* Uses the camera to estimate light at a spot. Inside Story asks the person to describe sun or lights.
+**What it does well that Lifestead does not.**
+1. *Care reminders computed from the plant, not typed by hand.* Lifestead's Upcoming Tasks and Days Until are dates the person sets. Planta works out "water in 3 days" from species, pot size and light.
+2. *Plant ID and diagnosis by photo.* Lifestead has no camera use on Garden at all.
+3. *Light meter.* Uses the camera to estimate light at a spot. Lifestead asks the person to describe sun or lights.
 4. *Weather-aware skipping.* Rain pushes the next outdoor watering.
 
-**What Inside Story already does better.** Planta stops at the plant. It has no harvest log, no idea what a harvest weighs or what it is worth, no link from a picked tomato to a meal or a nutrient, no costs, no electricity, no compost, and no condition-aware reading. Planta also keeps your plants in its cloud account; Inside Story keeps them on the device.
+**What Lifestead already does better.** Planta stops at the plant. It has no harvest log, no idea what a harvest weighs or what it is worth, no link from a picked tomato to a meal or a nutrient, no costs, no electricity, no compost, and no condition-aware reading. Planta also keeps your plants in its cloud account; Lifestead keeps them on the device.
 
 **What it would take to close each gap.**
 | Gap | Where it would go | Native or JS | Privacy | Size |
@@ -69,14 +69,14 @@ Around the tab: Trends > Garden Yield and Trends > Growing Conditions read these
 
 **Pricing.** Free forever: 1 calendar, 1 layout of up to 8 rectangular beds, 10 AI credits a month, companion planting, unlimited tasks and journal. Basic: $7 a month billed yearly ($84 a year) or $10 month to month; adds custom varieties, perennials, weather. Top plan: $14 a month billed yearly ($168 a year) or $20 month to month; unlimited calendars and layouts, inventory, harvest tracking and analytics, full weather. 7-day trial, 30-day money back. No lifetime seen. Source: [seedtime.us/pages/pricing](https://seedtime.us/pages/pricing), checked 2026-09-25. Frost dates are worldwide per the page.
 
-**What it does well that Inside Story does not.**
-1. *Frost-date planting calendar.* This is the feature gardeners open the app for. Inside Story knows the hardiness zone (average winter low) but not the last spring frost or first autumn frost, which is what timing actually hangs on.
+**What it does well that Lifestead does not.**
+1. *Frost-date planting calendar.* This is the feature gardeners open the app for. Lifestead knows the hardiness zone (average winter low) but not the last spring frost or first autumn frost, which is what timing actually hangs on.
 2. *Visual bed layout.* Draw beds, drop crops into squares, see spacing.
 3. *Companion planting hints* when two crops sit side by side.
 4. *Succession sowing*: a crop can be scheduled in waves every two or three weeks.
 5. *Seed inventory* on the paid plan.
 
-**What Inside Story already does better.** Seedtime's harvest tracking counts pounds. Inside Story turns a harvest into a scored ingredient, follows it into meals and nutrients, and sets it against what growing it cost, including the electricity bill. Seedtime has nothing on indoor grows, equipment, compost chemistry, or readings. Inside Story's cited Horticulture reading and hardiness zone lookup work anywhere on Earth without an account. Seedtime is also priced high at the top ($168 a year) for one topic.
+**What Lifestead already does better.** Seedtime's harvest tracking counts pounds. Lifestead turns a harvest into a scored ingredient, follows it into meals and nutrients, and sets it against what growing it cost, including the electricity bill. Seedtime has nothing on indoor grows, equipment, compost chemistry, or readings. Lifestead's cited Horticulture reading and hardiness zone lookup work anywhere on Earth without an account. Seedtime is also priced high at the top ($168 a year) for one topic.
 
 **What it would take to close each gap.**
 | Gap | Where it would go | Native or JS | Privacy | Size |
@@ -94,14 +94,14 @@ Around the tab: Trends > Garden Yield and Trends > Growing Conditions read these
 
 **Pricing.** 7-day free trial, no card needed. Then $35 a year auto-renewing, or $50 for one year and $85 for two years paid once (US/Canada version, USD). Almanac version is priced the same way on its own site. No free tier beyond the trial; annual billing only. Source: [growveg.com/subscribeinfo.aspx](https://www.growveg.com/subscribeinfo.aspx) and [gardenplanner.almanac.com/subscribeinfo.aspx](https://gardenplanner.almanac.com/subscribeinfo.aspx), checked 2026-09-25. A third-party review in April 2026 quoted $29 a year, so treat $29 to $35 as the range.
 
-**What it does well that Inside Story does not.**
-1. *Crop rotation memory.* Because every season's plan is kept, it warns "brassicas grew here last year." Inside Story keeps every planting forever (Past Areas, statuses) but never reads that history back as a rotation warning.
+**What it does well that Lifestead does not.**
+1. *Crop rotation memory.* Because every season's plan is kept, it warns "brassicas grew here last year." Lifestead keeps every planting forever (Past Areas, statuses) but never reads that history back as a rotation warning.
 2. *Scale layout with spacing* and a square-foot mode.
 3. *Frost-date planting chart per crop* from local station data.
 4. *Emailed seasonal reminders* ("sow carrots outdoors this week").
 5. *Pest and beneficial-insect identification guides*, regional.
 
-**What Inside Story already does better.** GrowVeg is a planner: it barely touches what happens after planting. No harvest weights, no cost or electricity, no compost, no indoor grow equipment, no readings, no meals. Inside Story's history of what grew where, with statuses and harvests, is the richer record; it just is not read back yet.
+**What Lifestead already does better.** GrowVeg is a planner: it barely touches what happens after planting. No harvest weights, no cost or electricity, no compost, no indoor grow equipment, no readings, no meals. Lifestead's history of what grew where, with statuses and harvests, is the richer record; it just is not read back yet.
 
 **What it would take to close each gap.**
 | Gap | Where it would go | Native or JS | Privacy | Size |
@@ -117,12 +117,12 @@ Around the tab: Trends > Garden Yield and Trends > Growing Conditions read these
 
 **Pricing.** Free: unlimited plants, areas and events, the planner, zone care tips. Plus: $8.99 for one month, $6.66 a month for three months (about $20), $3.74 a month for twelve months (about $44.88 a year), each with 14 days free. Third-party roundups in 2026 quote $24.99 a year and a $99.99 lifetime, which is not on the official page today, so the lifetime may be App Store only or discontinued. Sources: [gardenize.com/subscriptions](https://gardenize.com/subscriptions/) (official), [Leaftide 2026 roundup](https://leaftide.com/compare/best-gardening-apps/). Checked 2026-09-25.
 
-**What it does well that Inside Story does not.**
-1. *Photos on everything.* A dated picture on each plant and area is the heart of the app and the simplest way to see a season. Inside Story has no photo on a planting, an area, a harvest, or a compost pile.
-2. *Event log per plant* with quick tags. Inside Story logs events on compost piles (turned, watered, temperature) but not on a planting.
+**What it does well that Lifestead does not.**
+1. *Photos on everything.* A dated picture on each plant and area is the heart of the app and the simplest way to see a season. Lifestead has no photo on a planting, an area, a harvest, or a compost pile.
+2. *Event log per plant* with quick tags. Lifestead logs events on compost piles (turned, watered, temperature) but not on a planting.
 3. *Export* of the whole garden.
 
-**What Inside Story already does better.** Gardenize's free tier is generous but it records, it does not add up: no weights, no costs, no electricity, no meals, no readings, no compost chemistry. Inside Story's encrypted backup and phone-to-desktop sync covers the same ground as Gardenize's web access without a company cloud.
+**What Lifestead already does better.** Gardenize's free tier is generous but it records, it does not add up: no weights, no costs, no electricity, no meals, no readings, no compost chemistry. Lifestead's encrypted backup and phone-to-desktop sync covers the same ground as Gardenize's web access without a company cloud.
 
 **What it would take to close each gap.**
 | Gap | Where it would go | Native or JS | Privacy | Size |
@@ -137,19 +137,19 @@ Around the tab: Trends > Garden Yield and Trends > Growing Conditions read these
 
 **Pricing.** Free tier with limits. Premium $4.99 a month, $24.99 for six months, or $46.99 a year, 7-day trial; yearly subscribers get free shipping on Park Seed orders. No lifetime seen. Source: [App Store listing](https://apps.apple.com/us/app/seed-to-spoon-garden-planner/id1312538762) via search summary, [seedtospoon.net/app](https://www.seedtospoon.net/app/). Checked 2026-09-25.
 
-**What it does well that Inside Story does not.**
-1. *GPS planting dates with sprout and harvest estimates* filled in automatically when a plant is added. Inside Story's `expected_harvest_start` and `_end` are typed by the person.
+**What it does well that Lifestead does not.**
+1. *GPS planting dates with sprout and harvest estimates* filled in automatically when a plant is added. Lifestead's `expected_harvest_start` and `_end` are typed by the person.
 2. *Seed-packet scanning* to add a variety.
 3. *AI chat and photo diagnosis.*
 4. *Companion alerts inside the layout.*
 
-**Where it is closest to Inside Story, and where Inside Story is ahead.** This is the only competitor found that ties the garden to health at all. Its "Growing for Health" is a list of plants said to help with a concern. Inside Story goes further and more honestly: a harvested food becomes an ingredient scored against the person's actual conditions, flows into meals and nutrient totals, and every claim carries an evidence tier. Seed to Spoon has no costs, no electricity, no indoor equipment, no readings, no compost, and its health list has none of the evidence tiering this app requires. Worth watching, because it shows the market will pay for "grow for your health."
+**Where it is closest to Lifestead, and where Lifestead is ahead.** This is the only competitor found that ties the garden to health at all. Its "Growing for Health" is a list of plants said to help with a concern. Lifestead goes further and more honestly: a harvested food becomes an ingredient scored against the person's actual conditions, flows into meals and nutrient totals, and every claim carries an evidence tier. Seed to Spoon has no costs, no electricity, no indoor equipment, no readings, no compost, and its health list has none of the evidence tiering this app requires. Worth watching, because it shows the market will pay for "grow for your health."
 
 **What it would take to close each gap.**
 | Gap | Where it would go | Native or JS | Privacy | Size |
 |---|---|---|---|---|
 | Auto-filled sprout and harvest dates | The sowing-window table proposed under Seedtime, plus days-to-germinate and days-to-maturity per crop; the Add Planting form fills `expected_harvest_start`/`_end` and offers two Days Until counters | JS | None | Medium (shares the crop table) |
-| "What to grow for my conditions" | A band on My Zone or Plots & Plantings that ranks the crops suited to the person's climate band by the same condition scoring Food Lookup and Safe Foods already use (`food_scores`, `sub_criterion_condition_relevance`). This is Inside Story's strongest possible answer to Seed to Spoon and it reuses scoring that exists | JS | None | Medium |
+| "What to grow for my conditions" | A band on My Zone or Plots & Plantings that ranks the crops suited to the person's climate band by the same condition scoring Food Lookup and Safe Foods already use (`food_scores`, `sub_criterion_condition_relevance`). This is Lifestead's strongest possible answer to Seed to Spoon and it reuses scoring that exists | JS | None | Medium |
 | Seed-packet scan | Barcode scanning is already in the app for Food; a seed barcode rarely resolves to a variety in any open database, so a photo of the packet plus a typed variety is more honest | JS (camera already compiled in) | Barcode lookups go through the planned Worker (item 27 in CLAUDE.md) | Small for photo, Large for a lookup |
 
 ### 2.6 AC Infinity app with UIS controllers (indoor grow sensors and control)
@@ -158,12 +158,12 @@ Around the tab: Trends > Garden Yield and Trends > Growing Conditions read these
 
 **Pricing.** The app is free; the cost is hardware. Controller 69 Pro (4 ports) $89.99; 69 Pro+ (8 ports) $99.00; Outlet AI (4 outlets) $69.99; AI Climate Sensor $19.99; AI Soil Sensor $21.99; AI Water Sensor $29.99; AI CO2 + Light Sensor $49.99; AI Hydro Sensor (pH, EC, TDS) $149.00. A realistic starter setup with soil and climate probes runs about $130 to $200 before any fans or lights. Source: [acinfinity.com/controllers](https://acinfinity.com/controllers/), checked 2026-09-25. Data goes through AC Infinity's cloud when on WiFi.
 
-**What it does well that Inside Story does not.**
-1. *Readings arrive by themselves*, every few minutes, with graphs and alerts. Inside Story's Growing Conditions is hand entry only (stage 0).
+**What it does well that Lifestead does not.**
+1. *Readings arrive by themselves*, every few minutes, with graphs and alerts. Lifestead's Growing Conditions is hand entry only (stage 0).
 2. *VPD* (vapor pressure deficit), worked out from temperature and humidity, is the figure indoor growers steer by.
-3. *Control*: it switches equipment. Inside Story records equipment but never controls it, and should not try.
+3. *Control*: it switches equipment. Lifestead records equipment but never controls it, and should not try.
 
-**What Inside Story already does better.** AC Infinity knows the tent's air, not what came out of it. No harvest, no yield, no costs, and no electricity figure even though it controls every powered device. Inside Story's Grow Setup already works out each device's monthly draw from wattage and hours and prices it against the recorded bill, and the Electricity band compares bills from before and after the grow. That is a question AC Infinity owners ask on forums and the app cannot answer.
+**What Lifestead already does better.** AC Infinity knows the tent's air, not what came out of it. No harvest, no yield, no costs, and no electricity figure even though it controls every powered device. Lifestead's Grow Setup already works out each device's monthly draw from wattage and hours and prices it against the recorded bill, and the Electricity band compares bills from before and after the grow. That is a question AC Infinity owners ask on forums and the app cannot answer.
 
 **What it would take to close each gap.**
 | Gap | Where it would go | Native or JS | Privacy | Size |
@@ -174,13 +174,13 @@ Around the tab: Trends > Garden Yield and Trends > Growing Conditions read these
 
 ### 2.7 Ecowitt (soil moisture and weather sensors with a local network API)
 
-**What it is.** A low-cost wireless sensor family: soil moisture (WH51), soil temperature, leaf wetness, rain, full weather stations, all reporting to a small WiFi gateway (GW1100, GW1200, GW2000). Free apps (WSView Plus, Ecowitt app) on Android and iPhone, free graphs and history download at ecowitt.net. What matters for Inside Story: the gateways publish readings on the home network (a local HTTP endpoint for live data) and can push to "your own customized server," so no cloud account is needed.
+**What it is.** A low-cost wireless sensor family: soil moisture (WH51), soil temperature, leaf wetness, rain, full weather stations, all reporting to a small WiFi gateway (GW1100, GW1200, GW2000). Free apps (WSView Plus, Ecowitt app) on Android and iPhone, free graphs and history download at ecowitt.net. What matters for Lifestead: the gateways publish readings on the home network (a local HTTP endpoint for live data) and can push to "your own customized server," so no cloud account is needed.
 
 **Pricing.** Apps and ecowitt.net are free. WH51 soil moisture sensor $17.99, or $65.99 for four; the gateway is sold separately (GW1100 and GW1200 are commonly about $30 to $40, not confirmed on the official shop today). A gateway plus two soil sensors is roughly $70 to $80. Source: [shop.ecowitt.com/products/wh51](https://shop.ecowitt.com/products/wh51), [Happy Hydro GW1200 listing](https://happyhydro.com/products/ecowitt-gw1200-wifigateway), checked 2026-09-25.
 
-**What it does well that Inside Story does not.** Automatic, continuous readings for soil moisture and weather at a price a home gardener will pay, with no hub and no required account.
+**What it does well that Lifestead does not.** Automatic, continuous readings for soil moisture and weather at a price a home gardener will pay, with no hub and no required account.
 
-**What Inside Story already does better.** Ecowitt shows numbers. It does not know what is planted where, what the harvest was, or what the watering cost. Inside Story's record (`garden_readings` with `plot_name`, unit families, monthly rain totals, lowest and highest) is the place those numbers would mean something.
+**What Lifestead already does better.** Ecowitt shows numbers. It does not know what is planted where, what the harvest was, or what the watering cost. Lifestead's record (`garden_readings` with `plot_name`, unit families, monthly rain totals, lowest and highest) is the place those numbers would mean something.
 
 **Why this is the right first sensor for stage 1.** CLAUDE.md's stage 1 is "DIY LAN sensors over the zeroconf and static-server code already compiled in." Ecowitt is the cheapest commercial product that fits that shape exactly: it is on the home network, it needs no cloud, and it needs no soldering, which widens stage 1 from hobbyists with an ESP32 to anyone who can plug in a gateway.
 
@@ -197,9 +197,9 @@ Around the tab: Trends > Garden Yield and Trends > Growing Conditions read these
 
 **Pricing.** PictureThis: 7-day trial, then Pro $39.99 a year (UK £34.99), $9.99 a month, a lifetime around $79.99 reported by reviewers, Family plan $49.99 a year. Deep discounts (40 to 50%) run in spring. Pl@ntNet: free, no in-app purchases. Sources: [Growli price survey, July 2026](https://www.getgrowli.app/blog/plant-app-prices-2026), [identifythis.app review 2026](https://identifythis.app/picture-this-app-review). Checked 2026-09-25. Monthly and lifetime figures are from reviewers, not the store listing.
 
-**What it does well that Inside Story does not.** Answers "what is this?" and "what is wrong with this leaf?" in seconds from a photo. For a food garden, the diagnosis half (blight, powdery mildew, aphids, blossom end rot) is the valuable part.
+**What it does well that Lifestead does not.** Answers "what is this?" and "what is wrong with this leaf?" in seconds from a photo. For a food garden, the diagnosis half (blight, powdery mildew, aphids, blossom end rot) is the valuable part.
 
-**What Inside Story already does better.** PictureThis knows plants in the abstract; it has no garden, no harvest, no costs, no food link. The two do not overlap much beyond the photo.
+**What Lifestead already does better.** PictureThis knows plants in the abstract; it has no garden, no harvest, no costs, no food link. The two do not overlap much beyond the photo.
 
 **What it would take.**
 | Gap | Where it would go | Native or JS | Privacy | Size |
@@ -213,26 +213,26 @@ Around the tab: Trends > Garden Yield and Trends > Growing Conditions read these
 
 **Pricing.** Free: one garden, growing calendar, custom plants and varieties, seed box. Premium $24.99 a year (unlimited gardens, no ads, notes and events, web app). Lifetime $99.99. Source: [planter.garden/pricing](https://planter.garden/pricing/) via search summary, checked 2026-09-25.
 
-**What it does well that Inside Story does not.** A layout a beginner can use in five minutes, with companion flags right on the grid, and a seed box (seed inventory) in the free tier.
+**What it does well that Lifestead does not.** A layout a beginner can use in five minutes, with companion flags right on the grid, and a seed box (seed inventory) in the free tier.
 
-**What Inside Story already does better.** Same as the other planners: nothing after planting is counted. Planter is the proof that a square grid, not a free drawing canvas, is enough for most home food gardens, which shrinks the layout job for Inside Story.
+**What Lifestead already does better.** Same as the other planners: nothing after planting is counted. Planter is the proof that a square grid, not a free drawing canvas, is enough for most home food gardens, which shrinks the layout job for Lifestead.
 
 **What it would take.** A square-foot grid is the smaller version of the layout item under Seedtime: `garden_plots` gets a width and length in squares, `garden_plantings` gets a square position and span, drawn with `react-native-svg`. JS only. No privacy issue. Medium rather than Large if it stays a grid. The seed box is the `garden_seeds` item under Seedtime.
 
 ## 3. Gap synthesis
 
-**Where Inside Story stands.** Every competitor here covers one slice: planners (Seedtime, GrowVeg, Planter, Seed to Spoon) own the time before planting; care and ID apps (Planta, PictureThis, Gardenize) own the plant itself; sensor makers (AC Infinity, Ecowitt) own the air and soil. None of them follows the food out of the garden. Inside Story is the only one that records harvest by weight, carries it into meals and nutrients scored against the person's conditions, sets it against every cost including the electricity bill, tracks compost, and keeps it all on the device. That end of the chain is the moat, and no competitor is near it. From Seed to Spoon is the only one with a health angle at all, and it is a plant list without evidence tiers.
+**Where Lifestead stands.** Every competitor here covers one slice: planners (Seedtime, GrowVeg, Planter, Seed to Spoon) own the time before planting; care and ID apps (Planta, PictureThis, Gardenize) own the plant itself; sensor makers (AC Infinity, Ecowitt) own the air and soil. None of them follows the food out of the garden. Lifestead is the only one that records harvest by weight, carries it into meals and nutrients scored against the person's conditions, sets it against every cost including the electricity bill, tracks compost, and keeps it all on the device. That end of the chain is the moat, and no competitor is near it. From Seed to Spoon is the only one with a health angle at all, and it is a plant list without evidence tiers.
 
-**Where it is behind.** The front of the season. A gardener opening Inside Story in February gets nothing that tells them when to sow what, where to put it, or what grew there last year, and that is the moment most people choose a garden app. It also has no photos, which every journal-type competitor treats as the heart of the record.
+**Where it is behind.** The front of the season. A gardener opening Lifestead in February gets nothing that tells them when to sow what, where to put it, or what grew there last year, and that is the moment most people choose a garden app. It also has no photos, which every journal-type competitor treats as the heart of the record.
 
 ### Ranked recommendations (most value per effort first)
 
 | Rank | Recommendation | Where | Native or JS | Size | Why this rank |
 |---|---|---|---|---|---|
 | 1 | **Last and first frost dates** on My Zone, from the Open-Meteo series `lib/gardenZoneLookup.ts` already downloads | `lib/gardenZoneLookup.ts`, My Zone lens, `app_meta` | JS | Small to Medium | Unlocks ranks 2, 3 and 6; no new data leaves the phone; every planner treats this as the foundation |
-| 2 | **Crop rotation caption** from the planting history already kept | New `lib/cropFamilies.ts`; Add Planting form reads earlier `garden_plantings` for the `plot_id` | JS | Small to Medium | Uses a record Inside Story already has and competitors charge for; needs no outside data |
+| 2 | **Crop rotation caption** from the planting history already kept | New `lib/cropFamilies.ts`; Add Planting form reads earlier `garden_plantings` for the `plot_id` | JS | Small to Medium | Uses a record Lifestead already has and competitors charge for; needs no outside data |
 | 3 | **Sowing calendar and auto-filled harvest window**: cited weeks-from-frost, days to germinate, days to maturity per crop; prefills `expected_harvest_start`/`_end` and offers Days Until counters; a "this month" band on My Zone | New `lib/sowingWindows.ts` keyed on reference `food_id`; Plots & Plantings; My Zone; dated reminders | JS | Medium to Large (the cited crop table is the work) | The single most asked-for garden app feature; turns Days Until from typed-in to suggested |
-| 4 | **"What to grow for my conditions"**: crops suited to the zone, ranked by the condition scoring Food Lookup already uses | My Zone or Plots & Plantings; `food_scores`, `sub_criterion_condition_relevance` | JS | Medium | Inside Story's answer to Seed to Spoon's "Growing for Health," with honest evidence tiers; nobody else can do it |
+| 4 | **"What to grow for my conditions"**: crops suited to the zone, ranked by the condition scoring Food Lookup already uses | My Zone or Plots & Plantings; `food_scores`, `sub_criterion_condition_relevance` | JS | Medium | Lifestead's answer to Seed to Spoon's "Growing for Health," with honest evidence tiers; nobody else can do it |
 | 5 | **Photos and a per-planting event log** (watered, fed, pest seen) | New `garden_photos` and `garden_planting_events` (mirroring `compost_events`); `expo-image-picker` already installed | JS; photo sync to the desktop is the heavier part | Medium (Large with desktop sync) | Table stakes for a journal; the event log also feeds Garden Yield as tends-to-follow context |
 | 6 | **Ecowitt on the home network (stage 1)**: poll the gateway, write `garden_readings` with `source = 'device'` | New `lib/sensors/ecowittLocal.ts`; Growing Conditions lens | JS, no rebuild (cleartext LAN and zeroconf already in) | Medium | Cheapest (about $70 to $80) route to automatic readings; no cloud, no soldering, no hub; fits the approved stage plan |
 | 7 | **VPD and file import of sensor history** (AC Infinity and others export CSV) | `lib/growingConditions.ts`; an import button on Growing Conditions | JS | Small each | Serves the indoor grower now without any sensor integration |
@@ -260,12 +260,12 @@ All prices USD, checked 2026-09-25 from the sources named in each section. Store
 | PictureThis | Trial only | $9.99 | $39.99 (Family $49.99) | about $79.99 reported | None |
 | Pl@ntNet | Everything free | None | None | None | None |
 | Planter | Yes (1 garden) | None | $24.99 | $99.99 | None |
-| **Inside Story Free** (planned) | Garden's place in Free is not stated in CLAUDE.md's tier table | $0 | $0 | | |
-| **Inside Story Individual** | | $9.99 | $89.99 | None planned | Optional, stage 1 sensors |
-| **Inside Story Partner** | | $14.99 for two | $134.99 for two | | |
+| **Lifestead Free** (planned) | Garden's place in Free is not stated in CLAUDE.md's tier table | $0 | $0 | | |
+| **Lifestead Individual** | | $9.99 | $89.99 | None planned | Optional, stage 1 sensors |
+| **Lifestead Partner** | | $14.99 for two | $134.99 for two | | |
 | Household seat / Caregiver | | $1.99 per seat / $4.99 per person | $17.99 / $49.99 | | |
 
 **What people in this category are used to paying.** A single-purpose garden app runs $25 to $47 a year, with $35 to $40 the common middle (Planta, GrowVeg, PictureThis, Seed to Spoon). Seedtime's top plan at $168 a year is the outlier. Lifetimes at $80 to $100 are common (Planter, PictureThis, Gardenize) and gardeners like them because the use is seasonal. Almost everyone offers a usable free tier or a 7 to 14 day trial. Sensor makers give the app away and earn on hardware.
 
-**What this means for Inside Story.** At $89.99 a year Individual costs more than any one garden app, and a gardener comparing on the garden alone will notice. The argument is that Individual replaces two or three of them plus the food, health and budget apps, and that its garden record continues into meals and money where none of them go. Two points to decide deliberately rather than by default: (1) the Free tier table in CLAUDE.md lists builders, Food Lookup, some Schedules and Health Literacy reading but does not say whether Garden is in Free; since every planner competitor has a free garden tier, a free Garden (areas, plantings, harvest log, My Zone) is a strong way in for the second audience that does not require a condition; (2) seasonal users are used to lifetimes, which Inside Story does not plan.
+**What this means for Lifestead.** At $89.99 a year Individual costs more than any one garden app, and a gardener comparing on the garden alone will notice. The argument is that Individual replaces two or three of them plus the food, health and budget apps, and that its garden record continues into meals and money where none of them go. Two points to decide deliberately rather than by default: (1) the Free tier table in CLAUDE.md lists builders, Food Lookup, some Schedules and Health Literacy reading but does not say whether Garden is in Free; since every planner competitor has a free garden tier, a free Garden (areas, plantings, harvest log, My Zone) is a strong way in for the second audience that does not require a condition; (2) seasonal users are used to lifetimes, which Lifestead does not plan.
 

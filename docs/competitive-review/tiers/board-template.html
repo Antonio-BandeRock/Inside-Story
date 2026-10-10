@@ -168,7 +168,7 @@ table.rt th { font: 700 10.5px var(--body); letter-spacing: .06em; text-transfor
 
 <div class="wrap">
   <header>
-    <h1>What would someone pay Inside Story for?</h1>
+    <h1>What would someone pay Lifestead for?</h1>
     <p class="lead">Every function in the app, built and planned, plus the companion tiers, placed by two questions: is it already free in other apps (left) or only found here (right), and would someone pay for it on its own (bottom to top)? The tilted line splits Free from paid. Everything is a draft for you to drag.</p>
   </header>
 
@@ -176,7 +176,7 @@ table.rt th { font: 700 10.5px var(--body); letter-spacing: .06em; text-transfor
     <summary>How to use the board</summary>
     <ul>
       <li>Drag any dot to where you think it belongs. Your placement is saved and stays when the page is reopened.</li>
-      <li>Tap a dot to read why I put it there, why other apps give that kind of thing away or charge for it (with sources), what Inside Story does differently, and to pin it to Free or paid whatever the line says.</li>
+      <li>Tap a dot to read why I put it there, why other apps give that kind of thing away or charge for it (with sources), what Lifestead does differently, and to pin it to Free or paid whatever the line says.</li>
       <li>Hollow dots with a dashed edge are not built yet, are waiting on a decision, or are companion tiers.</li>
       <li>Below the lists: the research behind every reason, and how more of the app could reach pay caliber.</li>
       <li>Drag the two square handles on the line up or down. Everything above the line is paid, everything below is Free.</li>
@@ -237,13 +237,13 @@ table.rt th { font: 700 10.5px var(--body); letter-spacing: .06em; text-transfor
   </section>
 
   <section class="eval" id="evaluation">
-    <h2>How more of Inside Story can reach pay caliber</h2>
+    <h2>How more of Lifestead can reach pay caliber</h2>
     <p>Drawn from the research below. Each point names the families of functions it rests on.</p>
     <ol id="evalList"></ol>
   </section>
 
   <section class="research" id="research">
-    <h2>Why other apps give it away, and what Inside Story does differently</h2>
+    <h2>Why other apps give it away, and what Lifestead does differently</h2>
     <p>Every function belongs to one family below. Each family names the competitors reviewed, their prices with the page they came from, and why the market gives that kind of thing away or charges for it. Prices were gathered in the nine per-tab reviews in docs/competitive-review and on 2026-10-07, and drift.</p>
     <div class="kindlist" id="kindList"></div>
     <div class="fams" id="famList"></div>
@@ -266,7 +266,7 @@ function leadBox(x) {
   const box = document.createElement('div'); box.className = 'lead-box';
   let h = '<h5>' + (x.leader ? 'Against the leader: ' + esc(x.leader) : 'Against the leader') + '</h5>'
     + '<div><span class="pill ' + esc(x.v) + '">' + esc(VERDICTS[x.v]) + '</span></div><p>' + esc(x.why) + '</p>';
-  if (x.m) h += '<div class="tablewrap"><table class="mt"><thead><tr><th></th><th>' + esc(x.leader) + '</th><th>Inside Story</th><th></th></tr></thead><tbody>'
+  if (x.m) h += '<div class="tablewrap"><table class="mt"><thead><tr><th></th><th>' + esc(x.leader) + '</th><th>Lifestead</th><th></th></tr></thead><tbody>'
     + MEASURES.map(([k, n]) => { const r = x.m[k], mk = MK[r[2]] || MK['?']; return '<tr><th>' + esc(n) + '</th><td>' + esc(r[0]) + '</td><td>' + esc(r[1]) + '</td><td class="mk ' + mk[0] + '" title="' + mk[1] + '">' + esc(r[2]) + '</td></tr>'; }).join('')
     + '</tbody></table></div>';
   if (x.win) h += '<h5>To be better</h5><p>' + esc(x.win) + (x.items && x.items.length ? ' Plan: ' + esc(x.items.join(', ')) + '.' : '') + '</p>';
@@ -478,7 +478,7 @@ function renderSide() {
       + '<div class="kinds">' + fam.kinds.map(k => '<span class="kind" title="' + esc(KINDS[k] && KINDS[k].text) + '">' + esc(KINDS[k] ? KINDS[k].name : k) + '</span>').join('') + '</div>'
       + '<p>' + esc(fam.whyFree) + '</p><ul class="comps">' + comps + '</ul>'
       + (srcs ? '<ul class="comps">' + srcs + '</ul>' : '')
-      + '<h5>What Inside Story does</h5><p>' + esc(fam.ours) + '</p>'
+      + '<h5>What Lifestead does</h5><p>' + esc(fam.ours) + '</p>'
       + '<h5>How it reaches pay caliber</h5><p>' + esc(fam.lift) + '</p>'
       + '<a class="jump" href="#fam-' + esc(fam.id) + '">Open the full research for this family</a>';
   }
@@ -612,7 +612,7 @@ document.getElementById('copy').addEventListener('click', e => {
       + '<span class="lbl">Why it is free or paid elsewhere</span><p>' + esc(f.whyFree) + '</p>'
       + '<div class="tablewrap"><table class="rt"><thead><tr><th>App</th><th>Price</th><th>Free</th><th>Paid</th><th>Source</th></tr></thead><tbody>' + rows + '</tbody></table></div>'
       + (srcs ? '<ul class="srcs" style="columns:1">' + srcs + '</ul>' : '')
-      + '<span class="lbl">What Inside Story does</span><p>' + esc(f.ours) + '</p>'
+      + '<span class="lbl">What Lifestead does</span><p>' + esc(f.ours) + '</p>'
       + '<span class="lbl">How it reaches pay caliber</span><p>' + esc(f.lift) + '</p>';
     const fn = document.createElement('div'); fn.className = 'fn'; fn.append('On the board: ');
     (byFam[f.id] || []).forEach((d, i) => {

@@ -10,7 +10,7 @@ import { Platform } from 'react-native';
 import { registerWidgetTaskHandler, requestWidgetUpdate, type WidgetTaskHandlerProps } from 'react-native-android-widget';
 import { glassContent, isWidgetName, LOG_GLASS_ACTION, WIDGET_NAMES, type WidgetName } from '../widgetContent';
 import { logWidgetGlass, widgetContentFor } from '../widgetData';
-import { renderInsideStoryWidget } from './InsideStoryWidget';
+import { renderLifesteadWidget } from './LifesteadWidget';
 
 async function handle({ widgetInfo, widgetAction, clickAction, renderWidget }: WidgetTaskHandlerProps): Promise<void> {
   const name = widgetInfo.widgetName;
@@ -19,17 +19,17 @@ async function handle({ widgetInfo, widgetAction, clickAction, renderWidget }: W
     const now = new Date();
     try {
       await logWidgetGlass(now);
-      renderWidget(renderInsideStoryWidget(name, glassContent(now.getTime(), now.getTime())));
+      renderWidget(renderLifesteadWidget(name, glassContent(now.getTime(), now.getTime())));
     } catch (error) {
       console.error('[widgets] glass not logged', error);
-      renderWidget(renderInsideStoryWidget(name, glassContent(null, now.getTime(), 'Not logged. Open the app to log it.')));
+      renderWidget(renderLifesteadWidget(name, glassContent(null, now.getTime(), 'Not logged. Open the app to log it.')));
       return;
     }
     // The water total moved, so the other widgets that read today follow.
     void refreshWidgets(['FuelGauges']);
     return;
   }
-  renderWidget(renderInsideStoryWidget(name, await widgetContentFor(name)));
+  renderWidget(renderLifesteadWidget(name, await widgetContentFor(name)));
 }
 
 /** Redraws the named widgets, or all of them, wherever they are on the home screen. */
@@ -39,7 +39,7 @@ export async function refreshWidgets(names: readonly WidgetName[] = WIDGET_NAMES
     try {
       await requestWidgetUpdate({
         widgetName: name,
-        renderWidget: async () => renderInsideStoryWidget(name, await widgetContentFor(name)),
+        renderWidget: async () => renderLifesteadWidget(name, await widgetContentFor(name)),
       });
     } catch (error) {
       console.error('[widgets] refresh failed', name, error);

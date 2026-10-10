@@ -303,7 +303,7 @@ module.exports = [
       conds: M('None', 'Flares beside a busy week', '+'),
     },
     why: 'Todoist holds a life’s projects; ours holds a list.',
-    win: 'Projects with sub-steps and a waiting-on state (Q47), one front door for things to do (P4), share into Inside Story from any app (C11).',
+    win: 'Projects with sub-steps and a waiting-on state (Q47), one front door for things to do (P4), share into Lifestead from any app (C11).',
     items: ['Q47', 'P4', 'C11', 'L2'],
   }),
   L('l-family', {
@@ -430,7 +430,7 @@ module.exports = [
     v: 'behind',
     m: notBuilt({ does: 'End-to-end encrypted messages', depth: 'Groups, calls', taps: 'Instant', offline: 'Server relays', privacy: 'Phone number', price: 'Free', conds: 'None', oursConds: 'Messages tied to a shared list or plan' }),
     why: 'Not built.',
-    win: 'Messages between paired Inside Story users (O3), tied to the shopping list, meal plan or care they share.',
+    win: 'Messages between paired Lifestead users (O3), tied to the shopping list, meal plan or care they share.',
     rule: 'The relay stays content-blind; no company server holds a message.',
     items: ['O3'],
   }),

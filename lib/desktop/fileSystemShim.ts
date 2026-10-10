@@ -1,5 +1,5 @@
 // expo-file-system, as the desktop app sees it. metro.config.js resolves
-// 'expo-file-system' here when INSIDE_STORY_DESKTOP=1 on the web platform.
+// 'expo-file-system' here when LIFESTEAD_DESKTOP=1 on the web platform.
 // The package's own web build has no file system behind it (its File
 // constructor throws before the app can ask anything), so File, Directory
 // and Paths are rebuilt here over desktop/files.js, which does the reading

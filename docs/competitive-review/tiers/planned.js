@@ -1,4 +1,4 @@
-// Functions Inside Story is meant to have once it is complete, placed on the Free or
+// Functions Lifestead is meant to have once it is complete, placed on the Free or
 // Paid board beside what is built. st: planned (decided, not built), asked (waiting on
 // the owner's decision), companion (a tier for other people). plan: the build plan id
 // or the CLAUDE.md open step it comes from. u, p, f: the same draft scales as the board.
@@ -12,7 +12,7 @@ module.exports = [
   P('home', 'p-widgets', 'Home screen widgets', 'utility', 2, 1, 3, 'planned', 'L2, L3', 'Expected of any app.'),
   P('home', 'p-month', 'What your records showed this month', 'story', 5, 3, 1, 'planned', 'Phase plan', 'Nobody tells a person their month from their records.'),
   P('home', 'p-diary', 'The Diary', 'diary', 3, 3, 3, 'planned', 'Step 32', 'Day One charges $49.99 to $74.99 a year for a journal; this one sits beside the rest of life.'),
-  P('home', 'p-share-in', 'Share to Inside Story from any app', 'interests', 3, 2, 2, 'planned', 'C11', 'Needs a rebuild. Plumbing more than a product.'),
+  P('home', 'p-share-in', 'Share to Lifestead from any app', 'interests', 3, 2, 2, 'planned', 'C11', 'Needs a rebuild. Plumbing more than a product.'),
   P('home', 'p-steps', 'Break a task into small steps', 'daily', 2, 2, 2, 'planned', 'C14', 'Goblin.tools does this free; here it would sit on the person’s tasks.'),
   // Food
   P('food', 'p-rotation', 'Ingredient rotation for smoothies and salads', 'meal-plan', 5, 3, 2, 'planned', 'Step 3', 'No app reviewed rotates ingredients on a schedule.'),
@@ -53,7 +53,7 @@ module.exports = [
   P('life', 'p-homehealth', 'Home and health (mold, air, energy)', 'home-env', 3, 2, 1, 'planned', 'Step 32', 'Sensor apps come with the sensor.'),
   P('life', 'p-contacts', 'Contacts, one record of a person', 'contacts', 1, 1, 2, 'planned', 'O1, Step 34', 'Comes with the phone.'),
   P('life', 'p-touch', 'Keeping in touch, text or call from a contact', 'contacts', 1, 1, 2, 'planned', 'O2, Step 32', 'Comes with the phone.'),
-  P('life', 'p-messages', 'Messages between Inside Story users', 'sharing', 2, 2, 2, 'planned', 'O3', 'Every phone has messaging; here encrypted between paired people.'),
+  P('life', 'p-messages', 'Messages between Lifestead users', 'sharing', 2, 2, 2, 'planned', 'O3', 'Every phone has messaging; here encrypted between paired people.'),
   P('life', 'p-familytree', 'Family health history and the family tree', 'family-tree', 4, 4, 1, 'planned', 'Step 34', 'FamilySearch free, Ancestry $39.99 a month; none hold health history for a doctor.'),
   P('life', 'p-children', 'Children’s records', 'companions', 4, 3, 1, 'planned', 'Step 32', 'Part of the Guardian tier.'),
   P('life', 'p-ifsomething', 'If something happens to me', 'legacy', 4, 4, 1, 'planned', 'Step 32', 'Everplans charges $99.99 a year.'),

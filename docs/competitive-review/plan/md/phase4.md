@@ -1,4 +1,4 @@
-### C11. Share into Inside Story from any app
+### C11. Share into Lifestead from any app
 - **Ships by:** Android rebuild R1 · **Size:** M · **Tabs:** Life,Home,Food
 - **Answers:** Todoist, Samsung Food, Plan to Eat · **Theme:** Capture, reminders and the second audience
 - **How:** A SEND intent filter for text, links and images. A link to a recipe goes to the importer (G1); anything else lands in Capture.

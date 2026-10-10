@@ -16,7 +16,7 @@
 // mirrored for the right.
 //
 // Where each version goes:
-//   the full mark, house and all: the website (inside-story-icon.svg,
+//   the full mark, house and all: the website (lifestead-icon.svg,
 //     og-square, apple-touch-icon, favicon-32)
 //   the window alone: the phone and computer icons, the splash and the
 //     TabHub button
@@ -162,8 +162,8 @@ async function png(svg, size, file, height = size) {
   // sits on the page's own ground, so it carries none; the PNGs do.
   const full = markSvg({ at: GHOSTEAD_PLACE, house: true });
   const fullOnGround = markSvg({ at: GHOSTEAD_PLACE, house: true, background: GROUND });
-  fs.writeFileSync(path.join(ROOT, 'docs/app-links/public/inside-story-icon.svg'), full);
-  console.log('wrote docs/app-links/public/inside-story-icon.svg');
+  fs.writeFileSync(path.join(ROOT, 'docs/app-links/public/lifestead-icon.svg'), full);
+  console.log('wrote docs/app-links/public/lifestead-icon.svg');
   fs.writeFileSync(path.join(ROOT, 'docs/app-links/public/lifestead-logo.svg'), heroSvg());
   console.log('wrote docs/app-links/public/lifestead-logo.svg');
   await png(fullOnGround, 512, 'docs/app-links/public/og-square.png');
@@ -181,9 +181,9 @@ async function png(svg, size, file, height = size) {
   await png(windowSvg({ scale: 0.46 }), 1024, 'assets/brand/splash-icon.png');
   // The TabHub button: the window alone, filling a 312 px square (four
   // times the 78 px it is drawn at), so it sits in the footer as a button.
-  await png(windowSvg({ scale: 0.47 }), 312, 'assets/branding/inside-story-window.png');
+  await png(windowSvg({ scale: 0.47 }), 312, 'assets/branding/lifestead-window.png');
   // The figure for the TabHub well.
-  await png(figureShadedSvg(), 276, 'assets/branding/inside-story-figure.png');
+  await png(figureShadedSvg(), 276, 'assets/branding/lifestead-figure.png');
 })().catch((err) => {
   console.error(err);
   process.exit(1);

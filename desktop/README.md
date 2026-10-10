@@ -1,8 +1,8 @@
-# Inside Story for Windows and Mac
+# Lifestead for Windows and Mac
 
 The same app the phone runs, in an Electron window. Nothing in the app's
 code is copied here: `build-web.js` exports the project for Expo's web
-target with `INSIDE_STORY_DESKTOP=1`, which makes `metro.config.js` (in the
+target with `LIFESTEAD_DESKTOP=1`, which makes `metro.config.js` (in the
 project root) swap the phone's native modules for the stand-ins in
 `lib/desktop/`, and the files in this folder do what those natives did.
 
@@ -18,7 +18,7 @@ project root) swap the phone's native modules for the stand-ins in
 | `build-web.js` | Runs the export into `web-build/` |
 | `electron-builder.yml` | The installer: NSIS for Windows, DMG for Mac; the reference database ships beside the asar |
 
-`<userData>` is `%APPDATA%\inside-story-desktop` on Windows.
+`<userData>` is `%APPDATA%\lifestead-desktop` on Windows (`inside-story-desktop` before 1.0.66, moved across whole on the first start).
 
 ## Working on it
 
@@ -26,15 +26,15 @@ project root) swap the phone's native modules for the stand-ins in
 npm install                 # once, in this folder
 node build-web.js           # export the app (about a minute)
 npm start                   # run it
-npm run dist                # export and build dist/Inside Story Setup <version>.exe
+npm run dist                # export and build dist/Lifestead Setup <version>.exe
 ```
 
-`INSIDE_STORY_DEV_URL=http://localhost:8081 npm start` loads Metro's dev
-server instead of the export (`INSIDE_STORY_DESKTOP=1 npx expo start --web`
-in the project root). `INSIDE_STORY_LOG=1` echoes the page console,
-`INSIDE_STORY_SCREENSHOT=<file.png>` captures the window and quits,
-`INSIDE_STORY_CLICK="label,label"` presses those first, `INSIDE_STORY_WINDOW="1000x900"` opens at that size, and
-`INSIDE_STORY_EVAL="<expression>"` logs what an expression evaluates to in
+`LIFESTEAD_DEV_URL=http://localhost:8081 npm start` loads Metro's dev
+server instead of the export (`LIFESTEAD_DESKTOP=1 npx expo start --web`
+in the project root). `LIFESTEAD_LOG=1` echoes the page console,
+`LIFESTEAD_SCREENSHOT=<file.png>` captures the window and quits,
+`LIFESTEAD_CLICK="label,label"` presses those first, `LIFESTEAD_WINDOW="1000x900"` opens at that size, and
+`LIFESTEAD_EVAL="<expression>"` logs what an expression evaluates to in
 the page. Under Git Bash, set `MSYS_NO_PATHCONV=1` or a route such as
 `/food` is rewritten into a Windows path before Electron sees it.
 

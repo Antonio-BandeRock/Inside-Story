@@ -32,16 +32,16 @@ Chosen for being strong at one slice of what Trends does: Bearable, Exist, Guava
 
 **Pricing** (checked 2026-09-25, https://bearable.app/pricing/): Free tier with unlimited tracking, weekly reports, customizable graphs and 30 days of history. Premium $6.99/month or $34.99/year (the pricing page says the annual is often discounted to $18.99). No lifetime or family plan listed. A sponsored "Bearable Heroes" scheme gives Premium to people who cannot afford it. Note: the home page text read as "$34.99/month", which conflicts with the pricing page; the pricing page figure is used here.
 
-**What it does well that Inside Story does not yet do**
-1. **Any factor against any outcome.** 30+ reports, including a "Factor Effect" report: caffeine, meditation, sleep quality, a medication, against mood, a migraine, anxiety. Inside Story's Pattern Finder only looks at foods (and food categories and dimensions) before flares.
+**What it does well that Lifestead does not yet do**
+1. **Any factor against any outcome.** 30+ reports, including a "Factor Effect" report: caffeine, meditation, sleep quality, a medication, against mood, a migraine, anxiety. Lifestead's Pattern Finder only looks at foods (and food categories and dimensions) before flares.
 2. **Daily mood and energy on a scale**, charted every day, so good days exist as data, not only flares.
 3. **Weekly and monthly reports** you do not have to go looking for.
 4. **Calendar view** of past days for looking something up at an appointment.
 5. **Apple Health, Google Fit and Fitbit** feeding HRV, resting heart rate, temperature and so on into the same correlations.
 
-**What Inside Story does better**
-- Bearable reports a correlation strength and leaves the reader to trust it; Inside Story names the denominators, compares each food with an ordinary window of the same length (`lib/patternBasis.ts`), lists sleep and treatment changes beside it without calling them the cause, and offers a leave-out-then-return experiment. That is a more honest and more useful path from "maybe" to "tested".
-- Food depth: Bearable logs "ate gluten" as a tag; Inside Story knows every ingredient and nutrient of the meal.
+**What Lifestead does better**
+- Bearable reports a correlation strength and leaves the reader to trust it; Lifestead names the denominators, compares each food with an ordinary window of the same length (`lib/patternBasis.ts`), lists sleep and treatment changes beside it without calling them the cause, and offers a leave-out-then-return experiment. That is a more honest and more useful path from "maybe" to "tested".
+- Food depth: Bearable logs "ate gluten" as a tag; Lifestead knows every ingredient and nutrient of the meal.
 - Local-first: Bearable stores data on its servers (it promises not to sell it).
 
 **Gaps and what it would take**
@@ -55,17 +55,17 @@ Chosen for being strong at one slice of what Trends does: Bearable, Exist, Guava
 
 **Pricing** (checked 2026-09-25, https://exist.io/): one plan, $6.99/month or $62.90/year, 30-day free trial. No free tier, lifetime or family plan. Some third-party listings show $6/month or $57/year, and the US App Store $7.99; the web site figure is used here.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 1. **Weekly summary email** that gathers the week's averages and the strongest findings, so the person is told rather than having to open a lens.
 2. **Averages per weekday and per month** ("you sleep 40 minutes less on Sundays"), a simple and very readable view.
 3. **Custom tags with scales** (1 to 9, percentages, durations) that anyone can add, all of which join the correlation pool.
 4. **Pearson correlation across every pair of attributes**, ranked by strength.
 5. **Experiments** framed as confirming or ruling out a hunch.
 
-**What Inside Story does better**
-- Exist's all-pairs correlation over dozens of attributes will always find something that looks strong by chance, and it does not say how many comparisons were made. Inside Story's per-candidate baseline and the "one run" limit on experiments are more careful.
+**What Lifestead does better**
+- Exist's all-pairs correlation over dozens of attributes will always find something that looks strong by chance, and it does not say how many comparisons were made. Lifestead's per-candidate baseline and the "one run" limit on experiments are more careful.
 - Food and nutrition: Exist imports calories from other apps only.
-- Exist is a cloud service; Inside Story keeps everything on the device.
+- Exist is a cloud service; Lifestead keeps everything on the device.
 
 **Gaps and what it would take**
 - *A weekly "Your week" summary.* A pure builder, for example `lib/weeklySummary.ts`, reading what the lens builders already compute (hydration, steps, sleep, doses, meals logged, flares, any new Pattern Finder candidate) and returning a `ReadingView` for `components/ReadingBandsView.tsx`. Shown as a Home card (registered in `lib/visualPreferences.ts` HomeSectionKey) and as a local notification on a chosen day through the existing expo-notifications reminders. Not an email, since that would need a server. Blank weeks say "not logged". Swept with `READING_FORBIDDEN_WORDS` and added to `scripts/test_output_lenses.js`. JS only, OTA. **Medium.**
@@ -78,14 +78,14 @@ Chosen for being strong at one slice of what Trends does: Bearable, Exist, Guava
 
 **Pricing** (checked 2026-09-25, https://guavahealth.com/plans): Free $0, which already includes portal sync, device sync, tracking, summaries, trends and correlations. Premium $78/year (shown as $8/month billed yearly, "save 19%", which implies roughly $9.99 when billed monthly; the monthly price was not printed). Premium adds automatic insights across all data, unlimited family profile managers, lab detection from uploaded files, an AI visit-prep assistant and photo nutrient detection. A family discount is mentioned without a price.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 1. **Labs arrive by themselves**: from the patient portal, or read from an uploaded lab report, charted per marker with the lab's range.
 2. **Every wearable metric on a trend line** (heart rate, HRV, glucose, cycle), side by side with symptoms.
 3. **Visit preparation**: a summary of what changed since the last appointment.
 4. **Family profiles** managed by one person.
 
-**What Inside Story does better**
-- Guava's correlations are generic; Inside Story's food-before-flare analysis with baselines, condition-aware nutrient targets, and "your usual range" worded without verdicts go deeper for someone managing diet.
+**What Lifestead does better**
+- Guava's correlations are generic; Lifestead's food-before-flare analysis with baselines, condition-aware nutrient targets, and "your usual range" worded without verdicts go deeper for someone managing diet.
 - No cloud account holding medical records.
 - Condition staging, garden, costs and daily-living lenses Guava does not attempt.
 
@@ -101,14 +101,14 @@ Chosen for being strong at one slice of what Trends does: Bearable, Exist, Guava
 
 **Pricing** (checked 2026-09-25, https://welltory.com/plans/): Annual $99/year (about $8.25/month), Lifetime $599 on the web site (a third-party review reports $299.99 in the App Store), 3-day free trial. The monthly plan is described by Welltory's help pages as archived and web-only, though app stores still listed monthly in-app options in July 2026. Free use is limited. No family plan found.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 1. **Heart rate variability made readable**, with a morning reading and its history, from Apple Health, Google Fit or Samsung Health.
 2. **Habit impact**: which logged activities tend to line up with better or worse readings.
 3. **Hundreds of charts** drawn from whatever the phone's health store holds.
 4. **Blood pressure reports** for a doctor, with extra derived figures.
 
-**What Inside Story does better**
-- Welltory turns HRV into "stress" and "energy" scores and recommendations, which is the kind of score standing in for a clinician that Inside Story's rules forbid. Inside Story's Blood Pressure lens and "your usual range" stay descriptive.
+**What Lifestead does better**
+- Welltory turns HRV into "stress" and "energy" scores and recommendations, which is the kind of score standing in for a clinician that Lifestead's rules forbid. Lifestead's Blood Pressure lens and "your usual range" stay descriptive.
 - Food: Welltory has none to speak of.
 
 **Gaps and what it would take**
@@ -122,13 +122,13 @@ Chosen for being strong at one slice of what Trends does: Bearable, Exist, Guava
 
 **Pricing** (checked 2026-09-25, https://cronometer.com/gold/index.html): Basic free (reports limited to 7 days). Gold $10.99/month or $59.99/year ($4.99/month equivalent). A Pro tier for practitioners exists and was not priced here. No lifetime or family plan listed.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 1. **Custom Charts**: pick any nutrient and any biometric (weight, glucose, a lab, a custom biometric) and plot them on one chart over the same dates. This is the feature Cronometer Gold users mention most.
 2. **Nutrition Scores** grouping nutrients by what they support (for example bone health or immunity).
 3. **Custom biometrics**, any measurement the person names.
 4. **Macro Scheduler**, different targets on different days.
 
-**What Inside Story does better**
+**What Lifestead does better**
 - Food versus supplement shown apart on every nutrient reading, supplements counted per day from their start and end dates (`lib/supplementWindow.ts`). Cronometer adds supplements into the total.
 - Condition-aware targets and the food-before-flare analysis; Cronometer has no symptom side at all.
 - Blank days are gaps, not zeros; Cronometer plots unlogged days as low intake unless you hide them.
@@ -143,15 +143,15 @@ Chosen for being strong at one slice of what Trends does: Bearable, Exist, Guava
 
 **Pricing** (checked 2026-09-25; https://www.makevisible.com/ lists features but not prices, prices from https://aelivra.co/explore/compare/visible-review and https://help.makevisible.com/en/articles/12995632-visible-buying-guide): app free; Visible Plus membership $19.99/month or $179.88/year ($14.99/month); Band 2.0 is a separate one-off purchase, reported at $79.70. Both are HSA/FSA eligible in the US. A free research version exists for people who cannot pay. Not confirmed on the official page; treat as approximate.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 1. **Today's reading before the day starts**: one morning figure, and a clear daily budget built from it.
 2. **Live alerts** from a worn sensor.
-3. **Designed for the people Inside Story also serves** (several of the 19 conditions overlap with fibromyalgia and POTS-type fatigue), with pacing education built in.
+3. **Designed for the people Lifestead also serves** (several of the 19 conditions overlap with fibromyalgia and POTS-type fatigue), with pacing education built in.
 
-**What Inside Story does better**
+**What Lifestead does better**
 - Food, meds timing, labs and conditions in one place; Visible is activity and heart rate only.
 - No hardware purchase needed.
-- Visible's "budget" is a score the app sets; Inside Story avoids telling someone what their body can afford.
+- Visible's "budget" is a score the app sets; Lifestead avoids telling someone what their body can afford.
 
 **Gaps and what it would take**
 - *A morning check line.* On Home or Trends, one line per morning: last night's sleep, resting heart rate and HRV beside the person's usual range, from Health Connect. No budget, no score, no advice. OTA, **Small** once Body Signals exists.
@@ -164,16 +164,16 @@ Chosen for being strong at one slice of what Trends does: Bearable, Exist, Guava
 
 **Pricing** (checked 2026-09-25; features from https://daylio.net/faq/docs/daylio-faq/about/daylio-premium-features/, prices from https://www.choosingtherapy.com/daylio-app-review/ and the App Store listing https://apps.apple.com/app/id1194023242): a free unlimited version; Premium about $4.99/month or $35.99/year with a 7-day trial. App Store listings also show a $59.99 tier, which may be a lifetime or a regional annual price; not confirmed. No family plan. Premium adds advanced stats, PDF export of records, automatic backups (to the person's own Google Drive or iCloud), a PIN lock and unlimited goals.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 1. **Year in Pixels**: every day of a year as one coloured square, so a whole year of mood (or anything scaled) is seen at a glance. The best-known chart in the category.
 2. **"Often together"**: for a chosen mood, the activities that appeared on the same days, and for an activity, the mood it tends to sit with.
-3. **Logging cost of about five seconds**, which is what keeps people logging (Inside Story's named risk number 1).
+3. **Logging cost of about five seconds**, which is what keeps people logging (Lifestead's named risk number 1).
 4. **Monthly and yearly statistics** screens.
 
-**What Inside Story does better**
-- Daylio's "often together" is a plain co-occurrence count with no baseline; Inside Story's comparison with an ordinary window is more careful.
+**What Lifestead does better**
+- Daylio's "often together" is a plain co-occurrence count with no baseline; Lifestead's comparison with an ordinary window is more careful.
 - Everything beyond mood: food, meds, labs, garden, money.
-- Daylio also backs up to the person's own cloud drive, so the two are close on privacy; Inside Story adds encryption and multi-device merging.
+- Daylio also backs up to the person's own cloud drive, so the two are close on privacy; Lifestead adds encryption and multi-device merging.
 
 **Gaps and what it would take**
 - *A calendar heat map ("year in squares").* A new component, for example `components/CalendarHeatStrip.tsx`, drawn with `react-native-svg` (already used by `TrendLineChart`), one square per day, colour by a daily value, **an unlogged day drawn as an empty outline, never as the lowest colour** (the gap rule). Usable on Symptoms & Flares, Keeping Up, Hydration, Movement, Nights and any custom tracker. Must pass `scripts/audit_bare_text_on_background.js` and read in both themes. OTA, **Medium** for the component, then **Small** per lens.
@@ -185,14 +185,14 @@ Chosen for being strong at one slice of what Trends does: Bearable, Exist, Guava
 
 **Pricing** (checked 2026-09-25, https://ouraring.com/membership and https://support.ouraring.com/hc/en-us/articles/4409086524819-Oura-Membership, figures via https://www.bettervitals.com/learn/oura-ring-price-2026): membership $5.99/month or $69.99/year (EUR 5.99 and 69.99 in the EU), first month included with the ring; Ring 4 from $349 (up to $499 for some finishes). No free tier for insights beyond a basic view. No family plan.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 1. **Long-term trend screens** with week, month and year zoom, and a per-metric "your normal" band drawn behind the line.
 2. **Temperature trend and cycle insights** (predicted period, temperature shift).
 3. **Tags** on a day ("alcohol", "late meal") that show up on the sleep charts, so a person can eyeball the effect.
 4. **Integrations** with apps such as Cronometer and Natural Cycles.
 
-**What Inside Story does better**
-- Oura's daily Readiness and Sleep scores are scores standing in for judgement, which Inside Story avoids; its "your usual" is the same idea stated plainly.
+**What Lifestead does better**
+- Oura's daily Readiness and Sleep scores are scores standing in for judgement, which Lifestead avoids; its "your usual" is the same idea stated plainly.
 - Food, symptoms, meds and conditions: Oura has only tags.
 - No hardware and no subscription needed to see one's own data.
 
@@ -202,7 +202,7 @@ Chosen for being strong at one slice of what Trends does: Bearable, Exist, Guava
 - *Cycle alongside everything else.* `lib/healthConnect.ts` already reads menstruation flow; open item 25 in CLAUDE.md is cycle tracking cross-referenced in Pattern Finder. Show cycle days as shaded columns on any Trends chart and as a context line in `lib/patternContext.ts` (beside sleep and treatment changes, never offered as the explanation). OTA if Health Connect is the source, **Medium**. Manual cycle entry would need a small table, still OTA.
 - *Day tags on charts.* Check-in tags plotted as markers under the line on any lens. OTA, **Small** after the heat map or custom tracker work.
 
-## 3. Where Inside Story already leads
+## 3. Where Lifestead already leads
 
 No app reviewed does all of these, and most do none:
 - **Honest pattern finding**: every count names what it counts against, each candidate is compared with an ordinary window of the same length, flares with no meals before them are left out and said so, and nearby sleep and treatment changes are listed without being blamed. Competitors show a correlation number or an "often together" list with no baseline.
@@ -248,9 +248,9 @@ Prices in US dollars, checked 2026-09-25. Figures marked "approx." came from a t
 | Visible | App free, basic | approx. $19.99 | approx. $179.88 | No | No | Band approx. $79.70 |
 | Daylio | Yes (unlimited basic) | approx. $4.99 | approx. $35.99 | Unconfirmed ($59.99 tier seen) | No | None |
 | Oura | Minimal without membership | $5.99 | $69.99 | No | No | Ring $349 to $499 |
-| **Inside Story (planned)** | **Yes: Trends is exercise-only on Free** | **Individual $9.99** | **Individual $89.99** | **No** | **Partner $14.99/mo or $134.99/yr for two; Household seats free for the first 2 to 3, then $1.99/mo or $17.99/yr each; Guardian $0 bundled; Caregiver $4.99/mo or $49.99/yr per person** | **None** |
+| **Lifestead (planned)** | **Yes: Trends is exercise-only on Free** | **Individual $9.99** | **Individual $89.99** | **No** | **Partner $14.99/mo or $134.99/yr for two; Household seats free for the first 2 to 3, then $1.99/mo or $17.99/yr each; Guardian $0 bundled; Caregiver $4.99/mo or $49.99/yr per person** | **None** |
 
-**What people in this category are used to paying.** Single-purpose trackers cluster at $5 to $7 a month and $35 to $70 a year (Bearable, Exist, Daylio, Oura's membership), with annual plans discounted steeply, often 50% or more. Broader health-record or clinical-style apps sit at $8 to $11 a month and $60 to $100 a year (Guava, Cronometer, Welltory). Only hardware-backed chronic-illness tools charge more (Visible near $20 a month). Inside Story's Individual price of $9.99 a month and $89.99 a year sits at the top of the software-only range, which is defensible only because it replaces several of these apps at once (a Cronometer, a Bearable and a Daylio together cost about $130 a year). Two cautions: the annual price is a smaller discount (25%) than the category norm, and Free's Trends being exercise-only is narrower than Bearable, Guava and Daylio, whose free tiers all include some trend or correlation view. A free tier that shows at least a short history of symptoms and one "your usual range" would match what people expect to try before paying. Family plans are rare in this category, so Partner and Household pricing is a point of difference.
+**What people in this category are used to paying.** Single-purpose trackers cluster at $5 to $7 a month and $35 to $70 a year (Bearable, Exist, Daylio, Oura's membership), with annual plans discounted steeply, often 50% or more. Broader health-record or clinical-style apps sit at $8 to $11 a month and $60 to $100 a year (Guava, Cronometer, Welltory). Only hardware-backed chronic-illness tools charge more (Visible near $20 a month). Lifestead's Individual price of $9.99 a month and $89.99 a year sits at the top of the software-only range, which is defensible only because it replaces several of these apps at once (a Cronometer, a Bearable and a Daylio together cost about $130 a year). Two cautions: the annual price is a smaller discount (25%) than the category norm, and Free's Trends being exercise-only is narrower than Bearable, Guava and Daylio, whose free tiers all include some trend or correlation view. A free tier that shows at least a short history of symptoms and one "your usual range" would match what people expect to try before paying. Family plans are rare in this category, so Partner and Household pricing is a point of difference.
 
 
 

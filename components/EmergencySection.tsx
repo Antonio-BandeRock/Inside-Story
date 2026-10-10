@@ -248,7 +248,7 @@ export function EmergencySection({ tabColor }: Props) {
     setPrinting(true);
     try {
       const html = buildWalletCardHtml({ profile, fromApp, contacts, today: todayLocal() });
-      const result = await exportHtmlAsPdf(html, `inside-story-emergency-card-${todayLocal()}`, 'Share the wallet card');
+      const result = await exportHtmlAsPdf(html, `lifestead-emergency-card-${todayLocal()}`, 'Share the wallet card');
       if (result.status === 'failed') showInfoAlert('Could not make the card', result.message);
       else if (result.status === 'savedOnly') showInfoAlert('Card made', 'This device has nothing to share it with, so it was kept in the app.');
     } finally {

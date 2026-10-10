@@ -46,7 +46,7 @@ function checkWeb() {
   execSync(`npx expo export -p web --dev --no-minify --output-dir "${out}"`, {
     cwd: root,
     stdio: 'ignore',
-    env: { ...process.env, INSIDE_STORY_DESKTOP: '1', CI: '1' },
+    env: { ...process.env, LIFESTEAD_DESKTOP: '1', CI: '1' },
   });
   const dir = path.join(out, '_expo', 'static', 'js', 'web');
   const bundle = fs.readFileSync(path.join(dir, fs.readdirSync(dir).find((name) => name.endsWith('.js'))), 'utf8');

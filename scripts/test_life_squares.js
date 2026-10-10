@@ -163,7 +163,7 @@ const dbFile = read('lib/lifeSquaresDb.ts');
 ok('the reader never writes', !/runAsync|execAsync|INSERT|UPDATE|DELETE/.test(dbFile));
 
 // --- the schema ----------------------------------------------------------------------------
-const desktopDb = process.env.APPDATA ? path.join(process.env.APPDATA, 'inside-story-desktop', 'SQLite', 'inside_story.db') : null;
+const desktopDb = process.env.APPDATA ? [path.join(process.env.APPDATA, 'lifestead-desktop', 'SQLite', 'inside_story.db'), path.join(process.env.APPDATA, 'inside-story-desktop', 'SQLite', 'inside_story.db')].find((p) => fs.existsSync(p)) || null : null;
 if (desktopDb && fs.existsSync(desktopDb)) {
   const { DatabaseSync } = require('node:sqlite');
   const db = new DatabaseSync(desktopDb, { readOnly: true });

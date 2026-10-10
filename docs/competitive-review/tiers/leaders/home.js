@@ -36,7 +36,7 @@ module.exports = [
       conds: M('None', 'None', '='),
     },
     why: 'Ours files a thought where it belongs and keeps it sealed when the phone is locked; Keep is free and reachable from everywhere.',
-    win: 'Share into Inside Story from any app (C11), app icon shortcuts (C12), a Capture widget (L2), and Capture on Free (Q46).',
+    win: 'Share into Lifestead from any app (C11), app icon shortcuts (C12), a Capture widget (L2), and Capture on Free (Q46).',
     items: ['C11', 'C12', 'L2', 'Q46'],
   }),
   L('home-next', {
@@ -219,7 +219,7 @@ module.exports = [
     v: 'behind',
     m: notBuilt({ does: 'Share a page, photo or text from any app', depth: 'Saved as a note', taps: 'Share sheet', price: 'Free', oursConds: 'A recipe becomes a recipe, a link becomes reading' }),
     why: 'Needs a rebuild.',
-    win: 'Share into Inside Story from any app (C11).',
+    win: 'Share into Lifestead from any app (C11).',
     items: ['C11'],
   }),
   L('p-steps', {

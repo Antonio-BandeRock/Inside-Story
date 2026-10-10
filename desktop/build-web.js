@@ -20,7 +20,7 @@ const result = spawnSync(
     cwd: projectRoot,
     stdio: 'inherit',
     shell: process.platform === 'win32',
-    env: { ...process.env, INSIDE_STORY_DESKTOP: '1', CI: '1' },
+    env: { ...process.env, LIFESTEAD_DESKTOP: '1', CI: '1' },
   },
 );
 

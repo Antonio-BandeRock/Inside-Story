@@ -84,10 +84,10 @@ export function wholeReportCsv(doc: ReportDocument): string {
   return `${BOM}${lines.map((row) => row.map(csvField).join(',')).join('\r\n')}\r\n`;
 }
 
-/** "inside-story-doctor-report-2026-09-29-30d", the same stamp the PDF
+/** "lifestead-doctor-report-2026-09-29-30d", the same stamp the PDF
  *  carries, so the files from one report sort together. */
 export function reportCsvStamp(doc: ReportDocument): string {
-  return `inside-story-${slugFor(doc.title)}-${doc.generatedAt.slice(0, 10)}-${doc.days}d`;
+  return `lifestead-${slugFor(doc.title)}-${doc.generatedAt.slice(0, 10)}-${doc.days}d`;
 }
 
 export function reportCsvFileName(doc: ReportDocument, tableKey: string | null): string {

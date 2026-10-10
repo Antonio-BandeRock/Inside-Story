@@ -4,7 +4,7 @@
 // the contract: the two have to agree, and this file is where they agree.
 //
 // Nothing outside lib/desktop/ should need this. The Metro redirects in
-// metro.config.js (INSIDE_STORY_DESKTOP=1, web platform only) point
+// metro.config.js (LIFESTEAD_DESKTOP=1, web platform only) point
 // expo-sqlite, expo-secure-store, expo-notifications and expo-file-system
 // at the stand-ins, so the app's code keeps calling the packages it always
 // called. The one exception is the shared folder: lib/oneDriveGraph.ts and

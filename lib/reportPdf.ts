@@ -60,10 +60,10 @@ export type ReportPdfResult =
   | { status: 'failed'; message: string };
 
 function fileStamp(doc: ReportDocument): string {
-  // "inside-story-report-2026-09-14-30d.pdf": the day it was generated
+  // "lifestead-report-2026-09-14-30d.pdf": the day it was generated
   // and the window, so two exports of the same range on different days
   // do not overwrite each other in someone's Downloads.
-  return `inside-story-report-${doc.generatedAt.slice(0, 10)}-${doc.days}d`;
+  return `lifestead-report-${doc.generatedAt.slice(0, 10)}-${doc.days}d`;
 }
 
 export async function exportReportAsPdf(doc: ReportDocument): Promise<ReportPdfResult> {

@@ -58,7 +58,7 @@ Size key: Small = a day or less, Medium = a few days, Large = a week or more. "J
 
 **Pricing.** Free tier capped at two medications since January 2026. Premium $4.99 a month or $39.99 a year in the US (the App Store lists a range of $2.99 to $9.99 monthly and $27.99 to $39.99 yearly, so it varies by region and offer). No lifetime, no separate family plan; unlimited Medfriends is part of Premium. Sources: [App Store listing](https://apps.apple.com/us/app/id573916946), [Pillo comparison of the 2026 change](https://pillo.care/blog/pillo-vs-medisafe-comparison). Checked 2026-09-25.
 
-**What it does well that Inside Story does not yet do.**
+**What it does well that Lifestead does not yet do.**
 1. **Refill reminders.** Tracks how many pills are left and warns before you run out.
 2. **Medfriend.** A family member or caregiver gets an alert on their own phone when a dose is missed.
 3. **Drug to drug interaction checker** across any prescription (US, English only), using a commercial drug database.
@@ -66,8 +66,8 @@ Size key: Small = a day or less, Medium = a few days, Large = a week or more. "J
 5. **Pill images** so a person can tell two white tablets apart.
 6. **Time zone handling for travel** (keep home time or shift to local time).
 
-**What Inside Story already does better.**
-- Food against medication timing. Medisafe checks drug against drug; Inside Story's Today's Meals reads each dose against the meals around it (levothyroxine against a calcium-rich breakfast), which no pill app does.
+**What Lifestead already does better.**
+- Food against medication timing. Medisafe checks drug against drug; Lifestead's Today's Meals reads each dose against the meals around it (levothyroxine against a calcium-rich breakfast), which no pill app does.
 - Supplements carry their nutrients, which feed the day's nutrient totals and the food-first split. Medisafe treats a supplement as just another pill.
 - Quiet hours that hold a reminder until morning rather than dropping it, with doses exempt; a freshness line on every notification.
 - No account, no server; Medisafe needs an account and stores the medication list in its cloud.
@@ -86,14 +86,14 @@ Size key: Small = a day or less, Medium = a few days, Large = a week or more. "J
 
 **Pricing.** Core features free, with ads. Ad-free subscription and "MyTherapy Plus" priced differently by store and region: the US App Store shows an ad-free subscription at $9.99 (a $0.99 trial), and a lifetime Plus at $49.99; some listings in 2026 quote $4.99 a month or $39.99 a year. Treat the exact recurring price as unconfirmed; the lifetime $49.99 is confirmed on the store page. No family plan. Sources: [App Store listing](https://apps.apple.com/us/app/id662170995), [mytherapyapp.com](https://www.mytherapyapp.com/). Checked 2026-09-25.
 
-**What it does well that Inside Story does not yet do.**
+**What it does well that Lifestead does not yet do.**
 1. **Low supply alerts, free.** Enter the pack size and it warns when the pack runs low.
 2. **Injection site rotation** for injected treatments (relevant to biologics used in RA, psoriasis, Crohn's, MS, which are among the 19 conditions).
-3. **Streaks and a daily adherence view.** (Inside Story has ruled out streaks on purpose; see below.)
+3. **Streaks and a daily adherence view.** (Lifestead has ruled out streaks on purpose; see below.)
 4. **Doctor and pharmacy contact cards** kept beside the meds.
 5. **Lifetime purchase option**, which many older users prefer over a subscription.
 
-**What Inside Story already does better.**
+**What Lifestead already does better.**
 - Symptoms, meals, labs and meds live in one record, so Pattern Finder and Trends can look across them. MyTherapy's diary sits beside the reminders but does not relate a symptom to food.
 - Interaction timing between food, supplements and prescriptions. MyTherapy has none.
 - Deliberately no streaks and no praise or blame (a design decision in CLAUDE.md), which suits people who find streaks punishing.
@@ -110,14 +110,14 @@ Size key: Small = a day or less, Medium = a few days, Large = a week or more. "J
 
 **Pricing.** Free core logging. Premium about $5.99 a month or $39.99 a year per third-party listings; the US App Store shows a spread of "passes" from $5.99 to $59.99 (including a $59.99 "Full Access"), which suggests monthly, yearly and lifetime-style options with regional and promotional variation. Exact plan names could not be matched to durations. No explicit family plan, but caregivers and dependents can be invited. Sources: [App Store listing](https://apps.apple.com/us/app/tracker-reminder-careclinic/id1455648231), [Capterra](https://www.capterra.com/p/181945/CareClinic/). Checked 2026-09-25.
 
-**What it does well that Inside Story does not yet do.**
+**What it does well that Lifestead does not yet do.**
 1. **Tapering doses.** A dose that steps down over weeks (prednisone is the common case in RA, IBD, lupus flares) is entered once as a schedule.
 2. **Invite a caregiver or dependent** into the same record, with remote monitoring.
 3. **Web dashboard** for the care team view.
 4. **Refill reminders** alongside pill reminders.
 5. **Standard questionnaires** (PHQ-9, GAD-7) scheduled as check-ins.
 
-**What Inside Story already does better.**
+**What Lifestead already does better.**
 - Meal planning filtered for every selected condition at once, interleaved with doses. CareClinic logs nutrition but does not plan meals.
 - Food and supplement against prescription timing on the day's own meals.
 - Local-first with no account; CareClinic stores the care record in its cloud to make the care team view work.
@@ -135,7 +135,7 @@ Size key: Small = a day or less, Medium = a few days, Large = a week or more. "J
 
 **Pricing.** Free tier plans one day at a time. Premium in the US App Store: $8.99 a month, yearly options from $47.99 to $84.99 (promotions vary); the company's own help pages quote $5 a month billed yearly or $9 month to month. No lifetime. No family plan as such (a household can scale servings). Sources: [App Store listing](https://apps.apple.com/us/app/eat-this-much-meal-planner/id981637806), [Eat This Much help: subscriptions](https://eatthismuch.groovehq.com/knowledge_base/categories/subscription-management/topics). Checked 2026-09-25.
 
-**What it does well that Inside Story does not yet do.**
+**What it does well that Lifestead does not yet do.**
 1. **Calorie and macro targets drive the plan.** Each day is solved to a calorie number and a protein, carb, fat split, with per-meal targets.
 2. **Budget ceiling** per day (as low as about $10).
 3. **Virtual pantry.** Planning prefers what is already in the kitchen, and the grocery list subtracts it.
@@ -144,7 +144,7 @@ Size key: Small = a day or less, Medium = a few days, Large = a week or more. "J
 6. **Grocery delivery** to Instacart and AmazonFresh (US and Canada).
 7. **Weekly plan by email** each week without opening the app.
 
-**What Inside Story already does better.**
+**What Lifestead already does better.**
 - Condition safety for every selected condition at once, with a green, yellow, red rating, healing stage and diet preference, and a partner's or family member's conditions in the same plan. Eat This Much knows diets (keto, paleo, vegan) but not conditions.
 - Rotation memory across up to six weeks so variety is built in, which serves the gut-healing goal.
 - Full RDA comparison per day, and food-first against supplements.
@@ -164,20 +164,20 @@ Size key: Small = a day or less, Medium = a few days, Large = a week or more. "J
 
 **Pricing.** $5.95 a month or $49 a year, 14-day free trial with no card. No free tier, no lifetime. One account is shared by the household on as many devices as it likes, so the price covers a family. Source: [plantoeat.com](https://www.plantoeat.com/), checked 2026-09-25.
 
-**What it does well that Inside Story does not yet do.**
+**What it does well that Lifestead does not yet do.**
 1. **Import a recipe from any web page** with one click, including ones found on blogs.
 2. **Drag and drop on a calendar** to move a meal to another day.
 3. **Save a whole week or month as a reusable plan** and drop it onto a future week.
 4. **Notes on the calendar** for non-food events ("late meeting, something quick").
 5. **Shared household calendar** included in the one price.
 
-**What Inside Story already does better.**
-- Plan to Eat does not know what is safe for anybody. Every recipe is equal. Inside Story's generator only picks from recipes safe for all selected conditions and diets, and scores each ingredient.
+**What Lifestead already does better.**
+- Plan to Eat does not know what is safe for anybody. Every recipe is equal. Lifestead's generator only picks from recipes safe for all selected conditions and diets, and scores each ingredient.
 - Kitchen stock and garden harvests subtract from the grocery list.
 - Past meals count automatically, feeding Trends and Pattern Finder.
 
 **What each gap would take.**
-- *Import a recipe from a web link.* Most recipe sites publish a schema.org "Recipe" block in the page. A new `lib/recipeImport.ts` that fetches the page, reads that block, then maps each ingredient line to the reference database through the existing food lookup, with every unmatched line shown for the person to pick. Imported recipes need to run through the same scoring as hand-built ones before they can appear under Meals You Can Eat or in the generator. JS only (`fetch` is built in; the share sheet can hand a URL to the app through the intent filters already in `app.json`, though adding a new "share a link to Inside Story" target needs a rebuild). Privacy: the phone fetches a public page directly, nothing personal leaves it. Note the standing rule favoring home cooking; web recipes fit that. **Large** because of ingredient matching.
+- *Import a recipe from a web link.* Most recipe sites publish a schema.org "Recipe" block in the page. A new `lib/recipeImport.ts` that fetches the page, reads that block, then maps each ingredient line to the reference database through the existing food lookup, with every unmatched line shown for the person to pick. Imported recipes need to run through the same scoring as hand-built ones before they can appear under Meals You Can Eat or in the generator. JS only (`fetch` is built in; the share sheet can hand a URL to the app through the intent filters already in `app.json`, though adding a new "share a link to Lifestead" target needs a rebuild). Privacy: the phone fetches a public page directly, nothing personal leaves it. Note the standing rule favoring home cooking; web recipes fit that. **Large** because of ingredient matching.
 - *Move a meal to another day.* A "Move to" day picker on a scheduled meal row in `MealsLens` (updates `schedule_items.scheduled_for` for one occurrence). Drag and drop across a week strip is possible with the existing gesture handler but a picker is simpler and more accessible. JS only. **Small.**
 - *Save and reuse a week.* A `saved_plans` table holding meal ids by day offset, "Save this week as a plan" and "Use a saved plan starting on..." on the Meals lens. JS only. **Medium.**
 - *Calendar notes.* A `schedule_items` row with `item_type` of `note`, shown in the week strip. JS only. **Small.**
@@ -189,14 +189,14 @@ Size key: Small = a day or less, Medium = a few days, Large = a week or more. "J
 
 **Pricing.** One-time purchase per platform: about $4.99 on iPhone and Android, $29.99 on Mac and Windows (prices vary by country and sales). Free cloud sync between devices. No subscription, no family plan (everyone signs in to the same sync account). Paprika 4 is announced with family member accounts. Sources: [paprikaapp.com Windows page](https://www.paprikaapp.com/windows/), [Google Play](https://play.google.com/store/apps/details?id=com.hindsightlabs.paprika.android.v3&hl=en_US&gl=US). Checked 2026-09-25.
 
-**What it does well that Inside Story does not yet do.**
+**What it does well that Lifestead does not yet do.**
 1. **Pantry with expiry dates**, and a grocery list aisle order.
 2. **Cooking mode**: screen stays awake, tap to cross off steps, **timers detected from the recipe text** ("simmer 20 minutes" becomes a tap-to-start timer).
 3. **Scale a recipe** to any number of servings and convert units.
 4. **Pay once.** Long-time users cite this as the reason they stay.
 5. **Monthly calendar view** in addition to day and week.
 
-**What Inside Story already does better.**
+**What Lifestead already does better.**
 - Condition-aware planning and scoring, doses on the same day, nutrients per day, Past Meals feeding Trends. Paprika has no health layer at all.
 - Kitchen stock is drawn down when you cook, with a preview; Paprika's pantry is a manual list.
 
@@ -212,14 +212,14 @@ Size key: Small = a day or less, Medium = a few days, Large = a week or more. "J
 
 **Pricing.** Free core tracking. The US App Store lists "Full Access" from $0.99 a month, an annual option, and one-time (lifetime) purchases between $8.99 and $19.99. The exact annual price was not shown. No family plan. Sources: [App Store listing](https://apps.apple.com/us/app/water-tracker-waterllama/id1454778585), [healthcare.toolsinfo.com](https://healthcare.toolsinfo.com/tool/waterllama). Checked 2026-09-25.
 
-**What it does well that Inside Story does not yet do.**
+**What it does well that Lifestead does not yet do.**
 1. **One tap to log a drink** from a widget, the lock screen, the Control Center or the watch, without opening the app.
 2. **Hydration factor per drink**: coffee and tea count at less than 100 percent, milk and broth differently, across 150 drinks, and caffeine is totalled.
 3. **Goal that adjusts for weight, activity and hot weather.**
 4. **Smart reminders** spread through waking hours.
-5. **Streaks, challenges and characters** (deliberately not wanted in Inside Story).
+5. **Streaks, challenges and characters** (deliberately not wanted in Lifestead).
 
-**What Inside Story already does better.**
+**What Lifestead already does better.**
 - Counts water from food as well as drinks, against the age and sex based target from the nutrient analysis, which is the honest total. Waterllama counts only what is tapped in.
 - A drink is a full beverage record with ingredients and nutrients, so a smoothie counts toward vitamins as well as water.
 - Writes hydration to Health Connect on Android.
@@ -237,7 +237,7 @@ Size key: Small = a day or less, Medium = a few days, Large = a week or more. "J
 
 **Pricing.** Free tier on mobile. Pro $7.99 a month or $79.99 a year; a family plan at $119.99 a year for up to five people. The web planner and AI features are Pro only. The official site does not show prices, so these come from a third-party summary; treat them as likely rather than confirmed. Sources: [tiimoapp.com](https://www.tiimoapp.com/), [Lifestack pricing summary](https://lifestack.ai/blog/tiimo-pricing). Checked 2026-09-25.
 
-**What it does well that Inside Story does not yet do.** This matters because CLAUDE.md names the second audience (ADHD, autism, anyone carrying too much) as having as strong a claim on the app as the health one.
+**What it does well that Lifestead does not yet do.** This matters because CLAUDE.md names the second audience (ADHD, autism, anyone carrying too much) as having as strong a claim on the app as the health one.
 1. **The whole day on one visual timeline**: appointments, meals, meds, chores and routines together, with icons and colors, and "now" marked.
 2. **A visible countdown for the current activity** (a shrinking circle), plus Live Activities and widgets so it shows on the lock screen.
 3. **Time estimates** on tasks, and the day shows whether it fits.
@@ -245,7 +245,7 @@ Size key: Small = a day or less, Medium = a few days, Large = a week or more. "J
 5. **Mood and energy check-ins** tied to the day.
 6. **Calendar sync** so outside events land on the timeline.
 
-**What Inside Story already does better.**
+**What Lifestead already does better.**
 - Routines walk one step at a time and write the "did I do it" mark at the step (`lib/routines.ts`), so "did I take my pill" can be looked up later without a second record. Tiimo ticks a checklist but keeps no lookup-able record of each act.
 - Days Until counters, Upkeep, bills, garden and meds all generate reminders through one system with quiet hours that never hold a dose.
 - The health layer: doses read against meals, and the food and symptom record behind it.
@@ -264,28 +264,28 @@ Size key: Small = a day or less, Medium = a few days, Large = a week or more. "J
 
 **Pricing.** Almost everything free, no ads, no data sold. Pro in the US: $6.99 a month, $49.99 a year, or $99.99 lifetime per the company's 2026 figure; older lifetime prices of $29.99 and $64.99 still circulate and regional prices differ (some regions show $32.99). No family plan. Sources: [Structured help: What is Structured Pro](https://help.structured.app/en/articles/324674), [TilTaken on the lifetime price](https://www.tiltaken.com/articles/structured-app-lifetime-price). Checked 2026-09-25.
 
-**What it does well that Inside Story does not yet do.**
+**What it does well that Lifestead does not yet do.**
 1. **Calendar import** that keeps outside calendar events on the timeline automatically, not one at a time.
 2. **Replan**: everything not done today moves to tomorrow in one tap.
 3. **Inbox** for tasks with no time yet, dropped onto the day later.
 4. **Recurring tasks** on any pattern (weekdays, every N days, monthly).
 5. **Energy level** per task, to put hard things at a good time of day.
 
-**What Inside Story already does better.**
+**What Lifestead already does better.**
 - The capture inbox exists (Life, reaching Home) along with the "where did I put it" search; Structured has no record of places.
 - Skipped and planned meals are kept as a record rather than moved or dropped; Past Meals turns plans into data automatically.
 - Health reminders are smarter (freshness line, quiet hours that never hold a dose).
 
 **What each gap would take.**
 - *Automatic calendar import.* `lib/deviceCalendar.ts` imports one event at a time into Appointments. Reading today's and tomorrow's events straight from the phone calendar onto the proposed day timeline, without copying them into the database, is JS only (`expo-calendar` is already installed and permissioned). The desktop has no phone calendar and would say so through `lib/desktop/phoneOnly.ts`. **Small to Medium.**
-- *Replan.* For meals, Inside Story deliberately keeps a missed plan as "Planned" rather than moving it, which serves the record. A "move what is left of today to tomorrow" for non-meal items (upkeep, timed capture notes) is JS only and **Small**; for meals it should create a new occurrence and keep the old one as Skipped, so the record stays honest.
+- *Replan.* For meals, Lifestead deliberately keeps a missed plan as "Planned" rather than moving it, which serves the record. A "move what is left of today to tomorrow" for non-meal items (upkeep, timed capture notes) is JS only and **Small**; for meals it should create a new occurrence and keep the old one as Skipped, so the record stays honest.
 - *Any-pattern recurrence.* The same `RepeatConfig` extension described under CareClinic; one piece of work serves meals, meds, appointments and exercise.
 
 ## 3. Gap synthesis and ranked recommendations
 
-### Where Inside Story already leads
+### Where Lifestead already leads
 
-No app reviewed puts meals, doses and supplements on one clock and checks each dose against the food around it. No meal planner reviewed plans for health conditions, let alone several at once or across two people. No pill app reviewed knows what a supplement contains. Every competitor that shares data between people does it through its own server; Inside Story does it without one. Those are the things to protect while closing the gaps below.
+No app reviewed puts meals, doses and supplements on one clock and checks each dose against the food around it. No meal planner reviewed plans for health conditions, let alone several at once or across two people. No pill app reviewed knows what a supplement contains. Every competitor that shares data between people does it through its own server; Lifestead does it without one. Those are the things to protect while closing the gaps below.
 
 ### Where it falls short
 
@@ -328,12 +328,12 @@ All prices US dollars, checked 2026-09-25 from the sources given in each section
 | Waterllama | Yes | From $0.99 | Available, price not shown | $8.99 to $19.99 | None |
 | Tiimo | Yes, mobile only | $7.99 (third-party figure) | $79.99 (third-party figure) | None | $119.99 a year for up to 5 |
 | Structured | Yes, almost everything | $6.99 | $49.99 | $99.99 | None |
-| **Inside Story, Free (planned)** | Meals, Hydration and Exercise lenses only | $0 | $0 | None | Household seats below |
-| **Inside Story, Individual (planned)** | | $9.99 | $89.99 | None | |
-| **Inside Story, Partner (planned)** | | $14.99 for two | $134.99 for two | None | Two full accounts |
-| **Inside Story, Household seat (planned)** | First 2 to 3 seats free | $1.99 a seat | $17.99 a seat | None | Read access to plan, list, Trends |
-| **Inside Story, Caregiver (planned)** | | $4.99 per person cared for | $49.99 | None | Write access on their behalf |
+| **Lifestead, Free (planned)** | Meals, Hydration and Exercise lenses only | $0 | $0 | None | Household seats below |
+| **Lifestead, Individual (planned)** | | $9.99 | $89.99 | None | |
+| **Lifestead, Partner (planned)** | | $14.99 for two | $134.99 for two | None | Two full accounts |
+| **Lifestead, Household seat (planned)** | First 2 to 3 seats free | $1.99 a seat | $17.99 a seat | None | Read access to plan, list, Trends |
+| **Lifestead, Caregiver (planned)** | | $4.99 per person cared for | $49.99 | None | Write access on their behalf |
 
 **What people in this category are used to paying.** Single-purpose apps in this space cluster tightly: **about $5 to $8 a month, or $40 to $80 a year**, with $39.99 to $49.99 a year the most common yearly price. Water trackers and recipe managers sit lower and often sell a one-time unlock ($5 to $30). Lifetime options are common (MyTherapy, Structured, Paprika, Waterllama) and older users in particular look for them. Only Tiimo sells a family plan outright.
 
-Inside Story's Individual price ($9.99 a month, $89.99 a year) is above every single app here. It is defensible only because it replaces several of them: someone using Medisafe plus Eat This Much plus Tiimo would pay about $21 a month or about $170 a year. The Schedules tab has to make that bundle visible. Two things would help: the Free tier currently includes Meals, Hydration and Exercise but not Meds, while MyTherapy gives unlimited med reminders free and Medisafe's move to a two-med cap in January 2026 drew complaints, so leaving basic dose reminders (without the interaction checks) in the Free tier would match what the market now expects. And a lifetime option, even priced high, is worth considering for the Individual tier given how often competitors offer one.
+Lifestead's Individual price ($9.99 a month, $89.99 a year) is above every single app here. It is defensible only because it replaces several of them: someone using Medisafe plus Eat This Much plus Tiimo would pay about $21 a month or about $170 a year. The Schedules tab has to make that bundle visible. Two things would help: the Free tier currently includes Meals, Hydration and Exercise but not Meds, while MyTherapy gives unlimited med reminders free and Medisafe's move to a two-med cap in January 2026 drew complaints, so leaving basic dose reminders (without the interaction checks) in the Free tier would match what the market now expects. And a lifetime option, even priced high, is worth considering for the Individual tier given how often competitors offer one.

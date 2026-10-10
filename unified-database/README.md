@@ -1,4 +1,4 @@
-# Inside Story — Unified Whole-Foods Database
+# Lifestead — Unified Whole-Foods Database
 
 A real, new, separate SQLite database and pipeline — entirely isolated
 from `assets/data/foods_reference.db` and the live app. Built to become

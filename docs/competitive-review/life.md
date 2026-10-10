@@ -56,13 +56,13 @@ Pricing is US dollars as shown to a US visitor on 2026-09-25 unless stated other
 
 **Pricing.** Free for lists and sharing. AnyList Complete: $9.99/year individual, $14.99/year household. No monthly plan, no lifetime. Source: https://www.anylist.com/complete (checked 2026-09-25). Some third-party reviews quote higher figures; the official page shows these.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 - Instant shared list between any number of household members, with changes appearing on the other phone in seconds.
 - Paste a recipe web address and it imports ingredients and steps.
 - Store assignment, aisle sorting, item photos, location-based reminders ("you are near the shop").
 - Apple Watch app, home screen widgets, Siri and Alexa add-to-list.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - The list is worked out from the meal schedule, with quantities per person and per day, and ticked items flow into the Kitchen inventory with remaining amounts. AnyList knows nothing about what is already in the cupboard.
 - Every item carries the food's condition scoring and the person's allergies. AnyList has no health layer at all.
 - Garden and ferment harvests already count against the list.
@@ -83,12 +83,12 @@ Pricing is US dollars as shown to a US visitor on 2026-09-25 unless stated other
 
 **Pricing.** Free with ads. Premium removes ads: about $1/month, $6/year, or $20 lifetime, depending on the country. Source: https://www.ourgroceries.com/user-guide (checked 2026-09-25). One 2026 review quotes $5.99 one-time, so the lifetime price differs between stores.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 - Scan a barcode to put an item on the list.
 - Add by voice assistant ("Alexa, add milk to my grocery list").
 - Any number of people on one list, free.
 
-**What Inside Story already does better.** Everything past the list itself: quantities from the meal plan, the inventory, prices, and the health layer.
+**What Lifestead already does better.** Everything past the list itself: quantities from the meal plan, the inventory, prices, and the health layer.
 
 **Gaps**
 
@@ -103,12 +103,12 @@ Pricing is US dollars as shown to a US visitor on 2026-09-25 unless stated other
 
 **Pricing.** $14.99/month or $109/year; 34-day free trial; up to 6 people share one subscription at no extra cost; a free year for college students. Source: https://www.ynab.com/pricing (checked 2026-09-25).
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 - Bank and card transactions arrive by themselves (direct import in the US, Canada, UK and parts of the EU; file import elsewhere).
 - One method taught end to end, with free workshops, so people change what they do rather than only record it.
 - Six people on one budget.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Health money: deductible and out-of-pocket standing, FSA or HSA use-it-or-lose-it dates, medical bills checked against the insurer's statement. YNAB has none of it.
 - Goals that count time and goods as well as dollars, never blended into one percentage.
 - Money tied to the garden, the groceries and meals in the same app.
@@ -128,13 +128,13 @@ Pricing is US dollars as shown to a US visitor on 2026-09-25 unless stated other
 
 **Pricing.** Core $14.99/month or $99.99/year; Plus $199/year (annual only, adds forecasting and planning tools); 7-day trial; partner access included. Sources: https://www.monarch.com/pricing and https://getfinny.app/blog/monarch-money-pricing-2026 (checked 2026-09-25; the official page did not show figures to the fetch, so the numbers are from the second source).
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 - Links every bank, card, loan and investment account and sorts spending into categories by itself, with rules.
 - Finds recurring charges and subscriptions from the transactions.
 - Transactions reviewed together with a partner.
 - Cash-flow forecast charts.
 
-**What Inside Story already does better.** The health-money layer, goals that count time and goods, garden and grocery costs, and privacy (Monarch holds everyone's bank data on its servers).
+**What Lifestead already does better.** The health-money layer, goals that count time and goods, garden and grocery costs, and privacy (Monarch holds everyone's bank data on its servers).
 
 **Gaps**
 
@@ -152,13 +152,13 @@ Pricing is US dollars as shown to a US visitor on 2026-09-25 unless stated other
 
 **Pricing.** Free tier with limited tasks. Premium $3.99/month or $19.99/year; no lifetime option (a common complaint in reviews). Sources: https://sweepy.com/ and https://onehaus.app/compare/haus-vs-sweepy (checked 2026-09-25; the official page does not list prices).
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 - A picture of the whole home: each room has a bar that fills as time passes since a task was done, which makes "what needs doing" visible at a glance.
 - A daily list sized to available time and energy ("I have 20 minutes today").
 - Household members share the chores, with parental approval for children's tasks.
 - Room templates, so a new user starts with a full plan rather than a blank screen.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Upkeep is anchored to when a thing was last done, the same as Sweepy, but also covers documents that expire (passport, licence, insurance), which Sweepy does not.
 - Upkeep reminders reach the phone beside bills and work benefits, all from one place.
 - Trends > Keeping Up reads the record without points, streaks or a leaderboard. Sweepy's points and family leaderboard are exactly what the standing rule forbids, and for someone with ADHD a leaderboard is often a source of shame. This is a deliberate difference, not a gap.
@@ -178,14 +178,14 @@ Pricing is US dollars as shown to a US visitor on 2026-09-25 unless stated other
 
 **Pricing.** Free tier with core planning, to-do list and focus timer. Pro $12/month or $79.99/year; Family $119.99/year for up to 5 people. Sources: https://lifestack.ai/blog/tiimo-pricing and https://www.tiimoapp.com/product (checked 2026-09-25; the official page showed only a 30% off promotion, not list prices).
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 - A visual timer that shows time running out as a shrinking shape, on the step being done. Time blindness is the core ADHD problem and this is the most praised feature in the category.
 - Home and lock screen widgets and Live Activities, so the current step is visible without opening the app.
 - AI breaks "clean the kitchen" into steps with time estimates.
 - The whole day laid out as a picture, not a list.
 - Calendar sync.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Routines already show one step at a time, which is the same insight Tiimo is built on, and a step can double as a Did I Do It mark, so "did I take my pill" is answered later without logging twice. Tiimo has nothing like the Did I Do It record.
 - The day in Schedules > Today's Meals already interleaves meals and medication doses and says which meal competes with a dose. No planner does this.
 - Nothing scores or praises. Tiimo has streaks and rewards.
@@ -206,12 +206,12 @@ Pricing is US dollars as shown to a US visitor on 2026-09-25 unless stated other
 
 **Pricing.** Free with limits. Premium quoted at $7.99/month or $39.99/year, with a lifetime plan offered at $71.99 on promotion; regional and promotional prices differ widely (other quotes: $3.99/month, $27.49/year). Source: https://makeheadway.com/blog/routinery/ (checked 2026-09-25). Confirm at checkout.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 - Every step has a length, the routine shows a total, and the player counts down each step and says the next one aloud.
 - A large library of ready-made routines to copy (morning, bedtime, leaving the house).
 - Watch app and widgets to start a routine with one tap.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Routine steps link to Did I Do It marks and to medication doses; Routinery steps are isolated from anything else in a person's life.
 - Routines read into Trends > Keeping Up without streaks. Routinery rewards streaks.
 
@@ -230,12 +230,12 @@ Pricing is US dollars as shown to a US visitor on 2026-09-25 unless stated other
 
 **Pricing.** $7.99 one-time, with an optional yearly Upgrade Pass for new features. Sources: https://www.dueapp.com/ and https://apps.apple.com/us/app/due-reminders-timers/id390017969 (checked 2026-09-25).
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 - A reminder that is not dismissed keeps coming back until it is dealt with. For people with ADHD this is the single feature most often named as the reason they keep using it.
 - Setting a reminder takes two taps with preset times ("in 1 hour", "tonight").
 - Natural language entry ("call dentist tomorrow 9am").
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Reminders know about context: a bill's rule, an upkeep item's last-done date, a work benefit's reset date, and a dose's clash with a meal. Due knows only a time.
 - Did I Do It answers the other half of the problem Due cannot: "did I already do it?"
 - Runs on Android and Windows. Due does not.
@@ -255,13 +255,13 @@ Pricing is US dollars as shown to a US visitor on 2026-09-25 unless stated other
 
 **Pricing.** Free: 100 items, 1 user. Advanced $49/month, Ultra $149/month, Premium and Enterprise higher; about 20% off paid yearly. Sources: https://help.sortly.com/hc/en-us/articles/360035774271-Sortly-Pricing-Plan-Information and https://www.capterra.com/p/169199/Sortly-Pro/pricing/ (checked 2026-09-25). For a household the free tier is the only realistic option, and 100 items fills quickly.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 - A photo on every item and every place, so "the blue box on the top shelf" can be seen, not remembered.
 - Print a QR label, stick it on a box, scan it later to see everything inside without opening it.
 - Places nest (house > garage > shelf 2 > red bin).
 - Low-stock alerts and custom fields such as serial number and purchase price (useful for insurance).
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Where did I put it searches kitchen items, capture notes and the garden in one box, and every answer says how old it is and warns when it is stale. Sortly does not age its answers.
 - Food items draw down as meals are logged and ticked grocery lines add to them. Sortly counts only what is typed.
 - Free and unlimited.
@@ -281,13 +281,13 @@ Pricing is US dollars as shown to a US visitor on 2026-09-25 unless stated other
 
 **Pricing.** Since January 2026 the free tier covers only 2 medications. Premium $4.99/month or $39.99/year; Medfriend alerts, custom sounds and themes are Premium. Sources: https://pillo.care/blog/medisafe-not-free-what-to-do and https://apps.apple.com/us/app/medisafe-medication-management/id573916946 (checked 2026-09-25; figures come from app-store listings captured by third parties between April and August 2026). Medical ID: free, built into the phone.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 - Refill reminders from a pill count: it knows how many are left and warns before they run out.
 - A named person is told when a dose is missed.
 - Drug to drug interaction check across everything entered.
-- Medical ID is readable by a paramedic from the locked screen; Inside Story's Emergency lens says plainly that it cannot be.
+- Medical ID is readable by a paramedic from the locked screen; Lifestead's Emergency lens says plainly that it cannot be.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Doses are timed against meals, with cited food and nutrient interactions (levothyroxine and calcium, iron). Medisafe checks drug against drug, not drug against breakfast.
 - Supplements count toward nutrient totals, split food from supplement, per day from start and end dates.
 - Emergency summary includes conditions, allergies and healing stage, and can be shared as text or printed.
@@ -308,12 +308,12 @@ Pricing is US dollars as shown to a US visitor on 2026-09-25 unless stated other
 
 **Pricing.** Free (Beginner): 5 projects, reminders, quick add. Pro $7/month or $60/year ($5 a month). Business about $8 to $10 per user per month. Todoist raised prices in December 2025. Sources: https://www.todoist.com/pricing and https://www.usecarly.com/blog/todoist-pricing/ (checked 2026-09-25).
 
-**What it does well that Inside Story does not yet do**
-- A task list with due dates, recurrence and projects. Inside Story's Work lens holds benefits and a weekly check-in, but no list of things to do.
+**What it does well that Lifestead does not yet do**
+- A task list with due dates, recurrence and projects. Lifestead's Work lens holds benefits and a weekly check-in, but no list of things to do.
 - Quick add from anywhere (widget, share sheet, keyboard shortcut) with the date understood from the words.
 - Shared projects with other people.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - The capture inbox asks nothing at the moment of capture and sorts later, which suits the second audience better than Todoist's project and date prompts.
 - Work strain is set beside symptoms; Todoist has no idea what work costs the body.
 - No productivity score. Todoist has Karma points and streaks.
@@ -332,12 +332,12 @@ Pricing is US dollars as shown to a US visitor on 2026-09-25 unless stated other
 
 **Pricing.** The website is free, with no ads or paywall, and the owner says it will stay that way. The phone apps carry a small one-time price to cover running costs (about $1 to $2 depending on the store; not confirmed for 2026). An optional Pro subscription at a "low monthly" price adds extras. Source: https://goblin.tools/About (checked 2026-09-25).
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 - Turns "clean the kitchen" or "do my taxes" into small first steps, which is the hardest part of starting for many people with ADHD.
 - Turns a messy brain-dump into a tidy list.
 - Tone checking for messages, which many autistic users value.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Keeps the result: routines, checks and the record of doing them. Goblin.tools remembers nothing.
 - Stays on the device. Goblin.tools sends every word to an AI service.
 
@@ -354,16 +354,16 @@ Note on the Due row above: `NUDGES_WHILE_OVERDUE` in `lib/reminderSchedule.ts` r
 
 ## 3. Gap synthesis
 
-Across twelve apps, the same few patterns separate the category leaders from Inside Story's Life tab:
+Across twelve apps, the same few patterns separate the category leaders from Lifestead's Life tab:
 
-1. **Things that keep asking.** Due's repeat-until-done, Medisafe's refill warning and missed-dose alert, Sweepy's daily list. Inside Story reminds once (upkeep and compost nudge daily). For the second audience, a reminder that fires once and is swiped away is close to no reminder.
-2. **Time made visible.** Tiimo and Routinery give every step a length and a shrinking timer. Inside Story's routines already show one step at a time, which is the harder half, but carry no time at all.
-3. **Visible without opening the app.** Every leader has home-screen widgets, lock-screen or watch presence. Inside Story has none. This is the only large gap that needs a native module and an EAS rebuild.
-4. **Getting data in without typing.** Bank files (YNAB, Monarch), barcodes onto the list (OurGroceries), photos on items (Sortly), share-sheet capture (Todoist), recipe import (AnyList). Inside Story is almost entirely hand-typed in Life.
-5. **Starting from something, not a blank screen.** Sweepy's room templates, Routinery's routine library, Goblin.tools' task breakdown. Inside Story's Upkeep and Routines both start empty.
+1. **Things that keep asking.** Due's repeat-until-done, Medisafe's refill warning and missed-dose alert, Sweepy's daily list. Lifestead reminds once (upkeep and compost nudge daily). For the second audience, a reminder that fires once and is swiped away is close to no reminder.
+2. **Time made visible.** Tiimo and Routinery give every step a length and a shrinking timer. Lifestead's routines already show one step at a time, which is the harder half, but carry no time at all.
+3. **Visible without opening the app.** Every leader has home-screen widgets, lock-screen or watch presence. Lifestead has none. This is the only large gap that needs a native module and an EAS rebuild.
+4. **Getting data in without typing.** Bank files (YNAB, Monarch), barcodes onto the list (OurGroceries), photos on items (Sortly), share-sheet capture (Todoist), recipe import (AnyList). Lifestead is almost entirely hand-typed in Life.
+5. **Starting from something, not a blank screen.** Sweepy's room templates, Routinery's routine library, Goblin.tools' task breakdown. Lifestead's Upkeep and Routines both start empty.
 6. **A to-do list.** Nothing in Life holds a plain task with a date. Capture notes can be sorted but have nowhere to land as a task.
 
-What nobody else has, and should be kept rather than traded away: routines, checks, meds, meals and bills in one record; reminders that know context (dose against meal, upkeep against last done); health money (deductible, FSA, EOB); stale-answer warnings on where things are; and a record that never scores, streaks or shames. Four of the twelve competitors (Sweepy, Tiimo, Routinery, Todoist) rely on points, streaks or leaderboards; Inside Story's refusal is a selling point for the audience that has been burned by them.
+What nobody else has, and should be kept rather than traded away: routines, checks, meds, meals and bills in one record; reminders that know context (dose against meal, upkeep against last done); health money (deductible, FSA, EOB); stale-answer warnings on where things are; and a record that never scores, streaks or shames. Four of the twelve competitors (Sweepy, Tiimo, Routinery, Todoist) rely on points, streaks or leaderboards; Lifestead's refusal is a selling point for the audience that has been burned by them.
 
 ## 4. Ranked recommendations (most value per effort first)
 
@@ -401,14 +401,14 @@ Items 1 to 11 all ship over the air. Item 12 should be gathered into a single re
 | Todoist | Work, capture | 5 projects | $7 | $60 | none | Business per user |
 | Goblin.tools | ADHD helpers | Web free | Pro "low monthly" | | App about $1 to $2 | none |
 | Apple Medical ID / Android Emergency info | Emergency | Free, built in | | | | |
-| **Inside Story Free** | All lenses, limited reading | $0 | | | | |
-| **Inside Story Individual** | Everything | | $9.99 | $89.99 | | Own devices |
-| **Inside Story Partner** | Two people | | $14.99 | $134.99 | | Two people |
+| **Lifestead Free** | All lenses, limited reading | $0 | | | | |
+| **Lifestead Individual** | Everything | | $9.99 | $89.99 | | Own devices |
+| **Lifestead Partner** | Two people | | $14.99 | $134.99 | | Two people |
 | **Household seat** | Read access plus checkoffs | First 2 to 3 free | $1.99 per seat | $17.99 per seat | | |
 | **Caregiver** | Another adult | | $4.99 per person | $49.99 per person | | Stackable |
 
 **What people in this category are used to paying.** Single-purpose life apps cluster in two bands. List and chore apps are cheap: $6 to $20 a year, often with a lifetime option, and people resent subscriptions there (Sweepy's missing lifetime plan is a common complaint). Planning, money and medication apps sit at $40 to $110 a year, $5 to $15 a month. The ADHD planners (Tiimo) are at the top of that band. Nearly every one offers a free tier or a trial, and household sharing is usually included or cheap.
 
-**What a person would pay to buy these separately (yearly, best price).** One grocery list (AnyList household $14.99), one budget (YNAB $109 or Monarch $99.99), Sweepy $19.99, Tiimo $79.99, Medisafe $39.99, Todoist $60: about **$315 to $325 a year**, before Routinery (about $28 to $40), and with Due ($7.99) and Goblin.tools (about $2) as one-time extras, but Due is iPhone-only. Sortly's paid plans ($470 or more a year) are left out as business pricing. Inside Story Individual at $89.99 a year covers every one of these lenses, plus food, symptoms, garden and reports, for less than YNAB alone. That is the pricing story for the second audience, provided the gaps ranked 1 to 6 are closed so each lens holds up against the single-purpose app a person would otherwise pick.
+**What a person would pay to buy these separately (yearly, best price).** One grocery list (AnyList household $14.99), one budget (YNAB $109 or Monarch $99.99), Sweepy $19.99, Tiimo $79.99, Medisafe $39.99, Todoist $60: about **$315 to $325 a year**, before Routinery (about $28 to $40), and with Due ($7.99) and Goblin.tools (about $2) as one-time extras, but Due is iPhone-only. Sortly's paid plans ($470 or more a year) are left out as business pricing. Lifestead Individual at $89.99 a year covers every one of these lenses, plus food, symptoms, garden and reports, for less than YNAB alone. That is the pricing story for the second audience, provided the gaps ranked 1 to 6 are closed so each lens holds up against the single-purpose app a person would otherwise pick.
 
 A caution on the Free tier: CLAUDE.md's Free line is drawn around food and health and does not mention the Life lenses. Since several competitors give their core free (OurGroceries, AnyList lists, Sweepy basics, Tiimo basics, Goblin.tools web), leaving Routines, Did I Do It, capture and the grocery list free would match what this audience expects and supports the open item "a way in that does not require a condition".

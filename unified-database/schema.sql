@@ -1,4 +1,4 @@
--- Inside Story -- Unified Whole-Foods Database, Phase 1 schema.
+-- Lifestead -- Unified Whole-Foods Database, Phase 1 schema.
 --
 -- WHAT THIS IS: a real, new, separate SQLite database -- entirely isolated
 -- from assets/data/foods_reference.db and from the live app. Nothing in

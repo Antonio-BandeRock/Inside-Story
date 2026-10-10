@@ -28,7 +28,7 @@
 - **Answers:** (your question) · **Theme:** Talking to people
 - **How:** A notification listener. Google Play treats it as sensitive, Android 15 hides its setting for sideloaded apps; opt-in only.
 
-### O5. Inside Story as the default texting app
+### O5. Lifestead as the default texting app
 - **Ships by:** Owner decision first · **Size:** XL · **Tabs:** Life
 - **Answers:** (your question) · **Theme:** Talking to people
 - **How:** Android only, Play policy likely refuses it, the person loses RCS, and it cannot exist on iPhone or desktop. Ruled out by the owner on 2026-09-26; kept on the list only as the record of that decision. O1, O2, C11 and O3 are the route instead.

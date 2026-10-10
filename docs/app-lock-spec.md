@@ -1,10 +1,10 @@
-# Inside Story: App Lock Spec
+# Lifestead: App Lock Spec
 
 Status: draft for review. Written without access to the codebase, so Phase 0 below must run before any design decision here is treated as final.
 
 ## Problem
 
-Anyone holding an unlocked phone can open Inside Story and read health, medication, finance and emergency information. The app encrypts backups and shared data, but nothing protects the data from a person with the device in hand.
+Anyone holding an unlocked phone can open Lifestead and read health, medication, finance and emergency information. The app encrypts backups and shared data, but nothing protects the data from a person with the device in hand.
 
 ## Goals
 
@@ -16,7 +16,7 @@ Anyone holding an unlocked phone can open Inside Story and read health, medicati
 ## Non-goals
 
 - Two-factor authentication. The app has no server login for health data, so there is nothing for a second factor to protect. See "Cloud storage reminder" below for the one place it matters.
-- Any recovery path that Inside Story (the company) can perform. No reset by email, no support override.
+- Any recovery path that Lifestead (the company) can perform. No reset by email, no support override.
 - Storing or processing biometric data. The operating system does this.
 - Protection against a compromised or rooted device.
 
@@ -106,7 +106,7 @@ Stop after Phase 0 and present findings and a recommended approach before writin
 
 ### R13. Cloud storage reminder
 
-- After the user connects cloud storage for backups, show a one-time prompt recommending two-step verification on that cloud account, with a link to the provider's instructions. Inside Story does not check or enforce it.
+- After the user connects cloud storage for backups, show a one-time prompt recommending two-step verification on that cloud account, with a link to the provider's instructions. Lifestead does not check or enforce it.
 
 ## Platform notes
 

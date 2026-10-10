@@ -17,9 +17,9 @@
 // window.insideStoryDesktop, and lib/desktop/bridge.ts in the app is the
 // TypeScript description of that object.
 //
-// INSIDE_STORY_DEV_URL=http://localhost:8081 loads Metro's dev server
+// LIFESTEAD_DEV_URL=http://localhost:8081 loads Metro's dev server
 // instead of web-build/, for working on the desktop build live
-// (`INSIDE_STORY_DESKTOP=1 npx expo start --web` in the project root).
+// (`LIFESTEAD_DESKTOP=1 npx expo start --web` in the project root).
 
 const { app, BrowserWindow, ipcMain, net, protocol, screen, shell } = require('electron');
 const fs = require('node:fs');
@@ -41,10 +41,26 @@ const HOST = 'inside-story';
 const WEB_ROOT = path.join(__dirname, 'web-build');
 const REFERENCE_DB_FILE = 'foods_reference.db';
 
-// The records live in %APPDATA%/inside-story-desktop. The app was renamed
-// Lifestead on 2026-10-09, and Electron names that folder after the app,
-// so it is pinned here: a rename must never leave someone's records behind.
-app.setPath('userData', path.join(app.getPath('appData'), 'inside-story-desktop'));
+// The records live in %APPDATA%/lifestead-desktop, pinned here rather than
+// left to Electron, which names the folder after the app and would leave
+// someone's records behind at the next rename. Before 1.0.66 the folder was
+// inside-story-desktop: it is moved across whole on the first start, before
+// anything in it is open, and if the move fails (another copy of the app
+// still holding a file) the old folder is used as it is and the move is
+// tried again next time.
+function dataFolder() {
+  const appData = app.getPath('appData');
+  const current = path.join(appData, 'lifestead-desktop');
+  const before = path.join(appData, 'inside-story-desktop');
+  if (fs.existsSync(current) || !fs.existsSync(before)) return current;
+  try {
+    fs.renameSync(before, current);
+    return current;
+  } catch {
+    return before;
+  }
+}
+app.setPath('userData', dataFolder());
 
 // A phone-shaped window: the app lays itself out for one column, the
 // popup menus measure the window to place themselves, and this size keeps
@@ -262,9 +278,9 @@ let mainWindow = null;
 
 function createWindow() {
   const workArea = screen.getPrimaryDisplay().workAreaSize;
-  // INSIDE_STORY_WINDOW="900x700" opens at that size instead, for checking
+  // LIFESTEAD_WINDOW="900x700" opens at that size instead, for checking
   // what a resized window does to the popup menus without dragging one.
-  const sizeOverride = /^(\d+)x(\d+)$/.exec(process.env.INSIDE_STORY_WINDOW || '');
+  const sizeOverride = /^(\d+)x(\d+)$/.exec(process.env.LIFESTEAD_WINDOW || '');
   mainWindow = new BrowserWindow({
     width: sizeOverride ? Number(sizeOverride[1]) : Math.min(DEFAULT_WIDTH, workArea.width),
     height: sizeOverride ? Number(sizeOverride[2]) : Math.min(DEFAULT_HEIGHT, workArea.height - 24),
@@ -314,7 +330,7 @@ function createWindow() {
     return { action: 'deny' };
   });
   mainWindow.webContents.on('will-navigate', (event, url) => {
-    if (!url.startsWith(`${SCHEME}://`) && !url.startsWith(process.env.INSIDE_STORY_DEV_URL || '\u0000')) {
+    if (!url.startsWith(`${SCHEME}://`) && !url.startsWith(process.env.LIFESTEAD_DEV_URL || '\u0000')) {
       event.preventDefault();
       if (/^https?:/.test(url)) {
         shell.openExternal(url);
@@ -323,10 +339,10 @@ function createWindow() {
   });
 
   // Two helpers for working on this build without watching the window:
-  // INSIDE_STORY_LOG=1 echoes the page's console to this process's
-  // stdout, and INSIDE_STORY_SCREENSHOT=<file.png> captures the window
-  // after INSIDE_STORY_SCREENSHOT_AFTER_MS (default 8000) and quits.
-  if (process.env.INSIDE_STORY_LOG === '1') {
+  // LIFESTEAD_LOG=1 echoes the page's console to this process's
+  // stdout, and LIFESTEAD_SCREENSHOT=<file.png> captures the window
+  // after LIFESTEAD_SCREENSHOT_AFTER_MS (default 8000) and quits.
+  if (process.env.LIFESTEAD_LOG === '1') {
     mainWindow.webContents.on('console-message', (event) => {
       const { level, message, lineNumber, sourceId } = event;
       console.log(`[page ${level}] ${message} (${sourceId}:${lineNumber})`);
@@ -338,10 +354,10 @@ function createWindow() {
       console.log(`[page gone] ${details.reason}`);
     });
   }
-  // INSIDE_STORY_CLICK="OK,Got it" presses those labels (text or
+  // LIFESTEAD_CLICK="OK,Got it" presses those labels (text or
   // aria-label) in turn, a second and a half apart, starting after
-  // INSIDE_STORY_CLICK_AFTER_MS (default 4000), before the screenshot.
-  const clickLabels = (process.env.INSIDE_STORY_CLICK || '').split(',').map((label) => label.trim()).filter(Boolean);
+  // LIFESTEAD_CLICK_AFTER_MS (default 4000), before the screenshot.
+  const clickLabels = (process.env.LIFESTEAD_CLICK || '').split(',').map((label) => label.trim()).filter(Boolean);
   if (clickLabels.length > 0) {
     clickLabels.forEach((label, index) => {
       setTimeout(() => {
@@ -360,23 +376,23 @@ function createWindow() {
           console.log('[click] ' + wanted);
           return true;
         })()`).catch((error) => console.log('[click failed] ' + error.message));
-      }, Number(process.env.INSIDE_STORY_CLICK_AFTER_MS || 4000) + index * 1500);
+      }, Number(process.env.LIFESTEAD_CLICK_AFTER_MS || 4000) + index * 1500);
     });
   }
-  // INSIDE_STORY_EVAL="<expression>" evaluates it in the page once the
+  // LIFESTEAD_EVAL="<expression>" evaluates it in the page once the
   // clicks are done and logs the result, for checking the bridge directly.
-  const evalSource = process.env.INSIDE_STORY_EVAL;
+  const evalSource = process.env.LIFESTEAD_EVAL;
   if (evalSource) {
     setTimeout(() => {
       mainWindow.webContents
         .executeJavaScript(`Promise.resolve(${evalSource}).then((value) => JSON.stringify(value))`)
         .then((value) => console.log(`[eval] ${value}`))
         .catch((error) => console.log(`[eval failed] ${error.message}`));
-    }, Number(process.env.INSIDE_STORY_CLICK_AFTER_MS || 4000) + clickLabels.length * 1500 + 500);
+    }, Number(process.env.LIFESTEAD_CLICK_AFTER_MS || 4000) + clickLabels.length * 1500 + 500);
   }
-  const screenshotFile = process.env.INSIDE_STORY_SCREENSHOT;
+  const screenshotFile = process.env.LIFESTEAD_SCREENSHOT;
   if (screenshotFile) {
-    const after = Number(process.env.INSIDE_STORY_SCREENSHOT_AFTER_MS || 8000);
+    const after = Number(process.env.LIFESTEAD_SCREENSHOT_AFTER_MS || 8000);
     setTimeout(async () => {
       try {
         const image = await mainWindow.webContents.capturePage();
@@ -389,8 +405,8 @@ function createWindow() {
     }, after);
   }
 
-  const devUrl = process.env.INSIDE_STORY_DEV_URL;
-  const startRoute = process.env.INSIDE_STORY_ROUTE || '/';
+  const devUrl = process.env.LIFESTEAD_DEV_URL;
+  const startRoute = process.env.LIFESTEAD_ROUTE || '/';
   mainWindow.loadURL(devUrl || `${SCHEME}://${HOST}${startRoute}`);
 
   mainWindow.on('closed', () => {

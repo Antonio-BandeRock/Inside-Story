@@ -165,7 +165,7 @@ export default function AppLockSetupScreen() {
   async function saveRecovery() {
     if (!recovery) return;
     try {
-      const file = new File(Paths.cache, "inside-story-recovery-key.txt");
+      const file = new File(Paths.cache, "lifestead-recovery-key.txt");
       file.write(recoveryText(recovery));
       savedCopy.current = file;
       const offered = await shareFileIfAvailable(file.uri, {

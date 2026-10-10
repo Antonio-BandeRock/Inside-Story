@@ -24,7 +24,7 @@ Written 2026-09-25. Work starts 2026-09-26, first thing. Page: https://claude.ai
 
 ## The default texting app question (answered 2026-09-25, ruled out by the owner 2026-09-26)
 
-Possible on Android only, not recommended. Local-first is not the blocker (SMS goes through the carrier). What is: Google Play grants SMS and Call Log permissions only to apps whose core purpose is messaging (Permissions Declaration review, likely refused, and a refusal can hold every update); the person loses RCS since there is no third-party RCS API; MMS, groups, blocking and delivery reports would all be built from scratch in Kotlin; impossible on iPhone and desktop. Instead: contacts (O1), prefilled texting and calling (O2), share into Capture from any app (C11), and end-to-end encrypted messages between Inside Story users over the existing tweetnacl keys and a content-blind relay (O3, M1). The default-SMS item stays as O5, Phase 7.
+Possible on Android only, not recommended. Local-first is not the blocker (SMS goes through the carrier). What is: Google Play grants SMS and Call Log permissions only to apps whose core purpose is messaging (Permissions Declaration review, likely refused, and a refusal can hold every update); the person loses RCS since there is no third-party RCS API; MMS, groups, blocking and delivery reports would all be built from scratch in Kotlin; impossible on iPhone and desktop. Instead: contacts (O1), prefilled texting and calling (O2), share into Capture from any app (C11), and end-to-end encrypted messages between Lifestead users over the existing tweetnacl keys and a content-blind relay (O3, M1). The default-SMS item stays as O5, Phase 7.
 
 ## Rebuild map
 
@@ -984,7 +984,7 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 
 ## Phase 4. The Android rebuild (R1) (11 items)
 
-### C11. Share into Inside Story from any app
+### C11. Share into Lifestead from any app
 - **Ships by:** Android rebuild R1 · **Size:** M · **Tabs:** Life,Home,Food
 - **Answers:** Todoist, Samsung Food, Plan to Eat · **Theme:** Capture, reminders and the second audience
 - **How:** A SEND intent filter for text, links and images. A link to a recipe goes to the importer (G1); anything else lands in Capture.
@@ -1061,7 +1061,7 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Answers:** PictureThis, Planta · **Theme:** Garden
 - **How:** Reshaped 2026-09-29 by direct instruction: nothing in the app may cost a subscription or a charge, and the Pl@ntNet API is free only to 500 identifications a day for one account shared by every user, then paid. So the app names no plant itself. What Plant Is This, above the food search on Add a Planting, opens the free Pl@ntNet or Google Lens app on a phone (their websites on a computer), the person searches for the name it gave, and the planting records which app named it and how sure Pl@ntNet said it was. Every time it says an app’s name is a likely match and never to eat a plant on an app’s word alone. Built 1.0.56.2.
 
-### O3. Messages between Inside Story users
+### O3. Messages between Lifestead users
 - **Ships by:** Relay (Worker plus push) · **Size:** L · **Tabs:** Life
 - **Answers:** (your question) · **Theme:** Talking to people
 - **How:** End to end encrypted with the keys in lib/deviceIdentity.ts and the connections roster; the relay (M1) carries sealed bytes it cannot read. Caregiver, partner and family notes, a missed-dose alert, a shared list change.
@@ -1115,7 +1115,7 @@ No diagnosis, cause, medication change or score in place of a clinician (audit_c
 - **Answers:** (your question) · **Theme:** Talking to people
 - **How:** A notification listener. Google Play treats it as sensitive, Android 15 hides its setting for sideloaded apps; opt-in only.
 
-### O5. Inside Story as the default texting app
+### O5. Lifestead as the default texting app
 - **Ships by:** Owner decision first · **Size:** XL · **Tabs:** Life
 - **Answers:** (your question) · **Theme:** Talking to people
 - **How:** Android only, Play policy likely refuses it, the person loses RCS, and it cannot exist on iPhone or desktop. Ruled out by the owner on 2026-09-26; kept on the list only as the record of that decision. O1, O2, C11 and O3 are the route instead.

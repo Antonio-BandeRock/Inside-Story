@@ -60,16 +60,16 @@ Insights is `app/(tabs)/insights.tsx` (about 4,900 lines) with 19 lenses behind 
 - No lifetime plan, no family plan.
 - Sources: https://nutriscan.app/blog/posts/cronometer-pricing-2026-basic-vs-gold-vs-pro-b28e621201 , https://ai-health-apps.com/reviews/cronometer-review/ , https://support.cronometer.com/hc/en-us/articles/44190048649364-Dexcom
 
-**What it does well that Inside Story does not yet do**
-1. **Nutrient Oracle inside the diary.** When a nutrient is short today, it suggests foods that close that gap. Inside Story has Nutrient Ranking, but it is a separate lens you have to think to open; the Nutrients table does not say "you are 40% short on selenium, these three foods you already eat would close it."
-2. **Calcium Absorption Score.** Estimates how much of the day's calcium the body can use, discounting for phytate and oxalate in the same meals. Inside Story already holds oxalate data and oxalate/calcium pairing rules, but the Nutrients row reports calcium as a plain total.
+**What it does well that Lifestead does not yet do**
+1. **Nutrient Oracle inside the diary.** When a nutrient is short today, it suggests foods that close that gap. Lifestead has Nutrient Ranking, but it is a separate lens you have to think to open; the Nutrients table does not say "you are 40% short on selenium, these three foods you already eat would close it."
+2. **Calcium Absorption Score.** Estimates how much of the day's calcium the body can use, discounting for phytate and oxalate in the same meals. Lifestead already holds oxalate data and oxalate/calcium pairing rules, but the Nutrients row reports calcium as a plain total.
 3. **Macro Scheduler.** Different targets on different days (training days, fasting days).
-4. **Custom Charts**: any nutrient charted against any biometric (glucose, weight, a symptom). Inside Story's Pattern Finder is stronger on symptoms but there is no free-form "chart X against Y."
+4. **Custom Charts**: any nutrient charted against any biometric (glucose, weight, a symptom). Lifestead's Pattern Finder is stronger on symptoms but there is no free-form "chart X against Y."
 5. **CGM import (Dexcom)** with a glucose line drawn under the meals.
 6. **AI photo and voice logging** (Gold).
-7. **Imports from Apple Health, Garmin, Fitbit, Oura, and more**; Inside Story reads Android Health Connect only.
+7. **Imports from Apple Health, Garmin, Fitbit, Oura, and more**; Lifestead reads Android Health Connect only.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Food versus supplement split on every nutrient, with each supplement counted only across its own start and end dates. Cronometer lumps supplements into the diary total.
 - Condition scoring for 19 conditions, Safe Foods across several conditions at once, and Healing Stage guidance. Cronometer has no condition layer.
 - Cooking Impact and Cooking & Prep (how much of a nutrient survives each cooking method). Cronometer does not model cooking losses beyond picking a "cooked" database row.
@@ -97,14 +97,14 @@ Insights is `app/(tabs)/insights.tsx` (about 4,900 lines) with 19 lenses behind 
 - No lifetime or family plan found.
 - Sources: https://healthrx.com/brands-zoe/pricing-analysis , https://zoe.com/en-us/app , https://home-cooks.co.uk/pages/review-zoe
 
-**What it does well that Inside Story does not yet do**
-1. **One simple 0 to 100 food score** anyone understands at a glance, on a photo or a barcode, with "swap this for that" suggestions. Inside Story's condition scores are richer but spread across dimensions and conditions.
-2. **Plant diversity count ("Daily 30", 30 different plants a week)**, which directly serves gut and microbiome healing. Inside Story states gut healing as an explicit goal, and Trends > What You Eat counts different foods, but nothing counts distinct plants per week or shows it on Insights.
+**What it does well that Lifestead does not yet do**
+1. **One simple 0 to 100 food score** anyone understands at a glance, on a photo or a barcode, with "swap this for that" suggestions. Lifestead's condition scores are richer but spread across dimensions and conditions.
+2. **Plant diversity count ("Daily 30", 30 different plants a week)**, which directly serves gut and microbiome healing. Lifestead states gut healing as an explicit goal, and Trends > What You Eat counts different foods, but nothing counts distinct plants per week or shows it on Insights.
 3. **Processed Food Risk Scale** for packaged products (additives, emulsifiers, processing).
 4. **Microbiome test** that feeds back into personal food scores.
 5. Very polished teaching content (podcast, short explainers) wrapped around the scores.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Scores for 19 named conditions and several at once; ZOE scores for general metabolic and gut health only.
 - Nutrient targets with food versus supplement split; ZOE deliberately avoids counting nutrients.
 - Medication and supplement timing rules; ZOE has none.
@@ -130,13 +130,13 @@ Insights is `app/(tabs)/insights.tsx` (about 4,900 lines) with 19 lenses behind 
 - Legacy Core $399/year and Complete $1,329/year are being phased out. No free tier found beyond the app store listing, no family plan.
 - Source: https://support.levels.com/article/720-levels-pricing-and-plans ; comparison https://healthrx.com/brands-levels/pricing-analysis
 
-**What it does well that Inside Story does not yet do**
-1. **Glucose drawn under each meal**, with a per-meal response ("this breakfast raised you 45 mg/dL and took 2 hours to settle"). Inside Story reads blood glucose from Health Connect (`lib/healthConnect.ts`, key `glucose`) but no lens uses it.
+**What it does well that Lifestead does not yet do**
+1. **Glucose drawn under each meal**, with a per-meal response ("this breakfast raised you 45 mg/dL and took 2 hours to settle"). Lifestead reads blood glucose from Health Connect (`lib/healthConnect.ts`, key `glucose`) but no lens uses it.
 2. **Meal-level experiments**: eat the same meal two ways (with a walk after, with protein first) and compare the curves.
-3. **Upload a lab PDF and get the values pulled out.** Inside Story's Labs lens is typed in by hand.
+3. **Upload a lab PDF and get the values pulled out.** Lifestead's Labs lens is typed in by hand.
 4. **AI plain-language explanation** of what a reading means for you.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Covers the whole person and 19 conditions rather than one number. For most of the tracked conditions (thyroid, IBD, psoriasis, gout) glucose is only a side signal.
 - Does not need a $90+ monthly sensor habit to be useful.
 - Never claims a cause from one person's data; Levels' meal scores read as verdicts.
@@ -161,14 +161,14 @@ Insights is `app/(tabs)/insights.tsx` (about 4,900 lines) with 19 lenses behind 
 - Family: "Multiple Figs" (profiles for each household member) is part of Fig+, not a separate plan.
 - Sources: https://apps.apple.com/us/app/fig-food-scanner-discovery/id1564434726 , https://foodisgood.com/ , https://www.oliveapp.com/blogs/fig-app-reviews
 
-**What it does well that Inside Story does not yet do**
-1. **Ingredient-by-ingredient verdict for a restricted diet**, with a middle "uncertain" status for ingredients whose source is unknown (natural flavors, dextrose). Inside Story's `lib/scannedProductFlags.ts` flags named additives and condition-concern words, but does not walk every ingredient against a diet such as low FODMAP or low histamine, and has no "uncertain" class.
+**What it does well that Lifestead does not yet do**
+1. **Ingredient-by-ingredient verdict for a restricted diet**, with a middle "uncertain" status for ingredients whose source is unknown (natural flavors, dextrose). Lifestead's `lib/scannedProductFlags.ts` flags named additives and condition-concern words, but does not walk every ingredient against a diet such as low FODMAP or low histamine, and has no "uncertain" class.
 2. **Several people's restrictions checked at once** ("Multiple Figs"): scan once, see whether it works for you and your child.
 3. **Grocery-store product search** by store (50+ US chains).
 4. **Restaurant guides** for eating out.
 5. Very fast, single-screen yes/no result.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Whole foods and home cooking with full nutrient panels; Fig does not track nutrients at all.
 - Condition scoring grounded in cited research rather than only diet rules; timing rules for medications.
 - Safe Foods across several conditions, Healing Stage lists.
@@ -193,14 +193,14 @@ Insights is `app/(tabs)/insights.tsx` (about 4,900 lines) with 19 lenses behind 
 - No monthly, lifetime or family plan.
 - Sources: https://help.yuka.io/l/en/article/hkzw2hkj5w-cost-membership , https://help.yuka.io/l/en/article/dop80j54bb-paid-version-features
 
-**What it does well that Inside Story does not yet do**
-1. **Alternatives.** A poor score comes with a list of similar products that score better. Inside Story flags but never offers a swap.
-2. **Offline scanning** of a large product database. Inside Story's scan needs the network (Open Food Facts, then USDA).
-3. **Additive risk levels, one per additive**, each with its sources, instantly on the scan screen. Inside Story has the cited additive content (Food Additives reading entries) and matches it on scan, which is comparable depth but less visible.
+**What it does well that Lifestead does not yet do**
+1. **Alternatives.** A poor score comes with a list of similar products that score better. Lifestead flags but never offers a swap.
+2. **Offline scanning** of a large product database. Lifestead's scan needs the network (Open Food Facts, then USDA).
+3. **Additive risk levels, one per additive**, each with its sources, instantly on the scan screen. Lifestead has the cited additive content (Food Additives reading entries) and matches it on scan, which is comparable depth but less visible.
 4. **Search a product by name** without having it in hand (Premium).
 5. Brand trust built on independence and a pay-what-you-want model.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Home cooking and whole foods; Yuka is only about packaged products.
 - Per-condition relevance: the same additive can matter for one condition and not another. Yuka scores everyone identically.
 - Nutrient targets, supplements, timing rules, stages: Yuka has none of them.
@@ -223,15 +223,15 @@ Insights is `app/(tabs)/insights.tsx` (about 4,900 lines) with 19 lenses behind 
 - No family plan.
 - Sources: https://apps.apple.com/us/app/drugs-com-medication-guide/id599471042 , https://www.drugs.com/drug_interactions.html , https://reference.medscape.com/drug-interactionchecker
 
-**What it does well that Inside Story does not yet do**
-1. **Breadth.** Any pair of 24,000 products, drug to drug included. Inside Story's `interaction_rules` is a hand-curated, cited set of tens of rules focused on food and supplement timing; two prescriptions against each other are not checked at all.
-2. **Severity grading** on a recognised three-level scale (Major, Moderate, Minor). Inside Story has two levels (caution, note).
+**What it does well that Lifestead does not yet do**
+1. **Breadth.** Any pair of 24,000 products, drug to drug included. Lifestead's `interaction_rules` is a hand-curated, cited set of tens of rules focused on food and supplement timing; two prescriptions against each other are not checked at all.
+2. **Severity grading** on a recognised three-level scale (Major, Moderate, Minor). Lifestead has two levels (caution, note).
 3. **FDA alerts and recalls** tied to the saved medication list.
 4. **Pill identifier** by imprint, color and shape.
 5. Two explanations per interaction, one for the patient and one for the clinician.
 
-**What Inside Story already does better**
-- **Timing, not just existence.** Drugs.com says levothyroxine and calcium interact; Inside Story checks the person's actual dose times against what they actually ate (`lib/doseMealTiming.ts`, `lib/interactionRules.ts` "confirmed" versus "unverified"), which no general checker does.
+**What Lifestead already does better**
+- **Timing, not just existence.** Drugs.com says levothyroxine and calcium interact; Lifestead checks the person's actual dose times against what they actually ate (`lib/doseMealTiming.ts`, `lib/interactionRules.ts` "confirmed" versus "unverified"), which no general checker does.
 - Food-level detail: which foods in today's log carry enough calcium or iron to matter (`MEAL_AMOUNT_THAT_MATTERS`), rather than a generic "avoid dairy."
 - Personal and doctor's rules, labelled separately.
 - Nothing about the medication list leaves the phone; Drugs.com's saved list is tied to an account.
@@ -257,13 +257,13 @@ Rule reminder for all of these: timing advice is allowed, but no sentence may te
 - No lifetime plan. Family is multiple profiles inside one Premium account.
 - Sources: https://pillo.care/blog/medisafe-not-free-what-to-do , https://carezano.com/software/medisafe , https://medisafe.com/medisafe-launches-feature-to-alert-users-of-potentially-harmful-drug-interactions
 
-**What it does well that Inside Story does not yet do**
-1. **Interaction alert at the moment a medication is added**, graded by severity, before the person ever looks for it. Inside Story's My Meds & Interactions lens shows warnings when opened; adding a supplement already reports what food supplies, but a new interaction is not raised at the moment of adding.
-2. **Medfriend**: a missed dose notifies someone else. Inside Story's person-to-person sync (`lib/peerRelationships.ts`) marks `meds` as `ready: false`, so nothing about medication crosses between people yet.
+**What it does well that Lifestead does not yet do**
+1. **Interaction alert at the moment a medication is added**, graded by severity, before the person ever looks for it. Lifestead's My Meds & Interactions lens shows warnings when opened; adding a supplement already reports what food supplies, but a new interaction is not raised at the moment of adding.
+2. **Medfriend**: a missed dose notifies someone else. Lifestead's person-to-person sync (`lib/peerRelationships.ts`) marks `meds` as `ready: false`, so nothing about medication crosses between people yet.
 3. **Adherence history** as a percentage and a shareable report.
 4. **Refill tracking** by pill count.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Food-aware timing (a dose checked against the meals around it) rather than a clock alarm; Medisafe does not know what you ate.
 - Supplements treated as nutrient sources, with the food versus supplement split.
 - No account and no server copy of the medication list; Medisafe's model depends on its cloud and on pharma partnerships.
@@ -286,13 +286,13 @@ Rule reminder for all of these: timing advice is allowed, but no sentence may te
 - No lifetime or family plan listed.
 - Sources: https://apps.apple.com/us/app/heali-diet-nutrition/id1492658143 , https://techcrunch.com/2023/11/09/heali-app-personalized-nutrition-food-as-medicine , https://www.heali.com/
 
-**What it does well that Inside Story does not yet do**
-1. **Several conditions combined into one verdict** on any product, recipe or menu item, stated in one line. Inside Story does this for whole foods (Safe Foods, For You) but not for a combined verdict on a whole recipe from the web or a menu.
+**What it does well that Lifestead does not yet do**
+1. **Several conditions combined into one verdict** on any product, recipe or menu item, stated in one line. Lifestead does this for whole foods (Safe Foods, For You) but not for a combined verdict on a whole recipe from the web or a menu.
 2. **Menu scan**: photograph a restaurant menu and each dish is rated for your conditions.
 3. **Plain-language AI chat**: "can I eat miso with Hashimoto's and IBS?" answered in context.
 4. **Recipe discovery at scale** filtered to your conditions.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Evidence tiering on every claim; Heali's AI answers carry no visible evidence grade.
 - Nutrient totals with the food versus supplement split, cooking losses, timing rules, healing stages, labs: Heali has none of these in depth.
 - Personal pattern discovery (Pattern Finder, food experiments) rather than generic diet rules.
@@ -307,7 +307,7 @@ Rule reminder for all of these: timing advice is allowed, but no sentence may te
 
 ## 3. Gap synthesis and ranked recommendations
 
-Where Inside Story already leads on this tab: condition-aware scoring across 19 conditions at once, the food versus supplement split, dose timing checked against actual meals, cooking losses, healing stages, and honest evidence tiers, all without an account or a server. No app reviewed does more than two of those.
+Where Lifestead already leads on this tab: condition-aware scoring across 19 conditions at once, the food versus supplement split, dose timing checked against actual meals, cooking losses, healing stages, and honest evidence tiers, all without an account or a server. No app reviewed does more than two of those.
 
 Where the market is ahead: telling the person what to eat next to close a gap, simple one-line verdicts, glucose under meals, drug-to-drug breadth, and AI help (photo logging, chat). The last one conflicts with the local-first stance and should stay opt-in if built at all.
 
@@ -338,8 +338,8 @@ Not recommended for this tab: store and restaurant product guides (against the h
 | Drugs.com | Yes, with ads | Ad-free price not confirmed | Not confirmed | Not confirmed | No |
 | Medisafe | Yes, 2 medications | $4.99 | $39.99 | No | Several profiles inside Premium |
 | Heali | Yes, limited | $15.00 | $75.00 | No | No |
-| **Inside Story (planned)** | Yes: Food Lookup without condition scoring | **$9.99** Individual | **$89.99** Individual | No | Partner $14.99/mo or $134.99/yr for two; Household seats $1.99/mo after 2 or 3 free; Guardian free with Individual; Caregiver $4.99/mo per person |
+| **Lifestead (planned)** | Yes: Food Lookup without condition scoring | **$9.99** Individual | **$89.99** Individual | No | Partner $14.99/mo or $134.99/yr for two; Household seats $1.99/mo after 2 or 3 free; Guardian free with Individual; Caregiver $4.99/mo per person |
 
-**What people in this category are used to paying.** Single-purpose tools sit low: a product scanner $10 to $60 a year, a medication reminder about $40 a year, an interaction checker free. Full nutrition trackers cluster at $60 to $100 a year (Cronometer $59.99, Heali $75, Levels $80 for the app alone, ZOE $99.99). Anything tied to a test or a sensor jumps to hundreds a year. Inside Story's $89.99 a year sits at the upper end of plain trackers, which is defensible because it replaces several of these apps at once (a tracker, a scanner, a medication reminder, a condition guide) and adds household and caregiver tiers none of them offer. Monthly $9.99 is under Cronometer's $10.99 and ZOE's $15.99. The risk is the free tier: Yuka, Cronometer and Drugs.com give their core away, and Inside Story's Free tier withholds condition scoring, which is its main differentiator, so a first-time visitor may not see why to pay. A small taste of condition scoring (for example one condition, or Food Lookup's For You card on a limited number of foods) would match what people expect from a free tier.
+**What people in this category are used to paying.** Single-purpose tools sit low: a product scanner $10 to $60 a year, a medication reminder about $40 a year, an interaction checker free. Full nutrition trackers cluster at $60 to $100 a year (Cronometer $59.99, Heali $75, Levels $80 for the app alone, ZOE $99.99). Anything tied to a test or a sensor jumps to hundreds a year. Lifestead's $89.99 a year sits at the upper end of plain trackers, which is defensible because it replaces several of these apps at once (a tracker, a scanner, a medication reminder, a condition guide) and adds household and caregiver tiers none of them offer. Monthly $9.99 is under Cronometer's $10.99 and ZOE's $15.99. The risk is the free tier: Yuka, Cronometer and Drugs.com give their core away, and Lifestead's Free tier withholds condition scoring, which is its main differentiator, so a first-time visitor may not see why to pay. A small taste of condition scoring (for example one condition, or Food Lookup's For You card on a limited number of foods) would match what people expect from a free tier.
 
 Sources for all pricing are listed in each app's section above.

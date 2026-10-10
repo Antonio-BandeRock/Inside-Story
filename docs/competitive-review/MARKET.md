@@ -1,4 +1,4 @@
-# Inside Story: market and advertising case (2026-10-07)
+# Lifestead: market and advertising case (2026-10-07)
 
 Published page: https://claude.ai/artifact/KGZLwhE3abMRCsWBpQCKeM (the full version, with charts and sources). This file is the plain copy kept with the build plan.
 
@@ -7,7 +7,7 @@ Tiers: **measured** (study, government count, company report), **survey** (poll,
 ## The answer in six lines
 
 1. Lead with five audiences: autoimmune conditions, adults with ADHD or autism, family caregivers, people who grow food, people who want to leave their story behind.
-2. Lead every message with privacy. 53% of Americans would never trust a tech company with health data; Inside Story holds none.
+2. Lead every message with privacy. 53% of Americans would never trust a tech company with health data; Lifestead holds none.
 3. Paid installs do not pay back in year one at median conversion. Spend at scale only once 30-day retention is known.
 4. Advertise contextually: patient and ADHD creators, podcast host reads, newsletters, keyword search ads. No pixels, no retargeting.
 5. A launch quarter that could become a sensation: $150K to $300K. Sustained: $1M to $3M a year. Creator gifting ($0) and the ground floor (under $2K a month) should start now; every paid level is optional and waits on retention.

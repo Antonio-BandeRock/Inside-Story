@@ -65,7 +65,7 @@ function Body({ name, content, palette }: { name: WidgetName; content: WidgetCon
 }
 
 /** Both looks, so the widget follows the phone's dark theme. */
-export function renderInsideStoryWidget(name: WidgetName, content: WidgetContent) {
+export function renderLifesteadWidget(name: WidgetName, content: WidgetContent) {
   return {
     light: <Body name={name} content={content} palette={LIGHT} />,
     dark: <Body name={name} content={content} palette={DARK} />,

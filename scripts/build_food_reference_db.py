@@ -1,6 +1,6 @@
 """
 Transforms hashimotos_foods_combined_scored_and_nutrients_LIVE.xlsx into a
-compact reference SQLite database for the Inside Story app.
+compact reference SQLite database for the Lifestead app.
 
 Extracts: identity (food_id, source, source_code, name, short_name,
 category, botanical classification), the 31 real D1-D6 six-dimension score

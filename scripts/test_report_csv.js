@@ -94,8 +94,8 @@ same(whole[photos + 1], '2 photos in the PDF', 'photos counted, not embedded');
 same(whole.slice(-3), ['', 'Made on this device.', ''], 'footer last, the file ends in CRLF');
 
 // 4. File names
-same(C.reportCsvFileName(doc, null), 'inside-story-doctor-report-2026-09-29-30d.csv', 'whole report file name');
-same(C.reportCsvFileName(doc, 'labs-2'), 'inside-story-doctor-report-2026-09-29-30d-labs-2.csv', 'table file name');
+same(C.reportCsvFileName(doc, null), 'lifestead-doctor-report-2026-09-29-30d.csv', 'whole report file name');
+same(C.reportCsvFileName(doc, 'labs-2'), 'lifestead-doctor-report-2026-09-29-30d-labs-2.csv', 'table file name');
 same(C.slugFor('!!!'), 'section', 'a heading with no letters still names a file');
 
 console.log((failures === 0 ? 'PASS' : 'FAIL') + ' ' + (checks - failures) + '/' + checks);

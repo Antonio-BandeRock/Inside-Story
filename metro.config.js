@@ -53,7 +53,7 @@ function editableTextFor(context, moduleName) {
 }
 
 // The desktop app (desktop/, an Electron shell around this same code on
-// its web target) is built with INSIDE_STORY_DESKTOP=1 in the environment.
+// its web target) is built with LIFESTEAD_DESKTOP=1 in the environment.
 // Under that flag, and only on the web platform, a handful of modules
 // resolve to a desktop stand-in in lib/desktop/ instead of the package:
 // expo-sqlite becomes a bridge to SQLite running in Electron's main
@@ -64,7 +64,7 @@ function editableTextFor(context, moduleName) {
 // sets the flag, so nothing here reaches the Android or iOS bundle, and
 // @expo/fingerprint does not hash this file, so the runtime version is
 // unaffected either way.
-if (process.env.INSIDE_STORY_DESKTOP === '1') {
+if (process.env.LIFESTEAD_DESKTOP === '1') {
   const shims = {
     'expo-sqlite': 'lib/desktop/expoSqliteShim.ts',
     'expo-secure-store': 'lib/desktop/secureStoreShim.ts',

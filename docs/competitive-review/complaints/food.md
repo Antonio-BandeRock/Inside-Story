@@ -162,7 +162,7 @@ Roughly 60% negative across 6,187 reviews by one count ([justuseapp](https://jus
 - "Something went wrong" on opening lists; lists that will not save. **many** ([problems page](https://justuseapp.com/en/app/1133637674/whisk-recipes-grocery-list/problems))
 - A health score "steeped in fat phobia and diet culture language." **several**
 
-**Lifestead must:** never bring back a ticked item after a sync (the three-way merge settles this by time; keep a test for it); save edits to imported recipes as the person's own; share from Instagram and other apps (Share to Inside Story, item 31) and say plainly when a link holds no recipe; keep scoring about conditions, never about weight or "good" and "bad" food.
+**Lifestead must:** never bring back a ticked item after a sync (the three-way merge settles this by time; keep a test for it); save edits to imported recipes as the person's own; share from Instagram and other apps (Share to Lifestead, item 31) and say plainly when a link holds no recipe; keep scoring about conditions, never about weight or "good" and "bad" food.
 
 ---
 

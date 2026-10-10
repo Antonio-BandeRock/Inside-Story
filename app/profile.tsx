@@ -2693,8 +2693,10 @@ export default function ProfileScreen() {
         return;
       }
       const backups = listed.value
-        .filter((file) => file.name.startsWith('inside-story-backup-') && file.name.endsWith('.json'))
-        .sort((a, b) => b.name.localeCompare(a.name));
+        // Backups made before the 1.0.66 rename start inside-story-backup-,
+        // so both prefixes are read and sorted by the date after them.
+        .filter((file) => /^(lifestead|inside-story)-backup-.*\.json$/.test(file.name))
+        .sort((a, b) => b.name.replace(/^.*-backup-/, '').localeCompare(a.name.replace(/^.*-backup-/, '')));
       if (backups.length === 0) {
         showBackupAlert(
           'No backups there',

@@ -50,21 +50,21 @@ What Signals does NOT have today: no daily numeric sliders (mood 1 to 10, energy
 
 ### 2.1 Bearable (the closest direct rival to Signals)
 
-**What it is.** A general symptom, mood and habit tracker built by people with chronic illness. iPhone and Android. Very popular with chronic illness, ADHD and mental health communities, which overlaps both Inside Story audiences.
+**What it is.** A general symptom, mood and habit tracker built by people with chronic illness. iPhone and Android. Very popular with chronic illness, ADHD and mental health communities, which overlaps both Lifestead audiences.
 
 **Pricing** (checked 2026-09-25, https://bearable.app/pricing/ and https://bearable.app/blog/pricing-and-principles/): Free tier covers most tracking with unlimited custom items and weekly reports. Premium is $6.99/month or $34.99/year, the annual price often discounted to about $18.99. No lifetime purchase (they say they are exploring one and give some away in monthly draws). No family plan. A sponsorship scheme ("Bearable Heroes") gives Premium to people who cannot afford it. Regional pricing not confirmed.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 1. **Logging is a single scrolling daily form** with mood and energy as 1 to 5 or 1 to 10 scales, then taps on symptoms with a per-symptom severity, then factors (anything the person names). A full day takes well under a minute.
 2. **Every item is the person's own.** Symptoms, factors and categories are all user-created. Signals' tag list is fixed at 43.
-3. **Correlation reports across everything**: any factor against any symptom, with "on days you did X, symptom Y averaged Z" charts. Inside Story's Pattern Finder only reads flares against foods.
-4. **Custom experiments** (Premium): pick a change, pick the outcome, compare before and after. Inside Story has this only for foods.
+3. **Correlation reports across everything**: any factor against any symptom, with "on days you did X, symptom Y averaged Z" charts. Lifestead's Pattern Finder only reads flares against foods.
+4. **Custom experiments** (Premium): pick a change, pick the outcome, compare before and after. Lifestead has this only for foods.
 5. **Bowel movement log** with a stool scale, a first-class tracker in a chronic illness app.
 6. **Reminders to check in** at times the person sets, several a day.
 7. **Apple Health, Google Fit and Fitbit import.**
 
-**What Inside Story already does better**
-- The food side is incomparably deeper: Bearable's "nutrition" is a tag like "ate sugar", while Inside Story knows the food and its nutrients, scores and the 19 conditions.
+**What Lifestead already does better**
+- The food side is incomparably deeper: Bearable's "nutrition" is a tag like "ate sugar", while Lifestead knows the food and its nutrients, scores and the 19 conditions.
 - Pattern Finder names its denominators and compares against an ordinary-stretch baseline (`lib/patternBasis.ts`); Bearable's correlation charts do neither and can read as cause.
 - Food experiments with a before, without and back period, and a stated one-run limit.
 - Hands-On Therapies with Therapy Response, nocturia, blood pressure, labs with ranges, the healing-stage assessment.
@@ -86,16 +86,16 @@ What Signals does NOT have today: no daily numeric sliders (mood 1 to 10, energy
 
 **Pricing** (checked 2026-09-25): free app with morning and evening check-ins, Stability Score, trends and export (https://www.elarahealth.org/pacing-app-vergleich). Membership reported at about $19.99/month or $179.88/year, plus the Visible Band 2.0 at $99.99 list, often about $80 (third-party source https://wellfr.com/how-much-does-the-visible-arm-band-cost-a-breakdown-of-device-and-subscription-fees; UK reported at £11/month billed yearly). Official page https://www.makevisible.com/ does not print the price, so treat these as unconfirmed. Membership sold in the US and UK only. No family plan.
 
-**What it does well that Inside Story does not yet do**
-1. **One-minute morning check-in with a single daily figure** that says how much room the person has today. Inside Story has no morning ritual and no single "today" reading.
+**What it does well that Lifestead does not yet do**
+1. **One-minute morning check-in with a single daily figure** that says how much room the person has today. Lifestead has no morning ritual and no single "today" reading.
 2. **Pacing and energy budgeting**: the whole product is about not overspending energy, which matters for fatigue across Hashimoto's, lupus, MS, fibromyalgia, and for the second audience's overload.
 3. **Live wearable feedback** (the armband buzzes before a crash).
 4. **Heart rate and HRV from the phone camera**, no wearable needed.
 5. Validated questionnaire (FUNCAP) for function over time.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Food, meds, labs, therapies, nocturia and the rest; Visible is heart rate and a handful of symptoms.
-- Inside Story already imports resting heart rate and HRV from any watch through Health Connect, at no extra hardware cost.
+- Lifestead already imports resting heart rate and HRV from any watch through Health Connect, at no extra hardware cost.
 - No subscription hardware lock-in, and data stays on the phone.
 
 **Gaps and what closing them would take**
@@ -113,14 +113,14 @@ What Signals does NOT have today: no daily numeric sliders (mood 1 to 10, energy
 
 **Pricing** (checked 2026-09-25): varies by country and has been reported inconsistently. One 2026 review gives a limited free tier and $19.99/month for full access (https://mouthtogut.com/news/best-food-diary-apps-ibs-food-sensitivities-2026); another gives $8 to $10/month (https://triggerbites.com/blog/best-food-diary-apps-2026). An insurer and employer version is unlocked by access code. No lifetime or family plan found. Could not confirm from Cara Care's own store listing.
 
-**What it does well that Inside Story does not yet do**
-1. **Stool log with the Bristol stool scale**, pictured, one tap. Bowel habit is the core signal for IBS, IBD and celiac, three of Inside Story's 19 conditions, and Signals has nowhere to put it except a tag or a note.
+**What it does well that Lifestead does not yet do**
+1. **Stool log with the Bristol stool scale**, pictured, one tap. Bowel habit is the core signal for IBS, IBD and celiac, three of Lifestead's 19 conditions, and Signals has nowhere to put it except a tag or a note.
 2. **Guided elimination and reintroduction program** with a day-by-day plan and prompts, rather than a single trial set up by hand.
 3. **"Best days vs worst days"** view: which foods showed up on the person's best and worst symptom days.
 4. **Gut-directed hypnotherapy audio**, which has trial evidence in IBS.
 5. **Dietitian and gastroenterologist-built content inside the flow**, and a clinician-facing companion app.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Covers 19 conditions instead of the gut alone, plus meds, labs, therapies and the rest of life.
 - A far larger food database with nutrients and per-condition scoring; Cara Care leans on FODMAP only.
 - The food experiment design (before, without, back) and the honest one-run limit.
@@ -140,13 +140,13 @@ What Signals does NOT have today: no daily numeric sliders (mood 1 to 10, energy
 
 **Pricing** (checked 2026-09-25, https://www.mysymptoms.net/question/prices/ and store search results): logging is free with ads. Premium is a subscription for the analysis: $9.99 for 1 month, $39.99 for 6 months, $49.99 for 12 months, with a 7-day trial. No lifetime (older one-time purchases were discontinued) and no family plan found. Store prices may vary by country.
 
-**What it does well that Inside Story does not yet do**
-1. **Time-gap analysis per suspect**: for each symptom it shows which foods and ingredients most often came before it, and within what window (for example 2 to 6 hours, or the next day). Inside Story's Pattern Finder uses fixed preceding windows rather than showing the typical delay per food.
+**What it does well that Lifestead does not yet do**
+1. **Time-gap analysis per suspect**: for each symptom it shows which foods and ingredients most often came before it, and within what window (for example 2 to 6 hours, or the next day). Lifestead's Pattern Finder uses fixed preceding windows rather than showing the typical delay per food.
 2. **Bowel movements, energy, sleep and stress as separate quick entries on one timeline** with the food, so the day reads as one strip.
 3. **A PDF diary export and a secure share link for a dietitian**, used routinely in clinics.
 4. **Speed**: a recent-items list and a one-tap repeat for common entries.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Pattern Finder states what it counts against, compares to an ordinary-stretch baseline and never names a cause; mySymptoms labels foods as "suspects", which leans toward a verdict.
 - Measured nutrient data and per-condition scoring behind every food.
 - Experiments that test a suspect on purpose rather than only watching.
@@ -166,12 +166,12 @@ What Signals does NOT have today: no daily numeric sliders (mood 1 to 10, energy
 
 **Pricing** (checked 2026-09-25, https://flaredown.com/): free, "free forever", no paid tier, no ads. Funded by donations.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 1. **Weather logged automatically** every day (temperature, humidity, pressure, precipitation) and available beside symptoms. Barometric pressure is a commonly reported flare context for arthritis, migraine and fibromyalgia, three of the 19 conditions.
 2. **A daily check-in built around the person's own list** of conditions, symptoms and treatments, each rated 0 to 4, so every day produces the same shape of record and is easy to compare.
 3. **Community comparisons**: what other people with the same condition report tracking and taking.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - Everything to do with food, nutrients, meds timing, labs and the rest of life.
 - Stays on the phone; Flaredown's anonymised data is pooled and published, which some people will not want.
 - Honest pattern wording; Flaredown leaves interpretation to the person.
@@ -189,15 +189,15 @@ What Signals does NOT have today: no daily numeric sliders (mood 1 to 10, energy
 
 **Pricing** (checked 2026-09-25): Premium $9.99/month or $59.99/year (https://bearable.app/bearable-vs-careclinic-which-one-should-you-choose/ and https://sourceforge.net/software/product/CareClinic/); one listing gives a cheaper $5.99/month or $39.99/year tier, and a professional plan from $49.99/month. The official pricing page returned "not found", so these are unconfirmed. Free tier is narrow: three preset symptoms, no customising, no back-dating. No lifetime found; family and caregiver plans not confirmed.
 
-**What it does well that Inside Story does not yet do**
-1. **Validated health scales and questionnaires** (for example depression, anxiety and pain scales) filled in inside the app and charted over time. Inside Story has its own assessment domains but not the standard scales a clinician recognises by name.
+**What it does well that Lifestead does not yet do**
+1. **Validated health scales and questionnaires** (for example depression, anxiety and pain scales) filled in inside the app and charted over time. Lifestead has its own assessment domains but not the standard scales a clinician recognises by name.
 2. **Guided journaling prompts** alongside symptoms.
 3. **Symptom severity on a 1 to 10 scale with a timestamp per symptom**, finer than Signals' four steps.
-4. **One app across web, phone and offline**, which Inside Story now also has through the desktop app.
+4. **One app across web, phone and offline**, which Lifestead now also has through the desktop app.
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - The whole food side, the interaction rules, meds timing against meals, labs with ranges, therapies, nocturia.
-- A free tier that is not crippled: Signals is not in Inside Story's Free tier at all, but what Free does include is not capped at three items.
+- A free tier that is not crippled: Signals is not in Lifestead's Free tier at all, but what Free does include is not capped at three items.
 - Local-first; CareClinic holds data on its servers.
 - Honest evidence tiering and pattern wording.
 
@@ -214,7 +214,7 @@ What Signals does NOT have today: no daily numeric sliders (mood 1 to 10, energy
 
 **Pricing** (checked 2026-09-25, https://apps.apple.com/us/app/guava-health-tracker/id1622255863): free, with an optional paid "Guava Plus" subscription. The store page and searches did not show the price; could not confirm. No lifetime or family plan found.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 1. **Body heat map for symptoms**: tap where it hurts on a body outline; the map fills in over time. Much faster and clearer than tags for pain, joint and skin conditions (rheumatoid arthritis, psoriasis, lupus, fibromyalgia).
 2. **Lab results arrive by themselves** from the patient portal instead of being typed in.
 3. **Doctor visit prep**: a summary built for one appointment.
@@ -222,7 +222,7 @@ What Signals does NOT have today: no daily numeric sliders (mood 1 to 10, energy
 5. **Medication supply count and refill alerts.**
 6. **Cycle tracking with predictions.**
 
-**What Inside Story already does better**
+**What Lifestead already does better**
 - No AI reading records on a company's server, and no portal login shared with a third party.
 - Food and nutrient depth, the interaction rules, and Pattern Finder's honest counting.
 - Reports per reader (doctor, nutritionist, trainer, caregiver) are already built in `lib/reportKinds.ts`, which covers most of "doctor visit prep".
@@ -231,7 +231,7 @@ What Signals does NOT have today: no daily numeric sliders (mood 1 to 10, energy
 | Gap | Where it would go | Native or JS | Privacy | Size |
 |---|---|---|---|---|
 | Body map for where a symptom is | A tappable body outline component (SVG, front and back, about 30 regions) in the flare and reaction forms in `app/(tabs)/log.tsx`; a `checkin_body_regions` table (checkin_id, region); a Trends band showing which regions come up most. `react-native-svg` is already in `package.json` | JS only | None | Medium |
-| Lab import without typing | Two local routes: (a) a photo of the lab sheet read on the phone (needs on-device text recognition, a native module and rebuild), or (b) a pasted table or CSV parsed in JS. Portal (FHIR) import needs an OAuth sign-in per health system and a registered app, which is Large. All should land in `lab_results` for the person to confirm before saving | (b) JS only; (a) native | Portal import sends credentials to the health system only, no Inside Story server needed, but it is a large compliance job | (b) Small, (a) Medium, portal Large |
+| Lab import without typing | Two local routes: (a) a photo of the lab sheet read on the phone (needs on-device text recognition, a native module and rebuild), or (b) a pasted table or CSV parsed in JS. Portal (FHIR) import needs an OAuth sign-in per health system and a registered app, which is Large. All should land in `lab_results` for the person to confirm before saving | (b) JS only; (a) native | Portal import sends credentials to the health system only, no Lifestead server needed, but it is a large compliance job | (b) Small, (a) Medium, portal Large |
 | Pill supply count and refill alert | Belongs to Life > My Meds and Schedules > Meds rather than Signals: a `supply_count` on `treatments`, decremented by marked doses, and a dated reminder kind `refill` in `lib/reminderSources.ts` | JS only | None | Small to Medium |
 | Cycle tracking | See Clue below | | | |
 
@@ -243,14 +243,14 @@ What Signals does NOT have today: no daily numeric sliders (mood 1 to 10, energy
 
 **Why it is here.** Cycle tracking cross-referenced in Pattern Finder is open item 25 in CLAUDE.md. Many of the 19 conditions change across the cycle (migraine, IBS, lupus, rheumatoid arthritis, thyroid symptoms, endometriosis-related pain), and Health Connect flow days are already imported (`lib/healthConnect.ts`, key `cycle`) but nothing reads them.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 1. **Cycle day on every day of the record**, so any symptom can be seen by cycle phase.
 2. **Predictions** of the next period and PMS days.
 3. **Perimenopause mode**, a large and under-served group that overlaps heavily with autoimmune onset in women.
 4. **Partner view** of the predictions.
 
-**What Inside Story already does better**
-- Clue's symptom list is cycle-shaped; Inside Story ties symptoms to foods, meds, labs and therapies.
+**What Lifestead already does better**
+- Clue's symptom list is cycle-shaped; Lifestead ties symptoms to foods, meds, labs and therapies.
 - No account needed and no server; Clue holds data in the cloud (well protected under EU law, but still a server).
 
 **Gaps and what closing them would take**
@@ -268,13 +268,13 @@ What Signals does NOT have today: no daily numeric sliders (mood 1 to 10, energy
 
 **Pricing** (checked 2026-09-25, https://welltory.com/plans/ and https://aelivra.co/explore/compare/welltory-review): free with 3 days of Premium; the free tier deletes data older than 30 days. Premium about $15/month, or $99/year (about $8.25/month), or a lifetime purchase of about $300. No family plan found. Store prices vary by region.
 
-**What it does well that Inside Story does not yet do**
-1. **Turns wearable numbers into a daily reading** a person can glance at. Inside Story imports HRV and resting heart rate and deliberately does not interpret them ("kept, not interpreted").
+**What it does well that Lifestead does not yet do**
+1. **Turns wearable numbers into a daily reading** a person can glance at. Lifestead imports HRV and resting heart rate and deliberately does not interpret them ("kept, not interpreted").
 2. **Automatic diary**: sleep, steps and workouts filled in without the person lifting a finger, so the record has no gaps on busy days.
 3. **Habit analytics**: "on days after you slept under 6 hours your stress score was higher", across any habit.
 
-**What Inside Story already does better**
-- Welltory's scores are proprietary composites whose meaning is not published; Inside Story's rule against scores standing in for a clinician (Phase A rules) is the more honest position.
+**What Lifestead already does better**
+- Welltory's scores are proprietary composites whose meaning is not published; Lifestead's rule against scores standing in for a clinician (Phase A rules) is the more honest position.
 - Food, symptoms, meds and conditions, which Welltory barely touches.
 - Keeps full history for free users of the tiers that include it; Welltory deletes free history after 30 days.
 
@@ -292,13 +292,13 @@ What Signals does NOT have today: no daily numeric sliders (mood 1 to 10, energy
 
 **Pricing** (checked 2026-09-25, https://support.ouraring.com/hc/en-us/articles/4409086524819-Oura-Membership and https://www.bettervitals.com/learn/oura-ring-price-2026): ring from $349 (Silver or Black) to $499 (Gold or Ceramic), often discounted; membership $5.99/month or $69.99/year (same figures in euros in the EU), required for most features. No lifetime membership. No family plan for membership.
 
-**What it does well that Inside Story does not yet do**
+**What it does well that Lifestead does not yet do**
 1. **Baseline-drift notice**: "your temperature and resting heart rate have been above your usual for two nights." A person with an autoimmune condition often feels a flare coming days ahead; this gives it a number.
 2. **Tag effect on the body's measured data**: how nights after a tagged day differed from untagged nights.
 3. **Zero-effort data**: nothing to log for the body metrics.
 
-**What Inside Story already does better**
-- Inside Story is free of hardware; it reads whatever watch or ring the person already owns through Health Connect (Oura writes to Health Connect).
+**What Lifestead already does better**
+- Lifestead is free of hardware; it reads whatever watch or ring the person already owns through Health Connect (Oura writes to Health Connect).
 - Symptoms, food, meds and conditions are first-class; Oura's tags are a side feature.
 - No subscription needed to see one's own data.
 
@@ -336,7 +336,7 @@ Three gaps showed up in nearly every app and are not tied to one competitor:
 
 Not recommended: community data pooling (Flaredown), composite readiness or stress scores (Welltory, Visible), live over-exertion buzzing and camera heart rate (Visible). Each needs a server, conflicts with the rule that a score never stands in for a clinician, or costs a large native build for little gain over the wearable data already imported.
 
-Where Inside Story is already ahead of every app reviewed: the food experiment with before, without and back periods and its stated one-run limit; a Pattern Finder that names its denominators and compares against ordinary stretches; hands-on therapy sessions with Therapy Response; nocturia; labs with the lab's range and "your usual range"; and all of it with no account and no company server.
+Where Lifestead is already ahead of every app reviewed: the food experiment with before, without and back periods and its stated one-run limit; a Pattern Finder that names its denominators and compares against ordinary stretches; hands-on therapy sessions with Therapy Response; nocturia; labs with the lab's range and "your usual range"; and all of it with no account and no company server.
 
 ## 5. Pricing summary
 
@@ -354,8 +354,8 @@ US dollars, checked 2026-09-25. "Unconfirmed" means taken from third-party revie
 | Clue | Core cycle tracking | $9.99 | $39.99 | No | Partner view (Clue Connect), no family billing | None |
 | Welltory | 3 days of Premium, history deleted after 30 days | about $15 | $99 | about $300 | No | Optional wearable |
 | Oura | Little without membership | $5.99 | $69.99 | No | No | Ring $349 to $499 |
-| **Inside Story (planned)** | Free tier has **no Signals** at all | Individual $9.99 | Individual $89.99 | None planned | Partner $14.99/mo or $134.99/yr for two; Household seats $1.99/mo after 2 to 3 free; Guardian free with Individual or Partner; Caregiver $4.99/mo per person | None |
+| **Lifestead (planned)** | Free tier has **no Signals** at all | Individual $9.99 | Individual $89.99 | None planned | Partner $14.99/mo or $134.99/yr for two; Household seats $1.99/mo after 2 to 3 free; Guardian free with Individual or Partner; Caregiver $4.99/mo per person | None |
 
-**What people in this category are used to paying.** Single-purpose symptom trackers sit between $35 and $60 a year (Bearable, mySymptoms, Clue, CareClinic), and several are free or nearly free for what a casual user needs (Flaredown, Bearable's free tier, Guava's free tier). Hardware-led products (Visible, Oura, Welltory Premium) charge $70 to $180 a year on top of a device. Inside Story's $89.99 a year is above the pure trackers and below the hardware products. It is defensible because it replaces several of these apps at once (food and nutrients, meds and interactions, symptoms, and a life organiser), but judged on Signals alone it would look expensive.
+**What people in this category are used to paying.** Single-purpose symptom trackers sit between $35 and $60 a year (Bearable, mySymptoms, Clue, CareClinic), and several are free or nearly free for what a casual user needs (Flaredown, Bearable's free tier, Guava's free tier). Hardware-led products (Visible, Oura, Welltory Premium) charge $70 to $180 a year on top of a device. Lifestead's $89.99 a year is above the pure trackers and below the hardware products. It is defensible because it replaces several of these apps at once (food and nutrients, meds and interactions, symptoms, and a life organiser), but judged on Signals alone it would look expensive.
 
-**One pricing point worth a decision.** Every symptom tracker reviewed lets people log symptoms for free, and reviewers treat a narrow free tier as a mark against an app (CareClinic's three-symptom limit is criticised by name in Bearable's comparison). Inside Story's Free tier includes no Signals at all. Letting Free users log flares and the daily check-in, while keeping Pattern Finder, experiments and reports paid, would match the market and would feed the logging habit that the paid analysis depends on. This is a monetization decision for the owner, not a build item.
+**One pricing point worth a decision.** Every symptom tracker reviewed lets people log symptoms for free, and reviewers treat a narrow free tier as a mark against an app (CareClinic's three-symptom limit is criticised by name in Bearable's comparison). Lifestead's Free tier includes no Signals at all. Letting Free users log flares and the daily check-in, while keeping Pattern Finder, experiments and reports paid, would match the market and would feed the logging habit that the paid analysis depends on. This is a monetization decision for the owner, not a build item.

@@ -18,7 +18,7 @@
 - **Answers:** PictureThis, Planta · **Theme:** Garden
 - **How:** Reshaped 2026-09-29 by direct instruction: nothing in the app may cost a subscription or a charge, and the Pl@ntNet API is free only to 500 identifications a day for one account shared by every user, then paid. So the app names no plant itself. What Plant Is This, above the food search on Add a Planting, opens the free Pl@ntNet or Google Lens app on a phone (their websites on a computer), the person searches for the name it gave, and the planting records which app named it and how sure Pl@ntNet said it was. Every time it says an app’s name is a likely match and never to eat a plant on an app’s word alone. Built 1.0.56.2.
 
-### O3. Messages between Inside Story users
+### O3. Messages between Lifestead users
 - **Ships by:** Relay (Worker plus push) · **Size:** L · **Tabs:** Life
 - **Answers:** (your question) · **Theme:** Talking to people
 - **How:** End to end encrypted with the keys in lib/deviceIdentity.ts and the connections roster; the relay (M1) carries sealed bytes it cannot read. Caregiver, partner and family notes, a missed-dose alert, a shared list change.

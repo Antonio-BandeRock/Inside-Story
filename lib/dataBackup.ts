@@ -174,7 +174,7 @@ export async function buildBackupFileContent(
     const wire = await encryptBackupPayload(JSON.stringify(envelope), password);
     const stamp = envelope.exportedAt.replace(/[:.]/g, '-');
     return {
-      fileName: 'inside-story-backup-' + stamp + '.json',
+      fileName: 'lifestead-backup-' + stamp + '.json',
       content: JSON.stringify(wire),
     };
   } catch (error) {
@@ -215,7 +215,7 @@ export async function exportBackupToFile(password: string): Promise<string | nul
     const dir = new Directory(Paths.cache, 'backups');
     if (!dir.exists) dir.create({ intermediates: true });
     const stamp = envelope.exportedAt.replace(/[:.]/g, '-');
-    const file = new File(dir, `inside-story-backup-${stamp}.json`);
+    const file = new File(dir, `lifestead-backup-${stamp}.json`);
     file.write(JSON.stringify(wire));
     await recordBackupSaved();
     return file.uri;

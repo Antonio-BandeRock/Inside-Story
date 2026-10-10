@@ -341,7 +341,7 @@ export async function writeRawIsFile(content: unknown): Promise<string | null> {
     const { Directory, File, Paths } = await import('expo-file-system');
     const dir = new Directory(Paths.cache, 'is-shares');
     if (!dir.exists) dir.create({ intermediates: true });
-    const file = new File(dir, `inside-story-share-${Date.now()}.is`);
+    const file = new File(dir, `lifestead-share-${Date.now()}.is`);
     file.write(JSON.stringify(content));
     return file.uri;
   } catch (error) {

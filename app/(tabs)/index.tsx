@@ -850,7 +850,7 @@ const HOME_LENS_DESTINATIONS: Partial<
     color: colors.tabHome,
     renderIcon: () => (
       <Image
-        source={require('../../assets/branding/inside-story-window.png')}
+        source={require('../../assets/branding/lifestead-window.png')}
         style={{ width: 22, height: 22 }}
         resizeMode="contain"
       />
@@ -2622,12 +2622,12 @@ export default function HomeScreen() {
   // asks for.
   //
   // Since 2026-10-06 the glyph is the Lifestead book in its round window
-  // (assets/branding/inside-story-window.png), by direct instruction, in
+  // (assets/branding/lifestead-window.png), by direct instruction, in
   // place of the seed. The art is square, so it is drawn at size by size.
   function renderGreetingBookGlyph(size: number) {
     return (
       <Image
-        source={require('../../assets/branding/inside-story-window.png')}
+        source={require('../../assets/branding/lifestead-window.png')}
         style={{ width: size, height: size }}
         resizeMode="contain"
       />

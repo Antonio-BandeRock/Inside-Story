@@ -17,8 +17,8 @@ const { pathToFileURL } = require('node:url');
 const { BrowserWindow } = require('electron');
 
 function safeBase(fileBase) {
-  const cleaned = String(fileBase || 'inside-story').replace(/[^A-Za-z0-9._-]+/g, '-').slice(0, 120);
-  return cleaned || 'inside-story';
+  const cleaned = String(fileBase || 'lifestead').replace(/[^A-Za-z0-9._-]+/g, '-').slice(0, 120);
+  return cleaned || 'lifestead';
 }
 
 async function withPage(cacheFolder, html, work) {
