@@ -672,3 +672,23 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Home
 - **Answers:** Tiimo, Structured · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** One switch that turns Home into one clear next thing from the person’s own schedules, routines and reminders, with the rest one tap away; nothing scored, nothing counted against them.
+
+### U5. A review request at most once, never during setup
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** All
+- **Answers:** Goblin.tools · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** One ask after the person has used the app for a while, never in setup or onboarding, never repeated after a No. Source: complaints/home.md.
+
+### U6. Ask for the one photo, never the library
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** All
+- **Answers:** Pl@ntNet · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** Every photo pick goes through the system picker for the photos chosen; nothing asks for access to all photos. Check the X1 photo layer against it. Source: complaints/garden.md.
+
+### U7. A care reminder counts from when it was done
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Garden,Life
+- **Answers:** Planta · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** Watering, feeding and upkeep reminders reset from the last time the thing was recorded as done, not from when it was due, and say which they counted from. Source: complaints/garden.md.
+
+### U11. A full cloud drive is said plainly
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Profile
+- **Answers:** Google One · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** When the person's drive cannot take a backup or sync copy because it is full, the app says so in words, names the folder, and keeps working on the device with nothing lost. Source: complaints/across.md.

@@ -582,3 +582,33 @@
 - **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Reports
 - **Answers:** Obsidian · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Save to a folder chosen once and remembered, beside the share sheet, in PDF and open formats.
+
+### U8. An identification is a suggestion
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Garden
+- **Answers:** PictureThis, Seek, Merlin, RHS Grow · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** Any identification handed back from another app or service (I24) is shown with how sure it is, the next likely answers, and the level it reached (species, genus, family); care advice waits until the person confirms which plant it is. Source: complaints/garden.md.
+
+### U9. Measured rain before a forecast
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Garden
+- **Answers:** Apple Weather, Veglog · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** Garden reminders weigh rain the person's own gauge or station recorded (Growing Conditions) above any forecast, and each reminder says which it used. Source: complaints/across.md, garden.md.
+
+### U10. Sync never freezes the phone
+- **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** All
+- **Answers:** Obsidian · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** A merge runs without blocking typing or scrolling, shows that it is running, and a long one can be left to finish in the background; checked on the phone as well as the desktop. Source: complaints/across.md.
+
+### U12. Settings made for another person show when they last took effect
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Schedules
+- **Answers:** Apple Screen Time, Google Family Link · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** On a caregiver, partner or Guardian link, any setting one person makes for the other is shown on both phones with when it last applied, so a lapse is seen the same day; the app never contacts a child or a cared-for person about leaving the arrangement, and a Guardian link ends only by the parent's choice or a step both see. With A16 and Q73 to Q90. Source: complaints/companions.md.
+
+### U14. A hive log that works at the hive
+- **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Garden
+- **Answers:** Apiary Book, HiveTracks · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** For the hive log when built: buttons large enough for a gloved finger, voice entry, dates in the phone's format, no account or signal needed, the beekeeper's own fields, and no cap on hives. Source: complaints/garden.md.
+
+### U15. Decks move to and from Anki
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Interests
+- **Answers:** Anki · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** For Learn when built: import and export Anki's deck format, so a deck is the person's to take anywhere. Source: complaints/interests.md.

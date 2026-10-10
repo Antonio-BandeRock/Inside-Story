@@ -122,3 +122,8 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** All
 - **Answers:** Caring Village · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** A person already on Individual or Partner becomes a caregiver for a parent or anyone in their extended family at no cost to themselves; the family member pays for the link through a plan of their own, which a relative may buy for them. The caregiver’s own records keep their full paid features beside each person they care for, kept apart (Q75).
+
+### U13. What a helper writes arrives everywhere
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life
+- **Answers:** Lotsa Helping Hands · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** A helper's comment, task change or reminder on a shared item appears on every device of every person on the link, or says plainly that it has not arrived yet. With the caregiver work. Source: complaints/companions.md.

@@ -1,4 +1,4 @@
-## Phase 0. Decisions only the owner can make (5 items)
+## Phase 0. Decisions only the owner can make (9 items)
 
 ### P2. A small beta outside the house
 - **Ships by:** Owner decision first · **Size:** M · **Tabs:** none
@@ -24,6 +24,26 @@
 - **Ships by:** Owner decision first · **Size:** S · **Tabs:** all
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
 - **How:** Confirmed 2026-10-06 by direct instruction ("Confirm P28 as written"), and the CLAUDE.md tier table changed with it: the emergency card, med and supplement timing warnings from the interaction rules, allergy cautions and the clinical-claims protections are on every tier including Free. The current tier table puts the rules engine on paid only. Free useful on its own; paying adds depth, people and time saved. The vault (agreed the same day) keeps these outside it as well. Notion: https://app.notion.com/p/3f153652f27281928fe4f7fbfb9ac019
+
+### U1. The billing floor
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** All
+- **Answers:** Noom, Inflow, Goblin.tools, Headway, PictureThis, Paired · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** No free trial that turns into a charge unnoticed: renewal accepted by a box ticked on purpose, a reminder two days before any first or renewing charge, a receipt for every charge, and cancelling in one step inside the app. Decided with P27 before any price ships. Sources: complaints/home.md, across.md, garden.md, companions.md.
+
+### U2. Nothing already used moves behind payment
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** All
+- **Answers:** Quizlet, Trello, Drafts, Forest, 11pets, Obsidian Sync, Google One · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** A function a person has used on a tier stays on that tier, a price is never raised on the same thing for an existing subscriber, a limit is never enforced by making the person's own records read only, and nothing is priced per animal, hive, deck or project. Decided with the free/paid board and Z15. Sources: complaints/interests.md, home.md, garden.md, across.md.
+
+### U3. Say what is Free before setup, and open on the person's own things
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** All
+- **Answers:** PictureThis, RHS Grow, Goblin.tools, Veglog · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** No offer screen on opening the app or a tab; what is Free and what is paid is said in the store listing and before the first question of setup, never after it. Sources: complaints/garden.md, home.md.
+
+### U4. Privacy is never what a person pays for
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** All
+- **Answers:** Keepsafe, Standard Notes · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** App Lock and the vault sit on Free beside safety (P28), with no ads or trackers on any tier. A placement to confirm on the free/paid board. Source: complaints/across.md.
 
 ## Phase 1. Foundations (10 items)
 
@@ -77,7 +97,7 @@
 - **Answers:** Gardenize, Sortly, Monarch, Guava, Medisafe · **Theme:** Shared foundations
 - **How:** A media table (owner kind, owner id, file, taken_on), shrink on save, stored under the app folder, copied into the Backups folder and restored beside the encrypted snapshot, never in the plaintext record, shown on desktop from the synced copy. Serves A5, D12, I13, J4, J9.
 
-## Phase 2. Quick wins over the air (135 items)
+## Phase 2. Quick wins over the air (139 items)
 
 ### A3. Pills on hand and refill reminder
 - **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Life,Schedules,Signals,Insights
@@ -754,7 +774,27 @@
 - **Answers:** Tiimo, Structured · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** One switch that turns Home into one clear next thing from the person’s own schedules, routines and reminders, with the rest one tap away; nothing scored, nothing counted against them.
 
-## Phase 3. Larger builds over the air (117 items)
+### U5. A review request at most once, never during setup
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** All
+- **Answers:** Goblin.tools · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** One ask after the person has used the app for a while, never in setup or onboarding, never repeated after a No. Source: complaints/home.md.
+
+### U6. Ask for the one photo, never the library
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** All
+- **Answers:** Pl@ntNet · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** Every photo pick goes through the system picker for the photos chosen; nothing asks for access to all photos. Check the X1 photo layer against it. Source: complaints/garden.md.
+
+### U7. A care reminder counts from when it was done
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Garden,Life
+- **Answers:** Planta · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** Watering, feeding and upkeep reminders reset from the last time the thing was recorded as done, not from when it was due, and say which they counted from. Source: complaints/garden.md.
+
+### U11. A full cloud drive is said plainly
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Profile
+- **Answers:** Google One · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** When the person's drive cannot take a backup or sync copy because it is full, the app says so in words, names the folder, and keeps working on the device with nothing lost. Source: complaints/across.md.
+
+## Phase 3. Larger builds over the air (123 items)
 
 ### A2. Tapering doses
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Schedules
@@ -1341,6 +1381,36 @@
 - **Answers:** Obsidian · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Save to a folder chosen once and remembered, beside the share sheet, in PDF and open formats.
 
+### U8. An identification is a suggestion
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Garden
+- **Answers:** PictureThis, Seek, Merlin, RHS Grow · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** Any identification handed back from another app or service (I24) is shown with how sure it is, the next likely answers, and the level it reached (species, genus, family); care advice waits until the person confirms which plant it is. Source: complaints/garden.md.
+
+### U9. Measured rain before a forecast
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Garden
+- **Answers:** Apple Weather, Veglog · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** Garden reminders weigh rain the person's own gauge or station recorded (Growing Conditions) above any forecast, and each reminder says which it used. Source: complaints/across.md, garden.md.
+
+### U10. Sync never freezes the phone
+- **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** All
+- **Answers:** Obsidian · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** A merge runs without blocking typing or scrolling, shows that it is running, and a long one can be left to finish in the background; checked on the phone as well as the desktop. Source: complaints/across.md.
+
+### U12. Settings made for another person show when they last took effect
+- **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** Life,Schedules
+- **Answers:** Apple Screen Time, Google Family Link · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** On a caregiver, partner or Guardian link, any setting one person makes for the other is shown on both phones with when it last applied, so a lapse is seen the same day; the app never contacts a child or a cared-for person about leaving the arrangement, and a Guardian link ends only by the parent's choice or a step both see. With A16 and Q73 to Q90. Source: complaints/companions.md.
+
+### U14. A hive log that works at the hive
+- **Ships by:** Over the air (JS) · **Size:** S-M · **Tabs:** Garden
+- **Answers:** Apiary Book, HiveTracks · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** For the hive log when built: buttons large enough for a gloved finger, voice entry, dates in the phone's format, no account or signal needed, the beekeeper's own fields, and no cap on hives. Source: complaints/garden.md.
+
+### U15. Decks move to and from Anki
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Interests
+- **Answers:** Anki · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** For Learn when built: import and export Anki's deck format, so a deck is the person's to take anywhere. Source: complaints/interests.md.
+
 ## Phase 4. The Android rebuild (R1) (30 items)
 
 ### C11. Share into Inside Story from any app
@@ -1493,7 +1563,7 @@
 - **Answers:** Apple Health Sharing, AnyList · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** Two full accounts, meals and shopping shared, a per-category choice of the rest, ended cleanly.
 
-## Phase 5. The Worker and the relay (25 items)
+## Phase 5. The Worker and the relay (26 items)
 
 ### A14. Recalls matched to My Meds and scanned foods
 - **Ships by:** Cloudflare Worker · **Size:** M · **Tabs:** Insights,Life,Food
@@ -1619,6 +1689,11 @@
 - **Ships by:** Over the air (JS) · **Size:** M · **Tabs:** All
 - **Answers:** Caring Village · **Theme:** Beating the leader, function by function (2026-10-07)
 - **How:** A person already on Individual or Partner becomes a caregiver for a parent or anyone in their extended family at no cost to themselves; the family member pays for the link through a plan of their own, which a relative may buy for them. The caregiver’s own records keep their full paid features beside each person they care for, kept apart (Q75).
+
+### U13. What a helper writes arrives everywhere
+- **Ships by:** Over the air (JS) · **Size:** S · **Tabs:** Life
+- **Answers:** Lotsa Helping Hands · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** A helper's comment, task change or reminder on a shared item appears on every device of every person on the link, or says plainly that it has not arrived yet. With the caregiver work. Source: complaints/companions.md.
 
 ## Phase 6. The iPhone build (R2) (2 items)
 

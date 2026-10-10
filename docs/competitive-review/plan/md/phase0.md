@@ -22,3 +22,23 @@
 - **Ships by:** Owner decision first · **Size:** S · **Tabs:** all
 - **Answers:** (your question) · **Theme:** Brainstorm review 2026-10-06
 - **How:** Confirmed 2026-10-06 by direct instruction ("Confirm P28 as written"), and the CLAUDE.md tier table changed with it: the emergency card, med and supplement timing warnings from the interaction rules, allergy cautions and the clinical-claims protections are on every tier including Free. The current tier table puts the rules engine on paid only. Free useful on its own; paying adds depth, people and time saved. The vault (agreed the same day) keeps these outside it as well. Notion: https://app.notion.com/p/3f153652f27281928fe4f7fbfb9ac019
+
+### U1. The billing floor
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** All
+- **Answers:** Noom, Inflow, Goblin.tools, Headway, PictureThis, Paired · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** No free trial that turns into a charge unnoticed: renewal accepted by a box ticked on purpose, a reminder two days before any first or renewing charge, a receipt for every charge, and cancelling in one step inside the app. Decided with P27 before any price ships. Sources: complaints/home.md, across.md, garden.md, companions.md.
+
+### U2. Nothing already used moves behind payment
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** All
+- **Answers:** Quizlet, Trello, Drafts, Forest, 11pets, Obsidian Sync, Google One · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** A function a person has used on a tier stays on that tier, a price is never raised on the same thing for an existing subscriber, a limit is never enforced by making the person's own records read only, and nothing is priced per animal, hive, deck or project. Decided with the free/paid board and Z15. Sources: complaints/interests.md, home.md, garden.md, across.md.
+
+### U3. Say what is Free before setup, and open on the person's own things
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** All
+- **Answers:** PictureThis, RHS Grow, Goblin.tools, Veglog · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** No offer screen on opening the app or a tab; what is Free and what is paid is said in the store listing and before the first question of setup, never after it. Sources: complaints/garden.md, home.md.
+
+### U4. Privacy is never what a person pays for
+- **Ships by:** Owner decision first · **Size:** S · **Tabs:** All
+- **Answers:** Keepsafe, Standard Notes · **Theme:** What competitors' users complain about (2026-10-09)
+- **How:** App Lock and the vault sit on Free beside safety (P28), with no ads or trackers on any tier. A placement to confirm on the free/paid board. Source: complaints/across.md.
