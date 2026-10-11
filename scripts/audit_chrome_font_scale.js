@@ -47,6 +47,7 @@ const CHROME_FILES = [
   { file: 'components/TabHub.tsx', mode: 'cap' },
   { file: 'components/LensHub.tsx', mode: 'cap' },
   { file: 'components/MyItemsHub.tsx', mode: 'cap' },
+  { file: 'components/TabHubIconPicker.tsx', mode: 'cap' },
   { file: 'components/PageIdentityLabel.tsx', mode: 'pin' },
   { file: 'components/VersionLabel.tsx', mode: 'pin' },
 ];

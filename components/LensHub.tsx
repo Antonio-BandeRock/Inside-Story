@@ -131,7 +131,7 @@ export type LensOption<T extends string> = {
 // for more columns at this width gets them (gridColumnsFor), so a full-width
 // card shows more of a long list per screen rather than spreading the same
 // three columns out.
-const GRID_MIN_COLUMN_WIDTH = (300 - 8 * 2) / 3;
+export const GRID_MIN_COLUMN_WIDTH = (300 - 8 * 2) / 3;
 
 // This popup's own cap on the phone's font-size setting was a 1.3 defined
 // here, with a second hand-typed copy of it in components/MyItemsHub.tsx and
@@ -289,6 +289,11 @@ const VISIBLE_ROW_COUNT = 3;
 // own Info sits inside the grid instead, on its own dedicated 4th row.
 export function cardHeightFor(fontScale: number): number {
   return cardHeaderHeight(fontScale) + VISIBLE_ROW_COUNT * gridRowHeight(fontScale) + CARD_PADDING_VERTICAL + 5;
+}
+// The least a card may shrink to on a short window: two rows still showing.
+// Read by the TabHub icon card too, so it shrinks exactly as these do.
+export function cardMinHeightFor(fontScale: number): number {
+  return cardHeaderHeight(fontScale) + 2 * gridRowHeight(fontScale) + CARD_PADDING_VERTICAL;
 }
 
 // card's own paddingHorizontal (left/right, matching CARD_PADDING_VERTICAL's
@@ -697,7 +702,7 @@ export function LensHub<T extends string>({
   // landscape pass too." See lib/menuFit.ts.
   const cardFit = useMenuCardFit(
     cardHeightFor(fontScale),
-    cardHeaderHeight(fontScale) + 2 * gridRowHeight(fontScale) + CARD_PADDING_VERTICAL,
+    cardMinHeightFor(fontScale),
   );
 
   const itemWidthPercent = 100 / gridColumns;

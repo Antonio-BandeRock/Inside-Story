@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as NavigationBar from 'expo-navigation-bar';
 import { usePathname, useRouter, type Href } from 'expo-router';
-import { useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   Image,
   Modal,
@@ -41,6 +41,7 @@ import { DessertBuilderIcon } from './FoodBuilderIcons';
 import { HelpSheet } from './HelpButton';
 import { ActiveRingCircle } from './ActiveRingCircle';
 import { useHubHandoff } from './HubHandoff';
+import { TabHubIconPicker } from './TabHubIconPicker';
 import { TabHubPointer, useTabHubOnboarding } from './TabHubOnboarding';
 import { TabRouteIcon } from './TabRouteIcon';
 import { useWalkMark } from './WalkMark';
@@ -290,6 +291,9 @@ export function TabHub() {
   // it back.
   const [cardReady, setCardReady] = useState(false);
   const [helpVisible, setHelpVisible] = useState(false);
+  // The icon card a long press opens (components/TabHubIconPicker.tsx).
+  const [iconPickerOpen, setIconPickerOpen] = useState(false);
+  const buttonRef = useRef<View>(null);
   const router = useRouter();
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
@@ -475,6 +479,27 @@ export function TabHub() {
   // Everything a tap on the button does, in one place, because a tap on
   // this button's stand-in inside another hub's open menu has to do the
   // same (see lib/hubHandoff.ts).
+  // A long press, or a right-click on a computer, opens the icon card instead
+  // of the menu (1.0.66.17). react-native-web turns a held mouse button into
+  // onLongPress by itself; a right-click has to be caught off the button's
+  // DOM node, and the browser's own menu kept from opening over it.
+  function openIconPicker() {
+    setOpen(false);
+    setIconPickerOpen(true);
+  }
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const node = buttonRef.current as unknown as HTMLElement | null;
+    if (!node?.addEventListener) return;
+    const onContextMenu = (event: MouseEvent) => {
+      event.preventDefault();
+      setOpen(false);
+      setIconPickerOpen(true);
+    };
+    node.addEventListener('contextmenu', onContextMenu);
+    return () => node.removeEventListener('contextmenu', onContextMenu);
+  }, []);
+
   function openMenu() {
     // Clears the pointer for good. Tapping is the only thing that does:
     // reading about a button is not the same as knowing where it is.
@@ -648,9 +673,12 @@ export function TabHub() {
       {onboarding.showPointer && !open ? <TabHubPointer buttonBottom={buttonBottom} /> : null}
       <TouchableOpacity
         style={[styles.button, { bottom: buttonBottom }, walkMark('hub')]}
+        ref={buttonRef}
         onPress={openMenu}
+        onLongPress={openIconPicker}
         activeOpacity={0.85}
         accessibilityLabel="Open navigation menu"
+        accessibilityHint={Platform.OS === 'web' ? 'Right-click or hold to change the icon' : 'Hold to change the icon'}
         hitSlop={{ left: buttonIconOverhangX, right: buttonIconOverhangX, top: buttonIconOverhangTopY, bottom: buttonIconOverhangBottomY }}
       >
         {/* The artwork sits in a dark pressed-in well, always, since
@@ -858,6 +886,8 @@ export function TabHub() {
           <View style={[styles.navBarMask, { height: insets.bottom }]} pointerEvents="none" />
         </View>
       </Modal>
+
+      <TabHubIconPicker visible={iconPickerOpen} onClose={() => setIconPickerOpen(false)} />
 
       <HelpSheet
         visible={helpVisible}

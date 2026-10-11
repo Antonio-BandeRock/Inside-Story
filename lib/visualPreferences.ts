@@ -587,6 +587,10 @@ export type VisualPreferences = {
   // like any other, sorted alphabetically among the condition icons rather
   // than always leading the list.
   tabHubIcon: TabHubIconChoice;
+  // The last few TabHub icons picked, newest first, shown as a Recent row in
+  // the card a long press on the TabHub button opens (1.0.66.17). Written
+  // only by chooseTabHubIcon in lib/tabHubIconOptions.ts.
+  tabHubIconRecent: TabHubIconChoice[];
   // Which of constants/colors.ts's GROUND_THEMES is applied to the app's
   // whole neutral "ground" family (background/surface/border/textMuted/
   // etc.), added 2026-08-19 alongside Deep Navy being replaced by Deep Teal
@@ -907,6 +911,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   customBackgroundImages: {},
   genericPalette: 'ocean',
   tabHubIcon: 'insideStory',
+  tabHubIconRecent: [],
   groundTheme: 'ghostead',
   homeSectionVisibility: {},
   homeGroupVisibility: {},
@@ -1187,6 +1192,12 @@ function readTabHubIcon(saved: string | undefined): TabHubIconChoice {
   if (!saved || REMOVED_TAB_HUB_ICONS.includes(saved)) return DEFAULT_VISUAL_PREFERENCES.tabHubIcon;
   return saved as TabHubIconChoice;
 }
+function readTabHubIconRecent(saved: unknown): TabHubIconChoice[] {
+  if (!Array.isArray(saved)) return [];
+  return saved.filter(
+    (key): key is TabHubIconChoice => typeof key === 'string' && !REMOVED_TAB_HUB_ICONS.includes(key),
+  );
+}
 
 export async function getVisualPreferences(): Promise<VisualPreferences> {
   if (cached) return cached;
@@ -1225,6 +1236,7 @@ export async function getVisualPreferences(): Promise<VisualPreferences> {
           // as Normal here rather than as a key the type scale cannot
           // turn into a line height.
           tabHubIcon: readTabHubIcon(parsed.tabHubIcon),
+          tabHubIconRecent: readTabHubIconRecent(parsed.tabHubIconRecent),
           lineSpacing: normalizeLineSpacing(parsed.lineSpacing),
           letterSpacing: normalizeLetterSpacing(parsed.letterSpacing),
         };

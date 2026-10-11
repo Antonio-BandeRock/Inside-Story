@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Updates from 'expo-updates';
 import { restartApp } from '../lib/restartApp';
-import { useCallback, useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { ActivityIndicator, AppState, Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LOW_STIMULATION_INTRO, LOW_STIMULATION_PARTS } from '../lib/lowStimulationWords';
@@ -85,7 +85,7 @@ import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { useDesktopTextSize } from '../hooks/useDesktopTextSize';
 import { announcePhoneOnly } from '../lib/desktop/phoneOnly';
 import { DESKTOP_TEXT_SIZE_LABELS, desktopTextSizeForLabel, desktopTextSizeLabel } from '../lib/desktop/zoom';
-import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
+import { chooseTabHubIcon, TAB_HUB_ICON_GROUPS } from '../lib/tabHubIconOptions';
 import { routeForDigestEntry } from '../lib/digestNavigation';
 import { CONDITION_STAGING_MODELS } from '../lib/conditionStages';
 import { decryptBackupPayload, isEncryptedBackupWire } from '../lib/backupEncryption';
@@ -3036,7 +3036,7 @@ export default function ProfileScreen() {
             <TouchableOpacity
               key={option.key}
               style={styles.iconGridItem}
-              onPress={() => setVisualPreferences({ tabHubIcon: option.key })}
+              onPress={() => void chooseTabHubIcon(option.key)}
               activeOpacity={0.7}
             >
               {active ? (
@@ -3203,135 +3203,10 @@ export default function ProfileScreen() {
   // per-tab GatedTabContent screens); only Generic is followed here.
   const showGenericBackground = visualPrefs.homeBackgroundStyle === 'generic';
 
-  // TabHub's personalizable icon, 2026-08-09: "make it so each icon is
-  // available in the user profile to choose to use in the TabHub menu icon
-  // position." Originally: the default butterfly always led the list;
-  // every built/in_progress condition followed, reusing the exact same
-  // "Your conditions" filter (status !== 'planned') and
-  // CONDITION_CODE_TO_DIGEST_KEY lookup that card already uses just below,
-  // not a second, separately derived condition list. The
-  // TAB_HUB_ICON_SOURCES truthiness check is a defensive guard, not just
-  // belt-and-suspenders: it's what keeps a future condition added to the
-  // `conditions` table but without its own icon yet from silently showing
-  // a broken/blank option here.
-  //
-  // 2026-08-14, direct follow-up to the same day's 8-garden-icon addition:
-  // "Make the Default TabHub icon be the Honeybee, and rename the Default
-  // to Graves' / Hashimoto's and put it within the condition icons in
-  // alphabetical order." The plain butterfly's `'default'` key is
-  // unchanged (still `TAB_HUB_ICON_SOURCES.default`, still the same
-  // artwork); only its label and its position in this picker changed: it
-  // no longer leads the list on its own, it's an explicitly labeled
-  // "Graves' / Hashimoto's" entry sorted alphabetically among the
-  // condition options below (matching the app's already-established
-  // "generically representing either Hashimoto's or Graves'" framing for
-  // this specific artwork). The app's actual out-of-the-box choice
-  // (DEFAULT_VISUAL_PREFERENCES.tabHubIcon, lib/visualPreferences.ts) moved
-  // to 'honeybee' the same day, so a first-ever launch now shows the
-  // Honeybee, not the butterfly.
-  // 2026-08-14: split from one flat, concatenated tabHubIconOptions array
-  // into 3 separately-rendered groups, direct request alongside the
-  // 38-animal addition below: "separate the [conditions] from the insects
-  // and others that [are] not part of the conditions, and place all of
-  // these new ones into their own group, too." Each group keeps its own
-  // independently-sorted array, rendered as 3 distinct labeled sections in
-  // the picker below, not merged into one list the way this used to work.
-  //
-  // 2026-08-12, direct request: "Create new TabHub menu icons from these 8
-  // new images... available to be selected to be the TabHub icon." Garden
-  // and pollinator wildlife, not tied to any tracked condition; the app's
-  // out-of-the-box choice, Honeybee, lives in here.
-  const gardenIconOptions: { key: TabHubIconChoice; label: string }[] = [
-    { key: 'honeybee', label: 'Honeybee' },
-    { key: 'bumblebee', label: 'Bumblebee' },
-    { key: 'dragonfly', label: 'Dragonfly' },
-    { key: 'hummingbird', label: 'Hummingbird' },
-    { key: 'treeFrog', label: 'Tree Frog' },
-    { key: 'monarchButterfly', label: 'Monarch Butterfly' },
-    { key: 'ladybug', label: 'Ladybug' },
-    { key: 'prayingMantis', label: 'Praying Mantis' },
-  ];
-  gardenIconOptions.sort((a, b) => a.label.localeCompare(b.label));
-  // 2026-08-14: 38 individually cropped animal-head portraits, its own
-  // distinct third group, deliberately separate from the 8
-  // insects/pollinators above, per the same direct request. Hand-listed
-  // (not derived from anything, since none of these map to a tracked
-  // condition or a Digest category the way the group below does), sorted
-  // alphabetically the same way every other group here already is.
-  const animalIconOptions: { key: TabHubIconChoice; label: string }[] = [
-    { key: 'badger', label: 'Badger' },
-    { key: 'bear', label: 'Bear' },
-    { key: 'beaver', label: 'Beaver' },
-    { key: 'bengalCat', label: 'Bengal Cat' },
-    { key: 'bison', label: 'Bison' },
-    { key: 'blackCat', label: 'Black Cat' },
-    { key: 'borderCollie', label: 'Border Collie' },
-    { key: 'canadaGoose', label: 'Canada Goose' },
-    { key: 'cavalierKingCharlesSpaniel', label: 'Cavalier King Charles Spaniel' },
-    { key: 'chipmunk', label: 'Chipmunk' },
-    { key: 'cow', label: 'Cow' },
-    { key: 'deer', label: 'Deer' },
-    { key: 'donkey', label: 'Donkey' },
-    { key: 'elephant', label: 'Elephant' },
-    { key: 'frenchBulldog', label: 'French Bulldog' },
-    { key: 'germanShepherd', label: 'German Shepherd' },
-    { key: 'goat', label: 'Goat' },
-    { key: 'goldenRetriever', label: 'Golden Retriever' },
-    { key: 'grayTabbyCat', label: 'Gray Tabby Cat' },
-    { key: 'horse', label: 'Horse' },
-    { key: 'iguana', label: 'Iguana' },
-    { key: 'labradorRetriever', label: 'Labrador Retriever' },
-    { key: 'lion', label: 'Lion' },
-    { key: 'maineCoon', label: 'Maine Coon' },
-    { key: 'mallardDuck', label: 'Mallard Duck' },
-    { key: 'orangeTabbyCat', label: 'Orange Tabby Cat' },
-    { key: 'persianCat', label: 'Persian Cat' },
-    { key: 'pig', label: 'Pig' },
-    { key: 'rabbit', label: 'Rabbit' },
-    { key: 'ragdollCat', label: 'Ragdoll Cat' },
-    { key: 'rhino', label: 'Rhino' },
-    { key: 'russianBlueCat', label: 'Russian Blue Cat' },
-    { key: 'sheep', label: 'Sheep' },
-    { key: 'siameseCat', label: 'Siamese Cat' },
-    { key: 'sphynxCat', label: 'Sphynx Cat' },
-    { key: 'squirrel', label: 'Squirrel' },
-    { key: 'tiger', label: 'Tiger' },
-    { key: 'wolf', label: 'Wolf' },
-  ];
-  animalIconOptions.sort((a, b) => a.label.localeCompare(b.label));
-  // 2026-08-19: a new 5th group, just the one seed icon, the app's actual
-  // out-of-the-box default (see TabHubIconChoice's comment in
-  // lib/visualPreferences.ts). Deliberately its own group, not folded into
-  // conditionIconOptions the way the old 'default' butterfly entry is: the
-  // seed isn't a stand-in for any tracked condition the way the butterfly
-  // still is, it's the app's identity, so it gets top billing of its own
-  // rather than sitting alphabetized among 19 condition names. A second,
-  // shorter-stemmed 'seed' entry existed here briefly (2026-08-19 through
-  // 2026-08-21) alongside this one; removed outright, direct instruction:
-  // "remove the other seed icon from the app entirely, make the new seed
-  // icon the default." The seed itself was removed as a choice on
-  // 2026-10-06, by direct instruction, when the Lifestead book took its
-  // place.
-  const appIconOptions: { key: TabHubIconChoice; label: string }[] = [
-    { key: 'insideStory', label: 'Lifestead (App Default)' },
-  ];
-  // 2026-08-14: the renamed former "Default" entry (the plain butterfly, key
-  // unchanged at 'default') is seeded in here by hand, not derived from
-  // allConditions the way every other entry below it is: it doesn't map to
-  // any single tracked condition, it's a permanent, generic "either one"
-  // option, and it sorts alphabetically alongside the condition options
-  // rather than needing its own special leading slot.
-  const conditionIconOptions: { key: TabHubIconChoice; label: string }[] = [
-    { key: 'default', label: "Graves' / Hashimoto's" },
-  ];
-  for (const condition of allConditions) {
-    if (condition.status === 'planned') continue;
-    const digestKey = CONDITION_CODE_TO_DIGEST_KEY[condition.code];
-    if (digestKey && TAB_HUB_ICON_SOURCES[digestKey]) {
-      conditionIconOptions.push({ key: digestKey, label: condition.name });
-    }
-  }
-  conditionIconOptions.sort((a, b) => a.label.localeCompare(b.label));
+  // TabHub's personalizable icon, 2026-08-09. The groups and their lists
+  // moved to lib/tabHubIconOptions.ts on 2026-10-10 (1.0.66.17), where their
+  // history is kept, so this picker and the card a long press on the TabHub
+  // button opens always offer the same icons under the same names.
 
   if (loading) {
     return (
@@ -5067,23 +4942,22 @@ export default function ProfileScreen() {
             {!collapsedAppearanceSubsections.has('tabHubIcon') ? (
               <View style={styles.subsectionBody}>                <Text style={styles.helpText}>
                   The main floating button used to open the app&apos;s navigation menu. Shows the Lifestead
-                  book by default. Pick any tracked condition&apos;s icon, any insect/pollinator icon, any of the 38
-                  animal portraits below to personalize it instead. Only one
-                  can be active at a time.
+                  icon by default. Pick any tracked condition&apos;s icon, any insect or pollinator icon, or any of the
+                  animal portraits below to personalize it instead. Only one can be active at a time.
+                </Text>
+                <Text style={styles.helpText}>
+                  {isDesktopApp()
+                    ? 'Holding the TabHub button down, or right-clicking it, opens the same choices from any tab.'
+                    : 'Holding the TabHub button down opens the same choices from any tab.'}
                 </Text>
 
                 {/* App Icon first, then the rest alphabetically (1.0.63.16). */}
-                {renderIconGroupHeader('tabHubAppIcon', 'App Icon')}
-                {!collapsedIconGroups.has('tabHubAppIcon') ? <View style={styles.iconGroupBody}>{renderTabHubIconGroup(appIconOptions)}</View> : null}
-
-                {renderIconGroupHeader('tabHubAnimals', 'Animals')}
-                {!collapsedIconGroups.has('tabHubAnimals') ? <View style={styles.iconGroupBody}>{renderTabHubIconGroup(animalIconOptions)}</View> : null}
-
-                {renderIconGroupHeader('tabHubConditions', 'Conditions')}
-                {!collapsedIconGroups.has('tabHubConditions') ? <View style={styles.iconGroupBody}>{renderTabHubIconGroup(conditionIconOptions)}</View> : null}
-
-                {renderIconGroupHeader('tabHubInsects', 'Insects & Other Wildlife')}
-                {!collapsedIconGroups.has('tabHubInsects') ? <View style={styles.iconGroupBody}>{renderTabHubIconGroup(gardenIconOptions)}</View> : null}
+                {TAB_HUB_ICON_GROUPS.map((group) => (
+                  <Fragment key={group.key}>
+                    {renderIconGroupHeader(group.key, group.title)}
+                    {!collapsedIconGroups.has(group.key) ? <View style={styles.iconGroupBody}>{renderTabHubIconGroup(group.options)}</View> : null}
+                  </Fragment>
+                ))}
               </View>
             ) : null}
 

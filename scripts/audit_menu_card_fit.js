@@ -40,6 +40,7 @@ const MENU_FILES = [
   'components/LensHub.tsx',
   'components/MyItemsHub.tsx',
   'components/LowStimulationSheet.tsx',
+  'components/TabHubIconPicker.tsx',
 ];
 
 // Which StyleSheet entries count as the card itself. A style named for a row,
