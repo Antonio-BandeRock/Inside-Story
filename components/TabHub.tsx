@@ -23,7 +23,7 @@ import {
   useMenuCardBottom,
   useMenuCardFit,
 } from '../constants/floatingButton';
-import { getTabHubIconRenderSize, TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
+import { getTabHubIconRenderSize, TAB_HUB_ICON_SOURCES, TAB_HUB_WELL_GLOW_OPACITY, TAB_HUB_WELL_RIM_OPACITY } from '../constants/tabHubIcons';
 import { TAB_ROUTES, type TabRoute } from '../constants/tabs';
 import {
   MENU_MAX_FONT_SCALE,
@@ -90,14 +90,6 @@ const BOTTOM_OFFSET = FLOATING_BUTTON_BOTTOM_OFFSET;
 // value from this specific component that could only ever reflect the
 // butterfly.
 const ICON_PILL_SIZE = 34;
-
-// The TabHub button's own well, 2026-10-07. Direct request: "The TabHub
-// accent color should follow the ground color theme in a nice but subdued
-// way." So its glow and its rim are the ground theme's buttonColor, kept
-// faint: the menu wells glow in a tab colour at 0.34 to say "selected",
-// and this one is always on screen, so it says less.
-const TAB_HUB_WELL_GLOW_OPACITY = 0.28;
-const TAB_HUB_WELL_RIM_OPACITY = 0.45;
 
 // 2026-07-26: replaced the traced iridescent outline that used to render
 // here -- explicitly asked to remove it in favor of a shadow that reads as
@@ -682,7 +674,8 @@ export function TabHub() {
         hitSlop={{ left: buttonIconOverhangX, right: buttonIconOverhangX, top: buttonIconOverhangTopY, bottom: buttonIconOverhangBottomY }}
       >
         {/* The artwork sits in a dark pressed-in well, always, since
-            2026-10-07 (TAB_HUB_WELL_GLOW_OPACITY above has the request).
+            2026-10-07 (TAB_HUB_WELL_GLOW_OPACITY in constants/tabHubIcons.ts
+            has the request).
             Before that there was no circle at all and the artwork alone
             was the button.
             Open only: a graduated drop shadow (ELEVATION_SHADOW_LAYERS)

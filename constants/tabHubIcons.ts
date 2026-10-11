@@ -348,6 +348,15 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
 // each way stays inside both with room to spare.
 export const TAB_HUB_WELL_SIZE = 88;
 
+// The TabHub button's own well, 2026-10-07, read by components/TabHub.tsx
+// and by the TabHub icon card, which draws every choice in the same well.
+// Direct request: "The TabHub accent color should follow the ground color
+// theme in a nice but subdued way." So its glow and its rim are the ground
+// theme's buttonColor, kept faint: the menu wells glow in a tab colour at
+// 0.34 to say "selected", and this one is always on screen, so it says less.
+export const TAB_HUB_WELL_GLOW_OPACITY = 0.28;
+export const TAB_HUB_WELL_RIM_OPACITY = 0.45;
+
 // Each icon is as large as it can be inside the well without touching it.
 // 2026-10-07, direct request: "Can we make each one the largest size they
 // can be inside of the pressed-in circle? We don't want them touching the
@@ -400,4 +409,14 @@ export function getTabHubIconRenderSize(choice: TabHubIconChoice): {
     iconWidth,
     iconHeight,
   };
+}
+
+// The same artwork in a smaller well, for the TabHub icon card
+// (components/TabHubIconPicker.tsx), so each choice is shown as it will sit
+// on the button. Everything scales together, clearance included, so the
+// small well is the button's well shrunk rather than redrawn.
+export function tabHubIconSizeInWell(choice: TabHubIconChoice, wellSize: number): { iconWidth: number; iconHeight: number } {
+  const { iconWidth, iconHeight } = getTabHubIconRenderSize(choice);
+  const scale = wellSize / TAB_HUB_WELL_SIZE;
+  return { iconWidth: iconWidth * scale, iconHeight: iconHeight * scale };
 }

@@ -6,9 +6,17 @@
 // click on the desktop version."
 //
 // So it is a LensHub card in every measurement: the same span, bottom, height
-// and least height (cardHeightFor, cardMinHeightFor), the same columns, the
-// same icon pill and label, a scrolling grid, and held invisible until the
-// window is up. A tap on an icon puts it on the button at once and closes the
+// and least height (cardHeightFor, cardMinHeightFor), the same columns and
+// label, a scrolling grid, and held invisible until the window is up.
+//
+// Each choice sits in the button's own pressed-in well, shrunk (1.0.66.18).
+// Direct request, 2026-10-10: "do the small versions so they are easier to
+// see, but make the new version bigger in the menu so the choices are at
+// least as big as they are now, but a little bigger in their menu would be
+// better." So every icon is shown as it will look on the button, and the
+// artwork inside the well comes out a little larger than the 30 point bare
+// icons the card first had. The one on the button now wears the same well
+// lit up: a stronger glow and rim in the ground theme colour. A tap on an icon puts it on the button at once and closes the
 // card; a tap outside closes it with nothing changed.
 //
 // The icons and their groups come from lib/tabHubIconOptions.ts, the same list
@@ -20,7 +28,12 @@ import * as NavigationBar from 'expo-navigation-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, lighten, MENU_LABEL_LIGHTEN_FRACTION } from '../constants/colors';
 import { useHubMenuCardSpan, useMenuCardBottom, useMenuCardFit } from '../constants/floatingButton';
-import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
+import {
+  TAB_HUB_ICON_SOURCES,
+  TAB_HUB_WELL_GLOW_OPACITY,
+  TAB_HUB_WELL_RIM_OPACITY,
+  tabHubIconSizeInWell,
+} from '../constants/tabHubIcons';
 import { MENU_MAX_FONT_SCALE, menuLabelShadow, menuLineHeight, textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { gridColumnsFor } from '../lib/menuFit';
@@ -35,11 +48,15 @@ import { modalAnimationType } from '../lib/visualPreferences';
 import { ActiveRingCircle } from './ActiveRingCircle';
 import { cardHeightFor, cardMinHeightFor, GRID_MIN_COLUMN_WIDTH } from './LensHub';
 
-// LensHub's grid item, measure for measure.
+// LensHub's card padding and label, measure for measure.
 const CARD_PADDING = 8;
-const PILL_SIZE = 34;
-const ICON_SIZE = 30;
 const LABEL_FONT_SIZE = 11;
+// The well each choice sits in. At 48 the artwork inside reaches about 44
+// points across, against the 30 the bare icons had.
+const WELL_SIZE = 48;
+// The icon on the button now: its well lit up rather than ringed.
+const ACTIVE_GLOW_OPACITY = 0.7;
+const ACTIVE_RIM_OPACITY = 1;
 // The ring TabHub's own menu card wears, since this card belongs to that
 // button rather than to any one tab.
 const CARD_RING_LIGHTEN_FRACTION = 0.35;
@@ -108,7 +125,7 @@ export function TabHubIconPicker({ visible, onClose }: Props) {
                   const source = TAB_HUB_ICON_SOURCES[option.key];
                   if (!source) return null;
                   const active = option.key === tabHubIcon;
-                  const image = <Image source={source} style={styles.icon} resizeMode="contain" />;
+                  const { iconWidth, iconHeight } = tabHubIconSizeInWell(option.key, WELL_SIZE);
                   return (
                     <TouchableOpacity
                       key={option.key}
@@ -117,13 +134,15 @@ export function TabHubIconPicker({ visible, onClose }: Props) {
                       activeOpacity={0.7}
                       accessibilityLabel={active ? `${option.label}, the icon now on the button` : option.label}
                     >
-                      {active ? (
-                        <ActiveRingCircle size={PILL_SIZE} glowColor={colors.buttonColor}>
-                          {image}
-                        </ActiveRingCircle>
-                      ) : (
-                        <View style={styles.pillPlain}>{image}</View>
-                      )}
+                      <ActiveRingCircle
+                        size={WELL_SIZE}
+                        glowColor={colors.buttonColor}
+                        glowOpacity={active ? ACTIVE_GLOW_OPACITY : TAB_HUB_WELL_GLOW_OPACITY}
+                        rimColor={colors.buttonColor}
+                        rimOpacity={active ? ACTIVE_RIM_OPACITY : TAB_HUB_WELL_RIM_OPACITY}
+                      >
+                        <Image source={source} style={{ width: iconWidth, height: iconHeight }} resizeMode="contain" />
+                      </ActiveRingCircle>
                       <Text
                         style={[
                           styles.itemLabel,
@@ -168,9 +187,7 @@ const styles = StyleSheet.create({
   groupBlock: { flexDirection: 'row', flexWrap: 'wrap' },
   groupHeaderRow: { width: '100%', paddingTop: 10, paddingBottom: 2, paddingHorizontal: 4 },
   groupHeaderText: { ...typography.eyebrow, ...textShadow },
-  item: { alignItems: 'center', gap: 2, paddingVertical: 6 },
-  pillPlain: { width: PILL_SIZE, height: PILL_SIZE, alignItems: 'center', justifyContent: 'center' },
-  icon: { width: ICON_SIZE, height: ICON_SIZE },
+  item: { alignItems: 'center', gap: 3, paddingVertical: 6 },
   // Wraps rather than cutting a name short: choices are shown in full.
   itemLabel: {
     ...typography.caption,
