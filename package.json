@@ -1,7 +1,7 @@
 {
   "name": "lifestead-app",
   "main": "index.js",
-  "version": "1.0.66.18",
+  "version": "1.0.66.19",
   "scripts": {
     "start": "node ./scripts/start-with-qr.js",
     "reset-project": "node ./scripts/reset-project.js",

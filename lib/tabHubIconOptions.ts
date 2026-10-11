@@ -22,7 +22,7 @@ const byLabel = (a: TabHubIconOption, b: TabHubIconOption) => a.label.localeComp
 
 // One app icon. Direct instruction, 2026-10-10: "There should only be one
 // default app icon."
-const APP_ICON_OPTIONS: TabHubIconOption[] = [{ key: 'insideStory', label: 'Lifestead (App Default)' }];
+const APP_ICON_OPTIONS: TabHubIconOption[] = [{ key: 'insideStory', label: 'Lifestead' }];
 
 const ANIMAL_ICON_OPTIONS = ([
   { key: 'badger', label: 'Badger' },
